@@ -43,7 +43,10 @@ export type SettingsFlags = {
   sidebarOtherExpanded: boolean;
   sidebarResourcesExpanded: boolean;
   sidebarBookmarksExpanded: boolean;
-  sidebarRecentExpanded: boolean;
+  // Client-only flags — must stay optional so SettingsContext hydration
+  // can detect their absence (`flags?.[key] === undefined`) and overlay
+  // the persisted localStorage value without being shadowed by defaults.
+  sidebarRecentExpanded?: boolean;
   sidebarSelectedCategory?: SidebarSelectedCategory;
   clickbaitShieldEnabled: boolean;
   timezoneMismatchIgnore?: string;

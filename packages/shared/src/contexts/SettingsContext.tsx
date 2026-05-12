@@ -17,7 +17,6 @@ import type {
 import {
   CampaignCtaPlacement,
   CLIENT_ONLY_SETTINGS_FLAGS,
-  SidebarSelectedCategory,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import { WriteFormTab } from '../components/fields/form/common';
@@ -207,8 +206,10 @@ const defaultSettings: RemoteSettings = {
     sidebarOtherExpanded: true,
     sidebarResourcesExpanded: true,
     sidebarBookmarksExpanded: true,
-    sidebarRecentExpanded: true,
-    sidebarSelectedCategory: SidebarSelectedCategory.Main,
+    // Client-only flags (sidebarRecentExpanded, sidebarSelectedCategory)
+    // are intentionally omitted — they live in localStorage and the
+    // hydration effect below restores them only when they are absent
+    // from the server settings payload.
     clickbaitShieldEnabled: true,
     defaultWriteTab: WriteFormTab.NewPost,
   },

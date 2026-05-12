@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { get as getCache, set as setCache } from 'idb-keyval';
+import { del as delCache, get as getCache, set as setCache } from 'idb-keyval';
 
 export const RECENT_PAGES_LIMIT = 5;
 export const RECENT_PAGES_STORAGE_KEY = 'daily.recentPages';
@@ -61,13 +61,10 @@ const detectors: Record<string, Detector> = {
     }
     return { path: canonicalize(asPath), title: slugOrId, kind: 'feed' };
   },
-  '/[userId]': (query, asPath) => {
-    const userId = firstValue(query.userId);
-    if (!userId) {
-      return null;
-    }
-    return { path: canonicalize(asPath), title: `@${userId}`, kind: 'user' };
-  },
+  // /[userId] is intentionally NOT detected here: the catch-all route also
+  // matches non-existent profiles (404s) and other top-level slugs. User
+  // visits are recorded explicitly from ProfileLayout once the profile has
+  // resolved successfully — see `useRecordRecentUserVisit`.
 };
 
 const detectRecentPage = (
@@ -155,6 +152,15 @@ class RecentPagesStore {
     };
   }
 
+  clear(): void {
+    if (this.pages.length === 0) {
+      return;
+    }
+    this.pages = [];
+    delCache(RECENT_PAGES_STORAGE_KEY).catch(() => undefined);
+    this.notify();
+  }
+
   private notify(): void {
     this.listeners.forEach((listener) => listener(this.pages));
   }
@@ -191,4 +197,29 @@ export const useRecentPages = (): RecentPage[] => {
   }, []);
 
   return pages;
+};
+
+// Records a user-profile visit only after the profile has been resolved
+// successfully, so we never write 404 paths or other top-level slugs that
+// happen to match the /[userId] catch-all.
+export const useRecordRecentUserVisit = (
+  user: { username?: string | null } | null | undefined,
+): void => {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user?.username) {
+      return;
+    }
+    recentPagesStore.load();
+    recentPagesStore.record({
+      path: canonicalize(router.asPath),
+      title: `@${user.username}`,
+      kind: 'user',
+    });
+  }, [router.asPath, user?.username]);
+};
+
+export const clearRecentPages = (): void => {
+  recentPagesStore.clear();
 };

@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -11,6 +12,7 @@ import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { RecentSection } from './sections/RecentSection';
 import { ProfileSection } from './sections/ProfileSection';
+import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
 import { ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
@@ -38,6 +40,7 @@ import {
   SidebarSettingsFlags,
 } from '../../graphql/settings';
 import { Tooltip } from '../tooltip/Tooltip';
+import { RailHoverPanel } from './RailHoverPanel';
 import { useSpotlight } from '../spotlight/useSpotlight';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -56,7 +59,6 @@ import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
 import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
 import { HorizontalSeparator } from '../utilities';
-import { InnerProfileSettingsMenu } from '../profile/ProfileSettingsMenu';
 import { QuestButton } from '../quest/QuestButton';
 import { AchievementTrackerPanel } from '../filters/AchievementTrackerButton';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -178,6 +180,56 @@ const normalizeSidebarCategory = (
 const railButtonClass =
   'flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
+
+const RAIL_HOVER_OPEN_DELAY = 250;
+const RAIL_HOVER_CLOSE_DELAY = 120;
+const RAIL_HOVER_SIDE_OFFSET = 12;
+
+interface RailHoverCardProps {
+  label: string;
+  children: ReactNode;
+  panel: ReactElement;
+  // When `false`, the trigger renders without a popover (used to avoid
+  // duplicating the currently-pinned panel that's already visible).
+  enabled?: boolean;
+}
+
+// Slack-style floating preview anchored to a rail icon. The popover
+// shows the same content as the dedicated panel but is rendered in a
+// portal so it overlays whatever is currently pinned. Radix HoverCard
+// gives us the safe-polygon hover bridge for free, so the cursor can
+// travel from the rail into the popover without dismissing it.
+const RailHoverCard = ({
+  label,
+  children,
+  panel,
+  enabled = true,
+}: RailHoverCardProps) => {
+  if (!enabled) {
+    return <>{children}</>;
+  }
+  return (
+    <HoverCardPrimitive.Root
+      openDelay={RAIL_HOVER_OPEN_DELAY}
+      closeDelay={RAIL_HOVER_CLOSE_DELAY}
+    >
+      <HoverCardPrimitive.Trigger asChild>
+        {children}
+      </HoverCardPrimitive.Trigger>
+      <HoverCardPrimitive.Portal>
+        <HoverCardPrimitive.Content
+          side="right"
+          align="start"
+          sideOffset={RAIL_HOVER_SIDE_OFFSET}
+          collisionPadding={12}
+          className="z-tooltip"
+        >
+          <RailHoverPanel title={label}>{panel}</RailHoverPanel>
+        </HoverCardPrimitive.Content>
+      </HoverCardPrimitive.Portal>
+    </HoverCardPrimitive.Root>
+  );
+};
 
 const SidebarSupportButton = (): ReactElement => {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
@@ -306,7 +358,17 @@ export const SidebarDesktop = ({
   const onSelectCategory = useCallback(
     (category: SidebarSelectedCategory) => {
       setSelectedCategory(category);
-      updateFlag(SidebarSettingsFlags.SelectedCategory, category);
+      // GameCenter and Settings are navigations, not persistent panel
+      // states: GameCenter routes to /game-center, Settings is rendered
+      // wherever the user lands under /settings. Persisting them to the
+      // server flag is wasted writes and noise — the value would be
+      // normalised back to Main on the next read anyway.
+      if (
+        category !== SidebarSelectedCategory.GameCenter &&
+        category !== SidebarSelectedCategory.Settings
+      ) {
+        updateFlag(SidebarSettingsFlags.SelectedCategory, category);
+      }
       if (category === SidebarSelectedCategory.GameCenter) {
         router.push(`${webappUrl}game-center`).catch(() => undefined);
       }
@@ -321,8 +383,10 @@ export const SidebarDesktop = ({
     toggleSidebarExpanded();
   }, [logEvent, sidebarExpanded, toggleSidebarExpanded]);
 
-  const renderSelectedSection = (): ReactElement => {
-    if (selectedCategory === SidebarSelectedCategory.Squads) {
+  const renderCategorySection = (
+    category: SidebarSelectedCategory,
+  ): ReactElement => {
+    if (category === SidebarSelectedCategory.Squads) {
       return (
         <NetworkSection
           {...defaultRenderSectionProps}
@@ -331,13 +395,13 @@ export const SidebarDesktop = ({
       );
     }
 
-    if (selectedCategory === SidebarSelectedCategory.Saved) {
+    if (category === SidebarSelectedCategory.Saved) {
       return (
         <BookmarkSection {...defaultRenderSectionProps} isItemsButton={false} />
       );
     }
 
-    if (selectedCategory === SidebarSelectedCategory.Discover) {
+    if (category === SidebarSelectedCategory.Discover) {
       return (
         <DiscoverSection
           {...defaultRenderSectionProps}
@@ -346,11 +410,16 @@ export const SidebarDesktop = ({
       );
     }
 
-    if (selectedCategory === SidebarSelectedCategory.Settings) {
-      return <InnerProfileSettingsMenu className="px-3" />;
+    if (category === SidebarSelectedCategory.Settings) {
+      return (
+        <SettingsPanelSection
+          {...defaultRenderSectionProps}
+          isItemsButton={false}
+        />
+      );
     }
 
-    if (selectedCategory === SidebarSelectedCategory.GameCenter) {
+    if (category === SidebarSelectedCategory.GameCenter) {
       return (
         <div className="flex flex-col">
           <QuestButton panelOnly />
@@ -359,7 +428,7 @@ export const SidebarDesktop = ({
       );
     }
 
-    if (selectedCategory === SidebarSelectedCategory.Profile) {
+    if (category === SidebarSelectedCategory.Profile) {
       return (
         <ProfileSection {...defaultRenderSectionProps} isItemsButton={false} />
       );
@@ -386,6 +455,9 @@ export const SidebarDesktop = ({
       </>
     );
   };
+
+  const renderSelectedSection = (): ReactElement =>
+    renderCategorySection(selectedCategory);
 
   const selectedLabel = sidebarCategories.find(
     (category) => category.id === selectedCategory,
@@ -438,6 +510,7 @@ export const SidebarDesktop = ({
                 <img
                   src={fromCDN('/assets/sidebar-app-icon.png')}
                   alt=""
+                  aria-hidden
                   className="size-full object-cover"
                 />
               </a>
@@ -490,7 +563,11 @@ export const SidebarDesktop = ({
               <React.Fragment key={category.id}>
                 {category.id === SidebarSelectedCategory.Saved &&
                   isLoggedIn && <NotificationsBell rail />}
-                <Tooltip side="right" content={category.label}>
+                <RailHoverCard
+                  label={category.label}
+                  panel={renderCategorySection(category.id)}
+                  enabled={!isSelected || !sidebarExpanded}
+                >
                   <button
                     type="button"
                     role="tab"
@@ -506,37 +583,46 @@ export const SidebarDesktop = ({
                   >
                     {category.icon(isSelected)}
                   </button>
-                </Tooltip>
+                </RailHoverCard>
               </React.Fragment>
             );
           })}
         </div>
 
-        <div className="mt-auto flex flex-col items-center gap-1">
-          <Tooltip side="right" content="Settings">
-            <div>
-              <Link href={settingsUrl} passHref>
-                <a
-                  href={settingsUrl}
-                  id={`sidebar-category-${SidebarSelectedCategory.Settings}`}
-                  aria-label="Settings"
-                  className={classNames(
-                    railButtonClass,
-                    isSettingsSelected && 'bg-background-default text-white',
-                  )}
-                  onClick={() =>
-                    onSelectCategory(SidebarSelectedCategory.Settings)
-                  }
-                >
-                  <SettingsIcon
-                    secondary={isSettingsSelected}
-                    size={IconSize.Small}
-                    aria-hidden
-                  />
-                </a>
-              </Link>
-            </div>
-          </Tooltip>
+        <div
+          role="tablist"
+          aria-label="Sidebar utilities"
+          className="mt-auto flex flex-col items-center gap-1"
+        >
+          <RailHoverCard
+            label="Settings"
+            panel={renderCategorySection(SidebarSelectedCategory.Settings)}
+            enabled={!isSettingsSelected || !sidebarExpanded}
+          >
+            <Link href={settingsUrl} passHref>
+              <a
+                href={settingsUrl}
+                role="tab"
+                id={`sidebar-category-${SidebarSelectedCategory.Settings}`}
+                aria-controls="sidebar-context-panel"
+                aria-selected={isSettingsSelected}
+                aria-label="Settings"
+                className={classNames(
+                  railButtonClass,
+                  isSettingsSelected && 'bg-background-default text-white',
+                )}
+                onClick={() =>
+                  onSelectCategory(SidebarSelectedCategory.Settings)
+                }
+              >
+                <SettingsIcon
+                  secondary={isSettingsSelected}
+                  size={IconSize.Small}
+                  aria-hidden
+                />
+              </a>
+            </Link>
+          </RailHoverCard>
 
           <SidebarSupportButton />
         </div>

@@ -42,7 +42,9 @@ export const ProfileSection = ({
       },
       {
         title: 'Jobs',
-        path: `${webappUrl}jobs/${alerts.opportunityId ?? ''}`,
+        path: `${webappUrl}jobs${
+          alerts.opportunityId ? `/${alerts.opportunityId}` : ''
+        }`,
         action: logOpportunityNudgeClick,
         icon: (active: boolean) => (
           <ListIcon Icon={() => <JobIcon secondary={active} />} />

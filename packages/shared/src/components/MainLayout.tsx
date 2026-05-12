@@ -93,7 +93,8 @@ function MainLayoutComponent({
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) for authenticated users on laptop+.
   // When that's the case we hide the global header and switch the main
-  // content over to the floating card treatment.
+  // content over to the floating card treatment (rounded, bordered, shadow)
+  // and hide the global feedback widget (the rail provides its own).
   const sidebarOwnsHeader = isLoggedIn && showSidebar && sidebarRendered;
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();

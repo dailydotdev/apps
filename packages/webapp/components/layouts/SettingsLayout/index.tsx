@@ -105,12 +105,15 @@ export default function SettingsLayout({
   }
 
   if (!profile) {
+    if (!formRef) {
+      return null;
+    }
     return (
       <div className="flex w-full items-center justify-center pt-10">
         <AuthOptions
           simplified
           isLoginFlow
-          formRef={formRef!}
+          formRef={formRef}
           trigger={AuthTriggers.AccountPage}
         />
       </div>
