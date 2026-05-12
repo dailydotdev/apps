@@ -5,6 +5,8 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 import type { Banner } from '../graphql/banner';
 import { BANNER_QUERY } from '../graphql/banner';
 import { gqlClient } from '../graphql/common';
+import { hackathonParticipationQueryOptions } from '../features/hackathon/queries';
+import { useAuthContext } from '../contexts/AuthContext';
 
 type UseBanner = {
   isAvailable: boolean;
@@ -14,6 +16,7 @@ type UseBanner = {
 
 export function useBanner(): UseBanner {
   const { alerts, updateAlerts } = useContext(AlertContext);
+  const { user, isLoggedIn } = useAuthContext();
 
   const { data: latestBanner } = useQuery({
     queryKey: generateQueryKey(RequestKey.Banner, null),
@@ -22,7 +25,22 @@ export function useBanner(): UseBanner {
     enabled: !!alerts.banner,
   });
 
+  const isHackathonBanner = latestBanner?.title === 'daily.dev Hackathon';
+
+  const { data: hackathonParticipation, isPending } = useQuery({
+    ...hackathonParticipationQueryOptions(user),
+    enabled: isLoggedIn && isHackathonBanner,
+  });
+
   const isAvailable = useMemo(() => {
+    if (
+      isHackathonBanner &&
+      !isPending &&
+      !!hackathonParticipation?.whoami?.isHackathonParticipant
+    ) {
+      return false;
+    }
+
     const lastSeenBannerDate = Date.parse(alerts?.lastBanner);
     const latestBannerDate = Date.parse(latestBanner?.banner?.timestamp);
 
@@ -31,7 +49,13 @@ export function useBanner(): UseBanner {
     }
 
     return latestBannerDate > lastSeenBannerDate;
-  }, [alerts.lastBanner, latestBanner?.banner?.timestamp]);
+  }, [
+    alerts?.lastBanner,
+    hackathonParticipation?.whoami?.isHackathonParticipant,
+    isHackathonBanner,
+    isPending,
+    latestBanner?.banner?.timestamp,
+  ]);
 
   const dismissMutation = useMutation({
     mutationFn: () => {
