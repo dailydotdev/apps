@@ -30,8 +30,7 @@ import {
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureNewD1Experience } from '../../lib/featureManagement';
+import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -197,8 +196,7 @@ export const FeedContainer = ({
   });
   const shouldEvaluateBanner =
     !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
-  const { value: isNewD1Experience } = useConditionalFeature({
-    feature: featureNewD1Experience,
+  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
     shouldEvaluate: shouldEvaluateBanner,
   });
   const shouldShowBanner = shouldEvaluateBanner && !isNewD1Experience;
