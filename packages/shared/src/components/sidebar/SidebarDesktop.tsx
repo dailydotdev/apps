@@ -25,6 +25,7 @@ import {
   SidebarArrowLeft,
   SidebarArrowRight,
   SquadIcon,
+  UserIcon,
 } from '../icons';
 import { fromCDN } from '../../lib/links';
 import { IconSize } from '../Icon';
@@ -233,8 +234,11 @@ export const SidebarDesktop = ({
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, user } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
+  const profileHref = user?.username ? `${webappUrl}${user.username}` : null;
+  const isProfileActive =
+    !!user?.username && activePage.includes(`/${user.username}`);
   const isFeedPage = activePage.includes('/feeds/');
   const [selectedCategory, setSelectedCategory] = useState(
     isFeedPage
@@ -459,6 +463,28 @@ export const SidebarDesktop = ({
         </div>
 
         <div className="mt-auto flex flex-col items-center gap-1">
+          {profileHref && (
+            <Tooltip side="right" content="Profile">
+              <div>
+                <Link href={profileHref} passHref prefetch={false}>
+                  <a
+                    aria-label="Profile"
+                    className={classNames(
+                      railButtonClass,
+                      isProfileActive && 'bg-background-default text-white',
+                    )}
+                  >
+                    <UserIcon
+                      secondary={isProfileActive}
+                      size={IconSize.Small}
+                      aria-hidden
+                    />
+                  </a>
+                </Link>
+              </div>
+            </Tooltip>
+          )}
+
           <Tooltip side="right" content="Settings">
             <div>
               <Link href={settingsUrl} passHref>
