@@ -219,17 +219,17 @@ export function PostArticlePreviewEmbed({
 
   // "Extension not installed / origin not in frame.html's WAR matches":
   //  - No extensionId at all → can't even construct the iframe src.
-  //  - OR ping hasn't stamped the install marker AND the iframe never
-  //    reported any state within the connect timeout.
+  //  - OR the synchronous `ping` marker is missing and the fallback probe
+  //    hasn't confirmed an install yet — show the prompt immediately rather
+  //    than waiting on the probe/connect timeout. If the probe later flips
+  //    `isInstalledAfterPrompt` (old extension build without the ping
+  //    script), the prompt is swapped for the embed.
+  //  - OR the iframe never reported any state within the connect timeout.
   // Either way we stay inline and show the install prompt — we don't drop
   // the user into the classic reader for a one-click fix.
   const shouldPromptInstall =
     !isInExtension &&
-    (!extensionId ||
-      timedOutBeforeConnect ||
-      (!hasInstalledExtension &&
-        embedStatus === 'idle' &&
-        timedOutBeforeConnect));
+    (!extensionId || !hasInstalledExtension || timedOutBeforeConnect);
 
   useEffect(() => {
     if (
