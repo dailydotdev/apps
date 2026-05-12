@@ -69,12 +69,19 @@ type SidebarCategoryConfig = {
   id: SidebarSelectedCategory;
   label: string;
   icon: (active: boolean) => ReactElement;
+  // Landing path for the rail icon click. Maps each category to the
+  // first navigable item shown in its dedicated panel, so clicking a
+  // rail icon both selects the panel AND opens the matching page (the
+  // first item then highlights as active via `activePage` matching).
+  // Profile is dynamic (needs username) and handled at click time.
+  defaultPath?: string;
 };
 
 const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarSelectedCategory.Main,
     label: 'Home',
+    defaultPath: webappUrl,
     icon: (active) => (
       <HomeIcon
         secondary={active}
@@ -87,6 +94,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarSelectedCategory.Squads,
     label: 'Squads',
+    defaultPath: `${webappUrl}squads`,
     icon: (active) => (
       <SquadIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -94,6 +102,11 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarSelectedCategory.Discover,
     label: 'Discover',
+    // First DiscoverSection item is "Hot Takes" — but it opens a modal
+    // rather than navigating, which would land the user on `/` with a
+    // dialog over it. Use the first real page instead so the URL +
+    // activePage actually moves to a Discover surface.
+    defaultPath: `${webappUrl}tags`,
     icon: (active) => (
       <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -101,6 +114,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarSelectedCategory.Saved,
     label: 'Saved',
+    defaultPath: `${webappUrl}bookmarks`,
     icon: (active) => (
       <BookmarkIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -108,6 +122,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarSelectedCategory.GameCenter,
     label: 'Game Center',
+    defaultPath: `${webappUrl}game-center`,
     icon: (active) => (
       <JoystickIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -321,7 +336,7 @@ export const SidebarDesktop = ({
     !!user?.username && activePage.includes(`/${user.username}`);
   const isFeedPage = activePage.includes('/feeds/');
 
-  const resolveCategory = useCallback((): SidebarSelectedCategory => {
+  const resolvedCategory = useMemo((): SidebarSelectedCategory => {
     if (isFeedPage) {
       return SidebarSelectedCategory.Main;
     }
@@ -340,11 +355,26 @@ export const SidebarDesktop = ({
     isUserProfileActive,
   ]);
 
-  const [selectedCategory, setSelectedCategory] = useState(resolveCategory);
+  // `pendingCategory` is an optimistic override applied the moment a
+  // rail icon is clicked, so the panel switches instantly even though
+  // `router.push` is async. Without it we'd flicker:
+  //   1. click Profile -> setState(Profile)
+  //   2. settings flag updates synchronously -> re-render
+  //   3. URL hasn't navigated yet, so `getSidebarCategoryForPath` still
+  //      returns the OLD route's category and would clobber Profile
+  //   4. URL eventually updates -> snaps back to Profile
+  // The override stays in place until the resolved category catches up
+  // (URL navigated AND/OR flag landed), then it's cleared so future
+  // route changes from elsewhere (back button, deep link) take over.
+  const [pendingCategory, setPendingCategory] =
+    useState<SidebarSelectedCategory | null>(null);
+  const selectedCategory = pendingCategory ?? resolvedCategory;
 
   useEffect(() => {
-    setSelectedCategory(resolveCategory());
-  }, [resolveCategory]);
+    if (pendingCategory !== null && pendingCategory === resolvedCategory) {
+      setPendingCategory(null);
+    }
+  }, [pendingCategory, resolvedCategory]);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -355,25 +385,52 @@ export const SidebarDesktop = ({
     [activePage],
   );
 
+  const getCategoryDefaultPath = useCallback(
+    (category: SidebarSelectedCategory): string | null => {
+      if (category === SidebarSelectedCategory.Profile) {
+        return user?.username ? `${webappUrl}${user.username}` : null;
+      }
+      return (
+        sidebarCategories.find((entry) => entry.id === category)?.defaultPath ??
+        null
+      );
+    },
+    [user?.username],
+  );
+
   const onSelectCategory = useCallback(
     (category: SidebarSelectedCategory) => {
-      setSelectedCategory(category);
-      // GameCenter and Settings are navigations, not persistent panel
-      // states: GameCenter routes to /game-center, Settings is rendered
-      // wherever the user lands under /settings. Persisting them to the
-      // server flag is wasted writes and noise — the value would be
-      // normalised back to Main on the next read anyway.
+      // Snap the panel immediately so the click feels responsive and so
+      // the in-flight router.push doesn't race the resolver back to the
+      // old URL's category.
+      setPendingCategory(category);
+
+      // GameCenter and Settings are pure navigations, not persistent
+      // panel states: their landing pages drive the highlight via
+      // `getSidebarCategoryForPath`. Persisting them to the server flag
+      // would be normalised back to Main on the next read anyway.
       if (
         category !== SidebarSelectedCategory.GameCenter &&
         category !== SidebarSelectedCategory.Settings
       ) {
         updateFlag(SidebarSettingsFlags.SelectedCategory, category);
       }
-      if (category === SidebarSelectedCategory.GameCenter) {
-        router.push(`${webappUrl}game-center`).catch(() => undefined);
+
+      const targetPath = getCategoryDefaultPath(category);
+      if (!targetPath) {
+        return;
+      }
+      // `defaultPath` is an absolute URL (uses `webappUrl`), but
+      // `activePage` is a router asPath like "/squads?x=1". Compare on
+      // pathname only so we don't push when already there (the dummy
+      // origin handles both absolute + relative targets).
+      const targetPathname = new URL(targetPath, 'http://_').pathname;
+      const currentPathname = activePage.split('?')[0];
+      if (targetPathname !== currentPathname) {
+        router.push(targetPath).catch(() => undefined);
       }
     },
-    [router, updateFlag],
+    [activePage, getCategoryDefaultPath, router, updateFlag],
   );
 
   const onToggleExpanded = useCallback(() => {
