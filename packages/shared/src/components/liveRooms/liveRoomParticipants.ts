@@ -19,4 +19,3 @@ export const buildParticipantProfile = (
   reputation: 0,
   permalink: '',
 });
-
