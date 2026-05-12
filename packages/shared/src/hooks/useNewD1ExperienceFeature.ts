@@ -12,7 +12,9 @@ export const useNewD1ExperienceFeature = ({
 }: {
   shouldEvaluate?: boolean;
 } = {}): UseNewD1ExperienceFeature => {
-  const { data, isLoading: isQuestsLoading } = useQuestDashboard();
+  const { data, isLoading: isQuestsLoading } = useQuestDashboard({
+    enabled: shouldEvaluate,
+  });
   const hasIntroQuests = (data?.intro?.length ?? 0) > 0;
   const enabled = shouldEvaluate && hasIntroQuests;
   const { value, isLoading } = useConditionalFeature({
