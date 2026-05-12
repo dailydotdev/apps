@@ -8,20 +8,20 @@ interface UseNewD1ExperienceFeature {
 }
 
 export const useNewD1ExperienceFeature = ({
-  shouldEvaluate,
+  shouldEvaluate = true,
 }: {
   shouldEvaluate?: boolean;
 } = {}): UseNewD1ExperienceFeature => {
   const { data, isLoading: isQuestsLoading } = useQuestDashboard();
   const hasIntroQuests = (data?.intro?.length ?? 0) > 0;
-  const evaluate = shouldEvaluate !== false && hasIntroQuests;
+  const enabled = shouldEvaluate && hasIntroQuests;
   const { value, isLoading } = useConditionalFeature({
     feature: featureNewD1Experience,
-    shouldEvaluate: evaluate,
+    shouldEvaluate: enabled,
   });
 
   return {
-    value: evaluate && value,
+    value: enabled && value,
     isLoading: isLoading || isQuestsLoading,
   };
 };
