@@ -6,23 +6,38 @@ import {
   DocsIcon,
   FeedbackIcon,
   MegaphoneIcon,
-  TerminalIcon,
+  PhoneIcon,
+  PrivacyIcon,
+  ReputationLightningIcon,
 } from '../../icons';
 import {
+  appsUrl,
   businessWebsiteUrl,
   docs,
-  feedback,
-  webappUrl,
+  reputation,
+  settingsUrl,
 } from '../../../lib/constants';
 
 export const ResourceSection = (): ReactElement => {
   return (
     <ProfileSection
+      title="Help center"
       items={[
         {
-          title: 'Changelog',
-          icon: TerminalIcon,
-          href: `${webappUrl}sources/daily_updates`,
+          title: 'Your Feedback',
+          icon: FeedbackIcon,
+          href: `${settingsUrl}/feedback`,
+        },
+        {
+          title: 'Privacy',
+          icon: PrivacyIcon,
+          href: `${settingsUrl}/privacy`,
+        },
+        {
+          title: 'Reputation',
+          icon: ReputationLightningIcon,
+          href: reputation,
+          external: true,
         },
         {
           title: 'Advertise',
@@ -31,15 +46,15 @@ export const ResourceSection = (): ReactElement => {
           external: true,
         },
         {
-          title: 'Docs',
-          icon: DocsIcon,
-          href: docs,
+          title: 'Apps',
+          icon: PhoneIcon,
+          href: appsUrl,
           external: true,
         },
         {
-          title: 'Support',
-          icon: FeedbackIcon,
-          href: feedback,
+          title: 'Docs',
+          icon: DocsIcon,
+          href: docs,
           external: true,
         },
       ]}

@@ -8,7 +8,6 @@ import {
   EyeIcon,
   HomeIcon,
   HotIcon,
-  JoystickIcon,
   MagicIcon,
   SquadIcon,
   MegaphoneIcon,
@@ -17,11 +16,7 @@ import {
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
-import {
-  gameCenterMilestoneSectionId,
-  plusUrl,
-  webappUrl,
-} from '../../../lib/constants';
+import { plusUrl, webappUrl } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
@@ -30,8 +25,6 @@ import {
   featurePlusApiLanding,
   featureYearInReview,
 } from '../../../lib/featureManagement';
-import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
-import { Typography, TypographyColor } from '../../typography/Typography';
 
 export const MainSection = ({
   isItemsButton,
@@ -52,13 +45,6 @@ export const MainSection = ({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
   });
-  const { data: questDashboard } = useQuestDashboard();
-  const claimableMilestoneCount = useMemo(
-    () =>
-      questDashboard?.milestone?.filter((quest) => quest.claimable).length ?? 0,
-    [questDashboard?.milestone],
-  );
-
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
     // is not using webappUrl so it gets selected
@@ -103,33 +89,6 @@ export const MainSection = ({
             ? 'bg-action-plus-float/50 hover:bg-action-plus-float'
             : 'bg-action-upvote-float/50 hover:bg-action-upvote-float',
           disableDefaultBackground: true,
-        }
-      : undefined;
-
-    const gameCenterPath = `${webappUrl}game-center${
-      claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
-    }`;
-
-    const gameCenter = isLoggedIn
-      ? {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
-          ),
-          title: 'Game Center',
-          path: gameCenterPath,
-          isForcedLink: true,
-          requiresLogin: true,
-          ...(claimableMilestoneCount > 0 && {
-            rightIcon: () => (
-              <Typography
-                color={TypographyColor.Secondary}
-                bold
-                className="rounded-6 bg-background-subtle px-1.5"
-              >
-                {claimableMilestoneCount}
-              </Typography>
-            ),
-          }),
         }
       : undefined;
 
@@ -184,13 +143,11 @@ export const MainSection = ({
           isForcedLink: true,
           requiresLogin: true,
         },
-        gameCenter,
         yearInReview,
         plusButton,
       ] as (SidebarMenuItem | undefined)[]
     ).filter((item): item is SidebarMenuItem => !!item);
   }, [
-    claimableMilestoneCount,
     ctaCopy.full,
     isApiLanding,
     isCustomDefaultFeed,

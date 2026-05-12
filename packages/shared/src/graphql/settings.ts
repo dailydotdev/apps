@@ -75,6 +75,8 @@ export enum SidebarSelectedCategory {
   Squads = 'squads',
   Saved = 'saved',
   Discover = 'discover',
+  Settings = 'settings',
+  GameCenter = 'gameCenter',
 }
 
 export type RemoteSettings = {

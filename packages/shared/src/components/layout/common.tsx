@@ -5,6 +5,7 @@ import type {
   SetStateAction,
 } from 'react';
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -34,7 +35,6 @@ import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
-import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -106,13 +106,13 @@ export const SearchControlHeader = ({
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      button: '!px-1',
+      button: '!border-transparent !bg-transparent !px-1 hover:!bg-surface-hover',
       container: 'flex',
     },
     shouldIndicateSelected: true,
-    buttonSize: isMobile ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize: ButtonSize.Small,
     iconOnly: true,
-    buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
+    buttonVariant: ButtonVariant.Tertiary,
   };
 
   const hasDismissedInstallExtension = checkHasCompleted(
@@ -156,7 +156,21 @@ export const SearchControlHeader = ({
   );
 
   const primaryActions = [
-    hasFeedActions && <MyFeedHeading key="my-feed" />,
+    hasFeedActions && (
+      <MyFeedHeading
+        key="my-feed"
+        feedSettingsButtonProps={
+          isLaptop
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className:
+                  '!border-transparent !bg-transparent hover:!bg-surface-hover',
+              }
+            : undefined
+        }
+      />
+    ),
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
@@ -183,10 +197,19 @@ export const SearchControlHeader = ({
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
+        buttonProps={
+          isLaptop
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className:
+                  '!border-transparent !bg-transparent hover:!bg-surface-hover',
+              }
+            : undefined
+        }
         key="toggle-clickbait-shield"
       />
     ),
-    hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
   ];
   const secondaryActions = [isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);
@@ -213,8 +236,13 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div className="flex w-full items-center gap-2">
-        <div className="flex min-w-0 items-center gap-2">{actions}</div>
+      <div
+        className={classNames(
+          'flex items-center gap-2',
+          !isLaptop && 'w-full',
+        )}
+      >
+        <div className="flex min-w-0 items-center gap-1">{actions}</div>
         {sideActions.length > 0 && (
           <div className="ml-auto flex items-center gap-2">{sideActions}</div>
         )}

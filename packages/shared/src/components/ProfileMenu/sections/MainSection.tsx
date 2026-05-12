@@ -1,8 +1,8 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 
-import { ProfileSection } from '../ProfileSection';
 import type { ProfileSectionItemProps } from '../ProfileSectionItem';
+import { ProfileSectionItem } from '../ProfileSectionItem';
 import {
   AnalyticsIcon,
   CoinIcon,
@@ -13,17 +13,19 @@ import {
 import { settingsUrl, walletUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
+import { OpportunityEntryButton } from '../../opportunity/OpportunityEntryButton';
 
 export const MainSection = (): ReactElement => {
   const hasAccessToCores = useHasAccessToCores();
   const { user } = useAuthContext();
 
+  const profileItem: ProfileSectionItemProps = {
+    title: 'Your profile',
+    href: `${webappUrl}${user?.username}`,
+    icon: UserIcon,
+  };
+
   const items: ProfileSectionItemProps[] = [
-    {
-      title: 'Your profile',
-      href: `${webappUrl}${user?.username}`,
-      icon: UserIcon,
-    },
     ...(hasAccessToCores
       ? [
           {
@@ -50,5 +52,16 @@ export const MainSection = (): ReactElement => {
     },
   ];
 
-  return <ProfileSection items={items} />;
+  return (
+    <section className="flex flex-col">
+      <ProfileSectionItem {...profileItem} />
+      <OpportunityEntryButton variant="profileMenu" />
+      {items.map((item) => (
+        <ProfileSectionItem
+          {...item}
+          key={`${item.title.trim().toLowerCase().replace(' ', '-')}`}
+        />
+      ))}
+    </section>
+  );
 };

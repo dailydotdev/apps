@@ -300,10 +300,16 @@ export const FeedContainer = ({
                 <ConditionalWrapper
                   condition={isLaptop && !!(feedHeading || actionButtons)}
                   wrapper={(component) => (
-                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                      <strong className="typo-title3">{feedHeading}</strong>
-                      <span className="flex flex-row gap-3">{component}</span>
-                    </span>
+                    <header className="flex w-full items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-1.5">
+                      <strong className="min-w-0 flex-1 truncate typo-callout">
+                        {feedHeading}
+                      </strong>
+                      {component && (
+                        <div className="-mr-1 ml-auto flex shrink-0 items-center">
+                          {component}
+                        </div>
+                      )}
+                    </header>
                   )}
                 >
                   {actionButtons || null}

@@ -1072,6 +1072,7 @@ const QuestLevelFireworkLayer = ({
 
 interface QuestButtonProps {
   compact?: boolean;
+  panelOnly?: boolean;
 }
 
 interface QuestDropdownPanelProps {
@@ -1224,6 +1225,7 @@ const QuestDropdownPanel = ({
 
 export const QuestButton = ({
   compact = false,
+  panelOnly = false,
 }: QuestButtonProps): ReactElement => {
   const router = useRouter();
   const { optOutLevelSystem } = useSettingsContext();
@@ -1401,13 +1403,15 @@ export const QuestButton = ({
   );
   const scrollFadeRef = useScrollFade<HTMLDivElement>();
 
+  const isPanelOpen = panelOnly || isOpen;
+
   useEffect(() => {
-    if (!isOpen || !hasNewQuestRotations) {
+    if (!isPanelOpen || !hasNewQuestRotations) {
       return;
     }
 
     markQuestRotationsViewed();
-  }, [hasNewQuestRotations, isOpen, markQuestRotationsViewed]);
+  }, [hasNewQuestRotations, isPanelOpen, markQuestRotationsViewed]);
 
   const clearProgressTimers = useCallback(() => {
     progressTimersRef.current.forEach((timerId) => {
@@ -1763,6 +1767,42 @@ export const QuestButton = ({
       clearClaimedStampTimers();
     };
   }, [clearClaimedStampTimers, clearProgressTimers]);
+
+  if (panelOnly) {
+    return (
+      <>
+        <div ref={scrollFadeRef} className="overflow-y-auto bg-inherit">
+          <QuestDropdownPanel
+            showLevelSystem={showLevelSystem}
+            renderedLevel={renderedLevel}
+            data={data}
+            isPending={isPending}
+            isError={isError}
+            claimingQuestId={claimingQuestId}
+            animatingClaimRotationIds={animatingClaimRotationIdSet}
+            claimedStampRotationIds={claimedStampRotationIdSet}
+            animatingClaimedStampRotationIds={animatingClaimedStampRotationIdSet}
+            deferredClaimedStampRotationIds={deferredClaimedStampRotationIdSet}
+            onClaim={handleClaim}
+            onDestinationClick={handleDestinationClick}
+          />
+        </div>
+        {rewardFlightLayers.map((layer) => (
+          <QuestRewardFlightLayer
+            key={layer.claimRotationId}
+            flights={layer.flights}
+            onDone={() => handleRewardFlightLayerDone(layer.claimRotationId)}
+          />
+        ))}
+        {levelFireworkParticles.length > 0 && (
+          <QuestLevelFireworkLayer
+            particles={levelFireworkParticles}
+            onDone={clearLevelFireworkParticles}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>

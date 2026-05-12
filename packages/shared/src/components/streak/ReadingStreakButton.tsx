@@ -151,7 +151,7 @@ export function ReadingStreakButton({
           }
           onClick={handleToggle}
           className={classnames(
-            'gap-1',
+            'gap-0.5',
             compact && 'text-accent-bacon-default',
             className,
           )}

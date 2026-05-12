@@ -56,12 +56,12 @@ const ProfileSettingsMenuDesktop = dynamic(
 
 export const navigationKey = generateQueryKey(
   RequestKey.AccountNavigation,
-  null,
+  undefined,
 );
 
 export default function SettingsLayout({
   children,
-}: PropsWithChildren): ReactElement {
+}: PropsWithChildren): ReactElement | null {
   const router = useRouter();
   const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -94,7 +94,7 @@ export default function SettingsLayout({
         <AuthOptions
           simplified
           isLoginFlow
-          formRef={formRef}
+          formRef={formRef!}
           trigger={AuthTriggers.AccountPage}
         />
       </div>
@@ -157,7 +157,7 @@ export default function SettingsLayout({
             isOpen={isOpen}
             onClose={() => router.push(profile.permalink)}
           />
-        ) : (
+        ) : isLaptop ? null : (
           <ProfileSettingsMenuDesktop />
         )}
         {children}
@@ -168,8 +168,8 @@ export default function SettingsLayout({
 
 export const getSettingsLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<SettingsLayout>{page}</SettingsLayout>, null, {
+    getMainLayout(<SettingsLayout>{page}</SettingsLayout>, undefined, {
       screenCentered: true,
-      showSidebar: false,
+      showSidebar: true,
     }),
   );

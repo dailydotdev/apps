@@ -20,6 +20,7 @@ import HoverCard from '../cards/common/HoverCard';
 import { AchievementCard } from '../../features/profile/components/achievements/AchievementCard';
 import { Tooltip } from '../tooltip/Tooltip';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { AchievementPickerContent } from '../modals/AchievementPickerModal';
 
 function AchievementIcon({
   imgSrc,
@@ -210,5 +211,71 @@ export function AchievementTrackerButton(): ReactElement | null {
         <AchievementCard userAchievement={trackedAchievement} />
       </div>
     </HoverCard>
+  );
+}
+
+export function AchievementTrackerPanel(): ReactElement | null {
+  const { user } = useAuthContext();
+  const {
+    value: isAchievementTrackingWidgetEnabled,
+    isLoading: isAchievementTrackingWidgetLoading,
+  } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+  const {
+    achievements,
+    unlockedCount,
+    totalCount,
+    isPending: isAchievementsPending,
+  } = useProfileAchievements(user, isAchievementTrackingWidgetEnabled === true);
+  const shouldRender = shouldShowAchievementTracker({
+    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    unlockedCount,
+    totalCount,
+  });
+  const shouldQueryTrackedAchievement =
+    !!user &&
+    !isAchievementTrackingWidgetLoading &&
+    (isAchievementTrackingWidgetEnabled !== true || !isAchievementsPending) &&
+    shouldRender;
+  const {
+    trackedAchievement,
+    trackAchievement,
+    untrackAchievement,
+    isPending: isTrackedAchievementPending,
+  } = useTrackedAchievement(undefined, shouldQueryTrackedAchievement);
+
+  if (!user || isAchievementTrackingWidgetLoading) {
+    return null;
+  }
+
+  if (isAchievementTrackingWidgetEnabled !== true) {
+    return null;
+  }
+
+  if (isAchievementsPending || isTrackedAchievementPending) {
+    return (
+      <ElementPlaceholder
+        data-testid="achievement-tracker-skeleton"
+        className="h-32 animate-pulse rounded-12"
+      />
+    );
+  }
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  return (
+    <section className="mx-3 flex flex-col gap-4 border-t border-border-subtlest-tertiary py-3">
+      <AchievementPickerContent
+        achievements={achievements ?? []}
+        trackedAchievementId={trackedAchievement?.achievement.id}
+        onTrack={trackAchievement}
+        onUntrack={untrackAchievement}
+        origin="game_center_sidebar"
+      />
+    </section>
   );
 }

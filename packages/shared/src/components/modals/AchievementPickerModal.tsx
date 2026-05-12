@@ -25,14 +25,20 @@ export interface AchievementPickerModalProps extends ModalProps {
   onUntrack: () => Promise<void>;
 }
 
-export const AchievementPickerModal = ({
+type AchievementPickerContentProps = Pick<
+  AchievementPickerModalProps,
+  'achievements' | 'trackedAchievementId' | 'onTrack' | 'onUntrack'
+> & {
+  origin?: string;
+};
+
+export const AchievementPickerContent = ({
   achievements,
   trackedAchievementId,
   onTrack,
   onUntrack,
-  onRequestClose,
-  ...props
-}: AchievementPickerModalProps): ReactElement => {
+  origin = 'picker_modal',
+}: AchievementPickerContentProps): ReactElement => {
   const [isTracking, setIsTracking] = useState(false);
   const [isUntracking, setIsUntracking] = useState(false);
   const { logEvent } = useLogContext();
@@ -49,7 +55,7 @@ export const AchievementPickerModal = ({
         event_name: LogEvent.TrackAchievement,
         target_type: TargetType.AchievementCard,
         target_id: achievementId,
-        extra: JSON.stringify({ origin: 'picker_modal' }),
+        extra: JSON.stringify({ origin }),
       });
     } finally {
       setIsTracking(false);
@@ -64,13 +70,121 @@ export const AchievementPickerModal = ({
         event_name: LogEvent.UntrackAchievement,
         target_type: TargetType.AchievementCard,
         target_id: trackedAchievementId,
-        extra: JSON.stringify({ origin: 'picker_modal' }),
+        extra: JSON.stringify({ origin }),
       });
     } finally {
       setIsUntracking(false);
     }
   };
 
+  return (
+    <>
+      <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+        Choose an achievement to track
+      </Typography>
+      <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+        Pick one to focus on next.
+      </Typography>
+
+      {lockedAchievements.length === 0 && (
+        <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+          You unlocked every achievement.
+        </Typography>
+      )}
+
+      {lockedAchievements.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {lockedAchievements.map((userAchievement) => {
+            const target = getTargetCount(userAchievement.achievement);
+            const progressPercentage = Math.min(
+              (userAchievement.progress / target) * 100,
+              100,
+            );
+            const isTracked =
+              userAchievement.achievement.id === trackedAchievementId;
+
+            return (
+              <div
+                key={userAchievement.achievement.id}
+                className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
+              >
+                <div className="flex items-start gap-3">
+                  <LazyImage
+                    imgSrc={userAchievement.achievement.image}
+                    imgAlt={userAchievement.achievement.name}
+                    className="size-10 rounded-10 object-cover"
+                    fallbackSrc="https://daily.dev/default-achievement.png"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <Typography
+                      type={TypographyType.Callout}
+                      bold
+                      className="truncate"
+                    >
+                      {userAchievement.achievement.name}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                      className="line-clamp-2"
+                    >
+                      {userAchievement.achievement.description}
+                    </Typography>
+                  </div>
+                  <Button
+                    variant={
+                      isTracked ? ButtonVariant.Subtle : ButtonVariant.Primary
+                    }
+                    disabled={isTracking || isUntracking}
+                    onClick={() =>
+                      isTracked
+                        ? handleUntrack()
+                        : handleTrack(userAchievement.achievement.id)
+                    }
+                  >
+                    {isTracked ? 'Stop tracking' : 'Track'}
+                  </Button>
+                </div>
+
+                <div className="mt-2 flex items-center justify-between">
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {userAchievement.progress}/{target}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {userAchievement.achievement.points} pts
+                  </Typography>
+                </div>
+                <ProgressBar
+                  percentage={progressPercentage}
+                  shouldShowBg
+                  className={{
+                    wrapper: 'mt-1 h-1.5 rounded-14',
+                    bar: 'h-full rounded-14',
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+};
+
+export const AchievementPickerModal = ({
+  achievements,
+  trackedAchievementId,
+  onTrack,
+  onUntrack,
+  onRequestClose,
+  ...props
+}: AchievementPickerModalProps): ReactElement => {
   return (
     <Modal
       {...props}
@@ -81,106 +195,12 @@ export const AchievementPickerModal = ({
     >
       <ModalClose className="top-2" onClick={onRequestClose} />
       <Modal.Body className="flex flex-col gap-4">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
-          Choose an achievement to track
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-        >
-          Pick one to focus on next.
-        </Typography>
-
-        {lockedAchievements.length === 0 && (
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            You unlocked every achievement.
-          </Typography>
-        )}
-
-        {lockedAchievements.length > 0 && (
-          <div className="flex flex-col gap-2">
-            {lockedAchievements.map((userAchievement) => {
-              const target = getTargetCount(userAchievement.achievement);
-              const progressPercentage = Math.min(
-                (userAchievement.progress / target) * 100,
-                100,
-              );
-              const isTracked =
-                userAchievement.achievement.id === trackedAchievementId;
-
-              return (
-                <div
-                  key={userAchievement.achievement.id}
-                  className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
-                >
-                  <div className="flex items-start gap-3">
-                    <LazyImage
-                      imgSrc={userAchievement.achievement.image}
-                      imgAlt={userAchievement.achievement.name}
-                      className="size-10 rounded-10 object-cover"
-                      fallbackSrc="https://daily.dev/default-achievement.png"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <Typography
-                        type={TypographyType.Callout}
-                        bold
-                        className="truncate"
-                      >
-                        {userAchievement.achievement.name}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                        className="line-clamp-2"
-                      >
-                        {userAchievement.achievement.description}
-                      </Typography>
-                    </div>
-                    <Button
-                      variant={
-                        isTracked ? ButtonVariant.Subtle : ButtonVariant.Primary
-                      }
-                      disabled={isTracking || isUntracking}
-                      onClick={() =>
-                        isTracked
-                          ? handleUntrack()
-                          : handleTrack(userAchievement.achievement.id)
-                      }
-                    >
-                      {isTracked ? 'Stop tracking' : 'Track'}
-                    </Button>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between">
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                    >
-                      {userAchievement.progress}/{target}
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                    >
-                      {userAchievement.achievement.points} pts
-                    </Typography>
-                  </div>
-                  <ProgressBar
-                    percentage={progressPercentage}
-                    shouldShowBg
-                    className={{
-                      wrapper: 'mt-1 h-1.5 rounded-14',
-                      bar: 'h-full rounded-14',
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <AchievementPickerContent
+          achievements={achievements}
+          trackedAchievementId={trackedAchievementId}
+          onTrack={onTrack}
+          onUntrack={onUntrack}
+        />
       </Modal.Body>
     </Modal>
   );

@@ -17,7 +17,6 @@ import { UpgradeToPlus } from '../UpgradeToPlus';
 import { ProfileMenuHeader } from './ProfileMenuHeader';
 import { ProfileMenuStats } from './ProfileMenuStats';
 import { HorizontalSeparator } from '../utilities';
-import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 
 import { ProfileSection } from './ProfileSection';
 import { AccountSection } from './sections/AccountSection';
@@ -71,7 +70,6 @@ export default function ProfileMenu({
       {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader />
       <ProfileMenuStats />
-      <OpportunityEntryButton variant="profileMenu" />
 
       <UpgradeToPlus
         target={TargetId.ProfileDropdown}

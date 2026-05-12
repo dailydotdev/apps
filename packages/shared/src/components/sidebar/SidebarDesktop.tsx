@@ -18,6 +18,7 @@ import {
   BookmarkIcon,
   FeedbackIcon,
   HomeIcon,
+  JoystickIcon,
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
@@ -34,7 +35,6 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useSpotlight } from '../spotlight/useSpotlight';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
-import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import ProfileButton from '../profile/ProfileButton';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
@@ -48,6 +48,10 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
+import { InnerProfileSettingsMenu } from '../profile/ProfileSettingsMenu';
+import { QuestButton } from '../quest/QuestButton';
+import { AchievementTrackerPanel } from '../filters/AchievementTrackerButton';
+import { Typography, TypographyType } from '../typography/Typography';
 
 type SidebarCategoryConfig = {
   id: SidebarSelectedCategory;
@@ -82,6 +86,13 @@ const sidebarCategories: SidebarCategoryConfig[] = [
       <BookmarkIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
+  {
+    id: SidebarSelectedCategory.GameCenter,
+    label: 'Game Center',
+    icon: (active) => (
+      <JoystickIcon secondary={active} size={IconSize.Small} aria-hidden />
+    ),
+  },
 ];
 
 const getSidebarCategoryForPath = (
@@ -93,6 +104,14 @@ const getSidebarCategoryForPath = (
 
   if (activePage.includes('/squads')) {
     return SidebarSelectedCategory.Squads;
+  }
+
+  if (activePage.includes('/settings')) {
+    return SidebarSelectedCategory.Settings;
+  }
+
+  if (activePage.includes('/game-center')) {
+    return SidebarSelectedCategory.GameCenter;
   }
 
   return SidebarSelectedCategory.Main;
@@ -107,7 +126,9 @@ const normalizeSidebarCategory = (
 
   if (
     category === SidebarSelectedCategory.Feeds ||
-    category === SidebarSelectedCategory.Discover
+    category === SidebarSelectedCategory.Discover ||
+    category === SidebarSelectedCategory.Settings ||
+    category === SidebarSelectedCategory.GameCenter
   ) {
     return SidebarSelectedCategory.Main;
   }
@@ -167,7 +188,7 @@ const SidebarStreakButton = (): ReactElement | null => {
       iconPosition={ButtonIconPosition.Right}
       iconSize={IconSize.Size16}
       appendTooltipToBody
-      className="h-7 rounded-10 px-2 hover:bg-surface-hover"
+      className="h-7 rounded-10 px-1.5 hover:bg-surface-hover"
     />
   );
 };
@@ -238,8 +259,11 @@ export const SidebarDesktop = ({
     (category: SidebarSelectedCategory) => {
       setSelectedCategory(category);
       updateFlag(SidebarSettingsFlags.SelectedCategory, category);
+      if (category === SidebarSelectedCategory.GameCenter) {
+        router.push(`${webappUrl}game-center`).catch(() => undefined);
+      }
     },
-    [updateFlag],
+    [router, updateFlag],
   );
 
   const onToggleExpanded = useCallback(() => {
@@ -270,6 +294,19 @@ export const SidebarDesktop = ({
       );
     }
 
+    if (selectedCategory === SidebarSelectedCategory.Settings) {
+      return <InnerProfileSettingsMenu className="px-3" />;
+    }
+
+    if (selectedCategory === SidebarSelectedCategory.GameCenter) {
+      return (
+        <div className="flex flex-col">
+          <QuestButton panelOnly />
+          <AchievementTrackerPanel />
+        </div>
+      );
+    }
+
     return (
       <>
         <MainSection
@@ -295,6 +332,11 @@ export const SidebarDesktop = ({
   const selectedLabel = sidebarCategories.find(
     (category) => category.id === selectedCategory,
   )?.label;
+  const isSettingsSelected =
+    selectedCategory === SidebarSelectedCategory.Settings;
+  const isGameCenterSelected =
+    selectedCategory === SidebarSelectedCategory.GameCenter;
+  const isUtilityPanelSelected = isSettingsSelected || isGameCenterSelected;
 
   return (
     <SidebarAside
@@ -387,7 +429,7 @@ export const SidebarDesktop = ({
                     onClick={() => onSelectCategory(category.id)}
                     className={classNames(
                       railButtonClass,
-                      isSelected && 'bg-background-default text-text-primary',
+                      isSelected && 'bg-background-default text-white',
                     )}
                   >
                     {category.icon(isSelected)}
@@ -403,15 +445,19 @@ export const SidebarDesktop = ({
             <div>
               <Link href={settingsUrl} passHref>
                 <a
+                  id={`sidebar-category-${SidebarSelectedCategory.Settings}`}
                   aria-label="Settings"
                   className={classNames(
                     railButtonClass,
-                    activePage.includes('/settings') &&
-                      'bg-background-default text-text-primary',
+                    isSettingsSelected &&
+                      'bg-background-default text-white',
                   )}
+                  onClick={() =>
+                    onSelectCategory(SidebarSelectedCategory.Settings)
+                  }
                 >
                   <SettingsIcon
-                    secondary={activePage.includes('/settings')}
+                    secondary={isSettingsSelected}
                     size={IconSize.Small}
                     aria-hidden
                   />
@@ -441,7 +487,7 @@ export const SidebarDesktop = ({
         id="sidebar-context-panel"
         role="tabpanel"
         aria-labelledby={`sidebar-category-${selectedCategory}`}
-        aria-label={`${selectedLabel ?? selectedCategory} navigation`}
+        aria-label={`${selectedLabel ?? 'Settings'} navigation`}
         className={classNames(
           'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
           sidebarExpanded
@@ -449,50 +495,57 @@ export const SidebarDesktop = ({
             : 'pointer-events-none w-0 opacity-0',
         )}
       >
-        <div className="flex items-center justify-between gap-1 px-2 pt-3">
-          {isLoggedIn ? (
-            <ProfileButton compact className="max-w-[calc(100%-5.25rem)]" />
-          ) : (
-            <div className="flex-1" />
-          )}
-
-          <div className="ml-auto flex shrink-0 items-center gap-1">
-            {isLoggedIn && <SidebarStreakButton />}
-
-            <Tooltip side="bottom" content="Close sidebar">
-              <button
-                type="button"
-                onClick={onToggleExpanded}
-                aria-label="Close sidebar"
-                className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-              >
-                <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
-              </button>
-            </Tooltip>
+        {isSettingsSelected ? (
+          <div className="flex h-10 items-center px-3 pt-3">
+            <Typography bold type={TypographyType.Body}>
+              Settings
+            </Typography>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between gap-1 px-2 pt-3">
+            {isLoggedIn ? (
+              <ProfileButton compact className="max-w-[calc(100%-5.25rem)]" />
+            ) : (
+              <div className="flex-1" />
+            )}
 
-        <div className="px-3 pt-2">
-          <CreatePostButton
-            className="!flex w-full justify-start whitespace-nowrap"
-            size={ButtonSize.Small}
-            showIcon
-          />
-        </div>
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              {isLoggedIn && <SidebarStreakButton />}
 
-        {isLoggedIn && (
-          <>
-            <div className="mt-2 flex items-center gap-1 px-3">
-              <QuestHeaderButton compact />
-              {additionalButtons}
+              <Tooltip side="bottom" content="Close sidebar">
+                <button
+                  type="button"
+                  onClick={onToggleExpanded}
+                  aria-label="Close sidebar"
+                  className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                >
+                  <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
+                </button>
+              </Tooltip>
             </div>
-          </>
+          </div>
+        )}
+
+        {!isUtilityPanelSelected && (
+          <div className="px-3 pt-2">
+            <CreatePostButton
+              className="!flex w-full justify-start whitespace-nowrap"
+              size={ButtonSize.Small}
+              showIcon
+            />
+          </div>
+        )}
+
+        {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
+          <div className="mt-2 flex items-center gap-1 px-3">
+            {additionalButtons}
+          </div>
         )}
 
         <SidebarScrollWrapper
           className={classNames(
             'mt-2 min-h-0 flex-1',
-            showFeedbackWidget && 'pb-16',
+            showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
           )}
         >
           <Nav>{renderSelectedSection()}</Nav>
@@ -503,8 +556,8 @@ export const SidebarDesktop = ({
           )}
         </SidebarScrollWrapper>
 
-        <HelpWidget sidebarExpanded />
-        {showFeedbackWidget && (
+        {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
+        {showFeedbackWidget && !isUtilityPanelSelected && (
           <div className="absolute inset-x-3 bottom-3">
             <FeedbackWidget placement="sidebar" />
           </div>

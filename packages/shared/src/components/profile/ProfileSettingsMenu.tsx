@@ -8,11 +8,7 @@ import {
   EditIcon,
   DevCardIcon,
   EmbedIcon,
-  DocsIcon,
-  FeedbackIcon,
   AppIcon,
-  PrivacyIcon,
-  MegaphoneIcon,
   UserIcon,
   BlockIcon,
   CoinIcon,
@@ -24,8 +20,6 @@ import {
   MailIcon,
   EyeIcon,
   NewTabIcon,
-  PhoneIcon,
-  ReputationLightningIcon,
   ExitIcon,
   OrganizationIcon,
   TrendingIcon,
@@ -37,10 +31,6 @@ import {
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
-  appsUrl,
-  businessWebsiteUrl,
-  docs,
-  reputation,
   settingsUrl,
   walletUrl,
   webappUrl,
@@ -285,45 +275,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: TrendingIcon,
               onClick: () => openModal({ type: LazyModal.AdsDashboard }),
             } as ProfileSectionItemPropsWithoutHref,
-          },
-        },
-        help: {
-          title: 'Help center',
-          items: {
-            feedback: {
-              title: 'Your Feedback',
-              icon: FeedbackIcon,
-              href: `${settingsUrl}/feedback`,
-            },
-            privacy: {
-              title: 'Privacy',
-              icon: PrivacyIcon,
-              href: `${settingsUrl}/privacy`,
-            },
-            reputation: {
-              title: 'Reputation',
-              icon: ReputationLightningIcon,
-              href: reputation,
-              external: true,
-            },
-            advertise: {
-              title: 'Advertise',
-              icon: MegaphoneIcon,
-              href: businessWebsiteUrl,
-              external: true,
-            },
-            apps: {
-              title: 'Apps',
-              icon: PhoneIcon,
-              href: appsUrl,
-              external: true,
-            },
-            docs: {
-              title: 'Docs',
-              icon: DocsIcon,
-              href: docs,
-              external: true,
-            },
           },
         },
         logout: {
