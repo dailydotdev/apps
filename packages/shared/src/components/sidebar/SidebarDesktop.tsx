@@ -94,7 +94,11 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarSelectedCategory.Squads,
     label: 'Squads',
-    defaultPath: `${webappUrl}squads`,
+    // `/squads` server-side redirects to `/squads/discover` — link
+    // straight to the destination so we skip the round-trip latency
+    // AND so the resolved `activePage` matches the "Find Squads" item
+    // path (which we also point at `/squads/discover`).
+    defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
       <SquadIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -433,6 +437,21 @@ export const SidebarDesktop = ({
     [activePage, getCategoryDefaultPath, router, updateFlag],
   );
 
+  // Warm the route on hover so the click-to-page transition feels
+  // instant. Next.js router.prefetch is a no-op in development unless
+  // explicitly enabled, but in production it primes the JS chunk + RSC
+  // payload for the destination so navigation skips the network wait.
+  const onPrefetchCategory = useCallback(
+    (category: SidebarSelectedCategory) => {
+      const targetPath = getCategoryDefaultPath(category);
+      if (!targetPath) {
+        return;
+      }
+      router.prefetch(targetPath).catch(() => undefined);
+    },
+    [getCategoryDefaultPath, router],
+  );
+
   const onToggleExpanded = useCallback(() => {
     logEvent({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
@@ -633,6 +652,8 @@ export const SidebarDesktop = ({
                     aria-label={category.label}
                     aria-selected={isSelected}
                     onClick={() => onSelectCategory(category.id)}
+                    onMouseEnter={() => onPrefetchCategory(category.id)}
+                    onFocus={() => onPrefetchCategory(category.id)}
                     className={classNames(
                       railButtonClass,
                       isSelected && 'bg-background-default text-white',

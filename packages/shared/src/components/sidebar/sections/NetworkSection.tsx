@@ -65,7 +65,11 @@ export const NetworkSection = ({
           <ListIcon Icon={() => <SourceIcon secondary={active} />} />
         ),
         title: 'Find Squads',
-        path: `${webappUrl}squads`,
+        // Match where the page actually lives — `/squads` is a 308 to
+        // `/squads/discover`, so the `activePage === item.path` check
+        // in SidebarItem only highlights when we link straight to the
+        // destination.
+        path: `${webappUrl}squads/discover`,
         isForcedLink: true,
       },
       ...squadItems,
