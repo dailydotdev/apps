@@ -11,7 +11,10 @@ import { install, uninstall } from '@dailydotdev/shared/src/lib/constants';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
-import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
+import {
+  getContentScriptPermissionAndRegister,
+  registerEmbedTargetReadyContentScript,
+} from '../lib/extensionScripts';
 import {
   clearFrameEmbeddingSessionRules,
   disableFrameEmbeddingForTab,
@@ -154,7 +157,27 @@ async function handleMessages(
   // the optional companion permission flow below.
   if (message.type === ExtensionMessageType.EnableFrameEmbeddingForTab) {
     const tabId = await getTargetTabId(sender);
-    return enableFrameEmbeddingForTab(tabId);
+    const result = await enableFrameEmbeddingForTab(tabId);
+
+    if (!result.enabled) {
+      return result;
+    }
+
+    try {
+      await registerEmbedTargetReadyContentScript();
+      return result;
+    } catch (error) {
+      errorLog('[frame-embed] failed to register target-ready script:', error);
+      await disableFrameEmbeddingForTab(tabId).catch(() => undefined);
+      return {
+        ...result,
+        enabled: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to register target-ready content script',
+      };
+    }
   }
 
   if (message.type === ExtensionMessageType.DisableFrameEmbeddingForTab) {

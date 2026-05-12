@@ -10,6 +10,7 @@ import {
 import type { ExtensionSiteEmbedStatus } from './common';
 import {
   handleExtensionSiteEmbedMessage,
+  handleExtensionSiteEmbedTargetMessage,
   postExtensionSiteEmbedDisableMessage,
 } from './extensionEmbedMessaging';
 import { useExtensionSiteEmbedReconnect } from './useExtensionSiteEmbedReconnect';
@@ -26,6 +27,7 @@ export interface UseExtensionSiteEmbedOptions {
 
 export interface UseExtensionSiteEmbedResult {
   permissionFrameRef: MutableRefObject<HTMLIFrameElement | null>;
+  targetFrameRef: MutableRefObject<HTMLIFrameElement | null>;
   permissionFrameKey: string;
   permissionFrameSrc: string;
   showPermissionFrame: boolean;
@@ -36,6 +38,7 @@ export interface UseExtensionSiteEmbedResult {
   error: string | null;
   errorReason: string | null;
   isTargetValid: boolean;
+  isTargetDomReady: boolean;
   reset: () => void;
 }
 
@@ -51,7 +54,9 @@ export const useExtensionSiteEmbed = ({
   const [status, setStatus] = useState<ExtensionSiteEmbedStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [errorReason, setErrorReason] = useState<string | null>(null);
+  const [isTargetDomReady, setIsTargetDomReady] = useState(false);
   const permissionFrameRef = useRef<HTMLIFrameElement | null>(null);
+  const targetFrameRef = useRef<HTMLIFrameElement | null>(null);
   const trimmedExtensionId = extensionId?.trim() ?? '';
   const trimmedTargetUrl = targetUrl.trim();
   const isTargetValid = isEmbeddableSiteTarget(trimmedTargetUrl);
@@ -89,6 +94,7 @@ export const useExtensionSiteEmbed = ({
       setStatus(nextStatus);
       setError(nextError);
       setErrorReason(null);
+      setIsTargetDomReady(false);
     },
     [postDisableMessage, stopReconnectLoop],
   );
@@ -128,6 +134,16 @@ export const useExtensionSiteEmbed = ({
     const expectedExtensionOrigin = trimmedExtensionId
       ? getExtensionOrigin(trimmedExtensionId)
       : null;
+    const expectedTargetOrigin = (() => {
+      if (!isTargetValid) {
+        return null;
+      }
+      try {
+        return new URL(trimmedTargetUrl).origin;
+      } catch {
+        return null;
+      }
+    })();
 
     const onMessage = (event: MessageEvent) => {
       // The hook owns the parent-side state machine; the frame only reports
@@ -167,6 +183,13 @@ export const useExtensionSiteEmbed = ({
           setErrorReason(reason ?? null);
         },
       });
+
+      handleExtensionSiteEmbedTargetMessage({
+        event,
+        expectedTargetOrigin,
+        expectedTargetSource: targetFrameRef.current?.contentWindow ?? null,
+        onTargetDomReady: () => setIsTargetDomReady(true),
+      });
     };
 
     window.addEventListener('message', onMessage);
@@ -177,9 +200,11 @@ export const useExtensionSiteEmbed = ({
     };
   }, [
     isReconnectPendingRef,
+    isTargetValid,
     startReconnectLoop,
     stopReconnectLoop,
     trimmedExtensionId,
+    trimmedTargetUrl,
   ]);
 
   useEffect(() => {
@@ -225,6 +250,7 @@ export const useExtensionSiteEmbed = ({
 
   return {
     permissionFrameRef,
+    targetFrameRef,
     permissionFrameKey: `${permissionFrameSrc}-${frameNonce}`,
     permissionFrameSrc,
     showPermissionFrame: !!permissionFrameSrc && frameMode !== 'target-embed',
@@ -235,6 +261,7 @@ export const useExtensionSiteEmbed = ({
     error,
     errorReason,
     isTargetValid,
+    isTargetDomReady,
     reset,
   };
 };

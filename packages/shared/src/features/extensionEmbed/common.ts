@@ -6,6 +6,8 @@ export const extensionSiteEmbedFrameMessageSource =
   'daily-extension-site-embed';
 export const extensionSiteEmbedParentMessageSource =
   'daily-extension-site-embed-parent';
+export const extensionSiteEmbedTargetMessageSource =
+  'daily-extension-site-embed-target';
 
 export const extensionSiteEmbedFrameEvent = {
   PermissionsReady: 'daily-extension-site-embed-permissions-ready',
@@ -16,6 +18,10 @@ export const extensionSiteEmbedFrameEvent = {
 
 export const extensionSiteEmbedParentEvent = {
   Disable: 'daily-extension-site-embed-disable',
+} as const;
+
+export const extensionSiteEmbedTargetEvent = {
+  DomReady: 'daily-extension-site-embed-target-dom-ready',
 } as const;
 
 export const extensionSiteEmbedReconnectDelayMs = 1200;
@@ -46,6 +52,44 @@ export type ExtensionSiteEmbedFrameMessage = {
 export type ExtensionSiteEmbedParentMessage = {
   source: typeof extensionSiteEmbedParentMessageSource;
   type: (typeof extensionSiteEmbedParentEvent)[keyof typeof extensionSiteEmbedParentEvent];
+};
+
+export type ExtensionSiteEmbedTargetEventType =
+  (typeof extensionSiteEmbedTargetEvent)[keyof typeof extensionSiteEmbedTargetEvent];
+
+export type ExtensionSiteEmbedTargetMessage = {
+  source: typeof extensionSiteEmbedTargetMessageSource;
+  type: ExtensionSiteEmbedTargetEventType;
+  target?: string;
+};
+
+const isExactOrSubdomainOf = (hostname: string, domain: string): boolean =>
+  hostname === domain || hostname.endsWith(`.${domain}`);
+
+export const isDailyDevEmbedAncestor = (origin: string): boolean => {
+  if (!origin) {
+    return false;
+  }
+
+  try {
+    const url = new URL(origin);
+    const hostname = url.hostname.toLowerCase();
+
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return false;
+    }
+
+    if (hostname === 'localhost') {
+      return true;
+    }
+
+    return (
+      isExactOrSubdomainOf(hostname, 'daily.dev') ||
+      isExactOrSubdomainOf(hostname, 'fylla.dev')
+    );
+  } catch {
+    return false;
+  }
 };
 
 export type ExtensionSiteEmbedStatus =

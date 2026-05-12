@@ -175,24 +175,9 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureReaderModal = new Feature('reader_modal', false);
 
-export const featureShortcutsExtensionPromo = new Feature(
-  'shortcuts_extension_promo',
-  false,
-);
-
 export const featureGenericReferralPopupV2 = new Feature(
   'generic_referral_popup_v2',
   isDevelopment,
-);
-
-export const featureShortcutsExtensionPromoCopy = new Feature(
-  'shortcuts_extension_promo_copy',
-  {
-    title: 'Want these shortcuts on every new tab?',
-    subtitle: 'Install the daily.dev extension to pin your most visited sites.',
-    cta: 'Install for {browser}',
-    dismiss: 'Skip for now',
-  },
 );
 
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);

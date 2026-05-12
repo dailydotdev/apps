@@ -102,7 +102,7 @@ export const HighlightCardContent = ({
       : 'flex items-center px-4 py-4';
   const contentClassName =
     variant === 'list'
-      ? 'no-scrollbar flex min-h-0 flex-col gap-2 overflow-y-auto'
+      ? 'flex flex-col gap-2'
       : 'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto px-2.5 pb-1 pt-0';
   const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
   const firstHighlight = highlights[0];

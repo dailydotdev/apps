@@ -15,6 +15,12 @@ export enum CampaignCtaPlacement {
   ProfileMenu = 'profileMenu',
 }
 
+export enum HighlightsPlacement {
+  Default = 'default',
+  Pinned = 'pinned',
+  Disabled = 'disabled',
+}
+
 export type NewTabMode = 'discover' | 'focus';
 
 export type FocusScheduleWindow = {
@@ -44,6 +50,7 @@ export type SettingsFlags = {
   sidebarResourcesExpanded: boolean;
   sidebarBookmarksExpanded: boolean;
   clickbaitShieldEnabled: boolean;
+  highlightsPlacement?: HighlightsPlacement;
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
@@ -65,6 +72,8 @@ export enum SidebarSettingsFlags {
   ResourcesExpanded = 'sidebarResourcesExpanded',
   BookmarksExpanded = 'sidebarBookmarksExpanded',
   ClickbaitShieldEnabled = 'clickbaitShieldEnabled',
+  // Renamed to avoid shadowing the HighlightsPlacement enum above.
+  Highlights = 'highlightsPlacement',
 }
 
 export type RemoteSettings = {

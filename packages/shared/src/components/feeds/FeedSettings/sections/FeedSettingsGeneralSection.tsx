@@ -19,8 +19,23 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ColorName } from '../../../../styles/colors';
 import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
-import { usePlusSubscription } from '../../../../hooks';
+import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { Tooltip } from '../../../tooltip/Tooltip';
+import { Dropdown } from '../../../fields/Dropdown';
+import { useSettingsContext } from '../../../../contexts/SettingsContext';
+import {
+  HighlightsPlacement,
+  SidebarSettingsFlags,
+} from '../../../../graphql/settings';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, Origin } from '../../../../lib/log';
+import { labels } from '../../../../lib';
+
+const highlightsPlacementOptions = [
+  { value: HighlightsPlacement.Default, label: 'Default' },
+  { value: HighlightsPlacement.Pinned, label: 'Pin to top' },
+  { value: HighlightsPlacement.Disabled, label: 'Disabled' },
+];
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete, editFeedSettings } = useContext(
@@ -31,6 +46,9 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const isMainFeed = feed?.type === FeedType.Main;
   const isCustomFeed = feed?.type === FeedType.Custom;
   const { isPlus } = usePlusSubscription();
+  const { flags, updateFlag } = useSettingsContext();
+  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
@@ -166,6 +184,49 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             </div>
           </Tooltip>
         )}
+      </div>
+      <Divider className="my-1 bg-border-subtlest-tertiary" />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <Typography bold type={TypographyType.Body}>
+            Happening Now placement
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Choose where the Happening Now card appears in your feed, or hide it
+            entirely.
+          </Typography>
+        </div>
+        <Dropdown
+          className={{ container: 'w-full tablet:max-w-70' }}
+          selectedIndex={Math.max(
+            highlightsPlacementOptions.findIndex(
+              (option) =>
+                option.value ===
+                (flags?.highlightsPlacement ?? HighlightsPlacement.Default),
+            ),
+            0,
+          )}
+          options={highlightsPlacementOptions.map((option) => option.label)}
+          onChange={async (_, index) => {
+            const next = highlightsPlacementOptions[index].value;
+            await updateFlag(SidebarSettingsFlags.Highlights, next);
+
+            displayToast(
+              labels.feed.settings.globalPreferenceNotice.highlightsPlacement,
+            );
+
+            logEvent({
+              event_name: LogEvent.SetHighlightsPlacement,
+              target_id: next,
+              extra: JSON.stringify({
+                origin: Origin.Settings,
+              }),
+            });
+          }}
+        />
       </div>
       {isCustomFeed && (
         <>

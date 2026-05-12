@@ -26,7 +26,6 @@ import type { PostContentProps } from '@dailydotdev/shared/src/components/post/c
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
-  useConditionalFeature,
   useEventListener,
   useJoinReferral,
   usePostById,
@@ -47,8 +46,8 @@ import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/Acti
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
-import { featureReaderModal } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -212,16 +211,17 @@ export const PostPage = ({
     },
   });
   const {
-    value: readerModalFromGrowthBook,
-    isLoading: isReaderFeatureLoading,
-  } = useConditionalFeature({
-    feature: featureReaderModal,
-    shouldEvaluate: true,
-  });
+    isEligible: isReaderEligible,
+    isReaderModalEnabled: readerModalFromGrowthBook,
+    isReaderFeatureLoading,
+  } = useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isReaderModalOn =
-    readerModalFromGrowthBook && !isLegacyLayoutOptedOut && isTabletViewport;
+    isReaderEligible &&
+    readerModalFromGrowthBook &&
+    !isLegacyLayoutOptedOut &&
+    isTabletViewport;
   const isReaderModalFeatureReady = !isReaderFeatureLoading;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
