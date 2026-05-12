@@ -82,7 +82,7 @@ export function ReaderLegacyLayoutToggleButton({
         size={ButtonSize.Small}
         type="button"
         className={iconButtonClassName}
-        onClick={isClassicTarget ? optOut : optIn}
+        onClick={isClassicTarget ? () => optOut() : optIn}
         aria-label={
           isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
         }
