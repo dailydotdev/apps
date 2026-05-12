@@ -47,8 +47,7 @@ import {
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureNewD1Experience } from '../../lib/featureManagement';
+import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -113,8 +112,7 @@ export const SearchControlHeader = ({
     isActionsFetched &&
     canInstallExtension &&
     !hasDismissedInstallExtension;
-  const { value: isNewD1Experience } = useConditionalFeature({
-    feature: featureNewD1Experience,
+  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
     shouldEvaluate: shouldEvaluateInstallExtensionPrompt,
   });
 

@@ -94,6 +94,10 @@ jest.mock('../tooltip/Tooltip', () => ({
   },
 }));
 
+jest.mock('../../hooks/useNewD1ExperienceFeature', () => ({
+  useNewD1ExperienceFeature: jest.fn().mockReturnValue({ value: false }),
+}));
+
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
