@@ -66,6 +66,7 @@ export const LiveRoomControls = ({
     role,
     participantId,
     roomState,
+    preflightMediaPermissions,
     cameras,
     microphones,
     selectedCameraId,
@@ -483,6 +484,7 @@ export const LiveRoomControls = ({
                     disabled={!canJoinQueue || isBusy('queue')}
                     onClick={() =>
                       runAuthenticatedAction('queue', async () => {
+                        await preflightMediaPermissions();
                         await joinSpeakerQueue();
                         logStandupAction(LogEvent.JoinStandupQueue, roomId, {
                           surface: 'controls',
@@ -510,6 +512,7 @@ export const LiveRoomControls = ({
                       disabled={!canJoinStage || isBusy('join-stage')}
                       onClick={() =>
                         runAuthenticatedAction('join-stage', async () => {
+                          await preflightMediaPermissions();
                           await joinStage();
                           logStandupAction(LogEvent.JoinStandupStage, roomId, {
                             surface: 'controls',
@@ -523,7 +526,7 @@ export const LiveRoomControls = ({
                 ) : null}
                 {canLeaveStage ? (
                   <LiveRoomTooltipButton
-                    tooltip="Stop speaking"
+                    tooltip="Leave stage"
                     wrapDisabled={isBusy('leave-stage')}
                   >
                     <Button
@@ -540,7 +543,7 @@ export const LiveRoomControls = ({
                         })
                       }
                     >
-                      Stop speaking
+                      Leave stage
                     </Button>
                   </LiveRoomTooltipButton>
                 ) : null}
@@ -564,6 +567,7 @@ export const LiveRoomControls = ({
                   loading={isBusy('go-live')}
                   onClick={() =>
                     guarded('go-live', async () => {
+                      await preflightMediaPermissions();
                       await startRoom();
                       logStandupAction(LogEvent.StartStandup, roomId, {
                         surface: 'controls',
