@@ -1,4 +1,11 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { EmojiPicker } from './EmojiPicker';
 
@@ -21,11 +28,18 @@ describe('EmojiPicker', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Pick emoji' }));
   };
 
-  const getEmojiButton = (
-    container: HTMLElement,
-    label: string,
-  ): HTMLButtonElement => {
-    const button = container.querySelector<HTMLButtonElement>(
+  const renderEmojiPicker = (onChange = jest.fn()) => {
+    const queryClient = new QueryClient();
+
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <EmojiPicker value="" onChange={onChange} />
+      </QueryClientProvider>,
+    );
+  };
+
+  const getEmojiButton = (label: string): HTMLButtonElement => {
+    const button = document.body.querySelector<HTMLButtonElement>(
       `button[title="${label}"]`,
     );
 
@@ -37,7 +51,7 @@ describe('EmojiPicker', () => {
   };
 
   it('shows emojis by category when search is empty', async () => {
-    const { container } = render(<EmojiPicker value="" onChange={jest.fn()} />);
+    renderEmojiPicker();
 
     openPicker();
 
@@ -49,11 +63,11 @@ describe('EmojiPicker', () => {
       screen.getByRole('button', { name: 'People & body' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Flags' })).toBeInTheDocument();
-    expect(getEmojiButton(container, 'grinning face')).toBeInTheDocument();
+    expect(getEmojiButton('grinning face')).toBeInTheDocument();
   });
 
   it('scrolls to category sections without hiding other categories', async () => {
-    render(<EmojiPicker value="" onChange={jest.fn()} />);
+    renderEmojiPicker();
 
     openPicker();
 
@@ -72,7 +86,7 @@ describe('EmojiPicker', () => {
   });
 
   it('shows search results instead of category sections', async () => {
-    const { container } = render(<EmojiPicker value="" onChange={jest.fn()} />);
+    renderEmojiPicker();
 
     openPicker();
     fireEvent.change(screen.getByPlaceholderText('Search emojis...'), {
@@ -80,32 +94,48 @@ describe('EmojiPicker', () => {
     });
 
     await waitFor(() => {
-      expect(getEmojiButton(container, 'rocket')).toBeVisible();
+      expect(getEmojiButton('rocket')).toBeVisible();
     });
     expect(screen.queryByText('Smileys & emotion')).not.toBeInTheDocument();
   });
 
   it('stores selected emojis and shows them as recently used', async () => {
     const onChange = jest.fn();
-    const { container } = render(<EmojiPicker value="" onChange={onChange} />);
+    renderEmojiPicker(onChange);
 
     openPicker();
     fireEvent.change(screen.getByPlaceholderText('Search emojis...'), {
       target: { value: 'rocket' },
     });
     await waitFor(() => {
-      expect(getEmojiButton(container, 'rocket')).toBeInTheDocument();
+      expect(getEmojiButton('rocket')).toBeInTheDocument();
     });
-    fireEvent.click(getEmojiButton(container, 'rocket'));
+    fireEvent.click(getEmojiButton('rocket'));
 
     expect(onChange).toHaveBeenCalledWith('🚀');
 
     openPicker();
 
-    expect(await screen.findByText('Recently used')).toBeInTheDocument();
-    const recentSection = screen.getByText('Recently used').parentElement;
+    const recentHeading = await screen.findByText('Recently used');
+    expect(recentHeading).toBeInTheDocument();
     expect(
-      recentSection?.querySelector('button[title="rocket"]'),
+      within(recentHeading.parentElement as HTMLElement).getByTitle('rocket'),
     ).toBeInTheDocument();
+  });
+
+  it('renders the dropdown through the root portal', async () => {
+    const { container } = renderEmojiPicker();
+
+    openPicker();
+
+    await screen.findByText('Smileys & emotion');
+
+    expect(
+      within(container).queryByPlaceholderText('Search emojis...'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search emojis...')).toHaveAttribute(
+      'placeholder',
+      'Search emojis...',
+    );
   });
 });

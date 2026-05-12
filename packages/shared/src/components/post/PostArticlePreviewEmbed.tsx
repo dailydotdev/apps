@@ -595,22 +595,6 @@ export function PostArticlePreviewEmbed({
               onStateChange={onEmbedStateChange}
               renderState={renderEmbedChrome}
             />
-            {!collapseOnUnavailable &&
-            previewBroken &&
-            embedStatus === 'ready' ? (
-              <div
-                className="pointer-events-none absolute inset-0 flex items-center justify-center p-4"
-                aria-live="polite"
-              >
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                  className="max-w-sm text-center"
-                >
-                  Preview not available for this site.
-                </Typography>
-              </div>
-            ) : null}
           </div>
         )}
       </div>

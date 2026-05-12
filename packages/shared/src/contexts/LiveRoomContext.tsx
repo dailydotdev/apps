@@ -138,6 +138,8 @@ export interface LiveRoomContextValue {
   role: LiveRoomParticipantRoleValue | null;
   participantId: string | null;
 
+  disconnect: () => Promise<void>;
+  preflightMediaPermissions: () => Promise<void>;
   startRoom: () => Promise<void>;
   endRoom: () => Promise<void>;
   joinSpeakerQueue: () => Promise<void>;
@@ -355,6 +357,11 @@ const buildConstraints = (
   };
 };
 
+const buildVideoConstraints = (
+  deviceId: string | null,
+): true | MediaTrackConstraints =>
+  deviceId ? { deviceId: { exact: deviceId } } : true;
+
 const videoSimulcastEncodings = [
   { rid: 'low', scaleResolutionDownBy: 4, maxBitrate: 150_000 },
   { rid: 'medium', scaleResolutionDownBy: 2, maxBitrate: 500_000 },
@@ -444,6 +451,7 @@ export const LiveRoomProvider = ({
     recv: false,
   });
   const mediaRebuildQueuedRef = useRef(false);
+  const intentionalDisconnectRef = useRef(false);
   const currentRole =
     (participantId && roomState?.participants[participantId]?.role) || role;
   const privilegeState = getLiveRoomPrivilegeState(
@@ -684,6 +692,19 @@ export const LiveRoomProvider = ({
     setIsCameraOn(false);
     setIsMicOn(false);
   }, []);
+
+  const disconnect = useCallback(async () => {
+    intentionalDisconnectRef.current = true;
+    clearStoredLiveRoomResumeSession(roomId);
+    setStoredResumeSession(null);
+    setResumeSessionTtlMs(null);
+    setErrorMessage(null);
+    setStatus('idle');
+    closeMediaSession(true);
+    stopLocalCapture();
+    connectionRef.current?.close();
+    connectionRef.current = null;
+  }, [closeMediaSession, roomId, stopLocalCapture]);
 
   const queueMediaRebuild = useCallback(() => {
     if (mediaRebuildQueuedRef.current || status !== 'connected') {
@@ -1058,6 +1079,7 @@ export const LiveRoomProvider = ({
         : { token: joinToken?.token ?? '' }),
     });
     connectionRef.current = connection;
+    intentionalDisconnectRef.current = false;
     setStatus('connecting');
     setErrorMessage(null);
     const openingWithResume = !!storedResumeSession;
@@ -1108,6 +1130,9 @@ export const LiveRoomProvider = ({
       },
     );
     const offClose = connection.onClose(({ code, reason }) => {
+      if (intentionalDisconnectRef.current) {
+        return;
+      }
       if (openingWithResume && !sessionReady) {
         requestFreshJoinToken();
         return;
@@ -1120,6 +1145,9 @@ export const LiveRoomProvider = ({
       setErrorMessage(reason || 'Standup connection closed');
     });
     const offError = connection.onError((error) => {
+      if (intentionalDisconnectRef.current) {
+        return;
+      }
       if (openingWithResume && !sessionReady) {
         return;
       }
@@ -1925,6 +1953,61 @@ export const LiveRoomProvider = ({
     [],
   );
 
+  const preflightMediaPermissions = useCallback(async () => {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
+      return;
+    }
+
+    const needsAudio =
+      !localTracksRef.current.audio && !mutedAudioTrackRef.current;
+    const needsVideo = !localTracksRef.current.video;
+
+    if (!needsAudio && !needsVideo) {
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        ...(needsAudio
+          ? {
+              audio: buildAudioConstraints(
+                selectedMicId,
+                micSettings,
+                micSettingSupport,
+              ),
+            }
+          : {}),
+        ...(needsVideo
+          ? {
+              video: buildVideoConstraints(selectedCameraId),
+            }
+          : {}),
+      });
+
+      stream.getAudioTracks().forEach((track) => track.stop());
+      stream.getVideoTracks().forEach((track) => track.stop());
+      await refreshDeviceList();
+    } catch (error) {
+      logStandupErrorRef.current(
+        'media permission preflight',
+        getErrorMessage(error, 'Failed to preflight media permissions'),
+        {
+          source: 'permission_preflight',
+          needsAudio,
+          needsVideo,
+          requestedCameraId: selectedCameraId,
+          requestedMicId: selectedMicId,
+        },
+      );
+    }
+  }, [
+    micSettingSupport,
+    micSettings,
+    refreshDeviceList,
+    selectedCameraId,
+    selectedMicId,
+  ]);
+
   const startRoom = useCallback(async () => {
     await sendConnectionCommand('start room', { type: 'room.start' });
   }, [sendConnectionCommand]);
@@ -2102,6 +2185,8 @@ export const LiveRoomProvider = ({
       roomState,
       role: currentRole,
       participantId,
+      disconnect,
+      preflightMediaPermissions,
       startRoom,
       endRoom,
       joinSpeakerQueue,
@@ -2150,6 +2235,8 @@ export const LiveRoomProvider = ({
       roomState,
       currentRole,
       participantId,
+      disconnect,
+      preflightMediaPermissions,
       startRoom,
       endRoom,
       joinSpeakerQueue,
