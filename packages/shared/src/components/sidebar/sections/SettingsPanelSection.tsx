@@ -39,6 +39,8 @@ import { LazyModal } from '../../modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 
+const settingsDefaultPath = `${settingsUrl}/profile`;
+
 type SettingsGroup = {
   key: string;
   title?: string;
@@ -59,7 +61,7 @@ export const SettingsPanelSection = ({
         items: [
           {
             title: 'Profile details',
-            path: `${settingsUrl}/profile`,
+            path: settingsDefaultPath,
             icon: (active: boolean) => (
               <ListIcon Icon={() => <UserIcon secondary={active} />} />
             ),

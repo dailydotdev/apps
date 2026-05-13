@@ -4,7 +4,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
-import { useSettingsContext } from '../../contexts/SettingsContext';
+import {
+  ThemeMode,
+  themes,
+  useSettingsContext,
+} from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
 import { MainSection } from './sections/MainSection';
@@ -12,9 +16,10 @@ import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { RecentSection } from './sections/RecentSection';
 import { ProfileSection } from './sections/ProfileSection';
+import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
-import { ButtonIconPosition, ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { HelpWidget } from '../help/HelpWidget';
@@ -24,16 +29,26 @@ import {
   HomeIcon,
   HotIcon,
   JoystickIcon,
+  MoonIcon,
   PlusIcon,
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
   SidebarArrowRight,
   SquadIcon,
+  SunIcon,
   UserIcon,
 } from '../icons';
+import { ThemeAutoIcon } from '../icons/ThemeAuto';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
 import { useSquadNavigation } from '../../hooks';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
 import {
   SidebarSelectedCategory,
@@ -44,10 +59,9 @@ import { RailHoverPanel } from './RailHoverPanel';
 import { useSpotlight } from '../spotlight/useSpotlight';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
-import ProfileButton from '../profile/ProfileButton';
+import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
+import { SidebarHeaderStats } from './SidebarHeaderStats';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
-import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { useReadingStreak } from '../../hooks/streaks';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FeedbackWidget } from '../feedback';
@@ -199,10 +213,12 @@ const normalizeSidebarCategory = (
 const railButtonClass =
   'flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
+const settingsDefaultPath = `${settingsUrl}/profile`;
 
 const RAIL_HOVER_OPEN_DELAY = 250;
 const RAIL_HOVER_CLOSE_DELAY = 120;
 const RAIL_HOVER_SIDE_OFFSET = 12;
+const RAIL_HOVER_PROFILE_ALIGN_OFFSET = -304;
 
 interface RailHoverCardProps {
   label: string;
@@ -211,6 +227,7 @@ interface RailHoverCardProps {
   // When `false`, the trigger renders without a popover (used to avoid
   // duplicating the currently-pinned panel that's already visible).
   enabled?: boolean;
+  alignOffset?: number;
 }
 
 // Slack-style floating preview anchored to a rail icon. The popover
@@ -223,6 +240,7 @@ const RailHoverCard = ({
   children,
   panel,
   enabled = true,
+  alignOffset,
 }: RailHoverCardProps) => {
   if (!enabled) {
     return <>{children}</>;
@@ -239,6 +257,7 @@ const RailHoverCard = ({
         <HoverCardPrimitive.Content
           side="right"
           align="start"
+          alignOffset={alignOffset}
           sideOffset={RAIL_HOVER_SIDE_OFFSET}
           collisionPadding={12}
           className="z-tooltip"
@@ -247,6 +266,70 @@ const RailHoverCard = ({
         </HoverCardPrimitive.Content>
       </HoverCardPrimitive.Portal>
     </HoverCardPrimitive.Root>
+  );
+};
+
+const themeIconMap: Record<
+  ThemeMode,
+  React.ComponentType<{ secondary?: boolean; size?: IconSize; 'aria-hidden'?: boolean }>
+> = {
+  [ThemeMode.Dark]: MoonIcon,
+  [ThemeMode.Light]: SunIcon,
+  [ThemeMode.Auto]: ThemeAutoIcon,
+};
+
+const SidebarThemeButton = (): ReactElement => {
+  const { setTheme, themeMode } = useSettingsContext();
+  const { logEvent } = useLogContext();
+  const ActiveIcon = themeIconMap[themeMode];
+
+  const onSelectTheme = useCallback(
+    (mode: ThemeMode) => {
+      logEvent({
+        event_name: LogEvent.ChangeSettings,
+        target_type: TargetType.Theme,
+        target_id: mode,
+      });
+      setTheme(mode);
+    },
+    [logEvent, setTheme],
+  );
+
+  const options: MenuItemProps[] = themes.map((theme) => {
+    const Icon = themeIconMap[theme.value];
+    const isActive = theme.value === themeMode;
+    return {
+      label: theme.label,
+      icon: (
+        <Icon
+          size={IconSize.Size16}
+          secondary={isActive}
+          aria-hidden
+        />
+      ),
+      action: () => onSelectTheme(theme.value),
+    };
+  });
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        asChild
+        tooltip={{ side: 'right', content: 'Change theme' }}
+      >
+        <button type="button" className={railButtonClass}>
+          <ActiveIcon size={IconSize.Small} aria-hidden />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        side="right"
+        align="end"
+        sideOffset={8}
+        className="!min-w-40"
+      >
+        <DropdownMenuOptions options={options} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
@@ -276,32 +359,13 @@ const SidebarSupportButton = (): ReactElement => {
           position={InteractivePopupPosition.SidebarSupportMenu}
           className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
+          <FeedbackWidget placement="support" />
           <ResourceSection />
           <HorizontalSeparator />
           <ProfileMenuFooter />
         </InteractivePopup>
       )}
     </>
-  );
-};
-
-const SidebarStreakButton = (): ReactElement | null => {
-  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-
-  if (!isStreaksEnabled || !streak) {
-    return null;
-  }
-
-  return (
-    <ReadingStreakButton
-      streak={streak}
-      isLoading={isLoading}
-      compact
-      iconPosition={ButtonIconPosition.Right}
-      iconSize={IconSize.Size16}
-      appendTooltipToBody
-      className="h-7 rounded-10 px-1.5 hover:bg-surface-hover"
-    />
   );
 };
 
@@ -393,6 +457,9 @@ export const SidebarDesktop = ({
     (category: SidebarSelectedCategory): string | null => {
       if (category === SidebarSelectedCategory.Profile) {
         return user?.username ? `${webappUrl}${user.username}` : null;
+      }
+      if (category === SidebarSelectedCategory.Settings) {
+        return settingsDefaultPath;
       }
       return (
         sidebarCategories.find((entry) => entry.id === category)?.defaultPath ??
@@ -506,7 +573,15 @@ export const SidebarDesktop = ({
 
     if (category === SidebarSelectedCategory.Profile) {
       return (
-        <ProfileSection {...defaultRenderSectionProps} isItemsButton={false} />
+        <>
+          <div className="px-3 pb-2">
+            <SidebarProfileCompletion />
+          </div>
+          <ProfileSection
+            {...defaultRenderSectionProps}
+            isItemsButton={false}
+          />
+        </>
       );
     }
 
@@ -572,7 +647,7 @@ export const SidebarDesktop = ({
       />
       <nav
         aria-label="Primary navigation"
-        className="flex h-dvh min-h-dvh w-16 shrink-0 flex-col items-center gap-1 px-3 py-3"
+        className="flex h-dvh min-h-dvh w-16 shrink-0 flex-col items-center gap-1 px-3 pb-3 pt-6"
       >
         <Tooltip side="right" content="Home">
           <div>
@@ -643,6 +718,11 @@ export const SidebarDesktop = ({
                   label={category.label}
                   panel={renderCategorySection(category.id)}
                   enabled={!isSelected || !sidebarExpanded}
+                  alignOffset={
+                    category.id === SidebarSelectedCategory.Profile
+                      ? RAIL_HOVER_PROFILE_ALIGN_OFFSET
+                      : undefined
+                  }
                 >
                   <button
                     type="button"
@@ -672,14 +752,17 @@ export const SidebarDesktop = ({
           aria-label="Sidebar utilities"
           className="mt-auto flex flex-col items-center gap-1"
         >
+          <SidebarThemeButton />
+          <SidebarSupportButton />
+
           <RailHoverCard
             label="Settings"
             panel={renderCategorySection(SidebarSelectedCategory.Settings)}
             enabled={!isSettingsSelected || !sidebarExpanded}
           >
-            <Link href={settingsUrl} passHref>
+            <Link href={settingsDefaultPath} passHref>
               <a
-                href={settingsUrl}
+                href={settingsDefaultPath}
                 role="tab"
                 id={`sidebar-category-${SidebarSelectedCategory.Settings}`}
                 aria-controls="sidebar-context-panel"
@@ -692,6 +775,12 @@ export const SidebarDesktop = ({
                 onClick={() =>
                   onSelectCategory(SidebarSelectedCategory.Settings)
                 }
+                onMouseEnter={() =>
+                  onPrefetchCategory(SidebarSelectedCategory.Settings)
+                }
+                onFocus={() =>
+                  onPrefetchCategory(SidebarSelectedCategory.Settings)
+                }
               >
                 <SettingsIcon
                   secondary={isSettingsSelected}
@@ -701,8 +790,6 @@ export const SidebarDesktop = ({
               </a>
             </Link>
           </RailHoverCard>
-
-          <SidebarSupportButton />
         </div>
       </nav>
 
@@ -732,45 +819,30 @@ export const SidebarDesktop = ({
         )}
       >
         {isHomePanel ? (
-          <div className="flex items-center justify-between gap-1 px-2 pt-3">
-            {isLoggedIn ? (
-              <ProfileButton compact className="max-w-[calc(100%-5.25rem)]" />
-            ) : (
-              <div className="flex-1" />
-            )}
-
-            <div className="ml-auto flex shrink-0 items-center gap-1">
-              {isLoggedIn && <SidebarStreakButton />}
-
-              <Tooltip side="bottom" content="Close sidebar">
-                <button
-                  type="button"
-                  onClick={onToggleExpanded}
-                  aria-label="Close sidebar"
-                  className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                >
-                  <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
-                </button>
-              </Tooltip>
-            </div>
-          </div>
-        ) : (
-          <div className="flex h-10 items-center justify-between gap-1 px-3 pt-3">
-            <Typography bold type={TypographyType.Body}>
-              {utilityPanelTitle}
-            </Typography>
-            <div className="flex shrink-0 items-center gap-1">
-              {isSquadsPanel && (
-                <Tooltip side="bottom" content="New Squad">
-                  <button
-                    type="button"
-                    onClick={() => openNewSquad({ origin: Origin.Sidebar })}
-                    aria-label="New Squad"
-                    className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                  >
-                    <PlusIcon size={IconSize.XSmall} aria-hidden />
-                  </button>
-                </Tooltip>
+          <div className="pl-4 pr-3 pt-6">
+            <div className="flex h-10 items-center justify-between gap-2">
+              {isLoggedIn && user ? (
+                <Link href={`${webappUrl}${user.username}`} passHref>
+                  <a className="focus-outline flex min-w-0 flex-1 items-center gap-2 rounded-8 text-text-primary transition-colors hover:text-text-link">
+                    <ProfilePicture
+                      user={user}
+                      size={ProfileImageSize.XSmall}
+                      nativeLazyLoading
+                    />
+                    <Typography
+                      bold
+                      truncate
+                      type={TypographyType.Callout}
+                      className="min-w-0"
+                    >
+                      {user.name ?? user.username}
+                    </Typography>
+                  </a>
+                </Link>
+              ) : (
+                <Typography bold type={TypographyType.Callout}>
+                  daily.dev
+                </Typography>
               )}
               <Tooltip side="bottom" content="Close sidebar">
                 <button
@@ -784,16 +856,57 @@ export const SidebarDesktop = ({
               </Tooltip>
             </div>
           </div>
+        ) : (
+          <div className="pl-4 pr-3 pt-6">
+            <div className="flex h-10 items-center justify-between gap-1">
+              <Typography bold type={TypographyType.Callout}>
+                {utilityPanelTitle}
+              </Typography>
+              <div className="flex shrink-0 items-center gap-1">
+                {isSquadsPanel && (
+                  <Tooltip side="bottom" content="New Squad">
+                    <button
+                      type="button"
+                      onClick={() => openNewSquad({ origin: Origin.Sidebar })}
+                      aria-label="New Squad"
+                      className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                    >
+                      <PlusIcon size={IconSize.XSmall} aria-hidden />
+                    </button>
+                  </Tooltip>
+                )}
+                <Tooltip side="bottom" content="Close sidebar">
+                  <button
+                    type="button"
+                    onClick={onToggleExpanded}
+                    aria-label="Close sidebar"
+                    className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  >
+                    <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
+                  </button>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isHomePanel && isLoggedIn && (
+          <div className="mt-2 px-3">
+            <SidebarHeaderStats />
+          </div>
         )}
 
         {!isUtilityPanelSelected && (
-          <div className="px-3 pt-2">
-            <CreatePostButton
-              className="!flex w-full justify-start whitespace-nowrap"
-              size={ButtonSize.Small}
-              showIcon
-            />
-          </div>
+          <>
+            <div className="px-3 pt-2">
+              <CreatePostButton
+                className="!flex w-full justify-start whitespace-nowrap"
+                size={ButtonSize.Small}
+                showIcon
+              />
+            </div>
+            <HorizontalSeparator className="mx-3 mt-3" />
+          </>
         )}
 
         {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
@@ -804,11 +917,14 @@ export const SidebarDesktop = ({
 
         <SidebarScrollWrapper
           className={classNames(
-            'mt-2 min-h-0 flex-1',
+            'min-h-0 flex-1',
+            isUtilityPanelSelected ? 'mt-1' : 'mt-2',
             showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
           )}
         >
-          <Nav>{renderSelectedSection()}</Nav>
+          <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : undefined}>
+            {renderSelectedSection()}
+          </Nav>
           {selectedCategory === SidebarSelectedCategory.Main && (
             <div className="px-3 pb-3">
               <HighlightPostSidebarWidget />

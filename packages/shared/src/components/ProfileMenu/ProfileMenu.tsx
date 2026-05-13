@@ -20,8 +20,6 @@ import { HorizontalSeparator } from '../utilities';
 import { ProfileSection } from './ProfileSection';
 import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { useCustomizeNewTabMenuItem } from './sections/ExtensionSection';
-import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
-import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
 const ExtensionSection = dynamic(() =>
   import(
@@ -40,8 +38,6 @@ export default function ProfileMenu({
 }: ProfileMenuProps): ReactElement | null {
   const { events } = useRouter();
   const { user, logout } = useAuthContext();
-  const { showIndicator: showProfileCompletion } =
-    useProfileCompletionIndicator();
   const customizeMenuItem = useCustomizeNewTabMenuItem(onClose);
 
   useEffect(() => {
@@ -56,6 +52,12 @@ export default function ProfileMenu({
     return null;
   }
 
+  const logoutItem = {
+    title: 'Log out',
+    icon: ExitIcon,
+    onClick: () => logout(LogoutReason.ManualLogout),
+  };
+
   return (
     <InteractivePopup
       onClose={onClose}
@@ -63,7 +65,6 @@ export default function ProfileMenu({
       position={position}
       className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
-      {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader />
       <ProfileMenuStats />
 
@@ -90,15 +91,7 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <ProfileSection
-          items={[
-            {
-              title: 'Log out',
-              icon: ExitIcon,
-              onClick: () => logout(LogoutReason.ManualLogout),
-            },
-          ]}
-        />
+        <ProfileSection items={[logoutItem]} />
       </nav>
     </InteractivePopup>
   );

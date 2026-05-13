@@ -5,8 +5,9 @@ import type { Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
 
-interface SquadImageProps extends Squad {
+interface SquadImageProps extends Pick<Squad, 'handle' | 'name'> {
   className?: string;
+  image?: string | null;
 }
 
 export const SquadImage = ({

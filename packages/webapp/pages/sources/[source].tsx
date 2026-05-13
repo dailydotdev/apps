@@ -66,6 +66,7 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
+import { useRecordRecentSourceVisit } from '@dailydotdev/shared/src/hooks/feed/useRecentPages';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -220,6 +221,7 @@ const SourcePage = ({
   const { shouldShowAuthBanner } = useOnboardingActions();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
   const { user } = useContext(AuthContext);
+  useRecordRecentSourceVisit(source);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
       source: source?.id,

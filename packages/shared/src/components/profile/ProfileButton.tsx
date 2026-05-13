@@ -65,7 +65,6 @@ export default function ProfileButton({
     typeof animatedReputation === 'number'
       ? animatedReputation
       : user?.reputation;
-
   const preciseBalance = formatCurrency(displayedBalance, {
     minimumFractionDigits: 0,
   });

@@ -4,7 +4,6 @@ import type { ReactElement } from 'react';
 import { ProfileSection } from '../ProfileSection';
 import {
   DocsIcon,
-  FeedbackIcon,
   MegaphoneIcon,
   PhoneIcon,
   PrivacyIcon,
@@ -23,11 +22,6 @@ export const ResourceSection = (): ReactElement => {
     <ProfileSection
       title="Help center"
       items={[
-        {
-          title: 'Your Feedback',
-          icon: FeedbackIcon,
-          href: `${settingsUrl}/feedback`,
-        },
         {
           title: 'Privacy',
           icon: PrivacyIcon,
