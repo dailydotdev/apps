@@ -33,6 +33,7 @@ import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
+import { BriefShortcutButton } from '../cards/brief/BriefShortcutButton';
 import { LogEvent, Origin } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
 import {
@@ -183,6 +184,10 @@ export const SearchControlHeader = ({
         }
       />
     ),
+    <BriefShortcutButton
+      key="brief-shortcut"
+      className={isLaptop ? compactTextButtonClassName : undefined}
+    />,
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}

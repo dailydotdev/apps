@@ -94,8 +94,7 @@ export function FeedbackWidget({
   // dismissing it from the sidebar.
   const isSupport = placement === 'support';
   const isSidebar = placement === 'sidebar';
-  const isVisible =
-    !!user && !isMobile && (isSupport || showFeedbackButton);
+  const isVisible = !!user && !isMobile && (isSupport || showFeedbackButton);
 
   useEffect(() => {
     if (!isVisible) {

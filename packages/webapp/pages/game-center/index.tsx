@@ -703,19 +703,8 @@ function GameCenterPage({
 
   return (
     <ProtectedPage>
+      <PageHeader title="Game Center" />
       <div className="mx-auto w-full max-w-[72rem]">
-        <PageHeader
-          title={
-            <Typography
-              type={TypographyType.Callout}
-              bold
-              color={TypographyColor.Primary}
-              tag={TypographyTag.H1}
-            >
-              Game Center
-            </Typography>
-          }
-        />
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
           <section className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
             <div className="pointer-events-none absolute inset-0">

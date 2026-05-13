@@ -1087,7 +1087,6 @@ export const OnboardingV2 = (): ReactElement => {
                   feedName={showPersonalizedFeed ? 'default' : 'popular'}
                   isSearchOn={false}
                   hideFeedActionButtons
-                  disableBriefCard
                 />
               </ActiveFeedNameContext.Provider>
             </FeedLayoutProvider>

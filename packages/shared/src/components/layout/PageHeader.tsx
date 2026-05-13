@@ -6,8 +6,15 @@ import classNames from 'classnames';
 // need a custom internal layout (e.g. wide horizontal tabs that
 // shouldn't be locked inside the title/actions slot) can compose
 // their own `<header>` without duplicating the styling.
+//
+// `min-h-14` (56px = a Small button + py-3 on each side) locks the
+// strip to a consistent height across pages so a header with action
+// buttons (Profile's Save, API's Create token, ...) is the same
+// height as a header that only renders a title (Content sources,
+// Tags, ...). Without this, navigating between settings pages
+// caused a 12px vertical shift of the page content below.
 export const pageHeaderClassName =
-  'flex w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3';
+  'flex min-h-14 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3';
 
 export interface PageHeaderProps {
   /**

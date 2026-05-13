@@ -104,11 +104,6 @@ export const featureCores = new Feature('cores', isDevelopment);
 // does not necessarily mean they can't boost a post if they have access to cores
 export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
 
-export const briefCardFeedFeature = new Feature(
-  'brief_card_feed',
-  isDevelopment,
-);
-
 export const profileCompletionCardFeature = new Feature(
   'profile_completion_card',
   false,

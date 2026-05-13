@@ -9,10 +9,8 @@ import {
   LeaderboardType,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
-import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -77,98 +75,96 @@ const LeaderboardPage = ({
   }
 
   return (
-    <PageWrapperLayout>
-      <div className="mb-6 hidden justify-between laptop:flex">
-        <BreadCrumbs>
-          <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
-        </BreadCrumbs>
-      </div>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-        {isHighestLevelSupported && (
+    <>
+      <PageHeader title="Leaderboard" />
+      <PageWrapperLayout>
+        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
+          {isHighestLevelSupported && (
+            <UserTopList
+              containerProps={{
+                title: 'Highest level',
+                titleHref: `/users/${LeaderboardType.HighestLevel}`,
+              }}
+              items={highestLevel}
+              isLoading={isLoading}
+              showLevel
+            />
+          )}
           <UserTopList
             containerProps={{
-              title: 'Highest level',
-              titleHref: `/users/${LeaderboardType.HighestLevel}`,
+              title: 'Highest reputation',
+              titleHref: `/users/${LeaderboardType.HighestReputation}`,
             }}
-            items={highestLevel}
+            items={highestReputation}
             isLoading={isLoading}
-            showLevel
           />
-        )}
-        <UserTopList
-          containerProps={{
-            title: 'Highest reputation',
-            titleHref: `/users/${LeaderboardType.HighestReputation}`,
-          }}
-          items={highestReputation}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Longest streak',
-            titleHref: `/users/${LeaderboardType.LongestStreak}`,
-          }}
-          items={longestStreak}
-          isLoading={isLoading}
-          concatScore={false}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Highest post views',
-            titleHref: `/users/${LeaderboardType.HighestPostViews}`,
-          }}
-          items={highestPostViews}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most upvoted',
-            titleHref: `/users/${LeaderboardType.MostUpvoted}`,
-          }}
-          items={mostUpvoted}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most referrals',
-            titleHref: `/users/${LeaderboardType.MostReferrals}`,
-          }}
-          items={mostReferrals}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most reading days',
-            titleHref: `/users/${LeaderboardType.MostReadingDays}`,
-          }}
-          items={mostReadingDays}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most achievement points',
-            titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
-          }}
-          items={mostAchievementPoints}
-          isLoading={isLoading}
-        />
-        <CompanyTopList
-          containerProps={{
-            title: 'Most verified employees',
-            titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
-          }}
-          items={mostVerifiedUsers}
-          isLoading={isLoading}
-        />
-        <PopularHotTakesList
-          containerProps={{
-            title: 'Most popular hot takes',
-          }}
-          items={popularHotTakes}
-          isLoading={isLoading}
-        />
-      </div>
-    </PageWrapperLayout>
+          <UserTopList
+            containerProps={{
+              title: 'Longest streak',
+              titleHref: `/users/${LeaderboardType.LongestStreak}`,
+            }}
+            items={longestStreak}
+            isLoading={isLoading}
+            concatScore={false}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Highest post views',
+              titleHref: `/users/${LeaderboardType.HighestPostViews}`,
+            }}
+            items={highestPostViews}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most upvoted',
+              titleHref: `/users/${LeaderboardType.MostUpvoted}`,
+            }}
+            items={mostUpvoted}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most referrals',
+              titleHref: `/users/${LeaderboardType.MostReferrals}`,
+            }}
+            items={mostReferrals}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most reading days',
+              titleHref: `/users/${LeaderboardType.MostReadingDays}`,
+            }}
+            items={mostReadingDays}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most achievement points',
+              titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
+            }}
+            items={mostAchievementPoints}
+            isLoading={isLoading}
+          />
+          <CompanyTopList
+            containerProps={{
+              title: 'Most verified employees',
+              titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
+            }}
+            items={mostVerifiedUsers}
+            isLoading={isLoading}
+          />
+          <PopularHotTakesList
+            containerProps={{
+              title: 'Most popular hot takes',
+            }}
+            items={popularHotTakes}
+            isLoading={isLoading}
+          />
+        </div>
+      </PageWrapperLayout>
+    </>
   );
 };
 

@@ -24,14 +24,27 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
+
+// Stable DOM ids for the per-page title / actions portal targets that
+// `AccountPageContainer` writes into via `createPortal`. Using fixed
+// ids (queried with `document.getElementById` from the consumer) avoids
+// having to expose live DOM nodes via React state — the previous
+// "ref={setState}" approach fired a state update during ref detach in
+// the commit phase, which on settings pages cascaded into React's
+// "Maximum update depth exceeded" guard.
+export const SETTINGS_HEADER_TITLE_PORTAL_ID = 'settings-header-title-portal';
+export const SETTINGS_HEADER_ACTIONS_PORTAL_ID =
+  'settings-header-actions-portal';
 
 const ProfileSettingsMenuMobile = dynamic(
   () =>
@@ -58,6 +71,8 @@ export const navigationKey = generateQueryKey(
   RequestKey.AccountNavigation,
   undefined,
 );
+
+const SETTINGS_BASE_TITLE = 'Settings';
 
 export default function SettingsLayout({
   children,
@@ -120,6 +135,25 @@ export default function SettingsLayout({
     );
   }
 
+  // Flat title structure on purpose: the "Settings" base label and the
+  // per-page portal target are direct text/element children of the same
+  // h1 so the portal can inject text nodes inline without wrestling
+  // with `display: contents` inside a `truncate` wrapper (which was
+  // causing portaled content to silently not render in some hydration
+  // orders, leaving the header stuck at "Settings" only).
+  const laptopHeaderTitle = (
+    <Typography
+      bold
+      tag={TypographyTag.H1}
+      type={TypographyType.Callout}
+      truncate
+      className="min-w-0 flex-1"
+    >
+      {SETTINGS_BASE_TITLE}
+      <span id={SETTINGS_HEADER_TITLE_PORTAL_ID} />
+    </Typography>
+  );
+
   return (
     <>
       {!isMobile && !isLaptop && (
@@ -153,13 +187,21 @@ export default function SettingsLayout({
           />
         </div>
       )}
+      {isLaptop && (
+        <PageHeader title={laptopHeaderTitle}>
+          <span id={SETTINGS_HEADER_ACTIONS_PORTAL_ID} className="contents" />
+        </PageHeader>
+      )}
       {router.query.redirectTo && router.query.redirectCopy && (
         <button
           type="button"
           onClick={() => router.push(router.query.redirectTo as string)}
           className="flex w-full items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-surface-float px-6 py-3 text-left transition-colors hover:bg-surface-hover"
         >
-          <ArrowIcon className="-rotate-90 text-text-tertiary" />
+          <ArrowIcon
+            size={IconSize.XSmall}
+            className="-rotate-90 text-text-tertiary"
+          />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}

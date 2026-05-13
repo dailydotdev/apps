@@ -6,19 +6,19 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -94,51 +94,50 @@ const SourcesPage = ({
   ).slice(0, 100);
 
   return (
-    <PageWrapperLayout className="py-6">
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: getSourcesSchemas(uniqueSources),
-          }}
-        />
-      </Head>
-      <div className="flex justify-between">
-        <BreadCrumbs>
-          <SitesIcon size={IconSize.XSmall} secondary /> Sources
-        </BreadCrumbs>
+    <>
+      <PageHeader title="Sources">
         <Button
           icon={<PlusIcon />}
-          variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
-          className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
           onClick={() => openModal({ type: LazyModal.NewSource })}
         >
-          Suggest new source
+          {isLaptop ? <span>Suggest new source</span> : null}
         </Button>
-      </div>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
-        <SourceTopList
-          containerProps={{ title: 'Trending sources' }}
-          items={trendingSources}
-          isLoading={isLoading}
-        />
-        <SourceTopList
-          containerProps={{ title: 'Popular sources' }}
-          items={popularSources}
-          isLoading={isLoading}
-        />
-        <SourceTopList
-          containerProps={{ title: 'Recently added sources' }}
-          items={mostRecentSources}
-          isLoading={isLoading}
-        />
-        <SourceTopList
-          containerProps={{ title: 'Top video sources' }}
-          items={topVideoSources}
-          isLoading={isLoading}
-        />
-      </div>
-    </PageWrapperLayout>
+      </PageHeader>
+      <PageWrapperLayout className="py-6">
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: getSourcesSchemas(uniqueSources),
+            }}
+          />
+        </Head>
+        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
+          <SourceTopList
+            containerProps={{ title: 'Trending sources' }}
+            items={trendingSources}
+            isLoading={isLoading}
+          />
+          <SourceTopList
+            containerProps={{ title: 'Popular sources' }}
+            items={popularSources}
+            isLoading={isLoading}
+          />
+          <SourceTopList
+            containerProps={{ title: 'Recently added sources' }}
+            items={mostRecentSources}
+            isLoading={isLoading}
+          />
+          <SourceTopList
+            containerProps={{ title: 'Top video sources' }}
+            items={topVideoSources}
+            isLoading={isLoading}
+          />
+        </div>
+      </PageWrapperLayout>
+    </>
   );
 };
 

@@ -13,6 +13,7 @@ import {
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
+import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import {
   BaseFeedPage,
@@ -49,6 +50,8 @@ import {
   useFeedLayout,
   useJoinReferral,
   useSquad,
+  useViewSize,
+  ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import type { ClientError } from 'graphql-request';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -256,6 +259,7 @@ const SquadPage = ({
   const { displayToast } = useToastNotification();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -443,12 +447,21 @@ const SquadPage = ({
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
       {seoContent}
-      <PageHeader title={squad.name} />
+      <PageHeader title={squad.name}>
+        {isLaptop && (
+          <SquadHeaderBar
+            squad={squad}
+            members={squadMembers ?? []}
+            className="!gap-1"
+          />
+        )}
+      </PageHeader>
       <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}
           members={squadMembers ?? []}
           shouldUseListMode={shouldUseListMode}
+          hideHeaderBar={isLaptop}
         />
         <FeedPageComponent>
           <Feed

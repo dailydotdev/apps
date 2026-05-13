@@ -28,12 +28,7 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import {
-  LogEvent,
-  NotificationCtaPlacement,
-  Origin,
-  TargetId,
-} from '../lib/log';
+import { LogEvent, NotificationCtaPlacement, Origin } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -64,7 +59,6 @@ import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
-  briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
   featureReaderModal,
@@ -105,7 +99,6 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
-  disableBriefCard?: boolean;
 }
 
 interface RankVariables {
@@ -150,13 +143,6 @@ const ReaderPostModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
-    ),
-);
-
-const BriefCardFeed = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "briefCardFeed" */ './cards/brief/BriefCard/BriefCardFeed'
     ),
 );
 
@@ -208,7 +194,6 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
-  disableBriefCard = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -240,29 +225,9 @@ export default function Feed<T>({
     (marketingCta?.variant !== MarketingCtaVariant.BriefCard ||
       !hasDismissBriefCta);
   const { isSearchPageLaptop } = useSearchResultsLayout();
-  const hasNoBriefAction =
-    isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
 
-  const {
-    showProfileCompletionCard,
-    isLoading: isProfileCompletionCardLoading,
-  } = useProfileCompletionCard({ isMyFeed });
+  const { showProfileCompletionCard } = useProfileCompletionCard({ isMyFeed });
 
-  const hasDismissedBriefCard =
-    isActionsFetched && checkHasCompleted(ActionType.DismissBriefCard);
-
-  const shouldEvaluateBriefCard =
-    isMyFeed &&
-    hasNoBriefAction &&
-    !hasDismissedBriefCard &&
-    !showProfileCompletionCard &&
-    !isProfileCompletionCardLoading &&
-    !disableBriefCard;
-  const { value: briefCardFeatureValue } = useConditionalFeature({
-    feature: briefCardFeedFeature,
-    shouldEvaluate: shouldEvaluateBriefCard,
-  });
-  const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
@@ -315,7 +280,7 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
+  const showFirstSlotCard = showProfileCompletionCard;
   const {
     onOpenModal,
     onCloseModal,
@@ -368,7 +333,6 @@ export default function Feed<T>({
   );
   const {
     adjustedHeroInsertIndex,
-    shouldShowTopHero,
     shouldShowInFeedHero,
     title: readingReminderTitle,
     subtitle: readingReminderSubtitle,
@@ -377,7 +341,7 @@ export default function Feed<T>({
   } = useReadingReminderFeedHero({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
-    firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
+    firstSlotOffset: Number(showProfileCompletionCard),
   });
 
   useMutationSubscription({
@@ -670,15 +634,6 @@ export default function Feed<T>({
   const containerProps = isSearchPageLaptop
     ? {}
     : {
-        topContent: shouldShowTopHero ? (
-          <TopHero
-            className="pt-2"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
-            onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
-          />
-        ) : undefined,
         header,
         inlineHeader,
         className,
@@ -687,7 +642,6 @@ export default function Feed<T>({
         actionButtons,
         isHorizontal,
         feedContainerRef,
-        showBriefCard,
         disableListFrame,
       };
 
@@ -700,14 +654,6 @@ export default function Feed<T>({
           <>
             {showProfileCompletionCard && (
               <ProfileCompletionCard
-                className={{
-                  container: 'p-4 pt-0',
-                }}
-              />
-            )}
-            {showBriefCard && !showProfileCompletionCard && (
-              <BriefCardFeed
-                targetId={TargetId.Feed}
                 className={{
                   container: 'p-4 pt-0',
                 }}

@@ -12,7 +12,12 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
+import {
+  LogEvent,
+  NotificationTarget,
+  TargetType,
+  NotificationCtaPlacement,
+} from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -37,6 +42,8 @@ import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
+import { TopHero } from './banners/HeroBottomBanner';
+import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -104,6 +111,17 @@ function MainLayoutComponent({
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useNotificationParams();
+
+  const {
+    shouldShowTopHero,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    onEnableHero: onEnableReadingReminder,
+    onDismissHero: onDismissReadingReminder,
+  } = useReadingReminderFeedHero({
+    itemCount: 0,
+    itemsPerRow: 1,
+  });
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -229,11 +247,37 @@ function MainLayoutComponent({
         <div
           className={classNames(
             'flex min-h-0 flex-1 flex-col',
-            sidebarOwnsHeader &&
-              'laptop:my-3 laptop:ml-1 laptop:mr-3 laptop:min-h-[calc(100vh-1.5rem)] laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
+            sidebarOwnsHeader && 'laptop:my-3 laptop:ml-1 laptop:mr-3',
           )}
         >
-          {children}
+          {shouldShowTopHero && (
+            <TopHero
+              className={classNames(
+                'mx-4 mb-3',
+                sidebarOwnsHeader && 'laptop:mx-0',
+              )}
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              onCtaClick={() =>
+                onEnableReadingReminder(NotificationCtaPlacement.TopHero)
+              }
+              onClose={() =>
+                onDismissReadingReminder(NotificationCtaPlacement.TopHero)
+              }
+            />
+          )}
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col',
+              sidebarOwnsHeader &&
+                'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
+              sidebarOwnsHeader &&
+                !shouldShowTopHero &&
+                'laptop:min-h-[calc(100vh-1.5rem)]',
+            )}
+          >
+            {children}
+          </div>
         </div>
       </main>
       {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}

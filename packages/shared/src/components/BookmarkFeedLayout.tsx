@@ -184,16 +184,33 @@ export default function BookmarkFeedLayout({
     return null;
   }
 
+  // Compose the header title slot: on laptop we inline the search field
+  // beside the title so the master header strip carries everything the
+  // user needs (title + search + actions). Mobile/tablet keep the
+  // search rendered as a row below the header.
+  const headerTitleSlot = (
+    <div className="flex min-w-0 flex-1 items-center gap-3">
+      <Typography
+        bold
+        type={TypographyType.Callout}
+        tag={TypographyTag.H1}
+        truncate
+        className="shrink-0"
+      >
+        {title}
+      </Typography>
+      {isLaptop && searchChildren && (
+        <div className="ml-2 min-w-0 max-w-[20rem] flex-1">
+          {searchChildren}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <FeedPageLayoutComponent>
       {children}
-      <PageHeader
-        title={
-          <Typography bold type={TypographyType.Callout} tag={TypographyTag.H1}>
-            {title}
-          </Typography>
-        }
-      >
+      <PageHeader title={headerTitleSlot}>
         {!isSearchResults && (
           <Dropdown
             className={{
@@ -237,7 +254,7 @@ export default function BookmarkFeedLayout({
           <BookmarkFolderContextMenu folder={folder} />
         )}
       </PageHeader>
-      {searchChildren && (
+      {!isLaptop && searchChildren && (
         <CustomFeedHeader
           className={classNames(
             'mb-6 mt-4',

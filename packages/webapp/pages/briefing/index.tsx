@@ -153,64 +153,65 @@ const Page = (): ReactElement => {
 
   return (
     <ProtectedPage>
+      {/* Mobile keeps the legacy stacked header with back button.
+       * Laptop+ uses the unified slim PageHeader strip that spans the
+       * full floating card. */}
+      <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:hidden">
+        <Link href={`${webappUrl}bookmarks`}>
+          <Button
+            tag="a"
+            icon={<ArrowIcon className="-rotate-90" />}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+          />
+        </Link>
+        <Typography type={TypographyType.Title3} bold>
+          Presidential briefings
+        </Typography>
+        <div className="ml-auto flex items-center gap-2">
+          {isNotPlus && !emptyFeed && !hasTodayBrief && (
+            <Button
+              icon={<MagicIcon aria-hidden />}
+              onClick={() => router.push('/briefing/generate')}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+            >
+              Generate Brief
+            </Button>
+          )}
+          <Button
+            size={ButtonSize.Small}
+            icon={<SettingsIcon className="text-text-secondary" />}
+            onClick={() => {
+              router?.push(`${settingsUrl}/notifications`);
+            }}
+          />
+        </div>
+      </header>
+      <div className="hidden laptop:block">
+        <PageHeader title="Presidential briefings">
+          {isNotPlus && !emptyFeed && !hasTodayBrief && (
+            <Button
+              icon={<MagicIcon aria-hidden />}
+              onClick={() => router.push('/briefing/generate')}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+            >
+              Generate Brief
+            </Button>
+          )}
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            icon={<SettingsIcon className="text-text-secondary" />}
+            onClick={() => {
+              router?.push(`${settingsUrl}/notifications`);
+            }}
+          />
+        </PageHeader>
+      </div>
       <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
         <main className="relative flex flex-1 flex-col gap-6">
-          {/* Mobile keeps the legacy stacked header with back button.
-           * Laptop uses the unified slim PageHeader strip. */}
-          <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:hidden">
-            <Link href={`${webappUrl}bookmarks`}>
-              <Button
-                tag="a"
-                icon={<ArrowIcon className="-rotate-90" />}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-              />
-            </Link>
-            <Typography type={TypographyType.Title3} bold>
-              Presidential briefings
-            </Typography>
-            <div className="ml-auto flex items-center gap-2">
-              {isNotPlus && !emptyFeed && !hasTodayBrief && (
-                <Button
-                  icon={<MagicIcon aria-hidden />}
-                  onClick={() => router.push('/briefing/generate')}
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                >
-                  Generate Brief
-                </Button>
-              )}
-              <Button
-                size={ButtonSize.Small}
-                icon={<SettingsIcon className="text-text-secondary" />}
-                onClick={() => {
-                  router?.push(`${settingsUrl}/notifications`);
-                }}
-              />
-            </div>
-          </header>
-          <div className="hidden laptop:block">
-            <PageHeader title="Presidential briefings">
-              {isNotPlus && !emptyFeed && !hasTodayBrief && (
-                <Button
-                  icon={<MagicIcon aria-hidden />}
-                  onClick={() => router.push('/briefing/generate')}
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                >
-                  Generate Brief
-                </Button>
-              )}
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-                icon={<SettingsIcon className="text-text-secondary" />}
-                onClick={() => {
-                  router?.push(`${settingsUrl}/notifications`);
-                }}
-              />
-            </PageHeader>
-          </div>
           <div className="flex flex-col px-4">
             {isNotPlus &&
               !!firstBrief &&

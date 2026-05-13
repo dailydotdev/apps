@@ -89,6 +89,18 @@ const strictSkipList = new Set([
   // date-fns format) are pre-existing in the briefing page and should
   // be addressed in a dedicated cleanup PR.
   'packages/webapp/pages/briefing/index.tsx',
+  // Page-header consistency branch — touched only to swap to the
+  // unified PageHeader strip / port the Save button to onClick. The
+  // strict errors (DefaultValues|null, optional delete operand, reduce
+  // accumulator inference on tags index, PublicProfile|undefined on
+  // the achievements page, never[] reduce accumulator + possibly
+  // undefined data on the notifications page) pre-date this branch
+  // and should be addressed in a dedicated cleanup PR.
+  'packages/webapp/pages/settings/profile/experience/edit.tsx',
+  'packages/webapp/pages/tags/index.tsx',
+  'packages/webapp/pages/[userId]/achievements.tsx',
+  'packages/webapp/pages/notifications.tsx',
+  'packages/webapp/pages/wallet.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

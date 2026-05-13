@@ -16,6 +16,7 @@ import {
   pageBorders,
   pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
@@ -113,17 +114,12 @@ const Notifications = (): ReactElement => {
 
   return (
     <ProtectedPage>
+      <PageHeader title="Notifications" />
       <main
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
-        <h2
-          className="p-6 font-bold typo-body"
-          data-testid="notification_page-title"
-        >
-          Notifications
-        </h2>
         <InfiniteScrolling
           isFetchingNextPage={queryResult.isFetchingNextPage}
           canFetchMore={checkFetchMore(queryResult)}

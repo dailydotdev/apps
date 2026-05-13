@@ -37,6 +37,10 @@ interface SquadPageHeaderProps {
   squad: Squad;
   members: BasicSourceMember[];
   shouldUseListMode: boolean;
+  // When the unified PageHeader at the top of the floating card already
+  // hosts the action bar (laptop), hide the in-card duplicate so the
+  // squad identity card stays focused on identity + sharing.
+  hideHeaderBar?: boolean;
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
@@ -46,6 +50,7 @@ export function SquadPageHeader({
   squad,
   members,
   shouldUseListMode,
+  hideHeaderBar = false,
 }: SquadPageHeaderProps): ReactElement {
   const { openModal } = useLazyModal();
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
@@ -154,7 +159,9 @@ export function SquadPageHeader({
           {squad.description}
         </Typography>
       )}
-      <SquadHeaderBar squad={squad} members={members} className="mt-5" />
+      {!hideHeaderBar && (
+        <SquadHeaderBar squad={squad} members={members} className="mt-5" />
+      )}
       <Typography
         bold
         className="mt-6"

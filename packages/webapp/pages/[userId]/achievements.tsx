@@ -7,6 +7,7 @@ import {
   Typography,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { ProfileAchievements } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievements';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
@@ -51,6 +52,9 @@ const ProfileAchievementsPage = ({
           Achievements
         </Typography>
       </GoBackHeaderMobile>
+      <div className="hidden laptop:block">
+        <PageHeader title="Achievements" />
+      </div>
       <div className="p-6">
         <ProfileAchievements user={user} />
       </div>

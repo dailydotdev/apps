@@ -6,10 +6,8 @@ import { addDays, subDays } from 'date-fns';
 import {
   ResponsivePageContainer,
   Divider,
-  pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
-import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
-import classNames from 'classnames';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
   Typography,
   TypographyColor,
@@ -232,19 +230,8 @@ const Analytics = (): ReactElement => {
 
   return (
     <ProtectedPage>
+      <PageHeader title="Analytics" />
       <div className="mx-auto w-full max-w-[48rem]">
-        <LayoutHeader
-          className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
-        >
-          <Typography
-            type={TypographyType.Title3}
-            bold
-            color={TypographyColor.Primary}
-            className="flex-1"
-          >
-            Analytics
-          </Typography>
-        </LayoutHeader>
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
           <SectionContainer>
             <SectionHeader>Overview (last 45 days)</SectionHeader>

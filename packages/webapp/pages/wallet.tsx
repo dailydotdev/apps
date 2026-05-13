@@ -30,6 +30,7 @@ import {
 import { ListCardDivider } from '@dailydotdev/shared/src/components/cards/common/Card';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 
@@ -185,29 +186,26 @@ const Wallet = (): ReactElement => {
 
   return (
     <ProtectedPage>
+      <PageHeader title="Core wallet">
+        {canPurchaseCores && (
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
+            tag="a"
+            href={getPathnameWithQuery(
+              `${webappUrl}cores`,
+              new URLSearchParams({
+                origin: Origin.WalletPageCTA,
+              }),
+            )}
+          >
+            Buy Cores
+          </Button>
+        )}
+      </PageHeader>
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
         <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
-          <header className="flex items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2">
-            <Typography type={TypographyType.Title3} bold>
-              Core wallet
-            </Typography>
-            {canPurchaseCores && (
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
-                tag="a"
-                href={getPathnameWithQuery(
-                  `${webappUrl}cores`,
-                  new URLSearchParams({
-                    origin: Origin.WalletPageCTA,
-                  }),
-                )}
-              >
-                Buy Cores
-              </Button>
-            )}
-          </header>
           <div className="flex flex-col gap-6 p-6">
             <section className="flex w-full flex-wrap gap-4">
               <BalanceBlock
