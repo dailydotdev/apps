@@ -4,3 +4,6 @@ packages:
 # Delay new package versions for 7 days before pnpm may resolve them.
 minimumReleaseAge: 10080
 blockExoticSubdeps: true
+
+patchedDependencies:
+  graphql-request@3.7.0: patches/graphql-request@3.7.0.patch
