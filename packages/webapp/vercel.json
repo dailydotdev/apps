@@ -1,5 +1,5 @@
 {
-  "installCommand": "if [ -f pnpm-workspace.yaml ]; then pnpm install; elif [ -f ../../pnpm-workspace.yaml ]; then pnpm --dir ../.. install; else pnpm install; fi",
+  "installCommand": "if [ -f pnpm-workspace.yaml ]; then corepack pnpm@10.33.4 install; elif [ -f ../../pnpm-workspace.yaml ]; then corepack pnpm@10.33.4 --dir ../.. install; else corepack pnpm@10.33.4 install; fi",
   "github": {
     "silent": true
   }
