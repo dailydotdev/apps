@@ -59,7 +59,7 @@ export const useReadingReminderFeedHero = ({
     });
   const isHomePage = pathname === webappUrl;
   const shouldEvaluateReminderPlacement = isHomePage && shouldShow;
-  const { isInline } = useReadingReminderVariation({
+  const { isHero, isInline } = useReadingReminderVariation({
     shouldEvaluate: shouldEvaluateReminderPlacement,
   });
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
@@ -91,10 +91,10 @@ export const useReadingReminderFeedHero = ({
   }, [shouldShow]);
 
   const canShowReminderPlacements = shouldEvaluateReminderPlacement;
-  // TODO: TEMP for testing TopHero placement — force-show on home page
-  // regardless of variation/eligibility. Revert before merging.
   const shouldShowTopHero =
-    isHomePage && !dismissedPlacements[NotificationCtaPlacement.TopHero];
+    canShowReminderPlacements &&
+    isHero &&
+    !dismissedPlacements[NotificationCtaPlacement.TopHero];
   const shouldShowInFeedHero =
     canShowReminderPlacements &&
     isInline &&

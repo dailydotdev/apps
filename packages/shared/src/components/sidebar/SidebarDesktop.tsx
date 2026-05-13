@@ -502,7 +502,12 @@ export const SidebarDesktop = ({
       const targetPathname = new URL(targetPath, 'http://_').pathname;
       const currentPathname = activePage.split('?')[0];
       if (targetPathname !== currentPathname) {
-        router.push(targetPath).catch(() => undefined);
+        // `Promise.resolve` wraps the result so we can still attach
+        // `.catch` even when consumers (e.g. the next/router test
+        // mock) return `undefined` from `push` instead of a real
+        // Promise — otherwise tests that fire-click a category in
+        // the rail crash with "Cannot read .catch of undefined".
+        Promise.resolve(router.push(targetPath)).catch(() => undefined);
       }
     },
     [activePage, getCategoryDefaultPath, router, updateFlag],

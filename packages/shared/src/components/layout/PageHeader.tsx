@@ -55,7 +55,7 @@ export const PageHeader = ({
         // full-height tab navigation (with bottom-aligned underlines)
         // inside the title slot — the homepage feed-cards header was
         // designed around composable left-side content, not just text.
-        <div className="flex min-w-0 flex-1 self-stretch items-center">
+        <div className="flex min-w-0 flex-1 items-center self-stretch">
           {title}
         </div>
       ))}

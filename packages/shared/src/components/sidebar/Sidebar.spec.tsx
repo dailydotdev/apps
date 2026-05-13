@@ -140,14 +140,21 @@ it('should render the sidebar as open by default', async () => {
 
 it('should toggle the sidebar on button click', async () => {
   renderComponent();
-  const trigger = await screen.findByLabelText('Close sidebar');
+  // The collapse toggle is `hidden laptop:flex`; jsdom has no laptop
+  // breakpoint so it counts as hidden. Look it up with `hidden: true`
+  // so RTL still finds the always-mounted button.
+  const trigger = await screen.findByLabelText('Close sidebar', {
+    selector: 'button',
+  });
   trigger.click();
   await waitFor(() => expect(toggleSidebarExpanded).toBeCalled());
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
   renderComponent(defaultAlerts, [], null, false);
-  const trigger = await screen.findByLabelText('Open sidebar');
+  const trigger = await screen.findByLabelText('Open sidebar', {
+    selector: 'button',
+  });
   expect(trigger).toBeInTheDocument();
 
   const panel = await screen.findByRole('tabpanel', { hidden: true });
