@@ -2,8 +2,7 @@ import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureNewD1Experience } from '../../lib/featureManagement';
+import { useNewD1ExperienceFeature } from '../useNewD1ExperienceFeature';
 
 interface UseProfileCompletionIndicator {
   showIndicator: boolean;
@@ -29,8 +28,7 @@ export const useProfileCompletionIndicator =
     const shouldEvaluate =
       isActionsFetched && !isDismissed && profileCompletionPercentage < 100;
 
-    const { value: isNewD1Experience } = useConditionalFeature({
-      feature: featureNewD1Experience,
+    const { value: isNewD1Experience } = useNewD1ExperienceFeature({
       shouldEvaluate,
     });
 

@@ -289,6 +289,45 @@ export default {
           '30%': { transform: 'rotate(14deg)' },
           '45%': { transform: 'rotate(-8deg)' },
         },
+        'tag-pop': {
+          '0%': {
+            transform: 'scale(0.92)',
+            boxShadow: '0 0 0 0 transparent',
+          },
+          '40%': {
+            transform: 'scale(1.08)',
+            boxShadow:
+              '0 0 0 4px color-mix(in srgb, var(--theme-accent-cabbage-default) 35%, transparent)',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            boxShadow: '0 0 0 0 transparent',
+          },
+        },
+        'tag-spark': {
+          '0%': {
+            transform: 'translate(0, 0) scale(0.4)',
+            opacity: '0',
+          },
+          '20%': {
+            opacity: '1',
+          },
+          '100%': {
+            transform:
+              'translate(var(--spark-fx, 0px), var(--spark-fy, 0px)) scale(0)',
+            opacity: '0',
+          },
+        },
+        'tag-fade-out': {
+          '0%': {
+            transform: 'scale(1)',
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'scale(0.6)',
+            opacity: '0',
+          },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -304,6 +343,9 @@ export default {
           'queue-attention 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'queue-attention-wave':
           'queue-attention-wave 1.6s ease-in-out infinite',
+        'tag-pop': 'tag-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'tag-spark': 'tag-spark 0.6s ease-out both',
+        'tag-fade-out': 'tag-fade-out 0.25s ease-in forwards',
       },
     },
     lineClamp: {

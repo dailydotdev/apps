@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import Link from '../../utilities/Link';
 import type { UserShortProfile } from '../../../lib/user';
+import { fallbackImages } from '../../../lib/config';
 import EntityCard from './EntityCard';
 import {
   Typography,
@@ -82,7 +83,7 @@ const UserEntityCard = ({ user, className }: Props) => {
 
   const showActionBtns = !!user && !isLoading && !isSameUser;
 
-  if (!user || !id || !username || !image || !permalink || !createdAt) {
+  if (!user || !id || !username || !permalink || !createdAt) {
     return null;
   }
 
@@ -130,7 +131,7 @@ const UserEntityCard = ({ user, className }: Props) => {
   return (
     <EntityCard
       permalink={permalink}
-      image={image}
+      image={image || fallbackImages.avatar}
       type="user"
       className={{
         image: 'size-16 rounded-20',

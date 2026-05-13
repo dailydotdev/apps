@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   graphql-request@3.7.0:
-    hash: fxjjyfdyg6h6dchjekndlox4o4
+    hash: 0ab9ec08fff95d6fe401cbe554d4f92ca596df7c35c2636c4fd3fb2e914936aa
     path: patches/graphql-request@3.7.0.patch
 
 importers:
@@ -127,7 +127,7 @@ importers:
         version: 16.13.2
       graphql-request:
         specifier: ^3.6.1
-        version: 3.7.0(patch_hash=fxjjyfdyg6h6dchjekndlox4o4)(graphql@16.13.2)
+        version: 3.7.0(patch_hash=0ab9ec08fff95d6fe401cbe554d4f92ca596df7c35c2636c4fd3fb2e914936aa)(graphql@16.13.2)
       idb-keyval:
         specifier: ^5.1.5
         version: 5.1.5
@@ -639,7 +639,7 @@ importers:
         version: 16.13.2
       graphql-request:
         specifier: ^3.6.1
-        version: 3.7.0(patch_hash=fxjjyfdyg6h6dchjekndlox4o4)(graphql@16.13.2)
+        version: 3.7.0(patch_hash=0ab9ec08fff95d6fe401cbe554d4f92ca596df7c35c2636c4fd3fb2e914936aa)(graphql@16.13.2)
       idb-keyval:
         specifier: ^5.1.5
         version: 5.1.5
@@ -895,7 +895,7 @@ importers:
         version: 16.13.2
       graphql-request:
         specifier: ^3.7.0
-        version: 3.7.0(patch_hash=fxjjyfdyg6h6dchjekndlox4o4)(graphql@16.13.2)
+        version: 3.7.0(patch_hash=0ab9ec08fff95d6fe401cbe554d4f92ca596df7c35c2636c4fd3fb2e914936aa)(graphql@16.13.2)
       idb-keyval:
         specifier: ^5.1.5
         version: 5.1.5
@@ -16529,7 +16529,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graphql-request@3.7.0(patch_hash=fxjjyfdyg6h6dchjekndlox4o4)(graphql@16.13.2):
+  graphql-request@3.7.0(patch_hash=0ab9ec08fff95d6fe401cbe554d4f92ca596df7c35c2636c4fd3fb2e914936aa)(graphql@16.13.2):
     dependencies:
       cross-fetch: 3.1.8
       extract-files: 9.0.0
