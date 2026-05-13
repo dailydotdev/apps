@@ -296,6 +296,8 @@ const TagPage = ({
         PostType.Article,
         PostType.VideoYouTube,
         PostType.Collection,
+        PostType.Share,
+        PostType.Freeform,
       ],
       period: 365,
     }),
@@ -309,6 +311,8 @@ const TagPage = ({
         PostType.Article,
         PostType.VideoYouTube,
         PostType.Collection,
+        PostType.Share,
+        PostType.Freeform,
       ],
     }),
     [tag],
@@ -317,11 +321,31 @@ const TagPage = ({
     () => ({
       tag,
       period: 365,
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+        PostType.Share,
+        PostType.Freeform,
+      ],
     }),
     [tag],
   );
   // Must be memoized to prevent refreshing the feed
-  const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
+  const queryVariables = useMemo(
+    () => ({
+      tag,
+      ranking: 'TIME',
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+        PostType.Share,
+        PostType.Freeform,
+      ],
+    }),
+    [tag],
+  );
   const { feedSettings } = useFeedSettings();
   const { FeedPageLayoutComponent } = useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
