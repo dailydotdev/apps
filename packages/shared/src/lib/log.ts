@@ -97,7 +97,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  GuessWhoQuiz = 'guess who quiz',
 }
 
 export enum LogEvent {
@@ -323,11 +322,12 @@ export enum LogEvent {
   StartAiFluencyQuiz = 'start ai fluency quiz',
   CompleteAiFluencyQuiz = 'complete ai fluency quiz',
   ShareAiFluencyQuiz = 'share ai fluency quiz',
-  // Guess who quiz
-  StartGuessWhoQuiz = 'start guess who quiz',
-  AnswerGuessWhoQuestion = 'answer guess who question',
-  AnswerGuessWhoLlmQuestion = 'answer guess who llm question',
-  CompleteGuessWhoQuiz = 'complete guess who quiz',
+  // Persona quiz (onboarding funnel step)
+  StartPersonaQuiz = 'start persona quiz',
+  AnswerPersonaQuestion = 'answer persona question',
+  CompletePersonaQuiz = 'complete persona quiz',
+  PersonaQuizFeedback = 'persona quiz feedback',
+  PersonaQuizTagEdit = 'persona quiz tag edit',
   // Plus subscription
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',

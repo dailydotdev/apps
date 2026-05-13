@@ -1,0 +1,2403 @@
+import type { FunnelStepPersonaQuiz } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import {
+  FunnelStepTransitionType,
+  FunnelStepType,
+} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+
+export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
+  {
+    headline: 'Let me figure out who you are',
+    explainer:
+      'Answer a few quick questions and I’ll guess your developer profile.',
+    entryQuestionId: 'q_domain',
+    questions: [
+      // ============================================================
+      // Q1 — opener (10 options, each `next` → q2_<bucket>)
+      // ============================================================
+      {
+        id: 'q_domain',
+        axis: 'domain',
+        prompt: 'Be honest. Where do you actually live?',
+        cols: 1,
+        options: [
+          {
+            id: 'frontend',
+            label: 'Pushing pixels, arguing about CSS',
+            signal:
+              'Frontend / UI craft — building user interfaces (web, design systems, styling, client-side state)',
+            emoji: '🎨',
+            tagWeights: { frontend: 1, react: 1, css: 1 },
+            next: 'q2_frontend',
+          },
+          {
+            id: 'backend',
+            label: 'Wrangling APIs and grumpy databases',
+            signal:
+              'Backend engineering — APIs, business logic, databases, server-side systems',
+            emoji: '⚙️',
+            tagWeights: { backend: 1, api: 1, databases: 1 },
+            next: 'q2_backend',
+          },
+          {
+            id: 'fullstack',
+            label: 'Both sides of the API contract',
+            signal:
+              'Full-stack / end-to-end web — shipping both frontend and backend on the same product',
+            emoji: '🧩',
+            tagWeights: { fullstack: 1, 'web-development': 1 },
+            next: 'q2_fullstack',
+          },
+          {
+            id: 'mobile',
+            label: 'Two app stores, one bug tracker',
+            signal:
+              'Mobile or native app development — iOS, Android, React Native, Flutter, native desktop',
+            emoji: '📱',
+            tagWeights: { mobile: 1, ios: 1, android: 1 },
+            next: 'q2_mobile',
+          },
+          {
+            id: 'data-ml',
+            label: 'Anything that touches a dataframe',
+            signal:
+              'Data, ML, or AI engineering — BROAD lane covering data analytics / BI / dashboards, data engineering / ETL / pipelines, applied ML, MLOps, AI app building (RAG / agents), AND model research / training. Do not assume the user is specifically a model researcher — they could equally be an analyst, data engineer, ML engineer, or AI app builder.',
+            emoji: '🧪',
+            tagWeights: {
+              'machine-learning': 1,
+              'data-science': 1,
+              ai: 1,
+            },
+            next: 'q2_data_ml',
+          },
+          {
+            id: 'devops',
+            label: 'Fluent in YAML, fighting clouds',
+            signal:
+              'Cloud, infra, DevOps, platform, or SRE — broad lane: containers, IaC, CI/CD, observability, on-call, cloud architecture',
+            emoji: '🛠️',
+            tagWeights: { devops: 1, cloud: 1, infrastructure: 1 },
+            next: 'q2_devops',
+          },
+          {
+            id: 'security',
+            label: 'Paranoid is the job description',
+            signal:
+              'Security — offensive (red team / pentest), defensive (blue team / SOC), or AppSec / DevSecOps',
+            emoji: '🛡️',
+            tagWeights: { cybersecurity: 1, devsecops: 1 },
+            next: 'q2_security',
+          },
+          {
+            id: 'devtools',
+            label: 'Making other devs less miserable',
+            signal:
+              'Developer tools, developer experience, or internal platform — building infra, libraries, CLIs, frameworks, or IDPs that other engineers use',
+            emoji: '🧰',
+            tagWeights: { 'developer-tools': 1, productivity: 1 },
+            next: 'q2_devtools',
+          },
+          {
+            id: 'founder-non-eng',
+            label: 'Building the company more than the codebase',
+            signal:
+              'Tech founder, CTO, product manager, designer, or other non-engineering tech-adjacent role — interested in technology and engineering culture but not primarily writing production code day-to-day',
+            emoji: '💼',
+            tagWeights: {
+              startups: 1,
+              'product-management': 1,
+              business: 1,
+            },
+            next: 'q2_founder_non_eng',
+          },
+          {
+            id: 'specialty',
+            label: 'Closer to the metal than the cloud',
+            signal:
+              'Specialty / systems development — game dev, embedded / firmware, robotics, graphics, AR/VR, OS / compiler / database internals, hardware-adjacent work',
+            emoji: '🎮',
+            tagWeights: { 'game-development': 1, embedded: 1 },
+            next: 'q2_specialty',
+          },
+        ],
+      },
+
+      // ============================================================
+      // FRONTEND BRANCH (q2 → q3 × 2 → q4 × 4)
+      // ============================================================
+      {
+        id: 'q2_frontend',
+        axis: 'fe_design_vs_engineering',
+        cols: 3,
+        prompt: 'You shipped a pure-styling PR this week.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Frontend dev whose primary energy is visual craft — pixel-perfect implementation, brand fidelity, design polish, animation.',
+            tagWeights: { css: 1, tailwindcss: 1, 'design-systems': 1 },
+            next: 'q3_fe_design',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Frontend dev who values visual craft but is equally engaged by component architecture.',
+            tagWeights: { css: 1, frontend: 1 },
+            next: 'q3_fe_design',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Frontend dev whose primary energy is application engineering — routing, state, perf, build tooling.',
+            tagWeights: { frontend: 1, 'frontend-architecture': 1 },
+            next: 'q3_fe_engineering',
+          },
+        ],
+      },
+      {
+        id: 'q3_fe_design',
+        axis: 'fe_design_specialty',
+        cols: 3,
+        prompt: 'Other teams import components from a library you maintain.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Design-system maintainer — builds shared components used across teams or products.',
+            tagWeights: { 'design-systems': 1, components: 1, frontend: 1 },
+            next: 'q4_fe_ds_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Builds some shared components but mostly works on product UIs.',
+            tagWeights: { 'design-systems': 1, frontend: 1 },
+            next: 'q4_fe_ds_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Pure feature / product-UI implementer — designs land in code as one-off product screens.',
+            tagWeights: { css: 1, frontend: 1 },
+            next: 'q4_fe_ds_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_fe_engineering',
+        axis: 'fe_engineering_specialty',
+        cols: 3,
+        prompt:
+          'Your last technical write-up was about state management or routing.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'App architect — focused on state management, routing, component composition, frontend application architecture.',
+            tagWeights: {
+              'frontend-architecture': 1,
+              'state-management': 1,
+              frontend: 1,
+            },
+            next: 'q4_fe_arch_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Mixed — between app architecture and build / perf / DX concerns.',
+            tagWeights: { 'frontend-architecture': 1, frontend: 1 },
+            next: 'q4_fe_arch_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Frontend platform / build / performance engineer — works on build tools, monorepos, bundlers, perf, DX.',
+            tagWeights: {
+              'build-tools': 1,
+              'web-performance': 1,
+              'developer-tools': 1,
+            },
+            next: 'q4_fe_arch_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_fe_ds_yes',
+        axis: 'fe_ds_tokens_vs_components',
+        cols: 3,
+        prompt:
+          'Design tokens, theming, and dark-mode parity show up in your weekly tasks.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Design-token / theming specialist — works on tokens, themes, light/dark mode.',
+            tagWeights: { 'design-systems': 1, css: 1, theming: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Splits between tokens / themes and component code.',
+            tagWeights: { 'design-systems': 1, css: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Pure component-library maintainer — focuses on component API, not theming / tokens.',
+            tagWeights: { 'design-systems': 1, components: 1, react: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fe_ds_no',
+        axis: 'fe_motion_vs_static',
+        cols: 3,
+        prompt:
+          'Animation timing and transitions are something you actually tune.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Motion / interaction designer-dev — animation, transitions.',
+            tagWeights: { animation: 1, 'motion-design': 1, css: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Does some animation but mostly static UIs.',
+            tagWeights: { animation: 1, css: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Static / brand-polish implementer — focuses on visual polish without heavy animation.',
+            tagWeights: { css: 1, 'design-systems': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fe_arch_yes',
+        axis: 'fe_ssr_vs_csr',
+        cols: 3,
+        prompt:
+          'Server-side rendering and streaming are part of your daily mental model.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Modern-meta-framework architect — Next.js / Remix / streaming SSR / RSC.',
+            tagWeights: { nextjs: 1, react: 1, 'frontend-architecture': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Some SSR exposure but mostly classic SPA work.',
+            tagWeights: { nextjs: 1, react: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Classic SPA / state-management architect — client-side state, single-page apps.',
+            tagWeights: { react: 1, 'state-management': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fe_arch_no',
+        axis: 'fe_perf_vs_build',
+        cols: 3,
+        prompt:
+          'Your last performance improvement was about bundle size or load time.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Web-perf / Core Web Vitals engineer — runtime perf, load time, bundle size.',
+            tagWeights: { 'web-performance': 1, 'core-web-vitals': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Cares about perf but also build tooling.',
+            tagWeights: { 'web-performance': 1, frontend: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Build-tooling / DX engineer — bundlers, monorepos, codegen, build infra.',
+            tagWeights: { 'build-tools': 1, 'developer-tools': 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // BACKEND BRANCH
+      // ============================================================
+      {
+        id: 'q2_backend',
+        axis: 'be_api_vs_data',
+        cols: 3,
+        prompt: 'You debated endpoint naming or HTTP status codes this week.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Backend dev focused on API design, request/response shapes, business logic, services architecture.',
+            tagWeights: { api: 1, backend: 1, 'system-design': 1 },
+            next: 'q3_be_api',
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal:
+              'Backend dev who splits time between API work and data-layer work — small-team backend generalist.',
+            tagWeights: { backend: 1, api: 1, databases: 1 },
+            next: 'q3_be_api',
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Backend dev whose primary energy is data-layer / scale concerns — schema design, query performance, pipelines, distributed systems.',
+            tagWeights: {
+              databases: 1,
+              'distributed-systems': 1,
+              'data-engineering': 1,
+            },
+            next: 'q3_be_data',
+          },
+        ],
+      },
+      {
+        id: 'q3_be_api',
+        axis: 'be_distributed_vs_monolith',
+        cols: 3,
+        prompt:
+          'Your week had at least one discussion about service boundaries or distributed traces.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Service / distributed-systems-leaning backend — service boundaries, async messaging, distributed traces, microservices.',
+            tagWeights: {
+              'distributed-systems': 1,
+              microservices: 1,
+              'system-design': 1,
+            },
+            next: 'q4_be_api_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Working in a mix of distributed-services and monolith code.',
+            tagWeights: { microservices: 1, backend: 1 },
+            next: 'q4_be_api_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Monolith / domain-model-leaning backend — single deployable, rich domain logic, fewer service boundaries.',
+            tagWeights: { backend: 1, 'software-architecture': 1 },
+            next: 'q4_be_api_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_be_data',
+        axis: 'be_oltp_vs_pipelines',
+        cols: 3,
+        prompt: 'Your last week was tuning live queries, not batch pipelines.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'OLTP / live-database engineer — query tuning, transactional schema, indexing, real-time data.',
+            tagWeights: { databases: 1, sql: 1, postgresql: 1 },
+            next: 'q4_be_data_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal:
+              'Mixes OLTP work with some pipeline / batch responsibilities.',
+            tagWeights: { databases: 1, sql: 1 },
+            next: 'q4_be_data_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Data engineer focused on pipelines, batch jobs, streaming, or data warehousing.',
+            tagWeights: {
+              'data-engineering': 1,
+              etl: 1,
+              'data-pipelines': 1,
+            },
+            next: 'q4_be_data_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_be_api_yes',
+        axis: 'be_async_vs_sync',
+        cols: 3,
+        prompt:
+          'Your services talk over message queues or event streams as much as HTTP.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Async / event-driven architect — message queues, event sourcing, pub/sub, streaming.',
+            tagWeights: {
+              'event-driven-architecture': 1,
+              'message-queues': 1,
+              'distributed-systems': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Mix of synchronous APIs and event-driven flows.',
+            tagWeights: { 'event-driven-architecture': 1, microservices: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal: 'Synchronous-RPC service builder — REST / gRPC / GraphQL.',
+            tagWeights: { microservices: 1, api: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_be_api_no',
+        axis: 'be_domain_vs_thin',
+        cols: 3,
+        prompt: 'Domain models with rich business rules sit in your codebase.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'DDD / domain-driven engineer — rich domain models, aggregates, bounded contexts.',
+            tagWeights: {
+              'domain-driven-design': 1,
+              'software-architecture': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Some domain modeling but the codebase is mostly procedural / data-oriented.',
+            tagWeights: { 'software-architecture': 1, backend: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Thin-API / orchestrator engineer — the backend wraps third-party calls or simple CRUD.',
+            tagWeights: { api: 1, backend: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_be_data_yes',
+        axis: 'be_query_vs_schema',
+        cols: 3,
+        prompt:
+          'Your week had at least one EXPLAIN ANALYZE or query plan review.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'OLTP / query-tuning specialist — execution plans, indexes, slow-query analysis.',
+            tagWeights: {
+              postgresql: 1,
+              'query-optimization': 1,
+              databases: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Touches query tuning but most days are schema / data modeling.',
+            tagWeights: { databases: 1, sql: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Schema / data-modeling specialist — schema design, migrations, ER modeling.',
+            tagWeights: { databases: 1, 'data-modeling': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_be_data_no',
+        axis: 'be_batch_vs_streaming',
+        cols: 3,
+        prompt: 'Your data pipelines kick off on a cron schedule.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Batch / Airflow-style data engineer — scheduled DAGs, nightly ETL, warehouse loads.',
+            tagWeights: { 'data-engineering': 1, etl: 1, airflow: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Mostly batch but starting to add streaming jobs.',
+            tagWeights: { 'data-engineering': 1, airflow: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Streaming / CDC data engineer — Kafka / Flink / real-time event-driven pipelines.',
+            tagWeights: { kafka: 1, streaming: 1, 'data-engineering': 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // FULL-STACK BRANCH
+      // ============================================================
+      {
+        id: 'q2_fullstack',
+        axis: 'fs_product_vs_specialist',
+        cols: 3,
+        prompt: 'Idea on Monday, in prod by Friday — by you alone.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Product-building full-stack dev — works alone or in a small team, ships features across the whole stack. Likely startup / indie / small-team context.',
+            tagWeights: {
+              'web-development': 1,
+              fullstack: 1,
+              startups: 1,
+            },
+            next: 'q3_fs_product',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Full-stack dev who ships features end-to-end in a larger-team context with specialists nearby.',
+            tagWeights: { fullstack: 1, 'web-development': 1 },
+            next: 'q3_fs_product',
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Full-stack dev who is meaningfully stronger on one side — frontend-leaning or backend-leaning.',
+            tagWeights: { fullstack: 1, 'web-development': 1 },
+            next: 'q3_fs_specialist',
+          },
+        ],
+      },
+      {
+        id: 'q3_fs_product',
+        axis: 'fs_founder_vs_team',
+        cols: 3,
+        prompt: 'You decide what to build, not just how to build it.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Indie hacker / technical founder — controls product direction as well as engineering.',
+            tagWeights: {
+              startups: 1,
+              'indie-hacking': 1,
+              entrepreneurship: 1,
+            },
+            next: 'q4_fs_product_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Has input on what to build but works alongside a PM / designer.',
+            tagWeights: { startups: 1, 'web-development': 1 },
+            next: 'q4_fs_product_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Small-team full-stack who takes specs from PM / design and executes end-to-end.',
+            tagWeights: { 'web-development': 1, fullstack: 1 },
+            next: 'q4_fs_product_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_fs_specialist',
+        axis: 'fs_fe_vs_be_leaning',
+        cols: 3,
+        prompt: 'You’d rather pick up a frontend ticket than a backend one.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Frontend-leaning full-stack — frontend is home, backend is necessity.',
+            tagWeights: { frontend: 1, react: 1 },
+            next: 'q4_fs_spec_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Slight frontend lean but comfortable on both sides.',
+            tagWeights: { frontend: 1, fullstack: 1 },
+            next: 'q4_fs_spec_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Backend-leaning full-stack — backend is home, frontend is necessity.',
+            tagWeights: { backend: 1, api: 1 },
+            next: 'q4_fs_spec_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_fs_product_yes',
+        axis: 'fs_paid_vs_sideproject',
+        cols: 3,
+        prompt: 'Someone other than you has paid for something you built.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Solopreneur with paying customers — bootstrap / indie SaaS / niche product.',
+            tagWeights: { startups: 1, entrepreneurship: 1, saas: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'A little',
+            signal: 'Some revenue but mostly pre-revenue side projects.',
+            tagWeights: { startups: 1, entrepreneurship: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not yet',
+            signal:
+              'Pre-revenue / side-project builder — shipping, not earning yet.',
+            tagWeights: { 'indie-hacking': 1, 'side-projects': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fs_product_no',
+        axis: 'fs_external_vs_internal',
+        cols: 3,
+        prompt:
+          'Your product has external paying customers — not just internal users.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'External-customer SaaS team — product sold to other companies / consumers.',
+            tagWeights: { saas: 1, startups: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of external and internal stakeholders.',
+            tagWeights: { saas: 1, 'web-development': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Internal users',
+            signal:
+              'Internal-tools / B2E team — building for other employees, not external customers.',
+            tagWeights: { 'internal-tools': 1, productivity: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fs_spec_yes',
+        axis: 'fs_app_vs_marketing',
+        cols: 3,
+        prompt: 'Auth, accounts, and real-time state are in your weekly code.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Application-SaaS frontend specialist — auth flows, account mgmt, real-time UIs.',
+            tagWeights: { 'web-development': 1, react: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Mix of application code and marketing-site work.',
+            tagWeights: { 'web-development': 1, frontend: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Marketing-site / static-site frontend — landing pages, CMS, content sites.',
+            tagWeights: { frontend: 1, css: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fs_spec_no',
+        axis: 'fs_logic_vs_scale',
+        cols: 3,
+        prompt:
+          'Your backend handles complex business rules — not high-traffic load.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Business-domain backend engineer — complex rules, validations, workflows.',
+            tagWeights: { backend: 1, 'software-architecture': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of business logic and scale concerns.',
+            tagWeights: { backend: 1, api: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'High-traffic / scale backend engineer — caching, sharding, throughput.',
+            tagWeights: { backend: 1, performance: 1, scalability: 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // MOBILE BRANCH
+      // ============================================================
+      {
+        id: 'q2_mobile',
+        axis: 'mob_native_vs_xplat',
+        cols: 3,
+        prompt: 'Xcode or Android Studio is your daily IDE.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Native all the way',
+            signal:
+              'Native mobile dev — Swift, SwiftUI, Kotlin, Jetpack Compose. Platform-specific deep knowledge.',
+            tagWeights: { ios: 1, android: 1, swift: 1, kotlin: 1 },
+            next: 'q3_mobile_native',
+          },
+          {
+            id: 'sort_of',
+            label: 'Some of both',
+            signal:
+              'Mobile dev who works in both native and cross-platform stacks.',
+            tagWeights: { ios: 1, android: 1, mobile: 1 },
+            next: 'q3_mobile_native',
+          },
+          {
+            id: 'no',
+            label: 'Cross-platform world',
+            signal:
+              'Mobile dev who primarily uses cross-platform frameworks — React Native, Flutter, Expo.',
+            tagWeights: { 'react-native': 1, flutter: 1, mobile: 1 },
+            next: 'q3_mobile_xplat',
+          },
+        ],
+      },
+      {
+        id: 'q3_mobile_native',
+        axis: 'mob_ios_vs_android',
+        cols: 3,
+        prompt: 'iOS is where you ship most of your code.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Mostly iOS',
+            signal: 'iOS-primary native dev.',
+            tagWeights: { ios: 1, swift: 1 },
+            next: 'q4_mobile_native_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Both equally',
+            signal: 'Splits time between iOS and Android equally.',
+            tagWeights: { ios: 1, mobile: 1 },
+            next: 'q4_mobile_native_yes',
+          },
+          {
+            id: 'no',
+            label: 'Mostly Android',
+            signal: 'Android-primary native dev.',
+            tagWeights: { android: 1, kotlin: 1 },
+            next: 'q4_mobile_native_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_mobile_xplat',
+        axis: 'mob_rn_vs_flutter',
+        cols: 3,
+        prompt: 'Your codebase is JavaScript or TypeScript, not Dart.',
+        options: [
+          {
+            id: 'yes',
+            label: 'JS/TS world',
+            signal: 'React Native dev — JavaScript / TypeScript codebase.',
+            tagWeights: { 'react-native': 1, javascript: 1 },
+            next: 'q4_mobile_xplat_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Worked in both RN and Flutter.',
+            tagWeights: { 'react-native': 1, mobile: 1 },
+            next: 'q4_mobile_xplat_yes',
+          },
+          {
+            id: 'no',
+            label: 'Dart world',
+            signal: 'Flutter dev — Dart codebase.',
+            tagWeights: { flutter: 1, dart: 1 },
+            next: 'q4_mobile_xplat_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_mobile_native_yes',
+        axis: 'mob_ios_swiftui_vs_uikit',
+        cols: 3,
+        prompt: 'Your most recent screen was built in SwiftUI.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'iOS dev on SwiftUI — modern declarative UI.',
+            tagWeights: { swiftui: 1, ios: 1, swift: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Mix',
+            signal: 'Mix of SwiftUI and UIKit in the same codebase.',
+            tagWeights: { ios: 1, swift: 1 },
+          },
+          {
+            id: 'no',
+            label: 'UIKit life',
+            signal: 'iOS dev on UIKit — imperative legacy UI.',
+            tagWeights: { uikit: 1, ios: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_mobile_native_no',
+        axis: 'mob_android_compose_vs_views',
+        cols: 3,
+        prompt: 'Your most recent screen was built in Jetpack Compose.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Android dev on Jetpack Compose — modern declarative UI.',
+            tagWeights: { 'jetpack-compose': 1, android: 1, kotlin: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Mix',
+            signal: 'Mix of Compose and XML Views.',
+            tagWeights: { android: 1, kotlin: 1 },
+          },
+          {
+            id: 'no',
+            label: 'XML life',
+            signal: 'Android dev on XML / Views — legacy / imperative UI.',
+            tagWeights: { android: 1, kotlin: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_mobile_xplat_yes',
+        axis: 'mob_expo_vs_bare',
+        cols: 3,
+        prompt:
+          'Your build setup is fully managed by a CLI — no Xcode config files in sight.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Managed-workflow React Native dev (Expo-style).',
+            tagWeights: { expo: 1, 'react-native': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Mix',
+            signal: 'Started managed, eject occasionally for native modules.',
+            tagWeights: { expo: 1, 'react-native': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Bare RN',
+            signal:
+              'Bare-RN / native-module dev — custom native code is part of the workflow.',
+            tagWeights: { 'react-native': 1, mobile: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_mobile_xplat_no',
+        axis: 'mob_flutter_targets',
+        cols: 3,
+        prompt: 'Your Flutter targets are mobile only.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Mobile only',
+            signal: 'Mobile-first Flutter dev — iOS + Android targets.',
+            tagWeights: { flutter: 1, mobile: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Mostly',
+            signal: 'Mainly mobile but ships web or desktop occasionally.',
+            tagWeights: { flutter: 1, dart: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Multi-platform',
+            signal:
+              'Multi-platform Flutter dev — web / desktop / embedded targets too.',
+            tagWeights: { flutter: 1, 'web-development': 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // DATA / ML / AI BRANCH
+      // ============================================================
+      {
+        id: 'q2_data_ml',
+        axis: 'dml_models_vs_data',
+        cols: 3,
+        prompt: 'You ran a `model.fit()` or LLM eval this week.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Model-side practitioner — ML engineer, ML researcher, or AI app developer.',
+            tagWeights: {
+              'machine-learning': 1,
+              'deep-learning': 1,
+              ai: 1,
+            },
+            next: 'q3_dml_models',
+          },
+          {
+            id: 'sort_of',
+            label: 'Mixed',
+            signal:
+              'Builds with models AND wrangles data — applied ML / MLOps / RAG engineer.',
+            tagWeights: {
+              'machine-learning': 1,
+              'data-engineering': 1,
+              ai: 1,
+            },
+            next: 'q3_dml_models',
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Data-side practitioner — data engineer, analytics engineer, data analyst, BI developer.',
+            tagWeights: { 'data-engineering': 1, 'data-science': 1, sql: 1 },
+            next: 'q3_dml_data',
+          },
+        ],
+      },
+      {
+        id: 'q3_dml_models',
+        axis: 'dml_training_vs_app',
+        cols: 3,
+        prompt:
+          'Your week involved fine-tuning or training a model from scratch.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'ML researcher / training engineer — training models from scratch or fine-tuning.',
+            tagWeights: {
+              'machine-learning': 1,
+              'deep-learning': 1,
+              pytorch: 1,
+            },
+            next: 'q4_dml_models_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Does training occasionally but mostly builds on top of trained models.',
+            tagWeights: { 'machine-learning': 1, 'deep-learning': 1 },
+            next: 'q4_dml_models_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'AI app builder — uses existing models / APIs, builds RAG, agents, LLM-powered features.',
+            tagWeights: { ai: 1, llm: 1, rag: 1 },
+            next: 'q4_dml_models_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_dml_data',
+        axis: 'dml_analyst_vs_eng',
+        cols: 3,
+        prompt:
+          'Your output is dashboards and reports, not pipelines and warehouses.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Analyst / BI engineer — dashboards, reports, ad-hoc analysis, insights.',
+            tagWeights: {
+              'data-science': 1,
+              analytics: 1,
+              'business-intelligence': 1,
+            },
+            next: 'q4_dml_data_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of analysis and pipeline work.',
+            tagWeights: { 'data-science': 1, analytics: 1 },
+            next: 'q4_dml_data_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Data engineer — pipelines, warehouses, ETL/ELT, streaming infrastructure.',
+            tagWeights: { 'data-engineering': 1, etl: 1 },
+            next: 'q4_dml_data_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_dml_models_yes',
+        axis: 'dml_nlp_vs_cv',
+        cols: 3,
+        prompt: 'Your models work with text and language.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'NLP / LLM researcher — text, language, transformers.',
+            tagWeights: {
+              llm: 1,
+              nlp: 1,
+              'natural-language-processing': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Works on both text and other modalities.',
+            tagWeights: { llm: 1, 'machine-learning': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Other',
+            signal:
+              'CV / tabular ML researcher — images, structured data, classical ML.',
+            tagWeights: { 'computer-vision': 1, 'machine-learning': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_dml_models_no',
+        axis: 'dml_rag_vs_agents',
+        cols: 3,
+        prompt: 'Retrieval and re-ranking sit at the center of your day.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'RAG / search engineer — retrieval, ranking, embeddings, vector search.',
+            tagWeights: { rag: 1, 'vector-search': 1, embeddings: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Some RAG work but also agent loops or other LLM-app patterns.',
+            tagWeights: { rag: 1, llm: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Agent / autonomy engineer — multi-step agents, tool use, planning.',
+            tagWeights: { agents: 1, llm: 1, 'agentic-ai': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_dml_data_yes',
+        axis: 'dml_experimentation_vs_dashboards',
+        cols: 3,
+        prompt: 'Your work involves A/B tests or causal analysis.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Experimentation / product-analytics engineer.',
+            tagWeights: { experimentation: 1, 'ab-testing': 1, analytics: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Mix of experimentation and dashboards.',
+            tagWeights: { analytics: 1, 'data-science': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Mostly dashboards',
+            signal:
+              'Pure dashboard / BI analyst — reports, ad-hoc queries, stakeholder asks.',
+            tagWeights: { 'business-intelligence': 1, analytics: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_dml_data_no',
+        axis: 'dml_streaming_vs_batch',
+        cols: 3,
+        prompt:
+          'Your pipelines react to events in real time, not nightly cron jobs.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Streaming / CDC data engineer — Kafka / Flink / real-time pipelines.',
+            tagWeights: { kafka: 1, streaming: 1, 'data-engineering': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of streaming and batch.',
+            tagWeights: { 'data-engineering': 1, streaming: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Mostly batch',
+            signal:
+              'Batch / warehouse data engineer — scheduled DAGs, nightly loads.',
+            tagWeights: { 'data-engineering': 1, etl: 1, airflow: 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // DEVOPS BRANCH
+      // ============================================================
+      {
+        id: 'q2_devops',
+        axis: 'do_platform_vs_sre',
+        cols: 3,
+        prompt: 'Engineers slack you about broken CI, not prod outages.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Platform side',
+            signal:
+              'Platform engineer / IDP builder — internal tools, CI/CD, golden paths.',
+            tagWeights: {
+              'platform-engineering': 1,
+              devops: 1,
+              'developer-tools': 1,
+            },
+            next: 'q3_do_platform',
+          },
+          {
+            id: 'sort_of',
+            label: 'Both hats',
+            signal: 'DevOps generalist who builds platforms AND owns on-call.',
+            tagWeights: {
+              devops: 1,
+              'platform-engineering': 1,
+              sre: 1,
+            },
+            next: 'q3_do_platform',
+          },
+          {
+            id: 'no',
+            label: 'Run-ops side',
+            signal:
+              'SRE / production-ops engineer — reliability, incident response, on-call.',
+            tagWeights: { sre: 1, 'site-reliability': 1, observability: 1 },
+            next: 'q3_do_sre',
+          },
+        ],
+      },
+      {
+        id: 'q3_do_platform',
+        axis: 'do_sdk_vs_iac',
+        cols: 3,
+        prompt: 'Your last release was an internal library or CLI tool.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Internal SDK / CLI / DX engineer — libraries, CLIs, code generators for internal use.',
+            tagWeights: {
+              'developer-tools': 1,
+              productivity: 1,
+              'platform-engineering': 1,
+            },
+            next: 'q4_do_platform_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of SDK / library work and infra work.',
+            tagWeights: { 'developer-tools': 1, 'platform-engineering': 1 },
+            next: 'q4_do_platform_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'IaC / cluster-ops / cloud platform engineer — Terraform, Helm, K8s manifests.',
+            tagWeights: { kubernetes: 1, terraform: 1, infrastructure: 1 },
+            next: 'q4_do_platform_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_do_sre',
+        axis: 'do_incident_vs_reliability',
+        cols: 3,
+        prompt:
+          'Your last week had at least one incident bridge or postmortem.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Incident responder — active on-call rotation, war-rooms, postmortems.',
+            tagWeights: {
+              sre: 1,
+              'site-reliability': 1,
+              'incident-response': 1,
+            },
+            next: 'q4_do_sre_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'On-call but not as the primary firefighter.',
+            tagWeights: { sre: 1, observability: 1 },
+            next: 'q4_do_sre_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Reliability / capacity / observability engineer — proactive work, less firefighting.',
+            tagWeights: {
+              observability: 1,
+              'site-reliability': 1,
+              performance: 1,
+            },
+            next: 'q4_do_sre_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_do_platform_yes',
+        axis: 'do_sdks_vs_localdev',
+        cols: 3,
+        prompt: 'Your work ships as SDKs or CLIs other engineers install.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Internal SDK / CLI maintainer.',
+            tagWeights: {
+              'developer-tools': 1,
+              cli: 1,
+              'platform-engineering': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'A mix',
+            signal: 'Mix of SDKs and local-dev scripts.',
+            tagWeights: { 'developer-tools': 1, 'platform-engineering': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Local-dev focus',
+            signal:
+              'Local-dev tooling / IDE-plugin maintainer — scaffolds, scripts, devbox.',
+            tagWeights: { 'developer-tools': 1, productivity: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_do_platform_no',
+        axis: 'do_k8s_vs_iac',
+        cols: 3,
+        prompt: 'Kubernetes manifests fill your daily files.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'K8s / container-orchestration engineer.',
+            tagWeights: {
+              kubernetes: 1,
+              containers: 1,
+              'cloud-native': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of K8s and IaC.',
+            tagWeights: { kubernetes: 1, devops: 1 },
+          },
+          {
+            id: 'no',
+            label: 'IaC mostly',
+            signal:
+              'IaC / Terraform / cloud engineer — provisioning rather than orchestration.',
+            tagWeights: { terraform: 1, 'infrastructure-as-code': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_do_sre_yes',
+        axis: 'do_customer_vs_internal',
+        cols: 3,
+        prompt: 'Your pages are about customer-facing services.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Customer-facing',
+            signal: 'Customer-facing on-call SRE — user-impacting outages.',
+            tagWeights: {
+              sre: 1,
+              'site-reliability': 1,
+              'incident-response': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Mix',
+            signal: 'On-call for both customer-facing and internal services.',
+            tagWeights: { sre: 1, observability: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Internal-only',
+            signal:
+              'Internal-platform SRE — infrastructure incidents, internal services.',
+            tagWeights: { sre: 1, infrastructure: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_do_sre_no',
+        axis: 'do_chaos_vs_capacity',
+        cols: 3,
+        prompt: 'Chaos and load testing show up in your week.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Chaos / resilience engineer — fault injection, load tests, game days.',
+            tagWeights: { 'chaos-engineering': 1, resilience: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Some chaos work, also capacity / observability.',
+            tagWeights: { sre: 1, resilience: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Capacity focus',
+            signal: 'Capacity / cost optimization engineer.',
+            tagWeights: { sre: 1, performance: 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // SECURITY BRANCH
+      // ============================================================
+      {
+        id: 'q2_security',
+        axis: 'sec_offensive_vs_defensive',
+        cols: 3,
+        prompt:
+          'Your reports describe how to break things, not how to fix them.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Red side',
+            signal:
+              'Offensive security — pentester, red team, vulnerability researcher.',
+            tagWeights: {
+              'penetration-testing': 1,
+              hacking: 1,
+              cybersecurity: 1,
+            },
+            next: 'q3_sec_offensive',
+          },
+          {
+            id: 'sort_of',
+            label: 'Purple-ish',
+            signal: 'Security dev who does both offensive and defensive work.',
+            tagWeights: {
+              cybersecurity: 1,
+              'penetration-testing': 1,
+              devsecops: 1,
+            },
+            next: 'q3_sec_offensive',
+          },
+          {
+            id: 'no',
+            label: 'Blue side',
+            signal:
+              'Defensive security — SOC, incident response, AppSec, DevSecOps.',
+            tagWeights: {
+              cybersecurity: 1,
+              devsecops: 1,
+              'application-security': 1,
+            },
+            next: 'q3_sec_defensive',
+          },
+        ],
+      },
+      {
+        id: 'q3_sec_offensive',
+        axis: 'sec_web_vs_binary',
+        cols: 3,
+        prompt: 'Your work targets web apps and APIs, not binaries or kernels.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Web / app',
+            signal:
+              'Web / app pentester — OWASP, REST/GraphQL attacks, auth bypasses.',
+            tagWeights: {
+              'web-security': 1,
+              'application-security': 1,
+              'penetration-testing': 1,
+            },
+            next: 'q4_sec_off_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Works on web AND binary / native targets.',
+            tagWeights: { cybersecurity: 1, 'penetration-testing': 1 },
+            next: 'q4_sec_off_yes',
+          },
+          {
+            id: 'no',
+            label: 'Low-level',
+            signal:
+              'Binary / exploit / kernel researcher — reverse engineering, exploit dev.',
+            tagWeights: { cybersecurity: 1, 'reverse-engineering': 1 },
+            next: 'q4_sec_off_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_sec_defensive',
+        axis: 'sec_appsec_vs_soc',
+        cols: 3,
+        prompt: 'Your daily defensive work happens at the code-review stage.',
+        options: [
+          {
+            id: 'yes',
+            label: 'AppSec',
+            signal:
+              'AppSec / secure-coding engineer — code review, threat modeling.',
+            tagWeights: {
+              'application-security': 1,
+              devsecops: 1,
+              'code-review': 1,
+            },
+            next: 'q4_sec_def_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of AppSec and detection / response.',
+            tagWeights: { cybersecurity: 1, 'application-security': 1 },
+            next: 'q4_sec_def_yes',
+          },
+          {
+            id: 'no',
+            label: 'Detection',
+            signal:
+              'SOC / detection / incident-response engineer — alerts, triage, IR.',
+            tagWeights: { cybersecurity: 1, siem: 1 },
+            next: 'q4_sec_def_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_sec_off_yes',
+        axis: 'sec_consultant_vs_inhouse',
+        cols: 3,
+        prompt: 'Your engagements rotate across multiple companies.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Consultant pentester / agency red team.',
+            tagWeights: { cybersecurity: 1, 'penetration-testing': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Mostly in-house with occasional engagements.',
+            tagWeights: { cybersecurity: 1, 'penetration-testing': 1 },
+          },
+          {
+            id: 'no',
+            label: 'In-house',
+            signal: 'In-house red team — single employer.',
+            tagWeights: { cybersecurity: 1, 'application-security': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_sec_off_no',
+        axis: 'sec_active_vs_ctf',
+        cols: 3,
+        prompt:
+          "You've published or disclosed a vulnerability in the last year.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Active vulnerability researcher / 0day / bug bounty.',
+            tagWeights: { cybersecurity: 1, 'vulnerability-research': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'A little',
+            signal: 'Some disclosures plus CTF / hobby work.',
+            tagWeights: { cybersecurity: 1, hacking: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Hobbyist',
+            signal:
+              'CTF player / hobbyist / learning — no public disclosures yet.',
+            tagWeights: { ctf: 1, hacking: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_sec_def_yes',
+        axis: 'sec_supplychain_vs_review',
+        cols: 3,
+        prompt:
+          'Supply-chain and dependency security is part of your weekly work.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Supply-chain / SBOM security engineer.',
+            tagWeights: { 'supply-chain-security': 1, devsecops: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of supply-chain and code-review work.',
+            tagWeights: { cybersecurity: 1, devsecops: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Code review',
+            signal: 'Code-review / SAST AppSec engineer.',
+            tagWeights: { 'application-security': 1, 'code-review': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_sec_def_no',
+        axis: 'sec_siem_vs_edr',
+        cols: 3,
+        prompt: 'Your daily work is in SIEM log queries.',
+        options: [
+          {
+            id: 'yes',
+            label: 'SIEM',
+            signal: 'SIEM / log-detection engineer.',
+            tagWeights: { siem: 1, 'threat-detection': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of SIEM and endpoint telemetry.',
+            tagWeights: { cybersecurity: 1, 'threat-detection': 1 },
+          },
+          {
+            id: 'no',
+            label: 'EDR',
+            signal: 'EDR / endpoint-detection engineer.',
+            tagWeights: { 'endpoint-security': 1, cybersecurity: 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // DEV TOOLS / DX BRANCH
+      // ============================================================
+      {
+        id: 'q2_devtools',
+        axis: 'dt_external_vs_internal',
+        cols: 3,
+        prompt:
+          'Your last release shipped to a public package registry — npm, PyPI, crates, Maven.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Public product',
+            signal:
+              'Dev-tools dev shipping externally — open-source maintainer, library author, dev-tools company employee.',
+            tagWeights: {
+              'developer-tools': 1,
+              'open-source': 1,
+              productivity: 1,
+            },
+            next: 'q3_dt_external',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes external',
+            signal:
+              'Internal platform dev who also publishes open-source side projects.',
+            tagWeights: { 'developer-tools': 1, 'open-source': 1 },
+            next: 'q3_dt_external',
+          },
+          {
+            id: 'no',
+            label: 'Internal only',
+            signal:
+              'Internal IDP / DX engineer — tooling exclusively for engineers inside the company.',
+            tagWeights: { 'platform-engineering': 1, 'developer-tools': 1 },
+            next: 'q3_dt_internal',
+          },
+        ],
+      },
+      {
+        id: 'q3_dt_external',
+        axis: 'dt_oss_vs_commercial',
+        cols: 3,
+        prompt:
+          "You maintain an open-source project — your name's in the contributors graph.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal: 'Open-source maintainer.',
+            tagWeights: { 'open-source': 1, 'developer-tools': 1 },
+            next: 'q4_dt_ext_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'A little',
+            signal: 'Some OSS plus commercial dev-tools work.',
+            tagWeights: { 'developer-tools': 1, 'open-source': 1 },
+            next: 'q4_dt_ext_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not really',
+            signal:
+              'Commercial dev-tools company employee — closed-source product work.',
+            tagWeights: { 'developer-tools': 1, saas: 1 },
+            next: 'q4_dt_ext_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_dt_internal',
+        axis: 'dt_ci_vs_dx',
+        cols: 3,
+        prompt:
+          'Your work is in build pipelines and runners, not in linters or code generators.',
+        options: [
+          {
+            id: 'yes',
+            label: 'CI / build',
+            signal: 'CI / build / release infra engineer.',
+            tagWeights: {
+              'ci-cd': 1,
+              'build-tools': 1,
+              'developer-tools': 1,
+            },
+            next: 'q4_dt_int_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of build infra and DX tooling.',
+            tagWeights: { 'developer-tools': 1, productivity: 1 },
+            next: 'q4_dt_int_yes',
+          },
+          {
+            id: 'no',
+            label: 'DX / linters',
+            signal: 'DX / linters / scaffolds / code-gen engineer.',
+            tagWeights: { 'developer-tools': 1, productivity: 1 },
+            next: 'q4_dt_int_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_dt_ext_yes',
+        axis: 'dt_library_vs_cli',
+        cols: 3,
+        prompt: "Your package shows up in users' import statements.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Library',
+            signal: 'Library / framework author — imported as code dependency.',
+            tagWeights: { 'open-source': 1, frameworks: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Maintains both libraries and CLIs.',
+            tagWeights: { 'open-source': 1, 'developer-tools': 1 },
+          },
+          {
+            id: 'no',
+            label: 'CLI',
+            signal: 'CLI / standalone-tool author — invoked from shell.',
+            tagWeights: { cli: 1, 'developer-tools': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_dt_ext_no',
+        axis: 'dt_cloud_vs_ide',
+        cols: 3,
+        prompt: 'Your product runs on your servers as a service.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Cloud-side',
+            signal: 'Cloud-side dev-tools SaaS engineer.',
+            tagWeights: { saas: 1, 'developer-tools': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of cloud-side service and client-side tooling.',
+            tagWeights: { 'developer-tools': 1, saas: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Editor side',
+            signal: 'IDE / editor / desktop dev-tools engineer.',
+            tagWeights: { editors: 1, ides: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_dt_int_yes',
+        axis: 'dt_buildperf_vs_release',
+        cols: 3,
+        prompt: 'Build speed and incremental compilation matter to you.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Build perf',
+            signal:
+              'Build-perf / caching specialist — incremental builds, distributed cache.',
+            tagWeights: { 'build-tools': 1, performance: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of build perf and release infra.',
+            tagWeights: { 'build-tools': 1, 'developer-tools': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Release',
+            signal:
+              'Release / artifact-management specialist — versioning, packaging, rollouts.',
+            tagWeights: { 'ci-cd': 1, 'release-management': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_dt_int_no',
+        axis: 'dt_codegen_vs_lint',
+        cols: 3,
+        prompt: 'Code generators and project scaffolds are in your day.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Codegen',
+            signal: 'Codegen / scaffolds / template engineer.',
+            tagWeights: { 'code-generation': 1, 'developer-tools': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of codegen and static analysis.',
+            tagWeights: { 'developer-tools': 1, productivity: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Linters',
+            signal: 'Linter / static-analysis engineer.',
+            tagWeights: { 'static-analysis': 1, linting: 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // FOUNDER / NON-ENG BRANCH
+      // ============================================================
+      {
+        id: 'q2_founder_non_eng',
+        axis: 'fn_technical_vs_nontechnical',
+        cols: 3,
+        prompt:
+          "You wrote and merged your own PR this week, not just reviewed others'.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Hands-on',
+            signal:
+              'Hands-on technical leader — CTO, technical founder, principal-with-management role. Still writes production code.',
+            tagWeights: {
+              startups: 1,
+              leadership: 1,
+              'engineering-management': 1,
+            },
+            next: 'q3_fn_technical',
+          },
+          {
+            id: 'sort_of',
+            label: 'Code-curious',
+            signal:
+              'Non-engineering tech-adjacent role (PM, designer, founder) who codes for prototypes / side projects.',
+            tagWeights: {
+              'product-management': 1,
+              startups: 1,
+              business: 1,
+            },
+            next: 'q3_fn_technical',
+          },
+          {
+            id: 'no',
+            label: 'Not in IDE',
+            signal:
+              'Pure non-engineering role — product, design, marketing, business, ops.',
+            tagWeights: {
+              'product-management': 1,
+              business: 1,
+              leadership: 1,
+            },
+            next: 'q3_fn_nontechnical',
+          },
+        ],
+      },
+      {
+        id: 'q3_fn_technical',
+        axis: 'fn_founder_vs_ic',
+        cols: 3,
+        prompt: 'Your name is on the cap table.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Founder',
+            signal: 'Founder / CTO — equity holder, decision maker.',
+            tagWeights: {
+              startups: 1,
+              leadership: 1,
+              entrepreneurship: 1,
+            },
+            next: 'q4_fn_tech_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Some equity',
+            signal:
+              'Early employee with meaningful equity, near-founder responsibilities.',
+            tagWeights: { startups: 1, leadership: 1 },
+            next: 'q4_fn_tech_yes',
+          },
+          {
+            id: 'no',
+            label: 'Not founder',
+            signal:
+              'Principal IC / EM who still codes — strong influence but not equity-holder.',
+            tagWeights: { 'engineering-management': 1, leadership: 1 },
+            next: 'q4_fn_tech_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_fn_nontechnical',
+        axis: 'fn_product_vs_business',
+        cols: 3,
+        prompt:
+          'Your day involves designs, specs, or roadmaps — not revenue spreadsheets.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Product/design',
+            signal: 'PM / designer — product strategy, specs, design.',
+            tagWeights: {
+              'product-management': 1,
+              design: 1,
+              ux: 1,
+            },
+            next: 'q4_fn_nontech_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of product and business work.',
+            tagWeights: { 'product-management': 1, business: 1 },
+            next: 'q4_fn_nontech_yes',
+          },
+          {
+            id: 'no',
+            label: 'Business/ops',
+            signal: 'Business / ops / marketing — revenue, growth, operations.',
+            tagWeights: { business: 1, marketing: 1 },
+            next: 'q4_fn_nontech_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_fn_tech_yes',
+        axis: 'fn_earlystage_vs_growing',
+        cols: 3,
+        prompt: 'Your team is 5 people or fewer.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Tiny team',
+            signal: 'Pre-seed / seed founder — small, scrappy team.',
+            tagWeights: { startups: 1, 'early-stage': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: '5-20',
+            signal: 'Small but growing team.',
+            tagWeights: { startups: 1, entrepreneurship: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Larger',
+            signal: 'Series A+ / growing CTO — managing a larger team.',
+            tagWeights: { startups: 1, 'engineering-management': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fn_tech_no',
+        axis: 'fn_principal_vs_em',
+        cols: 3,
+        prompt: 'You spend more time in PR reviews than in 1:1 meetings.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Principal-IC',
+            signal:
+              'Principal-IC type still in code — strong technical influence.',
+            tagWeights: {
+              'software-architecture': 1,
+              'engineering-leadership': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Hybrid IC / manager.',
+            tagWeights: {
+              'engineering-leadership': 1,
+              'engineering-management': 1,
+            },
+          },
+          {
+            id: 'no',
+            label: 'EM',
+            signal: 'EM / line-manager who codes occasionally.',
+            tagWeights: { 'engineering-management': 1, leadership: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fn_nontech_yes',
+        axis: 'fn_design_vs_pm',
+        cols: 3,
+        prompt: 'Design files outnumber spec docs in your daily work.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Designer',
+            signal: 'Designer — UI / UX / product design.',
+            tagWeights: { design: 1, ux: 1, 'ui-design': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Designer-PM hybrid.',
+            tagWeights: { design: 1, 'product-management': 1 },
+          },
+          {
+            id: 'no',
+            label: 'PM',
+            signal: 'Product manager — specs, roadmaps, prioritization.',
+            tagWeights: { 'product-management': 1, business: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_fn_nontech_no',
+        axis: 'fn_marketing_vs_business',
+        cols: 3,
+        prompt: 'Your work is marketing or DevRel.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Marketing/DevRel',
+            signal: 'Marketing / DevRel — content, community, growth.',
+            tagWeights: {
+              marketing: 1,
+              'developer-relations': 1,
+              devrel: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of marketing and business / ops.',
+            tagWeights: { marketing: 1, business: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Business/ops',
+            signal: 'Business / ops / finance.',
+            tagWeights: { business: 1, operations: 1 },
+          },
+        ],
+      },
+
+      // ============================================================
+      // SPECIALTY BRANCH
+      // ============================================================
+      {
+        id: 'q2_specialty',
+        axis: 'sp_hardware_vs_software',
+        cols: 3,
+        prompt:
+          'Your code runs on something with a battery or a microcontroller.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Hardware in the loop',
+            signal:
+              'Embedded / firmware / robotics / IoT developer — code on physical hardware.',
+            tagWeights: { embedded: 1, iot: 1, robotics: 1 },
+            next: 'q3_sp_hardware',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Specialty dev who crosses into hardware occasionally — graphics, drivers, OS kernels.',
+            tagWeights: { 'systems-programming': 1, embedded: 1 },
+            next: 'q3_sp_hardware',
+          },
+          {
+            id: 'no',
+            label: 'Software only',
+            signal:
+              'Software-specialty dev — game development, graphics, compilers, DB internals, OS / kernel hacking.',
+            tagWeights: { 'game-development': 1, 'systems-programming': 1 },
+            next: 'q3_sp_software',
+          },
+        ],
+      },
+      {
+        id: 'q3_sp_hardware',
+        axis: 'sp_robotics_vs_embedded',
+        cols: 3,
+        prompt:
+          'Your code controls something that physically moves — actuators, motors, drones, vehicles.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Robotics',
+            signal: 'Robotics / drones / vehicles dev.',
+            tagWeights: { robotics: 1, embedded: 1 },
+            next: 'q4_sp_hw_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal:
+              'Some robotics adjacent work but mostly static-device embedded.',
+            tagWeights: { embedded: 1, iot: 1 },
+            next: 'q4_sp_hw_yes',
+          },
+          {
+            id: 'no',
+            label: 'Static devices',
+            signal: 'Embedded / firmware on static devices — no moving parts.',
+            tagWeights: { embedded: 1, firmware: 1 },
+            next: 'q4_sp_hw_no',
+          },
+        ],
+      },
+      {
+        id: 'q3_sp_software',
+        axis: 'sp_game_vs_internals',
+        cols: 3,
+        prompt:
+          'What you ship gets played, watched, or rendered — not invoked by other developers.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Game / graphics',
+            signal:
+              'Game dev / graphics / creative — players or end-users consume it.',
+            tagWeights: { 'game-development': 1, graphics: 1 },
+            next: 'q4_sp_sw_yes',
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of game / graphics and systems-internals work.',
+            tagWeights: { 'game-development': 1, 'systems-programming': 1 },
+            next: 'q4_sp_sw_yes',
+          },
+          {
+            id: 'no',
+            label: 'Systems internals',
+            signal:
+              'Systems internals — compilers, OS, DB engines, language runtimes.',
+            tagWeights: { 'systems-programming': 1, compilers: 1 },
+            next: 'q4_sp_sw_no',
+          },
+        ],
+      },
+      {
+        id: 'q4_sp_hw_yes',
+        axis: 'sp_consumer_vs_industrial',
+        cols: 3,
+        prompt: "Your devices end up in consumers' hands.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Consumer',
+            signal: 'Consumer IoT / wearables / smart-home dev.',
+            tagWeights: {
+              iot: 1,
+              'consumer-electronics': 1,
+              wearables: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'A bit of both',
+            signal: 'Mix of consumer and industrial.',
+            tagWeights: { iot: 1, embedded: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Industrial',
+            signal:
+              'Industrial / commercial / robotics — factories, labs, professional use.',
+            tagWeights: { robotics: 1, 'industrial-automation': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_sp_hw_no',
+        axis: 'sp_realtime_vs_general',
+        cols: 3,
+        prompt:
+          'Your firmware has hard real-time deadlines — measured in milliseconds.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Real-time',
+            signal:
+              'Real-time / safety-critical embedded — RTOS, hard deadlines.',
+            tagWeights: {
+              'real-time-systems': 1,
+              embedded: 1,
+              rtos: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sometimes',
+            signal: 'Some real-time work plus general-purpose firmware.',
+            tagWeights: { embedded: 1, 'real-time-systems': 1 },
+          },
+          {
+            id: 'no',
+            label: 'General',
+            signal: 'General-purpose embedded / IoT firmware — soft timing.',
+            tagWeights: { embedded: 1, firmware: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_sp_sw_yes',
+        axis: 'sp_game_vs_graphics',
+        cols: 3,
+        prompt: 'What you ship is a playable game.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Games',
+            signal: 'Game developer — gameplay, engine consumer.',
+            tagWeights: { 'game-development': 1, 'game-design': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of game dev and graphics / tools.',
+            tagWeights: { 'game-development': 1, graphics: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Graphics',
+            signal:
+              'Graphics / rendering / VFX specialist — engines, shaders, pipelines.',
+            tagWeights: { graphics: 1, rendering: 1, shaders: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q4_sp_sw_no',
+        axis: 'sp_compilers_vs_db',
+        cols: 3,
+        prompt:
+          "You write code that runs other people's code — compilers, runtimes, interpreters.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Compilers',
+            signal: 'Compiler / language-runtime engineer.',
+            tagWeights: { compilers: 1, 'programming-languages': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Both',
+            signal: 'Mix of compilers and systems internals.',
+            tagWeights: { compilers: 1, 'systems-programming': 1 },
+          },
+          {
+            id: 'no',
+            label: 'DB / OS',
+            signal: 'DB / OS / kernel internals engineer.',
+            tagWeights: {
+              databases: 1,
+              'operating-systems': 1,
+              'systems-programming': 1,
+            },
+          },
+        ],
+      },
+    ],
+    selection: {
+      minQuestions: 10,
+      maxQuestions: 14,
+      tagConfidenceFloor: 1,
+    },
+    enrichment: {
+      enabled: true,
+      targetTotalTags: 10,
+      fallbackTags: ['javascript', 'web-development', 'best-practices'],
+    },
+    reveal: {
+      eyebrow: 'You are a…',
+      cta: 'These look right',
+      feedbackCta: 'This isn’t me — let me tell you why',
+      feedbackPlaceholder:
+        'We screwed up. Tell us what we missed and we’ll keep tuning.',
+      addTagCta: 'Add another tag',
+    },
+  };
+
+export const buildSamplePersonaQuizStep = (
+  onTransition: FunnelStepPersonaQuiz['onTransition'],
+): FunnelStepPersonaQuiz => ({
+  id: 'persona-quiz-preview',
+  type: FunnelStepType.PersonaQuiz,
+  isActive: true,
+  parameters: personaQuizSampleParameters,
+  transitions: [
+    { on: FunnelStepTransitionType.Complete, destination: 'finish' },
+  ],
+  onTransition,
+});

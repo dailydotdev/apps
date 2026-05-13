@@ -31,6 +31,7 @@ export enum FunnelStepType {
   OrganicCheckout = 'organicCheckout',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
+  PersonaQuiz = 'personaQuiz',
 }
 
 export enum FunnelBackgroundVariant {
@@ -377,6 +378,63 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface PersonaQuizOption {
+  id: string;
+  /** Playful display label shown to the user. */
+  label: string;
+  /**
+   * Neutral, canonical description of what this option means. Sent to the LLM
+   * as the user's answer in place of `label`. Use when `label` is too playful
+   * to convey the bucket clearly. Falls back to `label`.
+   */
+  signal?: string;
+  emoji?: string;
+  tagWeights?: Record<string, number>;
+  next?: string | null;
+}
+
+export interface PersonaQuizQuestion {
+  id: string;
+  axis: string;
+  prompt: string;
+  imageUrl?: string;
+  cols?: number;
+  options: PersonaQuizOption[];
+}
+
+export interface FunnelStepPersonaQuizParameters {
+  headline?: string;
+  explainer?: string;
+  questions: PersonaQuizQuestion[];
+  entryQuestionId?: string;
+  selection: {
+    minQuestions: number;
+    maxQuestions: number;
+    tagConfidenceFloor: number;
+  };
+  enrichment: {
+    enabled: boolean;
+    targetTotalTags: number;
+    fallbackTags?: string[];
+  };
+  reveal: {
+    eyebrow?: string;
+    cta?: string;
+    feedbackCta?: string;
+    feedbackPlaceholder?: string;
+    addTagCta?: string;
+  };
+}
+
+export interface FunnelStepPersonaQuiz
+  extends FunnelStepCommon<FunnelStepPersonaQuizParameters> {
+  type: FunnelStepType.PersonaQuiz;
+  onTransition: FunnelStepTransitionCallback<{
+    tags: string[];
+    quizAnswers: Array<{ questionId: string; optionId: string }>;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -397,7 +455,8 @@ export type FunnelStep =
   | FunnelStepOrganicCheckout
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepPersonaQuiz;
 
 export type FunnelPosition = {
   chapter: number;
@@ -446,4 +505,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
+  FunnelStepType.PersonaQuiz,
 ];
