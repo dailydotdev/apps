@@ -54,6 +54,7 @@ export enum Origin {
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
   EditTag = 'edit_tag',
+  OnboardingPersona = 'onboarding persona',
   // Collection
   CollectionModal = 'collection modal',
   Settings = 'settings',
@@ -470,6 +471,8 @@ export enum LogEvent {
   ReaderEmbedReady = 'reader embed ready',
   ReaderEmbedPermissionRequired = 'reader embed permission required',
   ReaderEmbedError = 'reader embed error',
+  // Onboarding personas
+  SelectOnboardingPersona = 'select onboarding persona',
 }
 
 export enum TargetType {
