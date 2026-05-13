@@ -53,7 +53,11 @@ jest.mock('../ProfilePicture', () => ({
 }));
 
 jest.mock('../profile/ProfileTooltip', () => ({
-  ProfileTooltip: (props: { children: ReactElement; userId: string }) => {
+  ProfileTooltip: (props: {
+    children: ReactElement;
+    initialUser?: { name: string };
+    userId: string;
+  }) => {
     const mockReact = jest.requireActual('react') as Pick<
       typeof React,
       'cloneElement'
@@ -61,6 +65,7 @@ jest.mock('../profile/ProfileTooltip', () => ({
 
     return mockReact.cloneElement(props.children, {
       'data-profile-tooltip-user-id': props.userId,
+      'data-profile-tooltip-user-name': props.initialUser?.name,
     });
   },
 }));
@@ -106,18 +111,19 @@ describe('LiveRoomVideoTile', () => {
     expect(
       screen.getByRole('link', { name: defaultUser.name }),
     ).toHaveAttribute('data-profile-tooltip-user-id', defaultUser.id);
+    expect(
+      screen.getByRole('link', { name: defaultUser.name }),
+    ).toHaveAttribute('data-profile-tooltip-user-name', defaultUser.name);
   });
 
-  it('shows the profile tooltip on speaker names without profile links', () => {
+  it('does not show the profile tooltip on speaker names without profile links', () => {
     const user = { ...defaultUser, permalink: '' };
 
     render(<LiveRoomVideoTile stream={null} user={user} selfView={false} />);
 
     expect(
-      screen.getByText(user.name, {
-        selector: '[data-profile-tooltip-user-id]',
-      }),
-    ).toHaveAttribute('data-profile-tooltip-user-id', user.id);
+      screen.getByText(user.name, { selector: 'span' }),
+    ).not.toHaveAttribute('data-profile-tooltip-user-id');
   });
 
   it('unmutes the current speaker from the muted badge', () => {
