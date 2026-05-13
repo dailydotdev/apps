@@ -1,4 +1,5 @@
 {
+  "installCommand": "pnpm --dir ../.. install",
   "github": {
     "silent": true
   }
