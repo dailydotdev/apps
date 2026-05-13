@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import type { LiveRoomChatEntry } from '../../contexts/LiveRoomContext';
 import type { UserShortProfile } from '../../lib/user';
@@ -12,6 +13,19 @@ jest.mock('../Markdown', () => ({
 jest.mock('../ProfilePicture', () => ({
   ProfilePicture: () => <div>avatar</div>,
   ProfileImageSize: { Small: 'small' },
+}));
+
+jest.mock('../profile/ProfileTooltip', () => ({
+  ProfileTooltip: (props: { children: ReactElement; userId: string }) => {
+    const mockReact = jest.requireActual('react') as Pick<
+      typeof React,
+      'cloneElement'
+    >;
+
+    return mockReact.cloneElement(props.children, {
+      'data-profile-tooltip-user-id': props.userId,
+    });
+  },
 }));
 
 jest.mock('../tooltips/Portal', () => ({
@@ -163,6 +177,36 @@ describe('LiveRoomChatPanel', () => {
     window.requestAnimationFrame = originalRequestAnimationFrame;
     window.cancelAnimationFrame = originalCancelAnimationFrame;
     jest.useRealTimers();
+  });
+
+  it('links and shows the profile tooltip on resolved sender names and avatars', () => {
+    render(<LiveRoomChatPanel {...defaultProps} />);
+
+    const senderNameLink = screen.getByRole('link', { name: '@participant' });
+    expect(senderNameLink).toHaveAttribute(
+      'href',
+      participantProfile.permalink,
+    );
+    expect(senderNameLink).toHaveAttribute('target', '_blank');
+    expect(senderNameLink).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(senderNameLink).toHaveAttribute(
+      'data-profile-tooltip-user-id',
+      participantProfile.id,
+    );
+
+    const senderAvatarLink = screen.getByRole('link', {
+      name: 'Open @participant profile',
+    });
+    expect(senderAvatarLink).toHaveAttribute(
+      'href',
+      participantProfile.permalink,
+    );
+    expect(senderAvatarLink).toHaveAttribute('target', '_blank');
+    expect(senderAvatarLink).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(senderAvatarLink).toHaveAttribute(
+      'data-profile-tooltip-user-id',
+      participantProfile.id,
+    );
   });
 
   it('scrolls to the full height of a newly added long message', () => {

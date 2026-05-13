@@ -5,6 +5,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import {
@@ -17,8 +18,10 @@ import {
 } from '../icons';
 import { IconSize } from '../Icon';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 import type { LiveRoomParticipantRecord } from '../../lib/liveRoom/protocol';
 import type { UserShortProfile } from '../../lib/user';
+import { anchorDefaultRel } from '../../lib/strings';
 import {
   buildParticipantProfile,
   userDisplayName,
@@ -43,21 +46,62 @@ const StageParticipantItem = ({
   actions,
 }: StageParticipantItemProps): ReactElement => {
   const user = profile ?? buildParticipantProfile(participantId);
+  const displayName = userDisplayName(user);
+  const profilePermalink = profile?.permalink;
+  const avatar = profilePermalink ? (
+    <ProfileTooltip userId={profile.id} eager>
+      <a
+        href={profilePermalink}
+        target="_blank"
+        rel={anchorDefaultRel}
+        aria-label={`Open ${displayName} profile`}
+        className="shrink-0"
+      >
+        <ProfilePicture user={user} size={ProfileImageSize.Small} />
+      </a>
+    </ProfileTooltip>
+  ) : (
+    <ProfilePicture user={user} size={ProfileImageSize.Small} />
+  );
+  const name = profilePermalink ? (
+    <ProfileTooltip userId={profile.id} eager>
+      <a
+        href={profilePermalink}
+        target="_blank"
+        rel={anchorDefaultRel}
+        className="min-w-0"
+      >
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+          bold
+          truncate
+          className="hover:underline"
+          title={displayName}
+        >
+          {displayName}
+        </Typography>
+      </a>
+    </ProfileTooltip>
+  ) : (
+    <Typography
+      tag={TypographyTag.Span}
+      type={TypographyType.Footnote}
+      bold
+      truncate
+      title={displayName}
+    >
+      {displayName}
+    </Typography>
+  );
 
   return (
     <li className="flex min-w-0 items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-3 py-2">
       {leading}
-      <ProfilePicture user={user} size={ProfileImageSize.Small} />
+      {avatar}
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
-          <Typography
-            type={TypographyType.Footnote}
-            bold
-            truncate
-            title={userDisplayName(user)}
-          >
-            {userDisplayName(user)}
-          </Typography>
+          {name}
           {badgeLabel ? (
             <span className="shrink-0 rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-water-bolder">
               {badgeLabel}
