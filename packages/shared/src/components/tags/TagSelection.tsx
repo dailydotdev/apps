@@ -1,29 +1,28 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import type { QueryFilters } from '@tanstack/react-query';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import useFeedSettings, {
-  getFeedSettingsQueryKey,
-} from '../../hooks/useFeedSettings';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
-import type {
-  AllTagCategoriesData,
-  TagsData,
-} from '../../graphql/feedSettings';
+import type { TagsData } from '../../graphql/feedSettings';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  GET_ONBOARDING_TAGS_QUERY,
-  GET_RECOMMENDED_TAGS_QUERY,
-  ONBOARDING_RECOMMEND_TAGS_MUTATION,
-} from '../../graphql/feedSettings';
+import { GET_ONBOARDING_TAGS_QUERY } from '../../graphql/feedSettings';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingTagRecommender } from '../../lib/featureManagement';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
+import { useRecommendedTags } from '../../hooks/useRecommendedTags';
 import { Origin } from '../../lib/log';
+import { REQUIRED_TAGS_THRESHOLD } from '../onboarding/common';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import type { OnboardingTagProps } from './TagElement';
 import { TagElement as TagElementDefault } from './TagElement';
@@ -35,6 +34,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import {
+  broadcastPersonaSelection,
+  subscribeRecommendRequest,
+} from '../onboarding/onboardingPopBus';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -141,83 +144,127 @@ export function TagSelection({
       return [];
     }
 
-    return [...onboardingTags.map((item) => item.name)];
+    return onboardingTags
+      .map((item) => item.name)
+      .filter((name): name is string => !!name);
   }, [onboardingTags]);
 
-  const { mutate: recommendTags, data: recommendedTags } = useMutation({
-    mutationFn: async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
-      const tagName = tag.name;
-      if (!tagName) {
-        return new Set<string>();
-      }
+  const recommendedTagsRef = useRef<Set<string>>(new Set());
+  const [recommendedNames, setRecommendedNames] = useState<Set<string>>(
+    new Set(),
+  );
 
-      let recommended: TagsData['tags'];
+  const selectedTagsRef = useRef<Set<string>>(selectedTags);
+  useEffect(() => {
+    selectedTagsRef.current = selectedTags;
+  }, [selectedTags]);
 
-      if (isTagRecommenderEnabled) {
-        // Read the freshest selection from the cache rather than the closure-bound
-        // memo: collaborative-filtering quality depends on an accurate input set.
-        // onFollowTags runs after recommendTags, so the just-clicked tag isn't
-        // yet in the cache. Append it to satisfy the [String!]! min-1 constraint.
-        const cached = queryClient.getQueryData<AllTagCategoriesData>(
-          getFeedSettingsQueryKey(user, feedId),
-        );
-        const currentSelection = cached?.feedSettings?.includeTags ?? [];
-        const selectedForMutation = currentSelection.includes(tagName)
-          ? currentSelection
-          : [...currentSelection, tagName];
+  const manualClickCounterRef = useRef<number>(0);
+  const RECOMMEND_THROTTLE = 10;
 
-        const result = await gqlClient.request<{
-          onboardingRecommendTags: { tags: string[] };
-        }>(ONBOARDING_RECOMMEND_TAGS_MUTATION, {
-          selectedTags: selectedForMutation,
-          n: 10,
-        });
-
-        recommended = result.onboardingRecommendTags.tags.map((name) => ({
-          name,
-        }));
-      } else {
-        const result = await gqlClient.request<{
-          recommendedTags: TagsData;
-        }>(GET_RECOMMENDED_TAGS_QUERY, {
-          tags: [tagName],
-          excludedTags,
-        });
-        recommended = result.recommendedTags.tags;
-      }
-
-      const recommendedTagsSet = new Set(
-        recommended
-          .map((item) => item.name)
-          .filter((name): name is string => !!name),
-      );
-
-      queryClient.setQueryData<TagsData>(onboardingTagsQueryKey, (current) => {
-        if (!current) {
-          return current;
+  const curatedNamesRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (onboardingTagsRaw && curatedNamesRef.current.size === 0) {
+      onboardingTagsRaw.forEach((tag) => {
+        if (tag.name) {
+          curatedNamesRef.current.add(tag.name);
         }
-        const existingNames = new Set(current.tags.map((item) => item.name));
-        const newRecommended = recommended.filter(
-          (item) => item.name && !existingNames.has(item.name),
-        );
-
-        if (!newRecommended.length) {
-          return current;
-        }
-
-        const newTags = [...current.tags];
-        const insertIndex = newTags.findIndex((item) => item.name === tagName);
-
-        newTags.splice(insertIndex + 1, 0, ...newRecommended);
-
-        return {
-          tags: newTags,
-        };
       });
+    }
+  }, [onboardingTagsRaw]);
 
-      return recommendedTagsSet;
+  const [manualSelectCount, setManualSelectCount] = useState(0);
+  const [curatedHidden, setCuratedHidden] = useState(false);
+  useEffect(() => {
+    if (!curatedHidden && manualSelectCount >= REQUIRED_TAGS_THRESHOLD) {
+      setCuratedHidden(true);
+    }
+  }, [curatedHidden, manualSelectCount]);
+
+  const [exitingTags, setExitingTags] = useState<Set<string>>(new Set());
+  const [removedTags, setRemovedTags] = useState<Set<string>>(new Set());
+
+  // When the curated baseline crosses the threshold, mark unselected curated
+  // tags as exiting so they can play the fade-out animation.
+  useEffect(() => {
+    if (!curatedHidden) {
+      return;
+    }
+    setExitingTags((prev) => {
+      let next = prev;
+      curatedNamesRef.current.forEach((name) => {
+        if (
+          !selectedTags.has(name) &&
+          !removedTags.has(name) &&
+          !next.has(name)
+        ) {
+          if (next === prev) {
+            next = new Set(prev);
+          }
+          next.add(name);
+        }
+      });
+      return next;
+    });
+  }, [curatedHidden, selectedTags, removedTags]);
+
+  const handleTagExited = useCallback((tagName: string) => {
+    setExitingTags((prev) => {
+      if (!prev.has(tagName)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.delete(tagName);
+      return next;
+    });
+    setRemovedTags((prev) => {
+      if (prev.has(tagName)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(tagName);
+      return next;
+    });
+  }, []);
+
+  const { mutate: recommendTags } = useRecommendedTags({
+    onboardingTagsQueryKey,
+    excludedTags,
+    recommendedRef: recommendedTagsRef,
+    selectedRef: selectedTagsRef,
+    useTagRecommenderMutation: isTagRecommenderEnabled,
+    user,
+    feedId,
+    onRecommended: (names) => {
+      setRecommendedNames(new Set(names));
+    },
+    onFreshRecommendations: (names) => {
+      if (names.length) {
+        broadcastPersonaSelection(names);
+      }
+    },
+    onEvicting: (names) => {
+      setExitingTags((prev) => {
+        let next = prev;
+        names.forEach((name) => {
+          if (next.has(name)) {
+            return;
+          }
+          if (next === prev) {
+            next = new Set(prev);
+          }
+          next.add(name);
+        });
+        return next;
+      });
     },
   });
+
+  useEffect(() => {
+    return subscribeRecommendRequest((tags) => {
+      recommendTags({ seeds: tags });
+    });
+  }, [recommendTags]);
 
   const handleClickTag = async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
     const tagName = tag.name;
@@ -247,7 +294,19 @@ export function TagSelection({
         );
       }
 
-      recommendTags({ tag });
+      setManualSelectCount((count) => count + 1);
+      const clickIndex = manualClickCounterRef.current;
+      manualClickCounterRef.current = clickIndex + 1;
+      // New recommendations always fetch and add to the screen. The
+      // eviction sweep — removing previously-shown recommendations the
+      // user didn't pick — only runs every Nth click.
+      const shouldEvict =
+        clickIndex > 0 && clickIndex % RECOMMEND_THROTTLE === 0;
+      recommendTags({
+        seeds: [tagName],
+        anchorTag: tagName,
+        evictPrevious: shouldEvict,
+      });
 
       await onFollowTags({ tags: [tagName] });
     } else {
@@ -299,7 +358,11 @@ export function TagSelection({
               return null;
             }
             const tagName = tag.name;
+            if (removedTags.has(tagName)) {
+              return null;
+            }
             const isSelected = selectedTags.has(tagName);
+            const isExiting = exitingTags.has(tagName);
             renderedTags[tagName] = true;
 
             return (
@@ -308,7 +371,9 @@ export function TagSelection({
                 tag={tag}
                 onClick={handleClickTag}
                 isSelected={isSelected}
-                isHighlighted={!searchQuery && !!recommendedTags?.has(tagName)}
+                isHighlighted={!searchQuery && recommendedNames.has(tagName)}
+                isExiting={isExiting}
+                onExited={handleTagExited}
                 data-funnel-track={FunnelTargetId.FeedTag}
               />
             );
