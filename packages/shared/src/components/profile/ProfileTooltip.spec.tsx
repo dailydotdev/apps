@@ -101,4 +101,14 @@ describe('ProfileTooltip', () => {
     const [props] = mockSimpleTooltipSpy.mock.calls[0] as [TooltipProps];
     expect(props.content).toBeTruthy();
   });
+
+  it('only triggers on mouseenter ( not keyboard focus ) for WCAG 3.2.1', () => {
+    render(
+      <ProfileTooltip userId="user-1">
+        <button type="button">User</button>
+      </ProfileTooltip>,
+    );
+    const [props] = mockSimpleTooltipSpy.mock.calls[0] as [TooltipProps];
+    expect(props.trigger).toBe('mouseenter');
+  });
 });
