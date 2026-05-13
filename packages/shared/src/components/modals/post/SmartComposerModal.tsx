@@ -72,6 +72,7 @@ export function SmartComposerModal({
   const { audiences, selectedIds, selected, setSelectedIds, userAudienceId } =
     useComposerAudience(initialSquadHandle);
   const primary = selected[0];
+  const isMulti = selected.length > 1;
 
   const {
     handleSubmit,
@@ -87,8 +88,8 @@ export function SmartComposerModal({
     poll,
     cover,
     primary,
-    selected,
     selectedIds,
+    isMulti,
     initialPreview,
     onComplete: () => onRequestClose?.(),
   });

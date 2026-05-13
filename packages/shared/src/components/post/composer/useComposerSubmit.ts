@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { usePostToSquad } from '../../../hooks';
 import { useMultipleSourcePost } from '../../../features/squads/hooks/useMultipleSourcePost';
 import { useToastNotification } from '../../../hooks/useToastNotification';
@@ -7,8 +7,6 @@ import type {
   CreatePostInMultipleSourcesArgs,
   ExternalLinkPreview,
 } from '../../../graphql/posts';
-import type { ApiErrorResult } from '../../../graphql/common';
-import { DEFAULT_ERROR } from '../../../graphql/common';
 import type { Squad } from '../../../graphql/sources';
 import {
   POLL_OPTIONS_MIN,
@@ -20,25 +18,22 @@ import {
 import type { TextFormCover } from './TextForm';
 import { isPreviewForComposerUrl } from './utils';
 
-const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
-  !!(error as ApiErrorResult)?.response?.errors;
+const trimmedOptions = (state: PollFormState): string[] =>
+  state.options.map((option) => option.trim()).filter(Boolean);
 
 const isTextValid = (state: TextFormState): boolean =>
-  state.title.trim().length > 0 && state.body.trim().length > 0;
+  !!state.title.trim() && !!state.body.trim();
 
-const isLinkValid = (preview?: ExternalLinkPreview): boolean =>
-  Boolean(preview?.title && (preview.url || preview.permalink));
+const isLinkValid = (
+  state: LinkFormState,
+  preview: ExternalLinkPreview | undefined,
+): boolean =>
+  !!preview?.title &&
+  !!(preview.url || preview.permalink) &&
+  isPreviewForComposerUrl(preview, state.url);
 
-const isPollValid = (state: PollFormState): boolean => {
-  if (!state.question.trim()) {
-    return false;
-  }
-  const filled = state.options.map((option) => option.trim()).filter(Boolean);
-  return filled.length >= POLL_OPTIONS_MIN;
-};
-
-const filledPollOptions = (state: PollFormState): string[] =>
-  state.options.map((option) => option.trim()).filter(Boolean);
+const isPollValid = (state: PollFormState): boolean =>
+  !!state.question.trim() && trimmedOptions(state).length >= POLL_OPTIONS_MIN;
 
 interface UseComposerSubmitProps {
   kind: ComposerKind;
@@ -47,8 +42,8 @@ interface UseComposerSubmitProps {
   poll: PollFormState;
   cover: TextFormCover | null;
   primary: Squad | undefined;
-  selected: Squad[];
   selectedIds: string[];
+  isMulti: boolean;
   initialPreview?: ExternalLinkPreview;
   onComplete: () => void;
 }
@@ -69,18 +64,12 @@ export const useComposerSubmit = ({
   poll,
   cover,
   primary,
-  selected,
   selectedIds,
+  isMulti,
   initialPreview,
   onComplete,
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
-  const handleError = useCallback(
-    (error: ApiErrorResult) => {
-      displayToast(error.response?.errors?.[0]?.message ?? DEFAULT_ERROR);
-    },
-    [displayToast],
-  );
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -94,26 +83,27 @@ export const useComposerSubmit = ({
     onComplete,
     displayMutationErrors: true,
   });
-
   const { onCreate: createMulti, isPending: isMultiPending } =
-    useMultipleSourcePost({ onSuccess: onComplete, onError: handleError });
+    useMultipleSourcePost({
+      onSuccess: onComplete,
+      onError: (error) =>
+        displayToast(error.response?.errors?.[0]?.message ?? 'Failed to post'),
+    });
 
   const fetchPreview = useCallback(
     (url?: string) => {
       if (!url) {
         return;
       }
-      getLinkPreview(url).catch(() => {
-        // surfaced via usePostToSquad toast
-      });
+      // surfaced via usePostToSquad toast
+      getLinkPreview(url).catch(() => undefined);
     },
     [getLinkPreview],
   );
 
-  const isMulti = selected.length > 1;
   const isInFlight = isPosting || isMultiPending;
 
-  const isSubmitDisabled = useMemo(() => {
+  const getIsSubmitDisabled = (): boolean => {
     if (isInFlight || !primary) {
       return true;
     }
@@ -121,149 +111,107 @@ export const useComposerSubmit = ({
       return !isTextValid(text);
     }
     if (kind === 'link') {
-      return (
-        !isLinkValid(preview) || !isPreviewForComposerUrl(preview, link.url)
-      );
+      return !isLinkValid(link, preview);
     }
     return !isPollValid(poll);
-  }, [isInFlight, kind, link.url, poll, preview, primary, text]);
+  };
 
-  const submitMulti = useCallback(async () => {
-    if (kind === 'text') {
+  const submitText = async () => {
+    const payload = {
+      title: text.title.trim(),
+      content: text.body,
+      ...(cover?.file ? { image: cover.file } : {}),
+    };
+    if (isMulti) {
       await createMulti({
         sourceIds: selectedIds,
-        title: text.title.trim(),
-        content: text.body,
-        ...(cover?.file ? { image: cover.file } : {}),
+        ...payload,
       } as unknown as CreatePostInMultipleSourcesArgs);
       return;
     }
-    if (kind === 'poll') {
+    await onSubmitFreeformPost(payload, primary as Squad);
+  };
+
+  const submitPoll = async () => {
+    const options = trimmedOptions(poll);
+    const duration = poll.durationDays;
+    if (isMulti) {
       await createMulti({
         sourceIds: selectedIds,
         title: poll.question.trim(),
-        options: filledPollOptions(poll).map((value, order) => ({
-          text: value,
-          order,
-        })),
-        ...(poll.durationDays != null ? { duration: poll.durationDays } : {}),
+        options: options.map((value, order) => ({ text: value, order })),
+        ...(duration != null ? { duration } : {}),
       } as unknown as CreatePostInMultipleSourcesArgs);
       return;
     }
+    await onSubmitPollPost(
+      {
+        title: poll.question.trim(),
+        options,
+        ...(duration != null ? { duration } : {}),
+      },
+      primary as Squad,
+    );
+  };
+
+  const submitLink = async (event: FormEvent<HTMLFormElement>) => {
     if (!isPreviewForComposerUrl(preview, link.url)) {
       displayToast('Invalid link');
       return;
     }
-
+    const commentary = link.commentary.trim();
+    if (!isMulti) {
+      await onSubmitPost(event, primary as Squad, commentary);
+      return;
+    }
     const url = preview?.finalUrl ?? preview?.url;
     if (!url || !preview?.title) {
       return;
     }
-    const commentary = link.commentary.trim();
-    if (preview.id) {
-      await createMulti({
-        sourceIds: selectedIds,
-        sharedPostId: preview.id,
-        commentary,
-      } as unknown as CreatePostInMultipleSourcesArgs);
-      return;
-    }
+    const sharedArgs = preview.id
+      ? { sharedPostId: preview.id }
+      : { externalLink: url, title: preview.title, imageUrl: preview.image };
     await createMulti({
       sourceIds: selectedIds,
-      externalLink: url,
-      title: preview.title,
-      imageUrl: preview.image,
       commentary,
+      ...sharedArgs,
     } as unknown as CreatePostInMultipleSourcesArgs);
-  }, [
-    createMulti,
-    cover?.file,
-    displayToast,
-    kind,
-    link.commentary,
-    link.url,
-    poll,
-    preview,
-    selectedIds,
-    text,
-  ]);
-
-  const submitSingle = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
-      if (!primary) {
-        return;
-      }
-      if (kind === 'text') {
-        await onSubmitFreeformPost(
-          {
-            title: text.title.trim(),
-            content: text.body,
-            ...(cover?.file ? { image: cover.file } : {}),
-          },
-          primary,
-        );
-        return;
-      }
-      if (kind === 'link') {
-        if (!isPreviewForComposerUrl(preview, link.url)) {
-          displayToast('Invalid link');
-          return;
-        }
-
-        await onSubmitPost(event, primary, link.commentary.trim());
-        return;
-      }
-      await onSubmitPollPost(
-        {
-          title: poll.question.trim(),
-          options: filledPollOptions(poll),
-          ...(poll.durationDays != null ? { duration: poll.durationDays } : {}),
-        },
-        primary,
-      );
-    },
-    [
-      cover?.file,
-      displayToast,
-      kind,
-      link.commentary,
-      link.url,
-      onSubmitFreeformPost,
-      onSubmitPollPost,
-      onSubmitPost,
-      poll,
-      preview,
-      primary,
-      text,
-    ],
-  );
+  };
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      if (isSubmitDisabled) {
+      if (getIsSubmitDisabled()) {
         return;
       }
-      try {
-        if (isMulti) {
-          await submitMulti();
-          return;
-        }
-        await submitSingle(event);
-      } catch (error) {
-        if (isApiErrorResult(error)) {
-          return;
-        }
-
-        throw error;
+      if (kind === 'text') {
+        await submitText();
+        return;
       }
+      if (kind === 'poll') {
+        await submitPoll();
+        return;
+      }
+      await submitLink(event);
     },
-    [isMulti, isSubmitDisabled, submitMulti, submitSingle],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      kind,
+      isMulti,
+      primary,
+      preview,
+      text,
+      link,
+      poll,
+      cover,
+      selectedIds,
+      isInFlight,
+    ],
   );
 
   return {
     handleSubmit,
-    isSubmitDisabled,
+    isSubmitDisabled: getIsSubmitDisabled(),
     isInFlight,
     preview,
     isLoadingPreview,

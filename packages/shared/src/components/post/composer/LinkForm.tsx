@@ -7,18 +7,6 @@ import type { ExternalLinkPreview } from '../../../graphql/posts';
 import { TITLE_MAX_LENGTH, type LinkFormState } from './types';
 import { isPreviewForComposerUrl, normalizeComposerUrl } from './utils';
 
-const looksLikeRealUrl = (value: string): boolean => {
-  try {
-    const url = new URL(value);
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      return false;
-    }
-    return url.hostname === 'localhost' || url.hostname.includes('.');
-  } catch {
-    return false;
-  }
-};
-
 interface LinkFormProps {
   value: LinkFormState;
   onChange: (next: LinkFormState) => void;
@@ -41,12 +29,8 @@ export const LinkForm = ({
   }, []);
 
   const hasPreviewForUrl = useCallback(
-    (next?: string): boolean => {
-      if (!next || !looksLikeRealUrl(next)) {
-        return false;
-      }
-      return !isPreviewForComposerUrl(preview, next);
-    },
+    (next?: string): boolean =>
+      !!next && !isPreviewForComposerUrl(preview, next),
     [preview],
   );
 

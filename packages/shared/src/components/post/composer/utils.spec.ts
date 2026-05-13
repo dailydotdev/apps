@@ -2,7 +2,12 @@ import { isPreviewForComposerUrl, normalizeComposerUrl } from './utils';
 
 describe('composer utils', () => {
   it('normalizes URLs without a protocol', () => {
-    expect(normalizeComposerUrl('daily.dev')).toBe('https://daily.dev');
+    expect(normalizeComposerUrl('daily.dev')).toBe('https://daily.dev/');
+  });
+
+  it('rejects values that are not real URLs', () => {
+    expect(normalizeComposerUrl('aaaaa')).toBe('');
+    expect(normalizeComposerUrl('https://aaaaa')).toBe('');
   });
 
   it('matches previews against the current composer URL', () => {

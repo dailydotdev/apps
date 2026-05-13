@@ -1,13 +1,9 @@
 import type { ExternalLinkPreview } from '../../../graphql/posts';
-import { urlStartRegexMatch } from '../../../lib/links';
+import { urlParseSchema } from '../../../lib/links';
 
 export const normalizeComposerUrl = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return '';
-  }
-
-  return urlStartRegexMatch.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const result = urlParseSchema.safeParse(value.trim());
+  return result.success ? result.data : '';
 };
 
 export const isPreviewForComposerUrl = (
@@ -19,7 +15,8 @@ export const isPreviewForComposerUrl = (
     return false;
   }
 
-  return [preview.url, preview.finalUrl, preview.permalink].includes(
-    normalized,
-  );
+  return [preview.url, preview.finalUrl, preview.permalink]
+    .filter((url): url is string => !!url)
+    .map(normalizeComposerUrl)
+    .includes(normalized);
 };
