@@ -11,6 +11,7 @@ import {
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import {
@@ -58,6 +59,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
+import { useRecordRecentSquadVisit } from '@dailydotdev/shared/src/hooks/feed/useRecentPages';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type {
   PublicProfile,
@@ -257,6 +259,7 @@ const SquadPage = ({
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
+  useRecordRecentSquadVisit(squad);
   const squadId = squad?.id;
   const shownToastForSquadInSession = useRef<Record<string, boolean>>({});
   const squadNotificationToastState = useMemo(
@@ -440,6 +443,7 @@ const SquadPage = ({
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
       {seoContent}
+      <PageHeader title={squad.name} />
       <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}

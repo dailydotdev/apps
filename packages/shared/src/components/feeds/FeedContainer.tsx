@@ -30,6 +30,7 @@ import {
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
+import { PageHeader } from '../layout/PageHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -299,23 +300,11 @@ export const FeedContainer = ({
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                <ConditionalWrapper
-                  condition={isLaptop && !!(feedHeading || actionButtons)}
-                  wrapper={(component) => (
-                    <header className="flex w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3">
-                      <strong className="min-w-0 flex-1 truncate typo-callout">
-                        {feedHeading}
-                      </strong>
-                      {component && (
-                        <div className="-mr-1 ml-auto flex shrink-0 items-center">
-                          {component}
-                        </div>
-                      )}
-                    </header>
-                  )}
-                >
-                  {actionButtons || null}
-                </ConditionalWrapper>
+                {isLaptop && !!(feedHeading || actionButtons) ? (
+                  <PageHeader title={feedHeading}>{actionButtons}</PageHeader>
+                ) : (
+                  actionButtons || null
+                )}
                 {isExtension && shortcuts}
                 {child}
               </div>

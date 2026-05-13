@@ -1,4 +1,4 @@
-import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useCallback,
   useContext,
@@ -16,12 +16,12 @@ import {
 } from '../graphql/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import AuthContext from '../contexts/AuthContext';
-import { CustomFeedHeader, FeedPageHeader } from './utilities';
+import { CustomFeedHeader } from './utilities';
+import { PageHeader } from './layout/PageHeader';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
@@ -43,6 +43,11 @@ import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
 
+const compactIconButtonClassName =
+  '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
+const compactTextButtonClassName =
+  '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover';
+
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
   searchQuery?: string;
@@ -58,17 +63,6 @@ const SharedBookmarksModal = dynamic(
     import(
       /* webpackChunkName: "sharedBookmarksModal" */ './modals/SharedBookmarksModal'
     ),
-);
-
-const ShareBookmarksButton = ({
-  children,
-  ...props
-}: PropsWithChildren<
-  Pick<ButtonProps<'button'>, 'className' | 'onClick' | 'icon'>
->) => (
-  <Button variant={ButtonVariant.Secondary} {...props}>
-    {children}
-  </Button>
 );
 
 const bookmarkSortOptions = [
@@ -193,51 +187,66 @@ export default function BookmarkFeedLayout({
   return (
     <FeedPageLayoutComponent>
       {children}
-      <FeedPageHeader className="mb-5">
-        <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
-          {title}
-        </Typography>
-      </FeedPageHeader>
-      <CustomFeedHeader
-        className={classNames(
-          'mb-6',
-          shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-        )}
+      <PageHeader
+        title={
+          <Typography bold type={TypographyType.Callout} tag={TypographyTag.H1}>
+            {title}
+          </Typography>
+        }
       >
-        {searchChildren}
         {!isSearchResults && (
           <Dropdown
             className={{
               label: 'hidden',
               chevron: 'hidden',
-              button: '!px-1',
-              container: 'ml-4 flex',
+              button: compactIconButtonClassName,
+              container: 'flex',
             }}
             shouldIndicateSelected
-            icon={<SortIcon size={IconSize.Medium} />}
+            icon={<SortIcon size={IconSize.XSmall} />}
             iconOnly
             selectedIndex={selectedSort}
             options={bookmarkSortOptionLabels}
             onChange={(_, index) => setSelectedSort(index)}
-            buttonVariant={ButtonVariant.Float}
-            buttonSize={ButtonSize.Medium}
+            buttonVariant={ButtonVariant.Tertiary}
+            buttonSize={ButtonSize.Small}
             drawerProps={{ displayCloseButton: true }}
           />
         )}
         {!isFolderPage && (
-          <ShareBookmarksButton
+          <Button
             aria-label="Share bookmarks"
-            className="ml-4 flex"
-            icon={<ShareIcon secondary={showSharedBookmarks} aria-hidden />}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            className={
+              isLaptop ? compactTextButtonClassName : compactIconButtonClassName
+            }
+            icon={
+              <ShareIcon
+                size={IconSize.XSmall}
+                secondary={showSharedBookmarks}
+                aria-hidden
+              />
+            }
             onClick={() => setShowSharedBookmarks(true)}
           >
             {isLaptop ? <span>Share bookmarks</span> : null}
-          </ShareBookmarksButton>
+          </Button>
         )}
         {folder && !isReminderOnly && (
           <BookmarkFolderContextMenu folder={folder} />
         )}
-      </CustomFeedHeader>
+      </PageHeader>
+      {searchChildren && (
+        <CustomFeedHeader
+          className={classNames(
+            'mb-6 mt-4',
+            shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
+          )}
+        >
+          {searchChildren}
+        </CustomFeedHeader>
+      )}
 
       {showSharedBookmarks && (
         <SharedBookmarksModal

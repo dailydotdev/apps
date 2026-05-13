@@ -26,10 +26,18 @@ import { Tooltip } from '../tooltip/Tooltip';
 export const ToggleClickbaitShield = ({
   origin,
   buttonProps = {},
+  iconButtonProps,
   iconSize,
 }: {
   origin: Origin;
+  /** Applied to both render paths (Plus icon-only and non-Plus icon+text). */
   buttonProps?: ButtonProps<'button'>;
+  /**
+   * Applied only to the Plus (icon-only) render path on top of `buttonProps`.
+   * Use to keep the icon-only case sized like sibling icon-buttons in compact
+   * headers without forcing min-widths on the non-Plus "X/Y" text variant.
+   */
+  iconButtonProps?: ButtonProps<'button'>;
   iconSize?: IconProps['size'];
 }): ReactElement => {
   const queryClient = useQueryClient();
@@ -97,6 +105,7 @@ export const ToggleClickbaitShield = ({
     >
       <Button
         {...commonIconProps}
+        {...iconButtonProps}
         icon={
           isClickbaitShieldEnabled ? (
             <ShieldCheckIcon className="text-status-success" size={iconSize} />

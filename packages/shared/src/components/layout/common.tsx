@@ -5,7 +5,6 @@ import type {
   SetStateAction,
 } from 'react';
 import React, { useContext } from 'react';
-import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -136,12 +135,18 @@ export const SearchControlHeader = ({
         key="install-extension"
         tag="a"
         href={downloadBrowserExtension}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        size={ButtonSize.Medium}
-        icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={
+          isEdge ? (
+            <EdgeIcon size={IconSize.XSmall} aria-hidden />
+          ) : (
+            <ChromeIcon size={IconSize.XSmall} aria-hidden />
+          )
+        }
         rel={anchorDefaultRel}
         target="_blank"
-        className="ml-auto"
+        className={isLaptop ? compactTextButtonClassName : undefined}
         onClick={() =>
           logEvent({
             event_name: LogEvent.DownloadExtension,
@@ -154,7 +159,9 @@ export const SearchControlHeader = ({
       <Button
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
-        icon={<ClearIcon secondary />}
+        icon={<ClearIcon size={IconSize.XSmall} secondary />}
+        aria-label="Dismiss install prompt"
+        className={isLaptop ? compactIconButtonClassName : undefined}
         onClick={() => completeAction(ActionType.DismissInstallExtension)}
       />
     </React.Fragment>
@@ -207,6 +214,18 @@ export const SearchControlHeader = ({
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
+                // Non-Plus path renders "X/Y" text alongside the icon, so it
+                // needs the same h-8 + px-3 transparent treatment as the Feed
+                // settings button — width grows with content.
+                className: compactTextButtonClassName,
+              }
+            : undefined
+        }
+        iconButtonProps={
+          isLaptop
+            ? {
+                // Plus path is icon-only — match the square 32px sizing used
+                // by the Sort / Period dropdown icons in this header.
                 className: compactIconButtonClassName,
               }
             : undefined
@@ -241,12 +260,10 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div
-        className={classNames('flex items-center gap-2', !isLaptop && 'w-full')}
-      >
+      <div className="flex w-full items-center gap-2">
         <div className="flex min-w-0 items-center gap-1">{actions}</div>
         {sideActions.length > 0 && (
-          <div className="ml-auto flex items-center gap-2">{sideActions}</div>
+          <div className="ml-auto flex items-center gap-1">{sideActions}</div>
         )}
       </div>
     </ConditionalWrapper>
