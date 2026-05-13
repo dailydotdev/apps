@@ -1,5 +1,5 @@
 {
-  "installCommand": "pnpm --dir ../.. install",
+  "installCommand": "if [ -f pnpm-workspace.yaml ]; then pnpm install; elif [ -f ../../pnpm-workspace.yaml ]; then pnpm --dir ../.. install; else pnpm install; fi",
   "github": {
     "silent": true
   }
