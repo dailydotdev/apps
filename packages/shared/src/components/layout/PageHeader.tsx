@@ -50,7 +50,14 @@ export const PageHeader = ({
           {title}
         </strong>
       ) : (
-        <div className="min-w-0 flex-1 truncate">{title}</div>
+        // ReactNode titles handle their own typography + overflow.
+        // Notably, no `truncate` wrapper here so callers can render
+        // full-height tab navigation (with bottom-aligned underlines)
+        // inside the title slot — the homepage feed-cards header was
+        // designed around composable left-side content, not just text.
+        <div className="flex min-w-0 flex-1 self-stretch items-center">
+          {title}
+        </div>
       ))}
     {children !== undefined && (
       <div className="-mr-1 ml-auto flex shrink-0 items-center gap-1">

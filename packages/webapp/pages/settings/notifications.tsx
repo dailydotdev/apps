@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
+import classNames from 'classnames';
 import InAppNotificationsTab from '@dailydotdev/shared/src/components/notifications/InAppNotificationsTab';
 import useNotificationSettings from '@dailydotdev/shared/src/hooks/notifications/useNotificationSettings';
 import EmailNotificationsTab from '@dailydotdev/shared/src/components/notifications/EmailNotificationsTab';
@@ -10,6 +11,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 
 import { defaultSeo } from '../../next-seo';
@@ -28,54 +30,96 @@ const TABS: { value: NotificationsTab; label: string }[] = [
   { value: 'email', label: 'Email' },
 ];
 
-const AccountNotificationsPage = (): ReactElement => {
-  const { isLoadingPreferences } = useNotificationSettings();
-  const [activeTab, setActiveTab] = useState<NotificationsTab>('in-app');
+interface NotificationsTabsProps {
+  activeTab: NotificationsTab;
+  onChange: (tab: NotificationsTab) => void;
+}
 
-  // Lift the in-app/email switcher into the master PageHeader's actions
-  // slot so the settings page header stays consistent with every other
-  // page (single sticky strip, no second header bar between content and
-  // chrome). Plain Subtle/Tertiary buttons keep the visual weight in
-  // line with other header actions across the app (e.g. Squad bar).
-  const tabsAction = (
-    <>
-      {TABS.map((tab) => {
-        const isActive = activeTab === tab.value;
-        return (
+// FindSquad-style tab navigation. Each tab is a Float/Tertiary button
+// inside a `py-3` row with a half-width bottom underline that aligns
+// with the row's bottom edge. The component renders at its natural
+// height (so it works as a standalone strip on mobile); the laptop
+// caller wraps it in a `-my-3` shell to cancel the master PageHeader's
+// `py-3` and let the underline land on the header's bottom border.
+const NotificationsTabs = ({
+  activeTab,
+  onChange,
+}: NotificationsTabsProps): ReactElement => (
+  <nav
+    aria-label="Notifications channel"
+    className="flex flex-row items-stretch gap-2"
+  >
+    {TABS.map((tab) => {
+      const isActive = activeTab === tab.value;
+      return (
+        <div
+          key={tab.value}
+          className={classNames(
+            'relative flex items-center py-3',
+            'after:absolute after:bottom-0 after:left-0 after:right-0 after:mx-auto after:w-1/2 after:border-b-2',
+            isActive ? 'after:border-text-primary' : 'after:hidden',
+          )}
+        >
           <Button
-            key={tab.value}
             type="button"
             size={ButtonSize.Small}
-            variant={isActive ? ButtonVariant.Subtle : ButtonVariant.Tertiary}
-            onClick={() => setActiveTab(tab.value)}
-            aria-pressed={isActive}
+            variant={isActive ? ButtonVariant.Float : ButtonVariant.Tertiary}
+            pressed={isActive}
+            onClick={() => onChange(tab.value)}
+            aria-current={isActive ? 'page' : undefined}
           >
             {tab.label}
           </Button>
-        );
-      })}
-    </>
+        </div>
+      );
+    })}
+  </nav>
+);
+
+const AccountNotificationsPage = (): ReactElement => {
+  const { isLoadingPreferences } = useNotificationSettings();
+  const [activeTab, setActiveTab] = useState<NotificationsTab>('in-app');
+  const isLaptop = useViewSize(ViewSize.Laptop);
+
+  // Laptop: tabs replace the page title in the master PageHeader
+  // strip (matches FindSquad's directory navbar pattern). The `-my-3`
+  // shell cancels the header's vertical padding so the tab underline
+  // lands flush on the header's bottom border.
+  // Mobile / tablet: keep a plain "Notifications" title in the
+  // AccountPageHeading and stack the tab nav below it, since the
+  // mobile heading row is too short for a full tab strip with an
+  // underline indicator.
+  const title = isLaptop ? (
+    <div className="-my-3 flex h-full">
+      <NotificationsTabs activeTab={activeTab} onChange={setActiveTab} />
+    </div>
+  ) : (
+    'Notifications'
   );
+
+  const body =
+    activeTab === 'in-app' ? (
+      <InAppNotificationsTab />
+    ) : (
+      <EmailNotificationsTab />
+    );
 
   if (isLoadingPreferences) {
     return (
-      <AccountPageContainer title="Notifications" actions={tabsAction}>
+      <AccountPageContainer title={title}>
         <div />
       </AccountPageContainer>
     );
   }
 
   return (
-    <AccountPageContainer
-      title="Notifications"
-      actions={tabsAction}
-      className={{ section: 'p-0' }}
-    >
-      {activeTab === 'in-app' ? (
-        <InAppNotificationsTab />
-      ) : (
-        <EmailNotificationsTab />
+    <AccountPageContainer title={title} className={{ section: 'p-0' }}>
+      {!isLaptop && (
+        <div className="border-b border-border-subtlest-tertiary px-4">
+          <NotificationsTabs activeTab={activeTab} onChange={setActiveTab} />
+        </div>
       )}
+      {body}
     </AccountPageContainer>
   );
 };

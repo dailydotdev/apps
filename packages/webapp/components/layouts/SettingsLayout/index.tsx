@@ -72,7 +72,12 @@ export const navigationKey = generateQueryKey(
   undefined,
 );
 
-const SETTINGS_BASE_TITLE = 'Settings';
+// Mobile tray + dedicated sidebar still label this whole area as
+// "Settings". The top page-header strip on the floating card,
+// however, mirrors the *current page* (Profile, Account & Security,
+// Job preferences, ...) — the dedicated sidebar already establishes
+// that you're inside Settings, so repeating it in the page header
+// just pushes the actually-useful page title out of the visible area.
 
 export default function SettingsLayout({
   children,
@@ -135,23 +140,15 @@ export default function SettingsLayout({
     );
   }
 
-  // Flat title structure on purpose: the "Settings" base label and the
-  // per-page portal target are direct text/element children of the same
-  // h1 so the portal can inject text nodes inline without wrestling
-  // with `display: contents` inside a `truncate` wrapper (which was
-  // causing portaled content to silently not render in some hydration
-  // orders, leaving the header stuck at "Settings" only).
+  // Title slot is just the portal target — `AccountPageContainer`
+  // injects the current page's title (or a custom node, e.g. tab
+  // navigation on the notifications page) into it. Keeping the slot
+  // empty by default avoids a brief "Settings" flash on hydration.
   const laptopHeaderTitle = (
-    <Typography
-      bold
-      tag={TypographyTag.H1}
-      type={TypographyType.Callout}
-      truncate
-      className="min-w-0 flex-1"
-    >
-      {SETTINGS_BASE_TITLE}
-      <span id={SETTINGS_HEADER_TITLE_PORTAL_ID} />
-    </Typography>
+    <span
+      id={SETTINGS_HEADER_TITLE_PORTAL_ID}
+      className="flex min-w-0 flex-1 items-center self-stretch"
+    />
   );
 
   return (

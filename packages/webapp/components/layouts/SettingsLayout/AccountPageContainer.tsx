@@ -28,7 +28,13 @@ interface ClassName {
 }
 
 interface AccountPageContainerProps {
-  title: string;
+  /**
+   * Page title rendered into the master settings PageHeader strip on
+   * laptop and into the inline `AccountPageHeading` on mobile. Accepts
+   * a ReactNode so callers can render richer chrome (e.g. tab
+   * navigation that replaces the title — see settings/notifications).
+   */
+  title: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
   className?: ClassName;
@@ -65,12 +71,18 @@ export const AccountPageContainer = ({
     setActionsNode(document.getElementById(SETTINGS_HEADER_ACTIONS_PORTAL_ID));
   }, [isLaptop]);
 
-  const portaledTitle = (
-    <>
-      <span aria-hidden> · </span>
-      {title}
-    </>
-  );
+  // Portal the page-specific title straight into the master PageHeader
+  // (no "Settings · " prefix — the dedicated sidebar already labels
+  // this surface as Settings, so the page strip should focus on where
+  // the user actually is). String titles get the standard bold callout
+  // styling; ReactNode titles are responsible for their own typography
+  // so consumers can render full-height tab nav etc.
+  const portaledTitle =
+    typeof title === 'string' ? (
+      <strong className="min-w-0 truncate typo-callout">{title}</strong>
+    ) : (
+      title
+    );
 
   const portaledActions = (
     <>
