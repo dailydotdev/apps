@@ -66,6 +66,7 @@ import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FeedbackWidget } from '../feedback';
 import { isAppleDevice } from '../../lib/func';
+import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
@@ -77,7 +78,6 @@ import { QuestButton } from '../quest/QuestButton';
 import { AchievementTrackerPanel } from '../filters/AchievementTrackerButton';
 import { Typography, TypographyType } from '../typography/Typography';
 import { useRecentPagesTracker } from '../../hooks/feed/useRecentPages';
-import { fromCDN } from '../../lib/links';
 
 type SidebarCategoryConfig = {
   id: SidebarSelectedCategory;
@@ -219,6 +219,13 @@ const RAIL_HOVER_OPEN_DELAY = 250;
 const RAIL_HOVER_CLOSE_DELAY = 120;
 const RAIL_HOVER_SIDE_OFFSET = 12;
 const RAIL_HOVER_PROFILE_ALIGN_OFFSET = -304;
+// The shared Tooltip primitive bakes in `collisionPadding={{ top: 75 }}`
+// (a leftover from the old global-header layout). On the dual-sidebar
+// laptop layout there's no top chrome, so that default shoves tooltips
+// for icons near the viewport top (Home, Search, expand/collapse)
+// downward — they read as misaligned and visually clipped. A snug
+// override re-centers them with the trigger.
+const RAIL_TOOLTIP_COLLISION_PADDING = 4;
 
 interface RailHoverCardProps {
   label: string;
@@ -271,7 +278,11 @@ const RailHoverCard = ({
 
 const themeIconMap: Record<
   ThemeMode,
-  React.ComponentType<{ secondary?: boolean; size?: IconSize; 'aria-hidden'?: boolean }>
+  React.ComponentType<{
+    secondary?: boolean;
+    size?: IconSize;
+    'aria-hidden'?: boolean;
+  }>
 > = {
   [ThemeMode.Dark]: MoonIcon,
   [ThemeMode.Light]: SunIcon,
@@ -300,13 +311,7 @@ const SidebarThemeButton = (): ReactElement => {
     const isActive = theme.value === themeMode;
     return {
       label: theme.label,
-      icon: (
-        <Icon
-          size={IconSize.Size16}
-          secondary={isActive}
-          aria-hidden
-        />
-      ),
+      icon: <Icon size={IconSize.Size16} secondary={isActive} aria-hidden />,
       action: () => onSelectTheme(theme.value),
     };
   });
@@ -649,27 +654,30 @@ export const SidebarDesktop = ({
         aria-label="Primary navigation"
         className="flex h-dvh min-h-dvh w-16 shrink-0 flex-col items-center gap-1 px-3 pb-3 pt-6"
       >
-        <Tooltip side="right" content="Home">
+        <Tooltip
+          side="right"
+          content="Home"
+          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+        >
           <div>
             <Link href={webappUrl} passHref prefetch={false}>
               <a
                 href={webappUrl}
                 aria-label="Home"
-                className="focus-outline hover:opacity-80 flex size-10 items-center justify-center overflow-hidden rounded-12 transition-opacity"
+                className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
                 onClick={onLogoClick}
               >
-                <img
-                  src={fromCDN('/assets/sidebar-app-icon.png')}
-                  alt=""
-                  aria-hidden
-                  className="size-full object-cover"
-                />
+                <LogoIcon className={{ container: 'h-5 w-auto' }} />
               </a>
             </Link>
           </div>
         </Tooltip>
 
-        <Tooltip side="right" content="Search">
+        <Tooltip
+          side="right"
+          content="Search"
+          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+        >
           <button
             type="button"
             aria-label="Search"
@@ -794,7 +802,11 @@ export const SidebarDesktop = ({
       </nav>
 
       {!sidebarExpanded && (
-        <Tooltip side="right" content="Open sidebar">
+        <Tooltip
+          side="right"
+          content="Open sidebar"
+          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+        >
           <button
             type="button"
             onClick={onToggleExpanded}
