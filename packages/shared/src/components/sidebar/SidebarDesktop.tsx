@@ -34,7 +34,6 @@ import {
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
-  SidebarArrowRight,
   SquadIcon,
   SunIcon,
   UserIcon,
@@ -801,22 +800,71 @@ export const SidebarDesktop = ({
         </div>
       </nav>
 
-      {!sidebarExpanded && (
-        <Tooltip
-          side="right"
-          content="Open sidebar"
-          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+      {/*
+        Single toggle button that physically slides between two anchor
+        points instead of swapping two separate elements:
+
+        - Open: parked at the right edge of the panel header, ghost-style
+          (no border, no background) — the original in-panel close
+          button position.
+        - Closed: parked at the rail-panel boundary, eye-level with the
+          daily.dev logo, with border + background + shadow so it reads
+          as a discoverable "open me" handle on the bare rail.
+
+        Wrapping the button in a `top-6 h-10 flex items-center` shell
+        anchors its vertical center to the logo row in both states. The
+        icon is the same `SidebarArrowLeft` glyph in both states; we
+        just rotate 180° + transition `left` / colors / shadow together
+        in lockstep with the sidebar's own width transition (300ms).
+      */}
+      <Tooltip
+        side="right"
+        content={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+        collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+      >
+        <div
+          className={classNames(
+            'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
+            // Open: 264px = panel right edge (304px) - pr-3 (12px) -
+            //   button width (28px). Matches the old close-button slot.
+            // Closed: 50px = rail-panel separator (64px) - 14px (half
+            //   button width). Centers the button exactly on the
+            //   separator line so the rail's logo stays fully visible
+            //   instead of being half-covered by the button.
+            sidebarExpanded ? 'left-[16.5rem]' : 'left-[3.125rem]',
+          )}
         >
           <button
             type="button"
             onClick={onToggleExpanded}
-            aria-label="Open sidebar"
-            className="focus-outline shadow-1 absolute left-16 top-4 z-1 hidden size-6 -translate-x-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-background-default text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary laptop:flex"
+            aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+            aria-expanded={sidebarExpanded}
+            className={classNames(
+              'focus-outline flex size-7 items-center justify-center rounded-10 border text-text-tertiary transition-[background-color,border-color,box-shadow,color] duration-300 ease-in-out',
+              sidebarExpanded
+                ? // Open: ghost slot in the panel header. Hover gives
+                  // a subtle surface-hover wash like other inline
+                  // header buttons.
+                  'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
+                : // Closed: free-floating chip on the rail. Keep the
+                  // background steady on hover (any bg swap reads as
+                  // a transparency glitch against the rail). Lift the
+                  // icon to text-primary and darken the border for
+                  // affordance instead.
+                  'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
+            )}
           >
-            <SidebarArrowRight size={IconSize.XSmall} aria-hidden />
+            <SidebarArrowLeft
+              size={IconSize.XSmall}
+              aria-hidden
+              className={classNames(
+                'transition-transform duration-300 ease-in-out',
+                !sidebarExpanded && 'rotate-180',
+              )}
+            />
           </button>
-        </Tooltip>
-      )}
+        </div>
+      </Tooltip>
 
       <section
         id="sidebar-context-panel"
@@ -832,7 +880,7 @@ export const SidebarDesktop = ({
       >
         {isHomePanel ? (
           <div className="pl-4 pr-3 pt-6">
-            <div className="flex h-10 items-center justify-between gap-2">
+            <div className="flex h-10 items-center gap-2">
               {isLoggedIn && user ? (
                 <Link href={`${webappUrl}${user.username}`} passHref>
                   <a className="focus-outline flex min-w-0 flex-1 items-center gap-2 rounded-8 text-text-primary transition-colors hover:text-text-link">
@@ -856,16 +904,6 @@ export const SidebarDesktop = ({
                   daily.dev
                 </Typography>
               )}
-              <Tooltip side="bottom" content="Close sidebar">
-                <button
-                  type="button"
-                  onClick={onToggleExpanded}
-                  aria-label="Close sidebar"
-                  className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                >
-                  <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
-                </button>
-              </Tooltip>
             </div>
           </div>
         ) : (
@@ -874,30 +912,21 @@ export const SidebarDesktop = ({
               <Typography bold type={TypographyType.Callout}>
                 {utilityPanelTitle}
               </Typography>
-              <div className="flex shrink-0 items-center gap-1">
-                {isSquadsPanel && (
-                  <Tooltip side="bottom" content="New Squad">
-                    <button
-                      type="button"
-                      onClick={() => openNewSquad({ origin: Origin.Sidebar })}
-                      aria-label="New Squad"
-                      className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                    >
-                      <PlusIcon size={IconSize.XSmall} aria-hidden />
-                    </button>
-                  </Tooltip>
-                )}
-                <Tooltip side="bottom" content="Close sidebar">
+              {isSquadsPanel && (
+                <Tooltip side="bottom" content="New Squad">
                   <button
                     type="button"
-                    onClick={onToggleExpanded}
-                    aria-label="Close sidebar"
-                    className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                    onClick={() => openNewSquad({ origin: Origin.Sidebar })}
+                    aria-label="New Squad"
+                    // Right margin reserves space for the absolute-positioned
+                    // sidebar toggle button parked at the panel header's
+                    // right edge (`left-[16.5rem]`, size-7 with an 8px gap).
+                    className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                   >
-                    <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
+                    <PlusIcon size={IconSize.XSmall} aria-hidden />
                   </button>
                 </Tooltip>
-              </div>
+              )}
             </div>
           </div>
         )}
