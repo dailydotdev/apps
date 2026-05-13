@@ -11,8 +11,7 @@ import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureNewD1Experience } from '../../lib/featureManagement';
+import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { QuestStatus } from '../../graphql/quests';
 
@@ -25,8 +24,7 @@ export function IntroQuestButton(): ReactElement | null {
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { checkHasCompleted } = useActions();
-  const { value: isNewD1Experience } = useConditionalFeature({
-    feature: featureNewD1Experience,
+  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
     shouldEvaluate: isAuthReady && isLoggedIn && loadedSettings,
   });
   const { data } = useQuestDashboard();

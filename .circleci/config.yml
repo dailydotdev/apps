@@ -7,17 +7,20 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
+          name: Enable pnpm
+          command: |
+            mkdir -p $HOME/.local/bin
+            corepack enable --install-directory $HOME/.local/bin
+            corepack prepare pnpm@10.33.4 --activate
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v10-{{ checksum "pnpm-lock.yaml" }}
+          key: deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -35,8 +38,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -56,8 +59,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -77,8 +80,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Lint
           command: npm run pretest
@@ -91,8 +94,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Fetch base branch
           command: git fetch origin main
@@ -107,8 +110,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -126,12 +129,15 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
+          name: Enable pnpm
+          command: |
+            mkdir -p $HOME/.local/bin
+            corepack enable --install-directory $HOME/.local/bin
+            corepack prepare pnpm@10.33.4 --activate
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
