@@ -1,9 +1,12 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useSquad, useViewSize, ViewSize } from '../../../hooks';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { useSmartComposer } from '../../../hooks/post/useSmartComposer';
+import { LazyModal } from '../../modals/common/types';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import type {
@@ -37,18 +40,22 @@ export function CreatePostButton<Tag extends AllowedTags>({
   onClick,
   showIcon,
   ...attrs
-}: CreatePostButtonProps<Tag>): ReactElement {
+}: CreatePostButtonProps<Tag>): ReactElement | null {
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
+  const { openModal } = useLazyModal();
+  const isSmartComposerEnabled = useSmartComposer();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
   const { squad } = useSquad({ handle });
-  const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
+  const allowedToPost = squad
+    ? verifyPermission(squad, SourcePermissions.Post)
+    : false;
   const hasAccess =
     !handle ||
-    squads?.some((item) => verifyPermission(item, SourcePermissions.Post));
+    !!squads?.some((item) => verifyPermission(item, SourcePermissions.Post));
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const completedPollType = checkHasCompleted(ActionType.SeenPostPollTooltip);
   const [shouldShowPollTooltip, setShouldShowPollTooltip] = useState(false);
@@ -87,15 +94,38 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const href =
     link.post.create + (squad && allowedToPost ? `?sid=${squad.handle}` : '');
 
+  const openSmartComposer = (
+    event: React.MouseEvent<AllowedElements, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    openModal({
+      type: LazyModal.SmartComposer,
+      props: {
+        initialSquadHandle: squad && allowedToPost ? squad.handle : undefined,
+      },
+    });
+  };
+
+  const shouldUseSmartComposer = isSmartComposerEnabled && !onClick;
+
   const buttonProps: {
     tag?: AllowedTags;
     onClick?: (e: React.MouseEvent<AllowedElements, MouseEvent>) => void;
-  } = onClick ? { onClick } : { tag: 'a' };
+  } = (() => {
+    if (onClick) {
+      return { onClick };
+    }
+    if (shouldUseSmartComposer) {
+      return { onClick: openSmartComposer };
+    }
+    return { tag: 'a' };
+  })();
 
-  const shouldUseLink = !onClick;
+  const shouldUseLink = !onClick && !shouldUseSmartComposer;
 
   const shouldShowAsCompact =
     compact !== false && ((isLaptop && !isLaptopL) || compact);
+  const icon = shouldShowAsCompact || showIcon ? <PlusIcon /> : undefined;
 
   const getTooltipContent = () => {
     if (!shouldShowPollTooltip) {
@@ -127,7 +157,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
       variant={sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary}
       className={className}
       disabled={getIsDisabled()}
-      icon={(shouldShowAsCompact || showIcon) && <PlusIcon />}
+      icon={icon}
       size={
         isLaptop || sidebar || footer ? ButtonSize.Medium : ButtonSize.Small
       }
@@ -140,7 +170,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
   return (
     <ConditionalWrapper
       condition={shouldShowAsCompact || shouldShowPollTooltip}
-      wrapper={(component: ReactElement) => (
+      wrapper={(component: ReactNode) => (
         <Tooltip
           side="right"
           content={getTooltipContent()}
@@ -152,7 +182,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
     >
       <ConditionalWrapper
         condition={shouldUseLink}
-        wrapper={(component: ReactElement) => (
+        wrapper={(component: ReactNode) => (
           <Link href={href} passHref prefetch={false}>
             {component}
           </Link>

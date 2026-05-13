@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import type { ReactElement, ReactNode, Ref } from 'react';
 import React, {
   useState,
@@ -24,9 +25,13 @@ import { LinkModal } from './LinkModal';
 export interface RichTextToolbarProps {
   editor: Editor;
   onLinkAdd: (url: string, label?: string) => void;
+  leadingActions?: ReactNode;
   inlineActions?: ReactNode;
   rightActions?: ReactNode;
   allowBlockFormatting?: boolean;
+  position?: 'top' | 'bottom';
+  className?: string;
+  hideInlineLink?: boolean;
 }
 
 export interface RichTextToolbarRef {
@@ -47,8 +52,9 @@ const ToolbarButton = ({
   isActive,
   onClick,
   disabled = false,
-}: ToolbarButtonProps): ReactElement | null => {
-  if (disabled) {
+  alwaysVisible = false,
+}: ToolbarButtonProps & { alwaysVisible?: boolean }): ReactElement | null => {
+  if (disabled && !alwaysVisible) {
     return null;
   }
 
@@ -64,6 +70,7 @@ const ToolbarButton = ({
         })}
         pressed={isActive}
         onClick={onClick}
+        disabled={disabled}
         type="button"
         className="leading-none"
       />
@@ -75,9 +82,13 @@ function RichTextToolbarComponent(
   {
     editor,
     onLinkAdd,
+    leadingActions,
     inlineActions,
     rightActions,
     allowBlockFormatting = true,
+    position = 'top',
+    className,
+    hideInlineLink = false,
   }: RichTextToolbarProps,
   ref: Ref<RichTextToolbarRef>,
 ): ReactElement {
@@ -147,8 +158,29 @@ function RichTextToolbarComponent(
 
   return (
     <>
-      <div className="flex flex-row flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary px-2 py-1">
+      <div
+        className={classNames(
+          'flex flex-row flex-wrap items-center gap-1 px-2 py-1',
+          position === 'top' && 'border-b border-border-subtlest-tertiary',
+          className,
+        )}
+      >
         <div className="flex flex-1 flex-wrap items-center gap-0">
+          {leadingActions && (
+            <div className="mr-2 flex items-center gap-1">{leadingActions}</div>
+          )}
+          {inlineActions && (
+            <div className="flex items-center gap-1">{inlineActions}</div>
+          )}
+          {!hideInlineLink && (
+            <ToolbarButton
+              tooltip={editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
+              icon={<LinkIcon />}
+              isActive={editorState.isLink}
+              onClick={openLinkModal}
+            />
+          )}
+          <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
           <ToolbarButton
             tooltip="Bold (⌘B)"
             icon={<BoldIcon />}
@@ -161,7 +193,7 @@ function RichTextToolbarComponent(
             isActive={editorState.isItalic}
             onClick={() => editor.chain().focus().toggleItalic().run()}
           />
-          {allowBlockFormatting ? (
+          {allowBlockFormatting && (
             <>
               <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
               <ToolbarButton
@@ -177,29 +209,15 @@ function RichTextToolbarComponent(
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
               />
             </>
-          ) : null}
+          )}
           <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-          <ToolbarButton
-            tooltip={editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
-            icon={<LinkIcon />}
-            isActive={editorState.isLink}
-            onClick={openLinkModal}
-          />
-          {inlineActions && (
-            <>
-              <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-              <div className="flex items-center gap-1">{inlineActions}</div>
-            </>
-          )}
-          {(editorState.canUndo || editorState.canRedo) && (
-            <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-          )}
           <ToolbarButton
             tooltip="Undo (⌘Z)"
             icon={<UndoIcon />}
             isActive={false}
             onClick={() => editor.chain().focus().undo().run()}
             disabled={!editorState.canUndo}
+            alwaysVisible
           />
           <ToolbarButton
             tooltip="Redo (⌘⇧Z)"
@@ -207,6 +225,7 @@ function RichTextToolbarComponent(
             isActive={false}
             onClick={() => editor.chain().focus().redo().run()}
             disabled={!editorState.canRedo}
+            alwaysVisible
           />
         </div>
         {rightActions && (

@@ -61,6 +61,8 @@ export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
 
 export const featureLuckyButton = new Feature('lucky_button', false);
 
+export const featureSmartComposer = new Feature('smart_composer', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
