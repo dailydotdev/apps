@@ -1,5 +1,6 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import type { ReactElement, ReactNode } from 'react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -46,13 +47,44 @@ jest.mock('../../hooks/useQuestDashboard', () => ({
 }));
 
 jest.mock('../tooltip/Tooltip', () => ({
-  Tooltip: function MockTooltip({
-    children,
-  }: {
-    children: React.ReactElement;
-  }) {
+  Tooltip: function MockTooltip({ children }: { children: ReactElement }) {
     return children;
   },
+}));
+
+const mockPopoverOpen = { current: false };
+const mockReactModule = () => React;
+
+jest.mock('@radix-ui/react-popover', () => ({
+  Popover: ({ children, open }: { children: ReactNode; open?: boolean }) => {
+    mockPopoverOpen.current = !!open;
+    return mockReactModule().createElement(
+      'div',
+      { 'data-popover-open': open ? 'true' : 'false' },
+      children,
+    );
+  },
+  PopoverAnchor: ({ children }: { children: ReactNode }) =>
+    mockReactModule().createElement(mockReactModule().Fragment, null, children),
+  PopoverArrow: () => null,
+}));
+
+jest.mock('../popover/Popover', () => ({
+  PopoverContent: ({ children }: { children: ReactNode }) => {
+    if (!mockPopoverOpen.current) {
+      return null;
+    }
+    return mockReactModule().createElement(
+      'div',
+      { 'data-testid': 'intro-quest-coachmark-bubble' },
+      children,
+    );
+  },
+}));
+
+jest.mock('../tooltips/Portal', () => ({
+  RootPortal: ({ children }: { children: ReactNode }) =>
+    mockReactModule().createElement(mockReactModule().Fragment, null, children),
 }));
 
 const mockUseAuthContext = useAuthContext as jest.Mock;
@@ -63,6 +95,7 @@ const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseNewD1ExperienceFeature = useNewD1ExperienceFeature as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const openModal = jest.fn();
+const completeAction = jest.fn();
 
 const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
   userQuestId: 'uq-1',
@@ -85,9 +118,21 @@ const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
   ...overrides,
 });
 
+const mockActions = (
+  completed: ActionType[] = [],
+  { fetched = true }: { fetched?: boolean } = {},
+) => {
+  mockUseActions.mockReturnValue({
+    checkHasCompleted: jest.fn((type: ActionType) => completed.includes(type)),
+    completeAction,
+    isActionsFetched: fetched,
+  });
+};
+
 describe('IntroQuestButton', () => {
   beforeEach(() => {
     openModal.mockReset();
+    completeAction.mockReset();
     mockUseAuthContext.mockReturnValue({
       isAuthReady: true,
       isLoggedIn: true,
@@ -98,9 +143,7 @@ describe('IntroQuestButton', () => {
     mockUseLazyModal.mockReturnValue({
       openModal,
     });
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn(() => false),
-    });
+    mockActions([]);
     mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
     mockUseNewD1ExperienceFeature.mockReturnValue({ value: true });
     mockUseQuestDashboard.mockReturnValue({
@@ -120,52 +163,87 @@ describe('IntroQuestButton', () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
   it('opens the intro quests modal with completed/total label', async () => {
     render(<IntroQuestButton />);
 
-    expect(screen.getByText('1/4')).toBeInTheDocument();
+    const button = screen.getByRole('button', {
+      name: 'Open introduction quests (1/4), attention needed',
+    });
+    expect(button).toHaveTextContent('1/4');
     expect(
-      screen.getByTestId('intro-quest-attention-badge'),
+      within(button).getByTestId('intro-quest-attention-badge'),
     ).toBeInTheDocument();
 
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: 'Open introduction quests (1/4), attention needed',
-      }),
-    );
+    await userEvent.click(button);
 
     expect(openModal).toHaveBeenCalledWith({
       type: LazyModal.IntroQuests,
     });
   });
 
-  it('shows a CTA on load and retracts it after 2 seconds', () => {
-    jest.useFakeTimers();
+  it('shows the coachmark overlay and bubble for first-time users', () => {
+    render(<IntroQuestButton />);
+
+    expect(
+      screen.getByTestId('intro-quest-coachmark-overlay'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('intro-quest-coachmark-bubble'),
+    ).toHaveTextContent('Check out our introductory quests to get you set up!');
+  });
+
+  it('completes intro_acknowledged when the highlighted button is clicked', async () => {
+    render(<IntroQuestButton />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /Open introduction quests/ }),
+    );
+
+    expect(completeAction).toHaveBeenCalledWith(ActionType.IntroAcknowledged);
+    expect(openModal).toHaveBeenCalledWith({ type: LazyModal.IntroQuests });
+  });
+
+  it('hides the coachmark once intro has been acknowledged', () => {
+    mockActions([ActionType.IntroAcknowledged]);
 
     render(<IntroQuestButton />);
 
-    const cta = screen.getByTestId('intro-quest-cta');
+    expect(
+      screen.queryByTestId('intro-quest-coachmark-overlay'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('intro-quest-coachmark-bubble'),
+    ).not.toBeInTheDocument();
+  });
 
-    expect(cta).toHaveTextContent('Get the most out of daily.dev');
-    expect(cta).toHaveAttribute('data-expanded', 'true');
+  it('does not show the coachmark while actions are still loading', () => {
+    mockActions([], { fetched: false });
 
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
+    render(<IntroQuestButton />);
 
-    expect(cta).toHaveAttribute('data-expanded', 'false');
+    expect(
+      screen.queryByTestId('intro-quest-coachmark-overlay'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('auto-backfills intro_acknowledged for users who already viewed intro quests', async () => {
+    mockActions([ActionType.ViewedIntroQuests]);
+
+    render(<IntroQuestButton />);
+
+    expect(
+      screen.queryByTestId('intro-quest-coachmark-overlay'),
+    ).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(completeAction).toHaveBeenCalledWith(ActionType.IntroAcknowledged),
+    );
   });
 
   it('hides the badge after intro quests have been viewed and none are claimable', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn(
-        (type: ActionType) => type === ActionType.ViewedIntroQuests,
-      ),
-    });
+    mockActions([ActionType.ViewedIntroQuests, ActionType.IntroAcknowledged]);
 
     render(<IntroQuestButton />);
 
@@ -178,11 +256,7 @@ describe('IntroQuestButton', () => {
   });
 
   it('shows the badge when a viewed intro quest becomes claimable', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn(
-        (type: ActionType) => type === ActionType.ViewedIntroQuests,
-      ),
-    });
+    mockActions([ActionType.ViewedIntroQuests, ActionType.IntroAcknowledged]);
     mockUseQuestDashboard.mockReturnValue({
       data: {
         intro: [
@@ -267,11 +341,7 @@ describe('IntroQuestButton', () => {
   });
 
   it('does not render when intro quests have been permanently hidden', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn(
-        (type: ActionType) => type === ActionType.IntroQuestsCompleted,
-      ),
-    });
+    mockActions([ActionType.IntroQuestsCompleted]);
 
     render(<IntroQuestButton />);
 
