@@ -24,6 +24,7 @@ import { RootPortal } from '../tooltips/Portal';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 import { anchorDefaultRel } from '../../lib/strings';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 interface LiveRoomVideoTileProps {
   stream: MediaStream | null;
@@ -165,6 +166,7 @@ export const LiveRoomVideoTile = ({
   }, [videoStream]);
 
   const hasProfileLink = !!user.permalink && user.permalink !== '#';
+  const hasProfileTooltip = !!user.id;
   const nameLabel = (
     <Typography
       tag={TypographyTag.Span}
@@ -173,11 +175,30 @@ export const LiveRoomVideoTile = ({
       truncate
       className={classNames(
         'min-w-0 !text-white !typo-caption2 tablet:!typo-footnote',
-        hasProfileLink && 'pointer-events-auto hover:underline',
+        hasProfileTooltip && 'pointer-events-auto hover:underline',
       )}
     >
       {user.name}
     </Typography>
+  );
+  const linkedSpeakerName = hasProfileLink ? (
+    <a
+      href={user.permalink}
+      target="_blank"
+      rel={anchorDefaultRel}
+      className="pointer-events-auto inline-flex min-w-0 items-center"
+    >
+      {nameLabel}
+    </a>
+  ) : (
+    nameLabel
+  );
+  const speakerName = hasProfileTooltip ? (
+    <ProfileTooltip userId={user.id} eager>
+      {linkedSpeakerName}
+    </ProfileTooltip>
+  ) : (
+    linkedSpeakerName
   );
 
   const gestureHandlers = isFocused
@@ -316,7 +337,7 @@ export const LiveRoomVideoTile = ({
         </button>
       ) : null}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 pb-3 pl-1.5 pr-3 pt-3 tablet:pl-3">
-        <div className="flex min-h-8 min-w-0 items-center gap-1.5 rounded-12 bg-overlay-dark-dark3 px-2 py-1 backdrop-blur transition-[padding] duration-200 ease-out tablet:gap-2 tablet:px-2.5 tablet:group-hover:pr-1">
+        <div className="pointer-events-auto flex min-h-8 min-w-0 items-center gap-1.5 rounded-12 bg-overlay-dark-dark3 px-2 py-1 backdrop-blur transition-[padding] duration-200 ease-out tablet:gap-2 tablet:px-2.5 tablet:group-hover:pr-1">
           {isHost ? (
             <>
               <ShieldIcon
@@ -351,18 +372,7 @@ export const LiveRoomVideoTile = ({
               </Typography>
             </>
           ) : null}
-          {hasProfileLink ? (
-            <a
-              href={user.permalink}
-              target="_blank"
-              rel={anchorDefaultRel}
-              className="pointer-events-auto inline-flex min-w-0 items-center"
-            >
-              {nameLabel}
-            </a>
-          ) : (
-            nameLabel
-          )}
+          {speakerName}
           <LiveRoomTileActions
             user={user}
             onGrantCoHost={onGrantCoHost}
