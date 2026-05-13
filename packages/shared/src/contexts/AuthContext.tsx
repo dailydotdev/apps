@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import { useFeatureValue } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
@@ -162,6 +163,11 @@ export const AuthContextProvider = ({
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
   );
+  // Inline-login experiment flag. Source of truth for the local default lives
+  // in `lib/featureManagement.ts` as `featureInlineLogin`. We can't import it
+  // here because `featureManagement` → `graphql/posts` → `AuthContext` would
+  // be a cycle, so the default is duplicated below; keep them in sync.
+  const isInlineLoginEnabled = useFeatureValue<boolean>('inline_login', true);
 
   return (
     <AuthContext.Provider
@@ -181,26 +187,33 @@ export const AuthContextProvider = ({
             if (hasCompanion) {
               const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
               window.open(signup);
-            } else {
-              const params = new URLSearchParams(globalThis?.location.search);
-
-              setLoginState({ ...options, trigger });
-              if (isExtension) {
-                params.delete(AFTER_AUTH_PARAM);
-              } else if (options.afterAuth) {
-                params.set(AFTER_AUTH_PARAM, options.afterAuth);
-              } else if (!params.get(AFTER_AUTH_PARAM)) {
-                params.set(AFTER_AUTH_PARAM, window.location.pathname);
-              }
-              const onboardingPath = `${onboardingUrl}?${params.toString()}`;
-              router.push(
-                isExtension
-                  ? onboardingPath
-                  : `/onboarding?${params.toString()}`,
-              );
+              return;
             }
+
+            const params = new URLSearchParams(globalThis?.location.search);
+
+            setLoginState({ ...options, trigger });
+            if (isExtension) {
+              params.delete(AFTER_AUTH_PARAM);
+            } else if (options.afterAuth) {
+              params.set(AFTER_AUTH_PARAM, options.afterAuth);
+            } else if (!params.get(AFTER_AUTH_PARAM)) {
+              params.set(AFTER_AUTH_PARAM, window.location.pathname);
+            }
+
+            // Inline login experiment: render the modal in-place instead of
+            // redirecting to /onboarding. Extension keeps the redirect because
+            // it has no host page to mount the modal on.
+            if (isInlineLoginEnabled && !isExtension) {
+              return;
+            }
+
+            const onboardingPath = `${onboardingUrl}?${params.toString()}`;
+            router.push(
+              isExtension ? onboardingPath : `/onboarding?${params.toString()}`,
+            );
           },
-          [router],
+          [router, isInlineLoginEnabled],
         ),
         closeLogin: useCallback(() => setLoginState(null), []),
         loginState,
