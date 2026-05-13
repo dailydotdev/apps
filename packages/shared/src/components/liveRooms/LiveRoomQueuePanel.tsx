@@ -49,7 +49,7 @@ const StageParticipantItem = ({
   const displayName = userDisplayName(user);
   const profilePermalink = profile?.permalink;
   const avatar = profilePermalink ? (
-    <ProfileTooltip userId={profile.id} eager>
+    <ProfileTooltip userId={profile.id} initialUser={profile}>
       <a
         href={profilePermalink}
         target="_blank"
@@ -64,7 +64,7 @@ const StageParticipantItem = ({
     <ProfilePicture user={user} size={ProfileImageSize.Small} />
   );
   const name = profilePermalink ? (
-    <ProfileTooltip userId={profile.id} eager>
+    <ProfileTooltip userId={profile.id} initialUser={profile}>
       <a
         href={profilePermalink}
         target="_blank"

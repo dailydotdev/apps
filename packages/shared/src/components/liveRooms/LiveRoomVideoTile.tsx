@@ -166,7 +166,7 @@ export const LiveRoomVideoTile = ({
   }, [videoStream]);
 
   const hasProfileLink = !!user.permalink && user.permalink !== '#';
-  const hasProfileTooltip = !!user.id;
+  const hasProfileTooltip = hasProfileLink;
   const nameLabel = (
     <Typography
       tag={TypographyTag.Span}
@@ -194,7 +194,7 @@ export const LiveRoomVideoTile = ({
     nameLabel
   );
   const speakerName = hasProfileTooltip ? (
-    <ProfileTooltip userId={user.id} eager>
+    <ProfileTooltip userId={user.id} initialUser={user}>
       {linkedSpeakerName}
     </ProfileTooltip>
   ) : (

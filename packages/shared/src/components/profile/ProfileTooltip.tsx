@@ -12,6 +12,7 @@ import UserEntityCard from '../cards/entity/UserEntityCard';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import type { UserShortProfile } from '../../lib/user';
 
 type TippyInstance = Parameters<NonNullable<BaseTooltipProps['onShow']>>[0];
 
@@ -24,6 +25,7 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   onTooltipMouseEnter?: () => void;
   onTooltipMouseLeave?: () => void;
   eager?: boolean;
+  initialUser?: UserShortProfile;
 }
 
 export type UserTooltipContentData = {
@@ -46,11 +48,15 @@ export function ProfileTooltip({
   onTooltipMouseEnter,
   onTooltipMouseLeave,
   eager = false,
+  initialUser,
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
   const { logEvent } = useLogContext();
   const handler = useRef<() => void>();
-  const [id, setId] = useState<string | undefined>(eager ? userId : undefined);
+  const hasInitialUser = initialUser?.id === userId;
+  const [id, setId] = useState<string | undefined>(
+    eager && !hasInitialUser ? userId : undefined,
+  );
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.UserShortById,
@@ -63,14 +69,22 @@ export function ProfileTooltip({
 
       return getUserShortInfo(id);
     },
-    enabled: !!id,
+    enabled: !hasInitialUser && !!id,
   });
+  const tooltipUser = hasInitialUser ? initialUser : data;
 
   useEffect(() => {
-    if (eager) {
-      setId(userId);
+    if (!eager) {
+      return;
     }
-  }, [eager, userId]);
+
+    if (hasInitialUser) {
+      setId(undefined);
+      return;
+    }
+
+    setId(userId);
+  }, [eager, hasInitialUser, userId]);
 
   const handleShow = () => {
     if (!scrollingContainer) {
@@ -143,7 +157,10 @@ export function ProfileTooltip({
     onHide,
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: '' },
-    content: !isLoading && data ? <UserEntityCard user={data} /> : undefined,
+    content:
+      !isLoading && tooltipUser ? (
+        <UserEntityCard user={tooltipUser} />
+      ) : undefined,
     plugins:
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
     ...tooltip,
@@ -152,7 +169,7 @@ export function ProfileTooltip({
         event_name: LogEvent.HoverUserCard,
         target_id: userId,
       });
-      if (id !== userId) {
+      if (!hasInitialUser && id !== userId) {
         setId(userId);
       }
       if (typeof tooltip.onShow === 'function') {

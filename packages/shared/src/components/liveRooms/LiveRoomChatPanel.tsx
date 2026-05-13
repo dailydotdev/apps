@@ -501,7 +501,10 @@ export const LiveRoomChatPanel = ({
               message.participantId !== '';
             const senderName = userDisplayName(sender);
             const senderNameNode = senderProfile ? (
-              <ProfileTooltip userId={senderProfile.id} eager>
+              <ProfileTooltip
+                userId={senderProfile.id}
+                initialUser={senderProfile}
+              >
                 <a
                   href={senderProfile.permalink}
                   target="_blank"
@@ -515,7 +518,10 @@ export const LiveRoomChatPanel = ({
               <span className="font-bold">{senderName}</span>
             );
             const senderAvatar = senderProfile ? (
-              <ProfileTooltip userId={senderProfile.id} eager>
+              <ProfileTooltip
+                userId={senderProfile.id}
+                initialUser={senderProfile}
+              >
                 <a
                   href={senderProfile.permalink}
                   target="_blank"

@@ -11,7 +11,11 @@ jest.mock('../ProfilePicture', () => ({
 }));
 
 jest.mock('../profile/ProfileTooltip', () => ({
-  ProfileTooltip: (props: { children: ReactElement; userId: string }) => {
+  ProfileTooltip: (props: {
+    children: ReactElement;
+    initialUser?: { name: string };
+    userId: string;
+  }) => {
     const mockReact = jest.requireActual('react') as Pick<
       typeof React,
       'cloneElement'
@@ -19,6 +23,7 @@ jest.mock('../profile/ProfileTooltip', () => ({
 
     return mockReact.cloneElement(props.children, {
       'data-profile-tooltip-user-id': props.userId,
+      'data-profile-tooltip-user-name': props.initialUser?.name,
     });
   },
 }));
@@ -78,6 +83,10 @@ const expectProfileLinks = (): void => {
     'data-profile-tooltip-user-id',
     participantProfile.id,
   );
+  expect(nameLink).toHaveAttribute(
+    'data-profile-tooltip-user-name',
+    participantProfile.name,
+  );
 
   const avatarLink = screen.getByRole('link', {
     name: 'Open @participant profile',
@@ -88,6 +97,10 @@ const expectProfileLinks = (): void => {
   expect(avatarLink).toHaveAttribute(
     'data-profile-tooltip-user-id',
     participantProfile.id,
+  );
+  expect(avatarLink).toHaveAttribute(
+    'data-profile-tooltip-user-name',
+    participantProfile.name,
   );
 };
 
