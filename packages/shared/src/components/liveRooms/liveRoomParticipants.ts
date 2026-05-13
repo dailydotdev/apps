@@ -19,10 +19,3 @@ export const buildParticipantProfile = (
   reputation: 0,
   permalink: '',
 });
-
-export const buildDisplayProfile = (
-  user: UserShortProfile,
-): UserShortProfile => ({
-  ...user,
-  name: userDisplayName(user),
-});

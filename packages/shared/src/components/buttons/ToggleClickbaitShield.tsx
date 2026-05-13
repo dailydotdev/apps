@@ -21,8 +21,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureNewD1Experience } from '../../lib/featureManagement';
+import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -41,8 +40,7 @@ export const ToggleClickbaitShield = ({
   const { user } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
-  const { value: isNewD1Experience } = useConditionalFeature({
-    feature: featureNewD1Experience,
+  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
     shouldEvaluate: !isPlus,
   });
 
