@@ -15,7 +15,7 @@
     "test:e2e:headed": "pnpm --filter playwright test:headed",
     "test:e2e:ui": "pnpm --filter playwright test:ui"
   },
-  "packageManager": "pnpm@9.14.4",
+  "packageManager": "pnpm@10.33.4",
   "pnpm": {
     "patchedDependencies": {
       "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch"
