@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Author } from '../../graphql/comments';
 import type { BaseTooltipProps, TooltipProps } from '../tooltips/BaseTooltip';
@@ -23,6 +23,7 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   scrollingContainer?: HTMLElement;
   onTooltipMouseEnter?: () => void;
   onTooltipMouseLeave?: () => void;
+  eager?: boolean;
 }
 
 export type UserTooltipContentData = {
@@ -44,25 +45,41 @@ export function ProfileTooltip({
   tooltip = {},
   onTooltipMouseEnter,
   onTooltipMouseLeave,
+  eager = false,
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
   const { logEvent } = useLogContext();
   const handler = useRef<() => void>();
-  const [id, setId] = useState<string | undefined>(undefined);
+  const [id, setId] = useState<string | undefined>(eager ? userId : undefined);
   const { data, isLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.UserShortById, { id }),
+    queryKey: generateQueryKey(
+      RequestKey.UserShortById,
+      id ? { id } : undefined,
+    ),
     queryFn: () => {
+      if (!id) {
+        throw new Error('Profile tooltip user id is required');
+      }
+
       return getUserShortInfo(id);
     },
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (eager) {
+      setId(userId);
+    }
+  }, [eager, userId]);
 
   const handleShow = () => {
     if (!scrollingContainer) {
       return;
     }
 
-    scrollingContainer.removeEventListener('scroll', handler.current);
+    if (handler.current) {
+      scrollingContainer.removeEventListener('scroll', handler.current);
+    }
     handler.current = () =>
       query.setQueryData(['readingRank', userId], () => {});
     scrollingContainer.addEventListener('scroll', handler.current);
@@ -72,7 +89,9 @@ export function ProfileTooltip({
     if (!scrollingContainer) {
       return;
     }
-    scrollingContainer.removeEventListener('scroll', handler.current);
+    if (handler.current) {
+      scrollingContainer.removeEventListener('scroll', handler.current);
+    }
   };
 
   // This is a workaround to fix the issue of the tooltip getting cleared
@@ -123,8 +142,8 @@ export function ProfileTooltip({
     interactive: true,
     onHide,
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
-    container: { bgClassName: null },
-    content: !isLoading && data ? <UserEntityCard user={data} /> : null,
+    container: { bgClassName: '' },
+    content: !isLoading && data ? <UserEntityCard user={data} /> : undefined,
     plugins:
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
     ...tooltip,
