@@ -16,6 +16,11 @@
     "test:e2e:ui": "pnpm --filter playwright test:ui"
   },
   "packageManager": "pnpm@10.33.4",
+  "pnpm": {
+    "patchedDependencies": {
+      "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch"
+    }
+  },
   "volta": {
     "node": "24.14.0"
   }
