@@ -67,6 +67,7 @@ import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/Arc
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { useRecordRecentSourceVisit } from '@dailydotdev/shared/src/hooks/feed/useRecentPages';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -267,6 +268,7 @@ const SourcePage = ({
           dangerouslySetInnerHTML={{ __html: jsonLd }}
         />
       </Head>
+      <PageHeader title={source.name} />
       <ArchiveBreadcrumbs
         items={[{ label: 'Sources', href: '/sources' }, { label: source.name }]}
         className={pageSectionClassName}

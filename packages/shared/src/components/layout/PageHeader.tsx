@@ -2,6 +2,13 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 
+// Visual shell of the page-header strip. Exported so callers that
+// need a custom internal layout (e.g. wide horizontal tabs that
+// shouldn't be locked inside the title/actions slot) can compose
+// their own `<header>` without duplicating the styling.
+export const pageHeaderClassName =
+  'flex w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3';
+
 export interface PageHeaderProps {
   /**
    * Left-side title. A plain string is wrapped in a bold callout
@@ -29,12 +36,7 @@ export const PageHeader = ({
   children,
   className,
 }: PageHeaderProps): ReactElement => (
-  <header
-    className={classNames(
-      'flex w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3',
-      className,
-    )}
-  >
+  <header className={classNames(pageHeaderClassName, className)}>
     {title !== undefined &&
       (typeof title === 'string' ? (
         <strong className="min-w-0 flex-1 truncate typo-callout">
