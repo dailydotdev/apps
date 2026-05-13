@@ -26,7 +26,7 @@ The decision was made to allow faster iterations and to keep features parity in 
 ## Technologies
 
 - Node v24.14 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
-- [pnpm](https://pnpm.io/workspaces) for managing the monorepo and dependencies.
+- [pnpm](https://pnpm.io/workspaces) 10.33.4 for managing the monorepo and dependencies.
 
 ## Projects
 
@@ -87,9 +87,17 @@ We would appreciate if you dedicate the time and read them carefully:
 After cloning the project, please make sure to run the following commands to bootstrap the project:
 
 ```bash
-npm i -g pnpm@9.14.4
+nvm use
+corepack enable
+corepack prepare pnpm@10.33.4 --activate
 pnpm install
 ```
+
+## Dependency Supply-Chain Hardening
+
+This repo delays newly published package versions for seven days via `minimumReleaseAge: 10080` in `pnpm-workspace.yaml`. Keep using the pinned pnpm version from `package.json`; older pnpm versions do not enforce this setting.
+
+Keep `pnpm-lock.yaml` committed, use frozen-lockfile installs in CI, and avoid adding git or tarball dependencies unless they are reviewed explicitly. If an urgent dependency update must bypass the cooldown, add a temporary `minimumReleaseAgeExclude` entry in `pnpm-workspace.yaml`, review the package contents/provenance first, and remove the exception after the release ages out.
 
 ### Run Extension Locally
 

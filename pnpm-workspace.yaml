@@ -1,2 +1,6 @@
 packages:
   - "packages/*"
+
+# Delay new package versions for 7 days before pnpm may resolve them.
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
