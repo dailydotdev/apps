@@ -15,7 +15,10 @@ import type { TagsData } from '../../graphql/feedSettings';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GET_ONBOARDING_TAGS_QUERY } from '../../graphql/feedSettings';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingTagRecommender } from '../../lib/featureManagement';
+import {
+  featureOnboardingPersonas,
+  featureOnboardingTagRecommender,
+} from '../../lib/featureManagement';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -85,6 +88,13 @@ export function TagSelection({
     feature: featureOnboardingTagRecommender,
     shouldEvaluate: origin === Origin.Onboarding,
   });
+  // Personas always use the recswipe-backed recommender; ops doesn't need
+  // to enroll users in both experiments.
+  const { value: isPersonasEnabled } = useConditionalFeature({
+    feature: featureOnboardingPersonas,
+    shouldEvaluate: origin === Origin.Onboarding,
+  });
+  const shouldUseTagRecommender = isTagRecommenderEnabled || isPersonasEnabled;
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin,
     shouldUpdateAlerts,
@@ -232,7 +242,7 @@ export function TagSelection({
     excludedTags,
     recommendedRef: recommendedTagsRef,
     selectedRef: selectedTagsRef,
-    useTagRecommenderMutation: isTagRecommenderEnabled,
+    useTagRecommenderMutation: shouldUseTagRecommender,
     user,
     feedId,
     onRecommended: (names) => {
