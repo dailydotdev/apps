@@ -144,7 +144,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Frontend dev who values visual craft but is equally engaged by component architecture.',
             tagWeights: { css: 1, frontend: 1 },
-            next: 'q3_fe_design',
+            next: 'q3_fe_mixed',
           },
           {
             id: 'no',
@@ -176,7 +176,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Builds some shared components but mostly works on product UIs.',
             tagWeights: { 'design-systems': 1, frontend: 1 },
-            next: 'q4_fe_ds_yes',
           },
           {
             id: 'no',
@@ -213,7 +212,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Mixed — between app architecture and build / perf / DX concerns.',
             tagWeights: { 'frontend-architecture': 1, frontend: 1 },
-            next: 'q4_fe_arch_yes',
           },
           {
             id: 'no',
@@ -369,7 +367,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Backend dev who splits time between API work and data-layer work — small-team backend generalist.',
             tagWeights: { backend: 1, api: 1, databases: 1 },
-            next: 'q3_be_api',
+            next: 'q3_be_mixed',
           },
           {
             id: 'no',
@@ -410,7 +408,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Working in a mix of distributed-services and monolith code.',
             tagWeights: { microservices: 1, backend: 1 },
-            next: 'q4_be_api_yes',
           },
           {
             id: 'no',
@@ -442,7 +439,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Mixes OLTP work with some pipeline / batch responsibilities.',
             tagWeights: { databases: 1, sql: 1 },
-            next: 'q4_be_data_yes',
           },
           {
             id: 'no',
@@ -612,7 +608,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Full-stack dev who ships features end-to-end in a larger-team context with specialists nearby.',
             tagWeights: { fullstack: 1, 'web-development': 1 },
-            next: 'q3_fs_product',
+            next: 'q3_fs_mixed',
           },
           {
             id: 'no',
@@ -648,7 +644,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Has input on what to build but works alongside a PM / designer.',
             tagWeights: { startups: 1, 'web-development': 1 },
-            next: 'q4_fs_product_yes',
           },
           {
             id: 'no',
@@ -679,7 +674,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'Sometimes',
             signal: 'Slight frontend lean but comfortable on both sides.',
             tagWeights: { frontend: 1, fullstack: 1 },
-            next: 'q4_fs_spec_yes',
           },
           {
             id: 'no',
@@ -829,7 +823,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Mobile dev who works in both native and cross-platform stacks.',
             tagWeights: { ios: 1, android: 1, mobile: 1 },
-            next: 'q3_mobile_native',
+            next: 'q3_mobile_mixed',
           },
           {
             id: 'no',
@@ -859,7 +853,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'Both equally',
             signal: 'Splits time between iOS and Android equally.',
             tagWeights: { ios: 1, mobile: 1 },
-            next: 'q4_mobile_native_yes',
           },
           {
             id: 'no',
@@ -888,7 +881,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'A bit of both',
             signal: 'Worked in both RN and Flutter.',
             tagWeights: { 'react-native': 1, mobile: 1 },
-            next: 'q4_mobile_xplat_yes',
           },
           {
             id: 'no',
@@ -1038,7 +1030,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
               'data-engineering': 1,
               ai: 1,
             },
-            next: 'q3_dml_models',
+            next: 'q3_dml_mixed',
           },
           {
             id: 'no',
@@ -1075,7 +1067,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Does training occasionally but mostly builds on top of trained models.',
             tagWeights: { 'machine-learning': 1, 'deep-learning': 1 },
-            next: 'q4_dml_models_yes',
           },
           {
             id: 'no',
@@ -1111,7 +1102,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'A bit of both',
             signal: 'Mix of analysis and pipeline work.',
             tagWeights: { 'data-science': 1, analytics: 1 },
-            next: 'q4_dml_data_yes',
           },
           {
             id: 'no',
@@ -1270,7 +1260,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
               'platform-engineering': 1,
               sre: 1,
             },
-            next: 'q3_do_platform',
+            next: 'q3_do_mixed',
           },
           {
             id: 'no',
@@ -1305,7 +1295,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'A bit of both',
             signal: 'Mix of SDK / library work and infra work.',
             tagWeights: { 'developer-tools': 1, 'platform-engineering': 1 },
-            next: 'q4_do_platform_yes',
           },
           {
             id: 'no',
@@ -1341,7 +1330,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'Sometimes',
             signal: 'On-call but not as the primary firefighter.',
             tagWeights: { sre: 1, observability: 1 },
-            next: 'q4_do_sre_yes',
           },
           {
             id: 'no',
@@ -1509,7 +1497,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
               'penetration-testing': 1,
               devsecops: 1,
             },
-            next: 'q3_sec_offensive',
+            next: 'q3_sec_mixed',
           },
           {
             id: 'no',
@@ -1548,7 +1536,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'Both',
             signal: 'Works on web AND binary / native targets.',
             tagWeights: { cybersecurity: 1, 'penetration-testing': 1 },
-            next: 'q4_sec_off_yes',
           },
           {
             id: 'no',
@@ -1583,7 +1570,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'Both',
             signal: 'Mix of AppSec and detection / response.',
             tagWeights: { cybersecurity: 1, 'application-security': 1 },
-            next: 'q4_sec_def_yes',
           },
           {
             id: 'no',
@@ -1731,7 +1717,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Internal platform dev who also publishes open-source side projects.',
             tagWeights: { 'developer-tools': 1, 'open-source': 1 },
-            next: 'q3_dt_external',
+            next: 'q3_dt_mixed',
           },
           {
             id: 'no',
@@ -1762,7 +1748,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'A little',
             signal: 'Some OSS plus commercial dev-tools work.',
             tagWeights: { 'developer-tools': 1, 'open-source': 1 },
-            next: 'q4_dt_ext_yes',
           },
           {
             id: 'no',
@@ -1797,7 +1782,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'Both',
             signal: 'Mix of build infra and DX tooling.',
             tagWeights: { 'developer-tools': 1, productivity: 1 },
-            next: 'q4_dt_int_yes',
           },
           {
             id: 'no',
@@ -1947,7 +1931,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
               startups: 1,
               business: 1,
             },
-            next: 'q3_fn_technical',
+            next: 'q3_fn_mixed',
           },
           {
             id: 'no',
@@ -1986,7 +1970,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Early employee with meaningful equity, near-founder responsibilities.',
             tagWeights: { startups: 1, leadership: 1 },
-            next: 'q4_fn_tech_yes',
           },
           {
             id: 'no',
@@ -2021,7 +2004,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'A bit of both',
             signal: 'Mix of product and business work.',
             tagWeights: { 'product-management': 1, business: 1 },
-            next: 'q4_fn_nontech_yes',
           },
           {
             id: 'no',
@@ -2172,7 +2154,7 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Specialty dev who crosses into hardware occasionally — graphics, drivers, OS kernels.',
             tagWeights: { 'systems-programming': 1, embedded: 1 },
-            next: 'q3_sp_hardware',
+            next: 'q3_sp_mixed',
           },
           {
             id: 'no',
@@ -2204,7 +2186,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             signal:
               'Some robotics adjacent work but mostly static-device embedded.',
             tagWeights: { embedded: 1, iot: 1 },
-            next: 'q4_sp_hw_yes',
           },
           {
             id: 'no',
@@ -2235,7 +2216,6 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
             label: 'A bit of both',
             signal: 'Mix of game / graphics and systems-internals work.',
             tagWeights: { 'game-development': 1, 'systems-programming': 1 },
-            next: 'q4_sp_sw_yes',
           },
           {
             id: 'no',
@@ -2365,6 +2345,344 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
               'operating-systems': 1,
               'systems-programming': 1,
             },
+          },
+        ],
+      },
+      // ============================================================
+      // Q3 sort_of branches — "mixed" follow-ups per bucket
+      // ============================================================
+      {
+        id: 'q3_fe_mixed',
+        axis: 'fe_design_engineering_hybrid',
+        cols: 3,
+        prompt:
+          'You can argue typography choices and React rendering perf in the same review.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Designer-developer hybrid — equally engaged by visual craft and framework architecture.',
+            tagWeights: {
+              frontend: 1,
+              css: 1,
+              'design-systems': 1,
+              'frontend-architecture': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal:
+              'Frontend dev with design sensitivity but skews toward one side day-to-day.',
+            tagWeights: { frontend: 1, 'design-systems': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Frontend dev who is firmly on one side of the design/engineering line, not both.',
+            tagWeights: { frontend: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_be_mixed',
+        axis: 'be_api_data_generalist',
+        cols: 3,
+        prompt:
+          "Your week had both 'why is this query slow' and 'should this be its own service'.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Small-team backend generalist — owns both API surface and data layer.',
+            tagWeights: {
+              backend: 1,
+              api: 1,
+              databases: 1,
+              performance: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal:
+              'Backend dev who crosses API/data boundaries occasionally but mostly stays in one lane.',
+            tagWeights: { backend: 1, api: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Backend dev who works strictly in one part of the stack — not the small-team generalist shape.',
+            tagWeights: { backend: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_fs_mixed',
+        axis: 'fs_generalist_ic',
+        cols: 3,
+        prompt:
+          "You take whichever ticket's on top — frontend, backend, glue, infra.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Generalist IC fullstack — picks work from a shared queue without a strong specialist lean.',
+            tagWeights: { fullstack: 1, 'web-development': 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal:
+              'Generalist most of the time but has a preferred lane when given the choice.',
+            tagWeights: { fullstack: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Fullstack but with a clear preference or specialism, not a pick-anything generalist.',
+            tagWeights: { fullstack: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_mobile_mixed',
+        axis: 'mobile_native_xplat_hybrid',
+        cols: 3,
+        prompt:
+          'Your team ships native and a cross-platform layer in the same app.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Mobile dev working across a native shell and a cross-platform layer (React Native / Flutter) in the same project.',
+            tagWeights: {
+              mobile: 1,
+              'react-native': 1,
+              ios: 1,
+              android: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal:
+              'Mostly one stack but has dipped into the other for specific surfaces.',
+            tagWeights: { mobile: 1, 'react-native': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Mobile dev firmly on one side of the native vs cross-platform line.',
+            tagWeights: { mobile: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_dml_mixed',
+        axis: 'dml_mlops_rag',
+        cols: 3,
+        prompt:
+          'Putting models into production is more of your week than training them.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Applied ML / MLOps / AI engineer — productionises models, builds RAG / agent systems, owns serving and evals.',
+            tagWeights: {
+              mlops: 1,
+              'ai-engineering': 1,
+              'machine-learning': 1,
+              llm: 1,
+              rag: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal: 'Mostly applied work but trains or fine-tunes when needed.',
+            tagWeights: { 'machine-learning': 1, ai: 1, mlops: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Not a productionisation focus — closer to research or to analytics.',
+            tagWeights: { 'machine-learning': 1, ai: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_do_mixed',
+        axis: 'do_platform_sre_hybrid',
+        cols: 3,
+        prompt:
+          'You spend equal time on platform tooling and on-call rotations.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'DevOps / SRE hybrid on a small team — builds platform tools AND owns production reliability.',
+            tagWeights: {
+              devops: 1,
+              sre: 1,
+              'platform-engineering': 1,
+              observability: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal: 'Wears both hats but leans one way more than the other.',
+            tagWeights: { devops: 1, sre: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Either platform-only (no on-call) or on-call-only (no platform work) — not the hybrid shape.',
+            tagWeights: { devops: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_sec_mixed',
+        axis: 'sec_appsec_devsecops',
+        cols: 3,
+        prompt:
+          'You write security tooling for engineers, not pentest reports for management.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'AppSec / DevSecOps — builds security tooling, integrates checks into CI, sits between offense and defense.',
+            tagWeights: {
+              devsecops: 1,
+              cybersecurity: 1,
+              'application-security': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal:
+              'Some tooling work, but the day-to-day is closer to one of the classic offense/defense roles.',
+            tagWeights: { cybersecurity: 1, devsecops: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Security work is firmly offensive or firmly defensive — not the engineering-enablement shape.',
+            tagWeights: { cybersecurity: 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_dt_mixed',
+        axis: 'dt_oss_internal_hybrid',
+        cols: 3,
+        prompt:
+          "Your work splits between an OSS project and your company's internal tooling.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Hybrid devtools engineer — maintains OSS AND builds internal developer platform tooling.',
+            tagWeights: {
+              'developer-tools': 1,
+              'open-source': 1,
+              'platform-engineering': 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal:
+              'Does both occasionally but most weeks lean toward one side.',
+            tagWeights: { 'developer-tools': 1, 'open-source': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Devtools work is purely external (OSS / public product) or purely internal — not the hybrid shape.',
+            tagWeights: { 'developer-tools': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_fn_mixed',
+        axis: 'fn_player_coach',
+        cols: 3,
+        prompt:
+          'You still ship code daily, even though others on the team could.',
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              'Player-coach founder / lead — ships code daily while also driving direction, hiring, and reviews.',
+            tagWeights: {
+              'engineering-management': 1,
+              leadership: 1,
+              startups: 1,
+            },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal:
+              'Ships code regularly but not every day — splits time with leadership work.',
+            tagWeights: { leadership: 1, 'engineering-management': 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Mostly out of the IC code — leadership, hiring, and direction are the day job.',
+            tagWeights: { leadership: 1, 'engineering-management': 1 },
+          },
+        ],
+      },
+      {
+        id: 'q3_sp_mixed',
+        axis: 'sp_embedded_software',
+        cols: 3,
+        prompt:
+          "Your code lives close to hardware but doesn't drive motors or render visuals.",
+        options: [
+          {
+            id: 'yes',
+            label: 'Spot on',
+            signal:
+              "Embedded / IoT / firmware engineer — code runs near hardware (sensors, instruments, edge devices) but isn't driving motion or media.",
+            tagWeights: { embedded: 1, iot: 1, firmware: 1 },
+          },
+          {
+            id: 'sort_of',
+            label: 'Sort of',
+            signal: 'Sometimes touches firmware but mostly works one layer up.',
+            tagWeights: { embedded: 1, iot: 1 },
+          },
+          {
+            id: 'no',
+            label: 'Way off',
+            signal:
+              'Hardware-adjacent work is on the robotics or media side, not the firmware / IoT middle.',
+            tagWeights: { embedded: 1 },
           },
         ],
       },

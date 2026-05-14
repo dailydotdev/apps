@@ -124,6 +124,7 @@ function FunnelPersonaQuizComponent({
   const didStartLogRef = useRef(false);
   const decidedAnswerCountRef = useRef(0);
   const enrichmentTriggeredRef = useRef(false);
+  const llmRetryCountRef = useRef(0);
 
   useEffect(() => {
     if (didStartLogRef.current) {
@@ -152,26 +153,40 @@ function FunnelPersonaQuizComponent({
       );
     },
     onSuccess: (result) => {
-      // Force the LLM to keep asking until we hit the soft minimum — the
-      // model tends to declare `isFinal: true` right after the static graph
-      // hands off, which skips the LLM-generated turns entirely. Honor
-      // `isFinal` only once we've cleared `selection.minQuestions`.
       const hasMinQuestions = answers.length >= selection.minQuestions;
-      if (result.isFinal && hasMinQuestions) {
+
+      // Happy path: model returned a question. Use it regardless of
+      // `isFinal` — we're authoritative on when to stop.
+      if (result.question) {
+        llmRetryCountRef.current = 0;
+        const next = result.question;
+        setGeneratedQuestions((prev) =>
+          prev.some((q) => q.id === next.id) ? prev : [...prev, next],
+        );
+        goToQuestion(next.id);
+        return;
+      }
+
+      // Model refused to ask anything. If we've already cleared the
+      // minimum, honor it.
+      if (hasMinQuestions) {
+        llmRetryCountRef.current = 0;
         startEnriching();
         return;
       }
-      if (!result.question) {
-        // No question to render (early stop with empty payload) — fall
-        // through to enrichment rather than getting stuck.
-        startEnriching();
+
+      // Below the minimum and the model bailed. Retry a couple of times —
+      // temperature=1 means a resend has a real shot at returning a
+      // question. After the cap, fall through to enrichment rather than
+      // looping forever.
+      const MAX_LLM_RETRIES = 2;
+      if (llmRetryCountRef.current < MAX_LLM_RETRIES) {
+        llmRetryCountRef.current += 1;
+        nextQuestionMutation.mutate();
         return;
       }
-      const next = result.question;
-      setGeneratedQuestions((prev) =>
-        prev.some((q) => q.id === next.id) ? prev : [...prev, next],
-      );
-      goToQuestion(next.id);
+      llmRetryCountRef.current = 0;
+      startEnriching();
     },
     onError: () => {
       // If LLM question generation fails, advance to enrichment so the user
