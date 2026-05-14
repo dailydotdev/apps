@@ -85,6 +85,7 @@ export function ArticleReaderFrame({
           <ReaderHeaderActionGroup
             onClose={isPostPage ? undefined : onClose}
             showLegacyLayoutOptOut
+            legacyLayoutOptOutShowLabel={!isPostPage}
           />
         }
         collapseOnUnavailable={false}

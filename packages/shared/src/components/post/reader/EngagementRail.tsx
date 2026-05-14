@@ -320,13 +320,13 @@ export function EngagementRail({
             size={ProfileImageSize.Large}
             CommentInputOrModal={CommentInputOrModal}
             className={{
-              // DEMO ONLY: lift the composer trigger so the discussion CTA is
-              // unmissable — accent surface, blueCheese border, taller hit area
-              // so users can't miss the entry point to add a comment.
+              // DEMO ONLY: flat composer trigger — neutral surface, a slightly
+              // thicker subtle border, no shadow, no accent fills. The size /
+              // hit area stays generous so the entry point is still obvious.
               container: classNames(
-                '!border-accent-blueCheese-default/40 !rounded-16 !border-2 !bg-action-comment-float',
-                'hover:!border-accent-blueCheese-default hover:!bg-action-comment-float',
-                '!p-3 shadow-3 typo-body tablet:!p-3',
+                '!rounded-16 !border !border-border-subtlest-secondary !bg-surface-float',
+                'hover:!border-border-subtlest-primary hover:!bg-surface-float',
+                '!p-3 typo-body tablet:!p-3',
               ),
             }}
           />

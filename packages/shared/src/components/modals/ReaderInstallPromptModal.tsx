@@ -62,20 +62,6 @@ const getDisplayUrl = (post: Post, host: string | undefined): string => {
   return host || 'daily.dev';
 };
 
-function TrafficLight({ tone }: { tone: 'red' | 'amber' | 'green' }) {
-  const palette = {
-    red: 'bg-action-downvote-default',
-    amber: 'bg-action-bookmark-default',
-    green: 'bg-action-upvote-default',
-  } as const;
-  return (
-    <span
-      aria-hidden
-      className={classNames('size-3 rounded-full', palette[tone])}
-    />
-  );
-}
-
 interface BrowserChromeProps {
   faviconSrc: string | undefined;
   displayUrl: string;
@@ -92,11 +78,6 @@ function BrowserChrome({
 }: BrowserChromeProps): ReactElement {
   return (
     <div className="flex w-full shrink-0 items-center gap-3 border-b border-border-subtlest-tertiary bg-background-subtle px-3 py-2">
-      <div className="hidden items-center gap-1.5 tablet:flex">
-        <TrafficLight tone="red" />
-        <TrafficLight tone="amber" />
-        <TrafficLight tone="green" />
-      </div>
       <div
         aria-hidden
         className="hidden items-center gap-0.5 text-text-disabled tablet:flex"
@@ -146,45 +127,99 @@ function BrowserChrome({
   );
 }
 
-// Heavily blurred, full-width placeholder for the article body. We
-// deliberately render only abstract shapes (no real title/image) so the
-// install card stays the focal point without competing content.
+// Heavily blurred, white-page article mockup so the surface reads like a
+// real website opened inside daily.dev. We use explicit hex colors instead
+// of theme tokens so the article surface stays light even when the rest
+// of the app is in dark mode — that's what most real article pages look
+// like, and it makes the blur read as "a webpage behind glass".
+const ARTICLE_PARAGRAPHS = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'] as const;
+
 function BlurredArticleBackdrop(): ReactElement {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden bg-background-default"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+      style={{ backgroundColor: '#f6f7fb' }}
     >
-      <div className="absolute inset-0 [filter:blur(18px)_saturate(1.05)]">
-        <div className="mx-auto flex h-full w-full max-w-[64rem] flex-col gap-6 px-12 pb-12 pt-10">
-          <div className="h-3 w-24 rounded-6 bg-surface-float" />
+      <div className="absolute inset-0 [filter:blur(22px)_saturate(1.1)]">
+        <div className="mx-auto flex h-full w-full max-w-[58rem] flex-col gap-6 px-12 pb-16 pt-10">
+          <div className="flex items-center gap-2">
+            <span
+              className="h-3 w-16 rounded-full"
+              style={{ backgroundColor: '#c4cad6' }}
+            />
+            <span
+              className="h-3 w-24 rounded-full"
+              style={{ backgroundColor: '#d8dde7' }}
+            />
+            <span
+              className="h-3 w-20 rounded-full"
+              style={{ backgroundColor: '#d8dde7' }}
+            />
+          </div>
           <div className="flex flex-col gap-3">
-            <div className="h-8 w-11/12 rounded-8 bg-surface-float" />
-            <div className="h-8 w-9/12 rounded-8 bg-surface-float" />
-            <div className="h-8 w-7/12 rounded-8 bg-surface-float" />
+            <div
+              className="rounded-md h-9 w-11/12"
+              style={{ backgroundColor: '#1f2937' }}
+            />
+            <div
+              className="rounded-md h-9 w-9/12"
+              style={{ backgroundColor: '#1f2937' }}
+            />
+            <div
+              className="rounded-md h-9 w-7/12"
+              style={{ backgroundColor: '#1f2937' }}
+            />
           </div>
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-full bg-surface-float" />
+            <div
+              className="size-10 rounded-full"
+              style={{ backgroundColor: '#c4cad6' }}
+            />
             <div className="flex flex-col gap-1.5">
-              <div className="h-3 w-32 rounded-6 bg-surface-float" />
-              <div className="h-2.5 w-20 rounded-6 bg-surface-float" />
+              <div
+                className="h-3 w-40 rounded-full"
+                style={{ backgroundColor: '#c4cad6' }}
+              />
+              <div
+                className="h-2.5 w-24 rounded-full"
+                style={{ backgroundColor: '#d8dde7' }}
+              />
             </div>
           </div>
-          <div className="mt-2 h-64 w-full rounded-16 bg-surface-float" />
-          <div className="flex flex-col gap-3">
-            <div className="h-3 w-full rounded-6 bg-surface-float" />
-            <div className="h-3 w-11/12 rounded-6 bg-surface-float" />
-            <div className="h-3 w-10/12 rounded-6 bg-surface-float" />
-            <div className="h-3 w-9/12 rounded-6 bg-surface-float" />
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="h-3 w-full rounded-6 bg-surface-float" />
-            <div className="h-3 w-11/12 rounded-6 bg-surface-float" />
-            <div className="h-3 w-9/12 rounded-6 bg-surface-float" />
-          </div>
+          <div
+            className="rounded-xl mt-1 h-64 w-full"
+            style={{ backgroundColor: '#e2e6ee' }}
+          />
+          {ARTICLE_PARAGRAPHS.map((id) => (
+            <div key={id} className="flex flex-col gap-2.5">
+              <div
+                className="h-3 w-full rounded-full"
+                style={{ backgroundColor: '#cbd1dc' }}
+              />
+              <div
+                className="h-3 w-11/12 rounded-full"
+                style={{ backgroundColor: '#cbd1dc' }}
+              />
+              <div
+                className="h-3 w-10/12 rounded-full"
+                style={{ backgroundColor: '#cbd1dc' }}
+              />
+              <div
+                className="h-3 w-8/12 rounded-full"
+                style={{ backgroundColor: '#cbd1dc' }}
+              />
+            </div>
+          ))}
         </div>
       </div>
-      <div className="from-background-default/30 via-background-default/45 to-background-default/65 absolute inset-0 bg-gradient-to-b" />
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            'linear-gradient(180deg, rgba(246, 247, 251, 0.15) 0%, rgba(246, 247, 251, 0.55) 60%, rgba(246, 247, 251, 0.85) 100%)',
+        }}
+      />
     </div>
   );
 }
@@ -204,7 +239,6 @@ function ReaderInstallPromptModal({
   const browser = isChromeBrowser ? 'chrome' : 'edge';
   const host = getPostHost(post);
   const faviconSrc = useFaviconSrc(host);
-  const displayHost = host || 'daily.dev';
   const displayUrl = getDisplayUrl(post, host);
 
   useEffect(() => {
@@ -245,7 +279,7 @@ function ReaderInstallPromptModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         'reader-install-prompt-modal !mx-0 h-full max-h-screen !w-full !max-w-full overflow-hidden !bg-background-default focus:outline-none',
-        'tablet:!mx-auto tablet:!max-w-[min(96vw,76rem)]',
+        'tablet:!mx-auto tablet:!max-w-[min(96vw,88rem)]',
         'laptop:!mb-2 laptop:!mt-2 laptop:h-[calc(100vh-1rem)] laptop:max-h-[calc(100vh-1rem)] laptop:overflow-hidden',
         '!overscroll-y-auto',
       )}
@@ -273,7 +307,7 @@ function ReaderInstallPromptModal({
                 bold
                 className="!leading-tight"
               >
-                Read this inside daily.dev?
+                Stop opening tabs.
               </Typography>
               <Typography
                 tag={TypographyTag.P}
@@ -281,8 +315,8 @@ function ReaderInstallPromptModal({
                 color={TypographyColor.Secondary}
                 className="!mt-0 max-w-[26rem]"
               >
-                Install the extension and {displayHost} opens right here inside
-                daily.dev. No new tab. No context switching.
+                Install the extension and every link opens inside daily.dev.
+                Article on one side, the conversation on the other.
               </Typography>
               <div className="mt-1 flex w-full max-w-[22rem] flex-col items-stretch gap-2">
                 <Button

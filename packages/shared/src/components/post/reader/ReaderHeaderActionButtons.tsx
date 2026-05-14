@@ -61,31 +61,52 @@ export function ReaderCloseButton({
 
 type ReaderLegacyLayoutToggleButtonProps = {
   target?: 'classic' | 'reader';
+  /**
+   * When true, render the toggle as `icon + "Close browser mode"` so users
+   * inside the reader modal can clearly find the exit. The standalone post
+   * page keeps the icon-only variant for a compact chrome.
+   */
+  showLabel?: boolean;
 };
 
 export function ReaderLegacyLayoutToggleButton({
   target = 'classic',
+  showLabel = false,
 }: ReaderLegacyLayoutToggleButtonProps): ReactElement {
   const { optIn, optOut } = useLegacyPostLayoutOptOut();
   const isClassicTarget = target === 'classic';
+  const label = isClassicTarget ? 'Close browser mode' : 'Enable browser mode';
+  const ariaLabel = isClassicTarget
+    ? 'Use classic post layout'
+    : 'Use embedded reader';
+  const onClick = isClassicTarget ? () => optOut() : optIn;
+
+  if (showLabel) {
+    return (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        icon={<EyeIcon />}
+        size={ButtonSize.Small}
+        type="button"
+        className="!h-8 !gap-1.5 !rounded-10 !px-3 !text-text-primary"
+        onClick={onClick}
+        aria-label={ariaLabel}
+      >
+        {label}
+      </Button>
+    );
+  }
 
   return (
-    <Tooltip
-      side="bottom"
-      content={
-        isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
-      }
-    >
+    <Tooltip side="bottom" content={ariaLabel}>
       <Button
         variant={ButtonVariant.Tertiary}
         icon={<EyeIcon />}
         size={ButtonSize.Small}
         type="button"
         className={iconButtonClassName}
-        onClick={isClassicTarget ? () => optOut() : optIn}
-        aria-label={
-          isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
-        }
+        onClick={onClick}
+        aria-label={ariaLabel}
       />
     </Tooltip>
   );
@@ -95,12 +116,14 @@ type ReaderHeaderActionGroupProps = {
   onToggleRail?: () => void;
   onClose?: () => void;
   showLegacyLayoutOptOut?: boolean;
+  legacyLayoutOptOutShowLabel?: boolean;
 };
 
 export function ReaderHeaderActionGroup({
   onToggleRail,
   onClose,
   showLegacyLayoutOptOut = false,
+  legacyLayoutOptOutShowLabel = false,
 }: ReaderHeaderActionGroupProps): ReactElement | null {
   if (!onToggleRail && !onClose && !showLegacyLayoutOptOut) {
     return null;
@@ -116,7 +139,10 @@ export function ReaderHeaderActionGroup({
       {onClose || showLegacyLayoutOptOut ? (
         <div className={readerHeaderActionGroupClassName}>
           {showLegacyLayoutOptOut ? (
-            <ReaderLegacyLayoutToggleButton target="classic" />
+            <ReaderLegacyLayoutToggleButton
+              target="classic"
+              showLabel={legacyLayoutOptOutShowLabel}
+            />
           ) : null}
           {onClose ? <ReaderCloseButton onClose={onClose} /> : null}
         </div>

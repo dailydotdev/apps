@@ -25,6 +25,7 @@ import { useReadArticle } from '../../../hooks/usePostContent';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { readerHeaderActionGroupClassName } from './ReaderHeaderActionButtons';
 
 const CHROME_TOP_OFFSET_PX = 72;
 const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
@@ -32,10 +33,10 @@ const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
 // and rail keep a deliberate, balanced layout instead of letting users
 // collapse one pane into the other.
 const FIXED_RAIL_WIDTH_PX = 380;
-// DEMO ONLY: matches the modal's `tablet:!max-w-[min(96vw,76rem)]` cap so
+// DEMO ONLY: matches the modal's `tablet:!max-w-[min(96vw,88rem)]` cap so
 // the standalone post page renders the same shell at the same width as the
 // modal portal, even if the outer `outerClassName` ever stops constraining.
-const SHELL_MAX_WIDTH = 'min(96vw, 76rem)';
+const SHELL_MAX_WIDTH = 'min(96vw, 88rem)';
 
 type ReaderPostLayoutProps = {
   post: Post;
@@ -217,17 +218,19 @@ export function ReaderPostLayout({
                     targetLinkInNewTab={openNewTab}
                     leftHeaderActions={
                       isPostPage ? (
-                        <Tooltip content="Back to feed">
-                          <Button
-                            type="button"
-                            variant={ButtonVariant.Tertiary}
-                            size={ButtonSize.Small}
-                            icon={<ArrowIcon className="-rotate-90" />}
-                            onClick={onCloseWithLog}
-                            aria-label="Back to feed"
-                            className="!h-8 !w-8 !min-w-8 !rounded-10 !p-0"
-                          />
-                        </Tooltip>
+                        <div className={readerHeaderActionGroupClassName}>
+                          <Tooltip content="Back to feed">
+                            <Button
+                              type="button"
+                              variant={ButtonVariant.Tertiary}
+                              size={ButtonSize.Small}
+                              icon={<ArrowIcon className="-rotate-90" />}
+                              onClick={onCloseWithLog}
+                              aria-label="Back to feed"
+                              className="!h-8 !w-8 !min-w-8 !rounded-10 !p-0"
+                            />
+                          </Tooltip>
+                        </div>
                       ) : undefined
                     }
                   />
