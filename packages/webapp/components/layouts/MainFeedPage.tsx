@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import type { MainFeedLayoutProps } from '@dailydotdev/shared/src/components/MainFeedLayout';
@@ -7,16 +7,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
-import { ExploreChipsBar } from '@dailydotdev/shared/src/components/feeds/ExploreChipsBar';
-import { buildPersonalizedCategories } from '@dailydotdev/shared/src/components/feeds/exploreCategories';
-import { useFeedTagsList } from '@dailydotdev/shared/src/hooks/useFeedTagsList';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureFeedTagChips } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
 
@@ -88,22 +79,6 @@ export default function MainFeedPage({
     getInternalFeedName(router?.pathname, { isMyFeed: isMyFeedURL }),
   );
   const [isSearchOn, setIsSearchOn] = useState(!!isFinderPage);
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const isLoggedIn = !!user;
-  const isHomePage = feedName === 'default';
-  const isExploreTagPage = feedName === OtherFeedPage.ExploreTag;
-  const showsChipStrip = isHomePage || isExploreTagPage;
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
-    shouldEvaluate: showsChipStrip && isLaptop && isLoggedIn,
-  });
-  const showExploreChips =
-    showsChipStrip && isLaptop && isLoggedIn && isFeedTagChipsEnabled;
-  const { tags: feedTags } = useFeedTagsList({ enabled: showExploreChips });
-  const exploreCategories = useMemo(
-    () => buildPersonalizedCategories(feedTags),
-    [feedTags],
-  );
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
     if (getShouldRedirect(isMyFeed, !!user)) {
@@ -133,19 +108,16 @@ export default function MainFeedPage({
   }
 
   return (
-    <>
-      {showExploreChips && <ExploreChipsBar categories={exploreCategories} />}
-      <MainFeedLayout
-        feedName={feedName}
-        isSearchOn={isSearchOn}
-        searchQuery={router.query?.q?.toString()}
-        isFinder={isFinder}
-        searchChildren={searchChildren}
-      >
-        <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
-        {children}
-      </MainFeedLayout>
-    </>
+    <MainFeedLayout
+      feedName={feedName}
+      isSearchOn={isSearchOn}
+      searchQuery={router.query?.q?.toString()}
+      isFinder={isFinder}
+      searchChildren={searchChildren}
+    >
+      <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
+      {children}
+    </MainFeedLayout>
   );
 }
 

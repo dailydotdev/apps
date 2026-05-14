@@ -11,6 +11,9 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
+import { ExploreChipsBar } from './feeds/ExploreChipsBar';
+import { buildPersonalizedCategories } from './feeds/exploreCategories';
+import { useFeedTagsList } from '../hooks/useFeedTagsList';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
@@ -316,16 +319,26 @@ export default function MainFeedLayout({
     shouldEvaluate: shouldEvaluateFeedV2Highlights,
   });
 
-  // Mirrors the chip-strip gating in MainFeedPage so the feed below tucks
-  // up against the strip when it renders.
   const isChipStripPage =
     router.pathname === '/' || router.pathname === '/explore/[tag]';
   const { value: isFeedTagChipsEnabled } = useConditionalFeature({
     feature: featureFeedTagChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
-  const reduceTopPadding =
+  const showExploreChips =
     !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
+  const { tags: feedTags } = useFeedTagsList({ enabled: showExploreChips });
+  const exploreCategories = useMemo(
+    () => buildPersonalizedCategories(feedTags),
+    [feedTags],
+  );
+  const chipsNode = useMemo(
+    () =>
+      showExploreChips ? (
+        <ExploreChipsBar categories={exploreCategories} />
+      ) : null,
+    [showExploreChips, exploreCategories],
+  );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -467,8 +480,9 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown> | null>(() => {
+    const isExploreTag = feedName === OtherFeedPage.ExploreTag;
     const feedWithActions =
-      isUpvoted || isPopular || isSortableFeed || isCustomFeed;
+      isUpvoted || isPopular || isSortableFeed || isCustomFeed || isExploreTag;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
@@ -503,6 +517,7 @@ export default function MainFeedLayout({
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
+            chips={chipsNode}
           />
         ),
       };
@@ -582,10 +597,12 @@ export default function MainFeedLayout({
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
+          chips={chipsNode}
         />
       ),
     };
   }, [
+    chipsNode,
     isUpvoted,
     isPopular,
     isSortableFeed,
@@ -673,12 +690,11 @@ export default function MainFeedLayout({
 
   return (
     <FeedPageLayoutComponent
-      className={classNames(
-        'relative',
-        disableTopPadding && '!pt-0',
-        reduceTopPadding && 'laptop:!pt-5',
-      )}
+      className={classNames('relative', disableTopPadding && '!pt-0')}
     >
+      {chipsNode && router.pathname === '/explore/[tag]' && (
+        <div className="mb-4 w-full">{chipsNode}</div>
+      )}
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
       {isSearchOn && isFinder && !isSearchPageLaptop && (
