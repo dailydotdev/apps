@@ -141,16 +141,17 @@ const ensureStyles = (): void => {
     }
     .embedded-browsing-button:disabled { opacity: 0.6; cursor: not-allowed; }
     .embedded-browsing-button-secondary {
-      background: transparent;
-      color: #cfd6e6;
-      font-weight: 500;
-      min-width: 0;
-      padding: 0 0.75rem;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e3e8f3;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      font-weight: 600;
     }
     .embedded-browsing-button-secondary:hover {
-      opacity: 1;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.22);
       color: #ffffff;
-      transform: none;
+      opacity: 1;
+      transform: translateY(-1px);
     }
   `;
   document.head.appendChild(style);
@@ -210,17 +211,16 @@ export const renderPermissionPrompt = ({
 
   const heading = document.createElement('h2');
   heading.className = 'embedded-browsing-heading';
-  heading.textContent = 'Enable embedded browsing';
+  heading.textContent = 'One tap to read in here.';
 
   const description = document.createElement('p');
   description.className = 'embedded-browsing-body';
   description.textContent =
-    'To load websites inside daily.dev, allow this extension to modify response headers on embedded pages.';
+    'Turn on embedded browsing and articles open right inside daily.dev. No new tabs, no bouncing around.';
 
   const status = document.createElement('p');
   status.className = 'embedded-browsing-status';
-  status.textContent =
-    'This is optional and only applies to pages embedded by daily.dev.';
+  status.textContent = 'We only use it on links you open from daily.dev.';
 
   const actions = document.createElement('div');
   actions.className = 'embedded-browsing-actions';
@@ -228,7 +228,7 @@ export const renderPermissionPrompt = ({
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'embedded-browsing-button';
-  button.textContent = 'Enable for this browser';
+  button.textContent = "Let's do it";
 
   const resetButton = () => {
     button.disabled = false;
@@ -236,21 +236,22 @@ export const renderPermissionPrompt = ({
 
   button.addEventListener('click', async () => {
     button.disabled = true;
-    status.textContent = 'Requesting permissions...';
+    status.textContent = 'Just a sec…';
 
     const outcome = await onRequestPermission();
     if (outcome === 'granted') {
-      status.textContent = 'Permissions granted. Reloading extension...';
+      status.textContent = "You're in. Reloading…";
       return;
     }
 
     if (outcome === 'dismissed') {
-      status.textContent = 'Permission request was dismissed.';
+      status.textContent =
+        'Permission was dismissed — tap below when you’re ready.';
       resetButton();
       return;
     }
 
-    status.textContent = 'Failed to enable embedded browsing.';
+    status.textContent = "Something didn't quite work. Try again?";
     resetButton();
   });
 
@@ -261,7 +262,7 @@ export const renderPermissionPrompt = ({
     optOutButton.type = 'button';
     optOutButton.className =
       'embedded-browsing-button embedded-browsing-button-secondary';
-    optOutButton.textContent = "I'd rather not read inside daily.dev";
+    optOutButton.textContent = 'Maybe later';
     optOutButton.addEventListener('click', () => {
       onOptOut();
     });

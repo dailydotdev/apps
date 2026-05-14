@@ -80,7 +80,7 @@ export function EmbeddedBrowsingWebPrompt({
             color={TypographyColor.Primary}
             bold
           >
-            Enable embedded browsing
+            Read this inside daily.dev.
           </Typography>
           <Typography
             tag={TypographyTag.P}
@@ -88,8 +88,8 @@ export function EmbeddedBrowsingWebPrompt({
             color={TypographyColor.Secondary}
             className="!mt-0"
           >
-            Preview and open sites directly inside daily.dev. To use this
-            feature, install the daily.dev browser extension.
+            Install the extension and articles open right here. No new tabs, no
+            bouncing around.
           </Typography>
           <div className="mt-1 flex w-full flex-col items-center gap-2">
             <Button
@@ -108,11 +108,12 @@ export function EmbeddedBrowsingWebPrompt({
             {onOptOut ? (
               <Button
                 type="button"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Medium}
+                className="min-w-[8.5rem]"
                 onClick={onOptOut}
               >
-                I&apos;d rather not read inside daily.dev
+                Maybe later
               </Button>
             ) : null}
           </div>
