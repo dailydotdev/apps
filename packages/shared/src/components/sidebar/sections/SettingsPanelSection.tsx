@@ -31,7 +31,7 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
-import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { settingsUrl } from '../../../lib/constants';
 import { LogoutReason } from '../../../lib/user';
 import { logout } from '../../../contexts/AuthContext';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -228,14 +228,6 @@ export const SettingsPanelSection = ({
             icon: (active: boolean) => (
               <ListIcon Icon={() => <HotIcon secondary={active} />} />
             ),
-          },
-          {
-            title: 'Hot Takes',
-            path: `${webappUrl}?openModal=hottakes`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <HotIcon secondary={active} />} />
-            ),
-            action: () => logEvent({ event_name: LogEvent.OpenHotAndCold }),
           },
         ],
       },
