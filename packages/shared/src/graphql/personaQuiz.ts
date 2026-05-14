@@ -154,3 +154,68 @@ export const extractOnboardingTagsFromQuiz = async (
     reveal: res.personaQuizReveal.reveal ?? null,
   };
 };
+
+export interface OnboardingSwipePost {
+  postId: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  url: string;
+  sourceId: string;
+}
+
+export interface DiscoverOnboardingPostsParams {
+  prompt?: string;
+  selectedTags?: string[];
+  confirmedTags?: string[];
+  likedTitles?: string[];
+  excludeIds?: string[];
+  saturatedTags?: string[];
+  n?: number;
+}
+
+export interface DiscoverOnboardingPostsResult {
+  posts: OnboardingSwipePost[];
+  subPrompts: string[];
+}
+
+const ONBOARDING_DISCOVER_POSTS_MUTATION = gql`
+  mutation OnboardingDiscoverPosts(
+    $prompt: String
+    $selectedTags: [String!]
+    $confirmedTags: [String!]
+    $likedTitles: [String!]
+    $excludeIds: [String!]
+    $saturatedTags: [String!]
+    $n: Int
+  ) {
+    onboardingDiscoverPosts(
+      prompt: $prompt
+      selectedTags: $selectedTags
+      confirmedTags: $confirmedTags
+      likedTitles: $likedTitles
+      excludeIds: $excludeIds
+      saturatedTags: $saturatedTags
+      n: $n
+    ) {
+      posts {
+        postId
+        title
+        summary
+        tags
+        url
+        sourceId
+      }
+      subPrompts
+    }
+  }
+`;
+
+export const discoverOnboardingPosts = async (
+  params: DiscoverOnboardingPostsParams,
+): Promise<DiscoverOnboardingPostsResult> => {
+  const res = await gqlClient.request<{
+    onboardingDiscoverPosts: DiscoverOnboardingPostsResult;
+  }>(ONBOARDING_DISCOVER_POSTS_MUTATION, params);
+  return res.onboardingDiscoverPosts;
+};

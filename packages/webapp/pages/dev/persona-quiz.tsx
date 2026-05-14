@@ -5,7 +5,7 @@ import type { FunnelStepPersonaQuiz } from '@dailydotdev/shared/src/features/onb
 import { FunnelPersonaQuiz } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPersonaQuiz';
 import { NextSeo } from 'next-seo';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { buildSamplePersonaQuizStep } from '../../components/guess-who/personaQuizSampleConfig';
+import { buildSamplePersonaQuizStep } from '../../components/persona-quiz/personaQuizSampleConfig';
 
 const seo: NextSeoProps = {
   ...defaultSeo,

@@ -28,6 +28,7 @@ import {
 import { usePersonaQuizState } from './usePersonaQuizState';
 import { PersonaQuizQuestionView } from './PersonaQuizQuestion';
 import { PersonaQuizEnriching } from './PersonaQuizEnriching';
+import { PersonaQuizFeedPreview } from './PersonaQuizFeedPreview';
 import { PersonaQuizReveal } from './PersonaQuizReveal';
 
 const buildSeedTags = (
@@ -137,17 +138,22 @@ function FunnelPersonaQuizComponent({
     });
   }, [id, logEvent, parameters.version]);
 
-  const nextQuestionMutation = useMutation({
-    mutationFn: async () => {
-      const answerInputs = buildAnswerInputs(answers, allQuestions);
-      const seedTags = Object.entries(tagScores)
+  const llmSeedTags = useMemo(
+    () =>
+      Object.entries(tagScores)
         .filter(([, score]) => score >= 1)
         .sort(([, a], [, b]) => b - a)
         .map(([tag]) => tag)
-        .slice(0, 16);
+        .slice(0, 16),
+    [tagScores],
+  );
+
+  const nextQuestionMutation = useMutation({
+    mutationFn: async () => {
+      const answerInputs = buildAnswerInputs(answers, allQuestions);
       return fetchNextQuizQuestion(
         answerInputs,
-        seedTags,
+        llmSeedTags,
         answers.length,
         selection.maxQuestions,
       );
@@ -407,12 +413,20 @@ function FunnelPersonaQuizComponent({
       return null;
     }
     return (
-      <PersonaQuizQuestionView
-        question={currentQuestion}
-        step={answers.length + 1}
-        totalSteps={selection.maxQuestions}
-        onSelect={handleAnswer}
-      />
+      <div className="flex w-full flex-1 flex-col">
+        <PersonaQuizQuestionView
+          question={currentQuestion}
+          step={answers.length + 1}
+          totalSteps={selection.maxQuestions}
+          onSelect={handleAnswer}
+        />
+        {answers.length >= 1 && (
+          <PersonaQuizFeedPreview
+            seedTags={llmSeedTags}
+            answerCount={answers.length}
+          />
+        )}
+      </div>
     );
   }
 
