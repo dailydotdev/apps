@@ -211,16 +211,16 @@ export const renderPermissionPrompt = ({
 
   const heading = document.createElement('h2');
   heading.className = 'embedded-browsing-heading';
-  heading.textContent = 'One tap to read in here.';
+  heading.textContent = 'Read it right here.';
 
   const description = document.createElement('p');
   description.className = 'embedded-browsing-body';
   description.textContent =
-    'Turn on embedded browsing and articles open right inside daily.dev. No new tabs, no bouncing around.';
+    'Enable reader preview and articles open inside daily.dev, with the discussion right next to them.';
 
   const status = document.createElement('p');
   status.className = 'embedded-browsing-status';
-  status.textContent = 'We only use it on links you open from daily.dev.';
+  status.textContent = 'Only for links you open from daily.dev.';
 
   const actions = document.createElement('div');
   actions.className = 'embedded-browsing-actions';
@@ -228,7 +228,7 @@ export const renderPermissionPrompt = ({
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'embedded-browsing-button';
-  button.textContent = "Let's do it";
+  button.textContent = 'Enable reader preview';
 
   const resetButton = () => {
     button.disabled = false;

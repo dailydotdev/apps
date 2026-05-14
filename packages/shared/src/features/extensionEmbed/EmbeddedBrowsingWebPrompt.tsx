@@ -80,7 +80,7 @@ export function EmbeddedBrowsingWebPrompt({
             color={TypographyColor.Primary}
             bold
           >
-            Read this inside daily.dev.
+            Read it right here.
           </Typography>
           <Typography
             tag={TypographyTag.P}
@@ -88,8 +88,8 @@ export function EmbeddedBrowsingWebPrompt({
             color={TypographyColor.Secondary}
             className="!mt-0"
           >
-            Install the extension and articles open right here. No new tabs, no
-            bouncing around.
+            Install the extension and articles open inside daily.dev, with the
+            discussion right next to them.
           </Typography>
           <div className="mt-1 flex w-full flex-col items-center gap-2">
             <Button

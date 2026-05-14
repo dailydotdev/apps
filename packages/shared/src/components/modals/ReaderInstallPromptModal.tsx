@@ -21,10 +21,11 @@ import {
 import { downloadBrowserExtension, isChrome } from '../../lib/constants';
 import { apiUrl } from '../../lib/config';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import type { Post } from '../../graphql/posts';
 import styles from './BasePostModal.module.css';
+import { useLegacyPostLayoutOptOut } from '../post/reader/hooks/useLegacyPostLayoutOptOut';
 
 interface ReaderInstallPromptModalProps extends LazyModalCommonProps {
   post: Post;
@@ -231,6 +232,7 @@ function ReaderInstallPromptModal({
 }: ReaderInstallPromptModalProps): ReactElement {
   const { logEvent } = useLogContext();
   const { openModal, closeModal } = useLazyModal();
+  const { optOut } = useLegacyPostLayoutOptOut();
   const isChromeBrowser = isChrome();
   const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
   const installButtonLabel = isChromeBrowser
@@ -265,11 +267,11 @@ function ReaderInstallPromptModal({
     });
   };
 
-  // DEMO ONLY: bypass the install flow entirely — opens the article in a
-  // new tab so users who don't want embedded reading still get the regular
-  // "Read post" behavior they're used to.
+  // DEMO ONLY: bypass the install flow entirely and persist the classic
+  // behavior so future "Read post" clicks open normally.
   const onOpenInNewTabClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    optOut(TargetId.ReaderInstallPrompt);
     logEvent({
       event_name: LogEvent.ClickReaderInstallSkip,
       extra: JSON.stringify({ browser, post_id: post.id }),
@@ -330,7 +332,7 @@ function ReaderInstallPromptModal({
                 color={TypographyColor.Secondary}
                 className="!mt-0 max-w-[26rem]"
               >
-                Install the extension and every article opens inside daily.dev —
+                Install the extension to open every article inside daily.dev
                 with the discussion right next to it.
               </Typography>
               <div className="mt-1 flex w-full max-w-[22rem] flex-col items-stretch gap-2">
@@ -364,7 +366,7 @@ function ReaderInstallPromptModal({
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
                   >
-                    or
+                    OR
                   </Typography>
                   <span
                     aria-hidden
@@ -377,7 +379,7 @@ function ReaderInstallPromptModal({
                   size={ButtonSize.Medium}
                   onClick={onOpenInNewTabClick}
                 >
-                  Open the article in a new tab
+                  Don&apos;t ask again, open new tab
                 </Button>
               </div>
             </div>

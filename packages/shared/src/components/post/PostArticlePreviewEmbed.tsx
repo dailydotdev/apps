@@ -527,7 +527,7 @@ export function PostArticlePreviewEmbed({
       aria-label="Article preview"
     >
       <div className="relative flex min-h-0 flex-1 flex-col overflow-visible">
-        <div className="flex min-h-[3.25rem] items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
+        <div className="flex h-14 items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-3">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             {leftHeaderActions ? (
               <div className="flex shrink-0 items-center gap-2">

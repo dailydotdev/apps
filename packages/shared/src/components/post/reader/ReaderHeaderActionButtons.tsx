@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
-  EyeIcon,
+  EarthIcon,
   MiniCloseIcon as CloseIcon,
   SidebarArrowRight,
 } from '../../icons';
@@ -62,9 +62,9 @@ export function ReaderCloseButton({
 type ReaderLegacyLayoutToggleButtonProps = {
   target?: 'classic' | 'reader';
   /**
-   * When true, render the toggle as `icon + "Close browser mode"` so users
-   * inside the reader modal can clearly find the exit. The standalone post
-   * page keeps the icon-only variant for a compact chrome.
+   * When true, render the toggle as icon + text so users inside the reader
+   * modal can clearly find the exit. The standalone post page keeps the
+   * icon-only variant for a compact chrome.
    */
   showLabel?: boolean;
 };
@@ -75,17 +75,15 @@ export function ReaderLegacyLayoutToggleButton({
 }: ReaderLegacyLayoutToggleButtonProps): ReactElement {
   const { optIn, optOut } = useLegacyPostLayoutOptOut();
   const isClassicTarget = target === 'classic';
-  const label = isClassicTarget ? 'Classic view' : 'Reader view';
-  const ariaLabel = isClassicTarget
-    ? 'Use classic post layout'
-    : 'Use embedded reader';
+  const label = isClassicTarget ? 'Close preview' : 'Open preview';
+  const ariaLabel = label;
   const onClick = isClassicTarget ? () => optOut() : optIn;
 
   if (showLabel) {
     return (
       <Button
         variant={ButtonVariant.Tertiary}
-        icon={<EyeIcon />}
+        icon={<EarthIcon />}
         size={ButtonSize.Small}
         type="button"
         className="!h-8 !gap-1.5 !rounded-10 !px-3 !text-text-primary"
@@ -101,7 +99,7 @@ export function ReaderLegacyLayoutToggleButton({
     <Tooltip side="bottom" content={ariaLabel}>
       <Button
         variant={ButtonVariant.Tertiary}
-        icon={<EyeIcon />}
+        icon={<EarthIcon />}
         size={ButtonSize.Small}
         type="button"
         className={iconButtonClassName}

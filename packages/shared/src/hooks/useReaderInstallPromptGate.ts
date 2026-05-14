@@ -5,6 +5,7 @@ import { LazyModal } from '../components/modals/common/types';
 import type { Post } from '../graphql/posts';
 import { useReaderModalEligibility } from '../components/post/reader/hooks/useReaderModalEligibility';
 import { PostType } from '../graphql/posts';
+import { useLegacyPostLayoutOptOut } from '../components/post/reader/hooks/useLegacyPostLayoutOptOut';
 
 const READER_GATE_ELIGIBLE_TYPES = new Set<PostType>([
   PostType.Article,
@@ -37,11 +38,13 @@ export function useReaderInstallPromptGate(
 ): UseReaderInstallPromptGateResult {
   const { openModal } = useLazyModal();
   const { isEligible, isReaderModalEnabled } = useReaderModalEligibility();
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
 
   const isGated =
     !!post &&
     isEligible &&
     isReaderModalEnabled &&
+    !isLegacyLayoutOptedOut &&
     READER_GATE_ELIGIBLE_TYPES.has(post.type);
 
   const onReadClick = useCallback(

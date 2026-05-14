@@ -134,7 +134,7 @@ export function EngagementRail({
       aria-label="Discussion and related"
     >
       {!inlineHeaderMenu && (
-        <div className="bg-background-default/85 sticky top-0 z-[60] flex items-center justify-between gap-2 px-3 pb-2 pt-3 backdrop-blur">
+        <div className="bg-background-default/85 sticky top-0 z-[60] flex h-14 items-center justify-between gap-2 px-3 backdrop-blur">
           <div className="flex items-center gap-2">
             {showNavigation && (
               <div
