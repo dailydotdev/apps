@@ -131,10 +131,19 @@ export const PersonaQuizReveal = ({
 
   // When bragi's reveal mutation fails (or returns a blank headline) we still
   // want the reveal screen to feel personalised. Compose a fallback from the
-  // user's top tags so they see "TypeScript + React, locked in." instead of
-  // "Your developer profile".
+  // user's top tags. Tag slugs come back kebab-cased (e.g. `data-engineering`)
+  // — humanise them before stitching into a sentence so the headline doesn't
+  // read like a tag list.
+  const humaniseTag = (tag: string): string => {
+    const spaced = tag.replace(/-/g, ' ').trim();
+    if (!spaced) {
+      return tag;
+    }
+    return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+  };
+
   const headlineFromTags = (): string => {
-    const top = tags.slice(0, 3);
+    const top = tags.slice(0, 3).map(humaniseTag);
     if (top.length === 0) {
       return 'Your feed is ready';
     }
@@ -144,7 +153,7 @@ export const PersonaQuizReveal = ({
     if (top.length === 2) {
       return `${top[0]} + ${top[1]}, locked in.`;
     }
-    return `${top[0]}, ${top[1]}, and ${top[2]} — locked in.`;
+    return `${top[0]}, ${top[1]}, ${top[2]} — locked in.`;
   };
 
   const headline =
