@@ -1,3 +1,5 @@
+import { webappUrl } from '../../lib/constants';
+
 export type ExploreCategory = {
   id: string;
   label: string;
@@ -11,6 +13,6 @@ export const buildPersonalizedCategories = (
   tags.map((tag) => ({
     id: tag,
     label: tag,
-    path: `/explore/${tag}`,
+    path: `${webappUrl}explore/${tag}`,
     tag,
   }));
