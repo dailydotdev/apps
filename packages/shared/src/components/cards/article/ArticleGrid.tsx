@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { usePostFeedback } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
-import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardSpace,
@@ -47,6 +47,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
+  const hiddenPanel = useHiddenFeedbackPanel(post);
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -55,20 +56,18 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
 
-  if (data?.showTagsPanel) {
-    if (data.mode === 'hide') {
-      return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
-    }
+  if (hiddenPanel) {
+    return hiddenPanel;
+  }
 
-    if (post.tags.length > 0) {
-      return (
-        <PostTagsPanel
-          className="h-full overflow-hidden"
-          post={post}
-          toastOnSuccess
-        />
-      );
-    }
+  if (data?.showTagsPanel && post.tags.length > 0) {
+    return (
+      <PostTagsPanel
+        className="h-full overflow-hidden"
+        post={post}
+        toastOnSuccess
+      />
+    );
   }
 
   return (

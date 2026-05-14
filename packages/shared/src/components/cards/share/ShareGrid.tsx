@@ -28,8 +28,7 @@ import { IconSize } from '../../Icon';
 import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 const EmptyStateContainer = classed(
   'div',
@@ -67,7 +66,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isVideoType = isVideoPost(post);
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
   const isSharedTweet = isSocialTwitterPost(sharedPost);
-  const { data: blockPanelData } = useBlockPostPanel(post);
+  const hiddenPanel = useHiddenFeedbackPanel(post);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -143,11 +142,8 @@ export const ShareGrid = forwardRef(function ShareGrid(
     sharedPost,
   ]);
 
-  if (
-    blockPanelData?.showTagsPanel === true &&
-    blockPanelData?.mode === 'hide'
-  ) {
-    return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
+  if (hiddenPanel) {
+    return hiddenPanel;
   }
 
   return (

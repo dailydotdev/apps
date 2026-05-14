@@ -26,8 +26,7 @@ import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -62,7 +61,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
-  const { data: blockPanelData } = useBlockPostPanel(post);
+  const hiddenPanel = useHiddenFeedbackPanel(post);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -108,11 +107,8 @@ export const FreeformList = forwardRef(function SharePostCard(
     post?.source?.name,
   ]);
 
-  if (
-    blockPanelData?.showTagsPanel === true &&
-    blockPanelData?.mode === 'hide'
-  ) {
-    return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
+  if (hiddenPanel) {
+    return hiddenPanel;
   }
 
   return (

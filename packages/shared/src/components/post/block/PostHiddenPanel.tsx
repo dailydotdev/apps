@@ -100,7 +100,7 @@ export function PostHiddenPanel({
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-3',
+        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-3 pl-2',
         className,
       )}
     >
@@ -113,7 +113,8 @@ export function PostHiddenPanel({
         </div>
         <CloseButton
           type="button"
-          onClick={() => onConfirmDismiss('done')}
+          data-testid="postHiddenPanelClose"
+          onClick={() => onConfirmDismiss('dismiss')}
           size={ButtonSize.XSmall}
         />
       </div>

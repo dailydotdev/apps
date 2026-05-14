@@ -907,8 +907,8 @@ describe('Feed logged in', () => {
     fireEvent.keyDown(menuBtn, { key: ' ' });
     (await screen.findByText('Hide')).click();
 
-    const closeBtns = await screen.findAllByRole('button', { name: 'Close' });
-    fireEvent.click(closeBtns[closeBtns.length - 1]);
+    const closeBtn = await screen.findByTestId('postHiddenPanelClose');
+    fireEvent.click(closeBtn);
 
     await waitFor(() =>
       expect(

@@ -28,8 +28,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -57,7 +56,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { showFeedback } = usePostFeedback({ post });
-  const { data: blockPanelData } = useBlockPostPanel(post);
+  const hiddenPanel = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
@@ -103,11 +102,8 @@ export const ArticleList = forwardRef(function ArticleList(
     };
   }, [isUserSource, post]);
 
-  if (
-    blockPanelData?.showTagsPanel === true &&
-    blockPanelData?.mode === 'hide'
-  ) {
-    return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
+  if (hiddenPanel) {
+    return hiddenPanel;
   }
 
   return (

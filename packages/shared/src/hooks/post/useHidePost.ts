@@ -12,11 +12,20 @@ interface UseHidePostProps {
   origin?: Origin;
 }
 
+type DismissReason = 'dismiss' | 'unfollow' | 'block' | 'report';
+
 interface UseHidePost {
-  onHide: (overrideOrigin?: Origin) => Promise<boolean>;
+  onHide: () => Promise<boolean>;
   onUnhide: () => Promise<void>;
-  onConfirmDismiss: (reason?: 'done' | 'unfollow' | 'block' | 'report') => void;
+  onConfirmDismiss: (reason?: DismissReason) => void;
 }
+
+const eventByReason: Record<DismissReason, LogEvent> = {
+  dismiss: LogEvent.HidePostDismiss,
+  unfollow: LogEvent.HidePostUnfollowSource,
+  block: LogEvent.HidePostBlockTags,
+  report: LogEvent.HidePostReport,
+};
 
 export const useHidePost = ({
   post,
@@ -36,46 +45,41 @@ export const useHidePost = ({
     [items, post.id],
   );
 
-  const onHide = useCallback(
-    async (overrideOrigin?: Origin) => {
-      const { successful } = await hidePost(post.id);
+  const onHide = useCallback(async () => {
+    const { successful } = await hidePost(post.id);
 
-      if (!successful) {
-        return false;
-      }
+    if (!successful) {
+      return false;
+    }
 
-      logEvent(
-        postLogEvent(LogEvent.HidePost, post, {
-          extra: { origin: overrideOrigin ?? origin },
-          ...logOpts,
-        }),
-      );
+    logEvent(
+      postLogEvent(LogEvent.HidePost, post, {
+        extra: { origin },
+        ...logOpts,
+      }),
+    );
 
-      onShowPanel({ mode: 'hide' });
-      return true;
-    },
-    [hidePost, post, logEvent, postLogEvent, origin, logOpts, onShowPanel],
-  );
+    onShowPanel({ mode: 'hide' });
+    return true;
+  }, [hidePost, post, logEvent, postLogEvent, origin, logOpts, onShowPanel]);
 
   const onUnhide = useCallback(async () => {
+    const { successful } = await unhidePost(post.id);
+
+    if (!successful) {
+      return;
+    }
+
     logEvent(
       postLogEvent(LogEvent.HidePostUndo, post, {
         ...logOpts,
       }),
     );
-    await unhidePost(post.id);
     onClose(true);
   }, [unhidePost, post, onClose, logEvent, postLogEvent, logOpts]);
 
   const onConfirmDismiss = useCallback(
-    (reason: 'done' | 'unfollow' | 'block' | 'report' = 'done') => {
-      const eventByReason: Record<typeof reason, LogEvent> = {
-        done: LogEvent.HidePostConfirm,
-        unfollow: LogEvent.HidePostUnfollowSource,
-        block: LogEvent.HidePostBlockTags,
-        report: LogEvent.HidePostReport,
-      };
-
+    (reason: DismissReason = 'dismiss') => {
       logEvent(
         postLogEvent(eventByReason[reason], post, {
           ...logOpts,
@@ -83,6 +87,10 @@ export const useHidePost = ({
       );
 
       onClose(true);
+      // postIndex can be -1 when the panel is rendered outside of an
+      // ActiveFeedContext (e.g. standalone post page) or when the post
+      // was already removed by another flow. Closing the panel is enough
+      // in those cases — no removal callback to invoke.
       if (postIndex >= 0) {
         onRemovePost?.(postIndex);
       }

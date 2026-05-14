@@ -18,8 +18,7 @@ import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -42,13 +41,10 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const wasUpdated = isPostUpdated(post);
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
-  const { data: blockPanelData } = useBlockPostPanel(post);
+  const hiddenPanel = useHiddenFeedbackPanel(post);
 
-  if (
-    blockPanelData?.showTagsPanel === true &&
-    blockPanelData?.mode === 'hide'
-  ) {
-    return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
+  if (hiddenPanel) {
+    return hiddenPanel;
   }
 
   return (

@@ -106,7 +106,7 @@ export enum LogEvent {
   HidePostBlockTags = 'hide post block tags',
   HidePostReport = 'hide post report',
   HidePostUndo = 'hide post undo',
-  HidePostConfirm = 'hide post confirm',
+  HidePostDismiss = 'hide post dismiss',
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
