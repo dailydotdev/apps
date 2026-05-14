@@ -383,13 +383,18 @@ function FunnelPersonaQuizComponent({
         return { tags: seedTags, reveal: null };
       }
       const answerInputs = buildAnswerInputs(answers, allQuestions);
-      const remaining = Math.max(
-        0,
-        enrichment.targetTotalTags - seedTags.length,
-      );
+      // Bragi's `target_count` is the TOTAL desired tag count, not the
+      // remaining slots after seedTags. daily-api's Zod schema also rejects
+      // values below 1, so when seedTags already fills the target we'd send
+      // `0` and the whole call fails with ZOD_VALIDATION_ERROR (which then
+      // surfaces as a null reveal to the user).
       try {
         const result = await withTimeout(
-          extractOnboardingTagsFromQuiz(answerInputs, seedTags, remaining),
+          extractOnboardingTagsFromQuiz(
+            answerInputs,
+            seedTags,
+            enrichment.targetTotalTags,
+          ),
           ENRICHMENT_TIMEOUT_MS,
         );
         const merged = dedupePreserveOrder([
