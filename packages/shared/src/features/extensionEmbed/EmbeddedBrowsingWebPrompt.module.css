@@ -43,61 +43,69 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  opacity: 0.44;
+  opacity: 0.5;
   background:
-    repeating-linear-gradient(
-      120deg,
-      color-mix(in srgb, var(--theme-border-subtlest-tertiary) 12%, transparent)
-        0,
-      color-mix(in srgb, var(--theme-border-subtlest-tertiary) 12%, transparent)
-        0.75rem,
-      transparent 0.75rem,
-      transparent 1.5rem
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--theme-accent-bun-default) 16%, transparent) 0,
+      transparent 18rem
     ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--theme-text-tertiary) 5%, transparent),
-      color-mix(in srgb, var(--theme-border-subtlest-tertiary) 6%, transparent)
+    radial-gradient(
+      circle at 38% 58%,
+      color-mix(in srgb, var(--theme-accent-avocado-default) 10%, transparent)
+        0,
+      transparent 16rem
+    ),
+    radial-gradient(
+      circle at 62% 58%,
+      color-mix(in srgb, var(--theme-accent-blueCheese-default) 10%, transparent)
+        0,
+      transparent 16rem
     );
-  background-size: 190% 190%, 100% 100%;
-  animation: embeddedBrowsingStripeShift 42s linear infinite;
-  will-change: background-position;
+  animation: embeddedBrowsingGlow 6s ease-in-out infinite alternate;
+  will-change: opacity, transform;
 }
 
 .ambient::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      120deg,
-      transparent 0,
-      transparent 1.75rem,
-      color-mix(in srgb, var(--theme-text-tertiary) 4%, transparent) 1.75rem,
-      color-mix(in srgb, var(--theme-text-tertiary) 4%, transparent) 2.5rem
-    );
-  background-size: 220% 220%;
-  animation: embeddedBrowsingStripeShiftReverse 58s linear infinite;
-  opacity: 0.24;
+  top: 50%;
+  left: 50%;
+  width: 12rem;
+  height: 12rem;
+  border: 1px solid
+    color-mix(in srgb, var(--theme-text-tertiary) 16%, transparent);
+  border-radius: 9999px;
+  opacity: 0.22;
+  transform: translate(-50%, -50%) scale(0.9);
+  animation: embeddedBrowsingPulse 3.8s ease-in-out infinite;
 }
 
-@keyframes embeddedBrowsingStripeShift {
+@keyframes embeddedBrowsingGlow {
   0% {
-    background-position: 0% 0%, 50% 50%;
+    opacity: 0.36;
+    transform: scale(0.99);
   }
 
   100% {
-    background-position: 220% 120%, 50% 50%;
+    opacity: 0.54;
+    transform: scale(1.01);
   }
 }
 
-@keyframes embeddedBrowsingStripeShiftReverse {
+@keyframes embeddedBrowsingPulse {
   0% {
-    background-position: 220% 140%;
+    opacity: 0.08;
+    transform: translate(-50%, -50%) scale(0.82);
+  }
+
+  55% {
+    opacity: 0.22;
   }
 
   100% {
-    background-position: 0% 0%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
   }
 }
 
@@ -108,7 +116,6 @@
   }
 
   .ambient {
-    background-position: 50% 50%, 50% 50%;
     opacity: 0.42;
   }
 

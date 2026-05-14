@@ -23,46 +23,47 @@ const ensureStyles = (): void => {
       position: absolute;
       inset: 0;
       overflow: hidden;
-      opacity: 0.44;
+      opacity: 0.5;
       background:
-        repeating-linear-gradient(
-          120deg,
-          rgba(255, 255, 255, 0.06) 0,
-          rgba(255, 255, 255, 0.06) 0.75rem,
-          transparent 0.75rem,
-          transparent 1.5rem
+        radial-gradient(
+          circle at 50% 42%,
+          rgba(192, 41, 240, 0.18) 0,
+          transparent 18rem
         ),
-        linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.02),
-          rgba(255, 255, 255, 0.04)
+        radial-gradient(
+          circle at 38% 58%,
+          rgba(57, 217, 138, 0.1) 0,
+          transparent 16rem
+        ),
+        radial-gradient(
+          circle at 62% 58%,
+          rgba(82, 139, 255, 0.1) 0,
+          transparent 16rem
         );
-      background-size: 190% 190%, 100% 100%;
-      animation: embeddedBrowsingStripeShift 42s linear infinite;
-      will-change: background-position;
+      animation: embeddedBrowsingGlow 6s ease-in-out infinite alternate;
+      will-change: opacity, transform;
     }
     .embedded-browsing-ambient::before {
       content: '';
       position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        120deg,
-        transparent 0,
-        transparent 1.75rem,
-        rgba(255, 255, 255, 0.04) 1.75rem,
-        rgba(255, 255, 255, 0.04) 2.5rem
-      );
-      background-size: 220% 220%;
-      animation: embeddedBrowsingStripeShiftReverse 58s linear infinite;
-      opacity: 0.24;
+      top: 50%;
+      left: 50%;
+      width: 12rem;
+      height: 12rem;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 9999px;
+      opacity: 0.22;
+      transform: translate(-50%, -50%) scale(0.9);
+      animation: embeddedBrowsingPulse 3.8s ease-in-out infinite;
     }
-    @keyframes embeddedBrowsingStripeShift {
-      0% { background-position: 0% 0%, 50% 50%; }
-      100% { background-position: 220% 120%, 50% 50%; }
+    @keyframes embeddedBrowsingGlow {
+      0% { opacity: 0.36; transform: scale(0.99); }
+      100% { opacity: 0.54; transform: scale(1.01); }
     }
-    @keyframes embeddedBrowsingStripeShiftReverse {
-      0% { background-position: 220% 140%; }
-      100% { background-position: 0% 0%; }
+    @keyframes embeddedBrowsingPulse {
+      0% { opacity: 0.08; transform: translate(-50%, -50%) scale(0.82); }
+      55% { opacity: 0.22; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
     }
     @media (prefers-reduced-motion: reduce) {
       .embedded-browsing-ambient,
@@ -70,7 +71,6 @@ const ensureStyles = (): void => {
         animation: none;
       }
       .embedded-browsing-ambient {
-        background-position: 50% 50%, 50% 50%;
         opacity: 0.42;
       }
       .embedded-browsing-ambient::before {
@@ -82,7 +82,7 @@ const ensureStyles = (): void => {
       z-index: 10;
       display: flex;
       width: 100%;
-      max-width: 40rem;
+      max-width: 24rem;
       flex-shrink: 0;
       flex-direction: column;
       align-items: center;
@@ -99,6 +99,7 @@ const ensureStyles = (): void => {
     }
     .embedded-browsing-body {
       margin: 0;
+      max-width: 21rem;
       font-size: 0.9375rem;
       line-height: 1.25rem;
       color: #cfd6e6;
@@ -216,7 +217,7 @@ export const renderPermissionPrompt = ({
   const description = document.createElement('p');
   description.className = 'embedded-browsing-body';
   description.textContent =
-    'Enable reader preview and articles open inside daily.dev, with the discussion right next to them.';
+    'Enable reader preview to open articles inside daily.dev with the discussion next to them.';
 
   const status = document.createElement('p');
   status.className = 'embedded-browsing-status';
@@ -262,7 +263,7 @@ export const renderPermissionPrompt = ({
     optOutButton.type = 'button';
     optOutButton.className =
       'embedded-browsing-button embedded-browsing-button-secondary';
-    optOutButton.textContent = 'Maybe later';
+    optOutButton.textContent = "Don't ask again, open new tab";
     optOutButton.addEventListener('click', () => {
       onOptOut();
     });

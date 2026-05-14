@@ -73,7 +73,7 @@ export function EmbeddedBrowsingWebPrompt({
     <div className={styles.root}>
       <div className={styles.ambient} aria-hidden />
       <div className={styles.stickyShell}>
-        <div className="z-10 relative flex h-fit w-full max-w-[40rem] shrink-0 flex-col items-center gap-3 rounded-16 p-6 text-center">
+        <div className="z-10 relative flex h-fit w-full max-w-[24rem] shrink-0 flex-col items-center gap-3 rounded-16 p-6 text-center">
           <Typography
             tag={TypographyTag.H2}
             type={TypographyType.Title3}
@@ -86,10 +86,10 @@ export function EmbeddedBrowsingWebPrompt({
             tag={TypographyTag.P}
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
-            className="!mt-0"
+            className="!mt-0 max-w-[21rem]"
           >
-            Install the extension and articles open inside daily.dev, with the
-            discussion right next to them.
+            Install the extension to open articles inside daily.dev with the
+            discussion next to them.
           </Typography>
           <div className="mt-1 flex w-full flex-col items-center gap-2">
             <Button
@@ -113,7 +113,7 @@ export function EmbeddedBrowsingWebPrompt({
                 className="min-w-[8.5rem]"
                 onClick={onOptOut}
               >
-                Maybe later
+                Don&apos;t ask again, open new tab
               </Button>
             ) : null}
           </div>

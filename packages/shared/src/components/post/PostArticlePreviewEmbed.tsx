@@ -60,7 +60,8 @@ type PostArticlePreviewEmbedProps = {
   targetLinkInNewTab?: boolean;
   /**
    * Opt-out action shown inside the "install the extension" prompt. When
-   * provided, the prompt surfaces a "Maybe later" floating button below
+   * provided, the prompt surfaces a "Don't ask again, open new tab"
+   * floating button below
    * the Install CTA so users have an obvious escape hatch.
    */
   onInstallPromptOptOut?: () => void;
