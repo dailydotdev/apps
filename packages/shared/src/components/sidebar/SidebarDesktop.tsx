@@ -901,9 +901,9 @@ export const SidebarDesktop = ({
                 aria-label="Your profile"
                 // Each sub-block owns its own top margin so the rhythm
                 // can be uneven on purpose: more air between the
-                // identity row and the stats strip (mt-4 below) than
-                // between the stats strip and the New post CTA
-                // (mt-2 below).
+                // identity row and the stats strip (mt-4 below) and
+                // a slightly tighter gap between the stats strip and
+                // the New post CTA (mt-3 below).
                 className="flex flex-col"
               >
                 {/* Identity row — same `px-3` outer padding as the
@@ -932,11 +932,11 @@ export const SidebarDesktop = ({
                         >
                           {user.name ?? user.username}
                         </Typography>
-                        {user.username && (
+                          {user.username && (
                           <Typography
                             truncate
                             type={TypographyType.Caption1}
-                            className="mt-0.5 min-w-0 leading-none text-text-tertiary group-hover:underline"
+                            className="mt-0.5 min-w-0 leading-none text-text-tertiary"
                           >
                             @{user.username}
                           </Typography>
@@ -948,7 +948,7 @@ export const SidebarDesktop = ({
                 <div className="mt-4 px-3">
                   <SidebarHeaderStats />
                 </div>
-                <div className="mt-2 px-3">
+                <div className="mt-3 px-3">
                   <CreatePostButton
                     compact={false}
                     showIcon
