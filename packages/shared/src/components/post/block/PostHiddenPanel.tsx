@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { useHidePost } from '../../../hooks/post/useHidePost';
@@ -9,22 +9,40 @@ import useFeedSettings from '../../../hooks/useFeedSettings';
 import { useCustomFeed } from '../../../hooks/feed/useCustomFeed';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
-import { SourceAvatar } from '../../profile/source';
-import { GenericTagButton } from '../../filters/TagButton';
+import { BlockIcon, FlagIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { Origin } from '../../../lib/log';
-import type { BlockTagSelection } from './common';
 
 interface PostHiddenPanelProps {
   post: Post;
   className?: string;
 }
+
+interface ActionRowProps {
+  icon: ReactNode;
+  label: ReactNode;
+  onClick: () => void;
+  ariaLabel?: string;
+}
+
+const ActionRow = ({
+  icon,
+  label,
+  onClick,
+  ariaLabel,
+}: ActionRowProps): ReactElement => (
+  <button
+    type="button"
+    aria-label={ariaLabel}
+    onClick={onClick}
+    className="flex w-full items-center gap-3 rounded-12 px-3 py-2.5 text-left text-text-primary typo-callout hover:bg-surface-float"
+  >
+    {icon}
+    <span className="min-w-0 flex-1 truncate">{label}</span>
+  </button>
+);
 
 export function PostHiddenPanel({
   post,
@@ -39,16 +57,6 @@ export function PostHiddenPanel({
   const isSourceAlreadyBlocked =
     feedSettings?.excludeSources?.some(({ id }) => id === source.id) ?? false;
 
-  const [shouldBlockSource, setShouldBlockSource] = useState<boolean>(
-    isSourceAlreadyBlocked,
-  );
-  const [tags, setTags] = useState<BlockTagSelection>(() =>
-    (post.tags ?? []).reduce<BlockTagSelection>(
-      (acc, tag) => ({ ...acc, [tag]: false }),
-      {},
-    ),
-  );
-
   const { onUnhide, onConfirmDismiss } = useHidePost({ post });
   const { onClose } = useBlockPostPanel(post);
   const { onBlockTags, onBlockSource } = useTagAndSource({
@@ -59,31 +67,18 @@ export function PostHiddenPanel({
   });
   const { openModal } = useLazyModal();
 
-  const selectedTags = Object.entries(tags)
-    .filter(([, selected]) => selected)
-    .map(([tag]) => tag);
-  const willBlockSource = shouldBlockSource && !isSourceAlreadyBlocked;
+  const blockableTags = (post.tags ?? []).filter(
+    (tag) => !(feedSettings?.blockedTags ?? []).includes(tag),
+  );
 
-  const handleDone = async () => {
-    if (selectedTags.length > 0) {
-      await onBlockTags({ tags: selectedTags, requireLogin: true });
-    }
+  const handleUnfollowSource = async () => {
+    await onBlockSource({ source, requireLogin: true });
+    onConfirmDismiss('unfollow');
+  };
 
-    if (willBlockSource) {
-      await onBlockSource({ source, requireLogin: true });
-    }
-
-    if (willBlockSource) {
-      onConfirmDismiss('unfollow');
-      return;
-    }
-
-    if (selectedTags.length > 0) {
-      onConfirmDismiss('block');
-      return;
-    }
-
-    onConfirmDismiss('done');
+  const handleBlockTag = async (tag: string) => {
+    await onBlockTags({ tags: [tag], requireLogin: true });
+    onConfirmDismiss('block');
   };
 
   const handleReport = () => {
@@ -100,10 +95,12 @@ export function PostHiddenPanel({
     });
   };
 
+  const iconClassName = 'text-text-tertiary';
+
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-4 pb-0',
+        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-4',
         className,
       )}
     >
@@ -113,63 +110,46 @@ export function PostHiddenPanel({
         onClick={() => onConfirmDismiss('done')}
         size={ButtonSize.Small}
       />
-      <h4 className="font-bold typo-body">Post hidden in your feed</h4>
-      <p className="mt-1 text-text-tertiary typo-callout">
-        Help us improve. Tell us what didn&apos;t work for you (optional).
-      </p>
-      <span
-        className="mt-4 flex flex-1 flex-row flex-wrap content-start gap-2 overflow-auto"
-        role="list"
-      >
+      <h4 className="pr-8 font-bold typo-body">
+        Got it. You&apos;ll see less like this.
+      </h4>
+      <p className="mt-1 text-text-tertiary typo-callout">Take it further:</p>
+      <div className="mt-3 flex flex-1 flex-col gap-1 overflow-auto">
         {!isSourceAlreadyBlocked && (
-          <Button
-            type="button"
-            variant={
-              shouldBlockSource ? ButtonVariant.Primary : ButtonVariant.Float
-            }
-            size={ButtonSize.Small}
-            icon={<SourceAvatar source={source} />}
-            onClick={() => setShouldBlockSource(!shouldBlockSource)}
-          >
-            Unfollow {source.name}
-          </Button>
+          <ActionRow
+            icon={<BlockIcon size={IconSize.Small} className={iconClassName} />}
+            label={<>Unfollow {source.name}</>}
+            onClick={handleUnfollowSource}
+            ariaLabel={`Unfollow ${source.name}`}
+          />
         )}
-        {(post.tags ?? []).map((tag) => (
-          <GenericTagButton
+        {blockableTags.map((tag) => (
+          <ActionRow
             key={tag}
-            role="listitem"
-            variant={tags[tag] ? ButtonVariant.Primary : ButtonVariant.Float}
-            action={() => setTags({ ...tags, [tag]: !tags[tag] })}
-            tagItem={tag}
-            data-testid="hideBlockTagButton"
+            icon={<BlockIcon size={IconSize.Small} className={iconClassName} />}
+            label={`Block #${tag}`}
+            onClick={() => handleBlockTag(tag)}
+            ariaLabel={`Block ${tag}`}
           />
         ))}
-      </span>
-      <span className="-mx-4 mt-4 flex flex-row gap-2 border-t border-border-subtlest-tertiary p-3">
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
+        <ActionRow
+          icon={<FlagIcon size={IconSize.Small} className={iconClassName} />}
+          label="Report this post"
           onClick={handleReport}
-        >
-          Report
-        </Button>
+          ariaLabel="Report this post"
+        />
+      </div>
+      <div className="mt-3 flex border-t border-border-subtlest-tertiary pt-3">
         <Button
           type="button"
           className="ml-auto"
           variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
           onClick={onUnhide}
         >
           Undo
         </Button>
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Cabbage}
-          onClick={handleDone}
-        >
-          Done
-        </Button>
-      </span>
+      </div>
     </div>
   );
 }

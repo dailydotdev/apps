@@ -836,7 +836,7 @@ describe('Feed logged in', () => {
     contextBtn.click();
     await waitFor(() => expect(hideCalled).toBeTruthy());
     expect(
-      await screen.findByText('Post hidden in your feed'),
+      await screen.findByText("Got it. You'll see less like this."),
     ).toBeInTheDocument();
     expect(
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
@@ -878,7 +878,7 @@ describe('Feed logged in', () => {
     await waitFor(() => expect(unhideCalled).toBeTruthy());
     await waitFor(() =>
       expect(
-        screen.queryByText('Post hidden in your feed'),
+        screen.queryByText("Got it. You'll see less like this."),
       ).not.toBeInTheDocument(),
     );
     expect(
@@ -888,7 +888,7 @@ describe('Feed logged in', () => {
     ).toBeInTheDocument();
   });
 
-  it('should remove the post from the feed when clicking Done on the hidden feedback panel', async () => {
+  it('should remove the post from the feed when dismissing the hidden feedback panel', async () => {
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,
@@ -907,12 +907,12 @@ describe('Feed logged in', () => {
     fireEvent.keyDown(menuBtn, { key: ' ' });
     (await screen.findByText('Hide')).click();
 
-    const doneBtn = await screen.findByRole('button', { name: 'Done' });
-    fireEvent.click(doneBtn);
+    const closeBtns = await screen.findAllByRole('button', { name: 'Close' });
+    fireEvent.click(closeBtns[closeBtns.length - 1]);
 
     await waitFor(() =>
       expect(
-        screen.queryByText('Post hidden in your feed'),
+        screen.queryByText("Got it. You'll see less like this."),
       ).not.toBeInTheDocument(),
     );
     expect(
