@@ -141,14 +141,14 @@ const ensureStyles = (): void => {
     }
     .embedded-browsing-button:disabled { opacity: 0.6; cursor: not-allowed; }
     .embedded-browsing-button-secondary {
-      background: rgba(255, 255, 255, 0.06);
+      background: transparent;
       color: #e3e8f3;
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
       font-weight: 600;
     }
     .embedded-browsing-button-secondary:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.42);
       color: #ffffff;
       opacity: 1;
       transform: translateY(-1px);
