@@ -207,7 +207,12 @@ export function ReaderPostLayout({
                     isEmbeddable={isEmbeddable}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
-                    onClose={onCloseWithLog}
+                    // DEMO ONLY: close lives in the rail header now, but
+                    // when the rail is collapsed we still need an escape
+                    // hatch in the iframe header.
+                    onClose={
+                      isPostPage || isRailOpen ? undefined : onCloseWithLog
+                    }
                     isPostPage={isPostPage}
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
                     onEmbedReady={onEmbedReady}
@@ -217,7 +222,9 @@ export function ReaderPostLayout({
                   />
                   {!hasEmbeddedReaderHeader && (
                     <ReaderChrome
-                      onClose={onCloseWithLog}
+                      onClose={
+                        isPostPage || isRailOpen ? undefined : onCloseWithLog
+                      }
                       isPostPage={isPostPage}
                     />
                   )}
@@ -237,6 +244,7 @@ export function ReaderPostLayout({
                       onRegisterFocusComment={onRegisterFocusComment}
                       className="min-w-0"
                       onBackToFeed={isPostPage ? onCloseWithLog : undefined}
+                      onClose={!isPostPage ? onCloseWithLog : undefined}
                     />
                   </>
                 )}

@@ -13,7 +13,7 @@ type ArticleReaderFrameProps = {
   targetUrl: string | null;
   isEmbeddable: boolean;
   className?: string;
-  onClose: () => void;
+  onClose?: () => void;
   isPostPage?: boolean;
   fallbackScrollRef?: Ref<HTMLDivElement>;
   contentTopOffsetPx?: number;

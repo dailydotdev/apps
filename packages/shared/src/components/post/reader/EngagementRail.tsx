@@ -41,6 +41,7 @@ import { PostPosition } from '../../../hooks/usePostModalNavigation';
 import { SourceStrip } from './SourceStrip';
 import { ReaderRailActionBar } from './ReaderRailActionBar';
 import ShareBar from '../../ShareBar';
+import { ReaderCloseButton } from './ReaderHeaderActionButtons';
 
 const SquadEntityCard = dynamic(
   () =>
@@ -71,6 +72,12 @@ type EngagementRailProps = {
    * back-to-feed arrow button at the top of the discussion rail.
    */
   onBackToFeed?: () => void;
+  /**
+   * Modal only: when provided, renders a close (X) button on the right side
+   * of the rail header next to the three-dots menu. The modal surface uses
+   * the rail close while the standalone post page uses `onBackToFeed`.
+   */
+  onClose?: () => void;
 };
 
 const noopFocus = (): void => {};
@@ -83,6 +90,7 @@ export function EngagementRail({
   onRegisterFocusComment,
   className,
   onBackToFeed,
+  onClose,
 }: EngagementRailProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { user } = useAuthContext();
@@ -194,6 +202,7 @@ export function EngagementRail({
             origin={Origin.ReaderModal}
             buttonSize={ButtonSize.Small}
           />
+          {onClose && <ReaderCloseButton onClose={onClose} />}
         </div>
       </div>
       <div className="flex min-w-0 flex-col gap-4 px-4 pb-6 pt-4">

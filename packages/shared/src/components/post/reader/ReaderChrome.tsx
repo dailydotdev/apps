@@ -3,7 +3,7 @@ import React from 'react';
 import { ReaderHeaderActionGroup } from './ReaderHeaderActionButtons';
 
 type ReaderChromeProps = {
-  onClose: () => void;
+  onClose?: () => void;
   isPostPage?: boolean;
 };
 

@@ -139,8 +139,12 @@ const READER_ELIGIBLE_POST_TYPES = new Set<PostType>([
   PostType.VideoYouTube,
 ]);
 
+// DEMO ONLY: cap the standalone reader page to the same width as the
+// reader modal so the preview is centered with breathing room and the
+// rail aligns with the right side of the centered shell instead of
+// stretching edge-to-edge across large monitors.
 const READER_PAGE_LAYOUT_CLASS_NAME =
-  'flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full flex-col';
+  'mx-auto flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full max-w-[min(95vw,118rem)] flex-col';
 
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
@@ -290,12 +294,7 @@ export const PostPage = ({
     router.push(webappUrl);
   };
 
-  // DEMO ONLY: the /posts/[id] page now always shows the classic layout
-  // (title + TL;DR + "Read post" button). The reader-modal v2 layout is only
-  // reachable via the new install-extension prompt to keep the demo flow
-  // identical between feed cards and direct post links.
   const shouldUseReaderLayout =
-    false &&
     isReaderModalFeatureReady &&
     isReaderModalOn &&
     READER_ELIGIBLE_POST_TYPES.has(post.type);
