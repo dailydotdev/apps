@@ -4,6 +4,8 @@ import type {
   PersonaQuizQuestion,
 } from '../features/onboarding/types/funnel';
 import { gqlClient } from './common';
+import { FEED_BY_IDS_QUERY, supportedTypesForPrivateSources } from './feed';
+import type { Post } from './posts';
 
 export interface PersonaQuizAnswerInput {
   questionId: string;
@@ -218,4 +220,38 @@ export const discoverOnboardingPosts = async (
     onboardingDiscoverPosts: DiscoverOnboardingPostsResult;
   }>(ONBOARDING_DISCOVER_POSTS_MUTATION, params);
   return res.onboardingDiscoverPosts;
+};
+
+export interface DiscoverAndHydrateOnboardingPostsResult {
+  posts: Post[];
+  subPrompts: string[];
+}
+
+// Fetches recswipe RAG recommendations and hydrates the lightweight summaries
+// into full Post objects via feedByIds so the preview can use the standard
+// feed card primitives.
+export const discoverAndHydrateOnboardingPosts = async (
+  params: DiscoverOnboardingPostsParams,
+  isLoggedIn: boolean,
+): Promise<DiscoverAndHydrateOnboardingPostsResult> => {
+  const lightweight = await discoverOnboardingPosts(params);
+  const postIds = lightweight.posts.map((p) => p.postId);
+  if (postIds.length === 0) {
+    return { posts: [], subPrompts: lightweight.subPrompts };
+  }
+  const hydrated = await gqlClient.request<{
+    page: { edges: { node: Post }[] };
+  }>(FEED_BY_IDS_QUERY, {
+    postIds,
+    first: postIds.length,
+    loggedIn: isLoggedIn,
+    supportedTypes: supportedTypesForPrivateSources,
+  });
+  const byId = new Map(
+    hydrated.page.edges.map((edge) => [edge.node.id, edge.node]),
+  );
+  const ordered = postIds
+    .map((id) => byId.get(id))
+    .filter((p): p is Post => p !== undefined);
+  return { posts: ordered, subPrompts: lightweight.subPrompts };
 };

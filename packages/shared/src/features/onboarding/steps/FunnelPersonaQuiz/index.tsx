@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type {
   FunnelStepPersonaQuiz,
   FunnelStepPersonaQuizParameters,
@@ -20,6 +20,7 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import useMutateFilters from '../../../../hooks/useMutateFilters';
 import {
+  discoverAndHydrateOnboardingPosts,
   extractOnboardingTagsFromQuiz,
   fetchNextQuizQuestion,
   type PersonaQuizAnswerInput,
@@ -123,6 +124,8 @@ function FunnelPersonaQuizComponent({
   const [pendingStaticTarget, setPendingStaticTarget] = useState<string | null>(
     null,
   );
+  const [pendingLlmTarget, setPendingLlmTarget] = useState<string | null>(null);
+  const [staticMinDelayMet, setStaticMinDelayMet] = useState(false);
 
   const didStartLogRef = useRef(false);
   const decidedAnswerCountRef = useRef(0);
@@ -150,6 +153,32 @@ function FunnelPersonaQuizComponent({
     [tagScores],
   );
 
+  // Recswipe-backed preview for the question the user is about to see.
+  // Re-keys on each answer so the cards reflect what the running tag set
+  // suggests; the loading screen blocks the transition until this resolves.
+  const previewQuery = useQuery({
+    queryKey: [
+      'persona-quiz-feed-preview',
+      llmSeedTags.join('|'),
+      answers.length,
+    ],
+    queryFn: () =>
+      discoverAndHydrateOnboardingPosts(
+        { selectedTags: llmSeedTags, n: 6 },
+        !!user,
+      ),
+    enabled:
+      phase === 'question' && answers.length >= 1 && llmSeedTags.length > 0,
+    staleTime: Infinity,
+    retry: false,
+  });
+  // Block transitions while the next question's preview is still being
+  // fetched. `isFetching` covers in-flight requests regardless of whether
+  // the query has prior data; `fetchStatus === 'idle'` covers the
+  // disabled-query case (e.g., no seed tags yet) so we don't deadlock.
+  const previewBlocking =
+    previewQuery.fetchStatus === 'fetching' && !previewQuery.data;
+
   const nextQuestionMutation = useMutation({
     mutationFn: async () => {
       const answerInputs = buildAnswerInputs(answers, allQuestions);
@@ -164,14 +193,16 @@ function FunnelPersonaQuizComponent({
       const hasMinQuestions = answers.length >= selection.minQuestions;
 
       // Happy path: model returned a question. Use it regardless of
-      // `isFinal` — we're authoritative on when to stop.
+      // `isFinal` — we're authoritative on when to stop. Defer the
+      // transition until the recswipe preview for the new question
+      // resolves, so the loading screen is meaningful instead of arbitrary.
       if (result.question) {
         llmRetryCountRef.current = 0;
         const next = result.question;
         setGeneratedQuestions((prev) =>
           prev.some((q) => q.id === next.id) ? prev : [...prev, next],
         );
-        goToQuestion(next.id);
+        setPendingLlmTarget(next.id);
         return;
       }
 
@@ -262,16 +293,47 @@ function FunnelPersonaQuizComponent({
     nextQuestionMutation,
   ]);
 
+  // Static path: hold the loading screen for at least STATIC_TRANSITION_DELAY_MS
+  // so the tip is readable, then wait for the recswipe preview to finish too.
   useEffect(() => {
     if (!pendingStaticTarget) {
+      setStaticMinDelayMet(false);
       return undefined;
     }
-    const timeout = setTimeout(() => {
-      goToQuestion(pendingStaticTarget);
-      setPendingStaticTarget(null);
-    }, STATIC_TRANSITION_DELAY_MS);
-    return () => clearTimeout(timeout);
-  }, [pendingStaticTarget, goToQuestion]);
+    setStaticMinDelayMet(false);
+    const timer = setTimeout(
+      () => setStaticMinDelayMet(true),
+      STATIC_TRANSITION_DELAY_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [pendingStaticTarget]);
+
+  useEffect(() => {
+    if (!pendingStaticTarget) {
+      return;
+    }
+    if (!staticMinDelayMet) {
+      return;
+    }
+    if (previewBlocking) {
+      return;
+    }
+    goToQuestion(pendingStaticTarget);
+    setPendingStaticTarget(null);
+  }, [pendingStaticTarget, staticMinDelayMet, previewBlocking, goToQuestion]);
+
+  // LLM path: the LLM call itself is the visible delay; once it resolves
+  // we only wait for the preview before showing the new question.
+  useEffect(() => {
+    if (!pendingLlmTarget) {
+      return;
+    }
+    if (previewBlocking) {
+      return;
+    }
+    goToQuestion(pendingLlmTarget);
+    setPendingLlmTarget(null);
+  }, [pendingLlmTarget, previewBlocking, goToQuestion]);
 
   const enrichmentMutation = useMutation({
     mutationFn: async (): Promise<{
@@ -411,7 +473,11 @@ function FunnelPersonaQuizComponent({
   const currentTip = PERSONA_QUIZ_TIPS[tipIndex];
 
   if (phase === 'question') {
-    if (pendingStaticTarget || nextQuestionMutation.isPending) {
+    if (
+      pendingStaticTarget ||
+      pendingLlmTarget ||
+      nextQuestionMutation.isPending
+    ) {
       return (
         <PersonaQuizEnriching message="Reading the room…" tip={currentTip} />
       );
@@ -428,10 +494,7 @@ function FunnelPersonaQuizComponent({
           onSelect={handleAnswer}
         />
         {answers.length >= 1 && (
-          <PersonaQuizFeedPreview
-            seedTags={llmSeedTags}
-            answerCount={answers.length}
-          />
+          <PersonaQuizFeedPreview posts={previewQuery.data?.posts ?? []} />
         )}
       </div>
     );

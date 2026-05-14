@@ -25,6 +25,9 @@ jest.mock('../../../../graphql/personaQuiz', () => ({
   discoverOnboardingPosts: jest
     .fn()
     .mockResolvedValue({ posts: [], subPrompts: [] }),
+  discoverAndHydrateOnboardingPosts: jest
+    .fn()
+    .mockResolvedValue({ posts: [], subPrompts: [] }),
 }));
 
 const mockFollowTags = jest.fn().mockResolvedValue(undefined);
