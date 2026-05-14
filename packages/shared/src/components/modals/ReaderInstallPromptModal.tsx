@@ -294,7 +294,7 @@ function ReaderInstallPromptModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         'reader-install-prompt-modal !mx-0 h-full max-h-screen !w-full !max-w-full overflow-hidden !bg-background-default focus:outline-none',
-        'tablet:!mx-auto tablet:!max-w-[min(96vw,100rem)]',
+        'tablet:!mx-auto tablet:!w-[min(96vw,100rem)] tablet:!max-w-[min(96vw,100rem)]',
         'laptop:!mb-2 laptop:!mt-2 laptop:h-[calc(100vh-1rem)] laptop:max-h-[calc(100vh-1rem)] laptop:overflow-hidden',
         '!overscroll-y-auto',
       )}
