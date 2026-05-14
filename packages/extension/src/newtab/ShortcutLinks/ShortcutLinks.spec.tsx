@@ -186,23 +186,12 @@ describe('shortcut links component', () => {
     expect(screen.queryByText('Add shortcuts')).not.toBeInTheDocument();
   });
 
-  it('should display add shortcuts if settings is enabled and no customLinks added', async () => {
-    renderComponent({
-      ...defaultBootData,
-      settings: { ...defaultSettings, customLinks: undefined },
-    });
-
-    const addShortcuts = await screen.findByText('Add shortcuts');
-    expect(addShortcuts).toBeVisible();
-
-    await waitFor(() => {
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.Shortcuts,
-        extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
-      });
-    });
-  });
+  // Note: the legacy "Add shortcuts" / "Choose your most visited sites"
+  // onboarding card is no longer rendered inside ShortcutLinks — it now
+  // lives in ExtensionTopBanners alongside the reading-reminder and
+  // upload-CV cards. The previous tests asserting that copy from this
+  // component have been removed; the onboarding card is covered by the
+  // top-banners surface.
 
   it('should display top sites if permission is previously granted', async () => {
     await act(async () => {
@@ -226,52 +215,9 @@ describe('shortcut links component', () => {
     });
   });
 
-  it('should display top sites if permission is manually granted', async () => {
-    renderComponent({
-      ...defaultBootData,
-      user: {
-        id: 'string',
-        firstVisit: 'string',
-        referrer: 'string',
-      },
-      settings: { ...defaultSettings, customLinks: [] },
-    });
-    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
-
-    const addShortcuts = await screen.findByText('Add shortcuts');
-    fireEvent.click(addShortcuts);
-
-    await screen.findByRole('dialog');
-
-    const mostVisitedSites = await screen.findByText('Most visited sites');
-    expect(mostVisitedSites).toBeVisible();
-    fireEvent.click(mostVisitedSites);
-
-    const title = await screen.findByText('Show most visited sites');
-    expect(title).toBeVisible();
-
-    const inputs = await screen.findAllByRole('textbox');
-    expect(inputs.length).toEqual(8);
-
-    inputs.forEach((input) => {
-      expect(input).toHaveAttribute('readonly');
-    });
-
-    const next = await screen.findByText('Add the shortcuts');
-    fireEvent.click(next);
-
-    const saveChanges = await screen.findByText('Save');
-    fireEvent.click(saveChanges);
-
-    const shortcuts = await screen.findAllByRole('link');
-    expect(shortcuts.length).toEqual(3);
-
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.SaveShortcutAccess,
-      target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
-    });
-  });
+  // Note: the previous "manually granted" flow drove the permissions
+  // modal via the inline "Add shortcuts" CTA. That CTA moved to
+  // ExtensionTopBanners, so the integration test is covered there now.
 
   it('should display custom shortcut links', async () => {
     renderComponent();
@@ -396,23 +342,9 @@ describe('shortcut links component', () => {
     });
   });
 
-  it('should show getting started for new users with no [actions and links]', async () => {
-    renderComponent({
-      ...defaultBootData,
-      user: {
-        id: 'string',
-        firstVisit: 'string',
-        referrer: 'string',
-        createdAt: '2024-08-16T00:00:00.000Z',
-      },
-      settings: { ...defaultSettings, customLinks: [] },
-    });
-
-    const gettingStarted = await screen.findByText(
-      'Choose your most visited sites',
-    );
-    expect(gettingStarted).toBeVisible();
-  });
+  // Note: the "Choose your most visited sites" getting-started card for
+  // new users moved out of ShortcutLinks into ExtensionTopBanners; the
+  // visibility test is now owned by that surface.
 
   it('should hide getting started for old users with no [actions and links]', async () => {
     renderComponent({

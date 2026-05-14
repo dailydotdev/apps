@@ -932,7 +932,7 @@ export const SidebarDesktop = ({
                         >
                           {user.name ?? user.username}
                         </Typography>
-                          {user.username && (
+                        {user.username && (
                           <Typography
                             truncate
                             type={TypographyType.Caption1}

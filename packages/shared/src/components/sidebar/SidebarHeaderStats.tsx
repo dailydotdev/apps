@@ -4,11 +4,10 @@ import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useLogContext } from '../../contexts/LogContext';
-import { walletUrl } from '../../lib/constants';
+import { walletUrl, isTesting } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
 import { LogEvent } from '../../lib/log';
-import { isTesting } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SimpleTooltip } from '../tooltips';
@@ -30,8 +29,7 @@ const valueClass = 'text-text-primary tabular-nums';
 // glyphs share the same visual footprint. Sized down from 20px so the
 // flame-filled streak no longer reads as larger than the lightning
 // bolt + cores diamond, which only fill ~60% of their viewBoxes.
-const iconBoxClass =
-  'flex size-4 shrink-0 items-center justify-center';
+const iconBoxClass = 'flex size-4 shrink-0 items-center justify-center';
 
 type StatSlotProps = {
   ariaLabel: string;
@@ -168,8 +166,7 @@ export const SidebarHeaderStats = (): ReactElement | null => {
                 paddingClassName: 'p-0',
                 bgClassName: 'bg-accent-pepper-subtlest',
                 textClassName: 'text-text-primary typo-callout',
-                className:
-                  'border border-border-subtlest-tertiary rounded-16',
+                className: 'border border-border-subtlest-tertiary rounded-16',
               }}
               content={<ReadingStreakPopup streak={streak} />}
               onClickOutside={() => setIsStreaksOpen(false)}
