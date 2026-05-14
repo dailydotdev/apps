@@ -129,6 +129,29 @@ export const PersonaQuizReveal = ({
   const [showAddTag, setShowAddTag] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
+  // When bragi's reveal mutation fails (or returns a blank headline) we still
+  // want the reveal screen to feel personalised. Compose a fallback from the
+  // user's top tags so they see "TypeScript + React, locked in." instead of
+  // "Your developer profile".
+  const headlineFromTags = (): string => {
+    const top = tags.slice(0, 3);
+    if (top.length === 0) {
+      return 'Your feed is ready';
+    }
+    if (top.length === 1) {
+      return `${top[0]}, locked in.`;
+    }
+    if (top.length === 2) {
+      return `${top[0]} + ${top[1]}, locked in.`;
+    }
+    return `${top[0]}, ${top[1]}, and ${top[2]} — locked in.`;
+  };
+
+  const headline =
+    revealText?.headline && revealText.headline.trim().length > 0
+      ? revealText.headline
+      : headlineFromTags();
+
   return (
     <div className="flex w-full flex-1 flex-col gap-6 px-4 py-6 tablet:mx-auto tablet:max-w-md">
       <header className="flex flex-col items-center gap-2 text-center">
@@ -146,7 +169,7 @@ export const PersonaQuizReveal = ({
           color={TypographyColor.Primary}
           bold
         >
-          {revealText?.headline ?? 'Your developer profile'}
+          {headline}
         </Typography>
         {revealText?.description && (
           <Typography
