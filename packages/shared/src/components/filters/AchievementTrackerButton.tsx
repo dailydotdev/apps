@@ -10,7 +10,6 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { getTargetCount } from '../../graphql/user/achievements';
-import { useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
@@ -45,7 +44,6 @@ function AchievementIcon({
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -142,7 +140,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className="h-8 w-8 animate-pulse rounded-10"
       />
     );
   }
@@ -155,7 +153,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className="h-8 w-8 animate-pulse rounded-10"
       />
     );
   }
@@ -163,8 +161,12 @@ export function AchievementTrackerButton(): ReactElement | null {
   const buttonContent = (
     <div className="relative">
       <Button
-        size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        // Match the left-aligned Feed settings / Generate brief
+        // controls: Small size + Tertiary variant gives a transparent
+        // h-8 px-3 footprint instead of the previous Medium icon-only
+        // 40×40 chip.
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
         icon={
           (isTrackingAchievement ? (
             <AchievementIcon

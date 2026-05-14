@@ -1,16 +1,21 @@
-import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import type { MouseEvent, ReactElement, ReactNode } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from '../../hooks/streaks';
+import { useLogContext } from '../../contexts/LogContext';
 import { walletUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
+import { LogEvent } from '../../lib/log';
+import { isTesting } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
+import { SimpleTooltip } from '../tooltips';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReadingStreakIcon, ReputationIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
+import { ReadingStreakPopup } from '../streak/popup/ReadingStreakPopup';
 
 // Tight, equal slot. `gap-1` (4px) keeps the icon hugging the value
 // the same way the streak slot already did. `px-1.5` shaves the side
@@ -31,18 +36,24 @@ const iconBoxClass =
 type StatSlotProps = {
   ariaLabel: string;
   icon: ReactNode;
-  value: string | number;
+  // `largeNumberFormat` can return `null` for nullish inputs; accept it
+  // here so callers don't need to coerce before passing.
+  value: string | number | null;
   href?: string;
+  onClick?: (event: MouseEvent<HTMLElement>) => void;
+  id?: string;
 };
 
 // Renders a single inline stat. When `href` is provided the slot becomes a
-// link; otherwise it renders as a static span so the surrounding card's
-// outer link still owns the click target.
+// link; with `onClick` it becomes a button; otherwise it renders as a static
+// span so the surrounding card's outer link still owns the click target.
 const StatSlot = ({
   ariaLabel,
   icon,
   value,
   href,
+  onClick,
+  id,
 }: StatSlotProps): ReactElement => {
   const inner = (
     <>
@@ -52,6 +63,20 @@ const StatSlot = ({
       </Typography>
     </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        id={id}
+        type="button"
+        className={slotClass}
+        aria-label={ariaLabel}
+        onClick={onClick}
+      >
+        {inner}
+      </button>
+    );
+  }
 
   if (!href) {
     return (
@@ -78,6 +103,18 @@ const dividerClass = 'w-px self-stretch bg-border-subtlest-quaternary';
 export const SidebarHeaderStats = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
+  const { logEvent } = useLogContext();
+  const [isStreaksOpen, setIsStreaksOpen] = useState(false);
+
+  const handleStreakClick = useCallback(() => {
+    setIsStreaksOpen((open) => {
+      const next = !open;
+      if (next) {
+        logEvent({ event_name: LogEvent.OpenStreaks });
+      }
+      return next;
+    });
+  }, [logEvent]);
 
   if (!user) {
     return null;
@@ -89,6 +126,27 @@ export const SidebarHeaderStats = (): ReactElement | null => {
   const preciseBalance = formatCurrency(balance, { minimumFractionDigits: 0 });
   const streakValue = streak?.current ?? 0;
 
+  const streakSlot = (
+    <StatSlot
+      id="reading-streak-sidebar-button"
+      ariaLabel={`Current reading streak: ${streakValue}`}
+      icon={
+        <span className={iconBoxClass} aria-hidden>
+          {/* `scale-75` shrinks the streak flame ~12px wide so
+              it stops dominating the row. The reputation bolt
+              and cores diamond fill less of their viewBoxes
+              naturally, so they're enlarged below to balance. */}
+          <ReadingStreakIcon
+            size={IconSize.Size16}
+            className="scale-75 text-accent-bacon-default"
+          />
+        </span>
+      }
+      value={streakValue}
+      onClick={streak ? handleStreakClick : undefined}
+    />
+  );
+
   return (
     <div
       className={classNames(
@@ -97,20 +155,32 @@ export const SidebarHeaderStats = (): ReactElement | null => {
     >
       {showStreak && (
         <>
-          <Tooltip content="Reading streak" side="bottom">
-            <StatSlot
-              ariaLabel={`Current reading streak: ${streakValue}`}
-              icon={
-                <span className={iconBoxClass} aria-hidden>
-                  <ReadingStreakIcon
-                    size={IconSize.Size16}
-                    className="text-accent-bacon-default"
-                  />
-                </span>
-              }
-              value={streakValue}
-            />
-          </Tooltip>
+          {streak && isStreaksOpen ? (
+            <SimpleTooltip
+              interactive
+              showArrow={false}
+              placement="bottom-start"
+              visible
+              forceLoad={!isTesting}
+              appendTo={() => document.body}
+              zIndex={1000}
+              container={{
+                paddingClassName: 'p-0',
+                bgClassName: 'bg-accent-pepper-subtlest',
+                textClassName: 'text-text-primary typo-callout',
+                className:
+                  'border border-border-subtlest-tertiary rounded-16',
+              }}
+              content={<ReadingStreakPopup streak={streak} />}
+              onClickOutside={() => setIsStreaksOpen(false)}
+            >
+              {streakSlot}
+            </SimpleTooltip>
+          ) : (
+            <Tooltip content="Reading streak" side="bottom">
+              {streakSlot}
+            </Tooltip>
+          )}
           <span aria-hidden className={dividerClass} />
         </>
       )}
@@ -119,9 +189,13 @@ export const SidebarHeaderStats = (): ReactElement | null => {
           ariaLabel={`Reputation: ${reputation}`}
           icon={
             <span className={iconBoxClass} aria-hidden>
+              {/* `scale-125` enlarges the reputation bolt ~20px wide so
+                  it visually matches the streak flame. The bolt's
+                  source SVG only fills ~60% of its viewBox, so without
+                  this scale it reads as noticeably smaller in the row. */}
               <ReputationIcon
                 size={IconSize.Size16}
-                className="text-accent-onion-default"
+                className="scale-125 text-accent-onion-default"
               />
             </span>
           }

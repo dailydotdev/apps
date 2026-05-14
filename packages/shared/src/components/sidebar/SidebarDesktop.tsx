@@ -885,79 +885,82 @@ export const SidebarDesktop = ({
         {isHomePanel ? (
           <div
             className={classNames(
-              // `px-4` matches the nav items' `mx-3` + the icon's own
-              // 4px optical inset so the profile picture sits on the
-              // same vertical column as the nav glyphs in the list
-              // below. Equal sides keep the widget visually balanced.
-              'px-4 pb-3',
+              // Tight `pb-1` (4px) so the New post CTA sits close to
+              // the nav list it precedes (For You / Following /
+              // Explore). The CTA itself acts as the separator.
+              'pb-1',
               // Logged-in: `pt-7` (28px) puts the avatar's vertical
               // center at y≈44 to match the rail's daily.dev logo and
-              // the open/close handle. Logged-out: keep `pt-6` so the
-              // h-10 "daily.dev" row centers on the same y-axis as the
-              // utility panel headers.
+              // the open/close handle. Logged-out: keep `pt-6` for the
+              // utility-panel header alignment with `pl-4`.
               isLoggedIn && user ? 'pt-7' : 'pt-6',
             )}
           >
             {isLoggedIn && user ? (
               <section
                 aria-label="Your profile"
-                // `gap-4` (16px) gives breathing room between the three
-                // sub-blocks (identity row → stats strip → New post
-                // CTA) so the widget reads as three distinct pieces
-                // and the New post button doubles as the separator
-                // before the nav list begins.
-                className="flex flex-col items-start gap-4"
+                // Section gap is small (gap-2 = 8px) so the identity
+                // row sits close to the stats strip; the New post CTA
+                // gets its own `mt-3` below to add extra breathing room
+                // between the strip and the button.
+                className="flex flex-col gap-2"
               >
-                <Link href={`${webappUrl}${user.username}`} passHref>
-                  {/* `self-start` + `inline-flex` so the hover row
-                      shrinks to fit the name; `max-w-full` keeps long
-                      names from spilling past the panel and lets the
-                      inner span truncate. `p-1 -m-1` gives the avatar
-                      equal 4px padding on every side of the hover
-                      surface — the hover state stays scoped here and
-                      never bleeds into the stats strip / CTA below. */}
-                  <a className="focus-outline -m-1 inline-flex max-w-full items-center gap-2 rounded-10 p-1 text-text-primary transition-colors hover:bg-surface-hover">
-                    <ProfilePicture
-                      user={user}
-                      size={ProfileImageSize.Medium}
-                      nativeLazyLoading
-                    />
-                    <span className="flex min-w-0 flex-col leading-tight">
-                      <Typography
-                        bold
-                        truncate
-                        type={TypographyType.Subhead}
-                        className="min-w-0"
-                      >
-                        {user.name ?? user.username}
-                      </Typography>
-                      {user.username && (
+                {/* Identity row — same `px-3` outer padding as the
+                    stats strip and New post wrappers below so the
+                    avatar's left edge sits on the exact same x as the
+                    stats strip border, the New post button border, and
+                    every nav item's left edge. No row-wide hover bg
+                    (it used to bleed under the absolutely-positioned
+                    collapse handle). The link only signals
+                    interactivity via a hover underline on the
+                    name + handle text. */}
+                <div className="px-3">
+                  <Link href={`${webappUrl}${user.username}`} passHref>
+                    <a className="focus-outline group flex items-center gap-3 text-text-primary">
+                      <ProfilePicture
+                        user={user}
+                        size={ProfileImageSize.Medium}
+                        nativeLazyLoading
+                      />
+                      <span className="flex min-w-0 flex-col">
                         <Typography
+                          bold
                           truncate
-                          type={TypographyType.Caption1}
-                          className="min-w-0 text-text-tertiary"
+                          type={TypographyType.Subhead}
+                          className="min-w-0 leading-none group-hover:underline"
                         >
-                          @{user.username}
+                          {user.name ?? user.username}
                         </Typography>
-                      )}
-                    </span>
-                  </a>
-                </Link>
-                <div className="w-full">
+                        {user.username && (
+                          <Typography
+                            truncate
+                            type={TypographyType.Caption1}
+                            className="mt-0.5 min-w-0 leading-none text-text-tertiary group-hover:underline"
+                          >
+                            @{user.username}
+                          </Typography>
+                        )}
+                      </span>
+                    </a>
+                  </Link>
+                </div>
+                <div className="px-3">
                   <SidebarHeaderStats />
                 </div>
-                <CreatePostButton
-                  compact={false}
-                  showIcon
-                  size={ButtonSize.Small}
-                  // White-on-dark Primary button matched to the stats
-                  // strip's outline so the CTA reads as part of the
-                  // same widget without needing an enclosing card.
-                  className="w-full justify-center !border !border-border-subtlest-quaternary"
-                />
+                <div className="mt-3 px-3">
+                  <CreatePostButton
+                    compact={false}
+                    showIcon
+                    size={ButtonSize.Small}
+                    // White-on-dark Primary button matched to the stats
+                    // strip's outline so the CTA reads as part of the
+                    // same widget without needing an enclosing card.
+                    className="w-full justify-center !border !border-border-subtlest-quaternary"
+                  />
+                </div>
               </section>
             ) : (
-              <div className="flex h-10 items-center">
+              <div className="flex h-10 items-center px-4">
                 <Typography bold type={TypographyType.Callout}>
                   daily.dev
                 </Typography>
@@ -1007,7 +1010,12 @@ export const SidebarDesktop = ({
         <SidebarScrollWrapper
           className={classNames(
             'min-h-0 flex-1',
-            isUtilityPanelSelected ? 'mt-1' : 'mt-2',
+            // On the home panel keep the gap tight (mt-1 = 4px) so the
+            // New post CTA sits visually close to the nav list it
+            // precedes; the CTA itself acts as the divider. Other
+            // panels keep their previous breathing room.
+            // eslint-disable-next-line no-nested-ternary
+            isHomePanel ? 'mt-1' : isUtilityPanelSelected ? 'mt-1' : 'mt-2',
             showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
           )}
         >
