@@ -75,7 +75,7 @@ export function ReaderLegacyLayoutToggleButton({
 }: ReaderLegacyLayoutToggleButtonProps): ReactElement {
   const { optIn, optOut } = useLegacyPostLayoutOptOut();
   const isClassicTarget = target === 'classic';
-  const label = isClassicTarget ? 'Close browser mode' : 'Enable browser mode';
+  const label = isClassicTarget ? 'Classic view' : 'Reader view';
   const ariaLabel = isClassicTarget
     ? 'Use classic post layout'
     : 'Use embedded reader';

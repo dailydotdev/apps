@@ -265,6 +265,21 @@ function ReaderInstallPromptModal({
     });
   };
 
+  // DEMO ONLY: bypass the install flow entirely — opens the article in a
+  // new tab so users who don't want embedded reading still get the regular
+  // "Read post" behavior they're used to.
+  const onOpenInNewTabClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    logEvent({
+      event_name: LogEvent.ClickReaderInstallSkip,
+      extra: JSON.stringify({ browser, post_id: post.id }),
+    });
+    if (post.permalink) {
+      globalThis.window?.open(post.permalink, '_blank', 'noopener,noreferrer');
+    }
+    onRequestClose(event);
+  };
+
   const onCloseFromChrome = (event: MouseEvent<HTMLButtonElement>) => {
     onRequestClose(event);
   };
@@ -279,7 +294,7 @@ function ReaderInstallPromptModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         'reader-install-prompt-modal !mx-0 h-full max-h-screen !w-full !max-w-full overflow-hidden !bg-background-default focus:outline-none',
-        'tablet:!mx-auto tablet:!max-w-[min(96vw,88rem)]',
+        'tablet:!mx-auto tablet:!max-w-[min(96vw,100rem)]',
         'laptop:!mb-2 laptop:!mt-2 laptop:h-[calc(100vh-1rem)] laptop:max-h-[calc(100vh-1rem)] laptop:overflow-hidden',
         '!overscroll-y-auto',
       )}
@@ -315,8 +330,8 @@ function ReaderInstallPromptModal({
                 color={TypographyColor.Secondary}
                 className="!mt-0 max-w-[26rem]"
               >
-                Install the extension and every article opens inside daily.dev
-                — with the discussion right next to it.
+                Install the extension and every article opens inside daily.dev —
+                with the discussion right next to it.
               </Typography>
               <div className="mt-1 flex w-full max-w-[22rem] flex-col items-stretch gap-2">
                 <Button
@@ -338,6 +353,31 @@ function ReaderInstallPromptModal({
                   onClick={onPreviewClick}
                 >
                   Preview the experience
+                </Button>
+                <div className="flex w-full items-center gap-3 pt-1">
+                  <span
+                    aria-hidden
+                    className="h-px flex-1 bg-border-subtlest-tertiary"
+                  />
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Tertiary}
+                  >
+                    or
+                  </Typography>
+                  <span
+                    aria-hidden
+                    className="h-px flex-1 bg-border-subtlest-tertiary"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  onClick={onOpenInNewTabClick}
+                >
+                  Open the article in a new tab
                 </Button>
               </div>
             </div>

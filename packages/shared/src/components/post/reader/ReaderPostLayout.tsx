@@ -33,10 +33,10 @@ const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
 // and rail keep a deliberate, balanced layout instead of letting users
 // collapse one pane into the other.
 const FIXED_RAIL_WIDTH_PX = 380;
-// DEMO ONLY: matches the modal's `tablet:!max-w-[min(96vw,88rem)]` cap so
+// DEMO ONLY: matches the modal's `tablet:!max-w-[min(96vw,100rem)]` cap so
 // the standalone post page renders the same shell at the same width as the
 // modal portal, even if the outer `outerClassName` ever stops constraining.
-const SHELL_MAX_WIDTH = 'min(96vw, 88rem)';
+const SHELL_MAX_WIDTH = 'min(96vw, 100rem)';
 
 type ReaderPostLayoutProps = {
   post: Post;

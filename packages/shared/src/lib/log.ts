@@ -467,6 +467,7 @@ export enum LogEvent {
   ToggleEmbeddedReader = 'toggle embedded reader',
   ImpressionReaderInstallPrompt = 'impression reader install prompt',
   ClickReaderInstallExtension = 'click reader install extension',
+  ClickReaderInstallSkip = 'click reader install skip',
   ImpressionReaderFallback = 'impression reader fallback',
   ReaderEmbedReady = 'reader embed ready',
   ReaderEmbedPermissionRequired = 'reader embed permission required',

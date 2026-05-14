@@ -317,16 +317,16 @@ export function EngagementRail({
             ref={commentRef as LegacyRef<NewCommentRef>}
             shouldHandleCommentQuery
             onComposerOpenChange={setIsComposerOpen}
-            size={ProfileImageSize.Large}
+            size={ProfileImageSize.Medium}
             CommentInputOrModal={CommentInputOrModal}
             className={{
-              // DEMO ONLY: flat composer trigger — neutral surface, a slightly
-              // thicker subtle border, no shadow, no accent fills. The size /
-              // hit area stays generous so the entry point is still obvious.
+              // DEMO ONLY: flat composer trigger — neutral surface, slight
+              // border, no shadow. Sized down so the rail stays focused on
+              // the discussion instead of an oversized empty CTA.
               container: classNames(
-                '!rounded-16 !border !border-border-subtlest-secondary !bg-surface-float',
+                '!rounded-12 !border !border-border-subtlest-secondary !bg-surface-float',
                 'hover:!border-border-subtlest-primary hover:!bg-surface-float',
-                '!p-3 typo-body tablet:!p-3',
+                '!p-2 typo-callout tablet:!p-2',
               ),
             }}
           />
