@@ -176,6 +176,7 @@ export enum RequestKey {
   PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
   FeedSettings = 'feedSettings',
+  FeedTagsList = 'feedTagsList',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
   SlackChannels = 'slack_channels',
