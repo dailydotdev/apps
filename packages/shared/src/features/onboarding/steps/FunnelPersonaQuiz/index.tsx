@@ -30,6 +30,7 @@ import { PersonaQuizQuestionView } from './PersonaQuizQuestion';
 import { PersonaQuizEnriching } from './PersonaQuizEnriching';
 import { PersonaQuizFeedPreview } from './PersonaQuizFeedPreview';
 import { PersonaQuizReveal } from './PersonaQuizReveal';
+import { PERSONA_QUIZ_TIPS } from './quizTips';
 
 const buildSeedTags = (
   tagScores: Record<string, number>,
@@ -71,7 +72,8 @@ const dedupePreserveOrder = (tags: string[]): string[] =>
 // Artificial pause between pre-authored static questions so the quiz feels
 // deliberate rather than instant. The LLM path already has natural latency
 // from the network call, so it gets the same loading screen for free.
-const STATIC_TRANSITION_DELAY_MS = 700;
+// Tuned to leave a tip readable on the loading interstitial.
+const STATIC_TRANSITION_DELAY_MS = 1800;
 
 function FunnelPersonaQuizComponent({
   id,
@@ -405,9 +407,14 @@ function FunnelPersonaQuizComponent({
     [revealText, finalTags, logEvent],
   );
 
+  const tipIndex = Math.min(answers.length, PERSONA_QUIZ_TIPS.length - 1);
+  const currentTip = PERSONA_QUIZ_TIPS[tipIndex];
+
   if (phase === 'question') {
     if (pendingStaticTarget || nextQuestionMutation.isPending) {
-      return <PersonaQuizEnriching message="Reading the room…" />;
+      return (
+        <PersonaQuizEnriching message="Reading the room…" tip={currentTip} />
+      );
     }
     if (!currentQuestion) {
       return null;
@@ -431,7 +438,7 @@ function FunnelPersonaQuizComponent({
   }
 
   if (phase === 'enriching') {
-    return <PersonaQuizEnriching />;
+    return <PersonaQuizEnriching tip={currentTip} />;
   }
 
   return (

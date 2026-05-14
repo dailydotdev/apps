@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  configure,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FunnelPersonaQuiz } from './index';
 import type { FunnelStepPersonaQuiz } from '../../types/funnel';
@@ -9,6 +15,9 @@ import {
   extractOnboardingTagsFromQuiz,
   fetchNextQuizQuestion,
 } from '../../../../graphql/personaQuiz';
+
+// Loading interstitial is 1.8s; bump async timeout above it.
+configure({ asyncUtilTimeout: 3000 });
 
 jest.mock('../../../../graphql/personaQuiz', () => ({
   extractOnboardingTagsFromQuiz: jest.fn(),
