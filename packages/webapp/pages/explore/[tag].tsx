@@ -31,7 +31,7 @@ ExploreTagPage.layoutProps = mainFeedLayoutProps;
 export default ExploreTagPage;
 
 const getSeoData = (tag: string): NextSeoProps => {
-  const seoTitles = getPageSeoTitles(`${tag} feed`);
+  const seoTitles = getPageSeoTitles(`#${tag} feed`);
   return {
     ...defaultSeo,
     ...seoTitles,

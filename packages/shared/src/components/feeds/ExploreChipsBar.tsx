@@ -5,12 +5,16 @@ import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 import type { ExploreCategory } from './exploreCategories';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
+  isPending?: boolean;
   className?: string;
 }
+
+const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
 
 const FOR_YOU_CATEGORY_ID = 'foryou';
 
@@ -24,6 +28,7 @@ const normalizePath = (p: string): string => {
 
 export function ExploreChipsBar({
   categories,
+  isPending,
   className,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
@@ -77,6 +82,16 @@ export function ExploreChipsBar({
             </Link>
           );
         })}
+        {isPending &&
+          categories.length === 0 &&
+          PLACEHOLDER_WIDTHS.map((width, index) => (
+            <ElementPlaceholder
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              aria-hidden
+              className={classNames('h-10 shrink-0 rounded-12', width)}
+            />
+          ))}
       </div>
       <div
         aria-hidden

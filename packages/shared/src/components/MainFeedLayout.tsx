@@ -327,7 +327,9 @@ export default function MainFeedLayout({
   });
   const showExploreChips =
     !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
-  const { tags: feedTags } = useFeedTagsList({ enabled: showExploreChips });
+  const { tags: feedTags, isPending: isFeedTagsPending } = useFeedTagsList({
+    enabled: showExploreChips,
+  });
   const exploreCategories = useMemo(
     () => buildPersonalizedCategories(feedTags),
     [feedTags],
@@ -335,9 +337,12 @@ export default function MainFeedLayout({
   const chipsNode = useMemo(
     () =>
       showExploreChips ? (
-        <ExploreChipsBar categories={exploreCategories} />
+        <ExploreChipsBar
+          categories={exploreCategories}
+          isPending={isFeedTagsPending}
+        />
       ) : null,
-    [showExploreChips, exploreCategories],
+    [showExploreChips, exploreCategories, isFeedTagsPending],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -692,7 +697,7 @@ export default function MainFeedLayout({
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {chipsNode && router.pathname === '/explore/[tag]' && (
+      {!!chipsNode && router.pathname === '/explore/[tag]' && (
         <div className="mb-4 w-full">{chipsNode}</div>
       )}
       {isAnyExplore && <FeedExploreComponent />}
