@@ -190,7 +190,7 @@ function UnifiedMobileFeedNav(): ReactElement {
 
   const activeId = useMemo(() => {
     const normalize = (p: string): string => {
-      const noQuery = p.split('?')[0];
+      const noQuery = p?.split('?')?.[0];
       if (!noQuery || noQuery === '/') {
         return '/';
       }
