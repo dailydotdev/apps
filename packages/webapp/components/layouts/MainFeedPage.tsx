@@ -7,6 +7,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
 
@@ -37,6 +38,10 @@ const getInternalFeedName = (
 
   if (path.startsWith('/feeds/')) {
     return getFeedName(path, options);
+  }
+
+  if (path === '/explore/[tag]' || path.startsWith('/explore/')) {
+    return OtherFeedPage.ExploreTag;
   }
 
   return path.replace(/^\/+/, '');

@@ -2,6 +2,7 @@ import type {
   Dispatch,
   PropsWithChildren,
   ReactElement,
+  ReactNode,
   SetStateAction,
 } from 'react';
 import React, { useContext } from 'react';
@@ -55,6 +56,7 @@ type State<T> = [T, Dispatch<SetStateAction<T>>];
 export interface SearchControlHeaderProps {
   feedName: AllFeedPages;
   algoState: State<number>;
+  chips?: ReactNode;
 }
 
 export const LayoutHeader = classed(
@@ -80,6 +82,7 @@ export const DEFAULT_ALGORITHM_INDEX = 0;
 export const SearchControlHeader = ({
   feedName,
   algoState: [selectedAlgo, setSelectedAlgo],
+  chips,
 }: SearchControlHeaderProps): ReactElement | null => {
   const [selectedPeriod, setSelectedPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
@@ -227,7 +230,8 @@ export const SearchControlHeader = ({
       }}
     >
       <div className="flex w-full items-center gap-2">
-        <div className="flex min-w-0 items-center gap-2">{actions}</div>
+        {!!chips && <div className="min-w-0 flex-1">{chips}</div>}
+        <div className="flex shrink-0 items-center gap-2">{actions}</div>
         {sideActions.length > 0 && (
           <div className="ml-auto flex items-center gap-2">{sideActions}</div>
         )}
