@@ -8,6 +8,7 @@ import React, { useContext } from 'react';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
+import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import type { DropdownProps } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
 import { Button } from '../buttons/Button';
@@ -248,9 +249,20 @@ export const SearchControlHeader = ({
       />
     ),
   ];
+  // Right-aligned action: the achievement tracker lives on the
+  // opposite end of the strip from the feed-settings cluster so the
+  // current achievement / "track an achievement" CTA stays visually
+  // balanced against the primary controls and is easy to find while
+  // the rest of the row scrolls to fit smaller widths.
+  const rightActions = [
+    hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
+  ];
   const secondaryActions = [isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);
-  const sideActions = secondaryActions.filter(Boolean);
+  const trailingActions = [
+    ...rightActions.filter(Boolean),
+    ...secondaryActions.filter(Boolean),
+  ];
 
   return (
     <ConditionalWrapper
@@ -275,8 +287,10 @@ export const SearchControlHeader = ({
     >
       <div className="flex w-full items-center gap-2">
         <div className="flex min-w-0 items-center gap-1">{actions}</div>
-        {sideActions.length > 0 && (
-          <div className="ml-auto flex items-center gap-1">{sideActions}</div>
+        {trailingActions.length > 0 && (
+          <div className="ml-auto flex items-center gap-1">
+            {trailingActions}
+          </div>
         )}
       </div>
     </ConditionalWrapper>

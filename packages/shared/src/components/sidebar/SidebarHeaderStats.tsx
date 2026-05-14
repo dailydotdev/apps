@@ -12,15 +12,21 @@ import { IconSize } from '../Icon';
 import { CoreIcon, ReadingStreakIcon, ReputationIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
 
+// Tight, equal slot. `gap-1` (4px) keeps the icon hugging the value
+// the same way the streak slot already did. `px-1.5` shaves the side
+// inset so a 3-digit value (e.g. `999`) plus the 16px icon frame
+// still fits comfortably in the panel's 240px width without truncating.
 const slotClass =
-  'focus-outline group flex flex-1 items-center justify-center gap-2 px-2 py-2 transition-colors hover:bg-surface-hover';
-const valueClass = 'text-text-primary';
-// Wrap each icon in a fixed 20px square so the streak / rep / cores
-// glyphs share the same visual footprint even though the SVGs have
-// different aspect ratios (the reputation lightning bolt is naturally
-// narrower than the dashed circle and the diamond shape).
+  'focus-outline group flex flex-1 items-center justify-center gap-1 px-1.5 py-1.5 transition-colors hover:bg-surface-hover min-w-0';
+// `tabular-nums` keeps 1- / 2- / 3-digit values aligned so the row
+// doesn't visually jitter as the streak counts up.
+const valueClass = 'text-text-primary tabular-nums';
+// Wrap each icon in a fixed 16px square so the streak / rep / cores
+// glyphs share the same visual footprint. Sized down from 20px so the
+// flame-filled streak no longer reads as larger than the lightning
+// bolt + cores diamond, which only fill ~60% of their viewBoxes.
 const iconBoxClass =
-  'flex size-5 shrink-0 items-center justify-center';
+  'flex size-4 shrink-0 items-center justify-center';
 
 type StatSlotProps = {
   ariaLabel: string;
@@ -97,7 +103,7 @@ export const SidebarHeaderStats = (): ReactElement | null => {
               icon={
                 <span className={iconBoxClass} aria-hidden>
                   <ReadingStreakIcon
-                    size={IconSize.XSmall}
+                    size={IconSize.Size16}
                     className="text-accent-bacon-default"
                   />
                 </span>
@@ -114,7 +120,7 @@ export const SidebarHeaderStats = (): ReactElement | null => {
           icon={
             <span className={iconBoxClass} aria-hidden>
               <ReputationIcon
-                size={IconSize.XSmall}
+                size={IconSize.Size16}
                 className="text-accent-onion-default"
               />
             </span>
@@ -138,7 +144,7 @@ export const SidebarHeaderStats = (): ReactElement | null => {
           icon={
             <span className={iconBoxClass} aria-hidden>
               <CoreIcon
-                size={IconSize.XSmall}
+                size={IconSize.Size16}
                 className="text-accent-cheese-default"
               />
             </span>
