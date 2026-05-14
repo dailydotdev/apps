@@ -7,7 +7,7 @@ import {
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useRequestProtocol } from './useRequestProtocol';
 
-const DEFAULT_LIMIT = 10;
+const DEFAULT_LIMIT = 20;
 
 export const useFeedTagsList = ({
   limit = DEFAULT_LIMIT,

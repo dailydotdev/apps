@@ -211,7 +211,7 @@ function UnifiedMobileFeedNav(): ReactElement {
   }, [items, router.asPath]);
 
   return (
-    <div className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto px-3 py-2">
+    <div className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-3 py-2">
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {

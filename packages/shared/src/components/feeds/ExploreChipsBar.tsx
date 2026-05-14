@@ -77,7 +77,7 @@ export function ExploreChipsBar({
   return (
     <section
       className={classNames(
-        'relative isolate w-full overflow-hidden bg-background-default px-3 transition-colors duration-200 laptop:px-8',
+        'relative isolate w-full overflow-hidden bg-background-default px-3 transition-colors duration-200 laptop:px-10',
         className,
       )}
     >
@@ -102,10 +102,10 @@ export function ExploreChipsBar({
                 <a
                   aria-current={isActive ? 'page' : undefined}
                   className={classNames(
-                    'shrink-0 rounded-10 px-2.5 py-1.5 font-bold transition-colors typo-callout',
+                    'shrink-0 rounded-10 border px-2.5 py-1.5 font-bold transition-colors typo-callout',
                     isActive
-                      ? 'bg-surface-float text-text-primary hover:bg-surface-hover'
-                      : 'bg-background-subtle text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
+                      ? 'border-border-subtlest-tertiary bg-surface-float text-text-primary hover:bg-surface-hover'
+                      : 'border-transparent bg-background-subtle text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
                   )}
                 >
                   {category.label}

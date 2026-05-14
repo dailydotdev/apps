@@ -20,7 +20,9 @@ import { SharedFeedPage } from './utilities';
 import {
   FEED_V2_HIGHLIGHTS_LIMIT,
   ANONYMOUS_FEED_QUERY,
+  baseFeedSupportedTypes,
   CUSTOM_FEED_QUERY,
+  FEED_BY_TAGS_QUERY,
   FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
@@ -53,6 +55,7 @@ import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
+  featureFeedTagChips,
   featureFeedV2Highlights,
   followingFeedVersion,
   latestFeedVersion,
@@ -160,6 +163,9 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   [OtherFeedPage.Following]: {
     query: FOLLOWING_FEED_QUERY,
     emptyScreen: <FollowingFeedEmptyScreen />,
+  },
+  [OtherFeedPage.ExploreTag]: {
+    query: FEED_BY_TAGS_QUERY,
   },
 };
 
@@ -310,6 +316,17 @@ export default function MainFeedLayout({
     shouldEvaluate: shouldEvaluateFeedV2Highlights,
   });
 
+  // Mirrors the chip-strip gating in MainFeedPage so the feed below tucks
+  // up against the strip when it renders.
+  const isChipStripPage =
+    router.pathname === '/' || router.pathname === '/explore/[tag]';
+  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
+    feature: featureFeedTagChips,
+    shouldEvaluate: !!user && isLaptop && isChipStripPage,
+  });
+  const reduceTopPadding =
+    !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
+
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const config = useMemo(() => {
@@ -318,7 +335,7 @@ export default function MainFeedLayout({
     }
 
     const dynamicPropsByFeed: Partial<
-      Record<SharedFeedPage, Partial<FeedQueryProps>>
+      Record<FeedConfigPage, Partial<FeedQueryProps>>
     > = {
       [SharedFeedPage.Custom]: {
         variables: {
@@ -333,6 +350,12 @@ export default function MainFeedLayout({
             : CUSTOM_FEED_QUERY,
         variables: {
           feedId: (router.query?.slugOrId as string) || user?.id,
+        },
+      },
+      [OtherFeedPage.ExploreTag]: {
+        variables: {
+          tags: router.query?.tag ? [router.query.tag as string] : [],
+          supportedTypes: baseFeedSupportedTypes,
         },
       },
     };
@@ -393,6 +416,7 @@ export default function MainFeedLayout({
   }, [
     feedName,
     router.query?.slugOrId,
+    router.query?.tag,
     router.pathname,
     user,
     myFeedV,
@@ -649,7 +673,11 @@ export default function MainFeedLayout({
 
   return (
     <FeedPageLayoutComponent
-      className={classNames('relative', disableTopPadding && '!pt-0')}
+      className={classNames(
+        'relative',
+        disableTopPadding && '!pt-0',
+        reduceTopPadding && 'laptop:!pt-5',
+      )}
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}

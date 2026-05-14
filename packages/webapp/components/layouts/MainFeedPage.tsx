@@ -12,6 +12,7 @@ import { buildPersonalizedCategories } from '@dailydotdev/shared/src/components/
 import { useFeedTagsList } from '@dailydotdev/shared/src/hooks/useFeedTagsList';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureFeedTagChips } from '@dailydotdev/shared/src/lib/featureManagement';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import {
   useViewSize,
   ViewSize,
@@ -46,6 +47,10 @@ const getInternalFeedName = (
 
   if (path.startsWith('/feeds/')) {
     return getFeedName(path, options);
+  }
+
+  if (path === '/explore/[tag]' || path.startsWith('/explore/')) {
+    return OtherFeedPage.ExploreTag;
   }
 
   return path.replace(/^\/+/, '');
@@ -86,12 +91,14 @@ export default function MainFeedPage({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLoggedIn = !!user;
   const isHomePage = feedName === 'default';
+  const isExploreTagPage = feedName === OtherFeedPage.ExploreTag;
+  const showsChipStrip = isHomePage || isExploreTagPage;
   const { value: isFeedTagChipsEnabled } = useConditionalFeature({
     feature: featureFeedTagChips,
-    shouldEvaluate: isHomePage && isLaptop && isLoggedIn,
+    shouldEvaluate: showsChipStrip && isLaptop && isLoggedIn,
   });
   const showExploreChips =
-    isHomePage && isLaptop && isLoggedIn && isFeedTagChipsEnabled;
+    showsChipStrip && isLaptop && isLoggedIn && isFeedTagChipsEnabled;
   const { tags: feedTags } = useFeedTagsList({ enabled: showExploreChips });
   const exploreCategories = useMemo(
     () => buildPersonalizedCategories(feedTags),
