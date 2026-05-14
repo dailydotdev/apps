@@ -28,29 +28,20 @@ const PreviewCard = ({ post, variant }: PreviewCardProps): ReactElement => {
 
   if (variant === 'grid') {
     return (
-      <article className="flex flex-col gap-3 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default p-3">
-        {post.image && (
-          <Image
-            alt=""
-            aria-hidden
-            src={post.image}
-            className="aspect-video w-full rounded-8 object-cover"
-            loading="lazy"
-          />
-        )}
-        <div className="flex items-center gap-2">
+      <article className="relative flex max-h-cardLarge min-h-card flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-2">
+        <div className="mx-2 mt-2 flex items-center gap-2">
           {sourceImage && (
             <Image
               alt=""
               aria-hidden
               src={sourceImage}
-              className="size-5 rounded-full object-cover"
+              className="size-8 rounded-full object-cover"
               loading="lazy"
             />
           )}
           {sourceName && (
             <Typography
-              type={TypographyType.Caption1}
+              type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
               className="truncate"
             >
@@ -59,15 +50,15 @@ const PreviewCard = ({ post, variant }: PreviewCardProps): ReactElement => {
           )}
         </div>
         <Typography
-          type={TypographyType.Callout}
+          type={TypographyType.Title3}
           color={TypographyColor.Primary}
           bold
-          className="line-clamp-2"
+          className="mx-2 mt-2 line-clamp-3"
         >
           {post.title}
         </Typography>
         {tags.length > 0 && (
-          <ul className="flex flex-wrap gap-1.5">
+          <ul className="mx-2 mt-2 flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <li
                 key={tag}
@@ -78,26 +69,36 @@ const PreviewCard = ({ post, variant }: PreviewCardProps): ReactElement => {
             ))}
           </ul>
         )}
+        <div className="flex-1" />
+        {post.image && (
+          <Image
+            alt=""
+            aria-hidden
+            src={post.image}
+            className="mt-3 h-40 w-full rounded-12 object-cover"
+            loading="lazy"
+          />
+        )}
       </article>
     );
   }
 
   return (
-    <article className="flex gap-3 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default p-3">
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+    <article className="relative flex items-stretch gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle py-4 pl-4 pr-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-center gap-2">
           {sourceImage && (
             <Image
               alt=""
               aria-hidden
               src={sourceImage}
-              className="size-5 rounded-full object-cover"
+              className="size-8 rounded-full object-cover"
               loading="lazy"
             />
           )}
           {sourceName && (
             <Typography
-              type={TypographyType.Caption1}
+              type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
               className="truncate"
             >
@@ -109,12 +110,12 @@ const PreviewCard = ({ post, variant }: PreviewCardProps): ReactElement => {
           type={TypographyType.Callout}
           color={TypographyColor.Primary}
           bold
-          className="line-clamp-2"
+          className="line-clamp-3"
         >
           {post.title}
         </Typography>
         {tags.length > 0 && (
-          <ul className="mt-1 flex flex-wrap gap-1.5">
+          <ul className="mt-auto flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <li
                 key={tag}
@@ -131,7 +132,7 @@ const PreviewCard = ({ post, variant }: PreviewCardProps): ReactElement => {
           alt=""
           aria-hidden
           src={post.image}
-          className="size-20 shrink-0 rounded-8 object-cover"
+          className="aspect-square h-auto w-24 shrink-0 self-start rounded-12 object-cover mobileXL:w-40"
           loading="lazy"
         />
       )}
