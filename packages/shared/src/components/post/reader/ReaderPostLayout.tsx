@@ -22,6 +22,9 @@ import { ReaderFloatingActionBar } from './ReaderFloatingActionBar';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
 import { useIframeEmbed } from './hooks/useIframeEmbed';
 import { useReadArticle } from '../../../hooks/usePostContent';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ArrowIcon } from '../../icons';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 const CHROME_TOP_OFFSET_PX = 72;
 const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
@@ -193,7 +196,7 @@ export function ReaderPostLayout({
                     : { gridTemplateColumns: 'minmax(0,1fr)' }
                 }
               >
-                <div className="relative flex min-h-0 min-w-0 flex-col">
+                <div className="relative flex min-h-0 min-w-0 flex-col border-l border-border-subtlest-tertiary">
                   <ArticleReaderFrame
                     post={post}
                     targetUrl={targetUrl}
@@ -212,6 +215,21 @@ export function ReaderPostLayout({
                     targetHref={readArticleHref}
                     onTargetLinkClick={onReadArticle}
                     targetLinkInNewTab={openNewTab}
+                    leftHeaderActions={
+                      isPostPage ? (
+                        <Tooltip content="Back to feed">
+                          <Button
+                            type="button"
+                            variant={ButtonVariant.Tertiary}
+                            size={ButtonSize.Small}
+                            icon={<ArrowIcon className="-rotate-90" />}
+                            onClick={onCloseWithLog}
+                            aria-label="Back to feed"
+                            className="!h-8 !w-8 !min-w-8 !rounded-10 !p-0"
+                          />
+                        </Tooltip>
+                      ) : undefined
+                    }
                   />
                   {!hasEmbeddedReaderHeader && (
                     <ReaderChrome
@@ -234,8 +252,8 @@ export function ReaderPostLayout({
                     onNextPost={onNextPost}
                     onRegisterFocusComment={onRegisterFocusComment}
                     className="min-w-0 border-l border-border-subtlest-tertiary"
-                    onBackToFeed={isPostPage ? onCloseWithLog : undefined}
                     onClose={!isPostPage ? onCloseWithLog : undefined}
+                    inlineHeaderMenu={isPostPage}
                   />
                 )}
               </div>

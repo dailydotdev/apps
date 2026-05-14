@@ -24,12 +24,14 @@ type ReaderFloatingActionBarProps = {
   onCommentClick: () => void;
 };
 
-const FLOATING_ICON_SIZE = IconSize.XSmall;
+// DEMO ONLY: bigger touch targets + more breathing room between actions so
+// the floating bar reads as the primary "react to this post" surface.
+const FLOATING_ICON_SIZE = IconSize.Medium;
 const countActionButtonClasses =
-  '!h-8 !min-w-0 !gap-1 !rounded-10 !px-2 !justify-center !font-normal';
+  '!h-11 !min-w-0 !gap-1.5 !rounded-12 !px-3 !justify-center !font-normal';
 const iconActionButtonClasses =
-  '!h-8 !w-8 !min-w-8 !rounded-10 !p-0 !justify-center';
-const countClasses = 'text-text-tertiary typo-footnote tabular-nums';
+  '!h-11 !w-11 !min-w-11 !rounded-12 !p-0 !justify-center';
+const countClasses = 'text-text-tertiary typo-callout tabular-nums';
 
 export function ReaderFloatingActionBar({
   post,
@@ -46,7 +48,7 @@ export function ReaderFloatingActionBar({
 
   return (
     <div
-      className="z-20 pointer-events-auto absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-16 border border-border-subtlest-tertiary bg-background-default p-0.5 shadow-3"
+      className="z-20 pointer-events-auto absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-20 border border-border-subtlest-tertiary bg-background-default px-3 py-2 shadow-3"
       role="toolbar"
       aria-label="Post actions"
     >
@@ -120,7 +122,7 @@ export function ReaderFloatingActionBar({
               () => {},
             );
           },
-          className: '!h-8 !w-8 !shrink-0',
+          className: '!h-11 !w-11 !shrink-0',
           buttonClassName: classNames(
             iconActionButtonClasses,
             'btn-tertiary-bun',

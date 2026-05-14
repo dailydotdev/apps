@@ -21,6 +21,12 @@ type ArticleReaderFrameProps = {
   targetHref?: string;
   onTargetLinkClick?: () => void;
   targetLinkInNewTab?: boolean;
+  /**
+   * Renders to the left of the preview URL inside the iframe chrome
+   * header. Used by the standalone post page to surface a
+   * "Back to feed" arrow next to the URL bar.
+   */
+  leftHeaderActions?: ReactElement | null;
 };
 
 export function ArticleReaderFrame({
@@ -36,6 +42,7 @@ export function ArticleReaderFrame({
   targetHref,
   onTargetLinkClick,
   targetLinkInNewTab,
+  leftHeaderActions,
 }: ArticleReaderFrameProps): ReactElement {
   const { optOut } = useLegacyPostLayoutOptOut();
   const onInstallPromptOptOut = useCallback(
@@ -73,6 +80,7 @@ export function ArticleReaderFrame({
       <PostArticlePreviewEmbed
         targetUrl={targetUrl}
         previewHost={post.domain ?? undefined}
+        leftHeaderActions={leftHeaderActions ?? undefined}
         rightHeaderActions={
           <ReaderHeaderActionGroup
             onClose={isPostPage ? undefined : onClose}

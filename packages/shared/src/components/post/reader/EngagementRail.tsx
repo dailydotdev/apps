@@ -68,16 +68,16 @@ type EngagementRailProps = {
   onRegisterFocusComment: (fn: () => void) => void;
   className?: string;
   /**
-   * Standalone post page only: when provided, renders a left-aligned
-   * back-to-feed arrow button at the top of the discussion rail.
-   */
-  onBackToFeed?: () => void;
-  /**
    * Modal only: when provided, renders a close (X) button on the right side
-   * of the rail header next to the three-dots menu. The modal surface uses
-   * the rail close while the standalone post page uses `onBackToFeed`.
+   * of the rail header next to the three-dots menu.
    */
   onClose?: () => void;
+  /**
+   * Post page only: drop the sticky rail header entirely and surface the
+   * three-dots menu inline next to the source's Follow button so the rail
+   * doesn't render a near-empty header bar.
+   */
+  inlineHeaderMenu?: boolean;
 };
 
 const noopFocus = (): void => {};
@@ -89,8 +89,8 @@ export function EngagementRail({
   onNextPost,
   onRegisterFocusComment,
   className,
-  onBackToFeed,
   onClose,
+  inlineHeaderMenu = false,
 }: EngagementRailProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { user } = useAuthContext();
@@ -133,88 +133,94 @@ export function EngagementRail({
       )}
       aria-label="Discussion and related"
     >
-      <div className="bg-background-default/85 sticky top-0 z-[60] flex items-center justify-between gap-2 px-3 pb-2 pt-3 backdrop-blur">
-        <div className="flex items-center gap-2">
-          {onBackToFeed && (
-            <div className={railHeaderGroupClasses} aria-label="Navigation">
-              <Tooltip content="Back to feed">
-                <Button
-                  icon={<ArrowIcon className="-rotate-90" />}
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  type="button"
-                  className={iconButtonClassName}
-                  onClick={onBackToFeed}
-                  aria-label="Back to feed"
-                />
-              </Tooltip>
-            </div>
-          )}
-          {showNavigation && (
-            <div
-              className={railHeaderGroupClasses}
-              aria-label="Post navigation"
-            >
-              {onPreviousPost && (
-                <Tooltip content="Previous post">
-                  <Button
-                    icon={<ArrowIcon />}
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    className={classNames('-rotate-90', iconButtonClassName)}
-                    onClick={onPreviousPost}
-                    disabled={
-                      !postPosition ||
-                      [PostPosition.First, PostPosition.Only].includes(
-                        postPosition,
-                      )
-                    }
-                    aria-label="Previous post"
-                  />
-                </Tooltip>
-              )}
-              {onNextPost && (
-                <Tooltip content="Next post">
-                  <Button
-                    className={classNames('rotate-90', iconButtonClassName)}
-                    icon={<ArrowIcon />}
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    onClick={onNextPost}
-                    disabled={
-                      !postPosition ||
-                      [PostPosition.Last, PostPosition.Only].includes(
-                        postPosition,
-                      )
-                    }
-                    aria-label="Next post"
-                  />
-                </Tooltip>
-              )}
-            </div>
-          )}
+      {!inlineHeaderMenu && (
+        <div className="bg-background-default/85 sticky top-0 z-[60] flex items-center justify-between gap-2 px-3 pb-2 pt-3 backdrop-blur">
+          <div className="flex items-center gap-2">
+            {showNavigation && (
+              <div
+                className={railHeaderGroupClasses}
+                aria-label="Post navigation"
+              >
+                {onPreviousPost && (
+                  <Tooltip content="Previous post">
+                    <Button
+                      icon={<ArrowIcon />}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      type="button"
+                      className={classNames('-rotate-90', iconButtonClassName)}
+                      onClick={onPreviousPost}
+                      disabled={
+                        !postPosition ||
+                        [PostPosition.First, PostPosition.Only].includes(
+                          postPosition,
+                        )
+                      }
+                      aria-label="Previous post"
+                    />
+                  </Tooltip>
+                )}
+                {onNextPost && (
+                  <Tooltip content="Next post">
+                    <Button
+                      className={classNames('rotate-90', iconButtonClassName)}
+                      icon={<ArrowIcon />}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      type="button"
+                      onClick={onNextPost}
+                      disabled={
+                        !postPosition ||
+                        [PostPosition.Last, PostPosition.Only].includes(
+                          postPosition,
+                        )
+                      }
+                      aria-label="Next post"
+                    />
+                  </Tooltip>
+                )}
+              </div>
+            )}
+          </div>
+          <div className={railHeaderGroupClasses}>
+            <PostMenuOptions
+              post={post}
+              origin={Origin.ReaderModal}
+              buttonSize={ButtonSize.Small}
+            />
+            {onClose && <ReaderCloseButton onClose={onClose} />}
+          </div>
         </div>
-        <div className={railHeaderGroupClasses}>
-          <PostMenuOptions
-            post={post}
-            origin={Origin.ReaderModal}
-            buttonSize={ButtonSize.Small}
-          />
-          {onClose && <ReaderCloseButton onClose={onClose} />}
-        </div>
-      </div>
-      <div className="flex min-w-0 flex-col gap-4 px-4 pb-6 pt-4">
-        {source && source.type === SourceType.Squad && (
-          <SquadEntityCard
-            className={{ container: 'w-full bg-transparent' }}
-            handle={source.handle}
-            origin={Origin.ReaderModal}
-          />
+      )}
+      <div
+        className={classNames(
+          'flex min-w-0 flex-col gap-4 px-4 pb-6',
+          inlineHeaderMenu ? 'pt-4' : 'pt-4',
         )}
-        {source && source.type !== SourceType.Squad && (
-          <SourceStrip source={source as SourceTooltip} />
+      >
+        {source && (
+          <div className="flex min-w-0 items-start gap-1">
+            <div className="min-w-0 flex-1">
+              {source.type === SourceType.Squad ? (
+                <SquadEntityCard
+                  className={{ container: 'w-full bg-transparent' }}
+                  handle={source.handle}
+                  origin={Origin.ReaderModal}
+                />
+              ) : (
+                <SourceStrip source={source as SourceTooltip} />
+              )}
+            </div>
+            {inlineHeaderMenu && (
+              <div className="shrink-0">
+                <PostMenuOptions
+                  post={post}
+                  origin={Origin.ReaderModal}
+                  buttonSize={ButtonSize.Small}
+                />
+              </div>
+            )}
+          </div>
         )}
 
         <section
@@ -311,8 +317,18 @@ export function EngagementRail({
             ref={commentRef as LegacyRef<NewCommentRef>}
             shouldHandleCommentQuery
             onComposerOpenChange={setIsComposerOpen}
-            size={ProfileImageSize.Medium}
+            size={ProfileImageSize.Large}
             CommentInputOrModal={CommentInputOrModal}
+            className={{
+              // DEMO ONLY: lift the composer trigger so the discussion CTA is
+              // unmissable — accent surface, blueCheese border, taller hit area
+              // so users can't miss the entry point to add a comment.
+              container: classNames(
+                '!border-accent-blueCheese-default/40 !rounded-16 !border-2 !bg-action-comment-float',
+                'hover:!border-accent-blueCheese-default hover:!bg-action-comment-float',
+                '!p-3 shadow-3 typo-body tablet:!p-3',
+              ),
+            }}
           />
           <PostComments
             post={post}
