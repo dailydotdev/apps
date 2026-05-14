@@ -465,8 +465,8 @@ const PostOptionButtonContent = ({
     postOptions.push({
       icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
-      action: () => {
-        onHide();
+      action: async () => {
+        await onHide();
       },
     });
 

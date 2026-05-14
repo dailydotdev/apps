@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { useHidePost } from '../../../hooks/post/useHidePost';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import useTagAndSource from '../../../hooks/useTagAndSource';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { useCustomFeed } from '../../../hooks/feed/useCustomFeed';
@@ -63,7 +62,6 @@ export function PostHiddenPanel({
     feedSettings?.excludeSources?.some(({ id }) => id === source.id) ?? false;
 
   const { onUnhide, onConfirmDismiss } = useHidePost({ post });
-  const { onClose } = useBlockPostPanel(post);
   const { onBlockTags, onBlockSource } = useTagAndSource({
     origin: Origin.PostContextMenu,
     postId: post.id,
@@ -87,7 +85,6 @@ export function PostHiddenPanel({
   };
 
   const handleReport = () => {
-    onClose(true);
     openModal({
       type: LazyModal.ReportPost,
       props: {
@@ -107,7 +104,7 @@ export function PostHiddenPanel({
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-2 pl-2">
+      <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col">
           <h4 className="font-bold text-text-primary typo-callout">
             Got it. You&apos;ll see less like this.

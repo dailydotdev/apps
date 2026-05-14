@@ -63,8 +63,6 @@ export const ShareList = forwardRef(function ShareList(
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
   const { data: blockPanelData } = useBlockPostPanel(post);
-  const isHideMode =
-    blockPanelData?.showTagsPanel === true && blockPanelData?.mode === 'hide';
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -117,7 +115,10 @@ export const ShareList = forwardRef(function ShareList(
     sharedPost?.source?.handle,
   ]);
 
-  if (isHideMode) {
+  if (
+    blockPanelData?.showTagsPanel === true &&
+    blockPanelData?.mode === 'hide'
+  ) {
     return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
   }
 
