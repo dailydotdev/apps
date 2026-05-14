@@ -84,19 +84,27 @@ export const SearchControlHeader = ({
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { sortingEnabled } = useContext(SettingsContext);
-  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
+  const isExtension = checkIsExtension();
   const feedsWithActions = [
     SharedFeedPage.MyFeed,
     SharedFeedPage.Custom,
     SharedFeedPage.CustomForm,
   ];
-  const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
+  // The extension's logged-out new tab still needs the Feed
+  // settings / Brief / Clickbait Shield strip so the page looks
+  // identical to the logged-in version. Each button intercepts
+  // !user clicks below to open the auth modal instead of running
+  // its normal action, so surfacing them here is safe.
+  const hasFeedActions =
+    feedsWithActions.includes(feedName as SharedFeedPage) ||
+    (isExtension && !user && isPopular);
 
   if (isMobile) {
     return null;

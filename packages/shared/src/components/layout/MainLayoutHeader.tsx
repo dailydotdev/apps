@@ -18,6 +18,7 @@ import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SpotlightTrigger } from '../spotlight/SpotlightTrigger';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { isExtension } from '../../lib/func';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -63,9 +64,11 @@ function MainLayoutHeader({
   // The dual-sidebar layout owns the logo, search, and action buttons on
   // laptop+ for authenticated users. Skip the global header entirely so
   // chrome isn't duplicated and the content card can sit flush to the top.
-  // Logged-out users still see the header because the sidebar doesn't
-  // surface a login control.
-  const shouldHideForSidebar = isLaptop && !!sidebarRendered && isLoggedIn;
+  // On the extension we also hide it for logged-out users — the new tab
+  // surfaces login/signup via the top hero card row, so we don't want
+  // the page to snap back to a separate header bar after sign-out.
+  const shouldHideForSidebar =
+    isLaptop && !!sidebarRendered && (isLoggedIn || isExtension);
   const customizerWidth = panelWidth ? `${panelWidth}px` : '0px';
 
   useEffect(() => {

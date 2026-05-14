@@ -23,6 +23,13 @@ interface UseReadingReminderHero {
 
 interface UseReadingReminderHeroProps {
   requireMobile?: boolean;
+  /**
+   * Skip the temporal "registered today" / "seen today" / "shown in
+   * session" throttles. Use for placements that should appear as long
+   * as the user is logged in and hasn't subscribed or explicitly
+   * dismissed the reminder (e.g. the extension new tab top hero row).
+   */
+  bypassThrottling?: boolean;
 }
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
@@ -59,6 +66,7 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
 
 export const useReadingReminderHero = ({
   requireMobile = true,
+  bypassThrottling = false,
 }: UseReadingReminderHeroProps = {}): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -87,7 +95,7 @@ export const useReadingReminderHero = ({
     isLoggedIn &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&
-    !isRegisteredToday &&
+    (bypassThrottling || !isRegisteredToday) &&
     !isDismissed;
   const { value: copy } = useConditionalFeature({
     feature: featureReadingReminderHeroCopy,
@@ -96,16 +104,17 @@ export const useReadingReminderHero = ({
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
-  const shouldShowBase = shouldEvaluate && !hasSeenToday && isFetched;
+  const shouldShowBase =
+    shouldEvaluate && (bypassThrottling || !hasSeenToday) && isFetched;
 
   useEffect(() => {
-    if (!shouldShowBase || hasShownInSession) {
+    if (!shouldShowBase || hasShownInSession || bypassThrottling) {
       return;
     }
 
     setHasShownInSession(true);
     setLastSeen(new Date().toISOString());
-  }, [hasShownInSession, setLastSeen, shouldShowBase]);
+  }, [bypassThrottling, hasShownInSession, setLastSeen, shouldShowBase]);
 
   const onEnable = useCallback(async () => {
     const timezone =

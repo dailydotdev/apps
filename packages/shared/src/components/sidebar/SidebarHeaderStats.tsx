@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -10,13 +10,65 @@ import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReadingStreakIcon, ReputationIcon } from '../icons';
+import { Typography, TypographyType } from '../typography/Typography';
 
 const slotClass =
-  'focus-outline flex h-9 w-full items-center justify-center gap-1 rounded-10 font-bold text-text-primary typo-footnote transition-colors hover:bg-surface-hover';
+  'focus-outline group flex flex-1 items-center justify-center gap-2 px-2 py-2 transition-colors hover:bg-surface-hover';
+const valueClass = 'text-text-primary';
+// Wrap each icon in a fixed 20px square so the streak / rep / cores
+// glyphs share the same visual footprint even though the SVGs have
+// different aspect ratios (the reputation lightning bolt is naturally
+// narrower than the dashed circle and the diamond shape).
+const iconBoxClass =
+  'flex size-5 shrink-0 items-center justify-center';
 
-// Compact stats strip rendered under the user identity row in the dedicated
-// home panel. Streak / reputation / cores share an equal-column grid so each
-// slot stretches to the same width across the panel.
+type StatSlotProps = {
+  ariaLabel: string;
+  icon: ReactNode;
+  value: string | number;
+  href?: string;
+};
+
+// Renders a single inline stat. When `href` is provided the slot becomes a
+// link; otherwise it renders as a static span so the surrounding card's
+// outer link still owns the click target.
+const StatSlot = ({
+  ariaLabel,
+  icon,
+  value,
+  href,
+}: StatSlotProps): ReactElement => {
+  const inner = (
+    <>
+      {icon}
+      <Typography bold type={TypographyType.Footnote} className={valueClass}>
+        {value}
+      </Typography>
+    </>
+  );
+
+  if (!href) {
+    return (
+      <span className={slotClass} aria-label={ariaLabel}>
+        {inner}
+      </span>
+    );
+  }
+
+  return (
+    <Link href={href} passHref>
+      <a className={slotClass} aria-label={ariaLabel}>
+        {inner}
+      </a>
+    </Link>
+  );
+};
+
+const dividerClass = 'w-px self-stretch bg-border-subtlest-quaternary';
+
+// Compact, divided inline stats strip rendered under the user identity row in
+// the dedicated home panel. The values stay visible at all sizes (including
+// `0`) and the slots share an equal-width row so the strip reads at a glance.
 export const SidebarHeaderStats = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -32,28 +84,45 @@ export const SidebarHeaderStats = (): ReactElement | null => {
   const streakValue = streak?.current ?? 0;
 
   return (
-    <div className="grid grid-cols-3 gap-1">
+    <div
+      className={classNames(
+        'flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default',
+      )}
+    >
       {showStreak && (
-        <Tooltip content="Reading streak" side="bottom">
-          <span
-            className={classNames(slotClass, 'text-accent-bacon-default')}
-            aria-label={`Current reading streak: ${streakValue}`}
-          >
-            <ReadingStreakIcon size={IconSize.Size16} aria-hidden />
-            {streakValue}
-          </span>
-        </Tooltip>
+        <>
+          <Tooltip content="Reading streak" side="bottom">
+            <StatSlot
+              ariaLabel={`Current reading streak: ${streakValue}`}
+              icon={
+                <span className={iconBoxClass} aria-hidden>
+                  <ReadingStreakIcon
+                    size={IconSize.XSmall}
+                    className="text-accent-bacon-default"
+                  />
+                </span>
+              }
+              value={streakValue}
+            />
+          </Tooltip>
+          <span aria-hidden className={dividerClass} />
+        </>
       )}
       <Tooltip content="Reputation" side="bottom">
-        <span className={slotClass} aria-label={`Reputation: ${reputation}`}>
-          <ReputationIcon
-            size={IconSize.Size16}
-            className="text-accent-onion-default"
-            aria-hidden
-          />
-          {largeNumberFormat(reputation)}
-        </span>
+        <StatSlot
+          ariaLabel={`Reputation: ${reputation}`}
+          icon={
+            <span className={iconBoxClass} aria-hidden>
+              <ReputationIcon
+                size={IconSize.XSmall}
+                className="text-accent-onion-default"
+              />
+            </span>
+          }
+          value={largeNumberFormat(reputation)}
+        />
       </Tooltip>
+      <span aria-hidden className={dividerClass} />
       <Tooltip
         content={
           <>
@@ -64,15 +133,19 @@ export const SidebarHeaderStats = (): ReactElement | null => {
         }
         side="bottom"
       >
-        <Link href={walletUrl} passHref>
-          <a
-            className={slotClass}
-            aria-label={`Cores wallet: ${preciseBalance}`}
-          >
-            <CoreIcon size={IconSize.Size16} aria-hidden />
-            {largeNumberFormat(balance)}
-          </a>
-        </Link>
+        <StatSlot
+          ariaLabel={`Cores wallet: ${preciseBalance}`}
+          icon={
+            <span className={iconBoxClass} aria-hidden>
+              <CoreIcon
+                size={IconSize.XSmall}
+                className="text-accent-cheese-default"
+              />
+            </span>
+          }
+          value={largeNumberFormat(balance)}
+          href={walletUrl}
+        />
       </Tooltip>
     </div>
   );

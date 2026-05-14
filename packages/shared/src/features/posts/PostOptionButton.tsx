@@ -58,7 +58,7 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePostLogEvent } from '../../lib/feed';
 import { useFeedCardContext } from './FeedCardContext';
-import useReportPost from '../../hooks/useReportPost';
+import { useHidePost } from '../../hooks/post/useHidePost';
 import { useSharePost } from '../../hooks/useSharePost';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -187,7 +187,10 @@ const PostOptionButtonContent = ({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { boostedBy } = useFeedCardContext();
-  const { hidePost, unhidePost } = useReportPost();
+  const { onHide } = useHidePost({
+    post,
+    origin: Origin.PostContextMenu,
+  });
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
@@ -436,27 +439,6 @@ const PostOptionButtonContent = ({
       showMessageAndRemovePost(copy, postIndex, onUndo),
   });
 
-  const onHidePost = async (): Promise<void> => {
-    const { successful } = await hidePost(post.id);
-
-    if (!successful) {
-      return;
-    }
-
-    logEvent(
-      postLogEvent(LogEvent.HidePost, post, {
-        extra: { origin: Origin.PostContextMenu },
-        ...logOpts,
-      }),
-    );
-
-    showMessageAndRemovePost(
-      "🙈 This post won't show up on your feed anymore",
-      postIndex,
-      () => unhidePost(post.id),
-    );
-  };
-
   const postOptions: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
@@ -483,7 +465,9 @@ const PostOptionButtonContent = ({
     postOptions.push({
       icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
-      action: onHidePost,
+      action: () => {
+        onHide();
+      },
     });
 
     postOptions.push({

@@ -60,7 +60,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { SidebarHeaderStats } from './SidebarHeaderStats';
-import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FeedbackWidget } from '../feedback';
@@ -884,32 +883,86 @@ export const SidebarDesktop = ({
         )}
       >
         {isHomePanel ? (
-          <div className="pl-4 pr-3 pt-6">
-            <div className="flex h-10 items-center gap-2">
-              {isLoggedIn && user ? (
+          <div
+            className={classNames(
+              // `px-4` matches the nav items' `mx-3` + the icon's own
+              // 4px optical inset so the profile picture sits on the
+              // same vertical column as the nav glyphs in the list
+              // below. Equal sides keep the widget visually balanced.
+              'px-4 pb-3',
+              // Logged-in: `pt-7` (28px) puts the avatar's vertical
+              // center at y≈44 to match the rail's daily.dev logo and
+              // the open/close handle. Logged-out: keep `pt-6` so the
+              // h-10 "daily.dev" row centers on the same y-axis as the
+              // utility panel headers.
+              isLoggedIn && user ? 'pt-7' : 'pt-6',
+            )}
+          >
+            {isLoggedIn && user ? (
+              <section
+                aria-label="Your profile"
+                // `gap-4` (16px) gives breathing room between the three
+                // sub-blocks (identity row → stats strip → New post
+                // CTA) so the widget reads as three distinct pieces
+                // and the New post button doubles as the separator
+                // before the nav list begins.
+                className="flex flex-col items-start gap-4"
+              >
                 <Link href={`${webappUrl}${user.username}`} passHref>
-                  <a className="focus-outline flex min-w-0 flex-1 items-center gap-2 rounded-8 text-text-primary transition-colors hover:text-text-link">
+                  {/* `self-start` + `inline-flex` so the hover row
+                      shrinks to fit the name; `max-w-full` keeps long
+                      names from spilling past the panel and lets the
+                      inner span truncate. `p-1 -m-1` gives the avatar
+                      equal 4px padding on every side of the hover
+                      surface — the hover state stays scoped here and
+                      never bleeds into the stats strip / CTA below. */}
+                  <a className="focus-outline -m-1 inline-flex max-w-full items-center gap-2 rounded-10 p-1 text-text-primary transition-colors hover:bg-surface-hover">
                     <ProfilePicture
                       user={user}
-                      size={ProfileImageSize.XSmall}
+                      size={ProfileImageSize.Medium}
                       nativeLazyLoading
                     />
-                    <Typography
-                      bold
-                      truncate
-                      type={TypographyType.Callout}
-                      className="min-w-0"
-                    >
-                      {user.name ?? user.username}
-                    </Typography>
+                    <span className="flex min-w-0 flex-col leading-tight">
+                      <Typography
+                        bold
+                        truncate
+                        type={TypographyType.Subhead}
+                        className="min-w-0"
+                      >
+                        {user.name ?? user.username}
+                      </Typography>
+                      {user.username && (
+                        <Typography
+                          truncate
+                          type={TypographyType.Caption1}
+                          className="min-w-0 text-text-tertiary"
+                        >
+                          @{user.username}
+                        </Typography>
+                      )}
+                    </span>
                   </a>
                 </Link>
-              ) : (
+                <div className="w-full">
+                  <SidebarHeaderStats />
+                </div>
+                <CreatePostButton
+                  compact={false}
+                  showIcon
+                  size={ButtonSize.Small}
+                  // White-on-dark Primary button matched to the stats
+                  // strip's outline so the CTA reads as part of the
+                  // same widget without needing an enclosing card.
+                  className="w-full justify-center !border !border-border-subtlest-quaternary"
+                />
+              </section>
+            ) : (
+              <div className="flex h-10 items-center">
                 <Typography bold type={TypographyType.Callout}>
                   daily.dev
                 </Typography>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="pl-4 pr-3 pt-6">
@@ -936,23 +989,13 @@ export const SidebarDesktop = ({
           </div>
         )}
 
-        {isHomePanel && isLoggedIn && (
-          <div className="mt-2 px-3">
-            <SidebarHeaderStats />
-          </div>
-        )}
-
-        {!isUtilityPanelSelected && (
-          <>
-            <div className="px-3 pt-2">
-              <CreatePostButton
-                className="!flex w-full justify-start whitespace-nowrap"
-                size={ButtonSize.Small}
-                showIcon
-              />
-            </div>
-            <HorizontalSeparator className="mx-3 mt-3" />
-          </>
+        {/* On the home panel the New post CTA already serves as the
+            visual separator between the profile widget and the nav list
+            — render the explicit divider only on the other panels
+            (Profile completion, etc.) where there's no equivalent
+            break. */}
+        {!isUtilityPanelSelected && !isHomePanel && (
+          <HorizontalSeparator className="mx-3 mt-3" />
         )}
 
         {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
@@ -971,11 +1014,6 @@ export const SidebarDesktop = ({
           <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : undefined}>
             {renderSelectedSection()}
           </Nav>
-          {selectedCategory === SidebarSelectedCategory.Main && (
-            <div className="px-3 pb-3">
-              <HighlightPostSidebarWidget />
-            </div>
-          )}
         </SidebarScrollWrapper>
 
         {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}

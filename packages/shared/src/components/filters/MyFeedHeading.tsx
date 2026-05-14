@@ -11,6 +11,8 @@ import {
 import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import type { IconSize } from '../Icon';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
@@ -42,6 +44,7 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
+  const { user, showLogin } = useAuthContext();
 
   const editFeedUrl = useMemo(() => {
     if (isCustomDefaultFeed && pathname === '/') {
@@ -56,10 +59,18 @@ function MyFeedHeading({
   }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query]);
 
   const onClick = useCallback(() => {
+    if (!user) {
+      showLogin({
+        trigger: AuthTriggers.MainButton,
+        options: { isLogin: false },
+      });
+      return undefined;
+    }
+
     onOpenFeedFilters?.();
 
     return push(editFeedUrl);
-  }, [editFeedUrl, onOpenFeedFilters, push]);
+  }, [editFeedUrl, onOpenFeedFilters, push, user, showLogin]);
   const onShortcutsClick = useCallback(() => {
     if (isOldUserWithNoShortcuts) {
       completeAction(ActionType.FirstShortcutsSession);

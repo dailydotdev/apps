@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, {
   useCallback,
   useContext,
@@ -18,7 +18,6 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
@@ -31,6 +30,8 @@ import { isFocusActiveAt } from '@dailydotdev/shared/src/features/customizeNewTa
 import { normaliseNewTabMode } from '@dailydotdev/shared/src/features/customizeNewTab/lib/newTabMode';
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
+import { ExtensionTopBanners } from './ExtensionTopBanners';
+import { ExtensionSignInStrip } from './ExtensionSignInStrip';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 import { getDefaultLink } from './dnd';
@@ -50,7 +51,6 @@ export type MainFeedPageProps = {
   onPageChanged: (page: string) => unknown;
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
-  shortcuts?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -100,7 +100,6 @@ const MainFeedPageInner = ({
   onPageChanged,
   initialPage,
   shouldInitializeCurrentPage = true,
-  shortcuts,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
@@ -109,7 +108,6 @@ const MainFeedPageInner = ({
     getInitialFeedName(initialPage),
   );
   const [searchQuery, setSearchQuery] = useState<string>();
-  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -176,6 +174,7 @@ const MainFeedPageInner = ({
   // visual signal that customizer changes affect THEIR feed, not just
   // a panel-shaped overlay.
   const { panelWidth } = useCustomizeNewTab();
+  const shortcutLinks = <ShortcutLinks shouldUseListFeedLayout={false} />;
 
   return (
     <>
@@ -195,6 +194,15 @@ const MainFeedPageInner = ({
           onNavTabClick={onNavTabClick}
           screenCentered={false}
           customBanner={isDndActive && <DndBanner />}
+          topBanner={
+            <>
+              <ExtensionSignInStrip />
+              <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
+                {shortcutLinks}
+              </div>
+              <ExtensionTopBanners />
+            </>
+          }
           additionalButtons={
             !loadingUser && !optOutCompanion && <CompanionPopupButton />
           }
@@ -223,13 +231,6 @@ const MainFeedPageInner = ({
                     logEvent({ event_name: LogEvent.FocusSearch });
                   }}
                 />
-              }
-              shortcuts={
-                shortcuts ?? (
-                  <ShortcutLinks
-                    shouldUseListFeedLayout={shouldUseListFeedLayout}
-                  />
-                )
               }
             />
           </FeedLayoutProvider>

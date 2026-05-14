@@ -30,7 +30,7 @@ import {
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
-import { PageHeader } from '../layout/PageHeader';
+import { PageHeader, pageHeaderClassName } from '../layout/PageHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -192,8 +192,14 @@ export const FeedContainer = ({
       }
     },
   });
+  // The extension surfaces the CV upload promo as one of the top hero
+  // cards above the feed, so we suppress the in-feed banner here to
+  // avoid showing the same CTA twice.
   const shouldShowBanner =
-    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
+    !isExtension &&
+    !!marketingCta &&
+    shouldShow &&
+    activeFeedName === SharedFeedPage.MyFeed;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
@@ -208,6 +214,17 @@ export const FeedContainer = ({
   if (!loadedSettings) {
     return <></>;
   }
+
+  // The extension must always use the same page-header strip as the
+  // webapp for these feed actions. Do not send it through the `isSearch`
+  // header branch below; that branch is intentionally borderless and was
+  // centering this control row in the extension.
+  const extensionActionsHeader =
+    isExtension && !!actionButtons ? (
+      <header className={classNames(pageHeaderClassName, 'justify-start')}>
+        {actionButtons}
+      </header>
+    ) : null;
 
   return (
     <div
@@ -261,7 +278,12 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {topContent}
-          {isSearch && !shouldUseListFeedLayout && (
+          {/* In grid mode (no list-frame wrapper) the extension actions
+              are dropped on the floor by default — render the strip
+              above the grid so they show with a bottom border. In list
+              mode the strip renders inside the list-frame box below. */}
+          {!shouldUseListFeedLayout && extensionActionsHeader}
+          {isSearch && !isExtension && !shouldUseListFeedLayout && (
             <header
               className={classNames(
                 'flex items-center',
@@ -290,11 +312,13 @@ export const FeedContainer = ({
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                {isLaptop && !!(feedHeading || actionButtons) ? (
-                  <PageHeader title={feedHeading}>{actionButtons}</PageHeader>
-                ) : (
-                  actionButtons || null
-                )}
+                {isExtension && extensionActionsHeader}
+                {!isExtension &&
+                  (isLaptop && !!(feedHeading || actionButtons) ? (
+                    <PageHeader title={feedHeading}>{actionButtons}</PageHeader>
+                  ) : (
+                    actionButtons || null
+                  ))}
                 {isExtension && shortcuts}
                 {child}
               </div>

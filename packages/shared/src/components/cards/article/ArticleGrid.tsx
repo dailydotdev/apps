@@ -7,6 +7,7 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostFeedback } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
+import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardSpace,
@@ -54,14 +55,20 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
 
-  if (data?.showTagsPanel && post.tags.length > 0) {
-    return (
-      <PostTagsPanel
-        className="h-full overflow-hidden"
-        post={post}
-        toastOnSuccess
-      />
-    );
+  if (data?.showTagsPanel) {
+    if (data.mode === 'hide') {
+      return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
+    }
+
+    if (post.tags.length > 0) {
+      return (
+        <PostTagsPanel
+          className="h-full overflow-hidden"
+          post={post}
+          toastOnSuccess
+        />
+      );
+    }
   }
 
   return (

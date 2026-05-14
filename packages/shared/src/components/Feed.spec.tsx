@@ -20,6 +20,7 @@ import {
   POST_BY_ID_QUERY,
   REPORT_POST_MUTATION,
   PostType,
+  UNHIDE_POST_MUTATION,
   UserVote,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
@@ -809,8 +810,8 @@ describe('Feed logged in', () => {
     );
   });
 
-  it('should hide post', async () => {
-    let mutationCalled = false;
+  it('should hide post and replace card with the hidden feedback panel', async () => {
+    let hideCalled = false;
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,
@@ -822,7 +823,7 @@ describe('Feed logged in', () => {
           variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
         },
         result: () => {
-          mutationCalled = true;
+          hideCalled = true;
           return { data: { _: true } };
         },
       },
@@ -833,12 +834,90 @@ describe('Feed logged in', () => {
     });
     const contextBtn = await screen.findByText('Hide');
     contextBtn.click();
-    await waitFor(() => expect(mutationCalled).toBeTruthy());
+    await waitFor(() => expect(hideCalled).toBeTruthy());
+    expect(
+      await screen.findByText('Post hidden in your feed'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should restore the post when clicking Undo on the hidden feedback panel', async () => {
+    let unhideCalled = false;
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+      {
+        request: {
+          query: HIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+      {
+        request: {
+          query: UNHIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => {
+          unhideCalled = true;
+          return { data: { _: true } };
+        },
+      },
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    (await screen.findByText('Hide')).click();
+    const undoBtn = await screen.findByRole('button', { name: 'Undo' });
+    fireEvent.click(undoBtn);
+
+    await waitFor(() => expect(unhideCalled).toBeTruthy());
     await waitFor(() =>
       expect(
-        screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+        screen.queryByText('Post hidden in your feed'),
       ).not.toBeInTheDocument(),
     );
+    expect(
+      await screen.findByTitle(
+        'Eminem Quotes Generator - Simple PHP RESTful API',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('should remove the post from the feed when clicking Done on the hidden feedback panel', async () => {
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+      {
+        request: {
+          query: HIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    (await screen.findByText('Hide')).click();
+
+    const doneBtn = await screen.findByRole('button', { name: 'Done' });
+    fireEvent.click(doneBtn);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText('Post hidden in your feed'),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument();
   });
 
   it('should block a source', async () => {

@@ -72,6 +72,13 @@ export interface MainLayoutProps
   canGoBack?: string;
   hideBackButton?: boolean;
   hideFeedbackWidget?: boolean;
+  /**
+   * Slot rendered above the floating feed card, next to the existing
+   * reading-reminder TopHero. Used by the extension new tab to render
+   * its row of onboarding hero cards in the same outer chrome where
+   * the reminder card lives, so the card sits OUTSIDE the feed frame.
+   */
+  topBanner?: ReactNode;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -88,6 +95,7 @@ function MainLayoutComponent({
   onNavTabClick,
   canGoBack,
   hideFeedbackWidget = false,
+  topBanner,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -102,7 +110,12 @@ function MainLayoutComponent({
   // When that's the case we hide the global header and switch the main
   // content over to the floating card treatment (rounded, bordered, shadow)
   // and hide the global feedback widget (the rail provides its own).
-  const sidebarOwnsHeader = isLoggedIn && showSidebar && sidebarRendered;
+  // On the extension we keep the floating card layout even for logged-out
+  // users so the new tab doesn't snap back to a header-on-top layout the
+  // moment the user logs out — login/signup are surfaced via the top
+  // hero card row instead.
+  const sidebarOwnsHeader =
+    (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
@@ -266,6 +279,7 @@ function MainLayoutComponent({
               }
             />
           )}
+          {topBanner}
           <div
             className={classNames(
               'flex min-h-0 flex-1 flex-col',
@@ -273,6 +287,7 @@ function MainLayoutComponent({
                 'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
               sidebarOwnsHeader &&
                 !shouldShowTopHero &&
+                !topBanner &&
                 'laptop:min-h-[calc(100vh-1.5rem)]',
             )}
           >

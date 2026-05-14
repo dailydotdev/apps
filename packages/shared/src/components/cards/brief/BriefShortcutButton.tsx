@@ -9,6 +9,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
+import { AuthTriggers } from '../../../lib/auth';
+import { checkIsExtension } from '../../../lib/func';
 
 type BriefShortcutButtonProps = {
   className?: string;
@@ -17,7 +19,7 @@ type BriefShortcutButtonProps = {
 export const BriefShortcutButton = ({
   className,
 }: BriefShortcutButtonProps): ReactElement | null => {
-  const { isLoggedIn, isAuthReady, user } = useAuthContext();
+  const { isLoggedIn, isAuthReady, user, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isActionsFetched, checkHasCompleted } = useActions();
   const impressionRef = useRef(false);
@@ -44,7 +46,7 @@ export const BriefShortcutButton = ({
     });
   }, [isAuthReady, isLoggedIn, logEvent, user?.isPlus]);
 
-  const onClick = useCallback(() => {
+  const onLoggedInClick = useCallback(() => {
     logEvent({
       event_name: LogEvent.ClickBrief,
       target_id: TargetId.Header,
@@ -55,21 +57,46 @@ export const BriefShortcutButton = ({
     });
   }, [logEvent, user?.isPlus]);
 
+  const commonButtonProps = {
+    variant: ButtonVariant.Tertiary,
+    size: ButtonSize.Small,
+    icon: (
+      <BriefIcon size={IconSize.XSmall} secondary aria-hidden />
+    ) as ReactElement,
+    className,
+    children: 'Generate brief',
+  };
+
+  // Render the button for logged-out users too on the extension's new
+  // tab so the action strip looks identical to the logged-in version
+  // — the click just opens the auth modal instead of navigating to
+  // the briefing flow. Webapp behavior is unchanged (logged-out users
+  // continue to not see the button there).
   if (!isLoggedIn) {
-    return null;
+    if (!checkIsExtension()) {
+      return null;
+    }
+
+    return (
+      <Button
+        type="button"
+        {...commonButtonProps}
+        onClick={() =>
+          showLogin({
+            trigger: AuthTriggers.MainButton,
+            options: { isLogin: false },
+          })
+        }
+      />
+    );
   }
 
   return (
     <Button
       tag="a"
       href={targetHref}
-      onClick={onClick}
-      variant={ButtonVariant.Tertiary}
-      size={ButtonSize.Small}
-      icon={<BriefIcon size={IconSize.XSmall} secondary aria-hidden />}
-      className={className}
-    >
-      Generate brief
-    </Button>
+      onClick={onLoggedInClick}
+      {...commonButtonProps}
+    />
   );
 };

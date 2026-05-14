@@ -20,6 +20,7 @@ import type { IconProps } from '../Icon';
 import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
+import { AuthTriggers } from '../../lib/auth';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
 
@@ -47,9 +48,14 @@ export const ToggleClickbaitShield = ({
   const { flags, updateFlag } = useSettingsContext();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
+  const triggerLogin = () =>
+    showLogin({
+      trigger: AuthTriggers.MainButton,
+      options: { isLogin: false },
+    });
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -83,6 +89,7 @@ export const ToggleClickbaitShield = ({
           }
           onClick={() => {
             if (!user) {
+              triggerLogin();
               return;
             }
             router.push(
@@ -115,6 +122,10 @@ export const ToggleClickbaitShield = ({
         }
         loading={loading}
         onClick={async () => {
+          if (!user) {
+            triggerLogin();
+            return;
+          }
           const newState = !isClickbaitShieldEnabled;
           setLoading(true);
           await updateFlag(

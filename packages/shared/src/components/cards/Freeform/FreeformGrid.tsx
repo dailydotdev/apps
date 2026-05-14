@@ -18,6 +18,8 @@ import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
@@ -41,6 +43,14 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
+  const { data: blockPanelData } = useBlockPostPanel(post);
+
+  if (
+    blockPanelData?.showTagsPanel === true &&
+    blockPanelData?.mode === 'hide'
+  ) {
+    return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
+  }
 
   return (
     <FeedItemContainer
