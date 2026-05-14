@@ -12,7 +12,7 @@ import { LazyModal } from '../../modals/common/types';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
 import { FlagIcon, HashtagIcon } from '../../icons';
-import { MenuIcon } from '../../MenuIcon';
+import { IconSize } from '../../Icon';
 import { SourceAvatar } from '../../profile/source';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { Origin } from '../../../lib/log';
@@ -40,9 +40,11 @@ const ActionRow = ({
     role="menuitem"
     aria-label={ariaLabel}
     onClick={onClick}
-    className="flex h-7 w-full items-center gap-2 rounded-10 px-2 text-left text-text-tertiary typo-footnote hover:bg-surface-hover"
+    className="flex h-9 w-full items-center gap-3 rounded-12 px-3 text-left text-text-tertiary typo-callout hover:bg-surface-hover"
   >
-    <span className="flex shrink-0 items-center justify-center">{icon}</span>
+    <span className="flex size-6 shrink-0 items-center justify-center">
+      {icon}
+    </span>
     <span className="min-w-0 flex-1 truncate">{label}</span>
   </button>
 );
@@ -122,7 +124,7 @@ export function PostHiddenPanel({
         {!isSourceAlreadyBlocked && (
           <ActionRow
             icon={
-              <SourceAvatar source={source} size={ProfileImageSize.Size16} />
+              <SourceAvatar source={source} size={ProfileImageSize.Small} />
             }
             label={<>Don&apos;t show posts from {source.name}</>}
             onClick={handleUnfollowSource}
@@ -132,14 +134,14 @@ export function PostHiddenPanel({
         {blockableTags.map((tag) => (
           <ActionRow
             key={tag}
-            icon={<MenuIcon Icon={HashtagIcon} />}
+            icon={<HashtagIcon size={IconSize.Small} />}
             label={`Block #${tag}`}
             onClick={() => handleBlockTag(tag)}
             ariaLabel={`Block ${tag}`}
           />
         ))}
         <ActionRow
-          icon={<MenuIcon Icon={FlagIcon} />}
+          icon={<FlagIcon size={IconSize.Small} />}
           label="Report"
           onClick={handleReport}
           ariaLabel="Report"
