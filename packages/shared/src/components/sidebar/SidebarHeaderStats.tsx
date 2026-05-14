@@ -11,10 +11,12 @@ import { LogEvent } from '../../lib/log';
 import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SimpleTooltip } from '../tooltips';
+import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReadingStreakIcon, ReputationIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
 import { ReadingStreakPopup } from '../streak/popup/ReadingStreakPopup';
+import type { UserStreak } from '../../graphql/users';
 
 // Tight, equal slot. `gap-1` (4px) keeps the icon hugging the value
 // the same way the streak slot already did. `px-1.5` shaves the side
@@ -95,6 +97,54 @@ const StatSlot = ({
 
 const dividerClass = 'w-px self-stretch bg-border-subtlest-quaternary';
 
+// Both the hover hint and the click-open popup share `SimpleTooltip` so Tippy
+// keeps the same reference element across toggles. Without this, swapping
+// between a Radix `Tooltip` (hover) and Tippy `SimpleTooltip` (popup) on click
+// remounts the trigger and Tippy can mis-position the popup so it overlaps
+// the streak button instead of opening below it.
+type StreakPopupTooltipProps = Pick<TooltipProps, 'children'> & {
+  streak: UserStreak;
+  shouldShowStreaks: boolean;
+  onClose: () => void;
+};
+
+const StreakPopupTooltip = ({
+  children,
+  streak,
+  shouldShowStreaks,
+  onClose,
+}: StreakPopupTooltipProps): ReactElement => (
+  <SimpleTooltip
+    interactive
+    showArrow={false}
+    placement="bottom-start"
+    visible={shouldShowStreaks}
+    forceLoad={!isTesting}
+    appendTo={() => document.body}
+    zIndex={1000}
+    offset={[0, 8]}
+    container={{
+      paddingClassName: 'p-0',
+      bgClassName: 'bg-accent-pepper-subtlest',
+      textClassName: 'text-text-primary typo-callout',
+      className: 'border border-border-subtlest-tertiary rounded-16',
+    }}
+    content={<ReadingStreakPopup streak={streak} />}
+    onClickOutside={onClose}
+  >
+    {children}
+  </SimpleTooltip>
+);
+
+const StreakHintTooltip = ({
+  children,
+  content,
+}: Pick<TooltipProps, 'children' | 'content'>): ReactElement => (
+  <SimpleTooltip placement="bottom" content={content} offset={[0, 8]}>
+    {children}
+  </SimpleTooltip>
+);
+
 // Compact, divided inline stats strip rendered under the user identity row in
 // the dedicated home panel. The values stay visible at all sizes (including
 // `0`) and the slots share an equal-width row so the strip reads at a glance.
@@ -154,29 +204,17 @@ export const SidebarHeaderStats = (): ReactElement | null => {
       {showStreak && (
         <>
           {streak && isStreaksOpen ? (
-            <SimpleTooltip
-              interactive
-              showArrow={false}
-              placement="bottom-start"
-              visible
-              forceLoad={!isTesting}
-              appendTo={() => document.body}
-              zIndex={1000}
-              container={{
-                paddingClassName: 'p-0',
-                bgClassName: 'bg-accent-pepper-subtlest',
-                textClassName: 'text-text-primary typo-callout',
-                className: 'border border-border-subtlest-tertiary rounded-16',
-              }}
-              content={<ReadingStreakPopup streak={streak} />}
-              onClickOutside={() => setIsStreaksOpen(false)}
+            <StreakPopupTooltip
+              streak={streak}
+              shouldShowStreaks={isStreaksOpen}
+              onClose={() => setIsStreaksOpen(false)}
             >
               {streakSlot}
-            </SimpleTooltip>
+            </StreakPopupTooltip>
           ) : (
-            <Tooltip content="Reading streak" side="bottom">
+            <StreakHintTooltip content="Reading streak">
               {streakSlot}
-            </Tooltip>
+            </StreakHintTooltip>
           )}
           <span aria-hidden className={dividerClass} />
         </>
