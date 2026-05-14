@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { getReadArticleHref } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';
@@ -20,13 +19,16 @@ import { ReaderChrome } from './ReaderChrome';
 import { ArticleReaderFrame } from './ArticleReaderFrame';
 import { EngagementRail } from './EngagementRail';
 import { ReaderFloatingActionBar } from './ReaderFloatingActionBar';
-import { PaneDivider } from './PaneDivider';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
 import { useIframeEmbed } from './hooks/useIframeEmbed';
 import { useReadArticle } from '../../../hooks/usePostContent';
 
 const CHROME_TOP_OFFSET_PX = 72;
 const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
+// DEMO ONLY: rail width is locked (no drag-to-resize) so the article column
+// and rail keep a deliberate, balanced layout instead of letting users
+// collapse one pane into the other.
+const FIXED_RAIL_WIDTH_PX = 380;
 
 type ReaderPostLayoutProps = {
   post: Post;
@@ -110,14 +112,15 @@ export function ReaderPostLayout({
     onClose();
   }, [logEvent, onClose, post.id, surface]);
   const layoutContainerRef = useRef<HTMLDivElement | null>(null);
-  const {
-    isRailOpen,
-    setRailOpen,
-    railWidthPx,
-    setRailWidthPx,
-    minRailWidthPx,
-    maxRailWidthPx,
-  } = useReaderLayoutPrefs(layoutContainerRef);
+  const { isRailOpen, setRailOpen } = useReaderLayoutPrefs(layoutContainerRef);
+  const railWidthPx = FIXED_RAIL_WIDTH_PX;
+  // DEMO ONLY: width is fixed; reader-context consumers still expect this
+  // setter, so we provide a no-op that keeps the (width: number) => void
+  // signature without flagging an unused parameter.
+  const setRailWidthPx = useCallback<(width: number) => void>(
+    () => undefined,
+    [],
+  );
 
   const focusCommentRef = useRef<() => void>(() => {});
   const onRegisterFocusComment = useCallback((fn: () => void) => {
@@ -142,20 +145,6 @@ export function ReaderPostLayout({
     focusCommentRef.current();
   }, [isRailOpen, setRailOpen]);
 
-  // DEMO ONLY: rail moved to the right side, so dragging the divider right
-  // should shrink the rail (and dragging left should grow it). Invert the
-  // delta accordingly.
-  const onResizeDelta = useCallback(
-    (deltaPx: number) => {
-      setRailWidthPx(railWidthPx - deltaPx);
-    },
-    [railWidthPx, setRailWidthPx],
-  );
-
-  const clampedRailWidth = Math.min(
-    maxRailWidthPx,
-    Math.max(minRailWidthPx, railWidthPx),
-  );
   const hasEmbeddedReaderHeader = !!targetUrl && isEmbeddable;
 
   const readerContextValue = useMemo(
@@ -188,14 +177,11 @@ export function ReaderPostLayout({
             <div className="relative flex min-h-0 flex-1 flex-col">
               <div
                 ref={layoutContainerRef}
-                className={classNames(
-                  'grid min-h-0 flex-1',
-                  isRailOpen && 'gap-0',
-                )}
+                className="grid min-h-0 flex-1"
                 style={
                   isRailOpen
                     ? {
-                        gridTemplateColumns: `minmax(0,1fr) auto ${clampedRailWidth}px`,
+                        gridTemplateColumns: `minmax(0,1fr) ${FIXED_RAIL_WIDTH_PX}px`,
                       }
                     : { gridTemplateColumns: 'minmax(0,1fr)' }
                 }
@@ -234,19 +220,16 @@ export function ReaderPostLayout({
                   />
                 </div>
                 {isRailOpen && (
-                  <>
-                    <PaneDivider onResizeDelta={onResizeDelta} />
-                    <EngagementRail
-                      post={post}
-                      postPosition={postPosition}
-                      onPreviousPost={onPreviousPost}
-                      onNextPost={onNextPost}
-                      onRegisterFocusComment={onRegisterFocusComment}
-                      className="min-w-0"
-                      onBackToFeed={isPostPage ? onCloseWithLog : undefined}
-                      onClose={!isPostPage ? onCloseWithLog : undefined}
-                    />
-                  </>
+                  <EngagementRail
+                    post={post}
+                    postPosition={postPosition}
+                    onPreviousPost={onPreviousPost}
+                    onNextPost={onNextPost}
+                    onRegisterFocusComment={onRegisterFocusComment}
+                    className="min-w-0 border-l border-border-subtlest-tertiary"
+                    onBackToFeed={isPostPage ? onCloseWithLog : undefined}
+                    onClose={!isPostPage ? onCloseWithLog : undefined}
+                  />
                 )}
               </div>
             </div>

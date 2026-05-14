@@ -144,7 +144,7 @@ const READER_ELIGIBLE_POST_TYPES = new Set<PostType>([
 // rail aligns with the right side of the centered shell instead of
 // stretching edge-to-edge across large monitors.
 const READER_PAGE_LAYOUT_CLASS_NAME =
-  'mx-auto flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full max-w-[min(96vw,132rem)] flex-col';
+  'mx-auto flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full max-w-[min(96vw,76rem)] flex-col';
 
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,

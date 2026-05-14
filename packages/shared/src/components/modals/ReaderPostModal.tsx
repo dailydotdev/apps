@@ -68,7 +68,7 @@ export default function ReaderPostModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         className,
-        'reader-post-modal !mx-0 h-full max-h-screen !max-w-full !bg-background-default focus:outline-none tablet:!mx-auto tablet:!max-w-[min(96vw,132rem)] laptop:!mb-2 laptop:!mt-2 laptop:h-[calc(100vh-1rem)] laptop:max-h-[calc(100vh-1rem)] laptop:overflow-hidden',
+        'reader-post-modal !mx-0 h-full max-h-screen !max-w-full !bg-background-default focus:outline-none tablet:!mx-auto tablet:!max-w-[min(96vw,76rem)] laptop:!mb-2 laptop:!mt-2 laptop:h-[calc(100vh-1rem)] laptop:max-h-[calc(100vh-1rem)] laptop:overflow-hidden',
         '!overscroll-y-auto',
       )}
     >
