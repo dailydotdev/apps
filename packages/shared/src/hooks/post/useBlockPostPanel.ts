@@ -20,16 +20,23 @@ import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
+export type BlockPanelMode = 'downvote' | 'hide';
+
 interface BlockData {
   showTagsPanel?: boolean;
   blocked?: DownvoteBlocked;
+  mode?: BlockPanelMode;
+}
+
+interface ShowPanelOptions {
+  mode?: BlockPanelMode;
 }
 
 interface UseBlockPost {
   data: BlockData;
   blockedTags: number;
   onClose(forceClose?: boolean): void;
-  onShowPanel(): void;
+  onShowPanel(options?: ShowPanelOptions): void;
   onDismissPermanently(): void;
   onReport(): void;
   onUndo(): void;
@@ -172,7 +179,11 @@ export const useBlockPostPanel = (
   );
 
   const onShowPanel = useCallback(
-    () => setShowTagsPanel({ showTagsPanel: true }),
+    (options?: ShowPanelOptions) =>
+      setShowTagsPanel({
+        showTagsPanel: true,
+        mode: options?.mode ?? 'downvote',
+      }),
     [setShowTagsPanel],
   );
 
