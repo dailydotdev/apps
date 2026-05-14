@@ -307,7 +307,7 @@ function ReaderInstallPromptModal({
                 bold
                 className="!leading-tight"
               >
-                Stop opening tabs.
+                Read it right here.
               </Typography>
               <Typography
                 tag={TypographyTag.P}
@@ -315,8 +315,8 @@ function ReaderInstallPromptModal({
                 color={TypographyColor.Secondary}
                 className="!mt-0 max-w-[26rem]"
               >
-                Install the extension and every link opens inside daily.dev.
-                Article on one side, the conversation on the other.
+                Install the extension and every article opens inside daily.dev
+                — with the discussion right next to it.
               </Typography>
               <div className="mt-1 flex w-full max-w-[22rem] flex-col items-stretch gap-2">
                 <Button
