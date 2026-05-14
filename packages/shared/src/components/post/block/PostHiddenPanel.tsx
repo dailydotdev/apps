@@ -11,8 +11,10 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
-import { BlockIcon, FlagIcon } from '../../icons';
-import { IconSize } from '../../Icon';
+import { FlagIcon, HashtagIcon } from '../../icons';
+import { MenuIcon } from '../../MenuIcon';
+import { SourceAvatar } from '../../profile/source';
+import { ProfileImageSize } from '../../ProfilePicture';
 import { Origin } from '../../../lib/log';
 
 interface PostHiddenPanelProps {
@@ -35,11 +37,12 @@ const ActionRow = ({
 }: ActionRowProps): ReactElement => (
   <button
     type="button"
+    role="menuitem"
     aria-label={ariaLabel}
     onClick={onClick}
-    className="flex w-full items-center gap-3 rounded-12 px-3 py-2.5 text-left text-text-primary typo-callout hover:bg-surface-float"
+    className="flex h-7 w-full items-center gap-2 rounded-10 px-2 text-left text-text-tertiary typo-footnote hover:bg-surface-hover"
   >
-    {icon}
+    <span className="flex shrink-0 items-center justify-center">{icon}</span>
     <span className="min-w-0 flex-1 truncate">{label}</span>
   </button>
 );
@@ -95,51 +98,54 @@ export function PostHiddenPanel({
     });
   };
 
-  const iconClassName = 'text-text-tertiary';
-
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-4',
+        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-3',
         className,
       )}
     >
-      <CloseButton
-        type="button"
-        className="absolute right-3 top-3"
-        onClick={() => onConfirmDismiss('done')}
-        size={ButtonSize.Small}
-      />
-      <h4 className="pr-8 font-bold typo-body">
-        Got it. You&apos;ll see less like this.
-      </h4>
-      <p className="mt-1 text-text-tertiary typo-callout">Take it further:</p>
-      <div className="mt-3 flex flex-1 flex-col gap-1 overflow-auto">
+      <div className="flex items-start justify-between gap-2 pl-2">
+        <div className="flex min-w-0 flex-col">
+          <h4 className="font-bold text-text-primary typo-callout">
+            Got it. You&apos;ll see less like this.
+          </h4>
+          <p className="text-text-tertiary typo-footnote">Take it further:</p>
+        </div>
+        <CloseButton
+          type="button"
+          onClick={() => onConfirmDismiss('done')}
+          size={ButtonSize.XSmall}
+        />
+      </div>
+      <div role="menu" className="mt-2 flex flex-1 flex-col overflow-auto py-1">
         {!isSourceAlreadyBlocked && (
           <ActionRow
-            icon={<BlockIcon size={IconSize.Small} className={iconClassName} />}
-            label={<>Unfollow {source.name}</>}
+            icon={
+              <SourceAvatar source={source} size={ProfileImageSize.Size16} />
+            }
+            label={<>Don&apos;t show posts from {source.name}</>}
             onClick={handleUnfollowSource}
-            ariaLabel={`Unfollow ${source.name}`}
+            ariaLabel={`Don't show posts from ${source.name}`}
           />
         )}
         {blockableTags.map((tag) => (
           <ActionRow
             key={tag}
-            icon={<BlockIcon size={IconSize.Small} className={iconClassName} />}
+            icon={<MenuIcon Icon={HashtagIcon} />}
             label={`Block #${tag}`}
             onClick={() => handleBlockTag(tag)}
             ariaLabel={`Block ${tag}`}
           />
         ))}
         <ActionRow
-          icon={<FlagIcon size={IconSize.Small} className={iconClassName} />}
-          label="Report this post"
+          icon={<MenuIcon Icon={FlagIcon} />}
+          label="Report"
           onClick={handleReport}
-          ariaLabel="Report this post"
+          ariaLabel="Report"
         />
       </div>
-      <div className="mt-3 flex border-t border-border-subtlest-tertiary pt-3">
+      <div className="mt-2 flex border-t border-border-subtlest-tertiary pt-2">
         <Button
           type="button"
           className="ml-auto"
