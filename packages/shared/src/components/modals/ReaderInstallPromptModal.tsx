@@ -373,8 +373,8 @@ function ReaderInstallPromptModal({
                 </div>
                 <Button
                   type="button"
-                  variant={ButtonVariant.Subtle}
-                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Medium}
                   onClick={onOpenInNewTabClick}
                 >
                   Open the article in a new tab
