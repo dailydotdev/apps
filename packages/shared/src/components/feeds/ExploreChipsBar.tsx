@@ -6,7 +6,9 @@ import Link from '../utilities/Link';
 import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { useLogContext } from '../../contexts/LogContext';
 import type { ExploreCategory } from './exploreCategories';
+import { LogEvent } from '../../lib/log';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -33,6 +35,7 @@ export function ExploreChipsBar({
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { logEvent } = useLogContext();
 
   const forYouCategory: ExploreCategory = useMemo(
     () => ({
@@ -69,7 +72,18 @@ export function ExploreChipsBar({
           return (
             <Link key={category.id} href={category.path}>
               <a
+                href={category.path}
                 aria-current={isActive ? 'page' : undefined}
+                onClick={() => {
+                  if (!category.tag) {
+                    return;
+                  }
+
+                  logEvent({
+                    event_name: LogEvent.ClickFeedTagChip,
+                    target_id: category.tag,
+                  });
+                }}
                 className={classNames(
                   'inline-flex h-10 shrink-0 items-center rounded-12 border px-3 font-bold transition-colors typo-callout',
                   isActive

@@ -10,6 +10,8 @@ import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useFeedTagsList } from '../../hooks/useFeedTagsList';
 import { webappUrl } from '../../lib/constants';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 import { buildPersonalizedCategories } from './exploreCategories';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
@@ -21,6 +23,7 @@ interface ChipItem {
   matchPaths?: string[];
   group: ChipGroup;
   isIconOnly?: boolean;
+  tag?: string;
 }
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
@@ -39,6 +42,7 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { tags: personalizedTags } = useFeedTagsList();
+  const { logEvent } = useLogContext();
 
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
@@ -61,6 +65,7 @@ function UnifiedMobileFeedNav(): ReactElement {
           label: category.label,
           href: category.path,
           group: 'categories',
+          tag: category.tag,
         });
       });
     }
@@ -233,6 +238,17 @@ function UnifiedMobileFeedNav(): ReactElement {
               return (
                 <Link key={item.id} href={item.href}>
                   <a
+                    href={item.href}
+                    onClick={() => {
+                      if (!item.tag) {
+                        return;
+                      }
+
+                      logEvent({
+                        event_name: LogEvent.ClickFeedTagChip,
+                        target_id: item.tag,
+                      });
+                    }}
                     aria-current={isActive ? 'page' : undefined}
                     className={classNames(
                       chipBaseClass,
