@@ -76,6 +76,33 @@ const dedupePreserveOrder = (tags: string[]): string[] =>
 // Tuned to leave a tip readable on the loading interstitial.
 const STATIC_TRANSITION_DELAY_MS = 1800;
 
+// Hard cap on the reveal LLM call. If bragi/recswipe stalls the user would
+// otherwise be stuck on "Cooking up your developer profile…" indefinitely;
+// after this we fall back to the seed-tag / fallback-tag path.
+const ENRICHMENT_TIMEOUT_MS = 25_000;
+
+class EnrichmentTimeoutError extends Error {
+  constructor() {
+    super('enrichment timed out');
+    this.name = 'EnrichmentTimeoutError';
+  }
+}
+
+const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new EnrichmentTimeoutError()), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+
 function FunnelPersonaQuizComponent({
   id,
   parameters,
@@ -324,8 +351,15 @@ function FunnelPersonaQuizComponent({
 
   // LLM path: the LLM call itself is the visible delay; once it resolves
   // we only wait for the preview before showing the new question.
+  // Guard on `phase === 'question'` so a late-arriving LLM result cannot
+  // bounce the user back from `enriching` (the max-questions check) into
+  // a stale `question` state.
   useEffect(() => {
     if (!pendingLlmTarget) {
+      return;
+    }
+    if (phase !== 'question') {
+      setPendingLlmTarget(null);
       return;
     }
     if (previewBlocking) {
@@ -333,7 +367,7 @@ function FunnelPersonaQuizComponent({
     }
     goToQuestion(pendingLlmTarget);
     setPendingLlmTarget(null);
-  }, [pendingLlmTarget, previewBlocking, goToQuestion]);
+  }, [pendingLlmTarget, previewBlocking, goToQuestion, phase]);
 
   const enrichmentMutation = useMutation({
     mutationFn: async (): Promise<{
@@ -354,10 +388,9 @@ function FunnelPersonaQuizComponent({
         enrichment.targetTotalTags - seedTags.length,
       );
       try {
-        const result = await extractOnboardingTagsFromQuiz(
-          answerInputs,
-          seedTags,
-          remaining,
+        const result = await withTimeout(
+          extractOnboardingTagsFromQuiz(answerInputs, seedTags, remaining),
+          ENRICHMENT_TIMEOUT_MS,
         );
         const merged = dedupePreserveOrder([
           ...seedTags,
