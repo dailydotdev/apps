@@ -67,6 +67,11 @@ const buildAnswerInputs = (
 const dedupePreserveOrder = (tags: string[]): string[] =>
   Array.from(new Set(tags));
 
+// Artificial pause between pre-authored static questions so the quiz feels
+// deliberate rather than instant. The LLM path already has natural latency
+// from the network call, so it gets the same loading screen for free.
+const STATIC_TRANSITION_DELAY_MS = 700;
+
 function FunnelPersonaQuizComponent({
   id,
   parameters,
@@ -112,6 +117,9 @@ function FunnelPersonaQuizComponent({
   const [revealText, setRevealText] = useState<PersonaQuizRevealText | null>(
     null,
   );
+  const [pendingStaticTarget, setPendingStaticTarget] = useState<string | null>(
+    null,
+  );
 
   const didStartLogRef = useRef(false);
   const decidedAnswerCountRef = useRef(0);
@@ -144,7 +152,18 @@ function FunnelPersonaQuizComponent({
       );
     },
     onSuccess: (result) => {
-      if (result.isFinal || !result.question) {
+      // Force the LLM to keep asking until we hit the soft minimum — the
+      // model tends to declare `isFinal: true` right after the static graph
+      // hands off, which skips the LLM-generated turns entirely. Honor
+      // `isFinal` only once we've cleared `selection.minQuestions`.
+      const hasMinQuestions = answers.length >= selection.minQuestions;
+      if (result.isFinal && hasMinQuestions) {
+        startEnriching();
+        return;
+      }
+      if (!result.question) {
+        // No question to render (early stop with empty payload) — fall
+        // through to enrichment rather than getting stuck.
         startEnriching();
         return;
       }
@@ -195,11 +214,12 @@ function FunnelPersonaQuizComponent({
       }
       // Honor static `next` pointers while they exist (opener and Q2–Q4 are
       // pre-authored). Q4 options have no `next`, so we fall through to the
-      // LLM from Q5 onward.
+      // LLM from Q5 onward. Static transitions are gated by a "reading the
+      // room" interstitial so the quiz doesn't feel instant.
       if (lastOption?.next) {
         const nextStatic = allQuestions.find((q) => q.id === lastOption.next);
         if (nextStatic) {
-          goToQuestion(nextStatic.id);
+          setPendingStaticTarget(nextStatic.id);
           return;
         }
       }
@@ -218,6 +238,17 @@ function FunnelPersonaQuizComponent({
     startEnriching,
     nextQuestionMutation,
   ]);
+
+  useEffect(() => {
+    if (!pendingStaticTarget) {
+      return undefined;
+    }
+    const timeout = setTimeout(() => {
+      goToQuestion(pendingStaticTarget);
+      setPendingStaticTarget(null);
+    }, STATIC_TRANSITION_DELAY_MS);
+    return () => clearTimeout(timeout);
+  }, [pendingStaticTarget, goToQuestion]);
 
   const enrichmentMutation = useMutation({
     mutationFn: async (): Promise<{
@@ -354,16 +385,8 @@ function FunnelPersonaQuizComponent({
   );
 
   if (phase === 'question') {
-    if (nextQuestionMutation.isPending) {
-      return (
-        <PersonaQuizEnriching
-          message={
-            answers.length === 0
-              ? 'Picking somewhere to start…'
-              : 'Reading the room. Next question incoming…'
-          }
-        />
-      );
+    if (pendingStaticTarget || nextQuestionMutation.isPending) {
+      return <PersonaQuizEnriching message="Reading the room…" />;
     }
     if (!currentQuestion) {
       return null;
