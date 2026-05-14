@@ -121,7 +121,11 @@ export function PostHiddenPanel({
         {!isSourceAlreadyBlocked && (
           <ActionRow
             icon={
-              <SourceAvatar source={source} size={ProfileImageSize.Small} />
+              <SourceAvatar
+                source={source}
+                size={ProfileImageSize.Small}
+                className="!mr-0"
+              />
             }
             label={<>Don&apos;t show posts from {source.name}</>}
             onClick={handleUnfollowSource}
