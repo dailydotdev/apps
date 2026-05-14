@@ -12,17 +12,15 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import {
+  ArrowIcon,
   ChromeIcon,
   EdgeIcon,
-  MiniCloseIcon as CloseIcon,
+  LockIcon,
   MenuIcon,
-  CopyIcon,
-  ArrowIcon,
-  UpvoteIcon,
-  DiscussIcon,
-  BookmarkIcon,
+  MiniCloseIcon as CloseIcon,
+  RefreshIcon,
+  StarIcon,
 } from '../icons';
-import { Tooltip } from '../tooltip/Tooltip';
 import { downloadBrowserExtension, isChrome } from '../../lib/constants';
 import { apiUrl } from '../../lib/config';
 import { useLogContext } from '../../contexts/LogContext';
@@ -36,12 +34,7 @@ interface ReaderInstallPromptModalProps extends LazyModalCommonProps {
   post: Post;
 }
 
-const FAKE_PARAGRAPHS: ReadonlyArray<string> = ['p1', 'p2', 'p3', 'p4'];
-
-const headerActionGroupClassName =
-  'flex h-9 items-center gap-px rounded-12 border border-border-subtlest-tertiary bg-background-default p-px shadow-3';
-
-const iconButtonClassName = '!h-8 !w-8 !min-w-8 !rounded-10 !p-0';
+const FAKE_PARAGRAPHS: ReadonlyArray<string> = ['p1', 'p2', 'p3', 'p4', 'p5'];
 
 const useFaviconSrc = (host: string | undefined): string | undefined => {
   return useMemo(() => {
@@ -68,7 +61,161 @@ const getPostHost = (post: Post): string | undefined => {
   }
 };
 
-function FakePreview(): ReactElement {
+const getDisplayUrl = (post: Post, host: string | undefined): string => {
+  if (post.permalink) {
+    return post.permalink;
+  }
+  return host || 'daily.dev';
+};
+
+interface BrowserChromeProps {
+  post: Post;
+  faviconSrc: string | undefined;
+  displayHost: string;
+  displayUrl: string;
+  onCopyUrl: () => void;
+  onClose: (event: MouseEvent<HTMLButtonElement>) => void;
+}
+
+function TrafficLight({ tone }: { tone: 'red' | 'amber' | 'green' }) {
+  const palette = {
+    red: 'bg-action-downvote-default',
+    amber: 'bg-action-bookmark-default',
+    green: 'bg-action-upvote-default',
+  } as const;
+  return (
+    <span
+      aria-hidden
+      className={classNames('size-3 rounded-full', palette[tone])}
+    />
+  );
+}
+
+function BrowserChrome({
+  post,
+  faviconSrc,
+  displayHost,
+  displayUrl,
+  onCopyUrl,
+  onClose,
+}: BrowserChromeProps): ReactElement {
+  const tabTitle = post.title || displayHost;
+  return (
+    <div className="relative flex shrink-0 flex-col border-b border-border-subtlest-tertiary bg-background-subtle">
+      <div className="flex items-end gap-1 px-3 pt-2">
+        <div className="hidden items-center gap-2 pb-2 pr-3 tablet:flex">
+          <TrafficLight tone="red" />
+          <TrafficLight tone="amber" />
+          <TrafficLight tone="green" />
+        </div>
+        <div className="flex min-w-0 max-w-[28rem] flex-1 items-center gap-2 rounded-t-12 border border-b-0 border-border-subtlest-tertiary bg-background-default px-3 pb-2.5 pt-2 shadow-[0_-2px_8px_-4px_rgba(0,0,0,0.08)]">
+          {faviconSrc && (
+            <img
+              src={faviconSrc}
+              alt=""
+              className="size-4 shrink-0 rounded-4"
+              loading="lazy"
+              aria-hidden
+            />
+          )}
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Primary}
+            className="min-w-0 flex-1 truncate"
+            title={tabTitle}
+          >
+            {tabTitle}
+          </Typography>
+          <CloseIcon
+            aria-hidden
+            className="size-3 shrink-0 text-text-tertiary"
+          />
+        </div>
+        <button
+          type="button"
+          disabled
+          aria-label="New tab"
+          className="mb-2 ml-1 hidden size-7 items-center justify-center rounded-8 text-text-tertiary tablet:flex"
+        >
+          <span aria-hidden className="text-lg leading-none">
+            +
+          </span>
+        </button>
+      </div>
+      <div className="flex items-center gap-2 px-3 pb-3 pt-1">
+        <div className="hidden items-center gap-1 text-text-tertiary tablet:flex">
+          <button
+            type="button"
+            disabled
+            aria-label="Back"
+            className="flex size-8 items-center justify-center rounded-full hover:bg-surface-float"
+          >
+            <ArrowIcon className="-rotate-90" />
+          </button>
+          <button
+            type="button"
+            disabled
+            aria-label="Forward"
+            className="flex size-8 items-center justify-center rounded-full hover:bg-surface-float"
+          >
+            <ArrowIcon className="rotate-90" />
+          </button>
+          <button
+            type="button"
+            disabled
+            aria-label="Refresh"
+            className="flex size-8 items-center justify-center rounded-full hover:bg-surface-float"
+          >
+            <RefreshIcon />
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={onCopyUrl}
+          className="group flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border-subtlest-tertiary bg-background-default px-3 py-1.5 text-left hover:border-border-subtlest-secondary focus:border-border-subtlest-secondary"
+          aria-label="Copy article URL"
+          title={displayUrl}
+        >
+          <LockIcon className="size-3.5 shrink-0 text-status-success" />
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+            className="min-w-0 flex-1 truncate"
+          >
+            {displayUrl}
+          </Typography>
+          <StarIcon
+            aria-hidden
+            className="hidden size-3.5 shrink-0 text-text-tertiary tablet:inline"
+          />
+        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            disabled
+            aria-label="More"
+            className="flex size-8 items-center justify-center rounded-full text-text-tertiary hover:bg-surface-float"
+          >
+            <MenuIcon />
+          </button>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            icon={<CloseIcon />}
+            size={ButtonSize.Small}
+            type="button"
+            className="!h-8 !w-8 !min-w-8 !rounded-full !p-0"
+            onClick={onClose}
+            aria-label="Close"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FakeArticle(): ReactElement {
   return (
     <div
       aria-hidden
@@ -77,14 +224,14 @@ function FakePreview(): ReactElement {
       <div
         className={classNames(
           'relative h-full w-full bg-background-default',
-          '[filter:blur(8px)_saturate(1.1)]',
+          '[filter:blur(6px)_saturate(1.05)]',
         )}
       >
-        <div className="flex flex-col gap-4 px-12 pb-12 pt-10">
-          <div className="h-3 w-24 rounded-6 bg-surface-float" />
+        <div className="mx-auto flex max-w-[44rem] flex-col gap-4 px-8 pb-12 pt-10">
+          <div className="h-3 w-20 rounded-6 bg-surface-float" />
           <div className="flex flex-col gap-3">
-            <div className="h-10 w-11/12 rounded-8 bg-surface-float" />
-            <div className="h-10 w-3/4 rounded-8 bg-surface-float" />
+            <div className="h-9 w-11/12 rounded-8 bg-surface-float" />
+            <div className="h-9 w-3/4 rounded-8 bg-surface-float" />
           </div>
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-full bg-surface-float" />
@@ -105,87 +252,8 @@ function FakePreview(): ReactElement {
           ))}
         </div>
       </div>
-      <div className="via-background-default/40 absolute inset-0 bg-gradient-to-b from-overlay-quaternary-onion to-overlay-quaternary-onion" />
+      <div className="via-background-default/60 absolute inset-0 bg-gradient-to-b from-overlay-quaternary-onion to-overlay-quaternary-onion" />
     </div>
-  );
-}
-
-interface FakeRailProps {
-  post: Post;
-}
-
-function FakeRail({ post }: FakeRailProps): ReactElement {
-  const previewSummary =
-    post.summary ||
-    'A short, scannable summary appears here once the reader is unlocked — title, TL;DR, and the article side by side.';
-
-  return (
-    <aside
-      aria-hidden
-      className="hidden h-full w-[22rem] shrink-0 flex-col border-l border-border-subtlest-tertiary bg-background-default tablet:flex"
-    >
-      <div className="z-10 sticky top-0 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-3 py-3">
-        <div className="h-7 w-32 rounded-10 bg-surface-float [filter:blur(4px)]" />
-        <div className={classNames(headerActionGroupClassName, 'opacity-60')}>
-          <div
-            className={classNames(iconButtonClassName, 'bg-surface-float')}
-          />
-        </div>
-      </div>
-      <div className="flex flex-1 flex-col gap-4 overflow-hidden px-4 pb-6 pt-4">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-surface-float" />
-          <div className="flex flex-1 flex-col gap-1.5">
-            <div className="h-3 w-3/4 rounded-6 bg-surface-float" />
-            <div className="h-2.5 w-1/2 rounded-6 bg-surface-float" />
-          </div>
-        </div>
-        <section
-          aria-label="Article summary preview"
-          className="flex min-w-0 flex-col gap-2"
-        >
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            className="!mt-0 line-clamp-6 [filter:blur(2px)]"
-          >
-            {previewSummary}
-          </Typography>
-        </section>
-        <div className="flex items-center gap-2">
-          {(
-            [
-              ['upvote', UpvoteIcon],
-              ['discuss', DiscussIcon],
-              ['bookmark', BookmarkIcon],
-            ] as const
-          ).map(([key, Icon]) => (
-            <div
-              key={key}
-              className="flex h-9 flex-1 items-center justify-center gap-2 rounded-12 border border-border-subtlest-tertiary text-text-tertiary"
-            >
-              <Icon />
-            </div>
-          ))}
-        </div>
-        <div className="mt-2 flex flex-col gap-3">
-          {['c1', 'c2', 'c3'].map((key) => (
-            <div
-              key={key}
-              className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3"
-            >
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-surface-float" />
-                <div className="h-3 w-24 rounded-6 bg-surface-float" />
-              </div>
-              <div className="h-3 w-full rounded-6 bg-surface-float [filter:blur(2px)]" />
-              <div className="h-3 w-4/5 rounded-6 bg-surface-float [filter:blur(2px)]" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </aside>
   );
 }
 
@@ -205,7 +273,8 @@ function ReaderInstallPromptModal({
   const browser = isChromeBrowser ? 'chrome' : 'edge';
   const host = getPostHost(post);
   const faviconSrc = useFaviconSrc(host);
-  const displayDomain = host || 'daily.dev';
+  const displayHost = host || 'daily.dev';
+  const displayUrl = getDisplayUrl(post, host);
 
   useEffect(() => {
     logEvent({
@@ -242,6 +311,10 @@ function ReaderInstallPromptModal({
     }
   };
 
+  const onCloseFromChrome = (event: MouseEvent<HTMLButtonElement>) => {
+    onRequestClose(event);
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -252,161 +325,73 @@ function ReaderInstallPromptModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         'reader-install-prompt-modal !mx-0 h-full max-h-screen !max-w-full overflow-hidden !bg-background-default focus:outline-none',
-        'tablet:!mx-auto tablet:!max-w-[min(95vw,118rem)]',
+        'tablet:!mx-auto tablet:!max-w-[min(96vw,132rem)]',
         'laptop:!mb-2 laptop:!mt-2 laptop:h-[calc(100vh-1rem)] laptop:max-h-[calc(100vh-1rem)] laptop:overflow-hidden',
         '!overscroll-y-auto',
       )}
     >
       <div className="relative flex h-full min-h-0 flex-col">
-        <div className="flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-3 pb-2 pt-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            {faviconSrc && (
-              <img
-                src={faviconSrc}
-                alt=""
-                className="size-4 shrink-0 rounded-4"
-                loading="lazy"
-                aria-hidden
-              />
-            )}
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              className="min-w-0 flex-1 truncate"
-              title={post.permalink}
+        <BrowserChrome
+          post={post}
+          faviconSrc={faviconSrc}
+          displayHost={displayHost}
+          displayUrl={displayUrl}
+          onCopyUrl={onCopyUrl}
+          onClose={onCloseFromChrome}
+        />
+        <div className="relative flex min-h-0 flex-1 overflow-hidden">
+          <FakeArticle />
+          <div className="z-10 relative m-auto flex w-full max-w-[32rem] flex-col items-stretch p-6">
+            <div
+              className={classNames(
+                'flex flex-col items-center gap-5 rounded-24 p-8 text-center',
+                'bg-background-default/95 backdrop-blur-md',
+                'border border-border-subtlest-tertiary',
+                'shadow-[0_32px_80px_-16px_rgba(0,0,0,0.45)]',
+              )}
             >
-              <button
-                type="button"
-                onClick={onCopyUrl}
-                className="flex min-w-0 max-w-full items-center gap-1 hover:underline focus:underline"
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.LargeTitle}
+                color={TypographyColor.Primary}
+                bold
+                className="!leading-tight"
               >
-                <span className="truncate">{displayDomain}</span>
-                <CopyIcon className="hidden size-3 shrink-0 text-text-tertiary tablet:inline" />
-              </button>
-            </Typography>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <div className={headerActionGroupClassName}>
-              <Tooltip side="bottom" content="More">
-                <Button
-                  variant={ButtonVariant.Tertiary}
-                  icon={<MenuIcon />}
-                  size={ButtonSize.Small}
-                  type="button"
-                  className={iconButtonClassName}
-                  aria-label="More options"
-                  disabled
-                />
-              </Tooltip>
-            </div>
-            <div className={headerActionGroupClassName}>
-              <Tooltip side="bottom" content="Close">
-                <Button
-                  variant={ButtonVariant.Tertiary}
-                  icon={<CloseIcon />}
-                  size={ButtonSize.Small}
-                  type="button"
-                  className={iconButtonClassName}
-                  onClick={(event: MouseEvent<HTMLButtonElement>) =>
-                    onRequestClose(event)
-                  }
-                  aria-label="Close install prompt"
-                />
-              </Tooltip>
-            </div>
-          </div>
-        </div>
-        <div className="relative flex min-h-0 flex-1">
-          <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
-            <FakePreview />
-            <div className="z-10 relative m-auto flex w-full max-w-[34rem] flex-col items-stretch p-6">
-              <div
-                className={classNames(
-                  'flex flex-col items-center gap-5 rounded-24 p-8 text-center',
-                  'bg-background-default/95 backdrop-blur-md',
-                  'border border-border-subtlest-tertiary',
-                  'shadow-[0_32px_80px_-16px_rgba(0,0,0,0.45)]',
-                )}
+                Read this inside daily.dev?
+              </Typography>
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+                className="!mt-0 max-w-[26rem]"
               >
-                <span
-                  className={classNames(
-                    'flex items-center gap-1.5 rounded-full px-3 py-1',
-                    'bg-action-upvote-float text-action-upvote-default',
-                    'font-bold uppercase tracking-[0.18em] typo-footnote',
-                  )}
+                Install the extension and {displayHost} opens right here — no
+                new tab, no context switching.
+              </Typography>
+              <div className="mt-1 flex w-full max-w-[22rem] flex-col items-stretch gap-2">
+                <Button
+                  tag="a"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Large}
+                  href={downloadBrowserExtension}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  icon={<BrowserIcon />}
+                  onClick={onInstallClick}
                 >
-                  <ArrowIcon className="size-3 -rotate-90" />
-                  one click away
-                </span>
-                <Typography
-                  tag={TypographyTag.H2}
-                  type={TypographyType.LargeTitle}
-                  color={TypographyColor.Primary}
-                  bold
-                  className="!leading-tight"
+                  {installButtonLabel}
+                </Button>
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Medium}
+                  onClick={onPreviewClick}
                 >
-                  Open every link inside daily.dev.
-                </Typography>
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
-                  className="!mt-0 max-w-[28rem]"
-                >
-                  Install the extension and {displayDomain} loads here, next to
-                  its TL;DR, your highlights, and the discussion. No new tab. No
-                  context switching. No losing the loop.
-                </Typography>
-                <ul className="grid w-full max-w-[24rem] grid-cols-1 gap-2 text-left">
-                  {[
-                    'Read any article without leaving the feed',
-                    'See the TL;DR and discussion side by side',
-                    'Pick up where you left off across devices',
-                  ].map((line) => (
-                    <li
-                      key={line}
-                      className="flex items-start gap-2 text-text-secondary typo-callout"
-                    >
-                      <span className="mt-1 size-1.5 shrink-0 rounded-full bg-action-upvote-default" />
-                      <span>{line}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex w-full max-w-[24rem] flex-col items-stretch gap-2">
-                  <Button
-                    tag="a"
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.Large}
-                    href={downloadBrowserExtension}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    icon={<BrowserIcon />}
-                    onClick={onInstallClick}
-                  >
-                    {installButtonLabel}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={ButtonVariant.Float}
-                    size={ButtonSize.Medium}
-                    onClick={onPreviewClick}
-                  >
-                    Preview the experience
-                  </Button>
-                </div>
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                  className="!mt-0"
-                >
-                  Free. Works offline. Two clicks to install.
-                </Typography>
+                  Preview the experience
+                </Button>
               </div>
             </div>
           </div>
-          <FakeRail post={post} />
         </div>
       </div>
     </Modal>

@@ -9,7 +9,10 @@ const LEGACY_STORAGE_KEY_RAIL_WIDTH_PX = 'readerModal.railWidthPx';
 // Persisted rail width is stored as a fraction of the layout container so the
 // chosen proportion carries across screen sizes and between the reader modal
 // (capped container) and the standalone post page (full-width container).
-const DEFAULT_RAIL_WIDTH_RATIO = 0.3;
+// DEMO ONLY: bumped the default ratio so the rail starts noticeably wider
+// — there's enough room for the TL;DR + comments without immediately
+// dragging the divider.
+const DEFAULT_RAIL_WIDTH_RATIO = 0.36;
 const MIN_RAIL_WIDTH_RATIO = 0.2;
 const MAX_RAIL_WIDTH_RATIO = 0.55;
 // Absolute pixel bounds keep the rail usable on very small or very large
