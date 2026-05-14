@@ -147,13 +147,6 @@ const SocialTwitterPostModal = dynamic(
     ),
 );
 
-const ReaderPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
-    ),
-);
-
 const BriefCardFeed = dynamic(
   () =>
     import(
@@ -544,20 +537,11 @@ export default function Feed<T>({
     if (!selectedPost) {
       return undefined;
     }
-    const readerEligibleTypes = new Set([
-      PostType.Article,
-      PostType.Digest,
-      PostType.VideoYouTube,
-    ]);
-    if (
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligibleTypes.has(selectedPost.type)
-    ) {
-      return ReaderPostModal;
-    }
+    // DEMO ONLY: card clicks now always open the classic post modal so the
+    // user can see title / TL;DR first. The reader modal is reached via the
+    // new install-prompt pop-up's "Preview the experience" CTA instead.
     return PostModalMap[selectedPost.type];
-  }, [selectedPost, isReaderModalFeatureReady, isReaderModalOn]);
+  }, [selectedPost]);
 
   if (!loadedSettings || isFallback) {
     return <></>;

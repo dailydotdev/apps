@@ -18,8 +18,6 @@ import type { NewCommentRef } from '../NewComment';
 import { NewComment } from '../NewComment';
 import { PostTagList } from '../tags/PostTagList';
 import PostMetadata from '../../cards/common/PostMetadata';
-import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import {
@@ -31,11 +29,6 @@ import {
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { AnalyticsIcon, ArrowIcon } from '../../icons';
 import { PostMenuOptions } from '../PostMenuOptions';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../../typography/Typography';
 import { SortCommentsBy } from '../../../graphql/comments';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { ClickableText } from '../../buttons/ClickableText';
@@ -99,7 +92,6 @@ export function EngagementRail({
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(Origin.ReaderModal);
-  const { title: displayTitle } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
@@ -220,15 +212,6 @@ export function EngagementRail({
           aria-label="Article summary"
           className="flex min-w-0 flex-col gap-2"
         >
-          <Typography
-            tag={TypographyTag.H1}
-            type={TypographyType.Title3}
-            bold
-            className="break-words text-left"
-          >
-            {displayTitle}
-          </Typography>
-          {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           {post.summary && (
             <div className="mb-1 flex min-w-0 flex-col gap-1 text-text-secondary">
               <ShowMoreContent

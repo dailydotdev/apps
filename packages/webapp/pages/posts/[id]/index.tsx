@@ -290,7 +290,12 @@ export const PostPage = ({
     router.push(webappUrl);
   };
 
+  // DEMO ONLY: the /posts/[id] page now always shows the classic layout
+  // (title + TL;DR + "Read post" button). The reader-modal v2 layout is only
+  // reachable via the new install-extension prompt to keep the demo flow
+  // identical between feed cards and direct post links.
   const shouldUseReaderLayout =
+    false &&
     isReaderModalFeatureReady &&
     isReaderModalOn &&
     READER_ELIGIBLE_POST_TYPES.has(post.type);

@@ -23,6 +23,7 @@ import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { ReaderLegacyLayoutToggleButton } from './reader/ReaderHeaderActionButtons';
 import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './reader/hooks/useReaderModalEligibility';
+import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -56,6 +57,15 @@ export function PostHeaderActions({
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const showReaderToggle =
     isArticle && isReaderEligible && isReaderModalEnabled;
+  const { onReadClick: onReaderInstallGateClick } =
+    useReaderInstallPromptGate(post);
+
+  const handleReadArticle = (event: React.MouseEvent) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticle?.();
+  };
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -81,7 +91,7 @@ export function PostHeaderActions({
               iconPosition={
                 isTwitter ? ButtonIconPosition.Right : (undefined as never)
               }
-              onClick={onReadArticle}
+              onClick={handleReadArticle}
               data-testid="postActionsRead"
               size={buttonSize}
             >

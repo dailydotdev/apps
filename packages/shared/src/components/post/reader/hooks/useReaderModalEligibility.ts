@@ -34,5 +34,15 @@ export function useReaderModalEligibility(): UseReaderModalEligibilityResult {
       shouldEvaluate: isEligible,
     });
 
-  return { isEligible, isReaderModalEnabled, isReaderFeatureLoading };
+  // DEMO ONLY: force-enable the reader modal experiment so we can record a
+  // walkthrough of the next iteration (install-prompt + layout swap) before
+  // engineering wires up the real GrowthBook variant. Remove this override
+  // when the production implementation lands.
+  const demoForceEnabled = isEligible;
+
+  return {
+    isEligible,
+    isReaderModalEnabled: demoForceEnabled || isReaderModalEnabled,
+    isReaderFeatureLoading,
+  };
 }

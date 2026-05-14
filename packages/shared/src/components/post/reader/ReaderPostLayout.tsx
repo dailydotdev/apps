@@ -142,9 +142,12 @@ export function ReaderPostLayout({
     focusCommentRef.current();
   }, [isRailOpen, setRailOpen]);
 
+  // DEMO ONLY: rail moved to the right side, so dragging the divider right
+  // should shrink the rail (and dragging left should grow it). Invert the
+  // delta accordingly.
   const onResizeDelta = useCallback(
     (deltaPx: number) => {
-      setRailWidthPx(railWidthPx + deltaPx);
+      setRailWidthPx(railWidthPx - deltaPx);
     },
     [railWidthPx, setRailWidthPx],
   );
@@ -192,25 +195,11 @@ export function ReaderPostLayout({
                 style={
                   isRailOpen
                     ? {
-                        gridTemplateColumns: `${clampedRailWidth}px auto minmax(0,1fr)`,
+                        gridTemplateColumns: `minmax(0,1fr) auto ${clampedRailWidth}px`,
                       }
                     : { gridTemplateColumns: 'minmax(0,1fr)' }
                 }
               >
-                {isRailOpen && (
-                  <>
-                    <EngagementRail
-                      post={post}
-                      postPosition={postPosition}
-                      onPreviousPost={onPreviousPost}
-                      onNextPost={onNextPost}
-                      onRegisterFocusComment={onRegisterFocusComment}
-                      className="min-w-0"
-                      onBackToFeed={isPostPage ? onCloseWithLog : undefined}
-                    />
-                    <PaneDivider onResizeDelta={onResizeDelta} />
-                  </>
-                )}
                 <div className="relative flex min-h-0 min-w-0 flex-col">
                   <ArticleReaderFrame
                     post={post}
@@ -237,6 +226,20 @@ export function ReaderPostLayout({
                     onCommentClick={focusDiscussionComposer}
                   />
                 </div>
+                {isRailOpen && (
+                  <>
+                    <PaneDivider onResizeDelta={onResizeDelta} />
+                    <EngagementRail
+                      post={post}
+                      postPosition={postPosition}
+                      onPreviousPost={onPreviousPost}
+                      onNextPost={onNextPost}
+                      onRegisterFocusComment={onRegisterFocusComment}
+                      className="min-w-0"
+                      onBackToFeed={isPostPage ? onCloseWithLog : undefined}
+                    />
+                  </>
+                )}
               </div>
             </div>
           </div>

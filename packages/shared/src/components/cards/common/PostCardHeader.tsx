@@ -9,6 +9,7 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
+import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
@@ -66,6 +67,15 @@ export const PostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: (post.bookmarked && !showFeedback) ?? false,
   });
+  const { onReadClick: onReaderInstallGateClick } =
+    useReaderInstallPromptGate(post);
+
+  const handleReadArticleClick = (event: React.MouseEvent) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticleClick?.(event);
+  };
 
   const articleLink = useMemo(() => {
     if (post.sharedPost) {
@@ -118,7 +128,7 @@ export const PostCardHeader = ({
                   className="mr-2"
                   variant={ButtonVariant.Primary}
                   href={articleLink ?? ''}
-                  onClick={onReadArticleClick}
+                  onClick={handleReadArticleClick}
                   openNewTab={openNewTab}
                   icon={getReadPostButtonIcon(post)}
                 />
