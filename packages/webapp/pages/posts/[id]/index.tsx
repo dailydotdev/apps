@@ -139,12 +139,11 @@ const READER_ELIGIBLE_POST_TYPES = new Set<PostType>([
   PostType.VideoYouTube,
 ]);
 
-// DEMO ONLY: cap the standalone reader page to the same width as the
-// reader modal so the preview is centered with breathing room and the
-// rail aligns with the right side of the centered shell instead of
-// stretching edge-to-edge across large monitors.
+// DEMO ONLY: only set the viewport-height bounds here. Width capping and
+// centering are owned by `ReaderPostLayout` itself so the post page and
+// the modal use the exact same shell.
 const READER_PAGE_LAYOUT_CLASS_NAME =
-  'mx-auto flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full max-w-[min(96vw,76rem)] flex-col';
+  'flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full flex-col';
 
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
@@ -352,8 +351,12 @@ export const PostPage = ({
 };
 
 PostPage.getLayout = getLayout;
+// DEMO ONLY: `screenCentered: true` removes the `laptop:!pl-60` expansion
+// that MainLayout otherwise adds when the sidebar is expanded, so the
+// reader-layout post page can be centered on the viewport like the
+// reader modal portal — same shell, same width, same behavior.
 PostPage.layoutProps = {
-  screenCentered: false,
+  screenCentered: true,
   customBanner: <CustomAuthBanner />,
 };
 
