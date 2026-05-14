@@ -885,10 +885,10 @@ export const SidebarDesktop = ({
         {isHomePanel ? (
           <div
             className={classNames(
-              // Tight `pb-1` (4px) so the New post CTA sits close to
-              // the nav list it precedes (For You / Following /
-              // Explore). The CTA itself acts as the separator.
-              'pb-1',
+              // `pb-2` (8px) + the scroll wrapper's `mt-2` below give
+              // 16px of breathing room between the New post CTA and
+              // the For You / Following / Explore nav list.
+              'pb-2',
               // Logged-in: `pt-7` (28px) puts the avatar's vertical
               // center at y≈44 to match the rail's daily.dev logo and
               // the open/close handle. Logged-out: keep `pt-6` for the
@@ -899,11 +899,12 @@ export const SidebarDesktop = ({
             {isLoggedIn && user ? (
               <section
                 aria-label="Your profile"
-                // Section gap is small (gap-2 = 8px) so the identity
-                // row sits close to the stats strip; the New post CTA
-                // gets its own `mt-3` below to add extra breathing room
-                // between the strip and the button.
-                className="flex flex-col gap-2"
+                // Each sub-block owns its own top margin so the rhythm
+                // can be uneven on purpose: more air between the
+                // identity row and the stats strip (mt-4 below) than
+                // between the stats strip and the New post CTA
+                // (mt-2 below).
+                className="flex flex-col"
               >
                 {/* Identity row — same `px-3` outer padding as the
                     stats strip and New post wrappers below so the
@@ -944,10 +945,10 @@ export const SidebarDesktop = ({
                     </a>
                   </Link>
                 </div>
-                <div className="px-3">
+                <div className="mt-4 px-3">
                   <SidebarHeaderStats />
                 </div>
-                <div className="mt-3 px-3">
+                <div className="mt-2 px-3">
                   <CreatePostButton
                     compact={false}
                     showIcon
@@ -1010,12 +1011,7 @@ export const SidebarDesktop = ({
         <SidebarScrollWrapper
           className={classNames(
             'min-h-0 flex-1',
-            // On the home panel keep the gap tight (mt-1 = 4px) so the
-            // New post CTA sits visually close to the nav list it
-            // precedes; the CTA itself acts as the divider. Other
-            // panels keep their previous breathing room.
-            // eslint-disable-next-line no-nested-ternary
-            isHomePanel ? 'mt-1' : isUtilityPanelSelected ? 'mt-1' : 'mt-2',
+            isUtilityPanelSelected ? 'mt-1' : 'mt-2',
             showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
           )}
         >
