@@ -39,7 +39,7 @@ const ActionRow = ({
     role="menuitem"
     aria-label={ariaLabel}
     onClick={onClick}
-    className="flex h-9 w-full items-center gap-3 rounded-12 px-3 text-left text-text-tertiary typo-callout hover:bg-surface-hover"
+    className="flex h-9 w-full items-center gap-3 rounded-12 pl-2 pr-3 text-left text-text-tertiary typo-callout hover:bg-surface-hover"
   >
     <span className="flex size-6 shrink-0 items-center justify-center">
       {icon}
@@ -100,7 +100,7 @@ export function PostHiddenPanel({
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-3 pl-2',
+        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-3',
         className,
       )}
     >
