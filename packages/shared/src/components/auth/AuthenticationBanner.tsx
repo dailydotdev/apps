@@ -85,7 +85,11 @@ export function AuthenticationBanner({
             onAuthStateUpdate={(props) => {
               showLogin({
                 trigger: AuthTriggers.Onboarding,
-                options: { isLogin: true, formValues: props },
+                options: {
+                  isLogin: !!props.isLoginFlow,
+                  defaultDisplay: props.defaultDisplay,
+                  formValues: props.email ? { email: props.email } : undefined,
+                },
               });
             }}
             onboardingSignupButton={{

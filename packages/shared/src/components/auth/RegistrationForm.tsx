@@ -30,11 +30,6 @@ import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment, isProductionAPI } from '../../lib/constants';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../typography/Typography';
 import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
@@ -254,13 +249,27 @@ const RegistrationForm = ({
     !isSubmitted || !hints?.['traits.experienceLevel'];
   const { isAuthenticating = false } = useAtomValue(authAtom);
 
+  // Only show the valid-state checkmark once the user has actually typed
+  // a non-empty value; an untouched field shouldn't look like it passed
+  // validation.
+  const isEmailFilled = !!email?.length;
+  const isNameFilled = !!name?.length;
+  const isUsernameFilled = !!username?.length;
+  const successIcon = (
+    <VIcon
+      aria-hidden
+      role="presentation"
+      className="text-accent-avocado-default"
+    />
+  );
+
   const usernameIcon = (() => {
     if (isLoadingUsername) {
       return <Loader />;
     }
 
-    if (isUsernameValid) {
-      return <VIcon className="text-accent-avocado-default" />;
+    if (isUsernameFilled && isUsernameValid) {
+      return successIcon;
     }
 
     return undefined;
@@ -269,32 +278,38 @@ const RegistrationForm = ({
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   return (
-    <>
+    <div
+      className={classNames(
+        'flex flex-col',
+        // `simplified` is set by `/onboarding`, where the outer page already
+        // applies horizontal padding. Anywhere else (e.g. the inline AuthModal)
+        // the form would otherwise hug the container edge, so add it here.
+        !simplified && 'px-4 pb-4 tablet:px-6',
+      )}
+    >
       {!isAuthenticating && (
-        <div className="flex gap-4 pt-2">
-          <Button
-            className="border-border-subtlest-tertiary text-text-secondary"
-            data-funnel-track={FunnelTargetId.StepBack}
-            icon={<ArrowIcon className="-rotate-90" />}
-            onClick={onBackToIntro}
-            size={ButtonSize.Medium}
-            type="button"
-            variant={ButtonVariant.Secondary}
-          />
-          <Typography
-            className={
-              isOnboardingV2
-                ? 'mt-0.5 flex-1 text-text-primary'
-                : classNames('mt-0.5 flex-1', onboardingGradientClasses)
-            }
-            tag={TypographyTag.H2}
-            type={
-              isOnboardingV2 ? TypographyType.Title2 : TypographyType.Title1
-            }
-            bold={isOnboardingV2}
-          >
-            Join daily.dev
-          </Typography>
+        <div className="flex items-start gap-4 pt-2">
+          {onBackToIntro && (
+            <Button
+              className="border-border-subtlest-tertiary text-text-secondary"
+              data-funnel-track={FunnelTargetId.StepBack}
+              icon={<ArrowIcon className="-rotate-90" />}
+              onClick={onBackToIntro}
+              size={ButtonSize.Medium}
+              type="button"
+              variant={ButtonVariant.Secondary}
+            />
+          )}
+          <h1 className="mx-auto mt-4 flex-1 font-bold leading-[1.3] tracking-tight typo-title1 tablet:leading-[1.22] tablet:typo-large-title">
+            <span
+              className={classNames(
+                onboardingGradientClasses,
+                'text-text-primary',
+              )}
+            >
+              The homepage developers deserve
+            </span>
+          </h1>
         </div>
       )}
       <AuthForm
@@ -318,13 +333,7 @@ const RegistrationForm = ({
           label="Email"
           type="email"
           value={email}
-          rightIcon={
-            <VIcon
-              aria-hidden
-              role="presentation"
-              className="text-accent-avocado-default"
-            />
-          }
+          rightIcon={isEmailFilled ? successIcon : undefined}
         />
         {hints?.['traits.email'] && !alreadyExists && (
           <Alert
@@ -367,15 +376,7 @@ const RegistrationForm = ({
             hints?.['traits.name'] &&
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
-          rightIcon={
-            isNameValid ? (
-              <VIcon
-                aria-hidden
-                role="presentation"
-                className="text-accent-avocado-default"
-              />
-            ) : undefined
-          }
+          rightIcon={isNameFilled && isNameValid ? successIcon : undefined}
         />
         <PasswordField
           required
@@ -424,14 +425,9 @@ const RegistrationForm = ({
           />
         )}
         {!isOnboardingV2 && (
-          <>
-            <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
-              Your email will be used to send you product and community updates
-            </span>
-            <Checkbox name="optOutMarketing">
-              I don&apos;t want to receive updates and promotions via email
-            </Checkbox>
-          </>
+          <Checkbox name="optOutMarketing">
+            I don&apos;t want to receive updates and promotions via email
+          </Checkbox>
         )}
         <ConditionalWrapper
           condition={simplified ?? false}
@@ -467,6 +463,7 @@ const RegistrationForm = ({
             data-funnel-track={FunnelTargetId.StepCta}
             disabled={isCheckPending || !turnstileLoaded}
             form="auth-form"
+            size={ButtonSize.Large}
             type="submit"
             variant={ButtonVariant.Primary}
           >
@@ -474,7 +471,7 @@ const RegistrationForm = ({
           </Button>
         </ConditionalWrapper>
       </AuthForm>
-    </>
+    </div>
   );
 };
 

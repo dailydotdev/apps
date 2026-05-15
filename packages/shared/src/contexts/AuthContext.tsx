@@ -14,6 +14,7 @@ import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
+import type { AuthDisplay } from '../components/auth/common';
 import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
@@ -35,6 +36,10 @@ export interface LoginState {
   onRegistrationSuccess?: (user?: LoggedUser | AnonymousUser) => void;
   isLogin?: boolean;
   afterAuth?: string;
+  // Lets callers (e.g. AuthenticationBanner) tell the inline modal which
+  // screen to open on, when the trigger originates from an inline AuthOptions
+  // surface that has already partially progressed the user.
+  defaultDisplay?: AuthDisplay;
 }
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
