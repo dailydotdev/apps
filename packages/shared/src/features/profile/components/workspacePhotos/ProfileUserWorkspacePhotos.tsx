@@ -365,14 +365,14 @@ export function ProfileUserWorkspacePhotos({
         >
           <button
             type="button"
-            className="absolute inset-0 bg-overlay-quaternary-onion backdrop-blur-md"
+            className="absolute inset-0 bg-overlay-primary-pepper backdrop-blur-md"
             onClick={handleCloseLightbox}
             aria-label="Close lightbox"
           />
           <CloseButton
             size={ButtonSize.Small}
             variant={ButtonVariant.Float}
-            className="absolute right-4 top-4"
+            className="absolute right-4 top-4 z-1"
             onClick={handleCloseLightbox}
           />
           <img
