@@ -370,7 +370,6 @@ export function ProfileUserWorkspacePhotos({
             aria-label="Close lightbox"
           />
           <CloseButton
-            type="button"
             size={ButtonSize.Small}
             variant={ButtonVariant.Float}
             className="absolute right-4 top-4"
