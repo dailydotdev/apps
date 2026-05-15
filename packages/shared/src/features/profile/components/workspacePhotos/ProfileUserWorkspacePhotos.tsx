@@ -33,6 +33,7 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { CameraIcon, SettingsIcon } from '../../../../components/icons';
+import CloseButton from '../../../../components/CloseButton';
 import { SortableWorkspacePhotoItem } from './WorkspacePhotoItem';
 import { WorkspacePhotoUploadModal } from './WorkspacePhotoUploadModal';
 import { GearModal } from '../gear/GearModal';
@@ -205,7 +206,7 @@ export function ProfileUserWorkspacePhotos({
   }, []);
 
   // Close lightbox on ESC key
-  useEventListener(globalThis, 'keydown', (event) => {
+  useEventListener(globalThis as unknown as Window, 'keydown', (event) => {
     if (event.key === 'Escape' && selectedPhoto) {
       handleCloseLightbox();
     }
@@ -364,9 +365,16 @@ export function ProfileUserWorkspacePhotos({
         >
           <button
             type="button"
-            className="bg-overlay-primary-fixed absolute inset-0"
+            className="absolute inset-0 bg-overlay-quaternary-onion backdrop-blur-md"
             onClick={handleCloseLightbox}
             aria-label="Close lightbox"
+          />
+          <CloseButton
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            className="absolute right-4 top-4"
+            onClick={handleCloseLightbox}
           />
           <img
             src={selectedPhoto}
