@@ -52,6 +52,8 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { featureInlineLogin } from '@dailydotdev/shared/src/lib/featureManagement';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
@@ -63,6 +65,13 @@ const CookieBanner = dynamic(
   () =>
     import(
       /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
+    ),
+);
+
+const AuthModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
     ),
 );
 
@@ -95,6 +104,18 @@ const onboardingExcludedPaths = [
   '/jobs',
   '/settings',
 ];
+// When the inline_login experiment is on, we only force the rest of onboarding
+// when the user lands on the main feed — everywhere else they can keep
+// browsing after the inline first step.
+const mainFeedPathnames = new Set([
+  '/',
+  '/popular',
+  '/upvoted',
+  '/discussed',
+  '/latest',
+  '/following',
+  '/my-feed',
+]);
 const hotAndColdModalQueryKey = 'openModal';
 const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
@@ -149,7 +170,15 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, trackingId, isFunnel } = useAuthContext();
+  const {
+    user,
+    trackingId,
+    isFunnel,
+    shouldShowLogin,
+    closeLogin,
+    loginState,
+  } = useAuthContext();
+  const isInlineLoginEnabled = useFeature(featureInlineLogin);
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -203,14 +232,31 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
-      !isFunnel &&
-      isOnboardingActionsReady &&
-      !isOnboardingComplete &&
-      !isOnboardingExcludedPath(router.pathname)
+      isFunnel ||
+      !isOnboardingActionsReady ||
+      isOnboardingComplete ||
+      isOnboardingExcludedPath(router.pathname)
     ) {
-      router.replace('/onboarding');
+      return;
     }
-  }, [isFunnel, isOnboardingActionsReady, router, isOnboardingComplete]);
+
+    // Inline login experiment: defer the rest of onboarding until the user
+    // navigates to the main feed; otherwise let them keep browsing.
+    if (isInlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
+      return;
+    }
+
+    router.replace('/onboarding');
+    // `router.pathname` is depended on explicitly because the `router` ref is
+    // stable across in-app navigations.
+  }, [
+    isFunnel,
+    isOnboardingActionsReady,
+    router,
+    router.pathname,
+    isOnboardingComplete,
+    isInlineLoginEnabled,
+  ]);
 
   useEffect(() => {
     const id = user?.id || trackingId;
@@ -361,6 +407,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
         </DndContextProvider>
+        {isInlineLoginEnabled && shouldShowLogin && (
+          <AuthModal
+            isOpen={shouldShowLogin}
+            onRequestClose={closeLogin}
+            contentLabel="Login Modal"
+            trigger={loginState?.trigger}
+          />
+        )}
         {showBanner && !isFunnel && !isImageGenerator && (
           <CookieBanner
             onAccepted={onAcceptCookies}
