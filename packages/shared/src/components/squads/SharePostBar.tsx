@@ -29,7 +29,7 @@ function SharePostBar({
   disabledText = 'Only admins and moderators can post',
   squad,
 }: SharePostBarProps): ReactElement {
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>('');
@@ -39,7 +39,9 @@ function SharePostBar({
   const shouldUseSmartComposer = isSmartComposerEnabled && isLaptop;
   const [urlFocused, toggleUrlFocus] = useState(false);
   const onSharedSuccessfully = () => {
-    inputRef.current.value = '';
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
     setUrl('');
   };
 
@@ -110,11 +112,13 @@ function SharePostBar({
     >
       <span className="relative flex w-full flex-row items-center">
         <div className="flex flex-1 gap-4">
-          <ProfilePicture
-            user={user}
-            size={ProfileImageSize.Large}
-            nativeLazyLoading
-          />
+          {user && (
+            <ProfilePicture
+              user={user}
+              size={ProfileImageSize.Large}
+              nativeLazyLoading
+            />
+          )}
           <div className="flex flex-1">
             <input
               type="url"
