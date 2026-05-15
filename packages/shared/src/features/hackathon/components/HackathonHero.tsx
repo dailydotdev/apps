@@ -28,7 +28,7 @@ export const HackathonHero = (): ReactElement => {
         </Typography>
       </FlexRow>
       <img
-        src={fromCDN('/assets/hackathon-og.png')}
+        src={fromCDN('/assets/hackathon-og.png?v=2')}
         alt="daily.dev Hackathon"
         className="w-full max-w-2xl rounded-16"
       />

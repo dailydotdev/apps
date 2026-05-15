@@ -42,6 +42,10 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       return true;
     }
 
+    if (router?.route?.startsWith('/explore/')) {
+      return true;
+    }
+
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
   }, [activeFeed, isMobile, router?.route]);
 

@@ -74,7 +74,7 @@ const GifPickerContent = ({
           }
         }}
         inputId="gifs"
-        label="Search Tenor"
+        label="Search Klipy"
         placeholder={
           searchSuggestions[
             Math.floor(Math.random() * searchSuggestions.length)

@@ -738,12 +738,20 @@ function AuthOptionsInner({
                 ? () => onSetActiveDisplay(defaultDisplay)
                 : undefined
             }
-            onBackToIntro={() => {
-              onAuthStateUpdate({
-                isAuthenticating: undefined,
-                defaultDisplay: AuthDisplay.OnboardingSignup,
-              });
-            }}
+            onBackToIntro={
+              // Only offer "back to intro" when an OnboardingSignup screen is
+              // actually the entry point (e.g. /onboarding, auth banner).
+              // The inline modal lands on Default and there's no intro to
+              // return to.
+              defaultDisplay === AuthDisplay.OnboardingSignup
+                ? () => {
+                    onAuthStateUpdate({
+                      isAuthenticating: undefined,
+                      defaultDisplay: AuthDisplay.OnboardingSignup,
+                    });
+                  }
+                : undefined
+            }
             onExistingEmailLoginClick={() => {
               onAuthStateUpdate({
                 isLoginFlow: true,
@@ -763,24 +771,29 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onContinueWithEmail={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 defaultDisplay: AuthDisplay.Registration,
               });
+              setActiveDisplay(AuthDisplay.Registration);
             }}
             onSignup={(signupEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 email: signupEmail,
                 defaultDisplay: AuthDisplay.Registration,
               });
+              setEmail(signupEmail);
+              setActiveDisplay(AuthDisplay.Registration);
             }}
             onExistingEmail={(existingEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 isLoginFlow: true,
                 email: existingEmail,
               });
+              setEmail(existingEmail);
+              setActiveDisplay(AuthDisplay.Default);
             }}
             onProviderClick={onProviderClick}
             trigger={trigger}
