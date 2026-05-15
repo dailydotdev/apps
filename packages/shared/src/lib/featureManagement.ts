@@ -198,3 +198,5 @@ export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
 );
+
+export const featureFeedTagChips = new Feature('feed_tag_chips', false);
