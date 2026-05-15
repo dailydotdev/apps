@@ -376,7 +376,7 @@ export function ProfileUserWorkspacePhotos({
           />
           <CloseButton
             size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Primary}
             className="absolute right-4 top-4 z-1"
             onClick={handleCloseLightbox}
           />
