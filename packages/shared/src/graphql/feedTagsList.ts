@@ -1,15 +1,23 @@
 import { gql } from 'graphql-request';
 
+export type FeedTagsListItem = {
+  value: string;
+  label: string;
+};
+
 export type FeedTagsListData = {
   feedTagsList: {
-    tags: string[];
+    tags: FeedTagsListItem[];
   };
 };
 
 export const FEED_TAGS_LIST_QUERY = gql`
   query FeedTagsList($limit: Int) {
     feedTagsList(limit: $limit) {
-      tags
+      tags {
+        value
+        label
+      }
     }
   }
 `;

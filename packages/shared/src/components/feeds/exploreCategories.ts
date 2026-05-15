@@ -1,3 +1,4 @@
+import type { FeedTagsListItem } from '../../graphql/feedTagsList';
 import { webappUrl } from '../../lib/constants';
 
 export type ExploreCategory = {
@@ -8,11 +9,11 @@ export type ExploreCategory = {
 };
 
 export const buildPersonalizedCategories = (
-  tags: string[],
+  tags: FeedTagsListItem[],
 ): ExploreCategory[] =>
-  tags.map((tag) => ({
-    id: tag,
-    label: tag,
-    path: `${webappUrl}explore/${tag}`,
-    tag,
+  tags.map(({ value, label }) => ({
+    id: value,
+    label,
+    path: `${webappUrl}explore/${value}`,
+    tag: value,
   }));
