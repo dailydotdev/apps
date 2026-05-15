@@ -80,6 +80,10 @@ const strictSkipList = new Set([
   // null vs undefined) live on unrelated lines and should be addressed in
   // a dedicated cleanup PR.
   'packages/shared/src/components/feeds/FeedSettings/sections/FeedSettingsGeneralSection.tsx',
+  // @growthbook/growthbook ships .d.ts files but its package.json `exports`
+  // field has no `types` condition, so strict resolution intermittently fails
+  // to find declarations and flags the JSONValue import as implicit any.
+  'packages/shared/src/lib/featureManagement.ts',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
