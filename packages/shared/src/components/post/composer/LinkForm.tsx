@@ -1,8 +1,11 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { WriteLinkPreview } from '../write/WriteLinkPreview';
 import { WritePreviewSkeleton } from '../write/WritePreviewSkeleton';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { MiniCloseIcon } from '../../icons';
+import { Tooltip } from '../../tooltip/Tooltip';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
 import { TITLE_MAX_LENGTH, type LinkFormState } from './types';
 import { isPreviewForComposerUrl, normalizeComposerUrl } from './utils';
@@ -13,6 +16,7 @@ interface LinkFormProps {
   preview?: ExternalLinkPreview;
   isLoadingPreview?: boolean;
   fetchPreview: (url?: string) => void;
+  onDismissPreview?: () => void;
 }
 
 export const LinkForm = ({
@@ -21,8 +25,10 @@ export const LinkForm = ({
   preview,
   isLoadingPreview,
   fetchPreview,
+  onDismissPreview,
 }: LinkFormProps): ReactElement => {
   const urlRef = useRef<HTMLInputElement>(null);
+  const [dismissedUrl, setDismissedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     urlRef.current?.focus();
@@ -36,14 +42,28 @@ export const LinkForm = ({
 
   const [checkUrl] = useDebouncedUrl(fetchPreview, hasPreviewForUrl);
 
+  const normalizedUrl = normalizeComposerUrl(value.url);
+  const isDismissedForCurrentUrl =
+    !!dismissedUrl && normalizedUrl === dismissedUrl;
+
   const onUrlChange = (event: FormEvent<HTMLInputElement>) => {
     const next = event.currentTarget.value;
     onChange({ ...value, url: next });
-    checkUrl(normalizeComposerUrl(next));
+    const nextNormalized = normalizeComposerUrl(next);
+    if (dismissedUrl && nextNormalized !== dismissedUrl) {
+      setDismissedUrl(null);
+    }
+    checkUrl(nextNormalized);
   };
 
-  const normalizedUrl = normalizeComposerUrl(value.url);
-  const showPreview = isPreviewForComposerUrl(preview, value.url);
+  const dismissPreview = () => {
+    setDismissedUrl(normalizedUrl || value.url || null);
+    onDismissPreview?.();
+  };
+
+  const showPreview =
+    isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
+  const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
 
   return (
     <div className="flex flex-1 flex-col gap-3">
@@ -77,19 +97,34 @@ export const LinkForm = ({
         aria-label="Post commentary"
         className="w-full resize-none overflow-hidden break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
       />
-      {isLoadingPreview && (
-        <WritePreviewSkeleton
-          link={normalizedUrl || value.url}
-          className="flex-col-reverse"
-        />
-      )}
-      {!isLoadingPreview && preview && showPreview && (
-        <WriteLinkPreview
-          className="!w-auto flex-col-reverse"
-          preview={preview}
-          link={normalizedUrl}
-          showPreviewLink={false}
-        />
+      {(showSkeleton || (preview && showPreview)) && (
+        <div className="relative">
+          {showSkeleton && (
+            <WritePreviewSkeleton
+              link={normalizedUrl || value.url}
+              className="flex-col-reverse"
+            />
+          )}
+          {!showSkeleton && preview && showPreview && (
+            <WriteLinkPreview
+              className="!w-auto flex-col-reverse"
+              preview={preview}
+              link={normalizedUrl}
+              showPreviewLink={false}
+            />
+          )}
+          <Tooltip content="Remove link preview">
+            <Button
+              type="button"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              icon={<MiniCloseIcon />}
+              onClick={dismissPreview}
+              aria-label="Remove link preview"
+              className="absolute right-3 top-3 z-1 !rounded-full !bg-surface-invert !text-text-primary !shadow-3 hover:!bg-text-primary hover:!text-surface-invert"
+            />
+          </Tooltip>
+        </div>
       )}
     </div>
   );

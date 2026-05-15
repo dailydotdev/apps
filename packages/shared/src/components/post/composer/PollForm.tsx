@@ -97,7 +97,7 @@ export const PollForm = ({ value, onChange }: PollFormProps): ReactElement => {
             <div
               // eslint-disable-next-line react/no-array-index-key
               key={index}
-              className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 focus-within:border-border-subtlest-primary"
+              className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 transition-colors focus-within:border-border-subtlest-primary"
             >
               <span className="text-text-tertiary typo-callout">
                 {index + 1}.
@@ -111,6 +111,9 @@ export const PollForm = ({ value, onChange }: PollFormProps): ReactElement => {
                 aria-label={`Poll option ${index + 1}`}
                 className="flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
               />
+              <span className="text-text-quaternary typo-caption2">
+                {POLL_OPTION_MAX_LENGTH - option.length}
+              </span>
               {canRemove && (
                 <Tooltip content="Remove option">
                   <Button
@@ -149,7 +152,7 @@ export const PollForm = ({ value, onChange }: PollFormProps): ReactElement => {
               type="button"
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
-              className="!rounded-12 !border !border-border-subtlest-tertiary !px-3 !font-normal !typo-callout"
+              className="!justify-between !rounded-12 !border !border-border-subtlest-tertiary !px-3 !font-normal !typo-callout"
             >
               {findDurationLabel(value.durationDays)}
               <ArrowIcon

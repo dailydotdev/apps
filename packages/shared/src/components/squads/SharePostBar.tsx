@@ -14,6 +14,7 @@ import { LazyModal } from '../modals/common/types';
 import type { Squad } from '../../graphql/sources';
 import type { ExternalLinkPreview } from '../../graphql/posts';
 import { Divider } from '../utilities';
+import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 
 export interface SharePostBarProps {
   className?: string;
@@ -33,6 +34,9 @@ function SharePostBar({
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>('');
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isSmartComposerEnabled = useSmartComposer();
+  const shouldUseSmartComposer = isSmartComposerEnabled && isLaptop;
   const [urlFocused, toggleUrlFocus] = useState(false);
   const onSharedSuccessfully = () => {
     inputRef.current.value = '';
@@ -41,7 +45,18 @@ function SharePostBar({
 
   const shouldRenderReadingHistory = !urlFocused && url.length === 0;
 
-  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
+  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) => {
+    if (shouldUseSmartComposer) {
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: {
+          initialUrl: link,
+          initialSquadHandle: squad.handle,
+          preview: { ...preview, url: link },
+        },
+      });
+      return;
+    }
     openModal({
       type: LazyModal.CreateSharedPost,
       props: {
@@ -50,6 +65,7 @@ function SharePostBar({
         onSharedSuccessfully,
       },
     });
+  };
 
   const onOpenHistory = () =>
     openModal({

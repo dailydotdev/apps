@@ -18,8 +18,8 @@ interface KindOption {
 }
 
 const KIND_OPTIONS: KindOption[] = [
-  { kind: 'text', label: 'Text', icon: <EditIcon /> },
-  { kind: 'link', label: 'Link', icon: <LinkIcon /> },
+  { kind: 'text', label: 'Free form', icon: <EditIcon /> },
+  { kind: 'link', label: 'Share a link', icon: <LinkIcon /> },
   { kind: 'poll', label: 'Poll', icon: <PollIcon /> },
 ];
 
@@ -48,22 +48,22 @@ export const KindModePicker = ({
           disabled={disabled}
           aria-haspopup="menu"
           aria-expanded={open}
-          aria-label={`${active.label} mode — change post type`}
+          aria-label={`${active.label} — change post type`}
           className={classNames(
-            'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-8 border border-border-subtlest-tertiary px-2 text-text-primary transition-colors',
-            'hover:border-border-subtlest-secondary',
+            'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-8 border border-accent-cabbage-default px-2 text-text-primary transition-colors',
+            'hover:border-accent-cabbage-bolder',
             open ? 'bg-surface-float' : 'bg-transparent hover:bg-surface-float',
             disabled && 'opacity-60 cursor-default',
           )}
         >
           {cloneElement(active.icon, { size: IconSize.Size16 })}
           <span className="whitespace-nowrap typo-caption1">
-            {active.label} mode
+            {active.label}
           </span>
           <ArrowIcon
             size={IconSize.Size16}
             className={classNames(
-              'shrink-0 text-text-tertiary transition-transform',
+              'shrink-0 text-accent-cabbage-default transition-transform',
               open ? 'rotate-180' : 'rotate-0',
             )}
           />
@@ -73,7 +73,7 @@ export const KindModePicker = ({
         align="start"
         side="top"
         variant="action"
-        className="!min-w-36"
+        className="!min-w-48"
       >
         {KIND_OPTIONS.map((option) => {
           const isActive = option.kind === value;

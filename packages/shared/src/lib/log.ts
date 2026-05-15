@@ -101,6 +101,15 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  OpenSmartComposer = 'open smart composer',
+  CloseSmartComposer = 'close smart composer',
+  SubmitSmartComposer = 'submit smart composer',
+  SwitchComposerKind = 'switch composer kind',
+  ToggleComposerMarkdown = 'toggle composer markdown',
+  ToggleComposerExpand = 'toggle composer expand',
+  AddComposerCover = 'add composer cover',
+  RemoveComposerCover = 'remove composer cover',
+  DismissComposerPreview = 'dismiss composer preview',
   HidePost = 'hide post',
   ReportSquad = 'report squad',
   Click = 'click',

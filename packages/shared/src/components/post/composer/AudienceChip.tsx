@@ -64,13 +64,23 @@ export const AudienceChip = ({
   }
 
   const isMulti = selected.length > 1;
-  const showChevron = !disabled;
+  const canPickAudience = audiences.length > 1;
+  const showChevron = !disabled && canPickAudience;
   const triggerLabel = (() => {
     if (isMulti) {
       return `${selected.length} audiences`;
     }
     return isUserAudience(primary) ? 'Everyone' : primary.name;
   })();
+  const buildAriaLabel = (): string => {
+    if (!canPickAudience) {
+      return `Posting to ${triggerLabel}`;
+    }
+    if (isMulti) {
+      return `Posting to ${selected.length} audiences. Open audience menu.`;
+    }
+    return `Posting to ${triggerLabel}. Open audience menu.`;
+  };
   const showSinglePrimaryAvatar = !isMulti && !isUserAudience(primary);
 
   const isEveryoneSelected =
@@ -135,19 +145,15 @@ export const AudienceChip = ({
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          disabled={disabled}
-          aria-haspopup="menu"
-          aria-expanded={open}
-          aria-label={
-            isMulti
-              ? `Posting to ${selected.length} audiences. Open audience menu.`
-              : `Posting to ${triggerLabel}. Open audience menu.`
-          }
+          disabled={disabled || !canPickAudience}
+          aria-haspopup={canPickAudience ? 'menu' : undefined}
+          aria-expanded={canPickAudience ? open : undefined}
+          aria-label={buildAriaLabel()}
           className={classNames(
             'flex max-w-full shrink-0 items-center gap-1.5 rounded-12 px-2.5 py-1 text-text-primary transition-colors typo-callout',
-            !disabled && 'hover:bg-surface-float',
-            disabled && 'cursor-default',
-            open && !disabled && 'bg-surface-float',
+            showChevron && 'hover:bg-surface-float',
+            !showChevron && 'cursor-default',
+            open && showChevron && 'bg-surface-float',
           )}
         >
           {isMulti ? (

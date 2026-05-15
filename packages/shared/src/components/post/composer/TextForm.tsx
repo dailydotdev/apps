@@ -4,8 +4,10 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
 } from 'react';
+import classNames from 'classnames';
 import RichTextInput, {
   type RichTextInputRef,
 } from '../../fields/RichTextInput';
@@ -24,6 +26,7 @@ import { TITLE_MAX_LENGTH, type TextFormState } from './types';
 export interface TextFormCover {
   preview: string;
   file: File;
+  isUploading?: boolean;
 }
 
 interface TextFormProps {
@@ -70,6 +73,34 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
     useEffect(() => {
       titleRef.current?.focus();
     }, []);
+
+    useLayoutEffect(() => {
+      const titleEl = titleRef.current;
+      if (!titleEl) {
+        return;
+      }
+      titleEl.style.height = 'auto';
+      titleEl.style.height = `${titleEl.scrollHeight}px`;
+    }, [value.title]);
+
+    const onTitleKeyDown = useCallback(
+      (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.nativeEvent.isComposing) {
+          return;
+        }
+        const isCmd = event.ctrlKey || event.metaKey;
+        if (event.key === 'Enter' && isCmd) {
+          event.preventDefault();
+          event.currentTarget.form?.requestSubmit();
+          return;
+        }
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          editorRef.current?.focus();
+        }
+      },
+      [],
+    );
 
     const setCoverFile = useCallback(
       (file?: File) => {
@@ -118,15 +149,20 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
                 title: e.currentTarget.value.replace(/\n/g, ''),
               })
             }
+            onKeyDown={onTitleKeyDown}
             aria-label="Post title"
             className="w-full resize-none overflow-hidden break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
           />
           {cover ? (
-            <div className="relative">
+            <div className="group relative">
               <img
                 src={cover.preview}
                 alt="Post cover"
-                className="block aspect-[2/1] w-full rounded-16 object-cover"
+                className={classNames(
+                  'block aspect-[2/1] w-full rounded-16 object-cover transition-opacity',
+                  'group-hover:brightness-95',
+                  cover.isUploading && 'opacity-50',
+                )}
               />
               <Tooltip content="Remove cover">
                 <Button
@@ -136,7 +172,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
                   icon={<MiniCloseIcon />}
                   onClick={() => onCoverChange?.(null)}
                   aria-label="Remove cover"
-                  className="absolute right-3 top-3 !rounded-full !bg-surface-invert !text-text-primary !shadow-3"
+                  className="absolute right-3 top-3 z-1 !rounded-full !bg-surface-invert !text-text-primary !shadow-3 hover:!bg-text-primary hover:!text-surface-invert"
                 />
               </Tooltip>
             </div>

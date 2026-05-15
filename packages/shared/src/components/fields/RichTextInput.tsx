@@ -11,6 +11,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -432,9 +433,13 @@ function RichTextInput(
 
         if (isSpecialKey && event.key === 'Enter' && inputRef.current?.length) {
           event.preventDefault();
-          onSubmit?.({
-            currentTarget: { value: inputRef.current },
-          } as React.FormEvent<HTMLTextAreaElement>);
+          if (onSubmit) {
+            onSubmit({
+              currentTarget: { value: inputRef.current },
+            } as React.FormEvent<HTMLTextAreaElement>);
+          } else {
+            editorContainerRef.current?.closest('form')?.requestSubmit();
+          }
           return true;
         }
 
@@ -537,6 +542,34 @@ function RichTextInput(
     onMarkdownModeChange?.(isMarkdownMode);
   }, [isMarkdownMode, onMarkdownModeChange]);
 
+  const didInitMarkdownRef = useRef(false);
+  useEffect(() => {
+    if (!didInitMarkdownRef.current) {
+      didInitMarkdownRef.current = true;
+      return undefined;
+    }
+    const frame = requestAnimationFrame(() => {
+      if (isMarkdownMode) {
+        markdownTextareaRef.current?.focus();
+        return;
+      }
+      editorRef.current?.commands.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isMarkdownMode]);
+
+  useLayoutEffect(() => {
+    if (!isMarkdownMode) {
+      return;
+    }
+    const ta = markdownTextareaRef.current;
+    if (!ta) {
+      return;
+    }
+    ta.style.height = 'auto';
+    ta.style.height = `${ta.scrollHeight}px`;
+  }, [input, isMarkdownMode]);
+
   const onMarkdownInput = useCallback(
     (event: React.FormEvent<HTMLTextAreaElement>) => {
       const { value } = event.currentTarget;
@@ -553,9 +586,13 @@ function RichTextInput(
       }
 
       event.preventDefault();
-      onSubmit?.({
-        currentTarget: { value: inputRef.current },
-      } as React.FormEvent<HTMLTextAreaElement>);
+      if (onSubmit) {
+        onSubmit({
+          currentTarget: { value: inputRef.current },
+        } as React.FormEvent<HTMLTextAreaElement>);
+        return;
+      }
+      event.currentTarget.form?.requestSubmit();
     },
     [onSubmit],
   );
@@ -670,42 +707,55 @@ function RichTextInput(
 
   const hasToolbarActions =
     isUploadEnabled || isLinkEnabled || isMentionEnabled || isGifEnabled;
+  const preventEditorBlur = (event: React.MouseEvent) => event.preventDefault();
   const toolbarActions = (
     <>
       {isUploadEnabled && (
-        <Button
-          size={headerActionSize}
-          variant={ButtonVariant.Tertiary}
-          icon={actionIcon}
-          onClick={() => {
-            upload.uploadRef?.current?.click();
-          }}
-          type="button"
-        />
+        <SimpleTooltip content="Add image">
+          <Button
+            size={headerActionSize}
+            variant={ButtonVariant.Tertiary}
+            icon={actionIcon}
+            onClick={() => {
+              upload.uploadRef?.current?.click();
+            }}
+            onMouseDown={preventEditorBlur}
+            type="button"
+            aria-label="Add image"
+          />
+        </SimpleTooltip>
       )}
       {isLinkEnabled && (
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={headerActionSize}
-          icon={<LinkIcon />}
-          onClick={() => toolbarRef.current?.openLinkModal()}
-          type="button"
-        />
+        <SimpleTooltip content="Add link">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={headerActionSize}
+            icon={<LinkIcon />}
+            onClick={() => toolbarRef.current?.openLinkModal()}
+            onMouseDown={preventEditorBlur}
+            type="button"
+            aria-label="Add link"
+          />
+        </SimpleTooltip>
       )}
       {isMentionEnabled && (
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={headerActionSize}
-          icon={<AtIcon />}
-          onClick={() => {
-            if (!editor) {
-              return;
-            }
-            editor.chain().focus().insertContent('@').run();
-            updateSuggestionsFromEditor(editor);
-          }}
-          type="button"
-        />
+        <SimpleTooltip content="Mention someone">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={headerActionSize}
+            icon={<AtIcon />}
+            onClick={() => {
+              if (!editor) {
+                return;
+              }
+              editor.chain().focus().insertContent('@').run();
+              updateSuggestionsFromEditor(editor);
+            }}
+            onMouseDown={preventEditorBlur}
+            type="button"
+            aria-label="Mention someone"
+          />
+        </SimpleTooltip>
       )}
       {isGifEnabled && (
         <GifPopover
@@ -767,7 +817,7 @@ function RichTextInput(
         )}
       >
         <div
-          className="flex flex-1 flex-col"
+          className="flex min-h-0 flex-1 flex-col"
           ref={editorContainerRef}
           onDrop={isMarkdownMode ? undefined : upload.handleDrop}
           onDragOver={
@@ -799,20 +849,30 @@ function RichTextInput(
                   </div>
                 </div>
               )}
-              <textarea
-                {...textareaProps}
-                name={undefined}
-                ref={markdownTextareaRef}
-                value={input}
-                className={classNames(
-                  minHeightClassName,
-                  'flex-1 bg-transparent p-4 font-mono outline-none',
-                  className?.input,
+              <ConditionalWrapper
+                condition={toolbarPosition === 'bottom'}
+                wrapper={(component) => (
+                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                    {component}
+                  </div>
                 )}
-                onInput={onMarkdownInput}
-                onPaste={onMarkdownPaste}
-                onKeyDown={onMarkdownKeyDown}
-              />
+              >
+                <textarea
+                  {...textareaProps}
+                  name={undefined}
+                  ref={markdownTextareaRef}
+                  value={input}
+                  className={classNames(
+                    minHeightClassName,
+                    'flex-1 resize-none bg-transparent p-4 font-mono outline-none',
+                    toolbarPosition === 'bottom' && 'overflow-hidden',
+                    className?.input,
+                  )}
+                  onInput={onMarkdownInput}
+                  onPaste={onMarkdownPaste}
+                  onKeyDown={onMarkdownKeyDown}
+                />
+              </ConditionalWrapper>
             </>
           ) : (
             (() => {
@@ -866,7 +926,7 @@ function RichTextInput(
                   position={toolbarPosition}
                   className={
                     toolbarPosition === 'bottom'
-                      ? '!gap-3 !px-5 !pb-4 !pt-3'
+                      ? '!gap-3 !px-5 !pb-5 !pt-4'
                       : undefined
                   }
                   leadingActions={toolbarLeading}
@@ -874,6 +934,29 @@ function RichTextInput(
                   hideInlineLink={isLinkEnabled}
                   rightActions={rightActionsNode}
                 />
+              );
+              const editorBody = (
+                <div className="flex w-full flex-1 flex-row">
+                  {showUserAvatar && user && (
+                    <ProfilePicture
+                      size={ProfileImageSize.Large}
+                      className={classNames('ml-3 mt-3', className?.profile)}
+                      user={user}
+                      nativeLazyLoading
+                      fetchPriority="low"
+                    />
+                  )}
+                  <EditorContent
+                    editor={editor}
+                    className={classNames(
+                      styles.editor,
+                      minHeightClassName,
+                      'min-w-0 flex-1 p-4',
+                      showUserAvatar && user && 'ml-3 tablet:ml-0',
+                      className?.input,
+                    )}
+                  />
+                </div>
               );
               return (
                 <>
@@ -888,27 +971,13 @@ function RichTextInput(
                       onInput={upload.onUpload}
                     />
                   )}
-                  <div className="flex w-full flex-1 flex-row">
-                    {showUserAvatar && user && (
-                      <ProfilePicture
-                        size={ProfileImageSize.Large}
-                        className={classNames('ml-3 mt-3', className?.profile)}
-                        user={user}
-                        nativeLazyLoading
-                        fetchPriority="low"
-                      />
-                    )}
-                    <EditorContent
-                      editor={editor}
-                      className={classNames(
-                        styles.editor,
-                        minHeightClassName,
-                        'min-w-0 flex-1 p-4',
-                        showUserAvatar && user && 'ml-3 tablet:ml-0',
-                        className?.input,
-                      )}
-                    />
-                  </div>
+                  {toolbarPosition === 'bottom' ? (
+                    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                      {editorBody}
+                    </div>
+                  ) : (
+                    editorBody
+                  )}
                   {toolbarPosition === 'bottom' && toolbarNode}
                 </>
               );

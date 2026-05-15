@@ -106,7 +106,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
     });
   };
 
-  const shouldUseSmartComposer = isSmartComposerEnabled && !onClick;
+  const shouldUseSmartComposer = isSmartComposerEnabled && isLaptop && !onClick;
 
   const buttonProps: {
     tag?: AllowedTags;
