@@ -62,11 +62,3 @@ If relevant, please remove the comment HTML comment tags and fill the checkboxes
 
 -->
 
-<!--
-If the branch name does not beging with a jira ticket, please copy and paste the
-below line outside the HTML comment tags to link this PR to the ticket in Jira.
-
-AS-{number}
-or
-MI-{number}
--->
