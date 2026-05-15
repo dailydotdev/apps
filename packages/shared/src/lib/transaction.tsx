@@ -7,6 +7,8 @@ import { Image } from '../components/image/Image';
 
 export type TransactionItemType = 'receive' | 'send' | 'purchase' | 'unknown';
 
+const QUEST_REWARD_REFERENCE_PREFIX = 'quest_reward:';
+
 export const getTransactionType = ({
   transaction,
   user,
@@ -60,6 +62,13 @@ export const getTransactionLabel = ({
 
   if (
     transaction.referenceType === UserTransactionType.PostBoost &&
+    transaction.flags.note
+  ) {
+    return transaction.flags.note;
+  }
+
+  if (
+    transaction.referenceType?.startsWith(QUEST_REWARD_REFERENCE_PREFIX) &&
     transaction.flags.note
   ) {
     return transaction.flags.note;
