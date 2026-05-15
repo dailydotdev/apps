@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -158,6 +158,65 @@ describe('IntroQuestButton', () => {
     });
 
     expect(cta).toHaveAttribute('data-expanded', 'false');
+  });
+
+  it('shakes once the intro CTA collapses and then every 5 seconds', () => {
+    jest.useFakeTimers();
+
+    render(<IntroQuestButton />);
+
+    const button = screen.getByRole('button', {
+      name: /Open introduction quests/,
+    });
+
+    expect(button).not.toHaveClass('animate-nudge-shake');
+
+    act(() => {
+      jest.advanceTimersByTime(2_500);
+    });
+
+    expect(button).toHaveClass('animate-nudge-shake');
+
+    act(() => {
+      jest.advanceTimersByTime(600);
+    });
+
+    expect(button).not.toHaveClass('animate-nudge-shake');
+
+    act(() => {
+      jest.advanceTimersByTime(4_400);
+    });
+
+    expect(button).toHaveClass('animate-nudge-shake');
+  });
+
+  it('stops shaking once the button is clicked', () => {
+    jest.useFakeTimers();
+
+    render(<IntroQuestButton />);
+
+    const button = screen.getByRole('button', {
+      name: /Open introduction quests/,
+    });
+
+    act(() => {
+      jest.advanceTimersByTime(2_500);
+    });
+
+    expect(button).toHaveClass('animate-nudge-shake');
+
+    act(() => {
+      fireEvent.click(button);
+    });
+
+    expect(openModal).toHaveBeenCalledWith({ type: LazyModal.IntroQuests });
+    expect(button).not.toHaveClass('animate-nudge-shake');
+
+    act(() => {
+      jest.advanceTimersByTime(30_000);
+    });
+
+    expect(button).not.toHaveClass('animate-nudge-shake');
   });
 
   it('hides the badge after intro quests have been viewed and none are claimable', () => {

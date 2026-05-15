@@ -17,6 +17,9 @@ import { QuestStatus } from '../../graphql/quests';
 
 const INTRO_QUEST_CTA = 'Get the most out of daily.dev';
 const INTRO_QUEST_CTA_DURATION_MS = 2000;
+const INTRO_QUEST_CTA_COLLAPSE_MS = 500;
+const NUDGE_SHAKE_INTERVAL_MS = 5_000;
+const NUDGE_SHAKE_DURATION_MS = 600;
 
 export function IntroQuestButton(): ReactElement | null {
   const { isAuthReady, isLoggedIn } = useAuthContext();
@@ -37,7 +40,10 @@ export function IntroQuestButton(): ReactElement | null {
     ActionType.IntroQuestsCompleted,
   );
   const [isIntroCtaVisible, setIsIntroCtaVisible] = useState(false);
+  const [hasIntroCtaFinished, setHasIntroCtaFinished] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
   const hasShownIntroCta = useRef(false);
+  const hasClickedRef = useRef(false);
   const shouldRenderButton =
     isAuthReady &&
     loadedSettings &&
@@ -56,13 +62,39 @@ export function IntroQuestButton(): ReactElement | null {
 
     hasShownIntroCta.current = true;
     setIsIntroCtaVisible(true);
-    const timeout = setTimeout(
+    const visibilityTimeout = setTimeout(
       () => setIsIntroCtaVisible(false),
       INTRO_QUEST_CTA_DURATION_MS,
     );
+    const finishedTimeout = setTimeout(
+      () => setHasIntroCtaFinished(true),
+      INTRO_QUEST_CTA_DURATION_MS + INTRO_QUEST_CTA_COLLAPSE_MS,
+    );
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(visibilityTimeout);
+      clearTimeout(finishedTimeout);
+    };
   }, [shouldRenderButton]);
+
+  useEffect(() => {
+    if (!shouldRenderButton || !hasIntroCtaFinished || hasClickedRef.current) {
+      return undefined;
+    }
+
+    const triggerShake = () => {
+      if (hasClickedRef.current) {
+        return;
+      }
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), NUDGE_SHAKE_DURATION_MS);
+    };
+
+    triggerShake();
+    const interval = setInterval(triggerShake, NUDGE_SHAKE_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [shouldRenderButton, hasIntroCtaFinished]);
 
   if (!shouldRenderButton) {
     return null;
@@ -77,6 +109,12 @@ export function IntroQuestButton(): ReactElement | null {
   const buttonLabel = `${completed}/${introQuests.length}`;
   const buttonVariant = isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
 
+  const handleClick = () => {
+    hasClickedRef.current = true;
+    setIsShaking(false);
+    openModal({ type: LazyModal.IntroQuests });
+  };
+
   return (
     <Tooltip content="Introduction" side="bottom">
       <Button
@@ -84,8 +122,11 @@ export function IntroQuestButton(): ReactElement | null {
         variant={buttonVariant}
         size={ButtonSize.Medium}
         icon={<TourIcon />}
-        className="relative"
-        onClick={() => openModal({ type: LazyModal.IntroQuests })}
+        className={classNames(
+          'relative',
+          isShaking && 'animate-nudge-shake motion-reduce:animate-none',
+        )}
+        onClick={handleClick}
         aria-label={`Open introduction quests (${buttonLabel})${
           showAttentionBadge ? ', attention needed' : ''
         }`}
