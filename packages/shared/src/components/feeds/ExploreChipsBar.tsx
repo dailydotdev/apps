@@ -45,15 +45,28 @@ export function ExploreChipsBar({
     }),
     [isCustomDefaultFeed],
   );
-  const allCategories = useMemo(
-    () => [forYouCategory, ...categories],
-    [forYouCategory, categories],
-  );
-
   const activePath = useMemo(
     () => normalizePath(router.asPath),
     [router.asPath],
   );
+
+  const allCategories = useMemo(() => {
+    if (router.pathname !== '/explore/[tag]') {
+      return [forYouCategory, ...categories];
+    }
+    const activeIndex = categories.findIndex(
+      (cat) => normalizePath(cat.path) === activePath,
+    );
+    if (activeIndex <= 0) {
+      return [forYouCategory, ...categories];
+    }
+    const reordered = [
+      categories[activeIndex],
+      ...categories.slice(0, activeIndex),
+      ...categories.slice(activeIndex + 1),
+    ];
+    return [forYouCategory, ...reordered];
+  }, [forYouCategory, categories, router.pathname, activePath]);
 
   return (
     <div className={classNames('relative', className)}>

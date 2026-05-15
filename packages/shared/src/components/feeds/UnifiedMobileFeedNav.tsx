@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
@@ -59,15 +59,28 @@ function UnifiedMobileFeedNav(): ReactElement {
     });
 
     if (isLoggedIn) {
-      buildPersonalizedCategories(personalizedTags).forEach((category) => {
-        list.push({
-          id: `category-${category.id}`,
-          label: category.label,
-          href: category.path,
-          group: 'categories',
-          tag: category.tag,
-        });
-      });
+      const categoryItems: ChipItem[] = buildPersonalizedCategories(
+        personalizedTags,
+      ).map((category) => ({
+        id: `category-${category.id}`,
+        label: category.label,
+        href: category.path,
+        group: 'categories',
+        tag: category.tag,
+      }));
+      const activeIndex =
+        router.pathname === '/explore/[tag]'
+          ? categoryItems.findIndex((item) => item.tag === router.query.tag)
+          : -1;
+      const reordered =
+        activeIndex > 0
+          ? [
+              categoryItems[activeIndex],
+              ...categoryItems.slice(0, activeIndex),
+              ...categoryItems.slice(activeIndex + 1),
+            ]
+          : categoryItems;
+      list.push(...reordered);
     }
 
     sortedFeeds.forEach(({ node: feed }) => {
@@ -188,6 +201,7 @@ function UnifiedMobileFeedNav(): ReactElement {
     isCustomDefaultFeed,
     sortedFeeds,
     router.query.slugOrId,
+    router.query.tag,
     router.pathname,
     defaultFeedId,
     personalizedTags,
@@ -215,8 +229,13 @@ function UnifiedMobileFeedNav(): ReactElement {
     return forYouMatch ? forYouMatch.id : matches[matches.length - 1].id;
   }, [items, router.asPath]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-3 py-2">
+    <div
+      ref={scrollRef}
+      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-3 py-2"
+    >
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {
@@ -242,6 +261,10 @@ function UnifiedMobileFeedNav(): ReactElement {
                     onClick={() => {
                       if (!item.tag) {
                         return;
+                      }
+
+                      if (scrollRef.current) {
+                        scrollRef.current.scrollLeft = 0;
                       }
 
                       logEvent({
