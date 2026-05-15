@@ -14,6 +14,7 @@ import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
 import { Drawer } from '../drawers';
 import { RootPortal } from '../tooltips/Portal';
 import { EmojiPicker } from '../fields/EmojiPicker';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 import {
   Typography,
@@ -36,6 +37,7 @@ import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 import { chatMarkdownToHtml } from '../../lib/liveRoom/chatMarkdown';
+import { anchorDefaultRel } from '../../lib/strings';
 import type { UserShortProfile } from '../../lib/user';
 import {
   buildParticipantProfile,
@@ -481,9 +483,11 @@ export const LiveRoomChatPanel = ({
           </div>
         ) : (
           chatMessages.map((message, messageIndex) => {
+            const senderProfile = participantProfilesById.get(
+              message.participantId,
+            );
             const sender =
-              participantProfilesById.get(message.participantId) ??
-              buildParticipantProfile(message.participantId);
+              senderProfile ?? buildParticipantProfile(message.participantId);
             const isSenderBlocked =
               (participantChatPermissions[message.participantId] ?? true) ===
               false;
@@ -496,6 +500,41 @@ export const LiveRoomChatPanel = ({
               message.participantId !== hostParticipantId &&
               message.participantId !== '';
             const senderName = userDisplayName(sender);
+            const senderNameNode = senderProfile ? (
+              <ProfileTooltip
+                userId={senderProfile.id}
+                initialUser={senderProfile}
+              >
+                <a
+                  href={senderProfile.permalink}
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  className="font-bold hover:underline"
+                >
+                  {senderName}
+                </a>
+              </ProfileTooltip>
+            ) : (
+              <span className="font-bold">{senderName}</span>
+            );
+            const senderAvatar = senderProfile ? (
+              <ProfileTooltip
+                userId={senderProfile.id}
+                initialUser={senderProfile}
+              >
+                <a
+                  href={senderProfile.permalink}
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  aria-label={`Open ${senderName} profile`}
+                  className="shrink-0"
+                >
+                  <ProfilePicture user={sender} size={ProfileImageSize.Small} />
+                </a>
+              </ProfileTooltip>
+            ) : (
+              <ProfilePicture user={sender} size={ProfileImageSize.Small} />
+            );
 
             return (
               <article
@@ -516,11 +555,11 @@ export const LiveRoomChatPanel = ({
                   }
                 }}
               >
-                <ProfilePicture user={sender} size={ProfileImageSize.Small} />
+                {senderAvatar}
                 <div className="min-w-0 flex-1">
                   <div className="min-w-0 text-[0.9375rem] leading-[1.5]">
                     <span className="mr-2 inline-flex items-center gap-1">
-                      <span className="font-bold">{senderName}</span>
+                      {senderNameNode}
                       {isSenderHost ? (
                         <ShieldIcon
                           secondary

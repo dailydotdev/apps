@@ -171,6 +171,11 @@ export const featureOnboardingTagRecommender = new Feature(
   false,
 );
 
+export const featureOnboardingPersonas = new Feature(
+  'onboarding_personas',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureReaderModal = new Feature('reader_modal', false);
@@ -191,3 +196,5 @@ export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
 );
+
+export const featureFeedTagChips = new Feature('feed_tag_chips', false);

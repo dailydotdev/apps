@@ -36,7 +36,8 @@ tasks:
       nvm install
       nvm use
     init: |
-      npm i -g pnpm@9.14.4
+      corepack enable
+      corepack prepare pnpm@10.33.4 --activate
       pnpm install
     command: |
       cd packages/webapp

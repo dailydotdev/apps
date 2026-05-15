@@ -4,15 +4,20 @@ import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { ProfileTooltip } from './ProfileTooltip';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import type { UserShortProfile } from '../../lib/user';
 
 const mockSetQueryData = jest.fn();
 const mockLogEvent = jest.fn();
 const mockSimpleTooltipSpy = jest.fn();
+const mockUseQuery = jest.fn<
+  { data: null; isLoading: boolean },
+  [options: unknown]
+>(() => ({ data: null, isLoading: false }));
 
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
   useQueryClient: () => ({ setQueryData: mockSetQueryData }),
-  useQuery: () => ({ data: null, isLoading: false }),
+  useQuery: (options: unknown) => mockUseQuery(options),
 }));
 
 jest.mock('../../contexts/LogContext', () => ({
@@ -29,6 +34,7 @@ jest.mock('../tooltips/SimpleTooltip', () => ({
 describe('ProfileTooltip', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseQuery.mockReturnValue({ data: null, isLoading: false });
     (useLogContext as jest.Mock).mockReturnValue({ logEvent: mockLogEvent });
   });
 
@@ -70,5 +76,29 @@ describe('ProfileTooltip', () => {
     });
 
     expect(tooltipOnShow).toHaveBeenCalledWith(instance);
+  });
+
+  it('uses an initial user without enabling the profile fetch', () => {
+    const initialUser: UserShortProfile = {
+      id: 'user-3',
+      name: 'User Three',
+      username: 'user-three',
+      image: '',
+      createdAt: '2026-05-13T00:00:00.000Z',
+      reputation: 0,
+      permalink: '/user-three',
+    };
+
+    render(
+      <ProfileTooltip userId={initialUser.id} initialUser={initialUser}>
+        <button type="button">User</button>
+      </ProfileTooltip>,
+    );
+
+    expect(mockUseQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ enabled: false }),
+    );
+    const [props] = mockSimpleTooltipSpy.mock.calls[0] as [TooltipProps];
+    expect(props.content).toBeTruthy();
   });
 });
