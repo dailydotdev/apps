@@ -102,7 +102,11 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     e.preventDefault();
     setSubmitted(true);
     if (Object.keys(localErrors).length === 0) {
-      onSubmit({ ...values, username: inputUsername });
+      // `validate()` above guarantees inputUsername is non-empty when we
+      // reach this branch, but its declared type is `string | undefined`
+      // because `useGenerateUsername` can be loading. Fall back to '' to
+      // satisfy the FormValues contract without a non-null assertion.
+      onSubmit({ ...values, username: inputUsername ?? '' });
     }
   };
 
@@ -186,7 +190,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         required
         autoComplete="user"
         className={{ container: 'w-full' }}
-        rightIcon={isLoadingUsername ? <span className="loader" /> : null}
+        rightIcon={isLoadingUsername ? <span className="loader" /> : undefined}
       />
       <ExperienceLevelDropdown
         name="experienceLevel"
@@ -205,9 +209,6 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         }
         saveHintSpace
       />
-      <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
-        Your email will be used to send you product and community updates
-      </span>
       <Checkbox
         name="optOutMarketing"
         checked={values.optOutMarketing}

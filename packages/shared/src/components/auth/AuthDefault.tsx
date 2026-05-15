@@ -159,7 +159,7 @@ const AuthDefault = ({
         >
           {providers.map(({ label, value, icon }, index) => (
             <Button
-              aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${label}`}
+              aria-label={`Continue with ${label}`}
               autoFocus={index === 0}
               disabled={!isReady || isSocialAuthLoading}
               icon={icon}
@@ -170,7 +170,7 @@ const AuthDefault = ({
               type="button"
               variant={ButtonVariant.Primary}
             >
-              {label}
+              Continue with {label}
             </Button>
           ))}
         </div>

@@ -25,7 +25,7 @@ const HACKATHON_DESCRIPTION =
   '72 hours, the daily.dev Public API, and three open tracks. Build something for developers, from developers.';
 
 // TODO move to cloudinary
-const HACKATHON_OG_IMAGE = fromCDN('/assets/hackathon-og.png');
+const HACKATHON_OG_IMAGE = fromCDN('/assets/hackathon-og.png?v=2');
 
 const seoTitles = getPageSeoTitles(HACKATHON_TITLE);
 const seo: NextSeoProps = {

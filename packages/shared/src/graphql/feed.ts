@@ -455,6 +455,30 @@ export const TAG_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const FEED_BY_TAGS_QUERY = gql`
+  query FeedByTags(
+    $tags: [String!]!
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+    $version: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: feedByTags(
+      tags: $tags
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const TAG_TOP_POSTS_QUERY = gql`
   query TagTopPosts($tag: String!, $first: Int) {
     page: tagFeed(tag: $tag, first: $first, ranking: POPULARITY) {

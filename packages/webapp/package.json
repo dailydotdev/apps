@@ -1,7 +1,7 @@
 {
   "name": "webapp",
   "version": "0.0.0",
-  "packageManager": "pnpm@10.33.4",
+  "packageManager": "pnpm@10.33.4+sha256.8e70ddc6649b18bc3d895cf3a908c0291ea4c38039ad8722c47e018daf1e9cfc",
   "scripts": {
     "dev": "next dev -p 5002 --experimental-https --experimental-https-key ./certificates/adhoc-server.key --experimental-https-cert ./certificates/adhoc-server.crt --experimental-https-ca ./certificates/root_ca.crt",
     "dev:turbo": "next dev --turbopack -p 5002 --experimental-https --experimental-https-key ./certificates/adhoc-server.key --experimental-https-cert ./certificates/adhoc-server.crt --experimental-https-ca ./certificates/root_ca.crt",

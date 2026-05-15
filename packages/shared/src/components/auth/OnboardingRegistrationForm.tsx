@@ -142,7 +142,7 @@ export const OnboardingRegistrationForm = ({
         {getSignupProviders().map((provider) => (
           <li key={provider.value}>
             <Button
-              aria-label={`Continue using ${provider.label}`}
+              aria-label={`Continue with ${provider.label}`}
               className="w-full"
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
