@@ -13,8 +13,6 @@ import { usePlusSubscription } from '../../hooks';
 
 import { PurchaseType } from '../../graphql/paddle';
 import { PlusProductToggle } from './PlusProductToggle';
-import { useFeature } from '../GrowthBookProvider';
-import { featurePlusApiLanding } from '../../lib/featureManagement';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 const PlusApiShowcase = dynamic(() =>
@@ -37,7 +35,6 @@ export const PlusDesktop = ({
     query: { selectedPlan },
   } = useRouter();
   const { isPlus } = usePlusSubscription();
-  const isApiLanding = useFeature(featurePlusApiLanding);
   const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -126,7 +123,7 @@ export const PlusDesktop = ({
           )}
         </div>
       </div>
-      {isApiLanding && !isOrganization && !giftToUser && <PlusApiShowcase />}
+      {!isOrganization && !giftToUser && <PlusApiShowcase />}
       <PlusFAQs />
     </>
   );
