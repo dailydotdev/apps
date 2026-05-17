@@ -37,6 +37,11 @@ export interface LiveRoom {
   host: UserShortProfile;
 }
 
+export type LiveRoomPost = Pick<
+  LiveRoom,
+  'id' | 'topic' | 'status' | 'scheduledStart' | 'subscribed'
+>;
+
 export interface LiveRoomJoinToken {
   room: LiveRoom;
   role: LiveRoomParticipantRole;
