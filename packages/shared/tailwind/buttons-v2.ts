@@ -400,6 +400,20 @@ const variations: Record<string, VariationFn> = {
   primary: (color) => {
     const dark = color ? darkLadder(color) : DEFAULT_DARK_LADDER;
     const light = color ? lightLadder(color) : DEFAULT_LIGHT_LADDER;
+    // Pressed (toggle-on) flips Primary to an outlined chip — text +
+    // border in the theme's primary text colour, transparent fill,
+    // no lift. Mirrors the V1 treatment. Required because
+    // `buttons-v2.css` always rewires `--button-v2-*` to
+    // `--button-v2-pressed-*` on `[aria-pressed="true"]`; if the
+    // pressed block is missing, those vars are undefined and the
+    // chrome collapses to invisible (real bug for any Primary +
+    // `pressed` ButtonV2 consumer).
+    const pressedBlock = {
+      color: 'var(--theme-text-primary)',
+      background: 'none',
+      'border-color': 'var(--theme-text-primary)',
+      'box-shadow': 'none',
+    };
     return {
       darkStates: {
         default: {
@@ -427,7 +441,7 @@ const variations: Record<string, VariationFn> = {
           // brand-tinted halos.
           'box-shadow': 'var(--btn-v2-shadow-active)',
         },
-        // pressed = same as default; no jarring flip
+        pressed: pressedBlock,
         disabled: {
           color: 'var(--theme-text-disabled)',
           background: color
@@ -452,6 +466,7 @@ const variations: Record<string, VariationFn> = {
           background: color ? palette[color][light[2]] : palette.pepper['50'],
           'box-shadow': 'var(--btn-v2-shadow-active)',
         },
+        pressed: pressedBlock,
         disabled: {
           color: 'var(--theme-text-disabled)',
           background: color

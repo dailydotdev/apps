@@ -94,33 +94,36 @@
     font-size: 1.5rem;
   }
 
+  /*
+   * Size rules emit `height` + `border-radius` only. Horizontal padding
+   * is owned by `Button.tsx`, which computes per-size + asymmetric
+   * (icon-side) values via Tailwind utilities (`HorizontalPadding` /
+   * `IconSidePadding`). Emitting `padding: 0 X` here at specificity
+   * (0,2,0) would beat those utilities (0,1,0) and force symmetric
+   * padding regardless of icon position.
+   */
   &.xsmall {
     height: 1.5rem;
-    padding: 0 0.5rem;
     border-radius: 0.5rem;
   }
 
   &.small {
     height: 2rem;
-    padding: 0 0.75rem;
     border-radius: 0.625rem;
   }
 
   &.medium {
     height: 2.5rem;
-    padding: 0 1rem;
     border-radius: 0.75rem;
   }
 
   &.large {
     height: 3rem;
-    padding: 0 1.5rem;
     border-radius: 0.875rem;
   }
 
   &.xlarge {
     height: 3.5rem;
-    padding: 0 1.75rem;
     border-radius: 1rem;
   }
 

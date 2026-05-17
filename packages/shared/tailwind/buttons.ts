@@ -202,6 +202,21 @@ const variations: Record<string, VariationFn> = {
   primary: (color) => {
     const dark = color ? darkLadder(color) : DEFAULT_DARK_LADDER;
     const light = color ? lightLadder(color) : DEFAULT_LIGHT_LADDER;
+    // Pressed (toggle-on) flips Primary to an outlined chip — text +
+    // border in the theme's primary text colour, transparent fill,
+    // no lift. Matches the V1 main treatment that ships today; needed
+    // because `buttons.css` always rewires `--button-*` to
+    // `--button-pressed-*` on `[aria-pressed="true"]`, and an
+    // unmapped pressed block leaves those vars undefined and the
+    // pressed chrome collapses to invisible. Production callers
+    // include `InviteMemberModal`'s Copy-link button (Primary + a
+    // momentary `pressed={isCopying}` Copied! state).
+    const pressedBlock = {
+      color: 'var(--theme-text-primary)',
+      background: 'none',
+      'border-color': 'var(--theme-text-primary)',
+      'box-shadow': 'none',
+    };
     return {
       darkStates: {
         default: {
@@ -218,6 +233,7 @@ const variations: Record<string, VariationFn> = {
           background: color ? palette[color][dark[2]] : palette.salt['50'],
           'box-shadow': 'var(--btn-shadow-active)',
         },
+        pressed: pressedBlock,
         disabled: {
           color: 'var(--theme-text-disabled)',
           background: color
@@ -242,6 +258,7 @@ const variations: Record<string, VariationFn> = {
           background: color ? palette[color][light[2]] : palette.pepper['50'],
           'box-shadow': 'var(--btn-shadow-active)',
         },
+        pressed: pressedBlock,
         disabled: {
           color: 'var(--theme-text-disabled)',
           background: color
