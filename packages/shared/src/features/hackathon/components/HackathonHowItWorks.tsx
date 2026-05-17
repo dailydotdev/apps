@@ -45,8 +45,13 @@ export const HackathonHowItWorks = (): ReactElement => {
               daily.dev Plus
             </a>
           </Link>{' '}
-          with all the benefits for best submissions. Winning projects featured
-          on daily.dev and social media.
+          with all the benefits for best submissions.{' '}
+          <Link href="https://www.coderabbit.ai/pricing">
+            <a target="_blank" className="text-[#FF570A] underline">
+              3 free months of CodeRabbit Pro Plus.
+            </a>
+          </Link>{' '}
+          Winning projects featured on daily.dev and social media.
         </Typography>
       </FlexCol>
 

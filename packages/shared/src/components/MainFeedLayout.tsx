@@ -11,6 +11,9 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
+import { ExploreChipsBar } from './feeds/ExploreChipsBar';
+import { buildPersonalizedCategories } from './feeds/exploreCategories';
+import { useFeedTagsList } from '../hooks/useFeedTagsList';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
@@ -20,7 +23,9 @@ import { SharedFeedPage } from './utilities';
 import {
   FEED_V2_HIGHLIGHTS_LIMIT,
   ANONYMOUS_FEED_QUERY,
+  baseFeedSupportedTypes,
   CUSTOM_FEED_QUERY,
+  FEED_BY_TAGS_QUERY,
   FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
@@ -53,6 +58,7 @@ import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
+  featureFeedTagChips,
   featureFeedV2Highlights,
   followingFeedVersion,
   latestFeedVersion,
@@ -160,6 +166,9 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   [OtherFeedPage.Following]: {
     query: FOLLOWING_FEED_QUERY,
     emptyScreen: <FollowingFeedEmptyScreen />,
+  },
+  [OtherFeedPage.ExploreTag]: {
+    query: FEED_BY_TAGS_QUERY,
   },
 };
 
@@ -310,6 +319,32 @@ export default function MainFeedLayout({
     shouldEvaluate: shouldEvaluateFeedV2Highlights,
   });
 
+  const isChipStripPage =
+    router.pathname === '/' || router.pathname === '/explore/[tag]';
+  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
+    feature: featureFeedTagChips,
+    shouldEvaluate: !!user && isLaptop && isChipStripPage,
+  });
+  const showExploreChips =
+    !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
+  const { tags: feedTags, isPending: isFeedTagsPending } = useFeedTagsList({
+    enabled: showExploreChips,
+  });
+  const exploreCategories = useMemo(
+    () => buildPersonalizedCategories(feedTags),
+    [feedTags],
+  );
+  const chipsNode = useMemo(
+    () =>
+      showExploreChips ? (
+        <ExploreChipsBar
+          categories={exploreCategories}
+          isPending={isFeedTagsPending}
+        />
+      ) : null,
+    [showExploreChips, exploreCategories, isFeedTagsPending],
+  );
+
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const config = useMemo(() => {
@@ -318,7 +353,7 @@ export default function MainFeedLayout({
     }
 
     const dynamicPropsByFeed: Partial<
-      Record<SharedFeedPage, Partial<FeedQueryProps>>
+      Record<FeedConfigPage, Partial<FeedQueryProps>>
     > = {
       [SharedFeedPage.Custom]: {
         variables: {
@@ -333,6 +368,12 @@ export default function MainFeedLayout({
             : CUSTOM_FEED_QUERY,
         variables: {
           feedId: (router.query?.slugOrId as string) || user?.id,
+        },
+      },
+      [OtherFeedPage.ExploreTag]: {
+        variables: {
+          tags: router.query?.tag ? [router.query.tag as string] : [],
+          supportedTypes: baseFeedSupportedTypes,
         },
       },
     };
@@ -393,6 +434,7 @@ export default function MainFeedLayout({
   }, [
     feedName,
     router.query?.slugOrId,
+    router.query?.tag,
     router.pathname,
     user,
     myFeedV,
@@ -443,8 +485,9 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown> | null>(() => {
+    const isExploreTag = feedName === OtherFeedPage.ExploreTag;
     const feedWithActions =
-      isUpvoted || isPopular || isSortableFeed || isCustomFeed;
+      isUpvoted || isPopular || isSortableFeed || isCustomFeed || isExploreTag;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
@@ -479,6 +522,7 @@ export default function MainFeedLayout({
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
+            chips={chipsNode}
           />
         ),
       };
@@ -558,10 +602,12 @@ export default function MainFeedLayout({
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
+          chips={chipsNode}
         />
       ),
     };
   }, [
+    chipsNode,
     isUpvoted,
     isPopular,
     isSortableFeed,
@@ -651,6 +697,9 @@ export default function MainFeedLayout({
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
+      {!!chipsNode && router.pathname === '/explore/[tag]' && (
+        <div className="mb-4 w-full">{chipsNode}</div>
+      )}
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
       {isSearchOn && isFinder && !isSearchPageLaptop && (

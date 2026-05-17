@@ -72,6 +72,7 @@ export enum OtherFeedPage {
   Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
+  ExploreTag = 'explore-tag',
 }
 
 export const STALE_TIME = 30 * 1000;
@@ -176,6 +177,7 @@ export enum RequestKey {
   PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
   FeedSettings = 'feedSettings',
+  FeedTagsList = 'feedTagsList',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
   SlackChannels = 'slack_channels',

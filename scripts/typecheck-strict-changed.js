@@ -95,6 +95,10 @@ const strictSkipList = new Set([
   'packages/shared/src/components/cards/article/ArticleGrid.tsx',
   'packages/shared/src/components/cards/Freeform/FreeformGrid.tsx',
   'packages/shared/src/components/cards/share/ShareGrid.tsx',
+  // @growthbook/growthbook ships .d.ts files but its package.json `exports`
+  // field has no `types` condition, so strict resolution intermittently fails
+  // to find declarations and flags the JSONValue import as implicit any.
+  'packages/shared/src/lib/featureManagement.ts',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
