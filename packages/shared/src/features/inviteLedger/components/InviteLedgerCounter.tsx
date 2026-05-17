@@ -24,7 +24,7 @@ export const InviteLedgerCounter = (): ReactElement | null => {
   return (
     <button
       type="button"
-      className="inline-flex items-center gap-1.5 rounded-full border border-border-subtlest-tertiary px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-text-secondary hover:border-text-tertiary"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border-subtlest-secondary px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-text-secondary hover:border-text-secondary"
       onClick={() => {
         logEvent({
           event_name: LogEvent.InviteLedgerCounterClick,

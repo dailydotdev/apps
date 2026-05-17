@@ -24,7 +24,7 @@ const CHANNELS: Channel[] = [
 ];
 
 const CHIP_CLASS =
-  'rounded-md border border-border-subtlest-tertiary bg-transparent px-2.5 py-1 font-mono text-[11px] tracking-[0.04em] text-text-secondary hover:border-text-tertiary hover:text-text-primary transition-colors';
+  'rounded-md border border-border-subtlest-secondary bg-transparent px-2.5 py-1 font-mono text-[11px] tracking-[0.04em] text-text-secondary hover:border-text-secondary hover:text-text-primary transition-colors';
 
 export const ChannelChips = ({ link }: ChannelChipsProps): ReactElement => {
   const { logEvent } = useLogContext();

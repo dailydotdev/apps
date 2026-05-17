@@ -31,7 +31,7 @@ export const LedgerPage = (): ReactElement => {
   }, [logEvent]);
 
   return (
-    <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-6 tablet:p-7">
+    <div className="flex flex-col gap-6">
       {demoMode && (
         <div className="border-action-bookmark-default/40 flex flex-wrap items-center gap-2 rounded-12 border bg-action-bookmark-float px-3 py-2 font-mono text-[11px] uppercase tracking-[0.08em] text-action-bookmark-default">
           <span>Demo data: {demoMode}</span>
@@ -62,7 +62,7 @@ export const LedgerPage = (): ReactElement => {
           </span>
         </div>
       )}
-      <header className="flex flex-col gap-4 border-b border-border-subtlest-tertiary pb-5 tablet:flex-row tablet:items-end tablet:justify-between">
+      <header className="flex flex-col gap-4 border-b border-border-subtlest-secondary pb-5 tablet:flex-row tablet:items-end tablet:justify-between">
         <div>
           <Typography
             tag={TypographyTag.H1}
@@ -74,7 +74,7 @@ export const LedgerPage = (): ReactElement => {
           </Typography>
           <Typography
             type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
+            color={TypographyColor.Secondary}
             className="mt-1 font-mono"
           >
             A record of the developers you brought in.
@@ -115,7 +115,7 @@ export const LedgerPage = (): ReactElement => {
         </div>
       )}
 
-      <footer className="border-t border-border-subtlest-tertiary pt-4 font-mono text-[11px] uppercase tracking-[0.06em] text-text-quaternary">
+      <footer className="border-t border-border-subtlest-secondary pt-4 font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary">
         Showing {ledger.rows.length} of {ledger.invitesAccepted} \u00b7 sorted
         by most recent
       </footer>

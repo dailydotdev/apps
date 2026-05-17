@@ -35,6 +35,7 @@ import { SearchProvider } from '../contexts/search/SearchContext';
 import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
+import { InviteLedgerNavigator } from '../features/inviteLedger/components/InviteLedgerNavigator';
 import { isExtension } from '../lib/func';
 
 const GoBackHeaderMobile = dynamic(
@@ -226,6 +227,7 @@ function MainLayoutComponent({
         {children}
       </main>
       {!hideFeedbackWidget && <FeedbackWidget />}
+      <InviteLedgerNavigator />
     </div>
   );
 }

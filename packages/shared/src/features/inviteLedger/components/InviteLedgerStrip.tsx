@@ -79,16 +79,16 @@ export const InviteLedgerStrip = ({
     <div
       className={classNames(
         STRIP_HEIGHT_CLASS,
-        'mx-4 mb-2 flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 typo-callout',
+        'mx-4 mb-2 flex items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-surface-float px-4 typo-callout',
         className,
       )}
     >
-      <span className="rounded hidden border border-border-subtlest-tertiary px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary tablet:inline-block">
+      <span className="rounded hidden border border-border-subtlest-secondary px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-secondary tablet:inline-block">
         +{ledger.recentJoins.length} joined
       </span>
       <span className="min-w-0 flex-1 truncate">
         <strong className="font-semibold text-text-primary">{headline}</strong>
-        <span className="text-text-tertiary">
+        <span className="text-text-secondary">
           {' '}
           joined through your invite this week. {coresAdded} Cores added.
         </span>
@@ -109,7 +109,7 @@ export const InviteLedgerStrip = ({
       <button
         type="button"
         aria-label="Dismiss"
-        className="rounded p-1 text-text-quaternary hover:text-text-secondary"
+        className="rounded p-1 text-text-tertiary hover:text-text-primary"
         onClick={() => {
           setStripDismissed(ledger.newsCohortKey);
           setIsDismissed(true);
