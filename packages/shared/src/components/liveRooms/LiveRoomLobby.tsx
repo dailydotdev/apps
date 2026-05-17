@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { addDays, isSameDay } from 'date-fns';
 import {
   Typography,
   TypographyColor,
@@ -47,6 +46,7 @@ import {
   type CalendarEvent,
 } from '../../lib/calendar';
 import type { UserShortProfile } from '../../lib/user';
+import { formatLiveRoomScheduledStart } from '../../lib/liveRoom/date';
 
 const padNumber = (value: number): string => value.toString().padStart(2, '0');
 
@@ -101,25 +101,6 @@ const buildStandupCalendarEvent = (
     end,
     id: `standup-${room.id}`,
   };
-};
-
-const formatScheduledStart = (value: string): string => {
-  const date = new Date(value);
-  const now = new Date();
-  const time = date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-  if (isSameDay(date, now)) {
-    return `Today at ${time}`;
-  }
-  if (isSameDay(date, addDays(now, 1))) {
-    return `Tomorrow at ${time}`;
-  }
-  return `${date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  })} at ${time}`;
 };
 
 interface LiveRoomLobbyProps {
@@ -463,7 +444,9 @@ export const LiveRoomLobby = ({
                         className="inline-flex items-center gap-1.5"
                       >
                         <CalendarIcon size={IconSize.XSmall} secondary />
-                        {formatScheduledStart(room.scheduledStart as string)}
+                        {formatLiveRoomScheduledStart(
+                          room.scheduledStart as string,
+                        )}
                       </Typography>
                     ) : null}
                   </div>

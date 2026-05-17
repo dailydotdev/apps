@@ -46,6 +46,7 @@ interface CardHeaderProps {
   openNewTab?: boolean;
   flagProps?: FlagProps;
   showFeedback?: boolean;
+  primaryAction?: ReactNode;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -59,6 +60,7 @@ export const PostCardHeader = ({
   postLink,
   openNewTab,
   showFeedback,
+  primaryAction,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
@@ -112,17 +114,18 @@ export const PostCardHeader = ({
         >
           {!isFeedPreview && (
             <>
-              {!isSharedPostDeleted && (
-                <ReadArticleButton
-                  content={getReadPostButtonText(post)}
-                  className="mr-2"
-                  variant={ButtonVariant.Primary}
-                  href={articleLink ?? ''}
-                  onClick={onReadArticleClick}
-                  openNewTab={openNewTab}
-                  icon={getReadPostButtonIcon(post)}
-                />
-              )}
+              {!isSharedPostDeleted &&
+                (primaryAction ?? (
+                  <ReadArticleButton
+                    content={getReadPostButtonText(post)}
+                    className="mr-2"
+                    variant={ButtonVariant.Primary}
+                    href={articleLink ?? ''}
+                    onClick={onReadArticleClick}
+                    openNewTab={openNewTab}
+                    icon={getReadPostButtonIcon(post)}
+                  />
+                ))}
               <PostOptionButton post={post} />
             </>
           )}
