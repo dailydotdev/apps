@@ -99,7 +99,7 @@ const ProfileHeader = ({
         <div className="flex flex-col gap-2">
           {bio && <Typography type={TypographyType.Body}>{bio}</Typography>}
           <div className="flex items-center">
-            {user?.companies?.length > 0 && (
+            {!!user?.companies?.length && (
               <VerifiedCompanyUserBadge
                 size={ProfileImageSize.XSmall}
                 user={user}
@@ -110,7 +110,7 @@ const ProfileHeader = ({
                 }}
               />
             )}
-            {user?.companies?.length > 0 && user?.location && (
+            {!!user?.companies?.length && user?.location && (
               <Separator className="text-text-secondary" />
             )}
             {user?.location && (

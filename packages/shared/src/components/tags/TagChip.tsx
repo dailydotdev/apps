@@ -101,7 +101,11 @@ const TagLabel = ({
       tag={TypographyTag.Link}
       type={type}
       color={TypographyColor.Tertiary}
-      className="cursor-pointer no-underline transition-colors hover:text-text-primary"
+      // `min-w-0 truncate` keeps very long tags (e.g. polyglot
+      // multi-word system labels) inside the chip instead of pushing
+      // the trailing `+` button off-screen. The chip itself can be
+      // capped by callers via `className="max-w-..."`.
+      className="block min-w-0 cursor-pointer truncate no-underline transition-colors hover:text-text-primary"
       title={`Check all #${tag} posts`}
     >
       #{tag}
@@ -123,7 +127,9 @@ export const TagChip = ({
       <span
         role="listitem"
         className={classNames(
-          'inline-flex items-center border border-border-subtlest-tertiary transition-colors hover:bg-border-subtlest-tertiary',
+          // `max-w-full` keeps the chip from breaking out of its
+          // column / flex parent on extremely long tags.
+          'inline-flex max-w-full items-center border border-border-subtlest-tertiary transition-colors hover:bg-border-subtlest-tertiary',
           cfg.height,
           cfg.radius,
           cfg.horizontalPlain,
@@ -141,7 +147,7 @@ export const TagChip = ({
     <span
       role="listitem"
       className={classNames(
-        'inline-flex items-center bg-surface-float',
+        'inline-flex max-w-full items-center bg-surface-float',
         cfg.height,
         cfg.radius,
         showAction ? cfg.horizontalAction : cfg.horizontalPlain,
@@ -155,7 +161,9 @@ export const TagChip = ({
             role="separator"
             aria-hidden
             className={classNames(
-              'mx-2 w-px bg-border-subtlest-tertiary',
+              // `shrink-0` so the separator never collapses when the
+              // label needs to truncate.
+              'mx-2 w-px shrink-0 bg-border-subtlest-tertiary',
               cfg.separatorHeight,
             )}
           />
@@ -163,6 +171,7 @@ export const TagChip = ({
             <ButtonV2
               type="button"
               size={cfg.button}
+              className="shrink-0"
               icon={<PlusIcon aria-hidden size={cfg.icon} />}
               onClick={() => onFollow?.(tag)}
               aria-label={`Follow #${tag}`}

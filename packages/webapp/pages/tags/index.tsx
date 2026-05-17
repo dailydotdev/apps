@@ -15,8 +15,6 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -71,9 +69,10 @@ const TagsPage = ({
   const { isFallback: isLoading } = useRouter();
 
   const { feedSettings } = useFeedSettings();
-  const { onFollowTags } = useTagAndSource({
-    origin: Origin.TagsFilter,
-  });
+  // Tags directory stays passive (matches main): chips link out to the
+  // tag page, no inline follow CTA. `isFollowed` still drives the
+  // bordered vs filled chip treatment so logged-in users can scan
+  // their followed tags at a glance.
   const followedSet = useMemo(
     () => new Set(feedSettings?.includeTags || []),
     [feedSettings?.includeTags],
@@ -81,19 +80,20 @@ const TagsPage = ({
 
   const recentlyAddedTags = useMemo(() => {
     return tags
-      ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      ?.slice()
+      .sort((a, b) => +new Date(b.createdAt ?? 0) - +new Date(a.createdAt ?? 0))
       .slice(0, 10);
   }, [tags]);
 
-  const tagsByFirstLetter = useMemo(() => {
-    const filteredTags = tags?.reduce((acc, cur) => {
+  const tagsByFirstLetter = useMemo<Record<string, Keyword[]> | null>(() => {
+    const filteredTags = tags?.reduce<Record<string, Keyword[]>>((acc, cur) => {
       const rawLetter = cur.value[0].toLowerCase();
       const firstLetter: string = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
         ? rawLetter
         : '#';
       acc[firstLetter] = (acc[firstLetter] || []).concat([cur]);
       return acc;
-    }, []);
+    }, {});
 
     if (!filteredTags) {
       return null;
@@ -101,8 +101,8 @@ const TagsPage = ({
 
     return Object.keys(filteredTags)
       .sort()
-      .reduce((acc, cur) => {
-        acc[cur] = filteredTags[cur].sort((a: Keyword, b: Keyword) => {
+      .reduce<Record<string, Keyword[]>>((acc, cur) => {
+        acc[cur] = filteredTags[cur].slice().sort((a: Keyword, b: Keyword) => {
           if (a.value < b.value) {
             return -1;
           }
@@ -114,7 +114,7 @@ const TagsPage = ({
           return 0;
         });
         return acc;
-      }, []);
+      }, {});
   }, [tags]);
 
   if (isLoading) {
@@ -176,9 +176,6 @@ const TagsPage = ({
                     tag={tag.value}
                     size="md"
                     isFollowed={followedSet.has(tag.value)}
-                    onFollow={(name) =>
-                      onFollowTags({ tags: [name], requireLogin: true })
-                    }
                   />
                 ))}
               </div>
