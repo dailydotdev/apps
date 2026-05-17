@@ -5,6 +5,10 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { InviteLinkInput } from '../../../components/referral';
 import { useInviteLedger } from '../useInviteLedger';
+import {
+  INVITE_LEDGER_CORES_PER_INVITE,
+  INVITE_LEDGER_PLUS_DAYS_PER_INVITE,
+} from '../types';
 import { getInviteLedgerDemoMode, setInviteLedgerDemoMode } from '../debug';
 import {
   getCurrentInviteTier,
@@ -18,6 +22,7 @@ import { ChannelChips } from './ChannelChips';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import {
   AddUserIcon,
+  ArrowIcon,
   CoinIcon,
   DevPlusIcon,
   LinkIcon,
@@ -28,16 +33,6 @@ import { IconSize } from '../../../components/Icon';
 
 const DEMO_MODES = ['full', 'single', 'empty'] as const;
 
-const getHeroHeadline = (invitesAccepted: number): string => {
-  if (invitesAccepted === 0) {
-    return 'No one has joined through you yet.';
-  }
-  if (invitesAccepted === 1) {
-    return 'One developer joined through your link.';
-  }
-  return `${invitesAccepted} developers joined through your link.`;
-};
-
 const SectionLabel = ({
   icon,
   children,
@@ -47,9 +42,9 @@ const SectionLabel = ({
   children: React.ReactNode;
   meta?: React.ReactNode;
 }): ReactElement => (
-  <div className="flex items-center gap-2 text-text-tertiary">
+  <div className="flex items-center gap-2 leading-none">
     <span className="text-text-secondary">{icon}</span>
-    <span className="font-mono uppercase tracking-[0.14em] text-text-secondary typo-caption2">
+    <span className="font-mono font-semibold uppercase tracking-[0.14em] text-text-secondary typo-caption2">
       {children}
     </span>
     {meta && (
@@ -67,13 +62,11 @@ const StatCell = ({
   icon,
   label,
   value,
-  unit,
   faded,
 }: {
   icon: ReactElement;
   label: string;
   value: number;
-  unit?: string;
   faded?: boolean;
 }): ReactElement => (
   <div className="flex flex-col gap-1">
@@ -88,16 +81,13 @@ const StatCell = ({
       </span>
       {label}
     </span>
-    <span className="flex items-baseline gap-1">
-      <span
-        className={classNames(
-          'font-bold tabular-nums typo-title3',
-          faded ? 'text-text-tertiary' : 'text-text-primary',
-        )}
-      >
-        {value.toLocaleString('en-US')}
-      </span>
-      {unit && <span className="text-text-tertiary typo-caption1">{unit}</span>}
+    <span
+      className={classNames(
+        'font-bold tabular-nums typo-title3',
+        faded ? 'text-text-tertiary' : 'text-text-primary',
+      )}
+    >
+      {value.toLocaleString('en-US')}
     </span>
   </div>
 );
@@ -121,8 +111,10 @@ export const LedgerPage = (): ReactElement => {
     });
   }, [logEvent]);
 
+  const nextRewardSummary = next?.rewards.map((r) => r.label).join(' + ');
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       {demoMode && (
         <div className="flex flex-wrap items-center gap-2 rounded-10 border border-border-subtlest-secondary bg-surface-float px-3 py-1.5 font-mono text-text-secondary typo-caption2">
           <span className="uppercase tracking-[0.12em]">demo: {demoMode}</span>
@@ -154,21 +146,21 @@ export const LedgerPage = (): ReactElement => {
         </div>
       )}
 
-      {/* HERO — fact only, no subhead */}
-      <section className="flex flex-col gap-3">
+      {/* HERO — action + reward math (this is the page identity) */}
+      <header className="flex flex-col gap-3">
         <SectionLabel
           icon={<SparkleIcon size={IconSize.XXSmall} />}
           meta={
             current ? (
               <>
                 <span className="text-text-primary">{current.title}</span>
-                <span aria-hidden className="ml-1 text-text-quaternary">
+                <span aria-hidden className="mx-1 text-text-quaternary">
                   ·
-                </span>{' '}
-                <span>{unlockedCount}/6</span>
+                </span>
+                <span>{unlockedCount}/6 unlocked</span>
               </>
             ) : (
-              '0/6'
+              '0/6 unlocked'
             )
           }
         >
@@ -176,19 +168,72 @@ export const LedgerPage = (): ReactElement => {
         </SectionLabel>
 
         <h2 className="font-bold text-text-primary typo-title2">
-          {getHeroHeadline(invitesAccepted)}
+          {INVITE_LEDGER_CORES_PER_INVITE} Cores per developer you invite.
         </h2>
+        <p className="text-text-secondary typo-callout">
+          They get {INVITE_LEDGER_PLUS_DAYS_PER_INVITE} days of Plus on us. You
+          climb six reward tiers as more sign up.
+        </p>
+      </header>
+
+      {/* ACTION — link + share, right under the hero */}
+      <section className="flex flex-col gap-2">
+        <SectionLabel
+          icon={<LinkIcon size={IconSize.XXSmall} />}
+          meta="Share to earn"
+        >
+          Your invite link
+        </SectionLabel>
+        <InviteLinkInput
+          link={ledger.inviteUrl}
+          logProps={{
+            event_name: LogEvent.CopyReferralLink,
+            target_id: TargetId.InviteLedgerPage,
+          }}
+        />
+        <ChannelChips link={ledger.inviteUrl} />
+      </section>
+
+      {/* PROGRESS — secondary status belt */}
+      <section className="flex flex-col gap-3">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3 border-y border-border-subtlest-secondary py-3">
+          <StatCell
+            icon={<AddUserIcon size={IconSize.XXSmall} />}
+            label="In"
+            value={invitesAccepted}
+          />
+          <StatCell
+            icon={<CoinIcon size={IconSize.XXSmall} secondary />}
+            label="Cores"
+            value={ledger.coresGiftedToFriends}
+            faded={ledger.coresGiftedToFriends === 0}
+          />
+          <StatCell
+            icon={<DevPlusIcon size={IconSize.XXSmall} />}
+            label="Plus days"
+            value={ledger.plusDaysGiftedToFriends}
+            faded={ledger.plusDaysGiftedToFriends === 0}
+          />
+        </div>
 
         {next && (
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-baseline justify-between gap-2 typo-caption1">
-              <span className="truncate text-text-tertiary">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 typo-caption1">
+              <span className="text-text-tertiary">
                 Next:{' '}
                 <span className="font-semibold text-text-primary">
                   {next.title}
                 </span>
-                <span className="ml-1 text-text-tertiary">
-                  · {invitesAway === 1 ? '1 to go' : `${invitesAway} to go`}
+                <span aria-hidden className="mx-1 text-text-quaternary">
+                  ·
+                </span>
+                <span className="text-text-tertiary">
+                  {invitesAway === 1
+                    ? '1 more invite unlocks'
+                    : `${invitesAway} more invites unlock`}{' '}
+                  <span className="font-semibold text-text-primary">
+                    {nextRewardSummary}
+                  </span>
                 </span>
               </span>
               <span className="shrink-0 font-mono font-semibold tabular-nums text-text-tertiary">
@@ -210,45 +255,6 @@ export const LedgerPage = (): ReactElement => {
             </div>
           </div>
         )}
-
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3 border-y border-border-subtlest-secondary py-3">
-          <StatCell
-            icon={<AddUserIcon size={IconSize.XXSmall} />}
-            label="In"
-            value={invitesAccepted}
-          />
-          <StatCell
-            icon={<CoinIcon size={IconSize.XXSmall} secondary />}
-            label="Cores"
-            value={ledger.coresGiftedToFriends}
-            faded={ledger.coresGiftedToFriends === 0}
-          />
-          <StatCell
-            icon={<DevPlusIcon size={IconSize.XXSmall} />}
-            label="Plus days"
-            value={ledger.plusDaysGiftedToFriends}
-            unit={ledger.plusDaysGiftedToFriends === 1 ? 'day' : undefined}
-            faded={ledger.plusDaysGiftedToFriends === 0}
-          />
-        </div>
-      </section>
-
-      {/* INVITE LINK */}
-      <section className="flex flex-col gap-2">
-        <SectionLabel
-          icon={<LinkIcon size={IconSize.XXSmall} />}
-          meta="One per account"
-        >
-          Invite link
-        </SectionLabel>
-        <InviteLinkInput
-          link={ledger.inviteUrl}
-          logProps={{
-            event_name: LogEvent.CopyReferralLink,
-            target_id: TargetId.InviteLedgerPage,
-          }}
-        />
-        <ChannelChips link={ledger.inviteUrl} />
       </section>
 
       {/* LADDER */}
@@ -274,7 +280,7 @@ export const LedgerPage = (): ReactElement => {
                 }`
           }
         >
-          Bring-ins
+          Who joined
         </SectionLabel>
 
         <div className="-mx-2 overflow-x-auto">
@@ -288,6 +294,7 @@ export const LedgerPage = (): ReactElement => {
               variant={ButtonVariant.Float}
               loading={ledger.isFetchingNextPage}
               onClick={() => ledger.fetchNextPage()}
+              icon={<ArrowIcon size={IconSize.Size16} className="rotate-180" />}
             >
               Load more
             </Button>

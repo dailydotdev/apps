@@ -6,6 +6,7 @@ import { Modal } from '../../../components/modals/common/Modal';
 import { ModalClose } from '../../../components/modals/common/ModalClose';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
@@ -18,52 +19,19 @@ import {
 } from '../debug';
 import { useInviteLedger } from '../useInviteLedger';
 import {
+  INVITE_LEDGER_CORES_PER_INVITE,
+  INVITE_LEDGER_PLUS_DAYS_PER_INVITE,
+} from '../types';
+import {
   INVITE_MILESTONES,
   getCurrentInviteTier,
   getInviteTierProgress,
   getInvitesUntilNextTier,
   getNextInviteMilestone,
 } from '../milestones';
-import type { InviteMilestone } from '../milestones';
 import { InviteMilestoneTimeline } from './InviteMilestoneTimeline';
-import { SparkleIcon } from '../../../components/icons';
+import { ArrowIcon, SparkleIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-
-interface ModalCopyContext {
-  isBrandNew: boolean;
-  current: InviteMilestone | null;
-  next: InviteMilestone | null;
-  invitesAway: number;
-}
-
-const getHeadline = ({
-  isBrandNew,
-  current,
-  next,
-}: ModalCopyContext): string => {
-  if (isBrandNew) {
-    return 'Six rewards. One invite link.';
-  }
-  if (current && !next) {
-    return 'Top of the ladder.';
-  }
-  return `You\u2019re on ${current?.title.toLowerCase() ?? 'the ladder'}.`;
-};
-
-const getSubhead = ({
-  isBrandNew,
-  next,
-  invitesAway,
-}: ModalCopyContext): string | null => {
-  if (isBrandNew) {
-    return 'One developer joining is enough to start.';
-  }
-  if (!next) {
-    return null;
-  }
-  const awayLabel = invitesAway === 1 ? 'One bring-in' : `${invitesAway} more`;
-  return `${awayLabel} to ${next.title.toLowerCase()}.`;
-};
 
 function InviteLedgerPromoModal({
   onRequestClose,
@@ -80,7 +48,6 @@ function InviteLedgerPromoModal({
   const next = getNextInviteMilestone(invitesAccepted);
   const invitesAway = getInvitesUntilNextTier(invitesAccepted);
   const progress = getInviteTierProgress(invitesAccepted);
-  const isBrandNew = invitesAccepted === 0;
   const unlockedCount = INVITE_MILESTONES.filter(
     (m) => invitesAccepted >= m.invites,
   ).length;
@@ -123,8 +90,7 @@ function InviteLedgerPromoModal({
     onRequestClose?.(event ?? (null as unknown as React.MouseEvent));
   };
 
-  const headline = getHeadline({ isBrandNew, current, next, invitesAway });
-  const subhead = getSubhead({ isBrandNew, next, invitesAway, current });
+  const nextRewardSummary = next?.rewards.map((r) => r.label).join(' + ');
 
   return (
     <Modal
@@ -142,11 +108,11 @@ function InviteLedgerPromoModal({
         right="2"
       />
 
-      {/* HEADER — caption + headline + tiny progress meta */}
-      <header className="flex flex-col gap-2 px-5 pb-3 pt-5">
+      {/* HEADER — action + reward math */}
+      <header className="flex flex-col gap-2.5 px-5 pb-3 pt-5">
         <div className="flex items-center gap-1.5 text-text-secondary">
           <SparkleIcon size={IconSize.XXSmall} />
-          <span className="font-mono uppercase tracking-[0.14em] typo-caption2">
+          <span className="font-mono font-semibold uppercase tracking-[0.14em] typo-caption2">
             Invite ledger
           </span>
           <span aria-hidden className="text-text-quaternary">
@@ -157,17 +123,34 @@ function InviteLedgerPromoModal({
           </span>
         </div>
 
-        <h1 className="font-bold text-text-primary typo-title3">{headline}</h1>
+        <h1 className="font-bold text-text-primary typo-title3">
+          {INVITE_LEDGER_CORES_PER_INVITE} Cores per developer you invite.
+        </h1>
+        <p className="text-text-secondary typo-footnote">
+          They get {INVITE_LEDGER_PLUS_DAYS_PER_INVITE} days of Plus on us. Six
+          reward tiers stack on top as more sign up.
+        </p>
 
-        {subhead && (
-          <p className="text-text-secondary typo-footnote">{subhead}</p>
-        )}
-
-        {next && (
+        {next && invitesAccepted > 0 && (
           <div className="mt-1 flex flex-col gap-1">
-            <div className="flex items-baseline justify-between gap-2 font-mono tabular-nums text-text-tertiary typo-caption2">
-              <span>{next.title}</span>
-              <span>
+            <div className="flex items-baseline justify-between gap-2 typo-caption2">
+              <span className="truncate text-text-tertiary">
+                You&rsquo;re at{' '}
+                <span className="font-semibold text-text-primary">
+                  {current?.title ?? 'the start'}
+                </span>
+                .{' '}
+                <span className="text-text-tertiary">
+                  {invitesAway === 1
+                    ? 'One more for'
+                    : `${invitesAway} more for`}{' '}
+                  <span className="font-semibold text-text-primary">
+                    {nextRewardSummary}
+                  </span>
+                  .
+                </span>
+              </span>
+              <span className="shrink-0 font-mono font-semibold tabular-nums text-text-tertiary">
                 {invitesAccepted}/{next.invites}
               </span>
             </div>
@@ -188,7 +171,7 @@ function InviteLedgerPromoModal({
         )}
       </header>
 
-      {/* LADDER */}
+      {/* LADDER — show the carrot */}
       <div className="flex max-h-[44vh] flex-col overflow-y-auto border-t border-border-subtlest-secondary px-5 pb-3 pt-2">
         <InviteMilestoneTimeline invitesAccepted={invitesAccepted} />
       </div>
@@ -198,8 +181,10 @@ function InviteLedgerPromoModal({
         <Button
           type="button"
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
+          size={ButtonSize.Medium}
           className="w-full"
+          iconPosition={ButtonIconPosition.Right}
+          icon={<ArrowIcon size={IconSize.Size16} className="rotate-90" />}
           onClick={handleOpenLedger}
         >
           Get my invite link
@@ -209,7 +194,7 @@ function InviteLedgerPromoModal({
           className="self-center text-text-tertiary typo-caption1 hover:text-text-primary"
           onClick={handleDismissForever}
         >
-          Don&apos;t show this again
+          Not now
         </button>
       </footer>
     </Modal>
