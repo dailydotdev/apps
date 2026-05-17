@@ -13,6 +13,7 @@ import {
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import AlertContext from '../../../contexts/AlertContext';
+import AuthContext from '../../../contexts/AuthContext';
 import {
   markInviteLedgerPromoSeen,
   setInviteLedgerPromoDismissed,
@@ -23,21 +24,28 @@ import {
   INVITE_LEDGER_PLUS_DAYS_PER_INVITE,
 } from '../types';
 import {
-  INVITE_MILESTONES,
   getCurrentInviteTier,
-  getInviteTierProgress,
   getInvitesUntilNextTier,
   getNextInviteMilestone,
 } from '../milestones';
-import { InviteMilestoneTimeline } from './InviteMilestoneTimeline';
-import { ArrowIcon, SparkleIcon } from '../../../components/icons';
+import { SectionRule } from './parts/SectionRule';
+import { Ladder } from './parts/Ladder';
+import { InviteLinkFiling } from './parts/InviteLinkFiling';
+import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 
+/**
+ * The Dispatch.
+ *
+ * A short edition of the Field Report. Same identity, smaller print run.
+ * Dateline, lead, link, mini-ladder, single CTA. No noise.
+ */
 function InviteLedgerPromoModal({
   onRequestClose,
   ...props
 }: ModalProps): ReactElement {
   const router = useRouter();
+  const { user } = useContext(AuthContext);
   const { updateLastReferralReminder } = useContext(AlertContext);
   const { logEvent } = useLogContext();
   const ledger = useInviteLedger();
@@ -47,10 +55,6 @@ function InviteLedgerPromoModal({
   const current = getCurrentInviteTier(invitesAccepted);
   const next = getNextInviteMilestone(invitesAccepted);
   const invitesAway = getInvitesUntilNextTier(invitesAccepted);
-  const progress = getInviteTierProgress(invitesAccepted);
-  const unlockedCount = INVITE_MILESTONES.filter(
-    (m) => invitesAccepted >= m.invites,
-  ).length;
 
   useEffect(() => {
     if (isLogged.current) {
@@ -63,7 +67,7 @@ function InviteLedgerPromoModal({
       event_name: LogEvent.Impression,
       target_type: TargetType.InviteLedgerPage,
       extra: JSON.stringify({
-        surface: 'promo_modal',
+        surface: 'dispatch',
         invites: invitesAccepted,
         tier: current?.step ?? 0,
       }),
@@ -74,7 +78,7 @@ function InviteLedgerPromoModal({
     logEvent({
       event_name: LogEvent.InviteLedgerStripClick,
       target_type: TargetType.InviteLedgerPage,
-      extra: JSON.stringify({ surface: 'promo_modal', cta: 'open_ledger' }),
+      extra: JSON.stringify({ surface: 'dispatch', cta: 'open_ledger' }),
     });
     router.push('/settings/referrals');
     onRequestClose?.(event ?? (null as unknown as React.MouseEvent));
@@ -85,12 +89,25 @@ function InviteLedgerPromoModal({
     logEvent({
       event_name: LogEvent.InviteLedgerStripDismiss,
       target_type: TargetType.InviteLedgerPage,
-      extra: JSON.stringify({ surface: 'promo_modal', forever: true }),
+      extra: JSON.stringify({ surface: 'dispatch', forever: true }),
     });
     onRequestClose?.(event ?? (null as unknown as React.MouseEvent));
   };
 
-  const nextRewardSummary = next?.rewards.map((r) => r.label).join(' + ');
+  const firstName = user?.name?.split(/\s+/)[0] ?? user?.username ?? null;
+  const greeting = firstName ? `${firstName}, ` : '';
+  const nextReward = next?.rewards.map((r) => r.label).join(' and ');
+
+  let statusLine: string | null = null;
+  if (invitesAccepted > 0 && next) {
+    const remaining =
+      invitesAway === 1 ? 'One more bring-in' : `${invitesAway} more bring-ins`;
+    statusLine = `${greeting}you're at ${
+      current?.title ?? 'the start'
+    }. ${remaining} to ${next.title} — ${nextReward}.`;
+  } else if (invitesAccepted === 0) {
+    statusLine = `${greeting}your filing is open. First bring-in pays 200 Cores and unlocks 100 more on the house.`;
+  }
 
   return (
     <Modal
@@ -108,75 +125,40 @@ function InviteLedgerPromoModal({
         right="2"
       />
 
-      {/* HEADER — action + reward math */}
-      <header className="flex flex-col gap-2.5 px-5 pb-3 pt-5">
-        <div className="flex items-center gap-1.5 text-text-secondary">
-          <SparkleIcon size={IconSize.XXSmall} />
-          <span className="font-mono font-semibold uppercase tracking-[0.14em] typo-caption2">
-            Invite ledger
-          </span>
+      <header className="flex flex-col gap-3 px-5 pb-3 pt-5">
+        <div className="flex items-center gap-2 font-mono uppercase tracking-[0.18em] text-text-tertiary typo-caption2">
+          <span className="font-semibold text-text-secondary">Dispatch</span>
           <span aria-hidden className="text-text-quaternary">
             ·
           </span>
-          <span className="text-text-tertiary typo-caption2">
-            {unlockedCount}/{INVITE_MILESTONES.length} unlocked
-          </span>
+          <span>Invite ledger</span>
         </div>
 
         <h1 className="font-bold text-text-primary typo-title3">
-          {INVITE_LEDGER_CORES_PER_INVITE} Cores per developer you invite.
+          Send the link. We pay {INVITE_LEDGER_CORES_PER_INVITE} Cores per
+          developer who signs up.
         </h1>
         <p className="text-text-secondary typo-footnote">
-          They get {INVITE_LEDGER_PLUS_DAYS_PER_INVITE} days of Plus on us. Six
-          reward tiers stack on top as more sign up.
+          They get a week of Plus on the house —{' '}
+          {INVITE_LEDGER_PLUS_DAYS_PER_INVITE} days, no card asked. Six reward
+          tiers stack on top.
         </p>
 
-        {next && invitesAccepted > 0 && (
-          <div className="mt-1 flex flex-col gap-1">
-            <div className="flex items-baseline justify-between gap-2 typo-caption2">
-              <span className="truncate text-text-tertiary">
-                You&rsquo;re at{' '}
-                <span className="font-semibold text-text-primary">
-                  {current?.title ?? 'the start'}
-                </span>
-                .{' '}
-                <span className="text-text-tertiary">
-                  {invitesAway === 1
-                    ? 'One more for'
-                    : `${invitesAway} more for`}{' '}
-                  <span className="font-semibold text-text-primary">
-                    {nextRewardSummary}
-                  </span>
-                  .
-                </span>
-              </span>
-              <span className="shrink-0 font-mono font-semibold tabular-nums text-text-tertiary">
-                {invitesAccepted}/{next.invites}
-              </span>
-            </div>
-            <div
-              className="relative h-1 overflow-hidden rounded-full bg-surface-float"
-              role="progressbar"
-              aria-label={`Progress toward ${next.title}`}
-              aria-valuenow={progress}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div
-                className="absolute inset-y-0 left-0 rounded-full bg-accent-cabbage-default transition-[width] duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
+        {statusLine && (
+          <p className="text-text-primary typo-footnote">{statusLine}</p>
         )}
       </header>
 
-      {/* LADDER — show the carrot */}
-      <div className="flex max-h-[44vh] flex-col overflow-y-auto border-t border-border-subtlest-secondary px-5 pb-3 pt-2">
-        <InviteMilestoneTimeline invitesAccepted={invitesAccepted} />
+      <div className="flex flex-col gap-3 border-t border-border-subtlest-secondary px-5 py-4">
+        <SectionRule label="Your filing" meta="paste anywhere" />
+        <InviteLinkFiling link={ledger.inviteUrl} origin="modal" />
       </div>
 
-      {/* CTAS */}
+      <div className="flex max-h-[40vh] flex-col gap-2 overflow-y-auto border-t border-border-subtlest-secondary px-5 pb-3 pt-3">
+        <SectionRule label="The ladder" meta="six tiers" />
+        <Ladder invitesAccepted={invitesAccepted} variant="modal" />
+      </div>
+
       <footer className="flex flex-col gap-1.5 border-t border-border-subtlest-secondary px-5 pb-4 pt-3">
         <Button
           type="button"
@@ -187,11 +169,11 @@ function InviteLedgerPromoModal({
           icon={<ArrowIcon size={IconSize.Size16} className="rotate-90" />}
           onClick={handleOpenLedger}
         >
-          Get my invite link
+          Open the ledger
         </Button>
         <button
           type="button"
-          className="self-center text-text-tertiary typo-caption1 hover:text-text-primary"
+          className="self-center font-mono uppercase tracking-[0.14em] text-text-tertiary typo-caption2 hover:text-text-primary"
           onClick={handleDismissForever}
         >
           Not now

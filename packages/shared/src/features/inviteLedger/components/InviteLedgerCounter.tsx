@@ -1,62 +1,77 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import { useRouter } from 'next/router';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
+import Link from '../../../components/utilities/Link';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import AuthContext from '../../../contexts/AuthContext';
 import { useInviteLedgerEnabled } from '../useInviteLedgerEnabled';
 import { useInviteLedger } from '../useInviteLedger';
-import { getCurrentInviteTier } from '../milestones';
+import { formatStep, getCurrentInviteTier } from '../milestones';
 
 /**
- * Compact ledger badge rendered next to the user's handle on their own
- * profile. Single accent dot, count, tier title. Reads like a fact, not
- * like a marketing badge.
+ * The Stamp.
+ *
+ * A tiny monospace pill that lives next to the user's handle in their
+ * own profile header. Reads like a stamp on a field report:
+ *
+ *   LEDGER №3 · 5 IN
  */
 export const InviteLedgerCounter = (): ReactElement | null => {
+  const { user } = useContext(AuthContext);
   const isEnabled = useInviteLedgerEnabled();
   const ledger = useInviteLedger();
   const { logEvent } = useLogContext();
-  const router = useRouter();
 
-  if (!isEnabled || ledger.invitesAccepted < 1) {
+  if (!user?.id || !isEnabled) {
     return null;
   }
 
-  const current = getCurrentInviteTier(ledger.invitesAccepted);
+  const tier = getCurrentInviteTier(ledger.invitesAccepted);
+
+  const handleClick = () => {
+    logEvent({
+      event_name: LogEvent.InviteLedgerCounterClick,
+      target_type: TargetType.InviteLedgerCounter,
+      extra: JSON.stringify({
+        invites: ledger.invitesAccepted,
+        tier: tier?.step ?? 0,
+      }),
+    });
+  };
 
   return (
-    <button
-      type="button"
-      className={classNames(
-        'inline-flex items-center gap-1.5 rounded-6 px-2 py-1 transition-colors typo-caption1',
-        'border border-border-subtlest-secondary bg-surface-float text-text-secondary',
-        'hover:border-text-secondary hover:text-text-primary',
-      )}
-      onClick={() => {
-        logEvent({
-          event_name: LogEvent.InviteLedgerCounterClick,
-          target_type: TargetType.InviteLedgerCounter,
-        });
-        router.push('/settings/referrals');
-      }}
-    >
-      <span
-        aria-hidden
-        className="size-1.5 rounded-full bg-accent-cabbage-default"
-      />
-      <span className="font-bold tabular-nums text-text-primary">
-        {ledger.invitesAccepted}
-      </span>
-      <span>{ledger.invitesAccepted === 1 ? 'bring-in' : 'bring-ins'}</span>
-      {current && (
-        <>
-          <span aria-hidden className="text-text-quaternary">
-            ·
-          </span>
-          <span className="text-text-primary">{current.title}</span>
-        </>
-      )}
-    </button>
+    <Link href="/settings/referrals" passHref>
+      <a
+        href="/settings/referrals"
+        onClick={handleClick}
+        aria-label={
+          tier
+            ? `Invite ledger: tier ${tier.step} (${tier.title}), ${ledger.invitesAccepted} bring-ins`
+            : `Invite ledger: ${ledger.invitesAccepted} bring-ins`
+        }
+        className={classNames(
+          'inline-flex items-center gap-1.5 rounded-6 border border-border-subtlest-secondary bg-surface-float px-1.5 py-0.5',
+          'font-mono uppercase tracking-[0.14em] text-text-secondary typo-caption2',
+          'transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary',
+        )}
+      >
+        <span className="font-semibold">Ledger</span>
+        {tier && (
+          <>
+            <span aria-hidden className="text-text-quaternary">
+              ·
+            </span>
+            <span className="tabular-nums">№{formatStep(tier.step)}</span>
+          </>
+        )}
+        <span aria-hidden className="text-text-quaternary">
+          ·
+        </span>
+        <span className="tabular-nums text-text-primary">
+          {ledger.invitesAccepted} in
+        </span>
+      </a>
+    </Link>
   );
 };

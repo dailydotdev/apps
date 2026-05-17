@@ -1,98 +1,131 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
+import { format } from 'date-fns';
+import AuthContext from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetId, TargetType } from '../../../lib/log';
-import { InviteLinkInput } from '../../../components/referral';
+import { LogEvent, TargetType } from '../../../lib/log';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { getInviteLedgerDemoMode, setInviteLedgerDemoMode } from '../debug';
+import type { InviteLedgerDemoMode } from '../debug';
 import { useInviteLedger } from '../useInviteLedger';
+import {
+  getCurrentInviteTier,
+  getInvitesUntilNextTier,
+  getNextInviteMilestone,
+} from '../milestones';
 import {
   INVITE_LEDGER_CORES_PER_INVITE,
   INVITE_LEDGER_PLUS_DAYS_PER_INVITE,
 } from '../types';
-import { getInviteLedgerDemoMode, setInviteLedgerDemoMode } from '../debug';
-import {
-  getCurrentInviteTier,
-  getInviteTierProgress,
-  getInvitesUntilNextTier,
-  getNextInviteMilestone,
-} from '../milestones';
-import { InviteMilestoneTimeline } from './InviteMilestoneTimeline';
-import { LedgerTable } from './LedgerTable';
-import { ChannelChips } from './ChannelChips';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
-import {
-  AddUserIcon,
-  ArrowIcon,
-  CoinIcon,
-  DevPlusIcon,
-  LinkIcon,
-  SparkleIcon,
-  UserShareIcon,
-} from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
+import { SectionRule } from './parts/SectionRule';
+import { InviteLinkFiling } from './parts/InviteLinkFiling';
+import { Ladder } from './parts/Ladder';
+import { Season } from './parts/Season';
 
-const DEMO_MODES = ['full', 'single', 'empty'] as const;
+const DEMO_MODES: InviteLedgerDemoMode[] = ['full', 'single', 'empty', null];
+const DEMO_LABEL: Record<string, string> = {
+  full: 'full',
+  single: 'single',
+  empty: 'empty',
+  real: 'real',
+};
 
-const SectionLabel = ({
-  icon,
-  children,
-  meta,
+const formatRewards = (
+  rewards: { label: string }[] | undefined,
+): string | null => {
+  if (!rewards?.length) {
+    return null;
+  }
+  return rewards.map((r) => r.label).join(' and ');
+};
+
+const DemoSwitcher = ({
+  active,
 }: {
-  icon: ReactElement;
-  children: React.ReactNode;
-  meta?: React.ReactNode;
+  active: InviteLedgerDemoMode;
 }): ReactElement => (
-  <div className="flex items-center gap-2 leading-none">
-    <span className="text-text-secondary">{icon}</span>
-    <span className="font-mono font-semibold uppercase tracking-[0.14em] text-text-secondary typo-caption2">
-      {children}
+  <div className="flex items-center gap-2 self-start rounded-8 border border-border-subtlest-secondary bg-surface-float px-2 py-1 font-mono uppercase tracking-[0.14em] text-text-tertiary typo-caption2">
+    <span>demo</span>
+    <span aria-hidden className="text-text-quaternary">
+      ·
     </span>
-    {meta && (
-      <>
-        <span aria-hidden className="text-text-quaternary">
-          ·
-        </span>
-        <span className="text-text-tertiary typo-caption1">{meta}</span>
-      </>
-    )}
+    {DEMO_MODES.map((mode) => {
+      const label = DEMO_LABEL[mode ?? 'real'];
+      const isActive = mode === active;
+      return (
+        <button
+          key={label}
+          type="button"
+          onClick={() => {
+            setInviteLedgerDemoMode(mode);
+            window.location.reload();
+          }}
+          className={classNames(
+            'rounded-6 px-1.5',
+            isActive
+              ? 'bg-surface-primary text-text-primary'
+              : 'hover:text-text-primary',
+          )}
+        >
+          {label}
+        </button>
+      );
+    })}
   </div>
 );
 
-const StatCell = ({
-  icon,
-  label,
-  value,
-  faded,
+const Dateline = ({
+  invitesAccepted,
+  tierTitle,
 }: {
-  icon: ReactElement;
-  label: string;
-  value: number;
-  faded?: boolean;
-}): ReactElement => (
-  <div className="flex flex-col gap-1">
-    <span
-      className={classNames(
-        'flex items-center gap-1 font-mono uppercase tracking-[0.12em] typo-caption2',
-        faded ? 'text-text-quaternary' : 'text-text-tertiary',
-      )}
-    >
-      <span aria-hidden className={faded ? '' : 'text-text-secondary'}>
-        {icon}
+  invitesAccepted: number;
+  tierTitle: string | null;
+}): ReactElement => {
+  const today = format(new Date(), 'MMM d').toUpperCase();
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono uppercase tracking-[0.18em] text-text-tertiary typo-caption2">
+      <span className="font-semibold text-text-secondary">Invite ledger</span>
+      <span aria-hidden className="text-text-quaternary">
+        ·
       </span>
-      {label}
-    </span>
-    <span
-      className={classNames(
-        'font-bold tabular-nums typo-title3',
-        faded ? 'text-text-tertiary' : 'text-text-primary',
+      <span>{today}</span>
+      <span aria-hidden className="text-text-quaternary">
+        ·
+      </span>
+      <span className="tabular-nums">
+        {invitesAccepted} <span className="text-text-quaternary">in</span>
+      </span>
+      {tierTitle && (
+        <>
+          <span aria-hidden className="text-text-quaternary">
+            ·
+          </span>
+          <span className="normal-case tracking-normal text-text-primary">
+            {tierTitle}
+          </span>
+        </>
       )}
-    >
-      {value.toLocaleString('en-US')}
-    </span>
-  </div>
-);
+    </div>
+  );
+};
 
+/**
+ * The Field Report.
+ *
+ * A single editorial article about the user's referral activity. Reads
+ * top-to-bottom: dateline → lead → invite link → status paragraph →
+ * ladder → this season → editorial footnote.
+ *
+ * No section cards, no grid of stats, no big buttons. One column, one
+ * voice, dense typography.
+ */
 export const LedgerPage = (): ReactElement => {
+  const { user } = useContext(AuthContext);
   const ledger = useInviteLedger();
   const { logEvent } = useLogContext();
   const demoMode = getInviteLedgerDemoMode();
@@ -101,8 +134,6 @@ export const LedgerPage = (): ReactElement => {
   const current = getCurrentInviteTier(invitesAccepted);
   const next = getNextInviteMilestone(invitesAccepted);
   const invitesAway = getInvitesUntilNextTier(invitesAccepted);
-  const progress = getInviteTierProgress(invitesAccepted);
-  const unlockedCount = current?.step ?? 0;
 
   useEffect(() => {
     logEvent({
@@ -111,196 +142,108 @@ export const LedgerPage = (): ReactElement => {
     });
   }, [logEvent]);
 
-  const nextRewardSummary = next?.rewards.map((r) => r.label).join(' + ');
+  const firstName = useMemo(() => {
+    const name = user?.name?.trim();
+    if (name) {
+      return name.split(/\s+/)[0];
+    }
+    return user?.username ?? null;
+  }, [user]);
+
+  const greeting = firstName ? `${firstName}, ` : '';
+  const nextReward = formatRewards(next?.rewards);
+
+  let statusLine: string;
+  if (invitesAccepted === 0) {
+    statusLine = `${greeting}your filing is open and nobody has joined yet. The first developer who signs up earns you 100 Cores on top of the 200 per-invite rate — your way in.`;
+  } else if (!next) {
+    statusLine = `${greeting}fifty bring-ins. You're in the top 0.1%. Every additional signup still pays out 200 Cores, every time.`;
+  } else {
+    const verb = invitesAccepted === 1 ? 'developer has' : 'developers have';
+    const cores = ledger.coresEarned.toLocaleString('en-US');
+    const plusDays = ledger.plusDaysGiftedToFriends.toLocaleString('en-US');
+    const remaining =
+      invitesAway === 1 ? 'One more bring-in' : `${invitesAway} more bring-ins`;
+    statusLine = `${greeting}${invitesAccepted} ${verb} signed up through your link. That's ${cores} Cores in, ${plusDays} days of Plus gifted out, and a clear shot at ${
+      next.title
+    } — ${remaining.toLowerCase()} for ${nextReward}.`;
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      {demoMode && (
-        <div className="flex flex-wrap items-center gap-2 rounded-10 border border-border-subtlest-secondary bg-surface-float px-3 py-1.5 font-mono text-text-secondary typo-caption2">
-          <span className="uppercase tracking-[0.12em]">demo: {demoMode}</span>
-          <span className="ml-auto flex flex-wrap gap-1">
-            {DEMO_MODES.filter((m) => m !== demoMode).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => {
-                  setInviteLedgerDemoMode(mode);
-                  window.location.reload();
-                }}
-                className="rounded-6 border border-border-subtlest-secondary px-1.5 py-0.5 hover:bg-surface-hover hover:text-text-primary"
-              >
-                {mode}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                setInviteLedgerDemoMode(null);
-                window.location.reload();
-              }}
-              className="rounded-6 border border-border-subtlest-secondary px-1.5 py-0.5 hover:bg-surface-hover hover:text-text-primary"
-            >
-              real
-            </button>
-          </span>
-        </div>
-      )}
+    <article className="mx-auto flex w-full max-w-2xl flex-col gap-7">
+      {demoMode && <DemoSwitcher active={demoMode} />}
 
-      {/* HERO — action + reward math (this is the page identity) */}
-      <header className="flex flex-col gap-3">
-        <SectionLabel
-          icon={<SparkleIcon size={IconSize.XXSmall} />}
-          meta={
-            current ? (
-              <>
-                <span className="text-text-primary">{current.title}</span>
-                <span aria-hidden className="mx-1 text-text-quaternary">
-                  ·
-                </span>
-                <span>{unlockedCount}/6 unlocked</span>
-              </>
-            ) : (
-              '0/6 unlocked'
-            )
-          }
-        >
-          Invite ledger
-        </SectionLabel>
-
-        <h2 className="font-bold text-text-primary typo-title2">
-          {INVITE_LEDGER_CORES_PER_INVITE} Cores per developer you invite.
-        </h2>
-        <p className="text-text-secondary typo-callout">
-          They get {INVITE_LEDGER_PLUS_DAYS_PER_INVITE} days of Plus on us. You
-          climb six reward tiers as more sign up.
+      <header className="flex flex-col gap-4">
+        <Dateline
+          invitesAccepted={invitesAccepted}
+          tierTitle={current?.title ?? null}
+        />
+        <h1 className="font-bold text-text-primary typo-title2">
+          Send the link. We pay {INVITE_LEDGER_CORES_PER_INVITE} Cores per
+          developer who signs up.
+        </h1>
+        <p className="text-text-secondary typo-body">
+          They get a week of Plus on the house —{' '}
+          {INVITE_LEDGER_PLUS_DAYS_PER_INVITE} days, no card asked. Six reward
+          tiers stack on top as more land, ending in a custom invite page if you
+          cross fifty.
         </p>
       </header>
 
-      {/* ACTION — link + share, right under the hero */}
-      <section className="flex flex-col gap-2">
-        <SectionLabel
-          icon={<LinkIcon size={IconSize.XXSmall} />}
-          meta="Share to earn"
-        >
-          Your invite link
-        </SectionLabel>
-        <InviteLinkInput
-          link={ledger.inviteUrl}
-          logProps={{
-            event_name: LogEvent.CopyReferralLink,
-            target_id: TargetId.InviteLedgerPage,
-          }}
-        />
-        <ChannelChips link={ledger.inviteUrl} />
-      </section>
-
-      {/* PROGRESS — secondary status belt */}
       <section className="flex flex-col gap-3">
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3 border-y border-border-subtlest-secondary py-3">
-          <StatCell
-            icon={<AddUserIcon size={IconSize.XXSmall} />}
-            label="In"
-            value={invitesAccepted}
-          />
-          <StatCell
-            icon={<CoinIcon size={IconSize.XXSmall} secondary />}
-            label="Cores"
-            value={ledger.coresGiftedToFriends}
-            faded={ledger.coresGiftedToFriends === 0}
-          />
-          <StatCell
-            icon={<DevPlusIcon size={IconSize.XXSmall} />}
-            label="Plus days"
-            value={ledger.plusDaysGiftedToFriends}
-            faded={ledger.plusDaysGiftedToFriends === 0}
-          />
-        </div>
-
-        {next && (
-          <div className="flex flex-col gap-1.5">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 typo-caption1">
-              <span className="text-text-tertiary">
-                Next:{' '}
-                <span className="font-semibold text-text-primary">
-                  {next.title}
-                </span>
-                <span aria-hidden className="mx-1 text-text-quaternary">
-                  ·
-                </span>
-                <span className="text-text-tertiary">
-                  {invitesAway === 1
-                    ? '1 more invite unlocks'
-                    : `${invitesAway} more invites unlock`}{' '}
-                  <span className="font-semibold text-text-primary">
-                    {nextRewardSummary}
-                  </span>
-                </span>
-              </span>
-              <span className="shrink-0 font-mono font-semibold tabular-nums text-text-tertiary">
-                {invitesAccepted}/{next.invites}
-              </span>
-            </div>
-            <div
-              className="relative h-1 overflow-hidden rounded-full bg-surface-float"
-              role="progressbar"
-              aria-label={`Progress toward ${next.title}`}
-              aria-valuenow={progress}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div
-                className="absolute inset-y-0 left-0 rounded-full bg-accent-cabbage-default transition-[width] duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        )}
+        <SectionRule label="Your filing" meta="paste anywhere" />
+        <InviteLinkFiling link={ledger.inviteUrl} origin="page" />
       </section>
 
-      {/* LADDER */}
-      <section className="flex flex-col gap-2">
-        <SectionLabel
-          icon={<SparkleIcon size={IconSize.XXSmall} />}
-          meta={`${unlockedCount} of 6 unlocked`}
-        >
-          The ladder
-        </SectionLabel>
-        <InviteMilestoneTimeline invitesAccepted={invitesAccepted} />
+      <section className="flex flex-col gap-3">
+        <SectionRule label="Status" meta={`${invitesAccepted}/50 lifetime`} />
+        <p className="text-text-primary typo-body">{statusLine}</p>
       </section>
 
-      {/* BRING-INS */}
       <section className="flex flex-col gap-2">
-        <SectionLabel
-          icon={<UserShareIcon size={IconSize.XXSmall} />}
+        <SectionRule label="The ladder" meta="six tiers" />
+        <Ladder invitesAccepted={invitesAccepted} />
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <SectionRule
+          label="This season"
           meta={
             ledger.rows.length === 0
-              ? 'None yet'
+              ? 'no entries'
               : `${ledger.rows.length} ${
                   ledger.rows.length === 1 ? 'entry' : 'entries'
                 }`
           }
-        >
-          Who joined
-        </SectionLabel>
-
-        <div className="-mx-2 overflow-x-auto">
-          <LedgerTable rows={ledger.rows} isLoading={ledger.isLoading} />
-        </div>
-
+        />
+        <Season rows={ledger.rows} isLoading={ledger.isLoading} />
         {ledger.hasNextPage && (
-          <div className="flex justify-center pt-1">
+          <div className="pt-2">
             <Button
               type="button"
               variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
               loading={ledger.isFetchingNextPage}
               onClick={() => ledger.fetchNextPage()}
-              icon={<ArrowIcon size={IconSize.Size16} className="rotate-180" />}
             >
-              Load more
+              Load earlier filings
             </Button>
           </div>
         )}
       </section>
-    </div>
+
+      <footer className="border-t border-border-subtlest-secondary pt-3 font-mono text-text-tertiary typo-caption2">
+        <p>
+          <span className="uppercase tracking-[0.18em]">
+            Filed from daily.dev
+          </span>
+          <span aria-hidden className="mx-2 text-text-quaternary">
+            ·
+          </span>
+          The math holds: {INVITE_LEDGER_CORES_PER_INVITE} Cores per join, six
+          tiers, no expiry.
+        </p>
+      </footer>
+    </article>
   );
 };
