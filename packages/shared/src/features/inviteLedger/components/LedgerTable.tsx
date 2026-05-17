@@ -24,7 +24,7 @@ export const LedgerTable = ({
 }: LedgerTableProps): ReactElement => {
   if (isLoading) {
     return (
-      <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-14 border border-border-subtlest-secondary py-12 text-text-tertiary typo-callout">
+      <div className="flex flex-col items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-surface-float py-12 text-text-secondary typo-callout">
         <span
           aria-hidden
           className="size-2 animate-pulse rounded-full bg-accent-cabbage-default"
@@ -36,13 +36,13 @@ export const LedgerTable = ({
 
   if (rows.length === 0) {
     return (
-      <div className="bg-surface-float/40 flex flex-col items-center gap-2 rounded-14 border border-dashed border-border-subtlest-secondary px-6 py-12 text-center">
+      <div className="flex flex-col items-center gap-2 rounded-12 border border-dashed border-border-subtlest-secondary bg-surface-float px-6 py-12 text-center">
         <span className="font-bold text-text-primary typo-callout">
-          Your ledger is empty
+          No invites yet
         </span>
-        <span className="max-w-sm text-text-tertiary typo-footnote">
-          Share your invite link above. Every developer who joins will land here
-          with the Cores you earned.
+        <span className="max-w-sm text-text-secondary typo-footnote">
+          Share your invite link above. Every developer who joins lands here and
+          unlocks the next tier.
         </span>
       </div>
     );

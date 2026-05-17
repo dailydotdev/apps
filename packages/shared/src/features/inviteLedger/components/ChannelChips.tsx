@@ -77,7 +77,7 @@ const CHANNELS: Channel[] = [
 ];
 
 const baseChip =
-  'inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-secondary bg-surface-float/60 px-3 py-1.5 font-semibold text-text-secondary transition-all duration-150 hover:-translate-y-px typo-footnote';
+  'inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-secondary bg-surface-float px-3 py-1.5 font-semibold text-text-primary transition-colors duration-150 typo-footnote';
 
 export const ChannelChips = ({ link }: ChannelChipsProps): ReactElement => {
   const { logEvent } = useLogContext();

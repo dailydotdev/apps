@@ -42,7 +42,7 @@ export const LedgerRow = ({
     <tr
       className={classNames(
         'group border-b border-border-subtlest-secondary transition-colors duration-150',
-        'hover:bg-accent-cabbage-subtlest/40',
+        'hover:bg-surface-float',
       )}
     >
       <td className="px-3 py-3 align-middle tabular-nums text-text-tertiary typo-footnote">

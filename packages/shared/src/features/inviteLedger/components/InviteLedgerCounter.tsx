@@ -6,12 +6,14 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useInviteLedgerEnabled } from '../useInviteLedgerEnabled';
 import { useInviteLedger } from '../useInviteLedger';
-import { AddUserIcon } from '../../../components/icons';
+import { SendAirplaneIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { getCurrentInviteTier } from '../milestones';
 
 /**
- * Small accent pill rendered next to the user's handle on their own profile.
- * Public-facing surface (visitors see the count, not the cores).
+ * Compact tier badge rendered next to the user's handle on their own profile.
+ * Shows current tier label + raw invite count. Public-facing surface
+ * (visitors see what tier the user reached).
  */
 export const InviteLedgerCounter = (): ReactElement | null => {
   const isEnabled = useInviteLedgerEnabled();
@@ -23,14 +25,15 @@ export const InviteLedgerCounter = (): ReactElement | null => {
     return null;
   }
 
+  const current = getCurrentInviteTier(ledger.invitesAccepted);
+
   return (
     <button
       type="button"
       className={classNames(
-        'group inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 transition-all duration-200 ease-out',
-        'border-accent-cabbage-default/30 border bg-accent-cabbage-subtlest',
-        'hover:border-accent-cabbage-default/60 hover:-translate-y-px hover:shadow-2-cabbage',
-        'typo-caption1',
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 transition-colors typo-caption1',
+        'border border-border-subtlest-secondary bg-surface-float text-text-secondary',
+        'hover:border-accent-cabbage-default/40 hover:text-text-primary',
       )}
       onClick={() => {
         logEvent({
@@ -40,17 +43,18 @@ export const InviteLedgerCounter = (): ReactElement | null => {
         router.push('/settings/referrals');
       }}
     >
-      <AddUserIcon
+      <SendAirplaneIcon
         size={IconSize.Size16}
         className="text-accent-cabbage-default"
         secondary
       />
-      <span className="bg-gradient-to-r from-accent-cabbage-bolder to-accent-onion-default bg-clip-text font-bold tabular-nums text-transparent">
+      <span className="font-bold tabular-nums text-text-primary">
         {ledger.invitesAccepted}
       </span>
-      <span className="text-accent-cabbage-bolder">
-        {ledger.invitesAccepted === 1 ? 'invite' : 'invites'}
-      </span>
+      {current && <span className="text-text-tertiary">·</span>}
+      {current && (
+        <span className="font-semibold text-text-primary">{current.label}</span>
+      )}
     </button>
   );
 };

@@ -8,9 +8,9 @@ import { useInviteLedger } from '../useInviteLedger';
 import { useInviteLedgerEnabled } from '../useInviteLedgerEnabled';
 import { isStripDismissed, setStripDismissed } from '../debug';
 import {
+  ArrowIcon,
   MiniCloseIcon,
   SparkleIcon,
-  ArrowIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 
@@ -78,41 +78,28 @@ export const InviteLedgerStrip = ({
     <div
       className={classNames(
         STRIP_HEIGHT_CLASS,
-        'group relative mx-4 mb-2 flex items-center gap-3 overflow-hidden rounded-12 px-3',
-        'border-accent-cabbage-default/30 border',
-        'bg-gradient-to-r from-accent-cabbage-subtlest via-surface-float to-accent-onion-subtlest',
-        'hover:border-accent-cabbage-default/50 transition-all duration-200 ease-out hover:shadow-2-cabbage',
-        'typo-callout',
+        'mx-4 mb-2 flex items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-background-default px-3',
         className,
       )}
     >
-      <span
-        aria-hidden
-        className="bg-accent-cabbage-default/20 pointer-events-none absolute -left-6 -top-6 size-20 rounded-full blur-2xl"
-      />
-      <span
-        aria-hidden
-        className="bg-accent-onion-default/15 pointer-events-none absolute -bottom-6 -right-6 size-20 rounded-full blur-2xl"
-      />
-
-      <span className="relative flex size-7 shrink-0 items-center justify-center rounded-10 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-[0_4px_12px_-2px_rgba(206,134,253,0.5)]">
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-10 bg-accent-cabbage-bolder text-white">
         <SparkleIcon size={IconSize.Size16} secondary />
       </span>
 
-      <span className="relative min-w-0 flex-1 truncate">
-        <strong className="font-bold text-text-primary">{headline}</strong>
+      <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+        <strong className="font-bold">{headline}</strong>
         <span className="text-text-secondary">
           {' '}
-          joined through your invite.{' '}
-          <strong className="text-accent-cheese-bolder">
-            +{coresAdded} Cores
-          </strong>
+          joined through your invite.
+        </span>
+        <span className="ml-1 inline-flex items-center gap-0.5 rounded-6 bg-accent-cheese-subtlest px-1.5 py-0.5 font-semibold text-accent-cheese-bolder typo-caption1">
+          +{coresAdded} Cores
         </span>
       </span>
 
       <button
         type="button"
-        className="hidden items-center gap-1 whitespace-nowrap rounded-10 bg-accent-cabbage-default px-3 py-1 font-bold text-white shadow-[0_2px_6px_-1px_rgba(206,134,253,0.4)] transition-transform duration-150 typo-footnote hover:scale-105 hover:shadow-2-cabbage tablet:inline-flex"
+        className="hidden items-center gap-1 whitespace-nowrap rounded-10 bg-accent-cabbage-bolder px-3 py-1.5 font-bold text-white transition-colors typo-footnote hover:bg-accent-cabbage-default tablet:inline-flex"
         onClick={() => {
           logEvent({
             event_name: LogEvent.InviteLedgerStripClick,
@@ -128,7 +115,7 @@ export const InviteLedgerStrip = ({
       <button
         type="button"
         aria-label="Dismiss"
-        className="relative rounded-8 p-1 text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
+        className="rounded-8 p-1 text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
         onClick={() => {
           setStripDismissed(ledger.newsCohortKey);
           setIsDismissed(true);
