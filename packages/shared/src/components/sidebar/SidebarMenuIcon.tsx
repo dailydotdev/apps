@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SidebarArrowLeft, SidebarArrowRight } from '../icons';
+import { IconSize } from '../Icon';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -40,7 +41,13 @@ export const SidebarMenuIcon = (): ReactElement => {
           size={ButtonSize.XSmall}
           onClick={logAndToggleSidebarExpanded}
           className="text-text-tertiary hover:text-text-primary"
-          icon={sidebarExpanded ? <SidebarArrowLeft /> : <SidebarArrowRight />}
+          icon={
+            sidebarExpanded ? (
+              <SidebarArrowLeft size={IconSize.Size16} />
+            ) : (
+              <SidebarArrowRight size={IconSize.Size16} />
+            )
+          }
           aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
         />
       </Tooltip>

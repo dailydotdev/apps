@@ -5,7 +5,7 @@ import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
-import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
+import { TagChip } from '@dailydotdev/shared/src/components/tags/TagChip';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -15,7 +15,8 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
+import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -70,7 +71,13 @@ const TagsPage = ({
   const { isFallback: isLoading } = useRouter();
 
   const { feedSettings } = useFeedSettings();
-  const selectedTags = feedSettings?.includeTags || [];
+  const { onFollowTags } = useTagAndSource({
+    origin: Origin.TagsFilter,
+  });
+  const followedSet = useMemo(
+    () => new Set(feedSettings?.includeTags || []),
+    [feedSettings?.includeTags],
+  );
 
   const recentlyAddedTags = useMemo(() => {
     return tags
@@ -164,12 +171,14 @@ const TagsPage = ({
                   {letter}
                 </p>
                 {value.map((tag) => (
-                  <TagLink
+                  <TagChip
                     key={tag.value}
                     tag={tag.value}
-                    className="!line-clamp-2 !h-auto py-1.5"
-                    isSelected={selectedTags.includes(tag.value)}
-                    buttonProps={{ size: ButtonSize.Small }}
+                    size="md"
+                    isFollowed={followedSet.has(tag.value)}
+                    onFollow={(name) =>
+                      onFollowTags({ tags: [name], requireLogin: true })
+                    }
                   />
                 ))}
               </div>
