@@ -1,4 +1,9 @@
-import type { ReactElement, Ref, MouseEventHandler } from 'react';
+import type {
+  HTMLAttributes,
+  ReactElement,
+  Ref,
+  MouseEventHandler,
+} from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import type { IconProps } from '../Icon';
@@ -113,7 +118,22 @@ const densityToIconSize: Record<CardActionDensity, IconSize> = {
 
 type IconElement = React.ReactElement<IconProps>;
 
-type CardActionBaseProps = {
+// Pass-through HTML attributes (id, role, aria-*, data-*, type, etc.)
+// for the underlying button / anchor element. Excludes the few props
+// we own explicitly (icon, label, onClick, etc.) so the public API
+// stays unambiguous.
+type CardActionPassthroughProps = Omit<
+  HTMLAttributes<AllowedElements>,
+  | 'children'
+  | 'className'
+  | 'onClick'
+  | 'aria-label'
+  | 'aria-pressed'
+  | 'aria-busy'
+  | 'aria-disabled'
+>;
+
+type CardActionBaseProps = CardActionPassthroughProps & {
   /** Icon shown in the default (idle) state. */
   icon: IconElement;
   /**
@@ -287,3 +307,4 @@ export type CardActionProps = CardActionBaseProps & {
 };
 
 export const CardAction = forwardRef(CardActionComponent);
+CardAction.displayName = 'CardAction';

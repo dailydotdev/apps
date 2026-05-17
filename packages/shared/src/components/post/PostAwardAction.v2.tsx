@@ -1,35 +1,40 @@
 import React from 'react';
-import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { ButtonColor } from '../buttons/ButtonV2';
+import type { CardActionDensity } from '../buttons/CardAction';
+import { CardAction } from '../buttons/CardAction';
 import { IconSize, iconSizeToClassName } from '../Icon';
 import { MedalBadgeIcon } from '../icons';
-import InteractionCounter from '../InteractionCounter';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { Post } from '../../graphql/posts';
 import { Image } from '../image/Image';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import type { LoggedUser } from '../../lib/user';
-import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
-import PostAwardActionV2 from './PostAwardAction.v2';
 
 export interface PostAwardActionProps {
   post: Post;
-  iconSize?: IconSize;
   /**
-   * Forwarded to the V2 path only — the V1 `QuaternaryButton` strip
-   * doesn't honour density. Kept on the public type so V2 consumers
-   * (e.g. feed-card `ActionButtons.v2`) can hint at compact vs
-   * comfortable sizing without conditionally branching imports.
+   * Density passes through to `CardAction`. Default `compact` matches
+   * the feed-grid card width contract; overridable for surfaces where
+   * the bar is the comfortable 40 px row.
    */
-  density?: 'comfortable' | 'compact';
+  density?: CardActionDensity;
+  /**
+   * Optional fixed icon size for the featured-award `Image` thumbnail.
+   * Falls back to the density-derived default. Kept so feed cards can
+   * lock the medal at the same dimension as sibling icons.
+   */
+  iconSize?: IconSize;
 }
 
-const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
+const PostAwardAction = ({
+  post,
+  density = 'compact',
+  iconSize,
+}: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
   const isSameUser = user?.id === post?.author?.id;
@@ -41,6 +46,7 @@ const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
   if (!canAward && !isSameUser) {
     return null;
   }
+
   const awardEntity = {
     id: post.id,
     receiver: post.author,
@@ -71,6 +77,21 @@ const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
     });
   };
 
+  // Featured-award thumbnail uses an explicit fixed size override
+  // (matches v1: 20 px square via `iconSizeToClassName[XSmall]`) so
+  // the medal asset doesn't get rescaled by the CardAction icon
+  // wrapper. Keeps parity with the previous QuaternaryButton behaviour.
+  const renderedIcon =
+    post.userState?.awarded && post.featuredAward?.award?.image ? (
+      <Image
+        src={post?.featuredAward?.award?.image}
+        alt={post?.featuredAward?.award?.name}
+        className={iconSizeToClassName[iconSize ?? IconSize.XSmall]}
+      />
+    ) : (
+      <MedalBadgeIcon size={iconSize} />
+    );
+
   return (
     <Tooltip
       content={
@@ -79,47 +100,26 @@ const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
           : 'Award this post'
       }
     >
-      <QuaternaryButton
+      <CardAction
         id={`post-${post.id}-award-btn`}
         pressed={!!post.userState?.awarded}
         onClick={openAwardModal}
-        size={ButtonSize.Small}
-        className="btn-tertiary-cabbage pointer-events-auto"
-        variant={ButtonVariant.Tertiary}
-        labelClassName="!pl-[1px]"
-        color={ButtonColor.Cabbage}
-        icon={
+        density={density}
+        icon={renderedIcon}
+        iconPressed={
           post.userState?.awarded && post.featuredAward?.award?.image ? (
-            <Image
-              src={post?.featuredAward?.award?.image}
-              alt={post?.featuredAward?.award?.name}
-              className={iconSizeToClassName[IconSize.XSmall]}
-            />
+            renderedIcon
           ) : (
             <MedalBadgeIcon secondary size={iconSize} />
           )
         }
-      >
-        {post?.numAwards > 0 && (
-          <InteractionCounter
-            className={classNames(
-              'tabular-nums !typo-footnote',
-              !post.numAwards && 'invisible',
-            )}
-            value={post.numAwards}
-          />
-        )}
-      </QuaternaryButton>
+        label="Award"
+        count={post?.numAwards}
+        color={ButtonColor.Cabbage}
+        buttonClassName="pointer-events-auto"
+      />
     </Tooltip>
   );
-};
-
-const PostAwardAction = (props: PostAwardActionProps) => {
-  const useV2 = useEngagementBarV2();
-  if (useV2) {
-    return <PostAwardActionV2 {...props} />;
-  }
-  return <PostAwardActionV1 {...props} />;
 };
 
 export default PostAwardAction;
