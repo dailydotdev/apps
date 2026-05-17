@@ -8,7 +8,16 @@
  */
 
 const ENABLED_KEY = 'inviteLedgerDebug';
+const DEMO_MODE_KEY = 'inviteLedgerDemoMode';
 const STRIP_DISMISS_PREFIX = 'inviteLedgerStripDismissed:';
+
+export type InviteLedgerDemoMode = 'full' | 'empty' | 'single' | null;
+
+const VALID_MODES: ReadonlyArray<InviteLedgerDemoMode> = [
+  'full',
+  'empty',
+  'single',
+];
 
 const safeWindow = (): Window | null =>
   typeof window === 'undefined' ? null : window;
@@ -40,6 +49,43 @@ export const setInviteLedgerDebugEnabled = (enabled: boolean): void => {
     win.localStorage.removeItem(ENABLED_KEY);
   }
   win.dispatchEvent(new Event('invite-ledger:debug-change'));
+};
+
+export const getInviteLedgerDemoMode = (): InviteLedgerDemoMode => {
+  const win = safeWindow();
+  if (!win) {
+    return null;
+  }
+  const match = win.location.search.match(/inviteLedgerDemoData=([a-z]+)/);
+  if (match) {
+    const value = match[1];
+    if (value === 'off' || value === '0') {
+      win.localStorage.removeItem(DEMO_MODE_KEY);
+      return null;
+    }
+    if ((VALID_MODES as ReadonlyArray<string>).includes(value)) {
+      win.localStorage.setItem(DEMO_MODE_KEY, value);
+      return value as InviteLedgerDemoMode;
+    }
+  }
+  const stored = win.localStorage.getItem(DEMO_MODE_KEY);
+  if (stored && (VALID_MODES as ReadonlyArray<string>).includes(stored)) {
+    return stored as InviteLedgerDemoMode;
+  }
+  return null;
+};
+
+export const setInviteLedgerDemoMode = (mode: InviteLedgerDemoMode): void => {
+  const win = safeWindow();
+  if (!win) {
+    return;
+  }
+  if (mode === null) {
+    win.localStorage.removeItem(DEMO_MODE_KEY);
+  } else {
+    win.localStorage.setItem(DEMO_MODE_KEY, mode);
+  }
+  win.dispatchEvent(new Event('invite-ledger:demo-mode-change'));
 };
 
 export const getStripDismissalKey = (cohortKey: string): string =>

@@ -4,6 +4,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { InviteLinkInput } from '../../../components/referral';
 import { useInviteLedger } from '../useInviteLedger';
+import { getInviteLedgerDemoMode, setInviteLedgerDemoMode } from '../debug';
 import { LedgerCounters } from './LedgerCounters';
 import { LedgerTable } from './LedgerTable';
 import { ChannelChips } from './ChannelChips';
@@ -15,9 +16,12 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 
+const DEMO_MODES = ['full', 'single', 'empty'] as const;
+
 export const LedgerPage = (): ReactElement => {
   const ledger = useInviteLedger();
   const { logEvent } = useLogContext();
+  const demoMode = getInviteLedgerDemoMode();
 
   useEffect(() => {
     logEvent({
@@ -28,6 +32,36 @@ export const LedgerPage = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-6 tablet:p-7">
+      {demoMode && (
+        <div className="border-action-bookmark-default/40 flex flex-wrap items-center gap-2 rounded-12 border bg-action-bookmark-float px-3 py-2 font-mono text-[11px] uppercase tracking-[0.08em] text-action-bookmark-default">
+          <span>Demo data: {demoMode}</span>
+          <span className="ml-auto flex flex-wrap gap-1.5">
+            {DEMO_MODES.filter((m) => m !== demoMode).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => {
+                  setInviteLedgerDemoMode(mode);
+                  window.location.reload();
+                }}
+                className="rounded border-action-bookmark-default/40 hover:bg-action-bookmark-default/10 border px-2 py-0.5"
+              >
+                switch to {mode}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setInviteLedgerDemoMode(null);
+                window.location.reload();
+              }}
+              className="rounded border-action-bookmark-default/40 hover:bg-action-bookmark-default/10 border px-2 py-0.5"
+            >
+              use real data
+            </button>
+          </span>
+        </div>
+      )}
       <header className="flex flex-col gap-4 border-b border-border-subtlest-tertiary pb-5 tablet:flex-row tablet:items-end tablet:justify-between">
         <div>
           <Typography

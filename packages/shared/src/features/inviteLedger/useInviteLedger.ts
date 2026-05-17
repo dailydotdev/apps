@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { differenceInDays } from 'date-fns';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -16,46 +16,25 @@ import type { ReferredUsersData } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import type { UserShortProfile } from '../../lib/user';
 import { link } from '../../lib/links';
+import { getInviteLedgerDemoMode } from './debug';
+import { getDemoSnapshot } from './fixtures';
+import {
+  INVITE_LEDGER_CORES_PER_INVITE,
+  INVITE_LEDGER_PLUS_DAYS_PER_INVITE,
+  INVITE_LEDGER_RECENT_JOINS_DAYS,
+} from './types';
+import type {
+  InviteLedgerRow,
+  InviteLedgerRowStatus,
+  InviteLedgerSnapshot,
+} from './types';
 
-/**
- * v1 reward shape, hard-coded until backend exposes per-invite reward
- * metadata. Mirrors what the existing /settings/invite copy already
- * promises ("200 Cores per invite").
- */
-export const INVITE_LEDGER_CORES_PER_INVITE = 200;
-export const INVITE_LEDGER_PLUS_DAYS_PER_INVITE = 7;
-export const INVITE_LEDGER_RECENT_JOINS_DAYS = 7;
-
-export type InviteLedgerRowStatus = 'joined' | 'pending' | 'expired';
-
-export interface InviteLedgerRow {
-  user: UserShortProfile;
-  /**
-   * Backend only returns developers who already joined through the link
-   * today, so every row is "joined" in v1. The shape supports `pending`
-   * and `expired` so the same component renders unchanged once the API
-   * exposes those states.
-   */
-  status: InviteLedgerRowStatus;
-  coresToInviter: number;
-}
-
-export interface InviteLedgerSnapshot {
-  inviteUrl: string;
-  invitesAccepted: number;
-  coresGiftedToFriends: number;
-  plusDaysGiftedToFriends: number;
-  coresEarned: number;
-  recentJoins: InviteLedgerRow[];
-  rows: InviteLedgerRow[];
-  hasNews: boolean;
-  isLoading: boolean;
-  fetchNextPage: () => Promise<unknown>;
-  hasNextPage: boolean;
-  isFetchingNextPage: boolean;
-  /** Stable identifier of the current "recent joins" cohort for dismissal. */
-  newsCohortKey: string;
-}
+export type { InviteLedgerRow, InviteLedgerRowStatus, InviteLedgerSnapshot };
+export {
+  INVITE_LEDGER_CORES_PER_INVITE,
+  INVITE_LEDGER_PLUS_DAYS_PER_INVITE,
+  INVITE_LEDGER_RECENT_JOINS_DAYS,
+};
 
 const emptySnapshot = (): Omit<
   InviteLedgerSnapshot,
@@ -81,6 +60,20 @@ export const useInviteLedger = (): InviteLedgerSnapshot => {
   });
   const inviteUrl = url || link.referral.defaultUrl;
   const referredKey = generateQueryKey(RequestKey.ReferredUsers, user);
+
+  const [demoMode, setDemoMode] = useState(getInviteLedgerDemoMode());
+  useEffect(() => {
+    setDemoMode(getInviteLedgerDemoMode());
+    const onChange = () => setDemoMode(getInviteLedgerDemoMode());
+    window.addEventListener('invite-ledger:demo-mode-change', onChange);
+    return () =>
+      window.removeEventListener('invite-ledger:demo-mode-change', onChange);
+  }, []);
+
+  const demoSnapshot = useMemo(
+    () => (demoMode ? getDemoSnapshot(demoMode) : null),
+    [demoMode],
+  );
 
   const usersResult = useInfiniteQuery<ReferredUsersData>({
     queryKey: referredKey,
@@ -133,6 +126,10 @@ export const useInviteLedger = (): InviteLedgerSnapshot => {
     coresEarned:
       (referredUsersCount || rows.length) * INVITE_LEDGER_CORES_PER_INVITE,
   };
+
+  if (demoSnapshot) {
+    return demoSnapshot;
+  }
 
   if (!user?.id) {
     return {

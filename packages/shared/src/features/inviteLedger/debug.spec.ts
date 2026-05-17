@@ -3,6 +3,8 @@ import {
   setInviteLedgerDebugEnabled,
   isStripDismissed,
   setStripDismissed,
+  getInviteLedgerDemoMode,
+  setInviteLedgerDemoMode,
 } from './debug';
 
 const ENABLED_KEY = 'inviteLedgerDebug';
@@ -45,6 +47,48 @@ describe('inviteLedger/debug', () => {
       expect(listener).toHaveBeenCalled();
       expect(window.localStorage.getItem(ENABLED_KEY)).toBe('true');
       window.removeEventListener('invite-ledger:debug-change', listener);
+    });
+  });
+
+  describe('demo mode', () => {
+    it('defaults to null', () => {
+      expect(getInviteLedgerDemoMode()).toBeNull();
+    });
+
+    it('persists ?inviteLedgerDemoData=full', () => {
+      window.history.replaceState({}, '', '/?inviteLedgerDemoData=full');
+      expect(getInviteLedgerDemoMode()).toBe('full');
+      expect(window.localStorage.getItem('inviteLedgerDemoMode')).toBe('full');
+    });
+
+    it('persists ?inviteLedgerDemoData=empty and =single', () => {
+      window.history.replaceState({}, '', '/?inviteLedgerDemoData=empty');
+      expect(getInviteLedgerDemoMode()).toBe('empty');
+      window.history.replaceState({}, '', '/?inviteLedgerDemoData=single');
+      expect(getInviteLedgerDemoMode()).toBe('single');
+    });
+
+    it('clears with ?inviteLedgerDemoData=off', () => {
+      window.localStorage.setItem('inviteLedgerDemoMode', 'full');
+      window.history.replaceState({}, '', '/?inviteLedgerDemoData=off');
+      expect(getInviteLedgerDemoMode()).toBeNull();
+      expect(window.localStorage.getItem('inviteLedgerDemoMode')).toBeNull();
+    });
+
+    it('ignores invalid mode values', () => {
+      window.history.replaceState({}, '', '/?inviteLedgerDemoData=garbage');
+      expect(getInviteLedgerDemoMode()).toBeNull();
+    });
+
+    it('setter dispatches change event', () => {
+      const listener = jest.fn();
+      window.addEventListener('invite-ledger:demo-mode-change', listener);
+      setInviteLedgerDemoMode('full');
+      expect(listener).toHaveBeenCalled();
+      expect(window.localStorage.getItem('inviteLedgerDemoMode')).toBe('full');
+      setInviteLedgerDemoMode(null);
+      expect(window.localStorage.getItem('inviteLedgerDemoMode')).toBeNull();
+      window.removeEventListener('invite-ledger:demo-mode-change', listener);
     });
   });
 
