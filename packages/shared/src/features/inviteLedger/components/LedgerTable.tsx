@@ -15,7 +15,7 @@ interface LedgerTableProps {
 }
 
 const HEADER_CELL =
-  'px-3 pt-4 pb-3 text-left text-text-tertiary typo-caption1 font-semibold border-b border-border-subtlest-secondary';
+  'px-3 py-2 text-left font-mono uppercase tracking-[0.12em] text-text-tertiary typo-caption2 border-b border-border-subtlest-secondary';
 
 export const LedgerTable = ({
   rows,
@@ -24,10 +24,10 @@ export const LedgerTable = ({
 }: LedgerTableProps): ReactElement => {
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-surface-float py-12 text-text-secondary typo-callout">
+      <div className="flex flex-col items-center gap-2 rounded-10 border border-border-subtlest-secondary bg-surface-float py-10 text-text-secondary typo-footnote">
         <span
           aria-hidden
-          className="size-2 animate-pulse rounded-full bg-accent-cabbage-default"
+          className="size-1.5 animate-pulse rounded-full bg-accent-cabbage-default"
         />
         Loading ledger…
       </div>
@@ -36,13 +36,13 @@ export const LedgerTable = ({
 
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-12 border border-dashed border-border-subtlest-secondary bg-surface-float px-6 py-12 text-center">
-        <span className="font-bold text-text-primary typo-callout">
-          No invites yet
+      <div className="flex flex-col items-center gap-1.5 rounded-10 border border-dashed border-border-subtlest-secondary bg-surface-float px-6 py-10 text-center">
+        <span className="font-bold text-text-primary typo-footnote">
+          No bring-ins yet.
         </span>
-        <span className="max-w-sm text-text-secondary typo-footnote">
-          Share your invite link above. Every developer who joins lands here and
-          unlocks the next tier.
+        <span className="max-w-sm text-text-secondary typo-caption1">
+          Share your invite link. Everyone who joins shows up here with the
+          Cores they earned you.
         </span>
       </div>
     );
@@ -50,23 +50,23 @@ export const LedgerTable = ({
 
   return (
     <table
-      className={classNames('w-full min-w-[640px] border-collapse', className)}
+      className={classNames('w-full min-w-[560px] border-collapse', className)}
     >
       <colgroup>
-        <col style={{ width: '14%' }} />
-        <col style={{ width: '24%' }} />
-        <col style={{ width: '34%' }} />
-        <col style={{ width: '14%' }} />
+        <col style={{ width: '12%' }} />
+        <col style={{ width: '32%' }} />
+        <col style={{ width: '30%' }} />
+        <col style={{ width: '12%' }} />
         <col style={{ width: '14%' }} />
       </colgroup>
       <thead>
         <tr>
           <th className={HEADER_CELL}>Date</th>
           <th className={HEADER_CELL}>Developer</th>
-          <th className={HEADER_CELL}>Gift to them</th>
-          <th className={classNames(HEADER_CELL, 'text-right')}>
-            Cores you got
+          <th className={classNames(HEADER_CELL, 'hidden tablet:table-cell')}>
+            Gift to them
           </th>
+          <th className={classNames(HEADER_CELL, 'text-right')}>You got</th>
           <th className={classNames(HEADER_CELL, 'text-right')}>Status</th>
         </tr>
       </thead>

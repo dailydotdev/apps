@@ -20,64 +20,44 @@ interface ChannelChipsProps {
   link: string;
 }
 
-type Tone = 'avocado' | 'water' | 'cabbage' | 'salt' | 'bacon' | 'cheese';
-
 interface Channel {
   provider: ShareProvider;
   label: string;
   icon: ReactElement;
-  tone: Tone;
 }
-
-const toneClasses: Record<Tone, string> = {
-  avocado:
-    'hover:border-accent-avocado-default/50 hover:text-accent-avocado-default hover:bg-accent-avocado-subtlest',
-  water:
-    'hover:border-accent-water-default/50 hover:text-accent-water-default hover:bg-accent-water-subtlest',
-  cabbage:
-    'hover:border-accent-cabbage-default/50 hover:text-accent-cabbage-default hover:bg-accent-cabbage-subtlest',
-  salt: 'hover:border-text-secondary hover:text-text-primary hover:bg-surface-float',
-  bacon:
-    'hover:border-accent-bacon-default/50 hover:text-accent-bacon-default hover:bg-accent-bacon-subtlest',
-  cheese:
-    'hover:border-accent-cheese-default/50 hover:text-accent-cheese-default hover:bg-accent-cheese-subtlest',
-};
 
 const CHANNELS: Channel[] = [
   {
     provider: ShareProvider.WhatsApp,
     label: 'WhatsApp',
     icon: <WhatsappIcon size={IconSize.Size16} />,
-    tone: 'avocado',
   },
   {
     provider: ShareProvider.LinkedIn,
     label: 'LinkedIn',
     icon: <LinkedInIcon size={IconSize.Size16} />,
-    tone: 'water',
   },
   {
     provider: ShareProvider.Telegram,
     label: 'Telegram',
     icon: <TelegramIcon size={IconSize.Size16} />,
-    tone: 'water',
   },
   {
     provider: ShareProvider.Twitter,
     label: 'X',
     icon: <TwitterIcon size={IconSize.Size16} />,
-    tone: 'salt',
   },
   {
     provider: ShareProvider.Email,
     label: 'Email',
     icon: <MailIcon size={IconSize.Size16} />,
-    tone: 'bacon',
   },
 ];
 
-const baseChip =
-  'inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-secondary bg-surface-float px-3 py-1.5 font-semibold text-text-primary transition-colors duration-150 typo-footnote';
+const chipClass = classNames(
+  'inline-flex items-center gap-1.5 rounded-8 border border-border-subtlest-secondary bg-transparent px-2.5 py-1 text-text-secondary transition-colors typo-caption1',
+  'hover:border-text-secondary hover:bg-surface-hover hover:text-text-primary',
+);
 
 export const ChannelChips = ({ link }: ChannelChipsProps): ReactElement => {
   const { logEvent } = useLogContext();
@@ -92,14 +72,11 @@ export const ChannelChips = ({ link }: ChannelChipsProps): ReactElement => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <span className="self-center text-text-tertiary typo-footnote">
-        Or share via
-      </span>
-      {CHANNELS.map(({ provider, label, icon, tone }) => (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {CHANNELS.map(({ provider, label, icon }) => (
         <a
           key={provider}
-          className={classNames(baseChip, toneClasses[tone])}
+          className={chipClass}
           href={getShareLink({
             provider,
             link,
@@ -115,7 +92,7 @@ export const ChannelChips = ({ link }: ChannelChipsProps): ReactElement => {
       ))}
       <button
         type="button"
-        className={classNames(baseChip, toneClasses.cheese)}
+        className={chipClass}
         onClick={() => {
           copyLink({ link });
           handleClick(ShareProvider.CopyLink);

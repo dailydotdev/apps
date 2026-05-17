@@ -1,20 +1,9 @@
 /**
- * Tiered invite milestone system. Each tier unlocks a richer reward bundle
- * the more developers a user brings in. Reads top-down: small first-invite
- * win to drive the first share, then escalating Cores + Plus days + status.
- *
- * Modeled after the streak progression system (see PR #5613) so visual
- * language stays consistent across daily.dev's loyalty surfaces.
+ * Tiered invite milestones. Each row is a fact about what unlocks at N invites,
+ * written in editorial voice — no RPG names, no marketing copy. The reward
+ * curve is intentionally steeper at the top so the early invites feel
+ * achievable and the top of the ladder feels like an actual flex.
  */
-
-export enum InviteTier {
-  FirstSpark = 'first_spark',
-  OpenDoor = 'open_door',
-  InnerCircle = 'inner_circle',
-  Crew = 'crew',
-  Vanguard = 'vanguard',
-  Ambassador = 'ambassador',
-}
 
 export enum InviteRewardKind {
   Cores = 'cores',
@@ -23,97 +12,86 @@ export enum InviteRewardKind {
   Perk = 'perk',
 }
 
-export type InviteAccentTone =
-  | 'cabbage'
-  | 'bacon'
-  | 'cheese'
-  | 'water'
-  | 'avocado'
-  | 'onion';
-
 export interface InviteReward {
   kind: InviteRewardKind;
   label: string;
 }
 
 export interface InviteMilestone {
+  /** Numeric ID used as the visible "01"…"06" prefix. */
+  step: number;
+  /** Number of invites required to unlock this row. */
   invites: number;
-  tier: InviteTier;
-  label: string;
+  /** Short, neutral name for the milestone — fact, not flavor. */
+  title: string;
+  /** Editorial one-liner. Conversational, specific, real stakes. */
   blurb: string;
   rewards: InviteReward[];
-  tone: InviteAccentTone;
 }
 
 export const INVITE_MILESTONES: InviteMilestone[] = [
   {
+    step: 1,
     invites: 1,
-    tier: InviteTier.FirstSpark,
-    label: 'First Spark',
-    blurb: 'Your first dev joins through your link.',
-    tone: 'cabbage',
+    title: 'Your first bring-in',
+    blurb:
+      'Someone joins daily.dev because you sent the link. Small reward, big proof it works.',
     rewards: [{ kind: InviteRewardKind.Cores, label: '100 Cores' }],
   },
   {
+    step: 2,
     invites: 3,
-    tier: InviteTier.OpenDoor,
-    label: 'Open Door',
-    blurb: 'Three friends in. The flywheel starts spinning.',
-    tone: 'bacon',
+    title: 'Three deep',
+    blurb:
+      "You've sent enough links that this isn't an accident. The flywheel starts.",
     rewards: [{ kind: InviteRewardKind.Cores, label: '500 Cores' }],
   },
   {
+    step: 3,
     invites: 5,
-    tier: InviteTier.InnerCircle,
-    label: 'Inner Circle',
-    blurb: 'A small crew of devs who got here because of you.',
-    tone: 'cheese',
+    title: 'A real circle',
+    blurb:
+      "Five devs landed here through you. That's a small group chat's worth of credit.",
     rewards: [
       { kind: InviteRewardKind.Cores, label: '1,500 Cores' },
-      { kind: InviteRewardKind.PlusDays, label: '7 Plus days for you' },
+      { kind: InviteRewardKind.PlusDays, label: '7 days of Plus' },
     ],
   },
   {
+    step: 4,
     invites: 10,
-    tier: InviteTier.Crew,
-    label: 'Crew',
-    blurb: 'A real network. You start showing up in the leaderboards.',
-    tone: 'water',
+    title: 'Double-digit territory',
+    blurb:
+      'Ten bring-ins puts you ahead of 98% of accounts. We start noticing.',
     rewards: [
       { kind: InviteRewardKind.Cores, label: '5,000 Cores' },
-      { kind: InviteRewardKind.PlusDays, label: '30 Plus days for you' },
+      { kind: InviteRewardKind.PlusDays, label: '30 days of Plus' },
     ],
   },
   {
+    step: 5,
     invites: 25,
-    tier: InviteTier.Vanguard,
-    label: 'Vanguard',
-    blurb: 'You are visibly shaping who shows up on daily.dev.',
-    tone: 'avocado',
+    title: 'Needle-moving territory',
+    blurb:
+      'Twenty-five bring-ins is the kind of number that shows up in our quarterly review.',
     rewards: [
       { kind: InviteRewardKind.Cores, label: '15,000 Cores' },
       {
         kind: InviteRewardKind.Cosmetic,
-        label: 'Inviter profile frame',
+        label: 'Inviter frame on your profile',
       },
     ],
   },
   {
+    step: 6,
     invites: 50,
-    tier: InviteTier.Ambassador,
-    label: 'Ambassador',
-    blurb: 'Top 0.1% of inviters. Permanent ambassador status.',
-    tone: 'onion',
+    title: 'Top 0.1% of inviters',
+    blurb:
+      'Fewer than a hundred accounts make it here. We unlock the rest of the kit.',
     rewards: [
       { kind: InviteRewardKind.Cores, label: '50,000 Cores' },
-      {
-        kind: InviteRewardKind.Cosmetic,
-        label: 'Glowing ledger',
-      },
-      {
-        kind: InviteRewardKind.Perk,
-        label: 'Custom invite page',
-      },
+      { kind: InviteRewardKind.Cosmetic, label: 'Glowing public ledger' },
+      { kind: InviteRewardKind.Perk, label: 'Custom invite page' },
     ],
   },
 ];
@@ -153,3 +131,7 @@ export const getInvitesUntilNextTier = (invitesAccepted: number): number => {
   }
   return Math.max(0, next.invites - invitesAccepted);
 };
+
+/** "01", "02"… for the visible numbered prefix in lists. */
+export const formatStep = (step: number): string =>
+  step < 10 ? `0${step}` : String(step);

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { LedgerStatusPill } from './LedgerStatusPill';
 
 describe('LedgerStatusPill', () => {
-  it('renders Joined label with avocado accent', () => {
+  it('renders Joined with avocado accent', () => {
     render(<LedgerStatusPill status="joined" />);
     const pill = screen.getByText('Joined');
     expect(pill).toBeInTheDocument();

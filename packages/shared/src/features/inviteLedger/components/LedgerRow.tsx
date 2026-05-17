@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { format } from 'date-fns';
-import { CoinIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
 import {
   ProfilePicture,
   ProfileImageSize,
@@ -39,53 +36,43 @@ export const LedgerRow = ({
   const { user, status, coresToInviter } = row;
   const isJoined = status === 'joined';
   return (
-    <tr
-      className={classNames(
-        'group border-b border-border-subtlest-secondary transition-colors duration-150',
-        'hover:bg-surface-float',
-      )}
-    >
-      <td className="px-3 py-3 align-middle tabular-nums text-text-tertiary typo-footnote">
-        {format(new Date(user.createdAt), 'MMM d, yyyy')}
+    <tr className="border-b border-border-subtlest-tertiary transition-colors hover:bg-surface-float">
+      <td className="px-3 py-2.5 align-middle tabular-nums text-text-tertiary typo-caption1">
+        {format(new Date(user.createdAt), 'MMM d')}
       </td>
-      <td className="px-3 py-3 align-middle">
-        <div className="flex items-center gap-2.5">
+      <td className="px-3 py-2.5 align-middle">
+        <div className="flex items-center gap-2">
           <ProfilePicture
             user={{
               id: user.id,
               username: user.username,
               image: user.image,
             }}
-            size={ProfileImageSize.Small}
+            size={ProfileImageSize.XSmall}
           />
           <div className="flex min-w-0 flex-col leading-tight">
-            <span className="truncate font-semibold text-text-primary typo-callout">
+            <span className="truncate font-semibold text-text-primary typo-footnote">
               {user.name || user.username}
             </span>
-            <span className="truncate text-text-tertiary typo-footnote">
+            <span className="truncate text-text-tertiary typo-caption2">
               @{user.username}
             </span>
           </div>
         </div>
       </td>
-      <td className="px-3 py-3 align-middle text-text-secondary typo-footnote">
+      <td className="hidden px-3 py-2.5 align-middle text-text-secondary typo-caption1 tablet:table-cell">
         {buildGiftLabel(status, coresPerInvite, plusDaysPerInvite)}
       </td>
-      <td className="px-3 py-3 text-right align-middle">
+      <td className="px-3 py-2.5 text-right align-middle">
         {isJoined ? (
-          <span className="inline-flex items-center gap-1 font-semibold tabular-nums text-text-primary typo-callout">
-            <CoinIcon
-              size={IconSize.Size16}
-              className="text-accent-cheese-default"
-              secondary
-            />
-            {coresToInviter}
+          <span className="font-bold tabular-nums text-text-primary typo-footnote">
+            +{coresToInviter}
           </span>
         ) : (
           <span className="text-text-quaternary">—</span>
         )}
       </td>
-      <td className="px-3 py-3 text-right align-middle">
+      <td className="px-3 py-2.5 text-right align-middle">
         <LedgerStatusPill status={status} />
       </td>
     </tr>

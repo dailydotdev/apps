@@ -1,5 +1,6 @@
 import {
   INVITE_MILESTONES,
+  formatStep,
   getCurrentInviteTier,
   getInviteTierProgress,
   getInvitesUntilNextTier,
@@ -21,7 +22,7 @@ describe('invite milestones', () => {
   });
 
   it('computes progress between two tiers', () => {
-    // current 3 (Open Door) → next 5 (Inner Circle), at 4 we are 50%.
+    // current 3 → next 5, at 4 we are 50%.
     expect(getInviteTierProgress(4)).toBe(50);
   });
 
@@ -30,5 +31,11 @@ describe('invite milestones', () => {
     expect(getNextInviteMilestone(top.invites)).toBeNull();
     expect(getInviteTierProgress(top.invites + 5)).toBe(100);
     expect(getInvitesUntilNextTier(top.invites + 5)).toBe(0);
+  });
+
+  it('formats the step prefix with a leading zero under 10', () => {
+    expect(formatStep(1)).toBe('01');
+    expect(formatStep(9)).toBe('09');
+    expect(formatStep(10)).toBe('10');
   });
 });

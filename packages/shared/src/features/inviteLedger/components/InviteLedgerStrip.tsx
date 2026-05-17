@@ -7,18 +7,14 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import { useInviteLedger } from '../useInviteLedger';
 import { useInviteLedgerEnabled } from '../useInviteLedgerEnabled';
 import { isStripDismissed, setStripDismissed } from '../debug';
-import {
-  ArrowIcon,
-  MiniCloseIcon,
-  SparkleIcon,
-} from '../../../components/icons';
+import { ArrowIcon, MiniCloseIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 
 interface InviteLedgerStripProps {
   className?: string;
 }
 
-const STRIP_HEIGHT_CLASS = 'h-12';
+const STRIP_HEIGHT_CLASS = 'h-10';
 
 const buildHeadline = (joinedNames: string[]): string => {
   if (joinedNames.length === 0) {
@@ -78,28 +74,27 @@ export const InviteLedgerStrip = ({
     <div
       className={classNames(
         STRIP_HEIGHT_CLASS,
-        'mx-4 mb-2 flex items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-background-default px-3',
+        'mx-4 mb-2 flex items-center gap-2 rounded-10 border border-border-subtlest-secondary bg-surface-float px-3 typo-footnote',
         className,
       )}
     >
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-10 bg-accent-cabbage-bolder text-white">
-        <SparkleIcon size={IconSize.Size16} secondary />
+      <span className="font-mono uppercase tracking-[0.12em] text-text-tertiary typo-caption2">
+        Invite ledger
       </span>
-
-      <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+      <span aria-hidden className="text-text-tertiary">
+        ·
+      </span>
+      <span className="min-w-0 flex-1 truncate text-text-primary">
         <strong className="font-bold">{headline}</strong>
-        <span className="text-text-secondary">
-          {' '}
-          joined through your invite.
-        </span>
-        <span className="ml-1 inline-flex items-center gap-0.5 rounded-6 bg-accent-cheese-subtlest px-1.5 py-0.5 font-semibold text-accent-cheese-bolder typo-caption1">
-          +{coresAdded} Cores
+        <span className="text-text-secondary"> joined through you. </span>
+        <span className="font-semibold text-accent-cheese-default">
+          +{coresAdded.toLocaleString('en-US')} Cores
         </span>
       </span>
 
       <button
         type="button"
-        className="hidden items-center gap-1 whitespace-nowrap rounded-10 bg-accent-cabbage-bolder px-3 py-1.5 font-bold text-white transition-colors typo-footnote hover:bg-accent-cabbage-default tablet:inline-flex"
+        className="hidden items-center gap-1 rounded-6 border border-border-subtlest-secondary px-2 py-1 font-semibold text-text-secondary typo-caption1 hover:border-text-secondary hover:bg-surface-hover hover:text-text-primary tablet:inline-flex"
         onClick={() => {
           logEvent({
             event_name: LogEvent.InviteLedgerStripClick,
@@ -115,7 +110,7 @@ export const InviteLedgerStrip = ({
       <button
         type="button"
         aria-label="Dismiss"
-        className="rounded-8 p-1 text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
+        className="rounded-6 p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary"
         onClick={() => {
           setStripDismissed(ledger.newsCohortKey);
           setIsDismissed(true);
