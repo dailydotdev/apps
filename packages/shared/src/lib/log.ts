@@ -102,8 +102,7 @@ export enum Origin {
 
 export enum LogEvent {
   HidePost = 'hide post',
-  HidePostUnfollowSource = 'hide post unfollow source',
-  HidePostBlockTags = 'hide post block tags',
+  HidePostFeedbackSubmit = 'hide post feedback submit',
   HidePostReport = 'hide post report',
   HidePostUndo = 'hide post undo',
   HidePostDismiss = 'hide post dismiss',

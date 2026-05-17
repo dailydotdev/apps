@@ -42,10 +42,22 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
-  const hiddenPanel = useHiddenFeedbackPanel(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
-  if (hiddenPanel) {
-    return hiddenPanel;
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
   }
 
   return (

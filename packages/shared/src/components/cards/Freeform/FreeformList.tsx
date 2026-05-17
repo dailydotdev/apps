@@ -61,7 +61,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
-  const hiddenPanel = useHiddenFeedbackPanel(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -107,8 +107,20 @@ export const FreeformList = forwardRef(function SharePostCard(
     post?.source?.name,
   ]);
 
-  if (hiddenPanel) {
-    return hiddenPanel;
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: classNames(domProps.className),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, type: postType }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
   }
 
   return (

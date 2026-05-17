@@ -42,7 +42,7 @@ export const CollectionList = forwardRef(function CollectionCard(
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title ?? '');
   const wasUpdated = isPostUpdated(post);
-  const hiddenPanel = useHiddenFeedbackPanel(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   const actionButtons = (
     <Container className="pointer-events-none mt-2">
@@ -59,8 +59,24 @@ export const CollectionList = forwardRef(function CollectionCard(
     </Container>
   );
 
-  if (hiddenPanel) {
-    return hiddenPanel;
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: domProps.className,
+        }}
+        ref={ref}
+        flagProps={{
+          pinnedAt: post.pinnedAt,
+          type: post.type,
+          trending: post.trending,
+        }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
   }
 
   return (

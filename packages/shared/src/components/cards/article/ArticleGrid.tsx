@@ -47,7 +47,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
-  const hiddenPanel = useHiddenFeedbackPanel(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -56,8 +56,21 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
 
-  if (hiddenPanel) {
-    return hiddenPanel;
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          style,
+          className: getPostClassNames(post, className, 'min-h-card'),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
   }
 
   if (data?.showTagsPanel && post.tags.length > 0) {

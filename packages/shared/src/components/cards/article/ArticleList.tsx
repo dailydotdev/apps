@@ -56,7 +56,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { showFeedback } = usePostFeedback({ post });
-  const hiddenPanel = useHiddenFeedbackPanel(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
@@ -102,8 +102,21 @@ export const ArticleList = forwardRef(function ArticleList(
     };
   }, [isUserSource, post]);
 
-  if (hiddenPanel) {
-    return hiddenPanel;
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          style,
+          className,
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending, type }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
   }
 
   return (

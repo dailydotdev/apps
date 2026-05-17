@@ -66,7 +66,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isVideoType = isVideoPost(post);
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
   const isSharedTweet = isSocialTwitterPost(sharedPost);
-  const hiddenPanel = useHiddenFeedbackPanel(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -142,8 +142,24 @@ export const ShareGrid = forwardRef(function ShareGrid(
     sharedPost,
   ]);
 
-  if (hiddenPanel) {
-    return hiddenPanel;
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: getPostClassNames(
+            post,
+            domProps.className,
+            'min-h-card max-h-card',
+          ),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
   }
 
   return (
