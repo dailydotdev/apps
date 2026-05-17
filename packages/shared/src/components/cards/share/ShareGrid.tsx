@@ -28,6 +28,7 @@ import { IconSize } from '../../Icon';
 import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 const EmptyStateContainer = classed(
   'div',
@@ -65,6 +66,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isVideoType = isVideoPost(post);
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
   const isSharedTweet = isSocialTwitterPost(sharedPost);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -139,6 +141,26 @@ export const ShareGrid = forwardRef(function ShareGrid(
     post,
     sharedPost,
   ]);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: getPostClassNames(
+            post,
+            domProps.className,
+            'min-h-card max-h-card',
+          ),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer

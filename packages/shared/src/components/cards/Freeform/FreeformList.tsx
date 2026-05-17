@@ -26,6 +26,7 @@ import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -60,6 +61,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -104,6 +106,22 @@ export const FreeformList = forwardRef(function SharePostCard(
     post?.source?.handle,
     post?.source?.name,
   ]);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: classNames(domProps.className),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, type: postType }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer
