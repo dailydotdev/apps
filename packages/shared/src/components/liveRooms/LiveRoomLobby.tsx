@@ -338,6 +338,9 @@ export const LiveRoomLobby = ({
   const hasScheduledStart = !!room.scheduledStart;
   const isStartingNow = hasScheduledStart && lobbyCountdown <= 0;
   const countdownLabel = isStartingNow ? 'Starting any moment' : 'Goes live in';
+  const unscheduledLobbyTitle = isHost
+    ? 'Ready to go live'
+    : 'Waiting for the host to go live';
   const countdownParts = getCountdownParts(lobbyCountdown);
   const hasEmbeds = !!room.contentEmbeds && room.contentEmbeds.length > 0;
   const standupFullUrl = useMemo(() => {
@@ -524,38 +527,39 @@ export const LiveRoomLobby = ({
                 </div>
 
                 <div className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-5 tablet:gap-5 tablet:pt-7">
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                    className="font-bold uppercase tracking-[0.18em]"
-                  >
-                    {countdownLabel}
-                  </Typography>
-
                   {hasScheduledStart ? (
-                    <CountdownDisplay
-                      parts={countdownParts}
-                      ariaLabel={`${countdownLabel} ${
-                        countdownParts.hasDays
-                          ? `${countdownParts.days} days `
-                          : ''
-                      }${
-                        countdownParts.hasHours
-                          ? `${countdownParts.hours} hours `
-                          : ''
-                      }${countdownParts.minutes} minutes${
-                        countdownParts.hasDays
-                          ? ''
-                          : ` ${countdownParts.seconds} seconds`
-                      }`}
-                    />
+                    <>
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="font-bold uppercase tracking-[0.18em]"
+                      >
+                        {countdownLabel}
+                      </Typography>
+                      <CountdownDisplay
+                        parts={countdownParts}
+                        ariaLabel={`${countdownLabel} ${
+                          countdownParts.hasDays
+                            ? `${countdownParts.days} days `
+                            : ''
+                        }${
+                          countdownParts.hasHours
+                            ? `${countdownParts.hours} hours `
+                            : ''
+                        }${countdownParts.minutes} minutes${
+                          countdownParts.hasDays
+                            ? ''
+                            : ` ${countdownParts.seconds} seconds`
+                        }`}
+                      />
+                    </>
                   ) : (
                     <Typography
                       type={TypographyType.Title2}
                       bold
                       color={TypographyColor.Primary}
                     >
-                      Awaiting host
+                      {unscheduledLobbyTitle}
                     </Typography>
                   )}
 
@@ -577,30 +581,24 @@ export const LiveRoomLobby = ({
               </div>
             </section>
 
-            <section
-              aria-label="What we'll cover"
-              className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-5"
-            >
-              <SectionLabel>What we&apos;ll cover</SectionLabel>
-              {room.descriptionHtml ? (
-                <Markdown
-                  content={room.descriptionHtml}
-                  className="break-words text-text-primary"
-                  openLinksInNewTab
-                />
-              ) : (
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Tertiary}
-                >
-                  The host hasn&apos;t shared an agenda yet. Drop into the chat
-                  to ask what&apos;s on the docket.
-                </Typography>
-              )}
-              {hasEmbeds ? (
-                <ContentEmbeds embeds={room.contentEmbeds} variant="post" />
-              ) : null}
-            </section>
+            {room.descriptionHtml || hasEmbeds ? (
+              <section
+                aria-label="What we'll cover"
+                className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-5"
+              >
+                <SectionLabel>What we&apos;ll cover</SectionLabel>
+                {room.descriptionHtml ? (
+                  <Markdown
+                    content={room.descriptionHtml}
+                    className="break-words text-text-primary"
+                    openLinksInNewTab
+                  />
+                ) : null}
+                {hasEmbeds ? (
+                  <ContentEmbeds embeds={room.contentEmbeds} variant="post" />
+                ) : null}
+              </section>
+            ) : null}
 
             <section
               aria-label="First standup?"
