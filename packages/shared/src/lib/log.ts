@@ -210,6 +210,13 @@ export enum LogEvent {
   // Referral campaign
   CopyReferralLink = 'copy referral link',
   InviteReferral = 'invite referral',
+  // Invite ledger
+  InviteLedgerViewed = 'invite ledger viewed',
+  InviteLedgerStripImpression = 'invite ledger strip impression',
+  InviteLedgerStripClick = 'invite ledger strip click',
+  InviteLedgerStripDismiss = 'invite ledger strip dismiss',
+  InviteLedgerCounterClick = 'invite ledger counter click',
+  InviteLedgerChannelClick = 'invite ledger channel click',
   // Shortcuts
   RevokeShortcutAccess = 'revoke shortcut access',
   SaveShortcutAccess = 'save shortcut access',
@@ -499,6 +506,9 @@ export enum TargetType {
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  InviteLedgerPage = 'invite ledger page',
+  InviteLedgerStrip = 'invite ledger strip',
+  InviteLedgerCounter = 'invite ledger counter',
   Shortcuts = 'shortcuts',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
@@ -573,6 +583,7 @@ export enum TargetId {
   GenericReferralPopup = 'generic referral popup',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
+  InviteLedgerPage = 'invite ledger page',
   Squad = 'squad',
   General = 'general',
   OrganizationsPage = 'organizations page',

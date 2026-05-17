@@ -61,6 +61,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
 import { TypographyColor, TypographyType } from '../typography/Typography';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import { useInviteLedgerEnabled } from '../../features/inviteLedger/useInviteLedgerEnabled';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useLogContext } from '../../contexts/LogContext';
@@ -84,6 +85,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
+  const isInviteLedgerEnabled = useInviteLedgerEnabled();
 
   const items = useMemo(
     () =>
@@ -132,6 +134,13 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
             },
+            ...(isInviteLedgerEnabled && {
+              referrals: {
+                title: 'Referrals',
+                icon: InviteIcon,
+                href: `${settingsUrl}/referrals`,
+              },
+            }),
           },
         },
         feed: {
@@ -337,7 +346,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           },
         },
       }),
-    [logEvent, onClose, openModal, user?.username],
+    [logEvent, onClose, openModal, user?.username, isInviteLedgerEnabled],
   );
 
   return { items };

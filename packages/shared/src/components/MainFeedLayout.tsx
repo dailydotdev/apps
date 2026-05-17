@@ -16,6 +16,7 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeedTagsList } from '../hooks/useFeedTagsList';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
+import { InviteLedgerStrip } from '../features/inviteLedger/components/InviteLedgerStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -717,6 +718,7 @@ export default function MainFeedLayout({
       {!isExtension && isHomePage && (
         <WebappShortcutsRow className="px-4 pb-2" />
       )}
+      {isHomePage && <InviteLedgerStrip />}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed

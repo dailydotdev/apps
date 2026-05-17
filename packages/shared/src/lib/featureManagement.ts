@@ -42,6 +42,8 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 
+export const featureInviteLedger = new Feature('invite_ledger', isDevelopment);
+
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
