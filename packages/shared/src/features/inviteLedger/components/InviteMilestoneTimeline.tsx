@@ -19,8 +19,6 @@ import type { InviteMilestone, InviteReward } from '../milestones';
 
 interface InviteMilestoneTimelineProps {
   invitesAccepted: number;
-  /** When true, show the editorial blurb under each row. Off for compact use. */
-  showBlurb?: boolean;
   className?: string;
 }
 
@@ -32,10 +30,10 @@ const REWARD_TONE: Record<InviteRewardKind, string> = {
 };
 
 const REWARD_ICON: Record<InviteRewardKind, ReactElement> = {
-  [InviteRewardKind.Cores]: <CoinIcon size={IconSize.Size16} secondary />,
-  [InviteRewardKind.PlusDays]: <DevPlusIcon size={IconSize.Size16} />,
-  [InviteRewardKind.Cosmetic]: <GiftIcon size={IconSize.Size16} secondary />,
-  [InviteRewardKind.Perk]: <SparkleIcon size={IconSize.Size16} />,
+  [InviteRewardKind.Cores]: <CoinIcon size={IconSize.XXSmall} secondary />,
+  [InviteRewardKind.PlusDays]: <DevPlusIcon size={IconSize.XXSmall} />,
+  [InviteRewardKind.Cosmetic]: <GiftIcon size={IconSize.XXSmall} secondary />,
+  [InviteRewardKind.Perk]: <SparkleIcon size={IconSize.XXSmall} />,
 };
 
 const RewardChip = ({
@@ -47,10 +45,8 @@ const RewardChip = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'inline-flex items-center gap-1 whitespace-nowrap rounded-6 border px-1.5 py-0.5 typo-caption1',
-      faded
-        ? 'border-border-subtlest-tertiary text-text-quaternary'
-        : 'border-border-subtlest-secondary text-text-primary',
+      'inline-flex items-center gap-1 whitespace-nowrap rounded-4 px-1 py-px tabular-nums typo-caption2',
+      faded ? 'text-text-quaternary' : 'text-text-secondary',
     )}
   >
     <span
@@ -65,65 +61,71 @@ const RewardChip = ({
   </span>
 );
 
+type MilestoneState = 'unlocked' | 'next' | 'locked';
+
 interface MilestoneRowProps {
   milestone: InviteMilestone;
-  state: 'unlocked' | 'next' | 'locked';
+  state: MilestoneState;
   invitesAway: number;
-  showBlurb: boolean;
   isLast: boolean;
 }
 
-const StateBadge = ({
+const PREFIX_TONE: Record<MilestoneState, string> = {
+  unlocked: 'text-accent-avocado-default',
+  next: 'text-accent-cabbage-default',
+  locked: 'text-text-quaternary',
+};
+
+const Prefix = ({
+  step,
   state,
-  invitesAway,
-}: Pick<MilestoneRowProps, 'state' | 'invitesAway'>): ReactElement | null => {
-  if (state === 'unlocked') {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-6 bg-accent-avocado-subtlest px-1.5 py-0.5 font-semibold text-accent-avocado-default typo-caption2">
-        <VIcon size={IconSize.XXSmall} />
-        Unlocked
+}: {
+  step: number;
+  state: MilestoneState;
+}): ReactElement => {
+  const tone = PREFIX_TONE[state];
+  return (
+    <span className="flex w-9 shrink-0 items-center gap-1 pt-px">
+      <span
+        aria-hidden
+        className={classNames(
+          'size-1 shrink-0 rounded-full transition-colors',
+          state === 'unlocked' && 'bg-accent-avocado-default',
+          state === 'next' &&
+            'bg-accent-cabbage-default shadow-[0_0_0_3px_var(--theme-overlay-active-cabbage)]',
+          state === 'locked' && 'bg-text-quaternary',
+        )}
+      />
+      <span
+        className={classNames('font-mono tabular-nums typo-caption1', tone)}
+      >
+        {formatStep(step)}
       </span>
-    );
-  }
-  if (state === 'next') {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-6 bg-accent-cabbage-subtlest px-1.5 py-0.5 font-semibold text-accent-cabbage-default typo-caption2">
-        {invitesAway === 1 ? '1 invite to go' : `${invitesAway} invites to go`}
-      </span>
-    );
-  }
-  return null;
+    </span>
+  );
 };
 
 const MilestoneRow = ({
   milestone,
   state,
   invitesAway,
-  showBlurb,
   isLast,
 }: MilestoneRowProps): ReactElement => {
   const faded = state === 'locked';
   return (
     <li
       className={classNames(
-        'relative flex gap-3 py-3',
+        'flex items-start gap-2 py-2.5',
         !isLast && 'border-b border-border-subtlest-tertiary',
       )}
     >
-      <span
-        className={classNames(
-          'shrink-0 select-none pt-0.5 font-mono tabular-nums typo-footnote',
-          faded ? 'text-text-quaternary' : 'text-text-tertiary',
-        )}
-      >
-        {formatStep(milestone.step)}
-      </span>
+      <Prefix step={milestone.step} state={state} />
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 leading-none">
           <span
             className={classNames(
-              'font-bold typo-callout',
+              'font-bold typo-footnote',
               faded ? 'text-text-tertiary' : 'text-text-primary',
             )}
           >
@@ -131,29 +133,25 @@ const MilestoneRow = ({
           </span>
           <span
             className={classNames(
-              'rounded-6 px-1.5 py-0.5 tabular-nums typo-caption2',
-              faded
-                ? 'bg-surface-float text-text-quaternary'
-                : 'bg-surface-float text-text-secondary',
+              'tabular-nums typo-caption2',
+              faded ? 'text-text-quaternary' : 'text-text-tertiary',
             )}
           >
-            {milestone.invites} {milestone.invites === 1 ? 'invite' : 'invites'}
+            · {milestone.invites}
           </span>
-          <StateBadge state={state} invitesAway={invitesAway} />
+          {state === 'unlocked' && (
+            <span className="inline-flex items-center gap-0.5 text-accent-avocado-default typo-caption2">
+              <VIcon size={IconSize.XXSmall} />
+            </span>
+          )}
+          {state === 'next' && (
+            <span className="font-semibold text-accent-cabbage-default typo-caption2">
+              · {invitesAway} to go
+            </span>
+          )}
         </div>
 
-        {showBlurb && (
-          <p
-            className={classNames(
-              'typo-footnote',
-              faded ? 'text-text-quaternary' : 'text-text-secondary',
-            )}
-          >
-            {milestone.blurb}
-          </p>
-        )}
-
-        <ul className="flex flex-wrap gap-1.5">
+        <ul className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           {milestone.rewards.map((reward) => (
             <RewardChip
               key={`${milestone.step}-${reward.label}`}
@@ -169,7 +167,6 @@ const MilestoneRow = ({
 
 export const InviteMilestoneTimeline = ({
   invitesAccepted,
-  showBlurb = true,
   className,
 }: InviteMilestoneTimelineProps): ReactElement => {
   const next = getNextInviteMilestone(invitesAccepted);
@@ -177,7 +174,7 @@ export const InviteMilestoneTimeline = ({
   return (
     <ol className={classNames('flex flex-col', className)}>
       {INVITE_MILESTONES.map((milestone, index) => {
-        let state: MilestoneRowProps['state'] = 'locked';
+        let state: MilestoneState = 'locked';
         if (invitesAccepted >= milestone.invites) {
           state = 'unlocked';
         } else if (next && next.step === milestone.step) {
@@ -190,7 +187,6 @@ export const InviteMilestoneTimeline = ({
             milestone={milestone}
             state={state}
             invitesAway={invitesAway}
-            showBlurb={showBlurb}
             isLast={index === INVITE_MILESTONES.length - 1}
           />
         );
