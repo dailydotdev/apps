@@ -3,11 +3,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import AuthContext from '../../../contexts/AuthContext';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../../components/modals/common/types';
 import {
   getInviteLedgerDemoMode,
   isInviteLedgerDebugEnabled,
+  resetInviteLedgerPromoSeen,
   setInviteLedgerDebugEnabled,
   setInviteLedgerDemoMode,
+  setInviteLedgerPromoDismissed,
 } from '../debug';
 import type { InviteLedgerDemoMode } from '../debug';
 
@@ -109,9 +113,20 @@ const clearStripDismissals = () => {
 export const InviteLedgerNavigator = (): ReactElement | null => {
   const router = useRouter();
   const { user } = useContext(AuthContext);
+  const { openModal } = useLazyModal();
   const [visible, setVisible] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<InviteLedgerDemoMode>(null);
+
+  const openPromoModal = () => {
+    setInviteLedgerPromoDismissed(false);
+    resetInviteLedgerPromoSeen();
+    openModal({
+      type: LazyModal.InviteLedgerPromo,
+      props: { isDrawerOnMobile: true },
+    });
+    setOpen(false);
+  };
 
   useEffect(() => {
     const sync = () => {
@@ -198,6 +213,18 @@ export const InviteLedgerNavigator = (): ReactElement | null => {
               );
             })}
           </ul>
+          <div className="flex items-center justify-between border-t border-border-subtlest-secondary px-4 py-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary">
+              Promo modal
+            </span>
+            <button
+              type="button"
+              onClick={openPromoModal}
+              className="rounded-10 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-white hover:shadow-2-cabbage"
+            >
+              open
+            </button>
+          </div>
           <footer className="flex items-center justify-between border-t border-border-subtlest-secondary px-4 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary">
             <button
               type="button"
@@ -205,6 +232,8 @@ export const InviteLedgerNavigator = (): ReactElement | null => {
               onClick={() => {
                 setInviteLedgerDemoMode(null);
                 clearStripDismissals();
+                setInviteLedgerPromoDismissed(false);
+                resetInviteLedgerPromoSeen();
                 window.location.reload();
               }}
             >

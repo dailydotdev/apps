@@ -9,11 +9,6 @@ import { LedgerCounters } from './LedgerCounters';
 import { LedgerTable } from './LedgerTable';
 import { ChannelChips } from './ChannelChips';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../../components/typography/Typography';
 
 const DEMO_MODES = ['full', 'single', 'empty'] as const;
 
@@ -30,10 +25,19 @@ export const LedgerPage = (): ReactElement => {
   }, [logEvent]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="relative flex flex-col gap-8">
+      <div
+        aria-hidden
+        className="-z-10 bg-accent-cabbage-default/15 pointer-events-none absolute -left-40 -top-32 size-80 rounded-full blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="-z-10 bg-accent-onion-default/10 pointer-events-none absolute -right-32 top-20 size-72 rounded-full blur-3xl"
+      />
+
       {demoMode && (
-        <div className="border-action-bookmark-default/40 flex flex-wrap items-center gap-2 rounded-12 border bg-action-bookmark-float px-3 py-2 font-mono text-[11px] uppercase tracking-[0.08em] text-action-bookmark-default">
-          <span>Demo data: {demoMode}</span>
+        <div className="border-accent-cabbage-default/30 flex flex-wrap items-center gap-2 rounded-12 border bg-accent-cabbage-subtlest px-3 py-2 text-accent-cabbage-bolder typo-caption1">
+          <span className="font-semibold">Demo data: {demoMode}</span>
           <span className="ml-auto flex flex-wrap gap-1.5">
             {DEMO_MODES.filter((m) => m !== demoMode).map((mode) => (
               <button
@@ -43,7 +47,7 @@ export const LedgerPage = (): ReactElement => {
                   setInviteLedgerDemoMode(mode);
                   window.location.reload();
                 }}
-                className="rounded border-action-bookmark-default/40 hover:bg-action-bookmark-default/10 border px-2 py-0.5"
+                className="border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 rounded-8 border px-2 py-0.5"
               >
                 switch to {mode}
               </button>
@@ -54,21 +58,21 @@ export const LedgerPage = (): ReactElement => {
                 setInviteLedgerDemoMode(null);
                 window.location.reload();
               }}
-              className="rounded border-action-bookmark-default/40 hover:bg-action-bookmark-default/10 border px-2 py-0.5"
+              className="border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 rounded-8 border px-2 py-0.5"
             >
               use real data
             </button>
           </span>
         </div>
       )}
-      <header className="flex flex-col gap-5 border-b border-border-subtlest-secondary pb-5">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
-          className="font-mono"
-        >
-          A record of the developers you brought in.
-        </Typography>
+
+      <header className="flex flex-col gap-5">
+        <p className="max-w-2xl text-text-secondary typo-body">
+          Every developer you bring in earns you{' '}
+          <strong className="text-accent-cheese-bolder">Cores</strong>, gives
+          them <strong className="text-accent-avocado-bolder">Plus days</strong>
+          , and leaves a permanent line in your ledger.
+        </p>
         <LedgerCounters
           invitesAccepted={ledger.invitesAccepted}
           coresGiftedToFriends={ledger.coresGiftedToFriends}
@@ -76,7 +80,19 @@ export const LedgerPage = (): ReactElement => {
         />
       </header>
 
-      <div className="flex flex-col gap-3">
+      <section className="bg-surface-float/60 relative flex flex-col gap-3 rounded-16 border border-border-subtlest-secondary p-5">
+        <div
+          aria-hidden
+          className="via-accent-cabbage-default/40 pointer-events-none absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent to-transparent"
+        />
+        <div className="flex flex-col gap-1">
+          <span className="font-bold text-text-primary typo-callout">
+            Your invite link
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            Send it to a friend. They join, you both win.
+          </span>
+        </div>
         <InviteLinkInput
           link={ledger.inviteUrl}
           logProps={{
@@ -85,32 +101,39 @@ export const LedgerPage = (): ReactElement => {
           }}
         />
         <ChannelChips link={ledger.inviteUrl} />
-      </div>
+      </section>
 
-      <div className="-mx-2 overflow-x-auto">
-        <LedgerTable rows={ledger.rows} isLoading={ledger.isLoading} />
-      </div>
-
-      {ledger.hasNextPage && (
-        <div className="flex justify-center">
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            loading={ledger.isFetchingNextPage}
-            onClick={() => ledger.fetchNextPage()}
-          >
-            Load more
-          </Button>
+      <section className="flex flex-col gap-3">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-bold text-text-primary typo-title3">
+            The ledger
+          </h2>
+          <span className="text-text-tertiary typo-footnote">
+            {ledger.rows.length === 0
+              ? 'No entries yet'
+              : `${ledger.rows.length} ${
+                  ledger.rows.length === 1 ? 'entry' : 'entries'
+                } · ${ledger.invitesAccepted} joined`}
+          </span>
         </div>
-      )}
 
-      <footer className="border-t border-border-subtlest-secondary pt-4 font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary">
-        {ledger.rows.length === 0
-          ? 'No entries yet'
-          : `${ledger.rows.length} ${
-              ledger.rows.length === 1 ? 'entry' : 'entries'
-            } · ${ledger.invitesAccepted} joined · sorted by most recent`}
-      </footer>
+        <div className="-mx-2 overflow-x-auto">
+          <LedgerTable rows={ledger.rows} isLoading={ledger.isLoading} />
+        </div>
+
+        {ledger.hasNextPage && (
+          <div className="flex justify-center pt-2">
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              loading={ledger.isFetchingNextPage}
+              onClick={() => ledger.fetchNextPage()}
+            >
+              Load more
+            </Button>
+          </div>
+        )}
+      </section>
     </div>
   );
 };

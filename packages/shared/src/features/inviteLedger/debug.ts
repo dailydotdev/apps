@@ -10,6 +10,8 @@
 const ENABLED_KEY = 'inviteLedgerDebug';
 const DEMO_MODE_KEY = 'inviteLedgerDemoMode';
 const STRIP_DISMISS_PREFIX = 'inviteLedgerStripDismissed:';
+const PROMO_DISMISSED_KEY = 'inviteLedgerPromoDismissed';
+const PROMO_SEEN_KEY = 'inviteLedgerPromoSeen';
 
 export type InviteLedgerDemoMode = 'full' | 'empty' | 'single' | null;
 
@@ -105,4 +107,49 @@ export const setStripDismissed = (cohortKey: string): void => {
     return;
   }
   win.localStorage.setItem(getStripDismissalKey(cohortKey), 'true');
+};
+
+export const isInviteLedgerPromoDismissed = (): boolean => {
+  const win = safeWindow();
+  if (!win) {
+    return true;
+  }
+  return win.localStorage.getItem(PROMO_DISMISSED_KEY) === 'true';
+};
+
+export const setInviteLedgerPromoDismissed = (dismissed: boolean): void => {
+  const win = safeWindow();
+  if (!win) {
+    return;
+  }
+  if (dismissed) {
+    win.localStorage.setItem(PROMO_DISMISSED_KEY, 'true');
+  } else {
+    win.localStorage.removeItem(PROMO_DISMISSED_KEY);
+  }
+  win.dispatchEvent(new Event('invite-ledger:promo-change'));
+};
+
+export const hasSeenInviteLedgerPromoThisSession = (): boolean => {
+  const win = safeWindow();
+  if (!win) {
+    return true;
+  }
+  return win.sessionStorage.getItem(PROMO_SEEN_KEY) === 'true';
+};
+
+export const markInviteLedgerPromoSeen = (): void => {
+  const win = safeWindow();
+  if (!win) {
+    return;
+  }
+  win.sessionStorage.setItem(PROMO_SEEN_KEY, 'true');
+};
+
+export const resetInviteLedgerPromoSeen = (): void => {
+  const win = safeWindow();
+  if (!win) {
+    return;
+  }
+  win.sessionStorage.removeItem(PROMO_SEEN_KEY);
 };

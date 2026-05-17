@@ -98,6 +98,13 @@ const GenericReferralModalV2 = dynamic(
     ),
 );
 
+const InviteLedgerPromoModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "inviteLedgerPromoModal" */ '../../features/inviteLedger/components/InviteLedgerPromoModal'
+    ),
+);
+
 const NewStreakModal = dynamic(
   () =>
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
@@ -502,6 +509,7 @@ export const modals = {
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.GenericReferralV2]: GenericReferralModalV2,
+  [LazyModal.InviteLedgerPromo]: InviteLedgerPromoModal,
   [LazyModal.Video]: VideoModal,
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,

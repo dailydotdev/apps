@@ -20,6 +20,11 @@ import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureGenericReferralPopupV2 } from '../../lib/featureManagement';
+import { useInviteLedgerEnabled } from '../../features/inviteLedger/useInviteLedgerEnabled';
+import {
+  hasSeenInviteLedgerPromoThisSession,
+  isInviteLedgerPromoDismissed,
+} from '../../features/inviteLedger/debug';
 
 const REP_TRESHOLD = 250;
 
@@ -195,14 +200,16 @@ export const BootPopups = (): ReactElement => {
     }
   }, [marketingCtaPopoverSmall]);
 
-  const shouldShowGenericReferral = alerts?.showGenericReferral === true;
+  const isInviteLedgerEnabled = useInviteLedgerEnabled();
+  const shouldShowGenericReferral =
+    alerts?.showGenericReferral === true && !isInviteLedgerEnabled;
   const { value: isGenericReferralV2 } = useConditionalFeature({
     feature: featureGenericReferralPopupV2,
     shouldEvaluate: shouldShowGenericReferral,
   });
 
   /** *
-   * Boot popup for generic referral campaign
+   * Boot popup for generic referral campaign (legacy — suppressed when invite ledger is on)
    */
   useEffect(() => {
     if (!shouldShowGenericReferral) {
@@ -221,6 +228,32 @@ export const BootPopups = (): ReactElement => {
       },
     });
   }, [shouldShowGenericReferral, isGenericReferralV2, updateLastBootPopup]);
+
+  /**
+   * Boot popup for the Invite Ledger promo (replaces legacy referral popup when enabled).
+   * Shows once per session, suppressed forever after explicit "don't show again".
+   */
+  useEffect(() => {
+    if (!isInviteLedgerEnabled) {
+      return;
+    }
+    if (isInviteLedgerPromoDismissed()) {
+      return;
+    }
+    if (hasSeenInviteLedgerPromoThisSession()) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.InviteLedgerPromo,
+      props: {
+        onAfterOpen: () => {
+          updateLastBootPopup();
+        },
+        isDrawerOnMobile: true,
+      },
+    });
+  }, [isInviteLedgerEnabled, updateLastBootPopup]);
 
   /**
    * Streak recovery modal

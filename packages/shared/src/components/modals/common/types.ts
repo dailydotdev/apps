@@ -40,6 +40,7 @@ export enum LazyModal {
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
   GenericReferralV2 = 'genericReferralV2',
+  InviteLedgerPromo = 'inviteLedgerPromo',
   Video = 'video',
   NewStreak = 'newStreak',
   RecoverStreak = 'recoverStreak',

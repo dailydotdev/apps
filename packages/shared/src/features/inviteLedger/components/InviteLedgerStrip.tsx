@@ -7,21 +7,25 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import { useInviteLedger } from '../useInviteLedger';
 import { useInviteLedgerEnabled } from '../useInviteLedgerEnabled';
 import { isStripDismissed, setStripDismissed } from '../debug';
-import { MiniCloseIcon } from '../../../components/icons';
+import {
+  MiniCloseIcon,
+  SparkleIcon,
+  ArrowIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 
 interface InviteLedgerStripProps {
   className?: string;
 }
 
-const STRIP_HEIGHT_CLASS = 'h-11'; // 44px exact, prevents CLS
+const STRIP_HEIGHT_CLASS = 'h-12';
 
 const buildHeadline = (joinedNames: string[]): string => {
   if (joinedNames.length === 0) {
     return '';
   }
   if (joinedNames.length === 1) {
-    return `${joinedNames[0]}`;
+    return joinedNames[0];
   }
   if (joinedNames.length === 2) {
     return `${joinedNames[0]} and ${joinedNames[1]}`;
@@ -29,11 +33,6 @@ const buildHeadline = (joinedNames: string[]): string => {
   return `${joinedNames[0]}, ${joinedNames[1]} +${joinedNames.length - 2}`;
 };
 
-/**
- * Fixed-height strip placed above the feed. Renders only when there is
- * something to tell the user about (joins in the last 7 days). Height is
- * locked so render/unrender does NOT shift cumulative layout.
- */
 export const InviteLedgerStrip = ({
   className,
 }: InviteLedgerStripProps): ReactElement | null => {
@@ -79,23 +78,41 @@ export const InviteLedgerStrip = ({
     <div
       className={classNames(
         STRIP_HEIGHT_CLASS,
-        'mx-4 mb-2 flex items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-surface-float px-4 typo-callout',
+        'group relative mx-4 mb-2 flex items-center gap-3 overflow-hidden rounded-12 px-3',
+        'border-accent-cabbage-default/30 border',
+        'bg-gradient-to-r from-accent-cabbage-subtlest via-surface-float to-accent-onion-subtlest',
+        'hover:border-accent-cabbage-default/50 transition-all duration-200 ease-out hover:shadow-2-cabbage',
+        'typo-callout',
         className,
       )}
     >
-      <span className="rounded hidden border border-border-subtlest-secondary px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-secondary tablet:inline-block">
-        +{ledger.recentJoins.length} joined
+      <span
+        aria-hidden
+        className="bg-accent-cabbage-default/20 pointer-events-none absolute -left-6 -top-6 size-20 rounded-full blur-2xl"
+      />
+      <span
+        aria-hidden
+        className="bg-accent-onion-default/15 pointer-events-none absolute -bottom-6 -right-6 size-20 rounded-full blur-2xl"
+      />
+
+      <span className="relative flex size-7 shrink-0 items-center justify-center rounded-10 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-[0_4px_12px_-2px_rgba(206,134,253,0.5)]">
+        <SparkleIcon size={IconSize.Size16} secondary />
       </span>
-      <span className="min-w-0 flex-1 truncate">
-        <strong className="font-semibold text-text-primary">{headline}</strong>
+
+      <span className="relative min-w-0 flex-1 truncate">
+        <strong className="font-bold text-text-primary">{headline}</strong>
         <span className="text-text-secondary">
           {' '}
-          joined through your invite this week. {coresAdded} Cores added.
+          joined through your invite.{' '}
+          <strong className="text-accent-cheese-bolder">
+            +{coresAdded} Cores
+          </strong>
         </span>
       </span>
+
       <button
         type="button"
-        className="hidden whitespace-nowrap border-b border-transparent bg-transparent font-mono text-[12px] text-accent-cabbage-default hover:border-accent-cabbage-default tablet:inline-block"
+        className="hidden items-center gap-1 whitespace-nowrap rounded-10 bg-accent-cabbage-default px-3 py-1 font-bold text-white shadow-[0_2px_6px_-1px_rgba(206,134,253,0.4)] transition-transform duration-150 typo-footnote hover:scale-105 hover:shadow-2-cabbage tablet:inline-flex"
         onClick={() => {
           logEvent({
             event_name: LogEvent.InviteLedgerStripClick,
@@ -104,12 +121,14 @@ export const InviteLedgerStrip = ({
           router.push('/settings/referrals');
         }}
       >
-        Open ledger →
+        Open ledger
+        <ArrowIcon size={IconSize.Size16} className="rotate-90" />
       </button>
+
       <button
         type="button"
         aria-label="Dismiss"
-        className="rounded p-1 text-text-tertiary hover:text-text-primary"
+        className="relative rounded-8 p-1 text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
         onClick={() => {
           setStripDismissed(ledger.newsCohortKey);
           setIsDismissed(true);
