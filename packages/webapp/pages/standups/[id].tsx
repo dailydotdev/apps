@@ -170,6 +170,7 @@ const fallbackSeo: NextSeoProps = {
 
 export async function getServerSideProps({
   params,
+  req,
   res,
 }: GetServerSidePropsContext<StandupPageParams>): Promise<
   GetServerSidePropsResult<StandupPageProps>
@@ -187,9 +188,11 @@ export async function getServerSideProps({
   );
 
   try {
-    const data = await gqlClient.request<LiveRoomData>(LIVE_ROOM_QUERY, {
-      id,
-    });
+    const data = await gqlClient.request<LiveRoomData>(
+      LIVE_ROOM_QUERY,
+      { id },
+      req.headers.cookie ? { Cookie: req.headers.cookie } : undefined,
+    );
     const url = `${getAppOrigin()}/standups/${id}`;
     const queryClient = new QueryClient();
     queryClient.setQueryData(
