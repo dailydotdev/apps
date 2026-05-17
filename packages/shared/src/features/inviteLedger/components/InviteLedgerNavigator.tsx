@@ -151,7 +151,7 @@ export const InviteLedgerNavigator = (): ReactElement | null => {
           <header className="flex items-center justify-between border-b border-border-subtlest-secondary px-4 py-3">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-tertiary">
-                Invite ledger \u00b7 demo
+                Invite ledger · demo
               </div>
               <div className="mt-0.5 font-mono text-[11px] text-text-secondary">
                 mode:{' '}
@@ -166,7 +166,7 @@ export const InviteLedgerNavigator = (): ReactElement | null => {
               className="rounded p-1 text-text-tertiary hover:bg-surface-float hover:text-text-primary"
               onClick={() => setOpen(false)}
             >
-              \u00d7
+              ×
             </button>
           </header>
           <ul className="max-h-[60vh] overflow-y-auto py-1">
@@ -236,7 +236,7 @@ export const InviteLedgerNavigator = (): ReactElement | null => {
         )}
       >
         <span className="h-2 w-2 rounded-full bg-action-bookmark-default" />
-        ledger demo \u00b7 {activeMode ?? 'real'}
+        ledger demo · {activeMode ?? 'real'}
       </button>
     </div>
   );

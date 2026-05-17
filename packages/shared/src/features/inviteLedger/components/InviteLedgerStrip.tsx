@@ -104,7 +104,7 @@ export const InviteLedgerStrip = ({
           router.push('/settings/referrals');
         }}
       >
-        Open ledger \u2192
+        Open ledger →
       </button>
       <button
         type="button"

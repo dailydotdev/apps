@@ -12,7 +12,6 @@ import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
 
@@ -62,24 +61,14 @@ export const LedgerPage = (): ReactElement => {
           </span>
         </div>
       )}
-      <header className="flex flex-col gap-4 border-b border-border-subtlest-secondary pb-5 tablet:flex-row tablet:items-end tablet:justify-between">
-        <div>
-          <Typography
-            tag={TypographyTag.H1}
-            type={TypographyType.LargeTitle}
-            bold
-            className="tracking-[-0.014em]"
-          >
-            Your invite ledger
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-            className="mt-1 font-mono"
-          >
-            A record of the developers you brought in.
-          </Typography>
-        </div>
+      <header className="flex flex-col gap-5 border-b border-border-subtlest-secondary pb-5">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
+          className="font-mono"
+        >
+          A record of the developers you brought in.
+        </Typography>
         <LedgerCounters
           invitesAccepted={ledger.invitesAccepted}
           coresGiftedToFriends={ledger.coresGiftedToFriends}
@@ -116,8 +105,11 @@ export const LedgerPage = (): ReactElement => {
       )}
 
       <footer className="border-t border-border-subtlest-secondary pt-4 font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary">
-        Showing {ledger.rows.length} of {ledger.invitesAccepted} \u00b7 sorted
-        by most recent
+        {ledger.rows.length === 0
+          ? 'No entries yet'
+          : `${ledger.rows.length} ${
+              ledger.rows.length === 1 ? 'entry' : 'entries'
+            } · ${ledger.invitesAccepted} joined · sorted by most recent`}
       </footer>
     </div>
   );

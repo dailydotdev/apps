@@ -25,7 +25,7 @@ export const LedgerTable = ({
   if (isLoading) {
     return (
       <div className="py-10 text-center font-mono text-[12px] text-text-secondary">
-        Loading ledger\u2026
+        Loading ledger…
       </div>
     );
   }
@@ -39,7 +39,16 @@ export const LedgerTable = ({
   }
 
   return (
-    <table className={classNames('w-full border-collapse', className)}>
+    <table
+      className={classNames('w-full min-w-[640px] border-collapse', className)}
+    >
+      <colgroup>
+        <col style={{ width: '14%' }} />
+        <col style={{ width: '24%' }} />
+        <col style={{ width: '34%' }} />
+        <col style={{ width: '14%' }} />
+        <col style={{ width: '14%' }} />
+      </colgroup>
       <thead>
         <tr>
           <th className={HEADER_CELL}>Date</th>
