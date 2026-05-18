@@ -84,6 +84,7 @@ interface UsePostToSquadProps {
   initialPreview?: ExternalLinkPreview;
   onMutate?: (data: unknown) => void;
   onError?: (error: ApiErrorResult) => void;
+  displayMutationErrors?: boolean;
 }
 
 const getSquadIdOrThrow = (squad: Squad): string => {
@@ -103,6 +104,7 @@ export const usePostToSquad = ({
   onSourcePostModerationSuccess,
   getSharedPostSuccessToast,
   initialPreview,
+  displayMutationErrors = false,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
@@ -116,14 +118,19 @@ export const usePostToSquad = ({
   const requestMethod = requestMethodContext ?? gqlClient.request;
 
   const handleMutationError = useCallback(
-    (err: unknown): void => {
+    (err: unknown, options: { displayError?: boolean } = {}): void => {
       if (!isApiErrorResult(err)) {
         return;
       }
 
+      const { displayError = true } = options;
+      if (displayMutationErrors && displayError) {
+        displayToast(err.response?.errors?.[0]?.message ?? DEFAULT_ERROR);
+      }
+
       onError?.(err);
     },
-    [onError],
+    [displayMutationErrors, displayToast, onError],
   );
 
   const handlePostSuccess = useCallback(
@@ -143,7 +150,7 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: createPost,
     onMutate,
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
     onSuccess: handlePostSuccess,
   });
   const {
@@ -154,7 +161,7 @@ export const usePostToSquad = ({
     mutationFn: editPost,
     onMutate,
     onSuccess: handlePostSuccess,
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -180,7 +187,7 @@ export const usePostToSquad = ({
       }
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
@@ -196,7 +203,7 @@ export const usePostToSquad = ({
         const rateLimited = getApiError(err, ApiError.RateLimited);
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
-        handleMutationError(err);
+        handleMutationError(err, { displayError: false });
       },
     });
 
@@ -270,7 +277,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully();
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -283,7 +290,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully(true);
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -305,7 +312,7 @@ export const usePostToSquad = ({
       const rateLimited = getApiError(err, ApiError.RateLimited);
       const message = rateLimited?.message ?? DEFAULT_ERROR;
       displayToast(message);
-      handleMutationError(err);
+      handleMutationError(err, { displayError: false });
     },
   });
 

@@ -11,6 +11,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -28,6 +29,7 @@ import Image from '@tiptap/extension-image';
 import { ImageIcon, AtIcon, MarkdownIcon } from '../icons';
 import { EditIcon } from '../icons/Edit';
 import { GifIcon } from '../icons/Gif';
+import { LinkIcon } from '../icons/Link';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -147,6 +149,13 @@ interface RichTextInputProps {
   minHeightClassName?: string;
   markdownToHtml?: (markdown: string) => string;
   hideToolbar?: boolean;
+  toolbarPosition?: 'top' | 'bottom';
+  toolbarLeading?: ReactNode;
+  toolbarRightActions?: ReactNode;
+  hideMarkdownToggle?: boolean;
+  hideMarkdownHeader?: boolean;
+  hideFooter?: boolean;
+  onMarkdownModeChange?: (isMarkdownMode: boolean) => void;
 }
 
 export interface RichTextInputRef {
@@ -154,6 +163,7 @@ export interface RichTextInputRef {
   clearDraft: () => void;
   setInput: (value: string) => void;
   focus: () => void;
+  toggleMarkdownMode: () => void;
 }
 
 function RichTextInput(
@@ -183,6 +193,13 @@ function RichTextInput(
     minHeightClassName = 'min-h-[8rem]',
     markdownToHtml = markdownToHtmlBasic,
     hideToolbar = false,
+    toolbarPosition = 'top',
+    toolbarLeading,
+    toolbarRightActions,
+    hideMarkdownToggle = false,
+    hideMarkdownHeader = false,
+    hideFooter = false,
+    onMarkdownModeChange,
   }: RichTextInputProps,
   ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
@@ -205,6 +222,7 @@ function RichTextInput(
   }, []);
 
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
+  const isLinkEnabled = enabledCommand[MarkdownCommand.Link];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
@@ -415,9 +433,13 @@ function RichTextInput(
 
         if (isSpecialKey && event.key === 'Enter' && inputRef.current?.length) {
           event.preventDefault();
-          onSubmit?.({
-            currentTarget: { value: inputRef.current },
-          } as React.FormEvent<HTMLTextAreaElement>);
+          if (onSubmit) {
+            onSubmit({
+              currentTarget: { value: inputRef.current },
+            } as React.FormEvent<HTMLTextAreaElement>);
+          } else {
+            editorContainerRef.current?.closest('form')?.requestSubmit();
+          }
           return true;
         }
 
@@ -508,6 +530,46 @@ function RichTextInput(
     setIsMarkdownMode(false);
   }, [markdownToHtml]);
 
+  const toggleMarkdownMode = useCallback(() => {
+    if (isMarkdownMode) {
+      switchToRichMode();
+      return;
+    }
+    switchToMarkdownMode();
+  }, [isMarkdownMode, switchToMarkdownMode, switchToRichMode]);
+
+  useEffect(() => {
+    onMarkdownModeChange?.(isMarkdownMode);
+  }, [isMarkdownMode, onMarkdownModeChange]);
+
+  const didInitMarkdownRef = useRef(false);
+  useEffect(() => {
+    if (!didInitMarkdownRef.current) {
+      didInitMarkdownRef.current = true;
+      return undefined;
+    }
+    const frame = requestAnimationFrame(() => {
+      if (isMarkdownMode) {
+        markdownTextareaRef.current?.focus();
+        return;
+      }
+      editorRef.current?.commands.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isMarkdownMode]);
+
+  useLayoutEffect(() => {
+    if (!isMarkdownMode) {
+      return;
+    }
+    const ta = markdownTextareaRef.current;
+    if (!ta) {
+      return;
+    }
+    ta.style.height = 'auto';
+    ta.style.height = `${ta.scrollHeight}px`;
+  }, [input, isMarkdownMode]);
+
   const onMarkdownInput = useCallback(
     (event: React.FormEvent<HTMLTextAreaElement>) => {
       const { value } = event.currentTarget;
@@ -524,9 +586,13 @@ function RichTextInput(
       }
 
       event.preventDefault();
-      onSubmit?.({
-        currentTarget: { value: inputRef.current },
-      } as React.FormEvent<HTMLTextAreaElement>);
+      if (onSubmit) {
+        onSubmit({
+          currentTarget: { value: inputRef.current },
+        } as React.FormEvent<HTMLTextAreaElement>);
+        return;
+      }
+      event.currentTarget.form?.requestSubmit();
     },
     [onSubmit],
   );
@@ -603,6 +669,7 @@ function RichTextInput(
 
       editor?.commands.focus();
     },
+    toggleMarkdownMode,
   }));
 
   useEffect(() => {
@@ -638,34 +705,57 @@ function RichTextInput(
           : editor?.storage.characterCount?.characters?.() ?? input.length)
       : null;
 
-  const hasToolbarActions = isUploadEnabled || isMentionEnabled || isGifEnabled;
+  const hasToolbarActions =
+    isUploadEnabled || isLinkEnabled || isMentionEnabled || isGifEnabled;
+  const preventEditorBlur = (event: React.MouseEvent) => event.preventDefault();
   const toolbarActions = (
     <>
       {isUploadEnabled && (
-        <Button
-          size={headerActionSize}
-          variant={ButtonVariant.Tertiary}
-          icon={actionIcon}
-          onClick={() => {
-            upload.uploadRef?.current?.click();
-          }}
-          type="button"
-        />
+        <SimpleTooltip content="Add image">
+          <Button
+            size={headerActionSize}
+            variant={ButtonVariant.Tertiary}
+            icon={actionIcon}
+            onClick={() => {
+              upload.uploadRef?.current?.click();
+            }}
+            onMouseDown={preventEditorBlur}
+            type="button"
+            aria-label="Add image"
+          />
+        </SimpleTooltip>
+      )}
+      {isLinkEnabled && (
+        <SimpleTooltip content="Add link">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={headerActionSize}
+            icon={<LinkIcon />}
+            onClick={() => toolbarRef.current?.openLinkModal()}
+            onMouseDown={preventEditorBlur}
+            type="button"
+            aria-label="Add link"
+          />
+        </SimpleTooltip>
       )}
       {isMentionEnabled && (
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={headerActionSize}
-          icon={<AtIcon />}
-          onClick={() => {
-            if (!editor) {
-              return;
-            }
-            editor.chain().focus().insertContent('@').run();
-            updateSuggestionsFromEditor(editor);
-          }}
-          type="button"
-        />
+        <SimpleTooltip content="Mention someone">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={headerActionSize}
+            icon={<AtIcon />}
+            onClick={() => {
+              if (!editor) {
+                return;
+              }
+              editor.chain().focus().insertContent('@').run();
+              updateSuggestionsFromEditor(editor);
+            }}
+            onMouseDown={preventEditorBlur}
+            type="button"
+            aria-label="Mention someone"
+          />
+        </SimpleTooltip>
       )}
       {isGifEnabled && (
         <GifPopover
@@ -727,7 +817,7 @@ function RichTextInput(
         )}
       >
         <div
-          className="flex flex-1 flex-col"
+          className="flex min-h-0 flex-1 flex-col"
           ref={editorContainerRef}
           onDrop={isMarkdownMode ? undefined : upload.handleDrop}
           onDragOver={
@@ -737,44 +827,79 @@ function RichTextInput(
         >
           {isMarkdownMode ? (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
-                <span className="px-2 text-text-tertiary typo-caption1">
-                  Markdown editor
-                </span>
-                <div className="flex items-center gap-2">
+              {!hideMarkdownHeader && (
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
+                  <span className="px-2 text-text-tertiary typo-caption1">
+                    Markdown editor
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {savingLabel}
+                    <SimpleTooltip content="Switch to Rich Text Editor">
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Tertiary}
+                        size={ButtonSize.Small}
+                        icon={<EditIcon />}
+                        onClick={switchToRichMode}
+                      />
+                    </SimpleTooltip>
+                    {onClose && (
+                      <CloseButton size={ButtonSize.Small} onClick={onClose} />
+                    )}
+                  </div>
+                </div>
+              )}
+              <ConditionalWrapper
+                condition={toolbarPosition === 'bottom'}
+                wrapper={(component) => (
+                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                    {component}
+                  </div>
+                )}
+              >
+                <textarea
+                  {...textareaProps}
+                  name={undefined}
+                  ref={markdownTextareaRef}
+                  value={input}
+                  className={classNames(
+                    minHeightClassName,
+                    'flex-1 resize-none bg-transparent p-4 font-mono outline-none',
+                    toolbarPosition === 'bottom' && 'overflow-hidden',
+                    className?.input,
+                  )}
+                  onInput={onMarkdownInput}
+                  onPaste={onMarkdownPaste}
+                  onKeyDown={onMarkdownKeyDown}
+                />
+              </ConditionalWrapper>
+            </>
+          ) : (
+            (() => {
+              const inlineActionsNode = hasToolbarActions
+                ? toolbarActions
+                : null;
+              const rightActionsNode = (
+                <div className="flex items-center gap-1">
                   {savingLabel}
-                  <SimpleTooltip content="Switch to Rich Text Editor">
-                    <Button
-                      type="button"
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Small}
-                      icon={<EditIcon />}
-                      onClick={switchToRichMode}
-                    />
-                  </SimpleTooltip>
+                  {!hideMarkdownToggle && (
+                    <SimpleTooltip content="Switch to Markdown Editor">
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Tertiary}
+                        size={ButtonSize.Small}
+                        icon={<MarkdownIcon />}
+                        onClick={switchToMarkdownMode}
+                      />
+                    </SimpleTooltip>
+                  )}
                   {onClose && (
                     <CloseButton size={ButtonSize.Small} onClick={onClose} />
                   )}
+                  {toolbarRightActions}
                 </div>
-              </div>
-              <textarea
-                {...textareaProps}
-                name={undefined}
-                ref={markdownTextareaRef}
-                value={input}
-                className={classNames(
-                  minHeightClassName,
-                  'resize-y bg-transparent p-4 outline-none',
-                  className?.input,
-                )}
-                onInput={onMarkdownInput}
-                onPaste={onMarkdownPaste}
-                onKeyDown={onMarkdownKeyDown}
-              />
-            </>
-          ) : (
-            <>
-              {hideToolbar ? null : (
+              );
+              const toolbarNode = hideToolbar ? null : (
                 <RichTextToolbar
                   ref={toolbarRef}
                   editor={editor}
@@ -798,61 +923,65 @@ function RichTextInput(
                       })
                       .run();
                   }}
-                  inlineActions={hasToolbarActions ? toolbarActions : null}
-                  rightActions={
-                    <div className="flex items-center gap-0">
-                      {savingLabel}
-                      <SimpleTooltip content="Switch to Markdown Editor">
-                        <Button
-                          type="button"
-                          variant={ButtonVariant.Tertiary}
-                          size={ButtonSize.Small}
-                          icon={<MarkdownIcon />}
-                          onClick={switchToMarkdownMode}
-                        />
-                      </SimpleTooltip>
-                      {onClose && (
-                        <CloseButton
-                          size={ButtonSize.Small}
-                          onClick={onClose}
-                        />
-                      )}
-                    </div>
+                  position={toolbarPosition}
+                  className={
+                    toolbarPosition === 'bottom'
+                      ? '!gap-3 !px-5 !pb-5 !pt-4'
+                      : undefined
                   }
+                  leadingActions={toolbarLeading}
+                  inlineActions={inlineActionsNode}
+                  hideInlineLink={isLinkEnabled}
+                  rightActions={rightActionsNode}
                 />
-              )}
-              {isUploadEnabled && (
-                <input
-                  type="file"
-                  className="hidden"
-                  name="content_upload"
-                  ref={upload.uploadRef}
-                  accept={allowedContentImage.join(',')}
-                  onInput={upload.onUpload}
-                />
-              )}
-              <div className="flex w-full flex-row">
-                {showUserAvatar && user && (
-                  <ProfilePicture
-                    size={ProfileImageSize.Large}
-                    className={classNames('ml-3 mt-3', className?.profile)}
-                    user={user}
-                    nativeLazyLoading
-                    fetchPriority="low"
-                  />
-                )}
-                <EditorContent
-                  editor={editor}
-                  className={classNames(
-                    styles.editor,
-                    minHeightClassName,
-                    'min-w-0 flex-1 p-4',
-                    showUserAvatar && user && 'ml-3 tablet:ml-0',
-                    className?.input,
+              );
+              const editorBody = (
+                <div className="flex w-full flex-1 flex-row">
+                  {showUserAvatar && user && (
+                    <ProfilePicture
+                      size={ProfileImageSize.Large}
+                      className={classNames('ml-3 mt-3', className?.profile)}
+                      user={user}
+                      nativeLazyLoading
+                      fetchPriority="low"
+                    />
                   )}
-                />
-              </div>
-            </>
+                  <EditorContent
+                    editor={editor}
+                    className={classNames(
+                      styles.editor,
+                      minHeightClassName,
+                      'min-w-0 flex-1 p-4',
+                      showUserAvatar && user && 'ml-3 tablet:ml-0',
+                      className?.input,
+                    )}
+                  />
+                </div>
+              );
+              return (
+                <>
+                  {toolbarPosition === 'top' && toolbarNode}
+                  {isUploadEnabled && (
+                    <input
+                      type="file"
+                      className="hidden"
+                      name="content_upload"
+                      ref={upload.uploadRef}
+                      accept={allowedContentImage.join(',')}
+                      onInput={upload.onUpload}
+                    />
+                  )}
+                  {toolbarPosition === 'bottom' ? (
+                    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                      {editorBody}
+                    </div>
+                  ) : (
+                    editorBody
+                  )}
+                  {toolbarPosition === 'bottom' && toolbarNode}
+                </>
+              );
+            })()
           )}
           {textareaProps.name && (
             <input type="hidden" name={textareaProps.name} value={input} />
@@ -890,41 +1019,43 @@ function RichTextInput(
           onClickOutside={emoji.clearEmoji}
         />
       )}
-      {footer ?? (
-        <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-2 px-3 text-text-tertiary laptop:border-t">
-          {shouldShowSubmit && !isMarkdownMode && (
-            <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
-              Press {submitShortcut} to send
-            </span>
-          )}
-          {maxLength && remainingCharacters !== null && (
-            <span
-              className={classNames(
-                'ml-auto font-bold typo-callout',
-                remainingCharacters < 100
-                  ? 'text-status-warning'
-                  : 'text-text-tertiary',
+      {hideFooter
+        ? null
+        : footer ?? (
+            <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-2 px-3 text-text-tertiary laptop:border-t">
+              {shouldShowSubmit && !isMarkdownMode && (
+                <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
+                  Press {submitShortcut} to send
+                </span>
               )}
-            >
-              {remainingCharacters}
+              {maxLength && remainingCharacters !== null && (
+                <span
+                  className={classNames(
+                    'ml-auto font-bold typo-callout',
+                    remainingCharacters < 100
+                      ? 'text-status-warning'
+                      : 'text-text-tertiary',
+                  )}
+                >
+                  {remainingCharacters}
+                </span>
+              )}
+              {shouldShowSubmit && (
+                <Button
+                  size={ButtonSize.Small}
+                  className={
+                    maxLength && remainingCharacters !== null ? '' : 'ml-auto'
+                  }
+                  variant={submitButtonVariant}
+                  type="submit"
+                  disabled={isLoading || disabledSubmit || isInputEmpty}
+                  loading={isLoading}
+                >
+                  {submitCopy}
+                </Button>
+              )}
             </span>
           )}
-          {shouldShowSubmit && (
-            <Button
-              size={ButtonSize.Small}
-              className={
-                maxLength && remainingCharacters !== null ? '' : 'ml-auto'
-              }
-              variant={submitButtonVariant}
-              type="submit"
-              disabled={isLoading || disabledSubmit || isInputEmpty}
-              loading={isLoading}
-            >
-              {submitCopy}
-            </Button>
-          )}
-        </span>
-      )}
     </div>
   );
 }
