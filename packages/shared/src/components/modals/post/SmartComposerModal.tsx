@@ -22,6 +22,7 @@ import {
 } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { Switch } from '../../fields/Switch';
 import { Drawer, DrawerPosition } from '../../drawers/Drawer';
 import { labels } from '../../../lib/labels';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -39,6 +40,7 @@ import {
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
 import { PollForm } from '../../post/composer/PollForm';
+import { useNotificationToggle } from '../../../hooks/notifications';
 import {
   isUserAudience,
   useComposerAudience,
@@ -71,6 +73,8 @@ export function SmartComposerModal({
   const { logEvent } = useLogContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { showPrompt } = usePrompt();
+  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
+    useNotificationToggle();
   const [kind, setKind] = useState<ComposerKind>(initialUrl ? 'link' : 'text');
   const [text, setText] = useState<TextFormState>(DEFAULT_TEXT);
   const [link, setLink] = useState<LinkFormState>({
@@ -214,7 +218,10 @@ export function SmartComposerModal({
     selectedIds,
     isMulti,
     initialPreview,
-    onComplete: () => onRequestClose?.(),
+    onComplete: () => {
+      onSubmitted();
+      onRequestClose?.();
+    },
   });
 
   const showSpamWarning =
@@ -254,6 +261,20 @@ export function SmartComposerModal({
       {submitLabel}
     </Button>
   );
+  const notificationToggleNode = shouldShowCta ? (
+    <Switch
+      data-testid="push_notification-switch"
+      inputId="smart_composer-push_notification-switch"
+      name="push_notification"
+      labelClassName="flex-1 font-normal"
+      className="py-1"
+      compact={false}
+      checked={isEnabled}
+      onToggle={onToggle}
+    >
+      Receive updates whenever your Squad members engage with your post
+    </Switch>
+  ) : null;
 
   const formContent = (
     <form
@@ -342,17 +363,24 @@ export function SmartComposerModal({
         </div>
       )}
       {kind === 'text' && (
-        <TextForm
-          ref={textFormRef}
-          value={text}
-          onChange={setText}
-          sourceId={primary?.id}
-          cover={cover}
-          onCoverChange={onCoverChange}
-          toolbarLeading={kindPickerNode}
-          toolbarRightActions={postButtonNode}
-          onMarkdownModeChange={onMarkdownModeChange}
-        />
+        <>
+          <TextForm
+            ref={textFormRef}
+            value={text}
+            onChange={setText}
+            sourceId={primary?.id}
+            cover={cover}
+            onCoverChange={onCoverChange}
+            toolbarLeading={kindPickerNode}
+            toolbarRightActions={postButtonNode}
+            onMarkdownModeChange={onMarkdownModeChange}
+          />
+          {!isMarkdownMode && notificationToggleNode && (
+            <div className="flex shrink-0 px-5 pb-5 pt-2">
+              {notificationToggleNode}
+            </div>
+          )}
+        </>
       )}
       {kind !== 'text' && (
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-3 pt-2">
@@ -372,9 +400,10 @@ export function SmartComposerModal({
         </div>
       )}
       {(kind !== 'text' || isMarkdownMode) && (
-        <div className="flex shrink-0 items-center justify-between gap-3 px-5 pb-5 pt-4">
+        <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4 tablet:flex-row tablet:items-center tablet:justify-between">
+          {notificationToggleNode}
           {kindPickerNode}
-          {postButtonNode}
+          <span className="ml-auto">{postButtonNode}</span>
         </div>
       )}
     </form>
