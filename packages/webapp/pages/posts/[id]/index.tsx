@@ -136,6 +136,7 @@ const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   [PostType.Poll]: PollPostContent as PostContentComponent,
   [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
   [PostType.Digest]: DigestPostContent,
+  [PostType.LiveRoom]: PostContent as PostContentComponent,
 };
 
 export interface PostParams extends ParsedUrlQuery {

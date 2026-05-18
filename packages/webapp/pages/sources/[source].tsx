@@ -228,6 +228,7 @@ const SourcePage = ({
         PostType.SocialTwitter,
         PostType.VideoYouTube,
         PostType.Collection,
+        PostType.LiveRoom,
       ],
       period: 365,
     }),

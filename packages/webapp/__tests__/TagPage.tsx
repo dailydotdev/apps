@@ -76,6 +76,7 @@ const tagFeedSupportedTypes = [
   PostType.Collection,
   PostType.Share,
   PostType.Freeform,
+  PostType.LiveRoom,
 ];
 
 const createFeedMock = (

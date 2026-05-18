@@ -23,7 +23,7 @@ export const HackathonHowItWorks = (): ReactElement => {
           center
         >
           <strong className="font-bold">
-            72 hours, async. Join from anywhere
+            5 days, fully async. Work on it at your own pace, from anywhere
           </strong>
           . To submit your submission, post about your project on social media
           tagging @dailydotdev with your live URL and a short summary.

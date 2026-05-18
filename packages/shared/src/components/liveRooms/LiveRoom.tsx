@@ -27,19 +27,17 @@ import { AuthTriggers } from '../../lib/auth';
 import { isDevelopment } from '../../lib/constants';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
-import { LogEvent, NotificationPromptSource } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
 import { useStreamDuration } from '../../hooks/liveRooms/useStreamDuration';
 import { useCountdownSeconds } from '../../hooks/liveRooms/useCountdownSeconds';
 import { useLiveRoomStandupAnalytics } from '../../hooks/liveRooms/useLiveRoomStandupAnalytics';
+import { useLiveRoomSubscriptionAction } from '../../hooks/liveRooms/useLiveRoomSubscriptionAction';
 import { useLiveRoomStageModel } from '../../hooks/liveRooms/useLiveRoomStageModel';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
 import { useViewSize, ViewSize } from '../../hooks';
-import { useLiveRoomSubscription } from '../../hooks/liveRooms/useLiveRoomSubscription';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { usePushNotificationMutation } from '../../hooks/notifications/usePushNotificationMutation';
 import { BrowserName, getCurrentBrowserName } from '../../lib/func';
 import {
   LiveRoomSidePanelTabs,
@@ -63,9 +61,6 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const { isAuthReady, showLogin, user } = useAuthContext();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isMobile = !isTablet;
-  const { isPushSupported, isSubscribed: isPushEnabled } =
-    usePushNotificationContext();
-  const { onEnablePush } = usePushNotificationMutation();
   const {
     status,
     errorMessage,
@@ -102,7 +97,6 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     error: roomError,
     isLoading: isRoomLoading,
   } = useLiveRoomQuery(roomId);
-  const { subscribe, unsubscribe } = useLiveRoomSubscription(roomId);
   const lobbyCountdown = useCountdownSeconds(room?.scheduledStart);
 
   const { onAskConfirmation } = useExitConfirmation({
@@ -360,47 +354,17 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       }),
     }),
   });
-  const handleToggleSubscription = async (): Promise<void> => {
-    if (!user) {
-      showLogin({ trigger: AuthTriggers.MainButton });
-      return;
-    }
-
-    if (!room?.scheduledStart) {
-      return;
-    }
-
-    try {
-      if (room.subscribed) {
-        await unsubscribe.mutateAsync();
-        logStandupAction(LogEvent.UnsubscribeStandup, roomId, {
-          surface: 'lobby_hero',
-        });
-        displayToast('Lobby reminder removed');
-        return;
-      }
-
-      await subscribe.mutateAsync();
-      const shouldRequestPush = isPushSupported && !isPushEnabled;
-      let pushEnabled = isPushEnabled;
-      if (shouldRequestPush) {
-        pushEnabled = await onEnablePush(NotificationPromptSource.StandupLobby);
-      }
-
-      logStandupAction(LogEvent.SubscribeStandup, roomId, {
-        surface: 'lobby_hero',
-        pushEnabled,
-        pushPermissionRequested: shouldRequestPush,
-      });
-      displayToast(
-        pushEnabled
-          ? "We'll notify you when the standup goes live"
-          : 'Reminder saved. Enable browser notifications to get a push.',
-      );
-    } catch (error) {
-      displayToast(error instanceof Error ? error.message : 'Action failed');
-    }
-  };
+  const {
+    subscribed,
+    subscriptionBusy,
+    toggleSubscription: handleToggleSubscription,
+  } = useLiveRoomSubscriptionAction({
+    room,
+    roomId,
+    hostUserId: room?.host.id,
+    surface: 'lobby_hero',
+    buildExtra: buildStandupExtra,
+  });
 
   useLogEventOnce(
     () => ({
@@ -456,7 +420,6 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   });
   const canSubscribeToLobby =
     isCreated && !!room?.scheduledStart && user?.id !== room?.host.id;
-  const subscriptionBusy = subscribe.isPending || unsubscribe.isPending;
 
   useEffect(() => {
     // Safari can retain rasterized layers for the infinitely scaled pulse
@@ -746,7 +709,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           participantCount={participantCount}
           showParticipantCount={!!roomState}
           canSubscribeToLobby={canSubscribeToLobby}
-          subscribed={room.subscribed}
+          subscribed={subscribed}
           subscriptionBusy={subscriptionBusy}
           onToggleSubscription={handleToggleSubscription}
           isHost={isHost}
@@ -785,7 +748,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         participantCount={participantCount}
         showParticipantCount={!!roomState}
         canSubscribeToLobby={canSubscribeToLobby}
-        subscribed={room.subscribed}
+        subscribed={subscribed}
         subscriptionBusy={subscriptionBusy}
         onToggleSubscription={handleToggleSubscription}
       />
