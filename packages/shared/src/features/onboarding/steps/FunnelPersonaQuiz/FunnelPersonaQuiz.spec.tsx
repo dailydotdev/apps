@@ -76,6 +76,7 @@ const parameters: FunnelStepPersonaQuiz['parameters'] = {
       id: 'q_fe_yn',
       axis: 'fe_typescript',
       prompt: 'You write TypeScript.',
+      archetypeId: 'frontend_dev',
       options: [
         {
           id: 'yes',
@@ -95,6 +96,7 @@ const parameters: FunnelStepPersonaQuiz['parameters'] = {
       id: 'q_be_yn',
       axis: 'be_go',
       prompt: 'Your main backend language is Go.',
+      archetypeId: 'backend_dev',
       options: [
         {
           id: 'yes',
@@ -112,17 +114,27 @@ const parameters: FunnelStepPersonaQuiz['parameters'] = {
     },
   ],
   selection: {
-    maxQuestions: 10,
+    maxQuestions: 20,
     targetTotalTags: 6,
     tagConfidenceFloor: 1,
     fallbackTags: ['javascript'],
   },
-  revealLookup: {
-    'q_domain:frontend|q_fe_yn:yes': {
+  archetypes: [
+    {
+      id: 'frontend_dev',
+      name: 'Frontend Dev',
       headline: 'TypeScript frontend dev',
       description: 'Heavy TS + React feed coming up.',
+      keyTags: ['react', 'typescript', 'tailwind'],
     },
-  },
+    {
+      id: 'backend_dev',
+      name: 'Backend Dev',
+      headline: 'Backend builder shipping services',
+      description: 'API and service feed incoming.',
+      keyTags: ['nodejs', 'postgres'],
+    },
+  ],
   reveal: {
     eyebrow: 'You are a…',
     cta: 'Looks good',
@@ -200,12 +212,18 @@ describe('FunnelPersonaQuiz', () => {
     });
   });
 
-  it('falls back to a tag-based headline when the path is missing from the reveal lookup', async () => {
-    renderStep();
-    // backend → no → no reveal lookup entry for this path
+  it('falls back to a tag-based headline when no archetype is resolved', async () => {
+    renderStep({
+      parameters: {
+        ...parameters,
+        // Terminal question has no archetypeId set — orchestration should fall back.
+        questions: parameters.questions.map((q) =>
+          q.id === 'q_be_yn' ? { ...q, archetypeId: undefined } : q,
+        ),
+      },
+    });
     fireEvent.click(await screen.findByText('Backend'));
     fireEvent.click(await screen.findByText('No'));
-    // Fallback headline composed from top humanised tags
     const heading = await screen.findByRole('heading', { level: 2 });
     expect(heading).toHaveTextContent(/Nodejs/);
     expect(heading).toHaveTextContent(/locked in/);

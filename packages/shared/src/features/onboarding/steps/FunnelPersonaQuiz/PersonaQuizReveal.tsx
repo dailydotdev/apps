@@ -20,10 +20,10 @@ import {
 } from '../../../../hooks/useTagSearch';
 import { Origin } from '../../../../lib/log';
 import { PersonaQuizFeedbackForm } from './PersonaQuizFeedbackForm';
-import type { PersonaQuizRevealEntry } from '../../types/funnel';
+import type { PersonaArchetype } from '../../types/funnel';
 
 interface PersonaQuizRevealProps {
-  revealText: PersonaQuizRevealEntry | null;
+  archetype: PersonaArchetype | null;
   tags: string[];
   reveal: {
     eyebrow?: string;
@@ -113,7 +113,7 @@ const TagSearchPanel = ({
 };
 
 export const PersonaQuizReveal = ({
-  revealText,
+  archetype,
   tags,
   reveal,
   isFinalizing,
@@ -125,11 +125,9 @@ export const PersonaQuizReveal = ({
   const [showAddTag, setShowAddTag] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  // When bragi's reveal mutation fails (or returns a blank headline) we still
-  // want the reveal screen to feel personalised. Compose a fallback from the
-  // user's top tags. Tag slugs come back kebab-cased (e.g. `data-engineering`)
-  // — humanise them before stitching into a sentence so the headline doesn't
-  // read like a tag list.
+  // Fallback when no archetype was resolved (graph misconfiguration or an
+  // unauthenticated dev preview path). Compose a tag-flavoured headline so the
+  // reveal screen still feels personal.
   const humaniseTag = (tag: string): string => {
     const spaced = tag.replace(/-/g, ' ').trim();
     if (!spaced) {
@@ -152,20 +150,18 @@ export const PersonaQuizReveal = ({
     return `${top[0]}, ${top[1]}, ${top[2]} — locked in.`;
   };
 
-  const headline =
-    revealText?.headline && revealText.headline.trim().length > 0
-      ? revealText.headline
-      : headlineFromTags();
+  const headline = archetype?.headline ?? headlineFromTags();
+  const eyebrow = archetype?.name ?? reveal.eyebrow;
 
   return (
     <div className="flex w-full flex-1 flex-col gap-6 px-4 py-6 tablet:mx-auto tablet:max-w-md">
       <header className="flex flex-col items-center gap-2 text-center">
-        {reveal.eyebrow && (
+        {eyebrow && (
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {reveal.eyebrow}
+            {eyebrow}
           </Typography>
         )}
         <Typography
@@ -176,12 +172,12 @@ export const PersonaQuizReveal = ({
         >
           {headline}
         </Typography>
-        {revealText?.description && (
+        {archetype?.description && (
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
-            {revealText.description}
+            {archetype.description}
           </Typography>
         )}
       </header>

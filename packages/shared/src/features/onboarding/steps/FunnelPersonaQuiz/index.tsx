@@ -10,8 +10,8 @@ import { useMutation } from '@tanstack/react-query';
 import type {
   FunnelStepPersonaQuiz,
   FunnelStepPersonaQuizParameters,
+  PersonaArchetype,
   PersonaQuizOption,
-  PersonaQuizRevealEntry,
 } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { withIsActiveGuard } from '../../shared/withActiveGuard';
@@ -24,9 +24,6 @@ import type { PersonaQuizAnswer } from './usePersonaQuizState';
 import { PersonaQuizQuestionView } from './PersonaQuizQuestion';
 import { PersonaQuizFeedPreview } from './PersonaQuizFeedPreview';
 import { PersonaQuizReveal } from './PersonaQuizReveal';
-
-const pathSignature = (answers: PersonaQuizAnswer[]): string =>
-  answers.map((a) => `${a.questionId}:${a.optionId}`).join('|');
 
 const dedupePreserveOrder = (tags: string[]): string[] =>
   Array.from(new Set(tags));
@@ -45,7 +42,7 @@ function FunnelPersonaQuizComponent({
   const {
     questions,
     selection,
-    revealLookup,
+    archetypes,
     reveal: revealCopy,
     entryQuestionId,
   } = params;
@@ -64,9 +61,8 @@ function FunnelPersonaQuizComponent({
     removeTag,
   } = usePersonaQuizState({ questions });
 
-  const [revealText, setRevealText] = useState<PersonaQuizRevealEntry | null>(
-    null,
-  );
+  const [revealArchetype, setRevealArchetype] =
+    useState<PersonaArchetype | null>(null);
 
   const didStartLogRef = useRef(false);
   useEffect(() => {
@@ -91,13 +87,18 @@ function FunnelPersonaQuizComponent({
     [tagScores, selection.tagConfidenceFloor],
   );
 
-  // Resolve the final tag list + look up reveal copy by path signature, then
-  // transition to the reveal phase. Pure local computation — no network call.
+  // Resolve the archetype from the terminal question's `archetypeId`, build
+  // the final tag list, then transition to the reveal phase. Pure local
+  // computation — no network call.
   const finishQuiz = useCallback(
     (committedAnswers: PersonaQuizAnswer[]) => {
-      const signature = pathSignature(committedAnswers);
-      const lookupEntry = revealLookup?.[signature] ?? null;
-      setRevealText(lookupEntry);
+      const lastAnswer = committedAnswers[committedAnswers.length - 1];
+      const terminalQuestion = lastAnswer
+        ? questions.find((q) => q.id === lastAnswer.questionId)
+        : null;
+      const archetype =
+        archetypes.find((a) => a.id === terminalQuestion?.archetypeId) ?? null;
+      setRevealArchetype(archetype);
 
       const merged = dedupePreserveOrder([
         ...accumulatedTags,
@@ -106,7 +107,8 @@ function FunnelPersonaQuizComponent({
       enrichmentComplete(merged);
     },
     [
-      revealLookup,
+      archetypes,
+      questions,
       accumulatedTags,
       selection.targetTotalTags,
       selection.fallbackTags,
@@ -252,13 +254,14 @@ function FunnelPersonaQuizComponent({
       logEvent({
         event_name: LogEvent.PersonaQuizFeedback,
         extra: JSON.stringify({
-          revealHeadline: revealText?.headline ?? null,
+          revealArchetypeId: revealArchetype?.id ?? null,
+          revealHeadline: revealArchetype?.headline ?? null,
           tags: finalTags,
           text,
         }),
       });
     },
-    [revealText, finalTags, logEvent],
+    [revealArchetype, finalTags, logEvent],
   );
 
   if (phase === 'question') {
@@ -289,7 +292,7 @@ function FunnelPersonaQuizComponent({
 
   return (
     <PersonaQuizReveal
-      revealText={revealText}
+      archetype={revealArchetype}
       tags={finalTags}
       reveal={revealCopy}
       isFinalizing={finalizeMutation.isPending}

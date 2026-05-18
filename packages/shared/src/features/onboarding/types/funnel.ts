@@ -393,11 +393,20 @@ export interface PersonaQuizQuestion {
   imageUrl?: string;
   cols?: number;
   options: PersonaQuizOption[];
+  /**
+   * Set on terminal nodes (last question of a specialty subtree). When the
+   * user answers a question with this set, the orchestration looks up the
+   * matching archetype and transitions to the reveal phase.
+   */
+  archetypeId?: string;
 }
 
-export interface PersonaQuizRevealEntry {
+export interface PersonaArchetype {
+  id: string;
+  name: string;
   headline: string;
   description: string;
+  keyTags: string[];
 }
 
 export interface FunnelStepPersonaQuizParameters {
@@ -412,12 +421,12 @@ export interface FunnelStepPersonaQuizParameters {
     fallbackTags?: string[];
   };
   /**
-   * Deterministic reveal copy, keyed by the path signature
-   * `${q1Id}:${q1OptionId}|${q2Id}:${q2OptionId}|…`. Pre-generated offline so
-   * the reveal screen renders instantly. Missing entries fall back to a
-   * tag-based headline composed at runtime.
+   * Finite set of persona archetypes the quiz can resolve to. The user's path
+   * through the DAG terminates on a question carrying an `archetypeId`, which
+   * is matched against this list. Tag accumulation continues independently
+   * and provides the per-user "flavour" within an archetype.
    */
-  revealLookup?: Record<string, PersonaQuizRevealEntry>;
+  archetypes: PersonaArchetype[];
   reveal: {
     eyebrow?: string;
     cta?: string;

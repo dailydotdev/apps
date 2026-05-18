@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-restricted-syntax, no-continue, no-plusplus, no-bitwise */
 // Compute parent tag profiles for nodes at a given depth in the persona-quiz graph.
 // Output: JSON with { bucketId, nodeId, path, parentTags, yesNextId, noNextId, parentPrompt } per node.
 // Usage: node compute-next-level.mjs <graph-json-path> <target-depth>
@@ -9,10 +10,26 @@ const targetDepth = Number(depthStr);
 const TOTAL_DEPTH = 9;
 
 const BUCKETS = {
-  q_p: { id: 'product', label: 'Building things people see and use', seedTags: { frontend: 1, 'web-development': 1 } },
-  q_i: { id: 'infra', label: 'Building the stuff underneath products', seedTags: { backend: 1, infrastructure: 1 } },
-  q_d: { id: 'data', label: 'Working with data, models, or AI', seedTags: { 'data-science': 1, 'machine-learning': 1, ai: 1 } },
-  q_s: { id: 'specialty', label: 'Niche / non-eng (games, embedded, leadership, founder)', seedTags: { 'game-development': 1, embedded: 1 } },
+  q_p: {
+    id: 'product',
+    label: 'Building things people see and use',
+    seedTags: { frontend: 1, 'web-development': 1 },
+  },
+  q_i: {
+    id: 'infra',
+    label: 'Building the stuff underneath products',
+    seedTags: { backend: 1, infrastructure: 1 },
+  },
+  q_d: {
+    id: 'data',
+    label: 'Working with data, models, or AI',
+    seedTags: { 'data-science': 1, 'machine-learning': 1, ai: 1 },
+  },
+  q_s: {
+    id: 'specialty',
+    label: 'Niche / non-eng (games, embedded, leadership, founder)',
+    seedTags: { 'game-development': 1, embedded: 1 },
+  },
 };
 
 const graph = JSON.parse(readFileSync(graphPath, 'utf-8'));
@@ -23,7 +40,9 @@ const nodeIdFor = (prefix, path) =>
 
 const applyWeights = (base, w) => {
   const next = { ...base };
-  for (const [t, n] of Object.entries(w ?? {})) next[t] = (next[t] ?? 0) + n;
+  for (const [t, n] of Object.entries(w ?? {})) {
+    next[t] = (next[t] ?? 0) + n;
+  }
   return next;
 };
 
@@ -47,8 +66,13 @@ for (const [prefix, bucket] of Object.entries(BUCKETS)) {
         throw new Error(`Missing ancestor ${ancestorId} for ${nodeId}`);
       }
       const optIdx = path[p] === 'y' ? 0 : 1;
-      parentTags = applyWeights(parentTags, ancestor.options[optIdx].tagWeights);
-      parentPrompts.push(`${ancestor.prompt}  →  ${path[p] === 'y' ? 'YES' : 'NO'}`);
+      parentTags = applyWeights(
+        parentTags,
+        ancestor.options[optIdx].tagWeights,
+      );
+      parentPrompts.push(
+        `${ancestor.prompt}  →  ${path[p] === 'y' ? 'YES' : 'NO'}`,
+      );
     }
 
     const isTerminal = targetDepth === TOTAL_DEPTH;
@@ -71,7 +95,9 @@ for (const [prefix, bucket] of Object.entries(BUCKETS)) {
       parentTagsCompact: sortedTags,
       yesNextId,
       noNextId,
-      parentPath: parentPrompts.length ? parentPrompts.join('\n   then  ') : '(this is the bucket entry)',
+      parentPath: parentPrompts.length
+        ? parentPrompts.join('\n   then  ')
+        : '(this is the bucket entry)',
       isTerminal,
     });
   }
