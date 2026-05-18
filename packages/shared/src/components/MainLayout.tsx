@@ -36,6 +36,8 @@ import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { MainLayoutV2 } from './MainLayoutV2';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -99,6 +101,7 @@ function MainLayoutComponent({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
+  const { isV2 } = useLayoutVariant();
   useNotificationParams();
 
   useEffect(() => {
@@ -197,35 +200,50 @@ function MainLayoutComponent({
         />
       )}
 
-      <MainLayoutHeader
-        hasBanner={isBannerAvailable}
-        sidebarRendered={sidebarRendered}
-        additionalButtons={additionalButtons}
-        onLogoClick={onLogoClick}
-      />
-      <main
-        className={classNames(
-          'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
-          showSidebar && 'tablet:pl-16 laptop:pl-11',
-          className,
-          isAuthReady &&
-            !isScreenCentered &&
-            sidebarExpanded &&
-            'laptop:!pl-60',
-          isBannerAvailable && 'laptop:pt-24',
-        )}
-      >
-        {isAuthReady && showSidebar && (
-          <Sidebar
-            isNavButtons={isNavItemsButton}
-            onNavTabClick={onNavTabClick}
+      {isV2 ? (
+        <MainLayoutV2
+          activePage={activePage}
+          isNavItemsButton={isNavItemsButton}
+          onNavTabClick={onNavTabClick}
+          showSidebar={showSidebar}
+          hideFeedbackWidget={hideFeedbackWidget}
+          className={className}
+        >
+          {children}
+        </MainLayoutV2>
+      ) : (
+        <>
+          <MainLayoutHeader
+            hasBanner={isBannerAvailable}
+            sidebarRendered={sidebarRendered}
+            additionalButtons={additionalButtons}
             onLogoClick={onLogoClick}
-            activePage={activePage ?? router.asPath ?? router.pathname}
           />
-        )}
-        {children}
-      </main>
-      {!hideFeedbackWidget && <FeedbackWidget />}
+          <main
+            className={classNames(
+              'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
+              showSidebar && 'tablet:pl-16 laptop:pl-11',
+              className,
+              isAuthReady &&
+                !isScreenCentered &&
+                sidebarExpanded &&
+                'laptop:!pl-60',
+              isBannerAvailable && 'laptop:pt-24',
+            )}
+          >
+            {isAuthReady && showSidebar && (
+              <Sidebar
+                isNavButtons={isNavItemsButton}
+                onNavTabClick={onNavTabClick}
+                onLogoClick={onLogoClick}
+                activePage={activePage ?? router.asPath ?? router.pathname}
+              />
+            )}
+            {children}
+          </main>
+          {!hideFeedbackWidget && <FeedbackWidget />}
+        </>
+      )}
     </div>
   );
 }
