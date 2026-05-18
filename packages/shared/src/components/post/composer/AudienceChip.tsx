@@ -7,9 +7,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
+import { Checkbox } from '../../fields/Checkbox';
 import { SourceAvatar } from '../../profile/source';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { ArrowIcon, InfoIcon, VIcon } from '../../icons';
+import { ArrowIcon, InfoIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { TruncateText } from '../../utilities';
 import type { Squad } from '../../../graphql/sources';
@@ -132,6 +133,13 @@ export const AudienceChip = ({
     toggleSquad(option);
   };
 
+  const selectSingleOption = (option: Squad) => {
+    if (!option.id) {
+      return;
+    }
+    onChange([option.id]);
+  };
+
   const handleReset = () => {
     if (userAudienceId) {
       onChange([userAudienceId]);
@@ -215,14 +223,12 @@ export const AudienceChip = ({
                 <DropdownMenuItem
                   key={option.id}
                   onSelect={(event: Event) => {
-                    event.preventDefault();
-                    if (reachedLimit) {
+                    if (!option.id) {
+                      event.preventDefault();
                       return;
                     }
-                    toggleOption(option);
+                    selectSingleOption(option);
                   }}
-                  disabled={reachedLimit}
-                  aria-checked={isSelected}
                   className="!h-9 gap-2 !overflow-visible !px-2"
                 >
                   <SourceAvatar
@@ -234,22 +240,33 @@ export const AudienceChip = ({
                     className={classNames(
                       'min-w-0 flex-1 truncate text-left typo-callout',
                       isSelected && 'font-bold text-text-primary',
-                      reachedLimit && 'text-text-disabled',
                     )}
                   >
                     {optionLabel}
                   </span>
                   <span
-                    aria-hidden
-                    className="flex size-4 shrink-0 items-center justify-center"
+                    role="presentation"
+                    className="flex size-5 shrink-0 items-center justify-center"
+                    onClick={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => event.stopPropagation()}
                   >
-                    {isSelected && (
-                      <VIcon
-                        secondary
-                        size={IconSize.Size16}
-                        className="text-accent-cabbage-default"
-                      />
-                    )}
+                    <Checkbox
+                      name="audiences[]"
+                      checked={isSelected}
+                      disabled={reachedLimit}
+                      className="!p-0 !pr-0"
+                      checkmarkClassName="!mr-0"
+                      onChange={() => {
+                        if (reachedLimit) {
+                          return;
+                        }
+                        toggleOption(option);
+                      }}
+                    >
+                      <span className="sr-only">
+                        Toggle {optionLabel} for multi-audience posting
+                      </span>
+                    </Checkbox>
                   </span>
                 </DropdownMenuItem>
               );
