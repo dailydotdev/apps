@@ -6,12 +6,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import type {
   FunnelStepPersonaQuiz,
   FunnelStepPersonaQuizParameters,
   PersonaQuizOption,
-  PersonaQuizQuestion,
+  PersonaQuizRevealEntry,
 } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { withIsActiveGuard } from '../../shared/withActiveGuard';
@@ -19,89 +19,17 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import useMutateFilters from '../../../../hooks/useMutateFilters';
-import {
-  discoverAndHydrateOnboardingPosts,
-  extractOnboardingTagsFromQuiz,
-  fetchNextQuizQuestion,
-  type PersonaQuizAnswerInput,
-  type PersonaQuizRevealText,
-} from '../../../../graphql/personaQuiz';
 import { usePersonaQuizState } from './usePersonaQuizState';
+import type { PersonaQuizAnswer } from './usePersonaQuizState';
 import { PersonaQuizQuestionView } from './PersonaQuizQuestion';
-import { PersonaQuizEnriching } from './PersonaQuizEnriching';
 import { PersonaQuizFeedPreview } from './PersonaQuizFeedPreview';
 import { PersonaQuizReveal } from './PersonaQuizReveal';
-import { PERSONA_QUIZ_TIPS } from './quizTips';
 
-const buildSeedTags = (
-  tagScores: Record<string, number>,
-  floor: number,
-  cap: number,
-): string[] => {
-  const positive = Object.entries(tagScores).filter(
-    ([, score]) => score >= floor,
-  );
-  positive.sort(([, a], [, b]) => b - a);
-  return positive.slice(0, cap).map(([tag]) => tag);
-};
-
-const buildAnswerInputs = (
-  answers: Array<{ questionId: string; optionId: string }>,
-  questions: PersonaQuizQuestion[],
-): PersonaQuizAnswerInput[] =>
-  answers
-    .map(({ questionId, optionId }) => {
-      const question = questions.find((q) => q.id === questionId);
-      const option = question?.options.find((o) => o.id === optionId);
-      if (!question || !option) {
-        return null;
-      }
-      // Prefer the canonical `signal` over the playful display `label` so the
-      // LLM gets a neutral, unambiguous description of what the user picked.
-      return {
-        questionId,
-        question: question.prompt,
-        optionId,
-        answer: option.signal ?? option.label,
-      };
-    })
-    .filter((entry): entry is PersonaQuizAnswerInput => entry !== null);
+const pathSignature = (answers: PersonaQuizAnswer[]): string =>
+  answers.map((a) => `${a.questionId}:${a.optionId}`).join('|');
 
 const dedupePreserveOrder = (tags: string[]): string[] =>
   Array.from(new Set(tags));
-
-// Artificial pause between pre-authored static questions so the quiz feels
-// deliberate rather than instant. The LLM path already has natural latency
-// from the network call, so it gets the same loading screen for free.
-// Tuned to leave a tip readable on the loading interstitial.
-const STATIC_TRANSITION_DELAY_MS = 1800;
-
-// Hard cap on the reveal LLM call. If bragi/recswipe stalls the user would
-// otherwise be stuck on "Cooking up your developer profile…" indefinitely;
-// after this we fall back to the seed-tag / fallback-tag path.
-const ENRICHMENT_TIMEOUT_MS = 25_000;
-
-class EnrichmentTimeoutError extends Error {
-  constructor() {
-    super('enrichment timed out');
-    this.name = 'EnrichmentTimeoutError';
-  }
-}
-
-const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
-  new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new EnrichmentTimeoutError()), ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (err) => {
-        clearTimeout(timer);
-        reject(err);
-      },
-    );
-  });
 
 function FunnelPersonaQuizComponent({
   id,
@@ -117,18 +45,10 @@ function FunnelPersonaQuizComponent({
   const {
     questions,
     selection,
-    enrichment,
+    revealLookup,
     reveal: revealCopy,
     entryQuestionId,
   } = params;
-
-  const [generatedQuestions, setGeneratedQuestions] = useState<
-    PersonaQuizQuestion[]
-  >([]);
-  const allQuestions = useMemo(
-    () => [...questions, ...generatedQuestions],
-    [questions, generatedQuestions],
-  );
 
   const {
     phase,
@@ -139,26 +59,16 @@ function FunnelPersonaQuizComponent({
     lastOption,
     goToQuestion,
     answer,
-    startEnriching,
     enrichmentComplete,
     addTag,
     removeTag,
-  } = usePersonaQuizState({ questions: allQuestions });
+  } = usePersonaQuizState({ questions });
 
-  const [revealText, setRevealText] = useState<PersonaQuizRevealText | null>(
+  const [revealText, setRevealText] = useState<PersonaQuizRevealEntry | null>(
     null,
   );
-  const [pendingStaticTarget, setPendingStaticTarget] = useState<string | null>(
-    null,
-  );
-  const [pendingLlmTarget, setPendingLlmTarget] = useState<string | null>(null);
-  const [staticMinDelayMet, setStaticMinDelayMet] = useState(false);
 
   const didStartLogRef = useRef(false);
-  const decidedAnswerCountRef = useRef(0);
-  const enrichmentTriggeredRef = useRef(false);
-  const llmRetryCountRef = useRef(0);
-
   useEffect(() => {
     if (didStartLogRef.current) {
       return;
@@ -170,262 +80,106 @@ function FunnelPersonaQuizComponent({
     });
   }, [id, logEvent, parameters.version]);
 
-  const llmSeedTags = useMemo(
+  // Tags accumulated so far, sorted by score (used both for the live feed
+  // preview and to derive the final follow list at reveal time).
+  const accumulatedTags = useMemo(
     () =>
       Object.entries(tagScores)
-        .filter(([, score]) => score >= 1)
+        .filter(([, score]) => score >= selection.tagConfidenceFloor)
         .sort(([, a], [, b]) => b - a)
-        .map(([tag]) => tag)
-        .slice(0, 16),
-    [tagScores],
+        .map(([tag]) => tag),
+    [tagScores, selection.tagConfidenceFloor],
   );
 
-  // Recswipe-backed preview for the question the user is about to see.
-  // Re-keys on each answer so the cards reflect what the running tag set
-  // suggests; the loading screen blocks the transition until this resolves.
-  const previewQuery = useQuery({
-    queryKey: [
-      'persona-quiz-feed-preview',
-      llmSeedTags.join('|'),
-      answers.length,
+  // Resolve the final tag list + look up reveal copy by path signature, then
+  // transition to the reveal phase. Pure local computation — no network call.
+  const finishQuiz = useCallback(
+    (committedAnswers: PersonaQuizAnswer[]) => {
+      const signature = pathSignature(committedAnswers);
+      const lookupEntry = revealLookup?.[signature] ?? null;
+      setRevealText(lookupEntry);
+
+      const merged = dedupePreserveOrder([
+        ...accumulatedTags,
+        ...(selection.fallbackTags ?? []),
+      ]).slice(0, selection.targetTotalTags);
+      enrichmentComplete(merged);
+    },
+    [
+      revealLookup,
+      accumulatedTags,
+      selection.targetTotalTags,
+      selection.fallbackTags,
+      enrichmentComplete,
     ],
-    queryFn: () =>
-      discoverAndHydrateOnboardingPosts(
-        { selectedTags: llmSeedTags, n: 6 },
-        !!user,
-      ),
-    enabled:
-      phase === 'question' && answers.length >= 1 && llmSeedTags.length > 0,
-    staleTime: Infinity,
-    retry: false,
-  });
-  // Block transitions while the next question's preview is still being
-  // fetched. `isFetching` covers in-flight requests regardless of whether
-  // the query has prior data; `fetchStatus === 'idle'` covers the
-  // disabled-query case (e.g., no seed tags yet) so we don't deadlock.
-  const previewBlocking =
-    previewQuery.fetchStatus === 'fetching' && !previewQuery.data;
+  );
 
-  const nextQuestionMutation = useMutation({
-    mutationFn: async () => {
-      const answerInputs = buildAnswerInputs(answers, allQuestions);
-      return fetchNextQuizQuestion(
-        answerInputs,
-        llmSeedTags,
-        answers.length,
-        selection.maxQuestions,
-      );
-    },
-    onSuccess: (result) => {
-      const hasMinQuestions = answers.length >= selection.minQuestions;
-
-      // Happy path: model returned a question. Use it regardless of
-      // `isFinal` — we're authoritative on when to stop. Defer the
-      // transition until the recswipe preview for the new question
-      // resolves, so the loading screen is meaningful instead of arbitrary.
-      if (result.question) {
-        llmRetryCountRef.current = 0;
-        const next = result.question;
-        setGeneratedQuestions((prev) =>
-          prev.some((q) => q.id === next.id) ? prev : [...prev, next],
-        );
-        setPendingLlmTarget(next.id);
-        return;
-      }
-
-      // Model refused to ask anything. If we've already cleared the
-      // minimum, honor it.
-      if (hasMinQuestions) {
-        llmRetryCountRef.current = 0;
-        startEnriching();
-        return;
-      }
-
-      // Below the minimum and the model bailed. Retry a couple of times —
-      // temperature=1 means a resend has a real shot at returning a
-      // question. After the cap, fall through to enrichment rather than
-      // looping forever.
-      const MAX_LLM_RETRIES = 2;
-      if (llmRetryCountRef.current < MAX_LLM_RETRIES) {
-        llmRetryCountRef.current += 1;
-        nextQuestionMutation.mutate();
-        return;
-      }
-      llmRetryCountRef.current = 0;
-      startEnriching();
-    },
-    onError: () => {
-      // If LLM question generation fails, advance to enrichment so the user
-      // still gets seed tags + reveal rather than a stuck quiz.
-      startEnriching();
-    },
-  });
-
+  // Bootstrap: on first render with no current question, route to the opener.
+  const bootstrapRef = useRef(false);
   useEffect(() => {
-    if (phase !== 'question') {
+    if (bootstrapRef.current) {
       return;
     }
-    // Q1 stays static — consistent bucketing across users and the LLM
-    // under-delivered on opener width. From Q2 onward, the static decision
-    // tree drives via `option.next` until pointers run out (Q5+ → LLM).
-    if (
-      !currentQuestion &&
-      answers.length === 0 &&
-      decidedAnswerCountRef.current === 0
-    ) {
-      decidedAnswerCountRef.current = -1;
-      const opener =
-        (entryQuestionId && questions.find((q) => q.id === entryQuestionId)) ||
-        questions[0];
-      if (opener) {
-        goToQuestion(opener.id);
-      } else {
-        startEnriching();
-      }
+    if (phase !== 'question' || currentQuestion) {
       return;
     }
-    if (
-      answers.length > 0 &&
-      answers.length !== decidedAnswerCountRef.current
-    ) {
-      decidedAnswerCountRef.current = answers.length;
-      if (answers.length >= selection.maxQuestions) {
-        startEnriching();
-        return;
-      }
-      // Honor static `next` pointers while they exist (opener and Q2–Q4 are
-      // pre-authored). Q4 options have no `next`, so we fall through to the
-      // LLM from Q5 onward. Static transitions are gated by a "reading the
-      // room" interstitial so the quiz doesn't feel instant.
-      if (lastOption?.next) {
-        const nextStatic = allQuestions.find((q) => q.id === lastOption.next);
-        if (nextStatic) {
-          setPendingStaticTarget(nextStatic.id);
-          return;
-        }
-      }
-      nextQuestionMutation.mutate();
+    bootstrapRef.current = true;
+    const opener =
+      (entryQuestionId && questions.find((q) => q.id === entryQuestionId)) ||
+      questions[0];
+    if (opener) {
+      goToQuestion(opener.id);
+    } else {
+      finishQuiz(answers);
     }
   }, [
     phase,
     currentQuestion,
-    answers.length,
-    lastOption,
-    questions,
-    allQuestions,
     entryQuestionId,
-    selection.maxQuestions,
+    questions,
     goToQuestion,
-    startEnriching,
-    nextQuestionMutation,
+    answers,
+    finishQuiz,
   ]);
 
-  // Static path: hold the loading screen for at least STATIC_TRANSITION_DELAY_MS
-  // so the tip is readable, then wait for the recswipe preview to finish too.
+  // Drive forward after each answer: follow `option.next` if it exists, or
+  // finish the quiz (terminal answer / safety cap). Instant — no waiting.
+  const lastHandledCountRef = useRef(0);
   useEffect(() => {
-    if (!pendingStaticTarget) {
-      setStaticMinDelayMet(false);
-      return undefined;
-    }
-    setStaticMinDelayMet(false);
-    const timer = setTimeout(
-      () => setStaticMinDelayMet(true),
-      STATIC_TRANSITION_DELAY_MS,
-    );
-    return () => clearTimeout(timer);
-  }, [pendingStaticTarget]);
-
-  useEffect(() => {
-    if (!pendingStaticTarget) {
-      return;
-    }
-    if (!staticMinDelayMet) {
-      return;
-    }
-    if (previewBlocking) {
-      return;
-    }
-    goToQuestion(pendingStaticTarget);
-    setPendingStaticTarget(null);
-  }, [pendingStaticTarget, staticMinDelayMet, previewBlocking, goToQuestion]);
-
-  // LLM path: the LLM call itself is the visible delay; once it resolves
-  // we only wait for the preview before showing the new question.
-  // Guard on `phase === 'question'` so a late-arriving LLM result cannot
-  // bounce the user back from `enriching` (the max-questions check) into
-  // a stale `question` state.
-  useEffect(() => {
-    if (!pendingLlmTarget) {
-      return;
-    }
     if (phase !== 'question') {
-      setPendingLlmTarget(null);
       return;
     }
-    if (previewBlocking) {
+    if (answers.length === 0) {
       return;
     }
-    goToQuestion(pendingLlmTarget);
-    setPendingLlmTarget(null);
-  }, [pendingLlmTarget, previewBlocking, goToQuestion, phase]);
+    if (answers.length === lastHandledCountRef.current) {
+      return;
+    }
+    lastHandledCountRef.current = answers.length;
 
-  const enrichmentMutation = useMutation({
-    mutationFn: async (): Promise<{
-      tags: string[];
-      reveal: PersonaQuizRevealText | null;
-    }> => {
-      const seedTags = buildSeedTags(
-        tagScores,
-        Math.max(1, selection.tagConfidenceFloor),
-        enrichment.targetTotalTags,
-      );
-      if (!enrichment.enabled) {
-        return { tags: seedTags, reveal: null };
-      }
-      const answerInputs = buildAnswerInputs(answers, allQuestions);
-      // Bragi's `target_count` is the TOTAL desired tag count, not the
-      // remaining slots after seedTags. daily-api's Zod schema also rejects
-      // values below 1, so when seedTags already fills the target we'd send
-      // `0` and the whole call fails with ZOD_VALIDATION_ERROR (which then
-      // surfaces as a null reveal to the user).
-      try {
-        const result = await withTimeout(
-          extractOnboardingTagsFromQuiz(
-            answerInputs,
-            seedTags,
-            enrichment.targetTotalTags,
-          ),
-          ENRICHMENT_TIMEOUT_MS,
-        );
-        const merged = dedupePreserveOrder([
-          ...seedTags,
-          ...result.includeTags,
-        ]).slice(0, enrichment.targetTotalTags);
-        return { tags: merged, reveal: result.reveal };
-      } catch (error) {
-        const fallback = enrichment.fallbackTags ?? [];
-        return {
-          tags: dedupePreserveOrder([...seedTags, ...fallback]).slice(
-            0,
-            enrichment.targetTotalTags,
-          ),
-          reveal: null,
-        };
-      }
-    },
-    onSuccess: (result) => {
-      setRevealText(result.reveal);
-      enrichmentComplete(result.tags);
-    },
-  });
-
-  useEffect(() => {
-    if (phase !== 'enriching' || enrichmentTriggeredRef.current) {
+    if (answers.length >= selection.maxQuestions) {
+      finishQuiz(answers);
       return;
     }
-    enrichmentTriggeredRef.current = true;
-    enrichmentMutation.mutate();
-  }, [phase, enrichmentMutation]);
+
+    if (lastOption?.next) {
+      const nextQuestion = questions.find((q) => q.id === lastOption.next);
+      if (nextQuestion) {
+        goToQuestion(nextQuestion.id);
+        return;
+      }
+    }
+
+    finishQuiz(answers);
+  }, [
+    phase,
+    answers,
+    lastOption,
+    questions,
+    selection.maxQuestions,
+    goToQuestion,
+    finishQuiz,
+  ]);
 
   const handleAnswer = useCallback(
     (option: PersonaQuizOption) => {
@@ -507,19 +261,7 @@ function FunnelPersonaQuizComponent({
     [revealText, finalTags, logEvent],
   );
 
-  const tipIndex = Math.min(answers.length, PERSONA_QUIZ_TIPS.length - 1);
-  const currentTip = PERSONA_QUIZ_TIPS[tipIndex];
-
   if (phase === 'question') {
-    if (
-      pendingStaticTarget ||
-      pendingLlmTarget ||
-      nextQuestionMutation.isPending
-    ) {
-      return (
-        <PersonaQuizEnriching message="Reading the room…" tip={currentTip} />
-      );
-    }
     if (!currentQuestion) {
       return null;
     }
@@ -532,14 +274,17 @@ function FunnelPersonaQuizComponent({
           onSelect={handleAnswer}
         />
         {answers.length >= 1 && (
-          <PersonaQuizFeedPreview posts={previewQuery.data?.posts ?? []} />
+          <PersonaQuizFeedPreview includeTags={accumulatedTags} />
         )}
       </div>
     );
   }
 
+  // `enriching` phase is vestigial — the reducer still exposes it but the
+  // orchestration transitions straight from `question` to `reveal` via
+  // `enrichmentComplete` inside `finishQuiz`. Nothing should ever render here.
   if (phase === 'enriching') {
-    return <PersonaQuizEnriching tip={currentTip} />;
+    return null;
   }
 
   return (

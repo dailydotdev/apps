@@ -1,7 +1,14 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
+import { gqlClient } from '../../../../graphql/common';
+import {
+  PREVIEW_FEED_QUERY,
+  supportedTypesForPrivateSources,
+} from '../../../../graphql/feed';
 import type { Post } from '../../../../graphql/posts';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 import { Image } from '../../../../components/image/Image';
 import { useViewSize, ViewSize } from '../../../../hooks';
 import {
@@ -11,10 +18,17 @@ import {
 } from '../../../../components/typography/Typography';
 
 interface PersonaQuizFeedPreviewProps {
-  posts: Post[];
+  includeTags: string[];
+}
+
+interface FeedPreviewResponse {
+  page: {
+    edges: Array<{ node: Post }>;
+  };
 }
 
 const PREVIEW_LIMIT = 4;
+const PREVIEW_TAG_LIMIT = 12;
 
 interface PreviewCardProps {
   post: Post;
@@ -140,16 +154,53 @@ const PreviewCard = ({ post, variant }: PreviewCardProps): ReactElement => {
   );
 };
 
+// Drop posts that have no real source — the persona quiz should never show
+// orphaned "Unknown" cards in the preview.
+const hasUsableSource = (post: Post): boolean => {
+  const name = post.source?.name?.trim();
+  if (!name) {
+    return false;
+  }
+  return name.toLowerCase() !== 'unknown';
+};
+
 export const PersonaQuizFeedPreview = ({
-  posts,
+  includeTags,
 }: PersonaQuizFeedPreviewProps): ReactElement | null => {
   const isTablet = useViewSize(ViewSize.Tablet);
+  const auth = useAuthContext();
+  const isLoggedIn = !!auth?.user;
+
+  const topTags = useMemo(
+    () => includeTags.slice(0, PREVIEW_TAG_LIMIT),
+    [includeTags],
+  );
+  const queryKeyTags = topTags.join('|');
+
+  const { data } = useQuery({
+    queryKey: ['persona-quiz-feed-preview', queryKeyTags, isLoggedIn],
+    queryFn: () =>
+      gqlClient.request<FeedPreviewResponse>(PREVIEW_FEED_QUERY, {
+        loggedIn: isLoggedIn,
+        supportedTypes: supportedTypesForPrivateSources,
+        filters: { includeTags: topTags },
+      }),
+    enabled: topTags.length > 0,
+    staleTime: 30_000,
+    retry: false,
+  });
+
+  const posts = useMemo(() => {
+    const edges = data?.page.edges ?? [];
+    return edges
+      .map((edge) => edge.node)
+      .filter(hasUsableSource)
+      .slice(0, PREVIEW_LIMIT);
+  }, [data]);
 
   if (posts.length === 0) {
     return null;
   }
-
-  const visible = posts.slice(0, PREVIEW_LIMIT);
 
   return (
     <section className="flex w-full flex-col gap-3 px-4 pb-8 tablet:mx-auto tablet:max-w-3xl">
@@ -166,7 +217,7 @@ export const PersonaQuizFeedPreview = ({
           isTablet ? 'grid-cols-2' : 'grid-cols-1',
         )}
       >
-        {visible.map((post) => (
+        {posts.map((post) => (
           <PreviewCard
             key={post.id}
             post={post}

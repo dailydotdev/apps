@@ -20,14 +20,10 @@ import {
 } from '../../../../hooks/useTagSearch';
 import { Origin } from '../../../../lib/log';
 import { PersonaQuizFeedbackForm } from './PersonaQuizFeedbackForm';
-
-export interface PersonaQuizRevealText {
-  headline: string;
-  description: string;
-}
+import type { PersonaQuizRevealEntry } from '../../types/funnel';
 
 interface PersonaQuizRevealProps {
-  revealText: PersonaQuizRevealText | null;
+  revealText: PersonaQuizRevealEntry | null;
   tags: string[];
   reveal: {
     eyebrow?: string;

@@ -17,7 +17,8 @@
     "__mocks__/**/*.ts",
     "__mocks__/**/*.tsx",
     "lib/**/*.ts",
-    "lib/**/*.tsx"
+    "lib/**/*.tsx",
+    "scripts/**/*.ts"
   ],
   "exclude": [
     "node_modules"

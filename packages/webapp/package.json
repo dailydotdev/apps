@@ -17,6 +17,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:strict": "tsc -p tsconfig.strict.json --noEmit",
+    "generate:persona-quiz": "npx -y tsx scripts/generatePersonaQuiz.ts",
     "pretest": "npm run lint",
     "test": "jest --runInBand",
     "deploy": "vercel"

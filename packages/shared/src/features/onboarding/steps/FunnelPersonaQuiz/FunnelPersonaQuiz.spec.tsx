@@ -1,33 +1,13 @@
 import React from 'react';
-import {
-  configure,
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-} from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FunnelPersonaQuiz } from './index';
 import type { FunnelStepPersonaQuiz } from '../../types/funnel';
 import { FunnelStepType, FunnelStepTransitionType } from '../../types/funnel';
 import { LogEvent } from '../../../../lib/log';
-import {
-  extractOnboardingTagsFromQuiz,
-  fetchNextQuizQuestion,
-} from '../../../../graphql/personaQuiz';
 
-// Loading interstitial is 1.8s; bump async timeout above it.
-configure({ asyncUtilTimeout: 3000 });
-
-jest.mock('../../../../graphql/personaQuiz', () => ({
-  extractOnboardingTagsFromQuiz: jest.fn(),
-  fetchNextQuizQuestion: jest.fn(),
-  discoverOnboardingPosts: jest
-    .fn()
-    .mockResolvedValue({ posts: [], subPrompts: [] }),
-  discoverAndHydrateOnboardingPosts: jest
-    .fn()
-    .mockResolvedValue({ posts: [], subPrompts: [] }),
+jest.mock('../../../../graphql/common', () => ({
+  gqlClient: { request: jest.fn().mockResolvedValue({ page: { edges: [] } }) },
 }));
 
 const mockFollowTags = jest.fn().mockResolvedValue(undefined);
@@ -81,67 +61,67 @@ const parameters: FunnelStepPersonaQuiz['parameters'] = {
         {
           id: 'frontend',
           label: 'Frontend',
-          signal: 'Frontend / UI craft',
           tagWeights: { react: 1, tailwind: 1 },
-          next: 'q_fe_lang',
+          next: 'q_fe_yn',
         },
         {
           id: 'backend',
           label: 'Backend',
-          signal: 'Backend engineering',
-          tagWeights: { node: 1, postgres: 1 },
-          next: 'q_be_lang',
+          tagWeights: { nodejs: 1, postgres: 1 },
+          next: 'q_be_yn',
         },
       ],
     },
     {
-      id: 'q_fe_lang',
-      axis: 'language',
-      prompt: 'Favorite frontend language?',
+      id: 'q_fe_yn',
+      axis: 'fe_typescript',
+      prompt: 'You write TypeScript.',
       options: [
         {
-          id: 'ts',
-          label: 'TypeScript',
-          signal: 'TypeScript',
+          id: 'yes',
+          label: 'Yes',
           tagWeights: { typescript: 1 },
+          next: null,
         },
         {
-          id: 'js',
-          label: 'JavaScript',
-          signal: 'JavaScript',
+          id: 'no',
+          label: 'No',
           tagWeights: { javascript: 1 },
+          next: null,
         },
       ],
     },
     {
-      id: 'q_be_lang',
-      axis: 'language',
-      prompt: 'Favorite backend language?',
+      id: 'q_be_yn',
+      axis: 'be_go',
+      prompt: 'Your main backend language is Go.',
       options: [
         {
-          id: 'go',
-          label: 'Go',
-          signal: 'Go',
-          tagWeights: { go: 1 },
+          id: 'yes',
+          label: 'Yes',
+          tagWeights: { go: 1, golang: 1 },
+          next: null,
         },
         {
-          id: 'python',
-          label: 'Python',
-          signal: 'Python',
+          id: 'no',
+          label: 'No',
           tagWeights: { python: 1 },
+          next: null,
         },
       ],
     },
   ],
   selection: {
-    minQuestions: 2,
-    maxQuestions: 2,
-    tagConfidenceFloor: 1,
-  },
-  enrichment: {
-    enabled: true,
+    maxQuestions: 10,
     targetTotalTags: 6,
+    tagConfidenceFloor: 1,
     fallbackTags: ['javascript'],
+  },
+  revealLookup: {
+    'q_domain:frontend|q_fe_yn:yes': {
+      headline: 'TypeScript frontend dev',
+      description: 'Heavy TS + React feed coming up.',
+    },
   },
   reveal: {
     eyebrow: 'You are a…',
@@ -181,18 +161,6 @@ const renderStep = (overrides: Partial<FunnelStepPersonaQuiz> = {}) => {
 describe('FunnelPersonaQuiz', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (extractOnboardingTagsFromQuiz as jest.Mock).mockResolvedValue({
-      includeTags: ['react', 'tailwind', 'typescript', 'graphql'],
-      reveal: {
-        headline: 'Friday-shipper, refactor addict',
-        description:
-          'Feed tuned for someone who reads dev drama and ships anyway.',
-      },
-    });
-    (fetchNextQuizQuestion as jest.Mock).mockResolvedValue({
-      isFinal: true,
-      question: null,
-    });
   });
 
   it('logs StartPersonaQuiz on mount', async () => {
@@ -207,9 +175,9 @@ describe('FunnelPersonaQuiz', () => {
   it('walks Q→A→reveal via static `next` pointers and emits Complete with payload', async () => {
     const { onTransition } = renderStep();
     fireEvent.click(await screen.findByText('Frontend'));
-    fireEvent.click(await screen.findByText('TypeScript'));
+    fireEvent.click(await screen.findByText('Yes'));
     expect(
-      await screen.findByText('Friday-shipper, refactor addict'),
+      await screen.findByText('TypeScript frontend dev'),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByText('Looks good'));
     await waitFor(() => {
@@ -224,7 +192,7 @@ describe('FunnelPersonaQuiz', () => {
           details: expect.objectContaining({
             quizAnswers: [
               { questionId: 'q_domain', optionId: 'frontend' },
-              { questionId: 'q_fe_lang', optionId: 'ts' },
+              { questionId: 'q_fe_yn', optionId: 'yes' },
             ],
           }),
         }),
@@ -232,61 +200,21 @@ describe('FunnelPersonaQuiz', () => {
     });
   });
 
-  it('passes the canonical `signal` (not the playful label) to the LLM as the answer', async () => {
-    renderStep({
-      parameters: {
-        ...parameters,
-        selection: { ...parameters.selection, maxQuestions: 3 },
-      },
-    });
-    fireEvent.click(await screen.findByText('Frontend'));
-    fireEvent.click(await screen.findByText('TypeScript'));
-    await waitFor(() => {
-      expect(extractOnboardingTagsFromQuiz).toHaveBeenCalled();
-    });
-    const [answers] = (extractOnboardingTagsFromQuiz as jest.Mock).mock
-      .calls[0];
-    expect(answers).toEqual([
-      expect.objectContaining({
-        questionId: 'q_domain',
-        answer: 'Frontend / UI craft',
-      }),
-      expect.objectContaining({
-        questionId: 'q_fe_lang',
-        answer: 'TypeScript',
-      }),
-    ]);
-  });
-
-  it('falls back to seed + fallback tags when LLM extract fails', async () => {
-    (extractOnboardingTagsFromQuiz as jest.Mock).mockRejectedValue(
-      new Error('boom'),
-    );
-    const { onTransition } = renderStep();
+  it('falls back to a tag-based headline when the path is missing from the reveal lookup', async () => {
+    renderStep();
+    // backend → no → no reveal lookup entry for this path
     fireEvent.click(await screen.findByText('Backend'));
-    fireEvent.click(await screen.findByText('Go'));
-    expect(await screen.findByText('Looks good')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('Looks good'));
-    await waitFor(() => {
-      expect(onTransition).toHaveBeenCalledWith(
-        expect.objectContaining({
-          details: expect.objectContaining({
-            tags: expect.arrayContaining([
-              'node',
-              'postgres',
-              'go',
-              'javascript',
-            ]),
-          }),
-        }),
-      );
-    });
+    fireEvent.click(await screen.findByText('No'));
+    // Fallback headline composed from top humanised tags
+    const heading = await screen.findByRole('heading', { level: 2 });
+    expect(heading).toHaveTextContent(/Nodejs/);
+    expect(heading).toHaveTextContent(/locked in/);
   });
 
   it('removes a tag from the chip list and excludes it from the final payload', async () => {
     const { onTransition } = renderStep();
     fireEvent.click(await screen.findByText('Frontend'));
-    fireEvent.click(await screen.findByText('TypeScript'));
+    fireEvent.click(await screen.findByText('Yes'));
     const removeButton = await screen.findByRole('button', {
       name: 'Remove react',
     });
@@ -298,10 +226,10 @@ describe('FunnelPersonaQuiz', () => {
     });
   });
 
-  it('opens the feedback form and logs PersonaQuizFeedback with text and reveal headline', async () => {
+  it('opens the feedback form and logs PersonaQuizFeedback with the reveal headline', async () => {
     renderStep();
     fireEvent.click(await screen.findByText('Frontend'));
-    fireEvent.click(await screen.findByText('TypeScript'));
+    fireEvent.click(await screen.findByText('Yes'));
     fireEvent.click(await screen.findByText('Nope, not me'));
     const textarea = await screen.findByPlaceholderText(
       /Tell us what we got wrong/i,
@@ -319,53 +247,6 @@ describe('FunnelPersonaQuiz', () => {
     const feedbackCall = mockLogEvent.mock.calls.find(
       ([call]) => call?.event_name === LogEvent.PersonaQuizFeedback,
     );
-    expect(feedbackCall?.[0]?.extra).toContain(
-      'Friday-shipper, refactor addict',
-    );
-  });
-
-  it('falls through to the LLM when a chosen option has no `next` pointer', async () => {
-    (fetchNextQuizQuestion as jest.Mock).mockResolvedValueOnce({
-      isFinal: false,
-      question: {
-        id: 'q_llm_1',
-        axis: 'tooling',
-        prompt: 'You spend more time in Cursor than VS Code',
-        options: [
-          {
-            id: 'yes',
-            label: 'Yes',
-            signal: 'Cursor heavy user',
-            tagWeights: { 'ai-tools': 1 },
-          },
-          {
-            id: 'no',
-            label: 'No',
-            signal: 'Not a Cursor user',
-            tagWeights: {},
-          },
-        ],
-      },
-    });
-    renderStep({
-      parameters: {
-        ...parameters,
-        questions: [
-          {
-            ...parameters.questions[0],
-            options: parameters.questions[0].options.map((option) => ({
-              ...option,
-              next: null,
-            })),
-          },
-        ],
-        selection: { ...parameters.selection, maxQuestions: 3 },
-      },
-    });
-    fireEvent.click(await screen.findByText('Frontend'));
-    expect(
-      await screen.findByText('You spend more time in Cursor than VS Code'),
-    ).toBeInTheDocument();
-    expect(fetchNextQuizQuestion).toHaveBeenCalled();
+    expect(feedbackCall?.[0]?.extra).toContain('TypeScript frontend dev');
   });
 });

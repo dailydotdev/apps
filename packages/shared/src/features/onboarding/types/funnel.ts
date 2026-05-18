@@ -380,14 +380,7 @@ export interface FunnelStepUploadCv
 
 export interface PersonaQuizOption {
   id: string;
-  /** Playful display label shown to the user. */
   label: string;
-  /**
-   * Neutral, canonical description of what this option means. Sent to the LLM
-   * as the user's answer in place of `label`. Use when `label` is too playful
-   * to convey the bucket clearly. Falls back to `label`.
-   */
-  signal?: string;
   emoji?: string;
   tagWeights?: Record<string, number>;
   next?: string | null;
@@ -402,21 +395,29 @@ export interface PersonaQuizQuestion {
   options: PersonaQuizOption[];
 }
 
+export interface PersonaQuizRevealEntry {
+  headline: string;
+  description: string;
+}
+
 export interface FunnelStepPersonaQuizParameters {
   headline?: string;
   explainer?: string;
   questions: PersonaQuizQuestion[];
   entryQuestionId?: string;
   selection: {
-    minQuestions: number;
     maxQuestions: number;
-    tagConfidenceFloor: number;
-  };
-  enrichment: {
-    enabled: boolean;
     targetTotalTags: number;
+    tagConfidenceFloor: number;
     fallbackTags?: string[];
   };
+  /**
+   * Deterministic reveal copy, keyed by the path signature
+   * `${q1Id}:${q1OptionId}|${q2Id}:${q2OptionId}|…`. Pre-generated offline so
+   * the reveal screen renders instantly. Missing entries fall back to a
+   * tag-based headline composed at runtime.
+   */
+  revealLookup?: Record<string, PersonaQuizRevealEntry>;
   reveal: {
     eyebrow?: string;
     cta?: string;
