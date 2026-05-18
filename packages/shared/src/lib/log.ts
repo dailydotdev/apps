@@ -295,6 +295,8 @@ export enum LogEvent {
   ChangeStandupSettings = 'change standup settings',
   StandupError = 'standup error',
   FocusStandupSpeaker = 'focus standup speaker',
+  ImpressionStandupsStrip = 'impression standups strip',
+  ClickStandupsStrip = 'click standups strip',
   // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { BOOT_QUERY_KEY } from '../../contexts/common';
@@ -9,6 +9,7 @@ import {
   ACTIVE_LIVE_ROOMS_QUERY,
   LiveRoomStatus,
 } from '../../graphql/liveRooms';
+import { LogEvent } from '../../lib/log';
 import { LiveStandupsStrip } from './LiveStandupsStrip';
 
 jest.mock('../../graphql/common', () => ({
@@ -41,12 +42,17 @@ const room: ActiveLiveRoom = {
   },
 };
 
-const renderComponent = (client = createClient()) =>
-  render(
-    <TestBootProvider client={client}>
+const renderComponent = (
+  client = createClient(),
+  log = { logEvent: jest.fn() },
+) => ({
+  log,
+  ...render(
+    <TestBootProvider client={client} log={log}>
       <LiveStandupsStrip />
     </TestBootProvider>,
-  );
+  ),
+});
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -82,5 +88,46 @@ it('fetches and renders active standups when boot has a live-room hint', async (
       ACTIVE_LIVE_ROOMS_QUERY,
       expect.objectContaining({ limit: expect.any(Number) }),
     ),
+  );
+});
+
+it('logs impression once when the strip renders with live standups', async () => {
+  const client = createClient();
+  client.setQueryData(BOOT_QUERY_KEY, { liveRooms: { hasLive: true } });
+  jest.mocked(gqlClient.request).mockResolvedValue({
+    activeLiveRooms: [room],
+  });
+
+  const { log } = renderComponent(client);
+
+  await screen.findByText('Weekly product standup');
+  await waitFor(() =>
+    expect(log.logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.ImpressionStandupsStrip,
+        extra: expect.stringContaining('"surface":"home_strip"'),
+      }),
+    ),
+  );
+});
+
+it('logs a click event when a standup link is activated', async () => {
+  const client = createClient();
+  client.setQueryData(BOOT_QUERY_KEY, { liveRooms: { hasLive: true } });
+  jest.mocked(gqlClient.request).mockResolvedValue({
+    activeLiveRooms: [room],
+  });
+
+  const { log } = renderComponent(client);
+
+  const link = await screen.findByRole('link');
+  fireEvent.click(link);
+
+  expect(log.logEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      event_name: LogEvent.ClickStandupsStrip,
+      target_id: 'room-1',
+      extra: expect.stringContaining('"surface":"home_strip"'),
+    }),
   );
 });

@@ -16,7 +16,12 @@ import { LiveRoomStatus } from '../../graphql/liveRooms';
 import { BOOT_QUERY_KEY } from '../../contexts/common';
 import type { Boot } from '../../lib/boot';
 import { useActiveLiveRooms } from '../../hooks/liveRooms/useActiveLiveRooms';
+import { useLogContext } from '../../contexts/LogContext';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
+import { LogEvent } from '../../lib/log';
 import styles from './LiveStandupsStrip.module.css';
+
+const STRIP_SURFACE = 'home_strip';
 
 const HOLD_MS = 5000;
 const SLIDE_MS = 1200;
@@ -25,14 +30,19 @@ const ACTIVE_ROOMS_LIMIT = 5;
 const StandupItem = ({
   item,
   ariaHidden = false,
+  onItemClick,
 }: {
   item: ActiveLiveRoom;
   ariaHidden?: boolean;
+  onItemClick?: (item: ActiveLiveRoom) => void;
 }): ReactElement => (
   <Link href={`/standups/${item.id}`}>
     <a
+      href={`/standups/${item.id}`}
       aria-hidden={ariaHidden}
       tabIndex={ariaHidden ? -1 : undefined}
+      onClick={() => onItemClick?.(item)}
+      onAuxClick={() => onItemClick?.(item)}
       className="flex w-full min-w-0 items-center gap-2 rounded-8 px-2 py-0.5 transition-colors hover:bg-surface-hover"
     >
       <ProfilePicture
@@ -100,6 +110,31 @@ export const LiveStandupsStrip = ({
   const [isPaused, setIsPaused] = useState(false);
   const [withTransition, setWithTransition] = useState(true);
   const rafIdsRef = useRef<number[]>([]);
+  const { logEvent } = useLogContext();
+
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionStandupsStrip,
+      extra: JSON.stringify({
+        surface: STRIP_SURFACE,
+        total: totalLive,
+        room_ids: liveItems.map((item) => item.id),
+      }),
+    }),
+    { condition: totalLive > 0 },
+  );
+
+  const onItemClick = (room: ActiveLiveRoom) => {
+    logEvent({
+      event_name: LogEvent.ClickStandupsStrip,
+      target_id: room.id,
+      extra: JSON.stringify({
+        surface: STRIP_SURFACE,
+        position: liveItems.findIndex((item) => item.id === room.id),
+        total: totalLive,
+      }),
+    });
+  };
 
   const scheduleRaf = (cb: () => void): void => {
     const id = window.requestAnimationFrame(() => {
@@ -240,7 +275,11 @@ export const LiveStandupsStrip = ({
                   key={isDuplicate ? `dup-${item.id}` : item.id}
                   className={styles.slide}
                 >
-                  <StandupItem item={item} ariaHidden={isDuplicate} />
+                  <StandupItem
+                    item={item}
+                    ariaHidden={isDuplicate}
+                    onItemClick={isDuplicate ? undefined : onItemClick}
+                  />
                 </div>
               );
             })}
