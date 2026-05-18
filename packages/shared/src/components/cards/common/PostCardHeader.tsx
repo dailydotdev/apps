@@ -9,13 +9,18 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
+import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { useLegacyPostLayoutOptOut } from '../../post/reader/hooks/useLegacyPostLayoutOptOut';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
+  PostType,
 } from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/Button';
+import { useReaderModalEligibility } from '../../post/reader/hooks/useReaderModalEligibility';
+import { EarthIcon } from '../../icons';
 import type { FlagProps } from './FeedItemContainer';
 import {
   BookmakProviderHeader,
@@ -66,6 +71,33 @@ export const PostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: (post.bookmarked && !showFeedback) ?? false,
   });
+  const { isEligible: isReaderEligible, isReaderModalEnabled } =
+    useReaderModalEligibility();
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  // Variant: clicking Read post on the card opens the reader preview inside
+  // daily.dev (globe-icon CTA) instead of navigating to the external article.
+  // Once a user opts out (via the install-prompt overlay) the card reverts
+  // to the classic external Read post button.
+  const isReaderVariant =
+    isReaderEligible &&
+    isReaderModalEnabled &&
+    post.type === PostType.Article &&
+    !isLegacyLayoutOptedOut;
+  const { onReadClick: onReaderInstallGateClick } =
+    useReaderInstallPromptGate(post);
+
+  const handleReadArticleClick = (event: React.MouseEvent) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticleClick?.(event);
+  };
+
+  const readPostIcon = isReaderVariant ? (
+    <EarthIcon />
+  ) : (
+    getReadPostButtonIcon(post)
+  );
 
   const articleLink = useMemo(() => {
     if (post.sharedPost) {
@@ -118,9 +150,9 @@ export const PostCardHeader = ({
                   className="mr-2"
                   variant={ButtonVariant.Primary}
                   href={articleLink ?? ''}
-                  onClick={onReadArticleClick}
+                  onClick={handleReadArticleClick}
                   openNewTab={openNewTab}
-                  icon={getReadPostButtonIcon(post)}
+                  icon={readPostIcon}
                 />
               )}
               <PostOptionButton post={post} />
