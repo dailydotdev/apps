@@ -16,6 +16,7 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeedTagsList } from '../hooks/useFeedTagsList';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
+import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -713,6 +714,9 @@ export default function MainFeedLayout({
           onEnable={onEnable}
           onDismiss={onDismiss}
         />
+      )}
+      {isHomePage && (
+        <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
       )}
       {!isExtension && isHomePage && (
         <WebappShortcutsRow className="px-4 pb-2" />
