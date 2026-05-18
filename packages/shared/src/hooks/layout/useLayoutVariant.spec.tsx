@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { useViewSize } from '../useViewSize';
-import { LayoutVariant, useLayoutVariant } from './useLayoutVariant';
+import { useLayoutVariant } from './useLayoutVariant';
 
 jest.mock('../useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -24,68 +24,64 @@ describe('useLayoutVariant', () => {
     jest.clearAllMocks();
     mockedUseAuthContext.mockReturnValue({ isAuthReady: true });
     mockedUseViewSize.mockReturnValue(true);
-  });
-
-  it('returns v1 when flag is v1', () => {
-    mockedUseConditionalFeature.mockReturnValue({ value: LayoutVariant.V1 });
-
-    const { result } = renderHook(() => useLayoutVariant());
-
-    expect(result.current.variant).toBe(LayoutVariant.V1);
-    expect(result.current.isV1).toBe(true);
-    expect(result.current.isControl).toBe(false);
-  });
-
-  it('returns control when flag is control', () => {
     mockedUseConditionalFeature.mockReturnValue({
-      value: LayoutVariant.Control,
+      value: false,
+      isLoading: false,
+    });
+  });
+
+  it('returns isV2 true when flag is on and user is eligible', () => {
+    mockedUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
     });
 
     const { result } = renderHook(() => useLayoutVariant());
 
-    expect(result.current.variant).toBe(LayoutVariant.Control);
-    expect(result.current.isControl).toBe(true);
-    expect(result.current.isV1).toBe(false);
+    expect(result.current.isV2).toBe(true);
   });
 
-  it('falls back to control for unexpected values', () => {
-    mockedUseConditionalFeature.mockReturnValue({ value: 'something-else' });
-
+  it('returns isV2 false when flag is off', () => {
     const { result } = renderHook(() => useLayoutVariant());
 
-    expect(result.current.variant).toBe(LayoutVariant.Control);
-    expect(result.current.isControl).toBe(true);
+    expect(result.current.isV2).toBe(false);
   });
 
   it('does not evaluate the flag below tablet', () => {
     mockedUseViewSize.mockReturnValue(false);
-    mockedUseConditionalFeature.mockReturnValue({
-      value: LayoutVariant.Control,
-    });
 
-    renderHook(() => useLayoutVariant());
+    const { result } = renderHook(() => useLayoutVariant());
 
     expect(mockedUseConditionalFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
+    expect(result.current.isV2).toBe(false);
   });
 
   it('does not evaluate the flag before auth is ready', () => {
     mockedUseAuthContext.mockReturnValue({ isAuthReady: false });
-    mockedUseConditionalFeature.mockReturnValue({
-      value: LayoutVariant.Control,
-    });
 
-    renderHook(() => useLayoutVariant());
+    const { result } = renderHook(() => useLayoutVariant());
 
     expect(mockedUseConditionalFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
+    expect(result.current.isV2).toBe(false);
+  });
+
+  it('keeps isV2 false even if flag returns true when user is ineligible', () => {
+    mockedUseViewSize.mockReturnValue(false);
+    mockedUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useLayoutVariant());
+
+    expect(result.current.isV2).toBe(false);
   });
 
   it('evaluates the flag when tablet+ and auth is ready', () => {
-    mockedUseConditionalFeature.mockReturnValue({ value: LayoutVariant.V1 });
-
     renderHook(() => useLayoutVariant());
 
     expect(mockedUseConditionalFeature).toHaveBeenCalledWith(
