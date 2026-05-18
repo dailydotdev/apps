@@ -18,6 +18,7 @@ import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -40,6 +41,27 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const wasUpdated = isPostUpdated(post);
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: getPostClassNames(
+            post,
+            domProps.className ?? '',
+            'min-h-card',
+          ),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer

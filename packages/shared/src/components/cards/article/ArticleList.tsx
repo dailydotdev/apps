@@ -28,6 +28,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -55,6 +56,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { showFeedback } = usePostFeedback({ post });
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
@@ -99,6 +101,23 @@ export const ArticleList = forwardRef(function ArticleList(
       ),
     };
   }, [isUserSource, post]);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          style,
+          className,
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending, type }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer

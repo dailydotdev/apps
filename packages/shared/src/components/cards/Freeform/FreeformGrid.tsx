@@ -18,6 +18,7 @@ import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
@@ -41,6 +42,23 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer

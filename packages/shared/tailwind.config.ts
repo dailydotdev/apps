@@ -328,6 +328,14 @@ export default {
             opacity: '0',
           },
         },
+        'nudge-shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '15%': { transform: 'translateX(-4px) rotate(-3deg)' },
+          '30%': { transform: 'translateX(4px) rotate(3deg)' },
+          '45%': { transform: 'translateX(-3px) rotate(-2deg)' },
+          '60%': { transform: 'translateX(3px) rotate(2deg)' },
+          '75%': { transform: 'translateX(-2px) rotate(-1deg)' },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -346,6 +354,7 @@ export default {
         'tag-pop': 'tag-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'tag-spark': 'tag-spark 0.6s ease-out both',
         'tag-fade-out': 'tag-fade-out 0.25s ease-in forwards',
+        'nudge-shake': 'nudge-shake 600ms ease-in-out',
       },
     },
     lineClamp: {

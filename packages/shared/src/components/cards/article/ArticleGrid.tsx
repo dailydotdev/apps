@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { usePostFeedback } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
@@ -46,6 +47,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -53,6 +55,23 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          style,
+          className: getPostClassNames(post, className, 'min-h-card'),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
