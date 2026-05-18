@@ -12,8 +12,9 @@ import { LogEvent, TargetId } from '../../../lib/log';
 
 const faq = [
   {
-    title: 'When does the hackathon start?',
-    description: 'It will happen in May. Concrete dates are TBD.',
+    title: 'When does the hackathon start/end?',
+    description:
+      'May 20th at 12:00 UTC. It runs for 5 days, fully async, so you can work on it at your own pace. It will end on May 25th 12:00 UTC.',
   },
   {
     title: 'Who can participate?',
