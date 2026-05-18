@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
@@ -59,28 +59,15 @@ function UnifiedMobileFeedNav(): ReactElement {
     });
 
     if (isLoggedIn) {
-      const categoryItems: ChipItem[] = buildPersonalizedCategories(
-        personalizedTags,
-      ).map((category) => ({
-        id: `category-${category.id}`,
-        label: category.label,
-        href: category.path,
-        group: 'categories',
-        tag: category.tag,
-      }));
-      const activeIndex =
-        router.pathname === '/explore/[tag]'
-          ? categoryItems.findIndex((item) => item.tag === router.query.tag)
-          : -1;
-      const reordered =
-        activeIndex > 0
-          ? [
-              categoryItems[activeIndex],
-              ...categoryItems.slice(0, activeIndex),
-              ...categoryItems.slice(activeIndex + 1),
-            ]
-          : categoryItems;
-      list.push(...reordered);
+      buildPersonalizedCategories(personalizedTags).forEach((category) => {
+        list.push({
+          id: `category-${category.id}`,
+          label: category.label,
+          href: category.path,
+          group: 'categories',
+          tag: category.tag,
+        });
+      });
     }
 
     sortedFeeds.forEach(({ node: feed }) => {
@@ -201,7 +188,6 @@ function UnifiedMobileFeedNav(): ReactElement {
     isCustomDefaultFeed,
     sortedFeeds,
     router.query.slugOrId,
-    router.query.tag,
     router.pathname,
     defaultFeedId,
     personalizedTags,
@@ -230,6 +216,12 @@ function UnifiedMobileFeedNav(): ReactElement {
   }, [items, router.asPath]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const active = scrollRef.current?.querySelector<HTMLElement>(
+      '[data-active="true"]',
+    );
+    active?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [activeId, items]);
 
   return (
     <div
@@ -263,16 +255,13 @@ function UnifiedMobileFeedNav(): ReactElement {
                         return;
                       }
 
-                      if (scrollRef.current) {
-                        scrollRef.current.scrollLeft = 0;
-                      }
-
                       logEvent({
                         event_name: LogEvent.ClickFeedTagChip,
                         target_id: item.tag,
                       });
                     }}
                     aria-current={isActive ? 'page' : undefined}
+                    data-active={isActive ? 'true' : undefined}
                     className={classNames(
                       chipBaseClass,
                       isActive ? chipActiveClass : chipInactiveClass,
