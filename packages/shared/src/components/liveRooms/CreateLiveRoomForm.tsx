@@ -5,10 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import zonedTimeToUtc from 'date-fns-tz/zonedTimeToUtc';
 import { Radio } from '../fields/Radio';
-import { Checkbox } from '../fields/Checkbox';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -29,19 +29,14 @@ import {
 import { timezoneSettingsUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { LogEvent } from '../../lib/log';
+import { CREATE_LIVE_ROOM_FORM_ID } from '../fields/form/common';
 import styles from './CreateLiveRoomForm.module.css';
 
-const DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT = 100;
 const DEFAULT_SCHEDULE_DELAY_MS = 30 * 60 * 1000;
+const TOPIC_MAX_LENGTH = 280;
 const DESCRIPTION_MAX_LENGTH = 4000;
 
-const speakerLimitFieldSchema = z.preprocess((value) => {
-  if (value === '' || value === null || value === undefined) {
-    return undefined;
-  }
-
-  return Number(value);
-}, z.number().int().positive('Speaker limit must be at least 1').optional());
+type ScheduleChoice = 'now' | 'later';
 
 const createLiveRoomFormSchema = z
   .object({
@@ -49,10 +44,11 @@ const createLiveRoomFormSchema = z
       .string()
       .trim()
       .min(1, 'Topic is required')
-      .max(280, 'Topic must be 280 characters or less'),
-    mode: z.nativeEnum(LiveRoomMode),
-    speakerLimit: speakerLimitFieldSchema,
-    scheduledStartEnabled: z.boolean(),
+      .max(
+        TOPIC_MAX_LENGTH,
+        `Topic must be ${TOPIC_MAX_LENGTH} characters or less`,
+      ),
+    scheduleChoice: z.enum(['now', 'later']),
     scheduledStart: z.string().optional(),
     description: z
       .string()
@@ -64,18 +60,7 @@ const createLiveRoomFormSchema = z
       .optional(),
   })
   .superRefine((values, ctx) => {
-    if (
-      values.mode === LiveRoomMode.FreeForAll &&
-      values.speakerLimit === undefined
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['speakerLimit'],
-        message: 'Speaker limit is required for free-for-all standups',
-      });
-    }
-
-    if (values.scheduledStartEnabled && !values.scheduledStart) {
+    if (values.scheduleChoice === 'later' && !values.scheduledStart) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['scheduledStart'],
@@ -85,8 +70,6 @@ const createLiveRoomFormSchema = z
   });
 
 type CreateLiveRoomFormValues = z.infer<typeof createLiveRoomFormSchema>;
-
-const CREATE_LIVE_ROOM_FORM_ID = 'create-live-room-form';
 
 const getDefaultScheduledStart = (timezone: string): string =>
   dateFormatInTimezone(
@@ -129,12 +112,10 @@ const parseScheduledStart = (value: string | undefined, timezone: string) => {
 };
 
 interface CreateLiveRoomFormProps {
-  onCancel: () => void;
   onCreated: (joinToken: LiveRoomJoinToken) => void;
 }
 
 export const CreateLiveRoomForm = ({
-  onCancel,
   onCreated,
 }: CreateLiveRoomFormProps): ReactElement => {
   const { user } = useAuthContext();
@@ -152,25 +133,24 @@ export const CreateLiveRoomForm = ({
     resolver: zodResolver(createLiveRoomFormSchema),
     defaultValues: {
       topic: '',
-      mode: LiveRoomMode.Moderated,
-      speakerLimit: DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT,
-      scheduledStartEnabled: false,
+      scheduleChoice: 'now',
       scheduledStart: defaultScheduledStart,
       description: '',
     },
   });
-  const selectedMode = form.watch('mode');
-  const scheduledStartEnabled = form.watch('scheduledStartEnabled');
+  const scheduleChoice = form.watch('scheduleChoice');
   const scheduledStart = form.watch('scheduledStart');
   const scheduledStartDate = parseScheduledStart(scheduledStart, timezone);
-  const scheduleDelta = scheduledStartEnabled
+  const isScheduled = scheduleChoice === 'later';
+  const scheduleDelta = isScheduled
     ? formatScheduleDelta(scheduledStartDate)
     : null;
+  const submitCopy = isScheduled ? 'Schedule standup' : 'Create standup';
 
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       let scheduledStartUtc: string | undefined;
-      if (values.scheduledStartEnabled) {
+      if (values.scheduleChoice === 'later') {
         const parsedScheduledStart = parseScheduledStart(
           values.scheduledStart,
           timezone,
@@ -194,11 +174,7 @@ export const CreateLiveRoomForm = ({
 
       const joinToken = await createLiveRoom({
         topic: values.topic,
-        mode: values.mode,
-        speakerLimit:
-          values.mode === LiveRoomMode.FreeForAll
-            ? values.speakerLimit
-            : undefined,
+        mode: LiveRoomMode.Moderated,
         scheduledStart: scheduledStartUtc,
         description: values.description || undefined,
       });
@@ -206,7 +182,7 @@ export const CreateLiveRoomForm = ({
         event_name: LogEvent.CreateStandup,
         target_id: joinToken.room.id,
         extra: JSON.stringify({
-          scheduled: values.scheduledStartEnabled,
+          scheduled: values.scheduleChoice === 'later',
           has_description: !!values.description,
           scheduled_start_delta_minutes: scheduledStartUtc
             ? Math.max(
@@ -232,98 +208,80 @@ export const CreateLiveRoomForm = ({
       <form
         id={CREATE_LIVE_ROOM_FORM_ID}
         onSubmit={onSubmit}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-5"
       >
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Pick a topic, choose how the stage works, and optionally open a lobby
-          before going live.
+          Standups are short, host-led audio and video rooms on daily.dev. Pick
+          a topic, optionally schedule it, and go live when you&apos;re ready.
+          Standups don&apos;t start automatically.
         </Typography>
         <ControlledTextField
           name="topic"
           label="Topic"
           placeholder="What do you want to talk about?"
+          maxLength={TOPIC_MAX_LENGTH}
+          hint="Keep it short and specific. Examples: “AMA: shipping a side project in 24h”, “Live code review: Next.js refactor”."
         />
-        <div className="flex flex-col gap-3">
-          <Typography type={TypographyType.Footnote} bold>
-            Standup mode
-          </Typography>
-          <Radio
-            name="mode"
-            value={form.watch('mode')}
-            onChange={(value) => {
-              form.setValue('mode', value, {
-                shouldDirty: true,
-                shouldValidate: true,
-              });
-              if (
-                value === LiveRoomMode.FreeForAll &&
-                form.getValues('speakerLimit') === undefined
-              ) {
-                form.setValue(
-                  'speakerLimit',
-                  DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT,
-                  {
-                    shouldDirty: true,
-                  },
-                );
-              }
-            }}
-            options={[
-              {
-                value: LiveRoomMode.Moderated,
-                label: 'Moderated',
-                afterElement: (
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                    className="pl-10"
-                  >
-                    People join a queue and the host brings them on stage.
-                  </Typography>
-                ),
-              },
-              {
-                value: LiveRoomMode.FreeForAll,
-                label: 'Free for all',
-                afterElement: (
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                    className="pl-10"
-                  >
-                    Anyone can hop on stage until the speaker limit you set is
-                    full.
-                  </Typography>
-                ),
-              },
-            ]}
-          />
-        </div>
         <Controller
           control={form.control}
-          name="scheduledStartEnabled"
+          name="scheduleChoice"
           render={({ field }) => (
-            <Checkbox
-              name={field.name}
-              checked={field.value}
-              onToggleCallback={(checked) => {
-                field.onChange(checked);
-                if (checked && !form.getValues('scheduledStart')) {
-                  form.setValue('scheduledStart', defaultScheduledStart, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  });
-                }
-              }}
-            >
-              Schedule a lobby before going live
-            </Checkbox>
+            <div className="flex flex-col gap-2">
+              <Typography type={TypographyType.Footnote} bold>
+                When do you want to start?
+              </Typography>
+              <Radio<ScheduleChoice>
+                name={field.name}
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  if (value === 'later' && !form.getValues('scheduledStart')) {
+                    form.setValue('scheduledStart', defaultScheduledStart, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }
+                }}
+                options={[
+                  {
+                    value: 'now',
+                    label: 'Start now',
+                    className: { wrapper: 'gap-0' },
+                    afterElement: (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="-mt-1 pl-10"
+                      >
+                        Open the room immediately. You&apos;ll still need to
+                        click &quot;Go live&quot; before listeners can join.
+                      </Typography>
+                    ),
+                  },
+                  {
+                    value: 'later',
+                    label: 'Schedule for later',
+                    className: { wrapper: 'gap-0' },
+                    afterElement: (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="-mt-1 pl-10"
+                      >
+                        Open a lobby where people can RSVP, chat, and get
+                        notified when you go live.
+                      </Typography>
+                    ),
+                  },
+                ]}
+              />
+            </div>
           )}
         />
-        {scheduledStartEnabled ? (
+        {isScheduled ? (
           <Controller
             control={form.control}
             name="scheduledStart"
@@ -335,7 +293,6 @@ export const CreateLiveRoomForm = ({
                   label="Scheduled time"
                   aria-label="Scheduled time"
                   type="datetime-local"
-                  fieldType="secondary"
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -372,18 +329,25 @@ export const CreateLiveRoomForm = ({
           render={({ field, fieldState }) => (
             <div className="flex flex-col gap-1">
               <Typography type={TypographyType.Footnote} bold>
-                What&apos;s this about?
+                Description{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  (optional)
+                </Typography>
               </Typography>
               <RichTextInput
                 initialContent={field.value ?? ''}
                 maxInputLength={DESCRIPTION_MAX_LENGTH}
                 onValueUpdate={field.onChange}
-                minHeightClassName="min-h-[10rem]"
+                minHeightClassName="min-h-[8rem]"
                 textareaProps={{
                   name: field.name,
-                  'aria-label': "What's this about?",
+                  'aria-label': 'Description',
                   placeholder:
-                    "Outline what you'll cover, drop daily.dev posts to react to, or jot down questions for the room.",
+                    'Add context, drop daily.dev posts to react to, or jot down questions for the room. Shown in the lobby while people RSVP, and in the Agenda tab once the standup is live.',
                   maxLength: DESCRIPTION_MAX_LENGTH,
                 }}
                 className={{
@@ -406,45 +370,22 @@ export const CreateLiveRoomForm = ({
             </div>
           )}
         />
-        {selectedMode === LiveRoomMode.FreeForAll ? (
-          <Controller
-            control={form.control}
-            name="speakerLimit"
-            render={({ field, fieldState }) => (
-              <TextField
-                inputId={field.name}
-                name={field.name}
-                label="Speaker limit"
-                type="number"
-                min={1}
-                placeholder={String(DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT)}
-                fieldType="secondary"
-                value={field.value ?? ''}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                valid={!fieldState.error}
-                hint={
-                  fieldState.error?.message ??
-                  'How many audience members can be on stage at once.'
-                }
-              />
-            )}
-          />
-        ) : null}
-        <div className="mt-2 flex items-center justify-end gap-3">
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            onClick={onCancel}
+        <div className="mt-2 hidden items-center justify-end gap-3 laptop:flex">
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="min-w-0 flex-1"
           >
-            Cancel
-          </Button>
+            {isScheduled
+              ? "We'll open the lobby right away and share a post on your feed so people can RSVP. You can go live at the scheduled time."
+              : "You'll be asked for camera and microphone access before going live."}
+          </Typography>
           <Button
             type="submit"
             variant={ButtonVariant.Primary}
             loading={isPending}
           >
-            Create standup
+            {submitCopy}
           </Button>
         </div>
       </form>

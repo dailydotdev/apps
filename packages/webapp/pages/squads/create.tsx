@@ -34,6 +34,8 @@ import {
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import { useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
+import { CreateLiveRoomForm } from '@dailydotdev/shared/src/components/liveRooms/CreateLiveRoomForm';
+import { useStandupCreation } from '@dailydotdev/shared/src/hooks/liveRooms/useStandupCreation';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -60,11 +62,21 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
+const TAB_CLASSNAME = 'flex flex-col gap-4 px-5 py-5';
+
+const getSubmitCopy = (tab: WriteFormTab): string => {
+  if (tab === WriteFormTab.Standup) {
+    return 'Create standup';
+  }
+  return 'Post';
+};
+
 function CreatePost(): ReactElement {
   const client = useQueryClient();
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
-  const hasCheckedPollTab = useMemo(
-    () => checkHasCompleted(ActionType.SeenPostPollTab),
+  const isStandupCreationEnabled = useStandupCreation();
+  const hasSeenStandupTab = useMemo(
+    () => checkHasCompleted(ActionType.SeenStandupTab),
     [checkHasCompleted],
   );
   const { push, isReady: isRouteReady, query } = useRouter();
@@ -206,8 +218,14 @@ function CreatePost(): ReactElement {
 
     isInitialized.current = true;
 
-    if (prefillState.initialDisplay) {
-      setDisplay(prefillState.initialDisplay);
+    const initialDisplay =
+      prefillState.initialDisplay === WriteFormTab.Standup &&
+      !isStandupCreationEnabled
+        ? null
+        : prefillState.initialDisplay;
+
+    if (initialDisplay) {
+      setDisplay(initialDisplay);
     } else if (defaultWriteTab in WriteFormTab) {
       setDisplay(WriteFormTab[defaultWriteTab]);
     }
@@ -241,13 +259,14 @@ function CreatePost(): ReactElement {
     selectedSourceIds.length,
     defaultWriteTab,
     prefillState.initialDisplay,
+    isStandupCreationEnabled,
   ]);
 
   useEffect(() => {
-    if (!hasCheckedPollTab && display === WriteFormTab.Poll) {
-      completeAction(ActionType.SeenPostPollTab);
+    if (display === WriteFormTab.Standup && !hasSeenStandupTab) {
+      completeAction(ActionType.SeenStandupTab);
     }
-  }, [display, hasCheckedPollTab, completeAction]);
+  }, [display, hasSeenStandupTab, completeAction]);
 
   if (
     !isFetched ||
@@ -273,6 +292,7 @@ function CreatePost(): ReactElement {
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       formId={WriteFormTabToFormID[display]}
+      rightCopy={getSubmitCopy(display)}
       enableUpload
     >
       <WritePageContainer>
@@ -305,10 +325,7 @@ function CreatePost(): ReactElement {
             )
           }
         >
-          <Tab
-            label={WriteFormTab.NewPost}
-            className="flex flex-col gap-4 px-5"
-          >
+          <Tab label={WriteFormTab.NewPost} className={TAB_CLASSNAME}>
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
@@ -318,7 +335,7 @@ function CreatePost(): ReactElement {
               initialContent={prefillState.initialDraft.content}
             />
           </Tab>
-          <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
+          <Tab label={WriteFormTab.Share} className={TAB_CLASSNAME}>
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
@@ -332,25 +349,38 @@ function CreatePost(): ReactElement {
               isPostingOnMySource={selectedSourceIds.includes(user.id)}
             />
           </Tab>
-          <Tab
-            label={WriteFormTab.Poll}
-            className="flex flex-col gap-4 px-5"
-            hint={
-              display !== WriteFormTab.Poll &&
-              isActionsFetched &&
-              !hasCheckedPollTab ? (
-                <Pill
-                  label="New"
-                  size={PillSize.XSmall}
-                  className="mt-0.5 bg-brand-float text-brand-default"
-                />
-              ) : undefined
-            }
-          >
+          <Tab label={WriteFormTab.Poll} className={TAB_CLASSNAME}>
             {isMobile && <h2 className="pt-2 font-bold typo-title3">Poll</h2>}
             <MultipleSourceSelect {...sourceSelectProps} />
             <CreatePoll />
           </Tab>
+          {isStandupCreationEnabled && (
+            <Tab
+              label={WriteFormTab.Standup}
+              className={TAB_CLASSNAME}
+              hint={
+                display !== WriteFormTab.Standup &&
+                isActionsFetched &&
+                !hasSeenStandupTab ? (
+                  <Pill
+                    label="New"
+                    size={PillSize.XSmall}
+                    className="mt-0.5 bg-brand-float text-brand-default"
+                  />
+                ) : undefined
+              }
+            >
+              {isMobile && (
+                <h2 className="pt-2 font-bold typo-title3">Start a standup</h2>
+              )}
+              <CreateLiveRoomForm
+                onCreated={(joinToken) => {
+                  clearFormOnSuccess();
+                  push(`/standups/${joinToken.room.id}`);
+                }}
+              />
+            </Tab>
+          )}
         </TabContainer>
       </WritePageContainer>
     </WritePostContextProvider>
