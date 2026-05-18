@@ -92,6 +92,11 @@ export const featureReadingReminderVariation = new Feature<
   'control' | 'hero' | 'inline'
 >('reading_reminder_variation', 'control');
 
+export const featureLayoutV2 = new Feature<'control' | 'v1'>(
+  'layout_v2',
+  'control',
+);
+
 export const featureReadingReminderHeroCopy = new Feature(
   'reading_reminder_hero_copy',
   {
