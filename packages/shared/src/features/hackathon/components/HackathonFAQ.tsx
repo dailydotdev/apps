@@ -17,6 +17,11 @@ const faq = [
       'May 20th at 12:00 UTC. It runs for 5 days, fully async, so you can work on it at your own pace. It will end on May 25th 12:00 UTC.',
   },
   {
+    title: 'How do I submit my project?',
+    description:
+      'Post about your project on social media tagging @dailydotdev with a link to your live URL and a short summary. You can also post on daily.dev platform with keyword #hackathon. This post on social media or on daily.dev IS your submission.',
+  },
+  {
     title: 'Who can participate?',
     description:
       'Any developer with a daily.dev account. New users and beginners welcome.',
@@ -35,11 +40,6 @@ const faq = [
     title: 'Can I use AI?',
     description:
       'Yes. Claude Code, Cursor, Codex, vibe-code the whole thing if you want.',
-  },
-  {
-    title: 'How do I submit my project?',
-    description:
-      'Post about your project on social media tagging @dailydotdev with a link to your live URL and a short summary. That post is your submission.',
   },
   {
     title: "What happens if I don't finish?",
