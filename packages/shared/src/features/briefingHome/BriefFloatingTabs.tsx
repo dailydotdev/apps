@@ -13,7 +13,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import { BriefIcon } from '../../components/icons';
+import { BriefIcon, HomeIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { buildPersonalizedCategories } from '../../components/feeds/exploreCategories';
 import { useFeedTagsList } from '../../hooks/useFeedTagsList';
@@ -29,8 +29,7 @@ interface BriefFloatingTabsProps {
 const HEADER_OFFSET = 56;
 const BOTTOM_GAP = 24;
 const BAR_HEIGHT = 48;
-const TABS_WIDTH = 220;
-const DOCKED_MAX_WIDTH = 1024;
+const TABS_WIDTH = 240;
 const VIEWPORT_PADDING = 24;
 
 const scrollToId = (id: string): void => {
@@ -77,11 +76,14 @@ export const BriefFloatingTabs = ({
   const { tags } = useFeedTagsList({ enabled: isLoggedIn });
   const categories = useMemo(() => buildPersonalizedCategories(tags), [tags]);
   const [mounted, setMounted] = useState(false);
-  const [{ barTop, isDocked, viewportW }, setLayout] = useState({
-    barTop: 0,
-    isDocked: false,
-    viewportW: 1024,
-  });
+  const [{ barTop, isDocked, feedLeft, feedWidth, viewportW }, setLayout] =
+    useState({
+      barTop: 0,
+      isDocked: false,
+      feedLeft: 0,
+      feedWidth: 0,
+      viewportW: 1024,
+    });
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -98,21 +100,35 @@ export const BriefFloatingTabs = ({
     const floatingTop = vh - BAR_HEIGHT - BOTTOM_GAP;
     const sentinel = document.getElementById(sentinelId);
     let nextTop = floatingTop;
+    let nextFeedLeft = (vw - Math.min(1024, vw - VIEWPORT_PADDING)) / 2;
+    let nextFeedWidth = Math.min(1024, vw - VIEWPORT_PADDING);
     if (sentinel) {
-      const sentinelTop = sentinel.getBoundingClientRect().top;
-      const followTop = sentinelTop - BAR_HEIGHT;
+      const rect = sentinel.getBoundingClientRect();
+      const followTop = rect.top - BAR_HEIGHT;
       nextTop = Math.max(HEADER_OFFSET, Math.min(floatingTop, followTop));
+      if (rect.width > 0) {
+        nextFeedLeft = rect.left;
+        nextFeedWidth = rect.width;
+      }
     }
     const nextDocked = nextTop <= HEADER_OFFSET;
     setLayout((prev) => {
       if (
         prev.barTop === nextTop &&
         prev.isDocked === nextDocked &&
+        prev.feedLeft === nextFeedLeft &&
+        prev.feedWidth === nextFeedWidth &&
         prev.viewportW === vw
       ) {
         return prev;
       }
-      return { barTop: nextTop, isDocked: nextDocked, viewportW: vw };
+      return {
+        barTop: nextTop,
+        isDocked: nextDocked,
+        feedLeft: nextFeedLeft,
+        feedWidth: nextFeedWidth,
+        viewportW: vw,
+      };
     });
   }, [sentinelId]);
 
@@ -145,14 +161,18 @@ export const BriefFloatingTabs = ({
     return null;
   }
 
-  const widthPx = isDocked
-    ? Math.min(DOCKED_MAX_WIDTH, viewportW - VIEWPORT_PADDING)
-    : TABS_WIDTH;
+  const dockedWidth = feedWidth || viewportW - VIEWPORT_PADDING;
+  const widthPx = isDocked ? dockedWidth : TABS_WIDTH;
+  const centerX = (feedLeft || 0) + (feedWidth || 0) / 2;
 
   return createPortal(
     <div
-      style={{ top: `${barTop}px`, width: `${widthPx}px` }}
-      className="fixed left-1/2 z-popup -translate-x-1/2 transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      style={{
+        top: `${barTop}px`,
+        left: `${centerX}px`,
+        width: `${widthPx}px`,
+      }}
+      className="fixed z-popup -translate-x-1/2 transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
     >
       <div
         className={classNames(
@@ -172,6 +192,7 @@ export const BriefFloatingTabs = ({
             </Typography>
           </Tab>
           <Tab active={isDocked} onClick={goFeed}>
+            <HomeIcon size={IconSize.XSmall} secondary />
             <Typography type={TypographyType.Footnote} bold>
               {briefCopy.tabFeed}
             </Typography>
@@ -188,7 +209,7 @@ export const BriefFloatingTabs = ({
         >
           <span
             aria-hidden
-            className="mx-1 h-6 w-px shrink-0 bg-border-subtlest-tertiary"
+            className="mr-1 h-5 w-px shrink-0 bg-border-subtlest-tertiary"
           />
           {categories.length > 0 ? (
             <ul className="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto pr-2">
