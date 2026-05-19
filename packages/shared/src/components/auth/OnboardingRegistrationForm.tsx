@@ -178,7 +178,7 @@ export const OnboardingRegistrationForm = ({
       return 'mx-auto mt-6 w-full justify-center border-t border-border-subtlest-tertiary pt-6 text-center text-text-secondary typo-callout';
     }
     if (isOnboardingTrigger) {
-      return 'mx-auto mt-1 text-center text-text-secondary typo-callout';
+      return 'mx-auto mt-5 text-center text-text-secondary typo-callout';
     }
     return 'mx-auto mt-6 text-center text-text-secondary typo-callout';
   };
