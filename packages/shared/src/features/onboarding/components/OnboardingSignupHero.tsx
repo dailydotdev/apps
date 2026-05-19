@@ -3,21 +3,12 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import Logo, { LogoPosition } from '../../../components/Logo';
-import { IconSize } from '../../../components/Icon';
-import { UpvoteIcon } from '../../../components/icons/Upvote';
-import { DiscussIcon } from '../../../components/icons/Discuss';
-import { ShareIcon } from '../../../components/icons/Share';
-import { BookmarkIcon } from '../../../components/icons/Bookmark';
-import { MenuIcon } from '../../../components/icons/Menu';
-import {
-  Card,
-  CardHeader,
-  CardSpace,
-  CardTextContainer,
-  CardTitle,
-} from '../../../components/cards/common/Card';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
+import { ErrorBoundary } from '../../../components/ErrorBoundary';
+import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
+import { ActiveFeedNameContext } from '../../../contexts/ActiveFeedNameContext';
+import { SharedFeedPage } from '../../../components/utilities';
 import { gqlClient } from '../../../graphql/common';
 import { MOST_UPVOTED_FEED_QUERY } from '../../../graphql/feed';
 import type { Post } from '../../../graphql/posts';
@@ -36,12 +27,6 @@ const ACCENT_TEXT: Record<AccentKey, string> = {
   cheese: 'text-accent-cheese-default',
   avocado: 'text-accent-avocado-default',
 };
-
-const unsplash = (id: string, w = 480, h = 280): string =>
-  `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&q=72&auto=format`;
-
-const PLACEHOLDER_COVER =
-  'https://daily-now-res.cloudinary.com/image/upload/v1672655664/placeholders/placeholder3.jpg';
 
 const HERO_STYLES = `
 .onb-bg {
@@ -154,385 +139,69 @@ const HERO_STYLES = `
 // Variant A — Cards: real daily.dev feed cards
 // =============================================================
 
-type FeedItem = {
-  id: string;
-  title: string;
-  source: string;
-  sourceDomain: string;
-  sourceImage?: string;
-  cover: string;
-  upvotes: number;
-  comments: number;
-  readTime: number;
-  daysAgo: number;
-  tags: string[];
-  isReal?: boolean;
-};
-
-const sourceLogo = (domain: string): string =>
-  `https://logo.clearbit.com/${domain}`;
-
-const FALLBACK_FEED_ITEMS: FeedItem[] = [
-  {
-    id: 'f1',
-    title: 'Why we rewrote our build system in Rust',
-    source: 'Stripe Engineering',
-    sourceDomain: 'stripe.com',
-    cover: '1555066931-4365d14bab8c',
-    upvotes: 1247,
-    comments: 184,
-    readTime: 9,
-    daysAgo: 1,
-    tags: ['rust', 'tooling', 'performance'],
-  },
-  {
-    id: 'f2',
-    title: 'TypeScript 5.5 — the 4 features you will actually use',
-    source: 'Fireship',
-    sourceDomain: 'fireship.io',
-    cover: '1542831371-29b0f74f9713',
-    upvotes: 3412,
-    comments: 420,
-    readTime: 7,
-    daysAgo: 2,
-    tags: ['typescript', 'webdev'],
-  },
-  {
-    id: 'f3',
-    title: 'How Claude Code changed our review culture',
-    source: 'The Pragmatic Engineer',
-    sourceDomain: 'pragmaticengineer.com',
-    cover: '1620712943543-bcc4688e7485',
-    upvotes: 2108,
-    comments: 312,
-    readTime: 12,
-    daysAgo: 1,
-    tags: ['ai', 'engineering', 'culture'],
-  },
-  {
-    id: 'f4',
-    title: 'Edge functions, benchmarked: 14ms vs 280ms cold starts',
-    source: 'Vercel',
-    sourceDomain: 'vercel.com',
-    cover: '1517694712202-14dd9538aa97',
-    upvotes: 894,
-    comments: 128,
-    readTime: 8,
-    daysAgo: 3,
-    tags: ['edge', 'serverless', 'benchmarks'],
-  },
-  {
-    id: 'f5',
-    title: 'Postgres or SQLite in 2026? A pragmatic guide',
-    source: 'High Scalability',
-    sourceDomain: 'highscalability.com',
-    cover: '1581090464777-f3220bbe1b8b',
-    upvotes: 2780,
-    comments: 512,
-    readTime: 14,
-    daysAgo: 2,
-    tags: ['databases', 'postgres', 'sqlite'],
-  },
-  {
-    id: 'f6',
-    title: 'Kubernetes is fine. Your YAML is the problem.',
-    source: 'CNCF',
-    sourceDomain: 'cncf.io',
-    cover: '1535551951406-a19828b0a76b',
-    upvotes: 1936,
-    comments: 240,
-    readTime: 11,
-    daysAgo: 4,
-    tags: ['kubernetes', 'devops'],
-  },
-  {
-    id: 'f7',
-    title: 'A one-line trick to debounce async hooks in React',
-    source: 'daily.dev',
-    sourceDomain: 'daily.dev',
-    cover: '1633356122544-f134324a6cee',
-    upvotes: 824,
-    comments: 91,
-    readTime: 4,
-    daysAgo: 1,
-    tags: ['react', 'hooks', 'snippet'],
-  },
-  {
-    id: 'f8',
-    title: 'The hidden cost of unused indexes in Postgres',
-    source: 'Crunchy Data',
-    sourceDomain: 'crunchydata.com',
-    cover: '1607799279861-4dd421887fb3',
-    upvotes: 1234,
-    comments: 156,
-    readTime: 10,
-    daysAgo: 3,
-    tags: ['postgres', 'performance'],
-  },
-  {
-    id: 'f9',
-    title: 'I tried 7 AI code editors so you do not have to',
-    source: 'GitHub',
-    sourceDomain: 'github.com',
-    cover: '1635070041078-e363dbe005cb',
-    upvotes: 4122,
-    comments: 602,
-    readTime: 18,
-    daysAgo: 2,
-    tags: ['ai', 'tools', 'review'],
-  },
-  {
-    id: 'f10',
-    title: 'Tailwind v4: what changed and what broke for us',
-    source: 'Tailwind CSS',
-    sourceDomain: 'tailwindcss.com',
-    cover: '1573164574572-cb89e39749b4',
-    upvotes: 986,
-    comments: 174,
-    readTime: 7,
-    daysAgo: 1,
-    tags: ['css', 'tailwind', 'webdev'],
-  },
-  {
-    id: 'f11',
-    title: 'Bun vs Node in 2026: surprising benchmarks',
-    source: 'Bun',
-    sourceDomain: 'bun.sh',
-    cover: '1593642632559-0c6d3fc62b89',
-    upvotes: 1604,
-    comments: 288,
-    readTime: 9,
-    daysAgo: 2,
-    tags: ['node', 'bun', 'benchmarks'],
-  },
-  {
-    id: 'f12',
-    title: 'Lessons from scaling Postgres to 1M writes/sec',
-    source: 'GitHub Engineering',
-    sourceDomain: 'github.blog',
-    cover: '1517433670267-08bbd4be890f',
-    upvotes: 3208,
-    comments: 388,
-    readTime: 22,
-    daysAgo: 4,
-    tags: ['postgres', 'scale', 'architecture'],
-  },
-];
-
-const formatCount = (n: number): string => {
-  if (n >= 1000) {
-    return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K`;
-  }
-  return `${n}`;
-};
-
-const SourceImage = ({
-  domain,
-  source,
-  image,
-}: {
-  domain: string;
-  source: string;
-  image?: string;
-}): ReactElement => (
-  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-float">
-    <img
-      src={image || sourceLogo(domain)}
-      alt={source}
-      className="h-full w-full object-cover"
-      loading="lazy"
-      decoding="async"
-      onError={(e) => {
-        const target = e.currentTarget;
-        target.onerror = null;
-        target.src = `https://www.google.com/s2/favicons?domain=${
-          domain || 'daily.dev'
-        }&sz=128`;
-      }}
-    />
-  </span>
-);
-
-const FeedActionButton = ({
-  icon,
-  count,
-}: {
-  icon: ReactElement;
-  count?: string;
-}): ReactElement => (
-  <span className="inline-flex h-8 items-center gap-1 rounded-12 px-1.5 text-text-tertiary typo-callout">
-    {icon}
-    {count && (
-      <span className="font-bold tabular-nums leading-none">{count}</span>
-    )}
-  </span>
-);
-
-const resolveCoverSrc = (item: FeedItem): string => {
-  if (item.isReal) {
-    return item.cover || PLACEHOLDER_COVER;
-  }
-  return unsplash(item.cover, 480, 300);
-};
-
-const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
-  <Card className="max-h-none">
-    <CardTextContainer>
-      <CardHeader>
-        <SourceImage
-          domain={item.sourceDomain}
-          source={item.source}
-          image={item.sourceImage}
-        />
-        <div className="ml-2 flex min-w-0 flex-1 flex-col">
-          <span className="truncate font-bold text-text-primary typo-footnote">
-            {item.source}
-          </span>
-          <span className="text-text-tertiary typo-caption2">
-            {item.daysAgo}d ago
-          </span>
-        </div>
-        <span className="mr-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-text-tertiary">
-          <MenuIcon size={IconSize.Small} secondary />
-        </span>
-      </CardHeader>
-      <CardTitle lineClamp="line-clamp-3">{item.title}</CardTitle>
-    </CardTextContainer>
-    <CardSpace />
-    <div className="mx-4 mt-2 flex items-center gap-1 overflow-hidden">
-      {item.tags.slice(0, 3).map((tag) => (
-        <span
-          key={tag}
-          className="inline-flex shrink-0 items-center text-text-tertiary typo-footnote"
-        >
-          #{tag}
-        </span>
-      ))}
-    </div>
-    <p className="mx-4 mt-2 flex items-center text-text-tertiary typo-footnote">
-      <span>{item.daysAgo}d ago</span>
-      <span className="mx-1.5 h-0.5 w-0.5 rounded-full bg-text-tertiary" />
-      <span>{item.readTime} min read time</span>
-    </p>
-    <div className="mx-4 mb-3 mt-3">
-      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-12">
-        <img
-          src={resolveCoverSrc(item)}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-          decoding="async"
-          onError={(e) => {
-            const target = e.currentTarget;
-            target.onerror = null;
-            target.src = PLACEHOLDER_COVER;
-          }}
-        />
-        <div className="onb-cover-shade absolute inset-0" />
-      </div>
-    </div>
-    <div className="flex items-center px-3 pb-2">
-      <FeedActionButton
-        icon={<UpvoteIcon size={IconSize.Small} secondary />}
-        count={formatCount(item.upvotes)}
-      />
-      <FeedActionButton
-        icon={<DiscussIcon size={IconSize.Small} secondary />}
-        count={formatCount(item.comments)}
-      />
-      <FeedActionButton
-        icon={<BookmarkIcon size={IconSize.Small} secondary />}
-      />
-      <span className="ml-auto">
-        <FeedActionButton
-          icon={<ShareIcon size={IconSize.Small} secondary />}
-        />
-      </span>
-    </div>
-  </Card>
-);
-
-const daysSince = (iso?: string): number => {
-  if (!iso) {
-    return 1;
-  }
-  const created = new Date(iso).getTime();
-  if (Number.isNaN(created)) {
-    return 1;
-  }
-  const days = Math.max(
-    0,
-    Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24)),
-  );
-  return days || 1;
-};
-
-const postToFeedItem = (post: Post): FeedItem => {
-  const sourceName = post.source?.name || 'daily.dev';
-  const sourceImage = post.source?.image;
-  const sourceHandle = post.source?.handle || 'daily-dev';
-  const domain = sourceHandle.includes('.') ? sourceHandle : 'daily.dev';
-  return {
-    id: post.id,
-    title: post.title || '',
-    source: sourceName,
-    sourceDomain: domain,
-    sourceImage,
-    cover: post.image || PLACEHOLDER_COVER,
-    upvotes: post.numUpvotes ?? 0,
-    comments: post.numComments ?? 0,
-    readTime: post.readTime ?? 4,
-    daysAgo: daysSince(post.createdAt),
-    tags: post.tags ?? [],
-    isReal: true,
-  };
-};
-
 type FeedQueryResult = {
   page: { edges: Array<{ node: Post }> };
 };
 
-const useExploreFeedItems = (): FeedItem[] => {
+const noop = (): void => undefined;
+
+const useExplorePosts = (): Post[] => {
   const { data } = useQuery({
     queryKey: ['onboarding-explore-feed'],
     queryFn: async () => {
       const res = await gqlClient.request<FeedQueryResult>(
         MOST_UPVOTED_FEED_QUERY,
         {
-          first: 16,
+          first: 30,
           period: 7,
           loggedIn: false,
           supportedTypes: ['article', 'video:youtube'],
         },
       );
-      return res.page.edges.map((edge) => edge.node);
+      return res.page.edges
+        .map((edge) => edge.node)
+        .filter((post): post is Post => !!post && !!post.id && !!post.title);
     },
     staleTime: 1000 * 60 * 10,
     retry: 1,
   });
-
-  if (!data || data.length === 0) {
-    return FALLBACK_FEED_ITEMS;
-  }
-  return data
-    .filter((post) => post && post.title)
-    .map(postToFeedItem)
-    .slice(0, 16);
+  return data ?? [];
 };
 
+const ExplorePostCard = ({ post }: { post: Post }): ReactElement => (
+  <ErrorBoundary fallback={null}>
+    <ArticleGrid
+      post={post}
+      onPostClick={noop}
+      onPostAuxClick={noop}
+      onUpvoteClick={noop}
+      onDownvoteClick={noop}
+      onCommentClick={noop}
+      onBookmarkClick={noop}
+      onShare={noop}
+      onCopyLinkClick={noop}
+      onReadArticleClick={noop}
+    />
+  </ErrorBoundary>
+);
+
 const CardsBackground = (): ReactElement => {
-  const items = useExploreFeedItems();
+  const posts = useExplorePosts();
   return (
-    <div
-      aria-hidden
-      className="onb-grid-mask pointer-events-none absolute inset-0 -z-1 select-none overflow-hidden"
+    <ActiveFeedNameContext.Provider
+      value={{ feedName: SharedFeedPage.Popular }}
     >
-      <div className="grid grid-cols-2 gap-5 p-5 tablet:grid-cols-3 tablet:gap-6 tablet:p-7 laptop:grid-cols-4 laptopL:grid-cols-5">
-        {items.map((item) => (
-          <FeedItemReplica key={item.id} item={item} />
-        ))}
+      <div
+        aria-hidden
+        className="onb-grid-mask pointer-events-none absolute inset-0 -z-1 select-none overflow-hidden"
+      >
+        <div className="grid auto-rows-min grid-cols-2 gap-8 p-5 tablet:p-7 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6">
+          {posts.map((post) => (
+            <ExplorePostCard key={post.id} post={post} />
+          ))}
+        </div>
       </div>
-    </div>
+    </ActiveFeedNameContext.Provider>
   );
 };
 
