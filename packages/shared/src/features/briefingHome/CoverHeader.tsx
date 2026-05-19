@@ -33,7 +33,7 @@ export const CoverHeader = ({
   scannedCount,
   onReset,
 }: CoverHeaderProps): ReactElement => (
-  <header id="brief-top" className="flex scroll-mt-20 flex-col gap-2">
+  <header id="brief-top" className="flex scroll-mt-20 flex-col gap-3">
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
       <Typography
         tag={TypographyTag.H1}
