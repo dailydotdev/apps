@@ -32,7 +32,6 @@ const BAR_HEIGHT = 48;
 const TABS_WIDTH = 220;
 const DOCKED_MAX_WIDTH = 1024;
 const VIEWPORT_PADDING = 24;
-const SCROLL_LOCK_MS = 700;
 
 const scrollToId = (id: string): void => {
   if (typeof document === 'undefined') {
@@ -77,17 +76,16 @@ export const BriefFloatingTabs = ({
   const { isLoggedIn } = useAuthContext();
   const { tags } = useFeedTagsList({ enabled: isLoggedIn });
   const categories = useMemo(() => buildPersonalizedCategories(tags), [tags]);
-  const [isDocked, setIsDocked] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [viewport, setViewport] = useState({ w: 1024, h: 800 });
+  const [{ barTop, isDocked, viewportW }, setLayout] = useState({
+    barTop: 0,
+    isDocked: false,
+    viewportW: 1024,
+  });
   const rafRef = useRef<number | null>(null);
-  const scrollLockUntilRef = useRef<number>(0);
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== 'undefined') {
-      setViewport({ w: window.innerWidth, h: window.innerHeight });
-    }
   }, []);
 
   const measure = useCallback(() => {
@@ -95,16 +93,27 @@ export const BriefFloatingTabs = ({
     if (typeof window === 'undefined') {
       return;
     }
-    setViewport({ w: window.innerWidth, h: window.innerHeight });
-    if (Date.now() < scrollLockUntilRef.current) {
-      return;
-    }
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const floatingTop = vh - BAR_HEIGHT - BOTTOM_GAP;
     const sentinel = document.getElementById(sentinelId);
-    if (!sentinel) {
-      return;
+    let nextTop = floatingTop;
+    if (sentinel) {
+      const sentinelTop = sentinel.getBoundingClientRect().top;
+      const followTop = sentinelTop - BAR_HEIGHT;
+      nextTop = Math.max(HEADER_OFFSET, Math.min(floatingTop, followTop));
     }
-    const { top } = sentinel.getBoundingClientRect();
-    setIsDocked(top <= HEADER_OFFSET);
+    const nextDocked = nextTop <= HEADER_OFFSET;
+    setLayout((prev) => {
+      if (
+        prev.barTop === nextTop &&
+        prev.isDocked === nextDocked &&
+        prev.viewportW === vw
+      ) {
+        return prev;
+      }
+      return { barTop: nextTop, isDocked: nextDocked, viewportW: vw };
+    });
   }, [sentinelId]);
 
   useEffect(() => {
@@ -129,31 +138,21 @@ export const BriefFloatingTabs = ({
     };
   }, [measure]);
 
-  const goBrief = useCallback(() => {
-    scrollLockUntilRef.current = Date.now() + SCROLL_LOCK_MS;
-    setIsDocked(false);
-    scrollToId(topId);
-  }, [topId]);
-
-  const goFeed = useCallback(() => {
-    scrollLockUntilRef.current = Date.now() + SCROLL_LOCK_MS;
-    setIsDocked(true);
-    scrollToId(feedId);
-  }, [feedId]);
+  const goBrief = useCallback(() => scrollToId(topId), [topId]);
+  const goFeed = useCallback(() => scrollToId(feedId), [feedId]);
 
   if (!mounted) {
     return null;
   }
 
-  const topPx = isDocked ? HEADER_OFFSET : viewport.h - BAR_HEIGHT - BOTTOM_GAP;
   const widthPx = isDocked
-    ? Math.min(DOCKED_MAX_WIDTH, viewport.w - VIEWPORT_PADDING)
+    ? Math.min(DOCKED_MAX_WIDTH, viewportW - VIEWPORT_PADDING)
     : TABS_WIDTH;
 
   return createPortal(
     <div
-      style={{ top: `${topPx}px`, width: `${widthPx}px` }}
-      className="fixed left-1/2 z-popup -translate-x-1/2 transition-[top,width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      style={{ top: `${barTop}px`, width: `${widthPx}px` }}
+      className="fixed left-1/2 z-popup -translate-x-1/2 transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
     >
       <div
         className={classNames(
