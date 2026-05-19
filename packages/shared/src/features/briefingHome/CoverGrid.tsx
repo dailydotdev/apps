@@ -62,15 +62,6 @@ const StoryRow = ({
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <ArrowIcon
-          size={IconSize.XSmall}
-          className={classNames(
-            'mt-1 shrink-0 text-text-tertiary transition-transform duration-300 ease-out',
-            isExpanded ? 'rotate-180' : 'rotate-90',
-          )}
-          aria-hidden
-        />
-
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Typography
             tag={TypographyTag.H3}
@@ -101,54 +92,66 @@ const StoryRow = ({
             </Typography>
           </div>
 
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <StatPill
-              ariaLabel={`${story.totalUpvotes} upvotes`}
-              icon={
-                <UpvoteIcon
-                  size={IconSize.XSmall}
-                  className="text-accent-avocado-default"
-                />
-              }
-              value={story.totalUpvotes}
-            />
-            <StatPill
-              ariaLabel={`${story.totalComments} comments`}
-              icon={
-                <DiscussIcon
-                  size={IconSize.XSmall}
-                  className="text-text-tertiary"
-                />
-              }
-              value={story.totalComments}
-            />
-            <span className="inline-flex min-w-0 items-center gap-2 pl-1">
-              <span className="inline-flex shrink-0 items-center -space-x-1.5">
-                {sourcesShown.map((src) => (
-                  <span
-                    key={src.sourceId}
-                    className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
+          <div className="mt-1 flex items-center gap-2">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              <StatPill
+                ariaLabel={`${story.totalUpvotes} upvotes`}
+                icon={
+                  <UpvoteIcon
+                    size={IconSize.XSmall}
+                    className="text-accent-avocado-default"
+                  />
+                }
+                value={story.totalUpvotes}
+              />
+              <StatPill
+                ariaLabel={`${story.totalComments} comments`}
+                icon={
+                  <DiscussIcon
+                    size={IconSize.XSmall}
+                    className="text-text-tertiary"
+                  />
+                }
+                value={story.totalComments}
+              />
+              <span className="inline-flex min-w-0 items-center gap-2 pl-1">
+                <span className="inline-flex shrink-0 items-center -space-x-1.5">
+                  {sourcesShown.map((src) => (
+                    <span
+                      key={src.sourceId}
+                      className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
+                    >
+                      <img
+                        src={src.sourceImage}
+                        alt=""
+                        loading="lazy"
+                        className="size-4 object-cover"
+                      />
+                    </span>
+                  ))}
+                </span>
+                <span className="hidden min-w-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 tablet:inline-flex">
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Tertiary}
+                    className="truncate"
                   >
-                    <img
-                      src={src.sourceImage}
-                      alt=""
-                      loading="lazy"
-                      className="size-4 object-cover"
-                    />
-                  </span>
-                ))}
+                    {sourceNames}
+                    {extraSources > 0 ? ` +${extraSources}` : ''}
+                  </Typography>
+                </span>
               </span>
-              <span className="hidden min-w-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 tablet:inline-flex">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                  className="truncate"
-                >
-                  {sourceNames}
-                  {extraSources > 0 ? ` +${extraSources}` : ''}
-                </Typography>
-              </span>
+            </div>
+            <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-quaternary bg-surface-float text-text-tertiary transition-colors group-hover:border-border-subtlest-tertiary">
+              <ArrowIcon
+                size={IconSize.XSmall}
+                className={classNames(
+                  'transition-transform duration-300 ease-out',
+                  isExpanded ? 'rotate-0' : 'rotate-180',
+                )}
+                aria-hidden
+              />
             </span>
           </div>
 
