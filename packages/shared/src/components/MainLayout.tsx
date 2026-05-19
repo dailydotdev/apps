@@ -37,7 +37,6 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { MainLayoutV2 } from './MainLayoutV2';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -86,7 +85,7 @@ function MainLayoutComponent({
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, isAuthReady, showLogin } = useAuthContext();
+  const { user, isAuthReady, isLoggedIn, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -103,6 +102,15 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2 } = useLayoutVariant();
   useNotificationParams();
+
+  // The dual-sidebar layout takes ownership of the global header chrome
+  // (logo + search + user actions) on laptop+ for authenticated users
+  // (and for extension new tab regardless of auth state). When that's
+  // the case the global header is hidden, the main content gets the
+  // floating-card treatment, and the global feedback widget is suppressed
+  // because the rail provides its own.
+  const sidebarOwnsHeader =
+    isV2 && (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -182,7 +190,13 @@ function MainLayoutComponent({
     isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
 
   return (
-    <div className="antialiased">
+    <div
+      className={classNames(
+        'antialiased',
+        isV2 &&
+          'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+      )}
+    >
       {canGoBack && <GoBackHeaderMobile />}
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
@@ -200,50 +214,56 @@ function MainLayoutComponent({
         />
       )}
 
-      {isV2 ? (
-        <MainLayoutV2
-          activePage={activePage}
-          isNavItemsButton={isNavItemsButton}
-          onNavTabClick={onNavTabClick}
-          showSidebar={showSidebar}
-          hideFeedbackWidget={hideFeedbackWidget}
-          className={className}
-        >
-          {children}
-        </MainLayoutV2>
-      ) : (
-        <>
-          <MainLayoutHeader
-            hasBanner={isBannerAvailable}
-            sidebarRendered={sidebarRendered}
-            additionalButtons={additionalButtons}
-            onLogoClick={onLogoClick}
-          />
-          <main
-            className={classNames(
-              'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
-              showSidebar && 'tablet:pl-16 laptop:pl-11',
-              className,
-              isAuthReady &&
-                !isScreenCentered &&
-                sidebarExpanded &&
-                'laptop:!pl-60',
-              isBannerAvailable && 'laptop:pt-24',
-            )}
-          >
-            {isAuthReady && showSidebar && (
-              <Sidebar
-                isNavButtons={isNavItemsButton}
-                onNavTabClick={onNavTabClick}
-                onLogoClick={onLogoClick}
-                activePage={activePage ?? router.asPath ?? router.pathname}
-              />
-            )}
-            {children}
-          </main>
-          {!hideFeedbackWidget && <FeedbackWidget />}
-        </>
+      {!sidebarOwnsHeader && (
+        <MainLayoutHeader
+          hasBanner={isBannerAvailable}
+          sidebarRendered={sidebarRendered}
+          additionalButtons={additionalButtons}
+          onLogoClick={onLogoClick}
+        />
       )}
+      <main
+        className={classNames(
+          'flex flex-col transition-[padding] duration-300 ease-in-out',
+          !sidebarOwnsHeader && 'laptop:pt-16',
+          showSidebar && (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
+          className,
+          isAuthReady &&
+            showSidebar &&
+            sidebarExpanded &&
+            (isV2
+              ? 'laptop:!pl-[19rem]'
+              : !isScreenCentered && 'laptop:!pl-60'),
+          isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
+        )}
+      >
+        {isAuthReady && showSidebar && (
+          <Sidebar
+            additionalButtons={additionalButtons}
+            isNavButtons={isNavItemsButton}
+            showFeedbackWidget={!hideFeedbackWidget}
+            onNavTabClick={onNavTabClick}
+            onLogoClick={onLogoClick}
+            activePage={activePage ?? router.asPath ?? router.pathname}
+          />
+        )}
+        {sidebarOwnsHeader ? (
+          <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
+            <div
+              className={classNames(
+                'flex min-h-0 flex-1 flex-col',
+                'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
+                'laptop:min-h-[calc(100vh-1.5rem)]',
+              )}
+            >
+              {children}
+            </div>
+          </div>
+        ) : (
+          children
+        )}
+      </main>
+      {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
     </div>
   );
 }
