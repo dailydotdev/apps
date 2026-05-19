@@ -24,6 +24,7 @@ import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
+  useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -35,7 +36,6 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
 import { CreateLiveRoomForm } from '@dailydotdev/shared/src/components/liveRooms/CreateLiveRoomForm';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { featureStandupCreation } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
