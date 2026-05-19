@@ -108,6 +108,7 @@ const strictSkipList = new Set([
   'packages/webapp/pages/briefing/index.tsx',
   'packages/webapp/pages/game-center/index.tsx',
   'packages/webapp/pages/tags/index.tsx',
+  'packages/webapp/components/layouts/SettingsLayout/index.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

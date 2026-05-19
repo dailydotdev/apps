@@ -168,8 +168,12 @@ export default function SettingsLayout({
 
 export const getSettingsLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
+    // Keep `showSidebar: true` so the v2 dual-sidebar rail appears alongside
+    // the settings menu (matches designer mock). Control variant also gets
+    // the legacy sidebar shown on settings pages — small UX change for
+    // control but the rail-on-settings consistency is worth it.
     getMainLayout(<SettingsLayout>{page}</SettingsLayout>, null, {
       screenCentered: true,
-      showSidebar: false,
+      showSidebar: true,
     }),
   );
