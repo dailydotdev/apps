@@ -1,160 +1,100 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { MiniCloseIcon } from '../../../../components/icons/MiniClose';
-import { PlusIcon } from '../../../../components/icons/Plus';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import {
-  useTagSearch,
-  MIN_SEARCH_QUERY_LENGTH,
-} from '../../../../hooks/useTagSearch';
 import { Origin } from '../../../../lib/log';
 import { PersonaQuizFeedbackForm } from './PersonaQuizFeedbackForm';
 import type { PersonaArchetype } from '../../types/funnel';
+import { TagSelection } from '../../../../components/tags/TagSelection';
+import { FeedPreviewControls } from '../../../../components/feeds/FeedPreviewControls';
+import Feed from '../../../../components/Feed';
+import { FeedLayoutProvider } from '../../../../contexts/FeedContext';
+import { OtherFeedPage, RequestKey } from '../../../../lib/query';
+import { PREVIEW_FEED_QUERY } from '../../../../graphql/feed';
+import { SearchField } from '../../../../components/fields/SearchField';
+import useDebounceFn from '../../../../hooks/useDebounceFn';
+import { useTagSearch } from '../../../../hooks/useTagSearch';
 
 interface PersonaQuizRevealProps {
   archetype: PersonaArchetype | null;
+  /**
+   * Tags accumulated from the quiz answers. Used only as a fallback for the
+   * headline copy when no archetype was resolved — the actual editable tag
+   * list lives in `feedSettings` (mutated via `TagSelection`).
+   */
   tags: string[];
+  userId: string | undefined;
   reveal: {
     eyebrow?: string;
     cta?: string;
     feedbackCta?: string;
     feedbackPlaceholder?: string;
-    addTagCta?: string;
   };
   isFinalizing: boolean;
-  onAddTag: (tag: string) => void;
-  onRemoveTag: (tag: string) => void;
   onSubmitFeedback: (text: string) => void;
   onComplete: () => void;
 }
 
-const TagSearchPanel = ({
-  excludeTags,
-  onAdd,
-}: {
-  excludeTags: string[];
-  onAdd: (tag: string) => void;
-}): ReactElement => {
-  const [query, setQuery] = useState('');
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-  const { data, isLoading } = useTagSearch({
-    value: query,
-    origin: Origin.EditTag,
-  });
-  const exclude = new Set(excludeTags);
-  const suggestions =
-    data?.searchTags?.tags.filter(
-      (tag) => tag.name && !exclude.has(tag.name),
-    ) ?? [];
+const humaniseTag = (tag: string): string => {
+  const spaced = tag.replace(/-/g, ' ').trim();
+  if (!spaced) {
+    return tag;
+  }
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+};
 
-  return (
-    <div className="flex w-full flex-col gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-4">
-      <input
-        ref={inputRef}
-        type="text"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search tags…"
-        className="w-full rounded-8 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-primary typo-body placeholder:text-text-quaternary focus:border-text-tertiary focus:outline-none"
-      />
-      {query.length < MIN_SEARCH_QUERY_LENGTH ? (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Type at least {MIN_SEARCH_QUERY_LENGTH} characters to search.
-        </Typography>
-      ) : null}
-      {query.length >= MIN_SEARCH_QUERY_LENGTH && isLoading ? (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Searching…
-        </Typography>
-      ) : null}
-      {suggestions.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {suggestions.slice(0, 12).map((tag) => (
-            <Button
-              key={tag.name}
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              onClick={() => {
-                if (tag.name) {
-                  onAdd(tag.name);
-                  setQuery('');
-                }
-              }}
-              icon={<PlusIcon />}
-            >
-              {`#${tag.name}`}
-            </Button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+const headlineFromTags = (tags: string[]): string => {
+  const top = tags.slice(0, 3).map(humaniseTag);
+  if (top.length === 0) {
+    return 'Your feed is ready';
+  }
+  if (top.length === 1) {
+    return `${top[0]}, locked in.`;
+  }
+  if (top.length === 2) {
+    return `${top[0]} + ${top[1]}, locked in.`;
+  }
+  return `${top[0]}, ${top[1]}, ${top[2]} — locked in.`;
 };
 
 export const PersonaQuizReveal = ({
   archetype,
   tags,
+  userId,
   reveal,
   isFinalizing,
-  onAddTag,
-  onRemoveTag,
   onSubmitFeedback,
   onComplete,
 }: PersonaQuizRevealProps): ReactElement => {
-  const [showAddTag, setShowAddTag] = useState(false);
+  const [isPreviewOpen, setPreviewOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [onSearch] = useDebounceFn((value?: string) => {
+    setSearchQuery(value ?? '');
+  }, 350);
 
-  // Fallback when no archetype was resolved (graph misconfiguration or an
-  // unauthenticated dev preview path). Compose a tag-flavoured headline so the
-  // reveal screen still feels personal.
-  const humaniseTag = (tag: string): string => {
-    const spaced = tag.replace(/-/g, ' ').trim();
-    if (!spaced) {
-      return tag;
-    }
-    return spaced.charAt(0).toUpperCase() + spaced.slice(1);
-  };
+  const { data: searchResult } = useTagSearch({
+    value: searchQuery,
+    origin: Origin.EditTag,
+  });
+  const searchTags = searchResult?.searchTags?.tags ?? [];
 
-  const headlineFromTags = (): string => {
-    const top = tags.slice(0, 3).map(humaniseTag);
-    if (top.length === 0) {
-      return 'Your feed is ready';
-    }
-    if (top.length === 1) {
-      return `${top[0]}, locked in.`;
-    }
-    if (top.length === 2) {
-      return `${top[0]} + ${top[1]}, locked in.`;
-    }
-    return `${top[0]}, ${top[1]}, ${top[2]} — locked in.`;
-  };
-
-  const headline = archetype?.headline ?? headlineFromTags();
+  const headline = archetype?.headline ?? headlineFromTags(tags);
   const eyebrow = archetype?.name ?? reveal.eyebrow;
+  const description = archetype?.description;
 
   return (
-    <div className="flex w-full flex-1 flex-col gap-6 px-4 py-6 tablet:mx-auto tablet:max-w-md">
+    <div className="flex w-full flex-1 flex-col gap-6 px-4 py-6 tablet:mx-auto tablet:max-w-4xl">
       <header className="flex flex-col items-center gap-2 text-center">
         {eyebrow && (
           <Typography
@@ -172,58 +112,59 @@ export const PersonaQuizReveal = ({
         >
           {headline}
         </Typography>
-        {archetype?.description && (
+        {description && (
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
-            {archetype.description}
+            {description}
           </Typography>
         )}
       </header>
 
-      <section className="flex flex-col gap-3">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Your starting tags
-        </Typography>
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <Button
-              key={tag}
-              type="button"
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              onClick={() => onRemoveTag(tag)}
-              icon={<MiniCloseIcon />}
-              aria-label={`Remove ${tag}`}
-            >
-              {`#${tag}`}
-            </Button>
-          ))}
-          {tags.length === 0 && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              No tags yet — add some below.
-            </Typography>
+      <TagSelection
+        className="mt-4"
+        searchElement={
+          <SearchField
+            aria-label="Search tags"
+            className="mb-8 w-full tablet:max-w-xs"
+            inputId="persona-quiz-search-tags"
+            placeholder="Search tags…"
+            valueChanged={onSearch}
+          />
+        }
+        searchQuery={searchQuery}
+        searchTags={searchTags}
+        origin={Origin.EditTag}
+      />
+
+      {userId && (
+        <>
+          <FeedPreviewControls
+            isOpen={isPreviewOpen}
+            isDisabled={false}
+            textDisabled=""
+            origin={Origin.EditTag}
+            onClick={setPreviewOpen}
+          />
+          {isPreviewOpen && (
+            <FeedLayoutProvider>
+              <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
+                Tweak your tags above until the feed below feels like yours.
+              </p>
+              <Feed
+                className="relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10"
+                feedName={OtherFeedPage.Preview}
+                feedQueryKey={[RequestKey.FeedPreview, userId]}
+                query={PREVIEW_FEED_QUERY}
+                showSearch={false}
+                options={{ refetchOnMount: true }}
+                allowPin
+              />
+            </FeedLayoutProvider>
           )}
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            onClick={() => setShowAddTag((value) => !value)}
-            aria-expanded={showAddTag}
-          >
-            {reveal.addTagCta ?? 'Add tag'}
-          </Button>
-        </div>
-        {showAddTag && <TagSearchPanel excludeTags={tags} onAdd={onAddTag} />}
-      </section>
+        </>
+      )}
 
       <section className="flex flex-col gap-2">
         <button
@@ -252,7 +193,7 @@ export const PersonaQuizReveal = ({
           variant={ButtonVariant.Primary}
           size={ButtonSize.XLarge}
           onClick={onComplete}
-          disabled={isFinalizing || tags.length === 0}
+          disabled={isFinalizing}
           loading={isFinalizing}
           className={classNames('w-full')}
         >

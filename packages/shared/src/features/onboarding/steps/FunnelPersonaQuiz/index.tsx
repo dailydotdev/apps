@@ -19,6 +19,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import useMutateFilters from '../../../../hooks/useMutateFilters';
+import useFeedSettings from '../../../../hooks/useFeedSettings';
 import { usePersonaQuizState } from './usePersonaQuizState';
 import type { PersonaQuizAnswer } from './usePersonaQuizState';
 import { PersonaQuizQuestionView } from './PersonaQuizQuestion';
@@ -37,6 +38,7 @@ function FunnelPersonaQuizComponent({
   const auth = useAuthContext();
   const user = auth?.user;
   const { followTags } = useMutateFilters(user);
+  const { feedSettings } = useFeedSettings();
 
   const params = parameters as FunnelStepPersonaQuizParameters;
   const {
@@ -57,8 +59,6 @@ function FunnelPersonaQuizComponent({
     goToQuestion,
     answer,
     enrichmentComplete,
-    addTag,
-    removeTag,
   } = usePersonaQuizState({ questions });
 
   const [revealArchetype, setRevealArchetype] =
@@ -88,8 +88,9 @@ function FunnelPersonaQuizComponent({
   );
 
   // Resolve the archetype from the terminal question's `archetypeId`, build
-  // the final tag list, then transition to the reveal phase. Pure local
-  // computation — no network call.
+  // the final tag list, persist it (so `TagSelection` on the reveal screen
+  // sees the quiz tags pre-selected via `feedSettings`), then transition to
+  // the reveal phase.
   const finishQuiz = useCallback(
     (committedAnswers: PersonaQuizAnswer[]) => {
       const lastAnswer = committedAnswers[committedAnswers.length - 1];
@@ -104,6 +105,12 @@ function FunnelPersonaQuizComponent({
         ...accumulatedTags,
         ...(selection.fallbackTags ?? []),
       ]).slice(0, selection.targetTotalTags);
+
+      // Fire-and-forget — TagSelection re-renders when feedSettings updates.
+      if (merged.length > 0) {
+        Promise.resolve(followTags({ tags: merged })).catch(() => undefined);
+      }
+
       enrichmentComplete(merged);
     },
     [
@@ -113,6 +120,7 @@ function FunnelPersonaQuizComponent({
       selection.targetTotalTags,
       selection.fallbackTags,
       enrichmentComplete,
+      followTags,
     ],
   );
 
@@ -201,53 +209,28 @@ function FunnelPersonaQuizComponent({
     [currentQuestion, answer, logEvent],
   );
 
+  // Tags were persisted in `finishQuiz`; further add/remove during the reveal
+  // happens inside `TagSelection` via `useTagAndSource`. Finalising is a pure
+  // transition with the latest `finalTags` snapshot passed by the reveal.
   const finalizeMutation = useMutation({
-    mutationFn: async () => {
-      if (finalTags.length > 0) {
-        await Promise.resolve(followTags({ tags: finalTags }));
-      }
-    },
-    onSuccess: () => {
+    mutationFn: async (latestTags: string[]) => latestTags,
+    onSuccess: (latestTags) => {
       logEvent({
         event_name: LogEvent.CompletePersonaQuiz,
         extra: JSON.stringify({
-          tagCount: finalTags.length,
+          tagCount: latestTags.length,
           answerCount: answers.length,
         }),
       });
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: {
-          tags: finalTags,
+          tags: latestTags,
           quizAnswers: answers,
         },
       });
     },
   });
-
-  const handleAddTag = useCallback(
-    (tag: string) => {
-      logEvent({
-        event_name: LogEvent.PersonaQuizTagEdit,
-        target_id: tag,
-        extra: JSON.stringify({ action: 'add' }),
-      });
-      addTag(tag);
-    },
-    [addTag, logEvent],
-  );
-
-  const handleRemoveTag = useCallback(
-    (tag: string) => {
-      logEvent({
-        event_name: LogEvent.PersonaQuizTagEdit,
-        target_id: tag,
-        extra: JSON.stringify({ action: 'remove' }),
-      });
-      removeTag(tag);
-    },
-    [removeTag, logEvent],
-  );
 
   const handleSubmitFeedback = useCallback(
     (text: string) => {
@@ -294,12 +277,19 @@ function FunnelPersonaQuizComponent({
     <PersonaQuizReveal
       archetype={revealArchetype}
       tags={finalTags}
+      userId={user?.id}
       reveal={revealCopy}
       isFinalizing={finalizeMutation.isPending}
-      onAddTag={handleAddTag}
-      onRemoveTag={handleRemoveTag}
       onSubmitFeedback={handleSubmitFeedback}
-      onComplete={() => finalizeMutation.mutate()}
+      onComplete={() => {
+        // Tag list is whatever feedSettings holds RIGHT NOW (TagSelection has
+        // been mutating it during the reveal). Fall back to the quiz-derived
+        // snapshot when feedSettings isn't available (e.g. anonymous user).
+        const latest = feedSettings?.includeTags?.length
+          ? feedSettings.includeTags
+          : finalTags;
+        finalizeMutation.mutate(latest);
+      }}
     />
   );
 }

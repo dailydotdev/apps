@@ -14,7 +14,7 @@ const GRAPH_PATH =
   '/Users/davide/conductor/workspaces/apps/albuquerque-v2/packages/webapp/components/persona-quiz/personaQuizQuestionGraph.json';
 const ARCHETYPE_PATH =
   '/Users/davide/conductor/workspaces/apps/albuquerque-v2/packages/webapp/components/persona-quiz/personaQuizArchetypes.json';
-const EXPECTED_PATH_LENGTH = 20;
+const EXPECTED_PATH_LENGTH = 15;
 
 const validTags = new Set(JSON.parse(readFileSync(TAG_FILE, 'utf-8')));
 const archetypes = JSON.parse(readFileSync(ARCHETYPE_PATH, 'utf-8'));

@@ -154,15 +154,11 @@ const PreviewCard = ({ post, variant }: PreviewCardProps): ReactElement => {
   );
 };
 
-// Drop posts that have no real source — the persona quiz should never show
-// orphaned "Unknown" cards in the preview.
-const hasUsableSource = (post: Post): boolean => {
-  const name = post.source?.name?.trim();
-  if (!name) {
-    return false;
-  }
-  return name.toLowerCase() !== 'unknown';
-};
+// Only drop posts whose source is completely missing. Earlier we rejected
+// anything whose source name happened to read "Unknown", but the prod feed
+// preview doesn't actually return that placeholder — being strict was just
+// stripping legitimate posts and leaving the preview empty.
+const hasUsableSource = (post: Post): boolean => !!post.source?.name?.trim();
 
 export const PersonaQuizFeedPreview = ({
   includeTags,

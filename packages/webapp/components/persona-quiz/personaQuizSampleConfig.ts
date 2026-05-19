@@ -75,10 +75,10 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
     entryQuestionId: 'q1_domain',
     questions: QUESTIONS,
     selection: {
-      // 20 questions total: Q1 + 19 yes/no. The graph itself terminates on
-      // the last Phase D question (which carries an `archetypeId`); this is a
-      // safety net so a misconfigured graph cannot loop.
-      maxQuestions: 20,
+      // 15 questions total: Q1 + 14 yes/no (phases 3-4-4-3). Soft cap — the
+      // graph itself terminates on the last Phase D question (which carries
+      // an `archetypeId`).
+      maxQuestions: 15,
       targetTotalTags: 8,
       tagConfidenceFloor: 1,
       fallbackTags: ['javascript', 'webdev'],

@@ -10,6 +10,33 @@ jest.mock('../../../../graphql/common', () => ({
   gqlClient: { request: jest.fn().mockResolvedValue({ page: { edges: [] } }) },
 }));
 
+// Reveal screen uses TagSelection + Feed primitives that pull in useFeedSettings
+// and useTagAndSource. Stub them so the orchestration tests stay focused on the
+// quiz flow and don't fail on missing context wiring.
+jest.mock('../../../../hooks/useFeedSettings', () => ({
+  __esModule: true,
+  default: () => ({ feedSettings: null, isLoading: false }),
+  getFeedSettingsQueryKey: () => ['feedSettings'],
+}));
+
+jest.mock('../../../../hooks/useTagAndSource', () => ({
+  __esModule: true,
+  default: () => ({
+    onFollowTags: jest.fn(),
+    onUnfollowTags: jest.fn(),
+    onBlockTags: jest.fn(),
+    onUnblockTags: jest.fn(),
+    onFollowSource: jest.fn(),
+    onUnfollowSource: jest.fn(),
+    onBlockSource: jest.fn(),
+    onUnblockSource: jest.fn(),
+  }),
+}));
+
+jest.mock('../../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: () => ({ value: false }),
+}));
+
 const mockFollowTags = jest.fn().mockResolvedValue(undefined);
 jest.mock('../../../../hooks/useMutateFilters', () => ({
   __esModule: true,
@@ -114,7 +141,7 @@ const parameters: FunnelStepPersonaQuiz['parameters'] = {
     },
   ],
   selection: {
-    maxQuestions: 20,
+    maxQuestions: 15,
     targetTotalTags: 6,
     tagConfidenceFloor: 1,
     fallbackTags: ['javascript'],
@@ -227,21 +254,6 @@ describe('FunnelPersonaQuiz', () => {
     const heading = await screen.findByRole('heading', { level: 2 });
     expect(heading).toHaveTextContent(/Nodejs/);
     expect(heading).toHaveTextContent(/locked in/);
-  });
-
-  it('removes a tag from the chip list and excludes it from the final payload', async () => {
-    const { onTransition } = renderStep();
-    fireEvent.click(await screen.findByText('Frontend'));
-    fireEvent.click(await screen.findByText('Yes'));
-    const removeButton = await screen.findByRole('button', {
-      name: 'Remove react',
-    });
-    fireEvent.click(removeButton);
-    fireEvent.click(screen.getByText('Looks good'));
-    await waitFor(() => {
-      const lastCall = onTransition.mock.calls.at(-1)?.[0];
-      expect(lastCall?.details?.tags).not.toContain('react');
-    });
   });
 
   it('opens the feedback form and logs PersonaQuizFeedback with the reveal headline', async () => {
