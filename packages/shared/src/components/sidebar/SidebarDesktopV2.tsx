@@ -615,7 +615,7 @@ export const SidebarDesktopV2 = ({
             return (
               <React.Fragment key={category.id}>
                 {category.id === SidebarCategory.Saved && isLoggedIn && (
-                  <NotificationsBell />
+                  <NotificationsBell rail />
                 )}
                 <RailHoverCard
                   label={category.label}
