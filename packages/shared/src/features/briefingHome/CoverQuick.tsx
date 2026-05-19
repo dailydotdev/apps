@@ -7,8 +7,14 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { StarIcon, OpenLinkIcon } from '../../components/icons';
+import {
+  StarIcon,
+  OpenLinkIcon,
+  UpvoteIcon,
+  DiscussIcon,
+} from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { StatPill } from './StatPill';
 import type { QuickHit } from './types';
 
 interface CoverQuickProps {
@@ -111,21 +117,27 @@ export const CoverQuick = ({
                 >
                   {q.title}
                 </Typography>
-                <div className="mt-auto flex items-center gap-3 pt-1 text-text-quaternary">
-                  <Typography
-                    type={TypographyType.Caption2}
-                    color={TypographyColor.Quaternary}
-                    className="tabular-nums"
-                  >
-                    ↑ {q.upvotes}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Caption2}
-                    color={TypographyColor.Quaternary}
-                    className="tabular-nums"
-                  >
-                    💬 {q.comments}
-                  </Typography>
+                <div className="mt-auto flex items-center gap-2 pt-1">
+                  <StatPill
+                    ariaLabel={`${q.upvotes} upvotes`}
+                    icon={
+                      <UpvoteIcon
+                        size={IconSize.XSmall}
+                        className="text-accent-avocado-default"
+                      />
+                    }
+                    value={q.upvotes}
+                  />
+                  <StatPill
+                    ariaLabel={`${q.comments} comments`}
+                    icon={
+                      <DiscussIcon
+                        size={IconSize.XSmall}
+                        className="text-text-tertiary"
+                      />
+                    }
+                    value={q.comments}
+                  />
                 </div>
               </a>
             </li>

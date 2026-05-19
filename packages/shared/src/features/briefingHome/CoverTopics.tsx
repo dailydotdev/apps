@@ -8,6 +8,7 @@ import {
 } from '../../components/typography/Typography';
 import { EyeIcon, TimerIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { StatPill } from './StatPill';
 import { TOPIC_BG_TOKEN, TOPIC_TOKEN, type TopicDigest } from './types';
 import { briefCopy } from './copy';
 
@@ -59,15 +60,17 @@ const TopicCard = ({
         >
           {topic.topic}
         </Typography>
-        <span className="inline-flex items-center gap-1 text-text-quaternary">
-          <TimerIcon size={IconSize.XXSmall} />
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Quaternary}
-          >
-            {briefCopy.storyReadTime(minutes)}
-          </Typography>
-        </span>
+        <StatPill
+          ariaLabel={`${minutes} minutes read`}
+          icon={
+            <TimerIcon
+              size={IconSize.XSmall}
+              className={TOPIC_TOKEN[topic.topic]}
+            />
+          }
+          value={briefCopy.storyReadTime(minutes)}
+          className="bg-transparent"
+        />
       </div>
       <Typography
         type={TypographyType.Body}

@@ -14,6 +14,7 @@ import {
   ArrowIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { StatPill } from './StatPill';
 import type { StoryItem } from './types';
 
 interface CoverGridProps {
@@ -100,37 +101,28 @@ const StoryRow = ({
             </Typography>
           </div>
 
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-text-quaternary">
-            <span className="inline-flex items-center gap-3">
-              <span className="inline-flex items-center gap-1">
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <StatPill
+              ariaLabel={`${story.totalUpvotes} upvotes`}
+              icon={
                 <UpvoteIcon
-                  size={IconSize.XXSmall}
+                  size={IconSize.XSmall}
                   className="text-accent-avocado-default"
                 />
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Quaternary}
-                  className="tabular-nums"
-                >
-                  {story.totalUpvotes}
-                </Typography>
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <DiscussIcon size={IconSize.XXSmall} />
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Quaternary}
-                  className="tabular-nums"
-                >
-                  {story.totalComments}
-                </Typography>
-              </span>
-            </span>
-            <span
-              aria-hidden
-              className="h-3 w-px shrink-0 bg-border-subtlest-quaternary"
+              }
+              value={story.totalUpvotes}
             />
-            <span className="inline-flex min-w-0 items-center gap-2">
+            <StatPill
+              ariaLabel={`${story.totalComments} comments`}
+              icon={
+                <DiscussIcon
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+              }
+              value={story.totalComments}
+            />
+            <span className="inline-flex min-w-0 items-center gap-2 pl-1">
               <span className="inline-flex shrink-0 items-center -space-x-1.5">
                 {sourcesShown.map((src) => (
                   <span

@@ -14,6 +14,7 @@ import {
   DiscussIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { StatPill } from './StatPill';
 import type { StoryItem } from './types';
 import { briefCopy } from './copy';
 
@@ -97,8 +98,8 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
         </Typography>
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
-          <div className="flex min-w-0 items-center gap-3 text-text-quaternary">
-            <span className="inline-flex shrink-0 items-center -space-x-1.5">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <span className="inline-flex shrink-0 items-center -space-x-1.5 pr-1">
               {sourcesShown.map((src) => (
                 <span
                   key={src.sourceId}
@@ -113,44 +114,36 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
                 </span>
               ))}
             </span>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="min-w-0 truncate"
-            >
-              {story.sources.length} sources
-            </Typography>
-            <span className="text-border-subtlest-secondary">·</span>
-            <span className="inline-flex items-center gap-1">
-              <TimerIcon size={IconSize.XXSmall} />
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Quaternary}
-              >
-                {briefCopy.storyReadTime(minutes)}
-              </Typography>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <UpvoteIcon
-                size={IconSize.XXSmall}
-                className="text-accent-avocado-default"
-              />
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Quaternary}
-              >
-                {story.totalUpvotes}
-              </Typography>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <DiscussIcon size={IconSize.XXSmall} />
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Quaternary}
-              >
-                {story.totalComments}
-              </Typography>
-            </span>
+            <StatPill
+              ariaLabel={`${minutes} minutes read`}
+              icon={
+                <TimerIcon
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+              }
+              value={briefCopy.storyReadTime(minutes)}
+            />
+            <StatPill
+              ariaLabel={`${story.totalUpvotes} upvotes`}
+              icon={
+                <UpvoteIcon
+                  size={IconSize.XSmall}
+                  className="text-accent-avocado-default"
+                />
+              }
+              value={story.totalUpvotes}
+            />
+            <StatPill
+              ariaLabel={`${story.totalComments} comments`}
+              icon={
+                <DiscussIcon
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+              }
+              value={story.totalComments}
+            />
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors group-hover:bg-brand-default">
             <Typography type={TypographyType.Footnote} bold>
