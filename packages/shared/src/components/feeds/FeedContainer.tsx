@@ -32,7 +32,6 @@ import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
-import { PageHeader } from '../layout/PageHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -142,11 +141,6 @@ export const FeedContainer = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2 && isLaptop;
-  // v2 wraps the home feed in the designer's list-frame layout
-  // (rounded inner border + PageHeader strip + tight grid inset),
-  // matching what `shouldUseListFeedLayout` already does for list-mode
-  // feeds. Reuse the same code path instead of duplicating it.
-  const useFloatingFrame = shouldUseListFeedLayout || isV2Laptop;
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
   const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
@@ -285,58 +279,56 @@ export const FeedContainer = ({
           {inlineHeader && header}
           {topContent}
           {isSearch && !shouldUseListFeedLayout && (
-            <span
+            <header
               className={classNames(
-                'flex flex-1 items-center',
-                isExtension ? 'flex-col-reverse' : 'flex-row',
+                'flex items-center',
+                isExtension && 'flex-1 flex-col-reverse',
+                // v2: styled page-header strip with bottom border + compact
+                // ghost buttons applied via descendant selectors. Control
+                // keeps the bare flex row (no border, default Float buttons).
+                !isExtension &&
+                  isV2Laptop &&
+                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn_svg]:!size-4',
+                !isExtension && !isV2Laptop && 'flex-1 flex-row',
               )}
             >
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
+                <span
+                  className={classNames(
+                    isV2Laptop
+                      ? '-mr-1 flex flex-1 flex-row items-center gap-1'
+                      : 'mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary',
+                  )}
+                >
                   {actionButtons}
                 </span>
               )}
               {shortcuts}
-            </span>
+            </header>
           )}
           <ConditionalWrapper
-            condition={useFloatingFrame}
+            condition={shouldUseListFeedLayout}
             wrapper={(child) => (
               <div
                 className={classNames(
                   'flex flex-col',
-                  // In v2 the outer floating-card already supplies the
-                  // rounded chrome, so skip the inner list-frame border
-                  // to avoid the double-bordered look.
                   !disableListFrame &&
-                    !isV2Laptop &&
-                    'overflow-hidden rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                    'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   !disableListFrame && isSearch && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                {isV2Laptop && !isExtension ? (
-                  <PageHeader
-                    // No title in v2 — designer's mockup shows only the
-                    // action buttons in the strip, no "For you" / etc.
-                    // heading to the left.
-                    className="[&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn_svg]:!size-4"
-                  >
-                    {actionButtons}
-                  </PageHeader>
-                ) : (
-                  <ConditionalWrapper
-                    condition={isLaptop && !!(feedHeading || actionButtons)}
-                    wrapper={(component) => (
-                      <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                        <strong className="typo-title3">{feedHeading}</strong>
-                        <span className="flex flex-row gap-3">{component}</span>
-                      </span>
-                    )}
-                  >
-                    {actionButtons || null}
-                  </ConditionalWrapper>
-                )}
+                <ConditionalWrapper
+                  condition={isLaptop && !!(feedHeading || actionButtons)}
+                  wrapper={(component) => (
+                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                      <strong className="typo-title3">{feedHeading}</strong>
+                      <span className="flex flex-row gap-3">{component}</span>
+                    </span>
+                  )}
+                >
+                  {actionButtons || null}
+                </ConditionalWrapper>
                 {isExtension && shortcuts}
                 {child}
               </div>
@@ -345,14 +337,15 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                // Inset the grid so cards sit off the floating-card /
-                // list-frame edges and don't kiss the header-strip
-                // border. `px-6 pt-4` (24px sides, 16px top) matches the
-                // designer's list-frame layout; v2 reuses the same inset
-                // since it shares the same wrapping chrome.
-                useFloatingFrame && isLaptop && 'px-6 pt-4',
+                // v2: inset the grid so cards sit off the floating-card
+                // rounded edges and don't kiss the header-strip border.
+                // `px-6 pt-4` (24px sides, 16px top) matches the designer
+                // mockup. The floating-card chrome already provides outer
+                // inset, so no extra bottom inset is needed.
+                isV2Laptop && !shouldUseListFeedLayout && 'px-6 pt-4',
+                shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !useFloatingFrame && !isAnyExplore && 'mt-8',
+                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
                 gapClass({
