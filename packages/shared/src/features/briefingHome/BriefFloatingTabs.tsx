@@ -29,7 +29,7 @@ interface BriefFloatingTabsProps {
 const HEADER_OFFSET = 56;
 const BOTTOM_GAP = 24;
 const BAR_HEIGHT = 48;
-const TABS_WIDTH = 240;
+const TABS_WIDTH_FALLBACK = 220;
 const VIEWPORT_PADDING = 24;
 
 const scrollToId = (id: string): void => {
@@ -84,11 +84,33 @@ export const BriefFloatingTabs = ({
       feedWidth: 0,
       viewportW: 1024,
     });
+  const [tabsWidth, setTabsWidth] = useState(TABS_WIDTH_FALLBACK);
+  const tabsRowRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted || !tabsRowRef.current) {
+      return undefined;
+    }
+    const node = tabsRowRef.current;
+    const update = () => {
+      const w = node.offsetWidth;
+      if (w > 0) {
+        setTabsWidth(w);
+      }
+    };
+    update();
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const ro = new ResizeObserver(update);
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, [mounted]);
 
   const measure = useCallback(() => {
     rafRef.current = null;
@@ -162,7 +184,7 @@ export const BriefFloatingTabs = ({
   }
 
   const dockedWidth = feedWidth || viewportW - VIEWPORT_PADDING;
-  const widthPx = isDocked ? dockedWidth : TABS_WIDTH;
+  const widthPx = isDocked ? dockedWidth : tabsWidth;
   const centerX = (feedLeft || 0) + (feedWidth || 0) / 2;
 
   return createPortal(
@@ -180,7 +202,7 @@ export const BriefFloatingTabs = ({
           isDocked ? 'shadow-2' : 'shadow-3',
         )}
       >
-        <div className="flex shrink-0 items-center gap-1 p-1">
+        <div ref={tabsRowRef} className="flex shrink-0 items-center gap-1 p-1">
           <Tab active={!isDocked} onClick={goBrief}>
             <BriefIcon
               size={IconSize.XSmall}

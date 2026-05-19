@@ -138,7 +138,7 @@ export const BriefCover = ({
     <section
       aria-label="Your daily brief"
       className={classNames(
-        'mx-auto mb-6 flex w-full max-w-[64rem] flex-col gap-10 px-3 tablet:px-4',
+        'mx-auto mb-6 flex w-full max-w-[64rem] flex-col gap-10 px-3 pb-28 tablet:px-4',
         className,
       )}
     >
