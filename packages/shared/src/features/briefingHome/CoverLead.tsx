@@ -47,7 +47,7 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
     <button
       type="button"
       onClick={onOpen}
-      className="group flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle text-left transition-colors hover:border-border-subtlest-secondary tablet:flex-row"
+      className="group flex flex-col overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-subtle text-left transition-colors hover:border-border-subtlest-tertiary tablet:flex-row"
     >
       <div
         className={classNames(

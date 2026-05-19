@@ -6,8 +6,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { RefreshIcon } from '../../components/icons';
-import { IconSize } from '../../components/Icon';
 
 const formatLongDate = (): string =>
   new Date().toLocaleDateString(undefined, {
@@ -23,19 +21,14 @@ interface CoverHeaderProps {
     readCount: number;
   };
   sourceCount: number;
-  onReset: () => void;
 }
 
 export const CoverHeader = ({
   totals,
   sourceCount,
-  onReset,
 }: CoverHeaderProps): ReactElement => (
-  <header
-    id="brief-top"
-    className="flex scroll-mt-20 flex-wrap items-end justify-between gap-x-4 gap-y-2"
-  >
-    <div className="flex flex-col gap-1">
+  <header id="brief-top" className="flex scroll-mt-20 flex-col gap-3">
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
       <Typography
         tag={TypographyTag.H1}
         type={TypographyType.LargeTitle}
@@ -48,30 +41,25 @@ export const CoverHeader = ({
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
       >
-        {totals.total} stories · ~{totals.readMinutes} min read · {sourceCount}{' '}
-        sources scanned for you
-      </Typography>
-    </div>
-    <div className="flex shrink-0 items-center gap-3">
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Quaternary}
-        bold
-      >
         {formatLongDate()}
       </Typography>
-      {totals.readCount > 0 ? (
-        <button
-          type="button"
-          onClick={onReset}
-          className="inline-flex items-center gap-1 rounded-8 px-1.5 py-1 text-text-quaternary transition-colors hover:bg-surface-float hover:text-text-tertiary"
-        >
-          <RefreshIcon size={IconSize.XXSmall} />
-          <Typography type={TypographyType.Caption2} bold>
-            Reset
-          </Typography>
-        </button>
-      ) : null}
     </div>
+    <Typography
+      tag={TypographyTag.P}
+      type={TypographyType.Callout}
+      color={TypographyColor.Secondary}
+      className="!leading-snug"
+    >
+      <span className="font-bold text-text-primary">
+        {totals.total} stories
+      </span>{' '}
+      ·{' '}
+      <span className="font-bold text-text-primary">
+        ~{totals.readMinutes} min read
+      </span>{' '}
+      ·{' '}
+      <span className="font-bold text-text-primary">{sourceCount} sources</span>{' '}
+      scanned for you
+    </Typography>
   </header>
 );

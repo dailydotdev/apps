@@ -64,58 +64,28 @@ export const CoverQuick = ({
         <Typography type={TypographyType.Title3} bold>
           Quick hits
         </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Quaternary}
-          className="tabular-nums"
-        >
-          · {quickHits.length}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="ml-auto"
-        >
-          Worth knowing, not worth a thread
-        </Typography>
       </div>
 
-      <ul className="grid grid-cols-1 gap-x-6 tablet:grid-cols-2">
+      <ul className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
         {items.map((q) => {
           const read = readSet.has(q.id);
           return (
-            <li
-              key={q.id}
-              className="border-b border-border-subtlest-tertiary last:border-b-0 tablet:[&:nth-last-child(2)]:border-b-0"
-            >
+            <li key={q.id}>
               <a
                 href={q.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => onRead(q.id)}
                 className={classNames(
-                  'group flex items-start gap-3 py-3.5 transition-opacity',
+                  'group flex items-start gap-4 px-5 py-4 transition-colors hover:bg-surface-float',
                   read && 'opacity-60',
                 )}
               >
-                <span
-                  className={classNames(
-                    'inline-flex shrink-0 items-center rounded-6 px-2 py-0.5',
-                    q.eyebrowClass,
-                  )}
-                >
-                  <Typography
-                    type={TypographyType.Caption2}
-                    bold
-                    className="uppercase tracking-[0.12em]"
-                  >
-                    {q.eyebrow}
-                  </Typography>
-                </span>
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <Typography
                     tag={TypographyTag.Span}
-                    type={TypographyType.Footnote}
+                    type={TypographyType.Body}
+                    bold
                     color={
                       read ? TypographyColor.Tertiary : TypographyColor.Primary
                     }
@@ -128,23 +98,23 @@ export const CoverQuick = ({
                     {q.title}
                   </Typography>
                   <div className="flex items-center gap-3 text-text-quaternary">
-                    <span className="inline-flex items-center gap-0.5">
+                    <span className="inline-flex items-center gap-1">
                       <UpvoteIcon
                         size={IconSize.XXSmall}
                         className="text-accent-avocado-default"
                       />
                       <Typography
-                        type={TypographyType.Caption2}
+                        type={TypographyType.Caption1}
                         color={TypographyColor.Quaternary}
                         className="tabular-nums"
                       >
                         {q.upvotes}
                       </Typography>
                     </span>
-                    <span className="inline-flex items-center gap-0.5">
+                    <span className="inline-flex items-center gap-1">
                       <DiscussIcon size={IconSize.XXSmall} />
                       <Typography
-                        type={TypographyType.Caption2}
+                        type={TypographyType.Caption1}
                         color={TypographyColor.Quaternary}
                         className="tabular-nums"
                       >
@@ -153,10 +123,26 @@ export const CoverQuick = ({
                     </span>
                   </div>
                 </div>
-                <ArrowIcon
-                  size={IconSize.XXSmall}
-                  className="mt-1 shrink-0 -rotate-45 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
-                />
+                <div className="flex shrink-0 items-center gap-2">
+                  <span
+                    className={classNames(
+                      'inline-flex shrink-0 items-center rounded-6 px-2 py-0.5',
+                      q.eyebrowClass,
+                    )}
+                  >
+                    <Typography
+                      type={TypographyType.Caption2}
+                      bold
+                      className="uppercase tracking-[0.12em]"
+                    >
+                      {q.eyebrow}
+                    </Typography>
+                  </span>
+                  <ArrowIcon
+                    size={IconSize.XXSmall}
+                    className="-rotate-45 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
+                  />
+                </div>
               </a>
             </li>
           );

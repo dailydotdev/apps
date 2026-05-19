@@ -178,7 +178,7 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
             {story.highlightedComments.slice(0, 3).map((c) => (
               <li
                 key={c.username}
-                className="rounded-12 border border-border-subtlest-tertiary p-3"
+                className="rounded-12 border border-border-subtlest-quaternary p-3"
               >
                 <div className="mb-1.5 flex items-center gap-2">
                   <img
@@ -234,7 +234,7 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                 href={`https://app.daily.dev/posts/${p.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex h-full items-start gap-3 rounded-10 border border-border-subtlest-tertiary p-3 transition-colors hover:bg-surface-float"
+                className="group flex h-full items-start gap-3 rounded-10 border border-border-subtlest-quaternary p-3 transition-colors hover:bg-surface-float"
               >
                 {p.image ? (
                   <div className="size-12 shrink-0 overflow-hidden rounded-8 bg-surface-float">
@@ -388,8 +388,9 @@ export const ReadingPanel = ({
       }}
       className="!bg-background-default"
     >
-      <header className="sticky top-0 z-1 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3">
-        <div className="flex items-center gap-1">
+      <header className="sticky top-0 z-1 grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-border-subtlest-quaternary bg-background-default px-4">
+        <div />
+        <div className="flex items-center justify-center gap-2">
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
@@ -410,14 +411,16 @@ export const ReadingPanel = ({
             <span className="hidden tablet:inline">{briefCopy.panelNext}</span>
           </Button>
         </div>
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<MiniCloseIcon />}
-          onClick={onClose}
-          aria-label={briefCopy.panelClose}
-        />
+        <div className="flex items-center justify-end">
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<MiniCloseIcon />}
+            onClick={onClose}
+            aria-label={briefCopy.panelClose}
+          />
+        </div>
       </header>
       <div className="overflow-y-auto p-5 tablet:p-7">
         {entity.kind === 'story' ? (

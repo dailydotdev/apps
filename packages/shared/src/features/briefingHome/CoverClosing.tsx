@@ -6,7 +6,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { ShareIcon, RefreshIcon, VIcon } from '../../components/icons';
+import { ShareIcon, VIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { briefCopy } from './copy';
 
@@ -19,7 +19,6 @@ interface CoverClosingProps {
     isComplete: boolean;
   };
   edition: number;
-  onReset: () => void;
 }
 
 const formatTomorrow = (): string => {
@@ -36,7 +35,6 @@ const formatTomorrow = (): string => {
 export const CoverClosing = ({
   totals,
   edition,
-  onReset,
 }: CoverClosingProps): ReactElement => {
   const tomorrow = useMemo(formatTomorrow, []);
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
@@ -68,7 +66,7 @@ export const CoverClosing = ({
   return (
     <section
       aria-label="End of brief"
-      className="flex flex-col items-center gap-4 py-8 text-center"
+      className="flex flex-col items-center gap-3 py-6 text-center"
     >
       <div className="bg-accent-avocado-float flex size-12 items-center justify-center rounded-full text-accent-avocado-default">
         <VIcon size={IconSize.Medium} secondary />
@@ -101,38 +99,16 @@ export const CoverClosing = ({
         </Typography>
       </div>
 
-      <div className="mt-2 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={onShare}
-          className="inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-primary transition-colors hover:bg-surface-float"
-        >
-          <ShareIcon size={IconSize.XSmall} />
-          <Typography type={TypographyType.Footnote} bold>
-            {shareState === 'copied' ? 'Link copied' : 'Share this brief'}
-          </Typography>
-        </button>
-        {totals.readCount > 0 ? (
-          <button
-            type="button"
-            onClick={onReset}
-            className="inline-flex items-center gap-1 rounded-10 px-2 py-2 text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
-          >
-            <RefreshIcon size={IconSize.XXSmall} />
-            <Typography type={TypographyType.Footnote} bold>
-              Reset progress
-            </Typography>
-          </button>
-        ) : null}
-      </div>
-
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Quaternary}
-        className="mt-2"
+      <button
+        type="button"
+        onClick={onShare}
+        className="mt-1 inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-quaternary bg-background-default px-3 py-2 text-text-primary transition-colors hover:bg-surface-float"
       >
-        Below: your personalized feed
-      </Typography>
+        <ShareIcon size={IconSize.XSmall} />
+        <Typography type={TypographyType.Footnote} bold>
+          {shareState === 'copied' ? 'Link copied' : 'Share this brief'}
+        </Typography>
+      </button>
     </section>
   );
 };

@@ -30,6 +30,7 @@ const HEADER_OFFSET = 56;
 const BOTTOM_GAP = 24;
 const BAR_HEIGHT = 48;
 const TABS_WIDTH_FALLBACK = 220;
+const DOCKED_MAX_WIDTH = 1024;
 const VIEWPORT_PADDING = 24;
 
 const scrollToId = (id: string): void => {
@@ -183,9 +184,12 @@ export const BriefFloatingTabs = ({
     return null;
   }
 
-  const dockedWidth = feedWidth || viewportW - VIEWPORT_PADDING;
+  const dockedWidth = Math.min(
+    DOCKED_MAX_WIDTH,
+    feedWidth || viewportW - VIEWPORT_PADDING,
+  );
   const widthPx = isDocked ? dockedWidth : tabsWidth;
-  const centerX = (feedLeft || 0) + (feedWidth || 0) / 2;
+  const centerX = feedWidth > 0 ? feedLeft + feedWidth / 2 : viewportW / 2;
 
   return createPortal(
     <div
@@ -198,7 +202,7 @@ export const BriefFloatingTabs = ({
     >
       <div
         className={classNames(
-          'flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default transition-shadow duration-500',
+          'flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default transition-shadow duration-500',
           isDocked ? 'shadow-2' : 'shadow-3',
         )}
       >

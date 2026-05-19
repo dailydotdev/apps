@@ -54,7 +54,7 @@ export const BriefCover = ({
     shouldEvaluate: isAuthReady && isLoggedIn,
   });
   const brief = useBriefItems();
-  const { readSet, markRead, reset: resetReads } = useReadTracker();
+  const { readSet, markRead } = useReadTracker();
   const [activePanel, setActivePanel] = useState<{
     entity: StoryItem | TopicDigest;
     list: Array<StoryItem | TopicDigest>;
@@ -138,15 +138,11 @@ export const BriefCover = ({
     <section
       aria-label="Your daily brief"
       className={classNames(
-        'mx-auto mb-6 flex w-full max-w-[64rem] flex-col gap-10 px-3 pb-28 tablet:px-4',
+        'mx-auto mb-6 flex w-full max-w-[64rem] flex-col gap-12 px-3 pb-20 tablet:px-4',
         className,
       )}
     >
-      <CoverHeader
-        totals={totals}
-        sourceCount={uniqueSourceCount}
-        onReset={resetReads}
-      />
+      <CoverHeader totals={totals} sourceCount={uniqueSourceCount} />
       <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
       <CoverGrid
         stories={brief.reads}
@@ -163,7 +159,7 @@ export const BriefCover = ({
         readSet={readSet}
         onRead={markRead}
       />
-      <CoverClosing totals={totals} edition={edition} onReset={resetReads} />
+      <CoverClosing totals={totals} edition={edition} />
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}

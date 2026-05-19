@@ -721,7 +721,11 @@ export default function MainFeedLayout({
       {isHomePage && <BriefCover />}
       {briefOwnsChips && (
         <>
-          <div id="brief-feed-start" aria-hidden className="scroll-mt-28" />
+          <div
+            id="brief-feed-start"
+            aria-hidden
+            className="w-full scroll-mt-28"
+          />
           <BriefFloatingTabs
             topId="brief-top"
             feedId="brief-feed-start"

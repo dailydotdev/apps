@@ -106,13 +106,6 @@ export const CoverTopics = ({
       <Typography type={TypographyType.Title3} bold>
         On your radar
       </Typography>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Quaternary}
-        className="tabular-nums"
-      >
-        · {topics.length}
-      </Typography>
     </div>
     <div className="grid grid-cols-1 gap-2.5 tablet:grid-cols-2">
       {topics.map((t) => (
