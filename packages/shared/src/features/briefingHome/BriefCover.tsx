@@ -1,17 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../components/buttons/Button';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../components/typography/Typography';
-import { ArrowIcon } from '../../components/icons';
 import { useConditionalFeature } from '../../hooks';
 import { featureBriefingHome } from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -22,11 +11,10 @@ import { CoverTopics } from './CoverTopics';
 import { CoverQuick } from './CoverQuick';
 import { CoverClosing } from './CoverClosing';
 import { ReadingPanel } from './ReadingPanel';
+import { BriefFloatingTabs } from './BriefFloatingTabs';
 import { useBriefItems } from './hooks/useBriefItems';
 import { useReadTracker } from './hooks/useReadTracker';
-import { useCoverState } from './hooks/useCoverState';
 import type { BriefEntity, StoryItem, TopicDigest } from './types';
-import { briefCopy } from './copy';
 
 interface BriefCoverProps {
   className?: string;
@@ -68,15 +56,6 @@ export const BriefCover = ({
   });
   const brief = useBriefItems();
   const { readSet, markRead } = useReadTracker();
-  const {
-    isHydrated,
-    isCollapsed,
-    isHidden,
-    collapse,
-    expand,
-    hideForToday,
-    reshow,
-  } = useCoverState();
   const [activePanel, setActivePanel] = useState<{
     entity: StoryItem | TopicDigest;
     list: Array<StoryItem | TopicDigest>;
@@ -152,54 +131,8 @@ export const BriefCover = ({
     [markRead],
   );
 
-  if (!isAuthReady || !isHydrated || !enabled || isHidden) {
-    if (enabled && isHidden && isHydrated) {
-      return (
-        <div className={classNames('flex justify-center px-4 py-2', className)}>
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<ArrowIcon />}
-            onClick={reshow}
-          >
-            {briefCopy.controlReshow}
-          </Button>
-        </div>
-      );
-    }
+  if (!isAuthReady || !enabled) {
     return null;
-  }
-
-  if (isCollapsed) {
-    return (
-      <div
-        className={classNames(
-          'mx-auto mb-4 flex w-full max-w-[68rem] items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-subtle px-4 py-2.5',
-          className,
-        )}
-      >
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
-          className="truncate"
-        >
-          {briefCopy.collapsed(
-            totals.total,
-            totals.readMinutes,
-            totals.savedMinutes,
-          )}
-        </Typography>
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.XSmall}
-          onClick={expand}
-        >
-          {briefCopy.controlExpand}
-        </Button>
-      </div>
-    );
   }
 
   return (
@@ -214,9 +147,6 @@ export const BriefCover = ({
         edition={edition}
         totals={totals}
         sourceCount={uniqueSourceCount}
-        onCollapse={collapse}
-        onHide={hideForToday}
-        skipAnchor="#brief-end"
       />
       <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
       <CoverGrid
@@ -234,12 +164,9 @@ export const BriefCover = ({
         readSet={readSet}
         onRead={markRead}
       />
-      <CoverClosing
-        totals={totals}
-        onCollapse={collapse}
-        skipAnchor="#brief-end"
-      />
-      <div id="brief-end" />
+      <CoverClosing totals={totals} edition={edition} />
+      <div id="brief-end" aria-hidden />
+      <BriefFloatingTabs sentinelId="brief-end" topId="brief-top" />
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}

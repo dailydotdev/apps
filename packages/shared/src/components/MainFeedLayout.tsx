@@ -60,6 +60,7 @@ import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
+  featureBriefingHome,
   featureFeedTagChips,
   featureFeedV2Highlights,
   followingFeedVersion,
@@ -327,8 +328,17 @@ export default function MainFeedLayout({
     feature: featureFeedTagChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
+  const { value: isBriefingHomeEnabled } = useConditionalFeature({
+    feature: featureBriefingHome,
+    shouldEvaluate: !!user && isHomePage,
+  });
+  const briefOwnsChips = !!user && isHomePage && isBriefingHomeEnabled;
   const showExploreChips =
-    !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
+    !!user &&
+    isLaptop &&
+    isChipStripPage &&
+    isFeedTagChipsEnabled &&
+    !briefOwnsChips;
   const { tags: feedTags, isPending: isFeedTagsPending } = useFeedTagsList({
     enabled: showExploreChips,
   });
