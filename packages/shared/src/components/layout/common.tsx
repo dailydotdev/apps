@@ -6,7 +6,6 @@ import type {
   SetStateAction,
 } from 'react';
 import React, { useContext } from 'react';
-import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -98,17 +97,6 @@ export const SearchControlHeader = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isV2 } = useLayoutVariant();
   const isV2Strip = isV2 && isLaptop;
-  // Compact ghost styling for any `.btn` inside the v2 page-header strip,
-  // applied via descendant selectors so we don't have to thread variant
-  // props through every action child (MyFeedHeading, ToggleClickbaitShield,
-  // Dropdown, ...). All buttons in the strip become 32px tall, rounded-10,
-  // transparent border + bg with a subtle surface-hover wash on hover.
-  // Icon-only buttons shrink to a 32px square (overrides the height-only
-  // rule for text buttons).
-  const v2CompactButtons =
-    '[&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent ' +
-    '[&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover ' +
-    '[&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0';
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
@@ -254,13 +242,16 @@ export const SearchControlHeader = ({
       <header
         className={
           isV2Strip
-            ? classNames(
-                // Same shape as the shared `pageHeaderClassName` but with
-                // a tighter horizontal inset (px-3 = 12px) so the strip
-                // controls don't sit too far from the floating-card edge.
-                'flex min-h-14 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-3 py-3',
-                v2CompactButtons,
-              )
+            ? // Strip layout aligned with the floating-card content inset
+              // (px-6 matches the grid's `laptop:p-6` so action icons sit
+              // on the same x as the first card edge). Compact ghost
+              // styling for all descendant buttons is applied via
+              // arbitrary descendant selectors so every action child
+              // (MyFeedHeading, ToggleClickbaitShield, Dropdown, ...)
+              // gets the right look without prop plumbing: h-8, rounded-10,
+              // transparent border+bg, surface-hover on hover; icon-only
+              // buttons collapse to a 32px square.
+              'flex min-h-14 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0'
             : 'flex w-full items-center gap-2'
         }
       >

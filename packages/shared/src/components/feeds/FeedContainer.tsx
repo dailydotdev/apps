@@ -332,12 +332,11 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                // v2: small inset inside the floating-card so cards don't
-                // touch its rounded edges, matching the designer mockup.
-                // Kept tight (`p-3` = 12px) so the grid doesn't lose width
-                // unnecessarily — the floating-card border already provides
-                // visual separation from the page background.
-                isV2Laptop && !shouldUseListFeedLayout && 'tablet:p-2 laptop:p-3',
+                // v2: inset the grid inside the floating-card so cards
+                // sit off the rounded edges. The legacy `laptop:p-10` on
+                // FeedPage is dropped in v2 (see FeedPage in
+                // utilities/common.tsx), so this `p-6` is the only inset.
+                isV2Laptop && !shouldUseListFeedLayout && 'tablet:p-2 laptop:p-6',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
                 isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
