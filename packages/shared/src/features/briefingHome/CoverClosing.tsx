@@ -1,14 +1,14 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { ShareIcon, VIcon } from '../../components/icons';
+import { LinkIcon, VIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { briefCopy } from './copy';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface CoverClosingProps {
   totals: {
@@ -37,29 +37,17 @@ export const CoverClosing = ({
   edition,
 }: CoverClosingProps): ReactElement => {
   const tomorrow = useMemo(formatTomorrow, []);
-  const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
+  const { displayToast } = useToastNotification();
 
-  const onShare = async () => {
-    if (typeof window === 'undefined') {
+  const onCopy = async () => {
+    if (typeof window === 'undefined' || !navigator.clipboard) {
       return;
     }
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: briefCopy.shareHead, url });
-      } catch {
-        /* user dismissed */
-      }
-      return;
-    }
-    if (navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(url);
-        setShareState('copied');
-        window.setTimeout(() => setShareState('idle'), 2000);
-      } catch {
-        /* clipboard blocked */
-      }
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      displayToast('Link copied to clipboard');
+    } catch {
+      displayToast("Couldn't copy link, try again");
     }
   };
 
@@ -101,12 +89,12 @@ export const CoverClosing = ({
 
       <button
         type="button"
-        onClick={onShare}
+        onClick={onCopy}
         className="mt-1 inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-quaternary bg-background-default px-3 py-2 text-text-primary transition-colors hover:bg-surface-float"
       >
-        <ShareIcon size={IconSize.XSmall} />
+        <LinkIcon size={IconSize.XSmall} />
         <Typography type={TypographyType.Footnote} bold>
-          {shareState === 'copied' ? 'Link copied' : 'Share this brief'}
+          Share this brief
         </Typography>
       </button>
     </section>
