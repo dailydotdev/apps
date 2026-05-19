@@ -47,10 +47,12 @@ const scrollToId = (id: string): void => {
 const Tab = ({
   active,
   onClick,
+  activeClass = 'bg-text-primary text-surface-invert',
   children,
 }: {
   active: boolean;
   onClick: () => void;
+  activeClass?: string;
   children: React.ReactNode;
 }): ReactElement => (
   <button
@@ -59,9 +61,7 @@ const Tab = ({
     aria-current={active ? 'page' : undefined}
     className={classNames(
       'inline-flex h-9 items-center gap-1.5 rounded-8 px-3 transition-colors',
-      active
-        ? 'bg-text-primary text-surface-invert'
-        : 'text-text-tertiary hover:bg-surface-float',
+      active ? activeClass : 'text-text-tertiary hover:bg-surface-float',
     )}
   >
     {children}
@@ -207,11 +207,15 @@ export const BriefFloatingTabs = ({
         )}
       >
         <div ref={tabsRowRef} className="flex shrink-0 items-center gap-1 p-1">
-          <Tab active={!isDocked} onClick={goBrief}>
+          <Tab
+            active={!isDocked}
+            onClick={goBrief}
+            activeClass="bg-brand-default text-white"
+          >
             <BriefIcon
               size={IconSize.XSmall}
               secondary
-              className={!isDocked ? '' : 'text-accent-ketchup-default'}
+              className={!isDocked ? '' : 'text-brand-default'}
             />
             <Typography type={TypographyType.Footnote} bold>
               {briefCopy.tabBriefing}
