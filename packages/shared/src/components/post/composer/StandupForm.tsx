@@ -2,8 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import RichTextInput from '../../fields/RichTextInput';
-import { CalendarIcon } from '../../icons';
-import { IconSize } from '../../Icon';
+import styles from './StandupForm.module.css';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   dateFormatInTimezone,
@@ -179,34 +178,26 @@ export const StandupForm = ({
         </div>
         {isScheduled && (
           <div className="flex flex-wrap items-center gap-2">
-            <label
-              htmlFor="standup-scheduled-start"
+            <input
+              id="standup-scheduled-start"
+              name="scheduledStart"
+              type="datetime-local"
+              value={value.scheduledStart}
+              onChange={(event) =>
+                onChange({
+                  ...value,
+                  scheduledStart: event.currentTarget.value,
+                })
+              }
+              aria-label="Scheduled time"
               className={classNames(
-                'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-8 border px-3 text-text-primary transition-colors typo-caption1',
+                styles.scheduledTimeInput,
+                'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-8 border bg-surface-float px-3 text-text-primary outline-none typo-caption1',
                 scheduledStartError
                   ? 'border-status-error'
-                  : 'border-border-subtlest-tertiary bg-surface-float',
+                  : 'border-border-subtlest-tertiary',
               )}
-            >
-              <CalendarIcon
-                size={IconSize.Size16}
-                className="text-text-tertiary"
-              />
-              <input
-                id="standup-scheduled-start"
-                name="scheduledStart"
-                type="datetime-local"
-                value={value.scheduledStart}
-                onChange={(event) =>
-                  onChange({
-                    ...value,
-                    scheduledStart: event.currentTarget.value,
-                  })
-                }
-                aria-label="Scheduled time"
-                className="bg-transparent text-text-primary outline-none typo-caption1"
-              />
-            </label>
+            />
             <span className="text-text-tertiary typo-caption1">
               {scheduledStartError ??
                 [scheduleDelta, timezoneLabel].filter(Boolean).join(' · ')}
