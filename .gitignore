@@ -56,3 +56,6 @@ node-compile-cache/
 # Plan files
 plans/*.md
 .cursor/plans/
+
+# Claude scratch directory
+.claude/
