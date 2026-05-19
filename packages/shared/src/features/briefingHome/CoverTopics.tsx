@@ -80,9 +80,9 @@ const TopicCard = ({
         {topic.title}
       </Typography>
       <Typography
-        type={TypographyType.Footnote}
+        type={TypographyType.Callout}
         color={TypographyColor.Secondary}
-        className="line-clamp-2 !leading-snug"
+        className="line-clamp-2 !leading-relaxed"
       >
         {topic.tldr}
       </Typography>
