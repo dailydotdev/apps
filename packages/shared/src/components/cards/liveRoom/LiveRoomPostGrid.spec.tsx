@@ -45,12 +45,18 @@ const defaultProps: PostCardProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
+  jest.setSystemTime(new Date('2026-05-15T12:00:00.000Z'));
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',
       } as unknown as NextRouter),
   );
+});
+
+afterEach(() => {
+  jest.useRealTimers();
 });
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult =>

@@ -15,12 +15,9 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import ControlledTextField from '../fields/ControlledTextField';
 import { TextField } from '../fields/TextField';
 import RichTextInput from '../fields/RichTextInput';
-import { type LiveRoomJoinToken, LiveRoomMode } from '../../graphql/liveRooms';
-import { useCreateLiveRoom } from '../../hooks/liveRooms/useCreateLiveRoom';
-import { useToastNotification } from '../../hooks/useToastNotification';
-import { labels } from '../../lib/labels';
+import type { LiveRoomJoinToken } from '../../graphql/liveRooms';
+import { useSubmitStandup } from '../../hooks/liveRooms/useSubmitStandup';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
 import {
   dateFormatInTimezone,
   DEFAULT_TIMEZONE,
@@ -28,7 +25,6 @@ import {
 } from '../../lib/timezones';
 import { timezoneSettingsUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
-import { LogEvent } from '../../lib/log';
 import { CREATE_LIVE_ROOM_FORM_ID } from '../fields/form/common';
 import styles from './CreateLiveRoomForm.module.css';
 
@@ -119,9 +115,7 @@ export const CreateLiveRoomForm = ({
   onCreated,
 }: CreateLiveRoomFormProps): ReactElement => {
   const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
-  const { displayToast } = useToastNotification();
-  const { mutateAsync: createLiveRoom, isPending } = useCreateLiveRoom();
+  const { submit: submitStandup, isPending } = useSubmitStandup();
   const timezone = user?.timezone || DEFAULT_TIMEZONE;
   const timezoneLabel = getTimezoneOffsetLabel(timezone);
   const defaultScheduledStart = useMemo(
@@ -148,58 +142,13 @@ export const CreateLiveRoomForm = ({
   const submitCopy = isScheduled ? 'Schedule standup' : 'Create standup';
 
   const onSubmit = form.handleSubmit(async (values) => {
-    try {
-      let scheduledStartUtc: string | undefined;
-      if (values.scheduleChoice === 'later') {
-        const parsedScheduledStart = parseScheduledStart(
-          values.scheduledStart,
-          timezone,
-        );
-        if (!parsedScheduledStart) {
-          form.setError('scheduledStart', {
-            message: 'Scheduled time is invalid',
-          });
-          return;
-        }
-
-        if (parsedScheduledStart.getTime() <= Date.now()) {
-          form.setError('scheduledStart', {
-            message: 'Scheduled time must be in the future',
-          });
-          return;
-        }
-
-        scheduledStartUtc = parsedScheduledStart.toISOString();
-      }
-
-      const joinToken = await createLiveRoom({
-        topic: values.topic,
-        mode: LiveRoomMode.Moderated,
-        scheduledStart: scheduledStartUtc,
-        description: values.description || undefined,
-      });
-      logEvent({
-        event_name: LogEvent.CreateStandup,
-        target_id: joinToken.room.id,
-        extra: JSON.stringify({
-          scheduled: values.scheduleChoice === 'later',
-          has_description: !!values.description,
-          scheduled_start_delta_minutes: scheduledStartUtc
-            ? Math.max(
-                0,
-                Math.round(
-                  (new Date(scheduledStartUtc).getTime() - Date.now()) / 60_000,
-                ),
-              )
-            : null,
-          timezone,
-        }),
-      });
-      onCreated(joinToken);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : labels.error.generic;
-      displayToast(message);
+    const result = await submitStandup(values);
+    if (result.type === 'error') {
+      form.setError(result.error.field, { message: result.error.message });
+      return;
+    }
+    if (result.type === 'success') {
+      onCreated(result.joinToken);
     }
   });
 
