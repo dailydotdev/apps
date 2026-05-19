@@ -106,7 +106,7 @@ export const CoverTopics = ({
         On your radar
       </Typography>
     </div>
-    <div className="grid grid-cols-1 gap-x-8 gap-y-6 tablet:grid-cols-2">
+    <div className="grid grid-cols-1 gap-x-12 gap-y-10 tablet:grid-cols-2">
       {topics.map((t) => (
         <TopicCard
           key={t.id}
