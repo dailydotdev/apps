@@ -283,17 +283,15 @@ export const FeedContainer = ({
               className={classNames(
                 'flex items-center',
                 isExtension && 'flex-1 flex-col-reverse',
-                // v2: styled page-header strip with bottom border + compact
-                // ghost buttons applied via descendant selectors. Control
-                // keeps the bare flex row (no border, default Float buttons).
+                // v2 lays out the action row as a page-header strip with
+                // a bottom border — the compact ghost button look comes
+                // from each action choosing `Small` + `Tertiary` itself
+                // (see MyFeedHeading, ToggleClickbaitShield, the dropdown
+                // buttonProps below), so no Tailwind overrides are needed
+                // on the strip wrapper.
                 !isExtension &&
                   isV2Laptop &&
-                  // Strip layout + descendant overrides for compact ghost
-                  // buttons. Text buttons get `!px-3` so they match the
-                  // designer's slim mock — without this they keep
-                  // Medium's `px-5` (20px) horizontal padding and read
-                  // visibly wider than the mock.
-                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn:not(.iconOnly)]:!px-3 [&_.btn_svg]:!size-4',
+                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3',
                 !isExtension && !isV2Laptop && 'flex-1 flex-row',
               )}
             >

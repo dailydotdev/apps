@@ -22,6 +22,8 @@ import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -43,10 +45,16 @@ export const ToggleClickbaitShield = ({
   const { value: isNewD1Experience } = useNewD1ExperienceFeature({
     shouldEvaluate: !isPlus,
   });
+  // v2 dual-sidebar laptop renders this button inside the page-header
+  // strip alongside MyFeedHeading; use the compact ghost sizing
+  // (Small + Tertiary) so the strip stays consistent with the mock.
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Compact = isV2 && isLaptop;
 
   const commonIconProps: ButtonProps<'button'> = {
-    size: ButtonSize.Medium,
-    variant: ButtonVariant.Float,
+    size: isV2Compact ? ButtonSize.Small : ButtonSize.Medium,
+    variant: isV2Compact ? ButtonVariant.Tertiary : ButtonVariant.Float,
     iconSecondaryOnHover: true,
     ...buttonProps,
   };

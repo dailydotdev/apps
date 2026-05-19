@@ -13,6 +13,7 @@ import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { SharedFeedPage } from '../utilities';
@@ -34,6 +35,11 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
+  // v2 layout (laptop) renders this button inside the floating-card
+  // page-header strip alongside other slim actions; use the compact ghost
+  // sizing so the strip stays consistent with the designer mock.
+  const { isV2 } = useLayoutVariant();
+  const isV2Compact = isV2 && isLaptop;
 
   const editFeedUrl = useMemo(() => {
     if (isCustomDefaultFeed && pathname === '/') {
@@ -53,19 +59,37 @@ function MyFeedHeading({
     return push(editFeedUrl);
   }, [editFeedUrl, onOpenFeedFilters, push]);
 
+  // Spread iconPosition conditionally — passing `iconPosition: undefined`
+  // explicitly to Button breaks the strict-mode discriminated union
+  // (Button requires `iconPosition: ButtonIconPosition` when paired with
+  // `icon`).
+  const iconPositionProps = shouldUseListFeedLayout
+    ? { iconPosition: ButtonIconPosition.Right }
+    : {};
+
   return (
     <>
-      <FeedSettingsButton
-        onClick={onClick}
-        size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        icon={<FilterIcon />}
-        iconPosition={
-          shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-        }
-      >
-        {!isMobile ? 'Feed settings' : null}
-      </FeedSettingsButton>
+      {isV2Compact ? (
+        <FeedSettingsButton
+          onClick={onClick}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          icon={<FilterIcon />}
+          {...iconPositionProps}
+        >
+          {!isMobile ? 'Feed settings' : null}
+        </FeedSettingsButton>
+      ) : (
+        <FeedSettingsButton
+          onClick={onClick}
+          size={ButtonSize.Medium}
+          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+          icon={<FilterIcon />}
+          {...iconPositionProps}
+        >
+          {!isMobile ? 'Feed settings' : null}
+        </FeedSettingsButton>
+      )}
       {showToggleShortcuts && (
         <Button
           size={ButtonSize.Medium}
@@ -79,9 +103,7 @@ function MyFeedHeading({
             toggleShowTopSites();
           }}
           icon={<PlusIcon />}
-          iconPosition={
-            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-          }
+          {...iconPositionProps}
         >
           Shortcuts
         </Button>
