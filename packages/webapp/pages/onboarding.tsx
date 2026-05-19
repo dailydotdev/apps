@@ -25,10 +25,7 @@ import {
 } from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import {
-  ThemeMode,
-  useSettingsContext,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureOnboardingV2 } from '@dailydotdev/shared/src/lib/featureManagement';
 import dynamic from 'next/dynamic';
@@ -74,14 +71,6 @@ import { defaultOpenGraph, defaultSeo } from '../next-seo';
 const OnboardingV2 = dynamic(
   () =>
     import('../components/onboarding/OnboardingV2').then((m) => m.OnboardingV2),
-  { ssr: false },
-);
-
-const OnboardingSignupHero = dynamic(
-  () =>
-    import('../components/onboarding/OnboardingSignupHero').then(
-      (m) => m.OnboardingSignupHero,
-    ),
   { ssr: false },
 );
 
@@ -290,27 +279,13 @@ const useOnboardingAuth = () => {
 
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
-  const { applyThemeMode } = useSettingsContext();
   const {
-    auth,
     isAuthenticating,
     isAuthReady,
     authOptionProps,
     funnelState,
     isLoggedIn,
   } = useOnboardingAuth();
-  const isOnboardingSignup =
-    auth?.defaultDisplay === AuthDisplay.OnboardingSignup;
-
-  useEffect(() => {
-    if (!isAuthenticating || !isOnboardingSignup) {
-      return undefined;
-    }
-    applyThemeMode(ThemeMode.Dark);
-    return () => {
-      applyThemeMode();
-    };
-  }, [applyThemeMode, isAuthenticating, isOnboardingSignup]);
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
@@ -362,14 +337,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   ]);
 
   if (isAuthenticating) {
-    if (isOnboardingSignup) {
-      return (
-        <OnboardingSignupHero>
-          <AuthOptions {...authOptionProps} />
-        </OnboardingSignupHero>
-      );
-    }
-
     return (
       <div className="z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden">
         <OnboardingHeader />
