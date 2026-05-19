@@ -6,6 +6,7 @@ import type {
   SetStateAction,
 } from 'react';
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -51,7 +52,6 @@ import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
-import { pageHeaderClassName } from './PageHeader';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -98,12 +98,17 @@ export const SearchControlHeader = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isV2 } = useLayoutVariant();
   const isV2Strip = isV2 && isLaptop;
-  // Compact button styling for the v2 page-header strip — ghost
-  // (transparent border + background), 32px height, snug paddings.
-  const compactIconButtonClassName =
-    '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
-  const compactTextButtonClassName =
-    '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover';
+  // Compact ghost styling for any `.btn` inside the v2 page-header strip,
+  // applied via descendant selectors so we don't have to thread variant
+  // props through every action child (MyFeedHeading, ToggleClickbaitShield,
+  // Dropdown, ...). All buttons in the strip become 32px tall, rounded-10,
+  // transparent border + bg with a subtle surface-hover wash on hover.
+  // Icon-only buttons shrink to a 32px square (overrides the height-only
+  // rule for text buttons).
+  const v2CompactButtons =
+    '[&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent ' +
+    '[&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover ' +
+    '[&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0';
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
@@ -138,7 +143,11 @@ export const SearchControlHeader = ({
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      button: isV2Strip ? compactIconButtonClassName : '!px-1',
+      // V2 ghost styling is applied via descendant selectors on the
+      // wrapping strip (see `v2CompactButtons`); the dropdown's own
+      // button only needs the legacy tight horizontal padding for the
+      // non-v2 layout.
+      button: isV2Strip ? undefined : '!px-1',
       container: 'flex',
     },
     shouldIndicateSelected: true,
@@ -245,7 +254,13 @@ export const SearchControlHeader = ({
       <header
         className={
           isV2Strip
-            ? pageHeaderClassName
+            ? classNames(
+                // Same shape as the shared `pageHeaderClassName` but with
+                // a tighter horizontal inset (px-3 = 12px) so the strip
+                // controls don't sit too far from the floating-card edge.
+                'flex min-h-14 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-3 py-3',
+                v2CompactButtons,
+              )
             : 'flex w-full items-center gap-2'
         }
       >
