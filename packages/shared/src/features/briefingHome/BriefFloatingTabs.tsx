@@ -27,7 +27,7 @@ interface BriefFloatingTabsProps {
   boundsId: string;
 }
 
-const HEADER_OFFSET = 56;
+const HEADER_OFFSET = 80;
 const BAR_HEIGHT = 48;
 const TABS_WIDTH_FALLBACK = 220;
 const DOCKED_MAX_WIDTH = 1024;
