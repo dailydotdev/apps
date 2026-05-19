@@ -24,6 +24,9 @@ import {
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
@@ -277,9 +280,16 @@ const useOnboardingAuth = () => {
   };
 };
 
+const SIGNUP_VALUE_PROPS = [
+  'Personalized to your stack from day one',
+  'Learn from what 1M+ developers upvote',
+  'Your data stays yours. Open source.',
+] as const;
+
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const {
+    auth,
     isAuthenticating,
     isAuthReady,
     authOptionProps,
@@ -337,15 +347,85 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   ]);
 
   if (isAuthenticating) {
+    const isOnboardingSignup =
+      auth?.defaultDisplay === AuthDisplay.OnboardingSignup;
+
     return (
-      <div
-        className={classNames(
-          'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
-        )}
-      >
+      <div className="z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden">
         <OnboardingHeader />
-        <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
-          <AuthOptions {...authOptionProps} />
+        <div className="relative flex w-full flex-grow flex-col items-center justify-center px-4 tablet:px-6">
+          {isOnboardingSignup && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-[28rem]"
+              style={{
+                background:
+                  'radial-gradient(ellipse 60% 50% at 50% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 12%, transparent) 0%, color-mix(in srgb, var(--theme-accent-onion-default) 7%, transparent) 38%, transparent 72%)',
+              }}
+            />
+          )}
+
+          <div className="relative z-1 flex w-full max-w-[30rem] flex-col items-center">
+            {isOnboardingSignup && (
+              <header className="mb-6 flex w-full flex-col items-center text-center tablet:mb-8">
+                <h1 className="font-bold text-text-primary typo-title2 tablet:typo-title1">
+                  Join 400,000 developers.
+                </h1>
+                <p className="mt-2 text-text-secondary typo-callout tablet:typo-body">
+                  Sign up to get a feed built around your stack.
+                  <br className="hidden tablet:inline" /> Free and open source.
+                </p>
+                <ul className="mt-5 flex w-full flex-col gap-2 text-left tablet:mt-6">
+                  {SIGNUP_VALUE_PROPS.map((text) => (
+                    <li
+                      key={text}
+                      className="flex items-start gap-2.5 text-text-secondary typo-callout"
+                    >
+                      <span className="bg-accent-avocado-default/15 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-accent-avocado-default">
+                        <VIcon size={IconSize.XXSmall} secondary />
+                      </span>
+                      <span>{text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </header>
+            )}
+
+            <AuthOptions {...authOptionProps} />
+
+            {isOnboardingSignup && (
+              <div className="mt-2 flex w-full flex-col items-center">
+                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-text-tertiary typo-caption1">
+                  <span className="inline-flex items-center gap-1">
+                    <StarIcon
+                      size={IconSize.XXSmall}
+                      secondary
+                      className="text-accent-cheese-default"
+                    />
+                    <span className="font-bold text-text-secondary">4.8</span>
+                    <span aria-hidden>·</span>
+                    <span>52.8K reviews</span>
+                  </span>
+                  <span aria-hidden className="text-text-quaternary">
+                    ·
+                  </span>
+                  <span>
+                    <span className="font-bold text-text-secondary">
+                      400,000+
+                    </span>{' '}
+                    developers
+                  </span>
+                  <span aria-hidden className="text-text-quaternary">
+                    ·
+                  </span>
+                  <span>Open source</span>
+                </div>
+                <p className="mt-3 text-center text-text-quaternary typo-caption2">
+                  No credit card. Free forever. Uninstall in 10 seconds.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
         <FooterLinks className="mx-auto pb-6" />
       </div>

@@ -89,14 +89,17 @@ export const isWebView = (): boolean => {
   return isInAppBrowser || advancedInAppDetection();
 };
 
-const getSignupProviders = () => {
+const getSignupProviders = (preferGithub: boolean) => {
   if (isIOSNative()) {
     return [providerMap.google, providerMap.apple];
   }
   if (isWebView()) {
     return [providerMap.github];
   }
-  return [providerMap.google, providerMap.github];
+  // Developer-first audiences convert better when GitHub leads the OAuth list.
+  return preferGithub
+    ? [providerMap.github, providerMap.google]
+    : [providerMap.google, providerMap.github];
 };
 
 export const OnboardingRegistrationForm = ({
@@ -112,9 +115,10 @@ export const OnboardingRegistrationForm = ({
   compact,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const isOnboardingTrigger = trigger === AuthTriggers.Onboarding;
   const { value: isOnboardingV2 } = useConditionalFeature({
     feature: featureOnboardingV2,
-    shouldEvaluate: trigger === AuthTriggers.Onboarding,
+    shouldEvaluate: isOnboardingTrigger,
   });
 
   const trackOpenSignup = () => {
@@ -136,10 +140,44 @@ export const OnboardingRegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const emailButton = (
+    <Button
+      aria-label="Signup using email"
+      className={compact ? 'mb-4' : 'mb-8'}
+      data-funnel-track={FunnelTargetId.SignupProvider}
+      disabled={isSocialAuthLoading}
+      onClick={() => {
+        trackOpenSignup();
+        onContinueWithEmail?.();
+      }}
+      size={onboardingSignupButton?.size ?? ButtonSize.Large}
+      type="button"
+      variant={
+        isOnboardingTrigger ? ButtonVariant.Tertiary : ButtonVariant.Float
+      }
+    >
+      {isOnboardingTrigger ? 'Sign up with email' : 'Continue with email'}
+    </Button>
+  );
+  const memberAlready = !hideLoginLink && (
+    <MemberAlready
+      onLogin={() => onExistingEmail?.('')}
+      className={{
+        container: isOnboardingV2
+          ? 'mx-auto mt-6 w-full justify-center border-t border-border-subtlest-tertiary pt-6 text-center text-text-secondary typo-callout'
+          : 'mx-auto mt-6 text-center text-text-secondary typo-callout',
+        login: '!text-inherit',
+      }}
+    />
+  );
+  const disclaimer = (
+    <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
+  );
+
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
       <ul aria-label="Social login buttons" className="flex flex-col gap-4">
-        {getSignupProviders().map((provider) => (
+        {getSignupProviders(isOnboardingTrigger).map((provider) => (
           <li key={provider.value}>
             <Button
               aria-label={`Continue with ${provider.label}`}
@@ -158,41 +196,30 @@ export const OnboardingRegistrationForm = ({
           </li>
         ))}
       </ul>
+      {isOnboardingTrigger && (
+        <p className="-mt-1 text-center text-text-quaternary typo-caption2">
+          We only get your name and email. No posts. No data selling.
+        </p>
+      )}
       <OrDivider
         className={{
           text: 'text-text-tertiary typo-footnote',
         }}
-        label="OR"
+        label={isOnboardingTrigger ? 'or' : 'OR'}
       />
-      <div className="flex flex-col-reverse text-center">
-        {!hideLoginLink && (
-          <MemberAlready
-            onLogin={() => onExistingEmail?.('')}
-            className={{
-              container: isOnboardingV2
-                ? 'mx-auto mt-6 w-full justify-center border-t border-border-subtlest-tertiary pt-6 text-center text-text-secondary typo-callout'
-                : 'mx-auto mt-6 text-center text-text-secondary typo-callout',
-              login: '!text-inherit',
-            }}
-          />
-        )}
-        <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
-        <Button
-          aria-label="Signup using email"
-          className={compact ? 'mb-4' : 'mb-8'}
-          data-funnel-track={FunnelTargetId.SignupProvider}
-          disabled={isSocialAuthLoading}
-          onClick={() => {
-            trackOpenSignup();
-            onContinueWithEmail?.();
-          }}
-          size={onboardingSignupButton?.size ?? ButtonSize.Large}
-          type="button"
-          variant={ButtonVariant.Float}
-        >
-          Continue with email
-        </Button>
-      </div>
+      {isOnboardingTrigger ? (
+        <div className="flex flex-col text-center">
+          {emailButton}
+          {memberAlready}
+          {disclaimer}
+        </div>
+      ) : (
+        <div className="flex flex-col-reverse text-center">
+          {memberAlready}
+          {disclaimer}
+          {emailButton}
+        </div>
+      )}
     </div>
   );
 };
