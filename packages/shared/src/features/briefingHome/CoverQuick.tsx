@@ -40,11 +40,20 @@ export const CoverQuick = ({
       </Typography>
     </div>
 
-    <ul className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
+    <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
       {quickHits.map((q) => {
         const read = readSet.has(q.id);
         return (
-          <li key={q.id}>
+          <li key={q.id} className="flex flex-col gap-2">
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption2}
+              color={TypographyColor.Quaternary}
+              bold
+              className="px-1 uppercase tracking-[0.14em]"
+            >
+              {q.eyebrow}
+            </Typography>
             <a
               href={q.url}
               target="_blank"
@@ -56,59 +65,51 @@ export const CoverQuick = ({
               )}
             >
               <div className="flex items-start justify-between gap-2">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Footnote}
-                  bold
-                  color={
-                    read ? TypographyColor.Tertiary : TypographyColor.Primary
-                  }
-                  className={classNames(
-                    'line-clamp-3 !leading-snug transition-colors',
-                    read && 'decoration-text-quaternary/40 line-through',
-                    !read && 'group-hover:text-brand-default',
-                  )}
-                >
-                  {q.title}
-                </Typography>
+                <div className="min-w-0 flex-1">
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Footnote}
+                    bold
+                    color={
+                      read
+                        ? TypographyColor.Tertiary
+                        : TypographyColor.Primary
+                    }
+                    className={classNames(
+                      'line-clamp-3 block break-words !leading-snug transition-colors',
+                      read && 'decoration-text-quaternary/40 line-through',
+                      !read && 'group-hover:text-brand-default',
+                    )}
+                  >
+                    {q.title}
+                  </Typography>
+                </div>
                 <OpenLinkIcon
                   size={IconSize.XSmall}
                   className="mt-0.5 shrink-0 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
                 />
               </div>
-              <div className="mt-auto flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <StatPill
-                    ariaLabel={`${q.upvotes} upvotes`}
-                    icon={
-                      <UpvoteIcon
-                        size={IconSize.XSmall}
-                        className="text-accent-avocado-default"
-                      />
-                    }
-                    value={q.upvotes}
-                  />
-                  <StatPill
-                    ariaLabel={`${q.comments} comments`}
-                    icon={
-                      <DiscussIcon
-                        size={IconSize.XSmall}
-                        className="text-text-tertiary"
-                      />
-                    }
-                    value={q.comments}
-                  />
-                </div>
-                <span className="inline-flex shrink-0 items-center rounded-8 border border-border-subtlest-quaternary bg-surface-float px-2 py-1">
-                  <Typography
-                    type={TypographyType.Caption2}
-                    color={TypographyColor.Tertiary}
-                    bold
-                    className="uppercase tracking-[0.12em]"
-                  >
-                    {q.eyebrow}
-                  </Typography>
-                </span>
+              <div className="mt-auto flex items-center gap-2">
+                <StatPill
+                  ariaLabel={`${q.upvotes} upvotes`}
+                  icon={
+                    <UpvoteIcon
+                      size={IconSize.XSmall}
+                      className="text-accent-avocado-default"
+                    />
+                  }
+                  value={q.upvotes}
+                />
+                <StatPill
+                  ariaLabel={`${q.comments} comments`}
+                  icon={
+                    <DiscussIcon
+                      size={IconSize.XSmall}
+                      className="text-text-tertiary"
+                    />
+                  }
+                  value={q.comments}
+                />
               </div>
             </a>
           </li>

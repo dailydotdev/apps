@@ -64,11 +64,10 @@ const TopicCard = ({
           icon={
             <TimerIcon
               size={IconSize.XSmall}
-              className={TOPIC_TOKEN[topic.topic]}
+              className="text-text-tertiary"
             />
           }
           value={briefCopy.storyReadTime(minutes)}
-          className="bg-transparent"
         />
       </div>
       <Typography

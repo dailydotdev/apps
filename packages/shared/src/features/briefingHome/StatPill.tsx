@@ -23,7 +23,7 @@ export const StatPill = ({
   <span
     aria-label={ariaLabel}
     className={classNames(
-      'inline-flex items-center gap-1.5 rounded-8 border border-border-subtlest-quaternary bg-surface-float px-2 py-1',
+      'inline-flex items-center gap-1.5 rounded-8 border border-border-subtlest-quaternary px-2 py-1',
       className,
     )}
   >
