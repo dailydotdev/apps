@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import {
   Typography,
@@ -26,6 +27,7 @@ interface BriefFloatingTabsProps {
 }
 
 const HEADER_OFFSET = 56;
+const SCROLL_LOCK_MS = 700;
 
 const scrollToId = (id: string): void => {
   if (typeof document === 'undefined') {
@@ -69,16 +71,25 @@ export const BriefFloatingTabs = ({
   topId,
   feedId,
   sentinelId,
-}: BriefFloatingTabsProps): ReactElement => {
+}: BriefFloatingTabsProps): ReactElement | null => {
   const { isLoggedIn } = useAuthContext();
   const { tags } = useFeedTagsList({ enabled: isLoggedIn });
   const categories = useMemo(() => buildPersonalizedCategories(tags), [tags]);
   const [isDocked, setIsDocked] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const rafRef = useRef<number | null>(null);
+  const scrollLockUntilRef = useRef<number>(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const measure = useCallback(() => {
     rafRef.current = null;
     if (typeof document === 'undefined') {
+      return;
+    }
+    if (Date.now() < scrollLockUntilRef.current) {
       return;
     }
     const sentinel = document.getElementById(sentinelId);
@@ -111,8 +122,21 @@ export const BriefFloatingTabs = ({
     };
   }, [measure]);
 
-  const goBrief = useCallback(() => scrollToId(topId), [topId]);
-  const goFeed = useCallback(() => scrollToId(feedId), [feedId]);
+  const goBrief = useCallback(() => {
+    scrollLockUntilRef.current = Date.now() + SCROLL_LOCK_MS;
+    setIsDocked(false);
+    scrollToId(topId);
+  }, [topId]);
+
+  const goFeed = useCallback(() => {
+    scrollLockUntilRef.current = Date.now() + SCROLL_LOCK_MS;
+    setIsDocked(true);
+    scrollToId(feedId);
+  }, [feedId]);
+
+  if (!mounted) {
+    return null;
+  }
 
   const briefTab = (
     <Tab active={!isDocked} onClick={goBrief}>
@@ -135,12 +159,12 @@ export const BriefFloatingTabs = ({
     </Tab>
   );
 
-  return (
+  return createPortal(
     <>
       <div
         aria-hidden={isDocked}
         className={classNames(
-          'z-40 fixed bottom-5 left-1/2 -translate-x-1/2 transition-all duration-300 ease-out',
+          'fixed bottom-5 left-1/2 z-popup -translate-x-1/2 transition-all duration-300 ease-out',
           isDocked
             ? 'pointer-events-none translate-y-3 opacity-0'
             : 'pointer-events-auto opacity-100',
@@ -156,7 +180,7 @@ export const BriefFloatingTabs = ({
         aria-hidden={!isDocked}
         style={{ top: `${HEADER_OFFSET}px` }}
         className={classNames(
-          'z-40 fixed left-1/2 w-[min(64rem,calc(100vw-1.5rem))] -translate-x-1/2 transition-all duration-300 ease-out',
+          'fixed left-1/2 z-popup w-[min(64rem,calc(100vw-1.5rem))] -translate-x-1/2 transition-all duration-300 ease-out',
           isDocked
             ? 'pointer-events-auto translate-y-0 opacity-100'
             : 'pointer-events-none -translate-y-2 opacity-0',
@@ -194,6 +218,7 @@ export const BriefFloatingTabs = ({
           ) : null}
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 };
