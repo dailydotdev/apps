@@ -12,20 +12,19 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import { BriefIcon, ArrowIcon } from '../../components/icons';
+import { BriefIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { ExploreChipsBar } from '../../components/feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from '../../components/feeds/exploreCategories';
 import { useFeedTagsList } from '../../hooks/useFeedTagsList';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { briefCopy } from './copy';
 
 interface BriefFloatingTabsProps {
-  sentinelId: string;
   topId: string;
+  feedId: string;
 }
 
-const HEADER_OFFSET = 64;
+const STICKY_OFFSET = 56;
 
 const scrollToId = (id: string): void => {
   if (typeof document === 'undefined') {
@@ -39,27 +38,27 @@ const scrollToId = (id: string): void => {
 };
 
 export const BriefFloatingTabs = ({
-  sentinelId,
   topId,
+  feedId,
 }: BriefFloatingTabsProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
   const { tags } = useFeedTagsList({ enabled: isLoggedIn });
-  const categories = useMemo(() => buildPersonalizedCategories(tags), [tags]);
-  const [isDocked, setIsDocked] = useState(false);
+  const categories = useMemo(
+    () => buildPersonalizedCategories(tags).slice(0, 16),
+    [tags],
+  );
+  const barRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const [isStuck, setIsStuck] = useState(false);
 
   const measure = useCallback(() => {
     rafRef.current = null;
-    if (typeof document === 'undefined') {
+    if (!barRef.current) {
       return;
     }
-    const sentinel = document.getElementById(sentinelId);
-    if (!sentinel) {
-      return;
-    }
-    const { top } = sentinel.getBoundingClientRect();
-    setIsDocked(top <= HEADER_OFFSET);
-  }, [sentinelId]);
+    const { top } = barRef.current.getBoundingClientRect();
+    setIsStuck(top <= STICKY_OFFSET + 1);
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -83,91 +82,90 @@ export const BriefFloatingTabs = ({
     };
   }, [measure]);
 
-  const onForYou = useCallback(() => scrollToId(sentinelId), [sentinelId]);
-  const onBriefBack = useCallback(() => scrollToId(topId), [topId]);
+  const onBrief = useCallback(() => scrollToId(topId), [topId]);
+  const onForYou = useCallback(() => scrollToId(feedId), [feedId]);
 
   return (
-    <>
+    <div
+      ref={barRef}
+      className="z-30 sticky mb-3"
+      style={{ top: `${STICKY_OFFSET}px` }}
+    >
       <div
-        aria-hidden={isDocked}
         className={classNames(
-          'z-40 fixed bottom-5 left-1/2 -translate-x-1/2 transition-all duration-300 ease-out',
-          isDocked
-            ? 'pointer-events-none translate-y-3 opacity-0'
-            : 'pointer-events-auto opacity-100',
+          'flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default transition-shadow',
+          isStuck && 'shadow-2',
         )}
       >
-        <div className="bg-background-popover/95 inline-flex items-center gap-1 rounded-full border border-border-subtlest-tertiary p-1 shadow-3 backdrop-blur">
-          <span
-            className="inline-flex items-center gap-1.5 rounded-full bg-text-primary px-3 py-1.5 text-surface-invert"
-            aria-current="page"
+        <div className="flex shrink-0 items-center gap-1 p-1">
+          <button
+            type="button"
+            onClick={onBrief}
+            aria-current={!isStuck ? 'page' : undefined}
+            className={classNames(
+              'inline-flex items-center gap-1.5 rounded-8 px-3 py-1.5 transition-colors',
+              !isStuck
+                ? 'bg-text-primary text-surface-invert'
+                : 'text-text-tertiary hover:bg-surface-float',
+            )}
           >
-            <BriefIcon size={IconSize.XSmall} secondary />
+            <BriefIcon
+              size={IconSize.XSmall}
+              secondary
+              className={!isStuck ? '' : 'text-accent-ketchup-default'}
+            />
             <Typography type={TypographyType.Footnote} bold>
               {briefCopy.tabBriefing}
             </Typography>
-          </span>
+          </button>
           <button
             type="button"
             onClick={onForYou}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors hover:bg-surface-float"
+            aria-current={isStuck ? 'page' : undefined}
+            className={classNames(
+              'inline-flex items-center gap-1.5 rounded-8 px-3 py-1.5 transition-colors',
+              isStuck
+                ? 'bg-text-primary text-surface-invert'
+                : 'text-text-tertiary hover:bg-surface-float',
+            )}
           >
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              bold
-            >
+            <Typography type={TypographyType.Footnote} bold>
               {briefCopy.tabFeed}
             </Typography>
-            <ArrowIcon
-              size={IconSize.XXSmall}
-              className="rotate-180 text-text-quaternary"
-            />
           </button>
         </div>
-      </div>
-
-      <div
-        aria-hidden={!isDocked}
-        className={classNames(
-          'z-40 fixed left-1/2 top-14 w-[min(64rem,calc(100vw-1.5rem))] -translate-x-1/2 transition-all duration-300 ease-out',
-          isDocked
-            ? 'pointer-events-auto translate-y-0 opacity-100'
-            : 'pointer-events-none -translate-y-2 opacity-0',
-        )}
-      >
-        <div className="bg-background-default/95 flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-3 py-2 shadow-3 backdrop-blur">
-          <button
-            type="button"
-            onClick={onBriefBack}
-            className="group inline-flex shrink-0 items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-background-subtle px-3 py-1.5 transition-colors hover:bg-surface-float"
-          >
-            <ArrowIcon
-              size={IconSize.XXSmall}
-              className="text-text-tertiary group-hover:text-text-primary"
-            />
-            <BriefIcon
-              size={IconSize.XSmall}
-              className="text-accent-ketchup-default"
-              secondary
-            />
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Primary}
-              bold
-            >
-              {briefCopy.tabBriefing}
-            </Typography>
-          </button>
+        <div
+          aria-hidden={!isStuck}
+          className={classNames(
+            'flex min-w-0 items-center transition-[max-width,opacity,padding] duration-300 ease-out',
+            isStuck
+              ? 'max-w-full flex-1 pl-2 pr-1 opacity-100'
+              : 'pointer-events-none max-w-0 opacity-0',
+          )}
+        >
           <span
             aria-hidden
-            className="h-6 w-px shrink-0 bg-border-subtlest-tertiary"
+            className="mr-2 h-5 w-px shrink-0 bg-border-subtlest-tertiary"
           />
-          <div className="min-w-0 flex-1">
-            <ExploreChipsBar categories={categories} />
-          </div>
+          <ul className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1.5">
+            {categories.map((cat) => (
+              <li key={cat.id} className="shrink-0">
+                <a
+                  href={cat.path}
+                  className="inline-flex h-7 items-center rounded-8 px-2.5 transition-colors hover:bg-surface-float"
+                >
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {cat.label}
+                  </Typography>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-    </>
+    </div>
   );
 };

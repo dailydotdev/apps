@@ -11,7 +11,6 @@ import { CoverTopics } from './CoverTopics';
 import { CoverQuick } from './CoverQuick';
 import { CoverClosing } from './CoverClosing';
 import { ReadingPanel } from './ReadingPanel';
-import { BriefFloatingTabs } from './BriefFloatingTabs';
 import { useBriefItems } from './hooks/useBriefItems';
 import { useReadTracker } from './hooks/useReadTracker';
 import type { BriefEntity, StoryItem, TopicDigest } from './types';
@@ -139,7 +138,7 @@ export const BriefCover = ({
     <section
       aria-label="Your daily brief"
       className={classNames(
-        'mx-auto mb-8 flex w-full max-w-[64rem] flex-col gap-7 px-3 tablet:px-4',
+        'mx-auto mb-4 flex w-full max-w-[64rem] flex-col gap-5 px-3 tablet:px-4',
         className,
       )}
     >
@@ -165,8 +164,6 @@ export const BriefCover = ({
         onRead={markRead}
       />
       <CoverClosing totals={totals} edition={edition} />
-      <div id="brief-end" aria-hidden />
-      <BriefFloatingTabs sentinelId="brief-end" topId="brief-top" />
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}

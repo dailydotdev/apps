@@ -23,12 +23,6 @@ interface CoverGridProps {
   onOpen: (story: StoryItem) => void;
 }
 
-const stripMd = (s: string): string =>
-  s
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/[*_]{1,2}([^*_\n]+)[*_]{1,2}/g, '$1');
-
 const estimateMinutes = (story: StoryItem): number =>
   Math.max(
     2,
@@ -53,12 +47,6 @@ const StoryRow = ({
   const minutes = estimateMinutes(story);
   const primarySource = story.sources[0];
   const extraSources = story.sources.length - 1;
-  const quote = story.highlightedComments[0];
-  const cleanQuote = quote ? stripMd(quote.content).trim() : null;
-  const shortQuote =
-    cleanQuote && cleanQuote.length > 140
-      ? `${cleanQuote.slice(0, 137)}…`
-      : cleanQuote;
 
   return (
     <li
@@ -71,30 +59,41 @@ const StoryRow = ({
         type="button"
         onClick={onOpen}
         className={classNames(
-          'group flex w-full items-start gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float laptop:px-6',
+          'group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-float',
           isRead && 'opacity-60',
         )}
       >
         <span
           aria-hidden
-          className="mt-0.5 hidden w-9 shrink-0 tabular-nums tablet:block"
+          className="hidden w-7 shrink-0 tabular-nums tablet:block"
         >
           <Typography
-            type={TypographyType.Title3}
+            type={TypographyType.Footnote}
             color={
               isRead ? TypographyColor.Quaternary : TypographyColor.Tertiary
             }
             bold
-            className="!leading-none"
           >
             {formatRank(rank)}
           </Typography>
         </span>
         <div className="min-w-0 flex-1">
-          <div className="mb-1.5 flex flex-wrap items-center gap-2 text-text-quaternary">
+          <Typography
+            type={TypographyType.Body}
+            bold
+            color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
+            className={classNames(
+              '!leading-snug transition-colors',
+              isRead && 'decoration-text-quaternary/40 line-through',
+              !isRead && 'group-hover:text-brand-default',
+            )}
+          >
+            {story.title}
+          </Typography>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-text-quaternary">
             {primarySource ? (
-              <span className="inline-flex min-w-0 items-center gap-1.5">
-                <span className="size-4 shrink-0 overflow-hidden rounded-6 bg-surface-float">
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <span className="size-3.5 shrink-0 overflow-hidden rounded-4 bg-surface-float">
                   <img
                     src={primarySource.sourceImage}
                     alt=""
@@ -105,19 +104,11 @@ const StoryRow = ({
                 <Typography
                   type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
-                  bold
                   className="truncate"
                 >
                   {primarySource.sourceName}
+                  {extraSources > 0 ? ` +${extraSources}` : ''}
                 </Typography>
-                {extraSources > 0 ? (
-                  <Typography
-                    type={TypographyType.Caption2}
-                    color={TypographyColor.Quaternary}
-                  >
-                    +{extraSources} sources
-                  </Typography>
-                ) : null}
               </span>
             ) : null}
             <span className="text-border-subtlest-secondary">·</span>
@@ -126,62 +117,38 @@ const StoryRow = ({
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Quaternary}
-                bold
               >
                 {briefCopy.storyReadTime(minutes)}
               </Typography>
             </span>
-            <span className="ml-auto inline-flex items-center gap-3">
-              <span className="inline-flex items-center gap-1">
+            <span className="ml-auto inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-0.5">
                 <UpvoteIcon
                   size={IconSize.XXSmall}
                   className="text-accent-avocado-default"
                 />
                 <Typography
-                  type={TypographyType.Caption2}
+                  type={TypographyType.Caption1}
                   color={TypographyColor.Quaternary}
-                  bold
                 >
                   {story.totalUpvotes}
                 </Typography>
               </span>
-              <span className="inline-flex items-center gap-1">
+              <span className="inline-flex items-center gap-0.5">
                 <DiscussIcon size={IconSize.XXSmall} />
                 <Typography
-                  type={TypographyType.Caption2}
+                  type={TypographyType.Caption1}
                   color={TypographyColor.Quaternary}
-                  bold
                 >
                   {story.totalComments}
                 </Typography>
               </span>
             </span>
           </div>
-          <Typography
-            type={TypographyType.Title3}
-            bold
-            color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
-            className={classNames(
-              '!leading-snug tracking-[-0.015em] transition-colors',
-              isRead && 'decoration-text-quaternary/40 line-through',
-              !isRead && 'group-hover:text-brand-default',
-            )}
-          >
-            {story.title}
-          </Typography>
-          {shortQuote ? (
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-              className="mt-1 line-clamp-2 italic"
-            >
-              “{shortQuote}”
-            </Typography>
-          ) : null}
         </div>
         <ArrowIcon
           size={IconSize.XSmall}
-          className="mt-1.5 hidden shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100 tablet:block"
+          className="hidden shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100 tablet:block"
         />
       </button>
     </li>
@@ -194,35 +161,26 @@ export const CoverGrid = ({
   onOpen,
 }: CoverGridProps): ReactElement => (
   <section>
-    <div className="mb-3 flex items-end justify-between gap-3 px-1">
-      <div className="flex items-center gap-2">
-        <TrendingIcon
-          size={IconSize.XSmall}
-          className="text-accent-cabbage-default"
-          secondary
-        />
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Primary}
-          bold
-          className="uppercase tracking-[0.16em]"
-        >
-          {briefCopy.attentionEyebrow}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-          className="tabular-nums"
-        >
-          · {stories.length}
-        </Typography>
-      </div>
+    <div className="mb-2 flex items-center gap-2 px-1">
+      <TrendingIcon
+        size={IconSize.XSmall}
+        className="text-accent-cabbage-default"
+        secondary
+      />
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Primary}
+        bold
+        className="uppercase tracking-[0.16em]"
+      >
+        {briefCopy.attentionEyebrow}
+      </Typography>
       <Typography
         type={TypographyType.Caption1}
         color={TypographyColor.Quaternary}
-        className="hidden tablet:inline"
+        className="tabular-nums"
       >
-        {briefCopy.attentionHint}
+        · {stories.length}
       </Typography>
     </div>
     <ol className="overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle">

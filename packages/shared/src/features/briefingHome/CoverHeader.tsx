@@ -48,39 +48,30 @@ export const CoverHeader = ({
   );
 
   return (
-    <header id="brief-top" className="flex flex-col gap-3 pt-1">
-      <div className="flex items-center gap-2 text-text-quaternary">
-        <span className="inline-block size-1.5 rounded-full bg-accent-ketchup-default" />
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Quaternary}
-          bold
-          className="uppercase tracking-[0.18em]"
-        >
-          {formatDate()} · {briefCopy.editionLabel(edition)}
-        </Typography>
-        <span className="text-border-subtlest-secondary">·</span>
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Quaternary}
-        >
-          {briefCopy.briefMetaLine(totals.readMinutes, sourceCount)}
-        </Typography>
-      </div>
+    <header id="brief-top" className="flex scroll-mt-20 flex-col gap-1.5">
       <Typography
-        tag={TypographyTag.H1}
-        type={TypographyType.LargeTitle}
+        type={TypographyType.Caption2}
+        color={TypographyColor.Quaternary}
         bold
-        className="!leading-[1.05] tracking-[-0.03em]"
+        className="uppercase tracking-[0.16em]"
       >
-        {greetingFor(displayName)}
+        {formatDate()} · {briefCopy.editionLabel(edition)} ·{' '}
+        {briefCopy.briefMetaLine(totals.readMinutes, sourceCount)}
       </Typography>
       <Typography
-        type={TypographyType.Body}
-        color={TypographyColor.Secondary}
-        className="max-w-[42rem] !leading-snug"
+        tag={TypographyTag.H1}
+        type={TypographyType.Title1}
+        bold
+        className="!leading-tight tracking-[-0.025em]"
       >
-        {briefCopy.heroDeck(totals.total, totals.readMinutes)}
+        {greetingFor(displayName)}{' '}
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Title1}
+          color={TypographyColor.Tertiary}
+        >
+          — {briefCopy.heroDeck(totals.total, totals.readMinutes)}
+        </Typography>
       </Typography>
     </header>
   );

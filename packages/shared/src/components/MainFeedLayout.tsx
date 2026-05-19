@@ -17,6 +17,7 @@ import { useFeedTagsList } from '../hooks/useFeedTagsList';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { BriefCover } from '../features/briefingHome/BriefCover';
+import { BriefFloatingTabs } from '../features/briefingHome/BriefFloatingTabs';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
@@ -718,6 +719,14 @@ export default function MainFeedLayout({
         <AskSearchBanner className="mx-4 mb-4" />
       )}
       {isHomePage && <BriefCover />}
+      {briefOwnsChips && (
+        <div className="mx-auto w-full max-w-[64rem] px-3 tablet:px-4">
+          <BriefFloatingTabs topId="brief-top" feedId="brief-feed-start" />
+        </div>
+      )}
+      {briefOwnsChips && (
+        <div id="brief-feed-start" aria-hidden className="scroll-mt-28" />
+      )}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero
           className="px-4 pb-2"

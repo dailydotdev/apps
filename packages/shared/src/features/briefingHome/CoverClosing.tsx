@@ -13,8 +13,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { ArrowIcon, BriefIcon, SparkleIcon } from '../../components/icons';
-import { IconSize } from '../../components/Icon';
+import { ArrowIcon } from '../../components/icons';
 import { ShareBrief } from './ShareBrief';
 import { briefCopy } from './copy';
 
@@ -29,13 +28,6 @@ interface CoverClosingProps {
   edition: number;
 }
 
-const formatDate = (): string =>
-  new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
-
 export const CoverClosing = ({
   totals,
   edition,
@@ -47,67 +39,41 @@ export const CoverClosing = ({
   const showProgressBar = !totals.isComplete && progressPct > 0;
 
   return (
-    <section className="relative flex flex-col items-center pb-4 pt-6 text-center">
-      <div
-        aria-hidden
-        className="flex w-full max-w-[42rem] items-center gap-3 text-text-quaternary"
-      >
-        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
-        <span className="inline-flex items-center gap-1.5">
-          <BriefIcon
-            size={IconSize.XSmall}
-            className="text-accent-ketchup-default"
-            secondary
-          />
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-            bold
-            className="uppercase tracking-[0.28em]"
-          >
-            End of brief
-          </Typography>
-        </span>
-        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
-      </div>
-
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.LargeTitle}
-        bold
-        className="mt-6 !leading-[1.05] tracking-[-0.03em]"
-      >
-        {totals.isComplete
-          ? briefCopy.closingTitleDone
-          : briefCopy.closingTitleProgress}
-      </Typography>
-      <Typography
-        type={TypographyType.Body}
-        color={TypographyColor.Secondary}
-        className="mt-2 max-w-prose"
-      >
-        {totals.isComplete
-          ? briefCopy.closingSubDone(
-              totals.total,
-              totals.readMinutes,
-              totals.savedMinutes,
-            )
-          : briefCopy.closingSubProgress(remaining)}
-      </Typography>
-      {totals.isComplete ? (
+    <section className="flex items-center gap-4 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="mt-1 italic"
+          type={TypographyType.Caption2}
+          color={TypographyColor.Quaternary}
+          bold
+          className="uppercase tracking-[0.18em]"
         >
-          {briefCopy.closingPivot}
+          {briefCopy.editionLabel(edition)} · End of brief
         </Typography>
-      ) : null}
-
-      {showProgressBar ? (
-        <div className="mt-5 w-full max-w-xs">
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Title3}
+          bold
+          className="!leading-tight"
+        >
+          {totals.isComplete
+            ? briefCopy.closingTitleDone
+            : briefCopy.closingTitleProgress}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {totals.isComplete
+            ? briefCopy.closingSubDone(
+                totals.total,
+                totals.readMinutes,
+                totals.savedMinutes,
+              )
+            : briefCopy.closingSubProgress(remaining)}
+        </Typography>
+        {showProgressBar ? (
           <div
-            className="h-1 w-full overflow-hidden rounded-full bg-surface-float"
+            className="mt-1 h-1 w-full max-w-[14rem] overflow-hidden rounded-full bg-surface-float"
             role="progressbar"
             aria-label={briefCopy.progressLabel}
             aria-valuenow={progressPct}
@@ -119,48 +85,23 @@ export const CoverClosing = ({
               style={{ width: `${Math.max(progressPct, 4)}%` }}
             />
           </div>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-            className="mt-1.5 tabular-nums"
-          >
-            {totals.readCount} of {totals.total} read · {progressPct}%
-          </Typography>
-        </div>
-      ) : null}
-
-      <div className="mt-6 flex flex-col items-center gap-3 tablet:flex-row">
+        ) : null}
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        <ShareBrief variant={ButtonVariant.Float} />
         <Button
           tag="a"
-          href="#brief-end"
+          href="#brief-feed-start"
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
+          size={ButtonSize.Small}
           icon={<ArrowIcon className="rotate-180" />}
           iconPosition={ButtonIconPosition.Right}
           className={classNames(
-            'min-w-[12rem]',
             totals.isComplete && '!bg-accent-avocado-default',
           )}
         >
           {totals.isComplete ? 'Open the feed' : briefCopy.scrollCue}
         </Button>
-        <ShareBrief variant={ButtonVariant.Float} />
-      </div>
-
-      <div
-        aria-hidden
-        className="mt-8 flex items-center gap-2 text-text-quaternary"
-      >
-        <SparkleIcon size={IconSize.XXSmall} className="text-text-quaternary" />
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Quaternary}
-          className="tabular-nums"
-        >
-          {briefCopy.editionLabel(edition)} · {formatDate()} · Filed by
-          daily.dev
-        </Typography>
-        <SparkleIcon size={IconSize.XXSmall} className="text-text-quaternary" />
       </div>
     </section>
   );

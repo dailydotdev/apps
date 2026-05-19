@@ -28,39 +28,30 @@ export const CoverQuick = ({
   onRead,
 }: CoverQuickProps): ReactElement => (
   <section>
-    <div className="mb-4 flex items-end justify-between gap-3">
-      <div className="flex items-center gap-2">
-        <StarIcon
-          size={IconSize.XSmall}
-          className="text-accent-bun-default"
-          secondary
-        />
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Primary}
-          bold
-          className="uppercase tracking-[0.16em]"
-        >
-          {briefCopy.quickEyebrow}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-          className="tabular-nums"
-        >
-          · {quickHits.length}
-        </Typography>
-      </div>
+    <div className="mb-2 flex items-center gap-2 px-1">
+      <StarIcon
+        size={IconSize.XSmall}
+        className="text-accent-bun-default"
+        secondary
+      />
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Primary}
+        bold
+        className="uppercase tracking-[0.16em]"
+      >
+        {briefCopy.quickEyebrow}
+      </Typography>
       <Typography
         type={TypographyType.Caption1}
         color={TypographyColor.Quaternary}
-        className="hidden tablet:inline"
+        className="tabular-nums"
       >
-        {briefCopy.quickHint}
+        · {quickHits.length}
       </Typography>
     </div>
 
-    <ul className="grid grid-cols-1 gap-x-6 tablet:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-x-6 rounded-12 border border-border-subtlest-tertiary bg-background-subtle px-3 tablet:grid-cols-2 tablet:px-4">
       {quickHits.map((q) => {
         const read = readSet.has(q.id);
         return (
@@ -74,7 +65,7 @@ export const CoverQuick = ({
               rel="noopener noreferrer"
               onClick={() => onRead(q.id)}
               className={classNames(
-                'group flex items-center gap-3 py-3 transition-colors',
+                'group flex items-center gap-3 py-2.5 transition-colors',
                 read && 'opacity-60',
               )}
             >
