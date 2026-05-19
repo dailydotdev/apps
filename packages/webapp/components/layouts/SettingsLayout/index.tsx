@@ -60,6 +60,12 @@ export const navigationKey = generateQueryKey(
   null,
 );
 
+// Portal target id for the v2 settings PageHeader strip. AccountPageContainer
+// renders its `<PageHeader>` into this slot so the strip spans the full
+// floating-card width instead of being trapped inside the `max-w-5xl`
+// content wrapper below.
+export const SETTINGS_PAGE_HEADER_PORTAL_ID = 'settings-page-header-portal';
+
 export default function SettingsLayout({
   children,
 }: PropsWithChildren): ReactElement {
@@ -154,6 +160,12 @@ export default function SettingsLayout({
             {router.query.redirectCopy}
           </Typography>
         </button>
+      )}
+      {/* v2 PageHeader strip slot. Rendered outside the `max-w-5xl` content
+          wrapper below so the strip spans the full floating-card width.
+          AccountPageContainer portals into this on laptop v2. */}
+      {isV2Laptop && (
+        <div id={SETTINGS_PAGE_HEADER_PORTAL_ID} className="contents" />
       )}
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
         <h1 className="sr-only">Settings</h1>

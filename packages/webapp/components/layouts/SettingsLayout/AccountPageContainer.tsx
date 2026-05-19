@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import {
   Button,
@@ -16,7 +17,7 @@ import {
   AccountPageHeading,
   AccountPageSection,
 } from './common';
-import { navigationKey } from '.';
+import { navigationKey, SETTINGS_PAGE_HEADER_PORTAL_ID } from '.';
 
 interface ClassName {
   container?: string;
@@ -47,6 +48,33 @@ export const AccountPageContainer = ({
     key: navigationKey,
     defaultValue: false,
   });
+  // Look up the portal target lazily after mount — the SettingsLayout slot
+  // is rendered as `<div id={...} className="contents">` and only exists
+  // under v2 + laptop, so we must wait until it's in the DOM before
+  // attempting to portal into it.
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!isV2Laptop) {
+      setPortalTarget(null);
+      return;
+    }
+    setPortalTarget(document.getElementById(SETTINGS_PAGE_HEADER_PORTAL_ID));
+  }, [isV2Laptop]);
+
+  const pageHeader = isV2Laptop ? (
+    <PageHeader title={typeof title === 'string' ? title : undefined}>
+      {onBack && (
+        <Button
+          icon={<ArrowIcon className="-rotate-90" />}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          onClick={onBack}
+          aria-label="Back"
+        />
+      )}
+      {actions}
+    </PageHeader>
+  ) : null;
 
   return (
     <AccountPageContent
@@ -59,20 +87,8 @@ export const AccountPageContainer = ({
         className.container,
       )}
     >
-      {isV2Laptop ? (
-        <PageHeader title={typeof title === 'string' ? title : undefined}>
-          {onBack && (
-            <Button
-              icon={<ArrowIcon className="-rotate-90" />}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              onClick={onBack}
-              aria-label="Back"
-            />
-          )}
-          {actions}
-        </PageHeader>
-      ) : (
+      {isV2Laptop && portalTarget && createPortal(pageHeader, portalTarget)}
+      {!isV2Laptop && (
         <AccountPageHeading className={classNames('sticky', className.heading)}>
           <Button
             className={classNames('mr-2 flex tablet:hidden', {
