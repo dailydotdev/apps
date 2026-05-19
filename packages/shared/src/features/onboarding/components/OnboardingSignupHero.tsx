@@ -2,221 +2,190 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import Logo, { LogoPosition } from '../../../components/Logo';
-import { IconSize } from '../../../components/Icon';
-import { UpvoteIcon } from '../../../components/icons/Upvote';
 import {
   ThemeMode,
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
 
-type FeedCard = {
-  source: string;
-  title: string;
-  upvotes: string;
-  time: string;
+type AccentKey = 'cabbage' | 'water' | 'onion' | 'bacon' | 'cheese' | 'avocado';
+
+type TagVariant = 'xs' | 'sm' | 'md' | 'lg';
+
+type TagItem = {
+  label: string;
+  x: number;
+  y: number;
+  variant: TagVariant;
+  accent?: AccentKey;
 };
 
-const CARDS: FeedCard[] = [
-  {
-    source: 'GitHub Blog',
-    title: 'Why we rewrote Git internals in Rust',
-    upvotes: '1.2k',
-    time: '2h',
-  },
-  {
-    source: 'Vercel',
-    title: 'Edge functions, benchmarked: 14ms vs 280ms',
-    upvotes: '987',
-    time: '4h',
-  },
-  {
-    source: 'Pragmatic Engineer',
-    title: 'The case against microservices in 2026',
-    upvotes: '2.4k',
-    time: '6h',
-  },
-  {
-    source: 'Stripe Engineering',
-    title: 'How we cut JS bundle size by 60% with islands',
-    upvotes: '714',
-    time: '5h',
-  },
-  {
-    source: 'Frontend Squad',
-    title: 'What CSS features changed how you ship components?',
-    upvotes: '512',
-    time: '3h',
-  },
-  {
-    source: 'daily.dev',
-    title: 'A one-line trick to debounce async hooks',
-    upvotes: '824',
-    time: '8h',
-  },
-  {
-    source: 'Cloudflare',
-    title: 'Building a real-time engine on Workers',
-    upvotes: '1.4k',
-    time: '10h',
-  },
-  {
-    source: 'Linear',
-    title: 'Designing APIs developers actually like using',
-    upvotes: '1.1k',
-    time: '9h',
-  },
-  {
-    source: 'PlanetScale',
-    title: 'Branching production databases without losing sleep',
-    upvotes: '923',
-    time: '12h',
-  },
-  {
-    source: 'Notion',
-    title: "Notion's data model, explained in five minutes",
-    upvotes: '1.6k',
-    time: '1d',
-  },
-  {
-    source: 'Backend Squad',
-    title: 'Postgres or SQLite for your side project in 2026?',
-    upvotes: '987',
-    time: '4h',
-  },
-  {
-    source: 'GitHub Blog',
-    title: 'Anatomy of a memory leak (and how we caught it)',
-    upvotes: '1.3k',
-    time: '14h',
-  },
-  {
-    source: 'daily.dev',
-    title: 'Type-safe env vars in 8 lines with Zod',
-    upvotes: '654',
-    time: '11h',
-  },
-  {
-    source: 'Linear',
-    title: 'Git internals: how rebase actually works',
-    upvotes: '1.8k',
-    time: '2d',
-  },
-  {
-    source: 'AI Squad',
-    title: 'What is the most useful LLM workflow you ship daily?',
-    upvotes: '1.9k',
-    time: '5h',
-  },
-  {
-    source: 'Cloudflare',
-    title: 'Why your tests are slow and how we fixed ours',
-    upvotes: '1.1k',
-    time: '2d',
-  },
-  {
-    source: 'The Overflow',
-    title: 'If you can read a stack trace, you can fix anything',
-    upvotes: '2.1k',
-    time: '7h',
-  },
-  {
-    source: 'daily.dev',
-    title: 'Ship small. Ship often. Ship anyway.',
-    upvotes: '4.2k',
-    time: '1d',
-  },
+const TAGS: TagItem[] = [
+  { label: 'TypeScript', x: 10, y: 11, variant: 'md', accent: 'water' },
+  { label: 'React', x: 28, y: 6, variant: 'sm' },
+  { label: 'AI', x: 50, y: 14, variant: 'lg', accent: 'onion' },
+  { label: 'Next.js', x: 70, y: 7, variant: 'sm' },
+  { label: 'Rust', x: 85, y: 13, variant: 'md', accent: 'bacon' },
+  { label: 'Open Source', x: 6, y: 22, variant: 'xs' },
+  { label: 'JavaScript', x: 35, y: 24, variant: 'sm' },
+  { label: 'Vue', x: 60, y: 22, variant: 'xs' },
+  { label: 'Python', x: 92, y: 24, variant: 'xs' },
+  { label: 'WebAssembly', x: 18, y: 32, variant: 'xs' },
+  { label: 'GraphQL', x: 40, y: 36, variant: 'sm' },
+  { label: 'LLM', x: 72, y: 32, variant: 'sm', accent: 'cabbage' },
+  { label: 'Svelte', x: 90, y: 36, variant: 'xs' },
+  { label: 'Tailwind CSS', x: 8, y: 42, variant: 'sm' },
+  { label: 'Node.js', x: 28, y: 46, variant: 'xs' },
+  { label: 'Edge Computing', x: 58, y: 44, variant: 'sm' },
+  { label: 'PostgreSQL', x: 80, y: 46, variant: 'xs' },
+  { label: 'Docker', x: 12, y: 54, variant: 'xs' },
+  { label: 'System Design', x: 36, y: 55, variant: 'md', accent: 'avocado' },
+  { label: 'Architecture', x: 65, y: 56, variant: 'xs' },
+  { label: 'Kubernetes', x: 92, y: 52, variant: 'xs' },
+  { label: 'DevOps', x: 5, y: 64, variant: 'sm' },
+  { label: 'Linux', x: 18, y: 72, variant: 'xs' },
+  { label: 'Security', x: 90, y: 64, variant: 'sm' },
+  { label: 'Performance', x: 78, y: 72, variant: 'xs' },
+  { label: 'Indie Hacking', x: 6, y: 82, variant: 'xs' },
+  { label: 'Startups', x: 14, y: 92, variant: 'sm' },
+  { label: 'Remote', x: 92, y: 82, variant: 'xs' },
+  { label: 'Serverless', x: 86, y: 92, variant: 'sm' },
 ];
 
-const COLUMNS: Array<{ slice: [number, number]; duration: string }> = [
-  { slice: [0, 6], duration: '210s' },
-  { slice: [6, 12], duration: '260s' },
-  { slice: [12, 18], duration: '235s' },
+const CONNECTIONS: Array<[number, number, number, number]> = [
+  [10, 11, 28, 6],
+  [50, 14, 72, 32],
+  [85, 13, 18, 32],
+  [36, 55, 65, 56],
+  [5, 64, 12, 54],
+  [40, 36, 80, 46],
 ];
+
+const VARIANT_CLASSES: Record<TagVariant, string> = {
+  xs: 'typo-caption1',
+  sm: 'typo-footnote',
+  md: 'typo-callout font-medium',
+  lg: 'typo-title3 font-bold',
+};
+
+const NEUTRAL_OPACITY: Record<TagVariant, string> = {
+  xs: 'text-white/25',
+  sm: 'text-white/40',
+  md: 'text-white/55',
+  lg: 'text-white/70',
+};
+
+const ACCENT_TEXT: Record<AccentKey, string> = {
+  cabbage: 'text-accent-cabbage-default',
+  water: 'text-accent-water-default',
+  onion: 'text-accent-onion-default',
+  bacon: 'text-accent-bacon-default',
+  cheese: 'text-accent-cheese-default',
+  avocado: 'text-accent-avocado-default',
+};
+
+const ACCENT_GLOW: Record<AccentKey, string> = {
+  cabbage: 'onb-glow-cabbage',
+  water: 'onb-glow-water',
+  onion: 'onb-glow-onion',
+  bacon: 'onb-glow-bacon',
+  cheese: 'onb-glow-cheese',
+  avocado: 'onb-glow-avocado',
+};
 
 const HERO_STYLES = `
 .onb-bg {
   background:
-    radial-gradient(ellipse 70% 55% at 12% 18%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default) 10%, transparent) 0%,
+    radial-gradient(ellipse 65% 50% at 15% 18%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 9%, transparent) 0%,
       transparent 65%),
     radial-gradient(ellipse 55% 45% at 88% 32%,
-      color-mix(in srgb, var(--theme-accent-water-default) 9%, transparent) 0%,
-      transparent 70%),
-    radial-gradient(ellipse 60% 40% at 30% 88%,
-      color-mix(in srgb, var(--theme-accent-onion-default) 7%, transparent) 0%,
+      color-mix(in srgb, var(--theme-accent-water-default) 8%, transparent) 0%,
       transparent 70%),
     var(--theme-background-default);
 }
-.onb-col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  animation: onb-scroll var(--onb-dur, 220s) linear infinite;
-  will-change: transform;
+.onb-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(96px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: onb-breathe 18s ease-in-out infinite;
 }
-.onb-col--reverse {
-  animation-direction: reverse;
+.onb-orb--delay {
+  animation-delay: -6s;
 }
-@keyframes onb-scroll {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(0, -50%, 0); }
+@keyframes onb-breathe {
+  0%, 100% { opacity: 0.32; }
+  50% { opacity: 0.5; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .onb-col {
+  .onb-orb {
     animation: none;
+    opacity: 0.4;
   }
 }
 .onb-form-halo {
   background:
     radial-gradient(
-      ellipse 100% 70% at 50% 80%,
-      rgba(8, 8, 12, 0.94) 0%,
+      ellipse 90% 65% at 50% 82%,
+      rgba(8, 8, 12, 0.95) 0%,
       rgba(8, 8, 12, 0.78) 22%,
-      rgba(8, 8, 12, 0.45) 50%,
+      rgba(8, 8, 12, 0.4) 52%,
       transparent 82%
     );
 }
 .onb-top-fade {
   background: linear-gradient(
     to bottom,
-    rgba(8, 8, 12, 0.55) 0%,
-    rgba(8, 8, 12, 0.15) 18%,
-    transparent 32%
+    rgba(8, 8, 12, 0.5) 0%,
+    rgba(8, 8, 12, 0.1) 20%,
+    transparent 35%
   );
 }
 .onb-headline {
-  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.65);
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.7);
 }
-.onb-glow {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(72px);
-  opacity: 0.55;
-  pointer-events: none;
-  mix-blend-mode: screen;
+.onb-glow-cabbage {
+  text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-cabbage-default) 65%, transparent);
+}
+.onb-glow-water {
+  text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-water-default) 65%, transparent);
+}
+.onb-glow-onion {
+  text-shadow: 0 0 28px color-mix(in srgb, var(--theme-accent-onion-default) 70%, transparent);
+}
+.onb-glow-bacon {
+  text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-bacon-default) 65%, transparent);
+}
+.onb-glow-cheese {
+  text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-cheese-default) 65%, transparent);
+}
+.onb-glow-avocado {
+  text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-avocado-default) 65%, transparent);
 }
 `;
 
-const FeedCardTile = ({ card }: { card: FeedCard }): ReactElement => (
-  <article className="flex flex-col gap-2.5 rounded-12 border border-white/[0.05] bg-white/[0.025] p-3 shadow-[0_4px_18px_rgba(0,0,0,0.25)] backdrop-blur-[2px]">
-    <div className="flex items-center gap-1.5 text-text-quaternary typo-caption2">
-      <span className="min-w-0 truncate font-medium">{card.source}</span>
-      <span aria-hidden className="opacity-60">
-        ·
-      </span>
-      <span aria-hidden className="shrink-0">
-        {card.time}
-      </span>
-    </div>
-    <h3 className="line-clamp-3 text-balance font-medium leading-snug text-text-secondary typo-callout">
-      {card.title}
-    </h3>
-    <div className="flex items-center gap-1 text-text-quaternary typo-caption2">
-      <UpvoteIcon size={IconSize.XXSmall} secondary />
-      <span className="tabular-nums">{card.upvotes}</span>
-    </div>
-  </article>
-);
+const ConstellationTag = ({ tag }: { tag: TagItem }): ReactElement => {
+  const accentClasses = tag.accent
+    ? `${ACCENT_TEXT[tag.accent]} ${ACCENT_GLOW[tag.accent]}`
+    : NEUTRAL_OPACITY[tag.variant];
+  return (
+    <span
+      className={classNames(
+        'absolute whitespace-nowrap tracking-tight',
+        VARIANT_CLASSES[tag.variant],
+        accentClasses,
+      )}
+      style={{
+        left: `${tag.x}%`,
+        top: `${tag.y}%`,
+        transform: 'translate(-50%, -50%)',
+      }}
+    >
+      {tag.label}
+    </span>
+  );
+};
 
 type Props = {
   children: ReactNode;
@@ -249,31 +218,31 @@ export const OnboardingSignupHero = ({
         className="pointer-events-none absolute inset-0 -z-2 select-none"
       >
         <span
-          className="onb-glow bg-accent-cabbage-default"
+          className="onb-orb bg-accent-cabbage-default"
           style={{
-            width: '36rem',
-            height: '36rem',
-            top: '-8rem',
-            left: '-6rem',
+            width: '38rem',
+            height: '38rem',
+            top: '-10rem',
+            left: '-8rem',
           }}
         />
         <span
-          className="onb-glow bg-accent-water-default"
+          className="onb-orb onb-orb--delay bg-accent-water-default"
           style={{
-            width: '30rem',
-            height: '30rem',
-            top: '20%',
-            right: '-8rem',
+            width: '32rem',
+            height: '32rem',
+            top: '18%',
+            right: '-10rem',
           }}
         />
         <span
-          className="onb-glow bg-accent-onion-default"
+          className="onb-orb bg-accent-onion-default"
           style={{
-            width: '28rem',
-            height: '28rem',
-            bottom: '-6rem',
-            left: '20%',
-            opacity: 0.35,
+            width: '26rem',
+            height: '26rem',
+            top: '36%',
+            left: '38%',
+            opacity: 0.22,
           }}
         />
       </div>
@@ -282,32 +251,27 @@ export const OnboardingSignupHero = ({
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-1 select-none"
       >
-        <div className="mx-auto grid h-full max-w-7xl grid-cols-2 gap-3 px-4 tablet:grid-cols-3 tablet:gap-4 tablet:px-8">
-          {COLUMNS.map(({ slice, duration }, idx) => {
-            const cards = CARDS.slice(slice[0], slice[1]);
-            const doubled = [...cards, ...cards];
-            const hideOnMobile = idx === 2;
-            return (
-              <div
-                key={`col-${slice[0]}`}
-                className={classNames(
-                  'onb-col -mt-16',
-                  idx % 2 === 1 && 'onb-col--reverse',
-                  hideOnMobile && 'hidden tablet:flex',
-                )}
-                style={{ ['--onb-dur' as string]: duration }}
-              >
-                {doubled.map((card, j) => (
-                  <FeedCardTile
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={`${slice[0]}-${card.title}-${j}`}
-                    card={card}
-                  />
-                ))}
-              </div>
-            );
-          })}
-        </div>
+        <svg
+          className="absolute inset-0 h-full w-full text-white/[0.07]"
+          preserveAspectRatio="none"
+          viewBox="0 0 100 100"
+        >
+          {CONNECTIONS.map(([x1, y1, x2, y2]) => (
+            <line
+              key={`${x1}-${y1}-${x2}-${y2}`}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              stroke="currentColor"
+              strokeWidth="0.12"
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+        </svg>
+        {TAGS.map((tag) => (
+          <ConstellationTag key={tag.label} tag={tag} />
+        ))}
       </div>
 
       <div
