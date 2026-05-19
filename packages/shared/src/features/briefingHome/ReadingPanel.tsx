@@ -386,9 +386,9 @@ export const ReadingPanel = ({
         position: DrawerPosition.Bottom,
         isFullScreen: true,
       }}
-      className="!bg-background-default"
+      className="!items-stretch !bg-background-default tablet:!max-h-[calc(100vh-6rem)]"
     >
-      <header className="sticky top-0 z-1 grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-border-subtlest-quaternary bg-background-default px-4">
+      <header className="z-1 grid h-14 w-full shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-border-subtlest-quaternary bg-background-default px-4">
         <div />
         <div className="flex items-center justify-center gap-2">
           <Button
@@ -422,7 +422,7 @@ export const ReadingPanel = ({
           />
         </div>
       </header>
-      <div className="overflow-y-auto p-5 tablet:p-7">
+      <div className="min-h-0 w-full flex-1 overflow-y-auto p-5 tablet:p-7">
         {entity.kind === 'story' ? (
           <StoryBody story={entity} />
         ) : (
