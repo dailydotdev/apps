@@ -29,9 +29,6 @@ const stripMd = (s: string): string =>
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/[*_]{1,2}([^*_\n]+)[*_]{1,2}/g, '$1');
 
-const truncate = (s: string, n: number): string =>
-  s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
-
 const StoryRow = ({
   story,
   isRead,
@@ -45,10 +42,6 @@ const StoryRow = ({
   onToggle: () => void;
   onOpen: () => void;
 }): ReactElement => {
-  const topComment = story.highlightedComments[0];
-  const quote = topComment
-    ? truncate(stripMd(topComment.content).trim(), 140)
-    : null;
   const sourcesShown = story.sources.slice(0, 3);
   const extraSources = story.sources.length - sourcesShown.length;
   const sourceNames = sourcesShown.map((s) => s.sourceName).join(', ');
@@ -64,10 +57,19 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-surface-float',
+          'group flex w-full items-start gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
       >
+        <ArrowIcon
+          size={IconSize.XSmall}
+          className={classNames(
+            'mt-1 shrink-0 text-text-tertiary transition-transform duration-300 ease-out',
+            isExpanded ? 'rotate-180' : 'rotate-90',
+          )}
+          aria-hidden
+        />
+
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Typography
             tag={TypographyTag.H3}
@@ -85,20 +87,20 @@ const StoryRow = ({
             {story.title}
           </Typography>
 
-          {quote ? (
+          <div id={panelId}>
             <Typography
               type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="line-clamp-2 !leading-snug"
+              color={TypographyColor.Secondary}
+              className={classNames(
+                '!leading-relaxed',
+                !isExpanded && 'line-clamp-2',
+              )}
             >
-              <span aria-hidden className="mr-1 text-text-quaternary">
-                “
-              </span>
-              {quote}
+              {summary}
             </Typography>
-          ) : null}
+          </div>
 
-          <div className="mt-auto flex flex-wrap items-center gap-3 pt-1 text-text-quaternary">
+          <div className="mt-1 flex flex-wrap items-center gap-3 text-text-quaternary">
             <span className="inline-flex items-center gap-3">
               <span className="inline-flex items-center gap-1">
                 <UpvoteIcon
@@ -156,14 +158,25 @@ const StoryRow = ({
                 </Typography>
               </span>
             </span>
-            <ArrowIcon
-              size={IconSize.XSmall}
-              className={classNames(
-                'ml-auto shrink-0 text-text-quaternary transition-transform duration-300',
-                isExpanded ? 'rotate-180' : '',
-              )}
-            />
           </div>
+
+          {isExpanded ? (
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen();
+                }}
+                className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default"
+              >
+                <Typography type={TypographyType.Caption1} bold>
+                  Read the full breakdown
+                </Typography>
+                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div
@@ -183,48 +196,6 @@ const StoryRow = ({
           ) : null}
         </div>
       </button>
-
-      <div
-        id={panelId}
-        className={classNames(
-          'grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-out',
-          isExpanded
-            ? 'grid-rows-[1fr] opacity-100'
-            : 'grid-rows-[0fr] opacity-0',
-        )}
-      >
-        <div className="min-h-0">
-          <div className="border-t border-border-subtlest-quaternary bg-background-subtle px-5 py-3">
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Tertiary}
-              bold
-              className="mb-1.5 uppercase tracking-[0.14em]"
-            >
-              TL;DR
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              className="!leading-relaxed"
-            >
-              {summary}
-            </Typography>
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={onOpen}
-                className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default"
-              >
-                <Typography type={TypographyType.Caption1} bold>
-                  Read the full breakdown
-                </Typography>
-                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </li>
   );
 };
