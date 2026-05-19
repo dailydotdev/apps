@@ -37,7 +37,9 @@ function SafariPermissionsPrompt(): ReactElement {
         src="https://daily-now-res.cloudinary.com/video/upload/s--LWA966EO--/v1779176311/videos/daily_safari_extension.mov"
         controls
         playsInline
-      />
+      >
+        <track kind="captions" />
+      </video>
       <button
         type="button"
         className="rounded-xl hover:opacity-90 mt-2 bg-accent-cabbage-default px-6 py-3 font-bold text-white typo-callout"
@@ -53,7 +55,7 @@ export default function SafariPermissionsGate({
   children,
 }: {
   children: ReactNode;
-}): ReactElement {
+}): ReactElement | null {
   const [status, setStatus] = useState<Status>('checking');
 
   useEffect(() => {
