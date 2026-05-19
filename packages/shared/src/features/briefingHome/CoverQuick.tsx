@@ -44,16 +44,7 @@ export const CoverQuick = ({
       {quickHits.map((q) => {
         const read = readSet.has(q.id);
         return (
-          <li key={q.id} className="flex flex-col gap-2">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption2}
-              color={TypographyColor.Quaternary}
-              bold
-              className="px-1 uppercase tracking-[0.14em]"
-            >
-              {q.eyebrow}
-            </Typography>
+          <li key={q.id}>
             <a
               href={q.url}
               target="_blank"
@@ -87,35 +78,46 @@ export const CoverQuick = ({
                   className="mt-0.5 shrink-0 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
                 />
               </div>
-              <div className="mt-auto flex items-center gap-2">
-                <StatPill
-                  ariaLabel={`${q.upvotes} upvotes`}
-                  onClick={() => {
-                    onRead(q.id);
-                    window.open(q.url, '_blank', 'noopener,noreferrer');
-                  }}
-                  icon={
-                    <UpvoteIcon
-                      size={IconSize.XSmall}
-                      className="text-accent-avocado-default"
-                    />
-                  }
-                  value={q.upvotes}
-                />
-                <StatPill
-                  ariaLabel={`${q.comments} comments`}
-                  onClick={() => {
-                    onRead(q.id);
-                    window.open(q.url, '_blank', 'noopener,noreferrer');
-                  }}
-                  icon={
-                    <DiscussIcon
-                      size={IconSize.XSmall}
-                      className="text-text-tertiary"
-                    />
-                  }
-                  value={q.comments}
-                />
+              <div className="mt-auto flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <StatPill
+                    ariaLabel={`${q.upvotes} upvotes`}
+                    onClick={() => {
+                      onRead(q.id);
+                      window.open(q.url, '_blank', 'noopener,noreferrer');
+                    }}
+                    icon={
+                      <UpvoteIcon
+                        size={IconSize.XSmall}
+                        className="text-accent-avocado-default"
+                      />
+                    }
+                    value={q.upvotes}
+                  />
+                  <StatPill
+                    ariaLabel={`${q.comments} comments`}
+                    onClick={() => {
+                      onRead(q.id);
+                      window.open(q.url, '_blank', 'noopener,noreferrer');
+                    }}
+                    icon={
+                      <DiscussIcon
+                        size={IconSize.XSmall}
+                        className="text-text-tertiary"
+                      />
+                    }
+                    value={q.comments}
+                  />
+                </div>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption2}
+                  color={TypographyColor.Quaternary}
+                  bold
+                  className="shrink-0 uppercase tracking-[0.14em]"
+                >
+                  {q.eyebrow}
+                </Typography>
               </div>
             </a>
           </li>
