@@ -13,7 +13,6 @@ import { isIOSNative } from '../../lib/func';
 
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
-import { FooterLinks } from '../footer/FooterLinks';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingV2 } from '../../lib/featureManagement';
@@ -154,7 +153,10 @@ export const OnboardingRegistrationForm = ({
   const emailButton = (
     <Button
       aria-label="Signup using email"
-      className={getEmailButtonClass()}
+      className={classNames(
+        getEmailButtonClass(),
+        isOnboardingTrigger && '!text-white',
+      )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
       onClick={() => {
@@ -189,17 +191,7 @@ export const OnboardingRegistrationForm = ({
     />
   );
   const disclaimer = (
-    <SignupDisclaimer
-      className={classNames(
-        '!text-text-tertiary tablet:!typo-footnote',
-        isOnboardingTrigger && 'mt-8',
-      )}
-    />
-  );
-  const onboardingFooterLinks = (
-    <div className="mt-4 [&_footer]:!pb-0 [&_ul]:!mb-0">
-      <FooterLinks />
-    </div>
+    <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
   );
 
   return (
@@ -234,8 +226,6 @@ export const OnboardingRegistrationForm = ({
         <div className="flex flex-col text-center">
           {emailButton}
           {memberAlready}
-          {onboardingFooterLinks}
-          {disclaimer}
         </div>
       ) : (
         <div className="flex flex-col-reverse text-center">

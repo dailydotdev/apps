@@ -15,21 +15,14 @@ import {
   CardTextContainer,
   CardTitle,
 } from '../../../components/cards/common/Card';
+import { FooterLinks } from '../../../components/footer/FooterLinks';
+import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
 import {
   ThemeMode,
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
 
 type AccentKey = 'cabbage' | 'water' | 'onion' | 'bacon' | 'cheese' | 'avocado';
-
-const ACCENT_BG: Record<AccentKey, string> = {
-  cabbage: 'bg-accent-cabbage-default',
-  water: 'bg-accent-water-default',
-  onion: 'bg-accent-onion-default',
-  bacon: 'bg-accent-bacon-default',
-  cheese: 'bg-accent-cheese-default',
-  avocado: 'bg-accent-avocado-default',
-};
 
 const ACCENT_TEXT: Record<AccentKey, string> = {
   cabbage: 'text-accent-cabbage-default',
@@ -157,8 +150,7 @@ type FeedItem = {
   id: string;
   title: string;
   source: string;
-  sourceInitial: string;
-  sourceAccent: AccentKey;
+  sourceDomain: string;
   cover: string;
   upvotes: number;
   comments: number;
@@ -167,13 +159,15 @@ type FeedItem = {
   tags: string[];
 };
 
+const sourceLogo = (domain: string): string =>
+  `https://logo.clearbit.com/${domain}`;
+
 const FEED_ITEMS: FeedItem[] = [
   {
     id: 'f1',
     title: 'Why we rewrote our build system in Rust',
     source: 'Stripe Engineering',
-    sourceInitial: 'S',
-    sourceAccent: 'water',
+    sourceDomain: 'stripe.com',
     cover: '1555066931-4365d14bab8c',
     upvotes: 1247,
     comments: 184,
@@ -185,8 +179,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: 'f2',
     title: 'TypeScript 5.5 — the 4 features you will actually use',
     source: 'Fireship',
-    sourceInitial: 'F',
-    sourceAccent: 'bacon',
+    sourceDomain: 'fireship.io',
     cover: '1542831371-29b0f74f9713',
     upvotes: 3412,
     comments: 420,
@@ -198,8 +191,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: 'f3',
     title: 'How Claude Code changed our review culture',
     source: 'The Pragmatic Engineer',
-    sourceInitial: 'P',
-    sourceAccent: 'onion',
+    sourceDomain: 'pragmaticengineer.com',
     cover: '1620712943543-bcc4688e7485',
     upvotes: 2108,
     comments: 312,
@@ -211,8 +203,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: 'f4',
     title: 'Edge functions, benchmarked: 14ms vs 280ms cold starts',
     source: 'Vercel',
-    sourceInitial: 'V',
-    sourceAccent: 'cabbage',
+    sourceDomain: 'vercel.com',
     cover: '1517694712202-14dd9538aa97',
     upvotes: 894,
     comments: 128,
@@ -224,8 +215,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: 'f5',
     title: 'Postgres or SQLite in 2026? A pragmatic guide',
     source: 'High Scalability',
-    sourceInitial: 'H',
-    sourceAccent: 'cheese',
+    sourceDomain: 'highscalability.com',
     cover: '1581090464777-f3220bbe1b8b',
     upvotes: 2780,
     comments: 512,
@@ -237,8 +227,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: 'f6',
     title: 'Kubernetes is fine. Your YAML is the problem.',
     source: 'CNCF',
-    sourceInitial: 'K',
-    sourceAccent: 'water',
+    sourceDomain: 'cncf.io',
     cover: '1535551951406-a19828b0a76b',
     upvotes: 1936,
     comments: 240,
@@ -250,8 +239,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: 'f7',
     title: 'A one-line trick to debounce async hooks in React',
     source: 'daily.dev',
-    sourceInitial: 'd',
-    sourceAccent: 'cabbage',
+    sourceDomain: 'daily.dev',
     cover: '1633356122544-f134324a6cee',
     upvotes: 824,
     comments: 91,
@@ -263,8 +251,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: 'f8',
     title: 'The hidden cost of unused indexes in Postgres',
     source: 'Crunchy Data',
-    sourceInitial: 'C',
-    sourceAccent: 'onion',
+    sourceDomain: 'crunchydata.com',
     cover: '1607799279861-4dd421887fb3',
     upvotes: 1234,
     comments: 156,
@@ -275,9 +262,8 @@ const FEED_ITEMS: FeedItem[] = [
   {
     id: 'f9',
     title: 'I tried 7 AI code editors so you do not have to',
-    source: 'Pragmatic AI',
-    sourceInitial: 'A',
-    sourceAccent: 'bacon',
+    source: 'GitHub',
+    sourceDomain: 'github.com',
     cover: '1635070041078-e363dbe005cb',
     upvotes: 4122,
     comments: 602,
@@ -288,9 +274,8 @@ const FEED_ITEMS: FeedItem[] = [
   {
     id: 'f10',
     title: 'Tailwind v4: what changed and what broke for us',
-    source: 'TkDodo',
-    sourceInitial: 'T',
-    sourceAccent: 'water',
+    source: 'Tailwind CSS',
+    sourceDomain: 'tailwindcss.com',
     cover: '1573164574572-cb89e39749b4',
     upvotes: 986,
     comments: 174,
@@ -301,9 +286,8 @@ const FEED_ITEMS: FeedItem[] = [
   {
     id: 'f11',
     title: 'Bun vs Node in 2026: surprising benchmarks',
-    source: 'Bytes',
-    sourceInitial: 'B',
-    sourceAccent: 'cheese',
+    source: 'Bun',
+    sourceDomain: 'bun.sh',
     cover: '1593642632559-0c6d3fc62b89',
     upvotes: 1604,
     comments: 288,
@@ -314,9 +298,8 @@ const FEED_ITEMS: FeedItem[] = [
   {
     id: 'f12',
     title: 'Lessons from scaling Postgres to 1M writes/sec',
-    source: 'The Pragmatic Engineer',
-    sourceInitial: 'P',
-    sourceAccent: 'cabbage',
+    source: 'GitHub Engineering',
+    sourceDomain: 'github.blog',
     cover: '1517433670267-08bbd4be890f',
     upvotes: 3208,
     comments: 388,
@@ -333,40 +316,41 @@ const formatCount = (n: number): string => {
   return `${n}`;
 };
 
-const SourceAvatar = ({
-  initial,
-  accent,
+const SourceImage = ({
+  domain,
+  source,
 }: {
-  initial: string;
-  accent: AccentKey;
+  domain: string;
+  source: string;
 }): ReactElement => (
-  <span
-    className={classNames(
-      'flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-white typo-callout',
-      ACCENT_BG[accent],
-    )}
-  >
-    {initial}
+  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-float">
+    <img
+      src={sourceLogo(domain)}
+      alt={source}
+      className="h-full w-full object-cover"
+      loading="lazy"
+      decoding="async"
+      onError={(e) => {
+        const target = e.currentTarget;
+        target.onerror = null;
+        target.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+      }}
+    />
   </span>
 );
 
 const FeedActionButton = ({
   icon,
   count,
-  className,
 }: {
   icon: ReactElement;
   count?: string;
-  className?: string;
 }): ReactElement => (
-  <span
-    className={classNames(
-      'inline-flex h-8 items-center gap-1 rounded-12 px-2 text-text-tertiary typo-callout',
-      className,
-    )}
-  >
+  <span className="inline-flex h-8 items-center gap-1 rounded-12 px-1.5 text-text-tertiary typo-callout">
     {icon}
-    {count && <span className="font-semibold tabular-nums">{count}</span>}
+    {count && (
+      <span className="font-bold tabular-nums leading-none">{count}</span>
+    )}
   </span>
 );
 
@@ -374,7 +358,7 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
   <Card className="max-h-none">
     <CardTextContainer>
       <CardHeader>
-        <SourceAvatar initial={item.sourceInitial} accent={item.sourceAccent} />
+        <SourceImage domain={item.sourceDomain} source={item.source} />
         <div className="ml-2 flex min-w-0 flex-1 flex-col">
           <span className="truncate font-bold text-text-primary typo-footnote">
             {item.source}
@@ -383,7 +367,7 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
             {item.daysAgo}d ago
           </span>
         </div>
-        <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-8 text-text-tertiary">
+        <span className="mr-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-text-tertiary">
           <MenuIcon size={IconSize.Small} secondary />
         </span>
       </CardHeader>
@@ -391,10 +375,10 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
     </CardTextContainer>
     <CardSpace />
     <div className="mx-4 mt-2 flex items-center gap-1 overflow-hidden">
-      {item.tags.slice(0, 2).map((tag) => (
+      {item.tags.slice(0, 3).map((tag) => (
         <span
           key={tag}
-          className="inline-flex shrink-0 items-center rounded-8 px-1 text-text-tertiary typo-caption1"
+          className="inline-flex shrink-0 items-center text-text-tertiary typo-footnote"
         >
           #{tag}
         </span>
@@ -405,7 +389,7 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
       <span className="mx-1.5 h-0.5 w-0.5 rounded-full bg-text-tertiary" />
       <span>{item.readTime} min read time</span>
     </p>
-    <div className="mx-4 mt-3">
+    <div className="mx-4 mb-3 mt-3">
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-12">
         <img
           src={unsplash(item.cover, 480, 300)}
@@ -417,7 +401,7 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
         <div className="onb-cover-shade absolute inset-0" />
       </div>
     </div>
-    <div className="mt-3 flex items-center justify-between px-2 pb-1">
+    <div className="flex items-center px-3 pb-2">
       <FeedActionButton
         icon={<UpvoteIcon size={IconSize.Small} secondary />}
         count={formatCount(item.upvotes)}
@@ -429,7 +413,11 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
       <FeedActionButton
         icon={<BookmarkIcon size={IconSize.Small} secondary />}
       />
-      <FeedActionButton icon={<ShareIcon size={IconSize.Small} secondary />} />
+      <span className="ml-auto">
+        <FeedActionButton
+          icon={<ShareIcon size={IconSize.Small} secondary />}
+        />
+      </span>
     </div>
   </Card>
 );
@@ -769,7 +757,7 @@ export const OnboardingSignupHero = ({
 
       <VariantSwitcher value={variantId} onChange={setVariantId} />
 
-      <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-6 pt-10 tablet:pb-10 tablet:pt-14">
+      <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] tablet:pt-14">
         <div className="flex w-full max-w-[26rem] flex-col gap-6 tablet:gap-7">
           <Logo
             position={LogoPosition.Relative}
@@ -786,6 +774,22 @@ export const OnboardingSignupHero = ({
           {children}
         </div>
       </main>
+
+      <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex">
+        <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+          <FooterLinks />
+        </div>
+        <div className="max-w-sm text-right">
+          <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
+        </div>
+      </div>
+
+      <div className="pointer-events-auto relative z-1 flex w-full flex-col items-center gap-4 px-5 pb-5 tablet:hidden">
+        <div className="[&_footer]:!pb-0 [&_ul]:!mb-0">
+          <FooterLinks />
+        </div>
+        <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+      </div>
     </div>
   );
 };
