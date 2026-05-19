@@ -32,6 +32,12 @@ function SafariPermissionsPrompt(): ReactElement {
           <strong>daily.dev</strong> to the allowed list
         </li>
       </ol>
+      <video
+        className="rounded-xl w-full max-w-[28rem]"
+        src="https://daily-now-res.cloudinary.com/video/upload/s--LWA966EO--/v1779176311/videos/daily_safari_extension.mov"
+        controls
+        playsInline
+      />
       <button
         type="button"
         className="rounded-xl hover:opacity-90 mt-2 bg-accent-cabbage-default px-6 py-3 font-bold text-white typo-callout"
