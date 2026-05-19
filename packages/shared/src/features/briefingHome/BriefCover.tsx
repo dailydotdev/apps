@@ -139,42 +139,37 @@ export const BriefCover = ({
     <section
       aria-label="Your daily brief"
       className={classNames(
-        'mx-auto mb-4 flex w-full max-w-[64rem] flex-col gap-5 px-3 tablet:px-4',
+        'mx-auto mb-4 flex w-full max-w-[83rem] gap-6 px-3 tablet:px-4',
         className,
       )}
     >
-      <CoverHeader
-        totals={totals}
-        sourceCount={uniqueSourceCount}
-        onReset={resetReads}
-      />
-      <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
-      <div className="grid grid-cols-1 gap-6 laptop:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="flex min-w-0 flex-col gap-5">
-          <CoverGrid
-            stories={brief.reads}
-            readSet={readSet}
-            onOpen={(s) => openPanel(s as StoryItem)}
-          />
-          <CoverTopics
-            topics={brief.topics}
-            readSet={readSet}
-            onOpen={(t) => openPanel(t as TopicDigest)}
-          />
-        </div>
-        <aside className="flex flex-col gap-5">
-          <CoverQuick
-            quickHits={brief.quickHits}
-            readSet={readSet}
-            onRead={markRead}
-          />
-          <CoverSources
-            stories={[brief.lead, ...brief.reads]}
-            totals={totals}
-          />
-        </aside>
+      <div className="flex min-w-0 max-w-[64rem] flex-1 flex-col gap-5">
+        <CoverHeader
+          totals={totals}
+          sourceCount={uniqueSourceCount}
+          onReset={resetReads}
+        />
+        <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
+        <CoverGrid
+          stories={brief.reads}
+          readSet={readSet}
+          onOpen={(s) => openPanel(s as StoryItem)}
+        />
+        <CoverTopics
+          topics={brief.topics}
+          readSet={readSet}
+          onOpen={(t) => openPanel(t as TopicDigest)}
+        />
+        <CoverClosing totals={totals} edition={edition} onReset={resetReads} />
       </div>
-      <CoverClosing totals={totals} edition={edition} onReset={resetReads} />
+      <aside className="sticky top-20 hidden h-fit w-[17rem] shrink-0 flex-col gap-5 self-start laptop:flex">
+        <CoverQuick
+          quickHits={brief.quickHits}
+          readSet={readSet}
+          onRead={markRead}
+        />
+        <CoverSources stories={[brief.lead, ...brief.reads]} totals={totals} />
+      </aside>
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}
