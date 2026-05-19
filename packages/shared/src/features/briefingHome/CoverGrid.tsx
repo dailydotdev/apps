@@ -51,6 +51,7 @@ const StoryRow = ({
     : null;
   const sourcesShown = story.sources.slice(0, 3);
   const extraSources = story.sources.length - sourcesShown.length;
+  const sourceNames = sourcesShown.map((s) => s.sourceName).join(', ');
   const summary = stripMd(story.summary).trim();
   const heroImage = story.posts.find((p) => p.image)?.image;
   const panelId = `brief-tldr-${story.id}`;
@@ -63,11 +64,11 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-surface-float',
+          'group flex w-full items-stretch text-left transition-colors hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 px-5 py-4">
           <Typography
             tag={TypographyTag.H3}
             type={TypographyType.Body}
@@ -84,7 +85,7 @@ const StoryRow = ({
             {story.title}
           </Typography>
 
-          {quote && !isExpanded ? (
+          {quote ? (
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
@@ -94,20 +95,10 @@ const StoryRow = ({
                 “
               </span>
               {quote}
-              {topComment ? (
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Quaternary}
-                  className="ml-1"
-                >
-                  — @{topComment.username}
-                </Typography>
-              ) : null}
             </Typography>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-3 text-text-quaternary">
+          <div className="mt-auto flex flex-wrap items-center gap-3 pt-1 text-text-quaternary">
             <span className="inline-flex items-center gap-3">
               <span className="inline-flex items-center gap-1">
                 <UpvoteIcon
@@ -137,7 +128,7 @@ const StoryRow = ({
               aria-hidden
               className="h-3 w-px shrink-0 bg-border-subtlest-quaternary"
             />
-            <span className="inline-flex min-w-0 shrink items-center gap-2">
+            <span className="inline-flex min-w-0 items-center gap-2">
               <span className="inline-flex shrink-0 items-center -space-x-1.5">
                 {sourcesShown.map((src) => (
                   <span
@@ -153,84 +144,87 @@ const StoryRow = ({
                   </span>
                 ))}
               </span>
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="min-w-0 truncate"
-              >
-                {sourcesShown.map((s) => s.sourceName).join(', ')}
-                {extraSources > 0 ? ` +${extraSources}` : ''}
-              </Typography>
+              <span className="hidden min-w-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 tablet:inline-flex">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  className="truncate"
+                >
+                  {sourceNames}
+                  {extraSources > 0 ? ` +${extraSources}` : ''}
+                </Typography>
+              </span>
             </span>
+            <ArrowIcon
+              size={IconSize.XSmall}
+              className={classNames(
+                'ml-auto shrink-0 text-text-quaternary transition-transform duration-300',
+                isExpanded ? 'rotate-180' : '',
+              )}
+            />
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-2">
-          {heroImage ? (
-            <div className="size-16 shrink-0 overflow-hidden rounded-10 bg-surface-float">
-              <img
-                src={heroImage}
-                alt=""
-                loading="lazy"
-                className="size-full object-cover"
-              />
-            </div>
-          ) : (
-            <div className="size-16 shrink-0 rounded-10 bg-gradient-to-br from-accent-cabbage-bolder to-accent-water-bolder" />
+        <div
+          className={classNames(
+            'aspect-square shrink-0 self-stretch overflow-hidden bg-surface-float',
+            !heroImage &&
+              'bg-gradient-to-br from-accent-cabbage-bolder to-accent-water-bolder',
           )}
-          <ArrowIcon
-            size={IconSize.XSmall}
-            className={classNames(
-              'text-text-quaternary transition-transform',
-              isExpanded ? 'rotate-180' : '',
-            )}
-          />
+        >
+          {heroImage ? (
+            <img
+              src={heroImage}
+              alt=""
+              loading="lazy"
+              className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : null}
         </div>
       </button>
 
-      {isExpanded ? (
-        <div
-          id={panelId}
-          className="border-t border-border-subtlest-quaternary bg-background-subtle px-5 py-4"
-        >
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-            bold
-            className="mb-2 uppercase tracking-[0.14em]"
-          >
-            TL;DR
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-            className="!leading-relaxed"
-          >
-            {summary}
-          </Typography>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={onOpen}
-              className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default"
+      <div
+        id={panelId}
+        className={classNames(
+          'grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-out',
+          isExpanded
+            ? 'grid-rows-[1fr] opacity-100'
+            : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="min-h-0">
+          <div className="border-t border-border-subtlest-quaternary bg-background-subtle px-5 py-3">
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+              bold
+              className="mb-1.5 uppercase tracking-[0.14em]"
             >
-              <Typography type={TypographyType.Caption1} bold>
-                Read the full breakdown
-              </Typography>
-              <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
-            </button>
-            {topComment ? (
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Quaternary}
+              TL;DR
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+              className="!leading-relaxed"
+            >
+              {summary}
+            </Typography>
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={onOpen}
+                className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default"
               >
-                {story.highlightedComments.length} community insights ·{' '}
-                {story.posts.length} posts analyzed
-              </Typography>
-            ) : null}
+                <Typography type={TypographyType.Caption1} bold>
+                  Read the full breakdown
+                </Typography>
+                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+              </button>
+            </div>
           </div>
         </div>
-      ) : null}
+      </div>
     </li>
   );
 };
