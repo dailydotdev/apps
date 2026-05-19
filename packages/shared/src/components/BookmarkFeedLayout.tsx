@@ -94,7 +94,7 @@ export default function BookmarkFeedLayout({
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
   const isSearchResults = !!searchQuery;
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;

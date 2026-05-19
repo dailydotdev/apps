@@ -11,10 +11,6 @@ import {
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import classNames from 'classnames';
 import {
   Typography,
@@ -100,9 +96,8 @@ type ImpressionNode = {
 const Analytics = (): ReactElement => {
   const { user } = useAuthContext();
   const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   const analyticsQueryKey = generateQueryKey(
     RequestKey.UserPostsAnalytics,

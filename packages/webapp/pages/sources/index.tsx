@@ -82,7 +82,7 @@ const SourcesPage = ({
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   if (isLoading) {
     return <></>;

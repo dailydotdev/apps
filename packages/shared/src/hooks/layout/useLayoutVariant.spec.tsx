@@ -47,7 +47,7 @@ describe('useLayoutVariant', () => {
     expect(result.current.isV2).toBe(false);
   });
 
-  it('does not evaluate the flag below tablet', () => {
+  it('does not evaluate the flag below laptop', () => {
     mockedUseViewSize.mockReturnValue(false);
 
     const { result } = renderHook(() => useLayoutVariant());
@@ -81,7 +81,7 @@ describe('useLayoutVariant', () => {
     expect(result.current.isV2).toBe(false);
   });
 
-  it('evaluates the flag when tablet+ and auth is ready', () => {
+  it('evaluates the flag when laptop+ and auth is ready', () => {
     renderHook(() => useLayoutVariant());
 
     expect(mockedUseConditionalFeature).toHaveBeenCalledWith(

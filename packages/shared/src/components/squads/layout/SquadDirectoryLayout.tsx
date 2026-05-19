@@ -15,7 +15,6 @@ import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { pageHeaderClassName } from '../../layout/PageHeader';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
@@ -52,9 +51,8 @@ export const SquadDirectoryLayout = (
   const { pathname, asPath } = useRouter();
   const { categoryPaths, isMobileLayout } = useSquadDirectoryLayout();
   const buttonSize = isMobileLayout ? ButtonSize.XSmall : ButtonSize.Small;
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   useEffect(() => {
     const element = document?.getElementById?.(`squad-item-discover-${id}`);

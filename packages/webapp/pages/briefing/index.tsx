@@ -23,7 +23,6 @@ import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   useActions,
   usePlusSubscription,
-  useViewSize,
   useViewSizeClient,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -152,9 +151,8 @@ const Page = (): ReactElement => {
   }
 
   const showBriefCard = emptyFeed && (isGenerating || !feedQuery.isPending);
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   return (
     <ProtectedPage>

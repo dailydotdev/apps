@@ -19,10 +19,6 @@ import {
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/marketing/banners/DigestUpsellBanner';
@@ -116,9 +112,8 @@ const Notifications = (): ReactElement => {
   usePromotionModal();
   useStreakRecoverModal();
   useTopReaderModal();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   return (
     <ProtectedPage>

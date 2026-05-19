@@ -41,9 +41,8 @@ export const AccountPageContainer = ({
   onBack,
 }: AccountPageContainerProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
   const [, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,

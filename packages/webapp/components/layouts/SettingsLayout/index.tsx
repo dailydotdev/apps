@@ -77,7 +77,7 @@ export default function SettingsLayout({
   // v2 + laptop: the sidebar's `SettingsPanelSection` already provides the
   // settings navigation, so hide the inline ProfileSettingsMenuDesktop here
   // to avoid showing the same nav twice.
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
   const canPurchaseCores = useCanPurchaseCores();
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,

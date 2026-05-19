@@ -16,10 +16,6 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
@@ -77,9 +73,8 @@ const LeaderboardPage = ({
   popularHotTakes,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   if (isLoading) {
     return <></>;

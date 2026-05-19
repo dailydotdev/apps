@@ -64,10 +64,6 @@ import {
   useHasAccessToCores,
 } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
@@ -117,9 +113,8 @@ const Wallet = (): ReactElement | null => {
   const { logEvent } = useLogContext();
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   const onBuyCoresClick = useCallback(
     ({

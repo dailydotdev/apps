@@ -39,7 +39,7 @@ function MyFeedHeading({
   // page-header strip alongside other slim actions; use the compact ghost
   // sizing so the strip stays consistent with the designer mock.
   const { isV2 } = useLayoutVariant();
-  const isV2Compact = isV2 && isLaptop;
+  const isV2Compact = isV2;
 
   const editFeedUrl = useMemo(() => {
     if (isCustomDefaultFeed && pathname === '/') {

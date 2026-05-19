@@ -13,10 +13,6 @@ import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -74,9 +70,8 @@ const TagsPage = ({
   popularTags,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   const { feedSettings } = useFeedSettings();
   const selectedTags = feedSettings?.includeTags || [];

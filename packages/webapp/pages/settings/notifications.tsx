@@ -14,10 +14,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 
@@ -86,9 +82,8 @@ const NotificationsTabs = ({
 const AccountNotificationsPage = (): ReactElement => {
   const { isLoadingPreferences } = useNotificationSettings();
   const [activeTab, setActiveTab] = useState<NotificationsTab>('in-app');
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   // Control variant keeps the legacy TabContainer rendering — no change.
   if (!isV2Laptop) {

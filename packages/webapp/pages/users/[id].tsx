@@ -30,10 +30,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -70,9 +66,8 @@ const LeaderboardDetailPage = ({
   companyItems,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
 
   const isCompany = isCompanyLeaderboard(leaderboardType);
   const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;

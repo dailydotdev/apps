@@ -15,10 +15,6 @@ import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/Squad
 import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import {
   BaseFeedPage,
@@ -261,9 +257,8 @@ const SquadPage = ({
   const { displayToast } = useToastNotification();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2 && isLaptop;
+  const isV2Laptop = isV2;
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
