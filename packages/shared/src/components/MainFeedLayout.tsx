@@ -183,8 +183,6 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
-  hideFeedActionButtons?: boolean;
-  disableBriefCard?: boolean;
 }
 
 const getQueryBasedOnLogin = (
@@ -224,8 +222,6 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
-  hideFeedActionButtons,
-  disableBriefCard,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -519,7 +515,7 @@ export default function MainFeedLayout({
           feedName: SharedFeedPage.Custom,
         },
         emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-        actionButtons: feedWithActions && !hideFeedActionButtons && (
+        actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
@@ -599,7 +595,7 @@ export default function MainFeedLayout({
       query: config.query,
       variables,
       emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-      actionButtons: feedWithActions && !hideFeedActionButtons && (
+      actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
@@ -636,7 +632,6 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     tokenRefreshed,
-    hideFeedActionButtons,
   ]);
 
   useEffect(() => {
@@ -740,7 +735,6 @@ export default function MainFeedLayout({
           <Feed
             {...feedProps}
             shortcuts={shortcuts}
-            disableBriefCard={disableBriefCard}
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
             )}

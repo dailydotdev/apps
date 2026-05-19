@@ -128,5 +128,4 @@ export interface AuthOptionsProps {
   compact?: boolean;
   autoTriggerProvider?: string;
   socialProviderScopes?: string[];
-  acceptedMarketing?: boolean;
 }
