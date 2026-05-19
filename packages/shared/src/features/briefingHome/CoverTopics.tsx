@@ -9,7 +9,7 @@ import {
 import { EyeIcon, TimerIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { StatPill } from './StatPill';
-import { TOPIC_BG_TOKEN, TOPIC_TOKEN, type TopicDigest } from './types';
+import { TOPIC_TOKEN, type TopicDigest } from './types';
 import { briefCopy } from './copy';
 
 interface CoverTopicsProps {
@@ -44,8 +44,7 @@ const TopicCard = ({
       type="button"
       onClick={onOpen}
       className={classNames(
-        'group relative flex flex-col gap-2 overflow-hidden rounded-12 p-4 text-left transition-colors',
-        TOPIC_BG_TOKEN[topic.topic],
+        'group relative flex flex-col gap-2 text-left',
         isRead && 'opacity-60',
       )}
     >
@@ -77,8 +76,9 @@ const TopicCard = ({
         bold
         color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
         className={classNames(
-          'group-hover:opacity-80 !leading-snug transition-colors',
+          '!leading-snug transition-colors',
           isRead && 'decoration-text-quaternary/40 line-through',
+          !isRead && 'group-hover:text-brand-default',
         )}
       >
         {topic.title}
@@ -100,7 +100,7 @@ export const CoverTopics = ({
   onOpen,
 }: CoverTopicsProps): ReactElement => (
   <section>
-    <div className="mb-3 flex items-baseline gap-2 px-1">
+    <div className="mb-4 flex items-baseline gap-2">
       <EyeIcon
         size={IconSize.Small}
         className="self-center text-accent-water-default"
@@ -110,7 +110,7 @@ export const CoverTopics = ({
         On your radar
       </Typography>
     </div>
-    <div className="grid grid-cols-1 gap-2.5 tablet:grid-cols-2">
+    <div className="grid grid-cols-1 gap-x-8 gap-y-6 tablet:grid-cols-2">
       {topics.map((t) => (
         <TopicCard
           key={t.id}
