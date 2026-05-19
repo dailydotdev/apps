@@ -156,7 +156,7 @@ export const OnboardingRegistrationForm = ({
         isOnboardingTrigger ? ButtonVariant.Tertiary : ButtonVariant.Float
       }
     >
-      {isOnboardingTrigger ? 'Sign up with email' : 'Continue with email'}
+      Continue with email
     </Button>
   );
   const memberAlready = !hideLoginLink && (
@@ -196,11 +196,6 @@ export const OnboardingRegistrationForm = ({
           </li>
         ))}
       </ul>
-      {isOnboardingTrigger && (
-        <p className="-mt-1 text-center text-text-quaternary typo-caption2">
-          We only get your name and email. No posts. No data selling.
-        </p>
-      )}
       <OrDivider
         className={{
           text: 'text-text-tertiary typo-footnote',
