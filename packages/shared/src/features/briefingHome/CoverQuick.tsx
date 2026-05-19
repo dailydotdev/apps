@@ -51,7 +51,7 @@ export const CoverQuick = ({
               rel="noopener noreferrer"
               onClick={() => onRead(q.id)}
               className={classNames(
-                'group relative flex h-full flex-col gap-3 rounded-12 border border-border-subtlest-quaternary bg-background-default p-3 transition-colors hover:border-border-subtlest-tertiary hover:bg-surface-float',
+                'group relative flex h-full flex-col gap-3 rounded-12 border border-border-subtlest-quaternary bg-background-default p-4 transition-colors hover:border-border-subtlest-tertiary hover:bg-surface-float',
                 read && 'opacity-60',
               )}
             >
@@ -59,7 +59,7 @@ export const CoverQuick = ({
                 <div className="min-w-0 flex-1">
                   <Typography
                     tag={TypographyTag.Span}
-                    type={TypographyType.Footnote}
+                    type={TypographyType.Body}
                     bold
                     color={
                       read ? TypographyColor.Tertiary : TypographyColor.Primary
