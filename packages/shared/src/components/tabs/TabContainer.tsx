@@ -86,7 +86,7 @@ export function TabContainer<T extends string = string>({
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const tabs = useMemo(() => children ?? [], [children]);
+  const tabs = useMemo(() => (children ?? []).filter(Boolean), [children]);
   const currentPath = getRouterPathname(router.asPath || router.pathname);
 
   const [active, setActive] = useState(() => {
