@@ -242,16 +242,19 @@ export const SearchControlHeader = ({
       <header
         className={
           isV2Strip
-            ? // Strip layout aligned with the floating-card content inset
+            ? // Slim header strip aligned with the floating-card grid
               // (px-6 matches the grid's `laptop:p-6` so action icons sit
               // on the same x as the first card edge). Compact ghost
-              // styling for all descendant buttons is applied via
+              // styling for all descendant buttons + icons applied via
               // arbitrary descendant selectors so every action child
               // (MyFeedHeading, ToggleClickbaitShield, Dropdown, ...)
-              // gets the right look without prop plumbing: h-8, rounded-10,
-              // transparent border+bg, surface-hover on hover; icon-only
-              // buttons collapse to a 32px square.
-              'flex min-h-14 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0'
+              // gets the right look without prop plumbing:
+              //   - `.btn` -> h-8, rounded-10, transparent border+bg,
+              //               surface-hover on hover
+              //   - `.btn.iconOnly` -> 32px square, no padding
+              //   - `.btn svg` -> 16px so the inline icons match the
+              //                   designer's slim mockup
+              'flex min-h-12 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-2 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn_svg]:!size-4'
             : 'flex w-full items-center gap-2'
         }
       >
