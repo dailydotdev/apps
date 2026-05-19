@@ -4,6 +4,7 @@ import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
+  BriefIcon,
   DevPlusIcon,
   EyeIcon,
   HomeIcon,
@@ -27,6 +28,7 @@ import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
+  featureBriefingHome,
   featurePlusApiLanding,
   featureYearInReview,
 } from '../../../lib/featureManagement';
@@ -50,6 +52,10 @@ export const MainSection = ({
     : { full: 'Level Up with Plus', short: 'Upgrade' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
+    shouldEvaluate: isLoggedIn,
+  });
+  const { value: showBriefingHome } = useConditionalFeature({
+    feature: featureBriefingHome,
     shouldEvaluate: isLoggedIn,
   });
   const { data: questDashboard } = useQuestDashboard();
@@ -133,6 +139,18 @@ export const MainSection = ({
         }
       : undefined;
 
+    const briefingHome = showBriefingHome
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <BriefIcon secondary={active} />} />
+          ),
+          title: 'Your brief',
+          path: '/brief',
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
+
     const yearInReview = showYearInReview
       ? {
           icon: () => <ListIcon Icon={() => <YearInReviewIcon />} />,
@@ -147,6 +165,7 @@ export const MainSection = ({
     return (
       [
         myFeed,
+        briefingHome,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -197,6 +216,7 @@ export const MainSection = ({
     isLoggedIn,
     isPlus,
     onNavTabClick,
+    showBriefingHome,
     showYearInReview,
     user,
   ]);
