@@ -160,7 +160,8 @@ const useExplorePosts = (): Post[] => {
       );
       return res.page.edges
         .map((edge) => edge.node)
-        .filter((post): post is Post => !!post && !!post.id && !!post.title);
+        .filter((post): post is Post => !!post && !!post.id && !!post.title)
+        .map((post) => ({ ...post, clickbaitTitleDetected: false }));
     },
     staleTime: 1000 * 60 * 10,
     retry: 1,
@@ -482,6 +483,8 @@ export const OnboardingSignupHero = ({
     <div className="onb-bg relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary">
       <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
 
+      {activeVariant.render()}
+
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-1 select-none"
@@ -505,8 +508,6 @@ export const OnboardingSignupHero = ({
           }}
         />
       </div>
-
-      {activeVariant.render()}
 
       <div
         aria-hidden
