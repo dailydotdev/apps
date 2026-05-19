@@ -317,14 +317,9 @@ export const FeedContainer = ({
               >
                 {isV2Laptop && !isExtension ? (
                   <PageHeader
-                    title={feedHeading}
-                    // Compact ghost styling for every action button +
-                    // icon in the strip — applied via descendant selectors
-                    // so we don't have to thread variant props through
-                    // each child (MyFeedHeading, ToggleClickbaitShield,
-                    // dropdowns, ...). Buttons: h-8, rounded-10, transparent
-                    // border+bg, surface-hover on hover. Icon-only buttons:
-                    // 32px square. Inline SVGs: 16px.
+                    // No title in v2 — designer's mockup shows only the
+                    // action buttons in the strip, no "For you" / etc.
+                    // heading to the left.
                     className="[&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn_svg]:!size-4"
                   >
                     {actionButtons}
