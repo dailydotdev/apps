@@ -64,11 +64,11 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-stretch text-left transition-colors hover:bg-surface-float',
+          'group flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <div className="flex min-w-0 flex-1 flex-col gap-2 px-5 py-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Typography
             tag={TypographyTag.H3}
             type={TypographyType.Body}
@@ -168,7 +168,7 @@ const StoryRow = ({
 
         <div
           className={classNames(
-            'aspect-square shrink-0 self-stretch overflow-hidden bg-surface-float',
+            'size-20 shrink-0 self-center overflow-hidden rounded-10 bg-surface-float',
             !heroImage &&
               'bg-gradient-to-br from-accent-cabbage-bolder to-accent-water-bolder',
           )}
