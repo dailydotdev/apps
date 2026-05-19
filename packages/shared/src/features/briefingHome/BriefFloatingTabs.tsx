@@ -207,7 +207,10 @@ export const BriefFloatingTabs = ({
       className="fixed z-rank transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
     >
       <div className="flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
-        <div ref={tabsRowRef} className="flex shrink-0 items-center gap-0.5 p-1">
+        <div
+          ref={tabsRowRef}
+          className="flex shrink-0 items-center gap-0.5 p-1"
+        >
           <Tab
             active={!isDocked}
             onClick={goBrief}

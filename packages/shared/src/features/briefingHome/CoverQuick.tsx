@@ -71,9 +71,7 @@ export const CoverQuick = ({
                     type={TypographyType.Footnote}
                     bold
                     color={
-                      read
-                        ? TypographyColor.Tertiary
-                        : TypographyColor.Primary
+                      read ? TypographyColor.Tertiary : TypographyColor.Primary
                     }
                     className={classNames(
                       'line-clamp-3 block break-words !leading-snug transition-colors',
@@ -92,6 +90,10 @@ export const CoverQuick = ({
               <div className="mt-auto flex items-center gap-2">
                 <StatPill
                   ariaLabel={`${q.upvotes} upvotes`}
+                  onClick={() => {
+                    onRead(q.id);
+                    window.open(q.url, '_blank', 'noopener,noreferrer');
+                  }}
                   icon={
                     <UpvoteIcon
                       size={IconSize.XSmall}
@@ -102,6 +104,10 @@ export const CoverQuick = ({
                 />
                 <StatPill
                   ariaLabel={`${q.comments} comments`}
+                  onClick={() => {
+                    onRead(q.id);
+                    window.open(q.url, '_blank', 'noopener,noreferrer');
+                  }}
                   icon={
                     <DiscussIcon
                       size={IconSize.XSmall}

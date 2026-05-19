@@ -96,6 +96,7 @@ const StoryRow = ({
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               <StatPill
                 ariaLabel={`${story.totalUpvotes} upvotes`}
+                onClick={onOpen}
                 icon={
                   <UpvoteIcon
                     size={IconSize.XSmall}
@@ -106,6 +107,7 @@ const StoryRow = ({
               />
               <StatPill
                 ariaLabel={`${story.totalComments} comments`}
+                onClick={onOpen}
                 icon={
                   <DiscussIcon
                     size={IconSize.XSmall}

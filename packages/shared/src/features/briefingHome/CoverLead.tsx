@@ -126,6 +126,7 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
             />
             <StatPill
               ariaLabel={`${story.totalUpvotes} upvotes`}
+              onClick={onOpen}
               icon={
                 <UpvoteIcon
                   size={IconSize.XSmall}
@@ -136,6 +137,7 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
             />
             <StatPill
               ariaLabel={`${story.totalComments} comments`}
+              onClick={onOpen}
               icon={
                 <DiscussIcon
                   size={IconSize.XSmall}

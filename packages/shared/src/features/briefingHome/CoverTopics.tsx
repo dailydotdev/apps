@@ -62,10 +62,7 @@ const TopicCard = ({
         <StatPill
           ariaLabel={`${minutes} minutes read`}
           icon={
-            <TimerIcon
-              size={IconSize.XSmall}
-              className="text-text-tertiary"
-            />
+            <TimerIcon size={IconSize.XSmall} className="text-text-tertiary" />
           }
           value={briefCopy.storyReadTime(minutes)}
         />
