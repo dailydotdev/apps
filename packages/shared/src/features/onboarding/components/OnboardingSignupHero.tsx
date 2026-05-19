@@ -42,19 +42,19 @@ const HERO_STYLES = `
 .onb-orb {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(120px);
+  filter: blur(110px);
   mix-blend-mode: screen;
   pointer-events: none;
-  opacity: 0.32;
+  opacity: 0.55;
   animation: onb-breathe 22s ease-in-out infinite;
 }
 .onb-orb--delay { animation-delay: -8s; }
 @keyframes onb-breathe {
-  0%, 100% { opacity: 0.26; }
-  50% { opacity: 0.42; }
+  0%, 100% { opacity: 0.48; }
+  50% { opacity: 0.68; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .onb-orb { animation: none; opacity: 0.32; }
+  .onb-orb { animation: none; opacity: 0.55; }
 }
 .onb-form-halo {
   background:
@@ -194,7 +194,7 @@ const CardsBackground = (): ReactElement => {
     >
       <div
         aria-hidden
-        className="onb-grid-mask pointer-events-none absolute inset-0 -z-1 select-none overflow-hidden"
+        className="onb-grid-mask pointer-events-none absolute inset-0 -z-1 select-none overflow-hidden opacity-[0.72]"
       >
         <div className="grid auto-rows-min grid-cols-2 gap-8 p-5 tablet:p-7 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6">
           {posts.map((post) => (
