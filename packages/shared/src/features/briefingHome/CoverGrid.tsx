@@ -14,6 +14,12 @@ import {
   ArrowIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
 import { StatPill } from './StatPill';
 import type { StoryItem } from './types';
 
@@ -145,40 +151,19 @@ const StoryRow = ({
                 </span>
               </span>
             </div>
-            {isExpanded ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpen();
-                }}
-                className="inline-flex shrink-0 items-center gap-1 text-brand-default transition-colors hover:text-brand-hover focus-visible:underline focus-visible:outline-none"
-              >
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Footnote}
-                  bold
-                >
-                  Read full breakdown
-                </Typography>
-                <ArrowIcon size={IconSize.XSmall} className="rotate-90" />
-              </button>
-            ) : (
-              <span className="inline-flex shrink-0 items-center gap-1 text-text-tertiary transition-colors group-hover:text-brand-default">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Footnote}
-                  bold
-                >
-                  Read summary
-                </Typography>
-                <ArrowIcon
-                  size={IconSize.XSmall}
-                  className="rotate-180"
-                  aria-hidden
-                />
-              </span>
-            )}
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="rotate-90" />}
+              iconPosition={ButtonIconPosition.Right}
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpen();
+              }}
+              className="shrink-0"
+            >
+              Read full breakdown
+            </Button>
           </div>
         </div>
 
