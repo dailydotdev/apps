@@ -27,7 +27,7 @@ interface BriefFloatingTabsProps {
   boundsId: string;
 }
 
-const HEADER_OFFSET = 80;
+const HEADER_OFFSET = 96;
 const BAR_HEIGHT = 48;
 const TABS_WIDTH_FALLBACK = 220;
 const DOCKED_MAX_WIDTH = 1024;
@@ -204,15 +204,10 @@ export const BriefFloatingTabs = ({
         left: `${leftPx}px`,
         width: `${widthPx}px`,
       }}
-      className="fixed z-popup transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      className="fixed z-rank transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
     >
-      <div
-        className={classNames(
-          'flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default transition-shadow duration-500',
-          isDocked ? 'shadow-2' : 'shadow-3',
-        )}
-      >
-        <div ref={tabsRowRef} className="flex shrink-0 items-center gap-1 p-1">
+      <div className="flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+        <div ref={tabsRowRef} className="flex shrink-0 items-center gap-0.5 p-1">
           <Tab
             active={!isDocked}
             onClick={goBrief}
