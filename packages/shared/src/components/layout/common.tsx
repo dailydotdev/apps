@@ -50,6 +50,8 @@ import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { pageHeaderClassName } from './PageHeader';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -94,6 +96,14 @@ export const SearchControlHeader = ({
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { isV2 } = useLayoutVariant();
+  const isV2Strip = isV2 && isLaptop;
+  // Compact button styling for the v2 page-header strip — ghost
+  // (transparent border + background), 32px height, snug paddings.
+  const compactIconButtonClassName =
+    '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
+  const compactTextButtonClassName =
+    '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover';
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
@@ -128,13 +138,15 @@ export const SearchControlHeader = ({
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      button: '!px-1',
+      button: isV2Strip ? compactIconButtonClassName : '!px-1',
       container: 'flex',
     },
     shouldIndicateSelected: true,
-    buttonSize: isMobile ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize:
+      isMobile || isV2Strip ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
-    buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
+    buttonVariant:
+      isV2Strip || !isLaptop ? ButtonVariant.Tertiary : ButtonVariant.Float,
   };
 
   const shouldShowInstallExtensionPrompt =
@@ -169,13 +181,14 @@ export const SearchControlHeader = ({
     </React.Fragment>
   );
 
+  const dropdownIconSize = isV2Strip ? IconSize.XSmall : IconSize.Medium;
   const primaryActions = [
     hasFeedActions && <MyFeedHeading key="my-feed" />,
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
         key="algorithm"
-        icon={<CalendarIcon size={IconSize.Medium} />}
+        icon={<CalendarIcon size={dropdownIconSize} />}
         selectedIndex={selectedPeriod}
         options={periodTexts}
         onChange={(_, index) => setSelectedPeriod(index)}
@@ -185,7 +198,7 @@ export const SearchControlHeader = ({
       <Dropdown
         {...dropdownProps}
         key="sorting"
-        icon={<SortIcon size={IconSize.Medium} />}
+        icon={<SortIcon size={dropdownIconSize} />}
         selectedIndex={selectedAlgo}
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
@@ -229,13 +242,35 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div className="flex w-full items-center gap-2">
+      <header
+        className={
+          isV2Strip
+            ? pageHeaderClassName
+            : 'flex w-full items-center gap-2'
+        }
+      >
         {!!chips && <div className="min-w-0 flex-1">{chips}</div>}
-        <div className="flex shrink-0 items-center gap-2">{actions}</div>
+        <div
+          className={
+            isV2Strip
+              ? 'flex shrink-0 items-center gap-1'
+              : 'flex shrink-0 items-center gap-2'
+          }
+        >
+          {actions}
+        </div>
         {sideActions.length > 0 && (
-          <div className="ml-auto flex items-center gap-2">{sideActions}</div>
+          <div
+            className={
+              isV2Strip
+                ? 'ml-auto flex items-center gap-1'
+                : 'ml-auto flex items-center gap-2'
+            }
+          >
+            {sideActions}
+          </div>
         )}
-      </div>
+      </header>
     </ConditionalWrapper>
   );
 };

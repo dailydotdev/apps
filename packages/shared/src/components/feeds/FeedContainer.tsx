@@ -31,6 +31,7 @@ import {
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -138,6 +139,8 @@ export const FeedContainer = ({
   const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
   const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
@@ -290,6 +293,14 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
+          {/* v2 grid mode: render actionButtons as a top header strip so the
+              page-header bottom border separates the controls from the
+              floating-card grid below (matches the dual-sidebar layout
+              mockup). Control variant continues to render the buttons
+              wherever the legacy paths emitted them. */}
+          {isV2Laptop && !isSearch && !shouldUseListFeedLayout && actionButtons && (
+            <>{actionButtons}</>
+          )}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
             wrapper={(child) => (
@@ -321,6 +332,9 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
+                // v2: inset the grid inside the floating-card so cards don't
+                // touch its rounded edges, matching the designer mockup.
+                isV2Laptop && !shouldUseListFeedLayout && 'tablet:p-2 laptop:p-6',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
                 isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
