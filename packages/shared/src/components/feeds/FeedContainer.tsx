@@ -32,6 +32,7 @@ import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { PageHeader } from '../layout/PageHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -141,6 +142,11 @@ export const FeedContainer = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2 && isLaptop;
+  // v2 wraps the home feed in the designer's list-frame layout
+  // (rounded inner border + PageHeader strip + tight grid inset),
+  // matching what `shouldUseListFeedLayout` already does for list-mode
+  // feeds. Reuse the same code path instead of duplicating it.
+  const useFloatingFrame = shouldUseListFeedLayout || isV2Laptop;
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
   const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
@@ -293,37 +299,49 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
-          {/* v2 grid mode: render actionButtons as a top header strip so the
-              page-header bottom border separates the controls from the
-              floating-card grid below (matches the dual-sidebar layout
-              mockup). Control variant continues to render the buttons
-              wherever the legacy paths emitted them. */}
-          {isV2Laptop && !isSearch && !shouldUseListFeedLayout && actionButtons && (
-            <>{actionButtons}</>
-          )}
           <ConditionalWrapper
-            condition={shouldUseListFeedLayout}
+            condition={useFloatingFrame}
             wrapper={(child) => (
               <div
                 className={classNames(
                   'flex flex-col',
+                  // In v2 the outer floating-card already supplies the
+                  // rounded chrome, so skip the inner list-frame border
+                  // to avoid the double-bordered look.
                   !disableListFrame &&
-                    'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                    !isV2Laptop &&
+                    'overflow-hidden rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   !disableListFrame && isSearch && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                <ConditionalWrapper
-                  condition={isLaptop && !!(feedHeading || actionButtons)}
-                  wrapper={(component) => (
-                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                      <strong className="typo-title3">{feedHeading}</strong>
-                      <span className="flex flex-row gap-3">{component}</span>
-                    </span>
-                  )}
-                >
-                  {actionButtons || null}
-                </ConditionalWrapper>
+                {isV2Laptop && !isExtension ? (
+                  <PageHeader
+                    title={feedHeading}
+                    // Compact ghost styling for every action button +
+                    // icon in the strip — applied via descendant selectors
+                    // so we don't have to thread variant props through
+                    // each child (MyFeedHeading, ToggleClickbaitShield,
+                    // dropdowns, ...). Buttons: h-8, rounded-10, transparent
+                    // border+bg, surface-hover on hover. Icon-only buttons:
+                    // 32px square. Inline SVGs: 16px.
+                    className="[&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn_svg]:!size-4"
+                  >
+                    {actionButtons}
+                  </PageHeader>
+                ) : (
+                  <ConditionalWrapper
+                    condition={isLaptop && !!(feedHeading || actionButtons)}
+                    wrapper={(component) => (
+                      <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                        <strong className="typo-title3">{feedHeading}</strong>
+                        <span className="flex flex-row gap-3">{component}</span>
+                      </span>
+                    )}
+                  >
+                    {actionButtons || null}
+                  </ConditionalWrapper>
+                )}
                 {isExtension && shortcuts}
                 {child}
               </div>
@@ -332,18 +350,14 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                // v2: inset the grid inside the floating-card so cards
-                // sit off the rounded edges. The legacy `laptop:p-10` on
-                // FeedPage is dropped in v2 (see FeedPage in
-                // utilities/common.tsx), so the side inset is just `px-6`
-                // here. Top is tight (`pt-4`) so the cards hug the
-                // header-strip bottom border like the designer mockup;
-                // bottom uses the larger `pb-6` for breathing room.
-                isV2Laptop &&
-                  !shouldUseListFeedLayout &&
-                  'tablet:p-2 laptop:px-6 laptop:pb-6 laptop:pt-4',
+                // Inset the grid so cards sit off the floating-card /
+                // list-frame edges and don't kiss the header-strip
+                // border. `px-6 pt-4` (24px sides, 16px top) matches the
+                // designer's list-frame layout; v2 reuses the same inset
+                // since it shares the same wrapping chrome.
+                useFloatingFrame && isLaptop && 'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
+                isSearch && !useFloatingFrame && !isAnyExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
                 gapClass({

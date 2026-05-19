@@ -218,6 +218,14 @@ export const SearchControlHeader = ({
   const actions = primaryActions.filter(Boolean);
   const sideActions = secondaryActions.filter(Boolean);
 
+  // In v2 the FeedContainer wraps these actions inside its own
+  // <PageHeader> strip (with compact-button descendant selectors), so we
+  // skip the local `<header>` wrapper here and just return the action
+  // contents inline. Control + mobile paths keep the legacy structure.
+  if (isV2Strip) {
+    return <>{actions}</>;
+  }
+
   return (
     <ConditionalWrapper
       condition={!isLaptop}
@@ -239,45 +247,11 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <header
-        className={
-          isV2Strip
-            ? // Slim header strip aligned with the floating-card grid
-              // (px-6 matches the grid's `laptop:p-6` so action icons sit
-              // on the same x as the first card edge). Compact ghost
-              // styling for all descendant buttons + icons applied via
-              // arbitrary descendant selectors so every action child
-              // (MyFeedHeading, ToggleClickbaitShield, Dropdown, ...)
-              // gets the right look without prop plumbing:
-              //   - `.btn` -> h-8, rounded-10, transparent border+bg,
-              //               surface-hover on hover
-              //   - `.btn.iconOnly` -> 32px square, no padding
-              //   - `.btn svg` -> 16px so the inline icons match the
-              //                   designer's slim mockup
-              'flex min-h-12 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-2 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn_svg]:!size-4'
-            : 'flex w-full items-center gap-2'
-        }
-      >
+      <header className="flex w-full items-center gap-2">
         {!!chips && <div className="min-w-0 flex-1">{chips}</div>}
-        <div
-          className={
-            isV2Strip
-              ? 'flex shrink-0 items-center gap-1'
-              : 'flex shrink-0 items-center gap-2'
-          }
-        >
-          {actions}
-        </div>
+        <div className="flex shrink-0 items-center gap-2">{actions}</div>
         {sideActions.length > 0 && (
-          <div
-            className={
-              isV2Strip
-                ? 'ml-auto flex items-center gap-1'
-                : 'ml-auto flex items-center gap-2'
-            }
-          >
-            {sideActions}
-          </div>
+          <div className="ml-auto flex items-center gap-2">{sideActions}</div>
         )}
       </header>
     </ConditionalWrapper>
