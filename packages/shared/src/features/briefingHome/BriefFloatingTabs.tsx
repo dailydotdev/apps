@@ -22,9 +22,10 @@ import { briefCopy } from './copy';
 interface BriefFloatingTabsProps {
   topId: string;
   feedId: string;
+  sentinelId: string;
 }
 
-const STICKY_OFFSET = 56;
+const HEADER_OFFSET = 56;
 
 const scrollToId = (id: string): void => {
   if (typeof document === 'undefined') {
@@ -37,28 +38,56 @@ const scrollToId = (id: string): void => {
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
+const Tab = ({
+  active,
+  onClick,
+  children,
+  ariaLabel,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  ariaLabel?: string;
+}): ReactElement => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-current={active ? 'page' : undefined}
+    aria-label={ariaLabel}
+    className={classNames(
+      'inline-flex items-center gap-1.5 rounded-8 px-3 py-1.5 transition-colors',
+      active
+        ? 'bg-text-primary text-surface-invert'
+        : 'text-text-tertiary hover:bg-surface-float',
+    )}
+  >
+    {children}
+  </button>
+);
+
 export const BriefFloatingTabs = ({
   topId,
   feedId,
+  sentinelId,
 }: BriefFloatingTabsProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
   const { tags } = useFeedTagsList({ enabled: isLoggedIn });
-  const categories = useMemo(
-    () => buildPersonalizedCategories(tags).slice(0, 16),
-    [tags],
-  );
-  const barRef = useRef<HTMLDivElement>(null);
+  const categories = useMemo(() => buildPersonalizedCategories(tags), [tags]);
+  const [isDocked, setIsDocked] = useState(false);
   const rafRef = useRef<number | null>(null);
-  const [isStuck, setIsStuck] = useState(false);
 
   const measure = useCallback(() => {
     rafRef.current = null;
-    if (!barRef.current) {
+    if (typeof document === 'undefined') {
       return;
     }
-    const { top } = barRef.current.getBoundingClientRect();
-    setIsStuck(top <= STICKY_OFFSET + 1);
-  }, []);
+    const sentinel = document.getElementById(sentinelId);
+    if (!sentinel) {
+      return;
+    }
+    const { top } = sentinel.getBoundingClientRect();
+    setIsDocked(top <= HEADER_OFFSET);
+  }, [sentinelId]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -82,90 +111,89 @@ export const BriefFloatingTabs = ({
     };
   }, [measure]);
 
-  const onBrief = useCallback(() => scrollToId(topId), [topId]);
-  const onForYou = useCallback(() => scrollToId(feedId), [feedId]);
+  const goBrief = useCallback(() => scrollToId(topId), [topId]);
+  const goFeed = useCallback(() => scrollToId(feedId), [feedId]);
+
+  const briefTab = (
+    <Tab active={!isDocked} onClick={goBrief}>
+      <BriefIcon
+        size={IconSize.XSmall}
+        secondary
+        className={!isDocked ? '' : 'text-accent-ketchup-default'}
+      />
+      <Typography type={TypographyType.Footnote} bold>
+        {briefCopy.tabBriefing}
+      </Typography>
+    </Tab>
+  );
+
+  const feedTab = (
+    <Tab active={isDocked} onClick={goFeed}>
+      <Typography type={TypographyType.Footnote} bold>
+        {briefCopy.tabFeed}
+      </Typography>
+    </Tab>
+  );
 
   return (
-    <div
-      ref={barRef}
-      className="z-30 sticky mb-3"
-      style={{ top: `${STICKY_OFFSET}px` }}
-    >
+    <>
       <div
+        aria-hidden={isDocked}
         className={classNames(
-          'flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default transition-shadow',
-          isStuck && 'shadow-2',
+          'z-40 fixed bottom-5 left-1/2 -translate-x-1/2 transition-all duration-300 ease-out',
+          isDocked
+            ? 'pointer-events-none translate-y-3 opacity-0'
+            : 'pointer-events-auto opacity-100',
         )}
       >
-        <div className="flex shrink-0 items-center gap-1 p-1">
-          <button
-            type="button"
-            onClick={onBrief}
-            aria-current={!isStuck ? 'page' : undefined}
-            className={classNames(
-              'inline-flex items-center gap-1.5 rounded-8 px-3 py-1.5 transition-colors',
-              !isStuck
-                ? 'bg-text-primary text-surface-invert'
-                : 'text-text-tertiary hover:bg-surface-float',
-            )}
-          >
-            <BriefIcon
-              size={IconSize.XSmall}
-              secondary
-              className={!isStuck ? '' : 'text-accent-ketchup-default'}
-            />
-            <Typography type={TypographyType.Footnote} bold>
-              {briefCopy.tabBriefing}
-            </Typography>
-          </button>
-          <button
-            type="button"
-            onClick={onForYou}
-            aria-current={isStuck ? 'page' : undefined}
-            className={classNames(
-              'inline-flex items-center gap-1.5 rounded-8 px-3 py-1.5 transition-colors',
-              isStuck
-                ? 'bg-text-primary text-surface-invert'
-                : 'text-text-tertiary hover:bg-surface-float',
-            )}
-          >
-            <Typography type={TypographyType.Footnote} bold>
-              {briefCopy.tabFeed}
-            </Typography>
-          </button>
-        </div>
-        <div
-          aria-hidden={!isStuck}
-          className={classNames(
-            'flex min-w-0 items-center transition-[max-width,opacity,padding] duration-300 ease-out',
-            isStuck
-              ? 'max-w-full flex-1 pl-2 pr-1 opacity-100'
-              : 'pointer-events-none max-w-0 opacity-0',
-          )}
-        >
-          <span
-            aria-hidden
-            className="mr-2 h-5 w-px shrink-0 bg-border-subtlest-tertiary"
-          />
-          <ul className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1.5">
-            {categories.map((cat) => (
-              <li key={cat.id} className="shrink-0">
-                <a
-                  href={cat.path}
-                  className="inline-flex h-7 items-center rounded-8 px-2.5 transition-colors hover:bg-surface-float"
-                >
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {cat.label}
-                  </Typography>
-                </a>
-              </li>
-            ))}
-          </ul>
+        <div className="flex items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1 shadow-3">
+          {briefTab}
+          {feedTab}
         </div>
       </div>
-    </div>
+
+      <div
+        aria-hidden={!isDocked}
+        style={{ top: `${HEADER_OFFSET}px` }}
+        className={classNames(
+          'z-40 fixed left-1/2 w-[min(64rem,calc(100vw-1.5rem))] -translate-x-1/2 transition-all duration-300 ease-out',
+          isDocked
+            ? 'pointer-events-auto translate-y-0 opacity-100'
+            : 'pointer-events-none -translate-y-2 opacity-0',
+        )}
+      >
+        <div className="flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default shadow-2">
+          <div className="flex shrink-0 items-center gap-1 p-1">
+            {briefTab}
+            {feedTab}
+          </div>
+          {categories.length > 0 ? (
+            <div className="flex min-w-0 flex-1 items-center">
+              <span
+                aria-hidden
+                className="mx-1 h-6 w-px shrink-0 bg-border-subtlest-tertiary"
+              />
+              <ul className="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto pr-2">
+                {categories.map((cat) => (
+                  <li key={cat.id} className="shrink-0">
+                    <a
+                      href={cat.path}
+                      className="inline-flex h-8 items-center rounded-8 px-2.5 transition-colors hover:bg-surface-float"
+                    >
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {cat.label}
+                      </Typography>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </>
   );
 };

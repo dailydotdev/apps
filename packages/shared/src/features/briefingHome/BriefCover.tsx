@@ -142,11 +142,7 @@ export const BriefCover = ({
         className,
       )}
     >
-      <CoverHeader
-        edition={edition}
-        totals={totals}
-        sourceCount={uniqueSourceCount}
-      />
+      <CoverHeader totals={totals} sourceCount={uniqueSourceCount} />
       <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
       <CoverGrid
         stories={brief.reads}

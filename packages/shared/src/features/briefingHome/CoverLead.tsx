@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -7,14 +8,7 @@ import {
   TypographyType,
 } from '../../components/typography/Typography';
 import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../components/buttons/Button';
-import {
   ArrowIcon,
-  HotIcon,
   TimerIcon,
   UpvoteIcon,
   DiscussIcon,
@@ -42,121 +36,129 @@ const estimateMinutes = (story: StoryItem): number => {
 export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
   const deck = useMemo(() => {
     const clean = stripMd(story.summary).trim();
-    return clean.length > 240 ? `${clean.slice(0, 237)}…` : clean;
+    return clean.length > 180 ? `${clean.slice(0, 177)}…` : clean;
   }, [story.summary]);
 
   const minutes = estimateMinutes(story);
   const sourcesShown = story.sources.slice(0, 4);
-  const sourceLine = sourcesShown.map((s) => s.sourceName).join(', ');
-  const extraSources = story.sources.length - sourcesShown.length;
+  const heroImage = story.posts.find((p) => p.image)?.image;
 
   return (
-    <article className="flex flex-col gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-5 tablet:p-6">
-      <div className="flex items-center gap-2 text-text-quaternary">
-        <HotIcon
-          size={IconSize.XSmall}
-          className="text-accent-ketchup-default"
-          secondary
-        />
-        <Typography
-          type={TypographyType.Caption2}
-          bold
-          className="uppercase tracking-[0.16em] text-accent-ketchup-default"
-        >
-          {briefCopy.leadEyebrow}
-        </Typography>
-        <span className="text-border-subtlest-secondary">·</span>
-        <span className="inline-flex items-center gap-1">
-          <TimerIcon size={IconSize.XXSmall} />
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle text-left transition-colors hover:border-border-subtlest-secondary tablet:flex-row"
+    >
+      <div
+        className={classNames(
+          'relative shrink-0 bg-surface-float tablet:w-[44%]',
+          'aspect-[16/10] tablet:aspect-auto',
+        )}
+      >
+        {heroImage ? (
+          <img
+            src={heroImage}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-accent-ketchup-bolder to-accent-bun-bolder" />
+        )}
+        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-8 bg-overlay-primary-pepper px-2 py-1">
+          <span className="size-1.5 rounded-full bg-accent-ketchup-default" />
           <Typography
             type={TypographyType.Caption2}
-            color={TypographyColor.Quaternary}
             bold
+            className="uppercase tracking-[0.18em] text-surface-invert"
           >
-            {briefCopy.storyReadTime(minutes)}
+            {briefCopy.leadEyebrow}
           </Typography>
-        </span>
-        <span className="ml-auto inline-flex items-center gap-3">
-          <span className="inline-flex items-center gap-1">
-            <UpvoteIcon
-              size={IconSize.XXSmall}
-              className="text-accent-avocado-default"
-            />
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Quaternary}
-              bold
-            >
-              {story.totalUpvotes}
-            </Typography>
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <DiscussIcon size={IconSize.XXSmall} />
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Quaternary}
-              bold
-            >
-              {story.totalComments}
-            </Typography>
-          </span>
         </span>
       </div>
 
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Title2}
-        bold
-        className="!leading-[1.15] tracking-[-0.02em]"
-      >
-        {story.title}
-      </Typography>
-
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        className="!leading-relaxed"
-      >
-        {deck}
-      </Typography>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="inline-flex shrink-0 items-center -space-x-1.5">
-            {sourcesShown.map((src) => (
-              <span
-                key={src.sourceId}
-                className="overflow-hidden rounded-full border-2 border-background-subtle bg-surface-float"
-              >
-                <img
-                  src={src.sourceImage}
-                  alt=""
-                  loading="lazy"
-                  className="size-5 object-cover"
-                />
-              </span>
-            ))}
-          </span>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="min-w-0 truncate"
-          >
-            {sourceLine}
-            {extraSources > 0 ? ` +${extraSources}` : ''}
-          </Typography>
-        </div>
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<ArrowIcon className="rotate-90" />}
-          iconPosition={ButtonIconPosition.Right}
-          onClick={onOpen}
+      <div className="flex min-w-0 flex-1 flex-col gap-3 p-5 tablet:p-6">
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Title2}
+          bold
+          className="!leading-[1.15] tracking-[-0.02em] transition-colors group-hover:text-brand-default"
         >
-          {briefCopy.openStory}
-        </Button>
+          {story.title}
+        </Typography>
+
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+          className="!leading-relaxed"
+        >
+          {deck}
+        </Typography>
+
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="flex min-w-0 items-center gap-3 text-text-quaternary">
+            <span className="inline-flex shrink-0 items-center -space-x-1.5">
+              {sourcesShown.map((src) => (
+                <span
+                  key={src.sourceId}
+                  className="overflow-hidden rounded-full border-2 border-background-subtle bg-surface-float"
+                >
+                  <img
+                    src={src.sourceImage}
+                    alt=""
+                    loading="lazy"
+                    className="size-5 object-cover"
+                  />
+                </span>
+              ))}
+            </span>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="min-w-0 truncate"
+            >
+              {story.sources.length} sources
+            </Typography>
+            <span className="text-border-subtlest-secondary">·</span>
+            <span className="inline-flex items-center gap-1">
+              <TimerIcon size={IconSize.XXSmall} />
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Quaternary}
+              >
+                {briefCopy.storyReadTime(minutes)}
+              </Typography>
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <UpvoteIcon
+                size={IconSize.XXSmall}
+                className="text-accent-avocado-default"
+              />
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Quaternary}
+              >
+                {story.totalUpvotes}
+              </Typography>
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <DiscussIcon size={IconSize.XXSmall} />
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Quaternary}
+              >
+                {story.totalComments}
+              </Typography>
+            </span>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors group-hover:bg-brand-default">
+            <Typography type={TypographyType.Footnote} bold>
+              {briefCopy.openStory}
+            </Typography>
+            <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+          </span>
+        </div>
       </div>
-    </article>
+    </button>
   );
 };

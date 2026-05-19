@@ -9,14 +9,12 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { briefCopy } from './copy';
 
-interface CoverHeaderProps {
-  edition: number;
-  totals: {
-    total: number;
-    readMinutes: number;
-  };
-  sourceCount: number;
-}
+const formatDate = (): string =>
+  new Date().toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
 
 const greetingFor = (name: string): string => {
   const hour = new Date().getHours();
@@ -29,15 +27,15 @@ const greetingFor = (name: string): string => {
   return briefCopy.greeting.evening(name);
 };
 
-const formatDate = (): string =>
-  new Date().toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
+interface CoverHeaderProps {
+  totals: {
+    total: number;
+    readMinutes: number;
+  };
+  sourceCount: number;
+}
 
 export const CoverHeader = ({
-  edition,
   totals,
   sourceCount,
 }: CoverHeaderProps): ReactElement => {
@@ -48,30 +46,26 @@ export const CoverHeader = ({
   );
 
   return (
-    <header id="brief-top" className="flex scroll-mt-20 flex-col gap-1.5">
+    <header
+      id="brief-top"
+      className="flex scroll-mt-20 items-baseline justify-between gap-3"
+    >
+      <Typography
+        tag={TypographyTag.H1}
+        type={TypographyType.Title2}
+        bold
+        className="!leading-tight tracking-[-0.02em]"
+      >
+        {greetingFor(displayName)}
+      </Typography>
       <Typography
         type={TypographyType.Caption2}
         color={TypographyColor.Quaternary}
         bold
-        className="uppercase tracking-[0.16em]"
+        className="shrink-0 uppercase tracking-[0.16em]"
       >
-        {formatDate()} · {briefCopy.editionLabel(edition)} ·{' '}
+        {formatDate()} ·{' '}
         {briefCopy.briefMetaLine(totals.readMinutes, sourceCount)}
-      </Typography>
-      <Typography
-        tag={TypographyTag.H1}
-        type={TypographyType.Title1}
-        bold
-        className="!leading-tight tracking-[-0.025em]"
-      >
-        {greetingFor(displayName)}{' '}
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Title1}
-          color={TypographyColor.Tertiary}
-        >
-          — {briefCopy.heroDeck(totals.total, totals.readMinutes)}
-        </Typography>
       </Typography>
     </header>
   );

@@ -720,12 +720,14 @@ export default function MainFeedLayout({
       )}
       {isHomePage && <BriefCover />}
       {briefOwnsChips && (
-        <div className="mx-auto w-full max-w-[64rem] px-3 tablet:px-4">
-          <BriefFloatingTabs topId="brief-top" feedId="brief-feed-start" />
-        </div>
-      )}
-      {briefOwnsChips && (
-        <div id="brief-feed-start" aria-hidden className="scroll-mt-28" />
+        <>
+          <div id="brief-feed-start" aria-hidden className="scroll-mt-28" />
+          <BriefFloatingTabs
+            topId="brief-top"
+            feedId="brief-feed-start"
+            sentinelId="brief-feed-start"
+          />
+        </>
       )}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero

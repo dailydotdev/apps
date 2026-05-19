@@ -8,7 +8,7 @@ import {
 } from '../../components/typography/Typography';
 import { EyeIcon, TimerIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { TOPIC_TOKEN, type TopicDigest } from './types';
+import { TOPIC_BG_TOKEN, TOPIC_TOKEN, type TopicDigest } from './types';
 import { briefCopy } from './copy';
 
 interface CoverTopicsProps {
@@ -43,7 +43,8 @@ const TopicCard = ({
       type="button"
       onClick={onOpen}
       className={classNames(
-        'group flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-4 text-left transition-colors hover:border-border-subtlest-secondary hover:bg-surface-float',
+        'group relative flex flex-col gap-2 overflow-hidden rounded-12 p-4 text-left transition-colors',
+        TOPIC_BG_TOKEN[topic.topic],
         isRead && 'opacity-60',
       )}
     >
@@ -73,7 +74,7 @@ const TopicCard = ({
         bold
         color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
         className={classNames(
-          '!leading-snug transition-colors group-hover:text-brand-default',
+          'group-hover:opacity-80 !leading-snug transition-colors',
           isRead && 'decoration-text-quaternary/40 line-through',
         )}
       >
@@ -81,7 +82,7 @@ const TopicCard = ({
       </Typography>
       <Typography
         type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
+        color={TypographyColor.Secondary}
         className="line-clamp-2 !leading-snug"
       >
         {topic.tldr}
