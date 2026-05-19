@@ -176,7 +176,7 @@ const StoryRow = ({
 
         <div
           className={classNames(
-            'size-20 shrink-0 self-center overflow-hidden rounded-10 bg-surface-float',
+            'size-20 shrink-0 self-start overflow-hidden rounded-10 bg-surface-float',
             !heroImage &&
               'bg-gradient-to-br from-accent-cabbage-bolder to-accent-water-bolder',
           )}
