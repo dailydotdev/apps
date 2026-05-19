@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   FunnelStepPersonaQuiz,
   FunnelStepPersonaQuizParameters,
@@ -20,11 +20,15 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import useMutateFilters from '../../../../hooks/useMutateFilters';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
+import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { usePersonaQuizState } from './usePersonaQuizState';
 import type { PersonaQuizAnswer } from './usePersonaQuizState';
 import { PersonaQuizQuestionView } from './PersonaQuizQuestion';
-import { PersonaQuizFeedPreview } from './PersonaQuizFeedPreview';
 import { PersonaQuizReveal } from './PersonaQuizReveal';
+import Feed from '../../../../components/Feed';
+import { FeedLayoutProvider } from '../../../../contexts/FeedContext';
+import { OtherFeedPage, RequestKey } from '../../../../lib/query';
+import { PREVIEW_FEED_QUERY } from '../../../../graphql/feed';
 
 const dedupePreserveOrder = (tags: string[]): string[] =>
   Array.from(new Set(tags));
@@ -39,6 +43,7 @@ function FunnelPersonaQuizComponent({
   const user = auth?.user;
   const { followTags } = useMutateFilters(user);
   const { feedSettings } = useFeedSettings();
+  const queryClient = useQueryClient();
 
   const params = parameters as FunnelStepPersonaQuizParameters;
   const {
@@ -87,6 +92,31 @@ function FunnelPersonaQuizComponent({
     [tagScores, selection.tagConfidenceFloor],
   );
 
+  // Incrementally persist newly-earned tags after each answer so the shared
+  // Feed preview reflects the user's evolving interests live. We track the
+  // session's "already followed" set so we don't re-fire follow calls for
+  // tags we've already sent.
+  const followedRef = useRef<Set<string>>(new Set());
+  const [refetchPreview] = useDebounceFn(() => {
+    queryClient.invalidateQueries({
+      queryKey: [RequestKey.FeedPreview],
+      predicate: (q) => !q.queryKey.includes(RequestKey.FeedPreviewCustom),
+    });
+  }, 800);
+
+  useEffect(() => {
+    if (phase !== 'question' || !user?.id) {
+      return;
+    }
+    const fresh = accumulatedTags.filter((t) => !followedRef.current.has(t));
+    if (fresh.length === 0) {
+      return;
+    }
+    fresh.forEach((t) => followedRef.current.add(t));
+    Promise.resolve(followTags({ tags: fresh })).catch(() => undefined);
+    refetchPreview();
+  }, [accumulatedTags, phase, user?.id, followTags, refetchPreview]);
+
   // Resolve the archetype from the terminal question's `archetypeId`, build
   // the final tag list, persist it (so `TagSelection` on the reveal screen
   // sees the quiz tags pre-selected via `feedSettings`), then transition to
@@ -106,9 +136,14 @@ function FunnelPersonaQuizComponent({
         ...(selection.fallbackTags ?? []),
       ]).slice(0, selection.targetTotalTags);
 
-      // Fire-and-forget — TagSelection re-renders when feedSettings updates.
-      if (merged.length > 0) {
-        Promise.resolve(followTags({ tags: merged })).catch(() => undefined);
+      // Most tags are already followed (we stream them incrementally as the
+      // user answers). Only fire `followTags` for the residue — typically the
+      // fallback tags backfilled to reach `targetTotalTags`.
+      const fresh = merged.filter((t) => !followedRef.current.has(t));
+      if (fresh.length > 0) {
+        fresh.forEach((t) => followedRef.current.add(t));
+        Promise.resolve(followTags({ tags: fresh })).catch(() => undefined);
+        refetchPreview();
       }
 
       enrichmentComplete(merged);
@@ -121,6 +156,7 @@ function FunnelPersonaQuizComponent({
       selection.fallbackTags,
       enrichmentComplete,
       followTags,
+      refetchPreview,
     ],
   );
 
@@ -259,8 +295,18 @@ function FunnelPersonaQuizComponent({
           totalSteps={selection.maxQuestions}
           onSelect={handleAnswer}
         />
-        {answers.length >= 1 && (
-          <PersonaQuizFeedPreview includeTags={accumulatedTags} />
+        {answers.length >= 1 && user?.id && (
+          <FeedLayoutProvider>
+            <Feed
+              className="relative mx-auto px-6 pt-10 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2"
+              feedName={OtherFeedPage.Preview}
+              feedQueryKey={[RequestKey.FeedPreview, user.id]}
+              query={PREVIEW_FEED_QUERY}
+              showSearch={false}
+              options={{ refetchOnMount: false }}
+              allowPin
+            />
+          </FeedLayoutProvider>
         )}
       </div>
     );

@@ -37,6 +37,22 @@ jest.mock('../../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: () => ({ value: false }),
 }));
 
+jest.mock('../../../../contexts/SettingsContext', () => ({
+  useSettingsContext: () => ({
+    sidebarExpanded: false,
+    autoDismissNotifications: false,
+  }),
+  ThemeMode: { Light: 'light', Dark: 'dark' },
+}));
+
+// Heavy Feed component is exercised by other test suites; here we only need it
+// to mount without exploding so the orchestration's inter-question render
+// path is covered.
+jest.mock('../../../../components/Feed', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 const mockFollowTags = jest.fn().mockResolvedValue(undefined);
 jest.mock('../../../../hooks/useMutateFilters', () => ({
   __esModule: true,
@@ -220,9 +236,14 @@ describe('FunnelPersonaQuiz', () => {
     ).toBeInTheDocument();
     fireEvent.click(screen.getByText('Looks good'));
     await waitFor(() => {
-      expect(mockFollowTags).toHaveBeenCalledWith({
-        tags: expect.arrayContaining(['react', 'tailwind', 'typescript']),
-      });
+      // Tags are followed incrementally during the quiz — collect the union
+      // of every `followTags` call so we can assert the full quiz tag set.
+      const allFollowedTags = mockFollowTags.mock.calls.flatMap(
+        ([{ tags }]) => tags,
+      );
+      expect(allFollowedTags).toEqual(
+        expect.arrayContaining(['react', 'tailwind', 'typescript']),
+      );
     });
     await waitFor(() => {
       expect(onTransition).toHaveBeenCalledWith(
