@@ -194,58 +194,79 @@ export default function BookmarkFeedLayout({
     return null;
   }
 
+  const sortDropdown = !isSearchResults && (
+    <Dropdown
+      className={{
+        label: 'hidden',
+        chevron: 'hidden',
+        button: isV2Laptop ? undefined : '!px-1',
+        container: isV2Laptop ? 'flex' : 'ml-4 flex',
+      }}
+      shouldIndicateSelected
+      icon={
+        <SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />
+      }
+      iconOnly
+      selectedIndex={selectedSort}
+      options={bookmarkSortOptionLabels}
+      onChange={(_, index) => setSelectedSort(index)}
+      buttonVariant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      buttonSize={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
+      drawerProps={{ displayCloseButton: true }}
+    />
+  );
+  const shareButton = !isFolderPage && (
+    <ShareBookmarksButton
+      aria-label="Share bookmarks"
+      className={isV2Laptop ? 'flex' : 'ml-4 flex'}
+      icon={<ShareIcon secondary={showSharedBookmarks} aria-hidden />}
+      onClick={() => setShowSharedBookmarks(true)}
+      {...(isV2Laptop && {
+        size: ButtonSize.Small,
+        variant: ButtonVariant.Tertiary,
+      })}
+    >
+      {isLaptop ? <span>Share bookmarks</span> : null}
+    </ShareBookmarksButton>
+  );
+  const folderMenu = folder && !isReminderOnly && (
+    <BookmarkFolderContextMenu folder={folder} />
+  );
+
   return (
     <FeedPageLayoutComponent>
       {children}
       {isV2Laptop ? (
-        <PageHeader title={title} />
+        <PageHeader title={title}>
+          {searchChildren}
+          {sortDropdown}
+          {shareButton}
+          {folderMenu}
+        </PageHeader>
       ) : (
-        <FeedPageHeader className="mb-5">
-          <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
-            {title}
-          </Typography>
-        </FeedPageHeader>
-      )}
-      <CustomFeedHeader
-        className={classNames(
-          'mb-6',
-          shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-        )}
-      >
-        {searchChildren}
-        {!isSearchResults && (
-          <Dropdown
-            className={{
-              label: 'hidden',
-              chevron: 'hidden',
-              button: '!px-1',
-              container: 'ml-4 flex',
-            }}
-            shouldIndicateSelected
-            icon={<SortIcon size={IconSize.Medium} />}
-            iconOnly
-            selectedIndex={selectedSort}
-            options={bookmarkSortOptionLabels}
-            onChange={(_, index) => setSelectedSort(index)}
-            buttonVariant={ButtonVariant.Float}
-            buttonSize={ButtonSize.Medium}
-            drawerProps={{ displayCloseButton: true }}
-          />
-        )}
-        {!isFolderPage && (
-          <ShareBookmarksButton
-            aria-label="Share bookmarks"
-            className="ml-4 flex"
-            icon={<ShareIcon secondary={showSharedBookmarks} aria-hidden />}
-            onClick={() => setShowSharedBookmarks(true)}
+        <>
+          <FeedPageHeader className="mb-5">
+            <Typography
+              bold
+              type={TypographyType.Title3}
+              tag={TypographyTag.H1}
+            >
+              {title}
+            </Typography>
+          </FeedPageHeader>
+          <CustomFeedHeader
+            className={classNames(
+              'mb-6',
+              shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
+            )}
           >
-            {isLaptop ? <span>Share bookmarks</span> : null}
-          </ShareBookmarksButton>
-        )}
-        {folder && !isReminderOnly && (
-          <BookmarkFolderContextMenu folder={folder} />
-        )}
-      </CustomFeedHeader>
+            {searchChildren}
+            {sortDropdown}
+            {shareButton}
+            {folderMenu}
+          </CustomFeedHeader>
+        </>
+      )}
 
       {showSharedBookmarks && (
         <SharedBookmarksModal
