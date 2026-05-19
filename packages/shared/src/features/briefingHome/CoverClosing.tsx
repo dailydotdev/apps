@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { ArrowIcon, ShareIcon, RefreshIcon } from '../../components/icons';
+import { ShareIcon, RefreshIcon, VIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { briefCopy } from './copy';
 
@@ -22,7 +22,7 @@ interface CoverClosingProps {
   onReset: () => void;
 }
 
-const formatTomorrowTime = (): string => {
+const formatTomorrow = (): string => {
   const t = new Date();
   t.setDate(t.getDate() + 1);
   t.setHours(9, 0, 0, 0);
@@ -38,112 +38,101 @@ export const CoverClosing = ({
   edition,
   onReset,
 }: CoverClosingProps): ReactElement => {
-  const tomorrow = useMemo(formatTomorrowTime, []);
-  const progressPct = totals.total
-    ? Math.round((totals.readCount / totals.total) * 100)
-    : 0;
-  const headline = totals.isComplete
-    ? "You're caught up."
-    : `You opened ${totals.readCount} of ${totals.total}.`;
-  const subline = totals.isComplete
-    ? `~${totals.savedMinutes} min back in your evening.`
-    : 'Skim the rest below, or come back tomorrow.';
+  const tomorrow = useMemo(formatTomorrow, []);
+  const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
+
+  const onShare = async () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: briefCopy.shareHead, url });
+      } catch {
+        /* user dismissed */
+      }
+      return;
+    }
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setShareState('copied');
+        window.setTimeout(() => setShareState('idle'), 2000);
+      } catch {
+        /* clipboard blocked */
+      }
+    }
+  };
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center gap-3 text-text-quaternary">
-        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Quaternary}
-          bold
-          className="uppercase tracking-[0.24em]"
-        >
-          P.S. · Brief no. {edition}
-        </Typography>
-        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+    <section
+      aria-label="End of brief"
+      className="flex flex-col items-center gap-4 py-8 text-center"
+    >
+      <div className="bg-accent-avocado-float flex size-12 items-center justify-center rounded-full text-accent-avocado-default">
+        <VIcon size={IconSize.Medium} secondary />
       </div>
-      <div className="flex flex-col items-start justify-between gap-3 tablet:flex-row tablet:items-end">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Title3}
-            bold
-            className="!leading-tight"
-          >
-            {headline}
+
+      <div className="flex flex-col items-center gap-1.5">
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Title2}
+          bold
+          className="!leading-tight tracking-[-0.02em]"
+        >
+          You&apos;re all caught up
+        </Typography>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+          className="max-w-[28rem] !leading-snug"
+        >
+          That&apos;s everything in today&apos;s brief — {totals.total} stories,
+          ~{totals.readMinutes} minutes of reading distilled for you.
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Quaternary}
+          className="mt-1"
+        >
+          Next brief drops {tomorrow}
+          {edition ? ` · No. ${edition + 1}` : ''}.
+        </Typography>
+      </div>
+
+      <div className="mt-2 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onShare}
+          className="inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-primary transition-colors hover:bg-surface-float"
+        >
+          <ShareIcon size={IconSize.XSmall} />
+          <Typography type={TypographyType.Footnote} bold>
+            {shareState === 'copied' ? 'Link copied' : 'Share this brief'}
           </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {subline} Next brief drops {tomorrow}.
-          </Typography>
-        </div>
-        <div className="flex flex-wrap items-center gap-1 text-text-tertiary">
-          <a
-            href="#brief-feed-start"
-            className="inline-flex items-center gap-1 rounded-8 px-2 py-1.5 hover:bg-surface-float hover:text-text-primary"
-          >
-            <Typography type={TypographyType.Footnote} bold>
-              Open the feed
-            </Typography>
-            <ArrowIcon size={IconSize.XXSmall} className="rotate-180" />
-          </a>
+        </button>
+        {totals.readCount > 0 ? (
           <button
             type="button"
-            onClick={() => {
-              if (typeof navigator !== 'undefined' && navigator.share) {
-                navigator
-                  .share({
-                    title: briefCopy.shareHead,
-                    url: window.location.href,
-                  })
-                  .catch(() => undefined);
-                return;
-              }
-              if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                navigator.clipboard
-                  .writeText(window.location.href)
-                  .catch(() => undefined);
-              }
-            }}
-            className="inline-flex items-center gap-1 rounded-8 px-2 py-1.5 hover:bg-surface-float hover:text-text-primary"
+            onClick={onReset}
+            className="inline-flex items-center gap-1 rounded-10 px-2 py-2 text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
           >
-            <ShareIcon size={IconSize.XXSmall} />
+            <RefreshIcon size={IconSize.XXSmall} />
             <Typography type={TypographyType.Footnote} bold>
-              Share
+              Reset progress
             </Typography>
           </button>
-          {totals.readCount > 0 ? (
-            <button
-              type="button"
-              onClick={onReset}
-              className="inline-flex items-center gap-1 rounded-8 px-2 py-1.5 hover:bg-surface-float hover:text-text-primary"
-            >
-              <RefreshIcon size={IconSize.XXSmall} />
-              <Typography type={TypographyType.Footnote} bold>
-                Reset
-              </Typography>
-            </button>
-          ) : null}
-        </div>
+        ) : null}
       </div>
-      {!totals.isComplete ? (
-        <div
-          className="h-1 w-full overflow-hidden rounded-full bg-border-subtlest-tertiary"
-          role="progressbar"
-          aria-label={briefCopy.progressLabel}
-          aria-valuenow={progressPct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <span
-            className="block h-full rounded-full bg-text-primary transition-all duration-500"
-            style={{ width: `${Math.max(progressPct, 2)}%` }}
-          />
-        </div>
-      ) : null}
+
+      <Typography
+        type={TypographyType.Caption2}
+        color={TypographyColor.Quaternary}
+        className="mt-3 uppercase tracking-[0.2em]"
+      >
+        Below: your personalized feed
+      </Typography>
     </section>
   );
 };
