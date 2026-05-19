@@ -84,8 +84,6 @@ export enum Origin {
   HotTakeList = 'hot take list',
   HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
-  // Onboarding v2
-  OnboardingModal = 'onboarding modal',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
   BetterAuthEmailLoginBoot = 'betterauth email login boot',
@@ -561,16 +559,7 @@ export enum TargetType {
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
-  // Onboarding v2
-  SignupChooser = 'signup chooser',
-  SignupPrompt = 'signup prompt',
-  ProfileImport = 'profile import',
-  ExperienceLevel = 'experience level',
   ExtensionPromo = 'extension promo',
-  TagsFallback = 'tags fallback',
-  MarketingOptOut = 'marketing opt out',
-  OnboardingComplete = 'onboarding complete',
-  MobileAppDownload = 'mobile app download',
   CustomizeNewTab = 'customize new tab',
 }
 
@@ -634,23 +623,9 @@ export enum TargetId {
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
   HackathonPage = 'hackathon page',
-  // Onboarding v2
-  GitHub = 'github',
-  Google = 'google',
-  AI = 'ai',
-  Install = 'install',
-  Dismiss = 'dismiss',
-  InstallExtension = 'install extension',
-  MobileApp = 'mobile app',
-  EnableNotifications = 'enable notifications',
-  GoToFeed = 'go to feed',
-  OptOut = 'opt_out',
-  OptIn = 'opt_in',
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
-  IOS = 'ios',
-  Android = 'android',
 }
 
 export enum NotificationChannel {

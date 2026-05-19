@@ -1,8 +1,10 @@
 import type { FormEvent } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/router';
 import { usePostToSquad } from '../../../hooks';
 import { useMultipleSourcePost } from '../../../features/squads/hooks/useMultipleSourcePost';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useSubmitStandup } from '../../../hooks/liveRooms/useSubmitStandup';
 import type {
   CreatePostInMultipleSourcesArgs,
   ExternalLinkPreview,
@@ -10,13 +12,21 @@ import type {
 import type { Squad } from '../../../graphql/sources';
 import {
   POLL_OPTIONS_MIN,
+  STANDUP_TOPIC_MAX_LENGTH,
   type ComposerKind,
   type LinkFormState,
   type PollFormState,
+  type StandupFormState,
   type TextFormState,
 } from './types';
 import type { TextFormCover } from './TextForm';
 import { isPreviewForComposerUrl } from './utils';
+
+export interface StandupFieldErrors {
+  topic?: string;
+  scheduledStart?: string;
+  description?: string;
+}
 
 const trimmedOptions = (state: PollFormState): string[] =>
   state.options.map((option) => option.trim()).filter(Boolean);
@@ -35,11 +45,23 @@ const isLinkValid = (
 const isPollValid = (state: PollFormState): boolean =>
   !!state.question.trim() && trimmedOptions(state).length >= POLL_OPTIONS_MIN;
 
+const isStandupValid = (state: StandupFormState): boolean => {
+  const topic = state.topic.trim();
+  if (!topic || topic.length > STANDUP_TOPIC_MAX_LENGTH) {
+    return false;
+  }
+  if (state.scheduleChoice === 'later' && !state.scheduledStart) {
+    return false;
+  }
+  return true;
+};
+
 interface UseComposerSubmitProps {
   kind: ComposerKind;
   text: TextFormState;
   link: LinkFormState;
   poll: PollFormState;
+  standup: StandupFormState;
   cover: TextFormCover | null;
   primary: Squad | undefined;
   selectedIds: string[];
@@ -55,6 +77,7 @@ interface UseComposerSubmit {
   preview: ExternalLinkPreview | undefined;
   isLoadingPreview: boolean;
   fetchPreview: (url?: string) => void;
+  standupErrors: StandupFieldErrors;
 }
 
 export const useComposerSubmit = ({
@@ -62,6 +85,7 @@ export const useComposerSubmit = ({
   text,
   link,
   poll,
+  standup,
   cover,
   primary,
   selectedIds,
@@ -70,6 +94,10 @@ export const useComposerSubmit = ({
   onComplete,
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
+  const router = useRouter();
+  const { submit: submitStandupMutation, isPending: isCreatingStandup } =
+    useSubmitStandup();
+  const [standupErrors, setStandupErrors] = useState<StandupFieldErrors>({});
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -101,10 +129,16 @@ export const useComposerSubmit = ({
     [getLinkPreview],
   );
 
-  const isInFlight = isPosting || isMultiPending;
+  const isInFlight = isPosting || isMultiPending || isCreatingStandup;
 
   const getIsSubmitDisabled = (): boolean => {
-    if (isInFlight || !primary) {
+    if (isInFlight) {
+      return true;
+    }
+    if (kind === 'standup') {
+      return !isStandupValid(standup);
+    }
+    if (!primary) {
       return true;
     }
     if (kind === 'text') {
@@ -178,6 +212,20 @@ export const useComposerSubmit = ({
     } as unknown as CreatePostInMultipleSourcesArgs);
   };
 
+  const submitStandup = async () => {
+    setStandupErrors({});
+    const result = await submitStandupMutation(standup);
+    if (result.type === 'error') {
+      setStandupErrors({ [result.error.field]: result.error.message });
+      return;
+    }
+    if (result.type === 'failed') {
+      return;
+    }
+    onComplete();
+    router.push(`/standups/${result.joinToken.room.id}`);
+  };
+
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -192,6 +240,10 @@ export const useComposerSubmit = ({
         await submitPoll();
         return;
       }
+      if (kind === 'standup') {
+        await submitStandup();
+        return;
+      }
       await submitLink(event);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -203,6 +255,7 @@ export const useComposerSubmit = ({
       text,
       link,
       poll,
+      standup,
       cover,
       selectedIds,
       isInFlight,
@@ -216,5 +269,6 @@ export const useComposerSubmit = ({
     preview,
     isLoadingPreview,
     fetchPreview,
+    standupErrors,
   };
 };

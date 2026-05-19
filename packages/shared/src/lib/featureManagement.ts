@@ -65,6 +65,8 @@ export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureSmartComposer = new Feature('smart_composer', false);
 
+export const featureStandupCreation = new Feature('standup_creation', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
@@ -168,8 +170,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingV2 = new Feature('onboarding_v2', false);
-
 export const featureOnboardingTagRecommender = new Feature(
   'onboarding_tag_recommender',
   false,
@@ -201,4 +201,4 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
-export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+export const featureFeedTagChips = new Feature('feed_tag_chips', true);

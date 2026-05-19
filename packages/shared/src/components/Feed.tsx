@@ -106,7 +106,6 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
-  disableBriefCard?: boolean;
 }
 
 interface RankVariables {
@@ -203,7 +202,6 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
-  disableBriefCard = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -251,8 +249,7 @@ export default function Feed<T>({
     hasNoBriefAction &&
     !hasDismissedBriefCard &&
     !showProfileCompletionCard &&
-    !isProfileCompletionCardLoading &&
-    !disableBriefCard;
+    !isProfileCompletionCardLoading;
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,

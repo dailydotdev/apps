@@ -10,8 +10,6 @@ import type {
   RegistrationParameters,
 } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '../../lib/featureManagement';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
@@ -85,11 +83,7 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-    shouldEvaluate: trigger === AuthTriggers.Onboarding,
-  });
-  const hideExperienceLevel = isRecruiterOnboarding || isOnboardingV2;
+  const hideExperienceLevel = isRecruiterOnboarding;
   const {
     username,
     setUsername,
@@ -433,11 +427,9 @@ const RegistrationForm = ({
               saveHintSpace
             />
           )}
-          {!isOnboardingV2 && (
-            <Checkbox name="optOutMarketing">
-              I don&apos;t want to receive updates and promotions via email
-            </Checkbox>
-          )}
+          <Checkbox name="optOutMarketing">
+            I don&apos;t want to receive updates and promotions via email
+          </Checkbox>
           <ConditionalWrapper
             condition={simplified ?? false}
             wrapper={(component) => (

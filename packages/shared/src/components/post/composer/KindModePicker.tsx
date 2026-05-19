@@ -8,7 +8,13 @@ import {
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
 import { IconSize } from '../../Icon';
-import { ArrowIcon, EditIcon, LinkIcon, PollIcon } from '../../icons';
+import {
+  ArrowIcon,
+  EditIcon,
+  LinkIcon,
+  MicrophoneIcon,
+  PollIcon,
+} from '../../icons';
 import type { ComposerKind } from './types';
 
 interface KindOption {
@@ -17,28 +23,31 @@ interface KindOption {
   icon: ReactElement;
 }
 
-const KIND_OPTIONS: KindOption[] = [
+const ALL_KIND_OPTIONS: KindOption[] = [
   { kind: 'text', label: 'Free form', icon: <EditIcon /> },
   { kind: 'link', label: 'Share a link', icon: <LinkIcon /> },
   { kind: 'poll', label: 'Poll', icon: <PollIcon /> },
+  { kind: 'standup', label: 'Standup', icon: <MicrophoneIcon /> },
 ];
-
-const findOption = (kind: ComposerKind): KindOption =>
-  KIND_OPTIONS.find((option) => option.kind === kind) ?? KIND_OPTIONS[0];
 
 interface KindModePickerProps {
   value: ComposerKind;
   onChange: (kind: ComposerKind) => void;
   disabled?: boolean;
+  isStandupEnabled?: boolean;
 }
 
 export const KindModePicker = ({
   value,
   onChange,
   disabled,
+  isStandupEnabled,
 }: KindModePickerProps): ReactElement => {
   const [open, setOpen] = useState(false);
-  const active = findOption(value);
+  const options = ALL_KIND_OPTIONS.filter(
+    (option) => option.kind !== 'standup' || isStandupEnabled,
+  );
+  const active = options.find((option) => option.kind === value) ?? options[0];
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -75,7 +84,7 @@ export const KindModePicker = ({
         variant="action"
         className="!min-w-48"
       >
-        {KIND_OPTIONS.map((option) => {
+        {options.map((option) => {
           const isActive = option.kind === value;
           return (
             <DropdownMenuItem
