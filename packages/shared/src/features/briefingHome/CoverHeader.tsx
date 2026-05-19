@@ -67,7 +67,7 @@ export const CoverHeader = ({
     </div>
     <Typography
       tag={TypographyTag.P}
-      type={TypographyType.Body}
+      type={TypographyType.Callout}
       color={TypographyColor.Secondary}
       className="!leading-snug"
     >
