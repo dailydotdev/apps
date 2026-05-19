@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { IconSize } from '../../../components/Icon';
 import { UpvoteIcon } from '../../../components/icons/Upvote';
@@ -17,6 +18,9 @@ import {
 } from '../../../components/cards/common/Card';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
+import { gqlClient } from '../../../graphql/common';
+import { MOST_UPVOTED_FEED_QUERY } from '../../../graphql/feed';
+import type { Post } from '../../../graphql/posts';
 import {
   ThemeMode,
   useSettingsContext,
@@ -35,6 +39,9 @@ const ACCENT_TEXT: Record<AccentKey, string> = {
 
 const unsplash = (id: string, w = 480, h = 280): string =>
   `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&q=72&auto=format`;
+
+const PLACEHOLDER_COVER =
+  'https://daily-now-res.cloudinary.com/image/upload/v1672655664/placeholders/placeholder3.jpg';
 
 const HERO_STYLES = `
 .onb-bg {
@@ -80,11 +87,12 @@ const HERO_STYLES = `
 .onb-center-halo {
   background:
     radial-gradient(
-      ellipse 60% 38% at 50% 58%,
-      rgba(0, 0, 0, 0.85) 0%,
-      rgba(0, 0, 0, 0.65) 28%,
-      rgba(0, 0, 0, 0.35) 52%,
-      rgba(0, 0, 0, 0.1) 72%,
+      ellipse 55% 36% at 50% 54%,
+      rgba(0, 0, 0, 0.96) 0%,
+      rgba(0, 0, 0, 0.88) 22%,
+      rgba(0, 0, 0, 0.68) 42%,
+      rgba(0, 0, 0, 0.42) 60%,
+      rgba(0, 0, 0, 0.18) 76%,
       transparent 92%
     );
 }
@@ -151,18 +159,20 @@ type FeedItem = {
   title: string;
   source: string;
   sourceDomain: string;
+  sourceImage?: string;
   cover: string;
   upvotes: number;
   comments: number;
   readTime: number;
   daysAgo: number;
   tags: string[];
+  isReal?: boolean;
 };
 
 const sourceLogo = (domain: string): string =>
   `https://logo.clearbit.com/${domain}`;
 
-const FEED_ITEMS: FeedItem[] = [
+const FALLBACK_FEED_ITEMS: FeedItem[] = [
   {
     id: 'f1',
     title: 'Why we rewrote our build system in Rust',
@@ -319,13 +329,15 @@ const formatCount = (n: number): string => {
 const SourceImage = ({
   domain,
   source,
+  image,
 }: {
   domain: string;
   source: string;
+  image?: string;
 }): ReactElement => (
   <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-float">
     <img
-      src={sourceLogo(domain)}
+      src={image || sourceLogo(domain)}
       alt={source}
       className="h-full w-full object-cover"
       loading="lazy"
@@ -333,7 +345,9 @@ const SourceImage = ({
       onError={(e) => {
         const target = e.currentTarget;
         target.onerror = null;
-        target.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        target.src = `https://www.google.com/s2/favicons?domain=${
+          domain || 'daily.dev'
+        }&sz=128`;
       }}
     />
   </span>
@@ -354,11 +368,22 @@ const FeedActionButton = ({
   </span>
 );
 
+const resolveCoverSrc = (item: FeedItem): string => {
+  if (item.isReal) {
+    return item.cover || PLACEHOLDER_COVER;
+  }
+  return unsplash(item.cover, 480, 300);
+};
+
 const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
   <Card className="max-h-none">
     <CardTextContainer>
       <CardHeader>
-        <SourceImage domain={item.sourceDomain} source={item.source} />
+        <SourceImage
+          domain={item.sourceDomain}
+          source={item.source}
+          image={item.sourceImage}
+        />
         <div className="ml-2 flex min-w-0 flex-1 flex-col">
           <span className="truncate font-bold text-text-primary typo-footnote">
             {item.source}
@@ -392,11 +417,16 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
     <div className="mx-4 mb-3 mt-3">
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-12">
         <img
-          src={unsplash(item.cover, 480, 300)}
+          src={resolveCoverSrc(item)}
           alt=""
           className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
           decoding="async"
+          onError={(e) => {
+            const target = e.currentTarget;
+            target.onerror = null;
+            target.src = PLACEHOLDER_COVER;
+          }}
         />
         <div className="onb-cover-shade absolute inset-0" />
       </div>
@@ -422,18 +452,89 @@ const FeedItemReplica = ({ item }: { item: FeedItem }): ReactElement => (
   </Card>
 );
 
-const CardsBackground = (): ReactElement => (
-  <div
-    aria-hidden
-    className="onb-grid-mask pointer-events-none absolute inset-0 -z-1 select-none overflow-hidden"
-  >
-    <div className="grid grid-cols-2 gap-5 p-5 tablet:grid-cols-3 tablet:gap-6 tablet:p-7 laptop:grid-cols-4 laptopL:grid-cols-5">
-      {FEED_ITEMS.map((item) => (
-        <FeedItemReplica key={item.id} item={item} />
-      ))}
+const daysSince = (iso?: string): number => {
+  if (!iso) {
+    return 1;
+  }
+  const created = new Date(iso).getTime();
+  if (Number.isNaN(created)) {
+    return 1;
+  }
+  const days = Math.max(
+    0,
+    Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24)),
+  );
+  return days || 1;
+};
+
+const postToFeedItem = (post: Post): FeedItem => {
+  const sourceName = post.source?.name || 'daily.dev';
+  const sourceImage = post.source?.image;
+  const sourceHandle = post.source?.handle || 'daily-dev';
+  const domain = sourceHandle.includes('.') ? sourceHandle : 'daily.dev';
+  return {
+    id: post.id,
+    title: post.title || '',
+    source: sourceName,
+    sourceDomain: domain,
+    sourceImage,
+    cover: post.image || PLACEHOLDER_COVER,
+    upvotes: post.numUpvotes ?? 0,
+    comments: post.numComments ?? 0,
+    readTime: post.readTime ?? 4,
+    daysAgo: daysSince(post.createdAt),
+    tags: post.tags ?? [],
+    isReal: true,
+  };
+};
+
+type FeedQueryResult = {
+  page: { edges: Array<{ node: Post }> };
+};
+
+const useExploreFeedItems = (): FeedItem[] => {
+  const { data } = useQuery({
+    queryKey: ['onboarding-explore-feed'],
+    queryFn: async () => {
+      const res = await gqlClient.request<FeedQueryResult>(
+        MOST_UPVOTED_FEED_QUERY,
+        {
+          first: 16,
+          period: 7,
+          loggedIn: false,
+          supportedTypes: ['article', 'video:youtube'],
+        },
+      );
+      return res.page.edges.map((edge) => edge.node);
+    },
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
+
+  if (!data || data.length === 0) {
+    return FALLBACK_FEED_ITEMS;
+  }
+  return data
+    .filter((post) => post && post.title)
+    .map(postToFeedItem)
+    .slice(0, 16);
+};
+
+const CardsBackground = (): ReactElement => {
+  const items = useExploreFeedItems();
+  return (
+    <div
+      aria-hidden
+      className="onb-grid-mask pointer-events-none absolute inset-0 -z-1 select-none overflow-hidden"
+    >
+      <div className="grid grid-cols-2 gap-5 p-5 tablet:grid-cols-3 tablet:gap-6 tablet:p-7 laptop:grid-cols-4 laptopL:grid-cols-5">
+        {items.map((item) => (
+          <FeedItemReplica key={item.id} item={item} />
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // =============================================================
 // Variant B — Tags: topic constellation

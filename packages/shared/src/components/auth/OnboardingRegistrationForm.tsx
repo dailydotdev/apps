@@ -155,7 +155,8 @@ export const OnboardingRegistrationForm = ({
       aria-label="Signup using email"
       className={classNames(
         getEmailButtonClass(),
-        isOnboardingTrigger && '!text-white',
+        isOnboardingTrigger &&
+          '!border !border-border-subtlest-tertiary !text-white',
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
