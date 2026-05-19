@@ -1,4 +1,13 @@
-export type ComposerKind = 'text' | 'link' | 'poll';
+export type ComposerKind = 'text' | 'link' | 'poll' | 'standup';
+
+export type StandupScheduleChoice = 'now' | 'later';
+
+export interface StandupFormState {
+  topic: string;
+  scheduleChoice: StandupScheduleChoice;
+  scheduledStart: string;
+  description: string;
+}
 
 export interface TextFormState {
   title: string;
@@ -28,3 +37,13 @@ export const POLL_OPTIONS_MIN = 2;
 export const POLL_OPTIONS_MAX = 4;
 export const POLL_OPTION_MAX_LENGTH = 35;
 export const TITLE_MAX_LENGTH = 250;
+
+export const STANDUP_TOPIC_MAX_LENGTH = 280;
+export const STANDUP_DESCRIPTION_MAX_LENGTH = 4000;
+
+export const DEFAULT_STANDUP: StandupFormState = {
+  topic: '',
+  scheduleChoice: 'now',
+  scheduledStart: '',
+  description: '',
+};

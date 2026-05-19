@@ -118,6 +118,7 @@ describe('SmartComposerModal', () => {
       preview: { url: 'https://daily.dev', title: 'daily.dev' },
       isLoadingPreview: false,
       fetchPreview: jest.fn(),
+      standupErrors: {},
     });
   });
 
