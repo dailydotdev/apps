@@ -87,9 +87,14 @@ const HERO_STYLES = `
 .onb-glow-bacon { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-bacon-default) 65%, transparent); }
 .onb-glow-cheese { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-cheese-default) 65%, transparent); }
 .onb-glow-avocado { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-avocado-default) 65%, transparent); }
-.onb-avatar-shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); }
-.onb-squad-ring {
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--theme-accent-onion-default) 22%, transparent));
+.onb-station-glow { filter: drop-shadow(0 0 12px currentColor); }
+.onb-pulse-ring { animation: onb-pulse 2.6s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes onb-pulse {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(2); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onb-pulse-ring { animation: none; opacity: 0.3; }
 }
 `;
 
@@ -208,224 +213,326 @@ const ConstellationBackground = (): ReactElement => (
   </div>
 );
 
-// ---------- Variant B: Squad Universe ----------
+// ---------- Variant B: Knowledge Map (metro / transit map) ----------
 
-type SquadMember = { initial: string; accent: AccentKey };
-
-type Squad = {
-  name: string;
+type Station = {
+  label: string;
   x: number;
   y: number;
-  accent: AccentKey;
   highlighted?: boolean;
-  hideOnMobile?: boolean;
-  members: SquadMember[];
+  labelDx?: number;
+  labelDy?: number;
+  labelAnchor?: 'start' | 'middle' | 'end';
+  badge?: string;
 };
 
-const SQUADS: Squad[] = [
+type MetroLine = {
+  name: string;
+  accent: AccentKey;
+  stations: Station[];
+};
+
+const METRO_LINES: MetroLine[] = [
   {
     name: 'Frontend',
-    x: 14,
-    y: 18,
     accent: 'water',
-    members: [
-      { initial: 'J', accent: 'cabbage' },
-      { initial: 'M', accent: 'water' },
-      { initial: 'S', accent: 'cheese' },
-      { initial: 'A', accent: 'bacon' },
-      { initial: 'K', accent: 'onion' },
-    ],
-  },
-  {
-    name: 'AI & LLM',
-    x: 50,
-    y: 14,
-    accent: 'onion',
-    highlighted: true,
-    members: [
-      { initial: 'D', accent: 'onion' },
-      { initial: 'R', accent: 'cabbage' },
-      { initial: 'T', accent: 'water' },
-      { initial: 'L', accent: 'cheese' },
-      { initial: 'P', accent: 'bacon' },
-      { initial: 'H', accent: 'avocado' },
-    ],
-  },
-  {
-    name: 'Rust Devs',
-    x: 84,
-    y: 20,
-    accent: 'bacon',
-    members: [
-      { initial: 'O', accent: 'bacon' },
-      { initial: 'V', accent: 'water' },
-      { initial: 'E', accent: 'cabbage' },
-      { initial: 'Z', accent: 'cheese' },
-    ],
-  },
-  {
-    name: 'DevOps',
-    x: 14,
-    y: 50,
-    accent: 'cheese',
-    hideOnMobile: true,
-    members: [
-      { initial: 'C', accent: 'cheese' },
-      { initial: 'B', accent: 'avocado' },
-      { initial: 'F', accent: 'cabbage' },
-      { initial: 'G', accent: 'water' },
-      { initial: 'N', accent: 'bacon' },
+    stations: [
+      { label: 'HTML', x: 80, y: 140, labelDy: -22, labelAnchor: 'middle' },
+      { label: 'CSS', x: 340, y: 158, labelDy: -22, labelAnchor: 'middle' },
+      {
+        label: 'JavaScript',
+        x: 620,
+        y: 188,
+        labelDy: -22,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'React',
+        x: 920,
+        y: 208,
+        highlighted: true,
+        labelDy: -28,
+        labelAnchor: 'middle',
+      },
+      { label: 'Vue', x: 1200, y: 200, labelDy: -22, labelAnchor: 'middle' },
+      {
+        label: 'Design Systems',
+        x: 1500,
+        y: 180,
+        labelDy: -22,
+        labelAnchor: 'middle',
+      },
     ],
   },
   {
     name: 'Backend',
-    x: 86,
-    y: 52,
     accent: 'avocado',
-    members: [
-      { initial: 'Q', accent: 'avocado' },
-      { initial: 'W', accent: 'water' },
-      { initial: 'X', accent: 'onion' },
-      { initial: 'Y', accent: 'cabbage' },
+    stations: [
+      { label: 'APIs', x: 100, y: 460, labelDy: 30, labelAnchor: 'middle' },
+      {
+        label: 'Databases',
+        x: 380,
+        y: 470,
+        labelDy: 30,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'Caching',
+        x: 660,
+        y: 478,
+        labelDy: 30,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'System Design',
+        x: 940,
+        y: 484,
+        highlighted: true,
+        labelDy: 36,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'Microservices',
+        x: 1240,
+        y: 478,
+        labelDy: 30,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'Cloud Native',
+        x: 1500,
+        y: 470,
+        labelDy: 30,
+        labelAnchor: 'middle',
+      },
     ],
   },
   {
-    name: 'Mobile',
-    x: 18,
-    y: 80,
-    accent: 'cabbage',
-    members: [
-      { initial: 'I', accent: 'cabbage' },
-      { initial: 'U', accent: 'cheese' },
-      { initial: 'R', accent: 'water' },
-    ],
-  },
-  {
-    name: 'Indie Hackers',
-    x: 82,
-    y: 80,
+    name: 'AI',
     accent: 'onion',
-    highlighted: true,
-    members: [
-      { initial: 'S', accent: 'onion' },
-      { initial: 'A', accent: 'bacon' },
-      { initial: 'K', accent: 'cabbage' },
-      { initial: 'P', accent: 'water' },
-      { initial: 'B', accent: 'cheese' },
+    stations: [
+      {
+        label: 'ML',
+        x: 1480,
+        y: 70,
+        labelDx: -20,
+        labelDy: 6,
+        labelAnchor: 'end',
+      },
+      {
+        label: 'Deep Learning',
+        x: 1280,
+        y: 230,
+        labelDx: 20,
+        labelDy: 6,
+        labelAnchor: 'start',
+      },
+      {
+        label: 'LLMs',
+        x: 1040,
+        y: 340,
+        highlighted: true,
+        labelDx: 24,
+        labelDy: 6,
+        labelAnchor: 'start',
+        badge: 'Now',
+      },
+      {
+        label: 'AI Agents',
+        x: 820,
+        y: 470,
+        labelDx: 20,
+        labelDy: 6,
+        labelAnchor: 'start',
+      },
+      {
+        label: 'Prompting',
+        x: 600,
+        y: 600,
+        labelDx: 20,
+        labelDy: 6,
+        labelAnchor: 'start',
+      },
+    ],
+  },
+  {
+    name: 'DevOps',
+    accent: 'cheese',
+    stations: [
+      { label: 'Linux', x: 80, y: 820, labelDy: -22, labelAnchor: 'middle' },
+      {
+        label: 'Docker',
+        x: 300,
+        y: 800,
+        labelDy: -22,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'Kubernetes',
+        x: 560,
+        y: 780,
+        highlighted: true,
+        labelDy: -28,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'Observability',
+        x: 820,
+        y: 760,
+        labelDy: -22,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'CI/CD',
+        x: 1100,
+        y: 740,
+        labelDy: -22,
+        labelAnchor: 'middle',
+      },
+      {
+        label: 'Cloud',
+        x: 1380,
+        y: 720,
+        labelDy: -22,
+        labelAnchor: 'middle',
+      },
     ],
   },
 ];
 
-const orbitalPositions = (
-  count: number,
-  radius: number,
-): Array<{ dx: number; dy: number }> =>
-  Array.from({ length: count }, (_, i) => {
-    const angle = (Math.PI * 2 * i) / count - Math.PI / 2;
-    return {
-      dx: Math.cos(angle) * radius,
-      dy: Math.sin(angle) * radius,
-    };
-  });
-
-const SquadCluster = ({ squad }: { squad: Squad }): ReactElement => {
-  const radius = squad.highlighted ? 3.4 : 3;
-  const positions = orbitalPositions(squad.members.length, radius);
-  const ringSize = squad.highlighted ? 7.4 : 6.6;
-  return (
-    <div
-      className={classNames(
-        'absolute',
-        squad.hideOnMobile && 'hidden tablet:block',
-      )}
-      style={{
-        left: `${squad.x}%`,
-        top: `${squad.y}%`,
-        transform: 'translate(-50%, -50%)',
-      }}
-    >
-      <svg
-        className={classNames(
-          'absolute left-1/2 top-1/2 text-white/[0.08]',
-          squad.highlighted && 'onb-squad-ring',
-        )}
-        style={{
-          width: `${ringSize}rem`,
-          height: `${ringSize}rem`,
-          transform: 'translate(-50%, -50%)',
-        }}
-        viewBox="0 0 100 100"
-        aria-hidden
-      >
-        <circle
-          cx="50"
-          cy="50"
-          r="46"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="0.5"
-          strokeDasharray="1.4 2.2"
-        />
-      </svg>
-
-      <div className="flex flex-col items-center gap-1.5">
-        <span
-          className={classNames(
-            'h-1.5 w-1.5 rounded-full',
-            ACCENT_BG[squad.accent],
-          )}
-        />
-        <span
-          className={classNames(
-            'whitespace-nowrap font-medium tracking-tight typo-caption2',
-            squad.highlighted ? 'text-white/80' : 'text-white/45',
-          )}
-        >
-          {squad.name}
-        </span>
-      </div>
-
-      {squad.members.map((member, i) => {
-        const { dx, dy } = positions[i];
-        const avatarSize = squad.highlighted ? 'h-5 w-5' : 'h-4 w-4';
-        return (
-          <span
-            // eslint-disable-next-line react/no-array-index-key
-            key={`${squad.name}-${i}-${member.initial}`}
-            className={classNames(
-              'onb-avatar-shadow border-white/15 absolute flex items-center justify-center rounded-full border font-bold leading-none text-white',
-              avatarSize,
-              ACCENT_BG[member.accent],
-            )}
-            style={{
-              left: '50%',
-              top: '50%',
-              transform: `translate(calc(-50% + ${dx}rem), calc(-50% + ${dy}rem))`,
-              fontSize: '0.5625rem',
-            }}
-          >
-            {member.initial}
-          </span>
-        );
-      })}
-    </div>
-  );
-};
-
-const SquadUniverseBackground = (): ReactElement => (
+const KnowledgeMapBackground = (): ReactElement => (
   <div
     aria-hidden
     className="pointer-events-none absolute inset-0 -z-1 select-none"
   >
-    {SQUADS.map((squad) => (
-      <SquadCluster key={squad.name} squad={squad} />
-    ))}
+    <svg
+      className="absolute inset-0 h-full w-full"
+      viewBox="0 0 1600 900"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      {METRO_LINES.map((line) => {
+        const points = line.stations.map((s) => `${s.x},${s.y}`).join(' ');
+        return (
+          <g key={`line-${line.name}`} className={ACCENT_TEXT[line.accent]}>
+            <polyline
+              points={points}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              opacity="0.55"
+            />
+          </g>
+        );
+      })}
+
+      {METRO_LINES.map((line) =>
+        line.stations.map((station) => (
+          <g
+            key={`station-${line.name}-${station.label}`}
+            className={ACCENT_TEXT[line.accent]}
+          >
+            {station.highlighted && (
+              <circle
+                cx={station.x}
+                cy={station.y}
+                r="22"
+                fill="currentColor"
+                opacity="0.14"
+              />
+            )}
+            <circle
+              cx={station.x}
+              cy={station.y}
+              r={station.highlighted ? 11 : 9}
+              fill="#0a0a0e"
+              stroke="currentColor"
+              strokeWidth={station.highlighted ? 4 : 3}
+              className={station.highlighted ? 'onb-station-glow' : undefined}
+            />
+            <text
+              x={station.x + (station.labelDx ?? 0)}
+              y={station.y + (station.labelDy ?? 30)}
+              textAnchor={station.labelAnchor ?? 'middle'}
+              fontSize={station.highlighted ? 20 : 16}
+              fontWeight={station.highlighted ? 700 : 500}
+              fill={
+                station.highlighted ? 'currentColor' : 'rgba(255,255,255,0.58)'
+              }
+              style={{
+                filter: station.highlighted
+                  ? 'drop-shadow(0 2px 10px rgba(0,0,0,0.6))'
+                  : 'drop-shadow(0 1px 4px rgba(0,0,0,0.7))',
+              }}
+            >
+              {station.label}
+            </text>
+            {station.badge && (
+              <g>
+                <rect
+                  x={station.x + 24}
+                  y={station.y + 18}
+                  width="48"
+                  height="22"
+                  rx="11"
+                  fill="currentColor"
+                  opacity="0.18"
+                />
+                <text
+                  x={station.x + 48}
+                  y={station.y + 33}
+                  textAnchor="middle"
+                  fontSize="13"
+                  fontWeight={700}
+                  fill="currentColor"
+                  letterSpacing="0.5"
+                >
+                  {station.badge.toUpperCase()}
+                </text>
+              </g>
+            )}
+          </g>
+        )),
+      )}
+
+      <g className={ACCENT_TEXT.onion}>
+        <circle
+          cx="1040"
+          cy="340"
+          r="14"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          opacity="0.9"
+          className="onb-pulse-ring"
+        />
+      </g>
+    </svg>
+
+    <div className="bg-raw-pepper-90/55 border-white/10 absolute left-6 top-6 hidden items-center gap-3 rounded-full border px-3 py-1.5 backdrop-blur-md tablet:flex">
+      <span className="text-text-quaternary typo-caption2">Lines</span>
+      {METRO_LINES.map((line) => (
+        <span
+          key={line.name}
+          className="text-white/60 flex items-center gap-1.5 typo-caption2"
+        >
+          <span
+            className={classNames(
+              'h-2 w-2 rounded-full',
+              ACCENT_BG[line.accent],
+            )}
+          />
+          {line.name}
+        </span>
+      ))}
+    </div>
   </div>
 );
 
 // ---------- Variant registry ----------
 
-type VariantId = 'constellation' | 'squads';
+type VariantId = 'constellation' | 'map';
 
 type VariantDef = {
   id: VariantId;
@@ -440,9 +547,9 @@ const VARIANTS: VariantDef[] = [
     render: () => <ConstellationBackground />,
   },
   {
-    id: 'squads',
-    label: 'Squads',
-    render: () => <SquadUniverseBackground />,
+    id: 'map',
+    label: 'Map',
+    render: () => <KnowledgeMapBackground />,
   },
 ];
 
