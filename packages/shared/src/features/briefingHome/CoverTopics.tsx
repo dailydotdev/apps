@@ -97,22 +97,17 @@ export const CoverTopics = ({
   onOpen,
 }: CoverTopicsProps): ReactElement => (
   <section>
-    <div className="mb-2 flex items-center gap-2 px-1">
+    <div className="mb-3 flex items-baseline gap-2 px-1">
       <EyeIcon
-        size={IconSize.XSmall}
-        className="text-accent-water-default"
+        size={IconSize.Small}
+        className="self-center text-accent-water-default"
         secondary
       />
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Primary}
-        bold
-        className="uppercase tracking-[0.16em]"
-      >
-        {briefCopy.topicsEyebrow}
+      <Typography type={TypographyType.Title3} bold>
+        On your radar
       </Typography>
       <Typography
-        type={TypographyType.Caption1}
+        type={TypographyType.Footnote}
         color={TypographyColor.Quaternary}
         className="tabular-nums"
       >

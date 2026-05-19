@@ -127,9 +127,9 @@ export const CoverClosing = ({
       </div>
 
       <Typography
-        type={TypographyType.Caption2}
+        type={TypographyType.Caption1}
         color={TypographyColor.Quaternary}
-        className="mt-3 uppercase tracking-[0.2em]"
+        className="mt-2"
       >
         Below: your personalized feed
       </Typography>

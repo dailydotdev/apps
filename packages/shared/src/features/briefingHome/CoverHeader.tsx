@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   Typography,
   TypographyColor,
@@ -8,26 +8,13 @@ import {
 } from '../../components/typography/Typography';
 import { RefreshIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { briefCopy } from './copy';
 
-const formatDate = (): string =>
+const formatLongDate = (): string =>
   new Date().toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
+    weekday: 'long',
+    month: 'long',
     day: 'numeric',
   });
-
-const greetingFor = (name: string): string => {
-  const hour = new Date().getHours();
-  if (hour < 12) {
-    return briefCopy.greeting.morning(name);
-  }
-  if (hour < 18) {
-    return briefCopy.greeting.afternoon(name);
-  }
-  return briefCopy.greeting.evening(name);
-};
 
 interface CoverHeaderProps {
   totals: {
@@ -43,49 +30,48 @@ export const CoverHeader = ({
   totals,
   sourceCount,
   onReset,
-}: CoverHeaderProps): ReactElement => {
-  const { user } = useAuthContext();
-  const displayName = useMemo(
-    () => user?.name?.split(' ')[0] || user?.username || 'there',
-    [user],
-  );
-
-  return (
-    <header
-      id="brief-top"
-      className="flex scroll-mt-20 flex-wrap items-baseline justify-between gap-x-3 gap-y-1"
-    >
+}: CoverHeaderProps): ReactElement => (
+  <header
+    id="brief-top"
+    className="flex scroll-mt-20 flex-wrap items-end justify-between gap-x-4 gap-y-2"
+  >
+    <div className="flex flex-col gap-1">
       <Typography
         tag={TypographyTag.H1}
-        type={TypographyType.Title2}
+        type={TypographyType.LargeTitle}
         bold
-        className="!leading-tight tracking-[-0.02em]"
+        className="!leading-[1.05] tracking-[-0.02em]"
       >
-        {greetingFor(displayName)}
+        Your briefing is ready
       </Typography>
-      <div className="flex shrink-0 items-center gap-3">
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Quaternary}
-          bold
-          className="uppercase tracking-[0.16em]"
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {totals.total} stories · ~{totals.readMinutes} min read · {sourceCount}{' '}
+        sources scanned for you
+      </Typography>
+    </div>
+    <div className="flex shrink-0 items-center gap-3">
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Quaternary}
+        bold
+      >
+        {formatLongDate()}
+      </Typography>
+      {totals.readCount > 0 ? (
+        <button
+          type="button"
+          onClick={onReset}
+          className="inline-flex items-center gap-1 rounded-8 px-1.5 py-1 text-text-quaternary transition-colors hover:bg-surface-float hover:text-text-tertiary"
         >
-          {formatDate()} ·{' '}
-          {briefCopy.briefMetaLine(totals.readMinutes, sourceCount)}
-        </Typography>
-        {totals.readCount > 0 ? (
-          <button
-            type="button"
-            onClick={onReset}
-            className="inline-flex items-center gap-1 rounded-8 px-1.5 py-1 text-text-quaternary transition-colors hover:bg-surface-float hover:text-text-tertiary"
-          >
-            <RefreshIcon size={IconSize.XXSmall} />
-            <Typography type={TypographyType.Caption2} bold>
-              Reset
-            </Typography>
-          </button>
-        ) : null}
-      </div>
-    </header>
-  );
-};
+          <RefreshIcon size={IconSize.XXSmall} />
+          <Typography type={TypographyType.Caption2} bold>
+            Reset
+          </Typography>
+        </button>
+      ) : null}
+    </div>
+  </header>
+);
