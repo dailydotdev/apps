@@ -93,7 +93,7 @@ function InternalApp(): ReactElement {
 
   const onPageChanged = useCallback(
     (page: string): void => {
-      setCurrentPage(page);
+      setCurrentPage?.(page);
       dismissToast();
     },
     [dismissToast, setCurrentPage],
@@ -114,9 +114,7 @@ function InternalApp(): ReactElement {
   );
 }
 
-const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
-  fallback: null,
-});
+const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp);
 
 export default function SafariApp({
   localBootData,

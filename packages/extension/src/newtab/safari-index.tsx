@@ -68,7 +68,7 @@ globalThis.fetch = async (
 ): Promise<Response> => {
   const url = resolveUrl(input);
 
-  if (!url.startsWith(apiUrl)) {
+  if (!apiUrl || !url.startsWith(apiUrl)) {
     return originalFetch(input, init);
   }
 
@@ -102,7 +102,13 @@ window.addEventListener(
   },
 );
 
-const root = createRoot(document.getElementById('__next'));
+const container = document.getElementById('__next');
+
+if (!container) {
+  throw new Error('Root container "#__next" not found');
+}
+
+const root = createRoot(container);
 
 const renderApp = (data?: BootCacheData) => {
   root.render(<SafariApp localBootData={data} />);
@@ -115,5 +121,5 @@ const renderApp = (data?: BootCacheData) => {
     applyTheme(themeModes[data.settings.theme]);
   }
 
-  renderApp(data);
+  renderApp(data ?? undefined);
 })();
