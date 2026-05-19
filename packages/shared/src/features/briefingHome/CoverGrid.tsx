@@ -151,19 +151,31 @@ const StoryRow = ({
                 </span>
               </span>
             </div>
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              icon={<ArrowIcon className="rotate-90" />}
-              iconPosition={ButtonIconPosition.Right}
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpen();
-              }}
-              className="shrink-0"
-            >
-              Read full breakdown
-            </Button>
+            {isExpanded ? (
+              <Button
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.XSmall}
+                icon={<ArrowIcon className="rotate-90" />}
+                iconPosition={ButtonIconPosition.Right}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen();
+                }}
+                className="shrink-0"
+              >
+                Read full breakdown
+              </Button>
+            ) : null}
+            <ArrowIcon
+              size={IconSize.XSmall}
+              className={classNames(
+                'shrink-0 transition-all duration-300 ease-out',
+                isExpanded
+                  ? 'rotate-0 text-text-tertiary'
+                  : 'rotate-180 text-text-quaternary opacity-0 group-hover:opacity-100',
+              )}
+              aria-hidden
+            />
           </div>
         </div>
 

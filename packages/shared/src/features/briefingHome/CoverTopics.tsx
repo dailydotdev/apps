@@ -96,7 +96,7 @@ export const CoverTopics = ({
   onOpen,
 }: CoverTopicsProps): ReactElement => (
   <section>
-    <div className="mb-4 flex items-baseline gap-2">
+    <div className="mb-8 flex items-baseline gap-2">
       <EyeIcon
         size={IconSize.Small}
         className="self-center text-accent-water-default"
@@ -106,7 +106,7 @@ export const CoverTopics = ({
         On your radar
       </Typography>
     </div>
-    <div className="grid grid-cols-1 gap-x-12 gap-y-10 tablet:grid-cols-2">
+    <div className="grid grid-cols-1 gap-x-16 gap-y-12 tablet:grid-cols-2">
       {topics.map((t) => (
         <TopicCard
           key={t.id}
