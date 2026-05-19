@@ -477,7 +477,8 @@ const VariantSwitcher = ({
   onChange,
 }: VariantSwitcherProps): ReactElement => (
   <div
-    className="z-10 border-white/10 absolute right-4 top-4 flex items-center gap-1 rounded-full border bg-overlay-tertiary-onion p-1 backdrop-blur-md tablet:right-6 tablet:top-6"
+    className="bg-raw-pepper-90/85 border-white/10 pointer-events-auto fixed right-4 top-4 flex items-center gap-1 rounded-full border p-1 backdrop-blur-md tablet:right-6 tablet:top-6"
+    style={{ zIndex: 50 }}
     role="radiogroup"
     aria-label="Background variant"
   >
@@ -492,7 +493,7 @@ const VariantSwitcher = ({
           aria-checked={active}
           onClick={() => onChange(variant.id)}
           className={classNames(
-            'rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
+            'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
             active
               ? 'bg-white/15 text-text-primary'
               : 'text-text-tertiary hover:text-text-primary',
