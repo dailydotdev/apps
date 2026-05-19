@@ -16,10 +16,6 @@ import type { AnonymousUser, LoggedUser } from '../../../lib/user';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useOnboardingActions } from '../../../hooks/auth';
-import {
-  ThemeMode,
-  useSettingsContext,
-} from '../../../contexts/SettingsContext';
 import { OnboardingSignupHero } from '../components/OnboardingSignupHero';
 
 type FunnelOrganicSignupProps = FunnelStepOrganicSignup;
@@ -53,7 +49,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const hasAlreadyCheckedUser = useRef(false);
     const isMobile = useViewSize(ViewSize.MobileL);
     const setAuth = useSetAtom(authAtom);
-    const { applyThemeMode } = useSettingsContext();
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
@@ -68,13 +63,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
       isLoggedIn &&
       !isEmailSignupActive &&
       isSocialSignupUser(user);
-
-    useEffect(() => {
-      applyThemeMode(ThemeMode.Dark);
-      return () => {
-        applyThemeMode();
-      };
-    }, [applyThemeMode]);
 
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {

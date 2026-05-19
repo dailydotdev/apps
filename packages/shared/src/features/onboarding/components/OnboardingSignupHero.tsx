@@ -1,7 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import Logo, { LogoPosition } from '../../../components/Logo';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '../../../contexts/SettingsContext';
 
 type FeedCard = {
   source: string;
@@ -274,80 +278,95 @@ const HERO_STYLES = `
 type Props = {
   children: ReactNode;
   isFormExpanded?: boolean;
+  headline?: string | null;
 };
+
+const DEFAULT_HEADLINE = 'The homepage every developer deserves.';
 
 export const OnboardingSignupHero = ({
   children,
   isFormExpanded = false,
-}: Props): ReactElement => (
-  <div className="onb-bg relative flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary">
-    <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
+  headline = DEFAULT_HEADLINE,
+}: Props): ReactElement => {
+  const { applyThemeMode } = useSettingsContext();
 
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-1 select-none"
-    >
-      <div className="grid h-full w-full grid-cols-2 gap-4 px-4 tablet:grid-cols-3 tablet:px-6 laptop:grid-cols-4 laptop:px-8">
-        {COLUMNS.map(({ slice, duration }, idx) => {
-          const cards = CARDS.slice(slice[0], slice[1]);
-          const doubled = [...cards, ...cards];
-          const hideOnMobile = idx >= 2;
-          const hideOnTablet = idx === 3;
-          return (
-            <div
-              key={`col-${slice[0]}`}
-              className={classNames(
-                'onb-col -mt-16',
-                idx % 2 === 1 && 'onb-col--reverse',
-                hideOnMobile && 'hidden tablet:flex',
-                hideOnTablet && 'tablet:hidden laptop:flex',
-              )}
-              style={{ ['--onb-dur' as string]: duration }}
-            >
-              {doubled.map((card, j) => (
-                <FeedCardTile
-                  // eslint-disable-next-line react/no-array-index-key
-                  key={`${slice[0]}-${card.title}-${j}`}
-                  card={card}
-                />
-              ))}
-            </div>
-          );
-        })}
+  useEffect(() => {
+    applyThemeMode(ThemeMode.Dark);
+    return () => {
+      applyThemeMode();
+    };
+  }, [applyThemeMode]);
+
+  return (
+    <div className="onb-bg relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary">
+      <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-1 select-none"
+      >
+        <div className="grid h-full w-full grid-cols-2 gap-4 px-4 tablet:grid-cols-3 tablet:px-6 laptop:grid-cols-4 laptop:px-8">
+          {COLUMNS.map(({ slice, duration }, idx) => {
+            const cards = CARDS.slice(slice[0], slice[1]);
+            const doubled = [...cards, ...cards];
+            const hideOnMobile = idx >= 2;
+            const hideOnTablet = idx === 3;
+            return (
+              <div
+                key={`col-${slice[0]}`}
+                className={classNames(
+                  'onb-col -mt-16',
+                  idx % 2 === 1 && 'onb-col--reverse',
+                  hideOnMobile && 'hidden tablet:flex',
+                  hideOnTablet && 'tablet:hidden laptop:flex',
+                )}
+                style={{ ['--onb-dur' as string]: duration }}
+              >
+                {doubled.map((card, j) => (
+                  <FeedCardTile
+                    // eslint-disable-next-line react/no-array-index-key
+                    key={`${slice[0]}-${card.title}-${j}`}
+                    card={card}
+                  />
+                ))}
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      <div
+        aria-hidden
+        className="onb-overlay-v pointer-events-none absolute inset-0 -z-1 tablet:hidden"
+      />
+      <div
+        aria-hidden
+        className="onb-overlay-h pointer-events-none absolute inset-0 -z-1 hidden tablet:block"
+      />
+      <div
+        aria-hidden
+        className="onb-vignette pointer-events-none absolute inset-0 -z-1 hidden tablet:block"
+      />
+
+      <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center px-5 py-10 tablet:justify-end tablet:px-10 laptop:py-14 laptop:pr-[8vw]">
+        <div className="flex w-full max-w-[26rem] flex-col gap-7">
+          <Logo
+            position={LogoPosition.Relative}
+            className="!left-0 !top-0 !mt-0 !translate-x-0"
+            logoClassName={{ container: 'h-7' }}
+          />
+
+          {!isFormExpanded && headline && (
+            <h1 className="onb-headline text-balance font-bold leading-[1.05] tracking-tight text-text-primary typo-large-title tablet:typo-mega3">
+              {headline}
+            </h1>
+          )}
+
+          {children}
+        </div>
+      </main>
     </div>
-
-    <div
-      aria-hidden
-      className="onb-overlay-v pointer-events-none absolute inset-0 -z-1 tablet:hidden"
-    />
-    <div
-      aria-hidden
-      className="onb-overlay-h pointer-events-none absolute inset-0 -z-1 hidden tablet:block"
-    />
-    <div
-      aria-hidden
-      className="onb-vignette pointer-events-none absolute inset-0 -z-1 hidden tablet:block"
-    />
-
-    <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center px-5 py-10 tablet:justify-end tablet:px-10 laptop:py-14 laptop:pr-[8vw]">
-      <div className="flex w-full max-w-[26rem] flex-col gap-7">
-        <Logo
-          position={LogoPosition.Relative}
-          className="!left-0 !top-0 !mt-0 !translate-x-0"
-          logoClassName={{ container: 'h-7' }}
-        />
-
-        {!isFormExpanded && (
-          <h1 className="onb-headline text-balance font-bold leading-[1.05] tracking-tight text-text-primary typo-large-title tablet:typo-mega3">
-            The homepage every developer deserves.
-          </h1>
-        )}
-
-        {children}
-      </div>
-    </main>
-  </div>
-);
+  );
+};
 
 export default OnboardingSignupHero;
