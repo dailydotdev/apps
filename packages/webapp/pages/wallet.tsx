@@ -30,6 +30,7 @@ import {
 import { ListCardDivider } from '@dailydotdev/shared/src/components/cards/common/Card';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 
@@ -62,6 +63,11 @@ import {
   useCanPurchaseCores,
   useHasAccessToCores,
 } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
@@ -105,12 +111,15 @@ const BalanceBlock = ({
 
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 
-const Wallet = (): ReactElement => {
+const Wallet = (): ReactElement | null => {
   const router = useRouter();
   const { isLoggedIn, user, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
 
   const onBuyCoresClick = useCallback(
     ({
@@ -183,31 +192,38 @@ const Wallet = (): ReactElement => {
     return null;
   }
 
+  const buyCoresButton = canPurchaseCores ? (
+    <Button
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Primary}
+      onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
+      tag="a"
+      href={getPathnameWithQuery(
+        `${webappUrl}cores`,
+        new URLSearchParams({
+          origin: Origin.WalletPageCTA,
+        }),
+      )}
+    >
+      Buy Cores
+    </Button>
+  ) : null;
+
   return (
     <ProtectedPage>
+      {isV2Laptop && (
+        <PageHeader title="Core wallet">{buyCoresButton}</PageHeader>
+      )}
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
         <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
-          <header className="flex items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2">
-            <Typography type={TypographyType.Title3} bold>
-              Core wallet
-            </Typography>
-            {canPurchaseCores && (
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
-                tag="a"
-                href={getPathnameWithQuery(
-                  `${webappUrl}cores`,
-                  new URLSearchParams({
-                    origin: Origin.WalletPageCTA,
-                  }),
-                )}
-              >
-                Buy Cores
-              </Button>
-            )}
-          </header>
+          {!isV2Laptop && (
+            <header className="flex items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2">
+              <Typography type={TypographyType.Title3} bold>
+                Core wallet
+              </Typography>
+              {buyCoresButton}
+            </header>
+          )}
           <div className="flex flex-col gap-6 p-6">
             <section className="flex w-full flex-wrap gap-4">
               <BalanceBlock
@@ -287,16 +303,16 @@ const Wallet = (): ReactElement => {
                               transaction,
                               user,
                             });
+                            const transactionUser =
+                              type === 'receive'
+                                ? transaction.sender ?? transaction.receiver
+                                : transaction.receiver;
 
                             return (
                               <TransactionItem
                                 key={transaction.id}
                                 type={type}
-                                user={
-                                  type === 'receive'
-                                    ? transaction.sender
-                                    : transaction.receiver
-                                }
+                                user={transactionUser}
                                 amount={
                                   type === 'send'
                                     ? -transaction.value

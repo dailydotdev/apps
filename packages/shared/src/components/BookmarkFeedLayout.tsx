@@ -1,4 +1,4 @@
-import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useCallback,
   useContext,
@@ -21,7 +21,6 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
@@ -60,17 +59,6 @@ const SharedBookmarksModal = dynamic(
     import(
       /* webpackChunkName: "sharedBookmarksModal" */ './modals/SharedBookmarksModal'
     ),
-);
-
-const ShareBookmarksButton = ({
-  children,
-  ...props
-}: PropsWithChildren<
-  Pick<ButtonProps<'button'>, 'className' | 'onClick' | 'icon'>
->) => (
-  <Button variant={ButtonVariant.Secondary} {...props}>
-    {children}
-  </Button>
 );
 
 const bookmarkSortOptions = [
@@ -203,9 +191,7 @@ export default function BookmarkFeedLayout({
         container: isV2Laptop ? 'flex' : 'ml-4 flex',
       }}
       shouldIndicateSelected
-      icon={
-        <SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />
-      }
+      icon={<SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />}
       iconOnly
       selectedIndex={selectedSort}
       options={bookmarkSortOptionLabels}
@@ -216,29 +202,61 @@ export default function BookmarkFeedLayout({
     />
   );
   const shareButton = !isFolderPage && (
-    <ShareBookmarksButton
+    <Button
       aria-label="Share bookmarks"
-      className={isV2Laptop ? 'flex' : 'ml-4 flex'}
-      icon={<ShareIcon secondary={showSharedBookmarks} aria-hidden />}
+      className={isV2Laptop ? undefined : 'ml-4 flex'}
+      icon={
+        <ShareIcon
+          size={isV2Laptop ? IconSize.XSmall : IconSize.Medium}
+          secondary={showSharedBookmarks}
+          aria-hidden
+        />
+      }
       onClick={() => setShowSharedBookmarks(true)}
-      {...(isV2Laptop && {
-        size: ButtonSize.Small,
-        variant: ButtonVariant.Tertiary,
-      })}
+      size={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
+      variant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Secondary}
     >
       {isLaptop ? <span>Share bookmarks</span> : null}
-    </ShareBookmarksButton>
+    </Button>
   );
   const folderMenu = folder && !isReminderOnly && (
-    <BookmarkFolderContextMenu folder={folder} />
+    <BookmarkFolderContextMenu
+      folder={folder}
+      buttonProps={
+        isV2Laptop
+          ? {
+              className: 'flex',
+              size: ButtonSize.Small,
+              variant: ButtonVariant.Tertiary,
+            }
+          : undefined
+      }
+    />
+  );
+  const headerTitleSlot = isV2Laptop ? (
+    <div className="flex min-w-0 flex-1 items-center gap-3">
+      <Typography
+        bold
+        type={TypographyType.Callout}
+        tag={TypographyTag.H1}
+        truncate
+        className="min-w-0 shrink"
+      >
+        {title}
+      </Typography>
+      {searchChildren && (
+        <div className="min-w-0 max-w-[20rem] flex-1">{searchChildren}</div>
+      )}
+    </div>
+  ) : (
+    title
   );
 
   return (
     <FeedPageLayoutComponent>
       {children}
       {isV2Laptop ? (
-        <PageHeader title={title}>
-          {searchChildren}
+        <PageHeader title={headerTitleSlot}>
           {sortDropdown}
           {shareButton}
           {folderMenu}

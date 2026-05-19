@@ -62,9 +62,10 @@ export const AccountPageContainer = ({
   }, [isV2Laptop]);
 
   const pageHeader = isV2Laptop ? (
-    <PageHeader title={typeof title === 'string' ? title : undefined}>
+    <PageHeader title={title}>
       {onBack && (
         <Button
+          type="button"
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
@@ -91,6 +92,7 @@ export const AccountPageContainer = ({
       {!isV2Laptop && (
         <AccountPageHeading className={classNames('sticky', className.heading)}>
           <Button
+            type="button"
             className={classNames('mr-2 flex tablet:hidden', {
               hidden: onBack,
             })}
@@ -101,6 +103,7 @@ export const AccountPageContainer = ({
           />
           {onBack && (
             <Button
+              type="button"
               className="mr-2"
               icon={<ArrowIcon className="-rotate-90" />}
               variant={ButtonVariant.Tertiary}
