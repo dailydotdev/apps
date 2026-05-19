@@ -6,7 +6,12 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import { UpvoteIcon, DiscussIcon } from '../../components/icons';
+import {
+  TrendingIcon,
+  TimerIcon,
+  UpvoteIcon,
+  DiscussIcon,
+} from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import type { StoryItem } from './types';
 import { briefCopy } from './copy';
@@ -17,41 +22,51 @@ interface CoverGridProps {
   onOpen: (story: StoryItem) => void;
 }
 
-const SourceStack = ({ story }: { story: StoryItem }): ReactElement => {
-  const shown = story.sources.slice(0, 3);
-  const remaining = story.sources.length - shown.length;
-  return (
-    <span className="inline-flex items-center" aria-hidden="true">
-      {shown.map((src, idx) => (
-        <span
-          key={src.sourceId}
-          className={classNames(
-            'overflow-hidden rounded-6 border border-background-default bg-surface-float',
-            'size-5',
-            idx === 0 ? '' : '-ml-1.5',
-          )}
-        >
-          <img
-            src={src.sourceImage}
-            alt=""
-            loading="lazy"
-            className="size-full object-cover"
-          />
-        </span>
-      ))}
-      {remaining > 0 ? (
-        <span className="ml-1 inline-block">
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Quaternary}
-          >
-            +{remaining}
-          </Typography>
-        </span>
-      ) : null}
-    </span>
+const stripMd = (s: string): string =>
+  s
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*_]{1,2}([^*_\n]+)[*_]{1,2}/g, '$1');
+
+const estimateMinutes = (story: StoryItem): number =>
+  Math.max(
+    2,
+    Math.round(story.summary.split(/\s+/).filter(Boolean).length / 220),
   );
-};
+
+const SectionHeading = ({ count }: { count: number }): ReactElement => (
+  <div className="mb-4 flex items-end justify-between gap-3">
+    <div className="flex items-center gap-2">
+      <TrendingIcon
+        size={IconSize.XSmall}
+        className="text-accent-cabbage-default"
+        secondary
+      />
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Primary}
+        bold
+        className="uppercase tracking-[0.16em]"
+      >
+        {briefCopy.attentionEyebrow}
+      </Typography>
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Quaternary}
+        className="tabular-nums"
+      >
+        · {count}
+      </Typography>
+    </div>
+    <Typography
+      type={TypographyType.Caption1}
+      color={TypographyColor.Quaternary}
+      className="hidden tablet:inline"
+    >
+      {briefCopy.attentionHint}
+    </Typography>
+  </div>
+);
 
 const CoverGridCard = ({
   story,
@@ -62,15 +77,14 @@ const CoverGridCard = ({
   isRead: boolean;
   onOpen: () => void;
 }): ReactElement => {
+  const minutes = estimateMinutes(story);
+  const primarySource = story.sources[0];
+  const extraSources = story.sources.length - 1;
   const quote = story.highlightedComments[0];
-  const cleanQuote = quote?.content
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/[*_]{1,2}([^*_\n]+)[*_]{1,2}/g, '$1')
-    .trim();
+  const cleanQuote = quote ? stripMd(quote.content).trim() : null;
   const shortQuote =
-    cleanQuote && cleanQuote.length > 110
-      ? `${cleanQuote.slice(0, 107)}…`
+    cleanQuote && cleanQuote.length > 90
+      ? `${cleanQuote.slice(0, 87)}…`
       : cleanQuote;
 
   return (
@@ -78,11 +92,51 @@ const CoverGridCard = ({
       type="button"
       onClick={onOpen}
       className={classNames(
-        'group flex h-full flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-4 text-left transition-colors hover:border-border-subtlest-secondary hover:bg-surface-float',
+        'group flex h-full flex-col gap-2.5 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-4 text-left transition-colors hover:border-border-subtlest-secondary hover:bg-surface-float',
         isRead && 'opacity-60',
       )}
     >
-      <SourceStack story={story} />
+      <div className="flex items-center gap-2 text-text-quaternary">
+        {primarySource ? (
+          <span className="inline-flex min-w-0 items-center gap-1.5">
+            <span className="size-4 shrink-0 overflow-hidden rounded-6 bg-surface-float">
+              <img
+                src={primarySource.sourceImage}
+                alt=""
+                loading="lazy"
+                className="size-full object-cover"
+              />
+            </span>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              bold
+              className="truncate"
+            >
+              {primarySource.sourceName}
+            </Typography>
+            {extraSources > 0 ? (
+              <Typography
+                type={TypographyType.Caption2}
+                color={TypographyColor.Quaternary}
+              >
+                +{extraSources}
+              </Typography>
+            ) : null}
+          </span>
+        ) : null}
+        <span className="ml-auto inline-flex items-center gap-1 text-text-quaternary">
+          <TimerIcon size={IconSize.XXSmall} />
+          <Typography
+            type={TypographyType.Caption2}
+            color={TypographyColor.Quaternary}
+            bold
+          >
+            {briefCopy.storyReadTime(minutes)}
+          </Typography>
+        </span>
+      </div>
+
       <Typography
         type={TypographyType.Body}
         bold
@@ -95,15 +149,17 @@ const CoverGridCard = ({
       >
         {story.title}
       </Typography>
+
       {shortQuote ? (
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
-          className="mt-auto line-clamp-2 italic"
+          className="line-clamp-2 italic"
         >
           “{shortQuote}”
         </Typography>
       ) : null}
+
       <div className="mt-auto flex items-center gap-3 pt-2 text-text-quaternary">
         <span className="inline-flex items-center gap-1">
           <UpvoteIcon size={IconSize.XXSmall} />
@@ -133,15 +189,8 @@ export const CoverGrid = ({
   readSet,
   onOpen,
 }: CoverGridProps): ReactElement => (
-  <section className="mt-8">
-    <Typography
-      type={TypographyType.Caption1}
-      color={TypographyColor.Quaternary}
-      bold
-      className="mb-3 uppercase tracking-[0.18em]"
-    >
-      {briefCopy.attentionEyebrow}
-    </Typography>
+  <section>
+    <SectionHeading count={stories.length} />
     <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
       {stories.map((s) => (
         <CoverGridCard

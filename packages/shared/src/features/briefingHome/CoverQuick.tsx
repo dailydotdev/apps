@@ -6,7 +6,12 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import { UpvoteIcon, DiscussIcon } from '../../components/icons';
+import {
+  StarIcon,
+  UpvoteIcon,
+  DiscussIcon,
+  ArrowIcon,
+} from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import type { QuickHit } from './types';
 import { briefCopy } from './copy';
@@ -22,22 +27,46 @@ export const CoverQuick = ({
   readSet,
   onRead,
 }: CoverQuickProps): ReactElement => (
-  <section className="mt-8">
-    <Typography
-      type={TypographyType.Caption1}
-      color={TypographyColor.Quaternary}
-      bold
-      className="mb-3 uppercase tracking-[0.18em]"
-    >
-      {briefCopy.quickEyebrow}
-    </Typography>
-    <ul className="grid grid-cols-1 gap-x-6 gap-y-1 tablet:grid-cols-2">
+  <section>
+    <div className="mb-4 flex items-end justify-between gap-3">
+      <div className="flex items-center gap-2">
+        <StarIcon
+          size={IconSize.XSmall}
+          className="text-accent-bun-default"
+          secondary
+        />
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Primary}
+          bold
+          className="uppercase tracking-[0.16em]"
+        >
+          {briefCopy.quickEyebrow}
+        </Typography>
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Quaternary}
+          className="tabular-nums"
+        >
+          · {quickHits.length}
+        </Typography>
+      </div>
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Quaternary}
+        className="hidden tablet:inline"
+      >
+        {briefCopy.quickHint}
+      </Typography>
+    </div>
+
+    <ul className="grid grid-cols-1 gap-x-6 tablet:grid-cols-2">
       {quickHits.map((q) => {
         const read = readSet.has(q.id);
         return (
           <li
             key={q.id}
-            className="border-b border-border-subtlest-tertiary last:border-b-0"
+            className="border-b border-border-subtlest-tertiary last:border-b-0 tablet:[&:nth-last-child(2)]:border-b-0"
           >
             <a
               href={q.url}
@@ -45,15 +74,21 @@ export const CoverQuick = ({
               rel="noopener noreferrer"
               onClick={() => onRead(q.id)}
               className={classNames(
-                'group flex items-center gap-3 py-2.5 transition-colors hover:bg-surface-float',
+                'group flex items-center gap-3 py-3 transition-colors',
                 read && 'opacity-60',
               )}
             >
+              <span
+                className={classNames(
+                  'inline-block size-1.5 shrink-0 rounded-full transition-colors',
+                  read ? 'bg-text-quaternary' : 'bg-accent-bun-default',
+                )}
+              />
               <Typography
                 type={TypographyType.Caption2}
                 color={TypographyColor.Quaternary}
                 bold
-                className="w-16 shrink-0 truncate uppercase tracking-[0.12em]"
+                className="w-14 shrink-0 truncate uppercase tracking-[0.12em]"
               >
                 {q.eyebrow}
               </Typography>
@@ -63,7 +98,7 @@ export const CoverQuick = ({
                   read ? TypographyColor.Tertiary : TypographyColor.Primary
                 }
                 className={classNames(
-                  'min-w-0 flex-1 truncate transition-colors',
+                  'min-w-0 flex-1 !leading-snug transition-colors',
                   read && 'decoration-text-quaternary/40 line-through',
                   !read && 'group-hover:text-brand-default',
                 )}
@@ -90,6 +125,10 @@ export const CoverQuick = ({
                   </Typography>
                 </span>
               </span>
+              <ArrowIcon
+                size={IconSize.XXSmall}
+                className="rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
+              />
             </a>
           </li>
         );

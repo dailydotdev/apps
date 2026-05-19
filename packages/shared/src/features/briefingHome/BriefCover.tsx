@@ -122,6 +122,19 @@ export const BriefCover = ({
     [markRead, storyList],
   );
 
+  const uniqueSourceCount = useMemo(() => {
+    const ids = new Set<string>();
+    [brief.lead, ...brief.reads].forEach((s) =>
+      s.sources.forEach((src) => ids.add(src.sourceId)),
+    );
+    return ids.size;
+  }, [brief]);
+
+  const edition = useMemo(() => {
+    const epochDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    return epochDay - 19800 + 142;
+  }, []);
+
   const navigatePanel = useCallback(
     (delta: 1 | -1) => {
       setActivePanel((current) => {
@@ -193,20 +206,19 @@ export const BriefCover = ({
     <section
       aria-label="Your daily brief"
       className={classNames(
-        'mx-auto mb-6 w-full max-w-[68rem] px-3 tablet:px-4',
+        'mx-auto mb-8 flex w-full max-w-[64rem] flex-col gap-7 px-3 tablet:px-4',
         className,
       )}
     >
       <CoverHeader
+        edition={edition}
+        totals={totals}
+        sourceCount={uniqueSourceCount}
         onCollapse={collapse}
         onHide={hideForToday}
         skipAnchor="#brief-end"
       />
-      <CoverLead
-        story={brief.lead}
-        totals={totals}
-        onOpen={() => openPanel(brief.lead)}
-      />
+      <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
       <CoverGrid
         stories={brief.reads}
         readSet={readSet}

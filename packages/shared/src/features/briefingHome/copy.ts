@@ -1,38 +1,53 @@
 export const briefCopy = {
-  eyebrowToday: 'Your brief',
+  editionLabel: (n: number) => `Edition #${n}`,
   greeting: {
-    morning: (name: string) => `Good morning, ${name}.`,
-    afternoon: (name: string) => `Good afternoon, ${name}.`,
-    evening: (name: string) => `Good evening, ${name}.`,
+    morning: (name: string) => `Good morning, ${name}`,
+    afternoon: (name: string) => `Good afternoon, ${name}`,
+    evening: (name: string) => `Good evening, ${name}`,
   },
-  heroFrame: (stories: number, minutes: number) =>
-    `${stories} things from your circles. ${minutes} minutes.`,
-  readPill: (minutes: number) => `${minutes} min`,
-  streakSuffix: '-day streak',
+  heroDeck: (stories: number, minutes: number) =>
+    `${stories} stories worth your time. About ${minutes} minutes, end to end.`,
+
+  tabBriefing: 'Your brief',
+  tabFeed: 'For you',
+  tabBriefingHint: "Today's read",
+  tabFeedHint: 'Latest posts',
+  briefMetaLine: (minutes: number, sources: number) =>
+    `${minutes} min read · ${sources} sources tracked`,
+
   storiesLabel: 'Stories',
-  minutesLabel: 'To read',
-  savedLabel: 'You save',
+  minutesLabel: 'Read time',
+  savedLabel: 'Time saved',
   progressLabel: 'Progress',
+  contributorsLabel: 'Contributors',
   collapsed: (stories: number, minutes: number, saved: number) =>
     `Today's brief · ${stories} stories · ${minutes} min · ~${saved} min saved`,
 
-  controlCollapse: 'Collapse brief',
-  controlExpand: 'Expand brief',
-  controlHide: "Hide today's brief",
-  controlSkip: 'Skip to feed',
+  controlCollapse: 'Collapse',
+  controlExpand: 'Expand',
+  controlHide: 'Dismiss',
+  controlSkip: 'Jump to feed',
   controlReshow: "Show today's brief",
+  moreActions: 'More options',
 
-  leadEyebrow: '1 big thing',
+  leadEyebrow: 'The big thing',
   attentionEyebrow: 'Worth your attention',
-  topicsEyebrow: 'On your topics',
-  quickEyebrow: 'Also worth a glance',
+  attentionHint: 'Threads heating up across your sources',
+  topicsEyebrow: 'On your radar',
+  topicsHint: 'Weekly digests from the topics you follow',
+  quickEyebrow: 'Quick hits',
+  quickHint: 'One line each. Tap to open.',
 
-  openStory: 'Open story',
-  storyMeta: (upvotes: number, comments: number) =>
-    `${upvotes} upvotes · ${comments} comments`,
+  openStory: 'Read the breakdown',
+  storyReadTime: (minutes: number) => `${minutes} min`,
+  storyContributors: (n: number) =>
+    `${n} ${n === 1 ? 'contributor' : 'contributors'}`,
+  storySourcesLabel: 'Covered by',
+  storyPostCount: (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`,
 
-  topicWeekly: 'Weekly read',
-  topicExpand: 'Open digest',
+  topicWeekly: 'Weekly digest',
+  topicExpand: 'Read the digest',
+  topicPagerLabel: 'Switch topic',
 
   closingTitleDone: "You're caught up.",
   closingTitleProgress: "That's the brief.",
@@ -43,16 +58,19 @@ export const briefCopy = {
       remaining === 1 ? 'story' : 'stories'
     } left when you're ready.`,
   closingPivot: 'Now go build something.',
-  closingShare: 'Share',
+  closingShare: 'Share brief',
 
-  scrollCue: 'Keep scrolling for the full feed',
+  scrollCue: 'See the rest of the feed',
 
+  panelMeta: (sources: number, contributors: number) =>
+    `${sources} sources · ${contributors} contributors`,
   panelOpenInFeed: 'Open in feed',
-  panelNext: 'Next',
-  panelPrev: 'Previous',
+  panelNext: 'Next story',
+  panelPrev: 'Previous story',
   panelClose: 'Close',
-  conversationLabel: 'From the conversation',
-  threadLabel: (n: number) => `${n} posts in this thread`,
+  conversationLabel: "What the community's saying",
+  threadLabel: (n: number) =>
+    `${n} ${n === 1 ? 'post in this thread' : 'posts in this thread'}`,
   tldrTag: 'TL;DR',
 
   shareHead: "Share today's brief",
