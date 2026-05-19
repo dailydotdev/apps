@@ -92,7 +92,7 @@ const StoryRow = ({
             </Typography>
           </div>
 
-          <div className="mt-1 flex items-center gap-2">
+          <div className="mt-1 flex items-center gap-3">
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               <StatPill
                 ariaLabel={`${story.totalUpvotes} upvotes`}
@@ -145,35 +145,41 @@ const StoryRow = ({
                 </span>
               </span>
             </div>
-            <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-quaternary bg-surface-float text-text-tertiary transition-colors group-hover:border-border-subtlest-tertiary">
-              <ArrowIcon
-                size={IconSize.XSmall}
-                className={classNames(
-                  'transition-transform duration-300 ease-out',
-                  isExpanded ? 'rotate-0' : 'rotate-180',
-                )}
-                aria-hidden
-              />
-            </span>
-          </div>
-
-          {isExpanded ? (
-            <div className="mt-2">
+            {isExpanded ? (
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpen();
                 }}
-                className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default"
+                className="inline-flex shrink-0 items-center gap-1 text-brand-default transition-colors hover:text-brand-hover focus-visible:underline focus-visible:outline-none"
               >
-                <Typography type={TypographyType.Caption1} bold>
-                  Read the full breakdown
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Footnote}
+                  bold
+                >
+                  Read full breakdown
                 </Typography>
-                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+                <ArrowIcon size={IconSize.XSmall} className="rotate-90" />
               </button>
-            </div>
-          ) : null}
+            ) : (
+              <span className="inline-flex shrink-0 items-center gap-1 text-text-tertiary transition-colors group-hover:text-brand-default">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Footnote}
+                  bold
+                >
+                  Read summary
+                </Typography>
+                <ArrowIcon
+                  size={IconSize.XSmall}
+                  className="rotate-180"
+                  aria-hidden
+                />
+              </span>
+            )}
+          </div>
         </div>
 
         <div
