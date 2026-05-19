@@ -27,7 +27,6 @@ interface BriefFloatingTabsProps {
 }
 
 const HEADER_OFFSET = 56;
-const BOTTOM_GAP = 24;
 const BAR_HEIGHT = 48;
 const TABS_WIDTH_FALLBACK = 220;
 const DOCKED_MAX_WIDTH = 1024;
@@ -48,11 +47,13 @@ const Tab = ({
   active,
   onClick,
   activeClass = 'bg-text-primary text-surface-invert',
+  inactiveClass = 'text-text-tertiary hover:bg-surface-float',
   children,
 }: {
   active: boolean;
   onClick: () => void;
   activeClass?: string;
+  inactiveClass?: string;
   children: React.ReactNode;
 }): ReactElement => (
   <button
@@ -61,7 +62,7 @@ const Tab = ({
     aria-current={active ? 'page' : undefined}
     className={classNames(
       'inline-flex h-9 items-center gap-1.5 rounded-8 px-3 transition-colors',
-      active ? activeClass : 'text-text-tertiary hover:bg-surface-float',
+      active ? activeClass : inactiveClass,
     )}
   >
     {children}
@@ -119,22 +120,21 @@ export const BriefFloatingTabs = ({
       return;
     }
     const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const floatingTop = vh - BAR_HEIGHT - BOTTOM_GAP;
     const sentinel = document.getElementById(sentinelId);
-    let nextTop = floatingTop;
+    let nextTop = HEADER_OFFSET;
+    let followTop = Number.POSITIVE_INFINITY;
     let nextFeedLeft = (vw - Math.min(1024, vw - VIEWPORT_PADDING)) / 2;
     let nextFeedWidth = Math.min(1024, vw - VIEWPORT_PADDING);
     if (sentinel) {
       const rect = sentinel.getBoundingClientRect();
-      const followTop = rect.top - BAR_HEIGHT;
-      nextTop = Math.min(floatingTop, followTop);
+      followTop = rect.top - BAR_HEIGHT;
+      nextTop = Math.min(HEADER_OFFSET, followTop);
       if (rect.width > 0) {
         nextFeedLeft = rect.left;
         nextFeedWidth = rect.width;
       }
     }
-    const nextDocked = nextTop <= HEADER_OFFSET + BAR_HEIGHT * 4;
+    const nextDocked = followTop <= HEADER_OFFSET + BAR_HEIGHT * 4;
     setLayout((prev) => {
       if (
         prev.barTop === nextTop &&
@@ -189,16 +189,16 @@ export const BriefFloatingTabs = ({
     feedWidth || viewportW - VIEWPORT_PADDING,
   );
   const widthPx = isDocked ? dockedWidth : tabsWidth;
-  const centerX = feedWidth > 0 ? feedLeft + feedWidth / 2 : viewportW / 2;
+  const leftPx = feedWidth > 0 ? feedLeft : VIEWPORT_PADDING;
 
   return createPortal(
     <div
       style={{
         top: `${barTop}px`,
-        left: `${centerX}px`,
+        left: `${leftPx}px`,
         width: `${widthPx}px`,
       }}
-      className="fixed z-popup -translate-x-1/2 transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      className="fixed z-popup transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
     >
       <div
         className={classNames(
@@ -211,6 +211,7 @@ export const BriefFloatingTabs = ({
             active={!isDocked}
             onClick={goBrief}
             activeClass="bg-brand-default text-white"
+            inactiveClass="text-brand-default hover:bg-brand-float"
           >
             <BriefIcon
               size={IconSize.XSmall}
