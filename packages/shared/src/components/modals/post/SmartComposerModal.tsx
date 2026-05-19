@@ -40,19 +40,23 @@ import {
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
 import { PollForm } from '../../post/composer/PollForm';
+import { StandupForm } from '../../post/composer/StandupForm';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import {
   isUserAudience,
   useComposerAudience,
 } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
+import { useStandupCreation } from '../../../hooks/liveRooms/useStandupCreation';
 import {
   DEFAULT_LINK,
   DEFAULT_POLL,
+  DEFAULT_STANDUP,
   DEFAULT_TEXT,
   type ComposerKind,
   type LinkFormState,
   type PollFormState,
+  type StandupFormState,
   type TextFormState,
 } from '../../post/composer/types';
 
@@ -75,6 +79,7 @@ export function SmartComposerModal({
   const { showPrompt } = usePrompt();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
+  const isStandupEnabled = useStandupCreation();
   const [kind, setKind] = useState<ComposerKind>(initialUrl ? 'link' : 'text');
   const [text, setText] = useState<TextFormState>(DEFAULT_TEXT);
   const [link, setLink] = useState<LinkFormState>({
@@ -82,6 +87,7 @@ export function SmartComposerModal({
     url: initialUrl ?? '',
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
+  const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
   const [cover, setCover] = useState<TextFormCover | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
@@ -100,8 +106,11 @@ export function SmartComposerModal({
     if (poll.question.trim() || poll.options.some((option) => option.trim())) {
       return true;
     }
+    if (standup.topic.trim() || standup.description.trim()) {
+      return true;
+    }
     return false;
-  }, [cover, text, link, poll]);
+  }, [cover, text, link, poll, standup]);
 
   const handleClose = useCallback(
     async (event?: React.MouseEvent | React.KeyboardEvent) => {
@@ -208,11 +217,13 @@ export function SmartComposerModal({
     preview,
     isLoadingPreview,
     fetchPreview,
+    standupErrors,
   } = useComposerSubmit({
     kind,
     text,
     link,
     poll,
+    standup,
     cover,
     primary,
     selectedIds,
@@ -224,15 +235,26 @@ export function SmartComposerModal({
     },
   });
 
+  const isStandup = kind === 'standup';
   const showSpamWarning =
+    !isStandup &&
     selected.filter((audience) => !isUserAudience(audience)).length > 1;
-  const submitLabel = kind === 'poll' ? 'Post poll' : 'Post';
+  const isStandupScheduled = standup.scheduleChoice === 'later';
+  let submitLabel: string;
+  if (isStandup) {
+    submitLabel = isStandupScheduled ? 'Schedule standup' : 'Create standup';
+  } else if (kind === 'poll') {
+    submitLabel = 'Post poll';
+  } else {
+    submitLabel = 'Post';
+  }
 
   const kindPickerNode = (
     <KindModePicker
       value={kind}
       onChange={onKindChange}
       disabled={isInFlight}
+      isStandupEnabled={isStandupEnabled}
     />
   );
 
@@ -294,13 +316,15 @@ export function SmartComposerModal({
               nativeLazyLoading
             />
           )}
-          <AudienceChip
-            audiences={audiences}
-            selectedIds={selectedIds}
-            onChange={setSelectedIds}
-            userAudienceId={userAudienceId}
-            disabled={isInFlight}
-          />
+          {!isStandup && (
+            <AudienceChip
+              audiences={audiences}
+              selectedIds={selectedIds}
+              onChange={setSelectedIds}
+              userAudienceId={userAudienceId}
+              disabled={isInFlight}
+            />
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {kind === 'text' && (
@@ -397,11 +421,20 @@ export function SmartComposerModal({
             />
           )}
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
+          {kind === 'standup' && (
+            <StandupForm
+              value={standup}
+              onChange={setStandup}
+              topicError={standupErrors.topic}
+              scheduledStartError={standupErrors.scheduledStart}
+              descriptionError={standupErrors.description}
+            />
+          )}
         </div>
       )}
       {(kind !== 'text' || isMarkdownMode) && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4 tablet:flex-row tablet:items-center tablet:justify-between">
-          {notificationToggleNode}
+          {!isStandup && notificationToggleNode}
           {kindPickerNode}
           <span className="ml-auto">{postButtonNode}</span>
         </div>
