@@ -242,13 +242,32 @@ const HERO_STYLES = `
     animation: none;
   }
 }
-.onb-panel {
-  background: linear-gradient(180deg,
-    rgba(20, 20, 24, 0.72) 0%,
-    rgba(20, 20, 24, 0.62) 100%);
-  backdrop-filter: blur(18px) saturate(130%);
-  -webkit-backdrop-filter: blur(18px) saturate(130%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+.onb-overlay-h {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.4) 40%,
+    rgba(0, 0, 0, 0.85) 70%,
+    rgba(0, 0, 0, 0.96) 100%
+  );
+}
+.onb-overlay-v {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    rgba(0, 0, 0, 0.92) 100%
+  );
+}
+.onb-vignette {
+  background: radial-gradient(
+    ellipse 55% 80% at 82% 50%,
+    rgba(0, 0, 0, 0.55) 0%,
+    transparent 75%
+  );
+}
+.onb-headline {
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
 }
 `;
 
@@ -300,11 +319,19 @@ export const OnboardingSignupHero = ({
 
     <div
       aria-hidden
-      className="from-black/65 via-black/55 to-black/80 tablet:from-black/55 tablet:via-black/55 tablet:to-black/85 pointer-events-none absolute inset-0 -z-1 bg-gradient-to-b tablet:bg-gradient-to-r"
+      className="onb-overlay-v pointer-events-none absolute inset-0 -z-1 tablet:hidden"
+    />
+    <div
+      aria-hidden
+      className="onb-overlay-h pointer-events-none absolute inset-0 -z-1 hidden tablet:block"
+    />
+    <div
+      aria-hidden
+      className="onb-vignette pointer-events-none absolute inset-0 -z-1 hidden tablet:block"
     />
 
-    <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center px-5 py-10 tablet:justify-end tablet:px-10 laptop:py-14 laptop:pr-[6vw]">
-      <div className="onb-panel flex w-full max-w-[26rem] flex-col gap-7 rounded-24 p-7 tablet:p-8">
+    <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center px-5 py-10 tablet:justify-end tablet:px-10 laptop:py-14 laptop:pr-[8vw]">
+      <div className="flex w-full max-w-[26rem] flex-col gap-7">
         <Logo
           position={LogoPosition.Relative}
           className="!left-0 !top-0 !mt-0 !translate-x-0"
@@ -312,7 +339,7 @@ export const OnboardingSignupHero = ({
         />
 
         {!isFormExpanded && (
-          <h1 className="text-balance font-bold leading-[1.05] tracking-tight text-text-primary typo-large-title tablet:typo-title1">
+          <h1 className="onb-headline text-balance font-bold leading-[1.05] tracking-tight text-text-primary typo-large-title tablet:typo-mega3">
             The homepage every developer deserves.
           </h1>
         )}
