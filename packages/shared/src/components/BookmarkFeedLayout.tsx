@@ -26,6 +26,8 @@ import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { PageHeader } from './layout/PageHeader';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
@@ -103,6 +105,8 @@ export default function BookmarkFeedLayout({
     DEFAULT_BOOKMARK_SORT_INDEX,
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
   const isSearchResults = !!searchQuery;
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
@@ -193,11 +197,15 @@ export default function BookmarkFeedLayout({
   return (
     <FeedPageLayoutComponent>
       {children}
-      <FeedPageHeader className="mb-5">
-        <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
-          {title}
-        </Typography>
-      </FeedPageHeader>
+      {isV2Laptop ? (
+        <PageHeader title={title} />
+      ) : (
+        <FeedPageHeader className="mb-5">
+          <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
+            {title}
+          </Typography>
+        </FeedPageHeader>
+      )}
       <CustomFeedHeader
         className={classNames(
           'mb-6',
