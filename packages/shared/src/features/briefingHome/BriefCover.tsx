@@ -9,6 +9,7 @@ import { CoverLead } from './CoverLead';
 import { CoverGrid } from './CoverGrid';
 import { CoverTopics } from './CoverTopics';
 import { CoverQuick } from './CoverQuick';
+import { CoverSources } from './CoverSources';
 import { CoverClosing } from './CoverClosing';
 import { ReadingPanel } from './ReadingPanel';
 import { useBriefItems } from './hooks/useBriefItems';
@@ -54,7 +55,7 @@ export const BriefCover = ({
     shouldEvaluate: isAuthReady && isLoggedIn,
   });
   const brief = useBriefItems();
-  const { readSet, markRead } = useReadTracker();
+  const { readSet, markRead, reset: resetReads } = useReadTracker();
   const [activePanel, setActivePanel] = useState<{
     entity: StoryItem | TopicDigest;
     list: Array<StoryItem | TopicDigest>;
@@ -142,24 +143,38 @@ export const BriefCover = ({
         className,
       )}
     >
-      <CoverHeader totals={totals} sourceCount={uniqueSourceCount} />
+      <CoverHeader
+        totals={totals}
+        sourceCount={uniqueSourceCount}
+        onReset={resetReads}
+      />
       <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
-      <CoverGrid
-        stories={brief.reads}
-        readSet={readSet}
-        onOpen={(s) => openPanel(s as StoryItem)}
-      />
-      <CoverTopics
-        topics={brief.topics}
-        readSet={readSet}
-        onOpen={(t) => openPanel(t as TopicDigest)}
-      />
-      <CoverQuick
-        quickHits={brief.quickHits}
-        readSet={readSet}
-        onRead={markRead}
-      />
-      <CoverClosing totals={totals} edition={edition} />
+      <div className="grid grid-cols-1 gap-6 laptop:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="flex min-w-0 flex-col gap-5">
+          <CoverGrid
+            stories={brief.reads}
+            readSet={readSet}
+            onOpen={(s) => openPanel(s as StoryItem)}
+          />
+          <CoverTopics
+            topics={brief.topics}
+            readSet={readSet}
+            onOpen={(t) => openPanel(t as TopicDigest)}
+          />
+        </div>
+        <aside className="flex flex-col gap-5">
+          <CoverQuick
+            quickHits={brief.quickHits}
+            readSet={readSet}
+            onRead={markRead}
+          />
+          <CoverSources
+            stories={[brief.lead, ...brief.reads]}
+            totals={totals}
+          />
+        </aside>
+      </div>
+      <CoverClosing totals={totals} edition={edition} onReset={resetReads} />
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}

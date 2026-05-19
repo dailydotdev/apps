@@ -27,6 +27,11 @@ interface BriefFloatingTabsProps {
 }
 
 const HEADER_OFFSET = 56;
+const BOTTOM_GAP = 24;
+const BAR_HEIGHT = 48;
+const TABS_WIDTH = 220;
+const DOCKED_MAX_WIDTH = 1024;
+const VIEWPORT_PADDING = 24;
 const SCROLL_LOCK_MS = 700;
 
 const scrollToId = (id: string): void => {
@@ -44,20 +49,17 @@ const Tab = ({
   active,
   onClick,
   children,
-  ariaLabel,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
-  ariaLabel?: string;
 }): ReactElement => (
   <button
     type="button"
     onClick={onClick}
     aria-current={active ? 'page' : undefined}
-    aria-label={ariaLabel}
     className={classNames(
-      'inline-flex items-center gap-1.5 rounded-8 px-3 py-1.5 transition-colors',
+      'inline-flex h-9 items-center gap-1.5 rounded-8 px-3 transition-colors',
       active
         ? 'bg-text-primary text-surface-invert'
         : 'text-text-tertiary hover:bg-surface-float',
@@ -77,18 +79,23 @@ export const BriefFloatingTabs = ({
   const categories = useMemo(() => buildPersonalizedCategories(tags), [tags]);
   const [isDocked, setIsDocked] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [viewport, setViewport] = useState({ w: 1024, h: 800 });
   const rafRef = useRef<number | null>(null);
   const scrollLockUntilRef = useRef<number>(0);
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== 'undefined') {
+      setViewport({ w: window.innerWidth, h: window.innerHeight });
+    }
   }, []);
 
   const measure = useCallback(() => {
     rafRef.current = null;
-    if (typeof document === 'undefined') {
+    if (typeof window === 'undefined') {
       return;
     }
+    setViewport({ w: window.innerWidth, h: window.innerHeight });
     if (Date.now() < scrollLockUntilRef.current) {
       return;
     }
@@ -138,87 +145,74 @@ export const BriefFloatingTabs = ({
     return null;
   }
 
-  const briefTab = (
-    <Tab active={!isDocked} onClick={goBrief}>
-      <BriefIcon
-        size={IconSize.XSmall}
-        secondary
-        className={!isDocked ? '' : 'text-accent-ketchup-default'}
-      />
-      <Typography type={TypographyType.Footnote} bold>
-        {briefCopy.tabBriefing}
-      </Typography>
-    </Tab>
-  );
-
-  const feedTab = (
-    <Tab active={isDocked} onClick={goFeed}>
-      <Typography type={TypographyType.Footnote} bold>
-        {briefCopy.tabFeed}
-      </Typography>
-    </Tab>
-  );
+  const topPx = isDocked ? HEADER_OFFSET : viewport.h - BAR_HEIGHT - BOTTOM_GAP;
+  const widthPx = isDocked
+    ? Math.min(DOCKED_MAX_WIDTH, viewport.w - VIEWPORT_PADDING)
+    : TABS_WIDTH;
 
   return createPortal(
-    <>
+    <div
+      style={{ top: `${topPx}px`, width: `${widthPx}px` }}
+      className="fixed left-1/2 z-popup -translate-x-1/2 transition-[top,width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+    >
       <div
-        aria-hidden={isDocked}
         className={classNames(
-          'fixed bottom-5 left-1/2 z-popup -translate-x-1/2 transition-all duration-300 ease-out',
-          isDocked
-            ? 'pointer-events-none translate-y-3 opacity-0'
-            : 'pointer-events-auto opacity-100',
+          'flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default transition-shadow duration-500',
+          isDocked ? 'shadow-2' : 'shadow-3',
         )}
       >
-        <div className="flex items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1 shadow-3">
-          {briefTab}
-          {feedTab}
+        <div className="flex shrink-0 items-center gap-1 p-1">
+          <Tab active={!isDocked} onClick={goBrief}>
+            <BriefIcon
+              size={IconSize.XSmall}
+              secondary
+              className={!isDocked ? '' : 'text-accent-ketchup-default'}
+            />
+            <Typography type={TypographyType.Footnote} bold>
+              {briefCopy.tabBriefing}
+            </Typography>
+          </Tab>
+          <Tab active={isDocked} onClick={goFeed}>
+            <Typography type={TypographyType.Footnote} bold>
+              {briefCopy.tabFeed}
+            </Typography>
+          </Tab>
         </div>
-      </div>
-
-      <div
-        aria-hidden={!isDocked}
-        style={{ top: `${HEADER_OFFSET}px` }}
-        className={classNames(
-          'fixed left-1/2 z-popup w-[min(64rem,calc(100vw-1.5rem))] -translate-x-1/2 transition-all duration-300 ease-out',
-          isDocked
-            ? 'pointer-events-auto translate-y-0 opacity-100'
-            : 'pointer-events-none -translate-y-2 opacity-0',
-        )}
-      >
-        <div className="flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default shadow-2">
-          <div className="flex shrink-0 items-center gap-1 p-1">
-            {briefTab}
-            {feedTab}
-          </div>
+        <div
+          aria-hidden={!isDocked}
+          className={classNames(
+            'flex min-w-0 items-center transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+            isDocked
+              ? 'max-w-full flex-1 opacity-100'
+              : 'pointer-events-none max-w-0 opacity-0',
+          )}
+        >
+          <span
+            aria-hidden
+            className="mx-1 h-6 w-px shrink-0 bg-border-subtlest-tertiary"
+          />
           {categories.length > 0 ? (
-            <div className="flex min-w-0 flex-1 items-center">
-              <span
-                aria-hidden
-                className="mx-1 h-6 w-px shrink-0 bg-border-subtlest-tertiary"
-              />
-              <ul className="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto pr-2">
-                {categories.map((cat) => (
-                  <li key={cat.id} className="shrink-0">
-                    <a
-                      href={cat.path}
-                      className="inline-flex h-8 items-center rounded-8 px-2.5 transition-colors hover:bg-surface-float"
+            <ul className="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto pr-2">
+              {categories.map((cat) => (
+                <li key={cat.id} className="shrink-0">
+                  <a
+                    href={cat.path}
+                    className="inline-flex h-8 items-center rounded-8 px-2.5 transition-colors hover:bg-surface-float"
+                  >
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
                     >
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                      >
-                        {cat.label}
-                      </Typography>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                      {cat.label}
+                    </Typography>
+                  </a>
+                </li>
+              ))}
+            </ul>
           ) : null}
         </div>
       </div>
-    </>,
+    </div>,
     document.body,
   );
 };

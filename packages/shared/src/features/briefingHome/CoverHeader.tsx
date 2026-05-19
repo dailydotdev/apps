@@ -6,6 +6,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
+import { RefreshIcon } from '../../components/icons';
+import { IconSize } from '../../components/Icon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { briefCopy } from './copy';
 
@@ -31,13 +33,16 @@ interface CoverHeaderProps {
   totals: {
     total: number;
     readMinutes: number;
+    readCount: number;
   };
   sourceCount: number;
+  onReset: () => void;
 }
 
 export const CoverHeader = ({
   totals,
   sourceCount,
+  onReset,
 }: CoverHeaderProps): ReactElement => {
   const { user } = useAuthContext();
   const displayName = useMemo(
@@ -48,7 +53,7 @@ export const CoverHeader = ({
   return (
     <header
       id="brief-top"
-      className="flex scroll-mt-20 items-baseline justify-between gap-3"
+      className="flex scroll-mt-20 flex-wrap items-baseline justify-between gap-x-3 gap-y-1"
     >
       <Typography
         tag={TypographyTag.H1}
@@ -58,15 +63,29 @@ export const CoverHeader = ({
       >
         {greetingFor(displayName)}
       </Typography>
-      <Typography
-        type={TypographyType.Caption2}
-        color={TypographyColor.Quaternary}
-        bold
-        className="shrink-0 uppercase tracking-[0.16em]"
-      >
-        {formatDate()} ·{' '}
-        {briefCopy.briefMetaLine(totals.readMinutes, sourceCount)}
-      </Typography>
+      <div className="flex shrink-0 items-center gap-3">
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Quaternary}
+          bold
+          className="uppercase tracking-[0.16em]"
+        >
+          {formatDate()} ·{' '}
+          {briefCopy.briefMetaLine(totals.readMinutes, sourceCount)}
+        </Typography>
+        {totals.readCount > 0 ? (
+          <button
+            type="button"
+            onClick={onReset}
+            className="inline-flex items-center gap-1 rounded-8 px-1.5 py-1 text-text-quaternary transition-colors hover:bg-surface-float hover:text-text-tertiary"
+          >
+            <RefreshIcon size={IconSize.XXSmall} />
+            <Typography type={TypographyType.Caption2} bold>
+              Reset
+            </Typography>
+          </button>
+        ) : null}
+      </div>
     </header>
   );
 };

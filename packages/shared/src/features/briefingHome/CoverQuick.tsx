@@ -6,12 +6,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import {
-  StarIcon,
-  UpvoteIcon,
-  DiscussIcon,
-  ArrowIcon,
-} from '../../components/icons';
+import { StarIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import type { QuickHit } from './types';
 import { briefCopy } from './copy';
@@ -38,7 +33,7 @@ export const CoverQuick = ({
         type={TypographyType.Caption1}
         color={TypographyColor.Primary}
         bold
-        className="uppercase tracking-[0.16em]"
+        className="uppercase tracking-[0.18em]"
       >
         {briefCopy.quickEyebrow}
       </Typography>
@@ -50,14 +45,13 @@ export const CoverQuick = ({
         · {quickHits.length}
       </Typography>
     </div>
-
-    <ul className="grid grid-cols-1 gap-x-6 rounded-12 border border-border-subtlest-tertiary bg-background-subtle px-3 tablet:grid-cols-2 tablet:px-4">
+    <ul className="flex flex-col">
       {quickHits.map((q) => {
         const read = readSet.has(q.id);
         return (
           <li
             key={q.id}
-            className="border-b border-border-subtlest-tertiary last:border-b-0 tablet:[&:nth-last-child(2)]:border-b-0"
+            className="border-b border-border-subtlest-tertiary last:border-b-0"
           >
             <a
               href={q.url}
@@ -65,61 +59,41 @@ export const CoverQuick = ({
               rel="noopener noreferrer"
               onClick={() => onRead(q.id)}
               className={classNames(
-                'group flex items-center gap-3 py-2.5 transition-colors',
+                'group flex flex-col gap-1 py-2.5',
                 read && 'opacity-60',
               )}
             >
-              <span
-                className={classNames(
-                  'inline-block size-1.5 shrink-0 rounded-full transition-colors',
-                  read ? 'bg-text-quaternary' : 'bg-accent-bun-default',
-                )}
-              />
-              <Typography
-                type={TypographyType.Caption2}
-                color={TypographyColor.Quaternary}
-                bold
-                className="w-14 shrink-0 truncate uppercase tracking-[0.12em]"
-              >
-                {q.eyebrow}
-              </Typography>
               <Typography
                 type={TypographyType.Footnote}
                 color={
                   read ? TypographyColor.Tertiary : TypographyColor.Primary
                 }
                 className={classNames(
-                  'min-w-0 flex-1 !leading-snug transition-colors',
+                  '!leading-snug transition-colors',
                   read && 'decoration-text-quaternary/40 line-through',
                   !read && 'group-hover:text-brand-default',
                 )}
               >
                 {q.title}
               </Typography>
-              <span className="hidden shrink-0 items-center gap-3 text-text-quaternary tablet:inline-flex">
-                <span className="inline-flex items-center gap-1">
-                  <UpvoteIcon size={IconSize.XXSmall} />
-                  <Typography
-                    type={TypographyType.Caption2}
-                    color={TypographyColor.Quaternary}
-                  >
-                    {q.upvotes}
-                  </Typography>
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <DiscussIcon size={IconSize.XXSmall} />
-                  <Typography
-                    type={TypographyType.Caption2}
-                    color={TypographyColor.Quaternary}
-                  >
-                    {q.comments}
-                  </Typography>
-                </span>
-              </span>
-              <ArrowIcon
-                size={IconSize.XXSmall}
-                className="rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
-              />
+              <div className="flex items-center gap-2 text-text-quaternary">
+                <Typography
+                  type={TypographyType.Caption2}
+                  color={TypographyColor.Quaternary}
+                  bold
+                  className="uppercase tracking-[0.12em]"
+                >
+                  {q.eyebrow}
+                </Typography>
+                <span aria-hidden>·</span>
+                <Typography
+                  type={TypographyType.Caption2}
+                  color={TypographyColor.Quaternary}
+                  className="tabular-nums"
+                >
+                  {q.upvotes} ↑ · {q.comments} 💬
+                </Typography>
+              </div>
             </a>
           </li>
         );
