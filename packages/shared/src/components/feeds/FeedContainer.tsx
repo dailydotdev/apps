@@ -288,7 +288,12 @@ export const FeedContainer = ({
                 // keeps the bare flex row (no border, default Float buttons).
                 !isExtension &&
                   isV2Laptop &&
-                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn_svg]:!size-4',
+                  // Strip layout + descendant overrides for compact ghost
+                  // buttons. Text buttons get `!px-3` so they match the
+                  // designer's slim mock — without this they keep
+                  // Medium's `px-5` (20px) horizontal padding and read
+                  // visibly wider than the mock.
+                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3 [&_.btn]:!h-8 [&_.btn]:!rounded-10 [&_.btn]:!border-transparent [&_.btn]:!bg-transparent hover:[&_.btn]:!bg-surface-hover [&_.btn.iconOnly]:!size-8 [&_.btn.iconOnly]:!p-0 [&_.btn:not(.iconOnly)]:!px-3 [&_.btn_svg]:!size-4',
                 !isExtension && !isV2Laptop && 'flex-1 flex-row',
               )}
             >
@@ -338,11 +343,10 @@ export const FeedContainer = ({
               className={classNames(
                 'grid',
                 // v2: inset the grid so cards sit off the floating-card
-                // rounded edges and don't kiss the header-strip border.
-                // `px-6 pt-4` (24px sides, 16px top) matches the designer
-                // mockup. The floating-card chrome already provides outer
-                // inset, so no extra bottom inset is needed.
-                isV2Laptop && !shouldUseListFeedLayout && 'px-6 pt-4',
+                // rounded edges. Tight top inset (`pt-2` = 8px) so the
+                // cards hug the header-strip bottom border — anything
+                // larger reads as wasted vertical space against the mock.
+                isV2Laptop && !shouldUseListFeedLayout && 'px-6 pt-2',
                 shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
                 isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
