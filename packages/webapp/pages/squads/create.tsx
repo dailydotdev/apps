@@ -24,6 +24,7 @@ import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
+  useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -35,7 +36,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
 import { CreateLiveRoomForm } from '@dailydotdev/shared/src/components/liveRooms/CreateLiveRoomForm';
-import { useStandupCreation } from '@dailydotdev/shared/src/hooks/liveRooms/useStandupCreation';
+import { featureStandupCreation } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -74,13 +75,17 @@ const getSubmitCopy = (tab: WriteFormTab): string => {
 function CreatePost(): ReactElement {
   const client = useQueryClient();
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
-  const isStandupCreationEnabled = useStandupCreation();
   const hasSeenStandupTab = useMemo(
     () => checkHasCompleted(ActionType.SeenStandupTab),
     [checkHasCompleted],
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { value: isStandupCreationEnabled, isLoading: isStandupFlagLoading } =
+    useConditionalFeature({
+      feature: featureStandupCreation,
+      shouldEvaluate: isAuthReady && !!user,
+    });
   const {
     flags: { defaultWriteTab },
     loadedSettings,
@@ -212,7 +217,13 @@ function CreatePost(): ReactElement {
   const initialSelected = !!activeSquads?.length && (query.sid as string);
   useEffect(() => {
     // Only run this once after router and user are ready
-    if (!user || !isRouteReady || !isDraftReady || isInitialized.current) {
+    if (
+      !user ||
+      !isRouteReady ||
+      !isDraftReady ||
+      isStandupFlagLoading ||
+      isInitialized.current
+    ) {
       return;
     }
 
@@ -260,6 +271,7 @@ function CreatePost(): ReactElement {
     defaultWriteTab,
     prefillState.initialDisplay,
     isStandupCreationEnabled,
+    isStandupFlagLoading,
   ]);
 
   useEffect(() => {
@@ -273,7 +285,8 @@ function CreatePost(): ReactElement {
     !isAuthReady ||
     !isRouteReady ||
     !loadedSettings ||
-    !isDraftReady
+    !isDraftReady ||
+    isStandupFlagLoading
   ) {
     return <WriteFreeFormSkeleton />;
   }
