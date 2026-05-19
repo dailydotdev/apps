@@ -1,6 +1,7 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
+import RichTextInput from '../../fields/RichTextInput';
 import { CalendarIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -60,7 +61,7 @@ const parseScheduledStartLocal = (value: string | undefined): Date | null => {
 interface ScheduleToggleProps {
   active: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const ScheduleToggle = ({
@@ -89,6 +90,8 @@ interface StandupFormProps {
   topicError?: string;
   scheduledStartError?: string;
   descriptionError?: string;
+  toolbarLeading?: ReactNode;
+  toolbarRightActions?: ReactNode;
 }
 
 export const StandupForm = ({
@@ -96,6 +99,8 @@ export const StandupForm = ({
   onChange,
   topicError,
   scheduledStartError,
+  toolbarLeading,
+  toolbarRightActions,
 }: StandupFormProps): ReactElement => {
   const { user } = useAuthContext();
   const topicRef = useRef<HTMLTextAreaElement>(null);
@@ -132,93 +137,111 @@ export const StandupForm = ({
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3">
-      <textarea
-        ref={topicRef}
-        name="topic"
-        placeholder="What do you want to talk about?"
-        maxLength={STANDUP_TOPIC_MAX_LENGTH}
-        rows={1}
-        value={value.topic}
-        onChange={(event) =>
-          onChange({
-            ...value,
-            topic: event.currentTarget.value.replace(/\n/g, ''),
-          })
-        }
-        aria-label="Standup topic"
-        className={classNames(
-          'w-full resize-none overflow-hidden break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary',
-          topicError && 'text-status-error',
-        )}
-      />
-      <textarea
-        name="description"
-        placeholder="Add context for the lobby and Agenda tab (optional)"
-        maxLength={STANDUP_DESCRIPTION_MAX_LENGTH}
-        rows={2}
-        value={value.description}
-        onChange={(event) =>
-          onChange({ ...value, description: event.currentTarget.value })
-        }
-        aria-label="Standup description"
-        className="w-full resize-none break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
-      />
-      <div className="flex flex-wrap items-center gap-2">
-        <ScheduleToggle
-          active={!isScheduled}
-          onClick={() => handleSchedule('now')}
-        >
-          Start now
-        </ScheduleToggle>
-        <ScheduleToggle
-          active={isScheduled}
-          onClick={() => handleSchedule('later')}
-        >
-          Schedule for later
-        </ScheduleToggle>
-        <span className="text-text-tertiary typo-caption1">
-          {isScheduled
-            ? "We'll open a lobby so people can RSVP."
-            : "You'll click Go live before listeners can join."}
-        </span>
-      </div>
-      {isScheduled && (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex shrink-0 flex-col gap-3 px-5 pb-3 pt-2">
+        <textarea
+          ref={topicRef}
+          name="topic"
+          placeholder="What do you want to talk about?"
+          maxLength={STANDUP_TOPIC_MAX_LENGTH}
+          rows={1}
+          value={value.topic}
+          onChange={(event) =>
+            onChange({
+              ...value,
+              topic: event.currentTarget.value.replace(/\n/g, ''),
+            })
+          }
+          aria-label="Standup topic"
+          className={classNames(
+            'w-full resize-none overflow-hidden break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary',
+            topicError && 'text-status-error',
+          )}
+        />
         <div className="flex flex-wrap items-center gap-2">
-          <label
-            htmlFor="standup-scheduled-start"
-            className={classNames(
-              'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-8 border px-3 text-text-primary transition-colors typo-caption1',
-              scheduledStartError
-                ? 'border-status-error'
-                : 'border-border-subtlest-tertiary bg-surface-float',
-            )}
+          <ScheduleToggle
+            active={!isScheduled}
+            onClick={() => handleSchedule('now')}
           >
-            <CalendarIcon
-              size={IconSize.Size16}
-              className="text-text-tertiary"
-            />
-            <input
-              id="standup-scheduled-start"
-              name="scheduledStart"
-              type="datetime-local"
-              value={value.scheduledStart}
-              onChange={(event) =>
-                onChange({
-                  ...value,
-                  scheduledStart: event.currentTarget.value,
-                })
-              }
-              aria-label="Scheduled time"
-              className="bg-transparent text-text-primary outline-none typo-caption1"
-            />
-          </label>
+            Start now
+          </ScheduleToggle>
+          <ScheduleToggle
+            active={isScheduled}
+            onClick={() => handleSchedule('later')}
+          >
+            Schedule for later
+          </ScheduleToggle>
           <span className="text-text-tertiary typo-caption1">
-            {scheduledStartError ??
-              [scheduleDelta, timezoneLabel].filter(Boolean).join(' · ')}
+            {isScheduled
+              ? "We'll open a lobby so people can RSVP."
+              : "You'll click Go live before listeners can join."}
           </span>
         </div>
-      )}
+        {isScheduled && (
+          <div className="flex flex-wrap items-center gap-2">
+            <label
+              htmlFor="standup-scheduled-start"
+              className={classNames(
+                'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-8 border px-3 text-text-primary transition-colors typo-caption1',
+                scheduledStartError
+                  ? 'border-status-error'
+                  : 'border-border-subtlest-tertiary bg-surface-float',
+              )}
+            >
+              <CalendarIcon
+                size={IconSize.Size16}
+                className="text-text-tertiary"
+              />
+              <input
+                id="standup-scheduled-start"
+                name="scheduledStart"
+                type="datetime-local"
+                value={value.scheduledStart}
+                onChange={(event) =>
+                  onChange({
+                    ...value,
+                    scheduledStart: event.currentTarget.value,
+                  })
+                }
+                aria-label="Scheduled time"
+                className="bg-transparent text-text-primary outline-none typo-caption1"
+              />
+            </label>
+            <span className="text-text-tertiary typo-caption1">
+              {scheduledStartError ??
+                [scheduleDelta, timezoneLabel].filter(Boolean).join(' · ')}
+            </span>
+          </div>
+        )}
+      </div>
+      <RichTextInput
+        initialContent={value.description}
+        onValueUpdate={(next) => onChange({ ...value, description: next })}
+        textareaProps={{
+          name: 'description',
+          placeholder: 'Add context for the lobby and Agenda tab (optional)',
+        }}
+        enabledCommand={{
+          upload: true,
+          link: true,
+          mention: true,
+          emoji: true,
+          gif: true,
+        }}
+        maxInputLength={STANDUP_DESCRIPTION_MAX_LENGTH}
+        allowBlockFormatting
+        minHeightClassName="min-h-[8rem]"
+        toolbarPosition="bottom"
+        toolbarLeading={toolbarLeading}
+        toolbarRightActions={toolbarRightActions}
+        hideMarkdownToggle
+        hideMarkdownHeader
+        hideFooter
+        className={{
+          container: '!min-h-0 !flex-1 !rounded-none !bg-transparent',
+          input: '!px-5',
+        }}
+      />
     </div>
   );
 };

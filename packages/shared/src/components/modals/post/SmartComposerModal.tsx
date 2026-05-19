@@ -406,7 +406,18 @@ export function SmartComposerModal({
           )}
         </>
       )}
-      {kind !== 'text' && (
+      {kind === 'standup' && (
+        <StandupForm
+          value={standup}
+          onChange={setStandup}
+          topicError={standupErrors.topic}
+          scheduledStartError={standupErrors.scheduledStart}
+          descriptionError={standupErrors.description}
+          toolbarLeading={kindPickerNode}
+          toolbarRightActions={postButtonNode}
+        />
+      )}
+      {(kind === 'link' || kind === 'poll') && (
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-3 pt-2">
           {kind === 'link' && (
             <LinkForm
@@ -421,20 +432,11 @@ export function SmartComposerModal({
             />
           )}
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
-          {kind === 'standup' && (
-            <StandupForm
-              value={standup}
-              onChange={setStandup}
-              topicError={standupErrors.topic}
-              scheduledStartError={standupErrors.scheduledStart}
-              descriptionError={standupErrors.description}
-            />
-          )}
         </div>
       )}
-      {(kind !== 'text' || isMarkdownMode) && (
+      {((kind !== 'text' && kind !== 'standup') || isMarkdownMode) && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4 tablet:flex-row tablet:items-center tablet:justify-between">
-          {!isStandup && notificationToggleNode}
+          {notificationToggleNode}
           {kindPickerNode}
           <span className="ml-auto">{postButtonNode}</span>
         </div>
