@@ -820,10 +820,38 @@ const StreamBackground = (): ReactElement => (
 );
 
 // =============================================================
+// Variant D — Desk: full-cover photo backdrop
+// =============================================================
+
+const DeskBackground = (): ReactElement => (
+  <div
+    aria-hidden
+    className="pointer-events-none absolute inset-0 -z-1 select-none"
+  >
+    <picture>
+      <img
+        src="/assets/onboarding-hero-desk.png"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-center"
+        loading="eager"
+        decoding="async"
+      />
+    </picture>
+    <div
+      className="absolute inset-0"
+      style={{
+        background:
+          'linear-gradient(180deg, rgba(8,8,12,0.35) 0%, rgba(8,8,12,0.1) 30%, rgba(8,8,12,0.25) 60%, rgba(8,8,12,0.7) 100%)',
+      }}
+    />
+  </div>
+);
+
+// =============================================================
 // Variant registry & switcher
 // =============================================================
 
-type VariantId = 'cards' | 'squads' | 'stream';
+type VariantId = 'desk' | 'cards' | 'squads' | 'stream';
 
 type VariantDef = {
   id: VariantId;
@@ -832,6 +860,7 @@ type VariantDef = {
 };
 
 const VARIANTS: VariantDef[] = [
+  { id: 'desk', label: 'Desk', render: () => <DeskBackground /> },
   { id: 'cards', label: 'Cards', render: () => <CardsBackground /> },
   { id: 'squads', label: 'Squads', render: () => <SquadsBackground /> },
   { id: 'stream', label: 'Stream', render: () => <StreamBackground /> },
