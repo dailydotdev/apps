@@ -97,23 +97,14 @@ export const CoverTopics = ({
   onOpen,
 }: CoverTopicsProps): ReactElement => (
   <section>
-    <div className="mb-3 flex flex-col gap-0.5 px-1">
-      <div className="flex items-baseline gap-2">
-        <EyeIcon
-          size={IconSize.Small}
-          className="self-center text-accent-water-default"
-          secondary
-        />
-        <Typography type={TypographyType.Title3} bold>
-          On your radar
-        </Typography>
-      </div>
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Quaternary}
-        className="pl-7"
-      >
-        Weekly digests pulled from {topics.length} topics you follow.
+    <div className="mb-3 flex items-baseline gap-2 px-1">
+      <EyeIcon
+        size={IconSize.Small}
+        className="self-center text-accent-water-default"
+        secondary
+      />
+      <Typography type={TypographyType.Title3} bold>
+        On your radar
       </Typography>
     </div>
     <div className="grid grid-cols-1 gap-2.5 tablet:grid-cols-2">

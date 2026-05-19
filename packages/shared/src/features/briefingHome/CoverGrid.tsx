@@ -236,30 +236,17 @@ export const CoverGrid = ({
   onMarkRead,
 }: CoverGridProps): ReactElement => {
   const [expanded, setExpanded] = useState<string | null>(null);
-  const conversations = stories.reduce(
-    (sum, s) => sum + s.posts.length + s.highlightedComments.length,
-    0,
-  );
 
   return (
     <section>
-      <div className="mb-3 flex flex-col gap-0.5 px-1">
-        <div className="flex items-baseline gap-2">
-          <TrendingIcon
-            size={IconSize.Small}
-            className="self-center text-accent-cabbage-default"
-            secondary
-          />
-          <Typography type={TypographyType.Title3} bold>
-            What devs are debating
-          </Typography>
-        </div>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-          className="pl-7"
-        >
-          Ranked from {conversations.toLocaleString()} community conversations.
+      <div className="mb-3 flex items-baseline gap-2 px-1">
+        <TrendingIcon
+          size={IconSize.Small}
+          className="self-center text-accent-cabbage-default"
+          secondary
+        />
+        <Typography type={TypographyType.Title3} bold>
+          What devs are debating
         </Typography>
       </div>
       <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">

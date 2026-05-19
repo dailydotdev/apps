@@ -50,23 +50,14 @@ export const CoverQuick = ({
 
   return (
     <section>
-      <div className="mb-3 flex flex-col gap-0.5 px-1">
-        <div className="flex items-baseline gap-2">
-          <StarIcon
-            size={IconSize.Small}
-            className="self-center text-accent-bun-default"
-            secondary
-          />
-          <Typography type={TypographyType.Title3} bold>
-            Quick hits
-          </Typography>
-        </div>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-          className="pl-7"
-        >
-          Smaller items worth a click. Each opens in a new tab.
+      <div className="mb-3 flex items-baseline gap-2 px-1">
+        <StarIcon
+          size={IconSize.Small}
+          className="self-center text-accent-bun-default"
+          secondary
+        />
+        <Typography type={TypographyType.Title3} bold>
+          Quick hits
         </Typography>
       </div>
 
