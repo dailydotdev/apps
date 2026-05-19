@@ -730,6 +730,7 @@ export default function MainFeedLayout({
             topId="brief-top"
             feedId="brief-feed-start"
             sentinelId="brief-feed-start"
+            boundsId="brief-top"
           />
         </>
       )}

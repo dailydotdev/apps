@@ -24,6 +24,7 @@ interface BriefFloatingTabsProps {
   topId: string;
   feedId: string;
   sentinelId: string;
+  boundsId: string;
 }
 
 const HEADER_OFFSET = 56;
@@ -73,6 +74,7 @@ export const BriefFloatingTabs = ({
   topId,
   feedId,
   sentinelId,
+  boundsId,
 }: BriefFloatingTabsProps): ReactElement | null => {
   const { isLoggedIn } = useAuthContext();
   const { tags } = useFeedTagsList({ enabled: isLoggedIn });
@@ -121,18 +123,22 @@ export const BriefFloatingTabs = ({
     }
     const vw = window.innerWidth;
     const sentinel = document.getElementById(sentinelId);
+    const bounds = document.getElementById(boundsId);
     let nextTop = HEADER_OFFSET;
     let followTop = Number.POSITIVE_INFINITY;
     let nextFeedLeft = (vw - Math.min(1024, vw - VIEWPORT_PADDING)) / 2;
     let nextFeedWidth = Math.min(1024, vw - VIEWPORT_PADDING);
-    if (sentinel) {
-      const rect = sentinel.getBoundingClientRect();
-      followTop = rect.top - BAR_HEIGHT;
-      nextTop = Math.min(HEADER_OFFSET, followTop);
+    if (bounds) {
+      const rect = bounds.getBoundingClientRect();
       if (rect.width > 0) {
         nextFeedLeft = rect.left;
         nextFeedWidth = rect.width;
       }
+    }
+    if (sentinel) {
+      const rect = sentinel.getBoundingClientRect();
+      followTop = rect.top - BAR_HEIGHT;
+      nextTop = Math.min(HEADER_OFFSET, followTop);
     }
     const nextDocked = followTop <= HEADER_OFFSET + BAR_HEIGHT * 4;
     setLayout((prev) => {
@@ -153,7 +159,7 @@ export const BriefFloatingTabs = ({
         viewportW: vw,
       };
     });
-  }, [sentinelId]);
+  }, [sentinelId, boundsId]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {

@@ -145,6 +145,7 @@ export const BriefCover = ({
 
   return (
     <section
+      id="brief-bounds"
       aria-label="Your daily brief"
       className={classNames(
         'mx-auto mb-6 flex w-full max-w-[64rem] flex-col gap-12 px-3 pt-16 tablet:px-4',
