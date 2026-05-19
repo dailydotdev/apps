@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 import type { AuthFormProps } from './common';
 import { providerMap } from './common';
 import OrDivider from './OrDivider';
@@ -12,6 +13,7 @@ import { isIOSNative } from '../../lib/func';
 
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
+import { FooterLinks } from '../footer/FooterLinks';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingV2 } from '../../lib/featureManagement';
@@ -140,10 +142,19 @@ export const OnboardingRegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getEmailButtonClass = (): string => {
+    if (compact) {
+      return 'mb-4';
+    }
+    if (isOnboardingTrigger) {
+      return 'mb-3';
+    }
+    return 'mb-8';
+  };
   const emailButton = (
     <Button
       aria-label="Signup using email"
-      className={compact ? 'mb-4' : 'mb-8'}
+      className={getEmailButtonClass()}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
       onClick={() => {
@@ -159,19 +170,36 @@ export const OnboardingRegistrationForm = ({
       Continue with email
     </Button>
   );
+  const getMemberAlreadyContainerClass = (): string => {
+    if (isOnboardingV2) {
+      return 'mx-auto mt-6 w-full justify-center border-t border-border-subtlest-tertiary pt-6 text-center text-text-secondary typo-callout';
+    }
+    if (isOnboardingTrigger) {
+      return 'mx-auto mt-1 text-center text-text-secondary typo-callout';
+    }
+    return 'mx-auto mt-6 text-center text-text-secondary typo-callout';
+  };
   const memberAlready = !hideLoginLink && (
     <MemberAlready
       onLogin={() => onExistingEmail?.('')}
       className={{
-        container: isOnboardingV2
-          ? 'mx-auto mt-6 w-full justify-center border-t border-border-subtlest-tertiary pt-6 text-center text-text-secondary typo-callout'
-          : 'mx-auto mt-6 text-center text-text-secondary typo-callout',
+        container: getMemberAlreadyContainerClass(),
         login: '!text-inherit',
       }}
     />
   );
   const disclaimer = (
-    <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
+    <SignupDisclaimer
+      className={classNames(
+        '!text-text-tertiary tablet:!typo-footnote',
+        isOnboardingTrigger && 'mt-8',
+      )}
+    />
+  );
+  const onboardingFooterLinks = (
+    <div className="mt-4 [&_footer]:!pb-0 [&_ul]:!mb-0">
+      <FooterLinks />
+    </div>
   );
 
   return (
@@ -206,6 +234,7 @@ export const OnboardingRegistrationForm = ({
         <div className="flex flex-col text-center">
           {emailButton}
           {memberAlready}
+          {onboardingFooterLinks}
           {disclaimer}
         </div>
       ) : (
