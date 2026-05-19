@@ -220,7 +220,10 @@ function UnifiedMobileFeedNav(): ReactElement {
     const active = scrollRef.current?.querySelector<HTMLElement>(
       '[data-active="true"]',
     );
-    active?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    if (typeof active?.scrollIntoView !== 'function') {
+      return;
+    }
+    active.scrollIntoView({ block: 'nearest', inline: 'center' });
   }, [activeId, items]);
 
   return (
