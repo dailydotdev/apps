@@ -98,23 +98,23 @@ const JobsPage = (): ReactElement | null => {
         <div className="mx-auto w-full border-border-subtlest-tertiary laptop:max-w-[48rem] laptop:border-x">
           {!isV2Laptop && <OpportunityHeader />}
           <FlexCol className="mx-auto max-w-xl items-center gap-8 px-4 py-6 laptop:max-w-4xl">
-          {!sidebarRendered && (
-            <img
-              src={opportunityBriefcase}
-              className="max-w-36"
-              alt="daily.dev jobs"
-            />
-          )}
-          <IntroHeader />
-          <OpportunityCVUpload />
-          {sidebarRendered && (
-            <>
-              <OpportunityBenefits />
-              <OpportunityHowItWorks />
-              <OpportunityFAQ />
-            </>
-          )}
-        </FlexCol>
+            {!sidebarRendered && (
+              <img
+                src={opportunityBriefcase}
+                className="max-w-36"
+                alt="daily.dev jobs"
+              />
+            )}
+            <IntroHeader />
+            <OpportunityCVUpload />
+            {sidebarRendered && (
+              <>
+                <OpportunityBenefits />
+                <OpportunityHowItWorks />
+                <OpportunityFAQ />
+              </>
+            )}
+          </FlexCol>
         </div>
       </>
     );
@@ -126,25 +126,25 @@ const JobsPage = (): ReactElement | null => {
       <div className="mx-auto w-full border-border-subtlest-tertiary laptop:max-w-[48rem] laptop:border-x">
         {!isV2Laptop && <OpportunityHeader />}
         <div className="mx-auto flex w-full flex-1 flex-col justify-center px-4 py-6 laptop:max-w-4xl">
-        <div className="flex flex-col gap-8">
-          {activeMatches.length > 0 ? (
-            <OpportunityMatchList
-              matches={activeMatches}
-              title="Active matches"
-            />
-          ) : (
-            <OpportunityAllSet />
-          )}
-          <OpportunityHiring />
-          {matchHistory.length > 0 && (
-            <OpportunityMatchList
-              matches={matchHistory}
-              title="Match history"
-            />
-          )}
-          {sidebarRendered && <OpportunityFAQ />}
+          <div className="flex flex-col gap-8">
+            {activeMatches.length > 0 ? (
+              <OpportunityMatchList
+                matches={activeMatches}
+                title="Active matches"
+              />
+            ) : (
+              <OpportunityAllSet />
+            )}
+            <OpportunityHiring />
+            {matchHistory.length > 0 && (
+              <OpportunityMatchList
+                matches={matchHistory}
+                title="Match history"
+              />
+            )}
+            {sidebarRendered && <OpportunityFAQ />}
+          </div>
         </div>
-      </div>
       </div>
     </>
   );

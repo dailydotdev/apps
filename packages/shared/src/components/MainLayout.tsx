@@ -227,7 +227,8 @@ function MainLayoutComponent({
         className={classNames(
           'flex flex-col transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
-          showSidebar && (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
+          showSidebar &&
+            (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&

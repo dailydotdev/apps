@@ -139,8 +139,7 @@ export const SearchControlHeader = ({
       container: 'flex',
     },
     shouldIndicateSelected: true,
-    buttonSize:
-      isMobile || isV2Strip ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize: isMobile || isV2Strip ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
     buttonVariant:
       isV2Strip || !isLaptop ? ButtonVariant.Tertiary : ButtonVariant.Float,

@@ -146,13 +146,14 @@ const Page = (): ReactElement => {
     }
   }, [selectedPost]);
 
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
+
   if (!isActionsFetched) {
     return null;
   }
 
   const showBriefCard = emptyFeed && (isGenerating || !feedQuery.isPending);
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
 
   return (
     <ProtectedPage>

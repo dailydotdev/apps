@@ -153,9 +153,7 @@ const profilePathFragments = [
   '/wallet',
 ];
 
-const getSidebarCategoryForPath = (
-  activePage: string,
-): SidebarCategoryId => {
+const getSidebarCategoryForPath = (activePage: string): SidebarCategoryId => {
   if (activePage.includes('/bookmarks') || activePage.includes('/briefing')) {
     return SidebarCategory.Saved;
   }
@@ -215,7 +213,9 @@ const RailHoverCard = ({
       openDelay={RAIL_HOVER_OPEN_DELAY}
       closeDelay={RAIL_HOVER_CLOSE_DELAY}
     >
-      <HoverCardPrimitive.Trigger asChild>{children}</HoverCardPrimitive.Trigger>
+      <HoverCardPrimitive.Trigger asChild>
+        {children}
+      </HoverCardPrimitive.Trigger>
       <HoverCardPrimitive.Portal>
         <HoverCardPrimitive.Content
           side="right"
@@ -446,9 +446,7 @@ export const SidebarDesktopV2 = ({
     toggleSidebarExpanded();
   }, [logEvent, sidebarExpanded, toggleSidebarExpanded]);
 
-  const renderCategorySection = (
-    category: SidebarCategoryId,
-  ): ReactElement => {
+  const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
     if (category === SidebarCategory.Squads) {
       return (
         <NetworkSection
@@ -489,7 +487,7 @@ export const SidebarDesktopV2 = ({
           <Link href={`${webappUrl}game-center`} passHref>
             <a
               href={`${webappUrl}game-center`}
-              className="focus-outline flex h-9 items-center rounded-10 px-2 typo-callout text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              className="focus-outline flex h-9 items-center rounded-10 px-2 text-text-tertiary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
             >
               Open Game Center
             </a>
@@ -687,7 +685,9 @@ export const SidebarDesktopV2 = ({
                   isSettingsSelected && 'bg-background-default text-white',
                 )}
                 onClick={() => onSelectCategory(SidebarCategory.Settings)}
-                onMouseEnter={() => onPrefetchCategory(SidebarCategory.Settings)}
+                onMouseEnter={() =>
+                  onPrefetchCategory(SidebarCategory.Settings)
+                }
                 onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
               >
                 <SettingsIcon

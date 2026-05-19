@@ -59,13 +59,13 @@ function MyFeedHeading({
     return push(editFeedUrl);
   }, [editFeedUrl, onOpenFeedFilters, push]);
 
-  // Spread iconPosition conditionally — passing `iconPosition: undefined`
-  // explicitly to Button breaks the strict-mode discriminated union
-  // (Button requires `iconPosition: ButtonIconPosition` when paired with
-  // `icon`).
-  const iconPositionProps = shouldUseListFeedLayout
-    ? { iconPosition: ButtonIconPosition.Right }
-    : {};
+  // Button's discriminated union requires `iconPosition` whenever `icon`
+  // is set — `undefined` and conditional spreads both break it under
+  // strict typecheck. Always pass a concrete value: `Right` when the
+  // list-frame layout is active, otherwise the default `Left`.
+  const iconPosition = shouldUseListFeedLayout
+    ? ButtonIconPosition.Right
+    : ButtonIconPosition.Left;
 
   return (
     <>
@@ -75,7 +75,7 @@ function MyFeedHeading({
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
           icon={<FilterIcon />}
-          {...iconPositionProps}
+          iconPosition={iconPosition}
         >
           {!isMobile ? 'Feed settings' : null}
         </FeedSettingsButton>
@@ -85,7 +85,7 @@ function MyFeedHeading({
           size={ButtonSize.Medium}
           variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
           icon={<FilterIcon />}
-          {...iconPositionProps}
+          iconPosition={iconPosition}
         >
           {!isMobile ? 'Feed settings' : null}
         </FeedSettingsButton>
@@ -103,7 +103,7 @@ function MyFeedHeading({
             toggleShowTopSites();
           }}
           icon={<PlusIcon />}
-          {...iconPositionProps}
+          iconPosition={iconPosition}
         >
           Shortcuts
         </Button>
