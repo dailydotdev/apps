@@ -6,6 +6,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -66,6 +67,11 @@ export default function SettingsLayout({
   const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  // v2 + laptop: the sidebar's `SettingsPanelSection` already provides the
+  // settings navigation, so hide the inline ProfileSettingsMenuDesktop here
+  // to avoid showing the same nav twice.
+  const isV2Laptop = isV2 && isLaptop;
   const canPurchaseCores = useCanPurchaseCores();
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
@@ -158,7 +164,9 @@ export default function SettingsLayout({
             onClose={() => router.push(profile.permalink)}
           />
         ) : (
-          <ProfileSettingsMenuDesktop />
+          // v2 sidebar panel already shows the settings nav — only render
+          // the desktop menu for control / tablet.
+          !isV2Laptop && <ProfileSettingsMenuDesktop />
         )}
         {children}
       </div>
