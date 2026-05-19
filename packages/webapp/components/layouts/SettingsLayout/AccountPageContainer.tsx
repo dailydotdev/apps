@@ -26,7 +26,7 @@ interface ClassName {
 }
 
 interface AccountPageContainerProps {
-  title: string;
+  title: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
   className?: ClassName;
