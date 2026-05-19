@@ -63,9 +63,9 @@ export const featureInlineLogin = new Feature('inline_login', false);
 
 export const featureLuckyButton = new Feature('lucky_button', false);
 
-export const featureSmartComposer = new Feature('smart_composer', true);
+export const featureSmartComposer = new Feature('smart_composer', false);
 
-export const featureStandupCreation = new Feature('standup_creation', true);
+export const featureStandupCreation = new Feature('standup_creation', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 

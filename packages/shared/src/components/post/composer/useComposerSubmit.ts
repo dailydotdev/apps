@@ -1,17 +1,10 @@
 import type { FormEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
-import zonedTimeToUtc from 'date-fns-tz/zonedTimeToUtc';
 import { usePostToSquad } from '../../../hooks';
 import { useMultipleSourcePost } from '../../../features/squads/hooks/useMultipleSourcePost';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useLogContext } from '../../../contexts/LogContext';
-import { useCreateLiveRoom } from '../../../hooks/liveRooms/useCreateLiveRoom';
-import { LiveRoomMode } from '../../../graphql/liveRooms';
-import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
-import { LogEvent } from '../../../lib/log';
-import { labels } from '../../../lib/labels';
+import { useSubmitStandup } from '../../../hooks/liveRooms/useSubmitStandup';
 import type {
   CreatePostInMultipleSourcesArgs,
   ExternalLinkPreview,
@@ -102,10 +95,8 @@ export const useComposerSubmit = ({
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
   const router = useRouter();
-  const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
-  const { mutateAsync: createLiveRoom, isPending: isCreatingStandup } =
-    useCreateLiveRoom();
+  const { submit: submitStandupMutation, isPending: isCreatingStandup } =
+    useSubmitStandup();
   const [standupErrors, setStandupErrors] = useState<StandupFieldErrors>({});
   const {
     getLinkPreview,
@@ -223,57 +214,16 @@ export const useComposerSubmit = ({
 
   const submitStandup = async () => {
     setStandupErrors({});
-    const timezone = user?.timezone || DEFAULT_TIMEZONE;
-    let scheduledStartUtc: string | undefined;
-
-    if (standup.scheduleChoice === 'later') {
-      const parsed = standup.scheduledStart
-        ? zonedTimeToUtc(standup.scheduledStart, timezone)
-        : null;
-      if (!parsed || Number.isNaN(parsed.getTime())) {
-        setStandupErrors({ scheduledStart: 'Scheduled time is invalid' });
-        return;
-      }
-      if (parsed.getTime() <= Date.now()) {
-        setStandupErrors({
-          scheduledStart: 'Scheduled time must be in the future',
-        });
-        return;
-      }
-      scheduledStartUtc = parsed.toISOString();
+    const result = await submitStandupMutation(standup);
+    if (result.type === 'error') {
+      setStandupErrors({ [result.error.field]: result.error.message });
+      return;
     }
-
-    try {
-      const joinToken = await createLiveRoom({
-        topic: standup.topic.trim(),
-        mode: LiveRoomMode.Moderated,
-        scheduledStart: scheduledStartUtc,
-        description: standup.description.trim() || undefined,
-      });
-      logEvent({
-        event_name: LogEvent.CreateStandup,
-        target_id: joinToken.room.id,
-        extra: JSON.stringify({
-          scheduled: standup.scheduleChoice === 'later',
-          has_description: !!standup.description.trim(),
-          scheduled_start_delta_minutes: scheduledStartUtc
-            ? Math.max(
-                0,
-                Math.round(
-                  (new Date(scheduledStartUtc).getTime() - Date.now()) / 60_000,
-                ),
-              )
-            : null,
-          timezone,
-        }),
-      });
-      onComplete();
-      router.push(`/standups/${joinToken.room.id}`);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : labels.error.generic;
-      displayToast(message);
+    if (result.type === 'failed') {
+      return;
     }
+    onComplete();
+    router.push(`/standups/${result.joinToken.room.id}`);
   };
 
   const handleSubmit = useCallback(
