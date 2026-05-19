@@ -12,6 +12,13 @@ import {
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
+import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import {
   BaseFeedPage,
@@ -254,6 +261,9 @@ const SquadPage = ({
   const { displayToast } = useToastNotification();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -440,11 +450,21 @@ const SquadPage = ({
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
       {seoContent}
+      {isV2Laptop && (
+        <PageHeader title={squad.name}>
+          <SquadHeaderBar
+            squad={squad}
+            members={squadMembers ?? []}
+            className="!gap-1"
+          />
+        </PageHeader>
+      )}
       <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}
           members={squadMembers ?? []}
           shouldUseListMode={shouldUseListMode}
+          hideHeaderBar={isV2Laptop}
         />
         <FeedPageComponent>
           <Feed

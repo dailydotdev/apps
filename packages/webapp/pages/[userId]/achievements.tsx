@@ -9,6 +9,12 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ProfileAchievements } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievements';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -27,6 +33,9 @@ const ProfileAchievementsPage = ({
 }: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = user && loggedUser?.id === user.id;
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(
@@ -51,6 +60,7 @@ const ProfileAchievementsPage = ({
           Achievements
         </Typography>
       </GoBackHeaderMobile>
+      {isV2Laptop && <PageHeader title="Achievements" />}
       <div className="p-6">
         <ProfileAchievements user={user} />
       </div>

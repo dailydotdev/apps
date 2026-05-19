@@ -65,6 +65,8 @@ import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuth
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -217,6 +219,8 @@ const SourcePage = ({
   topPosts = [],
 }: SourcePageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
   const { shouldShowAuthBanner } = useOnboardingActions();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
   const { user } = useContext(AuthContext);
@@ -266,6 +270,7 @@ const SourcePage = ({
           dangerouslySetInnerHTML={{ __html: jsonLd }}
         />
       </Head>
+      {isV2Laptop && <PageHeader title={source.name} />}
       <ArchiveBreadcrumbs
         items={[{ label: 'Sources', href: '/sources' }, { label: source.name }]}
         className={pageSectionClassName}

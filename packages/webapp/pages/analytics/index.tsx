@@ -9,6 +9,12 @@ import {
   pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import classNames from 'classnames';
 import {
   Typography,
@@ -94,6 +100,9 @@ type ImpressionNode = {
 const Analytics = (): ReactElement => {
   const { user } = useAuthContext();
   const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
 
   const analyticsQueryKey = generateQueryKey(
     RequestKey.UserPostsAnalytics,
@@ -233,18 +242,22 @@ const Analytics = (): ReactElement => {
   return (
     <ProtectedPage>
       <div className="mx-auto w-full max-w-[48rem]">
-        <LayoutHeader
-          className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
-        >
-          <Typography
-            type={TypographyType.Title3}
-            bold
-            color={TypographyColor.Primary}
-            className="flex-1"
+        {isV2Laptop ? (
+          <PageHeader title="Analytics" />
+        ) : (
+          <LayoutHeader
+            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
           >
-            Analytics
-          </Typography>
-        </LayoutHeader>
+            <Typography
+              type={TypographyType.Title3}
+              bold
+              color={TypographyColor.Primary}
+              className="flex-1"
+            >
+              Analytics
+            </Typography>
+          </LayoutHeader>
+        )}
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
           <SectionContainer>
             <SectionHeader>Overview (last 45 days)</SectionHeader>

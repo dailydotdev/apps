@@ -11,6 +11,12 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -68,6 +74,9 @@ const TagsPage = ({
   popularTags,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2 && isLaptop;
 
   const { feedSettings } = useFeedSettings();
   const selectedTags = feedSettings?.includeTags || [];
@@ -117,18 +126,22 @@ const TagsPage = ({
   const topTagsForSchema = tags.slice(0, 50);
 
   return (
-    <PageWrapperLayout className="flex flex-col gap-4">
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: getTagsSchemas(topTagsForSchema),
-          }}
-        />
-      </Head>
-      <BreadCrumbs className="mb-2">
-        <HashtagIcon size={IconSize.XSmall} secondary /> Tags
-      </BreadCrumbs>
+    <>
+      {isV2Laptop && <PageHeader title="Tags" />}
+      <PageWrapperLayout className="flex flex-col gap-4">
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: getTagsSchemas(topTagsForSchema),
+            }}
+          />
+        </Head>
+        {!isV2Laptop && (
+          <BreadCrumbs className="mb-2">
+            <HashtagIcon size={IconSize.XSmall} secondary /> Tags
+          </BreadCrumbs>
+        )}
       <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
         <TagTopList
           containerProps={{ title: 'Trending tags' }}
@@ -176,7 +189,8 @@ const TagsPage = ({
             );
           })}
       </div>
-    </PageWrapperLayout>
+      </PageWrapperLayout>
+    </>
   );
 };
 
