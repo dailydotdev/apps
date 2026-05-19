@@ -81,7 +81,7 @@ const StoryRow = ({
 
           <div id={panelId}>
             <Typography
-              type={TypographyType.Footnote}
+              type={TypographyType.Callout}
               color={TypographyColor.Secondary}
               className={classNames(
                 '!leading-relaxed',
