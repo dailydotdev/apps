@@ -56,3 +56,7 @@ node-compile-cache/
 # Plan files
 plans/*.md
 .cursor/plans/
+
+# Claude Code runtime state (hooks/skills/settings remain tracked)
+.claude/scheduled_tasks.lock
+.claude/drafts/
