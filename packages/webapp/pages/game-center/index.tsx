@@ -713,10 +713,9 @@ function GameCenterPage({
 
   return (
     <ProtectedPage>
+      {isV2Laptop && <PageHeader title="Game Center" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        {isV2Laptop ? (
-          <PageHeader title="Game Center" />
-        ) : (
+        {!isV2Laptop && (
           <LayoutHeader
             className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
           >

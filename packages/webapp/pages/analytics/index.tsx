@@ -241,10 +241,9 @@ const Analytics = (): ReactElement => {
 
   return (
     <ProtectedPage>
+      {isV2Laptop && <PageHeader title="Analytics" />}
       <div className="mx-auto w-full max-w-[48rem]">
-        {isV2Laptop ? (
-          <PageHeader title="Analytics" />
-        ) : (
+        {!isV2Laptop && (
           <LayoutHeader
             className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
           >

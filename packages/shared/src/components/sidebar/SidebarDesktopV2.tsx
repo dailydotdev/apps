@@ -66,7 +66,6 @@ import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
 import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
 import { HorizontalSeparator } from '../utilities';
-import { QuestButton } from '../quest/QuestButton';
 import { Typography, TypographyType } from '../typography/Typography';
 
 // V2 sidebar category identifiers. Derived from URL for navigation and
@@ -480,9 +479,21 @@ export const SidebarDesktopV2 = ({
       );
     }
     if (category === SidebarCategory.GameCenter) {
+      // The designer's mock renders the full Quest dashboard + Achievement
+      // tracker inline here (their `<QuestButton panelOnly />` form), which
+      // pulls in ~1500 lines of dedicated quest animations. Defer that to
+      // a follow-up; for now the rail icon navigates straight to the
+      // Game Center page on click, so this panel is intentionally minimal.
       return (
-        <div className="flex flex-col">
-          <QuestButton />
+        <div className="flex flex-col px-3 py-2">
+          <Link href={`${webappUrl}game-center`} passHref>
+            <a
+              href={`${webappUrl}game-center`}
+              className="focus-outline flex h-9 items-center rounded-10 px-2 typo-callout text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              Open Game Center
+            </a>
+          </Link>
         </div>
       );
     }
