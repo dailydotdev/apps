@@ -21,7 +21,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { briefCopy } from './copy';
 
 interface BriefFloatingTabsProps {
-  topId: string;
   feedId: string;
   sentinelId: string;
   boundsId: string;
@@ -71,7 +70,6 @@ const Tab = ({
 );
 
 export const BriefFloatingTabs = ({
-  topId,
   feedId,
   sentinelId,
   boundsId,
@@ -183,7 +181,11 @@ export const BriefFloatingTabs = ({
     };
   }, [measure]);
 
-  const goBrief = useCallback(() => scrollToId(topId), [topId]);
+  const goBrief = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
   const goFeed = useCallback(() => scrollToId(feedId), [feedId]);
 
   if (!mounted) {

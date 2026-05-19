@@ -727,7 +727,6 @@ export default function MainFeedLayout({
             className="w-full scroll-mt-28"
           />
           <BriefFloatingTabs
-            topId="brief-top"
             feedId="brief-feed-start"
             sentinelId="brief-feed-start"
             boundsId="brief-top"
