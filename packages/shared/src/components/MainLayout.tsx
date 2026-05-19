@@ -37,6 +37,7 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { RouteProgressBar } from './RouteProgressBar';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -251,11 +252,12 @@ function MainLayoutComponent({
           <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
             <div
               className={classNames(
-                'flex min-h-0 flex-1 flex-col',
+                'relative flex min-h-0 flex-1 flex-col',
                 'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
                 'laptop:min-h-[calc(100vh-1.5rem)]',
               )}
             >
+              <RouteProgressBar />
               {children}
             </div>
           </div>
