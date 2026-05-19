@@ -7,12 +7,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import {
-  ArrowIcon,
-  StarIcon,
-  UpvoteIcon,
-  DiscussIcon,
-} from '../../components/icons';
+import { StarIcon, OpenLinkIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import type { QuickHit } from './types';
 
@@ -66,7 +61,7 @@ export const CoverQuick = ({
         </Typography>
       </div>
 
-      <ul className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+      <ul className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
         {items.map((q) => {
           const read = readSet.has(q.id);
           return (
@@ -77,53 +72,11 @@ export const CoverQuick = ({
                 rel="noopener noreferrer"
                 onClick={() => onRead(q.id)}
                 className={classNames(
-                  'group flex items-start gap-4 px-5 py-4 transition-colors hover:bg-surface-float',
+                  'group relative flex h-full flex-col gap-2 rounded-12 border border-border-subtlest-quaternary bg-background-default p-3 transition-colors hover:border-border-subtlest-tertiary hover:bg-surface-float',
                   read && 'opacity-60',
                 )}
               >
-                <div className="flex min-w-0 flex-1 flex-col gap-2">
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Body}
-                    bold
-                    color={
-                      read ? TypographyColor.Tertiary : TypographyColor.Primary
-                    }
-                    className={classNames(
-                      '!leading-snug transition-colors',
-                      read && 'decoration-text-quaternary/40 line-through',
-                      !read && 'group-hover:text-brand-default',
-                    )}
-                  >
-                    {q.title}
-                  </Typography>
-                  <div className="flex items-center gap-3 text-text-quaternary">
-                    <span className="inline-flex items-center gap-1">
-                      <UpvoteIcon
-                        size={IconSize.XXSmall}
-                        className="text-accent-avocado-default"
-                      />
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Quaternary}
-                        className="tabular-nums"
-                      >
-                        {q.upvotes}
-                      </Typography>
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <DiscussIcon size={IconSize.XXSmall} />
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Quaternary}
-                        className="tabular-nums"
-                      >
-                        {q.comments}
-                      </Typography>
-                    </span>
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex items-start justify-between gap-2">
                   <span
                     className={classNames(
                       'inline-flex shrink-0 items-center rounded-6 px-2 py-0.5',
@@ -138,10 +91,41 @@ export const CoverQuick = ({
                       {q.eyebrow}
                     </Typography>
                   </span>
-                  <ArrowIcon
+                  <OpenLinkIcon
                     size={IconSize.XXSmall}
-                    className="-rotate-45 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
+                    className="mt-1 shrink-0 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
                   />
+                </div>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Footnote}
+                  bold
+                  color={
+                    read ? TypographyColor.Tertiary : TypographyColor.Primary
+                  }
+                  className={classNames(
+                    'line-clamp-3 !leading-snug transition-colors',
+                    read && 'decoration-text-quaternary/40 line-through',
+                    !read && 'group-hover:text-brand-default',
+                  )}
+                >
+                  {q.title}
+                </Typography>
+                <div className="mt-auto flex items-center gap-3 pt-1 text-text-quaternary">
+                  <Typography
+                    type={TypographyType.Caption2}
+                    color={TypographyColor.Quaternary}
+                    className="tabular-nums"
+                  >
+                    ↑ {q.upvotes}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Caption2}
+                    color={TypographyColor.Quaternary}
+                    className="tabular-nums"
+                  >
+                    💬 {q.comments}
+                  </Typography>
                 </div>
               </a>
             </li>

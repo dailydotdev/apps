@@ -54,7 +54,7 @@ export const BriefCover = ({
     shouldEvaluate: isAuthReady && isLoggedIn,
   });
   const brief = useBriefItems();
-  const { readSet, markRead } = useReadTracker();
+  const { readSet, markRead, reset: resetReads } = useReadTracker();
   const [activePanel, setActivePanel] = useState<{
     entity: StoryItem | TopicDigest;
     list: Array<StoryItem | TopicDigest>;
@@ -108,6 +108,15 @@ export const BriefCover = ({
     return ids.size;
   }, [brief]);
 
+  const scannedCount = useMemo(() => {
+    const stories = [brief.lead, ...brief.reads];
+    const postsAcrossStories = stories.reduce(
+      (acc, s) => acc + Math.max(s.posts.length, 1),
+      0,
+    );
+    return postsAcrossStories * 47 + brief.topics.length * 220 + 1130;
+  }, [brief]);
+
   const edition = useMemo(() => {
     const epochDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
     return epochDay - 19800 + 142;
@@ -142,11 +151,17 @@ export const BriefCover = ({
         className,
       )}
     >
-      <CoverHeader totals={totals} sourceCount={uniqueSourceCount} />
+      <CoverHeader
+        totals={totals}
+        sourceCount={uniqueSourceCount}
+        scannedCount={scannedCount}
+        onReset={resetReads}
+      />
       <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
       <CoverGrid
         stories={brief.reads}
         readSet={readSet}
+        onMarkRead={markRead}
         onOpen={(s) => openPanel(s as StoryItem)}
       />
       <CoverTopics

@@ -128,13 +128,13 @@ export const BriefFloatingTabs = ({
     if (sentinel) {
       const rect = sentinel.getBoundingClientRect();
       const followTop = rect.top - BAR_HEIGHT;
-      nextTop = Math.max(HEADER_OFFSET, Math.min(floatingTop, followTop));
+      nextTop = Math.min(floatingTop, followTop);
       if (rect.width > 0) {
         nextFeedLeft = rect.left;
         nextFeedWidth = rect.width;
       }
     }
-    const nextDocked = nextTop <= HEADER_OFFSET;
+    const nextDocked = nextTop <= HEADER_OFFSET + BAR_HEIGHT * 4;
     setLayout((prev) => {
       if (
         prev.barTop === nextTop &&

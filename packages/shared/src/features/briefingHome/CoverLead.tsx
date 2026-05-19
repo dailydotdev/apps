@@ -65,12 +65,13 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-accent-ketchup-bolder to-accent-bun-bolder" />
         )}
-        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-8 bg-overlay-primary-pepper px-2 py-1">
-          <span className="size-1.5 rounded-full bg-accent-ketchup-default" />
+        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-8 bg-accent-ketchup-default px-2 py-1 shadow-2">
+          <span className="size-1.5 rounded-full bg-white" />
           <Typography
+            tag={TypographyTag.Span}
             type={TypographyType.Caption2}
             bold
-            className="uppercase tracking-[0.18em] text-surface-invert"
+            className="uppercase tracking-[0.18em] text-white"
           >
             {briefCopy.leadEyebrow}
           </Typography>
