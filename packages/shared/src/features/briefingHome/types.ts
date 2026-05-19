@@ -71,11 +71,20 @@ export const briefDataSchema = z.object({
 });
 export type BriefData = z.infer<typeof briefDataSchema>;
 
+export type BriefEntity = StoryItem | TopicDigest | QuickHit;
+
 export const TOPIC_TOKEN: Record<Topic, string> = {
   Databases: 'text-accent-water-default',
   'AI & Agents': 'text-accent-bun-default',
   'Web Development': 'text-accent-onion-default',
   Backend: 'text-accent-avocado-default',
+};
+
+export const TOPIC_BORDER_TOKEN: Record<Topic, string> = {
+  Databases: 'border-accent-water-default',
+  'AI & Agents': 'border-accent-bun-default',
+  'Web Development': 'border-accent-onion-default',
+  Backend: 'border-accent-avocado-default',
 };
 
 export const TOPIC_BG_TOKEN: Record<Topic, string> = {

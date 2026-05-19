@@ -5,18 +5,14 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '../../components/buttons/Button';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  ShareIcon,
-  LinkIcon,
-  MailIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+} from '../../components/typography/Typography';
+import { ShareIcon, LinkIcon, MailIcon } from '../../components/icons';
+import { IconSize } from '../../components/Icon';
 import { briefCopy } from './copy';
 
 interface ShareBriefProps {
@@ -24,11 +20,11 @@ interface ShareBriefProps {
   label?: string;
 }
 
-const SHARE_URL = 'https://app.daily.dev/brief';
+const SHARE_URL = 'https://app.daily.dev/';
 const SHARE_TITLE = "Today's daily.dev brief";
 
 export const ShareBrief = ({
-  variant = ButtonVariant.Primary,
+  variant = ButtonVariant.Tertiary,
   label,
 }: ShareBriefProps): ReactElement => {
   const [open, setOpen] = useState(false);
@@ -54,14 +50,14 @@ export const ShareBrief = ({
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      // clipboard blocked; fall through silently
+      /* clipboard blocked */
     }
   }, []);
 
   const handleEmail = useCallback(() => {
     const subject = encodeURIComponent(SHARE_TITLE);
     const body = encodeURIComponent(
-      `Today's brief caught me up on the dev world in 3 min: ${SHARE_URL}`,
+      `Today's brief caught me up on the dev world in a few minutes: ${SHARE_URL}`,
     );
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
     setOpen(false);
@@ -76,7 +72,7 @@ export const ShareBrief = ({
       try {
         await nav.share({ title: SHARE_TITLE, url: SHARE_URL });
       } catch {
-        // share dismissed; no-op
+        /* user dismissed */
       }
     } else {
       await handleCopy();
