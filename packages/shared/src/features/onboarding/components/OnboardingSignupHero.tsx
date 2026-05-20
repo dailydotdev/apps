@@ -71,18 +71,6 @@ const HERO_STYLES = `
       transparent 94%
     );
 }
-.onb-desk-halo {
-  background:
-    radial-gradient(
-      circle 36rem at 50% 78%,
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(0, 0, 0, 0.8) 20%,
-      rgba(0, 0, 0, 0.55) 42%,
-      rgba(0, 0, 0, 0.28) 62%,
-      rgba(0, 0, 0, 0.1) 80%,
-      transparent 95%
-    );
-}
 .onb-center-halo {
   background:
     radial-gradient(
@@ -414,63 +402,26 @@ const TagsBackground = (): ReactElement => (
 // Variant C — Desk: full-cover photo backdrop
 // =============================================================
 
-const DESK_HERO_BLUR_SRC = '/assets/onboarding-hero-desk-blur.webp';
-const DESK_HERO_SRC = '/assets/onboarding-hero-desk-1024.webp';
-const DESK_HERO_SRCSET = [
-  '/assets/onboarding-hero-desk-1024.webp 1024w',
-  '/assets/onboarding-hero-desk-1280.webp 1280w',
-  '/assets/onboarding-hero-desk-1920.webp 1920w',
-  '/assets/onboarding-hero-desk-2560.webp 2560w',
-].join(', ');
+const DESK_HERO_SRC = '/assets/onboarding-hero-desk.webp';
 
-const deskHeroImageClass =
-  'absolute inset-0 h-full w-full object-cover object-center';
-
-const DeskBackground = (): ReactElement => {
-  const [isHighResLoaded, setIsHighResLoaded] = useState(false);
-
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-1 select-none"
-    >
-      <img
-        src={DESK_HERO_BLUR_SRC}
-        alt=""
-        aria-hidden
-        className={classNames(
-          deskHeroImageClass,
-          'scale-105 blur-lg transition-opacity duration-500',
-          isHighResLoaded && 'opacity-0',
-        )}
-        decoding="async"
-        fetchPriority="high"
-      />
-      <picture>
-        <source type="image/webp" srcSet={DESK_HERO_SRCSET} sizes="100vw" />
-        <img
-          src={DESK_HERO_SRC}
-          alt=""
-          className={classNames(
-            deskHeroImageClass,
-            'transition-opacity duration-500',
-            !isHighResLoaded && 'opacity-0',
-          )}
-          decoding="async"
-          fetchPriority="high"
-          onLoad={() => setIsHighResLoaded(true)}
-        />
-      </picture>
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(8,8,12,0.35) 0%, rgba(8,8,12,0.1) 30%, rgba(8,8,12,0.25) 60%, rgba(8,8,12,0.7) 100%)',
-        }}
-      />
-    </div>
-  );
-};
+const DeskBackground = (): ReactElement => (
+  <div
+    aria-hidden
+    className="pointer-events-none absolute inset-0 -z-1 select-none"
+  >
+    <img
+      src={DESK_HERO_SRC}
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover object-center"
+      style={{
+        imageRendering: 'auto',
+        filter: 'contrast(1.05) saturate(1.05)',
+      }}
+      decoding="async"
+      fetchPriority="high"
+    />
+  </div>
+);
 
 // =============================================================
 // Variant registry & switcher
@@ -701,7 +652,7 @@ export const OnboardingSignupHero = ({
         </div>
       )}
 
-      {!isSplitLayout && !isDeskVariant && (
+      {!isSplitLayout && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-1 select-none"
@@ -727,7 +678,7 @@ export const OnboardingSignupHero = ({
         </div>
       )}
 
-      {!isSplitLayout && !isDeskVariant && (
+      {!isSplitLayout && (
         <>
           <div
             aria-hidden
@@ -744,16 +695,10 @@ export const OnboardingSignupHero = ({
         aria-hidden
         className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
       />
-      {!isSplitLayout && !isDeskVariant && (
+      {!isSplitLayout && (
         <div
           aria-hidden
           className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
-        />
-      )}
-      {isDeskVariant && (
-        <div
-          aria-hidden
-          className="onb-desk-halo pointer-events-none absolute inset-0 -z-1"
         />
       )}
 
