@@ -25,7 +25,9 @@ export type IconType = React.ReactElement<IconProps>;
 export { ButtonColor, ButtonSize, ButtonVariant, ButtonIconPosition };
 
 /**
- * Size scale — height, radius, padding, AND typography.
+ * Size scale — height, radius, AND typography. Horizontal padding is
+ * applied separately (`HorizontalPaddingV2` / `IconSidePaddingV2`)
+ * so we can tighten the icon side when an icon is present.
  *
  * v1 (and the early v2 pass) hardcoded `typo-callout` (15 px) for every
  * size, which made XSmall chips feel jammed and XLarge hero CTAs feel
@@ -37,23 +39,57 @@ export { ButtonColor, ButtonSize, ButtonVariant, ButtonIconPosition };
  *   Large   48 px  → typo-body     (17 px) — emphasis CTA (Apple HIG body)
  *   XLarge  56 px  → typo-title3   (20 px) — hero / marketing
  *
- * Cross-checked with Material 3, Apple HIG, GitHub Primer, ChatGPT, and
- * Claude. All converge on a 2 px step capped around 17–20 px at the top.
- *
- * Padding scales with size to keep the pad-to-height ratio stable at the
- * top end: the previous 20 / 20 px at Large / XLarge gave a falling ratio
- * (0.42 / 0.36), so big buttons read as proportionally tight. New 24 / 28
- * holds a 0.5 ratio (Primer / Material / Apple hero CTA convention).
- *
  * Radius keeps the Claude-leaning 8 → 16 ladder. No "pill" — house rule
  * is "always rectangle with corner radius".
  */
 const SizeToClassNameV2: Record<ButtonSize, string> = {
-  [ButtonSize.XLarge]: 'h-14 px-7 rounded-16 typo-title3',
-  [ButtonSize.Large]: 'h-12 px-6 rounded-14 typo-body',
-  [ButtonSize.Medium]: 'h-10 px-4 rounded-12 typo-callout',
-  [ButtonSize.Small]: 'h-8 px-3 rounded-10 typo-footnote',
-  [ButtonSize.XSmall]: 'h-6 px-2 rounded-8 typo-caption1',
+  [ButtonSize.XLarge]: 'h-14 rounded-16 typo-title3',
+  [ButtonSize.Large]: 'h-12 rounded-14 typo-body',
+  [ButtonSize.Medium]: 'h-10 rounded-12 typo-callout',
+  [ButtonSize.Small]: 'h-8 rounded-10 typo-footnote',
+  [ButtonSize.XSmall]: 'h-6 rounded-8 typo-caption1',
+};
+
+/**
+ * Default symmetric horizontal padding (label-only buttons).
+ *
+ * Padding scales with size to keep the pad-to-height ratio stable at the
+ * top end: the previous 20 / 20 px at Large / XLarge gave a falling ratio
+ * (0.42 / 0.36), so big buttons read as proportionally tight. The 24 / 28
+ * scale holds a 0.5 ratio (Primer / Material / Apple hero CTA convention).
+ */
+const HorizontalPaddingV2: Record<ButtonSize, string> = {
+  [ButtonSize.XLarge]: 'px-7',
+  [ButtonSize.Large]: 'px-6',
+  [ButtonSize.Medium]: 'px-4',
+  [ButtonSize.Small]: 'px-3',
+  [ButtonSize.XSmall]: 'px-2',
+};
+
+/**
+ * Asymmetric horizontal padding for buttons that pair an icon with a
+ * label — the icon side is roughly **half** the label side so the
+ * icon's visual mass doesn't push the content off-center.
+ *
+ * Reference platforms converge on an icon-side : label-side ratio of
+ * about **1 : 2** (Material 3, Apple HIG, GitHub Primer, Linear, Notion).
+ *
+ * Concrete steps (icon side ≈ ½ of `HorizontalPaddingV2`):
+ *
+ *   XSmall  px-2 → pl-1   / pr-2     (4  / 8  px)
+ *   Small   px-3 → pl-1.5 / pr-3     (6  / 12 px)
+ *   Medium  px-4 → pl-2   / pr-4     (8  / 16 px)
+ *   Large   px-6 → pl-4   / pr-6     (16 / 24 px)
+ *   XLarge  px-7 → pl-5   / pr-7     (20 / 28 px)
+ *
+ * Mirror values applied for icon-on-right callsites.
+ */
+const IconSidePaddingV2: Record<ButtonSize, { left: string; right: string }> = {
+  [ButtonSize.XLarge]: { left: 'pl-5 pr-7', right: 'pl-7 pr-5' },
+  [ButtonSize.Large]: { left: 'pl-4 pr-6', right: 'pl-6 pr-4' },
+  [ButtonSize.Medium]: { left: 'pl-2 pr-4', right: 'pl-4 pr-2' },
+  [ButtonSize.Small]: { left: 'pl-1.5 pr-3', right: 'pl-3 pr-1.5' },
+  [ButtonSize.XSmall]: { left: 'pl-1 pr-2', right: 'pl-2 pr-1' },
 };
 
 /**
@@ -70,25 +106,37 @@ const IconOnlySizeToClassNameV2: Record<ButtonSize, string> = {
 };
 
 /**
- * Icon-to-label spacing per size. Replaces the v1 negative-margin
- * trick (`-ml-2 mr-1`) that was hardcoded to negate `px-2` and gave
- * Medium / Large / XLarge visibly asymmetric internal padding.
+ * Icon-to-label spacing per size.
  *
- * Spacing scales with the button — same convention as Linear, Notion,
- * Vercel, ChatGPT, Claude. Roughly ¼–⅓ of the side padding so the
- * icon-text pair reads as a unit, not as two separate siblings:
+ * v2 first-pass scaled the gap with button size (gap-1 → gap-2.5)
+ * following Linear / Notion's "modern, breathable" convention. On
+ * migration this read as visibly looser than v1 across every size:
+ * v1's `mr-1` (4 px) on the icon — combined with the now-retired
+ * `-ml-2` negative-margin trick — produced an *effective* 4 px gap
+ * between icon and label regardless of size. v2's 6 – 10 px gaps on
+ * Small / Medium / Large / XLarge made every icon+label button read
+ * as wider than its v1 sibling, with the worst case (XLarge) ~22 px
+ * wider. Toolbars and header strips that pack 3-5 buttons in a row
+ * felt visibly looser than the surfaces all the call sites were
+ * tuned for.
  *
- *   XSmall  px-2  + gap-1     (8 + 4 px)   — chip-tight
- *   Small   px-3  + gap-1.5   (12 + 6 px)
- *   Medium  px-4  + gap-2     (16 + 8 px)  — Linear / Notion default
- *   Large   px-6  + gap-2     (24 + 8 px)
- *   XLarge  px-7  + gap-2.5   (28 + 10 px) — hero CTA
+ * Restoring v1's flat 4 px gap (`gap-1`) on the most-common sizes
+ * (XSmall / Small / Medium) and a single-step bump on the largest
+ * sizes keeps icon+label buttons visually identical to v1 on every
+ * toolbar surface while preserving a touch of extra breathing room
+ * on hero / emphasis CTAs.
+ *
+ *   XSmall  gap-1   (4 px)  — matches v1
+ *   Small   gap-1   (4 px)  — matches v1
+ *   Medium  gap-1   (4 px)  — matches v1
+ *   Large   gap-1.5 (6 px)  — slight bump for emphasis CTA
+ *   XLarge  gap-2   (8 px)  — slight bump for hero CTA
  */
 const SizeToGapV2: Record<ButtonSize, string> = {
-  [ButtonSize.XLarge]: 'gap-2.5',
-  [ButtonSize.Large]: 'gap-2',
-  [ButtonSize.Medium]: 'gap-2',
-  [ButtonSize.Small]: 'gap-1.5',
+  [ButtonSize.XLarge]: 'gap-2',
+  [ButtonSize.Large]: 'gap-1.5',
+  [ButtonSize.Medium]: 'gap-1',
+  [ButtonSize.Small]: 'gap-1',
   [ButtonSize.XSmall]: 'gap-1',
 };
 
@@ -205,6 +253,35 @@ const variantFontWeight = (
 const sizeClassMap = (size: ButtonSize, iconOnly: boolean): string =>
   iconOnly ? IconOnlySizeToClassNameV2[size] : SizeToClassNameV2[size];
 
+/**
+ * Pick the right horizontal padding for an icon+label combo:
+ * - icon-only → none (square; padding lives in `IconOnlySizeToClassNameV2`)
+ * - icon on left + label → tighten the LEFT padding (1:2 ratio)
+ * - icon on right + label → tighten the RIGHT padding (1:2 ratio)
+ * - top-position icon → handled separately (`!px-2` override applies)
+ * - label only → symmetric default
+ */
+const horizontalPaddingClass = (
+  size: ButtonSize,
+  iconOnly: boolean,
+  hasIcon: boolean,
+  hasChildren: boolean,
+  iconPosition: ButtonIconPosition,
+): string | null => {
+  if (iconOnly) {
+    return null;
+  }
+  if (hasIcon && hasChildren) {
+    if (iconPosition === ButtonIconPosition.Left) {
+      return IconSidePaddingV2[size].left;
+    }
+    if (iconPosition === ButtonIconPosition.Right) {
+      return IconSidePaddingV2[size].right;
+    }
+  }
+  return HorizontalPaddingV2[size];
+};
+
 function ButtonV2Component<TagName extends AllowedTags>(
   {
     variant,
@@ -272,6 +349,13 @@ function ButtonV2Component<TagName extends AllowedTags>(
           'tracking-[-0.01em]',
         { iconOnly },
         sizeClassMap(size, iconOnly),
+        horizontalPaddingClass(
+          size,
+          iconOnly,
+          !!icon,
+          hasChildren,
+          iconPosition,
+        ),
         // Icon-to-label gap only applies when both an icon AND a label
         // are present. Icon-only buttons center the icon inside h-X w-X.
         // Top-position icons get column flex with a tighter vertical gap.
