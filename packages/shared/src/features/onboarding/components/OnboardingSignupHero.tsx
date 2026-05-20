@@ -396,29 +396,62 @@ const TagsBackground = (): ReactElement => (
 // Variant C — Desk: full-cover photo backdrop
 // =============================================================
 
-const DeskBackground = (): ReactElement => (
-  <div
-    aria-hidden
-    className="pointer-events-none absolute inset-0 -z-1 select-none"
-  >
-    <picture>
-      <img
-        src="/assets/onboarding-hero-desk.png"
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover object-center"
-        loading="eager"
-        decoding="async"
-      />
-    </picture>
+const DESK_HERO_BLUR_SRC = '/assets/onboarding-hero-desk-blur.webp';
+const DESK_HERO_SRC = '/assets/onboarding-hero-desk.webp';
+const DESK_HERO_SRCSET = [
+  '/assets/onboarding-hero-desk-1280.webp 1280w',
+  '/assets/onboarding-hero-desk-1920.webp 1920w',
+  '/assets/onboarding-hero-desk-2560.webp 2560w',
+].join(', ');
+
+const deskHeroImageClass =
+  'absolute inset-0 h-full w-full object-cover object-center';
+
+const DeskBackground = (): ReactElement => {
+  const [isHighResLoaded, setIsHighResLoaded] = useState(false);
+
+  return (
     <div
-      className="absolute inset-0"
-      style={{
-        background:
-          'linear-gradient(180deg, rgba(8,8,12,0.35) 0%, rgba(8,8,12,0.1) 30%, rgba(8,8,12,0.25) 60%, rgba(8,8,12,0.7) 100%)',
-      }}
-    />
-  </div>
-);
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-1 select-none"
+    >
+      <img
+        src={DESK_HERO_BLUR_SRC}
+        alt=""
+        aria-hidden
+        className={classNames(
+          deskHeroImageClass,
+          'scale-105 blur-lg transition-opacity duration-500',
+          isHighResLoaded && 'opacity-0',
+        )}
+        decoding="async"
+        fetchPriority="high"
+      />
+      <picture>
+        <source type="image/webp" srcSet={DESK_HERO_SRCSET} sizes="100vw" />
+        <img
+          src={DESK_HERO_SRC}
+          alt=""
+          className={classNames(
+            deskHeroImageClass,
+            'transition-opacity duration-500',
+            !isHighResLoaded && 'opacity-0',
+          )}
+          decoding="async"
+          fetchPriority="high"
+          onLoad={() => setIsHighResLoaded(true)}
+        />
+      </picture>
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(8,8,12,0.35) 0%, rgba(8,8,12,0.1) 30%, rgba(8,8,12,0.25) 60%, rgba(8,8,12,0.7) 100%)',
+        }}
+      />
+    </div>
+  );
+};
 
 // =============================================================
 // Variant registry & switcher
@@ -548,6 +581,7 @@ export const OnboardingSignupHero = ({
 
   const activeVariant = VARIANTS.find((v) => v.id === variantId) ?? VARIANTS[0];
   const isSplitLayout = variantId === 'split';
+  const isDeskVariant = variantId === 'desk';
 
   const signupForm =
     isSplitLayout && React.isValidElement<AuthOptionsProps>(children)
@@ -630,7 +664,7 @@ export const OnboardingSignupHero = ({
         </div>
       )}
 
-      {!isSplitLayout && (
+      {!isSplitLayout && !isDeskVariant && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-1 select-none"
@@ -660,7 +694,7 @@ export const OnboardingSignupHero = ({
         aria-hidden
         className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
       />
-      {!isSplitLayout && (
+      {!isSplitLayout && !isDeskVariant && (
         <>
           <div
             aria-hidden
