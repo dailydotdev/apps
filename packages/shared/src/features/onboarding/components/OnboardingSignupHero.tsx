@@ -312,14 +312,17 @@ const PROD_IMAGE_SRCSET = [
 
 const ProdSignupBackground = ({
   splitMode = false,
+  visible = true,
 }: {
   splitMode?: boolean;
+  visible?: boolean;
 }): ReactElement => (
   <div
     aria-hidden
     className={classNames(
-      'pointer-events-none absolute -z-1 select-none overflow-hidden',
+      'pointer-events-none absolute -z-1 select-none overflow-hidden transition-opacity duration-300',
       splitMode ? 'onb-split-grid-mask inset-0' : 'inset-0',
+      visible ? 'opacity-100' : 'opacity-0',
     )}
   >
     <img
@@ -350,20 +353,22 @@ type VariantDef = {
 const renderVariantBackground = (
   variant: VariantId,
   mode: ImageMode,
-): ReactElement | null => {
-  if (mode === 'colors') {
-    return null;
+): ReactElement => {
+  const splitMode = variant === 'split';
+  const showOriginal = mode === 'original';
+  const showProd = mode === 'prod';
+  let originalLayer: ReactElement | null = null;
+  if (variant === 'cards' || variant === 'split') {
+    originalLayer = <CardsBackground splitMode={splitMode} />;
+  } else {
+    originalLayer = <DeskBackground />;
   }
-  if (mode === 'prod') {
-    return <ProdSignupBackground splitMode={variant === 'split'} />;
-  }
-  if (variant === 'cards') {
-    return <CardsBackground />;
-  }
-  if (variant === 'split') {
-    return <CardsBackground splitMode />;
-  }
-  return <DeskBackground />;
+  return (
+    <>
+      {showOriginal && originalLayer}
+      <ProdSignupBackground splitMode={splitMode} visible={showProd} />
+    </>
+  );
 };
 
 const VARIANTS: VariantDef[] = [
