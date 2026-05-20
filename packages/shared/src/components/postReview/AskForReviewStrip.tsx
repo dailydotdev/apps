@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
-import classNames from 'classnames';
+import { createPortal } from 'react-dom';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
   Typography,
@@ -24,13 +24,7 @@ import { useAskForReviewVisibility } from '../../hooks/useAskForReviewVisibility
 
 export const ASK_FOR_REVIEW_RESET_EVENT = 'askForReview:reset';
 
-type Step = 'enjoy' | 'review';
-type AskForReviewClickId =
-  | 'enjoy_yes'
-  | 'enjoy_no'
-  | 'leave_review'
-  | 'dismiss_step1'
-  | 'dismiss_step2';
+type AskForReviewClickId = 'enjoy_yes' | 'enjoy_no' | 'dismiss_strip';
 
 const STAR_INDICES = [0, 1, 2, 3, 4] as const;
 
@@ -59,7 +53,6 @@ export const AskForReviewStripView = ({
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
-  const [step, setStep] = useState<Step>('enjoy');
 
   const extraPayload = buildExtra({
     platform: destination.id,
@@ -81,7 +74,7 @@ export const AskForReviewStripView = ({
   }, []);
 
   const log = useCallback(
-    (clickId: AskForReviewClickId, currentStep: Step) => {
+    (clickId: AskForReviewClickId) => {
       logEvent({
         event_name: LogEvent.Click,
         target_type: TargetType.AskForReview,
@@ -89,7 +82,7 @@ export const AskForReviewStripView = ({
         extra: buildExtra({
           platform: destination.id,
           streak: streakValue,
-          step: currentStep,
+          step: 'enjoy',
           variant_enabled: variantEnabled,
         }),
       });
@@ -98,13 +91,17 @@ export const AskForReviewStripView = ({
   );
 
   const onYes = () => {
-    log('enjoy_yes', 'enjoy');
+    log('enjoy_yes');
+    openModal({
+      type: LazyModal.AskForReviewConfirm,
+      props: { destination, streakValue },
+    });
     onAction?.('enjoy_yes');
-    setStep('review');
+    onClose?.();
   };
 
   const onNo = () => {
-    log('enjoy_no', 'enjoy');
+    log('enjoy_no');
     completeAction(ActionType.AskedForReviewComplete);
     openModal({
       type: LazyModal.Feedback,
@@ -114,37 +111,16 @@ export const AskForReviewStripView = ({
     onClose?.();
   };
 
-  const onLeaveReview = () => {
-    log('leave_review', 'review');
-    completeAction(ActionType.AskedForReviewComplete);
-    onAction?.('leave_review');
-    onClose?.();
-  };
-
-  const onDismissStep1 = () => {
-    log('dismiss_step1', 'enjoy');
+  const onDismiss = () => {
+    log('dismiss_strip');
     setDismissedAt();
-    onAction?.('dismiss_step1');
+    onAction?.('dismiss_strip');
     onClose?.();
   };
-
-  const onDismissStep2 = () => {
-    log('dismiss_step2', 'review');
-    completeAction(ActionType.AskedForReviewComplete);
-    onAction?.('dismiss_step2');
-    onClose?.();
-  };
-
-  const isReviewStep = step === 'review';
 
   return (
     <div
-      className={classNames(
-        'relative flex w-full justify-center border-b px-4 py-3 transition-colors duration-300',
-        isReviewStep
-          ? 'border-accent-cheese-default/30 bg-gradient-to-r from-surface-float to-surface-float'
-          : 'border-border-subtlest-tertiary bg-surface-float',
-      )}
+      className="border-accent-cheese-default/30 fixed inset-x-0 top-0 z-max flex w-full justify-center border-b bg-gradient-to-r from-surface-float via-surface-float to-surface-float px-4 py-3 shadow-2"
       data-testid="ask-for-review-strip"
     >
       <div className="flex w-full max-w-[44rem] items-center gap-4">
@@ -152,73 +128,49 @@ export const AskForReviewStripView = ({
           {STAR_INDICES.map((i) => (
             <StarIcon
               key={i}
-              secondary={isReviewStep}
-              size={IconSize.XSmall}
-              className={
-                isReviewStep
-                  ? 'text-accent-cheese-default'
-                  : 'text-accent-cheese-default/50'
-              }
+              secondary
+              size={IconSize.Small}
+              className="text-accent-cheese-default"
             />
           ))}
         </div>
 
         <div className="flex flex-1 flex-col gap-0.5 text-left">
           <Typography bold type={TypographyType.Callout}>
-            {isReviewStep
-              ? `Awesome! Leave a quick ${destination.label} review`
-              : 'Enjoying daily.dev so far?'}
+            Enjoying daily.dev so far?
           </Typography>
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {isReviewStep
-              ? 'It takes 30 seconds and helps other developers find us.'
-              : `You've read ${streakValue} days in a row \u2014 we'd love your honest take.`}
+            {`You've read ${streakValue} days in a row \u2014 we'd love your honest take.`}
           </Typography>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          {isReviewStep ? (
-            <Button
-              tag="a"
-              href={destination.href}
-              target="_blank"
-              rel="noopener"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              onClick={onLeaveReview}
-            >
-              Leave a review
-            </Button>
-          ) : (
-            <>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                onClick={onYes}
-              >
-                Yes
-              </Button>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-                onClick={onNo}
-              >
-                No
-              </Button>
-            </>
-          )}
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            onClick={onYes}
+          >
+            Yes
+          </Button>
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            onClick={onNo}
+          >
+            No
+          </Button>
           <Button
             type="button"
             aria-label="Dismiss review prompt"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
             icon={<MiniCloseIcon size={IconSize.XSmall} />}
-            onClick={isReviewStep ? onDismissStep2 : onDismissStep1}
+            onClick={onDismiss}
           />
         </div>
       </div>
@@ -236,6 +188,11 @@ export const AskForReviewStrip = (): ReactElement | null => {
     cooldownDays,
   } = useAskForReviewVisibility();
   const [closed, setClosed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -248,11 +205,11 @@ export const AskForReviewStrip = (): ReactElement | null => {
     };
   }, []);
 
-  if (!visible || !destination || closed) {
+  if (!mounted || !visible || !destination || closed) {
     return null;
   }
 
-  return (
+  return createPortal(
     <AskForReviewStripView
       destination={destination}
       streakValue={streakValue}
@@ -260,6 +217,7 @@ export const AskForReviewStrip = (): ReactElement | null => {
       streakThreshold={streakThreshold}
       cooldownDays={cooldownDays}
       onClose={() => setClosed(true)}
-    />
+    />,
+    document.body,
   );
 };

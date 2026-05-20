@@ -63,7 +63,7 @@ beforeEach(() => {
     .reply(200, { data: {} });
 });
 
-it('renders step 1 with explicit copy that mentions daily.dev', () => {
+it('renders the question with explicit daily.dev copy and Yes/No buttons', () => {
   renderStrip();
   expect(screen.getByText('Enjoying daily.dev so far?')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Yes' })).toBeInTheDocument();
@@ -75,26 +75,16 @@ it('marks the session-shown flag on mount', () => {
   expect(window.sessionStorage.getItem(ASK_FOR_REVIEW_SESSION_KEY)).toBe('1');
 });
 
-it('advances to the review step when user clicks Yes', () => {
+it('opens the AskForReviewConfirm modal with destination + streak when user clicks Yes', async () => {
   renderStrip();
   fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
-  expect(
-    screen.getByText('Awesome! Leave a quick Chrome Web Store review'),
-  ).toBeInTheDocument();
-  const cta = screen.getByRole('link', { name: 'Leave a review' });
-  expect(cta).toHaveAttribute('href', CHROME_DEST.href);
-  expect(cta).toHaveAttribute('target', '_blank');
-});
-
-it('marks the action complete when user clicks Leave a review', async () => {
-  renderStrip();
-  fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
-  fireEvent.click(screen.getByRole('link', { name: 'Leave a review' }));
   await waitFor(() => {
-    expect(completeAction).toHaveBeenCalledWith(
-      ActionType.AskedForReviewComplete,
-    );
+    expect(openModal).toHaveBeenCalledWith({
+      type: LazyModal.AskForReviewConfirm,
+      props: { destination: CHROME_DEST, streakValue: 3 },
+    });
   });
+  expect(completeAction).not.toHaveBeenCalled();
 });
 
 it('opens the Feedback modal with UxIssue category and marks complete on No', async () => {
@@ -111,7 +101,7 @@ it('opens the Feedback modal with UxIssue category and marks complete on No', as
   });
 });
 
-it('writes the dismissed-at timestamp when user dismisses step 1 without engaging', () => {
+it('writes the dismissed-at timestamp when user dismisses without engaging', () => {
   renderStrip();
   fireEvent.click(
     screen.getByRole('button', { name: 'Dismiss review prompt' }),
@@ -122,27 +112,18 @@ it('writes the dismissed-at timestamp when user dismisses step 1 without engagin
   ).not.toBeNull();
 });
 
-it('marks the action complete when user dismisses step 2', async () => {
-  renderStrip();
-  fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Dismiss review prompt' }),
-  );
-  await waitFor(() => {
-    expect(completeAction).toHaveBeenCalledWith(
-      ActionType.AskedForReviewComplete,
-    );
-  });
-});
-
-it('renders the destination label dynamically (App Store)', () => {
-  renderStrip({
+it('passes the destination through to the confirm modal (App Store)', async () => {
+  const appStore: ReviewDestination = {
     id: 'app_store',
     label: 'App Store',
     href: 'https://example.test/app-store',
-  });
+  };
+  renderStrip(appStore);
   fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
-  expect(
-    screen.getByText('Awesome! Leave a quick App Store review'),
-  ).toBeInTheDocument();
+  await waitFor(() => {
+    expect(openModal).toHaveBeenCalledWith({
+      type: LazyModal.AskForReviewConfirm,
+      props: { destination: appStore, streakValue: 3 },
+    });
+  });
 });

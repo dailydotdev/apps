@@ -86,37 +86,37 @@ export default meta;
 type Story = StoryObj<typeof AskForReviewStripView>;
 
 export const ChromeWebStore: Story = {
-  name: 'Step 1 \u2014 default (Chrome Web Store on Yes)',
+  name: 'Default (routes to Chrome Web Store on Yes)',
   args: { destination: DESTINATIONS[0] },
 };
 
 export const EdgeAddons: Story = {
-  name: 'Step 1 \u2014 Edge Add-ons on Yes',
+  name: 'Edge Add-ons destination',
   args: { destination: DESTINATIONS[1] },
 };
 
 export const FirefoxAddons: Story = {
-  name: 'Step 1 \u2014 Firefox Add-ons on Yes',
+  name: 'Firefox Add-ons destination',
   args: { destination: DESTINATIONS[2] },
 };
 
 export const AppStore: Story = {
-  name: 'Step 1 \u2014 App Store on Yes (iOS)',
+  name: 'App Store destination (iOS)',
   args: { destination: DESTINATIONS[3] },
 };
 
 export const PlayStore: Story = {
-  name: 'Step 1 \u2014 Play Store on Yes (Android)',
+  name: 'Play Store destination (Android)',
   args: { destination: DESTINATIONS[4] },
 };
 
 export const TwitterFallback: Story = {
-  name: 'Step 1 \u2014 X share fallback (Firefox/Safari)',
+  name: 'X share fallback (unsupported browser)',
   args: { destination: DESTINATIONS[5] },
 };
 
 export const HighStreak: Story = {
-  name: 'Step 1 \u2014 long streak copy',
+  name: 'Long streak copy',
   args: { destination: DESTINATIONS[0], streakValue: 42 },
 };
 
