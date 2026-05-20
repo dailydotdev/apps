@@ -163,6 +163,7 @@ export function ProfileTooltip({
       ) : undefined,
     plugins:
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
+    trigger: 'mouseenter',
     ...tooltip,
     onShow: (instance) => {
       logEvent({
