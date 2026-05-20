@@ -14,8 +14,6 @@ import { isIOSNative } from '../../lib/func';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '../../lib/featureManagement';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -117,10 +115,6 @@ export const OnboardingRegistrationForm = ({
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const isOnboardingTrigger = trigger === AuthTriggers.Onboarding;
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-    shouldEvaluate: isOnboardingTrigger,
-  });
 
   const trackOpenSignup = () => {
     logEvent({
@@ -174,9 +168,6 @@ export const OnboardingRegistrationForm = ({
     </Button>
   );
   const getMemberAlreadyContainerClass = (): string => {
-    if (isOnboardingV2) {
-      return 'mx-auto mt-6 w-full justify-center border-t border-border-subtlest-tertiary pt-6 text-center text-text-secondary typo-callout';
-    }
     if (isOnboardingTrigger) {
       return 'mx-auto mt-5 text-center text-text-secondary typo-callout';
     }

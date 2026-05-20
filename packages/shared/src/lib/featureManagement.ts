@@ -170,8 +170,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingV2 = new Feature('onboarding_v2', false);
-
 export const featureOnboardingTagRecommender = new Feature(
   'onboarding_tag_recommender',
   false,
@@ -203,4 +201,4 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
-export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+export const featureFeedTagChips = new Feature('feed_tag_chips', true);

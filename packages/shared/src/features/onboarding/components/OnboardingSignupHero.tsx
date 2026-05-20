@@ -127,6 +127,43 @@ const HERO_STYLES = `
     rgba(0, 0, 0, 0.35) 100%
   );
 }
+.onb-split-grid-mask {
+  -webkit-mask-image:
+    linear-gradient(
+      to right,
+      black 0%,
+      black 55%,
+      rgba(0, 0, 0, 0.75) 78%,
+      transparent 100%
+    );
+  mask-image:
+    linear-gradient(
+      to right,
+      black 0%,
+      black 55%,
+      rgba(0, 0, 0, 0.75) 78%,
+      transparent 100%
+    );
+}
+.onb-split-left-fade {
+  background:
+    linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.25) 55%,
+      rgba(0, 0, 0, 0.72) 82%,
+      rgba(8, 8, 12, 1) 100%
+    );
+}
+.onb-split-right-panel {
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 0% 40%,
+      color-mix(in srgb, var(--theme-accent-water-default) 6%, transparent) 0%,
+      transparent 55%
+    ),
+    var(--theme-background-default);
+}
 .onb-glow-cabbage { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-cabbage-default) 65%, transparent); }
 .onb-glow-water { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-water-default) 65%, transparent); }
 .onb-glow-onion { text-shadow: 0 0 28px color-mix(in srgb, var(--theme-accent-onion-default) 70%, transparent); }
@@ -186,7 +223,11 @@ const ExplorePostCard = ({ post }: { post: Post }): ReactElement => (
   </ErrorBoundary>
 );
 
-const CardsBackground = (): ReactElement => {
+const CardsBackground = ({
+  splitMode = false,
+}: {
+  splitMode?: boolean;
+}): ReactElement => {
   const posts = useExplorePosts();
   return (
     <ActiveFeedNameContext.Provider
@@ -194,9 +235,21 @@ const CardsBackground = (): ReactElement => {
     >
       <div
         aria-hidden
-        className="onb-grid-mask pointer-events-none absolute inset-0 -z-1 select-none overflow-hidden opacity-[0.72]"
+        className={classNames(
+          'pointer-events-none absolute select-none overflow-hidden opacity-[0.4]',
+          splitMode
+            ? 'onb-split-grid-mask inset-y-0 left-0 -z-1 w-full laptop:w-1/2'
+            : 'onb-grid-mask inset-0 -z-1',
+        )}
       >
-        <div className="grid auto-rows-min grid-cols-2 gap-8 p-5 tablet:p-7 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6">
+        <div
+          className={classNames(
+            'grid auto-rows-min gap-8 px-10 pb-5 pt-10 tablet:px-14 tablet:pb-7 tablet:pt-14',
+            splitMode
+              ? 'grid-cols-2 laptop:grid-cols-2 laptopL:grid-cols-3'
+              : 'grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6',
+          )}
+        >
           {posts.map((post) => (
             <ExplorePostCard key={post.id} post={post} />
           ))}
@@ -367,7 +420,7 @@ const DeskBackground = (): ReactElement => (
 // Variant registry & switcher
 // =============================================================
 
-type VariantId = 'cards' | 'tags' | 'desk';
+type VariantId = 'cards' | 'tags' | 'desk' | 'split';
 
 type VariantDef = {
   id: VariantId;
@@ -377,6 +430,7 @@ type VariantDef = {
 
 const VARIANTS: VariantDef[] = [
   { id: 'cards', label: 'Cards', render: () => <CardsBackground /> },
+  { id: 'split', label: 'X', render: () => <CardsBackground splitMode /> },
   { id: 'tags', label: 'Tags', render: () => <TagsBackground /> },
   { id: 'desk', label: 'Desk', render: () => <DeskBackground /> },
 ];
@@ -410,12 +464,13 @@ const VariantSwitcher = ({
   onChange: (next: VariantId) => void;
 }): ReactElement => (
   <div
-    className="bg-raw-pepper-90/85 border-white/10 pointer-events-auto fixed right-4 top-4 flex items-center gap-1 rounded-full border p-1 backdrop-blur-md tablet:right-6 tablet:top-6"
-    style={{ zIndex: 50 }}
+    className="z-50 border-white/10 bg-raw-pepper-90/85 pointer-events-auto fixed left-4 right-4 top-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-1 rounded-16 border p-1 backdrop-blur-md tablet:left-auto tablet:right-6 tablet:top-6 tablet:max-w-[min(calc(100vw-3rem),28rem)]"
     role="radiogroup"
     aria-label="Background variant"
   >
-    <span className="px-2 text-text-quaternary typo-caption2">Variant</span>
+    <span className="shrink-0 px-2 text-text-quaternary typo-caption2">
+      Variant
+    </span>
     {VARIANTS.map((variant) => {
       const active = variant.id === value;
       return (
@@ -478,16 +533,25 @@ export const OnboardingSignupHero = ({
   }, [variantId]);
 
   const activeVariant = VARIANTS.find((v) => v.id === variantId) ?? VARIANTS[0];
+  const isSplitLayout = variantId === 'split';
 
   return (
-    <div className="onb-bg relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary">
+    <div
+      className={classNames(
+        'onb-bg relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary',
+        isSplitLayout && 'laptop:flex-row',
+      )}
+    >
       <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
 
       {activeVariant.render()}
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-1 select-none"
+        className={classNames(
+          'pointer-events-none absolute -z-1 select-none',
+          isSplitLayout ? 'inset-y-0 left-0 w-full laptop:w-1/2' : 'inset-0',
+        )}
       >
         <span
           className="onb-orb bg-accent-cabbage-default"
@@ -504,40 +568,87 @@ export const OnboardingSignupHero = ({
             width: '32rem',
             height: '32rem',
             top: '18%',
-            right: '-10rem',
+            right: isSplitLayout ? '-4rem' : '-10rem',
           }}
         />
       </div>
 
       <div
         aria-hidden
-        className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40"
+        className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
       />
-      <div
-        aria-hidden
-        className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]"
-      />
-      <div
-        aria-hidden
-        className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
-      />
-      <div
-        aria-hidden
-        className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
-      />
+      {!isSplitLayout && (
+        <>
+          <div
+            aria-hidden
+            className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]"
+          />
+          <div
+            aria-hidden
+            className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
+          />
+          <div
+            aria-hidden
+            className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
+          />
+        </>
+      )}
+      {isSplitLayout && (
+        <>
+          <div
+            aria-hidden
+            className="onb-split-left-fade pointer-events-none absolute inset-y-0 left-0 -z-1 hidden w-1/2 laptop:block"
+          />
+          <div
+            aria-hidden
+            className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh] laptop:hidden"
+          />
+          <div
+            aria-hidden
+            className="onb-form-halo pointer-events-none absolute inset-0 -z-1 laptop:hidden"
+          />
+        </>
+      )}
 
       <VariantSwitcher value={variantId} onChange={setVariantId} />
 
-      <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] tablet:pt-14">
-        <div className="flex w-full max-w-[26rem] flex-col gap-6 tablet:gap-7">
+      {isSplitLayout && (
+        <div
+          aria-hidden
+          className="onb-split-right-panel pointer-events-none absolute inset-y-0 right-0 -z-1 hidden w-1/2 laptop:block"
+        />
+      )}
+
+      <main
+        className={classNames(
+          'relative z-1 flex w-full flex-1 flex-col px-5 pt-10',
+          isSplitLayout
+            ? 'justify-end pb-[7.5rem] tablet:pb-[5.5rem] laptop:ml-auto laptop:w-1/2 laptop:items-start laptop:justify-center laptop:px-16 laptop:pb-12 laptop:pt-12'
+            : 'items-center justify-end pb-[7.5rem] tablet:pb-[5.5rem] tablet:pt-14',
+        )}
+      >
+        <div
+          className={classNames(
+            'flex w-full max-w-[26rem] flex-col gap-6 tablet:gap-7',
+            isSplitLayout && 'laptop:max-w-[22rem] laptop:gap-8',
+          )}
+        >
           <Logo
             position={LogoPosition.Relative}
-            className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
+            className={classNames(
+              '!left-0 !top-0 !mt-0 !translate-x-0',
+              isSplitLayout ? 'self-center laptop:!self-start' : 'self-center',
+            )}
             logoClassName={{ container: 'h-7' }}
           />
 
           {!isFormExpanded && headline && (
-            <h1 className="onb-headline text-balance text-center font-bold leading-[1.05] tracking-tight text-text-primary typo-title2 tablet:typo-mega3">
+            <h1
+              className={classNames(
+                'onb-headline text-balance font-bold leading-[1.05] tracking-tight text-text-primary typo-title2 tablet:typo-mega3',
+                isSplitLayout ? 'text-center laptop:text-left' : 'text-center',
+              )}
+            >
               {headline}
             </h1>
           )}
@@ -546,16 +657,37 @@ export const OnboardingSignupHero = ({
         </div>
       </main>
 
-      <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex">
+      <div
+        className={classNames(
+          'pointer-events-auto z-1',
+          isSplitLayout
+            ? 'absolute inset-x-0 bottom-0 hidden flex-col items-start gap-3 px-5 pb-5 laptop:left-1/2 laptop:flex laptop:w-1/2 laptop:px-16 laptop:pb-6'
+            : 'absolute inset-x-0 bottom-0 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex',
+        )}
+      >
         <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
           <FooterLinks />
         </div>
-        <div className="max-w-sm text-right">
-          <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
+        <div
+          className={classNames(
+            isSplitLayout ? 'max-w-sm text-left' : 'max-w-sm text-right',
+          )}
+        >
+          <SignupDisclaimer
+            className={classNames(
+              '!text-text-tertiary typo-caption1',
+              !isSplitLayout && '!text-right',
+            )}
+          />
         </div>
       </div>
 
-      <div className="pointer-events-auto relative z-1 flex w-full flex-col items-center gap-4 px-5 pb-5 tablet:hidden">
+      <div
+        className={classNames(
+          'pointer-events-auto relative z-1 flex w-full flex-col items-center gap-4 px-5 pb-5',
+          isSplitLayout ? 'laptop:hidden' : 'tablet:hidden',
+        )}
+      >
         <div className="[&_footer]:!pb-0 [&_ul]:!mb-0">
           <FooterLinks />
         </div>
