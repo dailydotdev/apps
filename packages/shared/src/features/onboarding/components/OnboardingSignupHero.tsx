@@ -18,6 +18,11 @@ import {
   ThemeMode,
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
+import {
+  cloudinaryAuthBannerBackground,
+  cloudinaryAuthBannerBackground1440w,
+  cloudinaryAuthBannerBackground1920w,
+} from '../../../lib/image';
 
 const HERO_STYLES = `
 .onb-bg {
@@ -286,6 +291,40 @@ const DeskBackground = (): ReactElement => (
 );
 
 // =============================================================
+// Variant D — Production signup image (toggle overrides each variant)
+// =============================================================
+
+const PROD_IMAGE_SRCSET = [
+  `${cloudinaryAuthBannerBackground1440w} 1440w`,
+  `${cloudinaryAuthBannerBackground1920w} 1920w`,
+  `${cloudinaryAuthBannerBackground} 2880w`,
+].join(', ');
+
+const ProdSignupBackground = ({
+  splitMode = false,
+}: {
+  splitMode?: boolean;
+}): ReactElement => (
+  <div
+    aria-hidden
+    className={classNames(
+      'pointer-events-none absolute -z-1 select-none overflow-hidden',
+      splitMode ? 'onb-split-grid-mask inset-0' : 'inset-0',
+    )}
+  >
+    <img
+      src={cloudinaryAuthBannerBackground}
+      srcSet={PROD_IMAGE_SRCSET}
+      sizes="100vw"
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover object-center"
+      decoding="async"
+      fetchPriority="high"
+    />
+  </div>
+);
+
+// =============================================================
 // Variant registry & switcher
 // =============================================================
 
@@ -294,16 +333,36 @@ type VariantId = 'cards' | 'desk' | 'split';
 type VariantDef = {
   id: VariantId;
   label: string;
-  render: () => ReactElement;
+  render: (useProdImage: boolean) => ReactElement;
 };
 
 const VARIANTS: VariantDef[] = [
-  { id: 'cards', label: 'Cards', render: () => <CardsBackground /> },
-  { id: 'split', label: 'X', render: () => <CardsBackground splitMode /> },
-  { id: 'desk', label: 'Desk', render: () => <DeskBackground /> },
+  {
+    id: 'cards',
+    label: 'Cards',
+    render: (useProdImage) =>
+      useProdImage ? <ProdSignupBackground /> : <CardsBackground />,
+  },
+  {
+    id: 'split',
+    label: 'X',
+    render: (useProdImage) =>
+      useProdImage ? (
+        <ProdSignupBackground splitMode />
+      ) : (
+        <CardsBackground splitMode />
+      ),
+  },
+  {
+    id: 'desk',
+    label: 'Desk',
+    render: (useProdImage) =>
+      useProdImage ? <ProdSignupBackground /> : <DeskBackground />,
+  },
 ];
 
 const VARIANT_STORAGE_KEY = 'onb-hero-variant';
+const PROD_IMAGE_STORAGE_KEY = 'onb-hero-prod';
 const VARIANT_IDS = new Set(VARIANTS.map((v) => v.id));
 
 const isVariantId = (value: string | null): value is VariantId =>
@@ -324,49 +383,92 @@ const readInitialVariant = (): VariantId => {
   return VARIANTS[0].id;
 };
 
+const readInitialProdImage = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  const fromUrl = new URLSearchParams(window.location.search).get('prod');
+  if (fromUrl === '1' || fromUrl === 'true') {
+    return true;
+  }
+  if (fromUrl === '0' || fromUrl === 'false') {
+    return false;
+  }
+  return window.localStorage.getItem(PROD_IMAGE_STORAGE_KEY) === '1';
+};
+
 const VARIANT_SWITCHER_Z_INDEX = 9999;
 
 const VariantSwitcher = ({
   value,
   onChange,
+  useProdImage,
+  onToggleProdImage,
 }: {
   value: VariantId;
   onChange: (next: VariantId) => void;
+  useProdImage: boolean;
+  onToggleProdImage: (next: boolean) => void;
 }): ReactElement => (
   <RootPortal>
     <div
       className="pointer-events-auto fixed left-4 right-4 top-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-1 rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 p-1.5 shadow-2 tablet:left-auto tablet:right-6 tablet:top-6 tablet:max-w-[min(calc(100vw-3rem),28rem)]"
-      role="radiogroup"
+      role="toolbar"
       aria-label="Background variant"
       style={{ zIndex: VARIANT_SWITCHER_Z_INDEX }}
     >
       <span className="shrink-0 px-2 text-text-quaternary typo-caption2">
         Variant
       </span>
-      {VARIANTS.map((variant) => {
-        const active = variant.id === value;
-        return (
-          <button
-            key={variant.id}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={(event) => {
-              event.stopPropagation();
-              onChange(variant.id);
-            }}
-            onPointerDown={(event) => event.stopPropagation()}
-            className={classNames(
-              'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
-              active
-                ? 'bg-white/15 text-text-primary'
-                : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
-            )}
-          >
-            {variant.label}
-          </button>
-        );
-      })}
+      <div
+        role="radiogroup"
+        aria-label="Background variant"
+        className="flex flex-wrap items-center gap-1"
+      >
+        {VARIANTS.map((variant) => {
+          const active = variant.id === value;
+          return (
+            <button
+              key={variant.id}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={(event) => {
+                event.stopPropagation();
+                onChange(variant.id);
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              className={classNames(
+                'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
+                active
+                  ? 'bg-white/15 text-text-primary'
+                  : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
+              )}
+            >
+              {variant.label}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mx-1 hidden h-5 w-px bg-border-subtlest-tertiary tablet:block" />
+      <button
+        type="button"
+        role="switch"
+        aria-checked={useProdImage}
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggleProdImage(!useProdImage);
+        }}
+        onPointerDown={(event) => event.stopPropagation()}
+        className={classNames(
+          'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
+          useProdImage
+            ? 'bg-accent-cabbage-default text-white'
+            : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
+        )}
+      >
+        Prod image
+      </button>
     </div>
   </RootPortal>
 );
@@ -391,9 +493,11 @@ export const OnboardingSignupHero = ({
 }: Props): ReactElement => {
   const { applyThemeMode } = useSettingsContext();
   const [variantId, setVariantId] = useState<VariantId>(VARIANTS[0].id);
+  const [useProdImage, setUseProdImage] = useState<boolean>(false);
 
   useEffect(() => {
     setVariantId(readInitialVariant());
+    setUseProdImage(readInitialProdImage());
   }, []);
 
   useEffect(() => {
@@ -409,6 +513,16 @@ export const OnboardingSignupHero = ({
     }
     window.localStorage.setItem(VARIANT_STORAGE_KEY, variantId);
   }, [variantId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    window.localStorage.setItem(
+      PROD_IMAGE_STORAGE_KEY,
+      useProdImage ? '1' : '0',
+    );
+  }, [useProdImage]);
 
   const activeVariant = VARIANTS.find((v) => v.id === variantId) ?? VARIANTS[0];
   const isSplitLayout = variantId === 'split';
@@ -465,14 +579,18 @@ export const OnboardingSignupHero = ({
     >
       <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
 
-      {!isSplitLayout && activeVariant.render()}
+      {!isSplitLayout && activeVariant.render(useProdImage)}
 
       {isSplitLayout && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-1 select-none laptop:hidden"
         >
-          <CardsBackground splitMode />
+          {useProdImage ? (
+            <ProdSignupBackground splitMode />
+          ) : (
+            <CardsBackground splitMode />
+          )}
           <div className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]" />
           <div className="onb-form-halo pointer-events-none absolute inset-0" />
         </div>
@@ -484,7 +602,11 @@ export const OnboardingSignupHero = ({
             aria-hidden
             className="onb-split-left-water-glow pointer-events-none absolute inset-0 -z-2"
           />
-          <CardsBackground splitMode />
+          {useProdImage ? (
+            <ProdSignupBackground splitMode />
+          ) : (
+            <CardsBackground splitMode />
+          )}
           <div
             aria-hidden
             className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
@@ -563,7 +685,12 @@ export const OnboardingSignupHero = ({
         />
       )}
 
-      <VariantSwitcher value={variantId} onChange={setVariantId} />
+      <VariantSwitcher
+        value={variantId}
+        onChange={setVariantId}
+        useProdImage={useProdImage}
+        onToggleProdImage={setUseProdImage}
+      />
 
       {isSplitLayout ? (
         <div className="relative z-1 flex min-h-dvh flex-1 flex-col laptop:col-start-2 laptop:row-start-1 laptop:min-w-0">
