@@ -18,6 +18,7 @@ import { ProfileSection } from './sections/ProfileSection';
 import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
+import { QuestButton } from '../quest/QuestButton';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
@@ -351,7 +352,12 @@ export const SidebarDesktopV2 = ({
   additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, toggleSidebarExpanded } = useSettingsContext();
+  const {
+    sidebarExpanded,
+    toggleSidebarExpanded,
+    loadedSettings,
+    optOutQuestSystem,
+  } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
@@ -477,21 +483,22 @@ export const SidebarDesktopV2 = ({
       );
     }
     if (category === SidebarCategory.GameCenter) {
-      // The designer's mock renders the full Quest dashboard + Achievement
-      // tracker inline here (their `<QuestButton panelOnly />` form), which
-      // pulls in ~1500 lines of dedicated quest animations. Defer that to
-      // a follow-up; for now the rail icon navigates straight to the
-      // Game Center page on click, so this panel is intentionally minimal.
+      const canRenderQuestPanel =
+        isLoggedIn && loadedSettings && !optOutQuestSystem;
       return (
-        <div className="flex flex-col px-3 py-2">
-          <Link href={`${webappUrl}game-center`} passHref>
-            <a
-              href={`${webappUrl}game-center`}
-              className="focus-outline flex h-9 items-center rounded-10 px-2 text-text-tertiary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
-            >
-              Open Game Center
-            </a>
-          </Link>
+        <div className="flex flex-col">
+          {canRenderQuestPanel ? (
+            <QuestButton panelOnly />
+          ) : (
+            <Link href={`${webappUrl}game-center`} passHref>
+              <a
+                href={`${webappUrl}game-center`}
+                className="focus-outline mx-3 flex h-9 items-center rounded-10 px-2 text-text-tertiary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
+              >
+                Open Game Center
+              </a>
+            </Link>
+          )}
         </div>
       );
     }
