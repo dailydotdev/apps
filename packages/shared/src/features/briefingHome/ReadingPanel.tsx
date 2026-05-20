@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Modal } from '../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../components/modals/common/types';
 import { DrawerPosition } from '../../components/drawers/Drawer';
+import basePostModalStyles from '../../components/modals/BasePostModal.module.css';
 import { PostContainer } from '../../components/post/common';
 import { PageWidgets } from '../../components/utilities/common';
 import {
@@ -596,7 +597,8 @@ export const ReadingPanel = ({
       kind={ModalKind.FlexibleTop}
       size={ModalSize.XLarge}
       shouldCloseOnOverlayClick
-      overlayClassName="!overflow-y-auto bg-overlay-quaternary-onion"
+      portalClassName={basePostModalStyles.postModal}
+      overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       isDrawerOnMobile
       drawerProps={{
         position: DrawerPosition.Bottom,
