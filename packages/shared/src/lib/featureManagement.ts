@@ -201,7 +201,7 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
-export const featureFeedTagChips = new Feature('feed_tag_chips', true);
+export const featureFeedTagChips = new Feature('feed_tag_chips', false);
 
 export type AskForReviewFeatureValue = {
   enabled: boolean;

@@ -229,7 +229,7 @@ describe('HotAndColdModal', () => {
     const shareLink = screen.getByRole('link', {
       name: 'Share your hot takes',
     });
-    expect(shareLink).toHaveAttribute('href', '/tester#hot-takes');
+    expect(shareLink).toHaveAttribute('href', '/tester?addHotTake=1#hot-takes');
 
     fireEvent.click(shareLink);
 
@@ -242,7 +242,7 @@ describe('HotAndColdModal', () => {
     const addButton = screen.getByRole('link', {
       name: 'Add your own hot take',
     });
-    expect(addButton).toHaveAttribute('href', '/tester#hot-takes');
+    expect(addButton).toHaveAttribute('href', '/tester?addHotTake=1#hot-takes');
 
     fireEvent.click(addButton);
 

@@ -6,6 +6,7 @@ import {
   LeaderboardType,
   MOST_QUESTS_COMPLETED_LIMIT,
   MOST_QUESTS_COMPLETED_QUERY,
+  POPULAR_HOT_TAKES_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { getStaticProps as getUsersStaticProps } from '../pages/users';
 import { getStaticProps as getLeaderboardDetailStaticProps } from '../pages/users/[id]';
@@ -32,7 +33,6 @@ const baseLeaderboardResponse = {
   mostReadingDays: [],
   mostAchievementPoints: [],
   mostVerifiedUsers: [],
-  popularHotTakes: [],
 };
 
 const createMissingSchemaError = (message: string) => ({
@@ -50,6 +50,10 @@ describe('leaderboard static props', () => {
     mockRequest.mockImplementation((query: string) => {
       if (query === LEADERBOARD_QUERY) {
         return Promise.resolve(baseLeaderboardResponse);
+      }
+
+      if (query === POPULAR_HOT_TAKES_QUERY) {
+        return Promise.resolve({ popularHotTakes: [] });
       }
 
       if (query === HIGHEST_LEVEL_QUERY) {
@@ -101,6 +105,10 @@ describe('leaderboard static props', () => {
         return Promise.resolve(baseLeaderboardResponse);
       }
 
+      if (query === POPULAR_HOT_TAKES_QUERY) {
+        return Promise.resolve({ popularHotTakes: [] });
+      }
+
       if (query === HIGHEST_LEVEL_QUERY) {
         return Promise.resolve({ highestLevel });
       }
@@ -114,6 +122,36 @@ describe('leaderboard static props', () => {
       props: {
         highestLevel,
         isHighestLevelSupported: true,
+      },
+    });
+  });
+
+  it('should hide popular hot takes when API schema does not support it', async () => {
+    mockRequest.mockImplementation((query: string) => {
+      if (query === LEADERBOARD_QUERY) {
+        return Promise.resolve(baseLeaderboardResponse);
+      }
+
+      if (query === POPULAR_HOT_TAKES_QUERY) {
+        return Promise.reject(
+          createMissingSchemaError(
+            'Cannot query field "popularHotTakes" on type "Query".',
+          ),
+        );
+      }
+
+      if (query === HIGHEST_LEVEL_QUERY) {
+        return Promise.resolve({ highestLevel: [] });
+      }
+
+      return Promise.reject(new Error('Unexpected query'));
+    });
+
+    const result = await getUsersStaticProps();
+
+    expect(result).toMatchObject({
+      props: {
+        popularHotTakes: [],
       },
     });
   });
