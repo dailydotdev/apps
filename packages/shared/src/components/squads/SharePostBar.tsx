@@ -14,6 +14,7 @@ import { LazyModal } from '../modals/common/types';
 import type { Squad } from '../../graphql/sources';
 import type { ExternalLinkPreview } from '../../graphql/posts';
 import { Divider } from '../utilities';
+import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 
 export interface SharePostBarProps {
   className?: string;
@@ -28,20 +29,36 @@ function SharePostBar({
   disabledText = 'Only admins and moderators can post',
   squad,
 }: SharePostBarProps): ReactElement {
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>('');
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isSmartComposerEnabled = useSmartComposer();
+  const shouldUseSmartComposer = isSmartComposerEnabled && isLaptop;
   const [urlFocused, toggleUrlFocus] = useState(false);
   const onSharedSuccessfully = () => {
-    inputRef.current.value = '';
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
     setUrl('');
   };
 
   const shouldRenderReadingHistory = !urlFocused && url.length === 0;
 
-  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
+  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) => {
+    if (shouldUseSmartComposer) {
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: {
+          initialUrl: link,
+          initialSquadHandle: squad.handle,
+          preview: { ...preview, url: link },
+        },
+      });
+      return;
+    }
     openModal({
       type: LazyModal.CreateSharedPost,
       props: {
@@ -50,6 +67,7 @@ function SharePostBar({
         onSharedSuccessfully,
       },
     });
+  };
 
   const onOpenHistory = () =>
     openModal({
@@ -94,11 +112,13 @@ function SharePostBar({
     >
       <span className="relative flex w-full flex-row items-center">
         <div className="flex flex-1 gap-4">
-          <ProfilePicture
-            user={user}
-            size={ProfileImageSize.Large}
-            nativeLazyLoading
-          />
+          {user && (
+            <ProfilePicture
+              user={user}
+              size={ProfileImageSize.Large}
+              nativeLazyLoading
+            />
+          )}
           <div className="flex flex-1">
             <input
               type="url"

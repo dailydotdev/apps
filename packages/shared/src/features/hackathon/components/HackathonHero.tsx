@@ -28,7 +28,7 @@ export const HackathonHero = (): ReactElement => {
         </Typography>
       </FlexRow>
       <img
-        src={fromCDN('/assets/hackathon-og.png?v=2')}
+        src={fromCDN('/assets/hackathon-og.png?v=3')}
         alt="daily.dev Hackathon"
         className="w-full max-w-2xl rounded-16"
       />
@@ -45,14 +45,17 @@ export const HackathonHero = (): ReactElement => {
       >
         Build something for developers, from developers.
       </Typography>
+      <Typography center type={TypographyType.Title3} bold>
+        Starts May 20th, 12:00 UTC
+      </Typography>
       <Typography
         center
         type={TypographyType.Body}
         color={TypographyColor.Secondary}
         className="max-w-lg"
       >
-        72 hours, three tracks, and full access to the daily.dev Public API.{' '}
-        <strong>Win 1 year of daily.dev Plus!</strong>
+        5 days, three tracks, full access to the daily.dev Public API. Work on
+        it at your own pace. <strong>Win 1 year of daily.dev Plus!</strong>
       </Typography>
       <FlexRow className="mt-2 flex-wrap items-center justify-center gap-3">
         <HackathonSignupButton />

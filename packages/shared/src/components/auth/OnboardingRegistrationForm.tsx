@@ -5,7 +5,7 @@ import { providerMap } from './common';
 import OrDivider from './OrDivider';
 import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
-import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { isIOSNative } from '../../lib/func';
@@ -13,8 +13,6 @@ import { isIOSNative } from '../../lib/func';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '../../lib/featureManagement';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -112,10 +110,6 @@ export const OnboardingRegistrationForm = ({
   compact,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-    shouldEvaluate: trigger === AuthTriggers.Onboarding,
-  });
 
   const trackOpenSignup = () => {
     logEvent({
@@ -169,9 +163,8 @@ export const OnboardingRegistrationForm = ({
           <MemberAlready
             onLogin={() => onExistingEmail?.('')}
             className={{
-              container: isOnboardingV2
-                ? 'mx-auto mt-6 w-full justify-center border-t border-border-subtlest-tertiary pt-6 text-center text-text-secondary typo-callout'
-                : 'mx-auto mt-6 text-center text-text-secondary typo-callout',
+              container:
+                'mx-auto mt-6 text-center text-text-secondary typo-callout',
               login: '!text-inherit',
             }}
           />

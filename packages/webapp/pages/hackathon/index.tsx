@@ -22,10 +22,9 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 const HACKATHON_URL = 'https://app.daily.dev/hackathon';
 const HACKATHON_TITLE = 'Hackathon';
 const HACKATHON_DESCRIPTION =
-  '72 hours, the daily.dev Public API, and three open tracks. Build something for developers, from developers.';
+  '5 days, the daily.dev Public API, and three open tracks. Work on it at your own pace. Build something for developers, from developers.';
 
-// TODO move to cloudinary
-const HACKATHON_OG_IMAGE = fromCDN('/assets/hackathon-og.png?v=2');
+const HACKATHON_OG_IMAGE = fromCDN('/assets/hackathon-og.png?v=3');
 
 const seoTitles = getPageSeoTitles(HACKATHON_TITLE);
 const seo: NextSeoProps = {

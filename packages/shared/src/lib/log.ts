@@ -50,6 +50,7 @@ export enum Origin {
   PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
+  FeedCard = 'feed card',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
@@ -84,8 +85,6 @@ export enum Origin {
   HotTakeList = 'hot take list',
   HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
-  // Onboarding v2
-  OnboardingModal = 'onboarding modal',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
   BetterAuthEmailLoginBoot = 'betterauth email login boot',
@@ -101,6 +100,15 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  OpenSmartComposer = 'open smart composer',
+  CloseSmartComposer = 'close smart composer',
+  SubmitSmartComposer = 'submit smart composer',
+  SwitchComposerKind = 'switch composer kind',
+  ToggleComposerMarkdown = 'toggle composer markdown',
+  ToggleComposerExpand = 'toggle composer expand',
+  AddComposerCover = 'add composer cover',
+  RemoveComposerCover = 'remove composer cover',
+  DismissComposerPreview = 'dismiss composer preview',
   HidePost = 'hide post',
   HidePostFeedbackSubmit = 'hide post feedback submit',
   HidePostReport = 'hide post report',
@@ -295,6 +303,8 @@ export enum LogEvent {
   ChangeStandupSettings = 'change standup settings',
   StandupError = 'standup error',
   FocusStandupSpeaker = 'focus standup speaker',
+  ImpressionStandupsStrip = 'impression standups strip',
+  ClickStandupsStrip = 'click standups strip',
   // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
@@ -548,16 +558,7 @@ export enum TargetType {
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
-  // Onboarding v2
-  SignupChooser = 'signup chooser',
-  SignupPrompt = 'signup prompt',
-  ProfileImport = 'profile import',
-  ExperienceLevel = 'experience level',
   ExtensionPromo = 'extension promo',
-  TagsFallback = 'tags fallback',
-  MarketingOptOut = 'marketing opt out',
-  OnboardingComplete = 'onboarding complete',
-  MobileAppDownload = 'mobile app download',
   CustomizeNewTab = 'customize new tab',
 }
 
@@ -621,23 +622,9 @@ export enum TargetId {
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
   HackathonPage = 'hackathon page',
-  // Onboarding v2
-  GitHub = 'github',
-  Google = 'google',
-  AI = 'ai',
-  Install = 'install',
-  Dismiss = 'dismiss',
-  InstallExtension = 'install extension',
-  MobileApp = 'mobile app',
-  EnableNotifications = 'enable notifications',
-  GoToFeed = 'go to feed',
-  OptOut = 'opt_out',
-  OptIn = 'opt_in',
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
-  IOS = 'ios',
-  Android = 'android',
 }
 
 export enum NotificationChannel {

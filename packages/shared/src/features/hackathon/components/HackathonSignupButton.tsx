@@ -9,9 +9,6 @@ import {
 } from '../../../components/buttons/Button';
 import { AddUserIcon, LinkIcon, VIcon } from '../../../components/icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useLogContext } from '../../../contexts/LogContext';
-import { AuthTriggers } from '../../../lib/auth';
-import { LogEvent, TargetId } from '../../../lib/log';
 import { gqlClient } from '../../../graphql/common';
 import { JOIN_HACKATHON_MUTATION } from '../../../graphql/users';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
@@ -35,8 +32,7 @@ export const HackathonSignupButton = ({
   className,
 }: HackathonSignupButtonProps): ReactElement => {
   const router = useRouter();
-  const { user, isLoggedIn, showLogin } = useAuthContext();
-  const { logEvent } = useLogContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [, copyLink] = useCopyLink();
   const participationOptions = hackathonParticipationQueryOptions(user);
@@ -144,39 +140,16 @@ export const HackathonSignupButton = ({
     );
   }
 
-  const handleClick = async () => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_id: TargetId.HackathonPage,
-      extra: JSON.stringify({ action: isLoggedIn ? 'join' : 'login' }),
-    });
-
-    if (!isLoggedIn) {
-      const params = new URLSearchParams(window.location.search);
-      params.set(AUTOJOIN_PARAM, '1');
-      showLogin({
-        trigger: AuthTriggers.Hackathon,
-        options: {
-          afterAuth: getPathnameWithQuery(window.location.pathname, params),
-        },
-      });
-      return;
-    }
-
-    await join();
-  };
-
   return (
     <ButtonV2
-      variant={ButtonVariant.Primary}
+      variant={ButtonVariant.Secondary}
       size={size}
       className={className}
-      onClick={handleClick}
-      loading={isJoining || (isLoggedIn && isPending)}
       icon={<AddUserIcon />}
       iconPosition={ButtonIconPosition.Left}
+      disabled
     >
-      Sign me up
+      Signups closed
     </ButtonV2>
   );
 };

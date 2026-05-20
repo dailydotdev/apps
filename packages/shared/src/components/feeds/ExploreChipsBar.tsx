@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
@@ -50,27 +50,28 @@ export function ExploreChipsBar({
     [router.asPath],
   );
 
-  const allCategories = useMemo(() => {
-    if (router.pathname !== '/explore/[tag]') {
-      return [forYouCategory, ...categories];
-    }
-    const activeIndex = categories.findIndex(
-      (cat) => normalizePath(cat.path) === activePath,
+  const allCategories = useMemo(
+    () => [forYouCategory, ...categories],
+    [forYouCategory, categories],
+  );
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const active = scrollRef.current?.querySelector<HTMLElement>(
+      '[data-active="true"]',
     );
-    if (activeIndex <= 0) {
-      return [forYouCategory, ...categories];
+    if (typeof active?.scrollIntoView !== 'function') {
+      return;
     }
-    const reordered = [
-      categories[activeIndex],
-      ...categories.slice(0, activeIndex),
-      ...categories.slice(activeIndex + 1),
-    ];
-    return [forYouCategory, ...reordered];
-  }, [forYouCategory, categories, router.pathname, activePath]);
+    active.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [activePath, allCategories]);
 
   return (
     <div className={classNames('relative', className)}>
-      <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12">
+      <div
+        ref={scrollRef}
+        className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
+      >
         {allCategories.map((category) => {
           // For You owns the homepage. Match it against both `/` and `/my-feed`
           // so the user's default custom feed (also at `/`) doesn't steal the
@@ -87,6 +88,7 @@ export function ExploreChipsBar({
               <a
                 href={category.path}
                 aria-current={isActive ? 'page' : undefined}
+                data-active={isActive ? 'true' : undefined}
                 onClick={() => {
                   if (!category.tag) {
                     return;

@@ -7,6 +7,7 @@ import {
   HIGHEST_LEVEL_QUERY,
   LEADERBOARD_QUERY,
   LeaderboardType,
+  POPULAR_HOT_TAKES_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
@@ -53,6 +54,14 @@ const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
       ({ message }) =>
         message?.includes('Cannot query field "highestLevel"') ||
         message?.includes('Cannot query field "level" on type "Leaderboard"'),
+    ) ?? false
+  );
+};
+
+const isPopularHotTakesSchemaMissing = (error: GraphQLError): boolean => {
+  return (
+    error?.response?.errors?.some(({ message }) =>
+      message?.includes('Cannot query field "popularHotTakes"'),
     ) ?? false
   );
 };
@@ -187,12 +196,27 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await gqlClient.request<Omit<PageProps, 'highestLevel'>>(
-      LEADERBOARD_QUERY,
-    );
+    const res = await gqlClient.request<
+      Omit<PageProps, 'highestLevel' | 'popularHotTakes'>
+    >(LEADERBOARD_QUERY);
 
     let highestLevel: UserLeaderboard[] = [];
     let isHighestLevelSupported = false;
+    let popularHotTakes: PopularHotTakes[] = [];
+
+    try {
+      const hotTakesRes = await gqlClient.request<{
+        popularHotTakes: PopularHotTakes[];
+      }>(POPULAR_HOT_TAKES_QUERY, { limit: 10 });
+      popularHotTakes = hotTakesRes.popularHotTakes ?? [];
+    } catch (hotTakesError: unknown) {
+      const error = hotTakesError as GraphQLError;
+
+      if (!isPopularHotTakesSchemaMissing(error)) {
+        throw hotTakesError;
+      }
+    }
+
     try {
       const levelRes = await gqlClient.request<{
         highestLevel: UserLeaderboard[];
@@ -219,7 +243,7 @@ export async function getStaticProps(): Promise<
         highestLevel,
         isHighestLevelSupported,
         mostVerifiedUsers: res.mostVerifiedUsers,
-        popularHotTakes: res.popularHotTakes,
+        popularHotTakes,
       },
       revalidate: 3600,
     };

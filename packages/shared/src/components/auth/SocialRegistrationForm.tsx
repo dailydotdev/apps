@@ -1,13 +1,8 @@
 import classNames from 'classnames';
 import type { MutableRefObject, ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
-import type {
-  AuthTriggersType,
-  SocialRegistrationParameters,
-} from '../../lib/auth';
-import { AuthEventNames, AuthTriggers } from '../../lib/auth';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '../../lib/featureManagement';
+import type { SocialRegistrationParameters } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
@@ -37,7 +32,6 @@ export interface SocialRegistrationFormProps extends AuthFormProps {
   provider?: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   title?: string;
-  trigger: AuthTriggersType;
   hints?: ProfileFormHint;
   onUpdateHints?: (errors: ProfileFormHint) => void;
   onSignup?: (params: SocialRegistrationParameters) => void;
@@ -59,15 +53,9 @@ export const SocialRegistrationForm = ({
   onSignup,
   isLoading,
   simplified,
-  trigger,
 }: SocialRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-    shouldEvaluate: trigger === AuthTriggers.Onboarding,
-  });
-  const hideExperienceLevel = isOnboardingV2;
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
@@ -126,7 +114,7 @@ export const SocialRegistrationForm = ({
       return;
     }
 
-    if (!hideExperienceLevel && !values.experienceLevel?.length) {
+    if (!values.experienceLevel?.length) {
       logError('Experience level not provided');
       setExperienceLevelHint('Please select your experience level');
       return;
@@ -237,20 +225,18 @@ export const SocialRegistrationForm = ({
           }
           rightIcon={isLoadingUsername ? <Loader /> : null}
         />
-        {!hideExperienceLevel && (
-          <ExperienceLevelDropdown
-            className={{ container: 'w-full' }}
-            name="experienceLevel"
-            onChange={() => {
-              if (experienceLevelHint) {
-                setExperienceLevelHint(null);
-              }
-            }}
-            valid={experienceLevelHint === null}
-            hint={experienceLevelHint}
-            saveHintSpace
-          />
-        )}
+        <ExperienceLevelDropdown
+          className={{ container: 'w-full' }}
+          name="experienceLevel"
+          onChange={() => {
+            if (experienceLevelHint) {
+              setExperienceLevelHint(null);
+            }
+          }}
+          valid={experienceLevelHint === null}
+          hint={experienceLevelHint}
+          saveHintSpace
+        />
         <Checkbox name="optOutMarketing" className="font-normal">
           I don’t want to receive updates and promotions via email
         </Checkbox>

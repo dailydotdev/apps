@@ -19,6 +19,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
 export const MAX_HOT_TAKES = 5;
+export const HOT_TAKE_LIMIT_REACHED_MESSAGE = `You already have all ${MAX_HOT_TAKES} hot takes. Remove one to add a new one.`;
 
 export const useHotTakes = (user: PublicProfile | null) => {
   const queryClient = useQueryClient();

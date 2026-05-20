@@ -21,6 +21,7 @@ import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
+import type { LiveRoomPost } from './liveRooms';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -297,6 +298,7 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
+  liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
 }
 
