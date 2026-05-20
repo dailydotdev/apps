@@ -72,7 +72,7 @@ export enum OtherFeedPage {
   Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
-  ExploreTag = 'explore-tag',
+  ExploreTag = 'explore[tag]',
 }
 
 export const STALE_TIME = 30 * 1000;

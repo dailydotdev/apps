@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
+import { FeedPageLayoutMobile } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeedTagsList } from '../hooks/useFeedTagsList';
@@ -186,8 +187,6 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
-  hideFeedActionButtons?: boolean;
-  disableBriefCard?: boolean;
 }
 
 const getQueryBasedOnLogin = (
@@ -227,8 +226,6 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
-  hideFeedActionButtons,
-  disableBriefCard,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -279,10 +276,26 @@ export default function MainFeedLayout({
     enabled: feedName === OtherFeedPage.Discussed,
   });
   const {
-    shouldUseListFeedLayout,
+    shouldUseListFeedLayout: shouldUseListFeedLayoutRaw,
     shouldUseCommentFeedLayout,
-    FeedPageLayoutComponent,
+    FeedPageLayoutComponent: FeedPageLayoutComponentRaw,
   } = useFeedLayout();
+
+  // SSR renders /explore/[tag] with FeedPageLayoutMobile. On client hydration with
+  // a laptop viewport the layout swaps to FeedPage, which causes a hydration
+  // Done just for explore tag for now to avoid impact other pages
+  const isExploreTag = feedName === OtherFeedPage.ExploreTag;
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  const enableSsrSafeLayout = isExploreTag && !hasMounted;
+  const FeedPageLayoutComponent = enableSsrSafeLayout
+    ? FeedPageLayoutMobile
+    : FeedPageLayoutComponentRaw;
+  const shouldUseListFeedLayout = enableSsrSafeLayout
+    ? true
+    : shouldUseListFeedLayoutRaw;
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -498,9 +511,13 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown> | null>(() => {
-    const isExploreTag = feedName === OtherFeedPage.ExploreTag;
+    const isExploreTagFeed = feedName === OtherFeedPage.ExploreTag;
     const feedWithActions =
-      isUpvoted || isPopular || isSortableFeed || isCustomFeed || isExploreTag;
+      isUpvoted ||
+      isPopular ||
+      isSortableFeed ||
+      isCustomFeed ||
+      isExploreTagFeed;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
@@ -531,7 +548,7 @@ export default function MainFeedLayout({
           feedName: SharedFeedPage.Custom,
         },
         emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-        actionButtons: feedWithActions && !hideFeedActionButtons && (
+        actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
@@ -611,7 +628,7 @@ export default function MainFeedLayout({
       query: config.query,
       variables,
       emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-      actionButtons: feedWithActions && !hideFeedActionButtons && (
+      actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
@@ -648,7 +665,6 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     tokenRefreshed,
-    hideFeedActionButtons,
   ]);
 
   useEffect(() => {
@@ -710,9 +726,6 @@ export default function MainFeedLayout({
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {!!chipsNode && router.pathname === '/explore/[tag]' && (
-        <div className="mb-4 w-full">{chipsNode}</div>
-      )}
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
       {isSearchOn && isFinder && !isSearchPageLaptop && (
@@ -767,7 +780,11 @@ export default function MainFeedLayout({
           <Feed
             {...feedProps}
             shortcuts={shortcuts}
-            disableBriefCard={disableBriefCard}
+            topContent={
+              isExploreTag && chipsNode ? (
+                <div className="mb-8 w-full">{chipsNode}</div>
+              ) : undefined
+            }
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
             )}
