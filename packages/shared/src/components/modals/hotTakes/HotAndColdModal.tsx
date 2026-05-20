@@ -1,11 +1,5 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
@@ -28,13 +22,7 @@ import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
 import type { HotTake } from '../../../graphql/user/userHotTake';
-import type { PublicProfile } from '../../../lib/user';
 import { getAddHotTakeProfileUrl } from '../../../features/profile/components/hotTakes/common';
-import {
-  HOT_TAKE_LIMIT_REACHED_MESSAGE,
-  useHotTakes,
-} from '../../../features/profile/hooks/useHotTakes';
-import { useToastNotification } from '../../../hooks/useToastNotification';
 
 const SWIPE_THRESHOLD = 80;
 const DISMISS_ANIMATION_MS = 340;
@@ -853,33 +841,6 @@ const HotAndColdModal = ({
   const { toggleUpvote, toggleDownvote, cancelHotTakeVote } = useVoteHotTake();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { displayToast } = useToastNotification();
-  const loggedUserProfile = useMemo<PublicProfile | null>(() => {
-    if (!user) {
-      return null;
-    }
-
-    return {
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      socialLinks: user.socialLinks,
-      bio: user.bio,
-      createdAt: user.createdAt,
-      premium: user.premium ?? false,
-      image: user.image,
-      reputation: user.reputation ?? 0,
-      permalink: user.permalink,
-      cover: user.cover,
-      companies: user.companies,
-      contentPreference: user.contentPreference,
-      isPlus: user.isPlus,
-      experienceLevel: user.experienceLevel,
-      location: user.location,
-    };
-  }, [user]);
-  const { canAddMore: canAddOwnHotTake, isLoading: isUserHotTakesLoading } =
-    useHotTakes(loggedUserProfile);
   const [swipeDelta, setSwipeDelta] = useState(0);
   const swipeDeltaRef = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -1071,15 +1032,9 @@ const HotAndColdModal = ({
 
   const handleAddOwnHotTakeClick = useCallback(
     (e: React.MouseEvent) => {
-      if (!isUserHotTakesLoading && !canAddOwnHotTake) {
-        e.preventDefault();
-        displayToast(HOT_TAKE_LIMIT_REACHED_MESSAGE);
-        return;
-      }
-
       onRequestClose?.(e);
     },
-    [canAddOwnHotTake, displayToast, isUserHotTakesLoading, onRequestClose],
+    [onRequestClose],
   );
 
   const isCurrentTakeAnimating =
