@@ -27,6 +27,7 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
+import { AskForReviewQAPanel } from './postReview/AskForReviewQAPanel';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
@@ -189,6 +190,7 @@ function MainLayoutComponent({
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
+      <AskForReviewQAPanel />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"

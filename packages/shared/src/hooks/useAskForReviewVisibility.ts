@@ -8,6 +8,8 @@ import { featureAskForReview } from '../lib/featureManagement';
 import { ActionType } from '../graphql/actions';
 import type { ReviewDestination } from '../lib/askForReview';
 import {
+  getDestinationById,
+  getQAOverride,
   getReviewDestination,
   hasShownThisSession,
   isCooldownActive,
@@ -20,6 +22,11 @@ interface UseAskForReviewVisibility {
   variantEnabled: boolean;
   streakThreshold: number;
   cooldownDays: number;
+  isCompletedPermanent: boolean;
+  isCooldownLive: boolean;
+  isSessionShown: boolean;
+  isStreaksEnabled: boolean;
+  platformDestination: ReviewDestination | null;
 }
 
 export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
@@ -28,7 +35,11 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { streak, isStreaksEnabled } = useReadingStreak();
 
-  const destination = useMemo(() => getReviewDestination(), []);
+  const qa = useMemo(() => getQAOverride(), []);
+  const platformDestination = useMemo(() => getReviewDestination(), []);
+  const destination = qa?.destinationId
+    ? getDestinationById(qa.destinationId)
+    : platformDestination;
   const sessionShown = hasShownThisSession();
   const completedPermanent = checkHasCompleted(
     ActionType.AskedForReviewComplete,
@@ -41,8 +52,8 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
     isActionsFetched &&
     loadedAlerts &&
     isStreaksEnabled &&
-    !completedPermanent &&
-    !sessionShown &&
+    (qa?.ignoreCompletedAction || !completedPermanent) &&
+    (qa?.ignoreSession || !sessionShown) &&
     !alerts?.showStreakMilestone &&
     destination !== null;
 
@@ -51,16 +62,15 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
     shouldEvaluate: baseGate,
   });
 
-  const variantEnabled = !!featureValue?.enabled;
+  const variantEnabled = !!featureValue?.enabled || !!qa;
   const streakThreshold = featureValue?.streakThreshold ?? 3;
   const cooldownDays = featureValue?.cooldownDays ?? 14;
   const streakValue = streak?.current ?? 0;
+  const streakPasses = qa?.ignoreStreak || streakValue >= streakThreshold;
+  const cooldownPasses = qa?.ignoreCooldown || !isCooldownActive(cooldownDays);
 
   const visible = Boolean(
-    baseGate &&
-      variantEnabled &&
-      streakValue >= streakThreshold &&
-      !isCooldownActive(cooldownDays),
+    baseGate && variantEnabled && streakPasses && cooldownPasses,
   );
 
   return {
@@ -70,5 +80,10 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
     variantEnabled,
     streakThreshold,
     cooldownDays,
+    isCompletedPermanent: completedPermanent,
+    isCooldownLive: isCooldownActive(cooldownDays),
+    isSessionShown: sessionShown,
+    isStreaksEnabled: !!isStreaksEnabled,
+    platformDestination,
   };
 };

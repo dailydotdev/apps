@@ -22,6 +22,8 @@ import type { ReviewDestination } from '../../lib/askForReview';
 import { markShownThisSession, setDismissedAt } from '../../lib/askForReview';
 import { useAskForReviewVisibility } from '../../hooks/useAskForReviewVisibility';
 
+export const ASK_FOR_REVIEW_RESET_EVENT = 'askForReview:reset';
+
 type Step = 'enjoy' | 'review';
 type AskForReviewClickId =
   | 'enjoy_yes'
@@ -234,6 +236,17 @@ export const AskForReviewStrip = (): ReactElement | null => {
     cooldownDays,
   } = useAskForReviewVisibility();
   const [closed, setClosed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    const handleReset = () => setClosed(false);
+    window.addEventListener(ASK_FOR_REVIEW_RESET_EVENT, handleReset);
+    return () => {
+      window.removeEventListener(ASK_FOR_REVIEW_RESET_EVENT, handleReset);
+    };
+  }, []);
 
   if (!visible || !destination || closed) {
     return null;
