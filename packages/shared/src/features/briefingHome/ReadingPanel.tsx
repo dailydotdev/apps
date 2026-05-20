@@ -24,14 +24,11 @@ import {
   HotIcon,
   EyeIcon,
   TimerIcon,
+  TrendingIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import {
-  TOPIC_BG_TOKEN,
-  TOPIC_TOKEN,
-  type StoryItem,
-  type TopicDigest,
-} from './types';
+import { TOPIC_TOKEN, type StoryItem, type TopicDigest } from './types';
+import { StatPill } from './StatPill';
 import { briefCopy } from './copy';
 
 interface ReadingPanelProps {
@@ -50,38 +47,18 @@ const stripMd = (s: string): string =>
 const estimateMinutes = (text: string): number =>
   Math.max(2, Math.round(text.split(/\s+/).filter(Boolean).length / 220));
 
-const PanelEyebrow = ({
+const SectionHeader = ({
   icon,
   label,
-  color,
-  minutes,
 }: {
   icon: ReactElement;
   label: string;
-  color: string;
-  minutes: number;
 }): ReactElement => (
-  <div className="flex items-center justify-between gap-3">
-    <div className="flex items-center gap-2">
-      {icon}
-      <Typography
-        type={TypographyType.Caption2}
-        bold
-        className={classNames('uppercase tracking-[0.18em]', color)}
-      >
-        {label}
-      </Typography>
-    </div>
-    <span className="inline-flex items-center gap-1 text-text-tertiary">
-      <TimerIcon size={IconSize.XSmall} />
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-        bold
-      >
-        {briefCopy.storyReadTime(minutes)}
-      </Typography>
-    </span>
+  <div className="flex items-baseline gap-2">
+    <span className="self-center text-text-tertiary">{icon}</span>
+    <Typography type={TypographyType.Title3} bold>
+      {label}
+    </Typography>
   </div>
 );
 
@@ -89,103 +66,123 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
   const minutes = estimateMinutes(
     story.summary + story.highlightedComments.map((c) => c.content).join(' '),
   );
+  const summary = stripMd(story.summary).trim();
+  const sourcesShown = story.sources.slice(0, 5);
+  const extraSources = story.sources.length - sourcesShown.length;
+
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
-        <PanelEyebrow
-          icon={
-            <span className="bg-accent-ketchup-default/15 inline-grid size-5 place-items-center rounded-full text-accent-ketchup-default">
-              <HotIcon size={IconSize.XXSmall} secondary />
-            </span>
-          }
-          label={briefCopy.leadEyebrow}
-          color="text-accent-ketchup-default"
-          minutes={minutes}
-        />
+    <article className="mx-auto flex w-full max-w-[44rem] flex-col gap-10">
+      <header className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <HotIcon
+            size={IconSize.XSmall}
+            className="text-accent-ketchup-default"
+            secondary
+          />
+          <Typography
+            type={TypographyType.Caption2}
+            bold
+            className="uppercase tracking-[0.18em] text-accent-ketchup-default"
+          >
+            {briefCopy.leadEyebrow}
+          </Typography>
+        </div>
+
         <Typography
-          tag={TypographyTag.H2}
+          tag={TypographyTag.H1}
           type={TypographyType.Title1}
           bold
-          className="!leading-[1.1] tracking-[-0.025em]"
+          className="!leading-[1.1] tracking-[-0.02em]"
         >
           {story.title}
         </Typography>
-        <div className="flex flex-wrap items-center gap-3 text-text-tertiary">
-          <span className="inline-flex items-center gap-1">
-            <UpvoteIcon
-              size={IconSize.XXSmall}
-              className="text-accent-avocado-default"
-            />
+
+        <div className="flex flex-wrap items-center gap-2">
+          <StatPill
+            ariaLabel={`${minutes} minutes read`}
+            icon={
+              <TimerIcon
+                size={IconSize.XSmall}
+                className="text-text-tertiary"
+              />
+            }
+            value={briefCopy.storyReadTime(minutes)}
+          />
+          <StatPill
+            ariaLabel={`${story.totalUpvotes} upvotes`}
+            icon={
+              <UpvoteIcon
+                size={IconSize.XSmall}
+                className="text-accent-avocado-default"
+              />
+            }
+            value={story.totalUpvotes}
+          />
+          <StatPill
+            ariaLabel={`${story.totalComments} comments`}
+            icon={
+              <DiscussIcon
+                size={IconSize.XSmall}
+                className="text-text-tertiary"
+              />
+            }
+            value={story.totalComments}
+          />
+          <span className="ml-1 inline-flex items-center gap-2">
+            <span className="inline-flex items-center -space-x-1.5">
+              {sourcesShown.map((src) => (
+                <span
+                  key={src.sourceId}
+                  className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
+                >
+                  <img
+                    src={src.sourceImage}
+                    alt=""
+                    loading="lazy"
+                    className="size-5 object-cover"
+                  />
+                </span>
+              ))}
+            </span>
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
-              bold
             >
-              {story.totalUpvotes}
+              {story.sources.length}{' '}
+              {story.sources.length === 1 ? 'source' : 'sources'}
+              {extraSources > 0 ? '' : ''}
             </Typography>
           </span>
-          <span className="inline-flex items-center gap-1">
-            <DiscussIcon size={IconSize.XXSmall} />
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              bold
-            >
-              {story.totalComments}
-            </Typography>
-          </span>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-          >
-            {briefCopy.panelMeta(
-              story.sources.length,
-              story.highlightedComments.length + story.sources.length,
-            )}
-          </Typography>
         </div>
       </header>
 
-      <section className="rounded-12 border-l-2 border-brand-default bg-brand-float p-4">
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Brand}
-          bold
-          className="mb-2 uppercase tracking-[0.14em]"
-        >
-          {briefCopy.tldrTag}
-        </Typography>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          className="!leading-relaxed"
-        >
-          {stripMd(story.summary)}
-        </Typography>
-      </section>
+      <Typography
+        tag={TypographyTag.P}
+        type={TypographyType.Title3}
+        color={TypographyColor.Secondary}
+        className="!font-normal !leading-relaxed"
+      >
+        {summary}
+      </Typography>
 
       {story.highlightedComments.length > 0 ? (
-        <section>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Primary}
-            bold
-            className="mb-3 uppercase tracking-[0.14em]"
-          >
-            {briefCopy.conversationLabel}
-          </Typography>
-          <ul className="flex flex-col gap-4">
+        <section className="flex flex-col gap-4">
+          <SectionHeader
+            icon={<DiscussIcon size={IconSize.Small} secondary />}
+            label="From the conversation"
+          />
+          <ul className="flex flex-col gap-3">
             {story.highlightedComments.slice(0, 3).map((c) => (
               <li
                 key={c.username}
-                className="rounded-12 border border-border-subtlest-quaternary p-3"
+                className="rounded-12 border border-border-subtlest-quaternary p-4"
               >
-                <div className="mb-1.5 flex items-center gap-2">
+                <div className="mb-2 flex items-center gap-2.5">
                   <img
                     src={c.userImage}
                     alt=""
                     loading="lazy"
-                    className="size-6 rounded-full object-cover"
+                    className="size-7 rounded-full object-cover"
                   />
                   <Typography
                     type={TypographyType.Footnote}
@@ -195,11 +192,12 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                     @{c.username}
                   </Typography>
                   <span className="inline-flex items-center gap-1 text-accent-avocado-default">
-                    <UpvoteIcon size={IconSize.XXSmall} />
+                    <UpvoteIcon size={IconSize.XSmall} />
                     <Typography
-                      type={TypographyType.Caption2}
+                      type={TypographyType.Caption1}
                       color={TypographyColor.Tertiary}
                       bold
+                      className="tabular-nums"
                     >
                       {c.upvotes}
                     </Typography>
@@ -208,7 +206,7 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Secondary}
-                  className="!leading-snug"
+                  className="!leading-relaxed"
                 >
                   {stripMd(c.content)}
                 </Typography>
@@ -218,15 +216,11 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
         </section>
       ) : null}
 
-      <section>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Primary}
-          bold
-          className="mb-3 uppercase tracking-[0.14em]"
-        >
-          {briefCopy.threadLabel(story.posts.length)}
-        </Typography>
+      <section className="flex flex-col gap-4">
+        <SectionHeader
+          icon={<TrendingIcon size={IconSize.Small} secondary />}
+          label={`${story.posts.length} posts in this thread`}
+        />
         <ul className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
           {story.posts.map((p) => (
             <li key={p.id}>
@@ -234,10 +228,10 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                 href={`https://app.daily.dev/posts/${p.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex h-full items-start gap-3 rounded-10 border border-border-subtlest-quaternary p-3 transition-colors hover:bg-surface-float"
+                className="group flex h-full items-start gap-3 rounded-12 border border-border-subtlest-quaternary p-3 transition-colors hover:border-border-subtlest-tertiary hover:bg-surface-float"
               >
                 {p.image ? (
-                  <div className="size-12 shrink-0 overflow-hidden rounded-8 bg-surface-float">
+                  <div className="size-14 shrink-0 overflow-hidden rounded-8 bg-surface-float">
                     <img
                       src={p.image}
                       alt=""
@@ -246,33 +240,35 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                     />
                   </div>
                 ) : null}
-                <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <Typography
+                    tag={TypographyTag.Span}
                     type={TypographyType.Footnote}
+                    bold
                     color={TypographyColor.Primary}
                     className="line-clamp-2 !leading-snug transition-colors group-hover:text-brand-default"
                   >
                     {p.title}
                   </Typography>
-                  <div className="mt-1 flex items-center gap-3 text-text-quaternary">
-                    <span className="inline-flex items-center gap-1">
-                      <UpvoteIcon size={IconSize.XXSmall} />
-                      <Typography
-                        type={TypographyType.Caption2}
-                        color={TypographyColor.Quaternary}
-                      >
-                        {p.upvotes}
-                      </Typography>
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <DiscussIcon size={IconSize.XXSmall} />
-                      <Typography
-                        type={TypographyType.Caption2}
-                        color={TypographyColor.Quaternary}
-                      >
-                        {p.comments}
-                      </Typography>
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <StatPill
+                      icon={
+                        <UpvoteIcon
+                          size={IconSize.XSmall}
+                          className="text-accent-avocado-default"
+                        />
+                      }
+                      value={p.upvotes}
+                    />
+                    <StatPill
+                      icon={
+                        <DiscussIcon
+                          size={IconSize.XSmall}
+                          className="text-text-tertiary"
+                        />
+                      }
+                      value={p.comments}
+                    />
                   </div>
                 </div>
               </a>
@@ -280,7 +276,7 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
           ))}
         </ul>
       </section>
-    </div>
+    </article>
   );
 };
 
@@ -288,69 +284,86 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
   const minutes = estimateMinutes(
     topic.tldr + topic.content.replace(/<[^>]+>/g, ' '),
   );
+
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
-        <PanelEyebrow
-          icon={
-            <span
-              className={classNames(
-                'inline-grid size-5 place-items-center rounded-full',
-                TOPIC_BG_TOKEN[topic.topic],
-              )}
-            >
-              <EyeIcon
-                size={IconSize.XXSmall}
-                secondary
-                className={TOPIC_TOKEN[topic.topic]}
-              />
-            </span>
-          }
-          label={`${topic.topic} · ${briefCopy.topicWeekly}`}
-          color={TOPIC_TOKEN[topic.topic]}
-          minutes={minutes}
-        />
+    <article className="mx-auto flex w-full max-w-[44rem] flex-col gap-10">
+      <header className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <EyeIcon
+            size={IconSize.XSmall}
+            className={TOPIC_TOKEN[topic.topic]}
+            secondary
+          />
+          <Typography
+            type={TypographyType.Caption2}
+            bold
+            className={classNames(
+              'uppercase tracking-[0.18em]',
+              TOPIC_TOKEN[topic.topic],
+            )}
+          >
+            {topic.topic}
+          </Typography>
+        </div>
+
         <Typography
-          tag={TypographyTag.H2}
+          tag={TypographyTag.H1}
           type={TypographyType.Title1}
           bold
-          className="!leading-[1.1] tracking-[-0.025em]"
+          className="!leading-[1.1] tracking-[-0.02em]"
         >
           {topic.title}
         </Typography>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <StatPill
+            ariaLabel={`${minutes} minutes read`}
+            icon={
+              <TimerIcon
+                size={IconSize.XSmall}
+                className="text-text-tertiary"
+              />
+            }
+            value={briefCopy.storyReadTime(minutes)}
+          />
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="ml-1"
+          >
+            {briefCopy.topicWeekly}
+          </Typography>
+        </div>
       </header>
-      <section
-        className={classNames(
-          'rounded-12 border-l-2 p-4',
-          TOPIC_BG_TOKEN[topic.topic],
-          'bg-opacity-30',
-        )}
+
+      <Typography
+        tag={TypographyTag.P}
+        type={TypographyType.Title3}
+        color={TypographyColor.Secondary}
+        className="!font-normal !leading-relaxed"
       >
-        <Typography
-          type={TypographyType.Caption2}
-          bold
-          className={classNames(
-            'mb-2 uppercase tracking-[0.14em]',
-            TOPIC_TOKEN[topic.topic],
-          )}
-        >
-          {briefCopy.tldrTag}
-        </Typography>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          className="!leading-relaxed"
-        >
-          {topic.tldr}
-        </Typography>
-      </section>
+        {topic.tldr}
+      </Typography>
+
       <div
-        className="prose prose-sm max-w-none text-text-tertiary [&_code]:rounded-4 [&_code]:bg-surface-float [&_code]:px-1 [&_code]:text-text-primary [&_h2]:mb-1 [&_h2]:mt-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-text-primary [&_li]:my-1 [&_p]:my-2 [&_strong]:text-text-primary [&_ul]:list-disc [&_ul]:pl-5"
+        className={classNames(
+          'flex flex-col text-text-secondary',
+          '[&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:font-bold [&_h2]:!leading-snug [&_h2]:!text-text-primary [&_h2]:typo-title3',
+          '[&_h3]:mb-1 [&_h3]:mt-4 [&_h3]:font-bold [&_h3]:!text-text-primary [&_h3]:typo-callout',
+          '[&_p]:my-2 [&_p]:!leading-relaxed [&_p]:typo-body',
+          '[&_ul]:my-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:pl-5',
+          '[&_ol]:my-2 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:gap-1.5 [&_ol]:pl-5',
+          '[&_li]:!leading-relaxed [&_li]:typo-body',
+          '[&_strong]:font-bold [&_strong]:!text-text-primary',
+          '[&_a]:text-brand-default [&_a]:underline hover:[&_a]:text-brand-hover',
+          '[&_code]:rounded-6 [&_code]:bg-surface-float [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:!text-text-primary [&_code]:typo-footnote',
+          '[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-border-subtlest-tertiary [&_blockquote]:pl-4 [&_blockquote]:italic',
+        )}
         // mock content is trusted at build time
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: topic.content }}
       />
-    </div>
+    </article>
   );
 };
 
@@ -388,15 +401,15 @@ export const ReadingPanel = ({
       }}
       className="!items-stretch !bg-background-default tablet:!max-h-[calc(100vh-6rem)]"
     >
-      <header className="z-1 grid h-14 w-full shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-border-subtlest-quaternary bg-background-default px-4">
-        <div />
-        <div className="flex items-center justify-center gap-2">
+      <header className="z-1 flex h-14 w-full shrink-0 items-center justify-between gap-2 border-b border-border-subtlest-quaternary bg-background-default px-3 tablet:px-4">
+        <div className="flex items-center gap-1">
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<ArrowIcon className="-rotate-90" />}
             onClick={onPrev}
+            aria-label={briefCopy.panelPrev}
           >
             <span className="hidden tablet:inline">{briefCopy.panelPrev}</span>
           </Button>
@@ -407,22 +420,21 @@ export const ReadingPanel = ({
             icon={<ArrowIcon className="rotate-90" />}
             iconPosition={ButtonIconPosition.Right}
             onClick={onNext}
+            aria-label={briefCopy.panelNext}
           >
             <span className="hidden tablet:inline">{briefCopy.panelNext}</span>
           </Button>
         </div>
-        <div className="flex items-center justify-end">
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<MiniCloseIcon />}
-            onClick={onClose}
-            aria-label={briefCopy.panelClose}
-          />
-        </div>
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<MiniCloseIcon />}
+          onClick={onClose}
+          aria-label={briefCopy.panelClose}
+        />
       </header>
-      <div className="min-h-0 w-full flex-1 overflow-y-auto p-5 tablet:p-7">
+      <div className="min-h-0 w-full flex-1 overflow-y-auto px-5 py-8 tablet:px-8 tablet:py-10">
         {entity.kind === 'story' ? (
           <StoryBody story={entity} />
         ) : (
