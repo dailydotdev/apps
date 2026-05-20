@@ -596,7 +596,7 @@ export const ReadingPanel = ({
       kind={ModalKind.FlexibleTop}
       size={ModalSize.XLarge}
       shouldCloseOnOverlayClick
-      overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
+      overlayClassName="!overflow-y-auto bg-overlay-quaternary-onion"
       isDrawerOnMobile
       drawerProps={{
         position: DrawerPosition.Bottom,
@@ -637,8 +637,8 @@ export const ReadingPanel = ({
           aria-label="Close"
         />
       </header>
-      <div className="flex w-full flex-1 flex-col bg-background-default pb-6 laptop:min-h-0 laptop:flex-row laptop:overflow-y-auto laptop:pb-0">
-        <PostContainer className="relative laptop:overflow-y-auto">
+      <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background-default pb-6 laptop:flex-row laptop:pb-0">
+        <PostContainer className="relative">
           <div className="flex flex-col gap-6 pb-6 pt-6">
             {entity.kind === 'story' ? (
               <StoryBody
@@ -650,7 +650,7 @@ export const ReadingPanel = ({
             )}
           </div>
         </PostContainer>
-        <PageWidgets className="pb-8 pt-6 laptop:overflow-y-auto">
+        <PageWidgets className="pb-8 pt-6">
           <Sidebar entity={entity} shareUrl={shareUrl} />
         </PageWidgets>
       </div>
