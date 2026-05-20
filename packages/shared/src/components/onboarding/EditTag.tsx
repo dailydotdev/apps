@@ -72,7 +72,7 @@ export const EditTag = ({
   }, [isMobile, showPersonas]);
 
   // When the persona feature is on, override any caller-supplied headline
-  // (Freyja funnel JSON or OnboardingV2 modal) with the persona-tuned copy.
+  // (Freyja funnel JSON) with the persona-tuned copy.
   // TODO: drop this override once Freyja's persona-experiment variant ships
   // the new headline directly.
   const resolvedHeadline = showPersonas

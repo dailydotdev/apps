@@ -50,13 +50,16 @@ jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
+const DESCRIPTION_PLACEHOLDER =
+  'Add context, drop daily.dev posts to react to, or jot down questions for the room. Shown in the lobby while people RSVP, and in the Agenda tab once the standup is live.';
+
 const createJoinToken = () => ({
   role: 'host',
   token: 'join-token',
   room: {
     id: 'room-1',
     topic: 'Open mic',
-    mode: LiveRoomMode.FreeForAll,
+    mode: LiveRoomMode.Moderated,
     status: 'created',
     createdAt: '2026-04-28T00:00:00.000Z',
     updatedAt: '2026-04-28T00:00:00.000Z',
@@ -89,35 +92,10 @@ describe('CreateLiveRoomForm', () => {
     jest.useRealTimers();
   });
 
-  it('submits a custom speaker limit for free-for-all rooms', async () => {
+  it('creates a moderated standup with the entered topic', async () => {
     const onCreated = jest.fn();
-    const onCancel = jest.fn();
 
-    render(<CreateLiveRoomForm onCancel={onCancel} onCreated={onCreated} />);
-
-    fireEvent.change(screen.getByPlaceholderText('Topic'), {
-      target: { value: 'Open mic architecture' },
-    });
-    fireEvent.click(screen.getByLabelText('Free for all'));
-    fireEvent.change(screen.getByRole('spinbutton'), {
-      target: { value: '6' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Create standup' }));
-
-    await waitFor(() => {
-      expect(mockCreateLiveRoom).toHaveBeenCalledWith({
-        topic: 'Open mic architecture',
-        mode: LiveRoomMode.FreeForAll,
-        speakerLimit: 6,
-        scheduledStart: undefined,
-        description: undefined,
-      });
-    });
-    expect(onCreated).toHaveBeenCalledTimes(1);
-  });
-
-  it('omits speakerLimit for moderated rooms', async () => {
-    render(<CreateLiveRoomForm onCancel={jest.fn()} onCreated={jest.fn()} />);
+    render(<CreateLiveRoomForm onCreated={onCreated} />);
 
     fireEvent.change(screen.getByPlaceholderText('Topic'), {
       target: { value: 'Structured discussion' },
@@ -128,29 +106,25 @@ describe('CreateLiveRoomForm', () => {
       expect(mockCreateLiveRoom).toHaveBeenCalledWith({
         topic: 'Structured discussion',
         mode: LiveRoomMode.Moderated,
-        speakerLimit: undefined,
         scheduledStart: undefined,
         description: undefined,
       });
     });
-    expect(screen.queryByLabelText('Speaker limit')).not.toBeInTheDocument();
+    expect(onCreated).toHaveBeenCalledTimes(1);
   });
 
   it('submits scheduled lobby fields as UTC and explains the local delta', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-05-04T07:00:00.000Z'));
 
-    render(<CreateLiveRoomForm onCancel={jest.fn()} onCreated={jest.fn()} />);
+    render(<CreateLiveRoomForm onCreated={jest.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Topic'), {
       target: { value: 'Scheduled lobby' },
     });
-    fireEvent.input(
-      screen.getByPlaceholderText(
-        "Outline what you'll cover, drop daily.dev posts to react to, or jot down questions for the room.",
-      ),
-      { target: { value: '## Agenda\nhttps://daily.dev/posts/example' } },
-    );
-    fireEvent.click(screen.getByText('Schedule a lobby before going live'));
+    fireEvent.input(screen.getByPlaceholderText(DESCRIPTION_PLACEHOLDER), {
+      target: { value: '## Agenda\nhttps://daily.dev/posts/example' },
+    });
+    fireEvent.click(screen.getByLabelText('Schedule for later'));
 
     expect(screen.getByText(/30 minutes from now/)).toBeInTheDocument();
     expect(screen.getByText(/UTC \+3/)).toBeInTheDocument();
@@ -161,13 +135,12 @@ describe('CreateLiveRoomForm', () => {
     fireEvent.change(screen.getByLabelText('Scheduled time'), {
       target: { value: '2026-05-04T12:00' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create standup' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Schedule standup' }));
 
     await waitFor(() => {
       expect(mockCreateLiveRoom).toHaveBeenCalledWith({
         topic: 'Scheduled lobby',
         mode: LiveRoomMode.Moderated,
-        speakerLimit: undefined,
         scheduledStart: '2026-05-04T09:00:00.000Z',
         description: '## Agenda\nhttps://daily.dev/posts/example',
       });
@@ -184,16 +157,16 @@ describe('CreateLiveRoomForm', () => {
   it('does not submit scheduled lobbies in the past', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-05-04T07:00:00.000Z'));
 
-    render(<CreateLiveRoomForm onCancel={jest.fn()} onCreated={jest.fn()} />);
+    render(<CreateLiveRoomForm onCreated={jest.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Topic'), {
       target: { value: 'Scheduled lobby' },
     });
-    fireEvent.click(screen.getByText('Schedule a lobby before going live'));
+    fireEvent.click(screen.getByLabelText('Schedule for later'));
     fireEvent.change(screen.getByLabelText('Scheduled time'), {
       target: { value: '2026-05-04T09:30' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create standup' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Schedule standup' }));
 
     await waitFor(() => {
       expect(
@@ -203,12 +176,17 @@ describe('CreateLiveRoomForm', () => {
     expect(mockCreateLiveRoom).not.toHaveBeenCalled();
   });
 
-  it('calls onCancel when Cancel is clicked', () => {
-    const onCancel = jest.fn();
+  it('swaps submit copy based on schedule choice', () => {
+    render(<CreateLiveRoomForm onCreated={jest.fn()} />);
 
-    render(<CreateLiveRoomForm onCancel={onCancel} onCreated={jest.fn()} />);
+    expect(
+      screen.getByRole('button', { name: 'Create standup' }),
+    ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(onCancel).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByLabelText('Schedule for later'));
+
+    expect(
+      screen.getByRole('button', { name: 'Schedule standup' }),
+    ).toBeInTheDocument();
   });
 });

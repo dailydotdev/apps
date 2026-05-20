@@ -566,9 +566,13 @@ function RichTextInput(
     if (!ta) {
       return;
     }
+    if (toolbarPosition === 'bottom') {
+      ta.style.height = '';
+      return;
+    }
     ta.style.height = 'auto';
     ta.style.height = `${ta.scrollHeight}px`;
-  }, [input, isMarkdownMode]);
+  }, [input, isMarkdownMode, toolbarPosition]);
 
   const onMarkdownInput = useCallback(
     (event: React.FormEvent<HTMLTextAreaElement>) => {
@@ -852,7 +856,7 @@ function RichTextInput(
               <ConditionalWrapper
                 condition={toolbarPosition === 'bottom'}
                 wrapper={(component) => (
-                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                  <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                     {component}
                   </div>
                 )}
@@ -865,7 +869,7 @@ function RichTextInput(
                   className={classNames(
                     minHeightClassName,
                     'flex-1 resize-none bg-transparent p-4 font-mono outline-none',
-                    toolbarPosition === 'bottom' && 'overflow-hidden',
+                    toolbarPosition === 'bottom' && '!min-h-0 overflow-y-auto',
                     className?.input,
                   )}
                   onInput={onMarkdownInput}

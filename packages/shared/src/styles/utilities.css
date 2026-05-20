@@ -298,15 +298,6 @@
   opacity: 0;
 }
 
-.tag-spark {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 9999px;
-  background: var(--theme-accent-cabbage-default);
-  pointer-events: none;
-}
-
 @keyframes leaderboard-medal-spark {
   0% {
     transform: translate(-50%, -50%) scale(1);
