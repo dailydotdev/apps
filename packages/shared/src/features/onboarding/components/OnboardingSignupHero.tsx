@@ -9,10 +9,8 @@ import type { AuthOptionsProps } from '../../../components/auth/common';
 import { RootPortal } from '../../../components/tooltips/Portal';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
 import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
-import { ActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { ActiveFeedNameContext } from '../../../contexts/ActiveFeedNameContext';
 import { SharedFeedPage } from '../../../components/utilities';
-import { RequestKey } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { MOST_UPVOTED_FEED_QUERY } from '../../../graphql/feed';
 import type { Post } from '../../../graphql/posts';
@@ -234,36 +232,32 @@ const CardsBackground = ({
 }): ReactElement => {
   const posts = useExplorePosts();
   return (
-    <ActiveFeedContext.Provider
-      value={{ items: [], queryKey: [RequestKey.FeedPreview] }}
+    <ActiveFeedNameContext.Provider
+      value={{ feedName: SharedFeedPage.Popular }}
     >
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: SharedFeedPage.Popular }}
+      <div
+        aria-hidden
+        className={classNames(
+          'pointer-events-none absolute select-none overflow-hidden opacity-[0.4] [&_*]:!pointer-events-none',
+          splitMode
+            ? 'onb-split-grid-mask inset-y-0 left-0 -z-1 w-full laptop:w-1/2'
+            : 'onb-grid-mask inset-0 -z-1',
+        )}
       >
         <div
-          aria-hidden
           className={classNames(
-            'pointer-events-none absolute select-none overflow-hidden opacity-[0.4] [&_*]:!pointer-events-none',
+            'grid auto-rows-min gap-8 px-10 pb-5 pt-10 tablet:px-14 tablet:pb-7 tablet:pt-14',
             splitMode
-              ? 'onb-split-grid-mask inset-y-0 left-0 -z-1 w-full laptop:w-1/2'
-              : 'onb-grid-mask inset-0 -z-1',
+              ? 'grid-cols-2 laptop:grid-cols-2 laptopL:grid-cols-3'
+              : 'grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6',
           )}
         >
-          <div
-            className={classNames(
-              'grid auto-rows-min gap-8 px-10 pb-5 pt-10 tablet:px-14 tablet:pb-7 tablet:pt-14',
-              splitMode
-                ? 'grid-cols-2 laptop:grid-cols-2 laptopL:grid-cols-3'
-                : 'grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6',
-            )}
-          >
-            {posts.map((post) => (
-              <ExplorePostCard key={post.id} post={post} />
-            ))}
-          </div>
+          {posts.map((post) => (
+            <ExplorePostCard key={post.id} post={post} />
+          ))}
         </div>
-      </ActiveFeedNameContext.Provider>
-    </ActiveFeedContext.Provider>
+      </div>
+    </ActiveFeedNameContext.Provider>
   );
 };
 
@@ -645,7 +639,7 @@ export const OnboardingSignupHero = ({
         className={classNames(
           'relative z-1 flex w-full flex-1 flex-col px-5 pt-10',
           isSplitLayout
-            ? 'justify-end pb-[7.5rem] tablet:pb-[5.5rem] laptop:ml-auto laptop:w-1/2 laptop:items-center laptop:justify-center laptop:px-8 laptop:pb-12 laptop:pt-12'
+            ? 'justify-end pb-[7.5rem] tablet:pb-[5.5rem] laptop:ml-auto laptop:w-1/2 laptop:items-start laptop:justify-center laptop:pb-12 laptop:pl-12 laptop:pr-8 laptop:pt-12'
             : 'items-center justify-end pb-[7.5rem] tablet:pb-[5.5rem] tablet:pt-14',
         )}
       >
@@ -667,7 +661,7 @@ export const OnboardingSignupHero = ({
           {!isFormExpanded && headline && (
             <h1
               className={classNames(
-                'onb-headline text-balance font-bold leading-[1.05] tracking-tight text-text-primary typo-title2 tablet:typo-mega3',
+                'onb-headline text-balance font-bold leading-[1.1] tracking-tight text-text-primary typo-title2 tablet:typo-mega2',
                 isSplitLayout ? 'text-center laptop:text-left' : 'text-center',
               )}
             >
@@ -680,7 +674,7 @@ export const OnboardingSignupHero = ({
       </main>
 
       {isSplitLayout ? (
-        <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden px-5 pb-5 laptop:left-1/2 laptop:flex laptop:w-1/2 laptop:justify-center laptop:px-8 laptop:pb-6">
+        <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden px-5 pb-5 laptop:left-1/2 laptop:flex laptop:w-1/2 laptop:justify-start laptop:pb-6 laptop:pl-12 laptop:pr-8">
           <div className="flex w-full max-w-[340px] flex-col items-start gap-3">
             <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
               <FooterLinks />

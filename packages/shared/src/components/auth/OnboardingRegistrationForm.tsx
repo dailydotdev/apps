@@ -197,13 +197,10 @@ export const OnboardingRegistrationForm = ({
   );
 
   const splitSignInSection = splitSignupStyle && !hideLoginLink && (
-    <div className="flex w-full flex-col gap-3">
-      <div
-        aria-hidden
-        className="flex w-full items-center justify-center rounded-12 border border-border-subtlest-tertiary px-4 py-2.5 text-text-secondary typo-callout"
-      >
+    <div className="mt-2 flex w-full flex-col items-start gap-3">
+      <p className="text-left text-text-secondary typo-callout">
         Already have an account?
-      </div>
+      </p>
       <Button
         aria-label="Sign in"
         className={tertiarySignupButtonClass}
@@ -255,7 +252,12 @@ export const OnboardingRegistrationForm = ({
         label={isOnboardingTrigger ? 'or' : 'OR'}
       />
       {isOnboardingTrigger ? (
-        <div className="flex flex-col text-center">
+        <div
+          className={classNames(
+            'flex flex-col',
+            splitSignupStyle ? 'items-start text-left' : 'text-center',
+          )}
+        >
           {emailButton}
           {splitSignInSection}
           {memberAlready}
