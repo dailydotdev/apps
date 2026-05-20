@@ -37,6 +37,16 @@ export const appsUrl = 'https://daily.dev/apps';
 export const appStoreUrl = 'https://apps.apple.com/app/daily-dev/id6740634400';
 export const playStoreUrl =
   'https://play.google.com/store/apps/details?id=dev.daily';
+export const appStoreReviewUrl = `${appStoreUrl}?action=write-review`;
+export const playStoreReviewUrl = `${playStoreUrl}&showAllReviews=true`;
+export const chromeWebStoreReviewUrl =
+  'https://chromewebstore.google.com/detail/jlmpjdjjbgclbocgajdjefcidcncaied/reviews';
+export const edgeAddonsReviewUrl =
+  'https://microsoftedge.microsoft.com/addons/detail/cbdhgldgiancdheindpekpcbkccpjaeb';
+export const firefoxAddonsReviewUrl =
+  'https://addons.mozilla.org/en-US/firefox/addon/daily/';
+export const twitterShareReviewUrl =
+  'https://twitter.com/intent/tweet?text=I%20love%20%40dailydotdev%20%E2%80%94%20every%20new%20tab%20is%20full%20of%20great%20developer%20content.%20Check%20it%20out%3A%20https%3A%2F%2Fdaily.dev';
 export const timezoneSettingsUrl = 'https://r.daily.dev/timezone';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProductionAPI =

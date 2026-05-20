@@ -69,6 +69,7 @@ export enum ActionType {
   DismissedNewTabCustomizer = 'dismissed_new_tab_customizer',
   SeenKeepItOverlay = 'seen_keep_it_overlay',
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
+  AskedForReviewComplete = 'asked_for_review_complete',
 }
 
 export const cvActions = [

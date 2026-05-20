@@ -31,6 +31,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 const FEEDBACK_MAX_LENGTH = 2000;
 type FeedbackModalProps = Omit<ModalProps, 'onRequestClose'> & {
   onRequestClose?: LazyModalCommonProps['onRequestClose'];
+  defaultCategory?: FeedbackCategory;
 };
 
 const categoryOptions: { value: FeedbackCategory; label: string }[] = [
@@ -43,6 +44,7 @@ const categoryOptions: { value: FeedbackCategory; label: string }[] = [
 
 const FeedbackModal = ({
   onRequestClose,
+  defaultCategory = FeedbackCategory.BugReport,
   ...props
 }: FeedbackModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
@@ -50,9 +52,7 @@ const FeedbackModal = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hasSubmitted = useRef(false);
 
-  const [category, setCategory] = useState<FeedbackCategory>(
-    FeedbackCategory.BugReport,
-  );
+  const [category, setCategory] = useState<FeedbackCategory>(defaultCategory);
   const [description, setDescription] = useState('');
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(

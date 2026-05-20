@@ -202,3 +202,18 @@ export const featureCompanionDemoWidget = new Feature(
 );
 
 export const featureFeedTagChips = new Feature('feed_tag_chips', true);
+
+export type AskForReviewFeatureValue = {
+  enabled: boolean;
+  streakThreshold: number;
+  cooldownDays: number;
+};
+
+export const featureAskForReview = new Feature<AskForReviewFeatureValue>(
+  'ask_for_review',
+  {
+    enabled: false,
+    streakThreshold: 3,
+    cooldownDays: 14,
+  },
+);

@@ -6,6 +6,7 @@ import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import { ButtonSize } from '../buttons/common';
+import { AskForReviewStrip } from '../postReview/AskForReviewStrip';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -61,6 +62,7 @@ export function BasePostContent({
           />
         </GoBackHeaderMobile>
       )}
+      <AskForReviewStrip />
       {children}
       {!!engagementProps && (
         <PostEngagements
