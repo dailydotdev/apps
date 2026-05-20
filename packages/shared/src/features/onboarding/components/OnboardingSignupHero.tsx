@@ -71,6 +71,18 @@ const HERO_STYLES = `
       transparent 94%
     );
 }
+.onb-desk-halo {
+  background:
+    radial-gradient(
+      circle 36rem at 50% 78%,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.8) 20%,
+      rgba(0, 0, 0, 0.55) 42%,
+      rgba(0, 0, 0, 0.28) 62%,
+      rgba(0, 0, 0, 0.1) 80%,
+      transparent 95%
+    );
+}
 .onb-center-halo {
   background:
     radial-gradient(
@@ -715,7 +727,7 @@ export const OnboardingSignupHero = ({
         </div>
       )}
 
-      {!isSplitLayout && (
+      {!isSplitLayout && !isDeskVariant && (
         <>
           <div
             aria-hidden
@@ -736,6 +748,12 @@ export const OnboardingSignupHero = ({
         <div
           aria-hidden
           className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
+        />
+      )}
+      {isDeskVariant && (
+        <div
+          aria-hidden
+          className="onb-desk-halo pointer-events-none absolute inset-0 -z-1"
         />
       )}
 
