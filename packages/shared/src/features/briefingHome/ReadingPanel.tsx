@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Modal } from '../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../components/modals/common/types';
@@ -26,6 +26,7 @@ import {
   TimerIcon,
   TrendingIcon,
   OpenLinkIcon,
+  LinkIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import {
@@ -98,42 +99,21 @@ const topicEyebrow = (topic: TopicDigest): EyebrowConfig => ({
 });
 
 const Eyebrow = ({ config }: { config: EyebrowConfig }): ReactElement => (
-  <div className="flex items-center gap-1.5">
+  <span
+    className={classNames(
+      'inline-flex items-center gap-1.5 rounded-8 px-2 py-1',
+      'bg-surface-float',
+    )}
+  >
     {config.icon}
     <Typography
       type={TypographyType.Caption2}
       bold
-      className={classNames('uppercase tracking-[0.18em]', config.colorClass)}
+      className={classNames('uppercase tracking-[0.16em]', config.colorClass)}
     >
       {config.label}
     </Typography>
-  </div>
-);
-
-const SectionHeader = ({
-  icon,
-  label,
-  count,
-}: {
-  icon: ReactElement;
-  label: string;
-  count?: number;
-}): ReactElement => (
-  <div className="flex items-baseline gap-2">
-    <span className="self-center text-text-tertiary">{icon}</span>
-    <Typography type={TypographyType.Title4} bold>
-      {label}
-    </Typography>
-    {typeof count === 'number' ? (
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Quaternary}
-        className="tabular-nums"
-      >
-        · {count}
-      </Typography>
-    ) : null}
-  </div>
+  </span>
 );
 
 const InlineStat = ({
@@ -158,6 +138,176 @@ const InlineStat = ({
   </span>
 );
 
+const SidebarBlock = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}): ReactElement => (
+  <section className="flex flex-col gap-3 rounded-12 border border-border-subtlest-quaternary bg-background-default p-4">
+    <Typography
+      type={TypographyType.Caption2}
+      color={TypographyColor.Tertiary}
+      bold
+      className="uppercase tracking-[0.16em]"
+    >
+      {title}
+    </Typography>
+    {children}
+  </section>
+);
+
+const CopyLinkButton = ({ url }: { url: string }): ReactElement => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard blocked */
+    }
+  }, [url]);
+
+  return (
+    <Button
+      type="button"
+      variant={ButtonVariant.Subtle}
+      size={ButtonSize.Small}
+      icon={<LinkIcon />}
+      onClick={handleCopy}
+      className="!w-full"
+    >
+      {copied ? 'Link copied' : 'Copy link'}
+    </Button>
+  );
+};
+
+const SourcePostCard = ({
+  post,
+}: {
+  post: StoryItem['posts'][number];
+}): ReactElement => (
+  <a
+    href={`https://app.daily.dev/posts/${post.id}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group -mx-2 flex items-start gap-3 rounded-10 p-2 transition-colors hover:bg-surface-float"
+  >
+    {post.image ? (
+      <div className="size-12 shrink-0 overflow-hidden rounded-8 bg-surface-float">
+        <img
+          src={post.image}
+          alt=""
+          loading="lazy"
+          className="size-full object-cover"
+        />
+      </div>
+    ) : null}
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Footnote}
+        bold
+        color={TypographyColor.Primary}
+        className="line-clamp-2 !leading-snug"
+      >
+        {post.title}
+      </Typography>
+      <div className="flex items-center gap-3">
+        <InlineStat
+          icon={
+            <UpvoteIcon
+              size={IconSize.XXSmall}
+              className="text-text-tertiary"
+            />
+          }
+          value={post.upvotes}
+        />
+        <InlineStat
+          icon={
+            <DiscussIcon
+              size={IconSize.XXSmall}
+              className="text-text-tertiary"
+            />
+          }
+          value={post.comments}
+        />
+        <OpenLinkIcon
+          size={IconSize.XXSmall}
+          className="ml-auto text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
+        />
+      </div>
+    </div>
+  </a>
+);
+
+const Sidebar = ({
+  entity,
+  shareUrl,
+}: {
+  entity: StoryItem | TopicDigest;
+  shareUrl: string;
+}): ReactElement => {
+  const isStory = entity.kind === 'story';
+  return (
+    <aside className="flex w-full shrink-0 flex-col gap-4 laptop:w-[20rem]">
+      {isStory ? (
+        <>
+          <SidebarBlock title={`Sources · ${entity.posts.length}`}>
+            <ul className="flex flex-col">
+              {entity.posts.map((p) => (
+                <li key={p.id}>
+                  <SourcePostCard post={p} />
+                </li>
+              ))}
+            </ul>
+          </SidebarBlock>
+          {entity.sources.length > 0 ? (
+            <SidebarBlock title="Contributing voices">
+              <ul className="flex flex-col gap-2">
+                {entity.sources.map((src) => (
+                  <li key={src.sourceId} className="flex items-center gap-2">
+                    <img
+                      src={src.sourceImage}
+                      alt=""
+                      loading="lazy"
+                      className="size-6 shrink-0 rounded-full bg-surface-float object-cover"
+                    />
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Primary}
+                      className="truncate"
+                    >
+                      {src.sourceName}
+                    </Typography>
+                  </li>
+                ))}
+              </ul>
+            </SidebarBlock>
+          ) : null}
+        </>
+      ) : (
+        <SidebarBlock title="About this digest">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+            className="!leading-relaxed"
+          >
+            A weekly roundup of what shifted in {entity.topic}. Curated from
+            community discussions, releases, and notable writeups.
+          </Typography>
+        </SidebarBlock>
+      )}
+      <SidebarBlock title="Share">
+        <CopyLinkButton url={shareUrl} />
+      </SidebarBlock>
+    </aside>
+  );
+};
+
 const StoryBody = ({
   story,
   kind,
@@ -169,55 +319,14 @@ const StoryBody = ({
     story.summary + story.highlightedComments.map((c) => c.content).join(' '),
   );
   const summary = stripMd(story.summary).trim();
-  const sourcesShown = story.sources.slice(0, 5);
-  const extraSources = Math.max(0, story.sources.length - sourcesShown.length);
   const eyebrow = storyEyebrow(kind);
-  const sourceNames = sourcesShown.map((s) => s.sourceName).join(', ');
+  const heroImage = story.posts.find((p) => p.image)?.image;
 
   return (
-    <article className="mx-auto flex w-full max-w-[42rem] flex-col gap-6">
-      <header className="flex flex-col gap-3">
-        <Eyebrow config={eyebrow} />
-
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.Title2}
-          bold
-          className="!leading-[1.15] tracking-[-0.02em]"
-        >
-          {story.title}
-        </Typography>
-
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <span
-            className="inline-flex items-center -space-x-1.5"
-            title={sourceNames}
-          >
-            {sourcesShown.map((src) => (
-              <span
-                key={src.sourceId}
-                className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
-              >
-                <img
-                  src={src.sourceImage}
-                  alt=""
-                  loading="lazy"
-                  className="size-5 object-cover"
-                />
-              </span>
-            ))}
-          </span>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {story.sources.length}{' '}
-            {story.sources.length === 1 ? 'source' : 'sources'}
-            {extraSources > 0 ? ` (+${extraSources} more)` : ''}
-          </Typography>
-          <span aria-hidden className="text-text-quaternary">
-            ·
-          </span>
+    <article className="flex w-full min-w-0 flex-1 flex-col gap-6">
+      <header className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Eyebrow config={eyebrow} />
           <InlineStat
             icon={
               <TimerIcon
@@ -225,14 +334,17 @@ const StoryBody = ({
                 className="text-text-tertiary"
               />
             }
-            value={`${minutes} min`}
+            value={`${minutes} min read`}
             bold={false}
           />
+          <span aria-hidden className="text-text-quaternary">
+            ·
+          </span>
           <InlineStat
             icon={
               <UpvoteIcon
                 size={IconSize.XSmall}
-                className="text-accent-avocado-default"
+                className="text-text-tertiary"
               />
             }
             value={story.totalUpvotes}
@@ -247,12 +359,32 @@ const StoryBody = ({
             value={story.totalComments}
           />
         </div>
+
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.LargeTitle}
+          bold
+          className="!leading-[1.1] tracking-[-0.02em]"
+        >
+          {story.title}
+        </Typography>
       </header>
+
+      {heroImage ? (
+        <div className="block h-auto w-full overflow-hidden rounded-12">
+          <img
+            src={heroImage}
+            alt=""
+            loading="lazy"
+            className="block w-full object-cover"
+          />
+        </div>
+      ) : null}
 
       <section
         aria-label="Summary"
         className={classNames(
-          'rounded-12 border-l-2 bg-surface-float py-3 pl-4 pr-4',
+          'rounded-12 border-l-2 bg-surface-float py-4 pl-5 pr-5',
           kind === 'lead'
             ? 'border-accent-ketchup-default'
             : 'border-accent-cabbage-default',
@@ -262,7 +394,7 @@ const StoryBody = ({
           type={TypographyType.Caption2}
           bold
           className={classNames(
-            'mb-1.5 uppercase tracking-[0.16em]',
+            'mb-2 uppercase tracking-[0.16em]',
             eyebrow.colorClass,
           )}
         >
@@ -280,23 +412,25 @@ const StoryBody = ({
 
       {story.highlightedComments.length > 0 ? (
         <section className="flex flex-col gap-3">
-          <SectionHeader
-            icon={<DiscussIcon size={IconSize.XSmall} secondary />}
-            label="Top reactions"
-            count={story.highlightedComments.length}
-          />
-          <ul className="flex flex-col gap-2">
+          <Typography
+            type={TypographyType.Title4}
+            bold
+            color={TypographyColor.Primary}
+          >
+            What people are saying
+          </Typography>
+          <ul className="flex flex-col gap-3">
             {story.highlightedComments.slice(0, 3).map((c) => (
               <li
                 key={c.username}
-                className="rounded-12 border border-border-subtlest-quaternary p-3"
+                className="rounded-12 border border-border-subtlest-quaternary bg-background-default p-4"
               >
-                <div className="mb-1.5 flex items-center gap-2">
+                <div className="mb-2 flex items-center gap-2">
                   <img
                     src={c.userImage}
                     alt=""
                     loading="lazy"
-                    className="size-6 rounded-full object-cover"
+                    className="size-7 rounded-full object-cover"
                   />
                   <Typography
                     type={TypographyType.Footnote}
@@ -308,7 +442,7 @@ const StoryBody = ({
                   <span className="ml-auto inline-flex items-center gap-1">
                     <UpvoteIcon
                       size={IconSize.XXSmall}
-                      className="text-accent-avocado-default"
+                      className="text-text-tertiary"
                     />
                     <Typography
                       type={TypographyType.Caption1}
@@ -322,7 +456,7 @@ const StoryBody = ({
                 </div>
                 <Typography
                   tag={TypographyTag.P}
-                  type={TypographyType.Footnote}
+                  type={TypographyType.Callout}
                   color={TypographyColor.Secondary}
                   className="!leading-relaxed"
                 >
@@ -333,72 +467,6 @@ const StoryBody = ({
           </ul>
         </section>
       ) : null}
-
-      <section className="flex flex-col gap-3">
-        <SectionHeader
-          icon={<TrendingIcon size={IconSize.XSmall} secondary />}
-          label="Source posts"
-          count={story.posts.length}
-        />
-        <ul className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
-          {story.posts.map((p) => (
-            <li key={p.id}>
-              <a
-                href={`https://app.daily.dev/posts/${p.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex h-full items-start gap-3 rounded-10 border border-border-subtlest-quaternary p-3 transition-colors hover:border-border-subtlest-tertiary hover:bg-surface-float"
-              >
-                {p.image ? (
-                  <div className="size-12 shrink-0 overflow-hidden rounded-8 bg-surface-float">
-                    <img
-                      src={p.image}
-                      alt=""
-                      loading="lazy"
-                      className="size-full object-cover"
-                    />
-                  </div>
-                ) : null}
-                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Footnote}
-                    bold
-                    color={TypographyColor.Primary}
-                    className="line-clamp-2 !leading-snug transition-colors group-hover:text-brand-default"
-                  >
-                    {p.title}
-                  </Typography>
-                  <div className="flex items-center gap-3">
-                    <InlineStat
-                      icon={
-                        <UpvoteIcon
-                          size={IconSize.XXSmall}
-                          className="text-accent-avocado-default"
-                        />
-                      }
-                      value={p.upvotes}
-                    />
-                    <InlineStat
-                      icon={
-                        <DiscussIcon
-                          size={IconSize.XXSmall}
-                          className="text-text-tertiary"
-                        />
-                      }
-                      value={p.comments}
-                    />
-                    <OpenLinkIcon
-                      size={IconSize.XXSmall}
-                      className="ml-auto text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
-                    />
-                  </div>
-                </div>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
     </article>
   );
 };
@@ -410,10 +478,20 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
   const eyebrow = topicEyebrow(topic);
 
   return (
-    <article className="mx-auto flex w-full max-w-[42rem] flex-col gap-6">
-      <header className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
+    <article className="flex w-full min-w-0 flex-1 flex-col gap-6">
+      <header className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-2">
           <Eyebrow config={eyebrow} />
+          <InlineStat
+            icon={
+              <TimerIcon
+                size={IconSize.XSmall}
+                className="text-text-tertiary"
+              />
+            }
+            value={`${minutes} min read`}
+            bold={false}
+          />
           <span aria-hidden className="text-text-quaternary">
             ·
           </span>
@@ -427,31 +505,18 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
 
         <Typography
           tag={TypographyTag.H1}
-          type={TypographyType.Title2}
+          type={TypographyType.LargeTitle}
           bold
-          className="!leading-[1.15] tracking-[-0.02em]"
+          className="!leading-[1.1] tracking-[-0.02em]"
         >
           {topic.title}
         </Typography>
-
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <InlineStat
-            icon={
-              <TimerIcon
-                size={IconSize.XSmall}
-                className="text-text-tertiary"
-              />
-            }
-            value={`${minutes} min read`}
-            bold={false}
-          />
-        </div>
       </header>
 
       <section
         aria-label="Summary"
         className={classNames(
-          'rounded-12 border-l-2 bg-surface-float py-3 pl-4 pr-4',
+          'rounded-12 border-l-2 bg-surface-float py-4 pl-5 pr-5',
           TOPIC_BORDER_TOKEN[topic.topic],
         )}
       >
@@ -459,7 +524,7 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
           type={TypographyType.Caption2}
           bold
           className={classNames(
-            'mb-1.5 uppercase tracking-[0.16em]',
+            'mb-2 uppercase tracking-[0.16em]',
             eyebrow.colorClass,
           )}
         >
@@ -475,30 +540,24 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
         </Typography>
       </section>
 
-      <section className="flex flex-col gap-2">
-        <SectionHeader
-          icon={<EyeIcon size={IconSize.XSmall} secondary />}
-          label="The digest"
-        />
-        <div
-          className={classNames(
-            'flex flex-col text-text-secondary',
-            '[&_h2]:typo-title4 [&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:font-bold [&_h2]:!leading-snug [&_h2]:!text-text-primary',
-            '[&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:font-bold [&_h3]:!text-text-primary [&_h3]:typo-callout',
-            '[&_p]:my-2 [&_p]:!leading-relaxed [&_p]:typo-callout',
-            '[&_ul]:my-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1 [&_ul]:pl-5',
-            '[&_ol]:my-2 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:gap-1 [&_ol]:pl-5',
-            '[&_li]:!leading-relaxed [&_li]:typo-callout',
-            '[&_strong]:font-bold [&_strong]:!text-text-primary',
-            '[&_a]:text-brand-default [&_a]:underline hover:[&_a]:text-brand-hover',
-            '[&_code]:rounded-6 [&_code]:bg-surface-float [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:!text-text-primary [&_code]:typo-footnote',
-            '[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-border-subtlest-tertiary [&_blockquote]:pl-3 [&_blockquote]:italic',
-          )}
-          // mock content is trusted at build time
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: topic.content }}
-        />
-      </section>
+      <section
+        className={classNames(
+          'flex flex-col text-text-secondary',
+          '[&_h2]:typo-title4 [&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:font-bold [&_h2]:!leading-snug [&_h2]:!text-text-primary',
+          '[&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:font-bold [&_h3]:!text-text-primary [&_h3]:typo-callout',
+          '[&_p]:my-2 [&_p]:!leading-relaxed [&_p]:typo-callout',
+          '[&_ul]:my-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1 [&_ul]:pl-5',
+          '[&_ol]:my-2 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:gap-1 [&_ol]:pl-5',
+          '[&_li]:!leading-relaxed [&_li]:typo-callout',
+          '[&_strong]:font-bold [&_strong]:!text-text-primary',
+          '[&_a]:text-brand-default [&_a]:underline hover:[&_a]:text-brand-hover',
+          '[&_code]:rounded-6 [&_code]:bg-surface-float [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:!text-text-primary [&_code]:typo-footnote',
+          '[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-border-subtlest-tertiary [&_blockquote]:pl-3 [&_blockquote]:italic',
+        )}
+        // mock content is trusted at build time
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: topic.content }}
+      />
     </article>
   );
 };
@@ -522,6 +581,11 @@ export const ReadingPanel = ({
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onNext, onPrev]);
+
+  const shareUrl =
+    entity.kind === 'story'
+      ? `https://app.daily.dev/posts/${entity.posts[0]?.id ?? entity.id}`
+      : `https://app.daily.dev/tags/${entity.topic.toLowerCase()}`;
 
   return (
     <Modal
@@ -571,15 +635,18 @@ export const ReadingPanel = ({
           aria-label="Close"
         />
       </header>
-      <div className="min-h-0 w-full flex-1 overflow-y-auto px-4 py-6 tablet:px-6 tablet:py-7">
-        {entity.kind === 'story' ? (
-          <StoryBody
-            story={entity}
-            kind={entityKind === 'lead' ? 'lead' : 'read'}
-          />
-        ) : (
-          <TopicBody topic={entity} />
-        )}
+      <div className="min-h-0 w-full flex-1 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-[68rem] flex-col gap-6 px-4 py-6 tablet:px-6 tablet:py-8 laptop:flex-row laptop:items-start laptop:gap-8">
+          {entity.kind === 'story' ? (
+            <StoryBody
+              story={entity}
+              kind={entityKind === 'lead' ? 'lead' : 'read'}
+            />
+          ) : (
+            <TopicBody topic={entity} />
+          )}
+          <Sidebar entity={entity} shareUrl={shareUrl} />
+        </div>
       </div>
     </Modal>
   );

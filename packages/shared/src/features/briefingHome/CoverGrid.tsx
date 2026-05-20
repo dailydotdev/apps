@@ -72,11 +72,10 @@ const StoryRow = ({
                 isRead ? TypographyColor.Tertiary : TypographyColor.Primary
               }
               className={classNames(
-                '!leading-snug transition-colors',
+                '!leading-snug',
                 isRead &&
                   !isExpanded &&
                   'decoration-text-quaternary/40 line-through',
-                !isRead && 'group-hover:text-brand-default',
               )}
             >
               {story.title}
@@ -122,7 +121,7 @@ const StoryRow = ({
               icon={
                 <UpvoteIcon
                   size={IconSize.XSmall}
-                  className="text-accent-avocado-default"
+                  className="text-text-tertiary"
                 />
               }
               value={story.totalUpvotes}

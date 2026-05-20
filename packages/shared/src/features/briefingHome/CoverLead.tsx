@@ -48,11 +48,11 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
     <button
       type="button"
       onClick={onOpen}
-      className="group flex flex-col overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-subtle text-left transition-colors hover:border-border-subtlest-tertiary tablet:flex-row"
+      className="group flex flex-col overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-subtle text-left transition-colors hover:border-border-subtlest-primary tablet:flex-row"
     >
       <div
         className={classNames(
-          'relative shrink-0 bg-surface-float tablet:w-[44%]',
+          'relative shrink-0 overflow-hidden bg-surface-float tablet:w-[44%]',
           'aspect-[16/10] tablet:aspect-auto',
         )}
       >
@@ -61,7 +61,7 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
             src={heroImage}
             alt=""
             loading="lazy"
-            className="absolute inset-0 size-full object-cover"
+            className="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-accent-ketchup-bolder to-accent-bun-bolder" />
@@ -84,7 +84,7 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
           tag={TypographyTag.H2}
           type={TypographyType.Title2}
           bold
-          className="!leading-[1.15] tracking-[-0.02em] transition-colors group-hover:text-brand-default"
+          className="!leading-[1.15] tracking-[-0.02em]"
         >
           {story.title}
         </Typography>
@@ -130,7 +130,7 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
               icon={
                 <UpvoteIcon
                   size={IconSize.XSmall}
-                  className="text-accent-avocado-default"
+                  className="text-text-tertiary"
                 />
               }
               value={story.totalUpvotes}
@@ -147,7 +147,7 @@ export const CoverLead = ({ story, onOpen }: CoverLeadProps): ReactElement => {
               value={story.totalComments}
             />
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors group-hover:bg-brand-default">
+          <span className="inline-flex items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors">
             <Typography type={TypographyType.Footnote} bold>
               {briefCopy.openStory}
             </Typography>

@@ -174,6 +174,7 @@ export const BriefCover = ({
       <CoverTopics
         topics={brief.topics}
         readSet={readSet}
+        onMarkRead={markRead}
         onOpen={(t) => openPanel(t as TopicDigest)}
       />
       <CoverClosing totals={totals} edition={edition} />
