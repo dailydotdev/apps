@@ -604,7 +604,7 @@ export const ReadingPanel = ({
         position: DrawerPosition.Bottom,
         isFullScreen: true,
       }}
-      className="mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden"
+      className="mx-auto !overscroll-y-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden"
     >
       <header className="z-1 flex h-12 w-full shrink-0 items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-2 tablet:px-3">
         <div className="flex items-center gap-1">
