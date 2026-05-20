@@ -120,10 +120,10 @@ export const AskForReviewStripView = ({
 
   return (
     <div
-      className="border-accent-cheese-default/30 fixed inset-x-0 top-0 z-max flex w-full justify-center border-b bg-gradient-to-r from-surface-float via-surface-float to-surface-float px-4 py-3 shadow-2"
+      className="pointer-events-none fixed inset-x-3 top-1 z-max flex justify-center tablet:inset-x-4"
       data-testid="ask-for-review-strip"
     >
-      <div className="flex w-full max-w-[44rem] items-center gap-4">
+      <div className="pointer-events-auto flex w-full max-w-[calc(100vw-1.5rem)] items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-default px-4 py-2.5 shadow-2 tablet:w-[69.25rem] tablet:max-w-[calc(100vw-2rem)]">
         <div className="hidden shrink-0 items-center gap-0.5 tablet:flex">
           {STAR_INDICES.map((i) => (
             <StarIcon
