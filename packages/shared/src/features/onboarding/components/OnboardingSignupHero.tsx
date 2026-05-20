@@ -19,17 +19,6 @@ import {
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
 
-type AccentKey = 'cabbage' | 'water' | 'onion' | 'bacon' | 'cheese' | 'avocado';
-
-const ACCENT_TEXT: Record<AccentKey, string> = {
-  cabbage: 'text-accent-cabbage-default',
-  water: 'text-accent-water-default',
-  onion: 'text-accent-onion-default',
-  bacon: 'text-accent-bacon-default',
-  cheese: 'text-accent-cheese-default',
-  avocado: 'text-accent-avocado-default',
-};
-
 const HERO_STYLES = `
 .onb-bg {
   background:
@@ -172,12 +161,6 @@ const HERO_STYLES = `
 .onb-split-right-panel {
   background: var(--theme-background-default);
 }
-.onb-glow-cabbage { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-cabbage-default) 65%, transparent); }
-.onb-glow-water { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-water-default) 65%, transparent); }
-.onb-glow-onion { text-shadow: 0 0 28px color-mix(in srgb, var(--theme-accent-onion-default) 70%, transparent); }
-.onb-glow-bacon { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-bacon-default) 65%, transparent); }
-.onb-glow-cheese { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-cheese-default) 65%, transparent); }
-.onb-glow-avocado { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-avocado-default) 65%, transparent); }
 `;
 
 // =============================================================
@@ -270,135 +253,6 @@ const CardsBackground = ({
 };
 
 // =============================================================
-// Variant B — Tags: topic constellation
-// =============================================================
-
-type TagVariant = 'xs' | 'sm' | 'md' | 'lg';
-
-type TagItem = {
-  label: string;
-  x: number;
-  y: number;
-  variant: TagVariant;
-  accent?: AccentKey;
-};
-
-const TAGS: TagItem[] = [
-  { label: 'TypeScript', x: 10, y: 11, variant: 'md', accent: 'water' },
-  { label: 'React', x: 28, y: 6, variant: 'sm' },
-  { label: 'AI', x: 50, y: 14, variant: 'lg', accent: 'onion' },
-  { label: 'Next.js', x: 70, y: 7, variant: 'sm' },
-  { label: 'Rust', x: 85, y: 13, variant: 'md', accent: 'bacon' },
-  { label: 'Open Source', x: 6, y: 22, variant: 'xs' },
-  { label: 'JavaScript', x: 35, y: 24, variant: 'sm' },
-  { label: 'Vue', x: 60, y: 22, variant: 'xs' },
-  { label: 'Python', x: 92, y: 24, variant: 'xs' },
-  { label: 'WebAssembly', x: 18, y: 32, variant: 'xs' },
-  { label: 'GraphQL', x: 40, y: 36, variant: 'sm' },
-  { label: 'LLM', x: 72, y: 32, variant: 'sm', accent: 'cabbage' },
-  { label: 'Svelte', x: 90, y: 36, variant: 'xs' },
-  { label: 'Tailwind CSS', x: 8, y: 42, variant: 'sm' },
-  { label: 'Node.js', x: 28, y: 46, variant: 'xs' },
-  { label: 'Edge Computing', x: 58, y: 44, variant: 'sm' },
-  { label: 'PostgreSQL', x: 80, y: 46, variant: 'xs' },
-  { label: 'Docker', x: 12, y: 54, variant: 'xs' },
-  { label: 'System Design', x: 36, y: 55, variant: 'md', accent: 'avocado' },
-  { label: 'Architecture', x: 65, y: 56, variant: 'xs' },
-  { label: 'Kubernetes', x: 92, y: 52, variant: 'xs' },
-  { label: 'DevOps', x: 5, y: 64, variant: 'sm' },
-  { label: 'Linux', x: 18, y: 72, variant: 'xs' },
-  { label: 'Security', x: 90, y: 64, variant: 'sm' },
-  { label: 'Performance', x: 78, y: 72, variant: 'xs' },
-  { label: 'Indie Hacking', x: 6, y: 82, variant: 'xs' },
-  { label: 'Startups', x: 14, y: 92, variant: 'sm' },
-  { label: 'Remote', x: 92, y: 82, variant: 'xs' },
-  { label: 'Serverless', x: 86, y: 92, variant: 'sm' },
-];
-
-const CONNECTIONS: Array<[number, number, number, number]> = [
-  [10, 11, 28, 6],
-  [50, 14, 72, 32],
-  [85, 13, 18, 32],
-  [36, 55, 65, 56],
-  [5, 64, 12, 54],
-  [40, 36, 80, 46],
-];
-
-const TAG_VARIANT_CLASSES: Record<TagVariant, string> = {
-  xs: 'typo-caption1',
-  sm: 'typo-footnote',
-  md: 'typo-callout font-medium',
-  lg: 'typo-title3 font-bold',
-};
-
-const TAG_NEUTRAL: Record<TagVariant, string> = {
-  xs: 'text-white/25',
-  sm: 'text-white/40',
-  md: 'text-white/55',
-  lg: 'text-white/70',
-};
-
-const ACCENT_GLOW: Record<AccentKey, string> = {
-  cabbage: 'onb-glow-cabbage',
-  water: 'onb-glow-water',
-  onion: 'onb-glow-onion',
-  bacon: 'onb-glow-bacon',
-  cheese: 'onb-glow-cheese',
-  avocado: 'onb-glow-avocado',
-};
-
-const ConstellationTag = ({ tag }: { tag: TagItem }): ReactElement => {
-  const accentClasses = tag.accent
-    ? `${ACCENT_TEXT[tag.accent]} ${ACCENT_GLOW[tag.accent]}`
-    : TAG_NEUTRAL[tag.variant];
-  return (
-    <span
-      className={classNames(
-        'absolute whitespace-nowrap tracking-tight',
-        TAG_VARIANT_CLASSES[tag.variant],
-        accentClasses,
-      )}
-      style={{
-        left: `${tag.x}%`,
-        top: `${tag.y}%`,
-        transform: 'translate(-50%, -50%)',
-      }}
-    >
-      {tag.label}
-    </span>
-  );
-};
-
-const TagsBackground = (): ReactElement => (
-  <div
-    aria-hidden
-    className="pointer-events-none absolute inset-0 -z-1 select-none"
-  >
-    <svg
-      className="absolute inset-0 h-full w-full text-white/[0.07]"
-      preserveAspectRatio="none"
-      viewBox="0 0 100 100"
-    >
-      {CONNECTIONS.map(([x1, y1, x2, y2]) => (
-        <line
-          key={`${x1}-${y1}-${x2}-${y2}`}
-          x1={x1}
-          y1={y1}
-          x2={x2}
-          y2={y2}
-          stroke="currentColor"
-          strokeWidth="0.12"
-          vectorEffect="non-scaling-stroke"
-        />
-      ))}
-    </svg>
-    {TAGS.map((tag) => (
-      <ConstellationTag key={tag.label} tag={tag} />
-    ))}
-  </div>
-);
-
-// =============================================================
 // Variant C — Desk: full-cover photo backdrop
 // =============================================================
 
@@ -435,7 +289,7 @@ const DeskBackground = (): ReactElement => (
 // Variant registry & switcher
 // =============================================================
 
-type VariantId = 'cards' | 'tags' | 'desk' | 'split';
+type VariantId = 'cards' | 'desk' | 'split';
 
 type VariantDef = {
   id: VariantId;
@@ -446,7 +300,6 @@ type VariantDef = {
 const VARIANTS: VariantDef[] = [
   { id: 'cards', label: 'Cards', render: () => <CardsBackground /> },
   { id: 'split', label: 'X', render: () => <CardsBackground splitMode /> },
-  { id: 'tags', label: 'Tags', render: () => <TagsBackground /> },
   { id: 'desk', label: 'Desk', render: () => <DeskBackground /> },
 ];
 
