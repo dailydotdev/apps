@@ -5,10 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
+import { RootPortal } from '../../../components/tooltips/Portal';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
 import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
+import { ActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { ActiveFeedNameContext } from '../../../contexts/ActiveFeedNameContext';
 import { SharedFeedPage } from '../../../components/utilities';
+import { RequestKey } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { MOST_UPVOTED_FEED_QUERY } from '../../../graphql/feed';
 import type { Post } from '../../../graphql/posts';
@@ -230,32 +233,36 @@ const CardsBackground = ({
 }): ReactElement => {
   const posts = useExplorePosts();
   return (
-    <ActiveFeedNameContext.Provider
-      value={{ feedName: SharedFeedPage.Popular }}
+    <ActiveFeedContext.Provider
+      value={{ items: [], queryKey: [RequestKey.FeedPreview] }}
     >
-      <div
-        aria-hidden
-        className={classNames(
-          'pointer-events-none absolute select-none overflow-hidden opacity-[0.4]',
-          splitMode
-            ? 'onb-split-grid-mask inset-y-0 left-0 -z-1 w-full laptop:w-1/2'
-            : 'onb-grid-mask inset-0 -z-1',
-        )}
+      <ActiveFeedNameContext.Provider
+        value={{ feedName: SharedFeedPage.Popular }}
       >
         <div
+          aria-hidden
           className={classNames(
-            'grid auto-rows-min gap-8 px-10 pb-5 pt-10 tablet:px-14 tablet:pb-7 tablet:pt-14',
+            'pointer-events-none absolute select-none overflow-hidden opacity-[0.4] [&_*]:!pointer-events-none',
             splitMode
-              ? 'grid-cols-2 laptop:grid-cols-2 laptopL:grid-cols-3'
-              : 'grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6',
+              ? 'onb-split-grid-mask inset-y-0 left-0 -z-1 w-full laptop:w-1/2'
+              : 'onb-grid-mask inset-0 -z-1',
           )}
         >
-          {posts.map((post) => (
-            <ExplorePostCard key={post.id} post={post} />
-          ))}
+          <div
+            className={classNames(
+              'grid auto-rows-min gap-8 px-10 pb-5 pt-10 tablet:px-14 tablet:pb-7 tablet:pt-14',
+              splitMode
+                ? 'grid-cols-2 laptop:grid-cols-2 laptopL:grid-cols-3'
+                : 'grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6',
+            )}
+          >
+            {posts.map((post) => (
+              <ExplorePostCard key={post.id} post={post} />
+            ))}
+          </div>
         </div>
-      </div>
-    </ActiveFeedNameContext.Provider>
+      </ActiveFeedNameContext.Provider>
+    </ActiveFeedContext.Provider>
   );
 };
 
@@ -456,6 +463,8 @@ const readInitialVariant = (): VariantId => {
   return VARIANTS[0].id;
 };
 
+const VARIANT_SWITCHER_Z_INDEX = 9999;
+
 const VariantSwitcher = ({
   value,
   onChange,
@@ -463,35 +472,42 @@ const VariantSwitcher = ({
   value: VariantId;
   onChange: (next: VariantId) => void;
 }): ReactElement => (
-  <div
-    className="z-50 border-white/10 bg-raw-pepper-90/85 pointer-events-auto fixed left-4 right-4 top-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-1 rounded-16 border p-1 backdrop-blur-md tablet:left-auto tablet:right-6 tablet:top-6 tablet:max-w-[min(calc(100vw-3rem),28rem)]"
-    role="radiogroup"
-    aria-label="Background variant"
-  >
-    <span className="shrink-0 px-2 text-text-quaternary typo-caption2">
-      Variant
-    </span>
-    {VARIANTS.map((variant) => {
-      const active = variant.id === value;
-      return (
-        <button
-          key={variant.id}
-          type="button"
-          role="radio"
-          aria-checked={active}
-          onClick={() => onChange(variant.id)}
-          className={classNames(
-            'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
-            active
-              ? 'bg-white/15 text-text-primary'
-              : 'text-text-tertiary hover:text-text-primary',
-          )}
-        >
-          {variant.label}
-        </button>
-      );
-    })}
-  </div>
+  <RootPortal>
+    <div
+      className="pointer-events-auto fixed left-4 right-4 top-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-1 rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 p-1.5 shadow-2 tablet:left-auto tablet:right-6 tablet:top-6 tablet:max-w-[min(calc(100vw-3rem),28rem)]"
+      role="radiogroup"
+      aria-label="Background variant"
+      style={{ zIndex: VARIANT_SWITCHER_Z_INDEX }}
+    >
+      <span className="shrink-0 px-2 text-text-quaternary typo-caption2">
+        Variant
+      </span>
+      {VARIANTS.map((variant) => {
+        const active = variant.id === value;
+        return (
+          <button
+            key={variant.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={(event) => {
+              event.stopPropagation();
+              onChange(variant.id);
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+            className={classNames(
+              'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
+              active
+                ? 'bg-white/15 text-text-primary'
+                : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
+            )}
+          >
+            {variant.label}
+          </button>
+        );
+      })}
+    </div>
+  </RootPortal>
 );
 
 // =============================================================
@@ -629,8 +645,8 @@ export const OnboardingSignupHero = ({
       >
         <div
           className={classNames(
-            'flex w-full max-w-[26rem] flex-col gap-6 tablet:gap-7',
-            isSplitLayout && 'laptop:max-w-[22rem] laptop:gap-8',
+            'flex w-full max-w-[340px] flex-col gap-6 tablet:gap-7',
+            isSplitLayout && 'laptop:gap-8',
           )}
         >
           <Logo

@@ -245,7 +245,7 @@ const useOnboardingAuth = () => {
       simplified: true,
       className: {
         container: classNames(
-          'w-full rounded-none tablet:max-w-[30rem]',
+          'w-full rounded-none tablet:max-w-[340px]',
           auth.isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
