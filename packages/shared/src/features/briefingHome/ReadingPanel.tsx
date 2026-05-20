@@ -57,7 +57,7 @@ const SectionHeader = ({
 }): ReactElement => (
   <div className="flex items-baseline gap-2">
     <span className="self-center text-text-tertiary">{icon}</span>
-      <Typography type={TypographyType.Title4} bold>
+    <Typography type={TypographyType.Title4} bold>
       {label}
     </Typography>
     {typeof count === 'number' ? (
