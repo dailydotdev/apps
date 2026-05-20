@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { Modal } from '../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../components/modals/common/types';
 import { DrawerPosition } from '../../components/drawers/Drawer';
+import { PostContainer } from '../../components/post/common';
+import { PageWidgets } from '../../components/utilities/common';
 import {
   Typography,
   TypographyColor,
@@ -253,7 +255,7 @@ const Sidebar = ({
 }): ReactElement => {
   const isStory = entity.kind === 'story';
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 laptop:w-[20rem]">
+    <>
       {isStory ? (
         <>
           <SidebarBlock title={`Sources · ${entity.posts.length}`}>
@@ -304,7 +306,7 @@ const Sidebar = ({
       <SidebarBlock title="Share">
         <CopyLinkButton url={shareUrl} />
       </SidebarBlock>
-    </aside>
+    </>
   );
 };
 
@@ -592,17 +594,17 @@ export const ReadingPanel = ({
       isOpen
       onRequestClose={onClose}
       kind={ModalKind.FlexibleTop}
-      size={ModalSize.Large}
+      size={ModalSize.XLarge}
       shouldCloseOnOverlayClick
-      overlayClassName="bg-overlay-quaternary-onion"
+      overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       isDrawerOnMobile
       drawerProps={{
         position: DrawerPosition.Bottom,
         isFullScreen: true,
       }}
-      className="!items-stretch overflow-hidden !bg-background-default tablet:!max-h-[calc(100vh-6rem)]"
+      className="mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden"
     >
-      <header className="z-1 flex h-12 w-full shrink-0 items-center justify-between gap-2 border-b border-border-subtlest-quaternary bg-background-default px-2 tablet:px-3">
+      <header className="z-1 flex h-12 w-full shrink-0 items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-2 tablet:px-3">
         <div className="flex items-center gap-1">
           <Button
             type="button"
@@ -635,18 +637,22 @@ export const ReadingPanel = ({
           aria-label="Close"
         />
       </header>
-      <div className="min-h-0 w-full flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-[68rem] flex-col gap-6 px-4 py-6 tablet:px-6 tablet:py-8 laptop:flex-row laptop:items-start laptop:gap-8">
-          {entity.kind === 'story' ? (
-            <StoryBody
-              story={entity}
-              kind={entityKind === 'lead' ? 'lead' : 'read'}
-            />
-          ) : (
-            <TopicBody topic={entity} />
-          )}
+      <div className="flex w-full flex-1 flex-col bg-background-default pb-6 laptop:min-h-0 laptop:flex-row laptop:overflow-y-auto laptop:pb-0">
+        <PostContainer className="relative laptop:overflow-y-auto">
+          <div className="flex flex-col gap-6 pb-6 pt-6">
+            {entity.kind === 'story' ? (
+              <StoryBody
+                story={entity}
+                kind={entityKind === 'lead' ? 'lead' : 'read'}
+              />
+            ) : (
+              <TopicBody topic={entity} />
+            )}
+          </div>
+        </PostContainer>
+        <PageWidgets className="pb-8 pt-6 laptop:overflow-y-auto">
           <Sidebar entity={entity} shareUrl={shareUrl} />
-        </div>
+        </PageWidgets>
       </div>
     </Modal>
   );
