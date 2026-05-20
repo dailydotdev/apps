@@ -157,14 +157,20 @@ const HERO_STYLES = `
       rgba(8, 8, 12, 1) 100%
     );
 }
-.onb-split-right-panel {
+.onb-split-left-water-glow {
   background:
     radial-gradient(
-      ellipse 90% 70% at 0% 40%,
-      color-mix(in srgb, var(--theme-accent-water-default) 6%, transparent) 0%,
-      transparent 55%
-    ),
-    var(--theme-background-default);
+      ellipse 85% 65% at 18% 100%,
+      color-mix(in srgb, var(--theme-accent-water-default) 14%, transparent) 0%,
+      color-mix(in srgb, var(--theme-accent-water-default) 5%, transparent) 42%,
+      transparent 72%
+    );
+}
+.onb-bg-split {
+  background: var(--theme-background-default);
+}
+.onb-split-right-panel {
+  background: var(--theme-background-default);
 }
 .onb-glow-cabbage { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-cabbage-default) 65%, transparent); }
 .onb-glow-water { text-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-water-default) 65%, transparent); }
@@ -626,8 +632,10 @@ export const OnboardingSignupHero = ({
   return (
     <div
       className={classNames(
-        'onb-bg relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary',
-        isSplitLayout && 'flex-col laptop:grid laptop:grid-cols-2',
+        'relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary',
+        isSplitLayout
+          ? 'onb-bg-split flex-col laptop:grid laptop:grid-cols-2'
+          : 'onb-bg',
       )}
     >
       <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
@@ -647,6 +655,10 @@ export const OnboardingSignupHero = ({
 
       {isSplitLayout && (
         <div className="relative hidden min-h-dvh overflow-hidden laptop:col-start-1 laptop:row-start-1 laptop:block">
+          <div
+            aria-hidden
+            className="onb-split-left-water-glow pointer-events-none absolute inset-0 -z-2"
+          />
           <CardsBackground splitMode />
           <div
             aria-hidden
@@ -659,6 +671,18 @@ export const OnboardingSignupHero = ({
               height: '38rem',
               top: '-10rem',
               left: '-8rem',
+            }}
+          />
+          <span
+            aria-hidden
+            className="onb-orb onb-orb--delay bg-accent-water-default"
+            style={{
+              width: '32rem',
+              height: '32rem',
+              bottom: '-8rem',
+              left: '5%',
+              top: 'auto',
+              right: 'auto',
             }}
           />
         </div>
@@ -718,16 +742,6 @@ export const OnboardingSignupHero = ({
           <div
             aria-hidden
             className="onb-split-right-panel pointer-events-none absolute inset-0 -z-1 hidden laptop:block"
-          />
-          <span
-            aria-hidden
-            className="onb-orb onb-orb--delay pointer-events-none absolute -z-1 bg-accent-water-default"
-            style={{
-              width: '32rem',
-              height: '32rem',
-              top: '18%',
-              right: '-4rem',
-            }}
           />
           {splitSignupColumn}
         </div>
