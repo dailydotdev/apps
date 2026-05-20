@@ -25,13 +25,21 @@ import {
   EyeIcon,
   TimerIcon,
   TrendingIcon,
+  OpenLinkIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { TOPIC_TOKEN, type StoryItem, type TopicDigest } from './types';
-import { briefCopy } from './copy';
+import {
+  TOPIC_BORDER_TOKEN,
+  TOPIC_TOKEN,
+  type StoryItem,
+  type TopicDigest,
+} from './types';
+
+export type EntityKind = 'lead' | 'read' | 'topic';
 
 interface ReadingPanelProps {
   entity: StoryItem | TopicDigest;
+  entityKind: EntityKind;
   onNext: () => void;
   onPrev: () => void;
   onClose: () => void;
@@ -45,6 +53,62 @@ const stripMd = (s: string): string =>
 
 const estimateMinutes = (text: string): number =>
   Math.max(2, Math.round(text.split(/\s+/).filter(Boolean).length / 220));
+
+interface EyebrowConfig {
+  icon: ReactElement;
+  label: string;
+  colorClass: string;
+}
+
+const storyEyebrow = (kind: 'lead' | 'read'): EyebrowConfig =>
+  kind === 'lead'
+    ? {
+        icon: (
+          <HotIcon
+            size={IconSize.XSmall}
+            secondary
+            className="text-accent-ketchup-default"
+          />
+        ),
+        label: 'The big thing',
+        colorClass: 'text-accent-ketchup-default',
+      }
+    : {
+        icon: (
+          <TrendingIcon
+            size={IconSize.XSmall}
+            secondary
+            className="text-accent-cabbage-default"
+          />
+        ),
+        label: 'Trending discussion',
+        colorClass: 'text-accent-cabbage-default',
+      };
+
+const topicEyebrow = (topic: TopicDigest): EyebrowConfig => ({
+  icon: (
+    <EyeIcon
+      size={IconSize.XSmall}
+      secondary
+      className={TOPIC_TOKEN[topic.topic]}
+    />
+  ),
+  label: topic.topic,
+  colorClass: TOPIC_TOKEN[topic.topic],
+});
+
+const Eyebrow = ({ config }: { config: EyebrowConfig }): ReactElement => (
+  <div className="flex items-center gap-1.5">
+    {config.icon}
+    <Typography
+      type={TypographyType.Caption2}
+      bold
+      className={classNames('uppercase tracking-[0.18em]', config.colorClass)}
+    >
+      {config.label}
+    </Typography>
+  </div>
+);
 
 const SectionHeader = ({
   icon,
@@ -66,7 +130,7 @@ const SectionHeader = ({
         color={TypographyColor.Quaternary}
         className="tabular-nums"
       >
-        {count}
+        · {count}
       </Typography>
     ) : null}
   </div>
@@ -75,16 +139,18 @@ const SectionHeader = ({
 const InlineStat = ({
   icon,
   value,
+  bold = true,
 }: {
   icon: ReactElement;
   value: ReactElement | string | number;
+  bold?: boolean;
 }): ReactElement => (
   <span className="inline-flex items-center gap-1">
     {icon}
     <Typography
       type={TypographyType.Caption1}
       color={TypographyColor.Tertiary}
-      bold
+      bold={bold}
       className="tabular-nums"
     >
       {value}
@@ -92,30 +158,26 @@ const InlineStat = ({
   </span>
 );
 
-const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
+const StoryBody = ({
+  story,
+  kind,
+}: {
+  story: StoryItem;
+  kind: 'lead' | 'read';
+}): ReactElement => {
   const minutes = estimateMinutes(
     story.summary + story.highlightedComments.map((c) => c.content).join(' '),
   );
   const summary = stripMd(story.summary).trim();
   const sourcesShown = story.sources.slice(0, 5);
+  const extraSources = Math.max(0, story.sources.length - sourcesShown.length);
+  const eyebrow = storyEyebrow(kind);
+  const sourceNames = sourcesShown.map((s) => s.sourceName).join(', ');
 
   return (
     <article className="mx-auto flex w-full max-w-[42rem] flex-col gap-6">
-      <header className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5">
-          <HotIcon
-            size={IconSize.XSmall}
-            className="text-accent-ketchup-default"
-            secondary
-          />
-          <Typography
-            type={TypographyType.Caption2}
-            bold
-            className="uppercase tracking-[0.18em] text-accent-ketchup-default"
-          >
-            {briefCopy.leadEyebrow}
-          </Typography>
-        </div>
+      <header className="flex flex-col gap-3">
+        <Eyebrow config={eyebrow} />
 
         <Typography
           tag={TypographyTag.H1}
@@ -126,8 +188,11 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
           {story.title}
         </Typography>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-text-tertiary">
-          <span className="inline-flex items-center -space-x-1.5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span
+            className="inline-flex items-center -space-x-1.5"
+            title={sourceNames}
+          >
             {sourcesShown.map((src) => (
               <span
                 key={src.sourceId}
@@ -146,10 +211,9 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            {briefCopy.panelMeta(
-              story.sources.length,
-              story.highlightedComments.length + story.sources.length,
-            )}
+            {story.sources.length}{' '}
+            {story.sources.length === 1 ? 'source' : 'sources'}
+            {extraSources > 0 ? ` (+${extraSources} more)` : ''}
           </Typography>
           <span aria-hidden className="text-text-quaternary">
             ·
@@ -161,7 +225,8 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                 className="text-text-tertiary"
               />
             }
-            value={briefCopy.storyReadTime(minutes)}
+            value={`${minutes} min`}
+            bold={false}
           />
           <InlineStat
             icon={
@@ -184,13 +249,24 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
         </div>
       </header>
 
-      <section className="rounded-12 border border-border-subtlest-quaternary bg-surface-float p-4">
+      <section
+        aria-label="Summary"
+        className={classNames(
+          'rounded-12 border-l-2 bg-surface-float py-3 pl-4 pr-4',
+          kind === 'lead'
+            ? 'border-accent-ketchup-default'
+            : 'border-accent-cabbage-default',
+        )}
+      >
         <Typography
           type={TypographyType.Caption2}
           bold
-          className="mb-2 uppercase tracking-[0.14em] text-text-tertiary"
+          className={classNames(
+            'mb-1.5 uppercase tracking-[0.16em]',
+            eyebrow.colorClass,
+          )}
         >
-          {briefCopy.tldrTag}
+          The takeaway
         </Typography>
         <Typography
           tag={TypographyTag.P}
@@ -206,7 +282,7 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
         <section className="flex flex-col gap-3">
           <SectionHeader
             icon={<DiscussIcon size={IconSize.XSmall} secondary />}
-            label={briefCopy.conversationLabel}
+            label="Top reactions"
             count={story.highlightedComments.length}
           />
           <ul className="flex flex-col gap-2">
@@ -229,17 +305,23 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                   >
                     @{c.username}
                   </Typography>
-                  <InlineStat
-                    icon={
-                      <UpvoteIcon
-                        size={IconSize.XXSmall}
-                        className="text-accent-avocado-default"
-                      />
-                    }
-                    value={c.upvotes}
-                  />
+                  <span className="ml-auto inline-flex items-center gap-1">
+                    <UpvoteIcon
+                      size={IconSize.XXSmall}
+                      className="text-accent-avocado-default"
+                    />
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                      bold
+                      className="tabular-nums"
+                    >
+                      {c.upvotes}
+                    </Typography>
+                  </span>
                 </div>
                 <Typography
+                  tag={TypographyTag.P}
                   type={TypographyType.Footnote}
                   color={TypographyColor.Secondary}
                   className="!leading-relaxed"
@@ -255,7 +337,7 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
       <section className="flex flex-col gap-3">
         <SectionHeader
           icon={<TrendingIcon size={IconSize.XSmall} secondary />}
-          label="Posts in this thread"
+          label="Source posts"
           count={story.posts.length}
         />
         <ul className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
@@ -306,6 +388,10 @@ const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
                       }
                       value={p.comments}
                     />
+                    <OpenLinkIcon
+                      size={IconSize.XXSmall}
+                      className="ml-auto text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
+                    />
                   </div>
                 </div>
               </a>
@@ -321,26 +407,13 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
   const minutes = estimateMinutes(
     topic.tldr + topic.content.replace(/<[^>]+>/g, ' '),
   );
+  const eyebrow = topicEyebrow(topic);
 
   return (
     <article className="mx-auto flex w-full max-w-[42rem] flex-col gap-6">
-      <header className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5">
-          <EyeIcon
-            size={IconSize.XSmall}
-            className={TOPIC_TOKEN[topic.topic]}
-            secondary
-          />
-          <Typography
-            type={TypographyType.Caption2}
-            bold
-            className={classNames(
-              'uppercase tracking-[0.18em]',
-              TOPIC_TOKEN[topic.topic],
-            )}
-          >
-            {topic.topic}
-          </Typography>
+      <header className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Eyebrow config={eyebrow} />
           <span aria-hidden className="text-text-quaternary">
             ·
           </span>
@@ -348,7 +421,7 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            {briefCopy.topicWeekly}
+            Weekly digest
           </Typography>
         </div>
 
@@ -361,7 +434,7 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
           {topic.title}
         </Typography>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-text-tertiary">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <InlineStat
             icon={
               <TimerIcon
@@ -369,18 +442,28 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
                 className="text-text-tertiary"
               />
             }
-            value={briefCopy.storyReadTime(minutes)}
+            value={`${minutes} min read`}
+            bold={false}
           />
         </div>
       </header>
 
-      <section className="rounded-12 border border-border-subtlest-quaternary bg-surface-float p-4">
+      <section
+        aria-label="Summary"
+        className={classNames(
+          'rounded-12 border-l-2 bg-surface-float py-3 pl-4 pr-4',
+          TOPIC_BORDER_TOKEN[topic.topic],
+        )}
+      >
         <Typography
           type={TypographyType.Caption2}
           bold
-          className="mb-2 uppercase tracking-[0.14em] text-text-tertiary"
+          className={classNames(
+            'mb-1.5 uppercase tracking-[0.16em]',
+            eyebrow.colorClass,
+          )}
         >
-          {briefCopy.tldrTag}
+          This week
         </Typography>
         <Typography
           tag={TypographyTag.P}
@@ -392,30 +475,37 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
         </Typography>
       </section>
 
-      <div
-        className={classNames(
-          'flex flex-col text-text-secondary',
-          '[&_h2]:typo-title4 [&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:font-bold [&_h2]:!leading-snug [&_h2]:!text-text-primary',
-          '[&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:font-bold [&_h3]:!text-text-primary [&_h3]:typo-callout',
-          '[&_p]:my-2 [&_p]:!leading-relaxed [&_p]:typo-callout',
-          '[&_ul]:my-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1 [&_ul]:pl-5',
-          '[&_ol]:my-2 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:gap-1 [&_ol]:pl-5',
-          '[&_li]:!leading-relaxed [&_li]:typo-callout',
-          '[&_strong]:font-bold [&_strong]:!text-text-primary',
-          '[&_a]:text-brand-default [&_a]:underline hover:[&_a]:text-brand-hover',
-          '[&_code]:rounded-6 [&_code]:bg-surface-float [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:!text-text-primary [&_code]:typo-footnote',
-          '[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-border-subtlest-tertiary [&_blockquote]:pl-3 [&_blockquote]:italic',
-        )}
-        // mock content is trusted at build time
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: topic.content }}
-      />
+      <section className="flex flex-col gap-2">
+        <SectionHeader
+          icon={<EyeIcon size={IconSize.XSmall} secondary />}
+          label="The digest"
+        />
+        <div
+          className={classNames(
+            'flex flex-col text-text-secondary',
+            '[&_h2]:typo-title4 [&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:font-bold [&_h2]:!leading-snug [&_h2]:!text-text-primary',
+            '[&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:font-bold [&_h3]:!text-text-primary [&_h3]:typo-callout',
+            '[&_p]:my-2 [&_p]:!leading-relaxed [&_p]:typo-callout',
+            '[&_ul]:my-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1 [&_ul]:pl-5',
+            '[&_ol]:my-2 [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:gap-1 [&_ol]:pl-5',
+            '[&_li]:!leading-relaxed [&_li]:typo-callout',
+            '[&_strong]:font-bold [&_strong]:!text-text-primary',
+            '[&_a]:text-brand-default [&_a]:underline hover:[&_a]:text-brand-hover',
+            '[&_code]:rounded-6 [&_code]:bg-surface-float [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:!text-text-primary [&_code]:typo-footnote',
+            '[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-border-subtlest-tertiary [&_blockquote]:pl-3 [&_blockquote]:italic',
+          )}
+          // mock content is trusted at build time
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: topic.content }}
+        />
+      </section>
     </article>
   );
 };
 
 export const ReadingPanel = ({
   entity,
+  entityKind,
   onNext,
   onPrev,
   onClose,
@@ -456,9 +546,9 @@ export const ReadingPanel = ({
             size={ButtonSize.Small}
             icon={<ArrowIcon className="-rotate-90" />}
             onClick={onPrev}
-            aria-label={briefCopy.panelPrev}
+            aria-label="Previous"
           >
-            <span className="hidden tablet:inline">{briefCopy.panelPrev}</span>
+            <span className="hidden tablet:inline">Previous</span>
           </Button>
           <Button
             type="button"
@@ -467,9 +557,9 @@ export const ReadingPanel = ({
             icon={<ArrowIcon className="rotate-90" />}
             iconPosition={ButtonIconPosition.Right}
             onClick={onNext}
-            aria-label={briefCopy.panelNext}
+            aria-label="Next"
           >
-            <span className="hidden tablet:inline">{briefCopy.panelNext}</span>
+            <span className="hidden tablet:inline">Next</span>
           </Button>
         </div>
         <Button
@@ -478,12 +568,15 @@ export const ReadingPanel = ({
           size={ButtonSize.Small}
           icon={<MiniCloseIcon />}
           onClick={onClose}
-          aria-label={briefCopy.panelClose}
+          aria-label="Close"
         />
       </header>
       <div className="min-h-0 w-full flex-1 overflow-y-auto px-4 py-6 tablet:px-6 tablet:py-7">
         {entity.kind === 'story' ? (
-          <StoryBody story={entity} />
+          <StoryBody
+            story={entity}
+            kind={entityKind === 'lead' ? 'lead' : 'read'}
+          />
         ) : (
           <TopicBody topic={entity} />
         )}

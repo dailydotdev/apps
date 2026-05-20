@@ -11,6 +11,7 @@ import { CoverTopics } from './CoverTopics';
 import { CoverQuick } from './CoverQuick';
 import { CoverClosing } from './CoverClosing';
 import { ReadingPanel } from './ReadingPanel';
+import type { EntityKind } from './ReadingPanel';
 import { useBriefItems } from './hooks/useBriefItems';
 import { useReadTracker } from './hooks/useReadTracker';
 import type { BriefEntity, StoryItem, TopicDigest } from './types';
@@ -91,6 +92,14 @@ export const BriefCover = ({
     () => [brief.lead, ...brief.reads, ...brief.topics],
     [brief],
   );
+
+  const entityKindById = useMemo<Map<string, EntityKind>>(() => {
+    const map = new Map<string, EntityKind>();
+    map.set(brief.lead.id, 'lead');
+    brief.reads.forEach((s) => map.set(s.id, 'read'));
+    brief.topics.forEach((t) => map.set(t.id, 'topic'));
+    return map;
+  }, [brief]);
 
   const openPanel = useCallback(
     (entity: StoryItem | TopicDigest) => {
@@ -179,6 +188,7 @@ export const BriefCover = ({
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}
+          entityKind={entityKindById.get(activePanel.entity.id) ?? 'read'}
           onNext={() => navigatePanel(1)}
           onPrev={() => navigatePanel(-1)}
           onClose={() => setActivePanel(null)}
