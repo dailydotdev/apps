@@ -92,10 +92,10 @@ const HERO_STYLES = `
 .onb-prod-scrim {
   background: linear-gradient(
     to top,
-    rgba(8, 8, 12, 0.92) 0%,
-    rgba(8, 8, 12, 0.78) 24%,
-    rgba(8, 8, 12, 0.45) 52%,
-    rgba(8, 8, 12, 0.15) 78%,
+    rgba(8, 8, 12, 0.78) 0%,
+    rgba(8, 8, 12, 0.55) 28%,
+    rgba(8, 8, 12, 0.25) 58%,
+    rgba(8, 8, 12, 0.05) 82%,
     transparent 100%
   );
 }
@@ -298,13 +298,12 @@ const DeskBackground = (): ReactElement => (
 // Image mode — production signup image (toggle overrides each variant)
 // =============================================================
 
-const PROD_IMAGE_DEFAULT_SRC =
-  'https://media.daily.dev/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
-const PROD_IMAGE_1440 =
-  'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
-const PROD_IMAGE_1920 =
-  'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1920/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
-const PROD_IMAGE_SRCSET = `${PROD_IMAGE_1440} 1440w, ${PROD_IMAGE_1920} 1920w, ${PROD_IMAGE_DEFAULT_SRC} 2880w`;
+// The actual desktop + mobile artwork used on the live signup wall.
+// Source: cloudinaryOnboardingFullBackgroundDesktop / Mobile in shared/lib/image.
+const PROD_IMAGE_DESKTOP =
+  'https://media.daily.dev/image/upload/s--r2ffZPB4--/f_auto/v1716969841/dailydev_where_developers_suffer_together_sfvfog';
+const PROD_IMAGE_MOBILE =
+  'https://media.daily.dev/image/upload/s--EwsBTBt6--/f_auto/v1716969841/dailydev_where_developers_suffer_together_mobile_shkn1w';
 
 const ProdSignupBackground = ({
   splitMode = false,
@@ -321,15 +320,16 @@ const ProdSignupBackground = ({
       visible ? 'opacity-100' : 'opacity-0',
     )}
   >
-    <img
-      src={PROD_IMAGE_DEFAULT_SRC}
-      srcSet={PROD_IMAGE_SRCSET}
-      sizes="100vw"
-      alt=""
-      className="absolute inset-0 h-full w-full object-cover object-center"
-      decoding="async"
-      fetchPriority="high"
-    />
+    <picture>
+      <source media="(max-width: 768px)" srcSet={PROD_IMAGE_MOBILE} />
+      <img
+        src={PROD_IMAGE_DESKTOP}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-center"
+        decoding="async"
+        fetchPriority="high"
+      />
+    </picture>
   </div>
 );
 
@@ -655,36 +655,38 @@ export const OnboardingSignupHero = ({
           />
           {renderVariantBackground('split', imageMode)}
           {!isProdImageMode && (
-            <div
-              aria-hidden
-              className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
-            />
+            <>
+              <div
+                aria-hidden
+                className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
+              />
+              <span
+                className="onb-orb bg-accent-cabbage-default"
+                style={{
+                  width: '38rem',
+                  height: '38rem',
+                  top: '-10rem',
+                  left: '-8rem',
+                }}
+              />
+              <span
+                aria-hidden
+                className="onb-orb onb-orb--delay bg-accent-water-default"
+                style={{
+                  width: '32rem',
+                  height: '32rem',
+                  bottom: '-8rem',
+                  left: '5%',
+                  top: 'auto',
+                  right: 'auto',
+                }}
+              />
+            </>
           )}
-          <span
-            className="onb-orb bg-accent-cabbage-default"
-            style={{
-              width: '38rem',
-              height: '38rem',
-              top: '-10rem',
-              left: '-8rem',
-            }}
-          />
-          <span
-            aria-hidden
-            className="onb-orb onb-orb--delay bg-accent-water-default"
-            style={{
-              width: '32rem',
-              height: '32rem',
-              bottom: '-8rem',
-              left: '5%',
-              top: 'auto',
-              right: 'auto',
-            }}
-          />
         </div>
       )}
 
-      {!isSplitLayout && (
+      {!isSplitLayout && !isProdImageMode && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-1 select-none"
