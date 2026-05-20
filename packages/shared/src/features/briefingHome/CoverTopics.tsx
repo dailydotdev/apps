@@ -104,7 +104,7 @@ const TopicCard = ({
         </Typography>
       </div>
       {isExpanded ? (
-        <div className="mt-1 flex w-full items-center justify-end">
+        <div className="mt-1 flex w-full items-center justify-start">
           <span
             role="button"
             tabIndex={0}
