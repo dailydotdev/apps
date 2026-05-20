@@ -6,7 +6,6 @@ import Logo, { LogoPosition } from '../../../components/Logo';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
 import type { AuthOptionsProps } from '../../../components/auth/common';
-import { RootPortal } from '../../../components/tooltips/Portal';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
 import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
 import { ActiveFeedNameContext } from '../../../contexts/ActiveFeedNameContext';
@@ -445,20 +444,26 @@ const VariantSwitcher = ({
   imageMode: ImageMode;
   onImageModeChange: (next: ImageMode) => void;
 }): ReactElement => (
-  <RootPortal>
-    <div
-      className="pointer-events-auto fixed left-4 right-4 top-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-1 rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 p-1.5 shadow-2 tablet:left-auto tablet:right-6 tablet:top-6 tablet:max-w-[min(calc(100vw-3rem),32rem)]"
-      role="toolbar"
-      aria-label="Background variant"
-      style={{ zIndex: VARIANT_SWITCHER_Z_INDEX }}
-    >
-      <span className="shrink-0 px-2 text-text-quaternary typo-caption2">
+  <div
+    className={classNames(
+      'pointer-events-auto flex items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 p-1 shadow-2',
+      // Mobile: inline, centered, two-row stack at the bottom of the flow
+      'relative z-1 mt-3 max-w-[calc(100vw-1.5rem)] flex-col self-center',
+      // Tablet+: detach to top-right
+      'tablet:fixed tablet:right-6 tablet:top-6 tablet:mt-0 tablet:max-w-[min(calc(100vw-3rem),32rem)] tablet:flex-row tablet:flex-wrap tablet:self-auto tablet:p-1.5',
+    )}
+    role="toolbar"
+    aria-label="Background variant"
+    style={{ zIndex: VARIANT_SWITCHER_Z_INDEX }}
+  >
+    <div className="flex items-center gap-1">
+      <span className="hidden shrink-0 px-2 text-text-quaternary typo-caption2 tablet:inline">
         Variant
       </span>
       <div
         role="radiogroup"
         aria-label="Background variant"
-        className="flex flex-wrap items-center gap-1"
+        className="flex items-center gap-1"
       >
         {VARIANTS.map((variant) => {
           const active = variant.id === value;
@@ -485,14 +490,16 @@ const VariantSwitcher = ({
           );
         })}
       </div>
-      <div className="mx-1 hidden h-5 w-px bg-border-subtlest-tertiary tablet:block" />
-      <span className="shrink-0 px-2 text-text-quaternary typo-caption2">
+    </div>
+    <div className="mx-1 hidden h-5 w-px bg-border-subtlest-tertiary tablet:block" />
+    <div className="flex items-center gap-1">
+      <span className="hidden shrink-0 px-2 text-text-quaternary typo-caption2 tablet:inline">
         Image
       </span>
       <div
         role="radiogroup"
         aria-label="Image source"
-        className="flex flex-wrap items-center gap-1"
+        className="flex items-center gap-1"
       >
         {IMAGE_MODES.map((mode) => {
           const active = mode.id === imageMode;
@@ -520,7 +527,7 @@ const VariantSwitcher = ({
         })}
       </div>
     </div>
-  </RootPortal>
+  </div>
 );
 
 // =============================================================
@@ -583,7 +590,7 @@ export const OnboardingSignupHero = ({
 
   const splitSignupColumn = (
     <>
-      <main className="relative flex flex-1 flex-col justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] laptop:justify-center laptop:px-16 laptop:pb-0 laptop:pt-0">
+      <main className="relative flex flex-1 flex-col items-center justify-end px-5 pb-6 pt-12 tablet:pb-[5.5rem] laptop:items-stretch laptop:justify-center laptop:px-16 laptop:pb-0 laptop:pt-0">
         <div
           className={classNames(
             'flex w-full flex-col gap-6 tablet:gap-7',
@@ -619,9 +626,9 @@ export const OnboardingSignupHero = ({
   return (
     <div
       className={classNames(
-        'relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary',
+        'relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-raw-pepper-90 text-text-primary',
         isSplitLayout
-          ? 'onb-bg-split flex-col laptop:grid laptop:grid-cols-2'
+          ? 'onb-bg-split laptop:grid laptop:grid-cols-2'
           : 'onb-bg',
       )}
     >
@@ -743,13 +750,6 @@ export const OnboardingSignupHero = ({
         />
       )}
 
-      <VariantSwitcher
-        value={variantId}
-        onChange={setVariantId}
-        imageMode={imageMode}
-        onImageModeChange={setImageMode}
-      />
-
       {isSplitLayout ? (
         <div className="relative z-1 flex min-h-dvh flex-1 flex-col laptop:col-start-2 laptop:row-start-1 laptop:min-w-0">
           <div
@@ -759,7 +759,7 @@ export const OnboardingSignupHero = ({
           {splitSignupColumn}
         </div>
       ) : (
-        <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] tablet:pt-14">
+        <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-6 pt-12 tablet:pb-[5.5rem] tablet:pt-14">
           <div
             className={classNames(
               'flex w-full flex-col gap-6 tablet:gap-7',
@@ -809,7 +809,7 @@ export const OnboardingSignupHero = ({
 
       <div
         className={classNames(
-          'pointer-events-auto relative z-1 flex w-full flex-col items-center gap-4 px-5 pb-5',
+          'pointer-events-auto relative z-1 flex w-full flex-col items-center gap-4 px-5',
           isSplitLayout ? 'laptop:hidden' : 'tablet:hidden',
         )}
       >
@@ -818,6 +818,15 @@ export const OnboardingSignupHero = ({
         </div>
         <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
       </div>
+
+      <VariantSwitcher
+        value={variantId}
+        onChange={setVariantId}
+        imageMode={imageMode}
+        onImageModeChange={setImageMode}
+      />
+
+      <div className="h-3 w-full tablet:hidden" />
     </div>
   );
 };
