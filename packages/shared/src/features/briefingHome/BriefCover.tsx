@@ -8,7 +8,6 @@ import { CoverHeader } from './CoverHeader';
 import { CoverLead } from './CoverLead';
 import { CoverGrid } from './CoverGrid';
 import { CoverTopics } from './CoverTopics';
-import { CoverQuick } from './CoverQuick';
 import { CoverClosing } from './CoverClosing';
 import { ReadingPanel } from './ReadingPanel';
 import type { EntityKind } from './ReadingPanel';
@@ -62,8 +61,7 @@ export const BriefCover = ({
   } | null>(null);
 
   const totals = useMemo(() => {
-    const total =
-      1 + brief.reads.length + brief.topics.length + brief.quickHits.length;
+    const total = 1 + brief.reads.length + brief.topics.length;
     const readMinutes = estimateReadMinutes(
       brief.lead,
       brief.reads,
@@ -77,7 +75,6 @@ export const BriefCover = ({
       brief.lead.id,
       ...brief.reads.map((s) => s.id),
       ...brief.topics.map((t) => t.id),
-      ...brief.quickHits.map((q) => q.id),
     ].filter((id) => readSet.has(id)).length;
     return {
       total,
@@ -178,11 +175,6 @@ export const BriefCover = ({
         topics={brief.topics}
         readSet={readSet}
         onOpen={(t) => openPanel(t as TopicDigest)}
-      />
-      <CoverQuick
-        quickHits={brief.quickHits}
-        readSet={readSet}
-        onRead={markRead}
       />
       <CoverClosing totals={totals} edition={edition} />
       {activePanel ? (

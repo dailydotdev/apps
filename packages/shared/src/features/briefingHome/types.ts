@@ -52,26 +52,14 @@ export const topicDigestSchema = z.object({
 });
 export type TopicDigest = z.infer<typeof topicDigestSchema>;
 
-export const quickHitSchema = z.object({
-  id: z.string(),
-  kind: z.literal('quick'),
-  eyebrow: z.string(),
-  title: z.string(),
-  url: z.string().url(),
-  comments: z.number(),
-  upvotes: z.number(),
-});
-export type QuickHit = z.infer<typeof quickHitSchema>;
-
 export const briefDataSchema = z.object({
   lead: storyItemSchema,
   reads: z.array(storyItemSchema),
   topics: z.array(topicDigestSchema),
-  quickHits: z.array(quickHitSchema),
 });
 export type BriefData = z.infer<typeof briefDataSchema>;
 
-export type BriefEntity = StoryItem | TopicDigest | QuickHit;
+export type BriefEntity = StoryItem | TopicDigest;
 
 export const TOPIC_TOKEN: Record<Topic, string> = {
   Databases: 'text-accent-water-default',

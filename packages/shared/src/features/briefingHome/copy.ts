@@ -35,9 +35,6 @@ export const briefCopy = {
   attentionHint: 'Threads heating up across your sources',
   topicsEyebrow: 'On your radar',
   topicsHint: 'Weekly digests from the topics you follow',
-  quickEyebrow: 'Quick hits',
-  quickHint: 'One line each. Tap to open.',
-
   openStory: 'Read the breakdown',
   storyReadTime: (minutes: number) => `${minutes} min`,
   storyContributors: (n: number) =>
