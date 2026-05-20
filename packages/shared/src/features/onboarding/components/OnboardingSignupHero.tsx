@@ -403,8 +403,9 @@ const TagsBackground = (): ReactElement => (
 // =============================================================
 
 const DESK_HERO_BLUR_SRC = '/assets/onboarding-hero-desk-blur.webp';
-const DESK_HERO_SRC = '/assets/onboarding-hero-desk.webp';
+const DESK_HERO_SRC = '/assets/onboarding-hero-desk-1024.webp';
 const DESK_HERO_SRCSET = [
+  '/assets/onboarding-hero-desk-1024.webp 1024w',
   '/assets/onboarding-hero-desk-1280.webp 1280w',
   '/assets/onboarding-hero-desk-1920.webp 1920w',
   '/assets/onboarding-hero-desk-2560.webp 2560w',
@@ -714,11 +715,7 @@ export const OnboardingSignupHero = ({
         </div>
       )}
 
-      <div
-        aria-hidden
-        className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
-      />
-      {!isSplitLayout && !isDeskVariant && (
+      {!isSplitLayout && (
         <>
           <div
             aria-hidden
@@ -726,13 +723,20 @@ export const OnboardingSignupHero = ({
           />
           <div
             aria-hidden
-            className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
-          />
-          <div
-            aria-hidden
             className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
           />
         </>
+      )}
+
+      <div
+        aria-hidden
+        className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
+      />
+      {!isSplitLayout && !isDeskVariant && (
+        <div
+          aria-hidden
+          className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
+        />
       )}
 
       <VariantSwitcher value={variantId} onChange={setVariantId} />
@@ -772,12 +776,25 @@ export const OnboardingSignupHero = ({
 
       {!isSplitLayout && (
         <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex">
-          <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
-            <FooterLinks />
-          </div>
-          <div className="max-w-sm text-right">
-            <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
-          </div>
+          {isDeskVariant ? (
+            <>
+              <div className="max-w-sm text-left">
+                <SignupDisclaimer className="!text-left !text-text-tertiary typo-caption1" />
+              </div>
+              <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-end">
+                <FooterLinks />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+                <FooterLinks />
+              </div>
+              <div className="max-w-sm text-right">
+                <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
+              </div>
+            </>
+          )}
         </div>
       )}
 
