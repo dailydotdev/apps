@@ -37,6 +37,25 @@ export interface LiveRoom {
   host: UserShortProfile;
 }
 
+export type LiveRoomPost = Pick<
+  LiveRoom,
+  'id' | 'topic' | 'status' | 'scheduledStart' | 'subscribed'
+>;
+
+export type ActiveLiveRoom = Pick<
+  LiveRoom,
+  'id' | 'topic' | 'status' | 'participantCount'
+> & {
+  host: Pick<
+    UserShortProfile,
+    'id' | 'name' | 'username' | 'image' | 'permalink'
+  >;
+};
+
+export interface ActiveLiveRoomsData {
+  activeLiveRooms: ActiveLiveRoom[];
+}
+
 export interface LiveRoomJoinToken {
   room: LiveRoom;
   role: LiveRoomParticipantRole;
@@ -116,6 +135,24 @@ export const LIVE_ROOM_QUERY = gql`
     }
   }
   ${LIVE_ROOM_DETAIL_FRAGMENT}
+`;
+
+export const ACTIVE_LIVE_ROOMS_QUERY = gql`
+  query ActiveLiveRooms($limit: Int) {
+    activeLiveRooms(limit: $limit) {
+      id
+      topic
+      status
+      participantCount
+      host {
+        id
+        name
+        username
+        image
+        permalink
+      }
+    }
+  }
 `;
 
 export const CREATE_LIVE_ROOM_MUTATION = gql`

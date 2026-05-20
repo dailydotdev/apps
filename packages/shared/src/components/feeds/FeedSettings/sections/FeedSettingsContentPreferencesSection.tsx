@@ -16,7 +16,7 @@ import {
 import { FilterCheckbox } from '../../../fields/FilterCheckbox';
 import { FeedType } from '../../../../graphql/feed';
 
-export const TOGGLEABLE_TYPES = ['Videos', 'Polls', 'Social'];
+export const TOGGLEABLE_TYPES = ['Videos', 'Polls', 'Social', 'Standups'];
 const CUSTOM_FEEDS_ONLY = ['Article'];
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 

@@ -31,6 +31,12 @@ export const LEADERBOARD_QUERY = gql`
         image
       }
     }
+  }
+  ${LEADERBOARD_FRAGMENT}
+`;
+
+export const POPULAR_HOT_TAKES_QUERY = gql`
+  query PopularHotTakes($limit: Int = 10) {
     popularHotTakes(limit: $limit) {
       score
       hotTake {
@@ -44,7 +50,6 @@ export const LEADERBOARD_QUERY = gql`
       }
     }
   }
-  ${LEADERBOARD_FRAGMENT}
 `;
 
 export enum LeaderboardType {

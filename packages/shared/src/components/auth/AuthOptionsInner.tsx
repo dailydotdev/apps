@@ -60,8 +60,6 @@ import {
   DATE_SINCE_ACTIONS_REQUIRED,
   onboardingCompletedActions,
 } from '../../hooks/auth';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '../../lib/featureManagement';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -139,7 +137,6 @@ function AuthOptionsInner({
   compact,
   autoTriggerProvider,
   socialProviderScopes,
-  acceptedMarketing,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -153,12 +150,6 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-    shouldEvaluate: trigger === AuthTriggers.Onboarding,
-  });
-  const shouldAutoCompleteOnboarding =
-    trigger === AuthTriggers.Onboarding && isOnboardingV2;
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
       ? AuthDisplay.SignBack
@@ -355,8 +346,6 @@ function AuthOptionsInner({
       }
     } else if (trigger === AuthTriggers.RecruiterSelfServe) {
       await autoCompleteProfile(user.email, user.name, false);
-    } else if (shouldAutoCompleteOnboarding) {
-      await autoCompleteProfile(user.email, user.name, acceptedMarketing);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -465,16 +454,10 @@ function AuthOptionsInner({
       return;
     }
 
-    if (
-      trigger === AuthTriggers.RecruiterSelfServe ||
-      shouldAutoCompleteOnboarding
-    ) {
+    if (trigger === AuthTriggers.RecruiterSelfServe) {
       setIsSocialAuthLoading(false);
       const loggedUser = boot.user as LoggedUser;
-      const marketing = shouldAutoCompleteOnboarding
-        ? acceptedMarketing
-        : false;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, marketing);
+      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
       return;
     }
 
@@ -699,7 +682,6 @@ function AuthOptionsInner({
             hints={hint}
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
-            trigger={trigger}
             simplified={simplified}
             {...(user?.isPlus && {
               title: 'Complete your profile',

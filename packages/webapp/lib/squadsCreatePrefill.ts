@@ -42,12 +42,15 @@ export const getSquadsCreatePrefillState = (
   const link = sanitizeParam(query.link);
   const hasShareQueryParam = !!getFirstQueryParam(query.share);
   const hasPollQueryParam = !!getFirstQueryParam(query.poll);
+  const hasStandupQueryParam = !!getFirstQueryParam(query.standup);
 
   const initialShareUrl = link && isValidHttpUrl(link) ? link : undefined;
   const shouldOpenShare = !!initialShareUrl || hasShareQueryParam;
   let initialDisplay: WriteFormTab | null = null;
 
-  if (hasPollQueryParam) {
+  if (hasStandupQueryParam) {
+    initialDisplay = WriteFormTab.Standup;
+  } else if (hasPollQueryParam) {
     initialDisplay = WriteFormTab.Poll;
   } else if (shouldOpenShare) {
     initialDisplay = WriteFormTab.Share;

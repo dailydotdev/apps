@@ -613,6 +613,62 @@ describe('LiveRoom', () => {
     );
   });
 
+  it('shows unscheduled lobby copy without a countdown', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'user-1',
+        canPublish: false,
+        roomState: {
+          ...createContextValue().roomState!,
+          status: 'created',
+          participants: {
+            host: createParticipant('host', 'host'),
+            'user-1': createParticipant('user-1', 'audience'),
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: [],
+            raisedHandParticipantIds: [],
+          },
+        },
+      }),
+    );
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        createdAt: '2026-05-04T08:55:00.000Z',
+        updatedAt: '2026-05-04T08:55:00.000Z',
+        topic: 'Instant standup',
+        mode: 'moderated',
+        status: 'created',
+        startedAt: null,
+        endedAt: null,
+        scheduledStart: null,
+        descriptionHtml: null,
+        subscribed: false,
+        contentEmbeds: [],
+        host: {
+          id: 'host',
+          username: 'host',
+          name: 'Host',
+          image: '',
+          permalink: '#',
+        },
+      },
+      error: null,
+      isLoading: false,
+    });
+
+    renderLiveRoom();
+
+    expect(screen.getByText('Waiting for the host to go live')).toBeVisible();
+    expect(screen.queryByText('Goes live in')).not.toBeInTheDocument();
+    expect(screen.queryByText('Awaiting host')).not.toBeInTheDocument();
+    expect(screen.queryByRole('timer')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("What we'll cover")).not.toBeInTheDocument();
+  });
+
   it('uses the shared share action without logging a duplicate event locally', () => {
     mockUseLiveRoomConnection.mockReturnValue(
       createContextValue({

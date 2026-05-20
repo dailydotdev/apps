@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import type { PublicProfile } from '../../../../lib/user';
-import { useHotTakes, MAX_HOT_TAKES } from '../../hooks/useHotTakes';
+import {
+  HOT_TAKE_LIMIT_REACHED_MESSAGE,
+  useHotTakes,
+} from '../../hooks/useHotTakes';
 import {
   Typography,
   TypographyType,
@@ -24,6 +28,11 @@ import { usePrompt } from '../../../../hooks/usePrompt';
 import { useVoteHotTake } from '../../../../hooks/vote/useVoteHotTake';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../../lib/log';
+import {
+  HOT_TAKES_ANCHOR,
+  isOpenAddHotTakeQuery,
+  OPEN_ADD_HOT_TAKE_QUERY_PARAM,
+} from './common';
 
 interface ProfileUserHotTakesProps {
   user: PublicProfile;
@@ -32,7 +41,8 @@ interface ProfileUserHotTakesProps {
 export function ProfileUserHotTakes({
   user,
 }: ProfileUserHotTakesProps): ReactElement | null {
-  const { hotTakes, isOwner, canAddMore, add, update, remove } =
+  const router = useRouter();
+  const { hotTakes, isOwner, canAddMore, add, update, remove, isLoading } =
     useHotTakes(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
@@ -41,6 +51,7 @@ export function ProfileUserHotTakes({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<HotTake | null>(null);
+  const handledOpenAddHotTakeQueryRef = useRef(false);
 
   const handleAdd = useCallback(
     async (input: AddHotTakeInput) => {
@@ -111,7 +122,7 @@ export function ProfileUserHotTakes({
 
   const handleOpenModal = useCallback(() => {
     if (!canAddMore) {
-      displayToast(`Maximum of ${MAX_HOT_TAKES} hot takes allowed`);
+      displayToast(HOT_TAKE_LIMIT_REACHED_MESSAGE);
       return;
     }
     logEvent({
@@ -119,6 +130,47 @@ export function ProfileUserHotTakes({
     });
     setIsModalOpen(true);
   }, [canAddMore, displayToast, logEvent]);
+
+  const clearOpenAddHotTakeQuery = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has(OPEN_ADD_HOT_TAKE_QUERY_PARAM)) {
+      return;
+    }
+
+    url.searchParams.delete(OPEN_ADD_HOT_TAKE_QUERY_PARAM);
+    router.replace(`${url.pathname}${url.search}${url.hash}`, undefined, {
+      shallow: true,
+    });
+  }, [router]);
+
+  const shouldOpenAddHotTakeFromQuery = isOpenAddHotTakeQuery(
+    router.query[OPEN_ADD_HOT_TAKE_QUERY_PARAM],
+  );
+
+  useEffect(() => {
+    if (!shouldOpenAddHotTakeFromQuery) {
+      handledOpenAddHotTakeQueryRef.current = false;
+      return;
+    }
+
+    if (handledOpenAddHotTakeQueryRef.current || isLoading || !isOwner) {
+      return;
+    }
+
+    handledOpenAddHotTakeQueryRef.current = true;
+    handleOpenModal();
+    clearOpenAddHotTakeQuery();
+  }, [
+    clearOpenAddHotTakeQuery,
+    handleOpenModal,
+    isLoading,
+    isOwner,
+    shouldOpenAddHotTakeFromQuery,
+  ]);
 
   const handleUpvote = useCallback(
     async (item: HotTake) => {
@@ -136,7 +188,7 @@ export function ProfileUserHotTakes({
   return (
     <div className="flex flex-col gap-4 py-4">
       {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
-      <a id="hot-takes" />
+      <a id={HOT_TAKES_ANCHOR} />
       <div className="flex items-center justify-between">
         <Typography
           type={TypographyType.Body}

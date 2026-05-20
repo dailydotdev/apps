@@ -72,11 +72,16 @@ export const WritePostContext = React.createContext<WritePostProps>({
 export const useWritePostContext = (): WritePostProps =>
   useContext(WritePostContext);
 
+interface WritePostContextProviderProps extends WritePostProps {
+  rightCopy?: string;
+}
+
 export const WritePostContextProvider = ({
   children,
   formId,
+  rightCopy,
   ...props
-}: PropsWithChildren<WritePostProps>): ReactElement => {
+}: PropsWithChildren<WritePostContextProviderProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
 
@@ -87,7 +92,7 @@ export const WritePostContextProvider = ({
         wrapper={(component) => (
           <FormWrapper
             className={{ container: 'w-full', header: 'border-b-0' }}
-            copy={{ right: 'Post' }}
+            copy={{ right: rightCopy ?? 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
             form={formId}
