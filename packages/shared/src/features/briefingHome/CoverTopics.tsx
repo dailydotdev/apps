@@ -91,18 +91,17 @@ const TopicCard = ({
       >
         {topic.title}
       </Typography>
-      <div id={panelId}>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-          className={classNames(
-            '!leading-relaxed',
-            !isExpanded && 'line-clamp-2',
-          )}
-        >
-          {topic.tldr}
-        </Typography>
-      </div>
+      {isExpanded ? (
+        <div id={panelId}>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+            className="!leading-relaxed"
+          >
+            {topic.tldr}
+          </Typography>
+        </div>
+      ) : null}
       {isExpanded ? (
         <div className="mt-1 flex w-full items-center justify-start">
           <span
@@ -149,7 +148,7 @@ export const CoverTopics = ({
           secondary
         />
         <Typography type={TypographyType.Title3} bold>
-          On your radar
+          Topic digests
         </Typography>
       </div>
       <div className="grid grid-cols-1 gap-x-16 gap-y-12 tablet:grid-cols-2">

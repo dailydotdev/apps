@@ -74,7 +74,7 @@ const storyEyebrow = (kind: 'lead' | 'read'): EyebrowConfig =>
             className="text-accent-ketchup-default"
           />
         ),
-        label: 'The big thing',
+        label: 'Top story',
         colorClass: 'text-accent-ketchup-default',
       }
     : {

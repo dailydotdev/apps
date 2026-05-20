@@ -47,7 +47,6 @@ const StoryRow = ({
   const extraSources = story.sources.length - sourcesShown.length;
   const sourceNames = sourcesShown.map((s) => s.sourceName).join(', ');
   const summary = stripMd(story.summary).trim();
-  const heroImage = story.posts.find((p) => p.image)?.image;
   const panelId = `brief-tldr-${story.id}`;
 
   return (
@@ -62,55 +61,33 @@ const StoryRow = ({
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <div className="flex w-full items-start gap-4">
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <Typography
-              tag={TypographyTag.H3}
-              type={TypographyType.Body}
-              bold
-              color={
-                isRead ? TypographyColor.Tertiary : TypographyColor.Primary
-              }
-              className={classNames(
-                '!leading-snug',
-                isRead &&
-                  !isExpanded &&
-                  'decoration-text-quaternary/40 line-through',
-              )}
-            >
-              {story.title}
-            </Typography>
+        <div className="flex w-full min-w-0 flex-col gap-2">
+          <Typography
+            tag={TypographyTag.H3}
+            type={TypographyType.Body}
+            bold
+            color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
+            className={classNames(
+              '!leading-snug',
+              isRead &&
+                !isExpanded &&
+                'decoration-text-quaternary/40 line-through',
+            )}
+          >
+            {story.title}
+          </Typography>
 
+          {isExpanded ? (
             <div id={panelId}>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Secondary}
-                className={classNames(
-                  '!leading-relaxed',
-                  !isExpanded && 'line-clamp-2',
-                )}
+                className="!leading-relaxed"
               >
                 {summary}
               </Typography>
             </div>
-          </div>
-
-          <div
-            className={classNames(
-              'size-20 shrink-0 self-start overflow-hidden rounded-10 bg-surface-float',
-              !heroImage &&
-                'bg-gradient-to-br from-accent-cabbage-bolder to-accent-water-bolder',
-            )}
-          >
-            {heroImage ? (
-              <img
-                src={heroImage}
-                alt=""
-                loading="lazy"
-                className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            ) : null}
-          </div>
+          ) : null}
         </div>
 
         <div className="flex w-full items-center gap-3">
@@ -222,7 +199,7 @@ export const CoverGrid = ({
           secondary
         />
         <Typography type={TypographyType.Title3} bold>
-          What devs are debating
+          Trending discussions
         </Typography>
       </div>
       <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">

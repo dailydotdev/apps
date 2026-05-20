@@ -9,7 +9,7 @@ export const briefCopy = {
     `${stories} stories worth your time. About ${minutes} minutes, end to end.`,
 
   tabBriefing: 'Your brief',
-  tabFeed: 'For you',
+  tabFeed: 'Your feed',
   tabBriefingHint: "Today's read",
   tabFeedHint: 'Latest posts',
   briefMetaLine: (minutes: number, sources: number) =>
@@ -30,10 +30,10 @@ export const briefCopy = {
   controlReshow: "Show today's brief",
   moreActions: 'More options',
 
-  leadEyebrow: 'The big thing',
+  leadEyebrow: 'Top story',
   attentionEyebrow: 'Worth your attention',
   attentionHint: 'Threads heating up across your sources',
-  topicsEyebrow: 'On your radar',
+  topicsEyebrow: 'Topic digests',
   topicsHint: 'Weekly digests from the topics you follow',
   openStory: 'Read the breakdown',
   storyReadTime: (minutes: number) => `${minutes} min`,
