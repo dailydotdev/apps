@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
+import { BriefSwitcher } from './BriefSwitcher';
 import { CoverHeader } from './CoverHeader';
 import { CoverLead } from './CoverLead';
 import { CoverGrid } from './CoverGrid';
@@ -142,30 +143,33 @@ export const BriefCover = ({
       id="brief-bounds"
       aria-label="Your daily brief"
       className={classNames(
-        'mx-auto mb-6 flex w-full max-w-[64rem] flex-col gap-12 px-3 pt-20 tablet:px-4',
+        'mx-auto mb-6 flex w-full max-w-[64rem] flex-col px-3 pt-8 tablet:px-4',
         className,
       )}
     >
-      <CoverHeader
-        totals={totals}
-        sourceCount={uniqueSourceCount}
-        scannedCount={scannedCount}
-        onReset={resetReads}
-      />
-      <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
-      <CoverGrid
-        stories={brief.reads}
-        readSet={readSet}
-        onMarkRead={markRead}
-        onOpen={(s) => openPanel(s as StoryItem)}
-      />
-      <CoverTopics
-        topics={brief.topics}
-        readSet={readSet}
-        onMarkRead={markRead}
-        onOpen={(t) => openPanel(t as TopicDigest)}
-      />
-      <CoverClosing totals={totals} edition={edition} />
+      <BriefSwitcher className="mb-10" />
+      <div className="flex flex-col gap-12">
+        <CoverHeader
+          totals={totals}
+          sourceCount={uniqueSourceCount}
+          scannedCount={scannedCount}
+          onReset={resetReads}
+        />
+        <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
+        <CoverGrid
+          stories={brief.reads}
+          readSet={readSet}
+          onMarkRead={markRead}
+          onOpen={(s) => openPanel(s as StoryItem)}
+        />
+        <CoverTopics
+          topics={brief.topics}
+          readSet={readSet}
+          onMarkRead={markRead}
+          onOpen={(t) => openPanel(t as TopicDigest)}
+        />
+        <CoverClosing totals={totals} edition={edition} />
+      </div>
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}

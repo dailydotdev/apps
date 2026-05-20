@@ -11,9 +11,9 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const BriefingPage = (): ReactElement => <BriefCover />;
+const YourBriefPage = (): ReactElement => <BriefCover />;
 
-BriefingPage.getLayout = getLayout;
-BriefingPage.layoutProps = { mainPage: true, screenCentered: false, seo };
+YourBriefPage.getLayout = getLayout;
+YourBriefPage.layoutProps = { mainPage: true, screenCentered: false, seo };
 
-export default BriefingPage;
+export default YourBriefPage;

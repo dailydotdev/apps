@@ -150,8 +150,8 @@ export const MainSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <MagicIcon secondary={active} />} />
           ),
-          title: 'Brief',
-          path: `${webappUrl}briefing`,
+          title: 'Your brief',
+          path: `${webappUrl}your-brief`,
           isForcedLink: true,
           requiresLogin: true,
         }
