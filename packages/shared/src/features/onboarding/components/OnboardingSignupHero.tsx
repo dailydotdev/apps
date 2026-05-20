@@ -18,12 +18,6 @@ import {
   ThemeMode,
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
-import {
-  cloudinaryAuthBannerBackground,
-  cloudinaryAuthBannerBackground1440w,
-  cloudinaryAuthBannerBackground1920w,
-} from '../../../lib/image';
-
 const HERO_STYLES = `
 .onb-bg {
   background:
@@ -304,11 +298,13 @@ const DeskBackground = (): ReactElement => (
 // Image mode — production signup image (toggle overrides each variant)
 // =============================================================
 
-const PROD_IMAGE_SRCSET = [
-  `${cloudinaryAuthBannerBackground1440w} 1440w`,
-  `${cloudinaryAuthBannerBackground1920w} 1920w`,
-  `${cloudinaryAuthBannerBackground} 2880w`,
-].join(', ');
+const PROD_IMAGE_DEFAULT_SRC =
+  'https://media.daily.dev/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
+const PROD_IMAGE_1440 =
+  'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
+const PROD_IMAGE_1920 =
+  'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1920/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
+const PROD_IMAGE_SRCSET = `${PROD_IMAGE_1440} 1440w, ${PROD_IMAGE_1920} 1920w, ${PROD_IMAGE_DEFAULT_SRC} 2880w`;
 
 const ProdSignupBackground = ({
   splitMode = false,
@@ -326,7 +322,7 @@ const ProdSignupBackground = ({
     )}
   >
     <img
-      src={cloudinaryAuthBannerBackground}
+      src={PROD_IMAGE_DEFAULT_SRC}
       srcSet={PROD_IMAGE_SRCSET}
       sizes="100vw"
       alt=""
