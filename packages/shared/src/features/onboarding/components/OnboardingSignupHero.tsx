@@ -639,14 +639,14 @@ export const OnboardingSignupHero = ({
         className={classNames(
           'relative z-1 flex w-full flex-1 flex-col px-5 pt-10',
           isSplitLayout
-            ? 'justify-end pb-[7.5rem] tablet:pb-[5.5rem] laptop:ml-auto laptop:w-1/2 laptop:items-start laptop:justify-center laptop:px-16 laptop:pb-12 laptop:pt-12'
+            ? 'justify-end pb-[7.5rem] tablet:pb-[5.5rem] laptop:ml-auto laptop:w-1/2 laptop:items-center laptop:justify-center laptop:px-8 laptop:pb-12 laptop:pt-12'
             : 'items-center justify-end pb-[7.5rem] tablet:pb-[5.5rem] tablet:pt-14',
         )}
       >
         <div
           className={classNames(
             'flex w-full max-w-[340px] flex-col gap-6 tablet:gap-7',
-            isSplitLayout && 'laptop:gap-8',
+            isSplitLayout && 'laptop:items-start laptop:gap-8',
           )}
         >
           <Logo
@@ -673,30 +673,25 @@ export const OnboardingSignupHero = ({
         </div>
       </main>
 
-      <div
-        className={classNames(
-          'pointer-events-auto z-1',
-          isSplitLayout
-            ? 'absolute inset-x-0 bottom-0 hidden flex-col items-start gap-3 px-5 pb-5 laptop:left-1/2 laptop:flex laptop:w-1/2 laptop:px-16 laptop:pb-6'
-            : 'absolute inset-x-0 bottom-0 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex',
-        )}
-      >
-        <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
-          <FooterLinks />
+      {isSplitLayout ? (
+        <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden px-5 pb-5 laptop:left-1/2 laptop:flex laptop:w-1/2 laptop:justify-center laptop:px-8 laptop:pb-6">
+          <div className="flex w-full max-w-[340px] flex-col items-start gap-3">
+            <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+              <FooterLinks />
+            </div>
+            <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+          </div>
         </div>
-        <div
-          className={classNames(
-            isSplitLayout ? 'max-w-sm text-left' : 'max-w-sm text-right',
-          )}
-        >
-          <SignupDisclaimer
-            className={classNames(
-              '!text-text-tertiary typo-caption1',
-              !isSplitLayout && '!text-right',
-            )}
-          />
+      ) : (
+        <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex">
+          <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+            <FooterLinks />
+          </div>
+          <div className="max-w-sm text-right">
+            <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
+          </div>
         </div>
-      </div>
+      )}
 
       <div
         className={classNames(
