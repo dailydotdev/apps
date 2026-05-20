@@ -95,6 +95,16 @@ const HERO_STYLES = `
     transparent 44%
   );
 }
+.onb-prod-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(8, 8, 12, 0.92) 0%,
+    rgba(8, 8, 12, 0.78) 24%,
+    rgba(8, 8, 12, 0.45) 52%,
+    rgba(8, 8, 12, 0.15) 78%,
+    transparent 100%
+  );
+}
 .onb-headline { text-shadow: 0 2px 32px rgba(0, 0, 0, 0.95), 0 0 64px rgba(0, 0, 0, 0.6); }
 .onb-grid-mask {
   -webkit-mask-image:
@@ -624,18 +634,15 @@ export const OnboardingSignupHero = ({
           className="pointer-events-none absolute inset-0 -z-1 select-none laptop:hidden"
         >
           {renderVariantBackground('split', imageMode)}
-          <div
-            className={classNames(
-              'onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]',
-              isProdImageMode && 'opacity-40',
-            )}
-          />
-          <div
-            className={classNames(
-              'onb-form-halo pointer-events-none absolute inset-0',
-              isProdImageMode && 'opacity-30',
-            )}
-          />
+          {!isProdImageMode && (
+            <>
+              <div className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]" />
+              <div className="onb-form-halo pointer-events-none absolute inset-0" />
+            </>
+          )}
+          {isProdImageMode && (
+            <div className="onb-prod-scrim pointer-events-none absolute inset-x-0 bottom-0 h-[65vh]" />
+          )}
         </div>
       )}
 
@@ -646,13 +653,12 @@ export const OnboardingSignupHero = ({
             className="onb-split-left-water-glow pointer-events-none absolute inset-0 -z-2"
           />
           {renderVariantBackground('split', imageMode)}
-          <div
-            aria-hidden
-            className={classNames(
-              'onb-split-left-fade pointer-events-none absolute inset-0 -z-1',
-              isProdImageMode && 'opacity-40',
-            )}
-          />
+          {!isProdImageMode && (
+            <div
+              aria-hidden
+              className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
+            />
+          )}
           <span
             className="onb-orb bg-accent-cabbage-default"
             style={{
@@ -703,36 +709,34 @@ export const OnboardingSignupHero = ({
         </div>
       )}
 
-      {!isSplitLayout && (
+      {!isSplitLayout && !isProdImageMode && (
         <>
           <div
             aria-hidden
-            className={classNames(
-              'onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]',
-              isProdImageMode && 'opacity-40',
-            )}
+            className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]"
           />
           <div
             aria-hidden
-            className={classNames(
-              'onb-form-halo pointer-events-none absolute inset-0 -z-1',
-              isProdImageMode && 'opacity-30',
-            )}
+            className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
           />
         </>
+      )}
+
+      {!isSplitLayout && isProdImageMode && (
+        <div
+          aria-hidden
+          className="onb-prod-scrim pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[65vh]"
+        />
       )}
 
       <div
         aria-hidden
         className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
       />
-      {!isSplitLayout && (
+      {!isSplitLayout && !isProdImageMode && (
         <div
           aria-hidden
-          className={classNames(
-            'onb-center-halo pointer-events-none absolute inset-0 -z-1',
-            isProdImageMode && 'opacity-50',
-          )}
+          className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
         />
       )}
 
