@@ -57,7 +57,7 @@ const SectionHeader = ({
 }): ReactElement => (
   <div className="flex items-baseline gap-2">
     <span className="self-center text-text-tertiary">{icon}</span>
-    <Typography type={TypographyType.Headline} bold>
+      <Typography type={TypographyType.Title4} bold>
       {label}
     </Typography>
     {typeof count === 'number' ? (
@@ -395,7 +395,7 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
       <div
         className={classNames(
           'flex flex-col text-text-secondary',
-          '[&_h2]:typo-headline [&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:font-bold [&_h2]:!leading-snug [&_h2]:!text-text-primary',
+          '[&_h2]:typo-title4 [&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:font-bold [&_h2]:!leading-snug [&_h2]:!text-text-primary',
           '[&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:font-bold [&_h3]:!text-text-primary [&_h3]:typo-callout',
           '[&_p]:my-2 [&_p]:!leading-relaxed [&_p]:typo-callout',
           '[&_ul]:my-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1 [&_ul]:pl-5',
