@@ -1,5 +1,11 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Modal } from './common/Modal';
 import type { LazyModalCommonProps } from './common/Modal';
@@ -26,12 +32,16 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import type { Post } from '../../graphql/posts';
 import styles from './BasePostModal.module.css';
 import { useLegacyPostLayoutOptOut } from '../post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import {
   detectBrowserExtensionInstalled,
   isBrowserExtensionInstalled,
   useIsBrowserExtensionInstalled,
 } from '../../features/extensionEmbed/useIsBrowserExtensionInstalled';
 import { getBrowserExtensionInstallId } from '../../features/extensionEmbed/getBrowserExtensionInstallId';
+import { ExtensionSiteEmbed } from '../../features/extensionEmbed/ExtensionSiteEmbed';
+import type { ExtensionSiteEmbedStatus } from '../../features/extensionEmbed/common';
+import { isEmbeddableSiteTarget } from '../../features/extensionEmbed/common';
 
 interface ReaderInstallPromptModalProps extends LazyModalCommonProps {
   post: Post;
@@ -241,6 +251,7 @@ function ReaderInstallPromptModal({
   const { logEvent } = useLogContext();
   const { openModal, closeModal } = useLazyModal();
   const { optOut } = useLegacyPostLayoutOptOut();
+  const { updateFlag } = useSettingsContext();
   // Detecting the extension when the modal opens combines three signals:
   //   1. The synchronous `<html data-daily-extension-installed>` marker
   //      stamped by the extension's content script.
@@ -313,12 +324,23 @@ function ReaderInstallPromptModal({
     });
   };
 
-  const onPreviewClick = (event: MouseEvent) => {
-    event.preventDefault();
-    logEvent({
-      event_name: LogEvent.ClickReaderInstallPreview,
-      extra: JSON.stringify({ browser, post_id: post.id }),
-    });
+  // Permission flow: when the extension is installed we ask the user to grant
+  // (or confirm) the embedded-browsing permission inline, then forward to the
+  // reader modal so it opens already past the permission gate.
+  const [embedExtensionId] = useState(() => getBrowserExtensionInstallId());
+  const [isPreparingReader, setIsPreparingReader] = useState(false);
+  const [embedStatus, setEmbedStatus] =
+    useState<ExtensionSiteEmbedStatus>('idle');
+  const hasOpenedReaderRef = useRef(false);
+  const isTargetEmbeddable = isEmbeddableSiteTarget(post.permalink ?? '');
+  const canRequestPermissions =
+    !!embedExtensionId && isTargetEmbeddable && hasInstalledExtension;
+
+  const openReaderPreview = useCallback(() => {
+    if (hasOpenedReaderRef.current) {
+      return;
+    }
+    hasOpenedReaderRef.current = true;
     closeModal();
     // Forward the parent-close callback so dismissing the reader preview
     // also tears down the surface that originally opened the install prompt
@@ -327,6 +349,53 @@ function ReaderInstallPromptModal({
       type: LazyModal.ReaderPreview,
       props: { post, onCloseParent },
     });
+  }, [closeModal, onCloseParent, openModal, post]);
+
+  // `preparing-tab` arrives once `PermissionsReady` has fired (the user has
+  // either just granted access or had it from a previous session). Transition
+  // here so the embed never visibly mounts the target frame inside the install
+  // prompt — the reader modal owns that surface.
+  useEffect(() => {
+    if (!isPreparingReader) {
+      return;
+    }
+    if (embedStatus === 'preparing-tab' || embedStatus === 'ready') {
+      openReaderPreview();
+    }
+  }, [embedStatus, isPreparingReader, openReaderPreview]);
+
+  const onPreviewClick = (event: MouseEvent) => {
+    event.preventDefault();
+    logEvent({
+      event_name: LogEvent.ClickReaderInstallPreview,
+      extra: JSON.stringify({ browser, post_id: post.id }),
+    });
+
+    // Targets the extension can't embed (non-http(s)) or surfaces without a
+    // resolvable extension id skip the inline permission step — the reader
+    // modal falls back to its own classic flow.
+    if (!canRequestPermissions) {
+      openReaderPreview();
+      return;
+    }
+
+    // Persist that the user engaged with the install prompt so subsequent
+    // reads bypass it and open the reader modal directly. Only set on the
+    // explicit accept path — dismissing the modal leaves the flag untouched.
+    updateFlag('readerInstallPromptAcknowledged', true);
+    setIsPreparingReader(true);
+  };
+
+  const onPermissionFrameOptOut = () => {
+    optOut(TargetId.ReaderPermissionPrompt);
+    logEvent({
+      event_name: LogEvent.ClickReaderInstallSkip,
+      extra: JSON.stringify({ browser, post_id: post.id }),
+    });
+    if (post.permalink) {
+      globalThis.window?.open(post.permalink, '_blank', 'noopener,noreferrer');
+    }
+    onRequestClose({} as MouseEvent<HTMLButtonElement>);
   };
 
   // "Don't ask again" persists the opt-out so the gate hook bypasses the prompt
@@ -371,96 +440,113 @@ function ReaderInstallPromptModal({
           onClose={onRequestClose}
         />
         <div className="relative flex min-h-0 w-full flex-1 overflow-hidden">
-          <BlurredArticleBackdrop />
-          <div className="z-10 relative m-auto flex w-full max-w-[34rem] flex-col items-stretch p-6">
-            <div
-              className={classNames(
-                'flex flex-col items-center gap-5 rounded-24 bg-background-default p-8 text-center',
-                'border border-border-subtlest-tertiary',
-                'shadow-[0_32px_80px_-16px_rgba(0,0,0,0.55)]',
-              )}
-            >
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.LargeTitle}
-                color={TypographyColor.Primary}
-                bold
-                className="!leading-tight"
-              >
-                Read it right here.
-              </Typography>
-              <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Body}
-                color={TypographyColor.Secondary}
-                className="!mt-0 max-w-[26rem]"
-              >
-                {hasInstalledExtension
-                  ? 'Open the article inside daily.dev with the discussion right next to it.'
-                  : 'Try the reader on this article — install the extension to keep it that way for every link.'}
-              </Typography>
-              <div className="mt-1 flex w-full max-w-[22rem] flex-col items-stretch gap-2">
-                {hasInstalledExtension ? (
-                  <Button
-                    type="button"
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.Large}
-                    onClick={onPreviewClick}
+          {isPreparingReader && canRequestPermissions && embedExtensionId ? (
+            <div className="z-10 relative flex min-h-0 w-full flex-1 flex-col">
+              <ExtensionSiteEmbed
+                extensionId={embedExtensionId}
+                targetUrl={post.permalink ?? ''}
+                enabled
+                className="h-full w-full"
+                permissionFrameTitle="Embedded browsing permissions"
+                targetFrameTitle="Article preview"
+                onStateChange={(state) => setEmbedStatus(state.status)}
+                onOptOutRequested={onPermissionFrameOptOut}
+              />
+            </div>
+          ) : (
+            <>
+              <BlurredArticleBackdrop />
+              <div className="z-10 relative m-auto flex w-full max-w-[34rem] flex-col items-stretch p-6">
+                <div
+                  className={classNames(
+                    'flex flex-col items-center gap-5 rounded-24 bg-background-default p-8 text-center',
+                    'border border-border-subtlest-tertiary',
+                    'shadow-[0_32px_80px_-16px_rgba(0,0,0,0.55)]',
+                  )}
+                >
+                  <Typography
+                    tag={TypographyTag.H2}
+                    type={TypographyType.LargeTitle}
+                    color={TypographyColor.Primary}
+                    bold
+                    className="!leading-tight"
                   >
-                    Read inside
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      tag="a"
-                      variant={ButtonVariant.Primary}
-                      size={ButtonSize.Large}
-                      href={downloadBrowserExtension}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      icon={<BrowserIcon />}
-                      onClick={onInstallClick}
-                    >
-                      {installButtonLabel}
-                    </Button>
+                    Read it right here.
+                  </Typography>
+                  <Typography
+                    tag={TypographyTag.P}
+                    type={TypographyType.Body}
+                    color={TypographyColor.Secondary}
+                    className="!mt-0 max-w-[26rem]"
+                  >
+                    {hasInstalledExtension
+                      ? 'Open the article inside daily.dev with the discussion right next to it.'
+                      : 'Try the reader on this article — install the extension to keep it that way for every link.'}
+                  </Typography>
+                  <div className="mt-1 flex w-full max-w-[22rem] flex-col items-stretch gap-2">
+                    {hasInstalledExtension ? (
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Primary}
+                        size={ButtonSize.Large}
+                        onClick={onPreviewClick}
+                      >
+                        Enable permissions & read inside
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          tag="a"
+                          variant={ButtonVariant.Primary}
+                          size={ButtonSize.Large}
+                          href={downloadBrowserExtension}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          icon={<BrowserIcon />}
+                          onClick={onInstallClick}
+                        >
+                          {installButtonLabel}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={ButtonVariant.Float}
+                          size={ButtonSize.Medium}
+                          onClick={onPreviewClick}
+                        >
+                          See preview
+                        </Button>
+                      </>
+                    )}
+                    <div className="flex w-full items-center gap-3 pt-1">
+                      <span
+                        aria-hidden
+                        className="h-px flex-1 bg-border-subtlest-tertiary"
+                      />
+                      <Typography
+                        tag={TypographyTag.Span}
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                      >
+                        OR
+                      </Typography>
+                      <span
+                        aria-hidden
+                        className="h-px flex-1 bg-border-subtlest-tertiary"
+                      />
+                    </div>
                     <Button
                       type="button"
                       variant={ButtonVariant.Float}
                       size={ButtonSize.Medium}
-                      onClick={onPreviewClick}
+                      onClick={onSkipClick}
                     >
-                      See preview
+                      Don&apos;t ask again, open new tab
                     </Button>
-                  </>
-                )}
-                <div className="flex w-full items-center gap-3 pt-1">
-                  <span
-                    aria-hidden
-                    className="h-px flex-1 bg-border-subtlest-tertiary"
-                  />
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                  >
-                    OR
-                  </Typography>
-                  <span
-                    aria-hidden
-                    className="h-px flex-1 bg-border-subtlest-tertiary"
-                  />
+                  </div>
                 </div>
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Medium}
-                  onClick={onSkipClick}
-                >
-                  Don&apos;t ask again, open new tab
-                </Button>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </Modal>

@@ -60,8 +60,7 @@ export function ReaderCloseButton({
 }
 
 // Link to the appearance settings page where the user can toggle the
-// "Read articles inside daily.dev" preference. Renders in a new tab so we
-// don't tear down the reader modal mid-session.
+// "Read articles inside daily.dev" preference. Opens in the same tab.
 export function ReaderSettingsLink(): ReactElement {
   return (
     <Tooltip side="bottom" content="Reader settings">
@@ -71,8 +70,6 @@ export function ReaderSettingsLink(): ReactElement {
         icon={<SettingsIcon />}
         size={ButtonSize.Small}
         href={`${settingsUrl}/appearance`}
-        target="_blank"
-        rel="noopener noreferrer"
         className={iconButtonClassName}
         aria-label="Reader settings"
       />

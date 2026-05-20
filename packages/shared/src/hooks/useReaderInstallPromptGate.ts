@@ -6,6 +6,7 @@ import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import { useReaderModalEligibility } from '../components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '../components/post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 const READER_GATE_ELIGIBLE_TYPES = new Set<PostType>([
   PostType.Article,
@@ -41,6 +42,9 @@ export function useReaderInstallPromptGate(
   const { openModal } = useLazyModal();
   const { isEligible, isReaderModalEnabled } = useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const { flags } = useSettingsContext();
+  const isInstallPromptAcknowledged =
+    flags?.readerInstallPromptAcknowledged ?? false;
 
   const isGated =
     !!post &&
@@ -66,13 +70,18 @@ export function useReaderInstallPromptGate(
       }
       event.preventDefault();
       event.stopPropagation();
+      // Once the user has accepted the install prompt, skip it on future reads
+      // and route straight to the reader modal. The prompt only reappears if
+      // the user dismissed it without picking an option.
       openModal({
-        type: LazyModal.ReaderInstallPrompt,
+        type: isInstallPromptAcknowledged
+          ? LazyModal.ReaderPreview
+          : LazyModal.ReaderInstallPrompt,
         props: { post, onCloseParent },
       });
       return true;
     },
-    [isGated, onCloseParent, openModal, post],
+    [isGated, isInstallPromptAcknowledged, onCloseParent, openModal, post],
   );
 
   return { isGated, onReadClick };
