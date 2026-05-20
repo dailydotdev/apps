@@ -6,6 +6,8 @@ import { useVoteHotTake } from '../../../hooks/vote/useVoteHotTake';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent, Origin } from '../../../lib/log';
+import { useHotTakes } from '../../../features/profile/hooks/useHotTakes';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import HotAndColdModal from './HotAndColdModal';
 
 jest.mock('../../../hooks/useDiscoverHotTakes', () => ({
@@ -26,10 +28,22 @@ jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock('../../../features/profile/hooks/useHotTakes', () => ({
+  HOT_TAKE_LIMIT_REACHED_MESSAGE:
+    'You already have all 5 hot takes. Remove one to add a new one.',
+  useHotTakes: jest.fn(),
+}));
+
+jest.mock('../../../hooks/useToastNotification', () => ({
+  useToastNotification: jest.fn(),
+}));
+
 const mockedUseDiscoverHotTakes = useDiscoverHotTakes as jest.Mock;
 const mockedUseVoteHotTake = useVoteHotTake as jest.Mock;
 const mockedUseLogContext = useLogContext as jest.Mock;
 const mockedUseAuthContext = useAuthContext as jest.Mock;
+const mockedUseHotTakes = useHotTakes as jest.Mock;
+const mockedUseToastNotification = useToastNotification as jest.Mock;
 
 const createHotTake = (id = 'take-1'): HotTake => ({
   id,
@@ -60,6 +74,7 @@ describe('HotAndColdModal', () => {
   const cancelHotTakeVote = jest.fn();
   const dismissCurrent = jest.fn();
   const logEvent = jest.fn();
+  const displayToast = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -73,6 +88,14 @@ describe('HotAndColdModal', () => {
     });
     mockedUseAuthContext.mockReturnValue({
       user: { username: 'tester' },
+    });
+    mockedUseHotTakes.mockReturnValue({
+      canAddMore: true,
+      isLoading: false,
+    });
+    mockedUseToastNotification.mockReturnValue({
+      displayToast,
+      dismissToast: jest.fn(),
     });
     mockedUseDiscoverHotTakes.mockReturnValue({
       hotTakes: [createHotTake()],
@@ -229,7 +252,7 @@ describe('HotAndColdModal', () => {
     const shareLink = screen.getByRole('link', {
       name: 'Share your hot takes',
     });
-    expect(shareLink).toHaveAttribute('href', '/tester#hot-takes');
+    expect(shareLink).toHaveAttribute('href', '/tester?addHotTake=1#hot-takes');
 
     fireEvent.click(shareLink);
 
@@ -242,11 +265,30 @@ describe('HotAndColdModal', () => {
     const addButton = screen.getByRole('link', {
       name: 'Add your own hot take',
     });
-    expect(addButton).toHaveAttribute('href', '/tester#hot-takes');
+    expect(addButton).toHaveAttribute('href', '/tester?addHotTake=1#hot-takes');
 
     fireEvent.click(addButton);
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show a toast and keep the modal open when the user cannot add more hot takes', () => {
+    mockedUseHotTakes.mockReturnValue({
+      canAddMore: false,
+      isLoading: false,
+    });
+
+    const { onRequestClose } = renderComponent();
+
+    const addButton = screen.getByRole('link', {
+      name: 'Add your own hot take',
+    });
+
+    expect(fireEvent.click(addButton)).toBe(false);
+    expect(displayToast).toHaveBeenCalledWith(
+      'You already have all 5 hot takes. Remove one to add a new one.',
+    );
+    expect(onRequestClose).not.toHaveBeenCalled();
   });
 
   it('should keep subtitle visible even when title is very long', () => {
