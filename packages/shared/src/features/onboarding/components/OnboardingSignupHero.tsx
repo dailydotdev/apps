@@ -231,6 +231,10 @@ const CardsBackground = ({
   splitMode?: boolean;
 }): ReactElement => {
   const posts = useExplorePosts();
+  const feedMaskClass = splitMode
+    ? 'onb-split-grid-mask inset-0 -z-1'
+    : 'onb-grid-mask inset-0 -z-1';
+
   return (
     <ActiveFeedNameContext.Provider
       value={{ feedName: SharedFeedPage.Popular }}
@@ -239,9 +243,7 @@ const CardsBackground = ({
         aria-hidden
         className={classNames(
           'pointer-events-none absolute select-none overflow-hidden opacity-[0.4] [&_*]:!pointer-events-none',
-          splitMode
-            ? 'onb-split-grid-mask inset-y-0 left-0 -z-1 w-full laptop:w-1/2'
-            : 'onb-grid-mask inset-0 -z-1',
+          feedMaskClass,
         )}
       >
         <div
@@ -552,43 +554,107 @@ export const OnboardingSignupHero = ({
       ? React.cloneElement(children, { splitSignupStyle: true })
       : children;
 
+  const splitSignupColumn = (
+    <>
+      <main className="relative flex flex-1 flex-col justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] laptop:justify-center laptop:px-16 laptop:pb-0 laptop:pt-0">
+        <div
+          className={classNames(
+            'flex w-full flex-col gap-6 tablet:gap-7',
+            SIGNUP_CONTENT_MAX_W,
+            'laptop:items-start laptop:gap-8',
+          )}
+        >
+          <Logo
+            position={LogoPosition.Relative}
+            className="!left-0 !top-0 !mt-0 !translate-x-0 self-center laptop:!self-start"
+            logoClassName={{ container: 'h-7' }}
+          />
+
+          {!isFormExpanded && headline && (
+            <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title laptop:text-left">
+              {headline}
+            </h1>
+          )}
+
+          {signupForm}
+        </div>
+      </main>
+
+      <div className="pointer-events-auto hidden w-full flex-col items-start gap-3 px-5 pb-5 laptop:flex laptop:px-16 laptop:pb-8">
+        <div className="w-full [&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+          <FooterLinks />
+        </div>
+        <SignupDisclaimer className="!w-full !text-left !text-text-tertiary typo-caption1" />
+      </div>
+    </>
+  );
+
   return (
     <div
       className={classNames(
         'onb-bg relative isolate flex min-h-dvh w-full overflow-hidden bg-raw-pepper-90 text-text-primary',
-        isSplitLayout && 'laptop:flex-row',
+        isSplitLayout && 'flex-col laptop:grid laptop:grid-cols-2',
       )}
     >
       <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
 
-      {activeVariant.render()}
+      {!isSplitLayout && activeVariant.render()}
 
-      <div
-        aria-hidden
-        className={classNames(
-          'pointer-events-none absolute -z-1 select-none',
-          isSplitLayout ? 'inset-y-0 left-0 w-full laptop:w-1/2' : 'inset-0',
-        )}
-      >
-        <span
-          className="onb-orb bg-accent-cabbage-default"
-          style={{
-            width: '38rem',
-            height: '38rem',
-            top: '-10rem',
-            left: '-8rem',
-          }}
-        />
-        <span
-          className="onb-orb onb-orb--delay bg-accent-water-default"
-          style={{
-            width: '32rem',
-            height: '32rem',
-            top: '18%',
-            right: isSplitLayout ? '-4rem' : '-10rem',
-          }}
-        />
-      </div>
+      {isSplitLayout && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-1 select-none laptop:hidden"
+        >
+          <CardsBackground splitMode />
+          <div className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]" />
+          <div className="onb-form-halo pointer-events-none absolute inset-0" />
+        </div>
+      )}
+
+      {isSplitLayout && (
+        <div className="relative hidden min-h-dvh overflow-hidden laptop:col-start-1 laptop:row-start-1 laptop:block">
+          <CardsBackground splitMode />
+          <div
+            aria-hidden
+            className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
+          />
+          <span
+            className="onb-orb bg-accent-cabbage-default"
+            style={{
+              width: '38rem',
+              height: '38rem',
+              top: '-10rem',
+              left: '-8rem',
+            }}
+          />
+        </div>
+      )}
+
+      {!isSplitLayout && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-1 select-none"
+        >
+          <span
+            className="onb-orb bg-accent-cabbage-default"
+            style={{
+              width: '38rem',
+              height: '38rem',
+              top: '-10rem',
+              left: '-8rem',
+            }}
+          />
+          <span
+            className="onb-orb onb-orb--delay bg-accent-water-default"
+            style={{
+              width: '32rem',
+              height: '32rem',
+              top: '18%',
+              right: '-10rem',
+            }}
+          />
+        </div>
+      )}
 
       <div
         aria-hidden
@@ -610,64 +676,26 @@ export const OnboardingSignupHero = ({
           />
         </>
       )}
-      {isSplitLayout && (
-        <>
-          <div
-            aria-hidden
-            className="onb-split-left-fade pointer-events-none absolute inset-y-0 left-0 -z-1 hidden w-1/2 laptop:block"
-          />
-          <div
-            aria-hidden
-            className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh] laptop:hidden"
-          />
-          <div
-            aria-hidden
-            className="onb-form-halo pointer-events-none absolute inset-0 -z-1 laptop:hidden"
-          />
-        </>
-      )}
 
       <VariantSwitcher value={variantId} onChange={setVariantId} />
 
-      {isSplitLayout && (
-        <div
-          aria-hidden
-          className="onb-split-right-panel pointer-events-none absolute inset-y-0 right-0 -z-1 hidden w-1/2 laptop:block"
-        />
-      )}
-
       {isSplitLayout ? (
-        <div className="relative z-1 flex w-full flex-1 flex-col laptop:ml-auto laptop:w-1/2 laptop:pl-12 laptop:pr-8">
-          <main className="flex flex-1 flex-col justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] laptop:items-start laptop:justify-center laptop:px-0 laptop:pb-12 laptop:pt-12">
-            <div
-              className={classNames(
-                'flex w-full flex-col gap-6 tablet:gap-7',
-                SIGNUP_CONTENT_MAX_W,
-                'laptop:items-start laptop:gap-8 laptop:self-start',
-              )}
-            >
-              <Logo
-                position={LogoPosition.Relative}
-                className="!left-0 !top-0 !mt-0 !translate-x-0 self-center laptop:!self-start"
-                logoClassName={{ container: 'h-7' }}
-              />
-
-              {!isFormExpanded && headline && (
-                <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title laptop:text-left">
-                  {headline}
-                </h1>
-              )}
-
-              {signupForm}
-            </div>
-          </main>
-
-          <div className="pointer-events-auto hidden w-full flex-col items-start gap-3 px-5 pb-5 laptop:flex laptop:px-0 laptop:pb-6">
-            <div className="w-full [&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
-              <FooterLinks />
-            </div>
-            <SignupDisclaimer className="!w-full !text-left !text-text-tertiary typo-caption1" />
-          </div>
+        <div className="relative z-1 flex min-h-dvh flex-1 flex-col laptop:col-start-2 laptop:row-start-1 laptop:min-w-0">
+          <div
+            aria-hidden
+            className="onb-split-right-panel pointer-events-none absolute inset-0 -z-1 hidden laptop:block"
+          />
+          <span
+            aria-hidden
+            className="onb-orb onb-orb--delay pointer-events-none absolute -z-1 bg-accent-water-default"
+            style={{
+              width: '32rem',
+              height: '32rem',
+              top: '18%',
+              right: '-4rem',
+            }}
+          />
+          {splitSignupColumn}
         </div>
       ) : (
         <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] tablet:pt-14">
