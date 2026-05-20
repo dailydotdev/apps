@@ -516,6 +516,7 @@ type Props = {
 };
 
 const DEFAULT_HEADLINE = 'The homepage every developer deserves.';
+const SIGNUP_CONTENT_MAX_W = 'max-w-[360px]';
 
 export const OnboardingSignupHero = ({
   children,
@@ -635,54 +636,65 @@ export const OnboardingSignupHero = ({
         />
       )}
 
-      <main
-        className={classNames(
-          'relative z-1 flex w-full flex-1 flex-col px-5 pt-10',
-          isSplitLayout
-            ? 'justify-end pb-[7.5rem] tablet:pb-[5.5rem] laptop:ml-auto laptop:w-1/2 laptop:items-start laptop:justify-center laptop:pb-12 laptop:pl-12 laptop:pr-8 laptop:pt-12'
-            : 'items-center justify-end pb-[7.5rem] tablet:pb-[5.5rem] tablet:pt-14',
-        )}
-      >
-        <div
-          className={classNames(
-            'flex w-full max-w-[340px] flex-col gap-6 tablet:gap-7',
-            isSplitLayout && 'laptop:items-start laptop:gap-8',
-          )}
-        >
-          <Logo
-            position={LogoPosition.Relative}
-            className={classNames(
-              '!left-0 !top-0 !mt-0 !translate-x-0',
-              isSplitLayout ? 'self-center laptop:!self-start' : 'self-center',
-            )}
-            logoClassName={{ container: 'h-7' }}
-          />
-
-          {!isFormExpanded && headline && (
-            <h1
+      {isSplitLayout ? (
+        <div className="relative z-1 flex w-full flex-1 flex-col laptop:ml-auto laptop:w-1/2 laptop:pl-12 laptop:pr-8">
+          <main className="flex flex-1 flex-col justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] laptop:items-start laptop:justify-center laptop:px-0 laptop:pb-12 laptop:pt-12">
+            <div
               className={classNames(
-                'onb-headline text-balance font-bold leading-[1.1] tracking-tight text-text-primary typo-title2 tablet:typo-mega2',
-                isSplitLayout ? 'text-center laptop:text-left' : 'text-center',
+                'flex w-full flex-col gap-6 tablet:gap-7',
+                SIGNUP_CONTENT_MAX_W,
+                'laptop:items-start laptop:gap-8 laptop:self-start',
               )}
             >
-              {headline}
-            </h1>
-          )}
+              <Logo
+                position={LogoPosition.Relative}
+                className="!left-0 !top-0 !mt-0 !translate-x-0 self-center laptop:!self-start"
+                logoClassName={{ container: 'h-7' }}
+              />
 
-          {signupForm}
-        </div>
-      </main>
+              {!isFormExpanded && headline && (
+                <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title laptop:text-left">
+                  {headline}
+                </h1>
+              )}
 
-      {isSplitLayout ? (
-        <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden px-5 pb-5 laptop:left-1/2 laptop:flex laptop:w-1/2 laptop:justify-start laptop:pb-6 laptop:pl-12 laptop:pr-8">
-          <div className="flex w-full max-w-[340px] flex-col items-start gap-3">
-            <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+              {signupForm}
+            </div>
+          </main>
+
+          <div className="pointer-events-auto hidden w-full flex-col items-start gap-3 px-5 pb-5 laptop:flex laptop:px-0 laptop:pb-6">
+            <div className="w-full [&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
               <FooterLinks />
             </div>
-            <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+            <SignupDisclaimer className="!w-full !text-left !text-text-tertiary typo-caption1" />
           </div>
         </div>
       ) : (
+        <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-[7.5rem] pt-10 tablet:pb-[5.5rem] tablet:pt-14">
+          <div
+            className={classNames(
+              'flex w-full flex-col gap-6 tablet:gap-7',
+              SIGNUP_CONTENT_MAX_W,
+            )}
+          >
+            <Logo
+              position={LogoPosition.Relative}
+              className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
+              logoClassName={{ container: 'h-7' }}
+            />
+
+            {!isFormExpanded && headline && (
+              <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title">
+                {headline}
+              </h1>
+            )}
+
+            {signupForm}
+          </div>
+        </main>
+      )}
+
+      {!isSplitLayout && (
         <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex">
           <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
             <FooterLinks />
