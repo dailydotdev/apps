@@ -29,20 +29,56 @@ export enum ButtonIconPosition {
   Top = 'top',
 }
 
+/**
+ * V1 size scale — re-skinned to match V2.
+ *
+ * Horizontal padding lives in `HorizontalPadding` (label-only,
+ * symmetric) and `IconSidePadding` (icon+label, asymmetric 1:2 ratio)
+ * to mirror V2's structure. Typography now scales with size (was a
+ * universal `typo-callout` in V1) so XSmall chips read as chips and
+ * XLarge hero CTAs read as heroes.
+ */
 export const SizeToClassName: Record<ButtonSize, string> = {
-  [ButtonSize.XLarge]: 'h-14 px-6 rounded-16',
-  [ButtonSize.Large]: 'h-12 px-6 rounded-14',
-  [ButtonSize.Medium]: 'h-10 px-5 rounded-12',
-  [ButtonSize.Small]: 'h-8 px-3 rounded-10',
-  [ButtonSize.XSmall]: 'h-6 px-2 rounded-8',
+  [ButtonSize.XLarge]: 'h-14 rounded-16 typo-title3',
+  [ButtonSize.Large]: 'h-12 rounded-14 typo-body',
+  [ButtonSize.Medium]: 'h-10 rounded-12 typo-callout',
+  [ButtonSize.Small]: 'h-8 rounded-10 typo-footnote',
+  [ButtonSize.XSmall]: 'h-6 rounded-8 typo-caption1',
+};
+
+export const HorizontalPadding: Record<ButtonSize, string> = {
+  [ButtonSize.XLarge]: 'px-7',
+  [ButtonSize.Large]: 'px-6',
+  [ButtonSize.Medium]: 'px-4',
+  [ButtonSize.Small]: 'px-3',
+  [ButtonSize.XSmall]: 'px-2',
+};
+
+export const IconSidePadding: Record<
+  ButtonSize,
+  { left: string; right: string }
+> = {
+  [ButtonSize.XLarge]: { left: 'pl-5 pr-7', right: 'pl-7 pr-5' },
+  [ButtonSize.Large]: { left: 'pl-4 pr-6', right: 'pl-6 pr-4' },
+  [ButtonSize.Medium]: { left: 'pl-2 pr-4', right: 'pl-4 pr-2' },
+  [ButtonSize.Small]: { left: 'pl-1.5 pr-3', right: 'pl-3 pr-1.5' },
+  [ButtonSize.XSmall]: { left: 'pl-1 pr-2', right: 'pl-2 pr-1' },
+};
+
+export const SizeToGap: Record<ButtonSize, string> = {
+  [ButtonSize.XLarge]: 'gap-2',
+  [ButtonSize.Large]: 'gap-1.5',
+  [ButtonSize.Medium]: 'gap-1',
+  [ButtonSize.Small]: 'gap-1',
+  [ButtonSize.XSmall]: 'gap-1',
 };
 
 export const IconOnlySizeToClassName: Record<ButtonSize, string> = {
-  [ButtonSize.XLarge]: 'h-16 w-16 p-0 rounded-22',
-  [ButtonSize.Large]: 'h-12 w-12 p-0 rounded-14',
-  [ButtonSize.Medium]: 'h-10 w-10 p-0 rounded-12',
-  [ButtonSize.Small]: 'h-8 w-8 p-0 rounded-10',
-  [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-8',
+  [ButtonSize.XLarge]: 'h-16 w-16 p-0 rounded-16 typo-title3',
+  [ButtonSize.Large]: 'h-12 w-12 p-0 rounded-14 typo-body',
+  [ButtonSize.Medium]: 'h-10 w-10 p-0 rounded-12 typo-callout',
+  [ButtonSize.Small]: 'h-8 w-8 p-0 rounded-10 typo-footnote',
+  [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-8 typo-caption1',
 };
 
 export const VariantToClassName: Record<ButtonVariant, string> = {
@@ -208,12 +244,9 @@ export const VariantColorToClassName: Record<
   },
 };
 
-// v1 icon ladder. Kept as-is so the original `Button` component renders
-// the legacy proportions on the `/dev/buttons` OLD column. The v2
-// component consumes the `useGetIconWithSizeV2` helper below, which
-// trims icons closer to the industry-standard ~50 % button-height ratio
-// (Material 3, Apple HIG, Linear, Notion, Vercel, GitHub Primer,
-// ChatGPT, Claude, Cursor, Tailwind UI).
+// V1 icon-size scale — same-name mapping (XSmall button → XSmall icon).
+// Matches V2's restored ladder so the V1 reskin and V2 render at the same
+// scale. See `useGetIconWithSizeV2` below for the migration notes.
 const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
   [ButtonSize.XLarge]: IconSize.XLarge,
   [ButtonSize.Large]: IconSize.Large,
@@ -236,25 +269,22 @@ export const useGetIconWithSize = (
         ? !icon.props?.secondary
         : icon.props?.secondary,
       size: icon.props?.size ?? buttonSizeToIconSize[size],
+      // V1's `-ml-2 mr-1` negative-margin trick is gone: the parent
+      // `Button` now owns icon-to-label spacing via per-size `gap-X`
+      // (`SizeToGap`) and asymmetric horizontal padding (`IconSidePadding`).
+      // The `.btn-icon-left` / `.btn-icon-right` classes remain as
+      // position markers so consumers can still target them.
       className: classNames(
         icon.props.className,
         'btn-icon',
         !iconOnly && 'text-base',
         !iconOnly &&
           iconPosition === ButtonIconPosition.Left &&
-          'btn-icon-left mr-1',
-        !iconOnly &&
-          !icon.props?.size &&
-          iconPosition === ButtonIconPosition.Left &&
-          '-ml-2',
+          'btn-icon-left',
         !iconOnly &&
           iconPosition === ButtonIconPosition.Right &&
-          'btn-icon-right ml-1',
+          'btn-icon-right',
         !iconOnly && iconPosition === ButtonIconPosition.Top && 'btn-icon-top',
-        !iconOnly &&
-          !icon.props?.size &&
-          iconPosition === ButtonIconPosition.Right &&
-          '-mr-2',
       ),
     });
 };
@@ -262,29 +292,41 @@ export const useGetIconWithSize = (
 /**
  * v2 icon sizing — used by `ButtonV2` only.
  *
- * Tuned to the industry-standard ~50 % ratio (Material 3, Apple HIG,
- * Linear, Notion, Vercel, GitHub Primer, ChatGPT, Claude, Cursor,
- * Tailwind UI). The v1 map sat at 67–83 % of button height — way
- * oversized, and the reason XSmall in particular felt cramped (icon
- * at 83 % of a 24 px button left only 4 px total breathing room).
+ * The v2 first-pass map shrunk every icon by one step versus v1 in
+ * pursuit of an "industry-standard" 50 % ratio (Material 3, Apple
+ * HIG, Linear, Notion, Vercel). On migration it became clear the
+ * shrinkage was too aggressive for the existing surfaces:
  *
- * Concrete sizes:
- *   XSmall  24 px button → 16 px icon (67 %)  — chip / tag density
- *   Small   32 px button → 16 px icon (50 %)
- *   Medium  40 px button → 20 px icon (50 %)
- *   Large   48 px button → 24 px icon (50 %)
- *   XLarge  56 px button → 28 px icon (50 %)
+ *   - XSmall edit pens on the profile page (24 px button) dropped
+ *     from a 20 px icon to a 16 px icon, leaving the affordance
+ *     nearly invisible inside the already-tiny 24 px target.
+ *   - Toolbar Small buttons (32 px) lost a third of their icon
+ *     footprint (24 → 16 px) and read as decorative chips rather
+ *     than tap targets.
  *
- * The 50 % rule pairs with a typo size that's ~33 % of button height
- * (12–20 px on 24–56 px buttons), so icon-to-label optical balance is
- * stable across the scale.
+ * v1's mapping (icon size = next-name-down on the same scale) shipped
+ * a 67 – 83 % icon-to-button ratio that all the existing call sites
+ * were tuned for. Keeping the v1 ratios preserves visual continuity
+ * across the migration; consumers that genuinely need a smaller icon
+ * can override per-instance via `icon={<X size={IconSize.Size16} />}`,
+ * which `useGetIconWithSizeV2` already honours.
+ *
+ * Concrete sizes (matches v1):
+ *   XSmall  24 px button → 20 px icon (83 %)  — chip / edit pen
+ *   Small   32 px button → 24 px icon (75 %)  — toolbar / card row
+ *   Medium  40 px button → 28 px icon (70 %)  — standard CTA
+ *   Large   48 px button → 32 px icon (67 %)  — emphasis CTA
+ *   XLarge  56 px button → 40 px icon (71 %)  — hero
+ *
+ * Note: `CardAction` (engagement bar) sets its own icon size per
+ * density via `densityToIconSize` and bypasses this map.
  */
 const buttonSizeToIconSizeV2: Record<ButtonSize, IconSize> = {
-  [ButtonSize.XLarge]: IconSize.Medium,
-  [ButtonSize.Large]: IconSize.Small,
-  [ButtonSize.Medium]: IconSize.XSmall,
-  [ButtonSize.Small]: IconSize.Size16,
-  [ButtonSize.XSmall]: IconSize.Size16,
+  [ButtonSize.XLarge]: IconSize.XLarge,
+  [ButtonSize.Large]: IconSize.Large,
+  [ButtonSize.Medium]: IconSize.Medium,
+  [ButtonSize.Small]: IconSize.Small,
+  [ButtonSize.XSmall]: IconSize.XSmall,
 };
 
 export const useGetIconWithSizeV2 = (
