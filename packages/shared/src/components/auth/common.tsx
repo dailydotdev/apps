@@ -126,6 +126,8 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
+  /** X-style split onboarding: "Sign up with", "Create account", Sign in button */
+  splitSignupStyle?: boolean;
   autoTriggerProvider?: string;
   socialProviderScopes?: string[];
 }

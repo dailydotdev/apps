@@ -37,6 +37,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
+  splitSignupStyle?: boolean;
 }
 
 export const isWebView = (): boolean => {
@@ -112,6 +113,7 @@ export const OnboardingRegistrationForm = ({
   onboardingSignupButton,
   hideLoginLink,
   compact,
+  splitSignupStyle = false,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const isOnboardingTrigger = trigger === AuthTriggers.Onboarding;
@@ -135,22 +137,29 @@ export const OnboardingRegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const tertiarySignupButtonClass =
+    '!w-full !border !border-border-subtlest-tertiary !text-white';
+
   const getEmailButtonClass = (): string => {
     if (compact) {
       return 'mb-4';
     }
-    if (isOnboardingTrigger) {
+    if (isOnboardingTrigger && !splitSignupStyle) {
       return 'mb-3';
     }
     return 'mb-8';
   };
+
+  const emailButtonLabel = splitSignupStyle
+    ? 'Create account'
+    : 'Continue with email';
+
   const emailButton = (
     <Button
-      aria-label="Signup using email"
+      aria-label={splitSignupStyle ? 'Create account' : 'Signup using email'}
       className={classNames(
         getEmailButtonClass(),
-        isOnboardingTrigger &&
-          '!border !border-border-subtlest-tertiary !text-white',
+        (isOnboardingTrigger || splitSignupStyle) && tertiarySignupButtonClass,
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
@@ -161,19 +170,23 @@ export const OnboardingRegistrationForm = ({
       size={onboardingSignupButton?.size ?? ButtonSize.Large}
       type="button"
       variant={
-        isOnboardingTrigger ? ButtonVariant.Tertiary : ButtonVariant.Float
+        isOnboardingTrigger || splitSignupStyle
+          ? ButtonVariant.Tertiary
+          : ButtonVariant.Float
       }
     >
-      Continue with email
+      {emailButtonLabel}
     </Button>
   );
+
   const getMemberAlreadyContainerClass = (): string => {
     if (isOnboardingTrigger) {
       return 'mx-auto mt-5 text-center text-text-secondary typo-callout';
     }
     return 'mx-auto mt-6 text-center text-text-secondary typo-callout';
   };
-  const memberAlready = !hideLoginLink && (
+
+  const memberAlready = !hideLoginLink && !splitSignupStyle && (
     <MemberAlready
       onLogin={() => onExistingEmail?.('')}
       className={{
@@ -181,6 +194,27 @@ export const OnboardingRegistrationForm = ({
         login: '!text-inherit',
       }}
     />
+  );
+
+  const splitSignInSection = splitSignupStyle && !hideLoginLink && (
+    <div className="flex w-full flex-col gap-3">
+      <div
+        aria-hidden
+        className="flex w-full items-center justify-center rounded-12 border border-border-subtlest-tertiary px-4 py-2.5 text-text-secondary typo-callout"
+      >
+        Already have an account?
+      </div>
+      <Button
+        aria-label="Sign in"
+        className={tertiarySignupButtonClass}
+        onClick={() => onExistingEmail?.('')}
+        size={onboardingSignupButton?.size ?? ButtonSize.Large}
+        type="button"
+        variant={ButtonVariant.Tertiary}
+      >
+        Sign in
+      </Button>
+    </div>
   );
   const disclaimer = (
     <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
@@ -192,7 +226,11 @@ export const OnboardingRegistrationForm = ({
         {getSignupProviders(isOnboardingTrigger).map((provider) => (
           <li key={provider.value}>
             <Button
-              aria-label={`Continue with ${provider.label}`}
+              aria-label={
+                splitSignupStyle
+                  ? `Sign up with ${provider.label}`
+                  : `Continue with ${provider.label}`
+              }
               className="w-full"
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
@@ -203,7 +241,9 @@ export const OnboardingRegistrationForm = ({
               type="button"
               variant={onboardingSignupButton?.variant ?? ButtonVariant.Primary}
             >
-              Continue with {provider.label}
+              {splitSignupStyle
+                ? `Sign up with ${provider.label}`
+                : `Continue with ${provider.label}`}
             </Button>
           </li>
         ))}
@@ -217,6 +257,7 @@ export const OnboardingRegistrationForm = ({
       {isOnboardingTrigger ? (
         <div className="flex flex-col text-center">
           {emailButton}
+          {splitSignInSection}
           {memberAlready}
         </div>
       ) : (

@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
+import type { AuthOptionsProps } from '../../../components/auth/common';
 import { RootPortal } from '../../../components/tooltips/Portal';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
 import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
@@ -551,6 +552,11 @@ export const OnboardingSignupHero = ({
   const activeVariant = VARIANTS.find((v) => v.id === variantId) ?? VARIANTS[0];
   const isSplitLayout = variantId === 'split';
 
+  const signupForm =
+    isSplitLayout && React.isValidElement<AuthOptionsProps>(children)
+      ? React.cloneElement(children, { splitSignupStyle: true })
+      : children;
+
   return (
     <div
       className={classNames(
@@ -669,7 +675,7 @@ export const OnboardingSignupHero = ({
             </h1>
           )}
 
-          {children}
+          {signupForm}
         </div>
       </main>
 
