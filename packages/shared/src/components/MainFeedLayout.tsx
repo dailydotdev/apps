@@ -714,9 +714,6 @@ export default function MainFeedLayout({
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {!!chipsNode && router.pathname === '/explore/[tag]' && (
-        <div className="mb-8 w-full">{chipsNode}</div>
-      )}
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
       {isSearchOn && isFinder && !isSearchPageLaptop && (
@@ -756,6 +753,11 @@ export default function MainFeedLayout({
           <Feed
             {...feedProps}
             shortcuts={shortcuts}
+            topContent={
+              isExploreTag && chipsNode ? (
+                <div className="mb-8 w-full">{chipsNode}</div>
+              ) : undefined
+            }
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
             )}
