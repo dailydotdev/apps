@@ -17,9 +17,20 @@ const mockRouterPush = jest.fn();
 const mockUpdateFlag = jest.fn().mockResolvedValue(undefined);
 const mockUseSettingsContext = jest.fn();
 const mockLogEvent = jest.fn();
+const mockInvalidateQueries = jest.fn().mockResolvedValue(undefined);
+const mockUseActiveFeedContext = jest.fn();
 
 jest.mock('next/router', () => ({
   useRouter: () => ({ push: mockRouterPush }),
+}));
+
+jest.mock('@tanstack/react-query', () => ({
+  ...(jest.requireActual('@tanstack/react-query') as Iterable<unknown>),
+  useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
+}));
+
+jest.mock('../../../contexts/ActiveFeedContext', () => ({
+  useActiveFeedContext: () => mockUseActiveFeedContext(),
 }));
 
 jest.mock('../../../contexts/AuthContext', () => ({
@@ -83,6 +94,10 @@ describe('HighlightCardOptions', () => {
       flags: { highlightsPlacement: HighlightsPlacement.Default },
       updateFlag: mockUpdateFlag,
     });
+    mockUseActiveFeedContext.mockReturnValue({
+      queryKey: ['feed', 'main'],
+      items: [],
+    });
   });
 
   it('should render the options menu with all items when feature is on and user is logged in', () => {
@@ -117,7 +132,7 @@ describe('HighlightCardOptions', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should pin to top by updating the placement flag', async () => {
+  it('should pin to top by updating the placement flag and invalidating the feed', async () => {
     renderComponent();
 
     fireEvent.click(screen.getByRole('button', { name: 'Pin to top' }));
@@ -128,9 +143,27 @@ describe('HighlightCardOptions', () => {
         HighlightsPlacement.Pinned,
       );
     });
+    await waitFor(() => {
+      expect(mockInvalidateQueries).toHaveBeenCalledWith({
+        queryKey: ['feed', 'main'],
+      });
+    });
     expect(mockDisplayToast).toHaveBeenCalledWith(
       'Happening Now placement preference applied to all your feeds',
     );
+  });
+
+  it('should skip feed invalidation when no active feed query key is set', async () => {
+    mockUseActiveFeedContext.mockReturnValue({ items: [] });
+
+    renderComponent();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pin to top' }));
+
+    await waitFor(() => {
+      expect(mockUpdateFlag).toHaveBeenCalled();
+    });
+    expect(mockInvalidateQueries).not.toHaveBeenCalled();
   });
 
   it('should unpin by setting placement back to Default', async () => {

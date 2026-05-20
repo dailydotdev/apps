@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   BellAddIcon,
@@ -18,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../../dropdown/common';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useMajorHeadlinesSubscription } from '../../../hooks/notifications/useMajorHeadlinesSubscription';
@@ -46,6 +48,8 @@ const HighlightCardOptionsContent = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { flags, updateFlag } = useSettingsContext();
+  const queryClient = useQueryClient();
+  const { queryKey: feedQueryKey } = useActiveFeedContext();
   const { isSubscribed, isLoading, subscribe, unsubscribe } =
     useMajorHeadlinesSubscription();
 
@@ -59,6 +63,9 @@ const HighlightCardOptionsContent = ({
     setIsPending(true);
     try {
       await updateFlag(SidebarSettingsFlags.Highlights, next);
+      if (feedQueryKey) {
+        await queryClient.invalidateQueries({ queryKey: feedQueryKey });
+      }
       displayToast(
         labels.feed.settings.globalPreferenceNotice.highlightsPlacement,
       );
