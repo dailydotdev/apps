@@ -291,7 +291,7 @@ const DeskBackground = (): ReactElement => (
 );
 
 // =============================================================
-// Variant D — Production signup image (toggle overrides each variant)
+// Image mode — production signup image (toggle overrides each variant)
 // =============================================================
 
 const PROD_IMAGE_SRCSET = [
@@ -329,44 +329,67 @@ const ProdSignupBackground = ({
 // =============================================================
 
 type VariantId = 'cards' | 'desk' | 'split';
+type ImageMode = 'original' | 'prod' | 'colors';
 
 type VariantDef = {
   id: VariantId;
   label: string;
-  render: (useProdImage: boolean) => ReactElement;
+  render: (mode: ImageMode) => ReactElement | null;
+};
+
+const renderVariantBackground = (
+  variant: VariantId,
+  mode: ImageMode,
+): ReactElement | null => {
+  if (mode === 'colors') {
+    return null;
+  }
+  if (mode === 'prod') {
+    return <ProdSignupBackground splitMode={variant === 'split'} />;
+  }
+  if (variant === 'cards') {
+    return <CardsBackground />;
+  }
+  if (variant === 'split') {
+    return <CardsBackground splitMode />;
+  }
+  return <DeskBackground />;
 };
 
 const VARIANTS: VariantDef[] = [
   {
     id: 'cards',
     label: 'Cards',
-    render: (useProdImage) =>
-      useProdImage ? <ProdSignupBackground /> : <CardsBackground />,
+    render: (mode) => renderVariantBackground('cards', mode),
   },
   {
     id: 'split',
     label: 'X',
-    render: (useProdImage) =>
-      useProdImage ? (
-        <ProdSignupBackground splitMode />
-      ) : (
-        <CardsBackground splitMode />
-      ),
+    render: (mode) => renderVariantBackground('split', mode),
   },
   {
     id: 'desk',
     label: 'Desk',
-    render: (useProdImage) =>
-      useProdImage ? <ProdSignupBackground /> : <DeskBackground />,
+    render: (mode) => renderVariantBackground('desk', mode),
   },
 ];
 
+const IMAGE_MODES: Array<{ id: ImageMode; label: string }> = [
+  { id: 'original', label: 'Original' },
+  { id: 'prod', label: 'Prod image' },
+  { id: 'colors', label: 'Colors only' },
+];
+
 const VARIANT_STORAGE_KEY = 'onb-hero-variant';
-const PROD_IMAGE_STORAGE_KEY = 'onb-hero-prod';
+const IMAGE_MODE_STORAGE_KEY = 'onb-hero-mode';
 const VARIANT_IDS = new Set(VARIANTS.map((v) => v.id));
+const IMAGE_MODE_IDS = new Set(IMAGE_MODES.map((m) => m.id));
 
 const isVariantId = (value: string | null): value is VariantId =>
   !!value && VARIANT_IDS.has(value as VariantId);
+
+const isImageMode = (value: string | null): value is ImageMode =>
+  !!value && IMAGE_MODE_IDS.has(value as ImageMode);
 
 const readInitialVariant = (): VariantId => {
   if (typeof window === 'undefined') {
@@ -383,18 +406,19 @@ const readInitialVariant = (): VariantId => {
   return VARIANTS[0].id;
 };
 
-const readInitialProdImage = (): boolean => {
+const readInitialImageMode = (): ImageMode => {
   if (typeof window === 'undefined') {
-    return false;
+    return 'original';
   }
-  const fromUrl = new URLSearchParams(window.location.search).get('prod');
-  if (fromUrl === '1' || fromUrl === 'true') {
-    return true;
+  const fromUrl = new URLSearchParams(window.location.search).get('mode');
+  if (isImageMode(fromUrl)) {
+    return fromUrl;
   }
-  if (fromUrl === '0' || fromUrl === 'false') {
-    return false;
+  const fromStorage = window.localStorage.getItem(IMAGE_MODE_STORAGE_KEY);
+  if (isImageMode(fromStorage)) {
+    return fromStorage;
   }
-  return window.localStorage.getItem(PROD_IMAGE_STORAGE_KEY) === '1';
+  return 'original';
 };
 
 const VARIANT_SWITCHER_Z_INDEX = 9999;
@@ -402,17 +426,17 @@ const VARIANT_SWITCHER_Z_INDEX = 9999;
 const VariantSwitcher = ({
   value,
   onChange,
-  useProdImage,
-  onToggleProdImage,
+  imageMode,
+  onImageModeChange,
 }: {
   value: VariantId;
   onChange: (next: VariantId) => void;
-  useProdImage: boolean;
-  onToggleProdImage: (next: boolean) => void;
+  imageMode: ImageMode;
+  onImageModeChange: (next: ImageMode) => void;
 }): ReactElement => (
   <RootPortal>
     <div
-      className="pointer-events-auto fixed left-4 right-4 top-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-1 rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 p-1.5 shadow-2 tablet:left-auto tablet:right-6 tablet:top-6 tablet:max-w-[min(calc(100vw-3rem),28rem)]"
+      className="pointer-events-auto fixed left-4 right-4 top-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-1 rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 p-1.5 shadow-2 tablet:left-auto tablet:right-6 tablet:top-6 tablet:max-w-[min(calc(100vw-3rem),32rem)]"
       role="toolbar"
       aria-label="Background variant"
       style={{ zIndex: VARIANT_SWITCHER_Z_INDEX }}
@@ -451,24 +475,39 @@ const VariantSwitcher = ({
         })}
       </div>
       <div className="mx-1 hidden h-5 w-px bg-border-subtlest-tertiary tablet:block" />
-      <button
-        type="button"
-        role="switch"
-        aria-checked={useProdImage}
-        onClick={(event) => {
-          event.stopPropagation();
-          onToggleProdImage(!useProdImage);
-        }}
-        onPointerDown={(event) => event.stopPropagation()}
-        className={classNames(
-          'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
-          useProdImage
-            ? 'bg-accent-cabbage-default text-white'
-            : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
-        )}
+      <span className="shrink-0 px-2 text-text-quaternary typo-caption2">
+        Image
+      </span>
+      <div
+        role="radiogroup"
+        aria-label="Image source"
+        className="flex flex-wrap items-center gap-1"
       >
-        Prod image
-      </button>
+        {IMAGE_MODES.map((mode) => {
+          const active = mode.id === imageMode;
+          return (
+            <button
+              key={mode.id}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={(event) => {
+                event.stopPropagation();
+                onImageModeChange(mode.id);
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              className={classNames(
+                'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
+                active
+                  ? 'bg-accent-cabbage-default text-white'
+                  : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
+              )}
+            >
+              {mode.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   </RootPortal>
 );
@@ -493,11 +532,11 @@ export const OnboardingSignupHero = ({
 }: Props): ReactElement => {
   const { applyThemeMode } = useSettingsContext();
   const [variantId, setVariantId] = useState<VariantId>(VARIANTS[0].id);
-  const [useProdImage, setUseProdImage] = useState<boolean>(false);
+  const [imageMode, setImageMode] = useState<ImageMode>('original');
 
   useEffect(() => {
     setVariantId(readInitialVariant());
-    setUseProdImage(readInitialProdImage());
+    setImageMode(readInitialImageMode());
   }, []);
 
   useEffect(() => {
@@ -518,15 +557,13 @@ export const OnboardingSignupHero = ({
     if (typeof window === 'undefined') {
       return;
     }
-    window.localStorage.setItem(
-      PROD_IMAGE_STORAGE_KEY,
-      useProdImage ? '1' : '0',
-    );
-  }, [useProdImage]);
+    window.localStorage.setItem(IMAGE_MODE_STORAGE_KEY, imageMode);
+  }, [imageMode]);
 
   const activeVariant = VARIANTS.find((v) => v.id === variantId) ?? VARIANTS[0];
   const isSplitLayout = variantId === 'split';
   const isDeskVariant = variantId === 'desk';
+  const isProdImageMode = imageMode === 'prod';
 
   const signupForm =
     isSplitLayout && React.isValidElement<AuthOptionsProps>(children)
@@ -579,20 +616,26 @@ export const OnboardingSignupHero = ({
     >
       <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
 
-      {!isSplitLayout && activeVariant.render(useProdImage)}
+      {!isSplitLayout && activeVariant.render(imageMode)}
 
       {isSplitLayout && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-1 select-none laptop:hidden"
         >
-          {useProdImage ? (
-            <ProdSignupBackground splitMode />
-          ) : (
-            <CardsBackground splitMode />
-          )}
-          <div className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]" />
-          <div className="onb-form-halo pointer-events-none absolute inset-0" />
+          {renderVariantBackground('split', imageMode)}
+          <div
+            className={classNames(
+              'onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]',
+              isProdImageMode && 'opacity-40',
+            )}
+          />
+          <div
+            className={classNames(
+              'onb-form-halo pointer-events-none absolute inset-0',
+              isProdImageMode && 'opacity-30',
+            )}
+          />
         </div>
       )}
 
@@ -602,14 +645,13 @@ export const OnboardingSignupHero = ({
             aria-hidden
             className="onb-split-left-water-glow pointer-events-none absolute inset-0 -z-2"
           />
-          {useProdImage ? (
-            <ProdSignupBackground splitMode />
-          ) : (
-            <CardsBackground splitMode />
-          )}
+          {renderVariantBackground('split', imageMode)}
           <div
             aria-hidden
-            className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
+            className={classNames(
+              'onb-split-left-fade pointer-events-none absolute inset-0 -z-1',
+              isProdImageMode && 'opacity-40',
+            )}
           />
           <span
             className="onb-orb bg-accent-cabbage-default"
@@ -665,11 +707,17 @@ export const OnboardingSignupHero = ({
         <>
           <div
             aria-hidden
-            className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]"
+            className={classNames(
+              'onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]',
+              isProdImageMode && 'opacity-40',
+            )}
           />
           <div
             aria-hidden
-            className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
+            className={classNames(
+              'onb-form-halo pointer-events-none absolute inset-0 -z-1',
+              isProdImageMode && 'opacity-30',
+            )}
           />
         </>
       )}
@@ -681,15 +729,18 @@ export const OnboardingSignupHero = ({
       {!isSplitLayout && (
         <div
           aria-hidden
-          className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
+          className={classNames(
+            'onb-center-halo pointer-events-none absolute inset-0 -z-1',
+            isProdImageMode && 'opacity-50',
+          )}
         />
       )}
 
       <VariantSwitcher
         value={variantId}
         onChange={setVariantId}
-        useProdImage={useProdImage}
-        onToggleProdImage={setUseProdImage}
+        imageMode={imageMode}
+        onImageModeChange={setImageMode}
       />
 
       {isSplitLayout ? (
