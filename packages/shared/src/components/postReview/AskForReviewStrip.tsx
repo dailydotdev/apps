@@ -1,13 +1,16 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { StarIcon } from '../icons/Star';
 import { MiniCloseIcon } from '../icons/MiniClose';
 import { IconSize } from '../Icon';
 import { useActions } from '../../hooks/useActions';
@@ -25,8 +28,6 @@ import { useAskForReviewVisibility } from '../../hooks/useAskForReviewVisibility
 export const ASK_FOR_REVIEW_RESET_EVENT = 'askForReview:reset';
 
 type AskForReviewClickId = 'enjoy_yes' | 'enjoy_no' | 'dismiss_strip';
-
-const STAR_INDICES = [0, 1, 2, 3, 4] as const;
 
 interface AskForReviewStripBaseProps {
   destination: ReviewDestination;
@@ -120,49 +121,45 @@ export const AskForReviewStripView = ({
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-3 top-1 z-max flex justify-center tablet:inset-x-4"
+      className="shadow-1 mb-4 mt-3 flex w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 laptop:mt-4"
       data-testid="ask-for-review-strip"
     >
-      <div className="pointer-events-auto flex w-full max-w-[calc(100vw-1.5rem)] items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-default px-4 py-2.5 shadow-2 tablet:w-[69.25rem] tablet:max-w-[calc(100vw-2rem)]">
-        <div className="hidden shrink-0 items-center gap-0.5 tablet:flex">
-          {STAR_INDICES.map((i) => (
-            <StarIcon
-              key={i}
-              secondary
-              size={IconSize.Small}
-              className="text-accent-cheese-default"
-            />
-          ))}
-        </div>
-
-        <div className="flex flex-1 flex-col gap-0.5 text-left">
-          <Typography bold type={TypographyType.Callout}>
-            Enjoying daily.dev so far?
-          </Typography>
+      <div className="flex w-full flex-col gap-3 tablet:flex-row tablet:items-center tablet:gap-4">
+        <div className="min-w-0 flex-1 text-left">
+          <div className="mb-1 flex items-center gap-2">
+            <span className="rounded-8 bg-accent-cabbage-subtler px-2 py-0.5 font-bold text-accent-cabbage-default typo-caption2">
+              Quick question
+            </span>
+            <Typography bold type={TypographyType.Callout}>
+              Are you enjoying daily.dev?
+            </Typography>
+          </div>
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {`You've read ${streakValue} days in a row \u2014 we'd love your honest take.`}
+            {`You've read ${streakValue} days in a row. Your answer helps us decide what to ask next.`}
           </Typography>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
           <Button
             type="button"
-            size={ButtonSize.Small}
+            color={ButtonColor.Avocado}
+            size={ButtonSize.Medium}
             variant={ButtonVariant.Primary}
             onClick={onYes}
           >
-            Yes
+            Yes, I enjoy it
           </Button>
           <Button
             type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Primary}
             onClick={onNo}
           >
-            No
+            Not really
           </Button>
           <Button
             type="button"
@@ -188,11 +185,6 @@ export const AskForReviewStrip = (): ReactElement | null => {
     cooldownDays,
   } = useAskForReviewVisibility();
   const [closed, setClosed] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -205,11 +197,11 @@ export const AskForReviewStrip = (): ReactElement | null => {
     };
   }, []);
 
-  if (!mounted || !visible || !destination || closed) {
+  if (!visible || !destination || closed) {
     return null;
   }
 
-  return createPortal(
+  return (
     <AskForReviewStripView
       destination={destination}
       streakValue={streakValue}
@@ -217,7 +209,6 @@ export const AskForReviewStrip = (): ReactElement | null => {
       streakThreshold={streakThreshold}
       cooldownDays={cooldownDays}
       onClose={() => setClosed(true)}
-    />,
-    document.body,
+    />
   );
 };
