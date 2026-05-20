@@ -405,6 +405,228 @@ export const briefMockData: BriefData = {
         },
       ],
     },
+    {
+      id: 'story-9',
+      kind: 'story',
+      title: 'Rust is quietly winning the systems-language reshuffle',
+      summary:
+        'Two unrelated posts from the same week make the same observation: Rust adoption inside large infra teams keeps creeping up while nobody declares victory. Cloudflare shipped another Rust-backed component in their edge stack, AWS leadership confirmed Rust is now their default for new low-level services, and a survey of 9,200 engineers placed Rust as the most admired language for the 9th year running. The interesting tension is at the language ergonomics layer: senior Rust folks are pushing back on the proposed `gen` blocks and incremental async sugar, arguing the language is one ergonomics push away from being too sweet to teach.',
+      posts: [
+        {
+          id: 'rust-edge-cf',
+          title: 'How Cloudflare quietly rewrote its WAF rule engine in Rust',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/8ae75ade6d9e7d6c438d57caf3bbc736?_a=AQAEuop',
+          upvotes: 184,
+          comments: 22,
+        },
+        {
+          id: 'rust-aws-default',
+          title: 'AWS makes Rust the default for new internal infra services',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/c4b4559446e9b4f9ae335a88ffe02785?_a=AQAEuop',
+          upvotes: 142,
+          comments: 17,
+        },
+        {
+          id: 'rust-gen-debate',
+          title: 'The `gen` keyword debate is the most Rust thing ever',
+          image: null,
+          upvotes: 98,
+          comments: 31,
+        },
+      ],
+      totalUpvotes: 424,
+      totalComments: 70,
+      sources: [
+        {
+          sourceId: 'cloudflareblog',
+          sourceName: 'Cloudflare Blog',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/83a32fc89f9943f38951a2b360c0d3ec',
+        },
+        {
+          sourceId: 'awsblog',
+          sourceName: 'AWS Blog',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/95777db1b3254a14a54686a789654d5a',
+        },
+        {
+          sourceId: 'thisweekinrust',
+          sourceName: 'This Week in Rust',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/ae0b966a89554ad5b6d54de550180ab0',
+        },
+      ],
+      highlightedComments: [
+        {
+          username: 'kerneldev',
+          userImage: 'https://avatars.githubusercontent.com/u/74871945?v=4',
+          content:
+            "The 'too sweet to teach' framing is interesting. We had three new hires last quarter struggle with async Rust precisely because the surface area is now huge. Adding more sugar without teaching the desugaring is going to make the cliff worse, not smaller.",
+          upvotes: 18,
+        },
+      ],
+    },
+    {
+      id: 'story-10',
+      kind: 'story',
+      title: 'Kubernetes is finally addressing the cold-start problem',
+      summary:
+        "Two SIG-node proposals landed in the same release window, both attacking pod startup latency from different angles. ImagePullPolicy gets a new 'Lazy' option that streams container layers on first access (similar to Modal's earlier work). And a new KEP proposes warm pod pools maintained by the kubelet, eliminating the scheduler round-trip for predictable workloads. Independent of both, a survey of 1,800 platform teams found that cold start time is now the #1 cited pain point in production Kubernetes, ahead of upgrades and networking. The community seems to have finally agreed there's a real problem here.",
+      posts: [
+        {
+          id: 'k8s-lazy-pull',
+          title: 'KEP: Lazy image pulling for faster cold starts',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/4d18084e60766514be22d219e9a9632c?_a=AQAEuop',
+          upvotes: 119,
+          comments: 14,
+        },
+        {
+          id: 'k8s-warm-pools',
+          title: 'Warm pod pools: a kubelet-level approach',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/d7c94335f2aa5604634c64eb56a57386?_a=AQAEuop',
+          upvotes: 87,
+          comments: 9,
+        },
+      ],
+      totalUpvotes: 206,
+      totalComments: 23,
+      sources: [
+        {
+          sourceId: 'kubernetes',
+          sourceName: 'Kubernetes Blog',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/1820f6a6ae944760aa322b67ed85f848',
+        },
+        {
+          sourceId: 'cncf',
+          sourceName: 'CNCF',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/82e21f28c59c499f9c47833c55500fd8',
+        },
+      ],
+      highlightedComments: [
+        {
+          username: 'platformeng',
+          userImage:
+            'https://media.daily.dev/image/upload/s--OGZu5DEc--/f_auto/v1772569630/avatars/avatar_umWZ9aQAng34qk5aaJl2q?_a=BAMAMiiu0',
+          content:
+            'Warm pools sound great in theory until you have to reconcile them with HPA, pod priority classes, and node taints. Hope the KEP authors have thought about the matrix.',
+          upvotes: 11,
+        },
+      ],
+    },
+    {
+      id: 'story-11',
+      kind: 'story',
+      title: 'Frontend frameworks are converging on the same primitives',
+      summary:
+        "React Server Components, Svelte 5 runes, Solid signals, and now Vue's vapor mode are starting to look surprisingly similar from a distance: fine-grained reactivity, server-rendered shells, and incremental hydration. A recent essay argues the framework wars are over and what's left is taste. Counterpoint from a long-time React contributor: the underlying compiler tech is wildly different even if the developer-facing APIs converge, and that matters when you hit performance edges.",
+      posts: [
+        {
+          id: 'fw-converge',
+          title: 'The frontend convergence: nobody won, everyone copied',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/9f419503539b6a55880d2109c3740923?_a=AQAEuop',
+          upvotes: 156,
+          comments: 28,
+        },
+        {
+          id: 'fw-compiler-matters',
+          title: 'Same API, different compiler: why it still matters',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/f37d3501a2f74b9f6adaad9906e71e1d?_a=AQAEuop',
+          upvotes: 92,
+          comments: 19,
+        },
+      ],
+      totalUpvotes: 248,
+      totalComments: 47,
+      sources: [
+        {
+          sourceId: 'svelte',
+          sourceName: 'Svelte Blog',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/s--i6Ls5Q5_--/f_auto/v1724338715/logos/javascriptmastery',
+        },
+        {
+          sourceId: 'vuejs',
+          sourceName: 'Vue.js Blog',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/82e21f28c59c499f9c47833c55500fd8',
+        },
+      ],
+      highlightedComments: [
+        {
+          username: 'reactcore',
+          userImage: 'https://avatars.githubusercontent.com/u/210009?v=4',
+          content:
+            "The 'taste' framing undersells how much the underlying memoization strategies differ. Solid's compile-time tracking and React's runtime reconciliation produce very different perf cliffs.",
+          upvotes: 14,
+        },
+      ],
+    },
+    {
+      id: 'story-12',
+      kind: 'story',
+      title: 'The AI evals problem just got a real benchmark',
+      summary:
+        'Three new releases this week tackle the same gap: how do you actually measure if an LLM agent is getting better? SWE-Bench Verified hit 2,200 human-curated tasks. Anthropic open-sourced their internal Constitution Eval framework. And a small team at a startup released LiveCodeBench, which avoids contamination by only using problems posted after a fixed cutoff. The big lesson: agent benchmarks built on synthetic data are basically uncalibrated, and teams that rely on them are flying blind on production performance.',
+      posts: [
+        {
+          id: 'eval-swe-bench',
+          title: 'SWE-Bench Verified: 2,200 tasks, all human-checked',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/66edb898d5809cd5f94b853769b923d5?_a=AQAEuop',
+          upvotes: 132,
+          comments: 11,
+        },
+        {
+          id: 'eval-constitution',
+          title: "Inside Anthropic's Constitution Eval",
+          image: null,
+          upvotes: 89,
+          comments: 7,
+        },
+        {
+          id: 'eval-live-code',
+          title: 'LiveCodeBench: contamination-free coding evals',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/8ae75ade6d9e7d6c438d57caf3bbc736?_a=AQAEuop',
+          upvotes: 71,
+          comments: 5,
+        },
+      ],
+      totalUpvotes: 292,
+      totalComments: 23,
+      sources: [
+        {
+          sourceId: 'anthropic',
+          sourceName: 'Anthropic',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/s---oEn9czC--/f_auto/v1716187892/logos/socketdev',
+        },
+        {
+          sourceId: 'swebench',
+          sourceName: 'SWE-bench',
+          sourceImage:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/ae0b966a89554ad5b6d54de550180ab0',
+        },
+      ],
+      highlightedComments: [
+        {
+          username: 'mlinfra',
+          userImage:
+            'https://media.daily.dev/image/upload/s--XpFWj1ND--/f_auto/v1749054653/avatars/avatar_iBTDQoV5Y?_a=BAMClqUq0',
+          content:
+            'Finally. The number of teams shipping agents with no eval harness at all is genuinely scary. Even a flawed benchmark beats vibes.',
+          upvotes: 22,
+        },
+      ],
+    },
   ],
   topics: [
     {

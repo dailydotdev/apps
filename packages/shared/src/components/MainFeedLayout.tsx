@@ -17,8 +17,6 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeedTagsList } from '../hooks/useFeedTagsList';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
-import { BriefCover } from '../features/briefingHome/BriefCover';
-import { BriefFloatingTabs } from '../features/briefingHome/BriefFloatingTabs';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
@@ -62,7 +60,6 @@ import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
-  featureBriefingHome,
   featureFeedTagChips,
   featureFeedV2Highlights,
   followingFeedVersion,
@@ -342,17 +339,8 @@ export default function MainFeedLayout({
     feature: featureFeedTagChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
-  const { value: isBriefingHomeEnabled } = useConditionalFeature({
-    feature: featureBriefingHome,
-    shouldEvaluate: !!user && isHomePage,
-  });
-  const briefOwnsChips = !!user && isHomePage && isBriefingHomeEnabled;
   const showExploreChips =
-    !!user &&
-    isLaptop &&
-    isChipStripPage &&
-    isFeedTagChipsEnabled &&
-    !briefOwnsChips;
+    !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
   const { tags: feedTags, isPending: isFeedTagsPending } = useFeedTagsList({
     enabled: showExploreChips,
   });
@@ -730,21 +718,6 @@ export default function MainFeedLayout({
       {isSearchOn && !isSearchPageLaptop && search}
       {isSearchOn && isFinder && !isSearchPageLaptop && (
         <AskSearchBanner className="mx-4 mb-4" />
-      )}
-      {isHomePage && <BriefCover />}
-      {briefOwnsChips && (
-        <>
-          <div
-            id="brief-feed-start"
-            aria-hidden
-            className="w-full scroll-mt-28"
-          />
-          <BriefFloatingTabs
-            feedId="brief-feed-start"
-            sentinelId="brief-feed-start"
-            boundsId="brief-top"
-          />
-        </>
       )}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero

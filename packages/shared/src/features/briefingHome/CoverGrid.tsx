@@ -44,8 +44,6 @@ const StoryRow = ({
   onOpen: () => void;
 }): ReactElement => {
   const sourcesShown = story.sources.slice(0, 3);
-  const extraSources = story.sources.length - sourcesShown.length;
-  const sourceNames = sourcesShown.map((s) => s.sourceName).join(', ');
   const summary = stripMd(story.summary).trim();
   const panelId = `brief-tldr-${story.id}`;
 
@@ -61,14 +59,14 @@ const StoryRow = ({
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <div className="flex w-full min-w-0 flex-col gap-2">
+        <div className="flex w-full items-start gap-4">
           <Typography
             tag={TypographyTag.H3}
             type={TypographyType.Body}
             bold
             color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
             className={classNames(
-              '!leading-snug',
+              'min-w-0 flex-1 !leading-snug',
               isRead &&
                 !isExpanded &&
                 'decoration-text-quaternary/40 line-through',
@@ -77,21 +75,7 @@ const StoryRow = ({
             {story.title}
           </Typography>
 
-          {isExpanded ? (
-            <div id={panelId}>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-                className="!leading-relaxed"
-              >
-                {summary}
-              </Typography>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="flex w-full items-center gap-3">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <StatPill
               ariaLabel={`${story.totalUpvotes} upvotes`}
               onClick={onOpen}
@@ -114,69 +98,66 @@ const StoryRow = ({
               }
               value={story.totalComments}
             />
-            <span className="inline-flex min-w-0 items-center gap-2 pl-1">
-              <span className="inline-flex shrink-0 items-center -space-x-1.5">
-                {sourcesShown.map((src) => (
-                  <span
-                    key={src.sourceId}
-                    className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
-                  >
-                    <img
-                      src={src.sourceImage}
-                      alt=""
-                      loading="lazy"
-                      className="size-4 object-cover"
-                    />
-                  </span>
-                ))}
-              </span>
-              <span className="hidden min-w-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 tablet:inline-flex">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                  className="truncate"
+            <span className="hidden items-center -space-x-1.5 pl-1 tablet:inline-flex">
+              {sourcesShown.map((src) => (
+                <span
+                  key={src.sourceId}
+                  className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
                 >
-                  {sourceNames}
-                  {extraSources > 0 ? ` +${extraSources}` : ''}
-                </Typography>
-              </span>
+                  <img
+                    src={src.sourceImage}
+                    alt=""
+                    loading="lazy"
+                    className="size-4 object-cover"
+                  />
+                </span>
+              ))}
             </span>
+            <ArrowIcon
+              size={IconSize.XSmall}
+              className={classNames(
+                'shrink-0 text-text-tertiary transition-transform duration-300 ease-out',
+                isExpanded ? 'rotate-0' : 'rotate-180',
+              )}
+              aria-hidden
+            />
           </div>
-          {isExpanded ? (
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpen();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  onOpen();
-                }
-              }}
-              className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
-            >
-              <Typography type={TypographyType.Footnote} bold>
-                Read full breakdown
-              </Typography>
-              <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
-            </span>
-          ) : null}
-          <ArrowIcon
-            size={IconSize.XSmall}
-            className={classNames(
-              'shrink-0 transition-all duration-300 ease-out',
-              isExpanded
-                ? 'rotate-0 text-text-tertiary'
-                : 'rotate-180 text-text-quaternary opacity-0 group-hover:opacity-100',
-            )}
-            aria-hidden
-          />
         </div>
+
+        {isExpanded ? (
+          <div id={panelId} className="flex flex-col gap-3">
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+              className="!leading-relaxed"
+            >
+              {summary}
+            </Typography>
+            <div className="flex w-full items-center justify-start">
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onOpen();
+                  }
+                }}
+                className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
+              >
+                <Typography type={TypographyType.Footnote} bold>
+                  Read full breakdown
+                </Typography>
+                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+              </span>
+            </div>
+          </div>
+        ) : null}
       </button>
     </li>
   );
@@ -199,7 +180,7 @@ export const CoverGrid = ({
           secondary
         />
         <Typography type={TypographyType.Title3} bold>
-          Trending discussions
+          Discussions
         </Typography>
       </div>
       <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">

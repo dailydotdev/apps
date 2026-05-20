@@ -639,7 +639,7 @@ export const ReadingPanel = ({
           aria-label="Close"
         />
       </header>
-      <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background-default pb-6 laptop:flex-row laptop:pb-0">
+      <div className="flex w-full flex-col bg-background-default pb-6 laptop:flex-row laptop:pb-0">
         <PostContainer className="relative">
           <div className="flex flex-col gap-6 pb-6 pt-6">
             {entity.kind === 'story' ? (

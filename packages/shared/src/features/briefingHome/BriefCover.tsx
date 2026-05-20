@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { useConditionalFeature } from '../../hooks';
-import { featureBriefingHome } from '../../lib/featureManagement';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { CoverHeader } from './CoverHeader';
 import { CoverLead } from './CoverLead';
 import { CoverGrid } from './CoverGrid';
@@ -48,11 +45,6 @@ const estimateReadMinutes = (
 export const BriefCover = ({
   className,
 }: BriefCoverProps): ReactElement | null => {
-  const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { value: enabled } = useConditionalFeature({
-    feature: featureBriefingHome,
-    shouldEvaluate: isAuthReady && isLoggedIn,
-  });
   const brief = useBriefItems();
   const { readSet, markRead, reset: resetReads } = useReadTracker();
   const [activePanel, setActivePanel] = useState<{
@@ -144,10 +136,6 @@ export const BriefCover = ({
     },
     [markRead],
   );
-
-  if (!isAuthReady || !enabled) {
-    return null;
-  }
 
   return (
     <section
