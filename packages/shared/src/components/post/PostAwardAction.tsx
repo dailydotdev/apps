@@ -20,12 +20,6 @@ import PostAwardActionV2 from './PostAwardAction.v2';
 export interface PostAwardActionProps {
   post: Post;
   iconSize?: IconSize;
-  /**
-   * Forwarded to the V2 path only — the V1 `QuaternaryButton` strip
-   * doesn't honour density. Kept on the public type so V2 consumers
-   * (e.g. feed-card `ActionButtons.v2`) can hint at compact vs
-   * comfortable sizing without conditionally branching imports.
-   */
   density?: 'comfortable' | 'compact';
 }
 

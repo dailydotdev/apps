@@ -65,13 +65,7 @@ export function ReaderRailActionBar({
           pressed={isUpvoteActive}
           onClick={() => {
             toggleUpvote({ payload: post, origin: Origin.ReaderModal }).catch(
-              (error) => {
-                // Surface the failure to dev tools / browser error
-                // reporting; the hook owns toast notifications for
-                // user-facing recoverable cases.
-                // eslint-disable-next-line no-console
-                console.error('toggleUpvote failed', error);
-              },
+              () => {},
             );
           }}
           icon={<UpvoteIcon />}
@@ -90,10 +84,7 @@ export function ReaderRailActionBar({
             toggleDownvote({
               payload: post,
               origin: Origin.ReaderModal,
-            }).catch((error) => {
-              // eslint-disable-next-line no-console
-              console.error('toggleDownvote failed', error);
-            });
+            }).catch(() => {});
           }}
           icon={<DownvoteIcon />}
           iconPressed={<DownvoteIcon secondary />}
@@ -161,10 +152,7 @@ export function ReaderRailActionBar({
         pressed={post.bookmarked}
         onClick={() => {
           toggleBookmark({ post, origin: Origin.ReaderModal }).catch(
-            (error) => {
-              // eslint-disable-next-line no-console
-              console.error('toggleBookmark failed', error);
-            },
+            () => {},
           );
         }}
       />

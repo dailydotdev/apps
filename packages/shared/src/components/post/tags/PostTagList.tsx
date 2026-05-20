@@ -24,11 +24,6 @@ interface BrandedTagChipProps {
   disableBranding?: boolean;
 }
 
-/**
- * Engagement-ads variant — kept separate from the standard `TagChip`
- * so the `BrandedTag` wrapper (with its own padding / border quirks)
- * does not bleed into the unified chip design used everywhere else.
- */
 const BrandedTagChip = ({
   tag,
   isFollowed,

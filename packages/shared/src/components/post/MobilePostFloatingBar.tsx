@@ -173,10 +173,6 @@ function MobilePostFloatingBarV1({
   );
 }
 
-/**
- * Dispatcher between the legacy floating bar and the new
- * `CardAction`-based bar. See `useEngagementBarV2` for flag semantics.
- */
 export function MobilePostFloatingBar(
   props: MobilePostFloatingBarProps,
 ): ReactElement {

@@ -20,32 +20,12 @@ import {
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
 
-/**
- * `BookmarkButton` — engagement-bar bookmark affordance.
- *
- * Built on `CardAction` so it inherits the v2 engagement-bar contract
- * (icon-to-button ratio, pressed-icon swap, density-aware sizing,
- * counter slot inside the click target). When the post has an active
- * reminder, the button becomes a `DropdownMenu` trigger that opens
- * Edit reminder / Remove reminder / Remove bookmark — the reminder
- * variant of the icon (`BookmarkReminderIcon`) replaces the default
- * one so the surface communicates state at a glance.
- */
 export interface BookmarkButtonProps {
   post: Post;
-  /**
-   * Density passes through to `CardAction`. Default `compact` matches
-   * the feed-grid card width contract; `comfortable` is for post-detail
-   * strip + sticky bottom bar.
-   */
   density?: CardActionDensity;
-  /** Render the "Bookmark" label inline next to the icon. */
   labelVisible?: boolean;
-  /** a11y label + inline label when `labelVisible`. */
   label?: string;
-  /** Optional engagement counter (rare on bookmark, exposed for parity). */
   count?: number | null;
-  /** Tertiary tint. Defaults to `Bun` (the bookmark color). */
   color?: ColorName;
   pressed?: boolean;
   onClick?: MouseEventHandler<HTMLElement>;
@@ -81,9 +61,6 @@ export function BookmarkButton({
     <BookmarkIcon secondary />
   );
 
-  // State-aware accessible name matches the v1 tooltip text contract,
-  // so screen readers + RTL `findByLabelText('Remove bookmark')` keep
-  // working without changing the aria surface area.
   const resolvedLabel =
     label ?? (isBookmarked ? 'Remove bookmark' : 'Bookmark');
 

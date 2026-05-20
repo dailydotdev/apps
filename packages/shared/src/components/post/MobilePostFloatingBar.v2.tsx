@@ -31,12 +31,6 @@ export interface MobilePostFloatingBarProps {
   className?: string;
 }
 
-// Mirrors the floating "Share your thoughts" container that this bar replaces:
-// `bg-surface-float` is the gray translucent tint that bar effectively rendered
-// once Tailwind layered `bg-blur-baseline` underneath, paired with the same
-// backdrop blur and shadow used by the mobile footer chrome. CardActionBar
-// `between` distributes the actions edge-to-edge with `px-2` on the wrapper
-// so the outermost icons don't kiss the rounded corner.
 const containerClasses = classNames(
   'w-full rounded-16 border border-border-subtlest-tertiary px-2 py-1',
   'bg-surface-float backdrop-blur-[2.5rem]',
@@ -53,8 +47,6 @@ export function MobilePostFloatingBar({
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const { toggleBookmark } = useBookmarkPost();
 
-  // Match the desktop `PostActions` copy flow: fetch the short URL imperatively
-  // on click so anonymous users still get a usable (long) link instead of a no-op.
   const { getShortUrl } = useGetShortUrl();
   const [, copyLink] = useCopyPostLink();
   const { logEvent } = useLogContext();

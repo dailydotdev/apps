@@ -31,16 +31,11 @@ export interface ActionButtonsProps {
   onCopyLinkClick?: (event: React.MouseEvent, post: Post) => unknown;
   className?: string;
   onDownvoteClick?: (post: Post) => unknown;
-  /** Controls sizing and behavior. Grid = smaller icons, List = larger icons with link navigation */
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
   showAwardAction?: boolean;
 }
 
-// All three feed-card variants (grid, list, signal) ship at the
-// `compact` density per the CardAction width contract — the card
-// body lives inside the production 272-340 px clamp and 5+ actions
-// at the comfortable 40 px size overflow narrow grid cards.
 const FEED_CARD_DENSITY = 'compact';
 
 const variantConfig = {
@@ -94,7 +89,6 @@ const ActionButtons = ({
     closeTagsPanelOnUpvote: variant === 'list',
   });
 
-  // Get brand animation config if post has sponsored tags
   const brandAnimation = useMemo(() => {
     const animationResult = getUpvoteAnimation(post.tags || []);
     if (
@@ -233,7 +227,6 @@ const ActionButtons = ({
     </div>
   );
 
-  // For list variant, optionally wrap with PostTagsPanel
   if (variant === 'list' && config.showTagsPanel) {
     return (
       <ConditionalWrapper

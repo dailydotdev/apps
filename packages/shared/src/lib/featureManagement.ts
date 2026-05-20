@@ -42,33 +42,6 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 
-/**
- * Gates the new `CardAction`-based engagement bar (Upvote / Downvote /
- * Comment / Award / Bookmark / Share) across every surface that
- * renders post actions:
- *
- *   - Post page + post modal action bar (`PostActions.tsx`)
- *   - Mobile floating action bar (`MobilePostFloatingBar.tsx`)
- *   - Feed card action row (`ActionButtons.tsx`)
- *   - Comment row actions (`CommentActionButtons.tsx`)
- *   - Reader mode side rail (`ReaderRailActionBar.tsx`)
- *   - Reader mode floating bar (`ReaderFloatingActionBar.tsx`)
- *   - Award action button (`PostAwardAction.tsx`)
- *   - Profile hot-takes row (`HotTakeItem.tsx`)
- *
- * When `false` (default): each surface renders the legacy
- * `QuaternaryButton`-based action strip — visually identical to today.
- * When `true`: every surface above swaps to the `CardAction` primitive
- * with density-aware sizing, outline → secondary icon swap on pressed,
- * and tooltip-based labelling.
- *
- * This flag exists because the action-bar swap is a structural change
- * to the most-rendered surfaces in the product. Rolling out behind a
- * GrowthBook flag lets us validate at 1 % -> 10 % -> 100 % with the
- * ability to kill-switch instantly if anything regresses.
- */
-export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
-
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
@@ -229,3 +202,5 @@ export const featureCompanionDemoWidget = new Feature(
 );
 
 export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+
+export const featureEngagementBarV2 = new Feature('engagement_bar_v2', true);

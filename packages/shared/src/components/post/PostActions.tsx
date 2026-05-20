@@ -44,12 +44,6 @@ interface PostActionsProps {
   onCopyLinkClick?: (post?: Post) => void;
 }
 
-/**
- * Legacy `QuaternaryButton`-based action strip. Kept verbatim so the
- * default (flag-off) experience is byte-for-byte identical to today.
- * See `PostActions` (below) for the dispatcher and
- * `PostActions.v2.tsx` for the `CardAction`-based replacement.
- */
 function PostActionsV1({
   onCopyLinkClick,
   post,
@@ -348,13 +342,6 @@ function PostActionsV1({
   );
 }
 
-/**
- * Public entrypoint — dispatches between the legacy V1 strip and the
- * new `CardAction`-based V2 strip behind the `engagement_bar_v2`
- * GrowthBook flag. Default state (`false`) renders V1 so SSR + every
- * call site stays on the existing, well-tested implementation. Flip
- * the flag to ramp V2 progressively without redeploying.
- */
 export function PostActions(props: PostActionsProps): ReactElement {
   const useV2 = useEngagementBarV2();
   if (useV2) {

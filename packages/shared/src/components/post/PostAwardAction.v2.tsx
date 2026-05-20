@@ -16,17 +16,7 @@ import type { LoggedUser } from '../../lib/user';
 
 export interface PostAwardActionProps {
   post: Post;
-  /**
-   * Density passes through to `CardAction`. Default `compact` matches
-   * the feed-grid card width contract; overridable for surfaces where
-   * the bar is the comfortable 40 px row.
-   */
   density?: CardActionDensity;
-  /**
-   * Optional fixed icon size for the featured-award `Image` thumbnail.
-   * Falls back to the density-derived default. Kept so feed cards can
-   * lock the medal at the same dimension as sibling icons.
-   */
   iconSize?: IconSize;
 }
 
@@ -77,10 +67,6 @@ const PostAwardAction = ({
     });
   };
 
-  // Featured-award thumbnail uses an explicit fixed size override
-  // (matches v1: 20 px square via `iconSizeToClassName[XSmall]`) so
-  // the medal asset doesn't get rescaled by the CardAction icon
-  // wrapper. Keeps parity with the previous QuaternaryButton behaviour.
   const renderedIcon =
     post.userState?.awarded && post.featuredAward?.award?.image ? (
       <Image

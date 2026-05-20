@@ -66,7 +66,6 @@ export function PostActions({
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
 
-  // Get brand animation config if post has sponsored tags
   const brandAnimation = useMemo(() => {
     const animationResult = getUpvoteAnimation(post.tags || []);
     if (
@@ -181,10 +180,8 @@ export function PostActions({
     },
   });
 
-  // The label-visibility hook re-runs on box-size changes and on mount;
-  // we still want to re-measure when the post's awarded / canAward
-  // state flips because that toggles the Award button's presence,
-  // changing the row's natural width.
+  // Re-measure when Award button mounts/unmounts; ResizeObserver in
+  // usePostActionsLabelVisibility only fires on box-size changes.
   useEffect(() => {
     const el = actionsRef.current;
     if (!el) {

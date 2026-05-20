@@ -41,36 +41,19 @@ interface CommonButtonProps {
   loading?: boolean;
   pressed?: boolean;
   disabled?: boolean;
-  /**
-   * Primer-style "looks active, behaves disabled". Renders default
-   * visuals + `aria-disabled="true"` + `cursor: not-allowed` but
-   * remains keyboard-focusable and `onClick`-firing so callers can
-   * surface a tooltip / toast explaining why the action isn't
-   * available.
-   */
+  // Looks active, behaves disabled: aria-disabled + not-allowed cursor,
+  // but stays focusable and onClick still fires (for tooltip/toast).
   inactive?: boolean;
-  /**
-   * Bumps Primary from `font-semibold` (600) to `font-bold` (700) for
-   * marketing-heavy CTAs. Has no effect on other variants.
-   */
   bold?: boolean;
-  /**
-   * HIG-pure preview: render with default cursor instead of pointer
-   * (matches Apple / Microsoft / W3C guidance that pointer is for
-   * links). Off by default; daily.dev's convention is pointer on
-   * buttons.
-   */
   useDefaultCursor?: boolean;
   children?: ReactNode;
   tag?: React.ElementType & AllowedTags;
 }
 
-// when color is present, variant is required
 type ColorButtonProps =
   | { color: ButtonColor; variant: ButtonVariant }
   | { color?: never; variant?: ButtonVariant };
 
-// when iconPosition is present, icon is required
 type IconButtonProps =
   | {
       iconPosition: ButtonIconPosition;
@@ -93,11 +76,6 @@ export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
     ref?: Ref<ButtonElementType<T>>;
   };
 
-/**
- * Variant-driven font weight — same contract as V2 (ChatGPT pattern).
- * Hierarchy is carried by fill / border, not weight uniformity, so we
- * drop V1's universal `font-bold`.
- */
 const variantFontWeight = (
   variant: ButtonVariant | undefined,
   bold: boolean | undefined,
@@ -177,8 +155,6 @@ function ButtonComponent<TagName extends AllowedTags>(
     variant === ButtonVariant.Option || variant === ButtonVariant.Quiz;
   const [isHovering, setIsHovering] = useState(false);
 
-  // `inactive` keeps the element interactive (no `disabled` attr) but
-  // marks it via `aria-disabled` so screen readers announce the state.
   const ariaDisabled = inactive && !disabled ? true : undefined;
 
   return (
@@ -195,8 +171,6 @@ function ButtonComponent<TagName extends AllowedTags>(
         useDefaultCursor ? 'cursor-default' : 'cursor-pointer',
         !isOptionOrQuiz && 'justify-center',
         variantFontWeight(variant, bold),
-        // Tighten letter spacing on the largest sizes — typo-title3 (20 px)
-        // and typo-body (17 px) read better with -1 % tracking.
         (size === ButtonSize.XLarge || size === ButtonSize.Large) &&
           'tracking-[-0.01em]',
         { iconOnly },
@@ -229,9 +203,6 @@ function ButtonComponent<TagName extends AllowedTags>(
         ) &&
         getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}
       {shouldWrapLabel ? (
-        // `truncate` + `min-w-0` so a full-width button (`w-full`) with a
-        // long label ellipsises cleanly. `min-w-0` is mandatory on flex
-        // children for `truncate` to actually shrink them.
         <span
           className={classNames(
             'btn-label min-w-0 truncate',
@@ -256,10 +227,4 @@ function ButtonComponent<TagName extends AllowedTags>(
   );
 }
 
-/**
- * `Button` is daily.dev's default button. The V1 component shell is kept
- * for back-compat with every existing call site; the visual layer
- * underneath now matches `ButtonV2` (same tokens, same polish, same
- * size/typo/gap/padding scale). See `Buttons.mdx` for the design DNA.
- */
 export const Button = forwardRef(ButtonComponent);
