@@ -202,3 +202,14 @@ export const featureCompanionDemoWidget = new Feature(
 );
 
 export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+
+/**
+ * Enables variable-size cards (1x2, 2x1, 2x2, 3x2) in My Feed.
+ * UI-only first; once backend ships `layoutHint` per item, the FE will
+ * consume it automatically. Defaults on in development for visual QA and off
+ * in production until rollout is configured in GrowthBook.
+ */
+export const featureMyFeedMultiCard = new Feature(
+  'my_feed_multi_card',
+  isDevelopment,
+);

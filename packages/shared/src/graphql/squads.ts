@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
-import { subDays } from 'date-fns';
 import {
+  CURRENT_MEMBER_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
@@ -25,7 +25,6 @@ import { RequestKey, StaleTime } from '../lib/query';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
-import type { UserShortProfile } from '../lib/user';
 
 type BaseSquadForm = Pick<
   Squad,
@@ -291,44 +290,6 @@ export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
   }
 `;
 
-export const TOP_MEMBERS_BY_SQUAD_QUERY = gql`
-  query TopMembersBySquad($sourceId: ID!, $since: DateTime!, $limit: Int) {
-    topMembersBySquad(sourceId: $sourceId, since: $since, limit: $limit) {
-      ...UserShortInfo
-    }
-  }
-  ${USER_SHORT_INFO_FRAGMENT}
-`;
-
-export interface TopMembersBySquadData {
-  topMembersBySquad: UserShortProfile[];
-}
-
-export const MAX_TOP_MEMBERS_BY_SQUAD = 10;
-
-export const getTopMembersBySquadSince = (): string => {
-  const since = subDays(new Date(), 30);
-  since.setUTCHours(0, 0, 0, 0);
-
-  return since.toISOString();
-};
-
-export async function getTopMembersBySquad(
-  sourceId: string,
-  limit = MAX_TOP_MEMBERS_BY_SQUAD,
-): Promise<UserShortProfile[]> {
-  const res = await gqlClient.request<TopMembersBySquadData>(
-    TOP_MEMBERS_BY_SQUAD_QUERY,
-    {
-      sourceId,
-      since: getTopMembersBySquadSince(),
-      limit,
-    },
-  );
-
-  return res.topMembersBySquad;
-}
-
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
@@ -343,8 +304,12 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       moderationRequired
       membersCount
       createdAt
+      currentMember {
+        ...CurrentMember
+      }
     }
   }
+  ${CURRENT_MEMBER_FRAGMENT}
 `;
 
 export type SquadStaticData = Pick<
@@ -360,6 +325,7 @@ export type SquadStaticData = Pick<
   | 'permalink'
   | 'membersCount'
   | 'createdAt'
+  | 'currentMember'
 >;
 
 export const getSquadStaticFields = async (
@@ -526,18 +492,7 @@ export async function getSquad(handle: string): Promise<Squad> {
   const res = await gqlClient.request<SquadData>(SQUAD_QUERY, {
     handle: handle.toLowerCase(),
   });
-  const squad = res.source;
-
-  if (!squad.public || !squad.id) {
-    return squad;
-  }
-
-  const topMembers = await getTopMembersBySquad(squad.id);
-
-  return {
-    ...squad,
-    topMembers,
-  };
+  return res.source;
 }
 
 export const squadAnalyticsQueryOptions = ({

@@ -46,6 +46,11 @@ export interface FeedContainerProps {
   feedContainerRef?: React.Ref<HTMLDivElement>;
   showBriefCard?: boolean;
   disableListFrame?: boolean;
+  /**
+   * When true, enable CSS grid `dense` auto-flow so smaller items backfill
+   * holes left by wide multi-card variants pushed to the next row.
+   */
+  isMultiCardLayout?: boolean;
 }
 
 const listGapClass = 'gap-2';
@@ -132,6 +137,7 @@ export const FeedContainer = ({
   feedContainerRef,
   showBriefCard,
   disableListFrame = false,
+  isMultiCardLayout = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -325,6 +331,10 @@ export const FeedContainer = ({
                 isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
+                isMultiCardLayout &&
+                  !isList &&
+                  !isHorizontal &&
+                  'grid-flow-row-dense',
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
