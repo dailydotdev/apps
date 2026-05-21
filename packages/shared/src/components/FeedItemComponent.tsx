@@ -63,6 +63,11 @@ import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
 import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
 
+export type HorizontalWideFeedVariant =
+  | 'featuredArticle'
+  | 'topSquads'
+  | 'popularTags';
+
 export type FeedItemComponentProps = {
   item: FeedItem;
   index: number;
@@ -99,11 +104,9 @@ export type FeedItemComponentProps = {
   ) => unknown;
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
-  renderAsFeaturedArticleCard?: boolean;
-  renderAsTopSquadsCard?: boolean;
+  horizontalWideVariant?: HorizontalWideFeedVariant;
   topActiveSquads?: TopActiveSquad[];
   topActiveSquadsPending?: boolean;
-  renderAsPopularTagsCard?: boolean;
   popularTags?: PopularTagItem[];
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
@@ -274,11 +277,9 @@ function FeedItemComponent({
   onReadArticleClick,
   virtualizedNumCards,
   disableAdRefresh,
-  renderAsFeaturedArticleCard = false,
-  renderAsTopSquadsCard = false,
+  horizontalWideVariant,
   topActiveSquads,
   topActiveSquadsPending = false,
-  renderAsPopularTagsCard = false,
   popularTags,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
@@ -396,11 +397,7 @@ function FeedItemComponent({
     }
 
     const isPostItem = item.type === FeedItemType.Post;
-    const renderFeaturedArticle = renderAsFeaturedArticleCard && isPostItem;
-    const renderTopSquads =
-      renderAsTopSquadsCard && isPostItem && !renderFeaturedArticle;
-    const renderPopularTags =
-      renderAsPopularTagsCard && isPostItem && !renderFeaturedArticle && !renderTopSquads;
+    const wideVariant = isPostItem ? horizontalWideVariant : undefined;
 
     const featuredArticleHandlers = {
       ref: inViewRef,
@@ -442,11 +439,9 @@ function FeedItemComponent({
     };
 
     let postBody: ReactElement;
-    if (renderFeaturedArticle) {
-      postBody = (
-        <ArticleFeaturedWideGridCard {...featuredArticleHandlers} />
-      );
-    } else if (renderTopSquads) {
+    if (wideVariant === 'featuredArticle') {
+      postBody = <ArticleFeaturedWideGridCard {...featuredArticleHandlers} />;
+    } else if (wideVariant === 'topSquads') {
       postBody = (
         <TopSquadsGridCard
           ref={inViewRef}
@@ -457,7 +452,7 @@ function FeedItemComponent({
           isPending={topActiveSquadsPending}
         />
       );
-    } else if (renderPopularTags) {
+    } else if (wideVariant === 'popularTags') {
       postBody = (
         <PopularTagsGridCard
           ref={inViewRef}

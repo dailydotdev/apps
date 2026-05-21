@@ -33,7 +33,7 @@ export const POPULAR_TAGS: PopularTagItem[] = [
   { name: 'Career', slug: 'career' },
   { name: 'Golang', slug: 'golang' },
   { name: 'Rust', slug: 'rust' },
-  { name: 'Opensource', slug: 'open-source' },
+  { name: 'Open source', slug: 'open-source' },
   { name: 'Testing', slug: 'testing' },
   { name: 'PHP', slug: 'php' },
   { name: 'Java', slug: 'java' },
@@ -206,12 +206,12 @@ export const PopularTagsGridCard = forwardRef(function PopularTagsGridCard(
       <div className="absolute inset-0 flex flex-col p-3 laptop:p-4">
         <header className="mb-3">
           <h2 className="font-bold text-text-primary typo-title3">
-            Most followed tags
+            Popular tags
           </h2>
         </header>
         <ul
           ref={listRef}
-          aria-label="Most followed tags"
+          aria-label="Popular tags"
           className="flex min-h-0 flex-1 list-none flex-wrap content-start gap-2 overflow-hidden p-0"
         >
           {visibleTags.map((tag, index) => (

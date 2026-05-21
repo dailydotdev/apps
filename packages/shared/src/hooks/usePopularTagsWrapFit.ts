@@ -80,11 +80,10 @@ export function usePopularTagsWrapFit<T extends { slug: string }>(
   );
 
   const listRef = useRef<HTMLUListElement | null>(null);
-  const [visibleCount, setVisibleCount] = useState(() => candidates.length);
-  const zeroHeightRetriesRef = useRef(0);
+  const [visibleCount, setVisibleCount] = useState(1);
 
   useLayoutEffect(() => {
-    zeroHeightRetriesRef.current = 0;
+    setVisibleCount(1);
   }, [candidates]);
 
   const recompute = useCallback(() => {
@@ -94,7 +93,6 @@ export function usePopularTagsWrapFit<T extends { slug: string }>(
     }
 
     if (candidates.length === 0) {
-      zeroHeightRetriesRef.current = 0;
       flushSync(() => {
         setVisibleCount(0);
       });
@@ -107,16 +105,8 @@ export function usePopularTagsWrapFit<T extends { slug: string }>(
 
     const available = el.clientHeight;
     if (available < 1) {
-      if (zeroHeightRetriesRef.current < 8) {
-        zeroHeightRetriesRef.current += 1;
-        requestAnimationFrame(() => {
-          recompute();
-        });
-      }
       return;
     }
-
-    zeroHeightRetriesRef.current = 0;
 
     const fit = countWrappedChipsThatFit(el);
     const next = Math.max(1, Math.min(fit, candidates.length));

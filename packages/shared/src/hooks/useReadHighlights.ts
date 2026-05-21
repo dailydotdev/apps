@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import usePersistentContext from './usePersistentContext';
 
 const READ_HIGHLIGHTS_KEY = 'read_highlights';
+const READ_HIGHLIGHTS_MAX = 500;
 
 export function useReadHighlights(): {
   isRead: (highlightId: string) => boolean;
@@ -27,7 +28,7 @@ export function useReadHighlights(): {
         return;
       }
 
-      await setValue([...readIds, highlightId]);
+      await setValue([...readIds, highlightId].slice(-READ_HIGHLIGHTS_MAX));
     },
     [readIds, readSet, setValue],
   );

@@ -73,9 +73,9 @@ it('renders a larger title, description, engagement bar, and column-width image'
     'breaking-news-chip-fill',
   );
   const chip = screen.getByText('Breaking news');
-  expect(
-    title.compareDocumentPosition(chip) & Node.DOCUMENT_POSITION_FOLLOWING,
-  ).toBeTruthy();
+  expect(title.compareDocumentPosition(chip)).toBe(
+    Node.DOCUMENT_POSITION_FOLLOWING,
+  );
   expect(chip.closest('.shrink-0')?.nextElementSibling).toHaveClass(
     'overflow-hidden',
   );

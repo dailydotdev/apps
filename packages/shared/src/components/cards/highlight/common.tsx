@@ -197,10 +197,7 @@ const HighlightGridRow = ({
         onHighlightClick?.(highlight, index + 1);
       }}
     >
-      <span
-        aria-hidden
-        className={getHighlightAccentDotClassName(isRead)}
-      />
+      <span aria-hidden className={getHighlightAccentDotClassName(isRead)} />
       <span className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <span
           className={getHighlightHeadlineClassName(isRead)}
@@ -233,7 +230,7 @@ const HighlightGridCardContent = ({
   const { isRead, markAsRead } = useReadHighlights();
 
   const onMarkAsRead = (highlightId: string): void => {
-    void markAsRead(highlightId);
+    Promise.resolve(markAsRead(highlightId)).catch(() => undefined);
   };
 
   return (
@@ -278,27 +275,16 @@ const HighlightGridCardContent = ({
   );
 };
 
-export const HighlightCardContent = ({
+const HighlightListCardContent = ({
   highlights,
   onHighlightClick,
   onReadAllClick,
-  variant,
-}: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
-  if (variant === 'grid') {
-    return (
-      <HighlightGridCardContent
-        highlights={highlights}
-        onHighlightClick={onHighlightClick}
-        onReadAllClick={onReadAllClick}
-      />
-    );
-  }
-
+}: HighlightCardProps): ReactElement => {
   const firstHighlight = highlights[0];
   const { isRead, markAsRead } = useReadHighlights();
 
   const onMarkAsRead = (highlightId: string): void => {
-    void markAsRead(highlightId);
+    Promise.resolve(markAsRead(highlightId)).catch(() => undefined);
   };
 
   return (
@@ -332,5 +318,30 @@ export const HighlightCardContent = ({
         className="pt-1.5"
       />
     </>
+  );
+};
+
+export const HighlightCardContent = ({
+  highlights,
+  onHighlightClick,
+  onReadAllClick,
+  variant,
+}: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
+  if (variant === 'grid') {
+    return (
+      <HighlightGridCardContent
+        highlights={highlights}
+        onHighlightClick={onHighlightClick}
+        onReadAllClick={onReadAllClick}
+      />
+    );
+  }
+
+  return (
+    <HighlightListCardContent
+      highlights={highlights}
+      onHighlightClick={onHighlightClick}
+      onReadAllClick={onReadAllClick}
+    />
   );
 };

@@ -37,7 +37,9 @@ const formatMembersCount = (count?: number): string | null => {
   }
 
   if (count >= 1000) {
-    return `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k members`;
+    const formatted = (count / 1000).toFixed(1).replace(/\.0$/, '');
+
+    return `${formatted}k members`;
   }
 
   return `${count} members`;

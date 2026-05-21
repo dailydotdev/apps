@@ -36,6 +36,9 @@ export const TOP_ACTIVE_SQUADS_30D = [
   { name: 'Platform & AI', handle: 'platformai' },
 ] as const;
 
+/** Matches the skeleton/initial viewport in `TopSquadsGridCard`. */
+export const TOP_ACTIVE_SQUADS_CARD_LIMIT = 8;
+
 export interface TopActiveSquad {
   id: string;
   name: string;
@@ -48,7 +51,7 @@ export interface TopActiveSquad {
 
 interface UseTopActiveSquadsParams {
   enabled?: boolean;
-  /** Limit how many of the curated handles to fetch (defaults to all 20). */
+  /** Limit how many of the curated handles to fetch. */
   limit?: number;
 }
 
@@ -59,7 +62,7 @@ interface UseTopActiveSquadsResult {
 
 export const useTopActiveSquads = ({
   enabled = true,
-  limit = TOP_ACTIVE_SQUADS_30D.length,
+  limit = TOP_ACTIVE_SQUADS_CARD_LIMIT,
 }: UseTopActiveSquadsParams = {}): UseTopActiveSquadsResult => {
   const seeds = useMemo(() => TOP_ACTIVE_SQUADS_30D.slice(0, limit), [limit]);
 

@@ -351,11 +351,7 @@ export default function Feed<T>({
       number,
       'featuredArticle' | 'topSquads' | 'popularTags'
     >();
-    const sequence = [
-      'featuredArticle',
-      'topSquads',
-      'popularTags',
-    ] as const;
+    const sequence = ['featuredArticle', 'topSquads', 'popularTags'] as const;
     let wideCount = 0;
     placements.forEach((placement, index) => {
       if (placement.colSpan > 1 && placement.rowSpan === 1) {
@@ -728,14 +724,10 @@ export default function Feed<T>({
                 (placement.colSpan > 1 || placement.rowSpan > 1);
               const horizontalWideVariant =
                 horizontalWideVariantByIndex.get(index);
-              const isFeaturedArticleSlot =
-                horizontalWideVariant === 'featuredArticle';
-              const isTopSquadsSlot = horizontalWideVariant === 'topSquads';
-              const isPopularTagsSlot =
-                horizontalWideVariant === 'popularTags';
-              const topActiveSquadsForCard = isTopSquadsSlot
-                ? topActiveSquads
-                : undefined;
+              const topActiveSquadsForCard =
+                horizontalWideVariant === 'topSquads'
+                  ? topActiveSquads
+                  : undefined;
               // The packer chooses an exact column and row for every spanned
               // card. Pin both axes so CSS Grid `dense` flow honours the
               // planned placement instead of re-packing from left-to-right.
@@ -744,7 +736,9 @@ export default function Feed<T>({
               // free column rather than the rightmost slot the packer picked.
               const spanStyle = shouldApplySpan
                 ? {
-                    gridColumn: `${placement.column + 1} / span ${placement.colSpan}`,
+                    gridColumn: `${placement.column + 1} / span ${
+                      placement.colSpan
+                    }`,
                     gridRow: `${placement.row + 1} / span ${placement.rowSpan}`,
                   }
                 : undefined;
@@ -826,13 +820,12 @@ export default function Feed<T>({
                         onReadArticleClick={onReadArticleClick}
                         virtualizedNumCards={virtualizedNumCards}
                         disableAdRefresh={disableAdRefresh}
-                        renderAsFeaturedArticleCard={isFeaturedArticleSlot}
-                        renderAsTopSquadsCard={isTopSquadsSlot}
+                        horizontalWideVariant={horizontalWideVariant}
                         topActiveSquads={topActiveSquadsForCard}
                         topActiveSquadsPending={
-                          isTopSquadsSlot && isTopActiveSquadsPending
+                          horizontalWideVariant === 'topSquads' &&
+                          isTopActiveSquadsPending
                         }
-                        renderAsPopularTagsCard={isPopularTagsSlot}
                       />
                     </div>
                   ) : (
