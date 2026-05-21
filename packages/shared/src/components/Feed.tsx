@@ -173,18 +173,19 @@ const calculateRow = (index: number, numCards: number): number =>
 const calculateColumn = (index: number, numCards: number): number =>
   index % numCards;
 
-export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
-  [PostType.Article]: ArticlePostModal,
-  [PostType.Share]: SharePostModal,
-  [PostType.Welcome]: SharePostModal,
-  [PostType.Freeform]: SharePostModal,
-  [PostType.VideoYouTube]: ArticlePostModal,
-  [PostType.Collection]: CollectionPostModal,
-  [PostType.Brief]: BriefPostModal,
-  [PostType.Digest]: ArticlePostModal,
-  [PostType.Poll]: PollPostModal,
-  [PostType.SocialTwitter]: SocialTwitterPostModal,
-};
+export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
+  {
+    [PostType.Article]: ArticlePostModal,
+    [PostType.Share]: SharePostModal,
+    [PostType.Welcome]: SharePostModal,
+    [PostType.Freeform]: SharePostModal,
+    [PostType.VideoYouTube]: ArticlePostModal,
+    [PostType.Collection]: CollectionPostModal,
+    [PostType.Brief]: BriefPostModal,
+    [PostType.Digest]: ArticlePostModal,
+    [PostType.Poll]: PollPostModal,
+    [PostType.SocialTwitter]: SocialTwitterPostModal,
+  };
 
 export default function Feed<T>({
   feedName,

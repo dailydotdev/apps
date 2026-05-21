@@ -25,11 +25,7 @@ import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { usePostImage } from '../../../hooks/post/usePostImage';
-import {
-  HIGH_PRIORITY_IMAGE_PROPS,
-  Image,
-  ImageType,
-} from '../../image/Image';
+import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
 import { stripHtmlTags } from '../../../lib/strings';
 
 const BREAKING_NEWS_CHIP_LABEL = 'Breaking news';
@@ -56,7 +52,7 @@ const BreakingNewsChip = ({
     />
     <span
       className={classNames(
-        'relative block overflow-hidden rounded-8 px-2 py-0.5 font-bold text-white typo-caption2 shadow-[0_0_6px_color-mix(in_srgb,var(--theme-accent-ketchup-default)_30%,transparent)]',
+        'relative block overflow-hidden rounded-8 px-2 py-0.5 font-bold text-white shadow-[0_0_6px_color-mix(in_srgb,var(--theme-accent-ketchup-default)_30%,transparent)] typo-caption2',
         breakingNewsChipFillClassName,
       )}
     >

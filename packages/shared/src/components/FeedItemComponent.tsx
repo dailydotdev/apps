@@ -10,7 +10,7 @@ import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { Origin, TargetType } from '../lib/log';
+import { LogEvent, Origin, TargetType } from '../lib/log';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
@@ -29,6 +29,8 @@ import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
 import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
+import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
+import { LiveRoomPostList } from './cards/liveRoom/LiveRoomPostList';
 import { TopSquadsGridCard } from './cards/article/TopSquadsGridCard';
 import { PopularTagsGridCard } from './cards/article/PopularTagsGridCard';
 import type { PopularTagItem } from './cards/article/PopularTagsGridCard';
@@ -136,6 +138,7 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
   [PostType.Digest]: ArticleGrid,
+  [PostType.LiveRoom]: LiveRoomPostGrid,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -150,6 +153,7 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Poll]: PollList,
   [PostType.SocialTwitter]: SocialTwitterList,
   [PostType.Digest]: ArticleList,
+  [PostType.LiveRoom]: LiveRoomPostList,
 };
 
 const getPostTypeForCard = (post?: Post): PostType => {
@@ -276,7 +280,6 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
-  disableAdRefresh,
   horizontalWideVariant,
   topActiveSquads,
   topActiveSquadsPending = false,
@@ -550,11 +553,6 @@ function FeedItemComponent({
           index={item.index}
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
-          onRefresh={
-            disableAdRefresh
-              ? undefined
-              : (ad: Ad) => onAdAction(AdActions.Refresh, ad)
-          }
         />
       );
     }

@@ -210,7 +210,7 @@ export const PopularTagsGridCard = forwardRef(function PopularTagsGridCard(
           </h2>
         </header>
         <ul
-          ref={listRef}
+          ref={listRef as React.Ref<HTMLUListElement>}
           aria-label="Popular tags"
           className="flex min-h-0 flex-1 list-none flex-wrap content-start gap-2 overflow-hidden p-0"
         >

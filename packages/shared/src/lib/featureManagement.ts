@@ -216,3 +216,5 @@ export const featureMyFeedMultiCard = new Feature(
   'my_feed_multi_card',
   isDevelopment,
 );
+
+export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);

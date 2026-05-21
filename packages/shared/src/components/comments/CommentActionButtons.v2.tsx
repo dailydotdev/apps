@@ -20,11 +20,13 @@ import type { Comment } from '../../graphql/comments';
 import type { UserShortProfile } from '../../lib/user';
 import { Roles } from '../../lib/user';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
+import { CardAction } from '../buttons/CardAction';
+import { CardActionBar } from '../buttons/CardActionBar';
 import { ClickableText } from '../buttons/ClickableText';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
@@ -59,8 +61,6 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
-import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
-import CommentActionButtonsV2 from './CommentActionButtons.v2';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -80,7 +80,7 @@ export interface Props extends CommentActionProps {
   threadRepliesControl?: ReactNode;
 }
 
-function CommentActionButtonsV1({
+export default function CommentActionButtons({
   post,
   comment,
   origin,
@@ -312,6 +312,9 @@ function CommentActionButtonsV1({
     });
   }
 
+  const isUpvoted = voteState.userState?.vote === UserVote.Up;
+  const isDownvoted = voteState.userState?.vote === UserVote.Down;
+
   return (
     <div
       className={classNames(
@@ -327,76 +330,74 @@ function CommentActionButtonsV1({
           {threadRepliesControl}
         </div>
       )}
-      <Tooltip content="Upvote">
-        <Button
-          id={`comment-${comment.id}-upvote-btn`}
-          size={ButtonSize.Small}
-          pressed={voteState.userState?.vote === UserVote.Up}
-          onClick={() => {
-            toggleUpvote({
-              payload: {
-                ...voteState,
-                post,
-              },
-              origin,
-            });
-          }}
-          icon={
-            <UpvoteIcon secondary={voteState.userState?.vote === UserVote.Up} />
-          }
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Avocado}
-        />
-      </Tooltip>
-      <Tooltip content="Downvote">
-        <Button
-          id={`comment-${comment.id}-downvote-btn`}
-          size={ButtonSize.Small}
-          pressed={voteState.userState?.vote === UserVote.Down}
-          onClick={() => {
-            toggleDownvote({
-              payload: {
-                ...voteState,
-                post,
-              },
-              origin,
-            });
-          }}
-          icon={
-            <DownvoteIcon
-              secondary={voteState.userState?.vote === UserVote.Down}
-            />
-          }
-          className="mr-3"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Ketchup}
-        />
-      </Tooltip>
-      <Tooltip content="Reply">
-        <Button
-          size={ButtonSize.Small}
-          onClick={() => onComment(comment, parentId)}
-          icon={<CommentIcon />}
-          className="mr-3"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.BlueCheese}
-        />
-      </Tooltip>
-      <CommentAwardActions comment={comment} post={post} />
-      <Tooltip content="Share comment">
-        <Button
-          size={ButtonSize.Small}
-          onClick={() => onShare(comment)}
-          icon={<ShareIcon />}
-          className="mr-3 hidden mobileXL:flex"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Cabbage}
-        />
-      </Tooltip>
-      {!!commentOptions && (
+      <CardActionBar layout="compact">
+        <Tooltip content="Upvote">
+          <CardAction
+            id={`comment-${comment.id}-upvote-btn`}
+            density="compact"
+            pressed={isUpvoted}
+            onClick={() => {
+              toggleUpvote({
+                payload: {
+                  ...voteState,
+                  post,
+                },
+                origin,
+              });
+            }}
+            icon={<UpvoteIcon />}
+            iconPressed={<UpvoteIcon secondary />}
+            label="Upvote"
+            color={ButtonColor.Avocado}
+          />
+        </Tooltip>
+        <Tooltip content="Downvote">
+          <CardAction
+            id={`comment-${comment.id}-downvote-btn`}
+            density="compact"
+            pressed={isDownvoted}
+            onClick={() => {
+              toggleDownvote({
+                payload: {
+                  ...voteState,
+                  post,
+                },
+                origin,
+              });
+            }}
+            icon={<DownvoteIcon />}
+            iconPressed={<DownvoteIcon secondary />}
+            label="Downvote"
+            color={ButtonColor.Ketchup}
+            className="mr-3"
+          />
+        </Tooltip>
+        <Tooltip content="Reply">
+          <CardAction
+            density="compact"
+            onClick={() => onComment(comment, parentId)}
+            icon={<CommentIcon />}
+            label="Reply"
+            color={ButtonColor.BlueCheese}
+            className="mr-3"
+          />
+        </Tooltip>
+        <CommentAwardActions comment={comment} post={post} />
+        <Tooltip content="Share comment">
+          <CardAction
+            density="compact"
+            onClick={() => onShare(comment)}
+            icon={<ShareIcon />}
+            label="Share comment"
+            color={ButtonColor.Cabbage}
+            className="mr-3 hidden mobileXL:flex"
+          />
+        </Tooltip>
+      </CardActionBar>
+      {commentOptions.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               className="my-auto"
               icon={<MenuIcon />}
@@ -434,12 +435,4 @@ function CommentActionButtonsV1({
       )}
     </div>
   );
-}
-
-export default function CommentActionButtons(props: Props): ReactElement {
-  const useV2 = useEngagementBarV2();
-  if (useV2) {
-    return <CommentActionButtonsV2 {...props} />;
-  }
-  return <CommentActionButtonsV1 {...props} />;
 }

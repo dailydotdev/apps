@@ -8,18 +8,14 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
   ButtonColor,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
-import InteractionCounter from '../../../../components/InteractionCounter';
-import { IconSize } from '../../../../components/Icon';
-import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButton';
+import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
-import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
-import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
 
 interface HotTakeItemProps {
   item: HotTake;
@@ -29,7 +25,7 @@ interface HotTakeItemProps {
   onUpvoteClick?: (item: HotTake) => void;
 }
 
-function HotTakeItemV1({
+export function HotTakeItem({
   item,
   isOwner,
   onEdit,
@@ -72,7 +68,7 @@ function HotTakeItemV1({
         {isOwner && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {onEdit && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<EditIcon />}
@@ -81,7 +77,7 @@ function HotTakeItemV1({
               />
             )}
             {onDelete && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<TrashIcon />}
@@ -96,39 +92,19 @@ function HotTakeItemV1({
             content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
             side="bottom"
           >
-            <QuaternaryButton
-              labelClassName="!pl-[1px]"
-              className="btn-tertiary-avocado"
+            <CardAction
+              density="compact"
               color={ButtonColor.Avocado}
               pressed={isUpvoteActive}
               onClick={() => onUpvoteClick(item)}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={
-                <UpvoteIcon secondary={isUpvoteActive} size={IconSize.XSmall} />
-              }
-            >
-              {item.upvotes > 0 && (
-                <InteractionCounter
-                  className={classNames(
-                    'tabular-nums typo-footnote',
-                    !item.upvotes && 'invisible',
-                  )}
-                  value={item.upvotes}
-                />
-              )}
-            </QuaternaryButton>
+              icon={<UpvoteIcon />}
+              iconPressed={<UpvoteIcon secondary />}
+              label="Upvote"
+              count={item.upvotes}
+            />
           </Tooltip>
         )}
       </div>
     </div>
   );
-}
-
-export function HotTakeItem(props: HotTakeItemProps): ReactElement {
-  const useV2 = useEngagementBarV2();
-  if (useV2) {
-    return <HotTakeItemV2 {...props} />;
-  }
-  return <HotTakeItemV1 {...props} />;
 }
