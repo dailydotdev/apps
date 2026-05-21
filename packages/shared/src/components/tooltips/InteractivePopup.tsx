@@ -144,6 +144,7 @@ function InteractivePopup({
           {...props}
         >
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&
+            finalPosition !== InteractivePopupPosition.SidebarSupportMenu &&
             onClose && (
               <Button
                 size={buttonSize}

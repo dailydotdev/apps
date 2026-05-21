@@ -66,6 +66,7 @@ import InteractivePopup, {
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
 import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
+import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
 
@@ -321,6 +322,7 @@ const SidebarSupportButton = (): ReactElement => {
           position={InteractivePopupPosition.SidebarSupportMenu}
           className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
+          <FeedbackWidget placement="support" />
           <ResourceSection />
           <HorizontalSeparator />
           <ProfileMenuFooter />
@@ -347,6 +349,7 @@ export const SidebarDesktopV2 = ({
   activePage: activePageProp,
   featureTheme,
   isNavButtons,
+  showFeedbackWidget,
   onNavTabClick,
   onLogoClick,
   additionalButtons,
@@ -849,6 +852,7 @@ export const SidebarDesktopV2 = ({
           className={classNames(
             'min-h-0 flex-1',
             isUtilityPanelSelected ? 'mt-1' : 'mt-2',
+            showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
           )}
         >
           <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : undefined}>
@@ -857,6 +861,11 @@ export const SidebarDesktopV2 = ({
         </SidebarScrollWrapper>
 
         {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
+        {showFeedbackWidget && !isUtilityPanelSelected && (
+          <div className="absolute inset-x-3 bottom-3">
+            <FeedbackWidget placement="sidebar" />
+          </div>
+        )}
       </section>
     </SidebarAside>
   );

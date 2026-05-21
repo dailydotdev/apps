@@ -84,6 +84,8 @@ import { checkIsExtension } from '../lib/func';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { pageHeaderClassName } from './layout/PageHeader';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -237,6 +239,7 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
   const {
@@ -710,61 +713,82 @@ export default function MainFeedLayout({
     );
   }, [isLaptop, onTabChange, tab]);
 
+  // v2 hoists the explore section tabs into the floating card's
+  // page-header strip (matching the SquadDirectoryLayout pattern). The
+  // inline FeedExploreComponent is suppressed below to avoid showing
+  // the same tabs twice.
+  const showExploreV2PageHeader = isAnyExplore && isV2;
+
   return (
-    <FeedPageLayoutComponent
-      className={classNames('relative', disableTopPadding && '!pt-0')}
-    >
-      {isAnyExplore && <FeedExploreComponent />}
-      {isSearchOn && !isSearchPageLaptop && search}
-      {isSearchOn && isFinder && !isSearchPageLaptop && (
-        <AskSearchBanner className="mx-4 mb-4" />
-      )}
-      {shouldShowReadingReminderOnHomepage && (
-        <ReadingReminderHero
-          className="px-4 pb-2"
-          title={readingReminderTitle}
-          subtitle={readingReminderSubtitle}
-          onEnable={onEnable}
-          onDismiss={onDismiss}
-        />
-      )}
-      {isHomePage && (
-        <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
-      )}
-      {!isExtension && isHomePage && (
-        <WebappShortcutsRow className="px-4 pb-2" />
-      )}
-      {shouldUseCommentFeedLayout ? (
-        <CommentFeed
-          isMainFeed
-          feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
-          query={COMMENT_FEED_QUERY}
-          logOrigin={Origin.CommentFeed}
-          emptyScreen={
-            <ProfileEmptyScreen
-              title="Nobody has replied to any post yet"
-              text="You could be the first you know?"
-            />
-          }
-          commentClassName={commentClassName}
-        />
-      ) : (
-        feedProps && (
-          <Feed
-            {...feedProps}
-            shortcuts={shortcuts}
-            topContent={
-              isExploreTag && chipsNode ? (
-                <div className="mb-8 w-full">{chipsNode}</div>
-              ) : undefined
-            }
-            className={classNames(
-              shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-            )}
+    <>
+      {showExploreV2PageHeader && (
+        <header className={classNames(pageHeaderClassName, '!py-0')}>
+          <FeedExploreHeader
+            tab={tab}
+            setTab={onTabChange}
+            showBreadcrumbs={false}
+            className={{
+              container: 'min-w-0 flex-1',
+              tabBarHeader: '!border-0',
+            }}
           />
-        )
+        </header>
       )}
-      {children}
-    </FeedPageLayoutComponent>
+      <FeedPageLayoutComponent
+        className={classNames('relative', disableTopPadding && '!pt-0')}
+      >
+        {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
+        {isSearchOn && !isSearchPageLaptop && search}
+        {isSearchOn && isFinder && !isSearchPageLaptop && (
+          <AskSearchBanner className="mx-4 mb-4" />
+        )}
+        {shouldShowReadingReminderOnHomepage && (
+          <ReadingReminderHero
+            className="px-4 pb-2"
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            onEnable={onEnable}
+            onDismiss={onDismiss}
+          />
+        )}
+        {isHomePage && (
+          <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
+        )}
+        {!isExtension && isHomePage && (
+          <WebappShortcutsRow className="px-4 pb-2" />
+        )}
+        {shouldUseCommentFeedLayout ? (
+          <CommentFeed
+            isMainFeed
+            feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
+            query={COMMENT_FEED_QUERY}
+            logOrigin={Origin.CommentFeed}
+            emptyScreen={
+              <ProfileEmptyScreen
+                title="Nobody has replied to any post yet"
+                text="You could be the first you know?"
+              />
+            }
+            commentClassName={commentClassName}
+          />
+        ) : (
+          feedProps && (
+            <Feed
+              {...feedProps}
+              shortcuts={shortcuts}
+              topContent={
+                isExploreTag && chipsNode ? (
+                  <div className="mb-8 w-full">{chipsNode}</div>
+                ) : undefined
+              }
+              className={classNames(
+                shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
+              )}
+            />
+          )
+        )}
+        {children}
+      </FeedPageLayoutComponent>
+    </>
   );
 }
