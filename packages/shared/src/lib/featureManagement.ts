@@ -203,4 +203,4 @@ export const featureCompanionDemoWidget = new Feature(
 
 export const featureFeedTagChips = new Feature('feed_tag_chips', false);
 
-export const featureEngagementBarV2 = new Feature('engagement_bar_v2', true);
+export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
