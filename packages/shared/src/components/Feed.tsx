@@ -114,6 +114,7 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
+  topContent?: ReactNode;
 }
 
 interface RankVariables {
@@ -210,6 +211,7 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
+  topContent: topContentProp,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -668,15 +670,17 @@ export default function Feed<T>({
   const containerProps = isSearchPageLaptop
     ? {}
     : {
-        topContent: shouldShowTopHero ? (
-          <TopHero
-            className="pt-2"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
-            onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
-          />
-        ) : undefined,
+        topContent:
+          topContentProp ??
+          (shouldShowTopHero ? (
+            <TopHero
+              className="pt-2"
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
+              onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
+            />
+          ) : undefined),
         header,
         inlineHeader,
         className,
