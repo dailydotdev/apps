@@ -19,6 +19,32 @@ import type {
 } from '../contexts/payment/context';
 import { PlusPlanType, PurchaseType } from '../graphql/paddle';
 
+const checkoutContainerSelector = '.checkout-container';
+const checkoutIframeSelector = 'iframe';
+const missingCheckoutIframeError = 'contentWindow';
+
+const getCheckoutContainers = (): HTMLElement[] => {
+  if (typeof document === 'undefined') {
+    return [];
+  }
+
+  return Array.from(
+    document.querySelectorAll<HTMLElement>(checkoutContainerSelector),
+  ).filter((element) => element.isConnected);
+};
+
+const hasMountedCheckoutContainer = (): boolean =>
+  getCheckoutContainers().length > 0;
+
+const hasMountedCheckoutIframe = (): boolean =>
+  getCheckoutContainers().some((element) =>
+    element.querySelector(checkoutIframeSelector),
+  );
+
+const isMissingCheckoutIframeError = (error: unknown): boolean =>
+  error instanceof TypeError &&
+  error.message.includes(missingCheckoutIframeError);
+
 interface UsePaddlePaymentProps
   extends Pick<
     PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
@@ -40,11 +66,12 @@ export const usePaddlePayment = ({
   const { user, geo, trackingId } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
+  const scheduledOpenFrameRef = useRef<number>();
   const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
   const [appliedDiscountId, setAppliedDiscountId] = useState<string | null>(
     null,
   );
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef(logEvent);
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
   successCallbackRef.current = successCallback;
@@ -67,7 +94,7 @@ export const usePaddlePayment = ({
       environment:
         (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
         'production',
-      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
+      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN as string,
       eventCallback: (event: PaddleEventData) => {
         if (disabledEvents?.includes(event?.name as CheckoutEventNames)) {
           if (event?.name === CheckoutEventNames.CHECKOUT_LOADED) {
@@ -132,11 +159,11 @@ export const usePaddlePayment = ({
                     ? customData.user_id
                     : undefined,
                 quantity: getProductQuantityRef.current?.(event),
-                localCost: event?.data.totals.total,
-                localCurrency: event?.data.currency_code,
-                payment: event?.data.payment.method_details.type,
+                localCost: event?.data?.totals.total,
+                localCurrency: event?.data?.currency_code,
+                payment: event?.data?.payment.method_details.type,
                 cycle:
-                  event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
+                  event?.data?.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 ...plusPlanExtra,
               }),
             });
@@ -209,6 +236,17 @@ export const usePaddlePayment = ({
     });
   }, [router, disabledEvents, targetType, isOrganization, isPlusPlan]);
 
+  useEffect(
+    () => () => {
+      if (typeof window === 'undefined' || !scheduledOpenFrameRef.current) {
+        return;
+      }
+
+      window.cancelAnimationFrame(scheduledOpenFrameRef.current);
+    },
+    [],
+  );
+
   const openCheckout = useCallback(
     <TCustomData>({
       priceId,
@@ -245,18 +283,65 @@ export const usePaddlePayment = ({
         ...(!!giftToUserId && { gifter_id: user?.id }),
       };
 
-      if (isCheckoutOpenRef.current) {
-        setCheckoutItemsLoading(true);
-        paddle?.Checkout.updateItems(items);
-        return;
-      }
-
-      paddle?.Checkout.open({
+      const checkoutOptions = {
         items,
         customer,
         customData,
         discountId: discountIdQuery || discountId,
-      });
+      };
+
+      const openInlineCheckout = () => {
+        if (!paddle?.Checkout) {
+          return;
+        }
+
+        const open = () => {
+          if (!hasMountedCheckoutContainer()) {
+            return;
+          }
+
+          isCheckoutOpenRef.current = false;
+          setCheckoutItemsLoading(false);
+          paddle.Checkout.open(checkoutOptions);
+        };
+
+        if (hasMountedCheckoutContainer()) {
+          open();
+          return;
+        }
+
+        if (typeof window === 'undefined') {
+          return;
+        }
+
+        if (scheduledOpenFrameRef.current) {
+          window.cancelAnimationFrame(scheduledOpenFrameRef.current);
+        }
+
+        scheduledOpenFrameRef.current = window.requestAnimationFrame(() => {
+          scheduledOpenFrameRef.current = undefined;
+          open();
+        });
+      };
+
+      if (isCheckoutOpenRef.current && hasMountedCheckoutIframe()) {
+        setCheckoutItemsLoading(true);
+        try {
+          paddle?.Checkout.updateItems(items);
+        } catch (error) {
+          setCheckoutItemsLoading(false);
+
+          if (isMissingCheckoutIframeError(error)) {
+            openInlineCheckout();
+            return;
+          }
+
+          throw error;
+        }
+        return;
+      }
+
+      openInlineCheckout();
     },
     [
       paddle?.Checkout,
