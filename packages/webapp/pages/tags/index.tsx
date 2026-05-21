@@ -163,7 +163,7 @@ const TagsPage = ({
                 key={letter}
                 className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
               >
-                <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
+                <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout [break-after:avoid-column]">
                   {letter}
                 </p>
                 {value.map((tag) => (
@@ -172,6 +172,7 @@ const TagsPage = ({
                     tag={tag.value}
                     size="md"
                     isFollowed={followedSet.has(tag.value)}
+                    className="break-inside-avoid"
                   />
                 ))}
               </div>
