@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import type { GrowthBookContextValue } from '@growthbook/growthbook-react';
 import { GrowthBookContext } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
@@ -49,12 +50,6 @@ type ShowLoginParams = {
   options?: LoginOptions;
 };
 
-type GrowthBookContextData = {
-  growthbook?: {
-    getFeatureValue: <T>(id: string, defaultValue: T) => T | undefined;
-  };
-};
-
 export interface AuthContextData {
   user?: LoggedUser;
   isLoggedIn: boolean;
@@ -85,7 +80,6 @@ export interface AuthContextData {
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
   isFunnel?: boolean;
-  inlineLoginEnabled?: boolean;
 }
 
 const isExtension = checkIsExtension();
@@ -168,8 +162,6 @@ export const AuthContextProvider = ({
   isAndroidApp,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
-  const [inlineLoginEnabled, setInlineLoginEnabled] = useState<boolean>();
-  const inlineLoginEnabledRef = useRef<boolean>();
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
@@ -177,28 +169,12 @@ export const AuthContextProvider = ({
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
   const growthbookContext = useContext(
     GrowthBookContext,
-  ) as unknown as GrowthBookContextData;
+  ) as unknown as GrowthBookContextValue;
   const growthbook = growthbookContext?.growthbook;
   const isValidRegion = useMemo(
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
   );
-  const evaluateInlineLogin = useCallback((): boolean => {
-    if (!isNullOrUndefined(inlineLoginEnabledRef.current)) {
-      return inlineLoginEnabledRef.current;
-    }
-
-    const isEnabled =
-      growthbook?.getFeatureValue<boolean>(
-        inlineLoginFeatureId,
-        inlineLoginDefaultValue,
-      ) === true;
-
-    inlineLoginEnabledRef.current = isEnabled;
-    setInlineLoginEnabled(isEnabled);
-
-    return isEnabled;
-  }, [growthbook]);
 
   return (
     <AuthContext.Provider
@@ -212,7 +188,6 @@ export const AuthContextProvider = ({
         firstVisit: user?.firstVisit,
         trackingId: user?.id,
         shouldShowLogin: loginState !== null,
-        inlineLoginEnabled,
         showLogin: useCallback(
           ({ trigger, options = {} }) => {
             const hasCompanion = !!isCompanionActivated();
@@ -223,7 +198,12 @@ export const AuthContextProvider = ({
             }
 
             const params = new URLSearchParams(globalThis?.location.search);
-            const shouldUseInlineLogin = !isExtension && evaluateInlineLogin();
+            const shouldUseInlineLogin =
+              !isExtension &&
+              growthbook?.getFeatureValue(
+                inlineLoginFeatureId,
+                inlineLoginDefaultValue,
+              ) === true;
 
             setLoginState({ ...options, trigger });
             if (isExtension) {
@@ -247,7 +227,7 @@ export const AuthContextProvider = ({
 
             router.push(onboardingPath);
           },
-          [evaluateInlineLogin, router],
+          [growthbook, router],
         ),
         closeLogin: useCallback(() => setLoginState(null), []),
         loginState,

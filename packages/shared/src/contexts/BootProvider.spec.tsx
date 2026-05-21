@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import React, { useContext } from 'react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -47,9 +49,19 @@ jest.mock('../lib/user', () => {
 
 const getRedirectUriMock = jest.fn();
 
+const mockUseRouter = (router: Partial<NextRouter> = {}) => {
+  jest.mocked(useRouter).mockReturnValue({
+    query: {},
+    push: jest.fn(),
+    pathname: '/',
+    ...router,
+  } as unknown as NextRouter);
+};
+
 beforeEach(() => {
   nock.cleanAll();
   localStorage.clear();
+  mockUseRouter();
 });
 
 const defaultAlerts: Alerts = { filter: true, rankLastSeen: undefined };
@@ -417,7 +429,6 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
     getRedirectUri,
     trackingId,
     anonymous,
-    inlineLoginEnabled,
   } = useContext(AuthContext);
 
   return (
@@ -462,9 +473,6 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
       </button>
       <span data-test-value={trackingId}>Tracking ID</span>
       <span data-test-value={JSON.stringify(anonymous)}>Anonymous User</span>
-      <span data-test-value={`${inlineLoginEnabled}`}>
-        Inline Login Enabled
-      </span>
     </>
   );
 };
@@ -505,7 +513,13 @@ it('should trigger show login callback', async () => {
   await expectToHaveTestValue(login, JSON.stringify({ trigger: expected }));
 });
 
-it('should evaluate inline login only after auth intent', async () => {
+it('should keep inline login on page when enabled after auth intent', async () => {
+  const push = jest.fn();
+  mockUseRouter({
+    push,
+    pathname: '/posts/shared',
+  });
+
   renderComponent(<AuthMock loginTrigger={AuthTriggers.Comment} />, {
     ...defaultBootData,
     user: defaultAnonymousUser,
@@ -522,12 +536,16 @@ it('should evaluate inline login only after auth intent', async () => {
   });
 
   const login = await screen.findByText('Log in');
-  const inlineLogin = await screen.findByText('Inline Login Enabled');
-  await expectToHaveTestValue(inlineLogin, 'undefined');
+  await expectToHaveTestValue(login, 'null');
+  expect(push).not.toHaveBeenCalled();
 
   fireEvent.click(login);
 
-  await expectToHaveTestValue(inlineLogin, 'true');
+  await expectToHaveTestValue(
+    login,
+    JSON.stringify({ trigger: AuthTriggers.Comment }),
+  );
+  expect(push).not.toHaveBeenCalled();
 });
 
 it('should trigger close login callback', async () => {
