@@ -3,6 +3,7 @@ import React, {
   forwardRef,
   useCallback,
   useEffect,
+  useId,
   useImperativeHandle,
   useState,
 } from 'react';
@@ -44,6 +45,24 @@ const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
   medium: ButtonSize.Small,
 };
 
+const focusInputById = (inputId: string, remainingFrames = 30): void => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.focus();
+    return;
+  }
+
+  if (remainingFrames <= 0) {
+    return;
+  }
+
+  requestAnimationFrame(() => focusInputById(inputId, remainingFrames - 1));
+};
+
 export interface NewCommentRef {
   onShowInput: (origin: Origin) => void;
 }
@@ -66,6 +85,7 @@ function NewCommentComponent(
   const { logEvent } = useLogContext();
   const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
+  const inputId = `comment-input-${useId()}`;
   const [inputContent, setInputContent] = useState<string | undefined>(
     undefined,
   );
@@ -123,7 +143,9 @@ function NewCommentComponent(
       return showLogin({ trigger: AuthTriggers.NewComment });
     }
 
-    return onShowComment(origin);
+    onShowComment(origin);
+    focusInputById(inputId);
+    return undefined;
   };
 
   useImperativeHandle(ref, () => ({
@@ -135,6 +157,8 @@ function NewCommentComponent(
       <CommentInputOrModal
         {...props}
         post={post}
+        inputId={inputId}
+        autoFocus={false}
         className={{ input: { container: 'my-4', tab: className?.tab } }}
         onCommented={onSuccess}
         initialContent={inputContent}
