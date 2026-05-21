@@ -151,9 +151,7 @@ export function ReaderRailActionBar({
         id="reader-bookmark-btn"
         pressed={post.bookmarked}
         onClick={() => {
-          toggleBookmark({ post, origin: Origin.ReaderModal }).catch(
-            () => {},
-          );
+          toggleBookmark({ post, origin: Origin.ReaderModal }).catch(() => {});
         }}
       />
       <Tooltip content="Copy link">
