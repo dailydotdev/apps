@@ -122,6 +122,7 @@ interface ClassName {
 
 interface RichTextInputProps {
   className?: ClassName;
+  inputId?: string;
   footer?: ReactNode;
   textareaProps?: Omit<
     TextareaHTMLAttributes<HTMLTextAreaElement>,
@@ -169,6 +170,7 @@ export interface RichTextInputRef {
 function RichTextInput(
   {
     className = {},
+    inputId,
     footer,
     textareaProps = {},
     submitCopy,
@@ -365,6 +367,7 @@ function RichTextInput(
       updateSuggestionsFromEditor(updatedEditor);
     },
     editorProps: {
+      attributes: inputId ? { id: inputId } : undefined,
       handlePaste: (_view, event) => {
         const hasFiles = (event.clipboardData?.files?.length ?? 0) > 0;
         if (hasFiles) {
@@ -671,7 +674,7 @@ function RichTextInput(
         return;
       }
 
-      editor?.commands.focus();
+      editor?.commands.focus('end');
     },
     toggleMarkdownMode,
   }));
@@ -863,6 +866,7 @@ function RichTextInput(
               >
                 <textarea
                   {...textareaProps}
+                  id={inputId}
                   name={undefined}
                   ref={markdownTextareaRef}
                   value={input}

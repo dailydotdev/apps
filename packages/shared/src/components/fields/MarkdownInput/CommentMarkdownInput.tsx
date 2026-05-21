@@ -1,8 +1,8 @@
 import type {
   CSSProperties,
+  ForwardedRef,
   FormEventHandler,
   FormHTMLAttributes,
-  MutableRefObject,
   ReactElement,
 } from 'react';
 import React, { forwardRef, useRef } from 'react';
@@ -25,6 +25,7 @@ export interface CommentClassName {
 
 export interface CommentMarkdownInputProps {
   post: Post;
+  inputId?: string;
   editCommentId?: string;
   parentCommentId?: string;
   initialContent?: string;
@@ -38,6 +39,7 @@ export interface CommentMarkdownInputProps {
   ) => void;
   showSubmit?: boolean;
   showUserAvatar?: boolean;
+  autoFocus?: boolean;
   onChange?: (value: string) => void;
   formProps?: FormHTMLAttributes<HTMLFormElement>;
   onClose?: () => void;
@@ -46,6 +48,7 @@ export interface CommentMarkdownInputProps {
 export function CommentMarkdownInputComponent(
   {
     post,
+    inputId,
     initialContent,
     replyTo,
     editCommentId,
@@ -55,18 +58,23 @@ export function CommentMarkdownInputComponent(
     onChange,
     showSubmit = true,
     showUserAvatar = true,
+    autoFocus = true,
     formProps = {},
     onClose,
   }: CommentMarkdownInputProps,
-  ref: MutableRefObject<HTMLFormElement>,
+  ref: ForwardedRef<HTMLFormElement>,
 ): ReactElement {
-  const shouldFocus = useRef(true);
+  const shouldFocus = useRef(autoFocus);
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const {
     mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
   const richTextRef = useRef<RichTextInputRef | null>(null);
+  let submitCopy: string | undefined;
+  if (showSubmit) {
+    submitCopy = editCommentId ? 'Update' : 'Comment';
+  }
 
   const onSubmitForm: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -114,6 +122,7 @@ export function CommentMarkdownInputComponent(
       ref={ref}
     >
       <RichTextInput
+        inputId={inputId}
         ref={(richTextRefInstance) => {
           if (richTextRefInstance) {
             richTextRef.current = richTextRefInstance;
@@ -143,7 +152,7 @@ export function CommentMarkdownInputComponent(
         }}
         onSubmit={onKeyboardSubmit}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
-        submitCopy={showSubmit && (editCommentId ? 'Update' : 'Comment')}
+        submitCopy={submitCopy}
         timeline={
           replyTo ? (
             <span className="py-1.5 pl-12 text-text-tertiary typo-caption1">
