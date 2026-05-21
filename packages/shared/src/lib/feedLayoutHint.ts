@@ -150,11 +150,13 @@ export const getRawLayoutHintFromItem = (item: FeedItem): unknown => {
  * supported large variants in My Feed. Returns `undefined` for items that
  * should remain `1x1`.
  *
+ *   index 7  -> 2x1 (horizontal wide featured article card)
  *   index 21 -> 2x1 (horizontal wide Top active squads card)
  *   index 35 -> 2x1 (horizontal wide Popular tags card)
  *   pattern repeats every 40 items
  */
 const DEV_SEED_PATTERN: Record<number, LayoutHint> = {
+  7: '2x1',
   21: '2x1',
   35: '2x1',
 };

@@ -28,6 +28,7 @@ import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
+import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
 import { TopSquadsGridCard } from './cards/article/TopSquadsGridCard';
 import { PopularTagsGridCard } from './cards/article/PopularTagsGridCard';
 import type { PopularTagItem } from './cards/article/PopularTagsGridCard';
@@ -98,6 +99,7 @@ export type FeedItemComponentProps = {
   ) => unknown;
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
+  renderAsFeaturedArticleCard?: boolean;
   renderAsTopSquadsCard?: boolean;
   topActiveSquads?: TopActiveSquad[];
   topActiveSquadsPending?: boolean;
@@ -272,6 +274,7 @@ function FeedItemComponent({
   onReadArticleClick,
   virtualizedNumCards,
   disableAdRefresh,
+  renderAsFeaturedArticleCard = false,
   renderAsTopSquadsCard = false,
   topActiveSquads,
   topActiveSquadsPending = false,
@@ -393,12 +396,57 @@ function FeedItemComponent({
     }
 
     const isPostItem = item.type === FeedItemType.Post;
-    const renderTopSquads = renderAsTopSquadsCard && isPostItem;
+    const renderFeaturedArticle = renderAsFeaturedArticleCard && isPostItem;
+    const renderTopSquads =
+      renderAsTopSquadsCard && isPostItem && !renderFeaturedArticle;
     const renderPopularTags =
-      renderAsPopularTagsCard && isPostItem && !renderTopSquads;
+      renderAsPopularTagsCard && isPostItem && !renderFeaturedArticle && !renderTopSquads;
+
+    const featuredArticleHandlers = {
+      ref: inViewRef,
+      post: { ...itemPost },
+      'data-testid': 'postItem',
+      onUpvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleUpvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onDownvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleDownvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onPostClick: (post: Post) => onPostClick(post, index, row, column),
+      onPostAuxClick: (post: Post) =>
+        onPostClick(post, index, row, column, true),
+      onReadArticleClick: () =>
+        onReadArticleClick(itemPost, index, row, column),
+      onShare: (post: Post) => onShare(post, row, column),
+      onBookmarkClick: (post: Post, origin = Origin.Feed) => {
+        toggleBookmark({
+          post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      openNewTab,
+      onCopyLinkClick: (event: React.MouseEvent, post: Post) =>
+        onCopyLinkClick(event, post, index, row, column),
+      onCommentClick: (post: Post) =>
+        onCommentClick(post, index, row, column, !!boostedBy),
+      eagerLoadImage: row === 0 && column === 0,
+    };
 
     let postBody: ReactElement;
-    if (renderTopSquads) {
+    if (renderFeaturedArticle) {
+      postBody = (
+        <ArticleFeaturedWideGridCard {...featuredArticleHandlers} />
+      );
+    } else if (renderTopSquads) {
       postBody = (
         <TopSquadsGridCard
           ref={inViewRef}

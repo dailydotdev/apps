@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
@@ -344,10 +345,17 @@ export default function Feed<T>({
     });
     return packFeedItems({ hints, columns: virtualizedNumCards });
   }, [items, virtualizedNumCards, isMobile, isMultiCardLayoutEnabled]);
-  // Horizontal-wide (2x1) slots alternate top-active-squads and popular-tags.
+  // Horizontal-wide (2x1) slots cycle featured article, top squads, popular tags.
   const horizontalWideVariantByIndex = useMemo(() => {
-    const map = new Map<number, 'topSquads' | 'popularTags'>();
-    const sequence = ['topSquads', 'popularTags'] as const;
+    const map = new Map<
+      number,
+      'featuredArticle' | 'topSquads' | 'popularTags'
+    >();
+    const sequence = [
+      'featuredArticle',
+      'topSquads',
+      'popularTags',
+    ] as const;
     let wideCount = 0;
     placements.forEach((placement, index) => {
       if (placement.colSpan > 1 && placement.rowSpan === 1) {
@@ -720,6 +728,8 @@ export default function Feed<T>({
                 (placement.colSpan > 1 || placement.rowSpan > 1);
               const horizontalWideVariant =
                 horizontalWideVariantByIndex.get(index);
+              const isFeaturedArticleSlot =
+                horizontalWideVariant === 'featuredArticle';
               const isTopSquadsSlot = horizontalWideVariant === 'topSquads';
               const isPopularTagsSlot =
                 horizontalWideVariant === 'popularTags';
@@ -781,10 +791,16 @@ export default function Feed<T>({
                   {shouldApplySpan ? (
                     <div
                       // `h-full`/`[&>*]:h-full` lets the inner card fill the
-                      // assigned grid track(s); removing `max-h-cardLarge`
-                      // is required so vertical spans (`rowSpan > 1`) aren't
-                      // clamped to a single-row card height.
-                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full [&_.max-h-cardLarge]:max-h-none"
+                      // assigned grid track(s). Only vertical spans need
+                      // `max-h-cardLarge` removed so `rowSpan > 1` cards
+                      // are not clamped to a single-row height; horizontal
+                      // wide cards (2x1) keep the standard card height cap so
+                      // a square side image cannot stretch the row.
+                      className={classNames(
+                        'flex h-full w-full [&>*]:h-full [&>*]:w-full',
+                        placement.rowSpan > 1 &&
+                          '[&_.max-h-cardLarge]:max-h-none',
+                      )}
                       style={spanStyle}
                       data-testid="feedItemSpanWrapper"
                     >
@@ -810,6 +826,7 @@ export default function Feed<T>({
                         onReadArticleClick={onReadArticleClick}
                         virtualizedNumCards={virtualizedNumCards}
                         disableAdRefresh={disableAdRefresh}
+                        renderAsFeaturedArticleCard={isFeaturedArticleSlot}
                         renderAsTopSquadsCard={isTopSquadsSlot}
                         topActiveSquads={topActiveSquadsForCard}
                         topActiveSquadsPending={
