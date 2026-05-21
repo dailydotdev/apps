@@ -12,7 +12,12 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
+import {
+  LogEvent,
+  NotificationCtaPlacement,
+  NotificationTarget,
+  TargetType,
+} from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -37,6 +42,8 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { TopHero } from './marketing/banners/HeroBottomBanner';
+import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 import { RouteProgressBar } from './RouteProgressBar';
 
 const GoBackHeaderMobile = dynamic(
@@ -66,6 +73,14 @@ export interface MainLayoutProps
   canGoBack?: string;
   hideBackButton?: boolean;
   hideFeedbackWidget?: boolean;
+  /**
+   * Layout v2 only. Rendered above the floating feed card, alongside the
+   * built-in reading-reminder TopHero. Pages can pass dynamic banners
+   * (e.g. the extension's onboarding hero row) and the whole strip
+   * collapses to nothing if neither the reminder nor the banner has
+   * anything to show.
+   */
+  topBanner?: ReactNode;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -83,6 +98,7 @@ function MainLayoutComponent({
   onNavTabClick,
   canGoBack,
   hideFeedbackWidget = false,
+  topBanner,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -103,6 +119,21 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2 } = useLayoutVariant();
   useNotificationParams();
+
+  // v2 hoists the reading-reminder hero out of the in-feed slot and
+  // renders it here, above the floating card. `itemCount: 0` keeps the
+  // mid-feed placement disabled in this consumer — the feed still owns
+  // that one for both layouts.
+  const {
+    shouldShowTopHero,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    onEnableHero: onEnableReadingReminder,
+    onDismissHero: onDismissReadingReminder,
+  } = useReadingReminderFeedHero({
+    itemCount: 0,
+    itemsPerRow: 1,
+  });
 
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) on laptop+ for authenticated users
@@ -251,11 +282,27 @@ function MainLayoutComponent({
         )}
         {sidebarOwnsHeader ? (
           <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
+            {shouldShowTopHero && (
+              <TopHero
+                className="mx-4 mb-3 laptop:mx-0"
+                title={readingReminderTitle}
+                subtitle={readingReminderSubtitle}
+                onCtaClick={() =>
+                  onEnableReadingReminder(NotificationCtaPlacement.TopHero)
+                }
+                onClose={() =>
+                  onDismissReadingReminder(NotificationCtaPlacement.TopHero)
+                }
+              />
+            )}
+            {topBanner}
             <div
               className={classNames(
                 'relative flex min-h-0 flex-1 flex-col',
                 'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
-                'laptop:min-h-[calc(100vh-1.5rem)]',
+                !shouldShowTopHero &&
+                  !topBanner &&
+                  'laptop:min-h-[calc(100vh-1.5rem)]',
               )}
             >
               <RouteProgressBar />

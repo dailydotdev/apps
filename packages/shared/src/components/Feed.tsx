@@ -76,6 +76,7 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 
@@ -365,6 +366,7 @@ export default function Feed<T>({
       readerEligiblePostTypes.has(post.type),
     [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
   );
+  const { isV2 } = useLayoutVariant();
   const {
     adjustedHeroInsertIndex,
     shouldShowTopHero,
@@ -377,6 +379,9 @@ export default function Feed<T>({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
     firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
+    // Layout v2 hoists the top hero into MainLayout above the floating
+    // feed card, so the feed must not render or measure it here.
+    disableTopHero: isV2,
   });
 
   useMutationSubscription({

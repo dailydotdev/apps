@@ -31,6 +31,7 @@ import { isFocusActiveAt } from '@dailydotdev/shared/src/features/customizeNewTa
 import { normaliseNewTabMode } from '@dailydotdev/shared/src/features/customizeNewTab/lib/newTabMode';
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
+import { ExtensionTopBanners } from './ExtensionTopBanners';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 import { getDefaultLink } from './dnd';
@@ -198,6 +199,7 @@ const MainFeedPageInner = ({
           additionalButtons={
             !loadingUser && !optOutCompanion && <CompanionPopupButton />
           }
+          topBanner={<ExtensionTopBanners />}
         >
           <FeedLayoutProvider>
             <MainFeedLayout
