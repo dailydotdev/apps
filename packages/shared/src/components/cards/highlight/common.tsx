@@ -16,8 +16,6 @@ export interface HighlightCardProps {
 export const highlightsTitleGradientClassName =
   'feed-highlights-title-gradient';
 
-export const highlightsAccentDotClassName = 'feed-highlights-accent-dot';
-
 const HIGHLIGHTS_URL = `${webappUrl}highlights`;
 
 export const getHighlightsUrl = (highlightId?: string): string =>
@@ -30,8 +28,8 @@ const getHighlightUrl = (highlight: PostHighlight): string =>
 const GRID_ROW_PADDING_Y_PX = 16;
 /** Headline + timestamp block below the title. */
 const GRID_ROW_TIME_BLOCK_PX = 18;
-/** Approximate `typo-footnote` line height for clamp math. */
-const GRID_HEADLINE_LINE_HEIGHT_PX = 18;
+/** Matches `typo-callout` line-height (1.25rem) for clamp math. */
+const GRID_HEADLINE_LINE_HEIGHT_PX = 20;
 const GRID_HEADLINE_MAX_LINES = 3;
 
 const getHeadlineLineClamp = (rowHeightPx: number): number => {
@@ -196,22 +194,15 @@ const HighlightGridRow = ({
 }): ReactElement => (
   <Link href={getHighlightUrl(highlight)}>
     <a
-      className="flex min-h-0 items-start gap-2 overflow-hidden rounded-8 border-b border-border-subtlest-tertiary px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-surface-hover focus-visible:bg-surface-hover"
+      className="flex min-h-0 items-start overflow-hidden rounded-8 border-b border-border-subtlest-tertiary px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-surface-hover focus-visible:bg-surface-hover"
       href={getHighlightUrl(highlight)}
       style={rowHeight ? { height: rowHeight } : undefined}
       onClick={() => onHighlightClick?.(highlight, index + 1)}
     >
-      <span
-        aria-hidden
-        className={classNames(
-          'mt-1.5 size-1.5 shrink-0 rounded-full',
-          highlightsAccentDotClassName,
-        )}
-      />
       <span className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <span
           className={classNames(
-            'break-words font-bold text-text-primary typo-footnote',
+            'break-words font-bold text-text-primary typo-callout',
             !headlineLineClamp && 'line-clamp-3',
           )}
           style={
@@ -259,9 +250,6 @@ const HighlightGridCardContent = ({
           >
             Happening Now
           </h3>
-          <p className="mt-1 text-text-tertiary typo-caption2">
-            What developers are talking about right now
-          </p>
         </div>
         <HighlightCardOptions className="shrink-0" />
       </header>

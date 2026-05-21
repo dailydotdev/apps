@@ -37,8 +37,8 @@ describe('Highlight cards', () => {
 
     expect(screen.getByText('Happening Now')).toBeInTheDocument();
     expect(
-      screen.getByText('What developers are talking about right now'),
-    ).toBeInTheDocument();
+      screen.queryByText('What developers are talking about right now'),
+    ).not.toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
     expect(screen.getByText('Read all')).toBeInTheDocument();
