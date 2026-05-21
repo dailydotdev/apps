@@ -417,6 +417,7 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
     getRedirectUri,
     trackingId,
     anonymous,
+    inlineLoginEnabled,
   } = useContext(AuthContext);
 
   return (
@@ -461,6 +462,9 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
       </button>
       <span data-test-value={trackingId}>Tracking ID</span>
       <span data-test-value={JSON.stringify(anonymous)}>Anonymous User</span>
+      <span data-test-value={`${inlineLoginEnabled}`}>
+        Inline Login Enabled
+      </span>
     </>
   );
 };
@@ -499,6 +503,31 @@ it('should trigger show login callback', async () => {
   await expectToHaveTestValue(login, 'null');
   fireEvent.click(login);
   await expectToHaveTestValue(login, JSON.stringify({ trigger: expected }));
+});
+
+it('should evaluate inline login only after auth intent', async () => {
+  renderComponent(<AuthMock loginTrigger={AuthTriggers.Comment} />, {
+    ...defaultBootData,
+    user: defaultAnonymousUser,
+    exp: {
+      f: '{}',
+      e: [],
+      a: [],
+      features: {
+        inline_login: {
+          defaultValue: true,
+        },
+      },
+    },
+  });
+
+  const login = await screen.findByText('Log in');
+  const inlineLogin = await screen.findByText('Inline Login Enabled');
+  await expectToHaveTestValue(inlineLogin, 'undefined');
+
+  fireEvent.click(login);
+
+  await expectToHaveTestValue(inlineLogin, 'true');
 });
 
 it('should trigger close login callback', async () => {

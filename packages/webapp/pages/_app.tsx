@@ -52,8 +52,6 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureInlineLogin } from '@dailydotdev/shared/src/lib/featureManagement';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
@@ -104,8 +102,8 @@ const onboardingExcludedPaths = [
   '/jobs',
   '/settings',
 ];
-// When the inline_login experiment is on, we only force the rest of onboarding
-// when the user lands on the main feed — everywhere else they can keep
+// Once auth intent assigns the user to inline_login, only force the rest of
+// onboarding when they land on the main feed. Everywhere else they can keep
 // browsing after the inline first step.
 const mainFeedPathnames = new Set([
   '/',
@@ -177,8 +175,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     shouldShowLogin,
     closeLogin,
     loginState,
+    inlineLoginEnabled,
   } = useAuthContext();
-  const isInlineLoginEnabled = useFeature(featureInlineLogin);
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -240,9 +238,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       return;
     }
 
-    // Inline login experiment: defer the rest of onboarding until the user
-    // navigates to the main feed; otherwise let them keep browsing.
-    if (isInlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
+    // Inline login experiment: after auth intent enrolls the user, defer the
+    // rest of onboarding until they navigate to the main feed; otherwise let
+    // them keep browsing.
+    if (inlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
       return;
     }
 
@@ -255,7 +254,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     router,
     router.pathname,
     isOnboardingComplete,
-    isInlineLoginEnabled,
+    inlineLoginEnabled,
   ]);
 
   useEffect(() => {
@@ -407,7 +406,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
         </DndContextProvider>
-        {isInlineLoginEnabled && shouldShowLogin && (
+        {inlineLoginEnabled && shouldShowLogin && (
           <AuthModal
             isOpen={shouldShowLogin}
             onRequestClose={closeLogin}

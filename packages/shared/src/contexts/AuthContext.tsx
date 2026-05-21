@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { useFeatureValue } from '@growthbook/growthbook-react';
+import { GrowthBookContext } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
@@ -49,6 +49,12 @@ type ShowLoginParams = {
   options?: LoginOptions;
 };
 
+type GrowthBookContextData = {
+  growthbook?: {
+    getFeatureValue: <T>(id: string, defaultValue: T) => T | undefined;
+  };
+};
+
 export interface AuthContextData {
   user?: LoggedUser;
   isLoggedIn: boolean;
@@ -79,9 +85,12 @@ export interface AuthContextData {
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
   isFunnel?: boolean;
+  inlineLoginEnabled?: boolean;
 }
 
 const isExtension = checkIsExtension();
+const inlineLoginFeatureId = 'inline_login';
+const inlineLoginDefaultValue: boolean = false;
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
@@ -159,20 +168,37 @@ export const AuthContextProvider = ({
   isAndroidApp,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
+  const [inlineLoginEnabled, setInlineLoginEnabled] = useState<boolean>();
+  const inlineLoginEnabledRef = useRef<boolean>();
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
+  const growthbookContext = useContext(
+    GrowthBookContext,
+  ) as unknown as GrowthBookContextData;
+  const growthbook = growthbookContext?.growthbook;
   const isValidRegion = useMemo(
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
   );
-  // Inline-login experiment flag. Source of truth for the local default lives
-  // in `lib/featureManagement.ts` as `featureInlineLogin`. We can't import it
-  // here because `featureManagement` → `graphql/posts` → `AuthContext` would
-  // be a cycle, so the default is duplicated below; keep them in sync.
-  const isInlineLoginEnabled = useFeatureValue<boolean>('inline_login', true);
+  const evaluateInlineLogin = useCallback((): boolean => {
+    if (!isNullOrUndefined(inlineLoginEnabledRef.current)) {
+      return inlineLoginEnabledRef.current;
+    }
+
+    const isEnabled =
+      growthbook?.getFeatureValue<boolean>(
+        inlineLoginFeatureId,
+        inlineLoginDefaultValue,
+      ) === true;
+
+    inlineLoginEnabledRef.current = isEnabled;
+    setInlineLoginEnabled(isEnabled);
+
+    return isEnabled;
+  }, [growthbook]);
 
   return (
     <AuthContext.Provider
@@ -186,6 +212,7 @@ export const AuthContextProvider = ({
         firstVisit: user?.firstVisit,
         trackingId: user?.id,
         shouldShowLogin: loginState !== null,
+        inlineLoginEnabled,
         showLogin: useCallback(
           ({ trigger, options = {} }) => {
             const hasCompanion = !!isCompanionActivated();
@@ -196,6 +223,7 @@ export const AuthContextProvider = ({
             }
 
             const params = new URLSearchParams(globalThis?.location.search);
+            const shouldUseInlineLogin = !isExtension && evaluateInlineLogin();
 
             setLoginState({ ...options, trigger });
             if (isExtension) {
@@ -206,19 +234,20 @@ export const AuthContextProvider = ({
               params.set(AFTER_AUTH_PARAM, window.location.pathname);
             }
 
+            const onboardingPath = isExtension
+              ? `${onboardingUrl}?${params.toString()}`
+              : `/onboarding?${params.toString()}`;
+
             // Inline login experiment: render the modal in-place instead of
             // redirecting to /onboarding. Extension keeps the redirect because
             // it has no host page to mount the modal on.
-            if (isInlineLoginEnabled && !isExtension) {
+            if (shouldUseInlineLogin) {
               return;
             }
 
-            const onboardingPath = `${onboardingUrl}?${params.toString()}`;
-            router.push(
-              isExtension ? onboardingPath : `/onboarding?${params.toString()}`,
-            );
+            router.push(onboardingPath);
           },
-          [router, isInlineLoginEnabled],
+          [evaluateInlineLogin, router],
         ),
         closeLogin: useCallback(() => setLoginState(null), []),
         loginState,
