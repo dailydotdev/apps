@@ -29,15 +29,6 @@ export enum ButtonIconPosition {
   Top = 'top',
 }
 
-/**
- * V1 size scale — re-skinned to match V2.
- *
- * Horizontal padding lives in `HorizontalPadding` (label-only,
- * symmetric) and `IconSidePadding` (icon+label, asymmetric 1:2 ratio)
- * to mirror V2's structure. Typography now scales with size (was a
- * universal `typo-callout` in V1) so XSmall chips read as chips and
- * XLarge hero CTAs read as heroes.
- */
 export const SizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.XLarge]: 'h-14 rounded-16 typo-title3',
   [ButtonSize.Large]: 'h-12 rounded-14 typo-body',
@@ -244,9 +235,6 @@ export const VariantColorToClassName: Record<
   },
 };
 
-// V1 icon-size scale — same-name mapping (XSmall button → XSmall icon).
-// Matches V2's restored ladder so the V1 reskin and V2 render at the same
-// scale. See `useGetIconWithSizeV2` below for the migration notes.
 const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
   [ButtonSize.XLarge]: IconSize.XLarge,
   [ButtonSize.Large]: IconSize.Large,
@@ -269,11 +257,6 @@ export const useGetIconWithSize = (
         ? !icon.props?.secondary
         : icon.props?.secondary,
       size: icon.props?.size ?? buttonSizeToIconSize[size],
-      // V1's `-ml-2 mr-1` negative-margin trick is gone: the parent
-      // `Button` now owns icon-to-label spacing via per-size `gap-X`
-      // (`SizeToGap`) and asymmetric horizontal padding (`IconSidePadding`).
-      // The `.btn-icon-left` / `.btn-icon-right` classes remain as
-      // position markers so consumers can still target them.
       className: classNames(
         icon.props.className,
         'btn-icon',
@@ -289,38 +272,7 @@ export const useGetIconWithSize = (
     });
 };
 
-/**
- * v2 icon sizing — used by `ButtonV2` only.
- *
- * The v2 first-pass map shrunk every icon by one step versus v1 in
- * pursuit of an "industry-standard" 50 % ratio (Material 3, Apple
- * HIG, Linear, Notion, Vercel). On migration it became clear the
- * shrinkage was too aggressive for the existing surfaces:
- *
- *   - XSmall edit pens on the profile page (24 px button) dropped
- *     from a 20 px icon to a 16 px icon, leaving the affordance
- *     nearly invisible inside the already-tiny 24 px target.
- *   - Toolbar Small buttons (32 px) lost a third of their icon
- *     footprint (24 → 16 px) and read as decorative chips rather
- *     than tap targets.
- *
- * v1's mapping (icon size = next-name-down on the same scale) shipped
- * a 67 – 83 % icon-to-button ratio that all the existing call sites
- * were tuned for. Keeping the v1 ratios preserves visual continuity
- * across the migration; consumers that genuinely need a smaller icon
- * can override per-instance via `icon={<X size={IconSize.Size16} />}`,
- * which `useGetIconWithSizeV2` already honours.
- *
- * Concrete sizes (matches v1):
- *   XSmall  24 px button → 20 px icon (83 %)  — chip / edit pen
- *   Small   32 px button → 24 px icon (75 %)  — toolbar / card row
- *   Medium  40 px button → 28 px icon (70 %)  — standard CTA
- *   Large   48 px button → 32 px icon (67 %)  — emphasis CTA
- *   XLarge  56 px button → 40 px icon (71 %)  — hero
- *
- * Note: `CardAction` (engagement bar) sets its own icon size per
- * density via `densityToIconSize` and bypasses this map.
- */
+// CardAction bypasses this map and sets its icon size per density.
 const buttonSizeToIconSizeV2: Record<ButtonSize, IconSize> = {
   [ButtonSize.XLarge]: IconSize.XLarge,
   [ButtonSize.Large]: IconSize.Large,
@@ -343,18 +295,6 @@ export const useGetIconWithSizeV2 = (
         ? !icon.props?.secondary
         : icon.props?.secondary,
       size: icon.props?.size ?? buttonSizeToIconSizeV2[size],
-      // The v2 button parent owns icon-text spacing via `flex gap-X`
-      // (see `SizeToGapV2` in ButtonV2.tsx). The icon itself only
-      // carries a position marker class so consumers can target it
-      // from MDX / Storybook if needed; layout is handled at the
-      // parent.
-      //
-      // Why v2 dropped the v1 negative-margin trick (`-ml-2 mr-1`):
-      // it was hardcoded to negate `px-2`, so any v2 size larger than
-      // XSmall (Medium px-4, Large px-6, XLarge px-7) ended up with
-      // visibly asymmetric padding (e.g. 8 px left of icon, 16 px
-      // right of label). Modern reference systems all use equal
-      // padding both sides + flex gap.
       className: classNames(
         icon.props.className,
         'btn-icon',
