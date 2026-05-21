@@ -16,6 +16,8 @@ export interface HighlightCardProps {
 export const highlightsTitleGradientClassName =
   'feed-highlights-title-gradient';
 
+export const highlightsAccentDotClassName = 'feed-highlights-accent-dot';
+
 const HIGHLIGHTS_URL = `${webappUrl}highlights`;
 
 export const getHighlightsUrl = (highlightId?: string): string =>
@@ -23,31 +25,6 @@ export const getHighlightsUrl = (highlightId?: string): string =>
 
 const getHighlightUrl = (highlight: PostHighlight): string =>
   getHighlightsUrl(highlight.id);
-
-/** Vertical padding on each grid row (`py-2`). */
-const GRID_ROW_PADDING_Y_PX = 16;
-/** Headline + timestamp block below the title. */
-const GRID_ROW_TIME_BLOCK_PX = 18;
-/** Matches `typo-callout` line-height (1.25rem) for clamp math. */
-const GRID_HEADLINE_LINE_HEIGHT_PX = 20;
-const GRID_HEADLINE_MAX_LINES = 3;
-
-const getHeadlineLineClamp = (rowHeightPx: number): number => {
-  const headlineArea =
-    rowHeightPx - GRID_ROW_PADDING_Y_PX - GRID_ROW_TIME_BLOCK_PX;
-
-  if (headlineArea <= 0) {
-    return 1;
-  }
-
-  return Math.max(
-    1,
-    Math.min(
-      GRID_HEADLINE_MAX_LINES,
-      Math.floor(headlineArea / GRID_HEADLINE_LINE_HEIGHT_PX),
-    ),
-  );
-};
 
 const distributeRowHeights = (
   containerHeightPx: number,
@@ -71,18 +48,15 @@ const useHighlightGridRowHeights = (
 ): {
   listRef: React.RefObject<HTMLDivElement>;
   rowHeights: number[];
-  headlineLineClamps: number[];
 } => {
   const listRef = useRef<HTMLDivElement>(null);
   const [rowHeights, setRowHeights] = useState<number[]>([]);
-  const [headlineLineClamps, setHeadlineLineClamps] = useState<number[]>([]);
 
   useLayoutEffect(() => {
     const listElement = listRef.current;
 
     if (!listElement || itemCount === 0) {
       setRowHeights([]);
-      setHeadlineLineClamps([]);
       return undefined;
     }
 
@@ -95,7 +69,6 @@ const useHighlightGridRowHeights = (
 
       const heights = distributeRowHeights(containerHeightPx, itemCount);
       setRowHeights(heights);
-      setHeadlineLineClamps(heights.map(getHeadlineLineClamp));
     };
 
     updateRowHeights();
@@ -110,7 +83,7 @@ const useHighlightGridRowHeights = (
     return () => resizeObserver.disconnect();
   }, [itemCount]);
 
-  return { listRef, rowHeights, headlineLineClamps };
+  return { listRef, rowHeights };
 };
 
 export const ReadAllHighlightsFooter = ({
@@ -184,37 +157,35 @@ const HighlightGridRow = ({
   index,
   onHighlightClick,
   rowHeight,
-  headlineLineClamp,
 }: {
   highlight: PostHighlight;
   index: number;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
   rowHeight?: number;
-  headlineLineClamp?: number;
 }): ReactElement => (
   <Link href={getHighlightUrl(highlight)}>
     <a
-      className="flex min-h-0 items-start overflow-hidden rounded-8 border-b border-border-subtlest-tertiary px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-surface-hover focus-visible:bg-surface-hover"
+      className="flex min-h-0 items-start gap-2 overflow-hidden rounded-8 border-b border-border-subtlest-tertiary px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-surface-hover focus-visible:bg-surface-hover"
       href={getHighlightUrl(highlight)}
       style={rowHeight ? { height: rowHeight } : undefined}
       onClick={() => onHighlightClick?.(highlight, index + 1)}
     >
+      <span
+        aria-hidden
+        className={classNames(
+          'mt-1.5 size-1.5 shrink-0 rounded-full',
+          highlightsAccentDotClassName,
+        )}
+      />
       <span className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <span
-          className={classNames(
-            'break-words font-bold text-text-primary typo-callout',
-            !headlineLineClamp && 'line-clamp-3',
-          )}
-          style={
-            headlineLineClamp
-              ? {
-                  display: '-webkit-box',
-                  WebkitBoxOrient: 'vertical',
-                  WebkitLineClamp: headlineLineClamp,
-                  overflow: 'hidden',
-                }
-              : undefined
-          }
+          className="break-words font-bold text-text-primary typo-callout"
+          style={{
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
+            overflow: 'hidden',
+          }}
         >
           {highlight.headline}
         </span>
@@ -234,9 +205,7 @@ const HighlightGridCardContent = ({
   onReadAllClick,
 }: HighlightCardProps): ReactElement => {
   const firstHighlight = highlights[0];
-  const { listRef, rowHeights, headlineLineClamps } = useHighlightGridRowHeights(
-    highlights.length,
-  );
+  const { listRef, rowHeights } = useHighlightGridRowHeights(highlights.length);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -265,7 +234,6 @@ const HighlightGridCardContent = ({
             index={index}
             onHighlightClick={onHighlightClick}
             rowHeight={rowHeights[index]}
-            headlineLineClamp={headlineLineClamps[index]}
           />
         ))}
       </div>
