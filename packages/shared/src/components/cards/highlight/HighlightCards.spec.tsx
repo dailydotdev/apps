@@ -3,10 +3,16 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HighlightGrid } from './HighlightGrid';
 import { HighlightList } from './HighlightList';
+import { useReadHighlights } from '../../../hooks/useReadHighlights';
 
 jest.mock('../../../lib/constants', () => ({
   webappUrl: '/',
 }));
+
+jest.mock('../../../hooks/useReadHighlights');
+
+const mockedUseReadHighlights = jest.mocked(useReadHighlights);
+const markAsRead = jest.fn();
 
 const highlights = [
   {
@@ -32,6 +38,14 @@ const highlights = [
 ];
 
 describe('Highlight cards', () => {
+  beforeEach(() => {
+    markAsRead.mockReset();
+    mockedUseReadHighlights.mockReturnValue({
+      isRead: () => false,
+      markAsRead,
+    });
+  });
+
   it('should render the grid card as a uniform highlight list', () => {
     render(<HighlightGrid highlights={highlights} />);
 
@@ -90,5 +104,33 @@ describe('Highlight cards', () => {
 
     expect(onHighlightClick).toHaveBeenCalledWith(highlights[0], 1);
     expect(onReadAllClick).toHaveBeenCalledTimes(1);
+    expect(markAsRead).toHaveBeenCalledWith('highlight-1');
+  });
+
+  it('should show read styling for clicked highlights', () => {
+    mockedUseReadHighlights.mockReturnValue({
+      isRead: (highlightId) => highlightId === 'highlight-1',
+      markAsRead,
+    });
+
+    render(<HighlightGrid highlights={highlights} />);
+
+    const readLink = screen.getByRole('link', { name: /the first highlight/i });
+    const unreadLink = screen.getByRole('link', {
+      name: /the second highlight/i,
+    });
+
+    expect(readLink.querySelector('span[aria-hidden]')).toHaveClass(
+      'bg-text-tertiary',
+    );
+    expect(readLink.querySelector('.typo-callout')).toHaveClass(
+      'text-text-secondary',
+    );
+    expect(unreadLink.querySelector('span[aria-hidden]')).toHaveClass(
+      'feed-highlights-accent-dot',
+    );
+    expect(unreadLink.querySelector('.typo-callout')).toHaveClass(
+      'text-text-primary',
+    );
   });
 });

@@ -3,6 +3,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { PostHighlight } from '../../../graphql/highlights';
 import { webappUrl } from '../../../lib/constants';
+import { useReadHighlights } from '../../../hooks/useReadHighlights';
 import { RelativeTime } from '../../utilities/RelativeTime';
 import Link from '../../utilities/Link';
 import { HighlightCardOptions } from './HighlightCardOptions';
@@ -25,6 +26,18 @@ export const getHighlightsUrl = (highlightId?: string): string =>
 
 const getHighlightUrl = (highlight: PostHighlight): string =>
   getHighlightsUrl(highlight.id);
+
+const getHighlightHeadlineClassName = (isRead: boolean): string =>
+  classNames(
+    'break-words font-bold typo-callout',
+    isRead ? 'text-text-secondary' : 'text-text-primary',
+  );
+
+const getHighlightAccentDotClassName = (isRead: boolean): string =>
+  classNames(
+    'mt-1.5 size-1.5 shrink-0 rounded-full',
+    isRead ? 'bg-text-tertiary' : highlightsAccentDotClassName,
+  );
 
 const distributeRowHeights = (
   containerHeightPx: number,
@@ -127,19 +140,26 @@ const HighlightRow = ({
   highlight,
   index,
   onHighlightClick,
+  isRead,
+  onMarkAsRead,
 }: {
   highlight: PostHighlight;
   index: number;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
+  isRead: boolean;
+  onMarkAsRead: (highlightId: string) => void;
 }): ReactElement => {
   return (
     <Link href={getHighlightUrl(highlight)}>
       <a
         className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
         href={getHighlightUrl(highlight)}
-        onClick={() => onHighlightClick?.(highlight, index + 1)}
+        onClick={() => {
+          onMarkAsRead(highlight.id);
+          onHighlightClick?.(highlight, index + 1);
+        }}
       >
-        <span className="break-words font-bold text-text-primary typo-callout">
+        <span className={getHighlightHeadlineClassName(isRead)}>
           {highlight.headline}
         </span>
         <RelativeTime
@@ -157,29 +177,33 @@ const HighlightGridRow = ({
   index,
   onHighlightClick,
   rowHeight,
+  isRead,
+  onMarkAsRead,
 }: {
   highlight: PostHighlight;
   index: number;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
   rowHeight?: number;
+  isRead: boolean;
+  onMarkAsRead: (highlightId: string) => void;
 }): ReactElement => (
   <Link href={getHighlightUrl(highlight)}>
     <a
       className="flex min-h-0 items-start gap-2 overflow-hidden rounded-8 border-b border-border-subtlest-tertiary px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-surface-hover focus-visible:bg-surface-hover"
       href={getHighlightUrl(highlight)}
       style={rowHeight ? { height: rowHeight } : undefined}
-      onClick={() => onHighlightClick?.(highlight, index + 1)}
+      onClick={() => {
+        onMarkAsRead(highlight.id);
+        onHighlightClick?.(highlight, index + 1);
+      }}
     >
       <span
         aria-hidden
-        className={classNames(
-          'mt-1.5 size-1.5 shrink-0 rounded-full',
-          highlightsAccentDotClassName,
-        )}
+        className={getHighlightAccentDotClassName(isRead)}
       />
       <span className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <span
-          className="break-words font-bold text-text-primary typo-callout"
+          className={getHighlightHeadlineClassName(isRead)}
           style={{
             display: '-webkit-box',
             WebkitBoxOrient: 'vertical',
@@ -206,6 +230,11 @@ const HighlightGridCardContent = ({
 }: HighlightCardProps): ReactElement => {
   const firstHighlight = highlights[0];
   const { listRef, rowHeights } = useHighlightGridRowHeights(highlights.length);
+  const { isRead, markAsRead } = useReadHighlights();
+
+  const onMarkAsRead = (highlightId: string): void => {
+    void markAsRead(highlightId);
+  };
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -234,6 +263,8 @@ const HighlightGridCardContent = ({
             index={index}
             onHighlightClick={onHighlightClick}
             rowHeight={rowHeights[index]}
+            isRead={isRead(highlight.id)}
+            onMarkAsRead={onMarkAsRead}
           />
         ))}
       </div>
@@ -264,6 +295,11 @@ export const HighlightCardContent = ({
   }
 
   const firstHighlight = highlights[0];
+  const { isRead, markAsRead } = useReadHighlights();
+
+  const onMarkAsRead = (highlightId: string): void => {
+    void markAsRead(highlightId);
+  };
 
   return (
     <>
@@ -285,6 +321,8 @@ export const HighlightCardContent = ({
             highlight={highlight}
             index={index}
             onHighlightClick={onHighlightClick}
+            isRead={isRead(highlight.id)}
+            onMarkAsRead={onMarkAsRead}
           />
         ))}
       </div>
