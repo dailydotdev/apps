@@ -42,7 +42,7 @@ describe('resolveLayoutHint', () => {
     ).toBe(DEFAULT_LAYOUT_HINT);
   });
 
-  it('returns default hint for non post/ad items', () => {
+  it('returns default hint for unsupported item types', () => {
     expect(
       resolveLayoutHint({
         rawHint: '2x1',
@@ -51,6 +51,17 @@ describe('resolveLayoutHint', () => {
         isDisabled: false,
       }),
     ).toBe(DEFAULT_LAYOUT_HINT);
+  });
+
+  it('allows 1x2 layout for highlight items', () => {
+    expect(
+      resolveLayoutHint({
+        rawHint: '1x2',
+        itemType: FeedItemType.Highlight,
+        isMobile: false,
+        isDisabled: false,
+      }),
+    ).toBe('1x2');
   });
 
   it('returns default hint when backend value is missing or invalid', () => {

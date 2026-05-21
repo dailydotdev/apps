@@ -11,7 +11,7 @@ jest.mock('../../../lib/constants', () => ({
 const highlights = [
   {
     id: 'highlight-1',
-    channel: 'agents',
+    channel: 'vibes',
     headline: 'The first highlight',
     highlightedAt: '2026-04-05T09:00:00.000Z',
     post: {
@@ -21,7 +21,7 @@ const highlights = [
   },
   {
     id: 'highlight-2',
-    channel: 'agents',
+    channel: 'vibes',
     headline: 'The second highlight',
     highlightedAt: '2026-04-05T08:00:00.000Z',
     post: {
@@ -32,13 +32,22 @@ const highlights = [
 ];
 
 describe('Highlight cards', () => {
-  it('should render the grid card with highlight links', () => {
+  it('should render the grid card as a uniform highlight list', () => {
     render(<HighlightGrid highlights={highlights} />);
 
     expect(screen.getByText('Happening Now')).toBeInTheDocument();
+    expect(
+      screen.getByText('What developers are talking about right now'),
+    ).toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
     expect(screen.getByText('Read all')).toBeInTheDocument();
+    expect(screen.queryByText('Top story')).not.toBeInTheDocument();
+    expect(screen.queryByText('Also trending')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Curated from community discussions'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/trending stories/i)).not.toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /the first highlight/i }),
     ).toHaveAttribute('href', '/highlights?highlight=highlight-1');
@@ -46,12 +55,12 @@ describe('Highlight cards', () => {
       'href',
       '/highlights?highlight=highlight-1',
     );
-    expect(screen.getByText('The first highlight')).not.toHaveClass(
-      'line-clamp-2',
-    );
     expect(
-      screen.getByRole('link', { name: /the first highlight/i }).parentElement,
-    ).toHaveClass('no-scrollbar', 'overflow-y-auto');
+      screen.getByRole('link', { name: /the first highlight/i }),
+    ).toHaveClass('overflow-hidden');
+    expect(
+      screen.getByRole('link', { name: /the first highlight/i }),
+    ).not.toHaveClass('overflow-y-auto', 'overflow-y-scroll');
   });
 
   it('should render the list card with highlight links', () => {

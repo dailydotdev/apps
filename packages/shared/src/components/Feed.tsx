@@ -52,11 +52,12 @@ import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionC
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
-import { MarketingCtaVariant } from './marketingCta/common';
+import { MarketingCtaVariant } from './marketing/cta/common';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import { FeedItemType } from './cards/common/common';
 import type { PostClick } from '../lib/click';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
@@ -81,7 +82,7 @@ import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
-import { TopHero } from './banners/HeroBottomBanner';
+import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 import { useTopActiveSquads } from '../hooks/useTopActiveSquads';
 
@@ -328,6 +329,9 @@ export default function Feed<T>({
     const hints = items.map((item, itemIndex) => {
       const rawHint =
         getRawLayoutHintFromItem(item) ??
+        (item.type === FeedItemType.Highlight && isMultiCardLayoutEnabled
+          ? '1x2'
+          : undefined) ??
         (isDevelopment && isMultiCardLayoutEnabled
           ? getDevSeededLayoutHint(itemIndex)
           : undefined);
@@ -347,12 +351,16 @@ export default function Feed<T>({
     let wideCount = 0;
     placements.forEach((placement, index) => {
       if (placement.colSpan > 1 && placement.rowSpan === 1) {
+        if (items[index]?.type !== FeedItemType.Post) {
+          return;
+        }
+
         map.set(index, sequence[wideCount % sequence.length]);
         wideCount += 1;
       }
     });
     return map;
-  }, [placements]);
+  }, [placements, items]);
   const hasTopSquadsSlot = useMemo(
     () =>
       Array.from(horizontalWideVariantByIndex.values()).some(

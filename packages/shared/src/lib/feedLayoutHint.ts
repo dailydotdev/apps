@@ -80,7 +80,7 @@ interface ResolveLayoutHintParams {
 /**
  * Resolves the effective layout hint for a feed item with the safety rules
  * locked by product:
- *  - feature flag off / mobile / non-post-or-ad item -> 1x1
+ *  - feature flag off / mobile / unsupported item type -> 1x1
  *  - invalid backend value -> 1x1
  *  - ad items capped at 2x1
  */
@@ -94,7 +94,11 @@ export const resolveLayoutHint = ({
     return DEFAULT_LAYOUT_HINT;
   }
 
-  if (itemType !== FeedItemType.Post && itemType !== FeedItemType.Ad) {
+  if (
+    itemType !== FeedItemType.Post &&
+    itemType !== FeedItemType.Ad &&
+    itemType !== FeedItemType.Highlight
+  ) {
     return DEFAULT_LAYOUT_HINT;
   }
 
@@ -123,6 +127,10 @@ export const resolveLayoutHint = ({
 export const getRawLayoutHintFromItem = (item: FeedItem): unknown => {
   if (item.type === FeedItemType.Post) {
     return (item.post as unknown as Record<string, unknown>)?.layoutHint;
+  }
+
+  if (item.type === FeedItemType.Highlight) {
+    return (item as unknown as Record<string, unknown>)?.layoutHint;
   }
 
   if (item.type === FeedItemType.Ad) {

@@ -34,7 +34,8 @@ export const supportedTypesForPrivateSources = [
 
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
-export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
+/** Matches the highlights page density for tall feed cards (see /highlights). */
+export const FEED_V2_HIGHLIGHTS_LIMIT = 10;
 
 export const getFeedV2SupportedTypes = (
   shouldSupportHighlights: boolean,

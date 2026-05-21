@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { PostHighlight } from '../../../graphql/highlights';
 import { webappUrl } from '../../../lib/constants';
@@ -16,6 +16,8 @@ export interface HighlightCardProps {
 export const highlightsTitleGradientClassName =
   'feed-highlights-title-gradient';
 
+export const highlightsAccentDotClassName = 'feed-highlights-accent-dot';
+
 const HIGHLIGHTS_URL = `${webappUrl}highlights`;
 
 export const getHighlightsUrl = (highlightId?: string): string =>
@@ -23,6 +25,95 @@ export const getHighlightsUrl = (highlightId?: string): string =>
 
 const getHighlightUrl = (highlight: PostHighlight): string =>
   getHighlightsUrl(highlight.id);
+
+/** Vertical padding on each grid row (`py-2`). */
+const GRID_ROW_PADDING_Y_PX = 16;
+/** Headline + timestamp block below the title. */
+const GRID_ROW_TIME_BLOCK_PX = 18;
+/** Approximate `typo-footnote` line height for clamp math. */
+const GRID_HEADLINE_LINE_HEIGHT_PX = 18;
+const GRID_HEADLINE_MAX_LINES = 3;
+
+const getHeadlineLineClamp = (rowHeightPx: number): number => {
+  const headlineArea =
+    rowHeightPx - GRID_ROW_PADDING_Y_PX - GRID_ROW_TIME_BLOCK_PX;
+
+  if (headlineArea <= 0) {
+    return 1;
+  }
+
+  return Math.max(
+    1,
+    Math.min(
+      GRID_HEADLINE_MAX_LINES,
+      Math.floor(headlineArea / GRID_HEADLINE_LINE_HEIGHT_PX),
+    ),
+  );
+};
+
+const distributeRowHeights = (
+  containerHeightPx: number,
+  itemCount: number,
+): number[] => {
+  if (itemCount <= 0 || containerHeightPx <= 0) {
+    return [];
+  }
+
+  const baseHeight = Math.floor(containerHeightPx / itemCount);
+  const remainder = containerHeightPx % itemCount;
+
+  return Array.from(
+    { length: itemCount },
+    (_, index) => baseHeight + (index < remainder ? 1 : 0),
+  );
+};
+
+const useHighlightGridRowHeights = (
+  itemCount: number,
+): {
+  listRef: React.RefObject<HTMLDivElement>;
+  rowHeights: number[];
+  headlineLineClamps: number[];
+} => {
+  const listRef = useRef<HTMLDivElement>(null);
+  const [rowHeights, setRowHeights] = useState<number[]>([]);
+  const [headlineLineClamps, setHeadlineLineClamps] = useState<number[]>([]);
+
+  useLayoutEffect(() => {
+    const listElement = listRef.current;
+
+    if (!listElement || itemCount === 0) {
+      setRowHeights([]);
+      setHeadlineLineClamps([]);
+      return undefined;
+    }
+
+    const updateRowHeights = (): void => {
+      const containerHeightPx = listElement.clientHeight;
+
+      if (containerHeightPx <= 0) {
+        return;
+      }
+
+      const heights = distributeRowHeights(containerHeightPx, itemCount);
+      setRowHeights(heights);
+      setHeadlineLineClamps(heights.map(getHeadlineLineClamp));
+    };
+
+    updateRowHeights();
+
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(updateRowHeights);
+    resizeObserver.observe(listElement);
+
+    return () => resizeObserver.disconnect();
+  }, [itemCount]);
+
+  return { listRef, rowHeights, headlineLineClamps };
+};
 
 export const ReadAllHighlightsFooter = ({
   highlightId,
@@ -90,26 +181,137 @@ const HighlightRow = ({
   );
 };
 
+const HighlightGridRow = ({
+  highlight,
+  index,
+  onHighlightClick,
+  rowHeight,
+  headlineLineClamp,
+}: {
+  highlight: PostHighlight;
+  index: number;
+  onHighlightClick?: (highlight: PostHighlight, position: number) => void;
+  rowHeight?: number;
+  headlineLineClamp?: number;
+}): ReactElement => (
+  <Link href={getHighlightUrl(highlight)}>
+    <a
+      className="flex min-h-0 items-start gap-2 overflow-hidden rounded-8 border-b border-border-subtlest-tertiary px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-surface-hover focus-visible:bg-surface-hover"
+      href={getHighlightUrl(highlight)}
+      style={rowHeight ? { height: rowHeight } : undefined}
+      onClick={() => onHighlightClick?.(highlight, index + 1)}
+    >
+      <span
+        aria-hidden
+        className={classNames(
+          'mt-1.5 size-1.5 shrink-0 rounded-full',
+          highlightsAccentDotClassName,
+        )}
+      />
+      <span className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <span
+          className={classNames(
+            'break-words font-bold text-text-primary typo-footnote',
+            !headlineLineClamp && 'line-clamp-3',
+          )}
+          style={
+            headlineLineClamp
+              ? {
+                  display: '-webkit-box',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: headlineLineClamp,
+                  overflow: 'hidden',
+                }
+              : undefined
+          }
+        >
+          {highlight.headline}
+        </span>
+        <RelativeTime
+          dateTime={highlight.highlightedAt}
+          maxHoursAgo={72}
+          className="mt-0.5 shrink-0 text-text-tertiary typo-caption2"
+        />
+      </span>
+    </a>
+  </Link>
+);
+
+const HighlightGridCardContent = ({
+  highlights,
+  onHighlightClick,
+  onReadAllClick,
+}: HighlightCardProps): ReactElement => {
+  const firstHighlight = highlights[0];
+  const { listRef, rowHeights, headlineLineClamps } = useHighlightGridRowHeights(
+    highlights.length,
+  );
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <header className="flex shrink-0 items-start gap-2 px-4 pb-3 pt-4">
+        <div className="min-w-0 flex-1">
+          <h3
+            className={classNames(
+              highlightsTitleGradientClassName,
+              'font-bold typo-title3',
+            )}
+          >
+            Happening Now
+          </h3>
+          <p className="mt-1 text-text-tertiary typo-caption2">
+            What developers are talking about right now
+          </p>
+        </div>
+        <HighlightCardOptions className="shrink-0" />
+      </header>
+
+      <div
+        ref={listRef}
+        className="flex min-h-0 flex-1 flex-col overflow-hidden px-2.5 pb-1 pt-0"
+      >
+        {highlights.map((highlight, index) => (
+          <HighlightGridRow
+            key={highlight.id}
+            highlight={highlight}
+            index={index}
+            onHighlightClick={onHighlightClick}
+            rowHeight={rowHeights[index]}
+            headlineLineClamp={headlineLineClamps[index]}
+          />
+        ))}
+      </div>
+
+      <ReadAllHighlightsFooter
+        highlightId={firstHighlight?.id}
+        onClick={onReadAllClick}
+        className="shrink-0 px-1 pb-1"
+      />
+    </div>
+  );
+};
+
 export const HighlightCardContent = ({
   highlights,
   onHighlightClick,
   onReadAllClick,
   variant,
 }: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
-  const headerClassName =
-    variant === 'list'
-      ? 'flex items-center pb-4'
-      : 'flex items-center px-4 py-4';
-  const contentClassName =
-    variant === 'list'
-      ? 'flex flex-col gap-2'
-      : 'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto px-2.5 pb-1 pt-0';
-  const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
+  if (variant === 'grid') {
+    return (
+      <HighlightGridCardContent
+        highlights={highlights}
+        onHighlightClick={onHighlightClick}
+        onReadAllClick={onReadAllClick}
+      />
+    );
+  }
+
   const firstHighlight = highlights[0];
 
   return (
     <>
-      <header className={headerClassName}>
+      <header className="flex items-center pb-4">
         <h3
           className={classNames(
             highlightsTitleGradientClassName,
@@ -120,7 +322,7 @@ export const HighlightCardContent = ({
         </h3>
         <HighlightCardOptions className="ml-auto" />
       </header>
-      <div className={contentClassName}>
+      <div className="flex flex-col gap-2">
         {highlights.map((highlight, index) => (
           <HighlightRow
             key={highlight.id}
@@ -133,7 +335,7 @@ export const HighlightCardContent = ({
       <ReadAllHighlightsFooter
         highlightId={firstHighlight?.id}
         onClick={onReadAllClick}
-        className={footerClassName}
+        className="pt-1.5"
       />
     </>
   );
