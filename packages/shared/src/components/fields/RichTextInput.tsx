@@ -367,7 +367,11 @@ function RichTextInput(
       updateSuggestionsFromEditor(updatedEditor);
     },
     editorProps: {
-      attributes: inputId ? { id: inputId } : undefined,
+      attributes: {
+        ...(inputId ? { id: inputId } : {}),
+        role: 'textbox',
+        'aria-multiline': 'true',
+      },
       handlePaste: (_view, event) => {
         const hasFiles = (event.clipboardData?.files?.length ?? 0) > 0;
         if (hasFiles) {

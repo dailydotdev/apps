@@ -127,7 +127,22 @@ describe('RichTextInput', () => {
     expect(mockUseEditor).toHaveBeenCalledWith(
       expect.objectContaining({
         editorProps: expect.objectContaining({
-          attributes: { id: 'comment-editor' },
+          attributes: expect.objectContaining({ id: 'comment-editor' }),
+        }),
+      }),
+    );
+  });
+
+  it('exposes the rich editor as a multiline textbox', () => {
+    render(<RichTextInput hideFooter hideToolbar />);
+
+    expect(mockUseEditor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        editorProps: expect.objectContaining({
+          attributes: expect.objectContaining({
+            role: 'textbox',
+            'aria-multiline': 'true',
+          }),
         }),
       }),
     );
