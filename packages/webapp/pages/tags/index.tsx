@@ -5,7 +5,7 @@ import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
-import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
+import { TagChip } from '@dailydotdev/shared/src/components/tags/TagChip';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -17,7 +17,6 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -74,23 +73,27 @@ const TagsPage = ({
   const isV2Laptop = isV2;
 
   const { feedSettings } = useFeedSettings();
-  const selectedTags = feedSettings?.includeTags || [];
+  const followedSet = useMemo(
+    () => new Set(feedSettings?.includeTags || []),
+    [feedSettings?.includeTags],
+  );
 
   const recentlyAddedTags = useMemo(() => {
     return tags
-      ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      ?.slice()
+      .sort((a, b) => +new Date(b.createdAt ?? 0) - +new Date(a.createdAt ?? 0))
       .slice(0, 10);
   }, [tags]);
 
-  const tagsByFirstLetter = useMemo(() => {
-    const filteredTags = tags?.reduce((acc, cur) => {
+  const tagsByFirstLetter = useMemo<Record<string, Keyword[]> | null>(() => {
+    const filteredTags = tags?.reduce<Record<string, Keyword[]>>((acc, cur) => {
       const rawLetter = cur.value[0].toLowerCase();
       const firstLetter: string = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
         ? rawLetter
         : '#';
       acc[firstLetter] = (acc[firstLetter] || []).concat([cur]);
       return acc;
-    }, []);
+    }, {});
 
     if (!filteredTags) {
       return null;
@@ -98,8 +101,8 @@ const TagsPage = ({
 
     return Object.keys(filteredTags)
       .sort()
-      .reduce((acc, cur) => {
-        acc[cur] = filteredTags[cur].sort((a: Keyword, b: Keyword) => {
+      .reduce<Record<string, Keyword[]>>((acc, cur) => {
+        acc[cur] = filteredTags[cur].slice().sort((a: Keyword, b: Keyword) => {
           if (a.value < b.value) {
             return -1;
           }
@@ -111,7 +114,7 @@ const TagsPage = ({
           return 0;
         });
         return acc;
-      }, []);
+      }, {});
   }, [tags]);
 
   if (isLoading) {
@@ -168,16 +171,16 @@ const TagsPage = ({
                   key={letter}
                   className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
                 >
-                  <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
+                  <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout [break-after:avoid-column]">
                     {letter}
                   </p>
                   {value.map((tag) => (
-                    <TagLink
+                    <TagChip
                       key={tag.value}
                       tag={tag.value}
-                      className="!line-clamp-2 !h-auto py-1.5"
-                      isSelected={selectedTags.includes(tag.value)}
-                      buttonProps={{ size: ButtonSize.Small }}
+                      size="md"
+                      isFollowed={followedSet.has(tag.value)}
+                      className="break-inside-avoid"
                     />
                   ))}
                 </div>

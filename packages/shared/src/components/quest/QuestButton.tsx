@@ -1332,7 +1332,7 @@ export const QuestButton = ({
                   <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
                 </span>
               )}
-              {hasNewQuestRotations && (
+              {hasNewQuestRotations && !claimableCount && (
                 <Bubble
                   aria-hidden
                   data-testid="quest-button-new-indicator"

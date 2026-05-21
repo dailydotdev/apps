@@ -18,6 +18,8 @@ import { Origin } from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { IconSize } from '../../Icon';
+import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
+import { ReaderFloatingActionBar as ReaderFloatingActionBarV2 } from './ReaderFloatingActionBar.v2';
 
 type ReaderFloatingActionBarProps = {
   post: Post;
@@ -31,7 +33,7 @@ const iconActionButtonClasses =
   '!h-8 !w-8 !min-w-8 !rounded-10 !p-0 !justify-center';
 const countClasses = 'text-text-tertiary typo-footnote tabular-nums';
 
-export function ReaderFloatingActionBar({
+function ReaderFloatingActionBarV1({
   post,
   onCommentClick,
 }: ReaderFloatingActionBarProps): ReactElement {
@@ -143,4 +145,14 @@ export function ReaderFloatingActionBar({
       </Tooltip>
     </div>
   );
+}
+
+export function ReaderFloatingActionBar(
+  props: ReaderFloatingActionBarProps,
+): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <ReaderFloatingActionBarV2 {...props} />;
+  }
+  return <ReaderFloatingActionBarV1 {...props} />;
 }

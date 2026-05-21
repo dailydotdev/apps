@@ -50,6 +50,7 @@ export enum Origin {
   PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
+  FeedCard = 'feed card',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',

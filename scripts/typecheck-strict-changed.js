@@ -109,6 +109,10 @@ const strictSkipList = new Set([
   'packages/webapp/pages/game-center/index.tsx',
   'packages/webapp/pages/tags/index.tsx',
   'packages/webapp/components/layouts/SettingsLayout/index.tsx',
+  // PostAwardAction (V1 + V2): pre-existing AwardEntity / post.numAwards
+  // strict violations on lines unrelated to the dispatcher wrapper.
+  'packages/shared/src/components/post/PostAwardAction.tsx',
+  'packages/shared/src/components/post/PostAwardAction.v2.tsx',
   // Standup creation tab — these files were touched to add the Standup tab
   // and wire the `rightCopy` prop on the write-post context. Pre-existing
   // strict violations (null defaults on the React context value, settings
