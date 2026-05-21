@@ -5,13 +5,22 @@ import { BlockIcon, PlusIcon } from '../icons';
 import { useAdvancedSettings } from '../../hooks';
 import { MenuIcon } from '../MenuIcon';
 import { capitalize } from '../../lib/strings';
-import type { Post } from '../../graphql/posts';
+import { PostType, type Post } from '../../graphql/posts';
 
 interface UseFeedContentTypeAction {
   post: Post;
   customFeedId?: string;
   onActionSuccess: (copy: string, onUndo: () => void) => Promise<void>;
 }
+
+const getContentTypeActionTarget = (type: string): string => {
+  if (type === PostType.LiveRoom) {
+    return 'Standups';
+  }
+
+  const [target] = type.split(':');
+  return target;
+};
 
 export const useFeedContentTypeAction = ({
   post,
@@ -45,9 +54,15 @@ export const useFeedContentTypeAction = ({
     return null;
   }
 
+  const type = contentType.options?.type;
+
+  if (!type) {
+    return null;
+  }
+
   const { id } = contentType;
   const isEnabled = checkSettingsEnabledState(id);
-  const [target] = contentType.options.type.split(':');
+  const target = getContentTypeActionTarget(type);
 
   const onToggle = async () => {
     const icon = isEnabled ? '⛔️' : '✅';

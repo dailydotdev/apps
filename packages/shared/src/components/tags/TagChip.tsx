@@ -14,26 +14,6 @@ import {
   TypographyType,
 } from '../typography/Typography';
 
-/**
- * Tag chip — a single, unified design for `#tag` chips across the
- * product (article post / modal, tags directory, search results).
- *
- * Two visual states, intentionally distinct:
- *
- *   - **Followed** → plain bordered link chip, no action button.
- *     This is the "stable" treatment: a tag the user already follows
- *     should read as a passive label, not as an interactive control.
- *     Unfollow lives on the tag page itself, not inline.
- *
- *   - **Not followed** → filled chip + vertical separator + `+` action
- *     button. The `+` is the call-to-action; without it the chip would
- *     look identical to the followed state.
- *
- * Sizes follow the v2 button scale:
- *   - "sm"   → 24 px chip (XSmall)         — article tag list, in-card chips
- *   - "md"   → 32 px chip (Small)          — tags directory, search panels
- *   - "lg"   → 40 px chip (Medium)         — featured / hero placements
- */
 export type TagChipSize = 'sm' | 'md' | 'lg';
 
 interface TagChipProps {
@@ -101,10 +81,6 @@ const TagLabel = ({
       tag={TypographyTag.Link}
       type={type}
       color={TypographyColor.Tertiary}
-      // `min-w-0 truncate` keeps very long tags (e.g. polyglot
-      // multi-word system labels) inside the chip instead of pushing
-      // the trailing `+` button off-screen. The chip itself can be
-      // capped by callers via `className="max-w-..."`.
       className="block min-w-0 cursor-pointer truncate no-underline transition-colors hover:text-text-primary"
       title={`Check all #${tag} posts`}
     >
@@ -127,8 +103,6 @@ export const TagChip = ({
       <span
         role="listitem"
         className={classNames(
-          // `max-w-full` keeps the chip from breaking out of its
-          // column / flex parent on extremely long tags.
           'inline-flex max-w-full items-center border border-border-subtlest-tertiary transition-colors hover:bg-border-subtlest-tertiary',
           cfg.height,
           cfg.radius,
@@ -161,8 +135,6 @@ export const TagChip = ({
             role="separator"
             aria-hidden
             className={classNames(
-              // `shrink-0` so the separator never collapses when the
-              // label needs to truncate.
               'mx-2 w-px shrink-0 bg-border-subtlest-tertiary',
               cfg.separatorHeight,
             )}

@@ -33,6 +33,8 @@ import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import { UpvoteButtonIcon } from '../cards/common/UpvoteButtonIcon';
+import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
+import { PostActions as PostActionsV2 } from './PostActions.v2';
 
 interface PostActionsProps {
   post: Post;
@@ -42,7 +44,7 @@ interface PostActionsProps {
   onCopyLinkClick?: (post?: Post) => void;
 }
 
-export function PostActions({
+function PostActionsV1({
   onCopyLinkClick,
   post,
   onComment,
@@ -338,4 +340,12 @@ export function PostActions({
       )}
     </div>
   );
+}
+
+export function PostActions(props: PostActionsProps): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <PostActionsV2 {...props} />;
+  }
+  return <PostActionsV1 {...props} />;
 }

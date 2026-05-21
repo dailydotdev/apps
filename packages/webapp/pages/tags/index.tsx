@@ -69,10 +69,6 @@ const TagsPage = ({
   const { isFallback: isLoading } = useRouter();
 
   const { feedSettings } = useFeedSettings();
-  // Tags directory stays passive (matches main): chips link out to the
-  // tag page, no inline follow CTA. `isFollowed` still drives the
-  // bordered vs filled chip treatment so logged-in users can scan
-  // their followed tags at a glance.
   const followedSet = useMemo(
     () => new Set(feedSettings?.includeTags || []),
     [feedSettings?.includeTags],
