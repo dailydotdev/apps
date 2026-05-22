@@ -11,9 +11,94 @@
 // The webapp reads the marker to decide install-prompt vs. embed flow. The
 // frame.html iframe still owns the permission-granted check.
 
+import browser from 'webextension-polyfill';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import {
+  frameEmbeddingPermissionBridgeTiming,
+  pagePermissionBridgeRequestEvent,
+  pagePermissionBridgeResultEvent,
+} from '@dailydotdev/shared/src/features/extensionEmbed/pagePermissionBridge';
+import type {
+  PagePermissionBridgeResult,
+  PermissionGrantResponse,
+} from '@dailydotdev/shared/src/features/extensionEmbed/pagePermissionBridge';
+
 const INSTALL_MARKER = 'dailyExtensionInstalled';
 const ID_MARKER = 'dailyExtensionId';
 const MESSAGE_SOURCE = 'daily-extension-ping';
+
+// chrome.permissions.request is only callable from extension pages. We relay
+// the page's click — while the user gesture is still active in the same task
+// — to the background service worker, which calls request() on the page's
+// behalf. The synchronous dispatchEvent on the page side is what keeps the
+// gesture alive across the message boundary.
+//
+// After the grant the background schedules runtime.reload() so the new
+// optional host permission is picked up for declarativeNetRequest. We hold
+// the result event until the new service worker responds to a ping, so the
+// page only mounts the reader iframe once DNR rules can be installed.
+const sleep = (ms: number): Promise<void> =>
+  new Promise<void>((resolve) => {
+    globalThis.setTimeout(resolve, ms);
+  });
+
+const waitForExtensionReady = async (): Promise<void> => {
+  const { pingDelayBeforeFirstAttemptMs, pingRetryDelayMs, pingMaxAttempts } =
+    frameEmbeddingPermissionBridgeTiming;
+
+  await sleep(pingDelayBeforeFirstAttemptMs);
+
+  for (let attempt = 0; attempt < pingMaxAttempts; attempt += 1) {
+    try {
+      // eslint-disable-next-line no-await-in-loop -- sequential polling is the point
+      const response = (await browser.runtime.sendMessage({
+        type: ExtensionMessageType.PingFrameEmbeddingReady,
+      })) as { ready?: boolean } | undefined;
+      if (response?.ready) {
+        return;
+      }
+    } catch {
+      // sendMessage rejects while the service worker is mid-reload; retry.
+    }
+    // eslint-disable-next-line no-await-in-loop -- sequential backoff between pings
+    await sleep(pingRetryDelayMs);
+  }
+};
+
+window.addEventListener(pagePermissionBridgeRequestEvent, () => {
+  const dispatchResult = (result: PagePermissionBridgeResult): void => {
+    window.dispatchEvent(
+      new CustomEvent<PagePermissionBridgeResult>(
+        pagePermissionBridgeResultEvent,
+        { detail: result },
+      ),
+    );
+  };
+
+  browser.runtime
+    .sendMessage({
+      type: ExtensionMessageType.RequestFrameEmbeddingPermissions,
+    })
+    .then(async (response) => {
+      const typed = response as PermissionGrantResponse | undefined;
+      if (typed?.granted && typed?.willReload) {
+        await waitForExtensionReady();
+      }
+      dispatchResult({
+        granted: !!typed?.granted,
+        error: typed?.error,
+      });
+    })
+    .catch((error: unknown) => {
+      dispatchResult({
+        granted: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to request frame embedding permissions',
+      });
+    });
+});
 
 const marker = document.documentElement;
 

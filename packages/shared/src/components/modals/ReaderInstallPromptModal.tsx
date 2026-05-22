@@ -42,6 +42,7 @@ import { getBrowserExtensionInstallId } from '../../features/extensionEmbed/getB
 import { ExtensionSiteEmbed } from '../../features/extensionEmbed/ExtensionSiteEmbed';
 import type { ExtensionSiteEmbedStatus } from '../../features/extensionEmbed/common';
 import { isEmbeddableSiteTarget } from '../../features/extensionEmbed/common';
+import { requestFrameEmbeddingPermissionFromPage } from '../../features/extensionEmbed/pagePermissionBridge';
 
 interface ReaderInstallPromptModalProps extends LazyModalCommonProps {
   post: Post;
@@ -329,6 +330,7 @@ function ReaderInstallPromptModal({
   // reader modal so it opens already past the permission gate.
   const [embedExtensionId] = useState(() => getBrowserExtensionInstallId());
   const [isPreparingReader, setIsPreparingReader] = useState(false);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [embedStatus, setEmbedStatus] =
     useState<ExtensionSiteEmbedStatus>('idle');
   const hasOpenedReaderRef = useRef(false);
@@ -379,11 +381,25 @@ function ReaderInstallPromptModal({
       return;
     }
 
+    // Drive chrome.permissions.request through the installed content script.
+    // The dispatchEvent inside the helper must happen synchronously here so
+    // the click's user activation is still alive when the content script
+    // forwards the request to the background. The Promise resolves later
+    // with the OS prompt outcome.
+    setIsRequestingPermission(true);
+    const permissionPromise = requestFrameEmbeddingPermissionFromPage();
+
     // Persist that the user engaged with the install prompt so subsequent
     // reads bypass it and open the reader modal directly. Only set on the
     // explicit accept path — dismissing the modal leaves the flag untouched.
     updateFlag('readerInstallPromptAcknowledged', true);
-    setIsPreparingReader(true);
+
+    permissionPromise.then(({ granted }) => {
+      setIsRequestingPermission(false);
+      if (granted) {
+        setIsPreparingReader(true);
+      }
+    });
   };
 
   const onPermissionFrameOptOut = () => {
@@ -490,8 +506,12 @@ function ReaderInstallPromptModal({
                         variant={ButtonVariant.Primary}
                         size={ButtonSize.Large}
                         onClick={onPreviewClick}
+                        disabled={isRequestingPermission}
+                        loading={isRequestingPermission}
                       >
-                        Enable permissions & read inside
+                        {isRequestingPermission
+                          ? 'Requesting permissions…'
+                          : 'Enable permissions & read inside'}
                       </Button>
                     ) : (
                       <>
