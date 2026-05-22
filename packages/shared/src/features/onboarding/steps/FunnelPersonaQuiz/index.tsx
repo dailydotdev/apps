@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   FunnelStepPersonaQuiz,
   FunnelStepPersonaQuizParameters,
@@ -20,8 +20,7 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import useMutateFilters from '../../../../hooks/useMutateFilters';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
-// `useDebounceFn` import removed — was used by the previous incremental-follow
-// cache-invalidation flow which the ad-hoc `variables` approach replaces.
+import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { usePersonaQuizState } from './usePersonaQuizState';
 import type { PersonaQuizAnswer } from './usePersonaQuizState';
 import { PersonaQuizQuestionView } from './PersonaQuizQuestion';
@@ -44,6 +43,7 @@ function FunnelPersonaQuizComponent({
   const user = auth?.user;
   const { followTags } = useMutateFilters(user);
   const { feedSettings } = useFeedSettings();
+  const queryClient = useQueryClient();
 
   const params = parameters as FunnelStepPersonaQuizParameters;
   const {
@@ -99,6 +99,33 @@ function FunnelPersonaQuizComponent({
     [accumulatedTags],
   );
 
+  // The server's `feedPreview` resolver reads from the user's persisted
+  // `feedSettings` rather than the inline `filters` argument we can pass
+  // through `Feed`'s `variables` prop. So to make the preview reflect the
+  // user's evolving interests we have to actually persist tags as they
+  // accumulate. Track the session's "already followed" set so each tag fires
+  // `followTags` at most once.
+  const followedRef = useRef<Set<string>>(new Set());
+  const [refetchPreview] = useDebounceFn(() => {
+    queryClient.invalidateQueries({
+      queryKey: [RequestKey.FeedPreview],
+      predicate: (q) => !q.queryKey.includes(RequestKey.FeedPreviewCustom),
+    });
+  }, 500);
+
+  useEffect(() => {
+    if (phase !== 'question' || !user?.id) {
+      return;
+    }
+    const fresh = accumulatedTags.filter((t) => !followedRef.current.has(t));
+    if (fresh.length === 0) {
+      return;
+    }
+    fresh.forEach((t) => followedRef.current.add(t));
+    Promise.resolve(followTags({ tags: fresh })).catch(() => undefined);
+    refetchPreview();
+  }, [accumulatedTags, phase, user?.id, followTags, refetchPreview]);
+
   // Resolve the archetype from the terminal question's `archetypeId`, build
   // the final tag list, persist it (so `TagSelection` on the reveal screen
   // sees the quiz tags pre-selected via `feedSettings`), then transition to
@@ -118,10 +145,14 @@ function FunnelPersonaQuizComponent({
         ...(selection.fallbackTags ?? []),
       ]).slice(0, selection.targetTotalTags);
 
-      // Persist the final tag set so `TagSelection` on the reveal screen
-      // sees them as already-followed via feedSettings.
-      if (merged.length > 0) {
-        Promise.resolve(followTags({ tags: merged })).catch(() => undefined);
+      // Most tags are already followed (we stream them incrementally above);
+      // catch any residue — typically the fallback backfill — so the reveal's
+      // `TagSelection` reads a complete `feedSettings`.
+      const fresh = merged.filter((t) => !followedRef.current.has(t));
+      if (fresh.length > 0) {
+        fresh.forEach((t) => followedRef.current.add(t));
+        Promise.resolve(followTags({ tags: fresh })).catch(() => undefined);
+        refetchPreview();
       }
 
       enrichmentComplete(merged);
@@ -134,6 +165,7 @@ function FunnelPersonaQuizComponent({
       selection.fallbackTags,
       enrichmentComplete,
       followTags,
+      refetchPreview,
     ],
   );
 
@@ -280,13 +312,8 @@ function FunnelPersonaQuizComponent({
             <Feed
               className="relative mx-auto px-6 pt-6 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2"
               feedName={OtherFeedPage.Preview}
-              feedQueryKey={[
-                RequestKey.FeedPreview,
-                user.id,
-                previewTags.join('|'),
-              ]}
+              feedQueryKey={[RequestKey.FeedPreview, user.id]}
               query={PREVIEW_FEED_QUERY}
-              variables={{ filters: { includeTags: previewTags } }}
               showSearch={false}
               options={{ refetchOnMount: true }}
               allowPin
