@@ -5,11 +5,11 @@ import React from 'react';
 import nock from 'nock';
 import { useRouter } from 'next/router';
 import ShareBar from './ShareBar';
-import Post from '../../__tests__/fixture/post';
+import Post, { sharePost } from '../../__tests__/fixture/post';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import loggedUser from '../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../__tests__/fixture/squads';
-import { getFacebookShareLink } from '../lib/share';
+import { getFacebookShareLink, getTwitterShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { NotificationsContextProvider } from '../contexts/NotificationsContext';
 
@@ -50,6 +50,7 @@ const manySquads = Array.from({ length: 5 }, (_, index) =>
 const renderComponent = (
   loggedIn = true,
   customSquads: typeof squads = squads,
+  post = defaultPost,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -66,7 +67,7 @@ const renderComponent = (
       >
         <NotificationsContextProvider>
           <LazyModalElement />
-          <ShareBar post={defaultPost} />
+          <ShareBar post={post} />
         </NotificationsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
@@ -132,6 +133,24 @@ describe('ShareBar Test Suite:', () => {
     await waitFor(() => {
       expect(mockWindowOpen).toHaveBeenCalledWith(
         getFacebookShareLink(defaultPost.commentsPermalink),
+        '_blank',
+      );
+    });
+  });
+
+  it('should fall back to shared post title on Twitter share when shared post has no title', async () => {
+    const sharedPostWithoutTitle = { ...sharePost, title: undefined };
+    renderComponent(true, squads, sharedPostWithoutTitle);
+    const btn = await screen.findByTestId('social-share-X');
+
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        getTwitterShareLink(
+          sharedPostWithoutTitle.commentsPermalink,
+          sharePost.sharedPost!.title,
+        ),
         '_blank',
       );
     });
