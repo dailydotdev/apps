@@ -212,7 +212,7 @@ export default function ProfileButton({
               streak={streak}
               isLoading={isLoading}
               compact
-              className="pl-4 !font-bold !text-text-primary !typo-subhead"
+              className="!gap-0 pl-4 !font-bold !typo-subhead"
             />
           )}
           {hasCoresAccess && (
@@ -236,7 +236,7 @@ export default function ProfileButton({
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
-                    className="!font-bold !typo-subhead"
+                    className="!gap-0 !font-bold !typo-subhead"
                   >
                     {largeNumberFormat(displayedBalance)}
                   </Button>
