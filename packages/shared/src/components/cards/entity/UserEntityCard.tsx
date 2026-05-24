@@ -32,25 +32,22 @@ type Props = {
 
 const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = loggedUser?.id === user?.id;
-  const userId = user?.id ?? '';
   const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: userId,
+    id: user?.id,
     entity: ContentPreferenceType.User,
   });
   const { isLoading } = useShowFollowAction({
-    entityId: userId,
+    entityId: user?.id,
     entityType: ContentPreferenceType.User,
   });
 
-  const { username, bio, name, image, isPlus, createdAt, id, permalink } =
-    user || {};
-
-  const showActionBtns = !!user && !isLoading && !isSameUser;
-
-  if (!user || !id || !username || !permalink || !createdAt) {
+  if (!user?.id || !user.username || !user.permalink || !user.createdAt) {
     return null;
   }
+
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
+  const isSameUser = loggedUser?.id === id;
+  const showActionBtns = !isLoading && !isSameUser;
 
   return (
     <EntityCard
@@ -107,7 +104,7 @@ const UserEntityCard = ({ user, className }: Props) => {
           />
         </div>
         <div className="flex min-w-0 gap-2">
-          {!!user?.reputation && (
+          {!!user.reputation && (
             <div className="rounded-8 border border-border-subtlest-tertiary px-2">
               <ReputationUserBadge
                 iconProps={{
