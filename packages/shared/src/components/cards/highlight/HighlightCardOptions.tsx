@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -11,7 +11,6 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
-import type { MenuItemProps } from '../../dropdown/common';
 import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
@@ -38,8 +37,7 @@ const HighlightCardOptionsContent = ({
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
 
-  const placement = flags?.highlightsPlacement ?? HighlightsPlacement.Default;
-  const isPinned = placement === HighlightsPlacement.Pinned;
+  const isPinned = flags?.highlightsPlacement === HighlightsPlacement.Pinned;
 
   const updatePlacement = async (next: HighlightsPlacement) => {
     if (isPending) {
@@ -64,28 +62,6 @@ const HighlightCardOptionsContent = ({
     }
   };
 
-  const options = useMemo<MenuItemProps[]>(
-    () => [
-      {
-        label: isPinned ? 'Unpin from top' : 'Pin to top',
-        icon: <MenuIcon Icon={PinIcon} />,
-        action: () =>
-          updatePlacement(
-            isPinned ? HighlightsPlacement.Default : HighlightsPlacement.Pinned,
-          ),
-        disabled: isPending,
-      },
-      {
-        label: 'Disable',
-        icon: <MenuIcon Icon={EyeCancelIcon} />,
-        action: () => updatePlacement(HighlightsPlacement.Disabled),
-        disabled: isPending,
-      },
-    ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isPinned, isPending],
-  );
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
@@ -101,7 +77,27 @@ const HighlightCardOptionsContent = ({
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuOptions options={options} />
+        <DropdownMenuOptions
+          options={[
+            {
+              label: isPinned ? 'Unpin from top' : 'Pin to top',
+              icon: <MenuIcon Icon={PinIcon} />,
+              action: () =>
+                updatePlacement(
+                  isPinned
+                    ? HighlightsPlacement.Default
+                    : HighlightsPlacement.Pinned,
+                ),
+              disabled: isPending,
+            },
+            {
+              label: 'Disable',
+              icon: <MenuIcon Icon={EyeCancelIcon} />,
+              action: () => updatePlacement(HighlightsPlacement.Disabled),
+              disabled: isPending,
+            },
+          ]}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );
