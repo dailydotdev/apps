@@ -65,7 +65,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
     const shareLink = getShareLink({
       provider,
       link: shortLink,
-      text: post?.title,
+      text: post?.title || post?.sharedPost?.title,
     });
     window.open(shareLink, '_blank');
   };
