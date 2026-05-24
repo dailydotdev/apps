@@ -143,10 +143,6 @@ export enum LogEvent {
   EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
   ScheduleDigest = 'schedule digest',
-  EnableMajorHeadlinesAlerts = 'enable major headlines alerts',
-  DisableMajorHeadlinesAlerts = 'disable major headlines alerts',
-  ImpressionMajorHeadlinesAlertsBanner = 'impression major headlines alerts banner',
-  DismissMajorHeadlinesAlertsBanner = 'dismiss major headlines alerts banner',
   // notifications - end
   // squads - start
   ViewSquadInvitation = 'view squad invitation',
@@ -678,9 +674,6 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
-  MajorHeadlinesSettings = 'major headlines settings',
-  MajorHeadlinesPage = 'major headlines page',
-  MajorHeadlinesCard = 'major headlines card',
   StandupLobby = 'standup lobby',
 }
 

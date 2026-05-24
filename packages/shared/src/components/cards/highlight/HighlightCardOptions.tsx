@@ -1,16 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import {
-  BellAddIcon,
-  BellSubscribedIcon,
-  EyeCancelIcon,
-  MenuIcon as KebabIcon,
-  PinIcon,
-} from '../../icons';
+import { EyeCancelIcon, MenuIcon as KebabIcon, PinIcon } from '../../icons';
 import { MenuIcon } from '../../MenuIcon';
 import {
   DropdownMenu,
@@ -22,9 +15,6 @@ import type { MenuItemProps } from '../../dropdown/common';
 import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { useMajorHeadlinesSubscription } from '../../../hooks/notifications/useMajorHeadlinesSubscription';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureMajorHeadlinesPush } from '../../../lib/featureManagement';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useLogContext } from '../../../contexts/LogContext';
 import {
@@ -34,8 +24,6 @@ import {
 import { LogEvent, Origin } from '../../../lib/log';
 import { labels } from '../../../lib';
 
-const NOTIFICATION_SETTINGS_PATH = '/settings/notifications';
-
 interface HighlightCardOptionsProps {
   className?: string;
 }
@@ -43,15 +31,12 @@ interface HighlightCardOptionsProps {
 const HighlightCardOptionsContent = ({
   className,
 }: HighlightCardOptionsProps): ReactElement => {
-  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { flags, updateFlag } = useSettingsContext();
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
-  const { isSubscribed, isLoading, subscribe, unsubscribe } =
-    useMajorHeadlinesSubscription();
 
   const placement = flags?.highlightsPlacement ?? HighlightsPlacement.Default;
   const isPinned = placement === HighlightsPlacement.Pinned;
@@ -79,32 +64,8 @@ const HighlightCardOptionsContent = ({
     }
   };
 
-  const toggleSubscription = async () => {
-    if (isPending || isLoading) {
-      return;
-    }
-    setIsPending(true);
-    try {
-      if (isSubscribed) {
-        await unsubscribe('feed_card');
-        displayToast('Real-time alerts turned off.');
-        return;
-      }
-      await subscribe('feed_card');
-      displayToast("You'll be the first to know when news breaks.", {
-        action: {
-          copy: 'Settings',
-          onClick: () => router.push(NOTIFICATION_SETTINGS_PATH),
-        },
-      });
-    } finally {
-      setIsPending(false);
-    }
-  };
-
-  const options = useMemo<MenuItemProps[]>(() => {
-    const SubscribeIcon = isSubscribed ? BellSubscribedIcon : BellAddIcon;
-    return [
+  const options = useMemo<MenuItemProps[]>(
+    () => [
       {
         label: isPinned ? 'Unpin from top' : 'Pin to top',
         icon: <MenuIcon Icon={PinIcon} />,
@@ -120,17 +81,10 @@ const HighlightCardOptionsContent = ({
         action: () => updatePlacement(HighlightsPlacement.Disabled),
         disabled: isPending,
       },
-      {
-        label: isSubscribed
-          ? 'Turn off real-time alerts'
-          : 'Get real-time alerts',
-        icon: <MenuIcon Icon={SubscribeIcon} />,
-        action: toggleSubscription,
-        disabled: isPending || isLoading,
-      },
-    ];
+    ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPinned, isSubscribed, isPending, isLoading]);
+    [isPinned, isPending],
+  );
 
   return (
     <DropdownMenu>
@@ -157,13 +111,8 @@ export const HighlightCardOptions = ({
   className,
 }: HighlightCardOptionsProps): ReactElement | null => {
   const auth = useAuthContext();
-  const user = auth?.user;
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: featureMajorHeadlinesPush,
-    shouldEvaluate: !!user,
-  });
 
-  if (!isFeatureEnabled || !user) {
+  if (!auth?.user) {
     return null;
   }
 
