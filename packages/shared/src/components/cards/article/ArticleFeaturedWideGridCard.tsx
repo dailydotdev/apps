@@ -32,6 +32,22 @@ const BREAKING_NEWS_CHIP_LABEL = 'Breaking news';
 const breakingNewsChipFillClassName = 'breaking-news-chip-fill';
 const breakingNewsChipGlowClassName = 'breaking-news-chip-glow';
 
+export type FeaturedWideColSpan = 2 | 3 | 4;
+
+/** Inner grid class mirroring the feed column count the card spans. */
+const INNER_GRID_COLS: Record<FeaturedWideColSpan, string> = {
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+};
+
+/** Image takes every column except the first (text) column. */
+const IMAGE_COL_SPAN: Record<FeaturedWideColSpan, string> = {
+  2: 'col-span-1',
+  3: 'col-span-2',
+  4: 'col-span-3',
+};
+
 const BreakingNewsChip = ({
   className,
 }: {
@@ -77,7 +93,8 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       onReadArticleClick,
       domProps = {},
       eagerLoadImage = false,
-    }: PostCardProps,
+      wideColSpan = 2,
+    }: PostCardProps & { wideColSpan?: FeaturedWideColSpan },
     ref: Ref<HTMLElement>,
   ): ReactElement {
     const { className, style } = domProps;
@@ -184,7 +201,8 @@ export const ArticleFeaturedWideGridCard = forwardRef(
 
         <div
           className={classNames(
-            'absolute inset-0 grid h-full min-h-0 grid-cols-2 gap-3 overflow-hidden laptop:gap-4',
+            'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
+            INNER_GRID_COLS[wideColSpan],
             showFeedback &&
               'overflow-hidden rounded-16 border !border-border-subtlest-tertiary p-2',
             showFeedback && styles.post,
@@ -202,7 +220,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                 onReadArticleClick={onReadArticleClick}
                 showFeedback={showFeedback}
               />
-              <h3 className="mt-2 break-words font-bold text-text-primary typo-title1">
+              <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
                 {title}
               </h3>
               {!showFeedback && (
@@ -244,7 +262,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             )}
           </div>
           {!showFeedback && image ? (
-            <div className="relative h-full min-w-0 overflow-hidden rounded-r-16">
+            <div
+              className={classNames(
+                'relative h-full min-w-0 overflow-hidden rounded-r-16',
+                IMAGE_COL_SPAN[wideColSpan],
+              )}
+            >
               <Image
                 alt={post.title}
                 src={image}

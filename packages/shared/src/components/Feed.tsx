@@ -73,6 +73,7 @@ import {
 } from '../lib/featureManagement';
 import {
   getDevSeededLayoutHint,
+  getDevSeededWideVariant,
   getRawLayoutHintFromItem,
   resolveLayoutHint,
 } from '../lib/feedLayoutHint';
@@ -348,7 +349,8 @@ export default function Feed<T>({
     });
     return packFeedItems({ hints, columns: virtualizedNumCards });
   }, [items, virtualizedNumCards, isMobile, isMultiCardLayoutEnabled]);
-  // Horizontal-wide (2x1) slots cycle featured article, top squads, popular tags.
+  // Horizontal-wide slots cycle featured article, top squads, popular tags.
+  // In dev mode, respect the seeded variant so 3x1/4x1 stays as featuredArticle.
   const horizontalWideVariantByIndex = useMemo(() => {
     const map = new Map<
       number,
@@ -362,12 +364,17 @@ export default function Feed<T>({
           return;
         }
 
-        map.set(index, sequence[wideCount % sequence.length]);
+        const devVariant =
+          isDevelopment && isMultiCardLayoutEnabled
+            ? getDevSeededWideVariant(index)
+            : undefined;
+
+        map.set(index, devVariant ?? sequence[wideCount % sequence.length]);
         wideCount += 1;
       }
     });
     return map;
-  }, [placements, items]);
+  }, [placements, items, isMultiCardLayoutEnabled]);
   const hasTopSquadsSlot = useMemo(
     () =>
       Array.from(horizontalWideVariantByIndex.values()).some(
@@ -826,6 +833,13 @@ export default function Feed<T>({
                         virtualizedNumCards={virtualizedNumCards}
                         disableAdRefresh={disableAdRefresh}
                         horizontalWideVariant={horizontalWideVariant}
+                        horizontalWideColSpan={
+                          horizontalWideVariant === 'featuredArticle' &&
+                          placement.colSpan >= 2 &&
+                          placement.colSpan <= 4
+                            ? (placement.colSpan as 2 | 3 | 4)
+                            : undefined
+                        }
                         topActiveSquads={topActiveSquadsForCard}
                         topActiveSquadsPending={
                           horizontalWideVariant === 'topSquads' &&

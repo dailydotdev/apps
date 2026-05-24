@@ -174,10 +174,10 @@ export const packFeedItems = ({
   const maxRowsToScan = Math.max(hints.length, 1) * 4;
   let searchStartRow = 0;
   let largeCardsPlaced = 0;
-  // Counts placements that ended up rendering as 2 columns wide (`2x1` /
-  // `2x2`). Used to alternate consecutive 2-wide cards between the left
-  // and right edges of the row.
-  let twoWidePlacements = 0;
+  // Counts placements that ended up rendering as horizontally wide (colSpan > 1,
+  // rowSpan === 1). Used to alternate consecutive wide cards between the left
+  // and right edges so they don't always stack on the same side.
+  let horizontalWidePlacements = 0;
   // Counts placements that ended up rendering as a vertical (rowSpan > 1)
   // card. Used to alternate consecutive vertical cards between the left
   // and right edges so the Most Upvoted / Best Discussed pair sits on
@@ -210,10 +210,10 @@ export const packFeedItems = ({
         ? eligibleCandidates[0]
         : DEFAULT_LAYOUT_HINT;
     const { colSpan, rowSpan } = getLayoutHintDimensions(chosenHint);
-    const isTwoWide = colSpan === 2;
+    const isHorizontallyWide = colSpan > 1 && rowSpan === 1;
     const isVertical = rowSpan > 1;
     const preferRightmost =
-      (isTwoWide && twoWidePlacements % 2 === 1) ||
+      (isHorizontallyWide && horizontalWidePlacements % 2 === 1) ||
       (isVertical && verticalPlacements % 2 === 1);
     const slot = findFirstFreeSlot({
       occupied,
@@ -236,8 +236,8 @@ export const packFeedItems = ({
     if (isLargeLayoutHint(chosenHint)) {
       largeCardsPlaced += 1;
     }
-    if (isTwoWide) {
-      twoWidePlacements += 1;
+    if (isHorizontallyWide) {
+      horizontalWidePlacements += 1;
     }
     if (isVertical) {
       verticalPlacements += 1;

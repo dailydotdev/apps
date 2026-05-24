@@ -39,7 +39,9 @@ const defaultProps: PostCardProps = {
   onDownvoteClick: jest.fn(),
 };
 
-const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
+const renderComponent = (
+  props: Partial<PostCardProps & { wideColSpan?: 2 | 3 | 4 }> = {},
+): RenderResult => {
   return render(
     <TestBootProvider client={new QueryClient()}>
       <ArticleFeaturedWideGridCard {...defaultProps} {...props} />
@@ -53,6 +55,7 @@ it('renders a larger title, description, engagement bar, and column-width image'
   const title = await screen.findByRole('heading', { level: 3 });
   expect(title).toHaveClass('typo-title1');
   expect(title).not.toHaveClass('line-clamp-2', 'line-clamp-3');
+  expect(title).toHaveClass('line-clamp-4');
   expect(title).toHaveTextContent(post.title ?? '');
 
   expect(
@@ -66,7 +69,7 @@ it('renders a larger title, description, engagement bar, and column-width image'
 
   const image = screen.getByRole('img', { name: post.title });
   expect(image).toHaveClass('object-cover');
-  expect(image.parentElement).toHaveClass('h-full', 'min-w-0', 'rounded-r-16');
+  expect(image.parentElement).toHaveClass('h-full', 'min-w-0', 'rounded-r-16', 'col-span-1');
   expect(image.parentElement?.parentElement).toHaveClass('grid-cols-2');
 
   expect(screen.getByText('Breaking news')).toHaveClass(
@@ -80,3 +83,17 @@ it('renders a larger title, description, engagement bar, and column-width image'
     'overflow-hidden',
   );
 });
+
+it.each([
+  [3, 'grid-cols-3', 'col-span-2'],
+  [4, 'grid-cols-4', 'col-span-3'],
+] as const)(
+  'keeps the text column at one grid column width for %sx1 cards',
+  async (wideColSpan, expectedGrid, expectedImageSpan) => {
+    renderComponent({ wideColSpan });
+
+    const image = await screen.findByRole('img', { name: post.title });
+    expect(image.parentElement).toHaveClass(expectedImageSpan);
+    expect(image.parentElement?.parentElement).toHaveClass('grid', expectedGrid);
+  },
+);

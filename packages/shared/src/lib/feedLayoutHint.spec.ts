@@ -7,9 +7,12 @@ import {
 } from './feedLayoutHint';
 
 describe('isLayoutHint', () => {
-  it.each(['1x1', '1x2', '2x1'])('recognizes valid hint %s', (hint) => {
-    expect(isLayoutHint(hint)).toBe(true);
-  });
+  it.each(['1x1', '1x2', '2x1', '3x1', '4x1'])(
+    'recognizes valid hint %s',
+    (hint) => {
+      expect(isLayoutHint(hint)).toBe(true);
+    },
+  );
 
   it.each([null, undefined, '', 'invalid', '4x4', '2x2', '3x2', 5])(
     'rejects invalid hint %s',
@@ -113,6 +116,24 @@ describe('resolveLayoutHint', () => {
         isDisabled: false,
       }),
     ).toBe('2x1');
+
+    expect(
+      resolveLayoutHint({
+        rawHint: '3x1',
+        itemType: FeedItemType.Post,
+        isMobile: false,
+        isDisabled: false,
+      }),
+    ).toBe('3x1');
+
+    expect(
+      resolveLayoutHint({
+        rawHint: '4x1',
+        itemType: FeedItemType.Post,
+        isMobile: false,
+        isDisabled: false,
+      }),
+    ).toBe('4x1');
 
     expect(
       resolveLayoutHint({

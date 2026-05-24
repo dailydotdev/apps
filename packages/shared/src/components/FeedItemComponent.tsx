@@ -29,6 +29,7 @@ import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
 import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
 import { LiveRoomPostList } from './cards/liveRoom/LiveRoomPostList';
 import { TopSquadsGridCard } from './cards/article/TopSquadsGridCard';
@@ -107,6 +108,7 @@ export type FeedItemComponentProps = {
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
   horizontalWideVariant?: HorizontalWideFeedVariant;
+  horizontalWideColSpan?: FeaturedWideColSpan;
   topActiveSquads?: TopActiveSquad[];
   topActiveSquadsPending?: boolean;
   popularTags?: PopularTagItem[];
@@ -281,6 +283,7 @@ function FeedItemComponent({
   onReadArticleClick,
   virtualizedNumCards,
   horizontalWideVariant,
+  horizontalWideColSpan = 2,
   topActiveSquads,
   topActiveSquadsPending = false,
   popularTags,
@@ -443,7 +446,12 @@ function FeedItemComponent({
 
     let postBody: ReactElement;
     if (wideVariant === 'featuredArticle') {
-      postBody = <ArticleFeaturedWideGridCard {...featuredArticleHandlers} />;
+      postBody = (
+        <ArticleFeaturedWideGridCard
+          {...featuredArticleHandlers}
+          wideColSpan={horizontalWideColSpan}
+        />
+      );
     } else if (wideVariant === 'topSquads') {
       postBody = (
         <TopSquadsGridCard

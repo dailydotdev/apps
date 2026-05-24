@@ -9,11 +9,10 @@ import { FeedItemType } from '../components/cards/common/common';
  * `Post.layoutHint`. Until then, the FE treats all items as `1x1` so behavior
  * is unchanged when the field is missing.
  *
- * Scope is intentionally narrow for now: only `1x1`, `2x1` (horizontal wide
- * topic-cluster card) and `1x2` (vertical Most Upvoted card) are supported.
- * Larger sizes (`2x2`, `3x2`) are intentionally not allowed yet.
+ * Supported sizes: `1x1`, `2x1`, `3x1`, `4x1` (horizontal wide cards) and
+ * `1x2` (vertical Happening Now card). Sizes `2x2`, `3x2` are not allowed yet.
  */
-export const LAYOUT_HINT_VALUES = ['1x1', '1x2', '2x1'] as const;
+export const LAYOUT_HINT_VALUES = ['1x1', '1x2', '2x1', '3x1', '4x1'] as const;
 
 export type LayoutHint = (typeof LAYOUT_HINT_VALUES)[number];
 
@@ -31,6 +30,8 @@ const LAYOUT_HINT_DIMENSIONS: Record<LayoutHint, LayoutHintDimensions> = {
   '1x1': { colSpan: 1, rowSpan: 1 },
   '1x2': { colSpan: 1, rowSpan: 2 },
   '2x1': { colSpan: 2, rowSpan: 1 },
+  '3x1': { colSpan: 3, rowSpan: 1 },
+  '4x1': { colSpan: 4, rowSpan: 1 },
 };
 
 /**
@@ -42,6 +43,8 @@ const LAYOUT_HINT_AREA: Record<LayoutHint, number> = {
   '1x1': 1,
   '1x2': 2,
   '2x1': 2,
+  '3x1': 3,
+  '4x1': 4,
 };
 
 /** Largest size a sponsored / ad item is allowed to occupy. */
@@ -49,9 +52,11 @@ export const AD_MAX_LAYOUT_HINT: LayoutHint = '2x1';
 
 /**
  * Fallback chain used when the requested size cannot fit the current row.
- * 2x1 -> 1x1 and 1x2 -> 1x1 are the only structural fallbacks possible.
+ * Wider hints downgrade to the next narrower size before falling back to 1x1.
  */
 export const LAYOUT_HINT_FALLBACK_CHAIN: Record<LayoutHint, LayoutHint[]> = {
+  '4x1': ['4x1', '3x1', '2x1', '1x1'],
+  '3x1': ['3x1', '2x1', '1x1'],
   '2x1': ['2x1', '1x1'],
   '1x2': ['1x2', '1x1'],
   '1x1': ['1x1'],
@@ -146,20 +151,37 @@ export const getRawLayoutHintFromItem = (item: FeedItem): unknown => {
 
 /**
  * Deterministic dev-only seed used until backend emits `layoutHint`.
- * Returns a pre-set hint at fixed intervals so visual QA can verify both
- * supported large variants in My Feed. Returns `undefined` for items that
- * should remain `1x1`.
+ * Each slot sits in its own 10-item density window so the packer's
+ * "1 large per 10 items" cap does not downgrade any of them.
  *
- *   index 7  -> 2x1 (horizontal wide featured article card)
- *   index 21 -> 2x1 (horizontal wide Top active squads card)
- *   index 35 -> 2x1 (horizontal wide Popular tags card)
- *   pattern repeats every 40 items
+ *   index 7  -> 2x1 featured article
+ *   index 14 -> 3x1 featured article (falls back to 2x1 on < 3 columns)
+ *   index 21 -> 4x1 featured article (falls back to 3x1/2x1 on < 4 columns)
+ *   index 32 -> 2x1 Top active squads
+ *   index 42 -> 2x1 Popular tags
+ *   pattern repeats every 50 items
  */
-const DEV_SEED_PATTERN: Record<number, LayoutHint> = {
-  7: '2x1',
-  21: '2x1',
-  35: '2x1',
+export type DevSeededWideVariant = 'featuredArticle' | 'topSquads' | 'popularTags';
+
+interface DevSeedSlot {
+  hint: LayoutHint;
+  variant: DevSeededWideVariant;
+}
+
+const DEV_SEED_PATTERN: Record<number, DevSeedSlot> = {
+  7: { hint: '2x1', variant: 'featuredArticle' },
+  14: { hint: '3x1', variant: 'featuredArticle' },
+  21: { hint: '4x1', variant: 'featuredArticle' },
+  32: { hint: '2x1', variant: 'topSquads' },
+  42: { hint: '2x1', variant: 'popularTags' },
 };
 
+const DEV_SEED_CYCLE = 50;
+
 export const getDevSeededLayoutHint = (index: number): LayoutHint | undefined =>
-  DEV_SEED_PATTERN[index % 40];
+  DEV_SEED_PATTERN[index % DEV_SEED_CYCLE]?.hint;
+
+export const getDevSeededWideVariant = (
+  index: number,
+): DevSeededWideVariant | undefined =>
+  DEV_SEED_PATTERN[index % DEV_SEED_CYCLE]?.variant;

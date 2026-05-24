@@ -130,6 +130,39 @@ describe('packFeedItems', () => {
     expect(() => packFeedItems({ hints: ['1x1'], columns: 0 })).toThrow();
   });
 
+  it('honors a requested 3x1 wide card on a 4-column grid', () => {
+    const hints: LayoutHint[] = ['3x1', '1x1', '1x1', '1x1'];
+    const placements = packFeedItems({
+      hints,
+      columns: 4,
+      largeCardDensity: { maxLarge: hints.length, perItems: 1 },
+    });
+
+    expect(placements[0]).toMatchObject({ colSpan: 3, rowSpan: 1, effectiveHint: '3x1' });
+  });
+
+  it('downgrades 4x1 to 3x1 on a 3-column grid', () => {
+    const hints: LayoutHint[] = ['4x1', '1x1', '1x1'];
+    const placements = packFeedItems({
+      hints,
+      columns: 3,
+      largeCardDensity: { maxLarge: hints.length, perItems: 1 },
+    });
+
+    expect(placements[0]).toMatchObject({ colSpan: 3, rowSpan: 1, effectiveHint: '3x1', requestedHint: '4x1' });
+  });
+
+  it('downgrades 4x1 to 2x1 on a 2-column grid', () => {
+    const hints: LayoutHint[] = ['4x1', '1x1'];
+    const placements = packFeedItems({
+      hints,
+      columns: 2,
+      largeCardDensity: { maxLarge: hints.length, perItems: 1 },
+    });
+
+    expect(placements[0]).toMatchObject({ colSpan: 2, effectiveHint: '2x1', requestedHint: '4x1' });
+  });
+
   it('alternates consecutive 2-wide cards between the left and right edges', () => {
     // First 2-wide goes to the left edge (col 0). The next 2-wide should
     // start at col 1 so it sits flush with the right edge of a 3-col grid,
