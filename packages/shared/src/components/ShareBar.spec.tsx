@@ -139,18 +139,14 @@ describe('ShareBar Test Suite:', () => {
   });
 
   it('should fall back to shared post title on Twitter share when shared post has no title', async () => {
-    const sharedPostWithoutTitle = { ...sharePost, title: undefined };
-    renderComponent(true, squads, sharedPostWithoutTitle);
-    const btn = await screen.findByTestId('social-share-X');
+    const post = { ...sharePost, title: undefined };
+    renderComponent(true, squads, post);
 
-    fireEvent.click(btn);
+    fireEvent.click(await screen.findByTestId('social-share-X'));
 
     await waitFor(() => {
       expect(mockWindowOpen).toHaveBeenCalledWith(
-        getTwitterShareLink(
-          sharedPostWithoutTitle.commentsPermalink,
-          sharePost.sharedPost!.title,
-        ),
+        getTwitterShareLink(post.commentsPermalink, post.sharedPost!.title),
         '_blank',
       );
     });
