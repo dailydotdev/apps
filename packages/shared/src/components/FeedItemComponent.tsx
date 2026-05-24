@@ -28,6 +28,14 @@ import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
+import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
+import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
+import { LiveRoomPostList } from './cards/liveRoom/LiveRoomPostList';
+import { TopSquadsGridCard } from './cards/article/TopSquadsGridCard';
+import { PopularTagsGridCard } from './cards/article/PopularTagsGridCard';
+import type { PopularTagItem } from './cards/article/PopularTagsGridCard';
+import type { TopActiveSquad } from '../hooks/useTopActiveSquads';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
@@ -42,8 +50,6 @@ import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
-import { findCreativeForTags } from '../lib/engagementAds';
-import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketing/cta/common';
 import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
@@ -53,14 +59,17 @@ import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
-import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
-import { LiveRoomPostList } from './cards/liveRoom/LiveRoomPostList';
 import { SignalList } from './cards/common/list/SignalList';
 import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
 import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
 import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
+
+export type HorizontalWideFeedVariant =
+  | 'featuredArticle'
+  | 'topSquads'
+  | 'popularTags';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -98,6 +107,11 @@ export type FeedItemComponentProps = {
   ) => unknown;
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
+  horizontalWideVariant?: HorizontalWideFeedVariant;
+  horizontalWideColSpan?: FeaturedWideColSpan;
+  topActiveSquads?: TopActiveSquad[];
+  topActiveSquadsPending?: boolean;
+  popularTags?: PopularTagItem[];
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -199,7 +213,6 @@ export const withFeedLogExtraContext = (
     props: FeedItemComponentProps,
   ): ReactElement | null => {
     const { item } = props;
-    const { creatives } = useEngagementAdsContext();
 
     if ([FeedItemType.Ad, FeedItemType.Post].includes(item?.type)) {
       return (
@@ -221,17 +234,6 @@ export const withFeedLogExtraContext = (
               extraData.referrer_target_type = post?.id
                 ? TargetType.Post
                 : undefined;
-
-              if (
-                item.type === FeedItemType.Post &&
-                post?.tags &&
-                creatives.length > 0
-              ) {
-                const creative = findCreativeForTags(creatives, post.tags);
-                if (creative) {
-                  extraData.gen_id = creative.genId;
-                }
-              }
             }
 
             if (isBoostedSquadAd(item)) {
@@ -280,6 +282,11 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
+  horizontalWideVariant,
+  horizontalWideColSpan = 2,
+  topActiveSquads,
+  topActiveSquadsPending = false,
+  popularTags,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
@@ -395,8 +402,79 @@ function FeedItemComponent({
       return null;
     }
 
-    return (
-      <ActivePostContextProvider post={itemPost}>
+    const isPostItem = item.type === FeedItemType.Post;
+    const wideVariant = isPostItem ? horizontalWideVariant : undefined;
+
+    const featuredArticleHandlers = {
+      ref: inViewRef,
+      post: { ...itemPost },
+      'data-testid': 'postItem',
+      onUpvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleUpvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onDownvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleDownvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onPostClick: (post: Post) => onPostClick(post, index, row, column),
+      onPostAuxClick: (post: Post) =>
+        onPostClick(post, index, row, column, true),
+      onReadArticleClick: () =>
+        onReadArticleClick(itemPost, index, row, column),
+      onShare: (post: Post) => onShare(post, row, column),
+      onBookmarkClick: (post: Post, origin = Origin.Feed) => {
+        toggleBookmark({
+          post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      openNewTab,
+      onCopyLinkClick: (event: React.MouseEvent, post: Post) =>
+        onCopyLinkClick(event, post, index, row, column),
+      onCommentClick: (post: Post) =>
+        onCommentClick(post, index, row, column, !!boostedBy),
+      eagerLoadImage: row === 0 && column === 0,
+    };
+
+    let postBody: ReactElement;
+    if (wideVariant === 'featuredArticle') {
+      postBody = (
+        <ArticleFeaturedWideGridCard
+          {...featuredArticleHandlers}
+          wideColSpan={horizontalWideColSpan}
+        />
+      );
+    } else if (wideVariant === 'topSquads') {
+      postBody = (
+        <TopSquadsGridCard
+          ref={inViewRef}
+          post={{ ...itemPost }}
+          data-testid="postItem"
+          eagerLoadImage={row === 0 && column === 0}
+          squads={topActiveSquads}
+          isPending={topActiveSquadsPending}
+        />
+      );
+    } else if (wideVariant === 'popularTags') {
+      postBody = (
+        <PopularTagsGridCard
+          ref={inViewRef}
+          post={{ ...itemPost }}
+          data-testid="postItem"
+          eagerLoadImage={row === 0 && column === 0}
+          tags={popularTags}
+        />
+      );
+    } else {
+      postBody = (
         <PostTag
           enableSourceHeader={
             feedName !== 'squad' && isSourceSquadOrMachine(itemPost.source)
@@ -426,9 +504,7 @@ function FeedItemComponent({
               },
             });
           }}
-          onPostClick={(post: Post, event) =>
-            onPostClick(post, index, row, column, false, event)
-          }
+          onPostClick={(post: Post) => onPostClick(post, index, row, column)}
           onPostAuxClick={(post: Post) =>
             onPostClick(post, index, row, column, true)
           }
@@ -463,6 +539,12 @@ function FeedItemComponent({
         >
           {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
         </PostTag>
+      );
+    }
+
+    return (
+      <ActivePostContextProvider post={itemPost}>
+        {postBody}
       </ActivePostContextProvider>
     );
   }

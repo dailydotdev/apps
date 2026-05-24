@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
@@ -57,6 +58,7 @@ import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import { FeedItemType } from './cards/common/common';
 import type { PostClick } from '../lib/click';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
@@ -67,8 +69,16 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
+  featureMyFeedMultiCard,
 } from '../lib/featureManagement';
-import { useNewD1ExperienceFeature } from '../hooks/useNewD1ExperienceFeature';
+import {
+  getDevSeededLayoutHint,
+  getDevSeededWideVariant,
+  getRawLayoutHintFromItem,
+  resolveLayoutHint,
+} from '../lib/feedLayoutHint';
+import { packFeedItems } from '../lib/feedGridPacker';
+import { isDevelopment } from '../lib/constants';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
@@ -76,8 +86,7 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
-import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
-import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
+import { useTopActiveSquads } from '../hooks/useTopActiveSquads';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -144,13 +153,6 @@ const SocialTwitterPostModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
-    ),
-);
-
-const ReaderPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
     ),
 );
 
@@ -232,8 +234,7 @@ export default function Feed<T>({
   const marketingCta =
     getMarketingCta(MarketingCtaVariant.Card) ||
     getMarketingCta(MarketingCtaVariant.BriefCard) ||
-    getMarketingCta(MarketingCtaVariant.YearInReview) ||
-    getMarketingCta(MarketingCtaVariant.Video);
+    getMarketingCta(MarketingCtaVariant.YearInReview);
   const { plusEntryFeed } = usePlusEntry();
   const hasDismissBriefCta =
     isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
@@ -263,11 +264,7 @@ export default function Feed<T>({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,
   });
-  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
-    shouldEvaluate: shouldEvaluateBriefCard,
-  });
-  const showBriefCard =
-    shouldEvaluateBriefCard && briefCardFeatureValue && !isNewD1Experience;
+  const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
@@ -320,6 +317,75 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+  const isMobile = !useViewSize(ViewSize.Tablet);
+  const { value: isMyFeedMultiCardEnabled } = useConditionalFeature({
+    feature: featureMyFeedMultiCard,
+    shouldEvaluate: isMyFeed,
+  });
+  const isMultiCardLayoutEnabled =
+    isMyFeed &&
+    isMyFeedMultiCardEnabled &&
+    !useList &&
+    !shouldUseListFeedLayout &&
+    !isHorizontal &&
+    !isMobile &&
+    virtualizedNumCards > 1;
+  const placements = useMemo(() => {
+    const hints = items.map((item, itemIndex) => {
+      const rawHint =
+        getRawLayoutHintFromItem(item) ??
+        (item.type === FeedItemType.Highlight && isMultiCardLayoutEnabled
+          ? '1x2'
+          : undefined) ??
+        (isDevelopment && isMultiCardLayoutEnabled
+          ? getDevSeededLayoutHint(itemIndex)
+          : undefined);
+      return resolveLayoutHint({
+        rawHint,
+        itemType: item.type,
+        isMobile,
+        isDisabled: !isMultiCardLayoutEnabled,
+      });
+    });
+    return packFeedItems({ hints, columns: virtualizedNumCards });
+  }, [items, virtualizedNumCards, isMobile, isMultiCardLayoutEnabled]);
+  // Horizontal-wide slots cycle featured article, top squads, popular tags.
+  // In dev mode, respect the seeded variant so 3x1/4x1 stays as featuredArticle.
+  const horizontalWideVariantByIndex = useMemo(() => {
+    const map = new Map<
+      number,
+      'featuredArticle' | 'topSquads' | 'popularTags'
+    >();
+    const sequence = ['featuredArticle', 'topSquads', 'popularTags'] as const;
+    let wideCount = 0;
+    placements.forEach((placement, index) => {
+      if (placement.colSpan > 1 && placement.rowSpan === 1) {
+        if (items[index]?.type !== FeedItemType.Post) {
+          return;
+        }
+
+        const devVariant =
+          isDevelopment && isMultiCardLayoutEnabled
+            ? getDevSeededWideVariant(index)
+            : undefined;
+
+        map.set(index, devVariant ?? sequence[wideCount % sequence.length]);
+        wideCount += 1;
+      }
+    });
+    return map;
+  }, [placements, items, isMultiCardLayoutEnabled]);
+  const hasTopSquadsSlot = useMemo(
+    () =>
+      Array.from(horizontalWideVariantByIndex.values()).some(
+        (variant) => variant === 'topSquads',
+      ),
+    [horizontalWideVariantByIndex],
+  );
+  const { squads: topActiveSquads, isPending: isTopActiveSquadsPending } =
+    useTopActiveSquads({
+      enabled: isMyFeed && isMultiCardLayoutEnabled && hasTopSquadsSlot,
+    });
   const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
   const {
     onOpenModal,
@@ -336,35 +402,6 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
-  const {
-    isEligible: isReaderEligible,
-    isReaderModalEnabled: readerModalFromGrowthBook,
-    isReaderFeatureLoading,
-  } = useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const isTabletViewport = useViewSize(ViewSize.Tablet);
-  const isReaderModalOn =
-    isReaderEligible &&
-    readerModalFromGrowthBook &&
-    !isLegacyLayoutOptedOut &&
-    isTabletViewport;
-  const isReaderModalFeatureReady = !isReaderFeatureLoading;
-  const readerEligiblePostTypes = useMemo(
-    () =>
-      new Set<PostType>([
-        PostType.Article,
-        PostType.Digest,
-        PostType.VideoYouTube,
-      ]),
-    [],
-  );
-  const isReaderEligiblePost = useCallback(
-    (post: Post): boolean =>
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligiblePostTypes.has(post.type),
-    [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
-  );
   const {
     adjustedHeroInsertIndex,
     shouldShowTopHero,
@@ -540,25 +577,6 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
-  const PostModal = useMemo(() => {
-    if (!selectedPost) {
-      return undefined;
-    }
-    const readerEligibleTypes = new Set([
-      PostType.Article,
-      PostType.Digest,
-      PostType.VideoYouTube,
-    ]);
-    if (
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligibleTypes.has(selectedPost.type)
-    ) {
-      return ReaderPostModal;
-    }
-    return PostModalMap[selectedPost.type];
-  }, [selectedPost, isReaderModalFeatureReady, isReaderModalOn]);
-
   if (!loadedSettings || isFallback) {
     return <></>;
   }
@@ -591,25 +609,11 @@ export default function Feed<T>({
     row,
     column,
     isAuxClick,
-    event,
   ) => {
-    const isMiddleClick = event?.type === 'auxclick' || event?.button === 1;
-    const isModifierClick = !!(event && (event.ctrlKey || event.metaKey));
-    const readerEligible = isReaderEligiblePost(post);
-    const skipsPostModal = post.type === PostType.LiveRoom;
-    const shouldOpenModal =
-      !skipsPostModal &&
-      !isAuxClick &&
-      !isMiddleClick &&
-      !isModifierClick &&
-      (!shouldUseListFeedLayout || readerEligible);
-    if (shouldOpenModal && shouldUseListFeedLayout && event) {
-      event.preventDefault();
-    }
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (shouldOpenModal) {
+    if (!isAuxClick && !shouldUseListFeedLayout) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -640,10 +644,12 @@ export default function Feed<T>({
         is_ad: isAd,
       }),
     );
-    if (!shouldUseListFeedLayout || isReaderEligiblePost(post)) {
+    if (!shouldUseListFeedLayout) {
       onPostModalOpen({ index, row, column });
     }
   };
+
+  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
 
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
@@ -692,6 +698,7 @@ export default function Feed<T>({
         feedContainerRef,
         showBriefCard,
         disableListFrame,
+        isMultiCardLayout: isMultiCardLayoutEnabled,
       };
 
   return (
@@ -716,87 +723,172 @@ export default function Feed<T>({
                 }}
               />
             )}
-            {items.map((item, index) => (
-              <FeedCardContext.Provider
-                key={getFeedItemKey(item, index)}
-                value={{
-                  boostedBy: isBoostedPostAd(item)
-                    ? item.ad.data?.post?.author || item.ad.data?.post?.scout
-                    : undefined,
-                }}
-              >
-                {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                  <BriefBannerFeed
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  />
-                )}
-                {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
-                  <div
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  >
-                    <TopHero
-                      className="pt-0"
-                      title={readingReminderTitle}
-                      subtitle={readingReminderSubtitle}
-                      onCtaClick={() =>
-                        onEnableHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                      onClose={() =>
-                        onDismissHero(NotificationCtaPlacement.InFeedHero)
-                      }
+            {items.map((item, index) => {
+              const placement = placements[index];
+              const itemRow =
+                placement?.row ?? calculateRow(index, virtualizedNumCards);
+              const itemColumn =
+                placement?.column ??
+                calculateColumn(index, virtualizedNumCards);
+              const shouldApplySpan =
+                isMultiCardLayoutEnabled &&
+                !!placement &&
+                (placement.colSpan > 1 || placement.rowSpan > 1);
+              const horizontalWideVariant =
+                horizontalWideVariantByIndex.get(index);
+              const topActiveSquadsForCard =
+                horizontalWideVariant === 'topSquads'
+                  ? topActiveSquads
+                  : undefined;
+              // The packer chooses an exact column and row for every spanned
+              // card. Pin both axes so CSS Grid `dense` flow honours the
+              // planned placement instead of re-packing from left-to-right.
+              // This matters for `1x2` verticals (colSpan=1) where omitting
+              // gridColumn would let the browser auto-place them in the first
+              // free column rather than the rightmost slot the packer picked.
+              const spanStyle = shouldApplySpan
+                ? {
+                    gridColumn: `${placement.column + 1} / span ${
+                      placement.colSpan
+                    }`,
+                    gridRow: `${placement.row + 1} / span ${placement.rowSpan}`,
+                  }
+                : undefined;
+              return (
+                <FeedCardContext.Provider
+                  key={getFeedItemKey(item, index)}
+                  value={{
+                    boostedBy: isBoostedPostAd(item)
+                      ? item.ad.data?.post?.author || item.ad.data?.post?.scout
+                      : undefined,
+                  }}
+                >
+                  {showPromoBanner && index === indexWhenShowingPromoBanner && (
+                    <BriefBannerFeed
+                      style={{
+                        gridColumn: !shouldUseListFeedLayout
+                          ? `span ${virtualizedNumCards}`
+                          : undefined,
+                      }}
                     />
-                  </div>
-                )}
-                <FeedItemComponent
-                  item={item}
-                  index={index}
-                  row={calculateRow(index, virtualizedNumCards)}
-                  column={calculateColumn(index, virtualizedNumCards)}
-                  columns={virtualizedNumCards}
-                  openNewTab={openNewTab}
-                  postMenuIndex={postMenuIndex}
-                  user={user}
-                  feedName={feedName}
-                  ranking={ranking}
-                  toggleBookmark={toggleBookmark}
-                  toggleUpvote={toggleUpvote}
-                  toggleDownvote={toggleDownvote}
-                  onPostClick={onPostCardClick}
-                  onShare={onShareClick}
-                  onMenuClick={onMenuClick}
-                  onCopyLinkClick={onCopyLinkClickLogged}
-                  onCommentClick={onCommentClick}
-                  onReadArticleClick={onReadArticleClick}
-                  virtualizedNumCards={virtualizedNumCards}
-                  disableAdRefresh={disableAdRefresh}
-                />
-              </FeedCardContext.Provider>
-            ))}
+                  )}
+                  {shouldShowInFeedHero &&
+                    index === adjustedHeroInsertIndex && (
+                      <div
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      >
+                        <TopHero
+                          className="pt-0"
+                          title={readingReminderTitle}
+                          subtitle={readingReminderSubtitle}
+                          onCtaClick={() =>
+                            onEnableHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                          onClose={() =>
+                            onDismissHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                        />
+                      </div>
+                    )}
+                  {shouldApplySpan ? (
+                    <div
+                      // `h-full`/`[&>*]:h-full` lets the inner card fill the
+                      // assigned grid track(s). Only vertical spans need
+                      // `max-h-cardLarge` removed so `rowSpan > 1` cards
+                      // are not clamped to a single-row height; horizontal
+                      // wide cards (2x1) keep the standard card height cap so
+                      // a square side image cannot stretch the row.
+                      className={classNames(
+                        'flex h-full w-full [&>*]:h-full [&>*]:w-full',
+                        placement.rowSpan > 1 &&
+                          '[&_.max-h-cardLarge]:max-h-none',
+                      )}
+                      style={spanStyle}
+                      data-testid="feedItemSpanWrapper"
+                    >
+                      <FeedItemComponent
+                        item={item}
+                        index={index}
+                        row={itemRow}
+                        column={itemColumn}
+                        columns={virtualizedNumCards}
+                        openNewTab={openNewTab}
+                        postMenuIndex={postMenuIndex}
+                        user={user}
+                        feedName={feedName}
+                        ranking={ranking}
+                        toggleBookmark={toggleBookmark}
+                        toggleUpvote={toggleUpvote}
+                        toggleDownvote={toggleDownvote}
+                        onPostClick={onPostCardClick}
+                        onShare={onShareClick}
+                        onMenuClick={onMenuClick}
+                        onCopyLinkClick={onCopyLinkClickLogged}
+                        onCommentClick={onCommentClick}
+                        onReadArticleClick={onReadArticleClick}
+                        virtualizedNumCards={virtualizedNumCards}
+                        disableAdRefresh={disableAdRefresh}
+                        horizontalWideVariant={horizontalWideVariant}
+                        horizontalWideColSpan={
+                          horizontalWideVariant === 'featuredArticle' &&
+                          placement.colSpan >= 2 &&
+                          placement.colSpan <= 4
+                            ? (placement.colSpan as 2 | 3 | 4)
+                            : undefined
+                        }
+                        topActiveSquads={topActiveSquadsForCard}
+                        topActiveSquadsPending={
+                          horizontalWideVariant === 'topSquads' &&
+                          isTopActiveSquadsPending
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <FeedItemComponent
+                      item={item}
+                      index={index}
+                      row={itemRow}
+                      column={itemColumn}
+                      columns={virtualizedNumCards}
+                      openNewTab={openNewTab}
+                      postMenuIndex={postMenuIndex}
+                      user={user}
+                      feedName={feedName}
+                      ranking={ranking}
+                      toggleBookmark={toggleBookmark}
+                      toggleUpvote={toggleUpvote}
+                      toggleDownvote={toggleDownvote}
+                      onPostClick={onPostCardClick}
+                      onShare={onShareClick}
+                      onMenuClick={onMenuClick}
+                      onCopyLinkClick={onCopyLinkClickLogged}
+                      onCommentClick={onCommentClick}
+                      onReadArticleClick={onReadArticleClick}
+                      virtualizedNumCards={virtualizedNumCards}
+                      disableAdRefresh={disableAdRefresh}
+                    />
+                  )}
+                </FeedCardContext.Provider>
+              );
+            })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
-            {selectedPost &&
-              PostModal &&
-              (!shouldUseListFeedLayout ||
-                isReaderEligiblePost(selectedPost)) && (
-                <PostModal
-                  isOpen={!!selectedPost}
-                  id={selectedPost.id}
-                  onRequestClose={onPostModalClose}
-                  onPreviousPost={onPrevious}
-                  onNextPost={onNext}
-                  postPosition={postPosition}
-                  post={selectedPost}
-                />
-              )}
+            {!shouldUseListFeedLayout && selectedPost && PostModal && (
+              <PostModal
+                isOpen={!!selectedPost}
+                id={selectedPost.id}
+                onRequestClose={onPostModalClose}
+                onPreviousPost={onPrevious}
+                onNextPost={onNext}
+                postPosition={postPosition}
+                post={selectedPost}
+              />
+            )}
           </>
         )}
       </FeedWrapperComponent>

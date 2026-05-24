@@ -7,6 +7,7 @@ import {
   USER_AUTHOR_FRAGMENT,
   USER_BASIC_INFO,
   USER_SHORT_INFO_FRAGMENT,
+  CURRENT_MEMBER_FRAGMENT,
 } from './fragments';
 import type { Connection } from './common';
 import { gqlClient } from './common';
@@ -343,8 +344,12 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       moderationRequired
       membersCount
       createdAt
+      currentMember {
+        ...CurrentMember
+      }
     }
   }
+  ${CURRENT_MEMBER_FRAGMENT}
 `;
 
 export type SquadStaticData = Pick<
@@ -360,6 +365,7 @@ export type SquadStaticData = Pick<
   | 'permalink'
   | 'membersCount'
   | 'createdAt'
+  | 'currentMember'
 >;
 
 export const getSquadStaticFields = async (

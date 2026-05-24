@@ -3,15 +3,21 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HighlightGrid } from './HighlightGrid';
 import { HighlightList } from './HighlightList';
+import { useReadHighlights } from '../../../hooks/useReadHighlights';
 
 jest.mock('../../../lib/constants', () => ({
   webappUrl: '/',
 }));
 
+jest.mock('../../../hooks/useReadHighlights');
+
+const mockedUseReadHighlights = jest.mocked(useReadHighlights);
+const markAsRead = jest.fn();
+
 const highlights = [
   {
     id: 'highlight-1',
-    channel: 'agents',
+    channel: 'vibes',
     headline: 'The first highlight',
     highlightedAt: '2026-04-05T09:00:00.000Z',
     post: {
@@ -21,7 +27,7 @@ const highlights = [
   },
   {
     id: 'highlight-2',
-    channel: 'agents',
+    channel: 'vibes',
     headline: 'The second highlight',
     highlightedAt: '2026-04-05T08:00:00.000Z',
     post: {
@@ -32,13 +38,30 @@ const highlights = [
 ];
 
 describe('Highlight cards', () => {
-  it('should render the grid card with highlight links', () => {
+  beforeEach(() => {
+    markAsRead.mockReset();
+    mockedUseReadHighlights.mockReturnValue({
+      isRead: () => false,
+      markAsRead,
+    });
+  });
+
+  it('should render the grid card as a uniform highlight list', () => {
     render(<HighlightGrid highlights={highlights} />);
 
     expect(screen.getByText('Happening Now')).toBeInTheDocument();
+    expect(
+      screen.queryByText('What developers are talking about right now'),
+    ).not.toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
     expect(screen.getByText('Read all')).toBeInTheDocument();
+    expect(screen.queryByText('Top story')).not.toBeInTheDocument();
+    expect(screen.queryByText('Also trending')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Curated from community discussions'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/trending stories/i)).not.toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /the first highlight/i }),
     ).toHaveAttribute('href', '/highlights?highlight=highlight-1');
@@ -46,12 +69,12 @@ describe('Highlight cards', () => {
       'href',
       '/highlights?highlight=highlight-1',
     );
-    expect(screen.getByText('The first highlight')).not.toHaveClass(
-      'line-clamp-2',
-    );
     expect(
-      screen.getByRole('link', { name: /the first highlight/i }).parentElement,
-    ).toHaveClass('no-scrollbar', 'overflow-y-auto');
+      screen.getByRole('link', { name: /the first highlight/i }),
+    ).toHaveClass('overflow-hidden');
+    expect(
+      screen.getByRole('link', { name: /the first highlight/i }),
+    ).not.toHaveClass('overflow-y-auto', 'overflow-y-scroll');
   });
 
   it('should render the list card with highlight links', () => {
@@ -81,5 +104,33 @@ describe('Highlight cards', () => {
 
     expect(onHighlightClick).toHaveBeenCalledWith(highlights[0], 1);
     expect(onReadAllClick).toHaveBeenCalledTimes(1);
+    expect(markAsRead).toHaveBeenCalledWith('highlight-1');
+  });
+
+  it('should show read styling for clicked highlights', () => {
+    mockedUseReadHighlights.mockReturnValue({
+      isRead: (highlightId) => highlightId === 'highlight-1',
+      markAsRead,
+    });
+
+    render(<HighlightGrid highlights={highlights} />);
+
+    const readLink = screen.getByRole('link', { name: /the first highlight/i });
+    const unreadLink = screen.getByRole('link', {
+      name: /the second highlight/i,
+    });
+
+    expect(readLink.querySelector('span[aria-hidden]')).toHaveClass(
+      'bg-text-tertiary',
+    );
+    expect(readLink.querySelector('.typo-callout')).toHaveClass(
+      'text-text-secondary',
+    );
+    expect(unreadLink.querySelector('span[aria-hidden]')).toHaveClass(
+      'feed-highlights-accent-dot',
+    );
+    expect(unreadLink.querySelector('.typo-callout')).toHaveClass(
+      'text-text-primary',
+    );
   });
 });

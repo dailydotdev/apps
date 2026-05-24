@@ -32,7 +32,10 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
+export const featureFeedV2Highlights = new Feature(
+  'feed_v2_highlights',
+  isDevelopment,
+);
 export const featureMajorHeadlinesPush = new Feature(
   'major_headlines_push',
   false,
@@ -202,5 +205,16 @@ export const featureCompanionDemoWidget = new Feature(
 );
 
 export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+
+/**
+ * Enables variable-size cards (1x1, 1x2, 2x1) in My Feed.
+ * UI-only first; once backend ships `layoutHint` per item, the FE will
+ * consume it automatically. Defaults on in development for visual QA and off
+ * in production until rollout is configured in GrowthBook.
+ */
+export const featureMyFeedMultiCard = new Feature(
+  'my_feed_multi_card',
+  isDevelopment,
+);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
