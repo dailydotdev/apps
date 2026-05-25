@@ -27,6 +27,10 @@ import { AuthTriggers } from '../../lib/auth';
 import { isDevelopment } from '../../lib/constants';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
+import {
+  isCommunityModeratedRoom,
+  isLiveRoomEffectivelyLive,
+} from '../../lib/liveRoom/status';
 import { LogEvent } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
 import { useStreamDuration } from '../../hooks/liveRooms/useStreamDuration';
@@ -376,13 +380,21 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   );
 
   const { hasHostPrivileges, isHost } = privilegeState;
-  const isCreated = (roomState?.status ?? room?.status) === 'created';
-  const isLive = (roomState?.status ?? room?.status) === 'live';
+  const isCommunityRoom =
+    isCommunityModeratedRoom(roomState) || isCommunityModeratedRoom(room);
+  const isLive = roomState
+    ? isLiveRoomEffectivelyLive(roomState)
+    : room?.status === 'live';
+  const isCreated =
+    !isLive && (roomState?.status ?? room?.status) === 'created';
   const isEnded = roomState?.status === 'ended' || room?.status === 'ended';
+  const hasDirectModeration = hasHostPrivileges && !isCommunityRoom;
   const hasAgendaContent =
     !!room?.descriptionHtml ||
     (!!room?.contentEmbeds && room.contentEmbeds.length > 0);
-  const streamTimerReference = isLive ? room?.startedAt ?? null : null;
+  const streamTimerReference = isLive
+    ? room?.startedAt ?? roomState?.createdAt ?? null
+    : null;
   const streamDuration = useStreamDuration(streamTimerReference);
   const participantCount = roomState
     ? Object.keys(roomState.participants).length
@@ -430,10 +442,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   }, []);
 
   useEffect(() => {
-    if (isFreeForAll && activeTab === 'queue') {
+    if ((isFreeForAll || isCommunityRoom) && activeTab === 'queue') {
       setActiveTab('audience');
     }
-  }, [activeTab, isFreeForAll]);
+  }, [activeTab, isCommunityRoom, isFreeForAll]);
 
   useEffect(() => {
     if (activeTab === 'agenda' && !hasAgendaContent) {
@@ -547,7 +559,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     count?: number;
   }[] = [
     { id: 'chat', label: 'Chat' },
-    ...(isFreeForAll
+    ...(isFreeForAll || isCommunityRoom
       ? []
       : [
           {
@@ -629,6 +641,29 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     );
   }
 
+  if (isCommunityRoom && !user) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-10 text-center">
+        <Typography type={TypographyType.Title3} bold>
+          Sign in to join this standup
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          Community-moderated standups require an account.
+        </Typography>
+        <Button
+          className="mt-2"
+          variant={ButtonVariant.Primary}
+          onClick={handleChatLogin}
+        >
+          Sign in
+        </Button>
+      </div>
+    );
+  }
+
   if (status === 'error' || status === 'closed') {
     return (
       <div className="flex flex-col items-center gap-3 py-10 text-center">
@@ -670,6 +705,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       isEnded={!!isEnded}
       isLoggedIn={!!user}
       hasHostPrivileges={hasHostPrivileges}
+      canKickParticipants={!isCommunityRoom}
       onSendMessage={handleSendChatMessage}
       onDeleteMessage={handleDeleteChatMessage}
       onSendMessageReaction={handleSendChatMessageReaction}
@@ -767,7 +803,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           stagePageStart={stagePageStart}
           focusedSpeakerIndex={focusedSpeakerIndex}
           waitingPrompt={waitingPrompt}
-          hasHostPrivileges={hasHostPrivileges}
+          hasHostPrivileges={hasDirectModeration}
           isHost={isHost}
           moderationBusy={moderationBusy}
           onFocusSpeaker={focusSpeaker}
@@ -813,7 +849,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 participantsById={roomState?.participants ?? {}}
                 participantProfilesById={participantProfilesById}
                 coHostParticipantIds={coHostParticipantIds}
-                canModerate={hasHostPrivileges}
+                canModerate={hasDirectModeration}
                 canManageCoHosts={isHost}
                 stageLimit={stageLimit}
                 moderationBusy={moderationBusy}

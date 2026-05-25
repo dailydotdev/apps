@@ -13,8 +13,11 @@ export type StandupScheduleChoice = 'now' | 'later';
 
 export interface SubmitStandupInput {
   topic: string;
+  mode?: LiveRoomMode;
   scheduleChoice: StandupScheduleChoice;
   scheduledStart?: string;
+  minParticipantsToGoLive?: number;
+  speakerLimit?: number;
   description?: string;
 }
 
@@ -43,6 +46,8 @@ export const useSubmitStandup = (): UseSubmitStandup => {
     async (input: SubmitStandupInput): Promise<SubmitStandupResult> => {
       const timezone = user?.timezone || DEFAULT_TIMEZONE;
       const description = input.description?.trim();
+      const mode = input.mode ?? LiveRoomMode.Moderated;
+      const isCommunityModerated = mode === LiveRoomMode.CommunityModerated;
       let scheduledStartUtc: string | undefined;
 
       if (input.scheduleChoice === 'later') {
@@ -73,8 +78,14 @@ export const useSubmitStandup = (): UseSubmitStandup => {
       try {
         const joinToken = await createLiveRoom({
           topic: input.topic.trim(),
-          mode: LiveRoomMode.Moderated,
+          mode,
           scheduledStart: scheduledStartUtc,
+          ...(isCommunityModerated && input.minParticipantsToGoLive
+            ? { minParticipantsToGoLive: input.minParticipantsToGoLive }
+            : {}),
+          ...(isCommunityModerated && input.speakerLimit
+            ? { speakerLimit: input.speakerLimit }
+            : {}),
           description: description || undefined,
         });
         logEvent({
@@ -82,7 +93,16 @@ export const useSubmitStandup = (): UseSubmitStandup => {
           target_id: joinToken.room.id,
           extra: JSON.stringify({
             scheduled: input.scheduleChoice === 'later',
+            mode,
             has_description: !!description,
+            min_participants_to_go_live:
+              isCommunityModerated && input.minParticipantsToGoLive
+                ? input.minParticipantsToGoLive
+                : null,
+            speaker_limit:
+              isCommunityModerated && input.speakerLimit
+                ? input.speakerLimit
+                : null,
             scheduled_start_delta_minutes: scheduledStartUtc
               ? Math.max(
                   0,

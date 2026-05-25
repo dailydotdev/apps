@@ -19,7 +19,10 @@ import {
 import { IconSize } from '../Icon';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import type { LiveRoomParticipantRecord } from '../../lib/liveRoom/protocol';
+import type {
+  LiveRoomModeValue,
+  LiveRoomParticipantRecord,
+} from '../../lib/liveRoom/protocol';
 import type { UserShortProfile } from '../../lib/user';
 import { anchorDefaultRel } from '../../lib/strings';
 import {
@@ -125,7 +128,7 @@ const StageParticipantItem = ({
 
 interface LiveRoomQueuePanelProps {
   tab: Extract<LiveRoomSidePanelTab, 'queue' | 'audience'>;
-  mode: 'moderated' | 'free_for_all';
+  mode: LiveRoomModeValue;
   activeSpeakerParticipantIds: string[];
   queuedParticipantIds: string[];
   audienceParticipantIds: string[];

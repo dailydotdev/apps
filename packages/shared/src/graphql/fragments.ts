@@ -356,7 +356,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     liveRoom {
       id
       topic
+      mode
       status
+      activityStatus
       scheduledStart
       subscribed
     }

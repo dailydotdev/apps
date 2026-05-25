@@ -20,6 +20,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import { AuthTriggers } from '../../lib/auth';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
+import {
+  isCommunityModeratedRoom,
+  isLiveRoomEffectivelyLive,
+} from '../../lib/liveRoom/status';
 import { LogEvent } from '../../lib/log';
 import { useLiveRoomStandupAnalytics } from '../../hooks/liveRooms/useLiveRoomStandupAnalytics';
 import {
@@ -176,7 +180,8 @@ export const LiveRoomControls = ({
 
   const isAudience = role === 'audience';
   const isSpeaker = role === 'speaker';
-  const isLive = roomState?.status === 'live';
+  const isLive = isLiveRoomEffectivelyLive(roomState);
+  const isCommunityModerated = isCommunityModeratedRoom(roomState);
   const isModerated = roomState?.mode === 'moderated';
   const isFreeForAll = roomState?.mode === 'free_for_all';
   const isQueued =
@@ -200,10 +205,13 @@ export const LiveRoomControls = ({
     activeSpeakerCount >= speakerLimit;
   const canJoinQueue = isModerated && isAudience && isLive && !isQueued;
   const canJoinStage = isFreeForAll && isAudience && isLive && !isStageFull;
-  const canLeaveStage = isSpeaker && isLive;
+  const canLeaveStage = !isCommunityModerated && isSpeaker && isLive;
   const canRaiseHand =
     isLive && (isSpeaker || privilegeState.hasHostPrivileges);
-  const showGoLive = privilegeState.isHost && roomState?.status === 'created';
+  const showGoLive =
+    !isCommunityModerated &&
+    privilegeState.isHost &&
+    roomState?.status === 'created';
   const showMediaControls = canPublish && isLive;
   const showLiveInteractionControls = isLive;
 

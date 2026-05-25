@@ -1,6 +1,6 @@
 import post from '../../../../__tests__/fixture/post';
 import type { LiveRoomPost } from '../../../graphql/liveRooms';
-import { LiveRoomStatus } from '../../../graphql/liveRooms';
+import { LiveRoomMode, LiveRoomStatus } from '../../../graphql/liveRooms';
 import { PostType } from '../../../graphql/posts';
 import type { Post } from '../../../graphql/posts';
 import { getLiveRoomPostRoom, getLiveRoomPostTitle } from './common';
@@ -8,6 +8,7 @@ import { getLiveRoomPostRoom, getLiveRoomPostTitle } from './common';
 const createRoom = (room: Partial<LiveRoomPost> = {}): LiveRoomPost => ({
   id: 'room-1',
   topic: 'Weekly product standup',
+  mode: LiveRoomMode.Moderated,
   status: LiveRoomStatus.Created,
   scheduledStart: '2026-05-20T10:00:00.000Z',
   subscribed: false,

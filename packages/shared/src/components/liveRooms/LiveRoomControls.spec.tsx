@@ -612,6 +612,114 @@ describe('LiveRoomControls', () => {
     });
   });
 
+  it('does not show leave-stage or speaker-entry controls in a live community-moderated room', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'speaker',
+        canPublish: true,
+        roomState: {
+          ...createRoomState(),
+          mode: 'community_moderated',
+          activityStatus: 'live',
+          participants: {
+            ...createRoomState().participants,
+            audience: {
+              participantId: 'audience',
+              role: 'speaker',
+              sessionIds: ['session-audience'],
+              joinedAt: '2026-04-27T09:01:00.000Z',
+              updatedAt: '2026-04-27T09:01:00.000Z',
+            },
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    expect(
+      screen.queryByRole('button', { name: 'Leave stage' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Ask to speak' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Join as speaker' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps community-moderated room media controls hidden until quorum is live', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'speaker',
+        canPublish: true,
+        roomState: {
+          ...createRoomState(),
+          mode: 'community_moderated',
+          activityStatus: 'pending',
+          status: 'created',
+          participants: {
+            ...createRoomState().participants,
+            audience: {
+              participantId: 'audience',
+              role: 'speaker',
+              sessionIds: ['session-audience'],
+              joinedAt: '2026-04-27T09:01:00.000Z',
+              updatedAt: '2026-04-27T09:01:00.000Z',
+            },
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    expect(
+      screen.queryByRole('button', { name: /Mic off/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Reactions' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not show go-live for community-moderated rooms', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'host',
+        participantId: 'host',
+        roomState: {
+          ...createRoomState(),
+          mode: 'community_moderated',
+          activityStatus: 'pending',
+          status: 'created',
+          participants: {
+            ...createRoomState().participants,
+            host: {
+              ...createRoomState().participants.host,
+              role: 'host',
+            },
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    expect(
+      screen.queryByRole('button', { name: 'Go live' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('keeps the leave-stage control visible while a reaction is pending', async () => {
     let resolveReaction: (() => void) | undefined;
     const sendReaction = jest.fn(

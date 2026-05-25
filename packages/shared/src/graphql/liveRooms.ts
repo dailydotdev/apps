@@ -7,12 +7,18 @@ import type { EmptyResponse } from './emptyResponse';
 export enum LiveRoomMode {
   Moderated = 'moderated',
   FreeForAll = 'free_for_all',
+  CommunityModerated = 'community_moderated',
 }
 
 export enum LiveRoomStatus {
   Created = 'created',
   Live = 'live',
   Ended = 'ended',
+}
+
+export enum LiveRoomActivityStatus {
+  Pending = 'pending',
+  Live = 'live',
 }
 
 export enum LiveRoomParticipantRole {
@@ -27,6 +33,7 @@ export interface LiveRoom {
   topic: string;
   mode: LiveRoomMode;
   status: LiveRoomStatus;
+  activityStatus?: LiveRoomActivityStatus | null;
   startedAt: string | null;
   endedAt: string | null;
   scheduledStart: string | null;
@@ -39,12 +46,18 @@ export interface LiveRoom {
 
 export type LiveRoomPost = Pick<
   LiveRoom,
-  'id' | 'topic' | 'status' | 'scheduledStart' | 'subscribed'
+  | 'id'
+  | 'topic'
+  | 'mode'
+  | 'status'
+  | 'activityStatus'
+  | 'scheduledStart'
+  | 'subscribed'
 >;
 
 export type ActiveLiveRoom = Pick<
   LiveRoom,
-  'id' | 'topic' | 'status' | 'participantCount'
+  'id' | 'topic' | 'mode' | 'status' | 'activityStatus' | 'participantCount'
 > & {
   host: Pick<
     UserShortProfile,
@@ -94,6 +107,7 @@ export const LIVE_ROOM_FRAGMENT = gql`
     topic
     mode
     status
+    activityStatus
     startedAt
     endedAt
     scheduledStart
@@ -142,7 +156,9 @@ export const ACTIVE_LIVE_ROOMS_QUERY = gql`
     activeLiveRooms(limit: $limit) {
       id
       topic
+      mode
       status
+      activityStatus
       participantCount
       host {
         id

@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
 import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
+import type { LiveRoomModeValue } from '../../lib/liveRoom/protocol';
 import type { UserShortProfile } from '../../lib/user';
 import { buildParticipantProfile } from '../../components/liveRooms/liveRoomParticipants';
 import type { LiveRoomStageSpeaker } from '../../components/liveRooms/LiveRoomStage';
+import { isCommunityModeratedRoom } from '../../lib/liveRoom/status';
 import { useLiveRoomParticipantProfiles } from './useLiveRoomParticipantProfiles';
 import { useLiveRoomParticipantStreams } from './useLiveRoomParticipantStreams';
 
@@ -206,14 +208,19 @@ export const useLiveRoomStageModel = ({
       ),
     [roomState?.mediaPublications],
   );
-  const roomMode = roomState?.mode ?? room?.mode ?? 'moderated';
+  const roomMode = (roomState?.mode ??
+    room?.mode ??
+    'moderated') as LiveRoomModeValue;
   const isFreeForAll = roomMode === 'free_for_all';
+  const isCommunityModerated = isCommunityModeratedRoom({ mode: roomMode });
   const remainingSeats =
     stageLimit === null
       ? null
       : Math.max(stageLimit - activeSpeakerIds.length, 0);
-  let waitingPrompt = 'Audience can join the queue';
-  if (isFreeForAll && remainingSeats !== null) {
+  let waitingPrompt = isCommunityModerated
+    ? 'Waiting for more participants'
+    : 'Audience can join the queue';
+  if ((isFreeForAll || isCommunityModerated) && remainingSeats !== null) {
     waitingPrompt =
       remainingSeats === 0
         ? 'The stage is full right now'
@@ -280,6 +287,7 @@ export const useLiveRoomStageModel = ({
     mentionSuggestions,
     roomMode,
     isFreeForAll,
+    isCommunityModerated,
     activeSpeakerIds,
     queuedParticipantIds,
     audienceParticipantIds,

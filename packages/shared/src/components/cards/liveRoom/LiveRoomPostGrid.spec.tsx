@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LiveRoomPost } from '../../../graphql/liveRooms';
-import { LiveRoomStatus } from '../../../graphql/liveRooms';
+import { LiveRoomMode, LiveRoomStatus } from '../../../graphql/liveRooms';
 import { PostType } from '../../../graphql/posts';
 import type { Post } from '../../../graphql/posts';
 import type { PostCardProps } from '../common/common';
@@ -20,6 +20,7 @@ jest.mock('next/router', () => ({
 const room: LiveRoomPost = {
   id: 'room-1',
   topic: 'Weekly product standup',
+  mode: LiveRoomMode.Moderated,
   status: LiveRoomStatus.Created,
   scheduledStart: '2026-05-20T10:00:00.000Z',
   subscribed: false,

@@ -113,6 +113,95 @@ describe('CreateLiveRoomForm', () => {
     expect(onCreated).toHaveBeenCalledTimes(1);
   });
 
+  it('creates a community moderated standup with community parameters', async () => {
+    const onCreated = jest.fn();
+
+    render(<CreateLiveRoomForm onCreated={onCreated} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Topic'), {
+      target: { value: 'Community room' },
+    });
+    fireEvent.click(screen.getByLabelText('Community moderated'));
+    fireEvent.change(screen.getByLabelText('Minimum participants to go live'), {
+      target: { value: '4' },
+    });
+    fireEvent.change(screen.getByLabelText('Speaker limit'), {
+      target: { value: '8' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create standup' }));
+
+    await waitFor(() => {
+      expect(mockCreateLiveRoom).toHaveBeenCalledWith({
+        topic: 'Community room',
+        mode: LiveRoomMode.CommunityModerated,
+        scheduledStart: undefined,
+        minParticipantsToGoLive: 4,
+        speakerLimit: 8,
+        description: undefined,
+      });
+    });
+    expect(onCreated).toHaveBeenCalledTimes(1);
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'create standup',
+        extra: expect.stringContaining('"mode":"community_moderated"'),
+      }),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        extra: expect.stringContaining('"min_participants_to_go_live":4'),
+      }),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        extra: expect.stringContaining('"speaker_limit":8'),
+      }),
+    );
+  });
+
+  it('requires a participant minimum for community moderated standups', async () => {
+    render(<CreateLiveRoomForm onCreated={jest.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Topic'), {
+      target: { value: 'Community room' },
+    });
+    fireEvent.click(screen.getByLabelText('Community moderated'));
+    fireEvent.change(screen.getByLabelText('Minimum participants to go live'), {
+      target: { value: '' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create standup' }));
+
+    expect(
+      await screen.findByText(
+        'Minimum participants is required for community-moderated rooms',
+      ),
+    ).toBeInTheDocument();
+    expect(mockCreateLiveRoom).not.toHaveBeenCalled();
+  });
+
+  it('requires the speaker limit to fit the community participant minimum', async () => {
+    render(<CreateLiveRoomForm onCreated={jest.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Topic'), {
+      target: { value: 'Community room' },
+    });
+    fireEvent.click(screen.getByLabelText('Community moderated'));
+    fireEvent.change(screen.getByLabelText('Minimum participants to go live'), {
+      target: { value: '6' },
+    });
+    fireEvent.change(screen.getByLabelText('Speaker limit'), {
+      target: { value: '4' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create standup' }));
+
+    expect(
+      await screen.findByText(
+        'Speaker limit must be greater than or equal to the participant minimum',
+      ),
+    ).toBeInTheDocument();
+    expect(mockCreateLiveRoom).not.toHaveBeenCalled();
+  });
+
   it('submits scheduled lobby fields as UTC and explains the local delta', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-05-04T07:00:00.000Z'));
 

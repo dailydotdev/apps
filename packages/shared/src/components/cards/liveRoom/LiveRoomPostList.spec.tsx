@@ -7,7 +7,11 @@ import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LiveRoomPost } from '../../../graphql/liveRooms';
-import { LiveRoomStatus } from '../../../graphql/liveRooms';
+import {
+  LiveRoomActivityStatus,
+  LiveRoomMode,
+  LiveRoomStatus,
+} from '../../../graphql/liveRooms';
 import { PostType } from '../../../graphql/posts';
 import type { Post } from '../../../graphql/posts';
 import type { PostCardProps } from '../common/common';
@@ -20,6 +24,7 @@ jest.mock('next/router', () => ({
 const room: LiveRoomPost = {
   id: 'room-1',
   topic: 'Weekly product standup',
+  mode: LiveRoomMode.Moderated,
   status: LiveRoomStatus.Created,
   scheduledStart: '2026-05-20T10:00:00.000Z',
   subscribed: false,
@@ -76,4 +81,24 @@ it('renders live room post list content and standup route link', async () => {
     'href',
     '/standups/room-1',
   );
+});
+
+it('shows community-moderated durable-created rooms as live when activity is live', async () => {
+  renderComponent({
+    post: {
+      ...liveRoomPost,
+      liveRoom: {
+        ...room,
+        mode: LiveRoomMode.CommunityModerated,
+        status: LiveRoomStatus.Created,
+        activityStatus: LiveRoomActivityStatus.Live,
+      },
+    },
+  });
+
+  expect(await screen.findByText('Live')).toBeInTheDocument();
+  expect(screen.queryByText(/May 20 at/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /RSVP/ }),
+  ).not.toBeInTheDocument();
 });

@@ -33,6 +33,10 @@ import {
 import { buildStandupAnalyticsExtra } from '../lib/liveRoom/analytics';
 import { getSnapshotChatMessages } from '../lib/liveRoom/protocol';
 import { getLiveRoomPrivilegeState } from '../lib/liveRoom/privileges';
+import {
+  isCommunityModeratedRoom,
+  isLiveRoomEffectivelyLive,
+} from '../lib/liveRoom/status';
 import { LogEvent } from '../lib/log';
 import {
   clearStoredLiveRoomResumeSession,
@@ -454,12 +458,14 @@ export const LiveRoomProvider = ({
   const intentionalDisconnectRef = useRef(false);
   const currentRole =
     (participantId && roomState?.participants[participantId]?.role) || role;
+  const isRoomActive = isLiveRoomEffectivelyLive(roomState);
   const privilegeState = getLiveRoomPrivilegeState(
     roomState,
     participantId,
     currentRole,
   );
-  const canPublish = !!currentRole && PUBLISH_ROLES.includes(currentRole);
+  const canPublish =
+    isRoomActive && !!currentRole && PUBLISH_ROLES.includes(currentRole);
   const canChat =
     !!user &&
     !!roomState &&
@@ -880,6 +886,7 @@ export const LiveRoomProvider = ({
       isAuthReady &&
       !!roomId &&
       !storedResumeSession &&
+      (!isCommunityModeratedRoom(room) || !!user?.id) &&
       !!room &&
       !isRoomLoading &&
       room?.status !== LiveRoomStatus.Ended,
@@ -916,6 +923,16 @@ export const LiveRoomProvider = ({
     setErrorMessage(null);
     setStatus('idle');
   }, [room?.status, roomId]);
+
+  useEffect(() => {
+    if (!isAuthReady || !isCommunityModeratedRoom(room) || user?.id) {
+      return;
+    }
+
+    clearStoredLiveRoomResumeSession(roomId);
+    setStoredResumeSession(null);
+    setResumeSessionTtlMs(null);
+  }, [isAuthReady, room, roomId, user?.id]);
 
   const requestFreshJoinToken = useCallback(() => {
     clearStoredLiveRoomResumeSession(roomId);
@@ -1045,6 +1062,10 @@ export const LiveRoomProvider = ({
   // Open the websocket once we have a fresh join token or a cached resume token.
   useEffect(() => {
     if (isRoomLoading || !room || room.status === LiveRoomStatus.Ended) {
+      return undefined;
+    }
+
+    if (isCommunityModeratedRoom(room) && !user?.id) {
       return undefined;
     }
 
@@ -1667,7 +1688,7 @@ export const LiveRoomProvider = ({
     if (!sendTransportReady) {
       return;
     }
-    if (roomState?.status !== 'live') {
+    if (!isRoomActive) {
       return;
     }
     if (localTracksRef.current.audio && !producersRef.current.has('audio')) {
@@ -1678,7 +1699,7 @@ export const LiveRoomProvider = ({
     }
   }, [
     sendTransportReady,
-    roomState?.status,
+    isRoomActive,
     publishLocalTrack,
     isCameraOn,
     isMicOn,
@@ -1750,11 +1771,7 @@ export const LiveRoomProvider = ({
           return;
         }
         // Otherwise, publish if room is live and transport is ready.
-        if (
-          sendTransportRef.current &&
-          roomState?.status === 'live' &&
-          canPublish
-        ) {
+        if (sendTransportRef.current && isRoomActive && canPublish) {
           await publishLocalTrack(kind);
         }
       } catch (error) {
@@ -1773,7 +1790,7 @@ export const LiveRoomProvider = ({
       publishLocalTrack,
       unpublishKind,
       canPublish,
-      roomState?.status,
+      isRoomActive,
       micSettings,
       micSettingSupport,
     ],
@@ -1853,11 +1870,7 @@ export const LiveRoomProvider = ({
       cachedTrack.track.enabled = true;
       localTracksRef.current.audio = cachedTrack.track;
       refreshLocalStream();
-      if (
-        sendTransportRef.current &&
-        roomState?.status === 'live' &&
-        canPublish
-      ) {
+      if (sendTransportRef.current && isRoomActive && canPublish) {
         await publishLocalTrack('audio');
       }
       setIsMicOn(true);
@@ -1877,7 +1890,7 @@ export const LiveRoomProvider = ({
     removeRaisedHandOnUnmute,
     publishLocalTrack,
     refreshLocalStream,
-    roomState?.status,
+    isRoomActive,
     selectedMicId,
     startCapture,
     unpublishKind,

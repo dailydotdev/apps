@@ -11,6 +11,7 @@ import { usePushNotificationContext } from '../../contexts/PushNotificationConte
 import { usePushNotificationMutation } from '../notifications/usePushNotificationMutation';
 import { useLogContext } from '../../contexts/LogContext';
 import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
+import { isLiveRoomEffectivelyLive } from '../../lib/liveRoom/status';
 
 type BuildLiveRoomSubscriptionExtra = (
   extra: Record<string, unknown>,
@@ -18,7 +19,7 @@ type BuildLiveRoomSubscriptionExtra = (
 
 type LiveRoomSubscriptionActionRoom = Pick<
   LiveRoom,
-  'id' | 'status' | 'scheduledStart' | 'subscribed'
+  'id' | 'status' | 'activityStatus' | 'scheduledStart' | 'subscribed'
 > &
   Partial<Pick<LiveRoom, 'mode'>>;
 
@@ -71,6 +72,7 @@ export const useLiveRoomSubscriptionAction = ({
   const subscriptionBusy = subscribe.isPending || unsubscribe.isPending;
   const canToggleSubscription =
     room?.status === LiveRoomStatus.Created &&
+    !isLiveRoomEffectivelyLive(room) &&
     !!room.scheduledStart &&
     (!user || !hostUserId || user.id !== hostUserId);
 
@@ -91,7 +93,10 @@ export const useLiveRoomSubscriptionAction = ({
           );
         }
 
-        if (room.status !== LiveRoomStatus.Created) {
+        if (
+          room.status !== LiveRoomStatus.Created ||
+          isLiveRoomEffectivelyLive(room)
+        ) {
           throw new Error(
             'Live room subscription is only available before start',
           );

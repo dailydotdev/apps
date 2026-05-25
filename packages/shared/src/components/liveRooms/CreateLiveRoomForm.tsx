@@ -15,7 +15,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import ControlledTextField from '../fields/ControlledTextField';
 import { TextField } from '../fields/TextField';
 import RichTextInput from '../fields/RichTextInput';
-import type { LiveRoomJoinToken } from '../../graphql/liveRooms';
+import { LiveRoomMode, type LiveRoomJoinToken } from '../../graphql/liveRooms';
 import { useSubmitStandup } from '../../hooks/liveRooms/useSubmitStandup';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -29,10 +29,23 @@ import { CREATE_LIVE_ROOM_FORM_ID } from '../fields/form/common';
 import styles from './CreateLiveRoomForm.module.css';
 
 const DEFAULT_SCHEDULE_DELAY_MS = 30 * 60 * 1000;
+const DEFAULT_COMMUNITY_MIN_PARTICIPANTS = 3;
 const TOPIC_MAX_LENGTH = 280;
 const DESCRIPTION_MAX_LENGTH = 4000;
 
+type RoomModeChoice = LiveRoomMode.Moderated | LiveRoomMode.CommunityModerated;
 type ScheduleChoice = 'now' | 'later';
+
+const optionalPositiveInteger = (message: string) =>
+  z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    if (typeof value === 'string') {
+      return Number(value);
+    }
+    return value;
+  }, z.number({ message }).int(message).positive(message).optional());
 
 const createLiveRoomFormSchema = z
   .object({
@@ -44,8 +57,13 @@ const createLiveRoomFormSchema = z
         TOPIC_MAX_LENGTH,
         `Topic must be ${TOPIC_MAX_LENGTH} characters or less`,
       ),
+    mode: z.enum([LiveRoomMode.Moderated, LiveRoomMode.CommunityModerated]),
     scheduleChoice: z.enum(['now', 'later']),
     scheduledStart: z.string().optional(),
+    minParticipantsToGoLive: optionalPositiveInteger(
+      'Enter at least 2 participants',
+    ),
+    speakerLimit: optionalPositiveInteger('Enter a speaker limit'),
     description: z
       .string()
       .trim()
@@ -61,6 +79,40 @@ const createLiveRoomFormSchema = z
         code: z.ZodIssueCode.custom,
         path: ['scheduledStart'],
         message: 'Scheduled time is required',
+      });
+    }
+
+    if (values.mode !== LiveRoomMode.CommunityModerated) {
+      return;
+    }
+
+    if (!values.minParticipantsToGoLive) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['minParticipantsToGoLive'],
+        message:
+          'Minimum participants is required for community-moderated rooms',
+      });
+      return;
+    }
+
+    if (values.minParticipantsToGoLive < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['minParticipantsToGoLive'],
+        message: 'Community rooms need at least 2 participants',
+      });
+    }
+
+    if (
+      values.speakerLimit &&
+      values.minParticipantsToGoLive > values.speakerLimit
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['speakerLimit'],
+        message:
+          'Speaker limit must be greater than or equal to the participant minimum',
       });
     }
   });
@@ -127,19 +179,37 @@ export const CreateLiveRoomForm = ({
     resolver: zodResolver(createLiveRoomFormSchema),
     defaultValues: {
       topic: '',
+      mode: LiveRoomMode.Moderated,
       scheduleChoice: 'now',
       scheduledStart: defaultScheduledStart,
+      minParticipantsToGoLive: undefined,
+      speakerLimit: undefined,
       description: '',
     },
   });
+  const roomMode = form.watch('mode');
   const scheduleChoice = form.watch('scheduleChoice');
   const scheduledStart = form.watch('scheduledStart');
   const scheduledStartDate = parseScheduledStart(scheduledStart, timezone);
+  const isCommunityModerated = roomMode === LiveRoomMode.CommunityModerated;
   const isScheduled = scheduleChoice === 'later';
   const scheduleDelta = isScheduled
     ? formatScheduleDelta(scheduledStartDate)
     : null;
   const submitCopy = isScheduled ? 'Schedule standup' : 'Create standup';
+  let submissionHint =
+    "You'll be asked for camera and microphone access before going live.";
+
+  if (isScheduled) {
+    submissionHint =
+      "We'll open the lobby right away and share a post on your feed so people can RSVP. You can go live at the scheduled time.";
+  }
+
+  if (isCommunityModerated) {
+    submissionHint = isScheduled
+      ? "We'll open the lobby right away and share a post on your feed so people can RSVP."
+      : 'Community rooms become live automatically once enough participants join.';
+  }
 
   const onSubmit = form.handleSubmit(async (values) => {
     const result = await submitStandup(values);
@@ -163,17 +233,131 @@ export const CreateLiveRoomForm = ({
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Standups are short, host-led audio and video rooms on daily.dev. Pick
-          a topic, optionally schedule it, and go live when you&apos;re ready.
-          Standups don&apos;t start automatically.
+          {isCommunityModerated
+            ? 'Community-moderated standups let authenticated speakers join directly and go live once enough participants are in the room.'
+            : "Standups are short, host-led audio and video rooms on daily.dev. Pick a topic, optionally schedule it, and go live when you're ready. Standups don't start automatically."}
         </Typography>
         <ControlledTextField
           name="topic"
           label="Topic"
           placeholder="What do you want to talk about?"
           maxLength={TOPIC_MAX_LENGTH}
-          hint="Keep it short and specific. Examples: “AMA: shipping a side project in 24h”, “Live code review: Next.js refactor”."
+          hint='Keep it short and specific. Examples: "AMA: shipping a side project in 24h", "Live code review: Next.js refactor".'
         />
+        <Controller
+          control={form.control}
+          name="mode"
+          render={({ field }) => (
+            <div className="flex flex-col gap-2">
+              <Typography type={TypographyType.Footnote} bold>
+                Room type
+              </Typography>
+              <Radio<RoomModeChoice>
+                name={field.name}
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  if (value === LiveRoomMode.CommunityModerated) {
+                    form.setValue(
+                      'minParticipantsToGoLive',
+                      form.getValues('minParticipantsToGoLive') ??
+                        DEFAULT_COMMUNITY_MIN_PARTICIPANTS,
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                    return;
+                  }
+                  form.setValue('minParticipantsToGoLive', undefined, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  form.setValue('speakerLimit', undefined, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }}
+                options={[
+                  {
+                    value: LiveRoomMode.Moderated,
+                    label: 'Host moderated',
+                    className: { wrapper: 'gap-0' },
+                    afterElement: (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="-mt-1 pl-10"
+                      >
+                        The host controls when the room goes live and who can
+                        speak.
+                      </Typography>
+                    ),
+                  },
+                  {
+                    value: LiveRoomMode.CommunityModerated,
+                    label: 'Community moderated',
+                    className: { wrapper: 'gap-0' },
+                    afterElement: (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="-mt-1 pl-10"
+                      >
+                        Speakers can join directly. The room becomes live after
+                        the participant minimum is reached.
+                      </Typography>
+                    ),
+                  },
+                ]}
+              />
+            </div>
+          )}
+        />
+        {isCommunityModerated ? (
+          <div className="grid gap-3 tablet:grid-cols-2">
+            <Controller
+              control={form.control}
+              name="minParticipantsToGoLive"
+              render={({ field, fieldState }) => (
+                <TextField
+                  inputId={field.name}
+                  name={field.name}
+                  label="Minimum participants"
+                  aria-label="Minimum participants to go live"
+                  type="number"
+                  min={2}
+                  step={1}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  valid={!fieldState.error}
+                  hint={
+                    fieldState.error?.message ??
+                    'The room becomes live once this many participants join.'
+                  }
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="speakerLimit"
+              render={({ field, fieldState }) => (
+                <TextField
+                  inputId={field.name}
+                  name={field.name}
+                  label="Speaker limit"
+                  aria-label="Speaker limit"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  valid={!fieldState.error}
+                  hint={fieldState.error?.message ?? 'Optional cap.'}
+                />
+              )}
+            />
+          </div>
+        ) : null}
         <Controller
           control={form.control}
           name="scheduleChoice"
@@ -205,8 +389,9 @@ export const CreateLiveRoomForm = ({
                         color={TypographyColor.Tertiary}
                         className="-mt-1 pl-10"
                       >
-                        Open the room immediately. You&apos;ll still need to
-                        click &quot;Go live&quot; before listeners can join.
+                        {isCommunityModerated
+                          ? 'Open the room immediately. It becomes live once the participant minimum is reached.'
+                          : 'Open the room immediately. You will still need to click "Go live" before listeners can join.'}
                       </Typography>
                     ),
                   },
@@ -220,8 +405,9 @@ export const CreateLiveRoomForm = ({
                         color={TypographyColor.Tertiary}
                         className="-mt-1 pl-10"
                       >
-                        Open a lobby where people can RSVP, chat, and get
-                        notified when you go live.
+                        {isCommunityModerated
+                          ? 'Open a lobby where people can RSVP, chat, and get notified when the room is live.'
+                          : 'Open a lobby where people can RSVP, chat, and get notified when you go live.'}
                       </Typography>
                     ),
                   },
@@ -325,9 +511,7 @@ export const CreateLiveRoomForm = ({
             color={TypographyColor.Tertiary}
             className="min-w-0 flex-1"
           >
-            {isScheduled
-              ? "We'll open the lobby right away and share a post on your feed so people can RSVP. You can go live at the scheduled time."
-              : "You'll be asked for camera and microphone access before going live."}
+            {submissionHint}
           </Typography>
           <Button
             type="submit"

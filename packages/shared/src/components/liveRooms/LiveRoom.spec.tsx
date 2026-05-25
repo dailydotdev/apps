@@ -13,6 +13,7 @@ import {
 } from '@tanstack/react-query';
 import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
+import { AuthTriggers } from '../../lib/auth';
 import { LiveRoom } from './LiveRoom';
 
 const mockPush = jest.fn();
@@ -846,6 +847,174 @@ describe('LiveRoom', () => {
       screen.queryByText('Sign in to join this standup'),
     ).not.toBeInTheDocument();
     expect(screen.getByText('tile-host')).toBeInTheDocument();
+  });
+
+  it('requires sign-in before opening a community-moderated room', () => {
+    const showLogin = jest.fn();
+    mockUseAuthContext.mockReturnValue({
+      isAuthReady: true,
+      isLoggedIn: false,
+      showLogin,
+      user: undefined,
+    });
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        status: 'idle',
+        roomState: null,
+      }),
+    );
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        createdAt: '2026-04-27T09:00:00.000Z',
+        updatedAt: '2026-04-27T09:00:00.000Z',
+        topic: 'Community floor',
+        mode: 'community_moderated',
+        status: 'created',
+        startedAt: null,
+        endedAt: null,
+        scheduledStart: null,
+        descriptionHtml: null,
+        subscribed: false,
+        contentEmbeds: [],
+        host: {
+          id: 'host',
+          username: 'host',
+          name: 'Host',
+          image: '',
+          permalink: '#',
+        },
+      },
+      error: null,
+      isLoading: false,
+    });
+
+    renderLiveRoom();
+
+    expect(
+      screen.getByText('Sign in to join this standup'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('tile-host')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(showLogin).toHaveBeenCalledWith({
+      trigger: AuthTriggers.MainButton,
+    });
+  });
+
+  it('uses community activity status to render the live stage', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          mode: 'community_moderated',
+          status: 'created',
+          activityStatus: 'live',
+          minParticipantsToGoLive: 3,
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['speaker1', 'speaker2'],
+            raisedHandParticipantIds: [],
+            speakerLimit: 6,
+          },
+        },
+      }),
+    );
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        createdAt: '2026-04-27T09:00:00.000Z',
+        updatedAt: '2026-04-27T09:00:00.000Z',
+        topic: 'Community floor',
+        mode: 'community_moderated',
+        status: 'created',
+        startedAt: null,
+        endedAt: null,
+        scheduledStart: null,
+        descriptionHtml: null,
+        subscribed: false,
+        contentEmbeds: [],
+        host: {
+          id: 'host',
+          username: 'host',
+          name: 'Host',
+          image: '',
+          permalink: '#',
+        },
+      },
+      error: null,
+      isLoading: false,
+    });
+
+    renderLiveRoom();
+
+    expect(screen.getByText('tile-host')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('tab', { name: /Queue/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides direct kick actions in community-moderated room chat', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          mode: 'community_moderated',
+          activityStatus: 'live',
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['speaker1', 'speaker2'],
+            raisedHandParticipantIds: [],
+          },
+        },
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+          },
+        ],
+      }),
+    );
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        createdAt: '2026-04-27T09:00:00.000Z',
+        updatedAt: '2026-04-27T09:00:00.000Z',
+        topic: 'Community floor',
+        mode: 'community_moderated',
+        status: 'live',
+        startedAt: '2026-04-27T09:00:00.000Z',
+        endedAt: null,
+        scheduledStart: null,
+        descriptionHtml: null,
+        subscribed: false,
+        contentEmbeds: [],
+        host: {
+          id: 'host',
+          username: 'host',
+          name: 'Host',
+          image: '',
+          permalink: '#',
+        },
+      },
+      error: null,
+      isLoading: false,
+    });
+
+    renderLiveRoom();
+
+    expect(
+      screen.getByRole('button', { name: /Delete message/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Kick user/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Revoke chat access/i }),
+    ).toBeInTheDocument();
   });
 
   it('renders chat messages with sanitized markdown and send controls', async () => {
