@@ -252,7 +252,7 @@ export default function ProfileButton({
                 icon={<ReputationIcon className="text-accent-onion-default" />}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
-                className="!px-2"
+                className="!pl-0.5 !pr-1.5"
                 onClick={wrapHandler(() => onUpdate(!isOpen))}
               >
                 {largeNumberFormat(displayedReputation ?? 0)}
