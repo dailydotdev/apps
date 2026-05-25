@@ -24,6 +24,8 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
+import { computeColSpans } from '../lib/feedHighlightColSpan';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
@@ -379,6 +381,50 @@ export default function Feed<T>({
     firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
   });
 
+  const isMobileViewport = !isTabletViewport;
+  const isListContext = useList || shouldUseListFeedLayout;
+  const earlyCurrentPageSize = pageSize ?? currentSettings.pageSize;
+  const earlyShowPromoBanner = !!briefBannerPage;
+  const earlyShowFirstSlotCard = showProfileCompletionCard || showBriefCard;
+  const earlyColumnsDiffWithPage = earlyCurrentPageSize % virtualizedNumCards;
+  const earlyIndexWhenShowingPromoBanner =
+    earlyCurrentPageSize * Number(briefBannerPage) -
+    earlyColumnsDiffWithPage * Number(briefBannerPage) -
+    Number(earlyShowFirstSlotCard);
+
+  const fullRowInsertionBeforeIndex = useMemo(() => {
+    const set = new Set<number>();
+    if (earlyShowPromoBanner) {
+      set.add(earlyIndexWhenShowingPromoBanner);
+    }
+    if (shouldShowInFeedHero) {
+      set.add(adjustedHeroInsertIndex);
+    }
+    return set;
+  }, [
+    earlyShowPromoBanner,
+    earlyIndexWhenShowingPromoBanner,
+    shouldShowInFeedHero,
+    adjustedHeroInsertIndex,
+  ]);
+
+  const itemColSpans = useMemo(
+    () =>
+      computeColSpans(items, {
+        numCards: virtualizedNumCards,
+        isMobile: isMobileViewport,
+        isList: isListContext,
+        fullRowInsertionBeforeIndex,
+      }),
+    [
+      items,
+      virtualizedNumCards,
+      isMobileViewport,
+      isListContext,
+      fullRowInsertionBeforeIndex,
+    ],
+  );
+
   useMutationSubscription({
     matcher: ({ mutation }) => {
       const [requestKey] = Array.isArray(mutation.options.mutationKey)
@@ -716,45 +762,14 @@ export default function Feed<T>({
                 }}
               />
             )}
-            {items.map((item, index) => (
-              <FeedCardContext.Provider
-                key={getFeedItemKey(item, index)}
-                value={{
-                  boostedBy: isBoostedPostAd(item)
-                    ? item.ad.data?.post?.author || item.ad.data?.post?.scout
-                    : undefined,
-                }}
-              >
-                {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                  <BriefBannerFeed
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  />
-                )}
-                {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
-                  <div
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  >
-                    <TopHero
-                      className="pt-0"
-                      title={readingReminderTitle}
-                      subtitle={readingReminderSubtitle}
-                      onCtaClick={() =>
-                        onEnableHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                      onClose={() =>
-                        onDismissHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                    />
-                  </div>
-                )}
+            {items.map((item, index) => {
+              const colSpan = itemColSpans[index] ?? 1;
+              const isWidened = colSpan > 1;
+              const wideColSpan =
+                isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
+                  ? (colSpan as FeaturedWideColSpan)
+                  : undefined;
+              const itemNode = (
                 <FeedItemComponent
                   item={item}
                   index={index}
@@ -777,9 +792,64 @@ export default function Feed<T>({
                   onReadArticleClick={onReadArticleClick}
                   virtualizedNumCards={virtualizedNumCards}
                   disableAdRefresh={disableAdRefresh}
+                  wideColSpan={wideColSpan}
                 />
-              </FeedCardContext.Provider>
-            ))}
+              );
+
+              return (
+                <FeedCardContext.Provider
+                  key={getFeedItemKey(item, index)}
+                  value={{
+                    boostedBy: isBoostedPostAd(item)
+                      ? item.ad.data?.post?.author || item.ad.data?.post?.scout
+                      : undefined,
+                  }}
+                >
+                  {showPromoBanner && index === indexWhenShowingPromoBanner && (
+                    <BriefBannerFeed
+                      style={{
+                        gridColumn: !shouldUseListFeedLayout
+                          ? `span ${virtualizedNumCards}`
+                          : undefined,
+                      }}
+                    />
+                  )}
+                  {shouldShowInFeedHero &&
+                    index === adjustedHeroInsertIndex && (
+                      <div
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      >
+                        <TopHero
+                          className="pt-0"
+                          title={readingReminderTitle}
+                          subtitle={readingReminderSubtitle}
+                          onCtaClick={() =>
+                            onEnableHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                          onClose={() =>
+                            onDismissHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                        />
+                      </div>
+                    )}
+                  {isWidened ? (
+                    <div
+                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      style={{ gridColumn: `span ${colSpan}` }}
+                      data-testid="feedItemColSpanWrapper"
+                    >
+                      {itemNode}
+                    </div>
+                  ) : (
+                    itemNode
+                  )}
+                </FeedCardContext.Provider>
+              );
+            })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}

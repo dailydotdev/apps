@@ -695,6 +695,13 @@ export const FEED_POST_FRAGMENT = gql`
         name
       }
     }
+    postHighlight {
+      id
+      significance
+      headline
+      channel
+      highlightedAt
+    }
   }
   ${FEED_POST_INFO_FRAGMENT}
 `;
