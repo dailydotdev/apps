@@ -145,12 +145,12 @@ export const AskForReviewStripView = ({
       <div className="flex min-w-0 flex-1 items-center gap-3 pr-8 tablet:pr-0">
         <span
           aria-hidden
-          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-subtler"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default"
         >
           <FeedbackIcon
             secondary
             size={IconSize.Small}
-            className="text-accent-cabbage-default"
+            className="text-white"
           />
         </span>
 
@@ -168,7 +168,7 @@ export const AskForReviewStripView = ({
             color={TypographyColor.Tertiary}
             className="block"
           >
-            {`${streakValue}-day streak — tell us in one tap.`}
+            {`You've shown up ${streakValue} days in a row. Worth a sec?`}
           </Typography>
         </div>
       </div>
@@ -180,7 +180,7 @@ export const AskForReviewStripView = ({
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           onClick={onYes}
-          className="flex-1 tablet:flex-none"
+          className="flex-1 tablet:w-28 tablet:flex-none"
         >
           Yes
         </Button>
@@ -189,7 +189,7 @@ export const AskForReviewStripView = ({
           size={ButtonSize.Small}
           variant={ButtonVariant.Subtle}
           onClick={onNo}
-          className="flex-1 tablet:flex-none"
+          className="flex-1 tablet:w-28 tablet:flex-none"
         >
           Not really
         </Button>
