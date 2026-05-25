@@ -50,6 +50,7 @@ import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/po
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
+import { AskForReviewStrip } from '@dailydotdev/shared/src/components/postReview/AskForReviewStrip';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -313,6 +314,7 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           <PostSEOSchema post={post} topComments={topComments} />
+          <AskForReviewStrip className="mx-auto mb-3 mt-4 max-w-[69.25rem]" />
           {shouldUseReaderLayout ? (
             <ReaderPostLayout
               post={post}

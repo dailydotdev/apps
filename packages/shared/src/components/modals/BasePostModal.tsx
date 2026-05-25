@@ -1,8 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
-import { Modal } from './common/Modal';
+import { Modal, modalSizeToClassName } from './common/Modal';
 import styles from './BasePostModal.module.css';
 import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
 import type { Post, PostType } from '../../graphql/posts';
@@ -17,6 +18,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useEventListener } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { AskForReviewStrip } from '../postReview/AskForReviewStrip';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -83,6 +85,8 @@ function BasePostModal({
   const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
   useEventListener(scrollNode, 'scroll', debouncedOnScroll);
 
+  const stripWidthClassName = modalSizeToClassName[size] ?? '';
+
   return (
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
@@ -95,6 +99,16 @@ function BasePostModal({
           };
         }}
       >
+        {scrollNode &&
+          createPortal(
+            <AskForReviewStrip
+              className={classNames(
+                'mb-3 mt-4 max-w-full [order:-1] tablet:mx-auto laptop:mb-3 laptop:mt-16',
+                stripWidthClassName,
+              )}
+            />,
+            scrollNode,
+          )}
         <Modal
           size={size}
           kind={Modal.Kind.FlexibleTop}

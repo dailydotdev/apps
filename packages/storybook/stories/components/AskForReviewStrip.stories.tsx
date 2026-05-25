@@ -48,7 +48,7 @@ const DESTINATIONS: ReviewDestination[] = [
 ];
 
 const Wrapper = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="border border-border-subtlest-tertiary">{children}</div>
+  <div className="mx-auto max-w-[69.25rem] p-4">{children}</div>
 );
 
 const meta: Meta<typeof AskForReviewStripView> = {

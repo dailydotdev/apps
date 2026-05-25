@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
@@ -12,6 +13,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { MiniCloseIcon } from '../icons/MiniClose';
+import { ReadingStreakIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
@@ -35,6 +37,7 @@ interface AskForReviewStripBaseProps {
   variantEnabled?: boolean;
   streakThreshold?: number;
   cooldownDays?: number;
+  className?: string;
   onAction?: (action: AskForReviewClickId) => void;
   onClose?: () => void;
 }
@@ -48,6 +51,7 @@ export const AskForReviewStripView = ({
   variantEnabled = true,
   streakThreshold,
   cooldownDays,
+  className,
   onAction,
   onClose,
 }: AskForReviewStripBaseProps): ReactElement => {
@@ -120,62 +124,99 @@ export const AskForReviewStripView = ({
   };
 
   return (
-    <div
-      className="shadow-1 mb-4 mt-3 flex w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 laptop:mt-4"
+    <section
+      aria-label="Quick feedback request"
       data-testid="ask-for-review-strip"
+      className={classNames(
+        'relative flex w-full border-y border-border-subtlest-tertiary bg-surface-float p-4 shadow-2 tablet:rounded-16 tablet:border tablet:p-5',
+        className,
+      )}
     >
-      <div className="flex w-full flex-col gap-3 tablet:flex-row tablet:items-center tablet:gap-4">
+      <Button
+        type="button"
+        aria-label="Dismiss review prompt"
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Tertiary}
+        icon={<MiniCloseIcon size={IconSize.XSmall} />}
+        onClick={onDismiss}
+        className="absolute right-2 top-2"
+      />
+
+      <div className="flex w-full flex-col gap-4 pr-8 tablet:flex-row tablet:items-center tablet:gap-5 tablet:pr-10">
+        <span
+          aria-hidden
+          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-bun-default"
+        >
+          <ReadingStreakIcon
+            secondary
+            size={IconSize.Large}
+            className="text-white"
+          />
+        </span>
+
         <div className="min-w-0 flex-1 text-left">
-          <div className="mb-1 flex items-center gap-2">
-            <span className="rounded-8 bg-accent-cabbage-subtler px-2 py-0.5 font-bold text-accent-cabbage-default typo-caption2">
-              Quick question
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <span className="rounded-6 bg-accent-bun-default px-2 py-0.5 font-bold uppercase text-white typo-caption2">
+              {`${streakValue}-day streak`}
             </span>
-            <Typography bold type={TypographyType.Callout}>
-              Are you enjoying daily.dev?
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              bold
+              className="uppercase tracking-wide"
+            >
+              Quick check-in
             </Typography>
           </div>
           <Typography
+            bold
+            type={TypographyType.Body}
+            color={TypographyColor.Primary}
+            className="block"
+          >
+            How is daily.dev working out for you?
+          </Typography>
+          <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
+            className="mt-0.5 block"
           >
-            {`You've read ${streakValue} days in a row. Your answer helps us decide what to ask next.`}
+            Tell us in one tap. If you&apos;re happy, we&apos;ll ask for a quick
+            review. If not, share what we can do better.
           </Typography>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 tablet:flex-col tablet:items-stretch laptop:flex-row">
           <Button
             type="button"
             color={ButtonColor.Avocado}
             size={ButtonSize.Medium}
             variant={ButtonVariant.Primary}
             onClick={onYes}
+            className="flex-1 tablet:flex-none"
           >
-            Yes, I enjoy it
+            I&apos;m loving it
           </Button>
           <Button
             type="button"
-            color={ButtonColor.Ketchup}
             size={ButtonSize.Medium}
-            variant={ButtonVariant.Primary}
+            variant={ButtonVariant.Secondary}
             onClick={onNo}
+            className="flex-1 tablet:flex-none"
           >
-            Not really
+            Could be better
           </Button>
-          <Button
-            type="button"
-            aria-label="Dismiss review prompt"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Tertiary}
-            icon={<MiniCloseIcon size={IconSize.XSmall} />}
-            onClick={onDismiss}
-          />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
-export const AskForReviewStrip = (): ReactElement | null => {
+export const AskForReviewStrip = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement | null => {
   const {
     visible,
     destination,
@@ -208,6 +249,7 @@ export const AskForReviewStrip = (): ReactElement | null => {
       variantEnabled={variantEnabled}
       streakThreshold={streakThreshold}
       cooldownDays={cooldownDays}
+      className={className}
       onClose={() => setClosed(true)}
     />
   );
