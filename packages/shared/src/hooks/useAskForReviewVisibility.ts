@@ -16,6 +16,7 @@ import {
 } from '../lib/askForReview';
 
 const FORCE_SHOW_QUERY_KEY = 'force-ask-for-review';
+const FORCE_SHOW_STORAGE_KEY = 'askForReview:forceShow';
 
 const getForceShow = (): boolean => {
   if (typeof window === 'undefined') {
@@ -23,7 +24,16 @@ const getForceShow = (): boolean => {
   }
   try {
     const params = new URLSearchParams(window.location.search);
-    return params.get(FORCE_SHOW_QUERY_KEY) === '1';
+    const fromUrl = params.get(FORCE_SHOW_QUERY_KEY);
+    if (fromUrl === '1') {
+      window.localStorage.setItem(FORCE_SHOW_STORAGE_KEY, '1');
+      return true;
+    }
+    if (fromUrl === '0') {
+      window.localStorage.removeItem(FORCE_SHOW_STORAGE_KEY);
+      return false;
+    }
+    return window.localStorage.getItem(FORCE_SHOW_STORAGE_KEY) === '1';
   } catch {
     return false;
   }

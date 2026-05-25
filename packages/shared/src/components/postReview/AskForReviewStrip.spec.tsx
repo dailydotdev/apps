@@ -65,14 +65,10 @@ beforeEach(() => {
 
 it('renders the question with explicit daily.dev copy and Yes/No buttons', () => {
   renderStrip();
+  expect(screen.getByText('Enjoying daily.dev so far?')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Yes' })).toBeInTheDocument();
   expect(
-    screen.getByText('How is daily.dev working out for you?'),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', { name: "I'm loving it" }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', { name: 'Could be better' }),
+    screen.getByRole('button', { name: 'Not really' }),
   ).toBeInTheDocument();
 });
 
@@ -83,7 +79,7 @@ it('marks the session-shown flag on mount', () => {
 
 it('opens the AskForReviewConfirm modal with destination + streak when user clicks Yes', async () => {
   renderStrip();
-  fireEvent.click(screen.getByRole('button', { name: "I'm loving it" }));
+  fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
   await waitFor(() => {
     expect(openModal).toHaveBeenCalledWith({
       type: LazyModal.AskForReviewConfirm,
@@ -95,7 +91,7 @@ it('opens the AskForReviewConfirm modal with destination + streak when user clic
 
 it('opens the Feedback modal with UxIssue category and marks complete on No', async () => {
   renderStrip();
-  fireEvent.click(screen.getByRole('button', { name: 'Could be better' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Not really' }));
   await waitFor(() => {
     expect(openModal).toHaveBeenCalledWith({
       type: LazyModal.Feedback,
@@ -125,7 +121,7 @@ it('passes the destination through to the confirm modal (App Store)', async () =
     href: 'https://example.test/app-store',
   };
   renderStrip(appStore);
-  fireEvent.click(screen.getByRole('button', { name: "I'm loving it" }));
+  fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
   await waitFor(() => {
     expect(openModal).toHaveBeenCalledWith({
       type: LazyModal.AskForReviewConfirm,

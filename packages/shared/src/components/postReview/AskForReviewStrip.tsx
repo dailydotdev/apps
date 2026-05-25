@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { MiniCloseIcon } from '../icons/MiniClose';
-import { ReadingStreakIcon } from '../icons';
+import { FeedbackIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
@@ -128,7 +128,7 @@ export const AskForReviewStripView = ({
       aria-label="Quick feedback request"
       data-testid="ask-for-review-strip"
       className={classNames(
-        'relative flex w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 shadow-2 tablet:p-5',
+        'shadow-1 relative flex w-full flex-col gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3 tablet:flex-row tablet:items-center',
         className,
       )}
     >
@@ -139,74 +139,60 @@ export const AskForReviewStripView = ({
         variant={ButtonVariant.Tertiary}
         icon={<MiniCloseIcon size={IconSize.XSmall} />}
         onClick={onDismiss}
-        className="absolute right-2 top-2"
+        className="absolute right-2 top-2 tablet:static tablet:order-3 tablet:shrink-0"
       />
 
-      <div className="flex w-full flex-col gap-4 pr-8 tablet:flex-row tablet:items-center tablet:gap-5 tablet:pr-10">
+      <div className="flex min-w-0 flex-1 items-center gap-3 pr-8 tablet:pr-0">
         <span
           aria-hidden
-          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-bun-default"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-subtler"
         >
-          <ReadingStreakIcon
+          <FeedbackIcon
             secondary
-            size={IconSize.Large}
-            className="text-white"
+            size={IconSize.Small}
+            className="text-accent-cabbage-default"
           />
         </span>
 
         <div className="min-w-0 flex-1 text-left">
-          <div className="mb-1 flex flex-wrap items-center gap-2">
-            <span className="rounded-6 bg-accent-bun-default px-2 py-0.5 font-bold uppercase text-white typo-caption2">
-              {`${streakValue}-day streak`}
-            </span>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              bold
-              className="uppercase tracking-wide"
-            >
-              Quick check-in
-            </Typography>
-          </div>
           <Typography
             bold
-            type={TypographyType.Body}
+            type={TypographyType.Footnote}
             color={TypographyColor.Primary}
             className="block"
           >
-            How is daily.dev working out for you?
+            Enjoying daily.dev so far?
           </Typography>
           <Typography
-            type={TypographyType.Footnote}
+            type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
-            className="mt-0.5 block"
+            className="block"
           >
-            Tell us in one tap. If you&apos;re happy, we&apos;ll ask for a quick
-            review. If not, share what we can do better.
+            {`${streakValue}-day streak — tell us in one tap.`}
           </Typography>
         </div>
+      </div>
 
-        <div className="flex shrink-0 items-center gap-2 tablet:flex-col tablet:items-stretch laptop:flex-row">
-          <Button
-            type="button"
-            color={ButtonColor.Avocado}
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Primary}
-            onClick={onYes}
-            className="flex-1 tablet:flex-none"
-          >
-            I&apos;m loving it
-          </Button>
-          <Button
-            type="button"
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Secondary}
-            onClick={onNo}
-            className="flex-1 tablet:flex-none"
-          >
-            Could be better
-          </Button>
-        </div>
+      <div className="flex shrink-0 items-center gap-2">
+        <Button
+          type="button"
+          color={ButtonColor.Avocado}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={onYes}
+          className="flex-1 tablet:flex-none"
+        >
+          Yes
+        </Button>
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Subtle}
+          onClick={onNo}
+          className="flex-1 tablet:flex-none"
+        >
+          Not really
+        </Button>
       </div>
     </section>
   );
