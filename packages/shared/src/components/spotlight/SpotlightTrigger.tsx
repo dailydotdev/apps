@@ -6,6 +6,7 @@ import { IconSize } from '../Icon';
 import { isAppleDevice } from '../../lib/func';
 import { KeyboadShortcutLabel } from '../KeyboardShortcutLabel';
 import { useSpotlight } from './SpotlightContext';
+import { ViewSize, useViewSize } from '../../hooks';
 
 interface SpotlightTriggerProps {
   className?: string;
@@ -23,13 +24,14 @@ export const SpotlightTrigger = ({
   className,
 }: SpotlightTriggerProps): ReactElement => {
   const { open } = useSpotlight();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   return (
     <button
       type="button"
       data-testid="spotlight-trigger"
       aria-label="Open search"
-      aria-keyshortcuts={`${shortcutKeys.join('+')}`}
+      aria-keyshortcuts={isLaptop ? shortcutKeys.join('+') : undefined}
       onClick={open}
       className={classNames(
         // Sizing, color, and shape match the production SearchPanel field.

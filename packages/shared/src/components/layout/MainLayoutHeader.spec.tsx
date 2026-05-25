@@ -13,9 +13,12 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import useActiveNav from '../../hooks/useActiveNav';
 
-jest.mock('next/dynamic', () => () => {
+jest.mock('next/dynamic', () => (loader: () => Promise<unknown>) => {
+  const name = String(loader).includes('spotlightTrigger')
+    ? 'spotlight-trigger'
+    : 'dynamic-component';
   return function MockDynamicComponent() {
-    return <div data-testid="dynamic-component" />;
+    return <div data-testid={name} />;
   };
 });
 
@@ -109,6 +112,7 @@ describe('MainLayoutHeader', () => {
 
     expect(hydratedHeader).toBe(initialHeader);
     expect(hydratedHeader).toHaveClass('sticky', 'top-0');
+    expect(screen.getByTestId('spotlight-trigger')).toBeInTheDocument();
     expect(recoverableErrors).toHaveLength(0);
 
     await act(async () => {
