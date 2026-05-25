@@ -699,12 +699,11 @@ export default function MainFeedLayout({
         tab={tab}
         setTab={onTabChange}
         showBreadcrumbs={false}
-        showDropdown={false}
         className={{
           container:
-            'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            'sticky top-[4.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
           tabBarHeader: 'no-scrollbar overflow-x-auto',
-          tabBarContainer: 'w-full',
+          tabBarContainer: 'min-w-0 flex-1',
         }}
       />
     );
