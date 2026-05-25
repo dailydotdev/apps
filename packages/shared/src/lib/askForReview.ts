@@ -9,6 +9,7 @@ import {
 import {
   BrowserName,
   getCurrentBrowserName,
+  isAndroid,
   isChromeExtension,
   isExtension,
   isFirefoxExtension,
@@ -93,9 +94,6 @@ const TWITTER_DEST: ReviewDestination = {
   image: askForReviewPlaceholderImage,
 };
 
-const isAndroidUserAgent = (): boolean =>
-  /Android/i.test(globalThis?.navigator?.userAgent ?? '');
-
 export const getReviewDestination = (): ReviewDestination | null => {
   if (typeof window === 'undefined') {
     return null;
@@ -117,7 +115,7 @@ export const getReviewDestination = (): ReviewDestination | null => {
   if (isIOS()) {
     return APP_STORE_DEST;
   }
-  if (isAndroidUserAgent()) {
+  if (isAndroid()) {
     return PLAY_STORE_DEST;
   }
 

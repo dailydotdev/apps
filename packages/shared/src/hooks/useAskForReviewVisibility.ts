@@ -15,30 +15,6 @@ import {
   isCooldownActive,
 } from '../lib/askForReview';
 
-const FORCE_SHOW_QUERY_KEY = 'force-ask-for-review';
-const FORCE_SHOW_STORAGE_KEY = 'askForReview:forceShow';
-
-const getForceShow = (): boolean => {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const fromUrl = params.get(FORCE_SHOW_QUERY_KEY);
-    if (fromUrl === '1') {
-      window.localStorage.setItem(FORCE_SHOW_STORAGE_KEY, '1');
-      return true;
-    }
-    if (fromUrl === '0') {
-      window.localStorage.removeItem(FORCE_SHOW_STORAGE_KEY);
-      return false;
-    }
-    return window.localStorage.getItem(FORCE_SHOW_STORAGE_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-
 interface UseAskForReviewVisibility {
   visible: boolean;
   destination: ReviewDestination | null;
@@ -59,23 +35,18 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { streak, isStreaksEnabled } = useReadingStreak();
 
-  const forceShow = useMemo(() => getForceShow(), []);
   const qa = useMemo(() => getQAOverride(), []);
   const platformDestination = useMemo(() => getReviewDestination(), []);
-  let destination: ReviewDestination | null;
-  if (qa?.destinationId) {
-    destination = getDestinationById(qa.destinationId);
-  } else if (platformDestination) {
-    destination = platformDestination;
-  } else if (forceShow) {
-    destination = getDestinationById('chrome_web_store');
-  } else {
-    destination = null;
-  }
+  const destination = qa?.destinationId
+    ? getDestinationById(qa.destinationId)
+    : platformDestination;
   const sessionShown = hasShownThisSession();
   const completedPermanent = checkHasCompleted(
     ActionType.AskedForReviewComplete,
   );
+
+  const streakThresholdDefault = 3;
+  const cooldownDaysDefault = 14;
 
   const baseGate =
     isAuthReady &&
@@ -95,25 +66,27 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
   });
 
   const variantEnabled = !!featureValue?.enabled || !!qa;
-  const streakThreshold = featureValue?.streakThreshold ?? 3;
-  const cooldownDays = featureValue?.cooldownDays ?? 14;
+  const streakThreshold =
+    featureValue?.streakThreshold ?? streakThresholdDefault;
+  const cooldownDays = featureValue?.cooldownDays ?? cooldownDaysDefault;
   const streakValue = streak?.current ?? 0;
   const streakPasses = qa?.ignoreStreak || streakValue >= streakThreshold;
-  const cooldownPasses = qa?.ignoreCooldown || !isCooldownActive(cooldownDays);
+  const cooldownLive = isCooldownActive(cooldownDays);
+  const cooldownPasses = qa?.ignoreCooldown || !cooldownLive;
 
-  const visible =
-    forceShow ||
-    Boolean(baseGate && variantEnabled && streakPasses && cooldownPasses);
+  const visible = Boolean(
+    baseGate && variantEnabled && streakPasses && cooldownPasses,
+  );
 
   return {
     visible,
     destination,
-    streakValue: forceShow && streakValue === 0 ? 3 : streakValue,
+    streakValue,
     variantEnabled,
     streakThreshold,
     cooldownDays,
     isCompletedPermanent: completedPermanent,
-    isCooldownLive: isCooldownActive(cooldownDays),
+    isCooldownLive: cooldownLive,
     isSessionShown: sessionShown,
     isStreaksEnabled: !!isStreaksEnabled,
     platformDestination,

@@ -46,6 +46,9 @@ const AskForReviewConfirmModal = ({
 
   const handleLeaveReview = useCallback(() => {
     log('leave_review');
+    // Marks the action complete on click-through, not on actual review
+    // submission — there's no callback from the store page back to us.
+    // Click-through is the engagement signal we re-ask against.
     completeAction(ActionType.AskedForReviewComplete);
     onRequestClose?.(undefined);
   }, [log, completeAction, onRequestClose]);
@@ -70,7 +73,7 @@ const AskForReviewConfirmModal = ({
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
           icon={<MiniCloseIcon />}
-          aria-label="Close"
+          aria-label="Dismiss review prompt"
           onClick={handleMaybeLater}
         />
         <Title className="!typo-large-title">{destination.headline}</Title>

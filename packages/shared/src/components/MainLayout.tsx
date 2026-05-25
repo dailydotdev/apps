@@ -27,7 +27,6 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
-import { AskForReviewQAPanel } from './postReview/AskForReviewQAPanel';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
@@ -37,6 +36,17 @@ import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
+
+// Lazy-loaded so the 300+ LOC QA panel module isn't shipped on every page.
+// The panel internally gates its own UI on the ?ask-for-review-qa=1 flag,
+// but loading it eagerly would still parse all its code for every visitor.
+const AskForReviewQAPanel = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "askForReviewQAPanel" */ './postReview/AskForReviewQAPanel'
+    ).then((mod) => mod.AskForReviewQAPanel),
+  { ssr: false },
+);
 
 const GoBackHeaderMobile = dynamic(
   () =>

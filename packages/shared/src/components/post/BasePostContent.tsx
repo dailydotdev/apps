@@ -62,6 +62,10 @@ export function BasePostContent({
           />
         </GoBackHeaderMobile>
       )}
+      {/* Lives inside the post content (both modal + page) so it renders on
+          every post surface from a single mount point. Visually styled as a
+          standalone card with its own border/shadow so it reads as separate
+          from the article body. */}
       <AskForReviewStrip className="mb-4 mt-3 laptop:mt-4" />
       {children}
       {!!engagementProps && (
