@@ -17,7 +17,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
-import { IconWrapper } from '../Icon';
+import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 
 interface ReadingStreakButtonProps {
@@ -122,7 +122,10 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={
-            <IconWrapper wrapperClassName="relative flex items-center gap-2">
+            <IconWrapper
+              size={compact ? IconSize.XSmall : undefined}
+              wrapperClassName="relative flex items-center gap-2"
+            >
               <ReadingStreakIcon secondary={hasReadToday} />
               {!isTimezoneOk && (
                 <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />

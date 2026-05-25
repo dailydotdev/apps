@@ -210,7 +210,6 @@ export default function ProfileButton({
               streak={streak}
               isLoading={isLoading}
               compact
-              className="pl-4"
             />
           )}
           {hasCoresAccess && (
