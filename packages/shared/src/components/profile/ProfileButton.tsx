@@ -4,11 +4,9 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
-import { CoreIcon, SettingsIcon } from '../icons';
+import { CoreIcon, ReputationIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
-import { ReputationUserBadge } from '../ReputationUserBadge';
-import { IconSize } from '../Icon';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { walletUrl } from '../../lib/constants';
@@ -50,7 +48,7 @@ export default function ProfileButton({
     Partial<Record<QuestRewardType.Reputation | QuestRewardType.Cores, string>>
   >({});
   const coresCounterRef = useRef<HTMLDivElement | null>(null);
-  const reputationCounterRef = useRef<HTMLSpanElement | null>(null);
+  const reputationCounterRef = useRef<HTMLDivElement | null>(null);
   const displayedBalance =
     typeof animatedCores === 'number'
       ? animatedCores
@@ -243,34 +241,36 @@ export default function ProfileButton({
               </div>
             </Tooltip>
           )}
-          <button
-            type="button"
-            aria-label="Profile settings"
-            className={classNames(
-              'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
-              className ?? 'flex',
-            )}
-            onClick={wrapHandler(() => onUpdate(!isOpen))}
-          >
-            <span
+          <Tooltip content="Reputation">
+            <div
               ref={reputationCounterRef}
-              className="inline-flex items-center"
-              data-reward-target={QuestRewardType.Reputation}
+              className="flex origin-center justify-center will-change-transform"
             >
-              <ReputationUserBadge
-                className="ml-1 !typo-subhead"
-                user={{ reputation: displayedReputation ?? 0 }}
-                iconProps={{
-                  size: IconSize.Small,
-                }}
-              />
-            </span>
-            <Tooltip side="bottom" content="Profile settings">
-              <div className="flex items-center">
-                <ProfilePictureWithIndicator user={user} />
-              </div>
-            </Tooltip>
-          </button>
+              <Button
+                type="button"
+                data-reward-target={QuestRewardType.Reputation}
+                icon={<ReputationIcon className="text-accent-onion-default" />}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={wrapHandler(() => onUpdate(!isOpen))}
+              >
+                {largeNumberFormat(displayedReputation ?? 0)}
+              </Button>
+            </div>
+          </Tooltip>
+          <Tooltip side="bottom" content="Profile settings">
+            <button
+              type="button"
+              aria-label="Profile settings"
+              className={classNames(
+                'focus-outline cursor-pointer items-center border-none bg-transparent p-0',
+                className ?? 'flex',
+              )}
+              onClick={wrapHandler(() => onUpdate(!isOpen))}
+            >
+              <ProfilePictureWithIndicator user={user} />
+            </button>
+          </Tooltip>
         </div>
       )}
       {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}

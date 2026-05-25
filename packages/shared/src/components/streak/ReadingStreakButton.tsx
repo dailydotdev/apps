@@ -130,14 +130,12 @@ export function ReadingStreakButton({
             </IconWrapper>
           }
           variant={
-            isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
+            compact || isLaptop || isMobile
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames(
-            'gap-1',
-            compact && 'text-accent-bacon-default',
-            className,
-          )}
+          className={classnames('gap-1', className)}
           size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}
