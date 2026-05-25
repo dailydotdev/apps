@@ -15,6 +15,20 @@ import {
   isCooldownActive,
 } from '../lib/askForReview';
 
+const FORCE_SHOW_QUERY_KEY = 'force-ask-for-review';
+
+const getForceShow = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(FORCE_SHOW_QUERY_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
 interface UseAskForReviewVisibility {
   visible: boolean;
   destination: ReviewDestination | null;
@@ -35,11 +49,19 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { streak, isStreaksEnabled } = useReadingStreak();
 
+  const forceShow = useMemo(() => getForceShow(), []);
   const qa = useMemo(() => getQAOverride(), []);
   const platformDestination = useMemo(() => getReviewDestination(), []);
-  const destination = qa?.destinationId
-    ? getDestinationById(qa.destinationId)
-    : platformDestination;
+  let destination: ReviewDestination | null;
+  if (qa?.destinationId) {
+    destination = getDestinationById(qa.destinationId);
+  } else if (platformDestination) {
+    destination = platformDestination;
+  } else if (forceShow) {
+    destination = getDestinationById('chrome_web_store');
+  } else {
+    destination = null;
+  }
   const sessionShown = hasShownThisSession();
   const completedPermanent = checkHasCompleted(
     ActionType.AskedForReviewComplete,
@@ -69,14 +91,14 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
   const streakPasses = qa?.ignoreStreak || streakValue >= streakThreshold;
   const cooldownPasses = qa?.ignoreCooldown || !isCooldownActive(cooldownDays);
 
-  const visible = Boolean(
-    baseGate && variantEnabled && streakPasses && cooldownPasses,
-  );
+  const visible =
+    forceShow ||
+    Boolean(baseGate && variantEnabled && streakPasses && cooldownPasses);
 
   return {
     visible,
     destination,
-    streakValue,
+    streakValue: forceShow && streakValue === 0 ? 3 : streakValue,
     variantEnabled,
     streakThreshold,
     cooldownDays,
