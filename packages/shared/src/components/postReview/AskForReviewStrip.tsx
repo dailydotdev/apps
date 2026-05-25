@@ -128,7 +128,7 @@ export const AskForReviewStripView = ({
       aria-label="Quick feedback request"
       data-testid="ask-for-review-strip"
       className={classNames(
-        'relative flex w-full border-y border-border-subtlest-tertiary bg-surface-float p-4 shadow-2 tablet:rounded-16 tablet:border tablet:p-5',
+        'relative flex w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 shadow-2 tablet:p-5',
         className,
       )}
     >
