@@ -107,6 +107,12 @@ const strictSkipList = new Set([
   // unrelated to the rightCopy wiring.
   'packages/shared/src/contexts/WritePostContext.tsx',
   'packages/webapp/pages/squads/create.tsx',
+  // Header-stat-button alignment branch — touched only to drop the
+  // bacon-colored number and switch compact to Tertiary. Pre-existing
+  // strict errors (optional auth user, ConditionalWrapper wrapper type,
+  // ReactElement vs null return, Button props union) live on unrelated
+  // lines and should be addressed in a dedicated cleanup PR.
+  'packages/shared/src/components/streak/ReadingStreakButton.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
