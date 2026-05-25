@@ -233,7 +233,7 @@ export default function ProfileButton({
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
-                    className="!px-2"
+                    className="!px-1.5"
                   >
                     {largeNumberFormat(displayedBalance)}
                   </Button>
