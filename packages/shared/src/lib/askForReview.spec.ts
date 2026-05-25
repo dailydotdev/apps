@@ -1,7 +1,6 @@
 import {
   ASK_FOR_REVIEW_DISMISSED_KEY,
   ASK_FOR_REVIEW_SESSION_KEY,
-  clearDismissedAt,
   getDismissedAt,
   getReviewDestination,
   hasShownThisSession,
@@ -142,12 +141,6 @@ describe('dismissed-at cooldown', () => {
 
   it('ignores invalid timestamps', () => {
     window.localStorage.setItem(ASK_FOR_REVIEW_DISMISSED_KEY, 'not-a-number');
-    expect(getDismissedAt()).toBeNull();
-  });
-
-  it('clears the stored timestamp', () => {
-    setDismissedAt();
-    clearDismissedAt();
     expect(getDismissedAt()).toBeNull();
   });
 });

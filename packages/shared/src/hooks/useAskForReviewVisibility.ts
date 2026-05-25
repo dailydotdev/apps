@@ -8,8 +8,6 @@ import { featureAskForReview } from '../lib/featureManagement';
 import { ActionType } from '../graphql/actions';
 import type { ReviewDestination } from '../lib/askForReview';
 import {
-  getDestinationById,
-  getQAOverride,
   getReviewDestination,
   hasShownThisSession,
   isCooldownActive,
@@ -35,11 +33,8 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { streak, isStreaksEnabled } = useReadingStreak();
 
-  const qa = useMemo(() => getQAOverride(), []);
   const platformDestination = useMemo(() => getReviewDestination(), []);
-  const destination = qa?.destinationId
-    ? getDestinationById(qa.destinationId)
-    : platformDestination;
+  const destination = platformDestination;
   const sessionShown = hasShownThisSession();
   const completedPermanent = checkHasCompleted(
     ActionType.AskedForReviewComplete,
@@ -55,8 +50,8 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
     isActionsFetched &&
     loadedAlerts &&
     isStreaksEnabled &&
-    (qa?.ignoreCompletedAction || !completedPermanent) &&
-    (qa?.ignoreSession || !sessionShown) &&
+    !completedPermanent &&
+    !sessionShown &&
     !alerts?.showStreakMilestone &&
     destination !== null;
 
@@ -65,14 +60,14 @@ export const useAskForReviewVisibility = (): UseAskForReviewVisibility => {
     shouldEvaluate: baseGate,
   });
 
-  const variantEnabled = !!featureValue?.enabled || !!qa;
+  const variantEnabled = !!featureValue?.enabled;
   const streakThreshold =
     featureValue?.streakThreshold ?? streakThresholdDefault;
   const cooldownDays = featureValue?.cooldownDays ?? cooldownDaysDefault;
   const streakValue = streak?.current ?? 0;
-  const streakPasses = qa?.ignoreStreak || streakValue >= streakThreshold;
+  const streakPasses = streakValue >= streakThreshold;
   const cooldownLive = isCooldownActive(cooldownDays);
-  const cooldownPasses = qa?.ignoreCooldown || !cooldownLive;
+  const cooldownPasses = !cooldownLive;
 
   const visible = Boolean(
     baseGate && variantEnabled && streakPasses && cooldownPasses,

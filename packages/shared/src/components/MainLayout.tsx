@@ -37,17 +37,6 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 
-// Lazy-loaded so the 300+ LOC QA panel module isn't shipped on every page.
-// The panel internally gates its own UI on the ?ask-for-review-qa=1 flag,
-// but loading it eagerly would still parse all its code for every visitor.
-const AskForReviewQAPanel = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "askForReviewQAPanel" */ './postReview/AskForReviewQAPanel'
-    ).then((mod) => mod.AskForReviewQAPanel),
-  { ssr: false },
-);
-
 const GoBackHeaderMobile = dynamic(
   () =>
     import(
@@ -200,7 +189,6 @@ function MainLayoutComponent({
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
-      <AskForReviewQAPanel />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"

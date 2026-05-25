@@ -161,17 +161,6 @@ export const setDismissedAt = (timestamp: number = Date.now()): void => {
   }
 };
 
-export const clearDismissedAt = (): void => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  try {
-    window.localStorage.removeItem(ASK_FOR_REVIEW_DISMISSED_KEY);
-  } catch {
-    // ignore
-  }
-};
-
 export const isCooldownActive = (
   cooldownDays: number,
   now = Date.now(),
@@ -207,74 +196,3 @@ export const markShownThisSession = (): void => {
     // ignore
   }
 };
-
-export const clearShownThisSession = (): void => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  try {
-    window.sessionStorage.removeItem(ASK_FOR_REVIEW_SESSION_KEY);
-  } catch {
-    // ignore
-  }
-};
-
-export const ASK_FOR_REVIEW_QA_KEY = 'askForReview:qa';
-
-export interface AskForReviewQAOverride {
-  enabled: boolean;
-  destinationId?: ReviewDestinationId;
-  ignoreCompletedAction?: boolean;
-  ignoreCooldown?: boolean;
-  ignoreSession?: boolean;
-  ignoreStreak?: boolean;
-}
-
-export const getQAOverride = (): AskForReviewQAOverride | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  try {
-    const raw = window.localStorage.getItem(ASK_FOR_REVIEW_QA_KEY);
-    if (!raw) {
-      return null;
-    }
-    const parsed = JSON.parse(raw) as AskForReviewQAOverride;
-    return parsed?.enabled ? parsed : null;
-  } catch {
-    return null;
-  }
-};
-
-export const setQAOverride = (
-  override: AskForReviewQAOverride | null,
-): void => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  try {
-    if (!override) {
-      window.localStorage.removeItem(ASK_FOR_REVIEW_QA_KEY);
-      return;
-    }
-    window.localStorage.setItem(
-      ASK_FOR_REVIEW_QA_KEY,
-      JSON.stringify(override),
-    );
-  } catch {
-    // ignore
-  }
-};
-
-const ALL_DESTINATIONS: Record<ReviewDestinationId, ReviewDestination> = {
-  chrome_web_store: CHROME_DEST,
-  edge_addons: EDGE_DEST,
-  firefox_addons: FIREFOX_DEST,
-  app_store: APP_STORE_DEST,
-  play_store: PLAY_STORE_DEST,
-  twitter_share: TWITTER_DEST,
-};
-
-export const getDestinationById = (
-  id: ReviewDestinationId,
-): ReviewDestination => ALL_DESTINATIONS[id];
