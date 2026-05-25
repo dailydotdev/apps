@@ -124,7 +124,10 @@ export function ReadingStreakButton({
           icon={
             <IconWrapper
               size={compact ? IconSize.XSmall : undefined}
-              wrapperClassName="relative flex items-center gap-2"
+              wrapperClassName={classnames(
+                'relative flex items-center gap-2',
+                compact && 'h-6 w-6 justify-center',
+              )}
             >
               <ReadingStreakIcon secondary={hasReadToday} />
               {!isTimezoneOk && (
