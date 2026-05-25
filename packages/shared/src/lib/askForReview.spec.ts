@@ -80,6 +80,33 @@ describe('getReviewDestination (webapp)', () => {
     );
     expect(getReviewDestination()?.id).toBe('twitter_share');
   });
+
+  it('routes iPad Safari to App Store', () => {
+    setUserAgent(
+      'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    );
+    expect(getReviewDestination()?.id).toBe('app_store');
+  });
+
+  it('routes Chrome on iOS (CriOS) to App Store', () => {
+    setUserAgent(
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1',
+    );
+    expect(getReviewDestination()?.id).toBe('app_store');
+  });
+
+  it('returns a destination with per-store copy and image', () => {
+    setUserAgent(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+      'Google Inc.',
+    );
+    const dest = getReviewDestination();
+    expect(dest).not.toBeNull();
+    expect(dest?.headline).toMatch(/daily\.dev/i);
+    expect(dest?.body).toMatch(/Chrome Web Store/i);
+    expect(dest?.ctaText).toMatch(/Chrome Web Store/i);
+    expect(dest?.image).toMatch(/^https?:\/\//);
+  });
 });
 
 describe('dismissed-at cooldown', () => {

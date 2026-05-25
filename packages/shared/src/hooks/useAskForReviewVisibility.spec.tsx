@@ -17,6 +17,10 @@ const CHROME_DEST: ReviewDestination = {
   id: 'chrome_web_store',
   label: 'Chrome Web Store',
   href: 'https://example.test/chrome',
+  headline: 'Help fellow devs find daily.dev',
+  body: 'Take 10 seconds to rate daily.dev on the Chrome Web Store.',
+  ctaText: 'Rate on Chrome Web Store',
+  image: 'https://example.test/image.png',
 };
 
 const buildStreak = (current: number) => ({

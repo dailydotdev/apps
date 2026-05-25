@@ -5,6 +5,7 @@ import { Modal } from './common/Modal';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MiniCloseIcon } from '../icons';
 import { CTAButton, Description, Title } from '../marketing/cta/common';
+import { CardCover } from '../cards/common/CardCover';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useLogContext } from '../../contexts/LogContext';
@@ -72,18 +73,22 @@ const AskForReviewConfirmModal = ({
           aria-label="Close"
           onClick={handleMaybeLater}
         />
-        <Title className="!typo-large-title">
-          Thanks for being a regular 💜
-        </Title>
-        <Description className="!typo-body">
-          {`Mind leaving us a quick review on ${destination.label}? It helps other devs find daily.dev.`}
-        </Description>
+        <Title className="!typo-large-title">{destination.headline}</Title>
+        <Description className="!typo-body">{destination.body}</Description>
+        <CardCover
+          imageProps={{
+            loading: 'lazy',
+            alt: `Leave a review on ${destination.label}`,
+            src: destination.image,
+            className: 'w-full my-6 !h-50',
+          }}
+        />
         <CTAButton
           ctaUrl={destination.href}
-          ctaText="Leave a review"
+          ctaText={destination.ctaText}
           onClick={handleLeaveReview}
           buttonSize={ButtonSize.Medium}
-          className="mt-6 w-full"
+          className="w-full"
         />
       </div>
     </Modal>

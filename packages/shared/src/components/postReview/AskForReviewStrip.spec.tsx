@@ -19,6 +19,10 @@ const CHROME_DEST: ReviewDestination = {
   id: 'chrome_web_store',
   label: 'Chrome Web Store',
   href: 'https://example.test/chrome',
+  headline: 'Help fellow devs find daily.dev',
+  body: 'Take 10 seconds to rate daily.dev on the Chrome Web Store.',
+  ctaText: 'Rate on Chrome Web Store',
+  image: 'https://example.test/image.png',
 };
 
 const completeAction = jest.fn();
@@ -119,6 +123,10 @@ it('passes the destination through to the confirm modal (App Store)', async () =
     id: 'app_store',
     label: 'App Store',
     href: 'https://example.test/app-store',
+    headline: 'Help fellow devs find daily.dev',
+    body: 'Take 10 seconds to rate daily.dev on the App Store.',
+    ctaText: 'Rate on the App Store',
+    image: 'https://example.test/image.png',
   };
   renderStrip(appStore);
   fireEvent.click(screen.getByRole('button', { name: 'Yes' }));

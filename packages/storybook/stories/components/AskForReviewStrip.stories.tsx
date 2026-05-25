@@ -38,13 +38,30 @@ const withProviders = (Story: () => ReactElement): ReactElement => (
   </QueryClientProvider>
 );
 
+const PLACEHOLDER_IMAGE =
+  'https://media.daily.dev/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
+
+const makeDest = (
+  id: ReviewDestination['id'],
+  label: string,
+  href: string,
+): ReviewDestination => ({
+  id,
+  label,
+  href,
+  headline: 'Help fellow devs find daily.dev 💜',
+  body: `Take 10 seconds to rate daily.dev on ${label}.`,
+  ctaText: `Rate on ${label}`,
+  image: PLACEHOLDER_IMAGE,
+});
+
 const DESTINATIONS: ReviewDestination[] = [
-  { id: 'chrome_web_store', label: 'Chrome Web Store', href: '#chrome' },
-  { id: 'edge_addons', label: 'Edge Add-ons', href: '#edge' },
-  { id: 'firefox_addons', label: 'Firefox Add-ons', href: '#firefox' },
-  { id: 'app_store', label: 'App Store', href: '#appstore' },
-  { id: 'play_store', label: 'Play Store', href: '#playstore' },
-  { id: 'twitter_share', label: 'X', href: '#twitter' },
+  makeDest('chrome_web_store', 'Chrome Web Store', '#chrome'),
+  makeDest('edge_addons', 'Edge Add-ons', '#edge'),
+  makeDest('firefox_addons', 'Firefox Add-ons', '#firefox'),
+  makeDest('app_store', 'App Store', '#appstore'),
+  makeDest('play_store', 'Play Store', '#playstore'),
+  makeDest('twitter_share', 'X', '#twitter'),
 ];
 
 const Wrapper = ({ children }: { children: ReactNode }): ReactElement => (

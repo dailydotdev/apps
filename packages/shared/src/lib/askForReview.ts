@@ -14,6 +14,7 @@ import {
   isFirefoxExtension,
   isIOS,
 } from './func';
+import { askForReviewPlaceholderImage } from './image';
 
 export type ReviewDestinationId =
   | 'chrome_web_store'
@@ -27,37 +28,69 @@ export interface ReviewDestination {
   id: ReviewDestinationId;
   label: string;
   href: string;
+  // Per-store copy for the confirm modal. Each destination owns its own
+  // headline / body / CTA wording so the prompt matches the store the user
+  // will land on.
+  headline: string;
+  body: string;
+  ctaText: string;
+  // Placeholder hero image — engineering will swap per-store assets in later.
+  image: string;
 }
 
 const CHROME_DEST: ReviewDestination = {
   id: 'chrome_web_store',
   label: 'Chrome Web Store',
   href: chromeWebStoreReviewUrl,
+  headline: 'Help fellow devs find daily.dev 💜',
+  body: "Take 10 seconds to rate daily.dev on the Chrome Web Store. Your review helps other developers trust it's worth installing.",
+  ctaText: 'Rate on Chrome Web Store',
+  image: askForReviewPlaceholderImage,
 };
 const EDGE_DEST: ReviewDestination = {
   id: 'edge_addons',
   label: 'Edge Add-ons',
   href: edgeAddonsReviewUrl,
+  headline: 'Help fellow devs find daily.dev 💜',
+  body: "Take 10 seconds to rate daily.dev on Microsoft Edge Add-ons. Your review helps other developers trust it's worth installing.",
+  ctaText: 'Rate on Edge Add-ons',
+  image: askForReviewPlaceholderImage,
 };
 const FIREFOX_DEST: ReviewDestination = {
   id: 'firefox_addons',
   label: 'Firefox Add-ons',
   href: firefoxAddonsReviewUrl,
+  headline: 'Help fellow devs find daily.dev 💜',
+  body: "Take 10 seconds to rate daily.dev on Firefox Add-ons. Your review helps other developers trust it's worth installing.",
+  ctaText: 'Rate on Firefox Add-ons',
+  image: askForReviewPlaceholderImage,
 };
 const APP_STORE_DEST: ReviewDestination = {
   id: 'app_store',
   label: 'App Store',
   href: appStoreReviewUrl,
+  headline: 'Help fellow devs find daily.dev 💜',
+  body: "Take 10 seconds to rate daily.dev on the App Store. Your review helps other developers trust it's worth the download.",
+  ctaText: 'Rate on the App Store',
+  image: askForReviewPlaceholderImage,
 };
 const PLAY_STORE_DEST: ReviewDestination = {
   id: 'play_store',
   label: 'Play Store',
   href: playStoreReviewUrl,
+  headline: 'Help fellow devs find daily.dev 💜',
+  body: "Take 10 seconds to rate daily.dev on Google Play. Your review helps other developers trust it's worth the download.",
+  ctaText: 'Rate on Google Play',
+  image: askForReviewPlaceholderImage,
 };
 const TWITTER_DEST: ReviewDestination = {
   id: 'twitter_share',
   label: 'X',
   href: twitterShareReviewUrl,
+  headline: 'Spread the word 💜',
+  body: "We can't send you to a review page from this browser, but a quick post on X helps other devs discover daily.dev.",
+  ctaText: 'Share on X',
+  image: askForReviewPlaceholderImage,
 };
 
 const isAndroidUserAgent = (): boolean =>
