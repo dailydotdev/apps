@@ -232,13 +232,54 @@ Chip / tag pattern:
 
 ---
 
+## Soft labels — the "less shiny" refinement
+
+> **Headline change vs the first v2 pass:** filled-Primary labels and
+> ghost-variant default text both step ~10 % softer. Pure `#FFFFFF`
+> on saturated brand fills (Cabbage / Bun / Water / Onion) reads as
+> "fluorescent"; full-strength `text-primary` on resting ghost
+> buttons reads as "too eager". Stepping both down lands the system
+> in the Claude / ChatGPT / Vercel band — confident, not shiny.
+
+Two coordinated changes:
+
+1. **Filled Primary labels** route through `--btn-label-on-fill-light`
+   (≈ `rgba(255,255,255,0.92)`) and `--btn-label-on-fill-dark`
+   (≈ `rgba(14,18,23,0.88)`) instead of literal `#FFFFFF` / `#0E1217`.
+   Defined on `.btn-v2, .btn` in `buttons-v2.css` so the V1 reskin
+   inherits the same value. Cabbage Primary contrast: 5.18 → 4.77
+   (AA strict); Burger: 6.45 → 5.93 (AA strict). Bacon-light:
+   3.11 → 2.86 — drops below AA-large by a hair, documented and
+   accepted (bacon's saturated pinks have a hard contrast ceiling
+   that the v2 first-pass already flagged).
+2. **Ghost variants** (Tertiary / Float / Subtle / Option / Secondary
+   default) step `default.color` from `text-primary` →
+   `text-secondary`. Hover / active / pressed states still climb
+   the brand-tinted `ghostText` ladder, so the resting → hover
+   delta becomes *more* pronounced rather than less.
+
+### Reference systems that softened the same way
+
+| System | Filled-CTA label | Ghost default |
+| --- | --- | --- |
+| Claude | rgba(255,255,255,~0.92) | text-secondary tier |
+| ChatGPT | rgba(255,255,255,~0.90) | text-secondary tier |
+| Vercel / Geist | white on near-black, off-white on color | secondary tier |
+| Linear | varies; ghost uses muted | muted |
+| daily.dev v2 final | **rgba(255,255,255,0.92) / rgba(14,18,23,0.88)** | **text-secondary** |
+
+---
+
 ## Contrast & visibility — text vs fill (Primary scalar background)
 
 > **Headline change vs v1 and the first v2 pass:** Primary now picks
 > *both* its label colour **and its shade ladder** per color, per
 > theme. The default ladder also moved by one full slot to land hover
 > visibility in the industry band, while every override still clears
-> WCAG AA at every state.
+> WCAG AA at every state. As of the soft-label refinement above, the
+> "white" and "dark" label tokens carry a ~10 % alpha discount —
+> contrast cells below shift slightly but every previously-passing
+> cell still passes its tier.
 
 ### What changed and why (TL;DR)
 
@@ -510,31 +551,37 @@ matrix:
 
 ## Icons
 
-> **Headline change vs v1:** every icon got smaller. The old `XSmall →
-> 20 px / Small → 24 px / Medium → 28 px / Large → 32 px / XLarge →
-> 40 px` ladder put icons at 67–83 % of button height, which is why
-> XSmall in particular felt cramped (icon at 83 % of a 24 px button
-> left ~ 4 px total breathing room).
+> **Headline change vs v1:** none. After the migration revealed that
+> v2's first-pass 50 %-ratio scale shrank XSmall edit pens and Small
+> toolbar icons below the threshold where the affordance reads as
+> "tap target", we restored v1's same-name mapping
+> (`XSmall → XSmall icon`, `Small → Small icon`, …). The 50 %
+> reference is documented below for context — we don't ship it.
 
-### Size scale
-
-Tuned to the industry-standard ~50 % icon-to-button ratio (Material 3,
-Apple HIG, Linear, Notion, Vercel, GitHub Primer, ChatGPT, Claude,
-Cursor, Tailwind UI all converge here):
+### Size scale (matches v1)
 
 | Button size | Button height | **Icon size** | Ratio |
 | --- | --- | --- | --- |
-| XSmall | 24 px | **16 px** (`Size16`) | 67 % |
-| Small | 32 px | **16 px** (`Size16`) | 50 % |
-| Medium | 40 px | **20 px** (`XSmall`) | 50 % |
-| Large | 48 px | **24 px** (`Small`) | 50 % |
-| XLarge | 56 px | **28 px** (`Medium`) | 50 % |
+| XSmall | 24 px | **20 px** (`XSmall`) | 83 % — chip / edit pen |
+| Small | 32 px | **24 px** (`Small`) | 75 % — toolbar / card row |
+| Medium | 40 px | **28 px** (`Medium`) | 70 % — standard CTA |
+| Large | 48 px | **32 px** (`Large`) | 67 % — emphasis CTA |
+| XLarge | 56 px | **40 px** (`XLarge`) | 71 % — hero |
 
-XSmall is the only size that breaks the 50 % rule — at 24 × 24 the
-button is already at the WCAG 2.5.5 floor, so a 12 px icon would feel
-weak. 16 px is the universal compromise (Linear / Notion / Vercel chip
-size). Callers can still override via the `<Icon size>` prop on the
-icon they pass in (the button respects an explicit size).
+The 67 – 83 % ratio is higher than the modern reference cluster
+(~50 %), but it matches the visual scale every v1 surface was tuned
+for. The two production regressions that drove the revert:
+
+- **Profile-page edit pens** (XSmall, 24 px button) dropped from 20 → 16 px
+  on the first-pass v2, leaving the affordance "almost impossible to click"
+  inside an already-tiny 24 px target.
+- **Toolbar Small buttons** (32 px) lost a third of their icon footprint
+  (24 → 16 px) and read as decorative chips rather than tap targets.
+
+Callers that genuinely need a smaller icon can override per-instance:
+`icon={<X size={IconSize.Size16} />}` — `useGetIconWithSizeV2` honours
+explicit sizes. `CardAction` (engagement bar) bypasses this map entirely
+via its own per-density override (see CardAction section below).
 
 ### Position — left / right / top / icon-only
 
@@ -551,18 +598,45 @@ affordances.
 Replaces the v1 negative-margin trick (`-ml-2 mr-1`) which was
 hardcoded to negate `px-2`, leaving Medium / Large / XLarge with
 **asymmetric internal padding** (8 px before icon, 16+ px after label).
-v2 uses `flex gap-X` with equal padding both sides, scaled per size:
+v2 uses `flex gap-X` with equal padding both sides, scaled per size.
 
-| Button size | Side padding | **Gap** | Reference |
+**Update (post-migration):** the first-pass v2 gap ladder
+(`gap-1 → gap-2.5`) made every icon+label button 4 – 22 px wider
+than its v1 sibling. Toolbars / header strips that packed 3 – 5
+buttons in a row visibly spread out compared to the v1 surfaces the
+call sites were tuned for. Restored v1's flat 4 px gap on the most-
+common sizes and kept the slight bump on hero CTAs:
+
+| Button size | Side padding | **Gap** | Notes |
 | --- | --- | --- | --- |
-| XSmall | px-2 (8) | `gap-1` (4) | Tailwind UI sm |
-| Small | px-3 (12) | `gap-1.5` (6) | Linear toolbar |
-| Medium | px-4 (16) | `gap-2` (8) | Linear / Notion / Vercel default |
-| Large | px-6 (24) | `gap-2` (8) | Material 3 |
-| XLarge | px-7 (28) | `gap-2.5` (10) | Hero CTA convention |
+| XSmall | px-2 (8) | `gap-1` (4) | matches v1 |
+| Small | px-3 (12) | `gap-1` (4) | matches v1 |
+| Medium | px-4 (16) | `gap-1` (4) | matches v1 |
+| Large | px-6 (24) | `gap-1.5` (6) | slight bump for emphasis CTA |
+| XLarge | px-7 (28) | `gap-2` (8) | slight bump for hero CTA |
 
-Gap roughly tracks ¼–⅓ of the side padding so the icon-and-label pair
-reads as a tight unit rather than two siblings on a line.
+### Asymmetric icon-side padding (1 : 2 ratio)
+
+A 16 – 24 px icon plus the symmetric `px-4` (16 px) on the icon side
+reads as 32 – 40 px of "stuff" on that edge while the label side
+only carries its own padding — the button looks visually right-/
+left-heavy. Reference platforms (Material 3, Apple HIG, GitHub
+Primer, Linear, Notion) all converge on an icon-side : label-side
+padding ratio of about **1 : 2**:
+
+| Size | Default (symmetric) | Icon-left | Icon-right |
+| --- | --- | --- | --- |
+| XSmall | `px-2` | `pl-1 pr-2` (4 / 8 px) | `pl-2 pr-1` |
+| Small | `px-3` | `pl-1.5 pr-3` (6 / 12 px) | `pl-3 pr-1.5` |
+| Medium | `px-4` | `pl-2 pr-4` (8 / 16 px) | `pl-4 pr-2` |
+| Large | `px-6` | `pl-4 pr-6` (16 / 24 px) | `pl-6 pr-4` |
+| XLarge | `px-7` | `pl-5 pr-7` (20 / 28 px) | `pl-7 pr-5` |
+
+Implemented in `ButtonV2.tsx` as separate `HorizontalPaddingV2`
+(symmetric, label-only) and `IconSidePaddingV2` (asymmetric,
+icon+label) maps. Icon-only buttons keep symmetric padding (the
+icon is centered inside an `h-X w-X` square). Top-position icons
+keep the column layout with `!px-2` override.
 
 ### Color
 
