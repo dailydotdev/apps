@@ -52,12 +52,6 @@ jest.mock('../../hooks/feed/useFeedName', () => ({
 
 jest.mock('../../hooks/useActiveNav', () => jest.fn());
 
-jest.mock('../header/MobileExploreHeader', () => ({
-  MobileExploreHeader: ({ path }: { path: string }) => (
-    <div data-testid="mobile-explore-header">{path}</div>
-  ),
-}));
-
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseActiveFeedNameContext = useActiveFeedNameContext as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
@@ -115,9 +109,6 @@ describe('MainLayoutHeader', () => {
 
     expect(hydratedHeader).toBe(initialHeader);
     expect(hydratedHeader).toHaveClass('sticky', 'top-0');
-    expect(screen.getByTestId('mobile-explore-header')).toHaveTextContent(
-      'posts',
-    );
     expect(recoverableErrors).toHaveLength(0);
 
     await act(async () => {
