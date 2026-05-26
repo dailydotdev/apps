@@ -52,7 +52,10 @@ import {
   useToastNotification,
   invalidatePostCacheById,
   usePostById,
+  useViewSize,
+  ViewSize,
 } from '../../hooks';
+import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
@@ -195,6 +198,8 @@ const PostOptionButtonContent = ({
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
+  const isSmartComposerEnabled = useSmartComposer();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { canBoost } = useCanBoostPost(post);
 
@@ -797,10 +802,21 @@ const PostOptionButtonContent = ({
       user?.id &&
       post?.author?.id === user?.id
     ) {
+      const canUseSmartComposer =
+        isSmartComposerEnabled &&
+        isLaptop &&
+        (post.type === PostType.Freeform || post.type === PostType.Welcome);
       postOptions.push({
         icon: <MenuIcon Icon={EditIcon} />,
         label: 'Edit post',
         action: () => {
+          if (canUseSmartComposer) {
+            openModal({
+              type: LazyModal.SmartComposer,
+              props: { editPost: post },
+            });
+            return;
+          }
           router.push(`${post.commentsPermalink}/edit`);
         },
       });
