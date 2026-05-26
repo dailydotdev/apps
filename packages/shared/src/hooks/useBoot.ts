@@ -21,10 +21,22 @@ type UseBoot = {
   getPlusEntryData: () => MarketingCta | null;
 };
 
-const sortByName = (squads: Squad[]): Squad[] =>
-  [...squads].sort((a, b) =>
-    a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1,
-  );
+const sortSquads = (squads: Squad[]): Squad[] =>
+  [...squads].sort((a, b) => {
+    const aFav = !!a.favoritedAt;
+    const bFav = !!b.favoritedAt;
+    if (aFav !== bFav) {
+      return aFav ? -1 : 1;
+    }
+    if (aFav && bFav) {
+      const aTime = new Date(a.favoritedAt as string).getTime();
+      const bTime = new Date(b.favoritedAt as string).getTime();
+      if (aTime !== bTime) {
+        return bTime - aTime;
+      }
+    }
+    return a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase());
+  });
 
 export const useBoot = (): UseBoot => {
   const router = useRouter();
@@ -40,7 +52,7 @@ export const useBoot = (): UseBoot => {
       return;
     }
 
-    const squads = sortByName([...currentSquads, squad]);
+    const squads = sortSquads([...currentSquads, squad]);
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
   };
 
@@ -57,7 +69,7 @@ export const useBoot = (): UseBoot => {
     );
     client.setQueryData<Boot>(BOOT_QUERY_KEY, {
       ...bootData,
-      squads: sortByName(squads ?? []),
+      squads: sortSquads(squads ?? []),
     });
   };
 
