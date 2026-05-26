@@ -10,6 +10,7 @@ import type {
   ExternalLinkPreview,
 } from '../../../graphql/posts';
 import type { Squad } from '../../../graphql/sources';
+import { moderationRequired } from '../../squads/utils';
 import {
   POLL_OPTIONS_MIN,
   STANDUP_TOPIC_MAX_LENGTH,
@@ -161,9 +162,14 @@ export const useComposerSubmit = ({
         sourceIds: selectedIds,
         ...payload,
       } as unknown as CreatePostInMultipleSourcesArgs);
-      return;
+    } else {
+      await onSubmitFreeformPost(payload, primary as Squad);
     }
-    await onSubmitFreeformPost(payload, primary as Squad);
+    displayToast(
+      !isMulti && moderationRequired(primary as Squad)
+        ? '✅ Your post has been submitted for moderation'
+        : '✅ Your post has been created!',
+    );
   };
 
   const submitPoll = async () => {
