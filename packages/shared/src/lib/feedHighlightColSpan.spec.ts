@@ -52,8 +52,8 @@ describe('requestedColSpan', () => {
 
   it.each<[PostHighlightSignificance, number]>([
     ['breaking', 4],
-    ['major', 4],
-    ['notable', 3],
+    ['major', 3],
+    ['notable', 2],
     ['routine', 1],
   ])('maps %s significance to span %i', (significance, expected) => {
     expect(requestedColSpan(makePostItem(makePost({ significance })))).toBe(
@@ -79,7 +79,7 @@ describe('requestedColSpan', () => {
     expect(
       requestedColSpan(
         makePostItem(
-          makePost({ type: PostType.VideoYouTube, significance: 'notable' }),
+          makePost({ type: PostType.VideoYouTube, significance: 'major' }),
         ),
       ),
     ).toBe(3);
@@ -124,7 +124,7 @@ describe('computeColSpans', () => {
 
   it('renders a wide card at requested size at the start of a row', () => {
     const items = [
-      makePostItem(makePost({ significance: 'notable' })),
+      makePostItem(makePost({ significance: 'major' })),
       makePostItem(makePost()),
       makePostItem(makePost()),
     ];
@@ -163,7 +163,7 @@ describe('computeColSpans', () => {
     const items = [
       makePostItem(makePost()),
       makePostItem(makePost()),
-      makePostItem(makePost({ significance: 'notable' })),
+      makePostItem(makePost({ significance: 'major' })),
     ];
     const fullRowInsertionBeforeIndex = new Set<number>([2]);
     expect(

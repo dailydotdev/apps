@@ -5,8 +5,8 @@ import type { PostHighlightSignificance } from '../graphql/posts';
 
 const SIGNIFICANCE_COL_SPAN: Record<PostHighlightSignificance, number> = {
   breaking: 4,
-  major: 4,
-  notable: 3,
+  major: 3,
+  notable: 2,
   routine: 1,
 };
 
