@@ -69,6 +69,7 @@ interface UseComposerSubmitProps {
   isMulti: boolean;
   initialPreview?: ExternalLinkPreview;
   onComplete: () => void;
+  editPostId?: string;
 }
 
 interface UseComposerSubmit {
@@ -93,6 +94,7 @@ export const useComposerSubmit = ({
   isMulti,
   initialPreview,
   onComplete,
+  editPostId,
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
   const router = useRouter();
@@ -106,6 +108,7 @@ export const useComposerSubmit = ({
     isPosting,
     onSubmitPost,
     onSubmitFreeformPost,
+    onEditFreeformPost,
     onSubmitPollPost,
   } = usePostToSquad({
     initialPreview,
@@ -157,6 +160,18 @@ export const useComposerSubmit = ({
       content: text.body,
       ...(cover?.file ? { image: cover.file } : {}),
     };
+    if (editPostId) {
+      await onEditFreeformPost(
+        { ...payload, id: editPostId },
+        primary as Squad,
+      );
+      displayToast(
+        moderationRequired(primary as Squad)
+          ? '✅ Your edit has been submitted for moderation'
+          : '✅ Your post has been updated!',
+      );
+      return;
+    }
     if (isMulti) {
       await createMulti({
         sourceIds: selectedIds,
@@ -265,6 +280,7 @@ export const useComposerSubmit = ({
       cover,
       selectedIds,
       isInFlight,
+      editPostId,
     ],
   );
 

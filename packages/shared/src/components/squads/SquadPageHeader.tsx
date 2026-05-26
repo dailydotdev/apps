@@ -21,6 +21,7 @@ import {
 } from '../../lib/config';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { LazyModal } from '../modals/common/types';
 import { SquadStat } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -48,7 +49,11 @@ export function SquadPageHeader({
   shouldUseListMode,
 }: SquadPageHeaderProps): ReactElement {
   const { openModal } = useLazyModal();
+  const isSmartComposerEnabled = useSmartComposer();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
+  const shouldUseSmartComposer =
+    isSmartComposerEnabled && isLaptop && allowedToPost;
   const { category } = squad;
   const squadId = squad.id ?? '';
   const isSquadMember = !!squad.currentMember;
@@ -245,15 +250,32 @@ export function SquadPageHeader({
                 <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-border-subtlest-tertiary tablet:hidden" />
                 <span className="z-0 bg-background-default px-4">or</span>
               </FlexCentered>
-              <Button
-                tag="a"
-                href={`${link.post.create}?sid=${squad.handle}`}
-                variant={ButtonVariant.Primary}
-                color={ButtonColor.Cabbage}
-                className="w-full tablet:w-auto"
-              >
-                New post
-              </Button>
+              {shouldUseSmartComposer ? (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    openModal({
+                      type: LazyModal.SmartComposer,
+                      props: { initialSquadHandle: squad.handle },
+                    })
+                  }
+                  variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
+                  className="w-full tablet:w-auto"
+                >
+                  New post
+                </Button>
+              ) : (
+                <Button
+                  tag="a"
+                  href={`${link.post.create}?sid=${squad.handle}`}
+                  variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
+                  className="w-full tablet:w-auto"
+                >
+                  New post
+                </Button>
+              )}
               <Divider />
             </>
           )}
