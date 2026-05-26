@@ -12,10 +12,23 @@ import {
   UpvoteIcon,
   DiscussIcon,
   ArrowIcon,
+  OpenLinkIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { useAdQuery } from '../monetization/useAdQuery';
+import { AdPlacement } from '../../lib/ads';
+import { AdPixel } from '../../components/cards/ad/common/AdPixel';
+import AdAttribution from '../../components/cards/ad/common/AdAttribution';
+import { getAdFaviconImageLink } from '../../components/cards/ad/common/getAdFaviconImageLink';
+import { adFaviconPlaceholder } from '../../lib/image';
+import { useFeature } from '../../components/GrowthBookProvider';
+import { adImprovementsV3Feature } from '../../lib/featureManagement';
+import { combinedClicks } from '../../lib/click';
+import type { Ad } from '../../graphql/posts';
 import { BriefFeedback } from './BriefFeedback';
 import type { StoryItem } from './types';
+
+const AD_SLOT_INDEX = 1;
 
 const InlineStat = ({
   icon,
@@ -48,6 +61,57 @@ interface CoverGridProps {
   onOpen: (story: StoryItem) => void;
   onMarkRead: (id: string) => void;
 }
+
+const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
+  const adImprovementsV3 = useFeature(adImprovementsV3Feature);
+  const faviconSrc = getAdFaviconImageLink({ ad, adImprovementsV3, size: 24 });
+
+  return (
+    <li>
+      <a
+        href={ad.link}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        title={ad.description}
+        {...combinedClicks(() => undefined)}
+        className="group flex w-full items-center gap-4 px-4 py-2.5 text-left transition-colors hover:bg-surface-float"
+      >
+        <Typography
+          tag={TypographyTag.H3}
+          type={TypographyType.Body}
+          bold
+          color={TypographyColor.Primary}
+          className="min-w-0 flex-1 !leading-snug"
+        >
+          {ad.description}
+        </Typography>
+        <span className="flex shrink-0 items-center gap-2">
+          <AdAttribution
+            ad={ad}
+            className={{
+              main: 'uppercase tracking-[0.14em]',
+              typo: 'typo-caption2',
+            }}
+          />
+          <span className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float">
+            <img
+              src={faviconSrc || adFaviconPlaceholder}
+              alt=""
+              loading="lazy"
+              className="size-4 object-cover"
+            />
+          </span>
+          <OpenLinkIcon
+            size={IconSize.XSmall}
+            className="text-text-quaternary transition-colors group-hover:text-text-tertiary"
+            aria-hidden
+          />
+        </span>
+      </a>
+      <AdPixel pixel={ad.pixel} />
+    </li>
+  );
+};
 
 const stripMd = (s: string): string =>
   s
@@ -199,6 +263,10 @@ export const CoverGrid = ({
   onMarkRead,
 }: CoverGridProps): ReactElement => {
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const { data: ad } = useAdQuery({
+    queryKey: ['ad', 'brief-picks'],
+    placement: AdPlacement.Feed,
+  });
 
   return (
     <section>
@@ -213,29 +281,31 @@ export const CoverGrid = ({
         </Typography>
       </div>
       <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
-        {stories.map((s) => (
-          <StoryRow
-            key={s.id}
-            story={s}
-            isRead={readSet.has(s.id)}
-            isExpanded={expanded.has(s.id)}
-            onToggle={() => {
-              const isOpen = expanded.has(s.id);
-              setExpanded((current) => {
-                const next = new Set(current);
-                if (isOpen) {
-                  next.delete(s.id);
-                } else {
-                  next.add(s.id);
+        {stories.map((s, idx) => (
+          <React.Fragment key={s.id}>
+            {idx === AD_SLOT_INDEX && ad ? <AdRow ad={ad} /> : null}
+            <StoryRow
+              story={s}
+              isRead={readSet.has(s.id)}
+              isExpanded={expanded.has(s.id)}
+              onToggle={() => {
+                const isOpen = expanded.has(s.id);
+                setExpanded((current) => {
+                  const next = new Set(current);
+                  if (isOpen) {
+                    next.delete(s.id);
+                  } else {
+                    next.add(s.id);
+                  }
+                  return next;
+                });
+                if (!isOpen) {
+                  onMarkRead(s.id);
                 }
-                return next;
-              });
-              if (!isOpen) {
-                onMarkRead(s.id);
-              }
-            }}
-            onOpen={() => onOpen(s)}
-          />
+              }}
+              onOpen={() => onOpen(s)}
+            />
+          </React.Fragment>
         ))}
       </ol>
     </section>
