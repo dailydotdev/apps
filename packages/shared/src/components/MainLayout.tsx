@@ -94,7 +94,9 @@ function MainLayoutComponent({
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
-  const { isCustomFeed } = useFeedName({ feedName: currentFeedName });
+  const { isCustomFeed, isExploreTag } = useFeedName({
+    feedName: currentFeedName,
+  });
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
@@ -119,7 +121,7 @@ function MainLayoutComponent({
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding =
-    !page || feeds.includes(page) || isCustomFeed;
+    !page || feeds.includes(page) || isCustomFeed || isExploreTag;
   const shouldRedirectOnboarding =
     !isExtension &&
     !user &&
