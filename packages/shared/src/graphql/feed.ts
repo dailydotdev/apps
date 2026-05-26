@@ -36,12 +36,7 @@ const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
 
-export const getFeedV2SupportedTypes = (
-  shouldSupportHighlights: boolean,
-): string[] =>
-  shouldSupportHighlights
-    ? [...baseFeedSupportedTypes, 'highlight']
-    : [...baseFeedSupportedTypes];
+export const feedV2SupportedTypes = [...baseFeedSupportedTypes, 'highlight'];
 
 export interface FeedData {
   page: Connection<Post>;
