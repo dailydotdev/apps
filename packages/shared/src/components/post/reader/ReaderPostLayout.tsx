@@ -9,6 +9,7 @@ import React, {
 import type { Post } from '../../../graphql/posts';
 import { getReadArticleHref } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';
+import { usePostById } from '../../../hooks/usePostById';
 import { ActivePostContextProvider } from '../../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -55,7 +56,7 @@ type ReaderPostLayoutProps = {
 };
 
 export function ReaderPostLayout({
-  post,
+  post: initialPost,
   postPosition,
   onPreviousPost,
   onNextPost,
@@ -63,6 +64,12 @@ export function ReaderPostLayout({
   outerClassName,
   isPostPage = false,
 }: ReaderPostLayoutProps): ReactElement {
+  // Subscribe to the post-by-id cache so optimistic updates from
+  // useBookmarkPost / useVotePost (which call setQueryData on this key) flow
+  // back into the reader UI. Without this, bookmark/upvote/etc. fire but the
+  // icons keep showing the initial prop's state.
+  const { post: cachedPost } = usePostById({ id: initialPost?.id });
+  const post = cachedPost ?? initialPost;
   const { targetUrl, isEmbeddable } = useIframeEmbed(post.permalink);
   const { logEvent } = useLogContext();
   const { openNewTab } = useContext(SettingsContext);
