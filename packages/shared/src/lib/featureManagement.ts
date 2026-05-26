@@ -32,11 +32,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
-export const featureMajorHeadlinesPush = new Feature(
-  'major_headlines_push',
-  false,
-);
 export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,
@@ -202,3 +197,5 @@ export const featureCompanionDemoWidget = new Feature(
 );
 
 export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+
+export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
