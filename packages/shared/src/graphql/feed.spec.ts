@@ -3,7 +3,7 @@ import {
   baseFeedSupportedTypes,
   FEED_V2_HIGHLIGHTS_LIMIT,
   FEED_V2_QUERY,
-  getFeedV2SupportedTypes,
+  feedV2SupportedTypes,
   normalizeFeedPage,
 } from './feed';
 
@@ -20,9 +20,8 @@ describe('normalizeFeedPage', () => {
     expect(FEED_V2_HIGHLIGHTS_LIMIT).toBe(5);
   });
 
-  it('should add highlight to feedV2 supported types only when enabled', () => {
-    expect(getFeedV2SupportedTypes(false)).toEqual(baseFeedSupportedTypes);
-    expect(getFeedV2SupportedTypes(true)).toEqual([
+  it('should always include highlight in feedV2 supported types', () => {
+    expect(feedV2SupportedTypes).toEqual([
       ...baseFeedSupportedTypes,
       'highlight',
     ]);

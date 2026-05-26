@@ -14,7 +14,6 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
-import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
 
 export interface MainLayoutHeaderProps {
@@ -121,29 +120,24 @@ function MainLayoutHeader({
           : undefined,
       }}
     >
-      {isMobileSearchPage ? (
-        <>
-          {renderSearchPanel()}
-          {!isSearch && <MobileExploreHeader path={activeFeedName} />}
-        </>
-      ) : (
-        sidebarRendered !== undefined && (
-          <>
-            <div>
-              <HeaderLogo
-                position={
-                  isStreaksEnabled && isStreakLarge
-                    ? LogoPosition.Relative
-                    : LogoPosition.Absolute
-                }
-                onLogoClick={onLogoClick}
-              />
-            </div>
-            {renderSearchPanel()}
-            <HeaderButtons additionalButtons={additionalButtons} />
-          </>
-        )
-      )}
+      {isMobileSearchPage
+        ? renderSearchPanel()
+        : sidebarRendered !== undefined && (
+            <>
+              <div>
+                <HeaderLogo
+                  position={
+                    isStreaksEnabled && isStreakLarge
+                      ? LogoPosition.Relative
+                      : LogoPosition.Absolute
+                  }
+                  onLogoClick={onLogoClick}
+                />
+              </div>
+              {renderSearchPanel()}
+              <HeaderButtons additionalButtons={additionalButtons} />
+            </>
+          )}
     </header>
   );
 }

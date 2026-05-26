@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { AiIcon, SearchIcon } from '../icons';
+import { AiIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { isAppleDevice } from '../../lib/func';
 import { KeyboadShortcutLabel } from '../KeyboardShortcutLabel';
@@ -26,29 +26,12 @@ export const SpotlightTrigger = ({
   const { open } = useSpotlight();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
-  if (!isLaptop) {
-    return (
-      <button
-        type="button"
-        data-testid="spotlight-trigger"
-        aria-label="Open search"
-        onClick={open}
-        className={classNames(
-          'flex size-10 items-center justify-center rounded-12 bg-background-subtle text-text-tertiary transition-colors hover:text-text-primary',
-          className,
-        )}
-      >
-        <SearchIcon size={IconSize.Small} aria-hidden />
-      </button>
-    );
-  }
-
   return (
     <button
       type="button"
       data-testid="spotlight-trigger"
       aria-label="Open search"
-      aria-keyshortcuts={`${shortcutKeys.join('+')}`}
+      aria-keyshortcuts={isLaptop ? shortcutKeys.join('+') : undefined}
       onClick={open}
       className={classNames(
         // Sizing, color, and shape match the production SearchPanel field.
