@@ -91,7 +91,13 @@ describe('computeColSpans', () => {
     numCards: 4,
     isMobile: false,
     isList: false,
+    isEnabled: true,
   };
+
+  it('returns all 1s when feature is disabled', () => {
+    const items = [makePostItem(makePost({ significance: 'breaking' }))];
+    expect(computeColSpans(items, { ...opts, isEnabled: false })).toEqual([1]);
+  });
 
   it('returns all 1s when isMobile', () => {
     const items = Array.from({ length: 3 }, () =>

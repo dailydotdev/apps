@@ -44,6 +44,7 @@ export interface ComputeColSpansOptions {
   numCards: number;
   isMobile: boolean;
   isList: boolean;
+  isEnabled: boolean;
   /**
    * Indices that have a full-row insertion (brief banner, hero, promo)
    * rendered BEFORE the item at that index. The column tracker resets to
@@ -66,10 +67,11 @@ export const computeColSpans = (
     numCards,
     isMobile,
     isList,
+    isEnabled,
     fullRowInsertionBeforeIndex,
   }: ComputeColSpansOptions,
 ): number[] => {
-  if (isMobile || isList || numCards <= 1) {
+  if (!isEnabled || isMobile || isList || numCards <= 1) {
     return items.map(() => 1);
   }
 

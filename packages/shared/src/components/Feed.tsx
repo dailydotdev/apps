@@ -69,6 +69,7 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
+  featurePostHighlightCards,
 } from '../lib/featureManagement';
 import { useNewD1ExperienceFeature } from '../hooks/useNewD1ExperienceFeature';
 import type { AwardProps } from '../graphql/njord';
@@ -383,6 +384,14 @@ export default function Feed<T>({
 
   const isMobileViewport = !isTabletViewport;
   const isListContext = useList || shouldUseListFeedLayout;
+  const canRenderHighlightCards =
+    !isMobileViewport && !isListContext && virtualizedNumCards > 1;
+  const { value: isPostHighlightCardsEnabled } = useConditionalFeature({
+    feature: featurePostHighlightCards,
+    shouldEvaluate: canRenderHighlightCards,
+  });
+  const isHighlightCardLayoutEnabled =
+    canRenderHighlightCards && isPostHighlightCardsEnabled;
   const earlyCurrentPageSize = pageSize ?? currentSettings.pageSize;
   const earlyShowPromoBanner = !!briefBannerPage;
   const earlyShowFirstSlotCard = showProfileCompletionCard || showBriefCard;
@@ -414,6 +423,7 @@ export default function Feed<T>({
         numCards: virtualizedNumCards,
         isMobile: isMobileViewport,
         isList: isListContext,
+        isEnabled: isHighlightCardLayoutEnabled,
         fullRowInsertionBeforeIndex,
       }),
     [
@@ -421,6 +431,7 @@ export default function Feed<T>({
       virtualizedNumCards,
       isMobileViewport,
       isListContext,
+      isHighlightCardLayoutEnabled,
       fullRowInsertionBeforeIndex,
     ],
   );
