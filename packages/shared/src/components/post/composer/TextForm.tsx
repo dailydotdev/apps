@@ -159,7 +159,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
                 src={cover.preview}
                 alt="Post cover"
                 className={classNames(
-                  'block aspect-[2/1] w-full rounded-16 object-cover transition-opacity',
+                  'block h-44 w-full rounded-16 object-cover transition-opacity',
                   'group-hover:brightness-95',
                   cover.isUploading && 'opacity-50',
                 )}
