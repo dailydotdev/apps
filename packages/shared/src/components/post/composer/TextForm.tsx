@@ -25,7 +25,7 @@ import { TITLE_MAX_LENGTH, type TextFormState } from './types';
 
 export interface TextFormCover {
   preview: string;
-  file: File;
+  file?: File;
   isUploading?: boolean;
 }
 
@@ -154,12 +154,12 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
             className="w-full resize-none overflow-hidden break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
           />
           {cover ? (
-            <div className="group relative">
+            <div className="group relative w-fit max-w-full">
               <img
                 src={cover.preview}
                 alt="Post cover"
                 className={classNames(
-                  'block h-44 w-full rounded-16 object-cover transition-opacity',
+                  'block h-auto max-h-44 w-auto max-w-full rounded-16 object-contain transition-opacity',
                   'group-hover:brightness-95',
                   cover.isUploading && 'opacity-50',
                 )}
