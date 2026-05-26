@@ -24,7 +24,6 @@ import {
   MiniCloseIcon,
   UpvoteIcon,
   DiscussIcon,
-  HotIcon,
   EyeIcon,
   TimerIcon,
   TrendingIcon,
@@ -39,11 +38,8 @@ import {
   type TopicDigest,
 } from './types';
 
-export type EntityKind = 'lead' | 'read' | 'topic';
-
 interface ReadingPanelProps {
   entity: StoryItem | TopicDigest;
-  entityKind: EntityKind;
   onNext: () => void;
   onPrev: () => void;
   onClose: () => void;
@@ -64,30 +60,17 @@ interface EyebrowConfig {
   colorClass: string;
 }
 
-const storyEyebrow = (kind: 'lead' | 'read'): EyebrowConfig =>
-  kind === 'lead'
-    ? {
-        icon: (
-          <HotIcon
-            size={IconSize.XSmall}
-            secondary
-            className="text-accent-ketchup-default"
-          />
-        ),
-        label: 'Top story',
-        colorClass: 'text-accent-ketchup-default',
-      }
-    : {
-        icon: (
-          <TrendingIcon
-            size={IconSize.XSmall}
-            secondary
-            className="text-accent-cabbage-default"
-          />
-        ),
-        label: 'Trending discussion',
-        colorClass: 'text-accent-cabbage-default',
-      };
+const storyEyebrow = (): EyebrowConfig => ({
+  icon: (
+    <TrendingIcon
+      size={IconSize.XSmall}
+      secondary
+      className="text-accent-cabbage-default"
+    />
+  ),
+  label: 'Trending discussion',
+  colorClass: 'text-accent-cabbage-default',
+});
 
 const topicEyebrow = (topic: TopicDigest): EyebrowConfig => ({
   icon: (
@@ -311,18 +294,12 @@ const Sidebar = ({
   );
 };
 
-const StoryBody = ({
-  story,
-  kind,
-}: {
-  story: StoryItem;
-  kind: 'lead' | 'read';
-}): ReactElement => {
+const StoryBody = ({ story }: { story: StoryItem }): ReactElement => {
   const minutes = estimateMinutes(
     story.summary + story.highlightedComments.map((c) => c.content).join(' '),
   );
   const summary = stripMd(story.summary).trim();
-  const eyebrow = storyEyebrow(kind);
+  const eyebrow = storyEyebrow();
   const heroImage = story.posts.find((p) => p.image)?.image;
 
   return (
@@ -386,12 +363,7 @@ const StoryBody = ({
 
       <section
         aria-label="Summary"
-        className={classNames(
-          'rounded-12 border-l-2 bg-surface-float py-4 pl-5 pr-5',
-          kind === 'lead'
-            ? 'border-accent-ketchup-default'
-            : 'border-accent-cabbage-default',
-        )}
+        className="rounded-12 border-l-2 border-accent-cabbage-default bg-surface-float py-4 pl-5 pr-5"
       >
         <Typography
           type={TypographyType.Caption2}
@@ -567,7 +539,6 @@ const TopicBody = ({ topic }: { topic: TopicDigest }): ReactElement => {
 
 export const ReadingPanel = ({
   entity,
-  entityKind,
   onNext,
   onPrev,
   onClose,
@@ -643,10 +614,7 @@ export const ReadingPanel = ({
         <PostContainer className="relative">
           <div className="flex flex-col gap-6 pb-6 pt-6">
             {entity.kind === 'story' ? (
-              <StoryBody
-                story={entity}
-                kind={entityKind === 'lead' ? 'lead' : 'read'}
-              />
+              <StoryBody story={entity} />
             ) : (
               <TopicBody topic={entity} />
             )}

@@ -8,14 +8,39 @@ import {
   TypographyType,
 } from '../../components/typography/Typography';
 import {
-  TrendingIcon,
+  StarIcon,
   UpvoteIcon,
   DiscussIcon,
   ArrowIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { StatPill } from './StatPill';
+import { BriefFeedback } from './BriefFeedback';
 import type { StoryItem } from './types';
+
+const InlineStat = ({
+  icon,
+  value,
+  ariaLabel,
+}: {
+  icon: ReactElement;
+  value: number;
+  ariaLabel: string;
+}): ReactElement => (
+  <span
+    aria-label={ariaLabel}
+    className="inline-flex items-center gap-1.5 px-1"
+  >
+    {icon}
+    <Typography
+      type={TypographyType.Caption1}
+      color={TypographyColor.Tertiary}
+      bold
+      className="tabular-nums"
+    >
+      {value}
+    </Typography>
+  </span>
+);
 
 interface CoverGridProps {
   stories: StoryItem[];
@@ -55,7 +80,8 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full flex-col gap-3 px-4 py-4 text-left transition-colors hover:bg-surface-float',
+          'group flex w-full flex-col gap-2 px-4 py-2.5 text-left transition-colors',
+          !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
       >
@@ -64,21 +90,24 @@ const StoryRow = ({
             tag={TypographyTag.H3}
             type={TypographyType.Body}
             bold
-            color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
+            color={
+              isRead && !isExpanded
+                ? TypographyColor.Tertiary
+                : TypographyColor.Primary
+            }
             className={classNames(
-              'min-w-0 flex-1 !leading-snug',
-              isRead &&
-                !isExpanded &&
-                'decoration-text-quaternary/40 line-through',
+              'min-w-0 flex-1 !leading-snug line-through',
+              isRead && !isExpanded
+                ? 'decoration-text-quaternary/40'
+                : 'decoration-transparent',
             )}
           >
             {story.title}
           </Typography>
 
           <div className="flex shrink-0 items-center gap-2">
-            <StatPill
+            <InlineStat
               ariaLabel={`${story.totalUpvotes} upvotes`}
-              onClick={onOpen}
               icon={
                 <UpvoteIcon
                   size={IconSize.XSmall}
@@ -87,9 +116,8 @@ const StoryRow = ({
               }
               value={story.totalUpvotes}
             />
-            <StatPill
+            <InlineStat
               ariaLabel={`${story.totalComments} comments`}
-              onClick={onOpen}
               icon={
                 <DiscussIcon
                   size={IconSize.XSmall}
@@ -127,13 +155,13 @@ const StoryRow = ({
         {isExpanded ? (
           <div id={panelId} className="flex flex-col gap-3">
             <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
               className="!leading-relaxed"
             >
               {summary}
             </Typography>
-            <div className="flex w-full items-center justify-start">
+            <div className="flex w-full flex-wrap items-center justify-between gap-3">
               <span
                 role="button"
                 tabIndex={0}
@@ -155,6 +183,7 @@ const StoryRow = ({
                 </Typography>
                 <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
               </span>
+              <BriefFeedback prompt="Worth your time?" />
             </div>
           </div>
         ) : null}
@@ -169,18 +198,18 @@ export const CoverGrid = ({
   onOpen,
   onMarkRead,
 }: CoverGridProps): ReactElement => {
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
 
   return (
     <section>
       <div className="mb-3 flex items-baseline gap-2 px-1">
-        <TrendingIcon
+        <StarIcon
           size={IconSize.Small}
           className="self-center text-accent-cabbage-default"
           secondary
         />
         <Typography type={TypographyType.Title3} bold>
-          Discussions
+          Picks
         </Typography>
       </div>
       <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
@@ -189,10 +218,18 @@ export const CoverGrid = ({
             key={s.id}
             story={s}
             isRead={readSet.has(s.id)}
-            isExpanded={expanded === s.id}
+            isExpanded={expanded.has(s.id)}
             onToggle={() => {
-              const isOpen = expanded === s.id;
-              setExpanded(isOpen ? null : s.id);
+              const isOpen = expanded.has(s.id);
+              setExpanded((current) => {
+                const next = new Set(current);
+                if (isOpen) {
+                  next.delete(s.id);
+                } else {
+                  next.add(s.id);
+                }
+                return next;
+              });
               if (!isOpen) {
                 onMarkRead(s.id);
               }

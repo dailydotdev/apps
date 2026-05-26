@@ -7,10 +7,16 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { ArrowIcon, EyeIcon, TimerIcon } from '../../components/icons';
+import { ArrowIcon, MegaphoneIcon, SettingsIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import { HeadlinesSettingsModal } from './HeadlinesSettingsModal';
+import { BriefFeedback } from './BriefFeedback';
 import { TOPIC_TOKEN, type TopicDigest } from './types';
-import { briefCopy } from './copy';
 
 interface CoverTopicsProps {
   topics: TopicDigest[];
@@ -19,17 +25,7 @@ interface CoverTopicsProps {
   onMarkRead: (id: string) => void;
 }
 
-const estimateTopicMinutes = (topic: TopicDigest): number => {
-  const words =
-    topic.tldr.split(/\s+/).filter(Boolean).length +
-    topic.content
-      .replace(/<[^>]+>/g, ' ')
-      .split(/\s+/)
-      .filter(Boolean).length;
-  return Math.max(2, Math.round(words / 220));
-};
-
-const TopicCard = ({
+const TopicRow = ({
   topic,
   isRead,
   isExpanded,
@@ -42,92 +38,99 @@ const TopicCard = ({
   onToggle: () => void;
   onOpen: () => void;
 }): ReactElement => {
-  const minutes = estimateTopicMinutes(topic);
   const panelId = `brief-topic-tldr-${topic.id}`;
 
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-expanded={isExpanded}
-      aria-controls={panelId}
-      className={classNames(
-        'group relative flex flex-col gap-2 text-left',
-        isRead && !isExpanded && 'opacity-60',
-      )}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <Typography
-          type={TypographyType.Caption2}
-          bold
-          className={classNames(
-            'uppercase tracking-[0.14em]',
-            TOPIC_TOKEN[topic.topic],
-          )}
-        >
-          {topic.topic}
-        </Typography>
-        <span className="inline-flex items-center gap-1.5">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            bold
-            className="tabular-nums"
-          >
-            {briefCopy.storyReadTime(minutes)}
-          </Typography>
-          <TimerIcon size={IconSize.XSmall} className="text-text-tertiary" />
-        </span>
-      </div>
-      <Typography
-        type={TypographyType.Body}
-        bold
-        color={isRead ? TypographyColor.Tertiary : TypographyColor.Primary}
+    <li>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
         className={classNames(
-          '!leading-snug',
-          isRead && !isExpanded && 'decoration-text-quaternary/40 line-through',
+          'group flex w-full flex-col gap-2 px-4 py-2.5 text-left transition-colors',
+          !isExpanded && 'hover:bg-surface-float',
+          isRead && !isExpanded && 'opacity-60',
         )}
       >
-        {topic.title}
-      </Typography>
-      {isExpanded ? (
-        <div id={panelId}>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="!leading-relaxed"
-          >
-            {topic.tldr}
-          </Typography>
-        </div>
-      ) : null}
-      {isExpanded ? (
-        <div className="mt-1 flex w-full items-center justify-start">
-          <span
-            role="button"
-            tabIndex={0}
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpen();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.stopPropagation();
-                e.preventDefault();
-                onOpen();
-              }
-            }}
-            className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
-          >
-            <Typography type={TypographyType.Footnote} bold>
-              Read full breakdown
+        <div className="flex w-full items-start gap-4">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <Typography
+              type={TypographyType.Caption2}
+              bold
+              className={classNames(
+                'uppercase tracking-[0.14em]',
+                TOPIC_TOKEN[topic.topic],
+              )}
+            >
+              {topic.topic}
             </Typography>
-            <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
-          </span>
+            <Typography
+              tag={TypographyTag.H3}
+              type={TypographyType.Body}
+              bold
+              color={
+                isRead && !isExpanded
+                  ? TypographyColor.Tertiary
+                  : TypographyColor.Primary
+              }
+              className={classNames(
+                '!leading-snug line-through',
+                isRead && !isExpanded
+                  ? 'decoration-text-quaternary/40'
+                  : 'decoration-transparent',
+              )}
+            >
+              {topic.title}
+            </Typography>
+          </div>
+          <ArrowIcon
+            size={IconSize.XSmall}
+            className={classNames(
+              'shrink-0 self-center text-text-tertiary transition-transform duration-300 ease-out',
+              isExpanded ? 'rotate-0' : 'rotate-180',
+            )}
+            aria-hidden
+          />
         </div>
-      ) : null}
-    </button>
+
+        {isExpanded ? (
+          <div id={panelId} className="flex flex-col gap-3">
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              className="!leading-relaxed"
+            >
+              {topic.tldr}
+            </Typography>
+            <div className="flex w-full flex-wrap items-center justify-between gap-3">
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onOpen();
+                  }
+                }}
+                className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
+              >
+                <Typography type={TypographyType.Footnote} bold>
+                  Read full breakdown
+                </Typography>
+                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+              </span>
+              <BriefFeedback prompt="Worth your time?" />
+            </div>
+          </div>
+        ) : null}
+      </button>
+    </li>
   );
 };
 
@@ -137,30 +140,48 @@ export const CoverTopics = ({
   onOpen,
   onMarkRead,
 }: CoverTopicsProps): ReactElement => {
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <section>
-      <div className="mb-8 flex items-baseline gap-2">
-        <EyeIcon
+      <div className="mb-3 flex items-center gap-2 px-1">
+        <MegaphoneIcon
           size={IconSize.Small}
-          className="self-center text-accent-water-default"
+          className="text-accent-water-default"
           secondary
         />
         <Typography type={TypographyType.Title3} bold>
-          Topic digests
+          Headlines
         </Typography>
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<SettingsIcon />}
+          onClick={() => setIsSettingsOpen(true)}
+          aria-label="Manage Headlines subscriptions"
+          className="ml-auto"
+        />
       </div>
-      <div className="grid grid-cols-1 gap-x-16 gap-y-12 tablet:grid-cols-2">
+      <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
         {topics.map((t) => (
-          <TopicCard
+          <TopicRow
             key={t.id}
             topic={t}
             isRead={readSet.has(t.id)}
-            isExpanded={expanded === t.id}
+            isExpanded={expanded.has(t.id)}
             onToggle={() => {
-              const isOpen = expanded === t.id;
-              setExpanded(isOpen ? null : t.id);
+              const isOpen = expanded.has(t.id);
+              setExpanded((current) => {
+                const next = new Set(current);
+                if (isOpen) {
+                  next.delete(t.id);
+                } else {
+                  next.add(t.id);
+                }
+                return next;
+              });
               if (!isOpen) {
                 onMarkRead(t.id);
               }
@@ -168,7 +189,13 @@ export const CoverTopics = ({
             onOpen={() => onOpen(t)}
           />
         ))}
-      </div>
+      </ol>
+      {isSettingsOpen ? (
+        <HeadlinesSettingsModal
+          isOpen
+          onRequestClose={() => setIsSettingsOpen(false)}
+        />
+      ) : null}
     </section>
   );
 };

@@ -30,7 +30,6 @@ export const briefCopy = {
   controlReshow: "Show today's brief",
   moreActions: 'More options',
 
-  leadEyebrow: 'Top story',
   attentionEyebrow: 'Worth your attention',
   attentionHint: 'Threads heating up across your sources',
   topicsEyebrow: 'Topic digests',

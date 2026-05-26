@@ -3,12 +3,10 @@ import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { BriefSwitcher } from './BriefSwitcher';
 import { CoverHeader } from './CoverHeader';
-import { CoverLead } from './CoverLead';
 import { CoverGrid } from './CoverGrid';
 import { CoverTopics } from './CoverTopics';
 import { CoverClosing } from './CoverClosing';
 import { ReadingPanel } from './ReadingPanel';
-import type { EntityKind } from './ReadingPanel';
 import { useBriefItems } from './hooks/useBriefItems';
 import { useReadTracker } from './hooks/useReadTracker';
 import type { BriefEntity, StoryItem, TopicDigest } from './types';
@@ -53,20 +51,24 @@ export const BriefCover = ({
     list: Array<StoryItem | TopicDigest>;
   } | null>(null);
 
+  const discussions = useMemo<StoryItem[]>(
+    () => [brief.lead, ...brief.reads].slice(0, 5),
+    [brief],
+  );
+
   const totals = useMemo(() => {
-    const total = 1 + brief.reads.length + brief.topics.length;
+    const total = discussions.length + brief.topics.length;
     const readMinutes = estimateReadMinutes(
       brief.lead,
       brief.reads,
       brief.topics,
     );
-    const savedMinutes = [brief.lead, ...brief.reads].reduce(
+    const savedMinutes = discussions.reduce(
       (sum, s) => sum + s.posts.length * 3 + Math.round(s.totalComments * 0.2),
       0,
     );
     const readCount = [
-      brief.lead.id,
-      ...brief.reads.map((s) => s.id),
+      ...discussions.map((s) => s.id),
       ...brief.topics.map((t) => t.id),
     ].filter((id) => readSet.has(id)).length;
     return {
@@ -76,20 +78,12 @@ export const BriefCover = ({
       readCount,
       isComplete: readCount === total,
     };
-  }, [brief, readSet]);
+  }, [brief, discussions, readSet]);
 
   const storyList = useMemo<Array<StoryItem | TopicDigest>>(
-    () => [brief.lead, ...brief.reads, ...brief.topics],
-    [brief],
+    () => [...discussions, ...brief.topics],
+    [discussions, brief.topics],
   );
-
-  const entityKindById = useMemo<Map<string, EntityKind>>(() => {
-    const map = new Map<string, EntityKind>();
-    map.set(brief.lead.id, 'lead');
-    brief.reads.forEach((s) => map.set(s.id, 'read'));
-    brief.topics.forEach((t) => map.set(t.id, 'topic'));
-    return map;
-  }, [brief]);
 
   const openPanel = useCallback(
     (entity: StoryItem | TopicDigest) => {
@@ -115,11 +109,6 @@ export const BriefCover = ({
     );
     return postsAcrossStories * 47 + brief.topics.length * 220 + 1130;
   }, [brief]);
-
-  const edition = useMemo(() => {
-    const epochDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-    return epochDay - 19800 + 142;
-  }, []);
 
   const navigatePanel = useCallback(
     (delta: 1 | -1) => {
@@ -147,20 +136,13 @@ export const BriefCover = ({
         className,
       )}
     >
-      <BriefSwitcher className="mb-10" />
-      <div className="flex flex-col gap-12">
+      <BriefSwitcher className="mb-4" />
+      <div className="flex flex-col gap-4">
         <CoverHeader
           totals={totals}
           sourceCount={uniqueSourceCount}
           scannedCount={scannedCount}
           onReset={resetReads}
-        />
-        <CoverLead story={brief.lead} onOpen={() => openPanel(brief.lead)} />
-        <CoverGrid
-          stories={brief.reads}
-          readSet={readSet}
-          onMarkRead={markRead}
-          onOpen={(s) => openPanel(s as StoryItem)}
         />
         <CoverTopics
           topics={brief.topics}
@@ -168,12 +150,17 @@ export const BriefCover = ({
           onMarkRead={markRead}
           onOpen={(t) => openPanel(t as TopicDigest)}
         />
-        <CoverClosing totals={totals} edition={edition} />
+        <CoverGrid
+          stories={discussions}
+          readSet={readSet}
+          onMarkRead={markRead}
+          onOpen={(s) => openPanel(s as StoryItem)}
+        />
+        <CoverClosing />
       </div>
       {activePanel ? (
         <ReadingPanel
           entity={activePanel.entity}
-          entityKind={entityKindById.get(activePanel.entity.id) ?? 'read'}
           onNext={() => navigatePanel(1)}
           onPrev={() => navigatePanel(-1)}
           onClose={() => setActivePanel(null)}

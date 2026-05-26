@@ -9,17 +9,7 @@ import {
 import { LinkIcon, VIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
-
-interface CoverClosingProps {
-  totals: {
-    total: number;
-    readMinutes: number;
-    savedMinutes: number;
-    readCount: number;
-    isComplete: boolean;
-  };
-  edition: number;
-}
+import { BriefFeedback } from './BriefFeedback';
 
 const formatTomorrow = (): string => {
   const t = new Date();
@@ -32,10 +22,7 @@ const formatTomorrow = (): string => {
   });
 };
 
-export const CoverClosing = ({
-  totals,
-  edition,
-}: CoverClosingProps): ReactElement => {
+export const CoverClosing = (): ReactElement => {
   const tomorrow = useMemo(formatTomorrow, []);
   const { displayToast } = useToastNotification();
 
@@ -56,11 +43,17 @@ export const CoverClosing = ({
       aria-label="End of brief"
       className="flex flex-col items-center gap-3 py-6 text-center"
     >
-      <div className="bg-accent-avocado-float flex size-12 items-center justify-center rounded-full text-accent-avocado-default">
-        <VIcon size={IconSize.Medium} secondary />
-      </div>
+      <BriefFeedback
+        prompt="Was today's brief useful?"
+        size="md"
+        align="center"
+        className="mb-2"
+      />
 
-      <div className="flex flex-col items-center gap-1.5">
+      <div className="flex flex-col items-center gap-0.5">
+        <div className="bg-accent-avocado-float flex size-12 items-center justify-center rounded-full text-accent-avocado-default">
+          <VIcon size={IconSize.Medium} secondary />
+        </div>
         <Typography
           tag={TypographyTag.H2}
           type={TypographyType.Title2}
@@ -70,20 +63,10 @@ export const CoverClosing = ({
           You&apos;re all caught up
         </Typography>
         <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-          className="max-w-[28rem] !leading-snug"
-        >
-          That&apos;s everything in today&apos;s brief — {totals.total} stories,
-          ~{totals.readMinutes} minutes of reading distilled for you.
-        </Typography>
-        <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Quaternary}
-          className="mt-1"
         >
-          Next brief drops {tomorrow}
-          {edition ? ` · No. ${edition + 1}` : ''}.
+          Next brief drops {tomorrow}.
         </Typography>
       </div>
 
