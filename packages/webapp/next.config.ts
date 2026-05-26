@@ -57,6 +57,9 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   ...withBundleAnalyzer({
     compiler: {
       reactRemoveProperties: { properties: ['^data-testid$'] },

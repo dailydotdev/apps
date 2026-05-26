@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
@@ -10,15 +10,16 @@ import {
 } from '../icons';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useMutationSubscription, useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
-import { BookmarkButton } from '../buttons';
+import { ButtonColor } from '../buttons/ButtonV2';
+import { CardAction } from '../buttons/CardAction';
+import { CardActionBar } from '../buttons/CardActionBar';
+import { BookmarkButton } from '../buttons/BookmarkButton.v2';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -33,8 +34,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import { UpvoteButtonIcon } from '../cards/common/UpvoteButtonIcon';
-import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
-import { PostActions as PostActionsV2 } from './PostActions.v2';
+import { usePostActionsLabelVisibility } from './usePostActionsLabelVisibility';
 
 interface PostActionsProps {
   post: Post;
@@ -44,7 +44,7 @@ interface PostActionsProps {
   onCopyLinkClick?: (post?: Post) => void;
 }
 
-function PostActionsV1({
+export function PostActions({
   onCopyLinkClick,
   post,
   onComment,
@@ -54,7 +54,7 @@ function PostActionsV1({
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-  const actionsRef = useRef<HTMLDivElement>(null);
+  const { ref: actionsRef } = usePostActionsLabelVisibility();
   const canAward = useCanAwardUser({
     sendingUser: user,
     receivingUser: post.author as LoggedUser | undefined,
@@ -64,8 +64,8 @@ function PostActionsV1({
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
+  const isAwarded = !!post?.userState?.awarded;
 
-  // Get brand animation config if post has sponsored tags
   const brandAnimation = useMemo(() => {
     const animationResult = getUpvoteAnimation(post.tags || []);
     if (
@@ -180,89 +180,69 @@ function PostActionsV1({
     },
   });
 
+  // Re-measure when Award button mounts/unmounts; ResizeObserver in
+  // usePostActionsLabelVisibility only fires on box-size changes.
   useEffect(() => {
-    const adjustActions = () => {
-      const actions = actionsRef.current;
-      if (!actions) {
-        return;
-      }
-
-      const labels = actions.querySelectorAll('.btn-quaternary label');
-      labels.forEach((label) => label.classList.remove('hidden'));
-
-      const isOverflowing = actions.scrollWidth > actions.clientWidth;
-      if (isOverflowing) {
-        labels.forEach((label) => label.classList.add('hidden'));
-      }
-    };
-
-    const resizeObserver = new ResizeObserver(() => {
-      adjustActions();
-    });
-
-    if (actionsRef.current && globalThis) {
-      resizeObserver.observe(actionsRef.current);
+    const el = actionsRef.current;
+    if (!el) {
+      return;
     }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-
-    // It needs the post?.userState?.awarded and canAward dependency to ensure that the querySelector
-    // for labels is executed after the DOM is updated with the new state.
-  }, [post?.userState?.awarded, canAward]);
+    const wrappers = el.querySelectorAll<HTMLElement>('.card-action-content');
+    wrappers.forEach((w) => w.classList.remove('hidden'));
+    if (el.scrollWidth > el.clientWidth) {
+      wrappers.forEach((w) => w.classList.add('hidden'));
+    }
+  }, [actionsRef, isAwarded, canAward]);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
-        <div
-          className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
+        <CardActionBar
           ref={actionsRef}
+          layout="between"
+          className="overflow-hidden p-2"
         >
           <Tooltip
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           >
-            <QuaternaryButton
+            <CardAction
               id="upvote-post-btn"
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
-              icon={
-                <UpvoteButtonIcon
-                  secondary={isUpvoteActive}
-                  brandAnimation={brandAnimation}
-                />
+              icon={<UpvoteButtonIcon brandAnimation={brandAnimation} />}
+              iconPressed={
+                <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
               }
-              aria-label="Upvote"
-              variant={ButtonVariant.Tertiary}
+              label="Upvote"
               color={ButtonColor.Avocado}
             />
           </Tooltip>
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
           >
-            <QuaternaryButton
+            <CardAction
               id="downvote-post-btn"
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
-              icon={<DownvoteIcon secondary={isDownvoteActive} />}
-              aria-label="Downvote"
-              variant={ButtonVariant.Tertiary}
+              icon={<DownvoteIcon />}
+              iconPressed={<DownvoteIcon secondary />}
+              label="Downvote"
               color={ButtonColor.Ketchup}
             />
           </Tooltip>
-          <QuaternaryButton
+          <CardAction
             id="comment-post-btn"
             pressed={post.commented}
             onClick={onComment}
-            icon={<CommentIcon secondary={post.commented} />}
-            aria-label="Comment"
-            className="btn-tertiary-blueCheese"
-          >
-            Comment
-          </QuaternaryButton>
+            icon={<CommentIcon />}
+            iconPressed={<CommentIcon secondary />}
+            label="Comment"
+            labelVisible
+            color={ButtonColor.BlueCheese}
+          />
           {canAward && (
             <ConditionalWrapper
-              condition={post?.userState?.awarded ?? false}
+              condition={isAwarded}
               wrapper={(children) => {
                 return (
                   <Tooltip content="You already awarded this post!">
@@ -271,9 +251,9 @@ function PostActionsV1({
                 );
               }}
             >
-              <QuaternaryButton
+              <CardAction
                 id="award-post-btn"
-                pressed={post?.userState?.awarded}
+                pressed={isAwarded}
                 onClick={() => {
                   if (!user) {
                     showLogin({ trigger: AuthTriggers.GiveAward });
@@ -297,55 +277,36 @@ function PostActionsV1({
                     },
                   });
                 }}
-                icon={<MedalBadgeIcon secondary={!post?.userState?.awarded} />}
-                className={classNames(
-                  'btn-tertiary-cabbage',
-                  post?.userState?.awarded && 'pointer-events-none',
-                )}
-              >
-                Award
-              </QuaternaryButton>
+                icon={<MedalBadgeIcon />}
+                iconPressed={<MedalBadgeIcon secondary />}
+                label="Award"
+                labelVisible
+                color={ButtonColor.Cabbage}
+                buttonClassName={classNames(isAwarded && 'pointer-events-none')}
+              />
             </ConditionalWrapper>
           )}
           <BookmarkButton
             post={post}
-            buttonProps={{
-              id: 'bookmark-post-btn',
-              pressed: post.bookmarked,
-              onClick: onToggleBookmark,
-              className: 'btn-tertiary-bun',
-            }}
-          >
-            Bookmark
-          </BookmarkButton>
-          <div className="group/link-btn">
-            <QuaternaryButton
-              id="copy-post-btn-post"
-              onClick={() => onCopyLinkClick?.(post)}
-              icon={<LinkIcon />}
-              variant={ButtonVariant.Tertiary}
-              className={classNames(
-                'text-text-tertiary',
-                'group-hover/link-btn:text-accent-cabbage-default',
-              )}
-              color={ButtonColor.Cabbage}
-            >
-              Copy
-            </QuaternaryButton>
-          </div>
-        </div>
+            id="bookmark-post-btn"
+            pressed={post.bookmarked}
+            onClick={onToggleBookmark}
+            label="Bookmark"
+            labelVisible
+          />
+          <CardAction
+            id="copy-post-btn-post"
+            onClick={() => onCopyLinkClick?.(post)}
+            icon={<LinkIcon />}
+            label="Copy"
+            labelVisible
+            color={ButtonColor.Cabbage}
+          />
+        </CardActionBar>
       </div>
       {showTagsPanel !== undefined && (
         <PostTagsPanel post={post} className="mt-4" toastOnSuccess={false} />
       )}
     </div>
   );
-}
-
-export function PostActions(props: PostActionsProps): ReactElement {
-  const useV2 = useEngagementBarV2();
-  if (useV2) {
-    return <PostActionsV2 {...props} />;
-  }
-  return <PostActionsV1 {...props} />;
 }

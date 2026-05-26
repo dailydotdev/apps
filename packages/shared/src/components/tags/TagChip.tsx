@@ -14,26 +14,6 @@ import {
   TypographyType,
 } from '../typography/Typography';
 
-/**
- * Tag chip — a single, unified design for `#tag` chips across the
- * product (article post / modal, tags directory, search results).
- *
- * Two visual states, intentionally distinct:
- *
- *   - **Followed** → plain bordered link chip, no action button.
- *     This is the "stable" treatment: a tag the user already follows
- *     should read as a passive label, not as an interactive control.
- *     Unfollow lives on the tag page itself, not inline.
- *
- *   - **Not followed** → filled chip + vertical separator + `+` action
- *     button. The `+` is the call-to-action; without it the chip would
- *     look identical to the followed state.
- *
- * Sizes follow the v2 button scale:
- *   - "sm"   → 24 px chip (XSmall)         — article tag list, in-card chips
- *   - "md"   → 32 px chip (Small)          — tags directory, search panels
- *   - "lg"   → 40 px chip (Medium)         — featured / hero placements
- */
 export type TagChipSize = 'sm' | 'md' | 'lg';
 
 interface TagChipProps {
@@ -101,7 +81,7 @@ const TagLabel = ({
       tag={TypographyTag.Link}
       type={type}
       color={TypographyColor.Tertiary}
-      className="cursor-pointer no-underline transition-colors hover:text-text-primary"
+      className="block min-w-0 cursor-pointer truncate no-underline transition-colors hover:text-text-primary"
       title={`Check all #${tag} posts`}
     >
       #{tag}
@@ -123,7 +103,7 @@ export const TagChip = ({
       <span
         role="listitem"
         className={classNames(
-          'inline-flex items-center border border-border-subtlest-tertiary transition-colors hover:bg-border-subtlest-tertiary',
+          'inline-flex max-w-full items-center border border-border-subtlest-tertiary transition-colors hover:bg-border-subtlest-tertiary',
           cfg.height,
           cfg.radius,
           cfg.horizontalPlain,
@@ -141,7 +121,7 @@ export const TagChip = ({
     <span
       role="listitem"
       className={classNames(
-        'inline-flex items-center bg-surface-float',
+        'inline-flex max-w-full items-center bg-surface-float',
         cfg.height,
         cfg.radius,
         showAction ? cfg.horizontalAction : cfg.horizontalPlain,
@@ -155,7 +135,7 @@ export const TagChip = ({
             role="separator"
             aria-hidden
             className={classNames(
-              'mx-2 w-px bg-border-subtlest-tertiary',
+              'mx-2 w-px shrink-0 bg-border-subtlest-tertiary',
               cfg.separatorHeight,
             )}
           />
@@ -163,6 +143,7 @@ export const TagChip = ({
             <ButtonV2
               type="button"
               size={cfg.button}
+              className="shrink-0"
               icon={<PlusIcon aria-hidden size={cfg.icon} />}
               onClick={() => onFollow?.(tag)}
               aria-label={`Follow #${tag}`}
