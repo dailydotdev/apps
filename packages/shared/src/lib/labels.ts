@@ -26,6 +26,8 @@ export const labels = {
         '❌ We ran into an unexpected error on our end. Please try again.',
       existingEmail:
         'That email is linked to a different sign-in method. Please try another provider.',
+      githubEmailNotVerified:
+        'Your GitHub email address is not verified. Please verify it on GitHub and try again.',
     },
   },
   referral: {
