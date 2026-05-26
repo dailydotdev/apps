@@ -95,7 +95,7 @@ const Eyebrow = ({ config }: { config: EyebrowConfig }): ReactElement => (
     <Typography
       type={TypographyType.Caption2}
       bold
-      className={classNames('uppercase tracking-[0.16em]', config.colorClass)}
+      className={classNames('tracking-[0.16em]', config.colorClass)}
     >
       {config.label}
     </Typography>
