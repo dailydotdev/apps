@@ -20,9 +20,10 @@ import { useViewSizeClient, ViewSize } from '../../hooks';
 import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
-import { ReaderLegacyLayoutToggleButton } from './reader/ReaderHeaderActionButtons';
-import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './reader/hooks/useReaderModalEligibility';
+import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
+import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
+import { EarthIcon } from '../icons';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -54,8 +55,45 @@ export function PostHeaderActions({
   const { isEligible: isReaderEligible, isReaderModalEnabled } =
     useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const showReaderToggle =
-    isArticle && isReaderEligible && isReaderModalEnabled;
+  // When enrolled in the variant — and the user hasn't opted out — we flip
+  // the action semantics: "Read post" becomes the inside-daily.dev entry
+  // (globe icon, opens reader preview), and a secondary external-link
+  // button takes over the "open in a new tab" role that used to live on
+  // Read post. Once a user opts out (via the install-prompt overlay) the
+  // UI snaps back to the classic Read post button + no secondary button.
+  const isReaderVariant =
+    isArticle &&
+    isReaderEligible &&
+    isReaderModalEnabled &&
+    !isLegacyLayoutOptedOut;
+  const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
+    post,
+    // Dismissing the install prompt tears down the classic post modal too,
+    // so the user doesn't bounce back to the surface they just rejected.
+    // `onClose` is a React event handler — the post modal close ignores its
+    // argument, so a fake undefined event is fine.
+    {
+      onCloseParent: onClose
+        ? // The post modal's onClose is typed as `MouseEventHandler |
+          // KeyboardEventHandler` (a union) but the underlying close handler
+          // ignores its event argument. Pass through with a cast.
+          () => (onClose as (event?: unknown) => void)()
+        : undefined,
+    },
+  );
+
+  const handleReadArticle = (event: React.MouseEvent) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticle?.();
+  };
+
+  const readPostIcon = isReaderVariant ? (
+    <EarthIcon />
+  ) : (
+    getReadPostButtonIcon(post)
+  );
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -77,11 +115,11 @@ export function PostHeaderActions({
               tag="a"
               href={readHref}
               target={openNewTab ? '_blank' : '_self'}
-              icon={getReadPostButtonIcon(post)}
+              icon={readPostIcon}
               iconPosition={
                 isTwitter ? ButtonIconPosition.Right : (undefined as never)
               }
-              onClick={onReadArticle}
+              onClick={handleReadArticle}
               data-testid="postActionsRead"
               size={buttonSize}
             >
@@ -94,11 +132,6 @@ export function PostHeaderActions({
       )}
       {isCollection && !hideSubscribeAction && (
         <CollectionSubscribeButton post={post} />
-      )}
-      {showReaderToggle && (
-        <ReaderLegacyLayoutToggleButton
-          target={isLegacyLayoutOptedOut ? 'reader' : 'classic'}
-        />
       )}
       <PostMenuOptions
         post={post}
