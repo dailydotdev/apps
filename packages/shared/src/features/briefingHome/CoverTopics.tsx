@@ -48,7 +48,7 @@ const TopicRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-center gap-4 px-5 text-left transition-colors',
+          'group flex w-full items-center gap-4 px-4 text-left transition-colors tablet:px-5',
           isExpanded ? 'py-5' : 'py-4',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
@@ -162,7 +162,7 @@ export const CoverTopics = ({
           className="ml-auto"
         />
       </div>
-      <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+      <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
         {topics.map((t) => (
           <TopicRow
             key={t.id}

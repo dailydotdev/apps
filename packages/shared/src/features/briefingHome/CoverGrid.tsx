@@ -75,7 +75,7 @@ const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
         rel="noopener noreferrer sponsored"
         title={ad.description}
         {...combinedClicks(() => undefined)}
-        className="group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-surface-float"
+        className="group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float tablet:px-5"
       >
         <Typography
           tag={TypographyTag.H3}
@@ -145,7 +145,7 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-center gap-4 px-5 text-left transition-colors',
+          'group flex w-full items-center gap-4 px-4 text-left transition-colors tablet:px-5',
           isExpanded ? 'py-5' : 'py-4',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
@@ -284,7 +284,7 @@ export const CoverGrid = ({
           Picks
         </Typography>
       </div>
-      <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+      <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
         {stories.map((s, idx) => (
           <React.Fragment key={s.id}>
             {idx === AD_SLOT_INDEX && ad ? <AdRow ad={ad} /> : null}
