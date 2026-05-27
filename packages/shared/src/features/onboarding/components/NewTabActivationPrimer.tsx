@@ -61,48 +61,40 @@ const readActivationStorage = (): {
   }
 };
 
-// Placeholder slot for the demo video/GIF. Kept as an explicit dashed
-// box so the layout, sizing, and position are exercised in advance —
-// dropping in a real <video> element later is a one-line swap. Aspect
-// is 16:9 to match the most likely screen recording.
-function VideoPlaceholder(): ReactElement {
+// TODO(BEFORE-MERGE): the demo video currently lives in webapp/public
+// (`/activate-demo.mp4`) so the page works without an external CDN
+// during local testing. Before merging, upload the file to Cloudinary
+// and swap the src for the hosted URL (and add a poster image URL while
+// you're at it). The Cloudinary pattern in the codebase looks like:
+//   src="https://res.cloudinary.com/daily-now/video/upload/<path>.mp4"
+// See OnboardingPlusVariationV1.tsx for the canonical <video> attributes
+// for an autoplay demo loop.
+const ACTIVATION_DEMO_URL = '/activate-demo.mp4';
+
+function ActivationDemoVideo(): ReactElement {
   return (
-    <div
-      role="img"
-      aria-label="Placeholder for the activation demo video"
-      className="relative aspect-video w-full max-w-[32rem] overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-tertiary bg-background-subtle"
-    >
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            className="ml-1 h-7 w-7 text-text-tertiary"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M8 5v14l11-7-11-7Z" />
-          </svg>
-        </span>
-        <p className="font-bold text-text-tertiary typo-callout">
-          Video / GIF placeholder
-        </p>
-        <p className="text-text-tertiary typo-caption1">
-          Demo of the Chrome dialog and the &ldquo;Keep it&rdquo; click
-        </p>
-      </div>
-    </div>
+    <video
+      src={ACTIVATION_DEMO_URL}
+      className="aspect-video w-full max-w-[32rem] rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
+      muted
+      autoPlay
+      loop
+      playsInline
+      disablePictureInPicture
+      controls={false}
+      aria-label="Demo of Chrome's confirmation dialog and the Keep it click"
+    />
   );
 }
 
-// Wrapper that pairs the video slot with the payoff caption underneath.
+// Wrapper that pairs the demo video with the payoff caption underneath.
 // The caption is the line that flips Chrome's framing — "Change back to
 // Google?" implies daily.dev is unknown; the caption claims the feed
 // the user is about to keep.
 function ActivationVisual(): ReactElement {
   return (
     <div className="flex w-full max-w-[32rem] flex-col items-center gap-2">
-      <VideoPlaceholder />
+      <ActivationDemoVideo />
       <p className="text-text-tertiary typo-caption1">
         This is what opens every time you hit ⌘T.
       </p>
