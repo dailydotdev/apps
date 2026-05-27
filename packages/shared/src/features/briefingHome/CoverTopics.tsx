@@ -48,7 +48,7 @@ const TopicRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-start gap-4 px-5 text-left transition-colors',
+          'group flex w-full items-center gap-4 px-5 text-left transition-colors',
           isExpanded ? 'py-5' : 'py-4',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
@@ -119,7 +119,7 @@ const TopicRow = ({
         <ArrowIcon
           size={IconSize.XSmall}
           className={classNames(
-            'ml-auto mt-5 shrink-0 self-start text-text-quaternary transition-transform duration-300 ease-out',
+            'ml-auto shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
             isExpanded ? 'rotate-0' : 'rotate-180',
           )}
           aria-hidden

@@ -145,7 +145,7 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-start gap-4 px-5 text-left transition-colors',
+          'group flex w-full items-center gap-4 px-5 text-left transition-colors',
           isExpanded ? 'py-5' : 'py-4',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
