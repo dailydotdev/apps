@@ -25,7 +25,10 @@ import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
+import { PlayIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { stripHtmlTags } from '../../../lib/strings';
 
 export type FeaturedWideColSpan = 2 | 3 | 4;
@@ -91,6 +94,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       onCommentClick,
       onBookmarkClick,
       onCopyLinkClick,
+      onShare,
       openNewTab,
       children,
       onReadArticleClick,
@@ -110,6 +114,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const { title } = useSmartTitle(post);
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
+    const { overlay } = useCardCover({ post, onShare });
     const significance = post.postHighlight?.significance ?? null;
     const isTweetPost =
       post.type === PostType.SocialTwitter ||
@@ -269,15 +274,33 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           {image ? (
             <div
               className={classNames(
-                'relative h-full min-w-0 overflow-hidden rounded-r-16',
+                'relative flex h-full min-w-0 items-center justify-center overflow-hidden rounded-r-16',
                 IMAGE_COL_SPAN[wideColSpan],
               )}
             >
+              {overlay}
+              {isVideoType && !overlay && (
+                <>
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 bg-overlay-tertiary-black"
+                  />
+                  <PlayIcon
+                    secondary
+                    size={IconSize.XXLarge}
+                    data-testid="playIconVideoPost"
+                    className="absolute"
+                  />
+                </>
+              )}
               <Image
                 alt={post.title}
                 src={image}
                 type={ImageType.Post}
-                className="size-full object-cover"
+                className={classNames(
+                  'size-full object-cover',
+                  !!overlay && 'opacity-16',
+                )}
                 {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
               />
             </div>
