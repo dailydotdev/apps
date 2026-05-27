@@ -236,7 +236,7 @@ export default function ProfileButton({
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
-                    className="!h-full !rounded-none !px-2"
+                    className="!h-full !rounded-none !pl-1.5 !pr-2"
                   >
                     {largeNumberFormat(displayedBalance)}
                   </Button>
@@ -257,7 +257,7 @@ export default function ProfileButton({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               className={classNames(
-                '!h-full !rounded-none !pl-1 !pr-1',
+                '!h-full !gap-0 !rounded-none !pl-0.5 !pr-0',
                 className,
               )}
               onClick={wrapHandler(() => onUpdate(!isOpen))}
@@ -271,7 +271,7 @@ export default function ProfileButton({
               </span>
               <ProfilePictureWithIndicator
                 user={user}
-                size={ProfileImageSize.Medium}
+                size={ProfileImageSize.Large}
                 wrapperClassName="relative ml-2"
               />
             </Button>
