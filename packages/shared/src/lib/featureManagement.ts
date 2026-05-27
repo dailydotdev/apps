@@ -196,6 +196,18 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
+export const swipeOnboardingFeature = new Feature('swipe_onboarding', true);
+
+export const featureUpvoteCountThreshold = new Feature<{
+  threshold: number;
+  belowThresholdLabel: string;
+  newWindowHours: number;
+}>('upvote_count_threshold', {
+  threshold: 0,
+  belowThresholdLabel: '',
+  newWindowHours: 24,
+});
+
 export const featureFeedTagChips = new Feature('feed_tag_chips', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);

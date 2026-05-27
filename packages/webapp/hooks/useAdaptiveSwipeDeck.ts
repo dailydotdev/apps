@@ -1,0 +1,349 @@
+import { useCallback, useRef, useState } from 'react';
+import type { OnboardingSwipeCard } from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import type { PostSummary } from '../lib/swipingBackendApi';
+import { discoverPosts } from '../lib/swipingBackendApi';
+import { fetchSwipeOnboardingPopularDeck } from '../lib/swipeOnboardingPopularDeck';
+
+// Scoring constants — ported from PostSwiper.tsx
+const LIKE_SCORE = 1.5;
+const DISLIKE_SCORE = -1;
+const ADD_THRESHOLD = 3;
+const SATURATE_THRESHOLD = 4.5;
+const REMOVE_THRESHOLD = -5;
+const IGNORE_AFTER = 10;
+const SATURATE_AFTER = 5;
+const PREFETCH_AFTER_SWIPES = 3;
+const BATCH_SIZE = 8;
+
+function toSwipeCard(post: PostSummary): OnboardingSwipeCard {
+  return {
+    id: post.postId,
+    summary: post.summary,
+    title: post.title,
+    image: null,
+    tags: post.tags,
+    source: {
+      name: 'daily.dev',
+      image: null,
+    },
+  };
+}
+
+function toBookmarkablePost(post: PostSummary): Post {
+  return {
+    id: post.postId,
+    title: post.title,
+    summary: post.summary,
+    permalink: post.url,
+    commentsPermalink: post.url,
+    image: '',
+    tags: post.tags,
+    bookmarked: false,
+    type: PostType.Article,
+  };
+}
+
+function postToSummary(post: Post): PostSummary {
+  const title = post.title ?? '';
+  return {
+    postId: post.id,
+    title,
+    summary: post.summary ?? title,
+    tags: post.tags ?? [],
+    url: post.permalink ?? post.commentsPermalink ?? '',
+    sourceId: post.source?.id ?? '',
+  };
+}
+
+interface StartDeckOptions {
+  prompt?: string;
+  initialTags?: string[];
+}
+
+interface AdaptiveSwipeDeck {
+  cards: OnboardingSwipeCard[];
+  getBookmarkablePost: (cardId: string) => Post | undefined;
+  isLoading: boolean;
+  startDeck: (options?: StartDeckOptions) => Promise<void>;
+  handleSwipe: (direction: 'left' | 'right', cardId: string) => void;
+  retryFetch: () => Promise<void>;
+  selectedTags: string[];
+}
+
+export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
+  const [cards, setCards] = useState<OnboardingSwipeCard[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // Refs for mutable state that persists across batches
+  const tagScoresRef = useRef<Record<string, number>>({});
+  const tagSeenCountRef = useRef<Record<string, number>>({});
+  const seenIdsRef = useRef<Set<string>>(new Set());
+  const likedTitlesRef = useRef<string[]>([]);
+  const startDeckOptionsRef = useRef<StartDeckOptions | undefined>(undefined);
+  const prefetchedRef = useRef<PostSummary[] | null>(null);
+  const swipesInBatchRef = useRef(0);
+  const prefetchTriggeredRef = useRef(false);
+  const selectedTagsRef = useRef<string[]>([]);
+  // Keep a PostSummary lookup so we can access tags/title on swipe
+  const postLookupRef = useRef<Map<string, PostSummary>>(new Map());
+  const batchSizeRef = useRef(0);
+  const isFetchingRef = useRef(false);
+
+  selectedTagsRef.current = selectedTags;
+
+  const getSaturatedTags = useCallback((): string[] => {
+    return Object.entries(tagScoresRef.current)
+      .filter(([, score]) => score >= SATURATE_THRESHOLD)
+      .map(([tag]) => tag);
+  }, []);
+
+  const getConfirmedTags = useCallback((): string[] => {
+    const selected = new Set(selectedTagsRef.current);
+    return Object.entries(tagSeenCountRef.current)
+      .filter(([tag, count]) => selected.has(tag) && count >= SATURATE_AFTER)
+      .map(([tag]) => tag);
+  }, []);
+
+  const registerPosts = useCallback((posts: PostSummary[]): void => {
+    posts.forEach((post) => {
+      seenIdsRef.current.add(post.postId);
+      postLookupRef.current.set(post.postId, post);
+    });
+  }, []);
+
+  const fetchPopularPosts = useCallback(
+    async (limit: number): Promise<PostSummary[]> => {
+      const popularPosts = await fetchSwipeOnboardingPopularDeck();
+      return popularPosts
+        .filter((post) => !seenIdsRef.current.has(post.id))
+        .slice(0, limit)
+        .map(postToSummary);
+    },
+    [],
+  );
+
+  const fetchAdaptiveOrPopular = useCallback(
+    async (
+      fetchAdaptive: () => Promise<PostSummary[]>,
+      limit = BATCH_SIZE,
+    ): Promise<PostSummary[]> => {
+      try {
+        const adaptivePosts = await fetchAdaptive();
+        if (adaptivePosts.length > 0) {
+          registerPosts(adaptivePosts);
+          return adaptivePosts;
+        }
+      } catch {
+        // Fall through to the popular deck when adaptive discovery fails.
+      }
+
+      try {
+        const popularPosts = await fetchPopularPosts(limit);
+        registerPosts(popularPosts);
+        return popularPosts;
+      } catch {
+        return [];
+      }
+    },
+    [fetchPopularPosts, registerPosts],
+  );
+
+  const doFetch = useCallback(
+    async (n = BATCH_SIZE): Promise<PostSummary[]> => {
+      return fetchAdaptiveOrPopular(async () => {
+        const result = await discoverPosts({
+          selectedTags: selectedTagsRef.current,
+          confirmedTags: getConfirmedTags(),
+          likedTitles: likedTitlesRef.current,
+          excludeIds: [...seenIdsRef.current],
+          saturatedTags: getSaturatedTags(),
+          n,
+        });
+        return result.posts;
+      }, n);
+    },
+    [fetchAdaptiveOrPopular, getConfirmedTags, getSaturatedTags],
+  );
+
+  const getBookmarkablePost = useCallback(
+    (cardId: string): Post | undefined => {
+      const post = postLookupRef.current.get(cardId);
+      return post ? toBookmarkablePost(post) : undefined;
+    },
+    [],
+  );
+
+  const loadBatch = useCallback((posts: PostSummary[]) => {
+    setCards(posts.map(toSwipeCard));
+    batchSizeRef.current = posts.length;
+    swipesInBatchRef.current = 0;
+    prefetchTriggeredRef.current = false;
+  }, []);
+
+  const startDeck = useCallback(
+    async (options?: StartDeckOptions) => {
+      if (isFetchingRef.current) {
+        return;
+      }
+      isFetchingRef.current = true;
+      setIsLoading(true);
+      try {
+        if (options) {
+          startDeckOptionsRef.current = options;
+        }
+        // Seed with initial tags if provided
+        if (options?.initialTags?.length) {
+          setSelectedTags(options.initialTags);
+          selectedTagsRef.current = options.initialTags;
+          // Initialize tag scores for seeded tags
+          const scores: Record<string, number> = {};
+          options.initialTags.forEach((t) => {
+            scores[t] = ADD_THRESHOLD;
+          });
+          tagScoresRef.current = scores;
+        }
+        const posts = await fetchAdaptiveOrPopular(async () => {
+          const result = await discoverPosts({
+            prompt: options?.prompt ?? '',
+            selectedTags: selectedTagsRef.current,
+            likedTitles: likedTitlesRef.current,
+            excludeIds: [...seenIdsRef.current],
+            saturatedTags: getSaturatedTags(),
+            n: BATCH_SIZE,
+          });
+          return result.posts;
+        });
+        loadBatch(posts);
+      } finally {
+        setIsLoading(false);
+        isFetchingRef.current = false;
+      }
+    },
+    [fetchAdaptiveOrPopular, getSaturatedTags, loadBatch],
+  );
+
+  const retryFetch = useCallback(async () => {
+    await startDeck(startDeckOptionsRef.current);
+  }, [startDeck]);
+
+  const triggerPrefetch = useCallback(async () => {
+    if (prefetchedRef.current) {
+      return;
+    }
+    try {
+      prefetchedRef.current = await doFetch();
+    } catch {
+      // Prefetch failure is non-critical
+    }
+  }, [doFetch]);
+
+  const loadNextBatch = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      let posts: PostSummary[];
+      if (prefetchedRef.current) {
+        posts = prefetchedRef.current;
+        prefetchedRef.current = null;
+      } else {
+        posts = await doFetch();
+      }
+      loadBatch(posts);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [doFetch, loadBatch]);
+
+  const handleSwipe = useCallback(
+    (direction: 'left' | 'right', cardId: string) => {
+      const post = postLookupRef.current.get(cardId);
+      if (!post) {
+        return;
+      }
+
+      const delta = direction === 'right' ? LIKE_SCORE : DISLIKE_SCORE;
+      const { tags } = post;
+
+      // Track liked posts
+      if (direction === 'right') {
+        likedTitlesRef.current.push(post.title);
+      }
+
+      // --- Tag scoring (ported from PostSwiper.tsx) ---
+      const scores = { ...tagScoresRef.current };
+      const currentSelected = [...selectedTagsRef.current];
+      const selectedSet = new Set(currentSelected);
+      const promoted: string[] = [];
+      const demoted: string[] = [];
+
+      tags.forEach((tag) => {
+        const isSelected = selectedSet.has(tag);
+        tagSeenCountRef.current[tag] = (tagSeenCountRef.current[tag] || 0) + 1;
+
+        if (!isSelected && tagSeenCountRef.current[tag] >= IGNORE_AFTER) {
+          delete scores[tag];
+          return;
+        }
+
+        const newScore = (scores[tag] || 0) + delta;
+        scores[tag] = newScore;
+
+        if (!isSelected && newScore >= ADD_THRESHOLD) {
+          promoted.push(tag);
+          delete scores[tag];
+          delete tagSeenCountRef.current[tag];
+        } else if (isSelected && newScore <= REMOVE_THRESHOLD) {
+          demoted.push(tag);
+          delete scores[tag];
+        } else if (
+          isSelected &&
+          newScore < SATURATE_THRESHOLD &&
+          tagSeenCountRef.current[tag] >= SATURATE_AFTER
+        ) {
+          scores[tag] = SATURATE_THRESHOLD;
+        }
+      });
+
+      tagScoresRef.current = scores;
+
+      // Apply promotions and demotions
+      if (promoted.length > 0 || demoted.length > 0) {
+        const demotedSet = new Set(demoted);
+        const nextTags = [
+          ...currentSelected.filter((t) => !demotedSet.has(t)),
+          ...promoted,
+        ];
+        setSelectedTags(nextTags);
+        selectedTagsRef.current = nextTags;
+      }
+
+      // --- Prefetch and batch management ---
+      swipesInBatchRef.current += 1;
+      if (
+        swipesInBatchRef.current >= PREFETCH_AFTER_SWIPES &&
+        !prefetchTriggeredRef.current
+      ) {
+        prefetchTriggeredRef.current = true;
+        triggerPrefetch();
+      }
+
+      // Auto-load next batch when all cards in current batch are swiped
+      if (swipesInBatchRef.current >= batchSizeRef.current) {
+        loadNextBatch();
+      }
+    },
+    [triggerPrefetch, loadNextBatch],
+  );
+
+  return {
+    cards,
+    getBookmarkablePost,
+    isLoading,
+    startDeck,
+    handleSwipe,
+    retryFetch,
+    selectedTags,
+  };
+}

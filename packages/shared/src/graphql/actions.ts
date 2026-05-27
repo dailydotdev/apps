@@ -40,6 +40,7 @@ export enum ActionType {
   FetchedSmartTitle = 'fetched_smart_title',
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
+  HasSeenTags = 'has_seen_tags',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
