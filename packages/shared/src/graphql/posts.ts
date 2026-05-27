@@ -236,6 +236,20 @@ export interface PostUserState {
   pollOption?: { id: string };
 }
 
+export type PostHighlightSignificance =
+  | 'breaking'
+  | 'major'
+  | 'notable'
+  | 'routine';
+
+export interface PostHighlight {
+  id: string;
+  channel: string;
+  highlightedAt: string;
+  headline: string;
+  significance: PostHighlightSignificance | null;
+}
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -300,6 +314,7 @@ export interface Post {
   endsAt?: string;
   liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
+  postHighlight?: PostHighlight | null;
 }
 
 export type RelatedPost = Pick<
