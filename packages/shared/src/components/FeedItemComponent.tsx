@@ -28,6 +28,8 @@ import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
+import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
@@ -98,6 +100,12 @@ export type FeedItemComponentProps = {
   ) => unknown;
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
+  /**
+   * When set, render the post as a wide featured highlight card spanning
+   * the given number of grid columns. Only used for article-like post
+   * types with an active `postHighlight`.
+   */
+  wideColSpan?: FeaturedWideColSpan;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -280,6 +288,7 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
+  wideColSpan,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
@@ -290,6 +299,7 @@ function FeedItemComponent({
     row,
     feedName,
     ranking,
+    wideColSpan,
   );
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
@@ -395,74 +405,67 @@ function FeedItemComponent({
       return null;
     }
 
+    const postCardProps = {
+      enableSourceHeader:
+        feedName !== 'squad' && isSourceSquadOrMachine(itemPost.source),
+      ref: inViewRef,
+      post: { ...itemPost },
+      'data-testid': 'postItem',
+      onUpvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleUpvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onDownvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleDownvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onPostClick: (post: Post, event?: React.MouseEvent) =>
+        onPostClick(post, index, row, column, false, event),
+      onPostAuxClick: (post: Post) =>
+        onPostClick(post, index, row, column, true),
+      onReadArticleClick: () =>
+        onReadArticleClick(itemPost, index, row, column),
+      onShare: (post: Post) => onShare(post, row, column),
+      onBookmarkClick: (post: Post, origin = Origin.Feed) => {
+        toggleBookmark({
+          post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      openNewTab,
+      enableMenu: !!user,
+      onMenuClick: (event: React.MouseEvent) =>
+        onMenuClick(event, index, row, column),
+      onCopyLinkClick: (event: React.MouseEvent, post: Post) =>
+        onCopyLinkClick(event, post, index, row, column),
+      menuOpened: postMenuIndex === index,
+      onCommentClick: (post: Post) =>
+        onCommentClick(post, index, row, column, !!boostedBy),
+      eagerLoadImage: row === 0 && column === 0,
+    };
+
+    const isWidenedFeaturedPost =
+      item.type === FeedItemType.Post && !!wideColSpan && wideColSpan > 1;
+
     return (
       <ActivePostContextProvider post={itemPost}>
-        <PostTag
-          enableSourceHeader={
-            feedName !== 'squad' && isSourceSquadOrMachine(itemPost.source)
-          }
-          ref={inViewRef}
-          post={{ ...itemPost }}
-          data-testid="postItem"
-          onUpvoteClick={(post: Post, origin = Origin.Feed) => {
-            toggleUpvote({
-              payload: post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          onDownvoteClick={(post: Post, origin = Origin.Feed) => {
-            toggleDownvote({
-              payload: post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          onPostClick={(post: Post, event) =>
-            onPostClick(post, index, row, column, false, event)
-          }
-          onPostAuxClick={(post: Post) =>
-            onPostClick(post, index, row, column, true)
-          }
-          onReadArticleClick={() =>
-            onReadArticleClick(itemPost, index, row, column)
-          }
-          onShare={(post: Post) => onShare(post, row, column)}
-          onBookmarkClick={(post: Post, origin = Origin.Feed) => {
-            toggleBookmark({
-              post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          openNewTab={openNewTab}
-          enableMenu={!!user}
-          onMenuClick={(event: React.MouseEvent) =>
-            onMenuClick(event, index, row, column)
-          }
-          onCopyLinkClick={(event: React.MouseEvent, post: Post) =>
-            onCopyLinkClick(event, post, index, row, column)
-          }
-          menuOpened={postMenuIndex === index}
-          onCommentClick={(post: Post) =>
-            onCommentClick(post, index, row, column, !!boostedBy)
-          }
-          eagerLoadImage={row === 0 && column === 0}
-        >
-          {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
-        </PostTag>
+        {isWidenedFeaturedPost ? (
+          <ArticleFeaturedWideGridCard
+            {...postCardProps}
+            wideColSpan={wideColSpan}
+          />
+        ) : (
+          <PostTag {...postCardProps}>
+            {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
+          </PostTag>
+        )}
       </ActivePostContextProvider>
     );
   }
