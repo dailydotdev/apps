@@ -317,6 +317,12 @@ export const FeedContainer = ({
                   'flex flex-col',
                   !disableListFrame &&
                     'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                  // v2-only: clip hover backgrounds at the frame's rounded
+                  // corners + swap the list-card top separator token to
+                  // match the floating-card / card hierarchy.
+                  !disableListFrame &&
+                    isV2Laptop &&
+                    'overflow-hidden [&_article]:!border-border-subtlest-quaternary',
                   !disableListFrame && isSearch && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
@@ -324,9 +330,26 @@ export const FeedContainer = ({
                 <ConditionalWrapper
                   condition={isLaptop && !!(feedHeading || actionButtons)}
                   wrapper={(component) => (
-                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                    <span
+                      className={classNames(
+                        'flex w-full flex-row items-center justify-between',
+                        // v2: match the grid mode page-header strip
+                        // (padding, divider, button gaps). Non-v2 keeps
+                        // its legacy spacing.
+                        isV2Laptop
+                          ? 'gap-2 border-b border-border-subtlest-quaternary px-6 py-3'
+                          : 'px-6 py-4',
+                      )}
+                    >
                       <strong className="typo-title3">{feedHeading}</strong>
-                      <span className="flex flex-row gap-3">{component}</span>
+                      <span
+                        className={classNames(
+                          'flex flex-row',
+                          isV2Laptop ? 'items-center gap-1' : 'gap-3',
+                        )}
+                      >
+                        {component}
+                      </span>
                     </span>
                   )}
                 >
@@ -341,10 +364,14 @@ export const FeedContainer = ({
               className={classNames(
                 'grid',
                 // v2: inset the grid so cards sit off the floating-card
-                // rounded edges. Tight top inset (`pt-2` = 8px) so the
-                // cards hug the header-strip bottom border — anything
-                // larger reads as wasted vertical space against the mock.
-                isV2Laptop && !shouldUseListFeedLayout && 'px-6 pt-2',
+                // rounded edges + swap card borders to the lighter
+                // quaternary token (matches the floating-card frame so
+                // we get a clean frame → list-frame → cards hierarchy
+                // instead of two clashing layers). Scoped here so the
+                // legacy grid layout keeps its current tokens.
+                isV2Laptop &&
+                  !shouldUseListFeedLayout &&
+                  'tablet:p-2 laptop:p-6 [&_article]:!border-border-subtlest-quaternary [&_article:hover]:!border-border-subtlest-tertiary',
                 shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
                 isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',

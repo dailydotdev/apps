@@ -11,6 +11,7 @@ import { useProfileAchievements } from '../../hooks/profile/useProfileAchievemen
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
@@ -41,10 +42,39 @@ function AchievementIcon({
   );
 }
 
+export function AchievementTrackerPanel(): ReactElement | null {
+  const { user } = useAuthContext();
+  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+  const { trackedAchievement } = useTrackedAchievement(
+    undefined,
+    isAchievementTrackingWidgetEnabled === true,
+  );
+
+  if (!user || isAchievementTrackingWidgetEnabled !== true) {
+    return null;
+  }
+
+  if (!trackedAchievement || trackedAchievement.unlockedAt) {
+    return null;
+  }
+
+  return (
+    <div className="px-3 pt-1">
+      <div className="overflow-hidden rounded-12 bg-background-popover">
+        <AchievementCard userAchievement={trackedAchievement} />
+      </div>
+    </div>
+  );
+}
+
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -163,7 +193,12 @@ export function AchievementTrackerButton(): ReactElement | null {
     <div className="relative">
       <Button
         size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        variant={(() => {
+          if (isV2) {
+            return ButtonVariant.Tertiary;
+          }
+          return isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
+        })()}
         icon={
           (isTrackingAchievement ? (
             <AchievementIcon

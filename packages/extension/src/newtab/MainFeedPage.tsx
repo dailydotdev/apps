@@ -32,6 +32,7 @@ import { normaliseNewTabMode } from '@dailydotdev/shared/src/features/customizeN
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
+import { ExtensionSignInStrip } from './ExtensionSignInStrip';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 import { getDefaultLink } from './dnd';
@@ -199,7 +200,12 @@ const MainFeedPageInner = ({
           additionalButtons={
             !loadingUser && !optOutCompanion && <CompanionPopupButton />
           }
-          topBanner={<ExtensionTopBanners />}
+          topBanner={
+            <>
+              <ExtensionSignInStrip />
+              <ExtensionTopBanners />
+            </>
+          }
         >
           <FeedLayoutProvider>
             <MainFeedLayout

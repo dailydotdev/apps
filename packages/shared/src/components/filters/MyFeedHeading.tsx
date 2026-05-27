@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { FilterIcon, PlusIcon } from '../icons';
+import { IconSize } from '../Icon';
+import type { ButtonProps } from '../buttons/Button';
 import {
   Button,
   ButtonIconPosition,
@@ -18,13 +20,22 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters?: () => void;
+  feedSettingsButtonProps?: Pick<
+    ButtonProps<'button'>,
+    'size' | 'variant' | 'className'
+  > & { iconSize?: IconSize };
+  onShortcutsClick?: () => void;
 }
 
 function MyFeedHeading({
   onOpenFeedFilters,
+  feedSettingsButtonProps,
+  onShortcutsClick,
 }: MyFeedHeadingProps): ReactElement {
   const { push, pathname, query } = useRouter();
   const { completeAction } = useActions();
@@ -35,6 +46,7 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
+  const { user, showLogin } = useAuthContext();
   // v2 layout (laptop) renders this button inside the floating-card
   // page-header strip alongside other slim actions; use the compact ghost
   // sizing so the strip stays consistent with the designer mock.
@@ -54,10 +66,18 @@ function MyFeedHeading({
   }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query]);
 
   const onClick = useCallback(() => {
+    if (!user) {
+      showLogin({
+        trigger: AuthTriggers.MainButton,
+        options: { isLogin: false },
+      });
+      return undefined;
+    }
+
     onOpenFeedFilters?.();
 
     return push(editFeedUrl);
-  }, [editFeedUrl, onOpenFeedFilters, push]);
+  }, [editFeedUrl, onOpenFeedFilters, push, showLogin, user]);
 
   // Button's discriminated union requires `iconPosition` whenever `icon`
   // is set — `undefined` and conditional spreads both break it under
@@ -67,15 +87,24 @@ function MyFeedHeading({
     ? ButtonIconPosition.Right
     : ButtonIconPosition.Left;
 
+  const { iconSize: feedSettingsIconSize, ...feedSettingsButtonOverrides } =
+    feedSettingsButtonProps ?? {};
+  const filterIcon = feedSettingsIconSize ? (
+    <FilterIcon size={feedSettingsIconSize} />
+  ) : (
+    <FilterIcon />
+  );
+
   return (
     <>
       {isV2Compact ? (
         <FeedSettingsButton
           onClick={onClick}
-          size={ButtonSize.Small}
+          size={ButtonSize.Medium}
           variant={ButtonVariant.Tertiary}
-          icon={<FilterIcon />}
+          icon={filterIcon}
           iconPosition={iconPosition}
+          {...feedSettingsButtonOverrides}
         >
           {!isMobile ? 'Feed settings' : null}
         </FeedSettingsButton>
@@ -84,8 +113,9 @@ function MyFeedHeading({
           onClick={onClick}
           size={ButtonSize.Medium}
           variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-          icon={<FilterIcon />}
+          icon={filterIcon}
           iconPosition={iconPosition}
+          {...feedSettingsButtonOverrides}
         >
           {!isMobile ? 'Feed settings' : null}
         </FeedSettingsButton>
@@ -96,6 +126,10 @@ function MyFeedHeading({
           variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
           className="mr-auto"
           onClick={() => {
+            if (onShortcutsClick) {
+              onShortcutsClick();
+              return;
+            }
             if (isOldUserWithNoShortcuts) {
               completeAction(ActionType.FirstShortcutsSession);
               return;

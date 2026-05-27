@@ -38,6 +38,7 @@ import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
+import { BriefShortcutButton } from '../cards/brief/BriefShortcutButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -212,6 +213,7 @@ export const SearchControlHeader = ({
     hasFeedActions && <IntroQuestButton key="intro-quests" />,
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
     hasFeedActions && <LuckyButton key="lucky" />,
+    hasFeedActions && isV2Strip && <BriefShortcutButton key="brief-shortcut" />,
   ];
   const secondaryActions = [isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);

@@ -19,6 +19,8 @@ import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
 import { QuestButton } from '../quest/QuestButton';
+import { QuestRailIcon } from '../quest/QuestRailIcon';
+import { AchievementTrackerPanel } from '../filters/AchievementTrackerButton';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
@@ -28,7 +30,6 @@ import {
   FeedbackIcon,
   HomeIcon,
   HotIcon,
-  JoystickIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
@@ -54,6 +55,7 @@ import { RailHoverPanel } from './RailHoverPanel';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
+import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { SidebarHeaderStats } from './SidebarHeaderStats';
 import Link from '../utilities/Link';
@@ -134,9 +136,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     id: SidebarCategory.GameCenter,
     label: 'Game Center',
     defaultPath: `${webappUrl}game-center`,
-    icon: (active) => (
-      <JoystickIcon secondary={active} size={IconSize.Small} aria-hidden />
-    ),
+    icon: (active) => <QuestRailIcon active={active} />,
   },
   {
     id: SidebarCategory.Profile,
@@ -182,7 +182,7 @@ const railButtonClass =
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
-const RAIL_HOVER_OPEN_DELAY = 250;
+const RAIL_HOVER_OPEN_DELAY = 1000;
 const RAIL_HOVER_CLOSE_DELAY = 120;
 const RAIL_HOVER_SIDE_OFFSET = 12;
 const RAIL_HOVER_PROFILE_ALIGN_OFFSET = -304;
@@ -393,6 +393,18 @@ export const SidebarDesktopV2 = ({
     }
   }, [pendingCategory, resolvedCategory]);
 
+  // Escape resets the pinned panel back to Main so the keyboard story
+  // mirrors the click model — Tab+Enter opens a panel, Escape backs out.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPendingCategory(SidebarCategory.Main);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const defaultRenderSectionProps = useMemo(
     () => ({
       sidebarExpanded: true,
@@ -422,6 +434,18 @@ export const SidebarDesktopV2 = ({
     (category: SidebarCategoryId) => {
       setPendingCategory(category);
 
+      if (!sidebarExpanded) {
+        toggleSidebarExpanded();
+      }
+
+      // Settings has no panel-level landing page — keep navigating to the
+      // settings route so the click still has a destination. Every other
+      // category just pins the panel; hover and click now reveal the same
+      // content with no destination mismatch.
+      if (category !== SidebarCategory.Settings) {
+        return;
+      }
+
       const targetPath = getCategoryDefaultPath(category);
       if (!targetPath) {
         return;
@@ -434,7 +458,13 @@ export const SidebarDesktopV2 = ({
         Promise.resolve(router.push(targetPath)).catch(() => undefined);
       }
     },
-    [activePage, getCategoryDefaultPath, router],
+    [
+      activePage,
+      getCategoryDefaultPath,
+      router,
+      sidebarExpanded,
+      toggleSidebarExpanded,
+    ],
   );
 
   const onPrefetchCategory = useCallback(
@@ -502,6 +532,7 @@ export const SidebarDesktopV2 = ({
               </a>
             </Link>
           )}
+          <AchievementTrackerPanel />
         </div>
       );
     }
@@ -634,12 +665,22 @@ export const SidebarDesktopV2 = ({
             return (
               <React.Fragment key={category.id}>
                 {category.id === SidebarCategory.Saved && isLoggedIn && (
-                  <NotificationsBell rail />
+                  <RailHoverCard
+                    label="Notifications"
+                    panel={
+                      <NotificationsRailPanel enabled={!sidebarExpanded} />
+                    }
+                    enabled={!sidebarExpanded}
+                  >
+                    <div>
+                      <NotificationsBell rail />
+                    </div>
+                  </RailHoverCard>
                 )}
                 <RailHoverCard
                   label={category.label}
                   panel={renderCategorySection(category.id)}
-                  enabled={!isSelected || !sidebarExpanded}
+                  enabled={!sidebarExpanded}
                   alignOffset={
                     category.id === SidebarCategory.Profile
                       ? RAIL_HOVER_PROFILE_ALIGN_OFFSET
@@ -656,6 +697,11 @@ export const SidebarDesktopV2 = ({
                     onClick={() => onSelectCategory(category.id)}
                     onMouseEnter={() => onPrefetchCategory(category.id)}
                     onFocus={() => onPrefetchCategory(category.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') {
+                        setPendingCategory(SidebarCategory.Main);
+                      }
+                    }}
                     className={classNames(
                       railButtonClass,
                       isSelected && 'bg-background-default text-white',
@@ -680,7 +726,7 @@ export const SidebarDesktopV2 = ({
           <RailHoverCard
             label="Settings"
             panel={renderCategorySection(SidebarCategory.Settings)}
-            enabled={!isSettingsSelected || !sidebarExpanded}
+            enabled={!sidebarExpanded}
           >
             <Link href={settingsDefaultPath} passHref>
               <a
@@ -772,7 +818,7 @@ export const SidebarDesktopV2 = ({
               <section aria-label="Your profile" className="flex flex-col">
                 <div className="px-3">
                   <Link href={`${webappUrl}${user.username}`} passHref>
-                    <a className="focus-outline group flex items-center gap-3 text-text-primary">
+                    <a className="focus-outline group inline-flex w-fit max-w-full items-center gap-3 text-text-primary">
                       <ProfilePicture
                         user={user}
                         size={ProfileImageSize.Medium}

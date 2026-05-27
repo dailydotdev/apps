@@ -10,6 +10,7 @@ import {
   ShieldPlusIcon,
   ShieldWarningIcon,
 } from '../icons';
+import { IconSize } from '../Icon';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription, useClickbaitTries } from '../../hooks';
 import { SidebarSettingsFlags } from '../../graphql/settings';
@@ -18,6 +19,7 @@ import type { Origin } from '../../lib/log';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -27,9 +29,13 @@ import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 export const ToggleClickbaitShield = ({
   origin,
   buttonProps = {},
+  iconButtonProps = {},
+  iconSize,
 }: {
   origin: Origin;
   buttonProps?: ButtonProps<'button'>;
+  iconButtonProps?: ButtonProps<'button'>;
+  iconSize?: IconSize;
 }): ReactElement | null => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
@@ -38,24 +44,29 @@ export const ToggleClickbaitShield = ({
   const { flags, updateFlag } = useSettingsContext();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
   const { value: isNewD1Experience } = useNewD1ExperienceFeature({
     shouldEvaluate: !isPlus,
   });
   // v2 dual-sidebar laptop renders this button inside the page-header
-  // strip alongside MyFeedHeading; use the compact ghost sizing
-  // (Small + Tertiary) so the strip stays consistent with the mock.
+  // strip alongside MyFeedHeading; use the consistent Medium + Tertiary
+  // sizing so the whole strip reads as one button family.
   const { isV2 } = useLayoutVariant();
   const isV2Compact = isV2;
 
   const commonIconProps: ButtonProps<'button'> = {
-    size: isV2Compact ? ButtonSize.Small : ButtonSize.Medium,
+    size: ButtonSize.Medium,
     variant: isV2Compact ? ButtonVariant.Tertiary : ButtonVariant.Float,
     iconSecondaryOnHover: true,
     ...buttonProps,
+    ...iconButtonProps,
   };
+  const sizedIcon = (icon: ReactElement, className?: string) =>
+    iconSize
+      ? React.cloneElement(icon, { size: iconSize, className })
+      : React.cloneElement(icon, { className });
 
   if (!isPlus) {
     if (isNewD1Experience) {
@@ -74,14 +85,19 @@ export const ToggleClickbaitShield = ({
         <Button
           {...commonIconProps}
           icon={
-            hasUsedFreeTrial ? (
-              <ShieldWarningIcon className="text-accent-ketchup-default" />
-            ) : (
-              <ShieldPlusIcon />
-            )
+            hasUsedFreeTrial
+              ? sizedIcon(
+                  <ShieldWarningIcon />,
+                  'text-accent-ketchup-default',
+                )
+              : sizedIcon(<ShieldPlusIcon />)
           }
           onClick={() => {
             if (!user) {
+              showLogin({
+                trigger: AuthTriggers.MainButton,
+                options: { isLogin: false },
+              });
               return;
             }
             router.push(
@@ -105,14 +121,19 @@ export const ToggleClickbaitShield = ({
       <Button
         {...commonIconProps}
         icon={
-          isClickbaitShieldEnabled ? (
-            <ShieldCheckIcon className="text-status-success" />
-          ) : (
-            <ShieldIcon />
-          )
+          isClickbaitShieldEnabled
+            ? sizedIcon(<ShieldCheckIcon />, 'text-status-success')
+            : sizedIcon(<ShieldIcon />)
         }
         loading={loading}
         onClick={async () => {
+          if (!user) {
+            showLogin({
+              trigger: AuthTriggers.MainButton,
+              options: { isLogin: false },
+            });
+            return;
+          }
           const newState = !isClickbaitShieldEnabled;
           setLoading(true);
           await updateFlag(
