@@ -6,6 +6,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
 import { CoreIcon, ReputationIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -205,7 +206,7 @@ export default function ProfileButton({
         />
       ) : (
         <div className="flex items-center gap-2">
-          <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
+          <div className="flex h-10 items-center rounded-12 border border-border-subtlest-quaternary bg-surface-float px-1">
             {isStreaksEnabled && streak && (
               <ReadingStreakButton
                 streak={streak}
@@ -251,7 +252,10 @@ export default function ProfileButton({
                   type="button"
                   data-reward-target={QuestRewardType.Reputation}
                   icon={
-                    <ReputationIcon className="text-accent-onion-default" />
+                    <ReputationIcon
+                      className="text-accent-onion-default"
+                      size={IconSize.Medium}
+                    />
                   }
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
