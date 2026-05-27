@@ -213,7 +213,7 @@ export default function ProfileButton({
                 streak={streak}
                 isLoading={isLoading}
                 compact
-                className="!h-full !rounded-none"
+                className="!h-full !rounded-none !pl-2 !pr-2.5"
               />
             )}
             {hasCoresAccess && (
@@ -237,7 +237,7 @@ export default function ProfileButton({
                       tag="a"
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
-                      className="!h-full !rounded-none !px-1.5"
+                      className="!h-full !rounded-none !px-2.5"
                     >
                       {largeNumberFormat(displayedBalance)}
                     </Button>
@@ -261,7 +261,7 @@ export default function ProfileButton({
                   }
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
-                  className="!h-full !rounded-none !px-1.5"
+                  className="!h-full !rounded-none !pl-1.5 !pr-2.5"
                   onClick={wrapHandler(() => onUpdate(!isOpen))}
                 >
                   {largeNumberFormat(displayedReputation ?? 0)}
