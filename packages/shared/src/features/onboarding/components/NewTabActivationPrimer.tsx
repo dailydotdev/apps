@@ -281,6 +281,15 @@ export function NewTabActivationPrimer({
     const result = await requestOpenNewTabFromPage();
     if (result.triggered) {
       logEvent({ event_name: LogEvent.ExtensionNewTabTriggered });
+      // TODO(REMOVE-BEFORE-MERGE): testing override — after triggering the
+      // new tab, hand off this tab to the production signup wall so the
+      // full visual flow (primer → Chrome dialog in the new tab →
+      // production signup wall here) can be exercised locally. In
+      // production the primer is already served from app.daily.dev and
+      // success-detection auto-advances on the same domain; remove this
+      // redirect before merging so the success path runs.
+      stopPolling();
+      window.location.href = 'https://app.daily.dev/onboarding';
       return;
     }
     stopPolling();
