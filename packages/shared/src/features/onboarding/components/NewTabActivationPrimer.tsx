@@ -75,11 +75,14 @@ const readActivationStorage = (): {
 //   0:04 "Done. Your new tab is live."
 const ACTIVATION_DEMO_URL = '/activate-demo.mp4';
 
+// Video is THE page — sized large (full container width, ~50% viewport
+// height) so the burned-in subtitles are readable. Everything else on
+// the page is a small label around it.
 function ActivationDemoVideo(): ReactElement {
   return (
     <video
       src={ACTIVATION_DEMO_URL}
-      className="aspect-video w-full max-w-[36rem] rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
+      className="aspect-video w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2"
       muted
       autoPlay
       loop
@@ -330,41 +333,50 @@ export function NewTabActivationPrimer({
     <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-10">
       <div
         className={classNames(
-          'flex w-full max-w-[36rem] flex-col items-center gap-6 text-center',
+          'flex w-full flex-col items-center gap-5 text-center',
+          isRecovery ? 'max-w-[36rem]' : 'max-w-[48rem]',
         )}
       >
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {isRecovery ? 'Almost there' : 'One click and you’re in'}
-        </Typography>
+        <div className="flex flex-col items-center gap-2">
+          <Typography
+            tag={TypographyTag.H1}
+            type={TypographyType.LargeTitle}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {isRecovery
+              ? 'Let’s turn it back on'
+              : 'Almost there — Chrome will ask one quick question.'}
+          </Typography>
 
-        {isRecovery && (
           <Typography
             tag={TypographyTag.P}
             type={TypographyType.Body}
             color={TypographyColor.Secondary}
           >
-            Looks like daily.dev was turned off. Open the extensions page, find
-            daily.dev, and flip the toggle back on.
+            {isRecovery
+              ? 'Open the extensions page, find daily.dev, and flip the toggle back on.'
+              : 'Tap “Keep it” to finish setting up your new tab.'}
           </Typography>
-        )}
+        </div>
 
         {!isRecovery && <ActivationDemoVideo />}
 
         {!isRecovery && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Large}
-            disabled={isWaiting}
-            onClick={handleActivateClick}
-          >
-            {isWaiting ? 'Opening…' : 'Activate new tab'}
-          </Button>
+          <div className="flex flex-col items-center gap-2">
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
+              disabled={isWaiting}
+              onClick={handleActivateClick}
+            >
+              {isWaiting ? 'Opening…' : 'Keep it'}
+            </Button>
+            <p className="text-text-tertiary typo-caption1">
+              Takes 2 seconds. Reversible anytime.
+            </p>
+          </div>
         )}
 
         {isRecovery && <ExtensionsPageCardMockup />}
