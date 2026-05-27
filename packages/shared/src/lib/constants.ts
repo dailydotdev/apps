@@ -17,7 +17,14 @@ export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const recruiterScheduleUrl = 'https://recruiter.daily.dev/schedule';
 export const initialDataKey = 'initial';
-export const install = 'https://r.daily.dev/install';
+// TODO(REMOVE-BEFORE-MERGE): testing override — dev extension builds open
+// the local staging webapp so the post-install primer flow can be
+// exercised end-to-end. Restore to the single literal
+// `'https://r.daily.dev/install'` before merging.
+export const install =
+  process.env.NODE_ENV === 'development'
+    ? 'https://app.staging.daily.dev:5002/onboarding'
+    : 'https://r.daily.dev/install';
 export const uninstall = 'https://r.daily.dev/uninstall';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
