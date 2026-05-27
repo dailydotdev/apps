@@ -75,7 +75,7 @@ const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
         rel="noopener noreferrer sponsored"
         title={ad.description}
         {...combinedClicks(() => undefined)}
-        className="group flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-surface-float"
+        className="group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-surface-float"
       >
         <Typography
           tag={TypographyTag.H3}
@@ -104,7 +104,7 @@ const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
           </span>
           <OpenLinkIcon
             size={IconSize.XSmall}
-            className="text-text-quaternary transition-colors group-hover:text-text-tertiary"
+            className="text-text-tertiary"
             aria-hidden
           />
         </span>
@@ -145,7 +145,8 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-start gap-4 px-4 py-3.5 text-left transition-colors',
+          'group flex w-full items-start gap-4 px-5 text-left transition-colors',
+          isExpanded ? 'py-5' : 'py-4',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
@@ -278,7 +279,6 @@ export const CoverGrid = ({
         />
         <Typography
           type={TypographyType.Body}
-          bold
           color={TypographyColor.Secondary}
         >
           Picks

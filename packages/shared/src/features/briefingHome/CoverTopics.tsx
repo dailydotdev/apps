@@ -48,7 +48,8 @@ const TopicRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-start gap-4 px-4 py-3.5 text-left transition-colors',
+          'group flex w-full items-start gap-4 px-5 text-left transition-colors',
+          isExpanded ? 'py-5' : 'py-4',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
@@ -147,7 +148,6 @@ export const CoverTopics = ({
         />
         <Typography
           type={TypographyType.Body}
-          bold
           color={TypographyColor.Secondary}
         >
           Headlines
