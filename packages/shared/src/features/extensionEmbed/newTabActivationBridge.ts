@@ -35,6 +35,14 @@ export type OpenExtensionsPageBridgeResult = {
   error?: string;
 };
 
+export const pingExtensionBridgeRequestEvent = 'daily-extension-ping-alive';
+export const pingExtensionBridgeResultEvent =
+  'daily-extension-ping-alive-result';
+
+export type PingExtensionBridgeResult = {
+  alive: boolean;
+};
+
 export type NewTabActivationBridgeResult = {
   triggered: boolean;
   error?: string;
@@ -146,5 +154,53 @@ export const requestOpenExtensionsPageFromPage = (
     window.addEventListener(openExtensionsPageBridgeResultEvent, onResult);
 
     window.dispatchEvent(new CustomEvent(openExtensionsPageBridgeRequestEvent));
+  });
+};
+
+// Heartbeat used by the primer to detect rejection in real time. Chrome
+// has no event for "user picked Change it back", but as a side effect it
+// disables our extension entirely — at which point the content script's
+// `browser.runtime.sendMessage` starts throwing "Extension context
+// invalidated" and this helper resolves `alive: false`. Use a short
+// timeout (default 3s) so a single missed ping does not trigger
+// recovery.
+const PING_TIMEOUT_MS = 3_000;
+
+export const pingExtensionFromPage = (
+  timeoutMs: number = PING_TIMEOUT_MS,
+): Promise<PingExtensionBridgeResult> => {
+  if (typeof window === 'undefined') {
+    return Promise.resolve({ alive: false });
+  }
+
+  return new Promise<PingExtensionBridgeResult>((resolve) => {
+    let settled = false;
+    let timeoutId: ReturnType<typeof globalThis.setTimeout> | undefined;
+
+    const onResult = (event: Event): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      window.removeEventListener(pingExtensionBridgeResultEvent, onResult);
+      if (timeoutId !== undefined) {
+        globalThis.clearTimeout(timeoutId);
+      }
+      const { detail } = event as CustomEvent<PingExtensionBridgeResult>;
+      resolve({ alive: !!detail?.alive });
+    };
+
+    timeoutId = globalThis.setTimeout(() => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      window.removeEventListener(pingExtensionBridgeResultEvent, onResult);
+      resolve({ alive: false });
+    }, timeoutMs);
+
+    window.addEventListener(pingExtensionBridgeResultEvent, onResult);
+
+    window.dispatchEvent(new CustomEvent(pingExtensionBridgeRequestEvent));
   });
 };

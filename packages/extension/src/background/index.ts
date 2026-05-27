@@ -212,6 +212,12 @@ async function handleMessages(
     }
   }
 
+  if (message.type === ExtensionMessageType.PingExtensionAlive) {
+    // Heartbeat from the primer page — used to detect when Chrome
+    // disables the extension after the user picks "Change it back".
+    return { alive: true };
+  }
+
   if (message.type === ExtensionMessageType.RequestOpenExtensionsPage) {
     // Open the browser's extension management page. Web origins cannot
     // navigate to chrome:// URLs directly, so the primer recovery screen

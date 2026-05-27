@@ -17,6 +17,7 @@ import { LogEvent } from '../../../lib/log';
 import {
   newTabActivationRejectedKey,
   newTabActivationSuccessKey,
+  pingExtensionFromPage,
   requestOpenExtensionsPageFromPage,
   requestOpenNewTabFromPage,
 } from '../../extensionEmbed/newTabActivationBridge';
@@ -29,6 +30,13 @@ type PrimerState = 'idle' | 'waiting' | 'recovery';
 
 const ACTIVATION_TIMEOUT_MS = 10_000;
 const POLL_INTERVAL_MS = 250;
+// Heartbeat pings the extension service worker. When the user picks
+// "Change it back" on Chrome's dialog the extension is disabled and the
+// heartbeat starts failing; two consecutive misses flips the primer to
+// recovery so the user can re-enable the extension without waiting on
+// the longer activation timeout.
+const HEARTBEAT_INTERVAL_MS = 2_000;
+const HEARTBEAT_FAILURES_BEFORE_RECOVERY = 2;
 
 const clearActivationStorage = (): void => {
   try {
@@ -283,9 +291,25 @@ export function NewTabActivationPrimer({
 }: NewTabActivationPrimerProps): ReactElement {
   const { logEvent } = useLogContext();
   const [state, setState] = useState<PrimerState>('idle');
+  const stateRef = useRef<PrimerState>('idle');
   const pollTimerRef = useRef<ReturnType<typeof globalThis.setInterval>>();
   const timeoutTimerRef = useRef<ReturnType<typeof globalThis.setTimeout>>();
+  const heartbeatTimerRef = useRef<ReturnType<typeof globalThis.setInterval>>();
+  const heartbeatFailuresRef = useRef(0);
   const completedRef = useRef(false);
+
+  const updateState = useCallback((next: PrimerState): void => {
+    stateRef.current = next;
+    setState(next);
+  }, []);
+
+  const goToRecovery = useCallback((): void => {
+    if (completedRef.current || stateRef.current === 'recovery') {
+      return;
+    }
+    logEvent({ event_name: LogEvent.ExtensionPrimerRecoveryShown });
+    updateState('recovery');
+  }, [logEvent, updateState]);
 
   const stopPolling = useCallback((): void => {
     if (pollTimerRef.current !== undefined) {
@@ -298,6 +322,13 @@ export function NewTabActivationPrimer({
     }
   }, []);
 
+  const stopHeartbeat = useCallback((): void => {
+    if (heartbeatTimerRef.current !== undefined) {
+      globalThis.clearInterval(heartbeatTimerRef.current);
+      heartbeatTimerRef.current = undefined;
+    }
+  }, []);
+
   const finish = useCallback(
     (reason: 'activated' | 'skipped'): void => {
       if (completedRef.current) {
@@ -305,19 +336,57 @@ export function NewTabActivationPrimer({
       }
       completedRef.current = true;
       stopPolling();
+      stopHeartbeat();
       if (reason === 'activated') {
         logEvent({ event_name: LogEvent.ExtensionNewTabActivated });
       }
       onComplete();
     },
-    [logEvent, onComplete, stopPolling],
+    [logEvent, onComplete, stopPolling, stopHeartbeat],
   );
 
   useEffect(() => {
     logEvent({ event_name: LogEvent.ExtensionPrimerShown });
     clearActivationStorage();
-    return stopPolling;
-  }, [logEvent, stopPolling]);
+    return () => {
+      stopPolling();
+      stopHeartbeat();
+    };
+  }, [logEvent, stopPolling, stopHeartbeat]);
+
+  // Heartbeat: ping the extension every couple of seconds so we can flip
+  // to recovery immediately when Chrome disables it (the side effect of
+  // the user picking "Change it back" on the override dialog). Two
+  // consecutive failures trigger recovery — a single missed ping during
+  // service-worker sleep is forgiven.
+  useEffect(() => {
+    const runHeartbeat = async (): Promise<void> => {
+      if (completedRef.current || stateRef.current === 'recovery') {
+        return;
+      }
+      const { alive } = await pingExtensionFromPage();
+      if (alive) {
+        heartbeatFailuresRef.current = 0;
+        return;
+      }
+      heartbeatFailuresRef.current += 1;
+      if (heartbeatFailuresRef.current < HEARTBEAT_FAILURES_BEFORE_RECOVERY) {
+        return;
+      }
+      logEvent({ event_name: LogEvent.ExtensionDialogRejected });
+      goToRecovery();
+    };
+
+    heartbeatTimerRef.current = globalThis.setInterval(
+      runHeartbeat,
+      HEARTBEAT_INTERVAL_MS,
+    );
+    // Fire one immediately so a missing extension at mount time is caught
+    // before the first interval tick.
+    runHeartbeat();
+
+    return stopHeartbeat;
+  }, [goToRecovery, logEvent, stopHeartbeat]);
 
   const startPolling = useCallback((): void => {
     stopPolling();
@@ -330,24 +399,19 @@ export function NewTabActivationPrimer({
       if (rejected) {
         stopPolling();
         logEvent({ event_name: LogEvent.ExtensionDialogRejected });
-        logEvent({ event_name: LogEvent.ExtensionPrimerRecoveryShown });
-        setState('recovery');
+        goToRecovery();
       }
     }, POLL_INTERVAL_MS);
 
     timeoutTimerRef.current = globalThis.setTimeout(() => {
       stopPolling();
-      if (completedRef.current) {
-        return;
-      }
-      logEvent({ event_name: LogEvent.ExtensionPrimerRecoveryShown });
-      setState('recovery');
+      goToRecovery();
     }, ACTIVATION_TIMEOUT_MS);
-  }, [finish, logEvent, stopPolling]);
+  }, [finish, goToRecovery, logEvent, stopPolling]);
 
   const handleActivateClick = useCallback(async (): Promise<void> => {
     logEvent({ event_name: LogEvent.ExtensionPrimerCtaClick });
-    setState('waiting');
+    updateState('waiting');
     startPolling();
     const result = await requestOpenNewTabFromPage();
     if (result.triggered) {
@@ -355,12 +419,8 @@ export function NewTabActivationPrimer({
       return;
     }
     stopPolling();
-    if (completedRef.current) {
-      return;
-    }
-    logEvent({ event_name: LogEvent.ExtensionPrimerRecoveryShown });
-    setState('recovery');
-  }, [logEvent, startPolling, stopPolling]);
+    goToRecovery();
+  }, [goToRecovery, logEvent, startPolling, stopPolling, updateState]);
 
   const [showManualHint, setShowManualHint] = useState(false);
 

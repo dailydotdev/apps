@@ -12,6 +12,7 @@ export enum ExtensionMessageType {
   NewTabActivated = 'NEW_TAB_ACTIVATED',
   NotifyNewTabActivated = 'NOTIFY_NEW_TAB_ACTIVATED',
   RequestOpenExtensionsPage = 'REQUEST_OPEN_EXTENSIONS_PAGE',
+  PingExtensionAlive = 'PING_EXTENSION_ALIVE',
 }
 
 export const getCompanionWrapper = (): HTMLElement | null =>

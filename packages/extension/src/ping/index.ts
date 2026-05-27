@@ -28,10 +28,13 @@ import {
   newTabActivationSuccessKey,
   openExtensionsPageBridgeRequestEvent,
   openExtensionsPageBridgeResultEvent,
+  pingExtensionBridgeRequestEvent,
+  pingExtensionBridgeResultEvent,
 } from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
 import type {
   NewTabActivationBridgeResult,
   OpenExtensionsPageBridgeResult,
+  PingExtensionBridgeResult,
 } from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
 
 const INSTALL_MARKER = 'dailyExtensionInstalled';
@@ -121,6 +124,34 @@ window.addEventListener(newTabActivationBridgeRequestEvent, () => {
             : 'Failed to request new tab open',
       });
     });
+});
+
+window.addEventListener(pingExtensionBridgeRequestEvent, () => {
+  const dispatchResult = (result: PingExtensionBridgeResult): void => {
+    window.dispatchEvent(
+      new CustomEvent<PingExtensionBridgeResult>(
+        pingExtensionBridgeResultEvent,
+        { detail: result },
+      ),
+    );
+  };
+
+  // If the extension has been disabled, `browser.runtime.sendMessage`
+  // throws "Extension context invalidated" synchronously or rejects.
+  // Either way we report `alive: false` and the primer flips to recovery.
+  try {
+    browser.runtime
+      .sendMessage({ type: ExtensionMessageType.PingExtensionAlive })
+      .then((response) => {
+        const typed = response as { alive?: boolean } | undefined;
+        dispatchResult({ alive: !!typed?.alive });
+      })
+      .catch(() => {
+        dispatchResult({ alive: false });
+      });
+  } catch {
+    dispatchResult({ alive: false });
+  }
 });
 
 window.addEventListener(openExtensionsPageBridgeRequestEvent, () => {
