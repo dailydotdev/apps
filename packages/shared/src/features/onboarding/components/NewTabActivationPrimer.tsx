@@ -210,81 +210,38 @@ function ExtensionsPageCardMockup(): ReactElement {
   );
 }
 
-function TrustBullets(): ReactElement {
-  const items: Array<{ title: string; body: string }> = [
-    {
-      title: 'No browsing history.',
-      body: 'The new tab only fetches your daily.dev feed.',
-    },
-    {
-      title: 'No clickbait.',
-      body: 'A curated stream of dev news ranked by what other developers find useful.',
-    },
-    {
-      title: 'One click to disable.',
-      body: 'chrome://extensions → daily.dev → toggle off.',
-    },
-  ];
-
+// Single-line trust bullet under the CTA. Kept intentionally minimal —
+// the more we hedge here, the more we sound like we have something to
+// hide. Privacy is the developer's primary concern at activation time.
+function TrustBullet(): ReactElement {
   return (
-    <ul className="flex w-full flex-col gap-3 text-left">
-      {items.map((item) => (
-        <li key={item.title} className="flex items-start gap-3">
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            className="mt-0.5 h-5 w-5 shrink-0 text-status-success"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="m4 12 5 5L20 6" />
-          </svg>
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            <span className="font-bold text-text-primary">{item.title}</span>{' '}
-            {item.body}
-          </Typography>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function WhyChromeAsks(): ReactElement {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <button
-        type="button"
-        className="text-text-tertiary underline-offset-2 typo-footnote hover:underline"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-expanded={open}
+    <p className="flex items-center justify-center gap-1.5 text-text-tertiary typo-footnote">
+      <svg
+        aria-hidden
+        viewBox="0 0 24 24"
+        className="h-3.5 w-3.5 shrink-0 text-status-success"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={3}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        Why does Chrome ask this?
-      </button>
-      {open && (
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="max-w-[28rem] text-center"
-        >
-          Chrome shows this any time an extension changes your new tab —
-          it&apos;s a privacy guardrail we actually appreciate, even when the
-          wording is confusing.
-        </Typography>
-      )}
-    </div>
+        <path d="m4 12 5 5L20 6" />
+      </svg>
+      Privacy-first — no browsing history collected.
+    </p>
   );
 }
+
+// TODO: swap ChromeDialogMockup for a short autoplay/loop/muted video
+// once recorded. Pattern to use (see OnboardingPlusVariationV1.tsx):
+//   <video src={url} poster={posterUrl} muted autoPlay loop playsInline
+//          disablePictureInPicture controls={false} className="..." />
+// The video should show: new tab opens → "Change back to Google?" dialog
+// appears → cursor moves to the "Keep it" button → click → daily.dev
+// feed loads. Until the asset exists, the static mockup conveys the
+// same information.
 
 export function NewTabActivationPrimer({
   onComplete,
@@ -443,45 +400,30 @@ export function NewTabActivationPrimer({
     <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-10">
       <div
         className={classNames(
-          'flex w-full max-w-[36rem] flex-col items-center gap-8 text-center',
+          'flex w-full max-w-[36rem] flex-col items-center gap-6 text-center',
         )}
       >
-        <div className="flex flex-col items-center gap-3">
-          <Typography
-            tag={TypographyTag.H1}
-            type={TypographyType.LargeTitle}
-            color={TypographyColor.Primary}
-            bold
-          >
-            {isRecovery ? 'Almost there' : 'Your new tab, made for developers'}
-          </Typography>
+        <Typography
+          tag={TypographyTag.H1}
+          type={isRecovery ? TypographyType.LargeTitle : TypographyType.Mega2}
+          color={TypographyColor.Primary}
+          bold
+        >
+          {isRecovery ? 'Almost there' : 'Please activate your new tab'}
+        </Typography>
+
+        {isRecovery && (
           <Typography
             tag={TypographyTag.P}
             type={TypographyType.Body}
             color={TypographyColor.Secondary}
           >
-            {isRecovery ? (
-              <>
-                Looks like daily.dev was turned off. Open the extensions page,
-                find daily.dev, and flip the toggle back on.
-              </>
-            ) : (
-              <>
-                In a moment Chrome will ask{' '}
-                <span className="font-bold text-text-primary">
-                  &ldquo;Change back to Google?&rdquo;
-                </span>
-                . Tap{' '}
-                <span className="font-bold text-text-primary">Keep it</span> to
-                make daily.dev your homepage for every new tab.
-              </>
-            )}
+            Looks like daily.dev was turned off. Open the extensions page, find
+            daily.dev, and flip the toggle back on.
           </Typography>
-        </div>
+        )}
 
         {!isRecovery && <ChromeDialogMockup />}
-
-        {!isRecovery && <TrustBullets />}
 
         {!isRecovery && (
           <div className="flex w-full flex-col items-center gap-3">
@@ -492,9 +434,13 @@ export function NewTabActivationPrimer({
               disabled={isWaiting}
               onClick={handleActivateClick}
             >
-              {isWaiting ? 'Waiting for you to confirm…' : 'Activate new tab'}
+              {isWaiting ? 'Waiting for you to confirm…' : 'Activate'}
             </Button>
-            <WhyChromeAsks />
+            <TrustBullet />
+            <p className="text-text-tertiary typo-caption1">
+              Chrome shows this prompt for every extension that changes the new
+              tab — it&apos;s a standard privacy check.
+            </p>
           </div>
         )}
 
