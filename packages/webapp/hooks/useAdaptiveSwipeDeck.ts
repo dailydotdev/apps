@@ -6,16 +6,16 @@ import type { PostSummary } from '../lib/swipingBackendApi';
 import { discoverPosts } from '../lib/swipingBackendApi';
 import { fetchSwipeOnboardingPopularDeck } from '../lib/swipeOnboardingPopularDeck';
 
-// Scoring constants — ported from PostSwiper.tsx
+// Scoring constants.
+// Each tag is scored across swipes; once a tag has been seen
+// TAG_DECISION_LIMIT times, it is locked in (positive score → keep/promote
+// into selectedTags) or out (non-positive score → drop from selectedTags
+// and never revisit).
 const LIKE_SCORE = 1.5;
 const DISLIKE_SCORE = -1;
-const ADD_THRESHOLD = 3;
-const SATURATE_THRESHOLD = 4.5;
-const REMOVE_THRESHOLD = -5;
-const IGNORE_AFTER = 10;
-const SATURATE_AFTER = 5;
-const PREFETCH_AFTER_SWIPES = 3;
-const BATCH_SIZE = 8;
+const TAG_DECISION_LIMIT = 3;
+const PREFETCH_AFTER_SWIPES = 1;
+const BATCH_SIZE = 12;
 
 function toSwipeCard(post: PostSummary): OnboardingSwipeCard {
   return {
@@ -70,6 +70,7 @@ interface AdaptiveSwipeDeck {
   handleSwipe: (direction: 'left' | 'right', cardId: string) => void;
   retryFetch: () => Promise<void>;
   selectedTags: string[];
+  appendSeedTags: (tags: string[]) => void;
 }
 
 export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
@@ -93,19 +94,9 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
   const isFetchingRef = useRef(false);
 
   selectedTagsRef.current = selectedTags;
-
-  const getSaturatedTags = useCallback((): string[] => {
-    return Object.entries(tagScoresRef.current)
-      .filter(([, score]) => score >= SATURATE_THRESHOLD)
-      .map(([tag]) => tag);
-  }, []);
-
-  const getConfirmedTags = useCallback((): string[] => {
-    const selected = new Set(selectedTagsRef.current);
-    return Object.entries(tagSeenCountRef.current)
-      .filter(([tag, count]) => selected.has(tag) && count >= SATURATE_AFTER)
-      .map(([tag]) => tag);
-  }, []);
+  // Tags whose decision (in or out) has been locked after TAG_DECISION_LIMIT
+  // sightings. Their scores are no longer updated by handleSwipe.
+  const tagDecidedRef = useRef<Set<string>>(new Set());
 
   const registerPosts = useCallback((posts: PostSummary[]): void => {
     posts.forEach((post) => {
@@ -156,16 +147,14 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
       return fetchAdaptiveOrPopular(async () => {
         const result = await discoverPosts({
           selectedTags: selectedTagsRef.current,
-          confirmedTags: getConfirmedTags(),
           likedTitles: likedTitlesRef.current,
           excludeIds: [...seenIdsRef.current],
-          saturatedTags: getSaturatedTags(),
           n,
         });
         return result.posts;
       }, n);
     },
-    [fetchAdaptiveOrPopular, getConfirmedTags, getSaturatedTags],
+    [fetchAdaptiveOrPopular],
   );
 
   const getBookmarkablePost = useCallback(
@@ -194,16 +183,13 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
         if (options) {
           startDeckOptionsRef.current = options;
         }
-        // Seed with initial tags if provided
+        // Seed with initial tags if provided. Seeded tags are selected
+        // from the start; their score evolves with swipes from 0 and the
+        // tag is locked in/out after TAG_DECISION_LIMIT sightings.
         if (options?.initialTags?.length) {
           setSelectedTags(options.initialTags);
           selectedTagsRef.current = options.initialTags;
-          // Initialize tag scores for seeded tags
-          const scores: Record<string, number> = {};
-          options.initialTags.forEach((t) => {
-            scores[t] = ADD_THRESHOLD;
-          });
-          tagScoresRef.current = scores;
+          tagScoresRef.current = {};
         }
         const posts = await fetchAdaptiveOrPopular(async () => {
           const result = await discoverPosts({
@@ -211,7 +197,6 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
             selectedTags: selectedTagsRef.current,
             likedTitles: likedTitlesRef.current,
             excludeIds: [...seenIdsRef.current],
-            saturatedTags: getSaturatedTags(),
             n: BATCH_SIZE,
           });
           return result.posts;
@@ -222,7 +207,7 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
         isFetchingRef.current = false;
       }
     },
-    [fetchAdaptiveOrPopular, getSaturatedTags, loadBatch],
+    [fetchAdaptiveOrPopular, loadBatch],
   );
 
   const retryFetch = useCallback(async () => {
@@ -241,7 +226,13 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
   }, [doFetch]);
 
   const loadNextBatch = useCallback(async () => {
-    setIsLoading(true);
+    // Only flip the loading UI when we have to wait for the network; when
+    // the prefetch already landed, swap into it synchronously so the user
+    // never sees a "loading" flash between batches.
+    const hasPrefetched = !!prefetchedRef.current;
+    if (!hasPrefetched) {
+      setIsLoading(true);
+    }
     try {
       let posts: PostSummary[];
       if (prefetchedRef.current) {
@@ -252,7 +243,9 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
       }
       loadBatch(posts);
     } finally {
-      setIsLoading(false);
+      if (!hasPrefetched) {
+        setIsLoading(false);
+      }
     }
   }, [doFetch, loadBatch]);
 
@@ -271,7 +264,10 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
         likedTitlesRef.current.push(post.title);
       }
 
-      // --- Tag scoring (ported from PostSwiper.tsx) ---
+      // --- Tag scoring ---
+      // Per tag on the swiped post: accumulate score across sightings; once
+      // a tag has been seen TAG_DECISION_LIMIT times, lock its membership in
+      // selectedTags based on the sign of the score and stop scoring it.
       const scores = { ...tagScoresRef.current };
       const currentSelected = [...selectedTagsRef.current];
       const selectedSet = new Set(currentSelected);
@@ -279,30 +275,29 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
       const demoted: string[] = [];
 
       tags.forEach((tag) => {
-        const isSelected = selectedSet.has(tag);
-        tagSeenCountRef.current[tag] = (tagSeenCountRef.current[tag] || 0) + 1;
-
-        if (!isSelected && tagSeenCountRef.current[tag] >= IGNORE_AFTER) {
-          delete scores[tag];
+        if (tagDecidedRef.current.has(tag)) {
           return;
         }
 
+        const isSelected = selectedSet.has(tag);
+        tagSeenCountRef.current[tag] = (tagSeenCountRef.current[tag] || 0) + 1;
         const newScore = (scores[tag] || 0) + delta;
         scores[tag] = newScore;
 
-        if (!isSelected && newScore >= ADD_THRESHOLD) {
-          promoted.push(tag);
-          delete scores[tag];
-          delete tagSeenCountRef.current[tag];
-        } else if (isSelected && newScore <= REMOVE_THRESHOLD) {
+        if (tagSeenCountRef.current[tag] < TAG_DECISION_LIMIT) {
+          return;
+        }
+
+        // Decision: lock in (positive) or drop (zero/negative).
+        tagDecidedRef.current.add(tag);
+        delete scores[tag];
+
+        if (newScore > 0) {
+          if (!isSelected) {
+            promoted.push(tag);
+          }
+        } else if (isSelected) {
           demoted.push(tag);
-          delete scores[tag];
-        } else if (
-          isSelected &&
-          newScore < SATURATE_THRESHOLD &&
-          tagSeenCountRef.current[tag] >= SATURATE_AFTER
-        ) {
-          scores[tag] = SATURATE_THRESHOLD;
         }
       });
 
@@ -337,6 +332,22 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
     [triggerPrefetch, loadNextBatch],
   );
 
+  const appendSeedTags = useCallback((tags: string[]) => {
+    if (!tags.length) {
+      return;
+    }
+    const existing = new Set(selectedTagsRef.current);
+    const additions = tags.filter(
+      (tag) => !existing.has(tag) && !tagDecidedRef.current.has(tag),
+    );
+    if (!additions.length) {
+      return;
+    }
+    const nextTags = [...selectedTagsRef.current, ...additions];
+    selectedTagsRef.current = nextTags;
+    setSelectedTags(nextTags);
+  }, []);
+
   return {
     cards,
     getBookmarkablePost,
@@ -345,5 +356,6 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
     handleSwipe,
     retryFetch,
     selectedTags,
+    appendSeedTags,
   };
 }

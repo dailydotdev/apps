@@ -14,35 +14,28 @@ export interface PostSummary {
 export interface DiscoverPostsRequest {
   prompt?: string;
   selectedTags?: string[];
-  confirmedTags?: string[];
   likedTitles?: string[];
   excludeIds?: string[];
-  saturatedTags?: string[];
   n?: number;
 }
 
 export interface DiscoverPostsResponse {
   posts: PostSummary[];
-  subPrompts: string[];
 }
 
 const ONBOARDING_DISCOVER_POSTS_MUTATION = gql`
   mutation OnboardingDiscoverPosts(
     $prompt: String
     $selectedTags: [String!]
-    $confirmedTags: [String!]
     $likedTitles: [String!]
     $excludeIds: [String!]
-    $saturatedTags: [String!]
     $n: Int
   ) {
     onboardingDiscoverPosts(
       prompt: $prompt
       selectedTags: $selectedTags
-      confirmedTags: $confirmedTags
       likedTitles: $likedTitles
       excludeIds: $excludeIds
-      saturatedTags: $saturatedTags
       n: $n
     ) {
       posts {
@@ -53,7 +46,6 @@ const ONBOARDING_DISCOVER_POSTS_MUTATION = gql`
         url
         sourceId
       }
-      subPrompts
     }
   }
 `;
