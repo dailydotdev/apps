@@ -14,6 +14,11 @@ import { LogEvent } from '../../lib/log';
 import { buildPersonalizedCategories } from './exploreCategories';
 import { BriefSwitcher } from '../../features/briefingHome/BriefSwitcher';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -268,7 +273,17 @@ function UnifiedMobileFeedNav(): ReactElement {
                     aria-current={isActive ? 'page' : undefined}
                     data-active={isActive ? 'true' : undefined}
                   >
-                    {item.label}
+                    {item.isIconOnly ? (
+                      item.label
+                    ) : (
+                      <Typography
+                        tag={TypographyTag.Span}
+                        type={TypographyType.Footnote}
+                        bold
+                      >
+                        {item.label}
+                      </Typography>
+                    )}
                   </Button>
                 </Link>
               );

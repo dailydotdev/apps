@@ -7,6 +7,11 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
 import { BriefSwitcher } from '../../features/briefingHome/BriefSwitcher';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 import type { ExploreCategory } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
 
@@ -79,7 +84,13 @@ export function ExploreChipsBar({
                   });
                 }}
               >
-                {category.label}
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Footnote}
+                  bold
+                >
+                  {category.label}
+                </Typography>
               </Button>
             </Link>
           );
