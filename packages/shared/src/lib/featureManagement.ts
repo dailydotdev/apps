@@ -196,7 +196,7 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
-export const swipeOnboardingFeature = new Feature('swipe_onboarding', true);
+export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
