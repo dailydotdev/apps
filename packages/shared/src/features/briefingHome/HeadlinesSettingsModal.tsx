@@ -121,60 +121,62 @@ export const HeadlinesSettingsModal = ({
       {...props}
     >
       <ModalHeader title="Manage Headlines" />
-      <div className="px-4 pb-3 pt-4">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Pick which topical digests show up in your Headlines section. Changes
-          apply to tomorrow&apos;s brief.
-        </Typography>
-      </div>
-      <ul className="flex flex-col divide-y divide-border-subtlest-quaternary border-t border-border-subtlest-quaternary">
-        {DIGEST_CATALOG.map((digest) => {
-          const isOn = subscribed.has(digest.id);
-          const inputId = `headline-toggle-${digest.id}`;
-          return (
-            <li
-              key={digest.id}
-              className="flex items-center justify-between gap-4 px-4 py-3"
-            >
-              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Primary}
-                  bold
-                >
-                  {digest.topic}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                  className="!leading-snug"
-                >
-                  {digest.description}
-                </Typography>
-              </div>
-              <Switch
-                inputId={inputId}
-                name={inputId}
-                checked={isOn}
-                onToggle={() => toggle(digest.id)}
-                aria-label={`${isOn ? 'Unsubscribe from' : 'Subscribe to'} ${
-                  digest.topic
-                }`}
-              />
-            </li>
-          );
-        })}
-      </ul>
-      <div className="flex items-center justify-between gap-4 border-t border-border-subtlest-quaternary px-4 py-3">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {subscribed.size} subscribed
-        </Typography>
+      <div className="flex min-h-0 w-full flex-1 flex-col">
+        <div className="w-full px-4 pb-3 pt-4">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Pick which topical digests show up in your Headlines section.
+            Changes apply to tomorrow&apos;s brief.
+          </Typography>
+        </div>
+        <ul className="flex min-h-0 w-full flex-1 flex-col divide-y divide-border-subtlest-quaternary overflow-y-auto border-t border-border-subtlest-quaternary">
+          {DIGEST_CATALOG.map((digest) => {
+            const isOn = subscribed.has(digest.id);
+            const inputId = `headline-toggle-${digest.id}`;
+            return (
+              <li
+                key={digest.id}
+                className="flex w-full items-center justify-between gap-4 px-4 py-3"
+              >
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                    bold
+                  >
+                    {digest.topic}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                    className="!leading-snug"
+                  >
+                    {digest.description}
+                  </Typography>
+                </div>
+                <Switch
+                  inputId={inputId}
+                  name={inputId}
+                  checked={isOn}
+                  onToggle={() => toggle(digest.id)}
+                  aria-label={`${isOn ? 'Unsubscribe from' : 'Subscribe to'} ${
+                    digest.topic
+                  }`}
+                />
+              </li>
+            );
+          })}
+        </ul>
+        <div className="flex w-full items-center justify-between gap-4 border-t border-border-subtlest-quaternary px-4 py-3">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {subscribed.size} subscribed
+          </Typography>
+        </div>
       </div>
     </Modal>
   );
