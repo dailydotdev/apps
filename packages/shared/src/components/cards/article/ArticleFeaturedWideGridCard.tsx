@@ -17,7 +17,6 @@ import {
 } from '../common/Card';
 import CardOverlay from '../common/CardOverlay';
 import { Origin } from '../../../lib/log';
-import styles from '../common/Card.module.css';
 import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
@@ -178,11 +177,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           style,
           className: getPostClassNames(
             post,
-            classNames(
-              className ?? '',
-              showFeedback && '!p-0',
-              'h-full overflow-hidden',
-            ),
+            classNames(className ?? '', 'h-full overflow-hidden'),
             'min-h-card',
           ),
         }}
@@ -195,41 +190,45 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           onPostCardClick={onPostCardClick}
           onPostCardAuxClick={onPostCardAuxClick}
         />
-        {showFeedback && (
-          <FeedbackGrid
-            post={post}
-            onUpvoteClick={() => onUpvoteClick?.(post, Origin.FeedbackCard)}
-            onDownvoteClick={() => onDownvoteClick?.(post, Origin.FeedbackCard)}
-            isVideoType={isVideoType}
-          />
-        )}
 
         <div
           className={classNames(
             'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
             INNER_GRID_COLS[wideColSpan],
-            showFeedback &&
-              'overflow-hidden rounded-16 border !border-border-subtlest-tertiary p-2',
-            showFeedback && styles.post,
-            showFeedback && styles.read,
           )}
         >
           <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <CardTextContainer>
-              <PostCardHeader
-                post={post}
-                className={showFeedback ? '!hidden' : 'flex'}
-                openNewTab={openNewTab}
-                source={post.source!}
-                postLink={post.permalink!}
-                onReadArticleClick={onReadArticleClick}
-                showFeedback={showFeedback}
-              />
-              <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
-                {title}
-              </h3>
-              {!showFeedback && (
-                <>
+            {showFeedback ? (
+              <>
+                <h3 className="line-clamp-2 break-words px-6 pt-6 font-bold text-text-primary typo-title3">
+                  {title}
+                </h3>
+                <FeedbackGrid
+                  post={post}
+                  onUpvoteClick={() =>
+                    onUpvoteClick?.(post, Origin.FeedbackCard)
+                  }
+                  onDownvoteClick={() =>
+                    onDownvoteClick?.(post, Origin.FeedbackCard)
+                  }
+                  isVideoType={isVideoType}
+                />
+              </>
+            ) : (
+              <>
+                <CardTextContainer>
+                  <PostCardHeader
+                    post={post}
+                    className="flex"
+                    openNewTab={openNewTab}
+                    source={post.source!}
+                    postLink={post.permalink!}
+                    onReadArticleClick={onReadArticleClick}
+                    showFeedback={false}
+                  />
+                  <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
+                    {title}
+                  </h3>
                   <div className="mt-2 flex min-w-0 items-center gap-2">
                     {post.clickbaitTitleDetected && (
                       <ClickbaitShield post={post} />
@@ -246,30 +245,28 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     isVideoType={isVideoType}
                     className="mt-1"
                   />
-                </>
-              )}
-              {!showFeedback && description ? (
-                <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
-                  {description}
-                </p>
-              ) : null}
-            </CardTextContainer>
-            {!showFeedback && (
-              <Container>
-                <CardSpace />
-                <ActionButtons
-                  post={post}
-                  onUpvoteClick={onUpvoteClick}
-                  onCommentClick={onCommentClick}
-                  onCopyLinkClick={onCopyLinkClick}
-                  onBookmarkClick={onBookmarkClick}
-                  onDownvoteClick={onDownvoteClick}
-                  variant="grid"
-                />
-              </Container>
+                  {description ? (
+                    <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                      {description}
+                    </p>
+                  ) : null}
+                </CardTextContainer>
+                <Container>
+                  <CardSpace />
+                  <ActionButtons
+                    post={post}
+                    onUpvoteClick={onUpvoteClick}
+                    onCommentClick={onCommentClick}
+                    onCopyLinkClick={onCopyLinkClick}
+                    onBookmarkClick={onBookmarkClick}
+                    onDownvoteClick={onDownvoteClick}
+                    variant="grid"
+                  />
+                </Container>
+              </>
             )}
           </div>
-          {!showFeedback && image ? (
+          {image ? (
             <div
               className={classNames(
                 'relative h-full min-w-0 overflow-hidden rounded-r-16',
