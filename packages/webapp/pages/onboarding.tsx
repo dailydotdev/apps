@@ -276,6 +276,13 @@ const useOnboardingAuth = () => {
 
 const PRIMER_COMPLETED_KEY = 'daily-extension-primer-completed';
 
+// TODO(REMOVE-BEFORE-MERGE): testing override. When true, the new tab
+// activation primer renders for every visit to /onboarding regardless of
+// auth state, GrowthBook flag, prior completion, extension marker, or
+// `?r=extension` re-entry. Delete this constant and restore the original
+// `shouldShowPrimer` predicate before merging.
+const FORCE_PRIMER_FOR_TESTING = true;
+
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const {
@@ -301,19 +308,22 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
         isExtensionInstalled &&
         !isExtensionReentry,
     });
-  // TODO(REMOVE-BEFORE-MERGE): testing override — forces the primer on for
-  // every fresh install regardless of the GrowthBook flag, so the flow can
-  // be exercised end-to-end locally. Delete this constant and the usage in
-  // `shouldShowPrimer` below before merging.
-  const FORCE_PRIMER_FOR_TESTING = true;
   const [isPrimerDone, setPrimerDone] = useState<boolean>(() => {
     if (typeof window === 'undefined') {
+      return false;
+    }
+    // In testing-override mode, never treat the primer as done so it
+    // re-renders on every reload.
+    if (FORCE_PRIMER_FOR_TESTING) {
       return false;
     }
     return !!storage.getItem(PRIMER_COMPLETED_KEY);
   });
 
   useEffect(() => {
+    if (FORCE_PRIMER_FOR_TESTING) {
+      return;
+    }
     if (isExtensionReentry && !storage.getItem(PRIMER_COMPLETED_KEY)) {
       storage.setItem(PRIMER_COMPLETED_KEY, Date.now().toString());
       setPrimerDone(true);
@@ -322,7 +332,11 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   }, [isExtensionReentry, logEvent]);
 
   const handlePrimerComplete = useCallback((): void => {
-    storage.setItem(PRIMER_COMPLETED_KEY, Date.now().toString());
+    // Skip the persistence write in testing-override mode so reloading
+    // surfaces the primer again.
+    if (!FORCE_PRIMER_FOR_TESTING) {
+      storage.setItem(PRIMER_COMPLETED_KEY, Date.now().toString());
+    }
     setPrimerDone(true);
   }, []);
 
@@ -333,7 +347,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       return;
     }
     // eslint-disable-next-line no-console
-    console.info('[primer-debug]', {
+    console.warn('[primer-debug]', {
       isAuthReady,
       isLoggedIn,
       isExtensionInstalled,
@@ -353,19 +367,23 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     isPrimerDone,
     isPrimerFeatureLoading,
     isPrimerFeatureEnabled,
-    FORCE_PRIMER_FOR_TESTING,
   ]);
 
-  const shouldShowPrimer =
+  // TODO(REMOVE-BEFORE-MERGE): restore the full gating predicate below
+  // before merging. The testing override bypasses every condition except
+  // `isAuthReady` so the primer is visible on every visit, even when
+  // logged in or with the extension absent.
+  const shouldShowPrimerProd =
     isAuthReady &&
     !isLoggedIn &&
     isExtensionInstalled &&
     !isExtensionReentry &&
     !isPrimerDone &&
-    // TODO(REMOVE-BEFORE-MERGE): testing override — replace the next line
-    // with `!isPrimerFeatureLoading && isPrimerFeatureEnabled` before merge.
-    (FORCE_PRIMER_FOR_TESTING ||
-      (!isPrimerFeatureLoading && isPrimerFeatureEnabled));
+    !isPrimerFeatureLoading &&
+    isPrimerFeatureEnabled;
+  const shouldShowPrimer = FORCE_PRIMER_FOR_TESTING
+    ? isAuthReady && !isPrimerDone
+    : shouldShowPrimerProd;
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
