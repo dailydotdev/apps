@@ -257,7 +257,7 @@ export default function ProfileButton({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               className={classNames(
-                '!h-full !gap-0 !rounded-none !pl-0.5 !pr-px',
+                '!h-full !gap-0 !rounded-none !pl-0.5 !pr-0',
                 className,
               )}
               onClick={wrapHandler(() => onUpdate(!isOpen))}
