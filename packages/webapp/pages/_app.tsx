@@ -21,6 +21,7 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
+import { featureInlineLogin } from '@dailydotdev/shared/src/lib/featureManagement';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -36,7 +37,10 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useManualScrollRestoration,
+} from '@dailydotdev/shared/src/hooks';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
@@ -52,8 +56,6 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureInlineLogin } from '@dailydotdev/shared/src/lib/featureManagement';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
@@ -104,9 +106,8 @@ const onboardingExcludedPaths = [
   '/jobs',
   '/settings',
 ];
-// When the inline_login experiment is on, we only force the rest of onboarding
-// when the user lands on the main feed — everywhere else they can keep
-// browsing after the inline first step.
+// While inline_login is active for an auth intent, only force the rest of
+// onboarding when the user lands on the main feed.
 const mainFeedPathnames = new Set([
   '/',
   '/popular',
@@ -178,7 +179,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     closeLogin,
     loginState,
   } = useAuthContext();
-  const isInlineLoginEnabled = useFeature(featureInlineLogin);
+  const { value: inlineLoginEnabled } = useConditionalFeature({
+    feature: featureInlineLogin,
+    shouldEvaluate: shouldShowLogin,
+  });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -240,9 +244,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       return;
     }
 
-    // Inline login experiment: defer the rest of onboarding until the user
-    // navigates to the main feed; otherwise let them keep browsing.
-    if (isInlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
+    // Inline login experiment: while the auth intent is active, defer the rest
+    // of onboarding until they navigate to the main feed.
+    if (inlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
       return;
     }
 
@@ -255,7 +259,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     router,
     router.pathname,
     isOnboardingComplete,
-    isInlineLoginEnabled,
+    inlineLoginEnabled,
   ]);
 
   useEffect(() => {
@@ -407,7 +411,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
         </DndContextProvider>
-        {isInlineLoginEnabled && shouldShowLogin && (
+        {inlineLoginEnabled && shouldShowLogin && (
           <AuthModal
             isOpen={shouldShowLogin}
             onRequestClose={closeLogin}

@@ -50,6 +50,7 @@ export enum Origin {
   PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
+  FeedCard = 'feed card',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
@@ -142,10 +143,6 @@ export enum LogEvent {
   EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
   ScheduleDigest = 'schedule digest',
-  EnableMajorHeadlinesAlerts = 'enable major headlines alerts',
-  DisableMajorHeadlinesAlerts = 'disable major headlines alerts',
-  ImpressionMajorHeadlinesAlertsBanner = 'impression major headlines alerts banner',
-  DismissMajorHeadlinesAlertsBanner = 'dismiss major headlines alerts banner',
   // notifications - end
   // squads - start
   ViewSquadInvitation = 'view squad invitation',
@@ -481,6 +478,8 @@ export enum LogEvent {
   ToggleEmbeddedReader = 'toggle embedded reader',
   ImpressionReaderInstallPrompt = 'impression reader install prompt',
   ClickReaderInstallExtension = 'click reader install extension',
+  ClickReaderInstallPreview = 'click reader install preview',
+  ClickReaderInstallSkip = 'click reader install skip',
   ImpressionReaderFallback = 'impression reader fallback',
   ReaderEmbedReady = 'reader embed ready',
   ReaderEmbedPermissionRequired = 'reader embed permission required',
@@ -677,9 +676,6 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
-  MajorHeadlinesSettings = 'major headlines settings',
-  MajorHeadlinesPage = 'major headlines page',
-  MajorHeadlinesCard = 'major headlines card',
   StandupLobby = 'standup lobby',
 }
 

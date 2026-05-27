@@ -494,6 +494,20 @@ const IntroQuestModal = dynamic(
   () => import(/* webpackChunkName: "introQuestModal" */ './IntroQuestModal'),
 );
 
+const ReaderInstallPromptModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerInstallPromptModal" */ './ReaderInstallPromptModal'
+    ),
+);
+
+const ReaderPreviewLazyModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerPreviewLazyModal" */ './ReaderPreviewLazyModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -574,6 +588,8 @@ export const modals = {
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
   [LazyModal.IntroQuests]: IntroQuestModal,
+  [LazyModal.ReaderInstallPrompt]: ReaderInstallPromptModal,
+  [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
 };
 
 type GetComponentProps<T> = T extends

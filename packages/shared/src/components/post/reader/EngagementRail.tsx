@@ -18,8 +18,6 @@ import type { NewCommentRef } from '../NewComment';
 import { NewComment } from '../NewComment';
 import { PostTagList } from '../tags/PostTagList';
 import PostMetadata from '../../cards/common/PostMetadata';
-import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import {
@@ -31,11 +29,6 @@ import {
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { AnalyticsIcon, ArrowIcon } from '../../icons';
 import { PostMenuOptions } from '../PostMenuOptions';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../../typography/Typography';
 import { SortCommentsBy } from '../../../graphql/comments';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { ClickableText } from '../../buttons/ClickableText';
@@ -48,6 +41,7 @@ import { PostPosition } from '../../../hooks/usePostModalNavigation';
 import { SourceStrip } from './SourceStrip';
 import { ReaderRailActionBar } from './ReaderRailActionBar';
 import ShareBar from '../../ShareBar';
+import { ReaderCloseButton } from './ReaderHeaderActionButtons';
 
 const SquadEntityCard = dynamic(
   () =>
@@ -74,10 +68,16 @@ type EngagementRailProps = {
   onRegisterFocusComment: (fn: () => void) => void;
   className?: string;
   /**
-   * Standalone post page only: when provided, renders a left-aligned
-   * back-to-feed arrow button at the top of the discussion rail.
+   * Modal only: when provided, renders a close (X) button on the right side
+   * of the rail header next to the three-dots menu.
    */
-  onBackToFeed?: () => void;
+  onClose?: () => void;
+  /**
+   * Post page only: drop the sticky rail header entirely and surface the
+   * three-dots menu inline next to the source's Follow button so the rail
+   * doesn't render a near-empty header bar.
+   */
+  inlineHeaderMenu?: boolean;
 };
 
 const noopFocus = (): void => {};
@@ -89,7 +89,8 @@ export function EngagementRail({
   onNextPost,
   onRegisterFocusComment,
   className,
-  onBackToFeed,
+  onClose,
+  inlineHeaderMenu = false,
 }: EngagementRailProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { user } = useAuthContext();
@@ -99,7 +100,6 @@ export function EngagementRail({
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(Origin.ReaderModal);
-  const { title: displayTitle } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
@@ -128,107 +128,100 @@ export function EngagementRail({
     <aside
       id="reader-post-modal-root"
       className={classNames(
-        'relative flex min-h-0 flex-col overflow-y-auto overflow-x-hidden border-r border-border-subtlest-tertiary bg-background-default',
+        'relative flex min-h-0 flex-col overflow-y-auto overflow-x-hidden bg-background-default',
         className,
       )}
       aria-label="Discussion and related"
     >
-      <div className="bg-background-default/85 sticky top-0 z-[60] flex items-center justify-between gap-2 px-3 pb-2 pt-3 backdrop-blur">
-        <div className="flex items-center gap-2">
-          {onBackToFeed && (
-            <div className={railHeaderGroupClasses} aria-label="Navigation">
-              <Tooltip content="Back to feed">
-                <Button
-                  icon={<ArrowIcon className="-rotate-90" />}
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  type="button"
-                  className={iconButtonClassName}
-                  onClick={onBackToFeed}
-                  aria-label="Back to feed"
-                />
-              </Tooltip>
-            </div>
-          )}
-          {showNavigation && (
-            <div
-              className={railHeaderGroupClasses}
-              aria-label="Post navigation"
-            >
-              {onPreviousPost && (
-                <Tooltip content="Previous post">
-                  <Button
-                    icon={<ArrowIcon />}
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    className={classNames('-rotate-90', iconButtonClassName)}
-                    onClick={onPreviousPost}
-                    disabled={
-                      !postPosition ||
-                      [PostPosition.First, PostPosition.Only].includes(
-                        postPosition,
-                      )
-                    }
-                    aria-label="Previous post"
-                  />
-                </Tooltip>
-              )}
-              {onNextPost && (
-                <Tooltip content="Next post">
-                  <Button
-                    className={classNames('rotate-90', iconButtonClassName)}
-                    icon={<ArrowIcon />}
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    onClick={onNextPost}
-                    disabled={
-                      !postPosition ||
-                      [PostPosition.Last, PostPosition.Only].includes(
-                        postPosition,
-                      )
-                    }
-                    aria-label="Next post"
-                  />
-                </Tooltip>
-              )}
-            </div>
-          )}
+      {!inlineHeaderMenu && (
+        <div className="bg-background-default/85 sticky top-0 z-[60] flex h-14 items-center justify-between gap-2 px-3 backdrop-blur">
+          <div className="flex items-center gap-2">
+            {showNavigation && (
+              <div
+                className={railHeaderGroupClasses}
+                aria-label="Post navigation"
+              >
+                {onPreviousPost && (
+                  <Tooltip content="Previous post">
+                    <Button
+                      icon={<ArrowIcon />}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      type="button"
+                      className={classNames('-rotate-90', iconButtonClassName)}
+                      onClick={onPreviousPost}
+                      disabled={
+                        !postPosition ||
+                        [PostPosition.First, PostPosition.Only].includes(
+                          postPosition,
+                        )
+                      }
+                      aria-label="Previous post"
+                    />
+                  </Tooltip>
+                )}
+                {onNextPost && (
+                  <Tooltip content="Next post">
+                    <Button
+                      className={classNames('rotate-90', iconButtonClassName)}
+                      icon={<ArrowIcon />}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      type="button"
+                      onClick={onNextPost}
+                      disabled={
+                        !postPosition ||
+                        [PostPosition.Last, PostPosition.Only].includes(
+                          postPosition,
+                        )
+                      }
+                      aria-label="Next post"
+                    />
+                  </Tooltip>
+                )}
+              </div>
+            )}
+          </div>
+          <div className={railHeaderGroupClasses}>
+            <PostMenuOptions
+              post={post}
+              origin={Origin.ReaderModal}
+              buttonSize={ButtonSize.Small}
+            />
+            {onClose && <ReaderCloseButton onClose={onClose} />}
+          </div>
         </div>
-        <div className={railHeaderGroupClasses}>
-          <PostMenuOptions
-            post={post}
-            origin={Origin.ReaderModal}
-            buttonSize={ButtonSize.Small}
-          />
-        </div>
-      </div>
+      )}
       <div className="flex min-w-0 flex-col gap-4 px-4 pb-6 pt-4">
-        {source && source.type === SourceType.Squad && (
-          <SquadEntityCard
-            className={{ container: 'w-full bg-transparent' }}
-            handle={source.handle}
-            origin={Origin.ReaderModal}
-          />
-        )}
-        {source && source.type !== SourceType.Squad && (
-          <SourceStrip source={source as SourceTooltip} />
+        {source && (
+          <div className="flex min-w-0 items-start gap-1">
+            <div className="min-w-0 flex-1">
+              {source.type === SourceType.Squad ? (
+                <SquadEntityCard
+                  className={{ container: 'w-full bg-transparent' }}
+                  handle={source.handle}
+                  origin={Origin.ReaderModal}
+                />
+              ) : (
+                <SourceStrip source={source as SourceTooltip} />
+              )}
+            </div>
+            {inlineHeaderMenu && (
+              <div className="shrink-0">
+                <PostMenuOptions
+                  post={post}
+                  origin={Origin.ReaderModal}
+                  buttonSize={ButtonSize.Small}
+                />
+              </div>
+            )}
+          </div>
         )}
 
         <section
           aria-label="Article summary"
           className="flex min-w-0 flex-col gap-2"
         >
-          <Typography
-            tag={TypographyTag.H1}
-            type={TypographyType.Title3}
-            bold
-            className="break-words text-left"
-          >
-            {displayTitle}
-          </Typography>
-          {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           {post.summary && (
             <div className="mb-1 flex min-w-0 flex-col gap-1 text-text-secondary">
               <ShowMoreContent

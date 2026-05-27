@@ -230,9 +230,9 @@ function UnifiedMobileFeedNav(): ReactElement {
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary py-2 pr-3"
+      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary py-4 pr-3"
     >
-      {isLoggedIn && <BriefSwitcher />}
+      {isLoggedIn && <BriefSwitcher compact />}
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {
@@ -255,7 +255,7 @@ function UnifiedMobileFeedNav(): ReactElement {
                 <Link key={item.id} href={item.href} passHref>
                   <Button
                     tag="a"
-                    size={ButtonSize.Medium}
+                    size={ButtonSize.Small}
                     variant={
                       isActive ? ButtonVariant.Float : ButtonVariant.Subtle
                     }

@@ -29,6 +29,35 @@
  * - forced-colors: active block for Windows High Contrast support.
  */
 
+.btn-v2,
+.btn {
+  /*
+   * Soft label tokens for filled-Primary surfaces.
+   *
+   * Pure `#FFFFFF` on saturated brand fills (Cabbage / Bun / Water /
+   * Onion / Burger / Ketchup) reads as "harsh" / "too shiny" — the
+   * Claude / ChatGPT / Vercel visual lever is to step the label
+   * ~8–12 % off the page-text colour so the brand reads as confident
+   * rather than fluorescent.
+   *
+   * 92 % white / 88 % near-black is the band that:
+   *   - keeps every Primary AA-strict contrast cell ≥ 4.5 : 1
+   *     (every cell in `Buttons.mdx` → "Final contrast matrix" sits
+   *     at 5.18 + after the discount; cabbage-light drops 5.18 → 4.77,
+   *     burger-light 6.45 → 5.93 — all safe).
+   *   - keeps every AA-large cell ≥ 3 : 1 (cabbage-dark 3.76 → 3.46,
+   *     bacon 3.11 → 2.86 — bacon now AAlg-borderline, documented).
+   *   - matches Claude's "Send" button (~rgba(255,255,255,0.92)) and
+   *     ChatGPT's send/CTA cluster (~0.90).
+   *
+   * Routed through `--btn-label-on-fill-{light,dark}` so V1 and V2
+   * share the value and the `Buttons.mdx` contrast section remains
+   * the single source of truth.
+   */
+  --btn-label-on-fill-light: rgba(255, 255, 255, 0.92);
+  --btn-label-on-fill-dark: rgba(14, 18, 23, 0.88);
+}
+
 .btn-v2 {
   /*
    * Hover-lift shadow tokens. Theme-aware so the same perceptual depth

@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -71,6 +72,15 @@ jest.mock('../common/Modal', () => ({
   Modal: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
 }));
 
+const renderWithClient = (ui: React.ReactElement) => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
+  );
+};
+
 describe('SmartComposerModal', () => {
   const logEvent = jest.fn();
   const showPrompt = jest.fn();
@@ -123,7 +133,7 @@ describe('SmartComposerModal', () => {
   });
 
   it('keeps the production notification CTA visible in the composer', () => {
-    render(
+    renderWithClient(
       <SmartComposerModal
         isOpen
         initialUrl="https://daily.dev"
@@ -139,7 +149,7 @@ describe('SmartComposerModal', () => {
   });
 
   it('runs notification submit handling before closing after a successful post', async () => {
-    render(
+    renderWithClient(
       <SmartComposerModal
         isOpen
         initialUrl="https://daily.dev"

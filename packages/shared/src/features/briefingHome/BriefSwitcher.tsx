@@ -14,6 +14,7 @@ import { IconSize } from '../../components/Icon';
 
 interface BriefSwitcherProps {
   className?: string;
+  compact?: boolean;
 }
 
 const TAB_BRIEF = '/your-brief';
@@ -21,16 +22,22 @@ const TAB_FEED = '/';
 
 export const BriefSwitcher = ({
   className,
+  compact = false,
 }: BriefSwitcherProps): ReactElement => {
   const router = useRouter();
   const path = router?.pathname ?? '';
   const isBrief = path === TAB_BRIEF;
 
+  const tabClass = compact
+    ? 'inline-flex items-center gap-1.5 rounded-8 px-2 py-1 transition-colors'
+    : 'inline-flex items-center gap-2 rounded-10 px-3 py-1.5 transition-colors';
+
   return (
     <nav
       aria-label="Brief / feed switch"
       className={classNames(
-        'inline-flex w-fit shrink-0 items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1',
+        'inline-flex w-fit shrink-0 items-center border border-border-subtlest-tertiary bg-background-default',
+        compact ? 'gap-0.5 rounded-10 p-0.5' : 'gap-1 rounded-12 p-1',
         className,
       )}
     >
@@ -38,7 +45,7 @@ export const BriefSwitcher = ({
         <a
           aria-current={isBrief ? 'page' : undefined}
           className={classNames(
-            'inline-flex items-center gap-2 rounded-10 px-3 py-1.5 transition-colors',
+            tabClass,
             isBrief
               ? 'bg-surface-float text-text-primary'
               : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
@@ -65,7 +72,7 @@ export const BriefSwitcher = ({
         <a
           aria-current={!isBrief ? 'page' : undefined}
           className={classNames(
-            'inline-flex items-center gap-2 rounded-10 px-3 py-1.5 transition-colors',
+            tabClass,
             !isBrief
               ? 'bg-surface-float text-text-primary'
               : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',

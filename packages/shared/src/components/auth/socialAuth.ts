@@ -3,6 +3,8 @@ import type { Boot } from '../../lib/boot';
 export const SOCIAL_AUTH_RETRY_MESSAGE =
   "We couldn't complete your social sign-in. Please try again.";
 
+export const GITHUB_EMAIL_NOT_VERIFIED_ERROR = 'github_email_not_verified';
+
 const SOCIAL_AUTH_BOOT_RETRY_DELAYS_MS = [0, 250, 750] as const;
 
 type BootUser = Partial<Boot>['user'];

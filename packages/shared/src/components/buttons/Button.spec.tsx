@@ -170,4 +170,75 @@ describe('Button', () => {
     });
     expect(await screen.findByRole('link')).toBeInTheDocument();
   });
+
+  describe('inactive prop', () => {
+    it('sets aria-disabled but stays interactive', async () => {
+      const onClick = jest.fn();
+      renderComponent({ children: 'Inactive', inactive: true, onClick });
+      const button = await screen.findByRole('button');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).not.toBeDisabled();
+      button.click();
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('defers to native disabled when both are set', async () => {
+      renderComponent({
+        children: 'Disabled',
+        inactive: true,
+        disabled: true,
+      });
+      const button = await screen.findByRole('button');
+      expect(button).not.toHaveAttribute('aria-disabled');
+      expect(button).toBeDisabled();
+    });
+  });
+
+  describe('bold prop', () => {
+    it('upgrades primary label from semibold to bold', async () => {
+      const { rerender } = render(
+        <Button variant={ButtonVariant.Primary}>Default</Button>,
+      );
+      expect(screen.getByRole('button')).toHaveClass('font-semibold');
+      expect(screen.getByRole('button')).not.toHaveClass('font-bold');
+
+      rerender(
+        <Button variant={ButtonVariant.Primary} bold>
+          Bolder
+        </Button>,
+      );
+      expect(screen.getByRole('button')).toHaveClass('font-bold');
+      expect(screen.getByRole('button')).not.toHaveClass('font-semibold');
+    });
+
+    it('is a no-op on non-primary variants', async () => {
+      renderComponent({
+        variant: ButtonVariant.Tertiary,
+        bold: true,
+        children: 'Tertiary bold',
+      });
+      const button = await screen.findByRole('button');
+      expect(button).toHaveClass('font-medium');
+      expect(button).not.toHaveClass('font-bold');
+    });
+  });
+
+  describe('useDefaultCursor prop', () => {
+    it('renders default cursor instead of pointer', async () => {
+      renderComponent({
+        children: 'Default cursor',
+        useDefaultCursor: true,
+      });
+      const button = await screen.findByRole('button');
+      expect(button).toHaveClass('cursor-default');
+      expect(button).not.toHaveClass('cursor-pointer');
+    });
+
+    it('defaults to pointer when omitted', async () => {
+      renderComponent({ children: 'Pointer cursor' });
+      const button = await screen.findByRole('button');
+      expect(button).toHaveClass('cursor-pointer');
+      expect(button).not.toHaveClass('cursor-default');
+    });
+  });
 });

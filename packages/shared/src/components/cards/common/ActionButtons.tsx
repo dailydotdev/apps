@@ -21,6 +21,8 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
+import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
+import ActionButtonsV2 from './ActionButtons.v2';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -62,7 +64,7 @@ const variantConfig = {
   },
 } as const;
 
-const ActionButtons = ({
+const ActionButtonsV1 = ({
   post,
   onUpvoteClick,
   onCommentClick,
@@ -289,6 +291,14 @@ const ActionButtons = ({
   }
 
   return buttons;
+};
+
+const ActionButtons = (props: ActionButtonsProps): ReactElement => {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <ActionButtonsV2 {...props} />;
+  }
+  return <ActionButtonsV1 {...props} />;
 };
 
 export default ActionButtons;

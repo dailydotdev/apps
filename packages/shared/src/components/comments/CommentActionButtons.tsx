@@ -59,6 +59,8 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
+import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
+import CommentActionButtonsV2 from './CommentActionButtons.v2';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -78,7 +80,7 @@ export interface Props extends CommentActionProps {
   threadRepliesControl?: ReactNode;
 }
 
-export default function CommentActionButtons({
+function CommentActionButtonsV1({
   post,
   comment,
   origin,
@@ -432,4 +434,12 @@ export default function CommentActionButtons({
       )}
     </div>
   );
+}
+
+export default function CommentActionButtons(props: Props): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <CommentActionButtonsV2 {...props} />;
+  }
+  return <CommentActionButtonsV1 {...props} />;
 }
