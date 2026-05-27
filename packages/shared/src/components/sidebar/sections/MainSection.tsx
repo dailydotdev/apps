@@ -10,6 +10,7 @@ import {
   HotIcon,
   JoystickIcon,
   SquadIcon,
+  MagicIcon,
   MegaphoneIcon,
   YearInReviewIcon,
 } from '../../icons';
@@ -144,9 +145,22 @@ export const MainSection = ({
         }
       : undefined;
 
+    const brief = isLoggedIn
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <MagicIcon secondary={active} />} />
+          ),
+          title: 'Your brief',
+          path: `${webappUrl}your-brief`,
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
+
     return (
       [
         myFeed,
+        brief,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly

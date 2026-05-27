@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -13,6 +12,14 @@ import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { buildPersonalizedCategories } from './exploreCategories';
+import { BriefSwitcher } from '../../features/briefingHome/BriefSwitcher';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -28,13 +35,6 @@ interface ChipItem {
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
 
-const chipBaseClass =
-  'shrink-0 rounded-10 border px-2.5 py-1.5 font-bold transition-colors typo-callout';
-const chipActiveClass =
-  'border-border-subtlest-tertiary bg-surface-float text-text-primary hover:bg-surface-hover';
-const chipInactiveClass =
-  'border-transparent text-text-tertiary hover:text-text-primary';
-
 function UnifiedMobileFeedNav(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
@@ -48,15 +48,17 @@ function UnifiedMobileFeedNav(): ReactElement {
     const list: ChipItem[] = [];
 
     const myFeedHref = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
-    list.push({
-      id: 'foryou',
-      label: isLoggedIn ? 'For you' : 'Home',
-      href: myFeedHref,
-      // Always match the homepage so "For you" stays highlighted even when the
-      // default custom feed (also at `/`) would otherwise win.
-      matchPaths: [myFeedHref, webappUrl, `${webappUrl}my-feed`],
-      group: 'forYou',
-    });
+    // Logged-in users navigate Home via the Brief/Feed switcher rendered
+    // at the start of the strip; only logged-out users need a Home chip.
+    if (!isLoggedIn) {
+      list.push({
+        id: 'foryou',
+        label: 'Home',
+        href: myFeedHref,
+        matchPaths: [myFeedHref, webappUrl, `${webappUrl}my-feed`],
+        group: 'forYou',
+      });
+    }
 
     if (isLoggedIn) {
       buildPersonalizedCategories(personalizedTags).forEach((category) => {
@@ -229,8 +231,9 @@ function UnifiedMobileFeedNav(): ReactElement {
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-3 py-4"
+      className="no-scrollbar flex w-full touch-pan-x items-center gap-2 overflow-x-auto overscroll-x-contain border-b border-border-subtlest-tertiary py-4 pl-2 pr-3"
     >
+      {isLoggedIn && <BriefSwitcher compact />}
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {
@@ -250,9 +253,17 @@ function UnifiedMobileFeedNav(): ReactElement {
             {groupItems.map((item) => {
               const isActive = item.id === activeId;
               return (
-                <Link key={item.id} href={item.href}>
-                  <a
-                    href={item.href}
+                <Link key={item.id} href={item.href} passHref scroll={false}>
+                  <Button
+                    tag="a"
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Subtle}
+                    pressed={isActive}
+                    className={
+                      isActive
+                        ? '!bg-surface-active text-text-primary'
+                        : undefined
+                    }
                     onClick={() => {
                       if (!item.tag) {
                         return;
@@ -265,14 +276,24 @@ function UnifiedMobileFeedNav(): ReactElement {
                     }}
                     aria-current={isActive ? 'page' : undefined}
                     data-active={isActive ? 'true' : undefined}
-                    className={classNames(
-                      chipBaseClass,
-                      isActive ? chipActiveClass : chipInactiveClass,
-                      item.isIconOnly && 'px-2',
-                    )}
                   >
-                    {item.label}
-                  </a>
+                    {item.isIconOnly ? (
+                      item.label
+                    ) : (
+                      <Typography
+                        tag={TypographyTag.Span}
+                        type={TypographyType.Footnote}
+                        bold
+                        color={
+                          isActive
+                            ? TypographyColor.Primary
+                            : TypographyColor.Secondary
+                        }
+                      >
+                        {item.label}
+                      </Typography>
+                    )}
+                  </Button>
                 </Link>
               );
             })}
