@@ -79,7 +79,7 @@ export const BriefFeedback = ({
     );
   }
 
-  const buttonSize = size === 'md' ? ButtonSize.Medium : ButtonSize.Small;
+  const buttonSize = size === 'md' ? ButtonSize.Small : ButtonSize.XSmall;
 
   return (
     <div
