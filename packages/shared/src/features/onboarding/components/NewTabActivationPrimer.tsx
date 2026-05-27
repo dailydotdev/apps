@@ -61,12 +61,46 @@ const readActivationStorage = (): {
   }
 };
 
+// Placeholder slot where the real demo video/GIF will live. Kept as a
+// clearly-marked dashed box so the page layout, sizing, and position are
+// already exercised — dropping in a <video> element later is a one-line
+// swap. Aspect-video (16:9) matches the most likely recording aspect.
+function VideoPlaceholder(): ReactElement {
+  return (
+    <div
+      role="img"
+      aria-label="Placeholder for the activation demo video"
+      className="relative aspect-video w-full max-w-[28rem] overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-tertiary bg-background-subtle"
+    >
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-float">
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            className="ml-0.5 h-6 w-6 text-text-tertiary"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M8 5v14l11-7-11-7Z" />
+          </svg>
+        </span>
+        <p className="font-bold text-text-tertiary typo-callout">
+          Video / GIF placeholder
+        </p>
+        <p className="text-text-tertiary typo-caption1">
+          Demo of the Chrome dialog and the &ldquo;Keep it&rdquo; click
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // Recreation of Chrome's "Change back to Google?" override-confirmation
-// bubble. Button colors match Chrome's actual palette (#1a73e8 / #d3e3fd)
-// so when the real dialog appears the user sees identical UI to the
-// preview. The "Tap this" callout sits outside the dialog frame in our
-// brand color so it reads clearly as our annotation, not part of Chrome's
-// surface.
+// bubble. Kept around for reference until the demo video lands — not
+// currently rendered on the primer page. Button colors match Chrome's
+// actual palette (#1a73e8 / #d3e3fd) so if we re-introduce the mockup,
+// the preview matches the real dialog.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ChromeDialogMockup(): ReactElement {
   return (
     <div
@@ -423,7 +457,7 @@ export function NewTabActivationPrimer({
           </Typography>
         )}
 
-        {!isRecovery && <ChromeDialogMockup />}
+        {!isRecovery && <VideoPlaceholder />}
 
         {!isRecovery && (
           <div className="flex w-full flex-col items-center gap-3">
