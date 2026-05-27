@@ -104,7 +104,7 @@ const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
           </span>
           <OpenLinkIcon
             size={IconSize.XSmall}
-            className="text-text-tertiary"
+            className="text-text-quaternary"
             aria-hidden
           />
         </span>
@@ -246,7 +246,7 @@ const StoryRow = ({
           <ArrowIcon
             size={IconSize.XSmall}
             className={classNames(
-              'shrink-0 text-text-tertiary transition-transform duration-300 ease-out',
+              'shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
               isExpanded ? 'rotate-0' : 'rotate-180',
             )}
             aria-hidden

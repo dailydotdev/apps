@@ -119,7 +119,7 @@ const TopicRow = ({
         <ArrowIcon
           size={IconSize.XSmall}
           className={classNames(
-            'ml-auto mt-5 shrink-0 self-start text-text-tertiary transition-transform duration-300 ease-out',
+            'ml-auto mt-5 shrink-0 self-start text-text-quaternary transition-transform duration-300 ease-out',
             isExpanded ? 'rotate-0' : 'rotate-180',
           )}
           aria-hidden
