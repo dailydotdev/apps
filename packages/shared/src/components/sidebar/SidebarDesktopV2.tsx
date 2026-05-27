@@ -711,7 +711,8 @@ export const SidebarDesktopV2 = ({
                 aria-label="Settings"
                 className={classNames(
                   railButtonClass,
-                  isSettingsSelected && 'bg-background-default text-text-primary',
+                  isSettingsSelected &&
+                    'bg-background-default text-text-primary',
                 )}
                 onClick={() => onSelectCategory(SidebarCategory.Settings)}
                 onMouseEnter={() =>

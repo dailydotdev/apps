@@ -25,14 +25,14 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getPageSeoTitles } from '../utils';
 import { getAppOrigin } from '../../../lib/seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),

@@ -10,7 +10,7 @@ import {
   ShieldPlusIcon,
   ShieldWarningIcon,
 } from '../icons';
-import { IconSize } from '../Icon';
+import type { IconSize } from '../Icon';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription, useClickbaitTries } from '../../hooks';
 import { SidebarSettingsFlags } from '../../graphql/settings';
@@ -86,10 +86,7 @@ export const ToggleClickbaitShield = ({
           {...commonIconProps}
           icon={
             hasUsedFreeTrial
-              ? sizedIcon(
-                  <ShieldWarningIcon />,
-                  'text-accent-ketchup-default',
-                )
+              ? sizedIcon(<ShieldWarningIcon />, 'text-accent-ketchup-default')
               : sizedIcon(<ShieldPlusIcon />)
           }
           onClick={() => {

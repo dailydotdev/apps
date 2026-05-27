@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { FilterIcon, PlusIcon } from '../icons';
-import { IconSize } from '../Icon';
+import type { IconSize } from '../Icon';
 import type { ButtonProps } from '../buttons/Button';
 import {
   Button,

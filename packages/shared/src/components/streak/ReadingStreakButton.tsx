@@ -158,10 +158,7 @@ export function ReadingStreakButton({
               : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames(
-            isV2 ? 'gap-0.5' : 'gap-1',
-            className,
-          )}
+          className={classnames(isV2 ? 'gap-0.5' : 'gap-1', className)}
           size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}

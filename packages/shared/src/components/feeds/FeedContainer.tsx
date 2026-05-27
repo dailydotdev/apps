@@ -279,41 +279,39 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {topContent}
-          {isV2Laptop && !shouldUseListFeedLayout && !isExtension ? (
-            // v2 grid pages render the shared page-header strip at the
-            // top of the floating card. `pageHeaderClassName` locks the
-            // height (min-h-14) and provides the bottom border so every
-            // page has the same vertical rhythm — content fills it
-            // when available, otherwise the feed heading takes the
-            // title slot.
-            (!!actionButtons || !!feedHeading) && (
-              <header className={pageHeaderClassName}>
-                {actionButtons || (
-                  <strong className="min-w-0 flex-1 truncate typo-callout">
-                    {feedHeading}
-                  </strong>
-                )}
-              </header>
-            )
-          ) : (
-            isSearch &&
-            !shouldUseListFeedLayout && (
-              <header
-                className={classNames(
-                  'flex items-center',
-                  isExtension && 'flex-1 flex-col-reverse',
-                  !isExtension && 'flex-1 flex-row',
-                )}
-              >
-                {!!actionButtons && (
-                  <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
-                    {actionButtons}
-                  </span>
-                )}
-                {shortcuts}
-              </header>
-            )
-          )}
+          {isV2Laptop && !shouldUseListFeedLayout && !isExtension
+            ? // v2 grid pages render the shared page-header strip at the
+              // top of the floating card. `pageHeaderClassName` locks the
+              // height (min-h-14) and provides the bottom border so every
+              // page has the same vertical rhythm — content fills it
+              // when available, otherwise the feed heading takes the
+              // title slot.
+              (!!actionButtons || !!feedHeading) && (
+                <header className={pageHeaderClassName}>
+                  {actionButtons || (
+                    <strong className="min-w-0 flex-1 truncate typo-callout">
+                      {feedHeading}
+                    </strong>
+                  )}
+                </header>
+              )
+            : isSearch &&
+              !shouldUseListFeedLayout && (
+                <header
+                  className={classNames(
+                    'flex items-center',
+                    isExtension && 'flex-1 flex-col-reverse',
+                    !isExtension && 'flex-1 flex-row',
+                  )}
+                >
+                  {!!actionButtons && (
+                    <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
+                      {actionButtons}
+                    </span>
+                  )}
+                  {shortcuts}
+                </header>
+              )}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
             wrapper={(child) => (
@@ -332,9 +330,7 @@ export const FeedContainer = ({
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                {isV2Laptop &&
-                isLaptop &&
-                (feedHeading || actionButtons) ? (
+                {isV2Laptop && isLaptop && (feedHeading || actionButtons) ? (
                   // v2: shared page-header strip inside the list-frame
                   // box. Same component as the grid-mode strip so both
                   // layouts have identical header treatment.
@@ -374,7 +370,7 @@ export const FeedContainer = ({
                   // mock. The page-header strip above sets its own
                   // bottom border, so cards sit p-6 inside the floating
                   // card on all four sides.
-                  'tablet:p-2 laptop:p-6 [&_article]:!border-border-subtlest-quaternary [&_article:hover]:!border-border-subtlest-tertiary',
+                  'tablet:p-2 laptop:p-6 [&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
                 shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
                 // mt-8 is a legacy spacer below the search/action header;

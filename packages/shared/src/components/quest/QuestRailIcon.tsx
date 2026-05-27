@@ -22,7 +22,9 @@ export const QuestRailIcon = ({ active }: QuestRailIconProps): ReactElement => {
   const level = data?.level;
 
   if (!level) {
-    return <JoystickIcon secondary={active} size={IconSize.Small} aria-hidden />;
+    return (
+      <JoystickIcon secondary={active} size={IconSize.Small} aria-hidden />
+    );
   }
 
   const totalForLevel = level.xpInLevel + level.xpToNextLevel;
