@@ -113,8 +113,11 @@ export const CoverHeader = ({
   } stories · ${totals.readMinutes} min`;
 
   return (
-    <header id="brief-top" className="flex scroll-mt-20 flex-col gap-3">
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+    <header
+      id="brief-top"
+      className="flex scroll-mt-20 flex-wrap items-center justify-between gap-x-4 gap-y-3"
+    >
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <Typography
           tag={TypographyTag.H1}
           type={TypographyType.LargeTitle}
@@ -123,58 +126,60 @@ export const CoverHeader = ({
         >
           Today&apos;s read
         </Typography>
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <DateWidget />
-          <button
-            type="button"
-            onClick={onReset}
-            className={classNames(
-              'inline-flex items-center gap-1 rounded-8 px-1.5 py-1 text-text-quaternary transition-colors hover:bg-surface-float hover:text-text-tertiary',
-              totals.readCount === 0 && 'pointer-events-none invisible',
-            )}
-            aria-label="Reset read progress"
-            aria-hidden={totals.readCount === 0}
-            tabIndex={totals.readCount === 0 ? -1 : 0}
+        {isFirstVisit ? (
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+            className="!leading-snug"
           >
-            <RefreshIcon size={IconSize.XXSmall} />
-            <Typography type={TypographyType.Caption2} bold>
-              Reset
-            </Typography>
-          </button>
-        </div>
+            We read{' '}
+            <span className="font-bold text-text-primary">
+              {scannedCount.toLocaleString()} posts
+            </span>{' '}
+            from{' '}
+            <span className="font-bold text-text-primary">
+              {sourceCount} sources
+            </span>{' '}
+            you follow today.{' '}
+            <span className="text-text-tertiary">
+              Here are the{' '}
+              <span className="font-bold text-text-primary">
+                {totals.total}
+              </span>{' '}
+              that actually matter.
+            </span>
+          </Typography>
+        ) : (
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            className="tabular-nums"
+          >
+            {compactStats}
+          </Typography>
+        )}
       </div>
-      {isFirstVisit ? (
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-          className="!leading-snug"
+      <div className="flex shrink-0 flex-col items-end gap-1.5">
+        <DateWidget />
+        <button
+          type="button"
+          onClick={onReset}
+          className={classNames(
+            'inline-flex items-center gap-1 rounded-8 px-1.5 py-1 text-text-quaternary transition-colors hover:bg-surface-float hover:text-text-tertiary',
+            totals.readCount === 0 && 'pointer-events-none invisible',
+          )}
+          aria-label="Reset read progress"
+          aria-hidden={totals.readCount === 0}
+          tabIndex={totals.readCount === 0 ? -1 : 0}
         >
-          We read{' '}
-          <span className="font-bold text-text-primary">
-            {scannedCount.toLocaleString()} posts
-          </span>{' '}
-          from{' '}
-          <span className="font-bold text-text-primary">
-            {sourceCount} sources
-          </span>{' '}
-          you follow today.{' '}
-          <span className="text-text-tertiary">
-            Here are the{' '}
-            <span className="font-bold text-text-primary">{totals.total}</span>{' '}
-            that actually matter.
-          </span>
-        </Typography>
-      ) : (
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="tabular-nums"
-        >
-          {compactStats}
-        </Typography>
-      )}
+          <RefreshIcon size={IconSize.XXSmall} />
+          <Typography type={TypographyType.Caption2} bold>
+            Reset
+          </Typography>
+        </button>
+      </div>
     </header>
   );
 };
