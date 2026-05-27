@@ -8,6 +8,11 @@ import {
 } from '../../components/typography/Typography';
 import { UpvoteIcon, DownvoteIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
 
 type Vote = 'up' | 'down';
 
@@ -74,6 +79,8 @@ export const BriefFeedback = ({
     );
   }
 
+  const buttonSize = size === 'md' ? ButtonSize.Medium : ButtonSize.Small;
+
   return (
     <div
       className={classNames(
@@ -85,24 +92,28 @@ export const BriefFeedback = ({
       <Typography type={labelType} color={TypographyColor.Tertiary}>
         {prompt}
       </Typography>
-      <button
+      <Button
         type="button"
+        variant={ButtonVariant.Subtle}
+        size={buttonSize}
+        icon={<UpvoteIcon size={iconSize} />}
         onClick={handleVote('up')}
         aria-label={upLabel}
-        className="inline-flex items-center gap-1 rounded-6 px-1.5 py-0.5 text-text-tertiary transition-colors hover:bg-surface-float hover:text-accent-avocado-default"
+        className="hover:!text-accent-avocado-default"
       >
-        <UpvoteIcon size={iconSize} />
         <Typography type={labelType}>{upLabel}</Typography>
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
+        variant={ButtonVariant.Subtle}
+        size={buttonSize}
+        icon={<DownvoteIcon size={iconSize} />}
         onClick={handleVote('down')}
         aria-label={downLabel}
-        className="inline-flex items-center gap-1 rounded-6 px-1.5 py-0.5 text-text-tertiary transition-colors hover:bg-surface-float hover:text-accent-ketchup-default"
+        className="hover:!text-accent-ketchup-default"
       >
-        <DownvoteIcon size={iconSize} />
         <Typography type={labelType}>{downLabel}</Typography>
-      </button>
+      </Button>
     </div>
   );
 };

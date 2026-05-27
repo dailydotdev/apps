@@ -177,6 +177,7 @@ const StoryRow = ({
                 <UpvoteIcon
                   size={IconSize.XSmall}
                   className="text-text-tertiary"
+                  secondary
                 />
               }
               value={story.totalUpvotes}
@@ -187,6 +188,7 @@ const StoryRow = ({
                 <DiscussIcon
                   size={IconSize.XSmall}
                   className="text-text-tertiary"
+                  secondary
                 />
               }
               value={story.totalComments}
