@@ -230,7 +230,7 @@ function UnifiedMobileFeedNav(): ReactElement {
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary py-4 pr-3"
+      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary py-4 pl-2 pr-3"
     >
       {isLoggedIn && <BriefSwitcher compact />}
       {GROUP_ORDER.map((group) => {
