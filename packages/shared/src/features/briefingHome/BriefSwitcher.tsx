@@ -30,7 +30,7 @@ export const BriefSwitcher = ({
     <nav
       aria-label="Brief / feed switch"
       className={classNames(
-        'inline-flex h-8 w-fit shrink-0 items-center gap-0.5 rounded-10 border border-border-subtlest-tertiary bg-background-default p-0.5',
+        'inline-flex w-fit shrink-0 items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1',
         className,
       )}
     >
@@ -38,7 +38,7 @@ export const BriefSwitcher = ({
         <a
           aria-current={isBrief ? 'page' : undefined}
           className={classNames(
-            'inline-flex h-full items-center gap-1.5 rounded-8 px-2.5 transition-colors',
+            'inline-flex items-center gap-2 rounded-10 px-3 py-1.5 transition-colors',
             isBrief
               ? 'bg-surface-float text-text-primary'
               : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
@@ -65,7 +65,7 @@ export const BriefSwitcher = ({
         <a
           aria-current={!isBrief ? 'page' : undefined}
           className={classNames(
-            'inline-flex h-full items-center gap-1.5 rounded-8 px-2.5 transition-colors',
+            'inline-flex items-center gap-2 rounded-10 px-3 py-1.5 transition-colors',
             !isBrief
               ? 'bg-surface-float text-text-primary'
               : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',

@@ -63,7 +63,7 @@ export function ExploreChipsBar({
             <Link key={category.id} href={category.path} passHref>
               <Button
                 tag="a"
-                size={ButtonSize.Small}
+                size={ButtonSize.Medium}
                 variant={isActive ? ButtonVariant.Float : ButtonVariant.Subtle}
                 pressed={isActive}
                 aria-current={isActive ? 'page' : undefined}
@@ -91,7 +91,7 @@ export function ExploreChipsBar({
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               aria-hidden
-              className={classNames('h-8 shrink-0 rounded-10', width)}
+              className={classNames('h-10 shrink-0 rounded-12', width)}
             />
           ))}
       </div>

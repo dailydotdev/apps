@@ -250,7 +250,7 @@ function UnifiedMobileFeedNav(): ReactElement {
                 <Link key={item.id} href={item.href} passHref>
                   <Button
                     tag="a"
-                    size={ButtonSize.Small}
+                    size={ButtonSize.Medium}
                     variant={
                       isActive ? ButtonVariant.Float : ButtonVariant.Subtle
                     }
