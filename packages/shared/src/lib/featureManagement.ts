@@ -177,7 +177,7 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal', false);
+export const featureReaderModal = new Feature('reader_modal_v2', false);
 
 export const featureGenericReferralPopupV2 = new Feature(
   'generic_referral_popup_v2',
