@@ -54,10 +54,14 @@ it('should show "Profile settings" tooltip on the profile picture', () => {
   ).toBeInTheDocument();
 });
 
-it('should show "Reputation" tooltip on the reputation badge', () => {
+it('should render the reputation reward target inside the profile button', () => {
   renderComponent();
 
-  expect(screen.getByLabelText('Reputation')).toBeInTheDocument();
+  expect(
+    screen
+      .getByRole('button', { name: 'Profile settings' })
+      .querySelector('[data-reward-target="reputation"]'),
+  ).not.toBeNull();
 });
 
 it('should show settings option that opens modal', async () => {

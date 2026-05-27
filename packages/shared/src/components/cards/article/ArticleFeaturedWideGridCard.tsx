@@ -17,7 +17,6 @@ import {
 } from '../common/Card';
 import CardOverlay from '../common/CardOverlay';
 import { Origin } from '../../../lib/log';
-import styles from '../common/Card.module.css';
 import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
@@ -26,7 +25,10 @@ import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
+import { PlayIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { stripHtmlTags } from '../../../lib/strings';
 
 export type FeaturedWideColSpan = 2 | 3 | 4;
@@ -92,6 +94,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       onCommentClick,
       onBookmarkClick,
       onCopyLinkClick,
+      onShare,
       openNewTab,
       children,
       onReadArticleClick,
@@ -111,6 +114,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const { title } = useSmartTitle(post);
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
+    const { overlay } = useCardCover({ post, onShare });
     const significance = post.postHighlight?.significance ?? null;
     const isTweetPost =
       post.type === PostType.SocialTwitter ||
@@ -178,11 +182,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           style,
           className: getPostClassNames(
             post,
-            classNames(
-              className ?? '',
-              showFeedback && '!p-0',
-              'h-full overflow-hidden',
-            ),
+            classNames(className ?? '', 'h-full overflow-hidden'),
             'min-h-card',
           ),
         }}
@@ -195,41 +195,45 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           onPostCardClick={onPostCardClick}
           onPostCardAuxClick={onPostCardAuxClick}
         />
-        {showFeedback && (
-          <FeedbackGrid
-            post={post}
-            onUpvoteClick={() => onUpvoteClick?.(post, Origin.FeedbackCard)}
-            onDownvoteClick={() => onDownvoteClick?.(post, Origin.FeedbackCard)}
-            isVideoType={isVideoType}
-          />
-        )}
 
         <div
           className={classNames(
             'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
             INNER_GRID_COLS[wideColSpan],
-            showFeedback &&
-              'overflow-hidden rounded-16 border !border-border-subtlest-tertiary p-2',
-            showFeedback && styles.post,
-            showFeedback && styles.read,
           )}
         >
           <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <CardTextContainer>
-              <PostCardHeader
-                post={post}
-                className={showFeedback ? '!hidden' : 'flex'}
-                openNewTab={openNewTab}
-                source={post.source!}
-                postLink={post.permalink!}
-                onReadArticleClick={onReadArticleClick}
-                showFeedback={showFeedback}
-              />
-              <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
-                {title}
-              </h3>
-              {!showFeedback && (
-                <>
+            {showFeedback ? (
+              <>
+                <h3 className="line-clamp-2 break-words px-6 pt-6 font-bold text-text-primary typo-title3">
+                  {title}
+                </h3>
+                <FeedbackGrid
+                  post={post}
+                  onUpvoteClick={() =>
+                    onUpvoteClick?.(post, Origin.FeedbackCard)
+                  }
+                  onDownvoteClick={() =>
+                    onDownvoteClick?.(post, Origin.FeedbackCard)
+                  }
+                  isVideoType={isVideoType}
+                />
+              </>
+            ) : (
+              <>
+                <CardTextContainer>
+                  <PostCardHeader
+                    post={post}
+                    className="flex"
+                    openNewTab={openNewTab}
+                    source={post.source!}
+                    postLink={post.permalink!}
+                    onReadArticleClick={onReadArticleClick}
+                    showFeedback={false}
+                  />
+                  <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
+                    {title}
+                  </h3>
                   <div className="mt-2 flex min-w-0 items-center gap-2">
                     {post.clickbaitTitleDetected && (
                       <ClickbaitShield post={post} />
@@ -246,41 +250,57 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     isVideoType={isVideoType}
                     className="mt-1"
                   />
-                </>
-              )}
-              {!showFeedback && description ? (
-                <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
-                  {description}
-                </p>
-              ) : null}
-            </CardTextContainer>
-            {!showFeedback && (
-              <Container>
-                <CardSpace />
-                <ActionButtons
-                  post={post}
-                  onUpvoteClick={onUpvoteClick}
-                  onCommentClick={onCommentClick}
-                  onCopyLinkClick={onCopyLinkClick}
-                  onBookmarkClick={onBookmarkClick}
-                  onDownvoteClick={onDownvoteClick}
-                  variant="grid"
-                />
-              </Container>
+                  {description ? (
+                    <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                      {description}
+                    </p>
+                  ) : null}
+                </CardTextContainer>
+                <Container>
+                  <CardSpace />
+                  <ActionButtons
+                    post={post}
+                    onUpvoteClick={onUpvoteClick}
+                    onCommentClick={onCommentClick}
+                    onCopyLinkClick={onCopyLinkClick}
+                    onBookmarkClick={onBookmarkClick}
+                    onDownvoteClick={onDownvoteClick}
+                    variant="grid"
+                  />
+                </Container>
+              </>
             )}
           </div>
-          {!showFeedback && image ? (
+          {image ? (
             <div
               className={classNames(
-                'relative h-full min-w-0 overflow-hidden rounded-r-16',
+                'relative flex h-full min-w-0 items-center justify-center overflow-hidden rounded-r-16',
                 IMAGE_COL_SPAN[wideColSpan],
               )}
             >
+              {overlay}
+              {isVideoType && !overlay && (
+                <>
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 bg-overlay-tertiary-black"
+                  />
+                  <PlayIcon
+                    secondary
+                    size={IconSize.XXLarge}
+                    data-testid="playIconVideoPost"
+                    className="absolute"
+                  />
+                </>
+              )}
               <Image
                 alt={post.title}
                 src={image}
                 type={ImageType.Post}
-                className="size-full object-cover"
+                className={classNames(
+                  'size-full object-cover',
+                  !!overlay && 'opacity-16',
+                )}
                 {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
               />
             </div>

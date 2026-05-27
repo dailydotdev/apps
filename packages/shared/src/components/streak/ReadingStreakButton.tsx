@@ -160,7 +160,6 @@ export function ReadingStreakButton({
           onClick={handleToggle}
           className={classnames(
             isV2 ? 'gap-0.5' : 'gap-1',
-            compact && '!px-1.5',
             className,
           )}
           size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
