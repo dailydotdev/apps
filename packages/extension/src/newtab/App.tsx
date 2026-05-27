@@ -50,6 +50,37 @@ structuredCloneJsonPolyfill();
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const NEWTAB_ACTIVATED_KEY = 'daily-extension-newtab-activated-fired';
+
+// TODO(REMOVE-BEFORE-MERGE): testing override — on the very first new tab
+// after install, broadcast activation back to the primer and immediately
+// hand off this tab to the production signup wall. Bypasses any
+// boot/API failures (e.g. "Connection lost") that local extension builds
+// would otherwise hit. Remove the constant, the helper, and the early
+// return in `App` before merging.
+const FIRST_NEWTAB_REDIRECT_URL = 'https://app.daily.dev/onboarding';
+let didRedirectForTesting = false;
+const maybeRedirectForTesting = (): boolean => {
+  if (typeof window === 'undefined' || didRedirectForTesting) {
+    return false;
+  }
+  if (window.location.href.includes('source=')) {
+    return false;
+  }
+  try {
+    if (localStorage.getItem(NEWTAB_ACTIVATED_KEY)) {
+      return false;
+    }
+    localStorage.setItem(NEWTAB_ACTIVATED_KEY, Date.now().toString());
+  } catch {
+    return false;
+  }
+  didRedirectForTesting = true;
+  browser.runtime
+    .sendMessage({ type: ExtensionMessageType.NewTabActivated })
+    .catch(() => undefined);
+  window.location.href = FIRST_NEWTAB_REDIRECT_URL;
+  return true;
+};
 const router = new CustomRouter();
 const queryClient = new QueryClient(defaultQueryClientConfig);
 Modal.setAppElement('#__next');
@@ -198,6 +229,13 @@ export default function App({
 }: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
   const [currentPage, setCurrentPage] = useState<string>('/');
   const deviceId = useDeviceId();
+
+  // TODO(REMOVE-BEFORE-MERGE): testing override at top of file. Hooks
+  // above are called unconditionally to satisfy rules-of-hooks; the
+  // redirect short-circuits the render so providers never mount.
+  if (maybeRedirectForTesting()) {
+    return <></>;
+  }
 
   return (
     <RouterContext.Provider value={router}>
