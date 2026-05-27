@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
+import { ProfileImageSize } from '../ProfilePicture';
 import { CoreIcon, ReputationIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
@@ -206,7 +207,7 @@ export default function ProfileButton({
         />
       ) : (
         <div className="flex items-center gap-2">
-          <div className="flex h-10 items-center rounded-12 border border-border-subtlest-quaternary bg-surface-float px-1">
+          <div className="flex h-10 items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float px-1">
             {isStreaksEnabled && streak && (
               <ReadingStreakButton
                 streak={streak}
@@ -277,7 +278,10 @@ export default function ProfileButton({
               )}
               onClick={wrapHandler(() => onUpdate(!isOpen))}
             >
-              <ProfilePictureWithIndicator user={user} />
+              <ProfilePictureWithIndicator
+                user={user}
+                size={ProfileImageSize.Large}
+              />
             </button>
           </Tooltip>
         </div>
