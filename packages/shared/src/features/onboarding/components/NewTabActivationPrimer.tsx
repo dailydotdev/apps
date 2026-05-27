@@ -1,11 +1,5 @@
 import type { ReactElement } from 'react';
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -36,11 +30,10 @@ type PrimerState = 'idle' | 'waiting' | 'recovery';
 
 const ACTIVATION_TIMEOUT_MS = 10_000;
 const POLL_INTERVAL_MS = 250;
-// Heartbeat pings the extension service worker. When the user picks
-// "Change it back" on Chrome's dialog the extension is disabled and the
-// heartbeat starts failing; two consecutive misses flips the primer to
-// recovery so the user can re-enable the extension without waiting on
-// the longer activation timeout.
+// Heartbeat pings the extension service worker. If Chrome later
+// disables the extension (a side effect of "Change it back" in some
+// Chrome behaviors, or a manual disable), the ping starts failing.
+// Two consecutive misses flips the primer to recovery.
 const HEARTBEAT_INTERVAL_MS = 2_000;
 const HEARTBEAT_FAILURES_BEFORE_RECOVERY = 2;
 
@@ -67,147 +60,34 @@ const readActivationStorage = (): {
   }
 };
 
-// Recreation of Chrome's "Change back to Google?" override-confirmation
-// bubble. Button colors match Chrome's actual palette — "Change it back"
-// is the prominent primary blue, "Keep it" is the lighter secondary.
-// That mirrors reality faithfully, but Chrome's visual weight points at
-// the wrong button for us. We compensate with our brand-color glow ring
-// + pulsing arrow + "Tap this button" label on "Keep it" — the
-// annotation has to be louder than Chrome makes it. That's literally
-// the conversion lever.
-function ChromeDialogMockup(): ReactElement {
-  return (
-    <div
-      role="img"
-      aria-label='Chrome dialog asking "Change back to Google?" with a callout pointing to the "Keep it" button.'
-      className="relative w-full max-w-[28rem] select-none"
-    >
-      <div className="rounded-24 bg-raw-pepper-90 p-5 shadow-2 ring-1 ring-border-subtlest-tertiary">
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden
-              className="h-6 w-6"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill="#4285F4"
-                d="M21.6 12.227c0-.709-.064-1.39-.182-2.045H12v3.868h5.382a4.6 4.6 0 0 1-1.995 3.018v2.51h3.232c1.89-1.741 2.98-4.305 2.98-7.351Z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 22c2.7 0 4.964-.895 6.62-2.422l-3.233-2.51c-.895.6-2.04.955-3.387.955-2.605 0-4.81-1.76-5.596-4.123H3.064v2.59A9.997 9.997 0 0 0 12 22Z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M6.404 13.9A6.002 6.002 0 0 1 6.09 12c0-.66.114-1.3.314-1.9V7.51H3.064A9.996 9.996 0 0 0 2 12c0 1.614.386 3.14 1.064 4.49l3.34-2.59Z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.977c1.47 0 2.786.505 3.823 1.496l2.868-2.868C16.96 2.991 14.695 2 12 2A9.997 9.997 0 0 0 3.064 7.51l3.34 2.59C7.19 7.737 9.395 5.977 12 5.977Z"
-              />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <p className="font-bold text-white typo-callout">
-              Change back to Google?
-            </p>
-            <p className="text-white/70 mt-1 typo-footnote">
-              This page was changed by the &quot;daily.dev&quot; extension.
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 flex items-center justify-end gap-2">
-          {/* "Keep it" — light/secondary in real Chrome. We make it loud
-              with the brand-color glow + animated arrow + label below. */}
-          <span className="relative inline-flex animate-pulse items-center justify-center rounded-12 bg-[#d3e3fd] px-5 py-2 font-bold text-[#0b57d0] ring-2 ring-action-upvote-default ring-offset-2 ring-offset-raw-pepper-90 typo-callout">
-            Keep it
-          </span>
-          {/* "Change it back" — the actual primary blue in real Chrome. */}
-          <span className="inline-flex items-center justify-center rounded-12 bg-[#1a73e8] px-5 py-2 font-bold text-white typo-callout">
-            Change it back
-          </span>
-        </div>
-      </div>
+// The whole non-recovery primer visual: a single autoplay/loop video
+// that rehearses the upcoming click — bubble fades in, cursor lands on
+// "Keep it", bubble dismisses, feed flashes. Subtitles are intended to
+// be burned into the video itself so the user learns the motor sequence
+// visually + verbally in a single artifact.
+//
+// TODO(BEFORE-MERGE): currently served from webapp/public for local
+// testing. Upload to Cloudinary and swap ACTIVATION_DEMO_URL for the
+// hosted URL before merging. While re-recording for production, bake
+// in subtitles per the design brief:
+//   0:00 "In a moment, Chrome will ask…"
+//   0:02 "Tap Keep it — left button."
+//   0:04 "Done. Your new tab is live."
+const ACTIVATION_DEMO_URL = '/activate-demo.mp4';
 
-      <div className="mt-3 flex justify-start pl-6">
-        <div className="flex flex-col items-center gap-1">
-          <svg
-            aria-hidden
-            viewBox="0 0 16 16"
-            className="h-4 w-4 rotate-180 text-action-upvote-default"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M8 16 0 6h5V0h6v6h5L8 16Z" />
-          </svg>
-          <span className="rounded-8 bg-action-upvote-default px-2 py-1 font-bold text-white shadow-2 typo-caption1">
-            Tap this one
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Three-step rail that predicts the entire post-click journey so
-// nothing about the next ~10 seconds surprises the user. Surprise is
-// what fuels the "Change it back" reflex on Chrome's bubble; removing
-// surprise pre-empts the reflex.
-function JourneyRail(): ReactElement {
-  const steps = [
-    { n: '1', label: 'Keep it', active: true },
-    { n: '2', label: 'Sign in (5s)', active: false },
-    { n: '3', label: 'Tab live', active: false },
-  ];
+function ActivationDemoVideo(): ReactElement {
   return (
-    <ol
-      aria-label="Three-step journey"
-      className="flex w-full max-w-[28rem] items-center justify-between gap-2"
-    >
-      {steps.map((step, i) => (
-        <Fragment key={step.n}>
-          <li
-            className={classNames(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 typo-caption1',
-              step.active
-                ? 'bg-action-upvote-default font-bold text-white'
-                : 'bg-surface-float text-text-tertiary',
-            )}
-          >
-            <span
-              className={classNames(
-                'flex h-4 w-4 shrink-0 items-center justify-center rounded-full typo-caption2',
-                step.active
-                  ? 'bg-white/30 text-white'
-                  : 'bg-text-tertiary/20 text-text-tertiary',
-              )}
-            >
-              {step.n}
-            </span>
-            {step.label}
-          </li>
-          {i < steps.length - 1 && (
-            <span aria-hidden className="text-text-tertiary typo-caption1">
-              →
-            </span>
-          )}
-        </Fragment>
-      ))}
-    </ol>
-  );
-}
-
-// Dialog mock + journey rail. The mock shows what to tap; the rail
-// shows what comes after. Together they remove every surprise between
-// the primer click and a successful new-tab activation.
-function ActivationVisual(): ReactElement {
-  return (
-    <div className="flex w-full max-w-[32rem] flex-col items-center gap-5">
-      <ChromeDialogMockup />
-      <JourneyRail />
-    </div>
+    <video
+      src={ACTIVATION_DEMO_URL}
+      className="aspect-video w-full max-w-[36rem] rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
+      muted
+      autoPlay
+      loop
+      playsInline
+      disablePictureInPicture
+      controls={false}
+      aria-label="Rehearsal of Chrome's confirmation bubble and the Keep it click"
+    />
   );
 }
 
@@ -281,108 +161,6 @@ function ExtensionsPageCardMockup(): ReactElement {
   );
 }
 
-// Three tight one-line trust bullets under the CTA. Reversibility goes
-// FIRST because it directly defuses the exact thought process Chrome's
-// bubble triggers ("ugh, what if I don't like this, get me out"). The
-// first bullet kills the kill-switch reflex; the others are supporting.
-function TrustBullets(): ReactElement {
-  const bullets: Array<{ label: string; body: string }> = [
-    {
-      label: 'Reversible',
-      body: 'one click in chrome://extensions to undo',
-    },
-    { label: 'Private', body: 'we never read your browsing history' },
-    { label: 'Curated', body: 'top engineering posts, zero clickbait' },
-  ];
-  return (
-    <ul className="mx-auto flex w-full max-w-[24rem] flex-col items-start gap-1.5">
-      {bullets.map((bullet) => (
-        <li
-          key={bullet.label}
-          className="flex items-center gap-2 text-text-tertiary typo-footnote"
-        >
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            className="h-3.5 w-3.5 shrink-0 text-status-success"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={3}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="m4 12 5 5L20 6" />
-          </svg>
-          <span>
-            <span className="font-bold text-text-secondary">
-              {bullet.label}
-            </span>{' '}
-            — {bullet.body}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-// Expandable disclosure for the skeptical user. The reviewer's bet
-// (worth testing): users who open this convert ~1.5-2x non-openers,
-// because the same paranoia that drives "Change it back" also drives
-// "let me read what this is first." Fires a one-shot telemetry event
-// on first expansion so we can segment conversion by openers vs.
-// non-openers.
-type WhyChromeAsksProps = {
-  logEvent: ReturnType<typeof useLogContext>['logEvent'];
-};
-function WhyChromeAsks({ logEvent }: WhyChromeAsksProps): ReactElement {
-  const [open, setOpen] = useState(false);
-  const loggedRef = useRef(false);
-  const handleClick = useCallback((): void => {
-    setOpen((prev) => {
-      const next = !prev;
-      if (next && !loggedRef.current) {
-        loggedRef.current = true;
-        logEvent({ event_name: LogEvent.ExtensionPrimerWhyChromeExpanded });
-      }
-      return next;
-    });
-  }, [logEvent]);
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <button
-        type="button"
-        onClick={handleClick}
-        aria-expanded={open}
-        className="text-text-tertiary underline-offset-2 typo-footnote hover:underline"
-      >
-        Why is Chrome asking this? {open ? '⌃' : '⌄'}
-      </button>
-      {open && (
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="max-w-[28rem] text-center"
-        >
-          Chrome shows this any time an extension changes your new tab —
-          it&apos;s a privacy guardrail we actually appreciate, even when the
-          wording is confusing.
-        </Typography>
-      )}
-    </div>
-  );
-}
-
-// TODO: swap ChromeDialogMockup for a short autoplay/loop/muted video
-// once recorded. Pattern to use (see OnboardingPlusVariationV1.tsx):
-//   <video src={url} poster={posterUrl} muted autoPlay loop playsInline
-//          disablePictureInPicture controls={false} className="..." />
-// The video should show: new tab opens → "Change back to Google?" dialog
-// appears → cursor moves to the "Keep it" button → click → daily.dev
-// feed loads. Until the asset exists, the static mockup conveys the
-// same information.
-
 export function NewTabActivationPrimer({
   onComplete,
 }: NewTabActivationPrimerProps): ReactElement {
@@ -394,11 +172,10 @@ export function NewTabActivationPrimer({
   const heartbeatTimerRef = useRef<ReturnType<typeof globalThis.setInterval>>();
   const heartbeatFailuresRef = useRef(0);
   const completedRef = useRef(false);
-  // Captured the moment the user clicks "Keep it" on the primer so we
-  // can measure the time-to-activation on the Chrome dialog. A small
-  // number means the priming worked — the user's muscle memory was
-  // primed and they tapped Keep it quickly. A large number means they
-  // hesitated, and we lost the click-through.
+  // Captured the moment the user clicks the primer CTA so we can measure
+  // the time-to-activation on Chrome's bubble. Small = priming worked
+  // (user tapped Keep it quickly). Large = hesitation = we lost the
+  // click-through.
   const ctaClickAtRef = useRef<number | undefined>(undefined);
 
   const updateState = useCallback((next: PrimerState): void => {
@@ -469,11 +246,8 @@ export function NewTabActivationPrimer({
     };
   }, [logEvent, stopPolling, stopHeartbeat]);
 
-  // Heartbeat: ping the extension every couple of seconds so we can flip
-  // to recovery immediately when Chrome disables it (the side effect of
-  // the user picking "Change it back" on the override dialog). Two
-  // consecutive failures trigger recovery — a single missed ping during
-  // service-worker sleep is forgiven.
+  // Heartbeat: detect when the extension goes away (uninstall or some
+  // disabled-by-Chrome edge cases) and flip to recovery quickly.
   useEffect(() => {
     const runHeartbeat = async (): Promise<void> => {
       if (completedRef.current || stateRef.current === 'recovery') {
@@ -496,8 +270,6 @@ export function NewTabActivationPrimer({
       runHeartbeat,
       HEARTBEAT_INTERVAL_MS,
     );
-    // Fire one immediately so a missing extension at mount time is caught
-    // before the first interval tick.
     runHeartbeat();
 
     return stopHeartbeat;
@@ -546,9 +318,8 @@ export function NewTabActivationPrimer({
       return;
     }
     // Bridge failed — almost always because Chrome already disabled the
-    // extension when the user picked "Change it back". Web pages cannot
-    // navigate to chrome:// URLs without an enabled extension proxying
-    // the navigation, so fall back to telling the user to do it.
+    // extension. Web pages cannot navigate to chrome:// URLs without an
+    // enabled extension proxying, so fall back to telling the user.
     setShowManualHint(true);
   }, []);
 
@@ -556,61 +327,44 @@ export function NewTabActivationPrimer({
   const isWaiting = state === 'waiting';
 
   return (
-    <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-8">
+    <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-10">
       <div
         className={classNames(
-          'flex w-full max-w-[36rem] flex-col items-center gap-5 text-center',
+          'flex w-full max-w-[36rem] flex-col items-center gap-6 text-center',
         )}
       >
-        {!isRecovery && (
-          <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-3.5 py-1.5 text-text-tertiary typo-footnote">
-            Step 1 of 3 · ~10 seconds total
-          </span>
-        )}
-
         <Typography
           tag={TypographyTag.H1}
           type={TypographyType.LargeTitle}
           color={TypographyColor.Primary}
           bold
         >
-          {isRecovery ? 'Almost there' : 'Tap "Keep it" when Chrome asks'}
+          {isRecovery ? 'Almost there' : 'One click and you’re in'}
         </Typography>
 
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          {isRecovery
-            ? 'Looks like daily.dev was turned off. Open the extensions page, find daily.dev, and flip the toggle back on.'
-            : 'Chrome will pop up this exact box. Tap the left button.'}
-        </Typography>
+        {isRecovery && (
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+          >
+            Looks like daily.dev was turned off. Open the extensions page, find
+            daily.dev, and flip the toggle back on.
+          </Typography>
+        )}
 
-        {!isRecovery && <ActivationVisual />}
+        {!isRecovery && <ActivationDemoVideo />}
 
         {!isRecovery && (
-          <div className="flex w-full flex-col items-center gap-4">
-            <div className="flex flex-col items-center gap-1.5">
-              <Button
-                type="button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Large}
-                disabled={isWaiting}
-                onClick={handleActivateClick}
-              >
-                {isWaiting ? 'Waiting for you to confirm…' : 'Keep it'}
-              </Button>
-              <p className="text-text-tertiary typo-caption1">
-                Then a 5-second sign-in, and you&apos;re in.
-              </p>
-            </div>
-            <p className="text-text-tertiary typo-footnote">
-              Trusted by millions of developers · 4.8★ on the Chrome Web Store
-            </p>
-            <TrustBullets />
-            <WhyChromeAsks logEvent={logEvent} />
-          </div>
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
+            disabled={isWaiting}
+            onClick={handleActivateClick}
+          >
+            {isWaiting ? 'Opening…' : 'Activate new tab'}
+          </Button>
         )}
 
         {isRecovery && <ExtensionsPageCardMockup />}
