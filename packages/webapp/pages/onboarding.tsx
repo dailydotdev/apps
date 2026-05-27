@@ -326,6 +326,36 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     setPrimerDone(true);
   }, []);
 
+  // TODO(REMOVE-BEFORE-MERGE): one-shot console log so the primer gating
+  // conditions can be inspected during local QA. Delete before merge.
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.info('[primer-debug]', {
+      isAuthReady,
+      isLoggedIn,
+      isExtensionInstalled,
+      isExtensionReentry,
+      isPrimerDone,
+      isPrimerFeatureLoading,
+      isPrimerFeatureEnabled,
+      FORCE_PRIMER_FOR_TESTING,
+      installedMarker:
+        document.documentElement?.dataset?.dailyExtensionInstalled,
+    });
+  }, [
+    isAuthReady,
+    isLoggedIn,
+    isExtensionInstalled,
+    isExtensionReentry,
+    isPrimerDone,
+    isPrimerFeatureLoading,
+    isPrimerFeatureEnabled,
+    FORCE_PRIMER_FOR_TESTING,
+  ]);
+
   const shouldShowPrimer =
     isAuthReady &&
     !isLoggedIn &&
