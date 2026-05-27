@@ -206,7 +206,7 @@ export default function ProfileButton({
           icon={<SettingsIcon />}
         />
       ) : (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="flex h-10 items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
             {isStreaksEnabled && streak && (
               <ReadingStreakButton
