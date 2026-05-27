@@ -33,7 +33,6 @@ import type { AllFeedPages } from '../../lib/query';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
-import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
@@ -190,14 +189,6 @@ export const SearchControlHeader = ({
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
-      />
-    ),
-    hasFeedActions && (
-      <ToggleClickbaitShield
-        origin={
-          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
-        }
-        key="toggle-clickbait-shield"
       />
     ),
     hasFeedActions && <IntroQuestButton key="intro-quests" />,

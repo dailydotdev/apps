@@ -17,7 +17,6 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeedTagsList } from '../hooks/useFeedTagsList';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
-import { BriefSwitcher } from '../features/briefingHome/BriefSwitcher';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
@@ -719,9 +718,6 @@ export default function MainFeedLayout({
       {isSearchOn && !isSearchPageLaptop && search}
       {isSearchOn && isFinder && !isSearchPageLaptop && (
         <AskSearchBanner className="mx-4 mb-4" />
-      )}
-      {isHomePage && !!user && (
-        <BriefSwitcher className="mb-4 mt-2 self-center" />
       )}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero

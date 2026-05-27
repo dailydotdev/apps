@@ -30,7 +30,7 @@ export const BriefSwitcher = ({
     <nav
       aria-label="Brief / feed switch"
       className={classNames(
-        'mx-auto inline-flex w-fit items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1',
+        'inline-flex w-fit shrink-0 items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1',
         className,
       )}
     >

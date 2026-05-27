@@ -7,6 +7,7 @@ import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
+import { BriefSwitcher } from '../../features/briefingHome/BriefSwitcher';
 import type { ExploreCategory } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
 
@@ -72,6 +73,7 @@ export function ExploreChipsBar({
         ref={scrollRef}
         className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
       >
+        <BriefSwitcher />
         {allCategories.map((category) => {
           // For You owns the homepage. Match it against both `/` and `/my-feed`
           // so the user's default custom feed (also at `/`) doesn't steal the

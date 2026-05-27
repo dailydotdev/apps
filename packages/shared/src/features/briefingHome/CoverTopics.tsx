@@ -48,7 +48,7 @@ const TopicRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-start gap-4 px-4 py-2.5 text-left transition-colors',
+          'group flex w-full items-start gap-4 px-4 py-3.5 text-left transition-colors',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
@@ -145,7 +145,13 @@ export const CoverTopics = ({
           className="text-accent-water-default"
           secondary
         />
-        <Typography type={TypographyType.Title3}>Headlines</Typography>
+        <Typography
+          type={TypographyType.Body}
+          bold
+          color={TypographyColor.Secondary}
+        >
+          Headlines
+        </Typography>
         <Button
           type="button"
           variant={ButtonVariant.Tertiary}

@@ -13,6 +13,7 @@ import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { buildPersonalizedCategories } from './exploreCategories';
+import { BriefSwitcher } from '../../features/briefingHome/BriefSwitcher';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -231,6 +232,7 @@ function UnifiedMobileFeedNav(): ReactElement {
       ref={scrollRef}
       className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-3 py-2"
     >
+      {isLoggedIn && <BriefSwitcher />}
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {
