@@ -207,12 +207,13 @@ export default function ProfileButton({
         />
       ) : (
         <div className="flex items-center gap-2">
-          <div className="flex h-10 items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float px-1">
+          <div className="flex h-10 items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
             {isStreaksEnabled && streak && (
               <ReadingStreakButton
                 streak={streak}
                 isLoading={isLoading}
                 compact
+                className="!h-full !rounded-none"
               />
             )}
             {hasCoresAccess && (
@@ -236,7 +237,7 @@ export default function ProfileButton({
                       tag="a"
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
-                      className="!px-1.5"
+                      className="!h-full !rounded-none !px-1.5"
                     >
                       {largeNumberFormat(displayedBalance)}
                     </Button>
@@ -260,7 +261,7 @@ export default function ProfileButton({
                   }
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
-                  className="!px-1.5"
+                  className="!h-full !rounded-none !px-1.5"
                   onClick={wrapHandler(() => onUpdate(!isOpen))}
                 >
                   {largeNumberFormat(displayedReputation ?? 0)}
