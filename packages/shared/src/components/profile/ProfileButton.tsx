@@ -50,7 +50,7 @@ export default function ProfileButton({
     Partial<Record<QuestRewardType.Reputation | QuestRewardType.Cores, string>>
   >({});
   const coresCounterRef = useRef<HTMLDivElement | null>(null);
-  const reputationCounterRef = useRef<HTMLDivElement | null>(null);
+  const reputationCounterRef = useRef<HTMLSpanElement | null>(null);
   const displayedBalance =
     typeof animatedCores === 'number'
       ? animatedCores
@@ -212,7 +212,7 @@ export default function ProfileButton({
               streak={streak}
               isLoading={isLoading}
               compact
-              className="!h-full !rounded-none !pl-2 !pr-2.5"
+              className="!h-full !rounded-none !pl-1.5 !pr-2"
             />
           )}
           {hasCoresAccess && (
@@ -236,7 +236,7 @@ export default function ProfileButton({
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
-                    className="!h-full !rounded-none !px-2.5"
+                    className="!h-full !rounded-none !px-2"
                   >
                     {largeNumberFormat(displayedBalance)}
                   </Button>
@@ -244,41 +244,35 @@ export default function ProfileButton({
               </div>
             </Tooltip>
           )}
-          <Tooltip content="Reputation">
-            <div
-              ref={reputationCounterRef}
-              className="flex origin-center justify-center will-change-transform"
-            >
-              <Button
-                type="button"
-                data-reward-target={QuestRewardType.Reputation}
-                icon={
-                  <ReputationIcon
-                    className="text-accent-onion-default"
-                    size={IconSize.Medium}
-                  />
-                }
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                className="!h-full !rounded-none !pl-1.5 !pr-2.5"
-                onClick={wrapHandler(() => onUpdate(!isOpen))}
-              >
-                {largeNumberFormat(displayedReputation ?? 0)}
-              </Button>
-            </div>
-          </Tooltip>
           <Tooltip side="bottom" content="Profile settings">
             <Button
               type="button"
               aria-label="Profile settings"
+              icon={
+                <ReputationIcon
+                  className="text-accent-onion-default"
+                  size={IconSize.Medium}
+                />
+              }
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
-              className={classNames('!h-full !rounded-none !px-1.5', className)}
+              className={classNames(
+                '!h-full !rounded-none !pl-1 !pr-1',
+                className,
+              )}
               onClick={wrapHandler(() => onUpdate(!isOpen))}
             >
+              <span
+                ref={reputationCounterRef}
+                data-reward-target={QuestRewardType.Reputation}
+                className="inline-flex origin-center items-center will-change-transform"
+              >
+                {largeNumberFormat(displayedReputation ?? 0)}
+              </span>
               <ProfilePictureWithIndicator
                 user={user}
                 size={ProfileImageSize.Medium}
+                wrapperClassName="relative ml-2"
               />
             </Button>
           </Tooltip>
