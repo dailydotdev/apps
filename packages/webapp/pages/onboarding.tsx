@@ -301,6 +301,11 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
         isExtensionInstalled &&
         !isExtensionReentry,
     });
+  // TODO(REMOVE-BEFORE-MERGE): testing override — forces the primer on for
+  // every fresh install regardless of the GrowthBook flag, so the flow can
+  // be exercised end-to-end locally. Delete this constant and the usage in
+  // `shouldShowPrimer` below before merging.
+  const FORCE_PRIMER_FOR_TESTING = true;
   const [isPrimerDone, setPrimerDone] = useState<boolean>(() => {
     if (typeof window === 'undefined') {
       return false;
@@ -327,8 +332,10 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     isExtensionInstalled &&
     !isExtensionReentry &&
     !isPrimerDone &&
-    !isPrimerFeatureLoading &&
-    isPrimerFeatureEnabled;
+    // TODO(REMOVE-BEFORE-MERGE): testing override — replace the next line
+    // with `!isPrimerFeatureLoading && isPrimerFeatureEnabled` before merge.
+    (FORCE_PRIMER_FOR_TESTING ||
+      (!isPrimerFeatureLoading && isPrimerFeatureEnabled));
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
