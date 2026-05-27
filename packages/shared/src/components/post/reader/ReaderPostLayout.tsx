@@ -6,10 +6,10 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { getReadArticleHref } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';
+import { usePostById } from '../../../hooks/usePostById';
 import { ActivePostContextProvider } from '../../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -20,13 +20,20 @@ import { ReaderChrome } from './ReaderChrome';
 import { ArticleReaderFrame } from './ArticleReaderFrame';
 import { EngagementRail } from './EngagementRail';
 import { ReaderFloatingActionBar } from './ReaderFloatingActionBar';
-import { PaneDivider } from './PaneDivider';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
 import { useIframeEmbed } from './hooks/useIframeEmbed';
 import { useReadArticle } from '../../../hooks/usePostContent';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ArrowIcon } from '../../icons';
+import { Tooltip } from '../../tooltip/Tooltip';
+import { readerHeaderActionGroupClassName } from './ReaderHeaderActionButtons';
 
 const CHROME_TOP_OFFSET_PX = 72;
 const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
+// Rail width is fixed so the article column and discussion rail keep a
+// deliberate, balanced layout instead of letting users collapse one pane.
+const FIXED_RAIL_WIDTH_PX = 380;
+const SHELL_MAX_WIDTH = 'min(96vw, 100rem)';
 
 type ReaderPostLayoutProps = {
   post: Post;
@@ -49,7 +56,7 @@ type ReaderPostLayoutProps = {
 };
 
 export function ReaderPostLayout({
-  post,
+  post: initialPost,
   postPosition,
   onPreviousPost,
   onNextPost,
@@ -57,6 +64,12 @@ export function ReaderPostLayout({
   outerClassName,
   isPostPage = false,
 }: ReaderPostLayoutProps): ReactElement {
+  // Subscribe to the post-by-id cache so optimistic updates from
+  // useBookmarkPost / useVotePost (which call setQueryData on this key) flow
+  // back into the reader UI. Without this, bookmark/upvote/etc. fire but the
+  // icons keep showing the initial prop's state.
+  const { post: cachedPost } = usePostById({ id: initialPost?.id });
+  const post = cachedPost ?? initialPost;
   const { targetUrl, isEmbeddable } = useIframeEmbed(post.permalink);
   const { logEvent } = useLogContext();
   const { openNewTab } = useContext(SettingsContext);
@@ -110,14 +123,14 @@ export function ReaderPostLayout({
     onClose();
   }, [logEvent, onClose, post.id, surface]);
   const layoutContainerRef = useRef<HTMLDivElement | null>(null);
-  const {
-    isRailOpen,
-    setRailOpen,
-    railWidthPx,
-    setRailWidthPx,
-    minRailWidthPx,
-    maxRailWidthPx,
-  } = useReaderLayoutPrefs(layoutContainerRef);
+  const { isRailOpen, setRailOpen } = useReaderLayoutPrefs(layoutContainerRef);
+  const railWidthPx = FIXED_RAIL_WIDTH_PX;
+  // Width is fixed; reader-context consumers still expect this setter, so we
+  // provide a no-op that keeps the (width: number) => void signature.
+  const setRailWidthPx = useCallback<(width: number) => void>(
+    () => undefined,
+    [],
+  );
 
   const focusCommentRef = useRef<() => void>(() => {});
   const onRegisterFocusComment = useCallback((fn: () => void) => {
@@ -142,17 +155,6 @@ export function ReaderPostLayout({
     focusCommentRef.current();
   }, [isRailOpen, setRailOpen]);
 
-  const onResizeDelta = useCallback(
-    (deltaPx: number) => {
-      setRailWidthPx(railWidthPx + deltaPx);
-    },
-    [railWidthPx, setRailWidthPx],
-  );
-
-  const clampedRailWidth = Math.min(
-    maxRailWidthPx,
-    Math.max(minRailWidthPx, railWidthPx),
-  );
   const hasEmbeddedReaderHeader = !!targetUrl && isEmbeddable;
 
   const readerContextValue = useMemo(
@@ -182,35 +184,21 @@ export function ReaderPostLayout({
             className={outerClassName ?? DEFAULT_OUTER_CLASS_NAME}
             data-testid="readerPostLayout"
           >
-            <div className="relative flex min-h-0 flex-1 flex-col">
+            <div
+              className="relative mx-auto flex min-h-0 w-full flex-1 flex-col"
+              style={{ maxWidth: SHELL_MAX_WIDTH }}
+            >
               <div
                 ref={layoutContainerRef}
-                className={classNames(
-                  'grid min-h-0 flex-1',
-                  isRailOpen && 'gap-0',
-                )}
+                className="grid min-h-0 flex-1"
                 style={
                   isRailOpen
                     ? {
-                        gridTemplateColumns: `${clampedRailWidth}px auto minmax(0,1fr)`,
+                        gridTemplateColumns: `minmax(0,1fr) ${FIXED_RAIL_WIDTH_PX}px`,
                       }
                     : { gridTemplateColumns: 'minmax(0,1fr)' }
                 }
               >
-                {isRailOpen && (
-                  <>
-                    <EngagementRail
-                      post={post}
-                      postPosition={postPosition}
-                      onPreviousPost={onPreviousPost}
-                      onNextPost={onNextPost}
-                      onRegisterFocusComment={onRegisterFocusComment}
-                      className="min-w-0"
-                      onBackToFeed={isPostPage ? onCloseWithLog : undefined}
-                    />
-                    <PaneDivider onResizeDelta={onResizeDelta} />
-                  </>
-                )}
                 <div className="relative flex min-h-0 min-w-0 flex-col">
                   <ArticleReaderFrame
                     post={post}
@@ -218,17 +206,46 @@ export function ReaderPostLayout({
                     isEmbeddable={isEmbeddable}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
-                    onClose={onCloseWithLog}
+                    // Close lives in the rail header; when the rail is
+                    // collapsed we keep an escape hatch in the iframe chrome.
+                    onClose={
+                      isPostPage || isRailOpen ? undefined : onCloseWithLog
+                    }
+                    // The legacy "Close preview" toggle stays wired even when
+                    // the rail owns the (X) close — otherwise the toggle just
+                    // flips an opt-out flag with no visible effect.
+                    onLegacyLayoutClose={
+                      isPostPage ? undefined : onCloseWithLog
+                    }
                     isPostPage={isPostPage}
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
                     onEmbedReady={onEmbedReady}
                     targetHref={readArticleHref}
                     onTargetLinkClick={onReadArticle}
                     targetLinkInNewTab={openNewTab}
+                    leftHeaderActions={
+                      isPostPage ? (
+                        <div className={readerHeaderActionGroupClassName}>
+                          <Tooltip content="Back to feed">
+                            <Button
+                              type="button"
+                              variant={ButtonVariant.Tertiary}
+                              size={ButtonSize.Small}
+                              icon={<ArrowIcon className="-rotate-90" />}
+                              onClick={onCloseWithLog}
+                              aria-label="Back to feed"
+                              className="!h-8 !w-8 !min-w-8 !rounded-10 !p-0"
+                            />
+                          </Tooltip>
+                        </div>
+                      ) : undefined
+                    }
                   />
                   {!hasEmbeddedReaderHeader && (
                     <ReaderChrome
-                      onClose={onCloseWithLog}
+                      onClose={
+                        isPostPage || isRailOpen ? undefined : onCloseWithLog
+                      }
                       isPostPage={isPostPage}
                     />
                   )}
@@ -237,6 +254,18 @@ export function ReaderPostLayout({
                     onCommentClick={focusDiscussionComposer}
                   />
                 </div>
+                {isRailOpen && (
+                  <EngagementRail
+                    post={post}
+                    postPosition={postPosition}
+                    onPreviousPost={onPreviousPost}
+                    onNextPost={onNextPost}
+                    onRegisterFocusComment={onRegisterFocusComment}
+                    className="min-w-0 border-l border-border-subtlest-tertiary"
+                    onClose={!isPostPage ? onCloseWithLog : undefined}
+                    inlineHeaderMenu={isPostPage}
+                  />
+                )}
               </div>
             </div>
           </div>

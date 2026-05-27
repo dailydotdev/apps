@@ -150,13 +150,6 @@ const SocialTwitterPostModal = dynamic(
     ),
 );
 
-const ReaderPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
-    ),
-);
-
 const BriefCardFeed = dynamic(
   () =>
     import(
@@ -600,20 +593,8 @@ export default function Feed<T>({
     if (!selectedPost) {
       return undefined;
     }
-    const readerEligibleTypes = new Set([
-      PostType.Article,
-      PostType.Digest,
-      PostType.VideoYouTube,
-    ]);
-    if (
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligibleTypes.has(selectedPost.type)
-    ) {
-      return ReaderPostModal;
-    }
     return PostModalMap[selectedPost.type];
-  }, [selectedPost, isReaderModalFeatureReady, isReaderModalOn]);
+  }, [selectedPost]);
 
   if (!loadedSettings || isFallback) {
     return <></>;
