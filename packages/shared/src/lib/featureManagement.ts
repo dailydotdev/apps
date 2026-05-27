@@ -32,11 +32,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
-export const featureMajorHeadlinesPush = new Feature(
-  'major_headlines_push',
-  false,
-);
 export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,
@@ -182,7 +177,7 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal', false);
+export const featureReaderModal = new Feature('reader_modal_v2', false);
 
 export const featureGenericReferralPopupV2 = new Feature(
   'generic_referral_popup_v2',
@@ -206,3 +201,8 @@ export const featureFeedTagChips = new Feature('feed_tag_chips', false);
 export const featureLayoutV2 = new Feature('layout_v2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+export const featurePostHighlightCards = new Feature(
+  'post_highlight_cards',
+  false,
+);

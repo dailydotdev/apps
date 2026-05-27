@@ -104,6 +104,8 @@ export enum LazyModal {
   CompareAchievements = 'compareAchievements',
   AchievementShowcase = 'achievementShowcase',
   IntroQuests = 'introQuests',
+  ReaderInstallPrompt = 'readerInstallPrompt',
+  ReaderPreview = 'readerPreview',
 }
 
 export type ModalTabItem = {

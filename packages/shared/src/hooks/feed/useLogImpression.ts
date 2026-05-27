@@ -29,6 +29,7 @@ export default function useLogImpression(
   row: number,
   feedName: string,
   ranking?: string,
+  highlightColSpan?: number,
 ): (node?: Element | null) => void {
   const { logEventStart, logEventEnd } = useLogContext();
   const postLogEvent = usePostLogEvent();
@@ -40,6 +41,7 @@ export default function useLogImpression(
     if (item.type === 'post') {
       const eventKey = generatePostLogEventKey(item.post.id);
       if (inView && !item.post.impressionStatus) {
+        const significance = item.post.postHighlight?.significance;
         logEventStart(
           eventKey,
           postLogEvent(LogEvent.Impression, item.post, {
@@ -54,6 +56,12 @@ export default function useLogImpression(
                 ? item.post.sharedPost?.clickbaitTitleDetected
                 : item.post.clickbaitTitleDetected,
               feedback: item.post.type === PostType.Article ? true : undefined,
+              ...(!!significance && {
+                highlight_significance: significance,
+                ...(!!highlightColSpan && {
+                  highlight_col_span: highlightColSpan,
+                }),
+              }),
             },
           }),
         );

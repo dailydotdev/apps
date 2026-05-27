@@ -46,8 +46,6 @@ import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/Acti
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
-import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
-import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -118,12 +116,6 @@ const DigestPostContent = dynamic(() =>
   ).then((module) => module.DigestPostContent),
 );
 
-const ReaderPostLayout = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyReaderPostLayout" */ '@dailydotdev/shared/src/components/post/reader/ReaderPostLayout'
-  ).then((module) => module.ReaderPostLayout),
-);
-
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -132,15 +124,6 @@ export interface Props extends DynamicSeoProps {
 }
 
 type PostContentComponent = ComponentType<PostContentProps>;
-
-const READER_ELIGIBLE_POST_TYPES = new Set<PostType>([
-  PostType.Article,
-  PostType.Digest,
-  PostType.VideoYouTube,
-]);
-
-const READER_PAGE_LAYOUT_CLASS_NAME =
-  'flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full flex-col';
 
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
@@ -211,19 +194,6 @@ export const PostPage = ({
       retry: false,
     },
   });
-  const {
-    isEligible: isReaderEligible,
-    isReaderModalEnabled: readerModalFromGrowthBook,
-    isReaderFeatureLoading,
-  } = useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const isTabletViewport = useViewSize(ViewSize.Tablet);
-  const isReaderModalOn =
-    isReaderEligible &&
-    readerModalFromGrowthBook &&
-    !isLegacyLayoutOptedOut &&
-    isTabletViewport;
-  const isReaderModalFeatureReady = !isReaderFeatureLoading;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -283,19 +253,6 @@ export const PostPage = ({
     return <Custom404 />;
   }
 
-  const onReaderClose = () => {
-    if (globalThis.window?.history?.length > 1) {
-      router.back();
-      return;
-    }
-    router.push(webappUrl);
-  };
-
-  const shouldUseReaderLayout =
-    isReaderModalFeatureReady &&
-    isReaderModalOn &&
-    READER_ELIGIBLE_POST_TYPES.has(post.type);
-
   return (
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
@@ -313,33 +270,24 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           <PostSEOSchema post={post} topComments={topComments} />
-          {shouldUseReaderLayout ? (
-            <ReaderPostLayout
-              post={post}
-              onClose={onReaderClose}
-              outerClassName={READER_PAGE_LAYOUT_CLASS_NAME}
-              isPostPage
-            />
-          ) : (
-            <Content
-              position={position}
-              isPostPage
-              post={post}
-              isFallback={isFallback}
-              backToSquad={!!router?.query?.squad}
-              shouldOnboardAuthor={!!router.query?.author}
-              origin={Origin.ArticlePage}
-              isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              className={{
-                container: containerClass,
-                fixedNavigation: { container: 'flex laptop:hidden' },
-                navigation: {
-                  container: 'flex tablet:hidden',
-                  actions: 'flex-1 justify-between',
-                },
-              }}
-            />
-          )}
+          <Content
+            position={position}
+            isPostPage
+            post={post}
+            isFallback={isFallback}
+            backToSquad={!!router?.query?.squad}
+            shouldOnboardAuthor={!!router.query?.author}
+            origin={Origin.ArticlePage}
+            isBannerVisible={shouldShowAuthBanner && !isLaptop}
+            className={{
+              container: containerClass,
+              fixedNavigation: { container: 'flex laptop:hidden' },
+              navigation: {
+                container: 'flex tablet:hidden',
+                actions: 'flex-1 justify-between',
+              },
+            }}
+          />
           {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>

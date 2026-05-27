@@ -27,13 +27,13 @@ import {
   ANONYMOUS_FEED_QUERY,
   baseFeedSupportedTypes,
   CUSTOM_FEED_QUERY,
+  feedV2SupportedTypes,
   FEED_BY_TAGS_QUERY,
   FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
-  getFeedV2SupportedTypes,
 } from '../graphql/feed';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
@@ -61,7 +61,6 @@ import {
   discussedFeedVersion,
   feature,
   featureFeedTagChips,
-  featureFeedV2Highlights,
   followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
@@ -325,16 +324,6 @@ export default function MainFeedLayout({
     feature: customFeedVersion,
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
-  const shouldEvaluateFeedV2Highlights =
-    !!user &&
-    ((feedName === SharedFeedPage.MyFeed && !isCustomDefaultFeed) ||
-      feedName === SharedFeedPage.Search ||
-      (feedName === SharedFeedPage.CustomForm &&
-        router.query?.slugOrId === user?.id));
-  const { value: isFeedV2HighlightsEnabled } = useConditionalFeature({
-    feature: featureFeedV2Highlights,
-    shouldEvaluate: shouldEvaluateFeedV2Highlights,
-  });
 
   const isChipStripPage =
     router.pathname === '/' || router.pathname === '/explore/[tag]';
@@ -427,8 +416,7 @@ export default function MainFeedLayout({
       dynamicFeedConfig?.query || feedConfig.query,
       dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
     );
-    const shouldRequestFeedV2Highlights =
-      query === FEED_V2_QUERY && isFeedV2HighlightsEnabled;
+    const shouldRequestFeedV2Highlights = query === FEED_V2_QUERY;
 
     return {
       requestKey: feedConfig.requestKey,
@@ -438,7 +426,7 @@ export default function MainFeedLayout({
         ...dynamicFeedConfig?.variables,
         ...(shouldRequestFeedV2Highlights
           ? {
-              supportedTypes: getFeedV2SupportedTypes(true),
+              supportedTypes: feedV2SupportedTypes,
               highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
             }
           : {}),
@@ -463,7 +451,6 @@ export default function MainFeedLayout({
     customFeedV,
     tokenRefreshed,
     feedVersion,
-    isFeedV2HighlightsEnabled,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
@@ -702,12 +689,11 @@ export default function MainFeedLayout({
         tab={tab}
         setTab={onTabChange}
         showBreadcrumbs={false}
-        showDropdown={false}
         className={{
           container:
-            'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            'sticky top-[4.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
           tabBarHeader: 'no-scrollbar overflow-x-auto',
-          tabBarContainer: 'w-full',
+          tabBarContainer: 'min-w-0 flex-1',
         }}
       />
     );
