@@ -392,27 +392,26 @@ export default function Feed<T>({
   });
   const isHighlightCardLayoutEnabled =
     canRenderHighlightCards && isPostHighlightCardsEnabled;
-  const earlyCurrentPageSize = pageSize ?? currentSettings.pageSize;
-  const earlyShowPromoBanner = !!briefBannerPage;
-  const earlyShowFirstSlotCard = showProfileCompletionCard || showBriefCard;
-  const earlyColumnsDiffWithPage = earlyCurrentPageSize % virtualizedNumCards;
-  const earlyIndexWhenShowingPromoBanner =
-    earlyCurrentPageSize * Number(briefBannerPage) -
-    earlyColumnsDiffWithPage * Number(briefBannerPage) -
-    Number(earlyShowFirstSlotCard);
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const showPromoBanner = !!briefBannerPage;
+  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
+  const indexWhenShowingPromoBanner =
+    currentPageSize * Number(briefBannerPage) - // number of items at that page
+    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
+    Number(showFirstSlotCard);
 
   const fullRowInsertionBeforeIndex = useMemo(() => {
     const set = new Set<number>();
-    if (earlyShowPromoBanner) {
-      set.add(earlyIndexWhenShowingPromoBanner);
+    if (showPromoBanner) {
+      set.add(indexWhenShowingPromoBanner);
     }
     if (shouldShowInFeedHero) {
       set.add(adjustedHeroInsertIndex);
     }
     return set;
   }, [
-    earlyShowPromoBanner,
-    earlyIndexWhenShowingPromoBanner,
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
     shouldShowInFeedHero,
     adjustedHeroInsertIndex,
   ]);
@@ -713,14 +712,6 @@ export default function Feed<T>({
   const isValidFeed = Object.values(SharedFeedPage).includes(
     feedName as SharedFeedPage,
   );
-
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner = !!briefBannerPage;
-  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
-  const indexWhenShowingPromoBanner =
-    currentPageSize * Number(briefBannerPage) - // number of items at that page
-    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showFirstSlotCard);
 
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
