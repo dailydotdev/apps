@@ -62,6 +62,12 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useIsBrowserExtensionInstalled } from '@dailydotdev/shared/src/features/extensionEmbed/useIsBrowserExtensionInstalled';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
 import { getPageSeoTitles } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -268,6 +274,8 @@ const useOnboardingAuth = () => {
   };
 };
 
+const PRIMER_COMPLETED_KEY = 'daily-extension-primer-completed';
+
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const {
@@ -280,6 +288,47 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
+  const { logEvent } = useLogContext();
+  const { isInstalled: isExtensionInstalled } =
+    useIsBrowserExtensionInstalled();
+  const isExtensionReentry = router.query.r === 'extension';
+  const { value: isPrimerFeatureEnabled, isLoading: isPrimerFeatureLoading } =
+    useConditionalFeature({
+      feature: featureOnboardingPermissionPrimer,
+      shouldEvaluate:
+        isAuthReady &&
+        !isLoggedIn &&
+        isExtensionInstalled &&
+        !isExtensionReentry,
+    });
+  const [isPrimerDone, setPrimerDone] = useState<boolean>(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return !!storage.getItem(PRIMER_COMPLETED_KEY);
+  });
+
+  useEffect(() => {
+    if (isExtensionReentry && !storage.getItem(PRIMER_COMPLETED_KEY)) {
+      storage.setItem(PRIMER_COMPLETED_KEY, Date.now().toString());
+      setPrimerDone(true);
+      logEvent({ event_name: LogEvent.ExtensionPrimerSkipped });
+    }
+  }, [isExtensionReentry, logEvent]);
+
+  const handlePrimerComplete = useCallback((): void => {
+    storage.setItem(PRIMER_COMPLETED_KEY, Date.now().toString());
+    setPrimerDone(true);
+  }, []);
+
+  const shouldShowPrimer =
+    isAuthReady &&
+    !isLoggedIn &&
+    isExtensionInstalled &&
+    !isExtensionReentry &&
+    !isPrimerDone &&
+    !isPrimerFeatureLoading &&
+    isPrimerFeatureEnabled;
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
@@ -326,6 +375,16 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     isOnboardingActionsReady,
     router,
   ]);
+
+  if (shouldShowPrimer) {
+    return (
+      <div className="z-3 flex min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden">
+        <OnboardingHeader />
+        <NewTabActivationPrimer onComplete={handlePrimerComplete} />
+        <FooterLinks className="mx-auto pb-6" />
+      </div>
+    );
+  }
 
   if (isAuthenticating) {
     return (
