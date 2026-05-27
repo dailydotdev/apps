@@ -204,61 +204,65 @@ export default function ProfileButton({
           icon={<SettingsIcon />}
         />
       ) : (
-        <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
-          {isStreaksEnabled && streak && (
-            <ReadingStreakButton
-              streak={streak}
-              isLoading={isLoading}
-              compact
-            />
-          )}
-          {hasCoresAccess && (
-            <Tooltip
-              content={
-                <>
-                  Wallet
-                  <br />
-                  {preciseBalance} Cores
-                </>
-              }
-            >
+        <div className="flex items-center gap-2">
+          <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
+            {isStreaksEnabled && streak && (
+              <ReadingStreakButton
+                streak={streak}
+                isLoading={isLoading}
+                compact
+              />
+            )}
+            {hasCoresAccess && (
+              <Tooltip
+                content={
+                  <>
+                    Wallet
+                    <br />
+                    {preciseBalance} Cores
+                  </>
+                }
+              >
+                <div
+                  ref={coresCounterRef}
+                  className="flex origin-center justify-center will-change-transform"
+                >
+                  <Link href={walletUrl} passHref>
+                    <Button
+                      data-reward-target={QuestRewardType.Cores}
+                      icon={<CoreIcon />}
+                      tag="a"
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.Small}
+                      className="!px-1.5"
+                    >
+                      {largeNumberFormat(displayedBalance)}
+                    </Button>
+                  </Link>
+                </div>
+              </Tooltip>
+            )}
+            <Tooltip content="Reputation">
               <div
-                ref={coresCounterRef}
+                ref={reputationCounterRef}
                 className="flex origin-center justify-center will-change-transform"
               >
-                <Link href={walletUrl} passHref>
-                  <Button
-                    data-reward-target={QuestRewardType.Cores}
-                    icon={<CoreIcon />}
-                    tag="a"
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Small}
-                    className="!px-1.5"
-                  >
-                    {largeNumberFormat(displayedBalance)}
-                  </Button>
-                </Link>
+                <Button
+                  type="button"
+                  data-reward-target={QuestRewardType.Reputation}
+                  icon={
+                    <ReputationIcon className="text-accent-onion-default" />
+                  }
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  className="!px-1.5"
+                  onClick={wrapHandler(() => onUpdate(!isOpen))}
+                >
+                  {largeNumberFormat(displayedReputation ?? 0)}
+                </Button>
               </div>
             </Tooltip>
-          )}
-          <Tooltip content="Reputation">
-            <div
-              ref={reputationCounterRef}
-              className="flex origin-center justify-center will-change-transform"
-            >
-              <Button
-                type="button"
-                data-reward-target={QuestRewardType.Reputation}
-                icon={<ReputationIcon className="text-accent-onion-default" />}
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                className="!pl-0.5 !pr-1.5"
-                onClick={wrapHandler(() => onUpdate(!isOpen))}
-              >
-                {largeNumberFormat(displayedReputation ?? 0)}
-              </Button>
-            </div>
-          </Tooltip>
+          </div>
           <Tooltip side="bottom" content="Profile settings">
             <button
               type="button"
