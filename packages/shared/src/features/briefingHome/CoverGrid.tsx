@@ -218,7 +218,7 @@ const StoryRow = ({
         </div>
 
         {isExpanded ? (
-          <div id={panelId} className="flex max-w-3xl flex-col gap-3">
+          <div id={panelId} className="flex max-w-3xl flex-col gap-4">
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Primary}
