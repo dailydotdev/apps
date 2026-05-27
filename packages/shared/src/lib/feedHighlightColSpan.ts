@@ -16,6 +16,14 @@ const WIDENABLE_POST_TYPES = new Set<PostType>([
 ]);
 
 /**
+ * Rolling density cap for wide cards. By default, allow at most one wide
+ * card per ten items, with unused capacity accumulating across the feed.
+ * Matches the PR's packer default so visual rhythm stays consistent if we
+ * ever migrate to the full packer.
+ */
+const LARGE_CARD_DENSITY = { maxLarge: 1, perItems: 10 } as const;
+
+/**
  * Returns the column span a feed item is asking for, before any clamping
  * for column count or fit-to-row.
  *
@@ -77,6 +85,7 @@ export const computeColSpans = (
 
   const colSpans = new Array<number>(items.length);
   let col = 0;
+  let largeCardsPlaced = 0;
 
   items.forEach((item, index) => {
     if (fullRowInsertionBeforeIndex?.has(index) && col !== 0) {
@@ -90,11 +99,24 @@ export const computeColSpans = (
       return;
     }
 
+    // Rolling density cap: max one wide card per `perItems` items, cumulative.
+    const windowIndex = Math.floor(index / LARGE_CARD_DENSITY.perItems);
+    const expectedWindowLarge =
+      windowIndex * LARGE_CARD_DENSITY.maxLarge + LARGE_CARD_DENSITY.maxLarge;
+    if (largeCardsPlaced >= expectedWindowLarge) {
+      colSpans[index] = 1;
+      col = (col + 1) % numCards;
+      return;
+    }
+
     const clampedToGrid = Math.min(requested, numCards);
     const remainingInRow = numCards - col;
     const actual = Math.min(clampedToGrid, remainingInRow);
 
     colSpans[index] = actual;
+    if (actual > 1) {
+      largeCardsPlaced += 1;
+    }
     col = (col + actual) % numCards;
   });
 

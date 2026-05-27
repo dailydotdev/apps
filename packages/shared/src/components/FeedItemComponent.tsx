@@ -299,6 +299,7 @@ function FeedItemComponent({
     row,
     feedName,
     ranking,
+    wideColSpan,
   );
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();

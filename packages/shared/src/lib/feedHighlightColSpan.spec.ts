@@ -175,4 +175,40 @@ describe('computeColSpans', () => {
     const items = [makeAdItem()];
     expect(computeColSpans(items, opts)).toEqual([1]);
   });
+
+  it('caps wide cards to one per ten items', () => {
+    const items = [
+      makePostItem(makePost({ significance: 'notable' })),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost({ significance: 'notable' })),
+    ];
+    // First notable widens (2x1). Second falls back to 1x1 because the
+    // 10-item window has already used its single large slot.
+    expect(computeColSpans(items, opts)).toEqual([2, 1, 1, 1, 1]);
+  });
+
+  it('allows another wide card after the density window rolls over', () => {
+    // 10 small posts then a notable at index 10.
+    const items = [
+      ...Array.from({ length: 10 }, () => makePostItem(makePost())),
+      makePostItem(makePost({ significance: 'notable' })),
+    ];
+    expect(computeColSpans(items, opts)[10]).toBe(2);
+  });
+
+  it('does not consume density budget when a wide card shrinks to 1', () => {
+    // Notable lands at col=3 of a 4-col grid — shrinks to 1.
+    // Next notable is still allowed to widen because the previous one
+    // never actually rendered wide.
+    const items = [
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost({ significance: 'notable' })),
+      makePostItem(makePost({ significance: 'notable' })),
+    ];
+    expect(computeColSpans(items, opts)).toEqual([1, 1, 1, 1, 2]);
+  });
 });
