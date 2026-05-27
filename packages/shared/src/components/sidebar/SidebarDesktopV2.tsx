@@ -667,13 +667,11 @@ export const SidebarDesktopV2 = ({
                 {category.id === SidebarCategory.Saved && isLoggedIn && (
                   <RailHoverCard
                     label="Notifications"
-                    panel={
-                      <NotificationsRailPanel enabled={!sidebarExpanded} />
-                    }
+                    panel={<NotificationsRailPanel />}
                     enabled={!sidebarExpanded}
                   >
                     <div>
-                      <NotificationsBell rail />
+                      <NotificationsBell rail noTooltip />
                     </div>
                   </RailHoverCard>
                 )}

@@ -18,9 +18,11 @@ import { IconSize } from '../Icon';
 function NotificationsBell({
   compact,
   rail,
+  noTooltip,
 }: {
   compact?: boolean;
   rail?: boolean;
+  noTooltip?: boolean;
 }): ReactElement {
   const router = useRouter();
   const atNotificationsPage = router.pathname === notificationsUrl;
@@ -39,34 +41,43 @@ function NotificationsBell({
   const mobileVariant = atNotificationsPage ? undefined : ButtonVariant.Option;
 
   if (rail) {
+    const railLink = (
+      <div>
+        <Link href={`${webappUrl}notifications`} passHref>
+          <a
+            href={`${webappUrl}notifications`}
+            aria-label="Notifications"
+            className={classNames(
+              'focus-outline relative flex h-10 w-10 items-center justify-center rounded-12 transition-colors hover:bg-surface-hover hover:text-text-primary',
+              atNotificationsPage
+                ? 'bg-background-default text-white'
+                : 'text-text-tertiary',
+            )}
+            onClick={onNavigateNotifications}
+          >
+            <BellIcon
+              secondary={atNotificationsPage}
+              size={IconSize.Small}
+              aria-hidden
+              className="pointer-events-none"
+            />
+            {hasNotification && (
+              <Bubble className="-right-1 top-0 cursor-pointer px-1">
+                {getUnreadText(unreadCount)}
+              </Bubble>
+            )}
+          </a>
+        </Link>
+      </div>
+    );
+
+    if (noTooltip) {
+      return railLink;
+    }
+
     return (
       <Tooltip side="right" content="Notifications">
-        <div>
-          <Link href={`${webappUrl}notifications`} passHref>
-            <a
-              href={`${webappUrl}notifications`}
-              aria-label="Notifications"
-              className={classNames(
-                'focus-outline relative flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
-                atNotificationsPage &&
-                  'bg-background-default text-text-primary',
-              )}
-              onClick={onNavigateNotifications}
-            >
-              <BellIcon
-                secondary={atNotificationsPage}
-                size={IconSize.Small}
-                aria-hidden
-                className="pointer-events-none"
-              />
-              {hasNotification && (
-                <Bubble className="-right-1 top-0 cursor-pointer px-1">
-                  {getUnreadText(unreadCount)}
-                </Bubble>
-              )}
-            </a>
-          </Link>
-        </div>
+        {railLink}
       </Tooltip>
     );
   }
