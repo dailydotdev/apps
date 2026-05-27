@@ -257,7 +257,7 @@ export default function ProfileButton({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               className={classNames(
-                '!h-full !gap-0 !rounded-none !pl-0.5 !pr-0',
+                '!h-full !gap-0 !rounded-none !pl-0.5 !pr-px',
                 className,
               )}
               onClick={wrapHandler(() => onUpdate(!isOpen))}
@@ -272,6 +272,7 @@ export default function ProfileButton({
               <ProfilePictureWithIndicator
                 user={user}
                 size={ProfileImageSize.Large}
+                className="!h-9 !w-9 !rounded-10"
                 wrapperClassName="relative ml-2"
               />
             </Button>
