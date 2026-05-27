@@ -61,133 +61,48 @@ const readActivationStorage = (): {
   }
 };
 
-// Stylized peek of the new-tab feed that lives BEHIND the Chrome dialog
-// mockup. Purpose: answer Chrome's "Change back to Google?" framing
-// (which casts daily.dev as "unknown") with visual proof that the user
-// is choosing TO something real, not just away from Google. Stylized
-// cards are sufficient until we wire an actual screenshot — the goal is
-// the suggestion of content density, not pixel fidelity.
-function FeedPeek(): ReactElement {
-  const cards = [
-    { wTitle: 'w-3/4', wMeta: 'w-1/2' },
-    { wTitle: 'w-5/6', wMeta: 'w-2/3' },
-    { wTitle: 'w-2/3', wMeta: 'w-1/3' },
-    { wTitle: 'w-4/5', wMeta: 'w-1/2' },
-    { wTitle: 'w-3/4', wMeta: 'w-2/5' },
-    { wTitle: 'w-5/6', wMeta: 'w-1/2' },
-  ];
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 grid grid-cols-2 gap-3 p-2 opacity-50 blur-[2px]"
-    >
-      {cards.map((card, i) => (
-        <div
-          // eslint-disable-next-line react/no-array-index-key
-          key={i}
-          className="flex flex-col gap-2 rounded-12 bg-surface-float p-3"
-        >
-          <div className="h-3 w-10 rounded-4 bg-surface-secondary" />
-          <div className={`h-3 ${card.wTitle} bg-text-tertiary/30 rounded-4`} />
-          <div className={`h-3 ${card.wMeta} bg-text-tertiary/20 rounded-4`} />
-          <div className="mt-2 h-16 w-full rounded-8 bg-surface-secondary" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Recreation of Chrome's "Change back to Google?" override-confirmation
-// bubble. Button colors match Chrome's actual palette (#1a73e8 / #d3e3fd)
-// so when the real dialog appears the user sees identical UI to the
-// preview. The "Tap this" callout sits outside the dialog frame in our
-// brand color so it reads clearly as our annotation, not part of Chrome's
-// surface.
-function ChromeDialogMockup(): ReactElement {
+// Placeholder slot for the demo video/GIF. Kept as an explicit dashed
+// box so the layout, sizing, and position are exercised in advance —
+// dropping in a real <video> element later is a one-line swap. Aspect
+// is 16:9 to match the most likely screen recording.
+function VideoPlaceholder(): ReactElement {
   return (
     <div
       role="img"
-      aria-label='Chrome dialog asking "Change back to Google?" with a callout pointing to the "Keep it" button.'
-      className="relative w-full max-w-[28rem] select-none"
+      aria-label="Placeholder for the activation demo video"
+      className="relative aspect-video w-full max-w-[32rem] overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-tertiary bg-background-subtle"
     >
-      <div className="rounded-24 bg-raw-pepper-90 p-5 shadow-2 ring-1 ring-border-subtlest-tertiary">
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden
-              className="h-6 w-6"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill="#4285F4"
-                d="M21.6 12.227c0-.709-.064-1.39-.182-2.045H12v3.868h5.382a4.6 4.6 0 0 1-1.995 3.018v2.51h3.232c1.89-1.741 2.98-4.305 2.98-7.351Z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 22c2.7 0 4.964-.895 6.62-2.422l-3.233-2.51c-.895.6-2.04.955-3.387.955-2.605 0-4.81-1.76-5.596-4.123H3.064v2.59A9.997 9.997 0 0 0 12 22Z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M6.404 13.9A6.002 6.002 0 0 1 6.09 12c0-.66.114-1.3.314-1.9V7.51H3.064A9.996 9.996 0 0 0 2 12c0 1.614.386 3.14 1.064 4.49l3.34-2.59Z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.977c1.47 0 2.786.505 3.823 1.496l2.868-2.868C16.96 2.991 14.695 2 12 2A9.997 9.997 0 0 0 3.064 7.51l3.34 2.59C7.19 7.737 9.395 5.977 12 5.977Z"
-              />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <p className="font-bold text-white typo-callout">
-              Change back to Google?
-            </p>
-            <p className="text-white/70 mt-1 typo-footnote">
-              This page was changed by the &quot;daily.dev&quot; extension.
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 flex items-center justify-end gap-2">
-          <span className="inline-flex items-center justify-center rounded-12 bg-[#1a73e8] px-5 py-2 font-bold text-white ring-2 ring-action-upvote-default ring-offset-2 ring-offset-raw-pepper-90 typo-callout">
-            Keep it
-          </span>
-          <span className="inline-flex items-center justify-center rounded-12 bg-[#d3e3fd] px-5 py-2 font-bold text-[#0b57d0] typo-callout">
-            Change it back
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-3 flex justify-end pr-6">
-        <div className="flex flex-col items-center gap-1">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
           <svg
             aria-hidden
-            viewBox="0 0 16 16"
-            className="h-4 w-4 rotate-180 text-action-upvote-default"
+            viewBox="0 0 24 24"
+            className="ml-1 h-7 w-7 text-text-tertiary"
             fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path d="M8 16 0 6h5V0h6v6h5L8 16Z" />
+            <path d="M8 5v14l11-7-11-7Z" />
           </svg>
-          <span className="rounded-8 bg-action-upvote-default px-2 py-1 font-bold text-white shadow-2 typo-caption1">
-            Tap this button
-          </span>
-        </div>
+        </span>
+        <p className="font-bold text-text-tertiary typo-callout">
+          Video / GIF placeholder
+        </p>
+        <p className="text-text-tertiary typo-caption1">
+          Demo of the Chrome dialog and the &ldquo;Keep it&rdquo; click
+        </p>
       </div>
     </div>
   );
 }
 
-// Layered visual: the feed peek behind, the Chrome dialog mockup on top,
-// caption below. Together they say "this is the feed you're about to
-// keep" + "this is the button you'll tap to keep it."
+// Wrapper that pairs the video slot with the payoff caption underneath.
+// The caption is the line that flips Chrome's framing — "Change back to
+// Google?" implies daily.dev is unknown; the caption claims the feed
+// the user is about to keep.
 function ActivationVisual(): ReactElement {
   return (
     <div className="flex w-full max-w-[32rem] flex-col items-center gap-2">
-      <div className="relative flex w-full justify-center px-2 pb-2 pt-12">
-        <FeedPeek />
-        <div className="relative">
-          <ChromeDialogMockup />
-        </div>
-      </div>
+      <VideoPlaceholder />
       <p className="text-text-tertiary typo-caption1">
         This is what opens every time you hit ⌘T.
       </p>
