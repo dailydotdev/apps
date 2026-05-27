@@ -75,8 +75,11 @@ export function ExploreChipsBar({
               <Button
                 tag="a"
                 size={ButtonSize.Medium}
-                variant={isActive ? ButtonVariant.Float : ButtonVariant.Subtle}
+                variant={ButtonVariant.Subtle}
                 pressed={isActive}
+                className={
+                  isActive ? '!bg-surface-active text-text-primary' : undefined
+                }
                 aria-current={isActive ? 'page' : undefined}
                 data-active={isActive ? 'true' : undefined}
                 onClick={() => {

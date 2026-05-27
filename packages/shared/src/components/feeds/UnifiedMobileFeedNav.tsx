@@ -257,10 +257,13 @@ function UnifiedMobileFeedNav(): ReactElement {
                   <Button
                     tag="a"
                     size={ButtonSize.Small}
-                    variant={
-                      isActive ? ButtonVariant.Float : ButtonVariant.Subtle
-                    }
+                    variant={ButtonVariant.Subtle}
                     pressed={isActive}
+                    className={
+                      isActive
+                        ? '!bg-surface-active text-text-primary'
+                        : undefined
+                    }
                     onClick={() => {
                       if (!item.tag) {
                         return;

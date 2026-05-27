@@ -47,8 +47,8 @@ export const BriefSwitcher = ({
           className={classNames(
             tabClass,
             isBrief
-              ? 'bg-surface-float text-text-primary'
-              : 'text-text-secondary hover:bg-surface-float hover:text-text-primary',
+              ? 'bg-surface-active text-text-primary'
+              : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
           )}
         >
           <MagicIcon
@@ -76,8 +76,8 @@ export const BriefSwitcher = ({
           className={classNames(
             tabClass,
             !isBrief
-              ? 'bg-surface-float text-text-primary'
-              : 'text-text-secondary hover:bg-surface-float hover:text-text-primary',
+              ? 'bg-surface-active text-text-primary'
+              : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
           )}
         >
           <HomeIcon
