@@ -92,15 +92,15 @@ const TopicRow = ({
         </div>
 
         {isExpanded ? (
-          <div id={panelId} className="flex max-w-3xl flex-col gap-4">
+          <div id={panelId} className="contents">
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Primary}
-              className="!leading-relaxed"
+              className="max-w-3xl !leading-relaxed"
             >
               {topic.tldr}
             </Typography>
-            <div className="flex w-full flex-wrap items-center justify-between gap-3">
+            <div className="mt-1 flex w-full flex-wrap items-center justify-between gap-3">
               <span
                 role="button"
                 tabIndex={0}
@@ -122,7 +122,7 @@ const TopicRow = ({
                 </Typography>
                 <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
               </span>
-              <BriefFeedback prompt="Worth your time?" />
+              <BriefFeedback prompt="Worth your time?" className="ml-auto" />
             </div>
           </div>
         ) : null}
