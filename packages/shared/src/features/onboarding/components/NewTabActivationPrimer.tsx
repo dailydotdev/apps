@@ -61,46 +61,48 @@ const readActivationStorage = (): {
   }
 };
 
-// Placeholder slot where the real demo video/GIF will live. Kept as a
-// clearly-marked dashed box so the page layout, sizing, and position are
-// already exercised — dropping in a <video> element later is a one-line
-// swap. Aspect-video (16:9) matches the most likely recording aspect.
-function VideoPlaceholder(): ReactElement {
+// Stylized peek of the new-tab feed that lives BEHIND the Chrome dialog
+// mockup. Purpose: answer Chrome's "Change back to Google?" framing
+// (which casts daily.dev as "unknown") with visual proof that the user
+// is choosing TO something real, not just away from Google. Stylized
+// cards are sufficient until we wire an actual screenshot — the goal is
+// the suggestion of content density, not pixel fidelity.
+function FeedPeek(): ReactElement {
+  const cards = [
+    { wTitle: 'w-3/4', wMeta: 'w-1/2' },
+    { wTitle: 'w-5/6', wMeta: 'w-2/3' },
+    { wTitle: 'w-2/3', wMeta: 'w-1/3' },
+    { wTitle: 'w-4/5', wMeta: 'w-1/2' },
+    { wTitle: 'w-3/4', wMeta: 'w-2/5' },
+    { wTitle: 'w-5/6', wMeta: 'w-1/2' },
+  ];
   return (
     <div
-      role="img"
-      aria-label="Placeholder for the activation demo video"
-      className="relative aspect-video w-full max-w-[28rem] overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-tertiary bg-background-subtle"
+      aria-hidden
+      className="pointer-events-none absolute inset-0 grid grid-cols-2 gap-3 p-2 opacity-50 blur-[2px]"
     >
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-float">
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            className="ml-0.5 h-6 w-6 text-text-tertiary"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M8 5v14l11-7-11-7Z" />
-          </svg>
-        </span>
-        <p className="font-bold text-text-tertiary typo-callout">
-          Video / GIF placeholder
-        </p>
-        <p className="text-text-tertiary typo-caption1">
-          Demo of the Chrome dialog and the &ldquo;Keep it&rdquo; click
-        </p>
-      </div>
+      {cards.map((card, i) => (
+        <div
+          // eslint-disable-next-line react/no-array-index-key
+          key={i}
+          className="flex flex-col gap-2 rounded-12 bg-surface-float p-3"
+        >
+          <div className="h-3 w-10 rounded-4 bg-surface-secondary" />
+          <div className={`h-3 ${card.wTitle} bg-text-tertiary/30 rounded-4`} />
+          <div className={`h-3 ${card.wMeta} bg-text-tertiary/20 rounded-4`} />
+          <div className="mt-2 h-16 w-full rounded-8 bg-surface-secondary" />
+        </div>
+      ))}
     </div>
   );
 }
 
 // Recreation of Chrome's "Change back to Google?" override-confirmation
-// bubble. Kept around for reference until the demo video lands — not
-// currently rendered on the primer page. Button colors match Chrome's
-// actual palette (#1a73e8 / #d3e3fd) so if we re-introduce the mockup,
-// the preview matches the real dialog.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// bubble. Button colors match Chrome's actual palette (#1a73e8 / #d3e3fd)
+// so when the real dialog appears the user sees identical UI to the
+// preview. The "Tap this" callout sits outside the dialog frame in our
+// brand color so it reads clearly as our annotation, not part of Chrome's
+// surface.
 function ChromeDialogMockup(): ReactElement {
   return (
     <div
@@ -169,6 +171,20 @@ function ChromeDialogMockup(): ReactElement {
             Tap this button
           </span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Layered visual: the feed peek behind, the Chrome dialog mockup on top.
+// Together they say "this is the feed you're about to keep" + "this is
+// the button you'll tap to keep it."
+function ActivationVisual(): ReactElement {
+  return (
+    <div className="relative flex w-full max-w-[32rem] justify-center px-2 pb-2 pt-12">
+      <FeedPeek />
+      <div className="relative">
+        <ChromeDialogMockup />
       </div>
     </div>
   );
@@ -244,27 +260,47 @@ function ExtensionsPageCardMockup(): ReactElement {
   );
 }
 
-// Single-line trust bullet under the CTA. Kept intentionally minimal —
-// the more we hedge here, the more we sound like we have something to
-// hide. Privacy is the developer's primary concern at activation time.
-function TrustBullet(): ReactElement {
+// Three tight one-line trust bullets under the CTA. Each line stands on
+// its own — no apologetic "Chrome shows this prompt…" framing, which
+// would surface objections the user hasn't raised yet.
+function TrustBullets(): ReactElement {
+  const bullets: Array<{ label: string; body: string }> = [
+    { label: 'Private', body: 'we never read your browsing history' },
+    { label: 'Curated', body: 'top engineering posts, zero clickbait' },
+    {
+      label: 'Reversible',
+      body: 'one click in chrome://extensions to undo',
+    },
+  ];
   return (
-    <p className="flex items-center justify-center gap-1.5 text-text-tertiary typo-footnote">
-      <svg
-        aria-hidden
-        viewBox="0 0 24 24"
-        className="h-3.5 w-3.5 shrink-0 text-status-success"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={3}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="m4 12 5 5L20 6" />
-      </svg>
-      Privacy-first — no browsing history collected.
-    </p>
+    <ul className="flex flex-col items-start gap-1.5">
+      {bullets.map((bullet) => (
+        <li
+          key={bullet.label}
+          className="flex items-center gap-2 text-text-tertiary typo-footnote"
+        >
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            className="h-3.5 w-3.5 shrink-0 text-status-success"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={3}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="m4 12 5 5L20 6" />
+          </svg>
+          <span>
+            <span className="font-bold text-text-secondary">
+              {bullet.label}
+            </span>{' '}
+            — {bullet.body}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -431,19 +467,25 @@ export function NewTabActivationPrimer({
   const isWaiting = state === 'waiting';
 
   return (
-    <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-10">
+    <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-8">
       <div
         className={classNames(
-          'flex w-full max-w-[36rem] flex-col items-center gap-6 text-center',
+          'flex w-full max-w-[36rem] flex-col items-center gap-5 text-center',
         )}
       >
+        {!isRecovery && (
+          <span className="rounded-full bg-surface-float px-3 py-1 text-text-tertiary typo-caption1">
+            Step 1 of 1 · Takes 2 seconds
+          </span>
+        )}
+
         <Typography
           tag={TypographyTag.H1}
-          type={isRecovery ? TypographyType.LargeTitle : TypographyType.Mega2}
+          type={isRecovery ? TypographyType.LargeTitle : TypographyType.Title1}
           color={TypographyColor.Primary}
           bold
         >
-          {isRecovery ? 'Almost there' : 'Please activate your new tab'}
+          {isRecovery ? 'Almost there' : 'Tap "Keep it" when Chrome asks.'}
         </Typography>
 
         {isRecovery && (
@@ -457,10 +499,10 @@ export function NewTabActivationPrimer({
           </Typography>
         )}
 
-        {!isRecovery && <VideoPlaceholder />}
+        {!isRecovery && <ActivationVisual />}
 
         {!isRecovery && (
-          <div className="flex w-full flex-col items-center gap-3">
+          <div className="flex w-full flex-col items-center gap-4">
             <Button
               type="button"
               variant={ButtonVariant.Primary}
@@ -468,13 +510,9 @@ export function NewTabActivationPrimer({
               disabled={isWaiting}
               onClick={handleActivateClick}
             >
-              {isWaiting ? 'Waiting for you to confirm…' : 'Activate'}
+              {isWaiting ? 'Waiting for you to confirm…' : 'Keep it'}
             </Button>
-            <TrustBullet />
-            <p className="text-text-tertiary typo-caption1">
-              Chrome shows this prompt for every extension that changes the new
-              tab — it&apos;s a standard privacy check.
-            </p>
+            <TrustBullets />
           </div>
         )}
 
