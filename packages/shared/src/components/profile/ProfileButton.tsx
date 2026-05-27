@@ -197,6 +197,8 @@ export default function ProfileButton({
     return <></>;
   }
 
+  // The pill groups streak / cores / reputation / avatar into one
+  // bordered control with edge-to-edge hover slots.
   return (
     <>
       {settingsIconOnly ? (
