@@ -9,6 +9,7 @@ import { BriefSwitcher } from '../../features/briefingHome/BriefSwitcher';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
@@ -93,6 +94,11 @@ export function ExploreChipsBar({
                   tag={TypographyTag.Span}
                   type={TypographyType.Footnote}
                   bold
+                  color={
+                    isActive
+                      ? TypographyColor.Primary
+                      : TypographyColor.Secondary
+                  }
                 >
                   {category.label}
                 </Typography>

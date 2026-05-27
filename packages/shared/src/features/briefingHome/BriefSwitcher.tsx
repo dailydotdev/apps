@@ -48,13 +48,13 @@ export const BriefSwitcher = ({
             tabClass,
             isBrief
               ? 'bg-surface-float text-text-primary'
-              : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
+              : 'text-text-secondary hover:bg-surface-float hover:text-text-primary',
           )}
         >
           <MagicIcon
             size={IconSize.XSmall}
             className={
-              isBrief ? 'text-accent-cabbage-default' : 'text-text-tertiary'
+              isBrief ? 'text-accent-cabbage-default' : 'text-text-secondary'
             }
             secondary={isBrief}
           />
@@ -62,7 +62,9 @@ export const BriefSwitcher = ({
             tag={TypographyTag.Span}
             type={TypographyType.Footnote}
             bold
-            color={isBrief ? TypographyColor.Primary : TypographyColor.Tertiary}
+            color={
+              isBrief ? TypographyColor.Primary : TypographyColor.Secondary
+            }
           >
             Your brief
           </Typography>
@@ -75,16 +77,20 @@ export const BriefSwitcher = ({
             tabClass,
             !isBrief
               ? 'bg-surface-float text-text-primary'
-              : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
+              : 'text-text-secondary hover:bg-surface-float hover:text-text-primary',
           )}
         >
-          <HomeIcon size={IconSize.XSmall} secondary={!isBrief} />
+          <HomeIcon
+            size={IconSize.XSmall}
+            secondary={!isBrief}
+            className={!isBrief ? undefined : 'text-text-secondary'}
+          />
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Footnote}
             bold
             color={
-              !isBrief ? TypographyColor.Primary : TypographyColor.Tertiary
+              !isBrief ? TypographyColor.Primary : TypographyColor.Secondary
             }
           >
             Your feed

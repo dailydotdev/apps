@@ -151,7 +151,7 @@ const StoryRow = ({
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-2">
+        <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-3">
           <Typography
             tag={TypographyTag.H3}
             type={TypographyType.Body}
