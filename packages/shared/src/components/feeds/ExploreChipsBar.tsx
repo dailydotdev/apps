@@ -60,7 +60,7 @@ export function ExploreChipsBar({
     <div className={classNames('relative', className)}>
       <div
         ref={scrollRef}
-        className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
+        className="no-scrollbar flex touch-pan-x items-center gap-2 overflow-x-auto overscroll-x-contain pr-12"
       >
         <BriefSwitcher />
         {categories.map((category) => {
