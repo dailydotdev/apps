@@ -26,8 +26,13 @@ import {
   newTabActivationBridgeRequestEvent,
   newTabActivationBridgeResultEvent,
   newTabActivationSuccessKey,
+  openExtensionsPageBridgeRequestEvent,
+  openExtensionsPageBridgeResultEvent,
 } from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
-import type { NewTabActivationBridgeResult } from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
+import type {
+  NewTabActivationBridgeResult,
+  OpenExtensionsPageBridgeResult,
+} from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
 
 const INSTALL_MARKER = 'dailyExtensionInstalled';
 const ID_MARKER = 'dailyExtensionId';
@@ -114,6 +119,38 @@ window.addEventListener(newTabActivationBridgeRequestEvent, () => {
           error instanceof Error
             ? error.message
             : 'Failed to request new tab open',
+      });
+    });
+});
+
+window.addEventListener(openExtensionsPageBridgeRequestEvent, () => {
+  const dispatchResult = (result: OpenExtensionsPageBridgeResult): void => {
+    window.dispatchEvent(
+      new CustomEvent<OpenExtensionsPageBridgeResult>(
+        openExtensionsPageBridgeResultEvent,
+        { detail: result },
+      ),
+    );
+  };
+
+  browser.runtime
+    .sendMessage({
+      type: ExtensionMessageType.RequestOpenExtensionsPage,
+    })
+    .then((response) => {
+      const typed = response as OpenExtensionsPageBridgeResult | undefined;
+      dispatchResult({
+        opened: !!typed?.opened,
+        error: typed?.error,
+      });
+    })
+    .catch((error: unknown) => {
+      dispatchResult({
+        opened: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to request extensions page',
       });
     });
 });

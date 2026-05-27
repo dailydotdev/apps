@@ -212,6 +212,25 @@ async function handleMessages(
     }
   }
 
+  if (message.type === ExtensionMessageType.RequestOpenExtensionsPage) {
+    // Open the browser's extension management page. Web origins cannot
+    // navigate to chrome:// URLs directly, so the primer recovery screen
+    // bounces the request through the background to call
+    // `chrome.tabs.create` here.
+    try {
+      await browser.tabs.create({ url: 'chrome://extensions', active: true });
+      return { opened: true };
+    } catch (error) {
+      return {
+        opened: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to open extensions page',
+      };
+    }
+  }
+
   if (message.type === ExtensionMessageType.NewTabActivated) {
     // Forwarded from the post-install new tab page so the primer (running
     // in another tab on daily.dev) can learn the override was accepted.

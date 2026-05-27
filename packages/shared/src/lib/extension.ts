@@ -11,6 +11,7 @@ export enum ExtensionMessageType {
   RequestOpenNewTab = 'REQUEST_OPEN_NEW_TAB',
   NewTabActivated = 'NEW_TAB_ACTIVATED',
   NotifyNewTabActivated = 'NOTIFY_NEW_TAB_ACTIVATED',
+  RequestOpenExtensionsPage = 'REQUEST_OPEN_EXTENSIONS_PAGE',
 }
 
 export const getCompanionWrapper = (): HTMLElement | null =>

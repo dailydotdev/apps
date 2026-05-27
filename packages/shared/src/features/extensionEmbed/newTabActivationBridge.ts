@@ -25,6 +25,16 @@ export const newTabActivationBridgeRequestEvent =
 export const newTabActivationBridgeResultEvent =
   'daily-extension-open-new-tab-result';
 
+export const openExtensionsPageBridgeRequestEvent =
+  'daily-extension-request-open-extensions-page';
+export const openExtensionsPageBridgeResultEvent =
+  'daily-extension-open-extensions-page-result';
+
+export type OpenExtensionsPageBridgeResult = {
+  opened: boolean;
+  error?: string;
+};
+
 export type NewTabActivationBridgeResult = {
   triggered: boolean;
   error?: string;
@@ -84,5 +94,57 @@ export const requestOpenNewTabFromPage = (
     window.addEventListener(newTabActivationBridgeResultEvent, onResult);
 
     window.dispatchEvent(new CustomEvent(newTabActivationBridgeRequestEvent));
+  });
+};
+
+// Asks the extension's service worker to open `chrome://extensions` in a
+// new tab. Web pages cannot navigate to chrome:// URLs directly, but the
+// extension's background can call `chrome.tabs.create` with one. Used by
+// the primer recovery screen to send users to where they can re-enable
+// daily.dev if Chrome disabled it. Fails (resolves `opened: false`) if
+// the extension has already been disabled — in that case nothing on the
+// daily.dev origin can reach the background.
+export const requestOpenExtensionsPageFromPage = (
+  timeoutMs: number = PAGE_HELPER_TIMEOUT_MS,
+): Promise<OpenExtensionsPageBridgeResult> => {
+  if (typeof window === 'undefined') {
+    return Promise.resolve({
+      opened: false,
+      error: 'window-unavailable',
+    });
+  }
+
+  return new Promise<OpenExtensionsPageBridgeResult>((resolve) => {
+    let settled = false;
+    let timeoutId: ReturnType<typeof globalThis.setTimeout> | undefined;
+
+    const onResult = (event: Event): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      window.removeEventListener(openExtensionsPageBridgeResultEvent, onResult);
+      if (timeoutId !== undefined) {
+        globalThis.clearTimeout(timeoutId);
+      }
+      const { detail } = event as CustomEvent<OpenExtensionsPageBridgeResult>;
+      resolve({
+        opened: !!detail?.opened,
+        error: detail?.error,
+      });
+    };
+
+    timeoutId = globalThis.setTimeout(() => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      window.removeEventListener(openExtensionsPageBridgeResultEvent, onResult);
+      resolve({ opened: false, error: 'timeout' });
+    }, timeoutMs);
+
+    window.addEventListener(openExtensionsPageBridgeResultEvent, onResult);
+
+    window.dispatchEvent(new CustomEvent(openExtensionsPageBridgeRequestEvent));
   });
 };
