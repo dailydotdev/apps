@@ -18,10 +18,11 @@ export const companionPermissionGrantedLink =
 export const recruiterScheduleUrl = 'https://recruiter.daily.dev/schedule';
 export const initialDataKey = 'initial';
 // TODO(REMOVE-BEFORE-MERGE): testing override — install URL is hardcoded
-// to the local staging webapp so the post-install primer flow can be
-// exercised end-to-end. Restore to 'https://r.daily.dev/install' before
-// merging.
-export const install = 'https://app.staging.daily.dev:5002/onboarding';
+// to the local staging webapp's dedicated /activate page so the
+// post-install primer flow can be exercised end-to-end. Before merging,
+// restore to 'https://r.daily.dev/install' and update the Rebrandly
+// redirect to point at /activate (not /onboarding) on production.
+export const install = 'https://app.staging.daily.dev:5002/activate';
 export const uninstall = 'https://r.daily.dev/uninstall';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';

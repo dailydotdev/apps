@@ -62,12 +62,6 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useIsBrowserExtensionInstalled } from '@dailydotdev/shared/src/features/extensionEmbed/useIsBrowserExtensionInstalled';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
 import { getPageSeoTitles } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -274,15 +268,6 @@ const useOnboardingAuth = () => {
   };
 };
 
-const PRIMER_COMPLETED_KEY = 'daily-extension-primer-completed';
-
-// TODO(REMOVE-BEFORE-MERGE): testing override. When true, the new tab
-// activation primer renders for every visit to /onboarding regardless of
-// auth state, GrowthBook flag, prior completion, extension marker, or
-// `?r=extension` re-entry. Delete this constant and restore the original
-// `shouldShowPrimer` predicate before merging.
-const FORCE_PRIMER_FOR_TESTING = true;
-
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const {
@@ -295,95 +280,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
-  const { logEvent } = useLogContext();
-  const { isInstalled: isExtensionInstalled } =
-    useIsBrowserExtensionInstalled();
-  const isExtensionReentry = router.query.r === 'extension';
-  const { value: isPrimerFeatureEnabled, isLoading: isPrimerFeatureLoading } =
-    useConditionalFeature({
-      feature: featureOnboardingPermissionPrimer,
-      shouldEvaluate:
-        isAuthReady &&
-        !isLoggedIn &&
-        isExtensionInstalled &&
-        !isExtensionReentry,
-    });
-  const [isPrimerDone, setPrimerDone] = useState<boolean>(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-    // In testing-override mode, never treat the primer as done so it
-    // re-renders on every reload.
-    if (FORCE_PRIMER_FOR_TESTING) {
-      return false;
-    }
-    return !!storage.getItem(PRIMER_COMPLETED_KEY);
-  });
-
-  useEffect(() => {
-    if (FORCE_PRIMER_FOR_TESTING) {
-      return;
-    }
-    if (isExtensionReentry && !storage.getItem(PRIMER_COMPLETED_KEY)) {
-      storage.setItem(PRIMER_COMPLETED_KEY, Date.now().toString());
-      setPrimerDone(true);
-      logEvent({ event_name: LogEvent.ExtensionPrimerSkipped });
-    }
-  }, [isExtensionReentry, logEvent]);
-
-  const handlePrimerComplete = useCallback((): void => {
-    // Skip the persistence write in testing-override mode so reloading
-    // surfaces the primer again.
-    if (!FORCE_PRIMER_FOR_TESTING) {
-      storage.setItem(PRIMER_COMPLETED_KEY, Date.now().toString());
-    }
-    setPrimerDone(true);
-  }, []);
-
-  // TODO(REMOVE-BEFORE-MERGE): one-shot console log so the primer gating
-  // conditions can be inspected during local QA. Delete before merge.
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    // eslint-disable-next-line no-console
-    console.warn('[primer-debug]', {
-      isAuthReady,
-      isLoggedIn,
-      isExtensionInstalled,
-      isExtensionReentry,
-      isPrimerDone,
-      isPrimerFeatureLoading,
-      isPrimerFeatureEnabled,
-      FORCE_PRIMER_FOR_TESTING,
-      installedMarker:
-        document.documentElement?.dataset?.dailyExtensionInstalled,
-    });
-  }, [
-    isAuthReady,
-    isLoggedIn,
-    isExtensionInstalled,
-    isExtensionReentry,
-    isPrimerDone,
-    isPrimerFeatureLoading,
-    isPrimerFeatureEnabled,
-  ]);
-
-  // TODO(REMOVE-BEFORE-MERGE): restore the full gating predicate below
-  // before merging. The testing override bypasses every condition except
-  // `isAuthReady` so the primer is visible on every visit, even when
-  // logged in or with the extension absent.
-  const shouldShowPrimerProd =
-    isAuthReady &&
-    !isLoggedIn &&
-    isExtensionInstalled &&
-    !isExtensionReentry &&
-    !isPrimerDone &&
-    !isPrimerFeatureLoading &&
-    isPrimerFeatureEnabled;
-  const shouldShowPrimer = FORCE_PRIMER_FOR_TESTING
-    ? isAuthReady && !isPrimerDone
-    : shouldShowPrimerProd;
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
@@ -430,16 +326,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     isOnboardingActionsReady,
     router,
   ]);
-
-  if (shouldShowPrimer) {
-    return (
-      <div className="z-3 flex min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden">
-        <OnboardingHeader />
-        <NewTabActivationPrimer onComplete={handlePrimerComplete} />
-        <FooterLinks className="mx-auto pb-6" />
-      </div>
-    );
-  }
 
   if (isAuthenticating) {
     return (
