@@ -352,15 +352,6 @@ export function NewTabActivationPrimer({
     const result = await requestOpenNewTabFromPage();
     if (result.triggered) {
       logEvent({ event_name: LogEvent.ExtensionNewTabTriggered });
-      // TODO(REMOVE-BEFORE-MERGE): testing override — after triggering the
-      // new tab, hand off this tab to the production signup wall so the
-      // full visual flow (primer → Chrome dialog in the new tab →
-      // production signup wall here) can be exercised locally. In
-      // production the primer is already served from app.daily.dev and
-      // success-detection auto-advances on the same domain; remove this
-      // redirect before merging so the success path runs.
-      stopPolling();
-      window.location.href = 'https://app.daily.dev/onboarding';
       return;
     }
     stopPolling();
@@ -371,11 +362,24 @@ export function NewTabActivationPrimer({
     setState('recovery');
   }, [logEvent, startPolling, stopPolling]);
 
+  const [extensionsHelperState, setExtensionsHelperState] = useState<
+    'idle' | 'copied' | 'unsupported'
+  >('idle');
+
   const handleOpenExtensionsPage = useCallback(async (): Promise<void> => {
-    await requestOpenExtensionsPageFromPage();
-    // If the bridge fails (e.g. the extension was already disabled by
-    // Chrome and the content script is no longer running) the user can
-    // still follow the on-screen mockup and navigate manually.
+    const result = await requestOpenExtensionsPageFromPage();
+    if (result.opened) {
+      return;
+    }
+    // Bridge failed — most likely the extension was already disabled by
+    // Chrome (no service worker, no content script). Fall back to copying
+    // the URL so the user can paste it into the address bar.
+    try {
+      await navigator.clipboard.writeText('chrome://extensions');
+      setExtensionsHelperState('copied');
+    } catch {
+      setExtensionsHelperState('unsupported');
+    }
   }, []);
 
   const isRecovery = state === 'recovery';
@@ -452,6 +456,29 @@ export function NewTabActivationPrimer({
             >
               Open extensions page
             </Button>
+            {extensionsHelperState === 'copied' && (
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                className="text-center"
+              >
+                Copied{' '}
+                <span className="text-text-primary">chrome://extensions</span> —
+                paste it into your address bar.
+              </Typography>
+            )}
+            {extensionsHelperState === 'unsupported' && (
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                className="text-center"
+              >
+                Open a new tab and go to{' '}
+                <span className="text-text-primary">chrome://extensions</span>.
+              </Typography>
+            )}
           </div>
         )}
       </div>
