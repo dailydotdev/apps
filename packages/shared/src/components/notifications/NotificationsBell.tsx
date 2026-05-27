@@ -50,7 +50,7 @@ function NotificationsBell({
             className={classNames(
               'focus-outline relative flex h-10 w-10 items-center justify-center rounded-12 transition-colors hover:bg-surface-hover hover:text-text-primary',
               atNotificationsPage
-                ? 'bg-background-default text-white'
+                ? 'bg-background-default text-text-primary'
                 : 'text-text-tertiary',
             )}
             onClick={onNavigateNotifications}

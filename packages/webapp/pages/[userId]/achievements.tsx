@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
@@ -9,8 +9,6 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ProfileAchievements } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievements';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -29,8 +27,6 @@ const ProfileAchievementsPage = ({
 }: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = user && loggedUser?.id === user.id;
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(
@@ -55,7 +51,6 @@ const ProfileAchievementsPage = ({
           Achievements
         </Typography>
       </GoBackHeaderMobile>
-      {isV2Laptop && <PageHeader title="Achievements" />}
       <div className="p-6">
         <ProfileAchievements user={user} />
       </div>
@@ -63,5 +58,9 @@ const ProfileAchievementsPage = ({
   );
 };
 
-ProfileAchievementsPage.getLayout = getProfileLayout;
+ProfileAchievementsPage.getLayout = (
+  page: ReactNode,
+  props: ProfileLayoutProps,
+): ReactNode =>
+  getProfileLayout(page, { ...props, pageHeaderTitle: 'Achievements' });
 export default ProfileAchievementsPage;

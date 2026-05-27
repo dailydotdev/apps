@@ -31,6 +31,8 @@ import { getPageSeoTitles } from '../utils';
 import { getAppOrigin } from '../../../lib/seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -40,6 +42,9 @@ const appOrigin = getAppOrigin();
 export interface ProfileLayoutProps extends Partial<ProfileV2> {
   noindex: boolean;
   children?: ReactNode;
+  // v2: title shown in the shared page-header strip at the top of the
+  // floating card, above the profile sidebar + main + aside row.
+  pageHeaderTitle?: string;
 }
 
 export const getOGImageUrl = (userId: string): string => {
@@ -95,9 +100,11 @@ export default function ProfileLayout({
   user: initialUser,
   userStats,
   sources,
+  pageHeaderTitle,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
+  const { isV2 } = useLayoutVariant();
   const { isFallback } = router;
   const { user } = useProfile(initialUser);
   const { user: viewer } = useAuthContext();
@@ -141,23 +148,28 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
+    <div className="flex w-full flex-col">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
-      <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
-        {children}
-      </main>
-      <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
-        {userStats && sources && (
-          <ProfileWidgets
-            user={user}
-            userStats={userStats}
-            sources={sources}
-            className="w-full"
-          />
-        )}
-      </aside>
+      {isV2 && pageHeaderTitle && (
+        <PageHeader title={pageHeaderTitle} className="hidden laptop:flex" />
+      )}
+      <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
+        <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
+          {children}
+        </main>
+        <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
+          {userStats && sources && (
+            <ProfileWidgets
+              user={user}
+              userStats={userStats}
+              sources={sources}
+              className="w-full"
+            />
+          )}
+        </aside>
+      </div>
     </div>
   );
 }

@@ -32,6 +32,7 @@ import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { PageHeader, pageHeaderClassName } from '../layout/PageHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -107,7 +108,7 @@ const feedNameToHeading: Record<
     | SharedFeedPage.Popular
     | SharedFeedPage.Upvoted
     | OtherFeedPage.Discussed
-    | OtherFeedPage.Bookmarks
+    | OtherFeedPage.Following
   >,
   string
 > = {
@@ -116,7 +117,7 @@ const feedNameToHeading: Record<
   popular: 'Popular',
   upvoted: 'Most upvoted',
   discussed: 'Best discussions',
-  bookmarks: 'Bookmarks',
+  following: 'Following',
 };
 
 export const FeedContainer = ({
@@ -278,36 +279,40 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {topContent}
-          {isSearch && !shouldUseListFeedLayout && (
-            <header
-              className={classNames(
-                'flex items-center',
-                isExtension && 'flex-1 flex-col-reverse',
-                // v2 lays out the action row as a page-header strip with
-                // a bottom border — the compact ghost button look comes
-                // from each action choosing `Small` + `Tertiary` itself
-                // (see MyFeedHeading, ToggleClickbaitShield, the dropdown
-                // buttonProps below), so no Tailwind overrides are needed
-                // on the strip wrapper.
-                !isExtension &&
-                  isV2Laptop &&
-                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3',
-                !isExtension && !isV2Laptop && 'flex-1 flex-row',
-              )}
-            >
-              {!!actionButtons && (
-                <span
-                  className={classNames(
-                    isV2Laptop
-                      ? '-mr-1 flex flex-1 flex-row items-center gap-1'
-                      : 'mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary',
-                  )}
-                >
-                  {actionButtons}
-                </span>
-              )}
-              {shortcuts}
-            </header>
+          {isV2Laptop && !shouldUseListFeedLayout && !isExtension ? (
+            // v2 grid pages render the shared page-header strip at the
+            // top of the floating card. `pageHeaderClassName` locks the
+            // height (min-h-14) and provides the bottom border so every
+            // page has the same vertical rhythm — content fills it
+            // when available, otherwise the feed heading takes the
+            // title slot.
+            (!!actionButtons || !!feedHeading) && (
+              <header className={pageHeaderClassName}>
+                {actionButtons || (
+                  <strong className="min-w-0 flex-1 truncate typo-callout">
+                    {feedHeading}
+                  </strong>
+                )}
+              </header>
+            )
+          ) : (
+            isSearch &&
+            !shouldUseListFeedLayout && (
+              <header
+                className={classNames(
+                  'flex items-center',
+                  isExtension && 'flex-1 flex-col-reverse',
+                  !isExtension && 'flex-1 flex-row',
+                )}
+              >
+                {!!actionButtons && (
+                  <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
+                    {actionButtons}
+                  </span>
+                )}
+                {shortcuts}
+              </header>
+            )
           )}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
@@ -327,34 +332,28 @@ export const FeedContainer = ({
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                <ConditionalWrapper
-                  condition={isLaptop && !!(feedHeading || actionButtons)}
-                  wrapper={(component) => (
-                    <span
-                      className={classNames(
-                        'flex w-full flex-row items-center justify-between',
-                        // v2: match the grid mode page-header strip
-                        // (padding, divider, button gaps). Non-v2 keeps
-                        // its legacy spacing.
-                        isV2Laptop
-                          ? 'gap-2 border-b border-border-subtlest-quaternary px-6 py-3'
-                          : 'px-6 py-4',
-                      )}
-                    >
-                      <strong className="typo-title3">{feedHeading}</strong>
-                      <span
-                        className={classNames(
-                          'flex flex-row',
-                          isV2Laptop ? 'items-center gap-1' : 'gap-3',
-                        )}
-                      >
-                        {component}
+                {isV2Laptop &&
+                isLaptop &&
+                (feedHeading || actionButtons) ? (
+                  // v2: shared page-header strip inside the list-frame
+                  // box. Same component as the grid-mode strip so both
+                  // layouts have identical header treatment.
+                  <PageHeader title={feedHeading || undefined}>
+                    {actionButtons || undefined}
+                  </PageHeader>
+                ) : (
+                  <ConditionalWrapper
+                    condition={isLaptop && !!(feedHeading || actionButtons)}
+                    wrapper={(component) => (
+                      <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                        <strong className="typo-title3">{feedHeading}</strong>
+                        <span className="flex flex-row gap-3">{component}</span>
                       </span>
-                    </span>
-                  )}
-                >
-                  {actionButtons || null}
-                </ConditionalWrapper>
+                    )}
+                  >
+                    {actionButtons || null}
+                  </ConditionalWrapper>
+                )}
                 {isExtension && shortcuts}
                 {child}
               </div>
@@ -371,10 +370,23 @@ export const FeedContainer = ({
                 // legacy grid layout keeps its current tokens.
                 isV2Laptop &&
                   !shouldUseListFeedLayout &&
+                  // Symmetric inset on every side — matches the designer
+                  // mock. The page-header strip above sets its own
+                  // bottom border, so cards sit p-6 inside the floating
+                  // card on all four sides.
                   'tablet:p-2 laptop:p-6 [&_article]:!border-border-subtlest-quaternary [&_article:hover]:!border-border-subtlest-tertiary',
                 shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
+                // mt-8 is a legacy spacer below the search/action header;
+                // v2 already enforces the gap via the grid's own `p-6`
+                // inset (matches the left/right inset), so doubling up
+                // here would push the first row 32px further down than
+                // the cards sit from the floating frame's left edge.
+                isSearch &&
+                  !shouldUseListFeedLayout &&
+                  !isAnyExplore &&
+                  !isV2Laptop &&
+                  'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
                 gapClass({

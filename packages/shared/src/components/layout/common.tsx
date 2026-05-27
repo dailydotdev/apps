@@ -128,15 +128,19 @@ export const SearchControlHeader = ({
     return null;
   }
 
+  // v2 compact ghost styles for the page-header action strip: 32px
+  // square icon buttons + 32px-tall text buttons, no border/bg, with
+  // a surface-hover affordance on hover.
+  const compactIconButtonClassName =
+    '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
+  const compactTextButtonClassName =
+    '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover';
+
   const dropdownProps: Partial<DropdownProps> = {
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      // V2 ghost styling is applied via descendant selectors on the
-      // wrapping strip (see `v2CompactButtons`); the dropdown's own
-      // button only needs the legacy tight horizontal padding for the
-      // non-v2 layout.
-      button: isV2Strip ? undefined : '!px-1',
+      button: isV2Strip ? compactIconButtonClassName : '!px-1',
       container: 'flex',
     },
     shouldIndicateSelected: true,
@@ -180,7 +184,27 @@ export const SearchControlHeader = ({
 
   const dropdownIconSize = isV2Strip ? IconSize.XSmall : IconSize.Medium;
   const primaryActions = [
-    hasFeedActions && <MyFeedHeading key="my-feed" />,
+    hasFeedActions && (
+      <MyFeedHeading
+        key="my-feed"
+        feedSettingsButtonProps={
+          isV2Strip
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: compactTextButtonClassName,
+                iconSize: IconSize.XSmall,
+              }
+            : undefined
+        }
+      />
+    ),
+    hasFeedActions && isV2Strip && (
+      <BriefShortcutButton
+        key="brief-shortcut"
+        className={compactTextButtonClassName}
+      />
+    ),
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
@@ -207,25 +231,66 @@ export const SearchControlHeader = ({
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
+        buttonProps={
+          isV2Strip
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: compactTextButtonClassName,
+              }
+            : undefined
+        }
+        iconButtonProps={
+          isV2Strip
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: compactIconButtonClassName,
+              }
+            : undefined
+        }
+        iconSize={isV2Strip ? IconSize.XSmall : undefined}
         key="toggle-clickbait-shield"
       />
     ),
-    hasFeedActions && <IntroQuestButton key="intro-quests" />,
-    hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
-    hasFeedActions && <LuckyButton key="lucky" />,
-    hasFeedActions && isV2Strip && <BriefShortcutButton key="brief-shortcut" />,
+    hasFeedActions && !isV2Strip && <IntroQuestButton key="intro-quests" />,
+    hasFeedActions && !isV2Strip && (
+      <AchievementTrackerButton key="achievement-tracker-inline" />
+    ),
+    hasFeedActions && !isV2Strip && <LuckyButton key="lucky" />,
+  ];
+  // v2: AchievementTrackerButton is right-aligned so the current
+  // achievement / track CTA stays balanced against the primary
+  // controls. Non-v2 keeps it inline above.
+  const rightActions = [
+    hasFeedActions && isV2Strip && (
+      <AchievementTrackerButton key="achievement-tracker" />
+    ),
   ];
   const secondaryActions = [isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);
-  const sideActions = secondaryActions.filter(Boolean);
+  const trailingActions = [
+    ...rightActions.filter(Boolean),
+    ...secondaryActions.filter(Boolean),
+  ];
 
   // In v2 the FeedContainer wraps these actions inside its own
-  // <PageHeader> strip (with compact-button descendant selectors), so we
-  // skip the local `<header>` wrapper here and just return the action
-  // contents inline. Control + mobile paths keep the legacy structure.
+  // page-header strip. We return a self-contained layout: primary
+  // cluster on the left, trailing cluster (achievement tracker +
+  // install-extension secondary actions) docked to the right.
   if (isV2Strip) {
-    return <>{actions}</>;
+    return (
+      <div className="flex w-full items-center gap-2">
+        <div className="flex min-w-0 items-center gap-1">{actions}</div>
+        {trailingActions.length > 0 && (
+          <div className="ml-auto flex items-center gap-1">
+            {trailingActions}
+          </div>
+        )}
+      </div>
+    );
   }
+  const sideActions = secondaryActions.filter(Boolean);
 
   return (
     <ConditionalWrapper

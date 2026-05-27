@@ -4,11 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
-import {
-  ThemeMode,
-  themes,
-  useSettingsContext,
-} from '../../contexts/SettingsContext';
+import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
 import { MainSection } from './sections/MainSection';
@@ -40,13 +36,6 @@ import {
   UserIcon,
 } from '../icons';
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuOptions,
-  DropdownMenuTrigger,
-} from '../dropdown/DropdownMenu';
-import type { MenuItemProps } from '../dropdown/common';
 import { useSquadNavigation } from '../../hooks';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
@@ -250,49 +239,33 @@ const themeIconMap: Record<
 const SidebarThemeButton = (): ReactElement => {
   const { setTheme, themeMode } = useSettingsContext();
   const { logEvent } = useLogContext();
+  const isDark = themeMode === ThemeMode.Dark;
+  const nextMode = isDark ? ThemeMode.Light : ThemeMode.Dark;
   const ActiveIcon = themeIconMap[themeMode];
 
-  const onSelectTheme = useCallback(
-    (mode: ThemeMode) => {
-      logEvent({
-        event_name: LogEvent.ChangeSettings,
-        target_type: TargetType.Theme,
-        target_id: mode,
-      });
-      setTheme(mode);
-    },
-    [logEvent, setTheme],
-  );
-
-  const options: MenuItemProps[] = themes.map((theme) => {
-    const Icon = themeIconMap[theme.value];
-    const isActive = theme.value === themeMode;
-    return {
-      label: theme.label,
-      icon: <Icon size={IconSize.Size16} secondary={isActive} aria-hidden />,
-      action: () => onSelectTheme(theme.value),
-    };
-  });
+  const onToggleTheme = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.Theme,
+      target_id: nextMode,
+    });
+    setTheme(nextMode);
+  }, [logEvent, nextMode, setTheme]);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        asChild
-        tooltip={{ side: 'right', content: 'Change theme' }}
+    <Tooltip
+      side="right"
+      content={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+    >
+      <button
+        type="button"
+        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        className={railButtonClass}
+        onClick={onToggleTheme}
       >
-        <button type="button" className={railButtonClass}>
-          <ActiveIcon size={IconSize.Small} aria-hidden />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        side="right"
-        align="end"
-        sideOffset={8}
-        className="!min-w-40"
-      >
-        <DropdownMenuOptions options={options} />
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <ActiveIcon size={IconSize.Small} aria-hidden />
+      </button>
+    </Tooltip>
   );
 };
 
@@ -593,10 +566,12 @@ export const SidebarDesktopV2 = ({
         featureTheme && 'bg-transparent',
       )}
     >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-16 hidden border-r border-border-subtlest-quaternary laptop:block"
-      />
+      {sidebarExpanded && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-16 hidden border-r border-border-subtlest-quaternary laptop:block"
+        />
+      )}
       <nav
         aria-label="Primary navigation"
         className="flex h-dvh min-h-dvh w-16 shrink-0 flex-col items-center gap-1 px-3 pb-3 pt-6"
@@ -702,7 +677,7 @@ export const SidebarDesktopV2 = ({
                     }}
                     className={classNames(
                       railButtonClass,
-                      isSelected && 'bg-background-default text-white',
+                      isSelected && 'bg-background-default text-text-primary',
                     )}
                   >
                     {category.icon(isSelected)}
@@ -736,7 +711,7 @@ export const SidebarDesktopV2 = ({
                 aria-label="Settings"
                 className={classNames(
                   railButtonClass,
-                  isSettingsSelected && 'bg-background-default text-white',
+                  isSettingsSelected && 'bg-background-default text-text-primary',
                 )}
                 onClick={() => onSelectCategory(SidebarCategory.Settings)}
                 onMouseEnter={() =>
@@ -816,7 +791,7 @@ export const SidebarDesktopV2 = ({
               <section aria-label="Your profile" className="flex flex-col">
                 <div className="px-3">
                   <Link href={`${webappUrl}${user.username}`} passHref>
-                    <a className="focus-outline group inline-flex w-fit max-w-full items-center gap-3 text-text-primary">
+                    <a className="focus-outline inline-flex w-fit max-w-full items-center gap-3 text-text-primary">
                       <ProfilePicture
                         user={user}
                         size={ProfileImageSize.Medium}
@@ -827,7 +802,7 @@ export const SidebarDesktopV2 = ({
                           bold
                           truncate
                           type={TypographyType.Subhead}
-                          className="min-w-0 leading-none group-hover:underline"
+                          className="min-w-0 leading-none hover:underline"
                         >
                           {user.name ?? user.username}
                         </Typography>

@@ -171,7 +171,11 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className={
+          isV2
+            ? 'h-8 w-8 animate-pulse rounded-10'
+            : 'h-10 w-10 animate-pulse rounded-12'
+        }
       />
     );
   }
@@ -184,7 +188,11 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className={
+          isV2
+            ? 'h-8 w-8 animate-pulse rounded-10'
+            : 'h-10 w-10 animate-pulse rounded-12'
+        }
       />
     );
   }
@@ -192,12 +200,20 @@ export function AchievementTrackerButton(): ReactElement | null {
   const buttonContent = (
     <div className="relative">
       <Button
-        size={ButtonSize.Medium}
+        size={isV2 ? ButtonSize.Small : ButtonSize.Medium}
         variant={(() => {
           if (isV2) {
             return ButtonVariant.Tertiary;
           }
           return isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
+        })()}
+        className={(() => {
+          if (!isV2) {
+            return undefined;
+          }
+          return hasButtonLabel
+            ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
+            : '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
         })()}
         icon={
           (isTrackingAchievement ? (

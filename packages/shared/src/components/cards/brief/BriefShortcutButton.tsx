@@ -59,9 +59,9 @@ export const BriefShortcutButton = ({
 
   const commonButtonProps = {
     variant: ButtonVariant.Tertiary,
-    size: ButtonSize.Medium,
+    size: ButtonSize.Small,
     icon: (
-      <BriefIcon size={IconSize.Small} secondary aria-hidden />
+      <BriefIcon size={IconSize.XSmall} secondary aria-hidden />
     ) as ReactElement,
     className,
     children: 'Generate brief',
