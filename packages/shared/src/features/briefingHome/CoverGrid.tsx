@@ -145,13 +145,12 @@ const StoryRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-center gap-4 px-4 text-left transition-colors tablet:px-5',
-          isExpanded ? 'py-5' : 'py-4',
+          'group flex w-full flex-col gap-3 px-4 py-4 text-left transition-colors tablet:px-5',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-3">
+        <div className="flex w-full items-center gap-4">
           <Typography
             tag={TypographyTag.H3}
             type={TypographyType.Body}
@@ -162,7 +161,7 @@ const StoryRow = ({
                 : TypographyColor.Primary
             }
             className={classNames(
-              '!leading-snug line-through',
+              'min-w-0 max-w-3xl flex-1 !leading-snug line-through',
               isRead && !isExpanded
                 ? 'decoration-text-quaternary/40'
                 : 'decoration-transparent',
@@ -170,88 +169,89 @@ const StoryRow = ({
           >
             {story.title}
           </Typography>
-          {isExpanded ? (
-            <div id={panelId} className="flex flex-col gap-3">
-              <Typography
-                type={TypographyType.Body}
-                color={TypographyColor.Primary}
-                className="!leading-relaxed"
-              >
-                {summary}
-              </Typography>
-              <div className="flex w-full flex-wrap items-center justify-between gap-3">
+
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <InlineStat
+              ariaLabel={`${story.totalUpvotes} upvotes`}
+              icon={
+                <UpvoteIcon
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+              }
+              value={story.totalUpvotes}
+            />
+            <InlineStat
+              ariaLabel={`${story.totalComments} comments`}
+              icon={
+                <DiscussIcon
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+              }
+              value={story.totalComments}
+            />
+            <span className="hidden items-center -space-x-1.5 pl-1 tablet:inline-flex">
+              {sourcesShown.map((src) => (
                 <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpen();
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      onOpen();
-                    }
-                  }}
-                  className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
+                  key={src.sourceId}
+                  className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
                 >
-                  <Typography type={TypographyType.Footnote} bold>
-                    Read full breakdown
-                  </Typography>
-                  <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+                  <img
+                    src={src.sourceImage}
+                    alt=""
+                    loading="lazy"
+                    className="size-4 object-cover"
+                  />
                 </span>
-                <BriefFeedback prompt="Worth your time?" />
-              </div>
-            </div>
-          ) : null}
+              ))}
+            </span>
+            <ArrowIcon
+              size={IconSize.XSmall}
+              className={classNames(
+                'shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
+                isExpanded ? 'rotate-0' : 'rotate-180',
+              )}
+              aria-hidden
+            />
+          </div>
         </div>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2">
-          <InlineStat
-            ariaLabel={`${story.totalUpvotes} upvotes`}
-            icon={
-              <UpvoteIcon
-                size={IconSize.XSmall}
-                className="text-text-tertiary"
-              />
-            }
-            value={story.totalUpvotes}
-          />
-          <InlineStat
-            ariaLabel={`${story.totalComments} comments`}
-            icon={
-              <DiscussIcon
-                size={IconSize.XSmall}
-                className="text-text-tertiary"
-              />
-            }
-            value={story.totalComments}
-          />
-          <span className="hidden items-center -space-x-1.5 pl-1 tablet:inline-flex">
-            {sourcesShown.map((src) => (
+        {isExpanded ? (
+          <div id={panelId} className="flex max-w-3xl flex-col gap-3">
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              className="!leading-relaxed"
+            >
+              {summary}
+            </Typography>
+            <div className="flex w-full flex-wrap items-center justify-between gap-3">
               <span
-                key={src.sourceId}
-                className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float"
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onOpen();
+                  }
+                }}
+                className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
               >
-                <img
-                  src={src.sourceImage}
-                  alt=""
-                  loading="lazy"
-                  className="size-4 object-cover"
-                />
+                <Typography type={TypographyType.Footnote} bold>
+                  Read full breakdown
+                </Typography>
+                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
               </span>
-            ))}
-          </span>
-          <ArrowIcon
-            size={IconSize.XSmall}
-            className={classNames(
-              'shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
-              isExpanded ? 'rotate-0' : 'rotate-180',
-            )}
-            aria-hidden
-          />
-        </div>
+              <BriefFeedback prompt="Worth your time?" />
+            </div>
+          </div>
+        ) : null}
       </button>
     </li>
   );

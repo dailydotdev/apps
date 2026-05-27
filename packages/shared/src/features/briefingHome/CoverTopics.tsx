@@ -48,82 +48,84 @@ const TopicRow = ({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         className={classNames(
-          'group flex w-full items-center gap-4 px-4 text-left transition-colors tablet:px-5',
-          isExpanded ? 'py-5' : 'py-4',
+          'group flex w-full flex-col gap-3 px-4 py-4 text-left transition-colors tablet:px-5',
           !isExpanded && 'hover:bg-surface-float',
           isRead && !isExpanded && 'opacity-60',
         )}
       >
-        <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-1">
-          <Typography
-            type={TypographyType.Caption1}
-            bold
-            className={classNames(TOPIC_TOKEN[topic.topic])}
-          >
-            {topic.topic}
-          </Typography>
-          <Typography
-            tag={TypographyTag.H3}
-            type={TypographyType.Body}
-            bold
-            color={
-              isRead && !isExpanded
-                ? TypographyColor.Tertiary
-                : TypographyColor.Primary
-            }
+        <div className="flex w-full items-center gap-4">
+          <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-1">
+            <Typography
+              type={TypographyType.Caption1}
+              bold
+              className={classNames(TOPIC_TOKEN[topic.topic])}
+            >
+              {topic.topic}
+            </Typography>
+            <Typography
+              tag={TypographyTag.H3}
+              type={TypographyType.Body}
+              bold
+              color={
+                isRead && !isExpanded
+                  ? TypographyColor.Tertiary
+                  : TypographyColor.Primary
+              }
+              className={classNames(
+                '!leading-snug line-through',
+                isRead && !isExpanded
+                  ? 'decoration-text-quaternary/40'
+                  : 'decoration-transparent',
+              )}
+            >
+              {topic.title}
+            </Typography>
+          </div>
+          <ArrowIcon
+            size={IconSize.XSmall}
             className={classNames(
-              '!leading-snug line-through',
-              isRead && !isExpanded
-                ? 'decoration-text-quaternary/40'
-                : 'decoration-transparent',
+              'ml-auto shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
+              isExpanded ? 'rotate-0' : 'rotate-180',
             )}
-          >
-            {topic.title}
-          </Typography>
-          {isExpanded ? (
-            <div id={panelId} className="mt-2 flex flex-col gap-3">
-              <Typography
-                type={TypographyType.Body}
-                color={TypographyColor.Primary}
-                className="!leading-relaxed"
-              >
-                {topic.tldr}
-              </Typography>
-              <div className="flex w-full flex-wrap items-center justify-between gap-3">
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpen();
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      onOpen();
-                    }
-                  }}
-                  className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
-                >
-                  <Typography type={TypographyType.Footnote} bold>
-                    Read full breakdown
-                  </Typography>
-                  <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
-                </span>
-                <BriefFeedback prompt="Worth your time?" />
-              </div>
-            </div>
-          ) : null}
+            aria-hidden
+          />
         </div>
-        <ArrowIcon
-          size={IconSize.XSmall}
-          className={classNames(
-            'ml-auto shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
-            isExpanded ? 'rotate-0' : 'rotate-180',
-          )}
-          aria-hidden
-        />
+
+        {isExpanded ? (
+          <div id={panelId} className="flex max-w-3xl flex-col gap-3">
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              className="!leading-relaxed"
+            >
+              {topic.tldr}
+            </Typography>
+            <div className="flex w-full flex-wrap items-center justify-between gap-3">
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onOpen();
+                  }
+                }}
+                className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-10 bg-text-primary px-3 py-1.5 text-surface-invert transition-colors hover:bg-brand-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
+              >
+                <Typography type={TypographyType.Footnote} bold>
+                  Read full breakdown
+                </Typography>
+                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+              </span>
+              <BriefFeedback prompt="Worth your time?" />
+            </div>
+          </div>
+        ) : null}
       </button>
     </li>
   );
