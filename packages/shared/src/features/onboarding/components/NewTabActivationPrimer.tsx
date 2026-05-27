@@ -176,16 +176,21 @@ function ChromeDialogMockup(): ReactElement {
   );
 }
 
-// Layered visual: the feed peek behind, the Chrome dialog mockup on top.
-// Together they say "this is the feed you're about to keep" + "this is
-// the button you'll tap to keep it."
+// Layered visual: the feed peek behind, the Chrome dialog mockup on top,
+// caption below. Together they say "this is the feed you're about to
+// keep" + "this is the button you'll tap to keep it."
 function ActivationVisual(): ReactElement {
   return (
-    <div className="relative flex w-full max-w-[32rem] justify-center px-2 pb-2 pt-12">
-      <FeedPeek />
-      <div className="relative">
-        <ChromeDialogMockup />
+    <div className="flex w-full max-w-[32rem] flex-col items-center gap-2">
+      <div className="relative flex w-full justify-center px-2 pb-2 pt-12">
+        <FeedPeek />
+        <div className="relative">
+          <ChromeDialogMockup />
+        </div>
       </div>
+      <p className="text-text-tertiary typo-caption1">
+        This is what opens every time you hit ⌘T.
+      </p>
     </div>
   );
 }
@@ -324,6 +329,12 @@ export function NewTabActivationPrimer({
   const heartbeatTimerRef = useRef<ReturnType<typeof globalThis.setInterval>>();
   const heartbeatFailuresRef = useRef(0);
   const completedRef = useRef(false);
+  // Captured the moment the user clicks "Keep it" on the primer so we
+  // can measure the time-to-activation on the Chrome dialog. A small
+  // number means the priming worked — the user's muscle memory was
+  // primed and they tapped Keep it quickly. A large number means they
+  // hesitated, and we lost the click-through.
+  const ctaClickAtRef = useRef<number | undefined>(undefined);
 
   const updateState = useCallback((next: PrimerState): void => {
     stateRef.current = next;
@@ -365,7 +376,19 @@ export function NewTabActivationPrimer({
       stopPolling();
       stopHeartbeat();
       if (reason === 'activated') {
-        logEvent({ event_name: LogEvent.ExtensionNewTabActivated });
+        const clickedAt = ctaClickAtRef.current;
+        const elapsedMs =
+          clickedAt !== undefined ? Date.now() - clickedAt : undefined;
+        logEvent({
+          event_name: LogEvent.ExtensionNewTabActivated,
+          // KeepItClickTimeMs — the primary optimization metric. Time
+          // from the user clicking the primer CTA to Chrome's dialog
+          // resolving in our favor. Smaller = the priming worked.
+          extra:
+            elapsedMs !== undefined
+              ? JSON.stringify({ keep_it_click_time_ms: elapsedMs })
+              : undefined,
+        });
       }
       onComplete();
     },
@@ -437,6 +460,7 @@ export function NewTabActivationPrimer({
   }, [finish, goToRecovery, logEvent, stopPolling]);
 
   const handleActivateClick = useCallback(async (): Promise<void> => {
+    ctaClickAtRef.current = Date.now();
     logEvent({ event_name: LogEvent.ExtensionPrimerCtaClick });
     updateState('waiting');
     startPolling();
@@ -481,23 +505,22 @@ export function NewTabActivationPrimer({
 
         <Typography
           tag={TypographyTag.H1}
-          type={isRecovery ? TypographyType.LargeTitle : TypographyType.Title1}
+          type={TypographyType.LargeTitle}
           color={TypographyColor.Primary}
           bold
         >
           {isRecovery ? 'Almost there' : 'Tap "Keep it" when Chrome asks.'}
         </Typography>
 
-        {isRecovery && (
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Body}
-            color={TypographyColor.Secondary}
-          >
-            Looks like daily.dev was turned off. Open the extensions page, find
-            daily.dev, and flip the toggle back on.
-          </Typography>
-        )}
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          {isRecovery
+            ? 'Looks like daily.dev was turned off. Open the extensions page, find daily.dev, and flip the toggle back on.'
+            : "Chrome's confirmation pops up the moment you click below."}
+        </Typography>
 
         {!isRecovery && <ActivationVisual />}
 
