@@ -252,7 +252,7 @@ function UnifiedMobileFeedNav(): ReactElement {
             {groupItems.map((item) => {
               const isActive = item.id === activeId;
               return (
-                <Link key={item.id} href={item.href} passHref>
+                <Link key={item.id} href={item.href} passHref scroll={false}>
                   <Button
                     tag="a"
                     size={ButtonSize.Small}

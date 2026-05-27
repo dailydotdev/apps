@@ -132,7 +132,7 @@ export const BriefCover = ({
       id="brief-bounds"
       aria-label="Your daily brief"
       className={classNames(
-        'mx-auto mb-6 flex w-full max-w-[60rem] flex-col px-3 pt-8 tablet:px-4',
+        'mx-auto mb-6 flex w-full max-w-[60rem] flex-col px-4 pt-8',
         className,
       )}
     >

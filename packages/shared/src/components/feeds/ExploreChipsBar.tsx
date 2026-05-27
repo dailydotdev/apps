@@ -65,7 +65,12 @@ export function ExploreChipsBar({
         {categories.map((category) => {
           const isActive = normalizePath(category.path) === activePath;
           return (
-            <Link key={category.id} href={category.path} passHref>
+            <Link
+              key={category.id}
+              href={category.path}
+              passHref
+              scroll={false}
+            >
               <Button
                 tag="a"
                 size={ButtonSize.Medium}
