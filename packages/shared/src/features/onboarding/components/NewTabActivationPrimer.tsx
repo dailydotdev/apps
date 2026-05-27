@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -145,53 +151,62 @@ function ChromeDialogMockup(): ReactElement {
   );
 }
 
-// Stylized peek of the actual new-tab feed, shown BELOW the Chrome
-// dialog mockup (Option B from the design review). Until we wire a real
-// screenshot the cards are placeholder shapes — the goal is just to
-// claim "this is what you get" so the user knows what they're keeping.
-// TODO(BEFORE-MERGE): swap for an actual cropped screenshot of the
-// daily.dev new-tab feed (real post cards, real titles, real tags).
-function FeedScreenshotPlaceholder(): ReactElement {
-  const cards = [
-    { wTitle: 'w-3/4', wMeta: 'w-1/2' },
-    { wTitle: 'w-5/6', wMeta: 'w-2/3' },
-    { wTitle: 'w-2/3', wMeta: 'w-1/3' },
-    { wTitle: 'w-4/5', wMeta: 'w-2/5' },
+// Three-step rail that predicts the entire post-click journey so
+// nothing about the next ~10 seconds surprises the user. Surprise is
+// what fuels the "Change it back" reflex on Chrome's bubble; removing
+// surprise pre-empts the reflex.
+function JourneyRail(): ReactElement {
+  const steps = [
+    { n: '1', label: 'Keep it', active: true },
+    { n: '2', label: 'Sign in (5s)', active: false },
+    { n: '3', label: 'Tab live', active: false },
   ];
   return (
-    <div
-      role="img"
-      aria-label="Preview of the daily.dev new-tab feed"
-      className="grid w-full max-w-[28rem] grid-cols-2 gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3"
+    <ol
+      aria-label="Three-step journey"
+      className="flex w-full max-w-[28rem] items-center justify-between gap-2"
     >
-      {cards.map((card, i) => (
-        <div
-          // eslint-disable-next-line react/no-array-index-key
-          key={i}
-          className="flex flex-col gap-2 rounded-12 bg-surface-float p-3"
-        >
-          <div className="h-2 w-10 rounded-4 bg-surface-secondary" />
-          <div className={`h-2 ${card.wTitle} bg-text-tertiary/40 rounded-4`} />
-          <div className={`h-2 ${card.wMeta} bg-text-tertiary/30 rounded-4`} />
-        </div>
+      {steps.map((step, i) => (
+        <Fragment key={step.n}>
+          <li
+            className={classNames(
+              'flex flex-1 items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 typo-caption1',
+              step.active
+                ? 'bg-action-upvote-default font-bold text-white'
+                : 'bg-surface-float text-text-tertiary',
+            )}
+          >
+            <span
+              className={classNames(
+                'flex h-4 w-4 shrink-0 items-center justify-center rounded-full typo-caption2',
+                step.active
+                  ? 'bg-white/30 text-white'
+                  : 'bg-text-tertiary/20 text-text-tertiary',
+              )}
+            >
+              {step.n}
+            </span>
+            {step.label}
+          </li>
+          {i < steps.length - 1 && (
+            <span aria-hidden className="text-text-tertiary typo-caption1">
+              →
+            </span>
+          )}
+        </Fragment>
       ))}
-    </div>
+    </ol>
   );
 }
 
-// Two separate artifacts, two separate purposes (per design review
-// Option B): the dialog mock shows what to tap, the feed screenshot
-// shows what you keep. Neither tries to be the other.
+// Dialog mock + journey rail. The mock shows what to tap; the rail
+// shows what comes after. Together they remove every surprise between
+// the primer click and a successful new-tab activation.
 function ActivationVisual(): ReactElement {
   return (
     <div className="flex w-full max-w-[32rem] flex-col items-center gap-5">
       <ChromeDialogMockup />
-      <div className="flex w-full max-w-[28rem] flex-col items-center gap-2">
-        <FeedScreenshotPlaceholder />
-        <p className="text-text-tertiary typo-caption1">
-          Every time you open a new tab, you&apos;ll see this.
-        </p>
-      </div>
+      <JourneyRail />
     </div>
   );
 }
@@ -266,17 +281,18 @@ function ExtensionsPageCardMockup(): ReactElement {
   );
 }
 
-// Three tight one-line trust bullets under the CTA. Each line stands on
-// its own — no apologetic "Chrome shows this prompt…" framing, which
-// would surface objections the user hasn't raised yet.
+// Three tight one-line trust bullets under the CTA. Reversibility goes
+// FIRST because it directly defuses the exact thought process Chrome's
+// bubble triggers ("ugh, what if I don't like this, get me out"). The
+// first bullet kills the kill-switch reflex; the others are supporting.
 function TrustBullets(): ReactElement {
   const bullets: Array<{ label: string; body: string }> = [
-    { label: 'Private', body: 'we never read your browsing history' },
-    { label: 'Curated', body: 'top engineering posts, zero clickbait' },
     {
       label: 'Reversible',
       body: 'one click in chrome://extensions to undo',
     },
+    { label: 'Private', body: 'we never read your browsing history' },
+    { label: 'Curated', body: 'top engineering posts, zero clickbait' },
   ];
   return (
     <ul className="mx-auto flex w-full max-w-[24rem] flex-col items-start gap-1.5">
@@ -307,6 +323,54 @@ function TrustBullets(): ReactElement {
         </li>
       ))}
     </ul>
+  );
+}
+
+// Expandable disclosure for the skeptical user. The reviewer's bet
+// (worth testing): users who open this convert ~1.5-2x non-openers,
+// because the same paranoia that drives "Change it back" also drives
+// "let me read what this is first." Fires a one-shot telemetry event
+// on first expansion so we can segment conversion by openers vs.
+// non-openers.
+type WhyChromeAsksProps = {
+  logEvent: ReturnType<typeof useLogContext>['logEvent'];
+};
+function WhyChromeAsks({ logEvent }: WhyChromeAsksProps): ReactElement {
+  const [open, setOpen] = useState(false);
+  const loggedRef = useRef(false);
+  const handleClick = useCallback((): void => {
+    setOpen((prev) => {
+      const next = !prev;
+      if (next && !loggedRef.current) {
+        loggedRef.current = true;
+        logEvent({ event_name: LogEvent.ExtensionPrimerWhyChromeExpanded });
+      }
+      return next;
+    });
+  }, [logEvent]);
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        aria-expanded={open}
+        className="text-text-tertiary underline-offset-2 typo-footnote hover:underline"
+      >
+        Why is Chrome asking this? {open ? '⌃' : '⌄'}
+      </button>
+      {open && (
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          className="max-w-[28rem] text-center"
+        >
+          Chrome shows this any time an extension changes your new tab —
+          it&apos;s a privacy guardrail we actually appreciate, even when the
+          wording is confusing.
+        </Typography>
+      )}
+    </div>
   );
 }
 
@@ -500,7 +564,7 @@ export function NewTabActivationPrimer({
       >
         {!isRecovery && (
           <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-3.5 py-1.5 text-text-tertiary typo-footnote">
-            Step 1 of 1 · Takes 2 seconds
+            Step 1 of 3 · ~10 seconds total
           </span>
         )}
 
@@ -520,23 +584,32 @@ export function NewTabActivationPrimer({
         >
           {isRecovery
             ? 'Looks like daily.dev was turned off. Open the extensions page, find daily.dev, and flip the toggle back on.'
-            : 'In 1 second, Chrome will pop up this exact box. Tap the left button.'}
+            : 'Chrome will pop up this exact box. Tap the left button.'}
         </Typography>
 
         {!isRecovery && <ActivationVisual />}
 
         {!isRecovery && (
           <div className="flex w-full flex-col items-center gap-4">
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              disabled={isWaiting}
-              onClick={handleActivateClick}
-            >
-              {isWaiting ? 'Waiting for you to confirm…' : 'Keep it'}
-            </Button>
+            <div className="flex flex-col items-center gap-1.5">
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Large}
+                disabled={isWaiting}
+                onClick={handleActivateClick}
+              >
+                {isWaiting ? 'Waiting for you to confirm…' : 'Keep it'}
+              </Button>
+              <p className="text-text-tertiary typo-caption1">
+                Then a 5-second sign-in, and you&apos;re in.
+              </p>
+            </div>
+            <p className="text-text-tertiary typo-footnote">
+              Trusted by millions of developers · 4.8★ on the Chrome Web Store
+            </p>
             <TrustBullets />
+            <WhyChromeAsks logEvent={logEvent} />
           </div>
         )}
 

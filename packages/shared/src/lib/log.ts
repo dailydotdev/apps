@@ -494,6 +494,7 @@ export enum LogEvent {
   ExtensionDialogRejected = 'reject extension new tab',
   ExtensionPrimerRecoveryShown = 'impression extension primer recovery',
   ExtensionPrimerSkipped = 'skip extension primer',
+  ExtensionPrimerWhyChromeExpanded = 'expand extension primer why chrome asks',
 }
 
 export enum TargetType {
