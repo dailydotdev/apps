@@ -17,14 +17,7 @@ export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const recruiterScheduleUrl = 'https://recruiter.daily.dev/schedule';
 export const initialDataKey = 'initial';
-// In production, point at the Rebrandly redirect so install attribution
-// is tracked. In dev/staging builds, route directly to the configured
-// webapp's onboarding page so the post-install flow exercises the local
-// build instead of bouncing to prod.
-export const install =
-  process.env.NEXT_PUBLIC_API_URL === 'https://api.daily.dev'
-    ? 'https://r.daily.dev/install'
-    : `${process.env.NEXT_PUBLIC_WEBAPP_URL ?? ''}onboarding`;
+export const install = 'https://r.daily.dev/install';
 export const uninstall = 'https://r.daily.dev/uninstall';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
