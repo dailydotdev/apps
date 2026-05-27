@@ -362,24 +362,18 @@ export function NewTabActivationPrimer({
     setState('recovery');
   }, [logEvent, startPolling, stopPolling]);
 
-  const [extensionsHelperState, setExtensionsHelperState] = useState<
-    'idle' | 'copied' | 'unsupported'
-  >('idle');
+  const [showManualHint, setShowManualHint] = useState(false);
 
   const handleOpenExtensionsPage = useCallback(async (): Promise<void> => {
     const result = await requestOpenExtensionsPageFromPage();
     if (result.opened) {
       return;
     }
-    // Bridge failed — most likely the extension was already disabled by
-    // Chrome (no service worker, no content script). Fall back to copying
-    // the URL so the user can paste it into the address bar.
-    try {
-      await navigator.clipboard.writeText('chrome://extensions');
-      setExtensionsHelperState('copied');
-    } catch {
-      setExtensionsHelperState('unsupported');
-    }
+    // Bridge failed — almost always because Chrome already disabled the
+    // extension when the user picked "Change it back". Web pages cannot
+    // navigate to chrome:// URLs without an enabled extension proxying
+    // the navigation, so fall back to telling the user to do it.
+    setShowManualHint(true);
   }, []);
 
   const isRecovery = state === 'recovery';
@@ -456,27 +450,16 @@ export function NewTabActivationPrimer({
             >
               Open extensions page
             </Button>
-            {extensionsHelperState === 'copied' && (
+            {showManualHint && (
               <Typography
                 tag={TypographyTag.P}
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
                 className="text-center"
               >
-                Copied{' '}
-                <span className="text-text-primary">chrome://extensions</span> —
-                paste it into your address bar.
-              </Typography>
-            )}
-            {extensionsHelperState === 'unsupported' && (
-              <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                className="text-center"
-              >
-                Open a new tab and go to{' '}
-                <span className="text-text-primary">chrome://extensions</span>.
+                Couldn&apos;t open it automatically — open a new tab and go to{' '}
+                <span className="text-text-primary">chrome://extensions</span>{' '}
+                to turn daily.dev back on.
               </Typography>
             )}
           </div>
