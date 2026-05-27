@@ -34,12 +34,61 @@ const useIsFirstVisitToday = (): boolean => {
   return isFirst;
 };
 
-const formatLongDate = (): string =>
-  new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
+interface DateParts {
+  month: string;
+  day: string;
+  weekday: string;
+}
+
+const formatDateParts = (): DateParts => {
+  const now = new Date();
+  return {
+    month: now.toLocaleDateString(undefined, { month: 'short' }).toUpperCase(),
+    day: now.toLocaleDateString(undefined, { day: 'numeric' }),
+    weekday: now.toLocaleDateString(undefined, { weekday: 'short' }),
+  };
+};
+
+const DateWidget = (): ReactElement => {
+  const { month, day, weekday } = formatDateParts();
+
+  return (
+    <div
+      aria-label={`${weekday}, ${month} ${day}`}
+      className="flex w-16 shrink-0 flex-col items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default text-center"
+    >
+      <div className="bg-accent-cabbage-default px-2 py-0.5">
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption2}
+          bold
+          color={TypographyColor.Primary}
+          className="tracking-wide text-surface-invert"
+        >
+          {month}
+        </Typography>
+      </div>
+      <div className="flex flex-col items-center gap-0.5 px-2 pb-1 pt-0.5">
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Title2}
+          bold
+          color={TypographyColor.Primary}
+          className="tabular-nums !leading-none"
+        >
+          {day}
+        </Typography>
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption2}
+          color={TypographyColor.Tertiary}
+        >
+          {weekday}
+        </Typography>
+      </div>
+    </div>
+  );
+};
 
 interface CoverHeaderProps {
   totals: {
@@ -65,7 +114,7 @@ export const CoverHeader = ({
 
   return (
     <header id="brief-top" className="flex scroll-mt-20 flex-col gap-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <Typography
           tag={TypographyTag.H1}
           type={TypographyType.LargeTitle}
@@ -74,13 +123,8 @@ export const CoverHeader = ({
         >
           Today&apos;s read
         </Typography>
-        <div className="flex shrink-0 items-center gap-3">
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {formatLongDate()}
-          </Typography>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <DateWidget />
           <button
             type="button"
             onClick={onReset}
