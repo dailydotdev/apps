@@ -60,41 +60,44 @@ const readActivationStorage = (): {
   }
 };
 
-// The whole non-recovery primer visual: a single autoplay/loop video
-// that rehearses the upcoming click — bubble fades in, cursor lands on
-// "Keep it", bubble dismisses, feed flashes. Subtitles are intended to
-// be burned into the video itself so the user learns the motor sequence
-// visually + verbally in a single artifact.
-//
-// TODO(BEFORE-MERGE): currently served from webapp/public for local
-// testing. Upload to Cloudinary and swap ACTIVATION_DEMO_URL for the
-// hosted URL before merging. While re-recording for production, bake
-// in subtitles per the design brief:
-//   0:00 "In a moment, Chrome will ask…"
-//   0:02 "Tap Keep it — left button."
-//   0:04 "Done. Your new tab is live."
-const ACTIVATION_DEMO_URL = '/activate-demo.mp4';
+// TODO(BEFORE-MERGE): videos currently served from webapp/public for
+// local testing. Upload both to Cloudinary and swap the URL constants
+// for the hosted URLs before merging. Aspect ratios below match the
+// source dimensions exactly so the element hugs the frame without
+// letterbox padding — update them if the production videos are
+// re-recorded at different dimensions.
+const PRIMARY_DEMO_URL = '/activate-demo.mp4'; // 1748×1080
+const RECOVERY_DEMO_URL = '/recovery-demo.mp4'; // 1152×720 (16:10)
 
-// Video is THE page — sized large (full container width, ~50% viewport
-// height) so the burned-in subtitles are readable. Everything else on
-// the page is a small label around it.
-function ActivationDemoVideo(): ReactElement {
+// Video is THE visual on both the primary and recovery screens —
+// large (full container width, ~50% viewport height), autoplay/loop,
+// burned-in subtitles intended.
+function ActivationDemoVideo({
+  variant,
+}: {
+  variant: 'primary' | 'recovery';
+}): ReactElement {
+  const src = variant === 'primary' ? PRIMARY_DEMO_URL : RECOVERY_DEMO_URL;
+  const aspect =
+    variant === 'primary' ? 'aspect-[1748/1080]' : 'aspect-[1152/720]';
+  const ariaLabel =
+    variant === 'primary'
+      ? "Rehearsal of Chrome's confirmation bubble and the Keep it click"
+      : 'Walkthrough of re-enabling daily.dev from chrome://extensions';
   return (
     <video
-      src={ACTIVATION_DEMO_URL}
-      // Aspect ratio matches the source file (1748×1080) so the element
-      // hugs the frame and we don't get letterbox padding on the sides
-      // (16:9 would have left horizontal gaps). When the production
-      // video is re-recorded with subtitles, update this value to match
-      // its dimensions.
-      className="aspect-[1748/1080] w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2"
+      src={src}
+      className={classNames(
+        aspect,
+        'w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2',
+      )}
       muted
       autoPlay
       loop
       playsInline
       disablePictureInPicture
       controls={false}
-      aria-label="Rehearsal of Chrome's confirmation bubble and the Keep it click"
+      aria-label={ariaLabel}
     />
   );
 }
@@ -300,7 +303,7 @@ export function NewTabActivationPrimer({
           </Typography>
         </div>
 
-        <ActivationDemoVideo />
+        <ActivationDemoVideo variant={isRecovery ? 'recovery' : 'primary'} />
 
         {!isRecovery && (
           <div className="flex flex-col items-center gap-2">
