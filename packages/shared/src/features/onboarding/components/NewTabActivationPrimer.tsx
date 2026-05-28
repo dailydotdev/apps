@@ -82,7 +82,12 @@ function ActivationDemoVideo(): ReactElement {
   return (
     <video
       src={ACTIVATION_DEMO_URL}
-      className="aspect-video w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2"
+      // Aspect ratio matches the source file (1748×1080) so the element
+      // hugs the frame and we don't get letterbox padding on the sides
+      // (16:9 would have left horizontal gaps). When the production
+      // video is re-recorded with subtitles, update this value to match
+      // its dimensions.
+      className="aspect-[1748/1080] w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2"
       muted
       autoPlay
       loop
