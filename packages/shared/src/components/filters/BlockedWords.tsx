@@ -103,7 +103,7 @@ export const BlockedWords = (): ReactElement => {
         color={TypographyColor.Tertiary}
         type={TypographyType.Callout}
       >
-        Automatically filter out posts containing words you never want to see
+        Filter out posts with titles containing words you never want to see
         again. Life’s too short for unnecessary noise.
         {!isPlus ? (
           <>
