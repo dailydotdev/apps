@@ -19,6 +19,7 @@ export interface PostHighlightFeed {
   channel: string;
   headline: string;
   highlightedAt: string;
+  significance?: string | null;
   post: {
     id: string;
     type: string;
@@ -109,6 +110,7 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
     channel
     headline
     highlightedAt
+    significance
     post {
       id
       type
@@ -140,6 +142,82 @@ export const POST_HIGHLIGHTS_FEED_QUERY = gql`
   }
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
+
+export type PostHighlightSignificance =
+  | 'breaking'
+  | 'major'
+  | 'notable'
+  | 'routine';
+
+export interface PostHighlightsFeedPageData {
+  postHighlightsFeed: Connection<PostHighlightFeed>;
+}
+
+interface PostHighlightsFeedQueryArgs {
+  channel?: string;
+  significance?: PostHighlightSignificance[];
+  first?: number;
+  after?: string;
+}
+
+export const POST_HIGHLIGHTS_FEED_PAGE_QUERY = gql`
+  query PostHighlightsFeedPage(
+    $channel: String
+    $significance: [String!]
+    $first: Int
+    $after: String
+  ) {
+    postHighlightsFeed(
+      channel: $channel
+      significance: $significance
+      first: $first
+      after: $after
+    ) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...PostHighlightFeedCard
+        }
+      }
+    }
+  }
+  ${POST_HIGHLIGHT_FEED_FRAGMENT}
+`;
+
+export const getPostHighlightsFeedQueryKey = ({
+  channel,
+  significance,
+}: Pick<PostHighlightsFeedQueryArgs, 'channel' | 'significance'>) => [
+  'post-highlights-feed',
+  channel ?? '',
+  [...(significance ?? [])].sort().join(','),
+];
+
+export const postHighlightsFeedQueryOptions = ({
+  channel,
+  significance,
+  first = MAJOR_HEADLINES_MAX_FIRST,
+  after,
+}: PostHighlightsFeedQueryArgs = {}) => ({
+  queryKey: [
+    ...getPostHighlightsFeedQueryKey({ channel, significance }),
+    first,
+  ],
+  queryFn: () =>
+    gqlClient.request<PostHighlightsFeedPageData>(
+      POST_HIGHLIGHTS_FEED_PAGE_QUERY,
+      {
+        channel: channel ?? null,
+        significance: significance ?? null,
+        first,
+        after,
+      },
+    ),
+  staleTime: ONE_MINUTE,
+});
 
 export interface ChannelDigestConfiguration {
   frequency: string;
