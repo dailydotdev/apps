@@ -11,6 +11,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { useExtensionMockup } from './useExtensionMockup';
 
 // Sticky banner pinned to the top of the new tab for logged-out users.
 // Sits above shortcuts and any other top-page modules so the auth CTAs
@@ -19,8 +20,12 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 // of the same surface (no glass / blur / shadow).
 export const ExtensionSignInStrip = (): ReactElement | null => {
   const { isAuthReady, isLoggedIn, showLogin } = useAuthContext();
+  const { signInStrip: forceSignInStrip } = useExtensionMockup();
 
-  if (!isAuthReady || isLoggedIn) {
+  if (!isAuthReady) {
+    return null;
+  }
+  if (isLoggedIn && !forceSignInStrip) {
     return null;
   }
 

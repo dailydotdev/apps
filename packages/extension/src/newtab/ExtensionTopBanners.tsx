@@ -23,6 +23,7 @@ import {
   cloudinaryShortcutsIconsReddit,
   uploadCvBgMobile,
 } from '@dailydotdev/shared/src/lib/image';
+import { useExtensionMockup } from './useExtensionMockup';
 
 // Bare-illustration frame — slightly wider than tall so the CV cluster
 // (rendered as a background image below) has horizontal room without
@@ -148,16 +149,27 @@ export const ExtensionTopBanners = (): ReactElement | null => {
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const shortcuts = useShortcutsOnboarding();
+  const mockup = useExtensionMockup();
 
-  // Logged-out users get the dedicated sticky sign-in strip rendered
-  // higher up in `MainFeedPage`. This component is logged-in cards only.
-  if (!isAuthReady || !isLoggedIn) {
+  const showReminderCard = reminder.shouldShow || mockup.reminderCard;
+  const showCvCard = shouldShowCv || mockup.cvCard;
+  const showShortcutsCard = shortcuts.shouldShow || mockup.shortcutsCard;
+  const anyMockupForced =
+    mockup.reminderCard || mockup.cvCard || mockup.shortcutsCard;
+
+  // Logged-out users normally see the dedicated sticky sign-in strip
+  // instead of these cards. In mockup mode any forced card overrides
+  // that gate so engineering can preview the layout while signed out.
+  if (!isAuthReady) {
+    return null;
+  }
+  if (!isLoggedIn && !anyMockupForced) {
     return null;
   }
 
   const cards: ReactElement[] = [];
 
-  if (reminder.shouldShow) {
+  if (showReminderCard) {
     cards.push(
       <TopHero
         key="reminder"
@@ -173,7 +185,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
     );
   }
 
-  if (shouldShowCv) {
+  if (showCvCard) {
     cards.push(
       <TopHero
         key="cv"
@@ -186,7 +198,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
     );
   }
 
-  if (shortcuts.shouldShow) {
+  if (showShortcutsCard) {
     cards.push(
       <TopHero
         key="shortcuts"
