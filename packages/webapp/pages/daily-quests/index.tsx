@@ -38,7 +38,7 @@ function DailyQuestsPage(): ReactElement {
   return (
     <ProtectedPage>
       {isV2Laptop && <PageHeader title="Daily quests" />}
-      <div className="mx-auto w-full max-w-[72rem]">
+      <div className="mx-auto w-full max-w-[42.5rem]">
         {!isV2Laptop && (
           <LayoutHeader
             className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}

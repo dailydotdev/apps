@@ -19,7 +19,7 @@ export const NotificationsRailPanel = (): ReactElement => {
       <RailHoverRow
         href={`${webappUrl}notifications`}
         icon={<BellIcon size={IconSize.XSmall} aria-hidden />}
-        label="Notifications"
+        label="All activity"
         trailing={
           hasUnread ? (
             <Typography
@@ -35,7 +35,7 @@ export const NotificationsRailPanel = (): ReactElement => {
       <RailHoverRow
         href={`${settingsUrl}/notifications`}
         icon={<SettingsIcon size={IconSize.XSmall} aria-hidden />}
-        label="Notification settings"
+        label="Settings"
       />
     </div>
   );

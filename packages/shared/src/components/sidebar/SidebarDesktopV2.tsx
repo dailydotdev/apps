@@ -1,6 +1,12 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
@@ -30,7 +36,7 @@ import {
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
-  SquadIcon,
+  SourceIcon,
   SunIcon,
   UserIcon,
 } from '../icons';
@@ -103,7 +109,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Squads',
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
-      <SquadIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <SourceIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
   {
@@ -224,6 +230,30 @@ const RailHoverCard = ({
   enabled = true,
   alignOffset,
 }: RailHoverCardProps) => {
+  // Controlled open + suppression flag: after a click on the trigger we
+  // close the panel and block reopens until the pointer actually leaves
+  // the trigger. Otherwise Radix's openDelay timer re-fires while the
+  // cursor still rests on the just-clicked item and the panel pops back
+  // up after navigation.
+  const [open, setOpen] = useState(false);
+  const suppressOpenRef = useRef(false);
+
+  const handleOpenChange = useCallback((next: boolean) => {
+    if (next && suppressOpenRef.current) {
+      return;
+    }
+    setOpen(next);
+  }, []);
+
+  const handleTriggerClick = useCallback(() => {
+    suppressOpenRef.current = true;
+    setOpen(false);
+  }, []);
+
+  const handleTriggerPointerLeave = useCallback(() => {
+    suppressOpenRef.current = false;
+  }, []);
+
   if (!enabled) {
     return <>{children}</>;
   }
@@ -231,8 +261,14 @@ const RailHoverCard = ({
     <HoverCardPrimitive.Root
       openDelay={RAIL_HOVER_OPEN_DELAY}
       closeDelay={RAIL_HOVER_CLOSE_DELAY}
+      open={open}
+      onOpenChange={handleOpenChange}
     >
-      <HoverCardPrimitive.Trigger asChild>
+      <HoverCardPrimitive.Trigger
+        asChild
+        onClick={handleTriggerClick}
+        onPointerLeave={handleTriggerPointerLeave}
+      >
         {children}
       </HoverCardPrimitive.Trigger>
       <HoverCardPrimitive.Portal>
