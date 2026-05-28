@@ -99,76 +99,6 @@ function ActivationDemoVideo(): ReactElement {
   );
 }
 
-// Stylized recreation of the daily.dev card on the chrome://extensions
-// page with the toggle highlighted in the OFF position. Used by the
-// recovery screen to show the user exactly what to look for when they
-// need to re-enable the extension.
-function ExtensionsPageCardMockup(): ReactElement {
-  return (
-    <div
-      role="img"
-      aria-label="Mockup of the chrome://extensions card for daily.dev showing the on/off toggle on the right with a callout to turn it on."
-      className="relative w-full max-w-[28rem] select-none"
-    >
-      <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2">
-        <div className="flex items-start gap-3">
-          <div
-            aria-hidden
-            className="h-12 w-12 shrink-0 rounded-12 bg-gradient-to-br from-raw-cabbage-50 to-raw-pepper-90 shadow-2"
-          />
-          <div className="flex-1 overflow-hidden">
-            <div className="flex items-baseline gap-2">
-              <p className="truncate font-bold text-text-primary typo-callout">
-                daily.dev | Developer News Done Righ…
-              </p>
-              <span className="shrink-0 text-text-tertiary typo-footnote">
-                3.45.3
-              </span>
-            </div>
-            <p className="mt-1 text-text-secondary typo-footnote">
-              Developer news, personalized to your stack, in every new tab.
-            </p>
-            <p className="mt-2 text-text-tertiary typo-caption1">
-              ID: jlmpjdjjbgclbocgajdjefcidcncaied
-            </p>
-          </div>
-          <div className="relative shrink-0">
-            <span
-              aria-hidden
-              className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-8 bg-action-upvote-default px-2 py-1 font-bold text-white shadow-2 typo-caption1"
-            >
-              Turn this on
-            </span>
-            <svg
-              aria-hidden
-              viewBox="0 0 16 16"
-              className="absolute -top-3 left-1/2 h-4 w-4 -translate-x-1/2 animate-bounce text-action-upvote-default"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M8 16 0 6h5V0h6v6h5L8 16Z" />
-            </svg>
-            <span
-              aria-hidden
-              className="inline-flex h-6 w-11 items-center rounded-full bg-text-disabled p-0.5 ring-2 ring-action-upvote-default ring-offset-2 ring-offset-background-default"
-            >
-              <span className="h-5 w-5 rounded-full bg-white shadow-2" />
-            </span>
-          </div>
-        </div>
-        <div className="mt-4 flex items-center gap-2">
-          <span className="inline-flex items-center justify-center rounded-12 border border-border-subtlest-tertiary px-3 py-1 text-text-tertiary typo-footnote">
-            Details
-          </span>
-          <span className="inline-flex items-center justify-center rounded-12 border border-border-subtlest-tertiary px-3 py-1 text-text-tertiary typo-footnote">
-            Remove
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function NewTabActivationPrimer({
   onComplete,
 }: NewTabActivationPrimerProps): ReactElement {
@@ -348,6 +278,10 @@ export function NewTabActivationPrimer({
             type={TypographyType.LargeTitle}
             color={TypographyColor.Primary}
             bold
+            // text-wrap: balance distributes the headline across lines
+            // evenly, which prevents the orphaned-trailing-word "floating
+            // line" effect on copy that wraps at narrow widths.
+            className="text-balance"
           >
             {isRecovery
               ? 'Let’s turn it back on'
@@ -356,8 +290,9 @@ export function NewTabActivationPrimer({
 
           <Typography
             tag={TypographyTag.P}
-            type={TypographyType.Body}
+            type={TypographyType.Title3}
             color={TypographyColor.Secondary}
+            className="text-balance"
           >
             {isRecovery
               ? 'Open the extensions page, find daily.dev, and flip the toggle back on.'
@@ -365,7 +300,7 @@ export function NewTabActivationPrimer({
           </Typography>
         </div>
 
-        {!isRecovery && <ActivationDemoVideo />}
+        <ActivationDemoVideo />
 
         {!isRecovery && (
           <div className="flex flex-col items-center gap-2">
@@ -383,8 +318,6 @@ export function NewTabActivationPrimer({
             </p>
           </div>
         )}
-
-        {isRecovery && <ExtensionsPageCardMockup />}
 
         {isRecovery && (
           <div className="flex w-full flex-col items-center gap-3">
