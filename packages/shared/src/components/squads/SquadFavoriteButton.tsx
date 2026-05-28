@@ -38,6 +38,8 @@ export const SquadFavoriteButton = ({
       onClick={onClick}
       className={classNames(
         'relative z-1 flex items-center justify-center disabled:opacity-50',
+        !isFavorited &&
+          'laptop:opacity-0 laptop:transition-opacity laptop:group-focus-within/squad-row:opacity-100 laptop:group-hover/squad-row:opacity-100',
         className,
       )}
     >
