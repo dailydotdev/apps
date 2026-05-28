@@ -314,7 +314,7 @@ export function NewTabActivationPrimer({
               disabled={isWaiting}
               onClick={handleActivateClick}
             >
-              {isWaiting ? 'Opening…' : 'Keep it'}
+              {isWaiting ? 'Opening…' : 'Open new tab'}
             </Button>
             <p className="text-text-tertiary typo-caption1">
               Takes 2 seconds. Reversible anytime.
