@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
-import { CoreIcon, SettingsIcon } from '../icons';
+import { ProfileImageSize } from '../ProfilePicture';
+import { CoreIcon, ReputationIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
-import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
+import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { walletUrl } from '../../lib/constants';
@@ -197,6 +197,8 @@ export default function ProfileButton({
     return <></>;
   }
 
+  // The pill groups streak / cores / reputation / avatar into one
+  // bordered control with edge-to-edge hover slots.
   return (
     <>
       {settingsIconOnly ? (
@@ -206,13 +208,13 @@ export default function ProfileButton({
           icon={<SettingsIcon />}
         />
       ) : (
-        <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
+        <div className="flex h-10 items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
           {isStreaksEnabled && streak && (
             <ReadingStreakButton
               streak={streak}
               isLoading={isLoading}
               compact
-              className="pl-4"
+              className="!h-full !rounded-none !pl-1.5 !pr-2"
             />
           )}
           {hasCoresAccess && (
@@ -236,6 +238,7 @@ export default function ProfileButton({
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
+                    className="!h-full !rounded-none !pl-1.5 !pr-2"
                   >
                     {largeNumberFormat(displayedBalance)}
                   </Button>
@@ -243,34 +246,39 @@ export default function ProfileButton({
               </div>
             </Tooltip>
           )}
-          <button
-            type="button"
-            aria-label="Profile settings"
-            className={classNames(
-              'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
-              className ?? 'flex',
-            )}
-            onClick={wrapHandler(() => onUpdate(!isOpen))}
-          >
-            <span
-              ref={reputationCounterRef}
-              className="inline-flex items-center"
-              data-reward-target={QuestRewardType.Reputation}
+          <Tooltip side="bottom" content="Profile settings">
+            <Button
+              type="button"
+              aria-label="Profile settings"
+              icon={
+                <ReputationIcon
+                  className="text-accent-onion-default"
+                  size={IconSize.Medium}
+                />
+              }
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              className={classNames(
+                '!h-full !gap-0 !rounded-none !pl-0.5 !pr-0',
+                className,
+              )}
+              onClick={wrapHandler(() => onUpdate(!isOpen))}
             >
-              <ReputationUserBadge
-                className="ml-1 !typo-subhead"
-                user={{ reputation: displayedReputation ?? 0 }}
-                iconProps={{
-                  size: IconSize.Small,
-                }}
+              <span
+                ref={reputationCounterRef}
+                data-reward-target={QuestRewardType.Reputation}
+                className="inline-flex origin-center items-center will-change-transform"
+              >
+                {largeNumberFormat(displayedReputation ?? 0)}
+              </span>
+              <ProfilePictureWithIndicator
+                user={user}
+                size={ProfileImageSize.Large}
+                className="!h-9 !w-9 !rounded-10"
+                wrapperClassName="relative ml-2"
               />
-            </span>
-            <Tooltip side="bottom" content="Profile settings">
-              <div className="flex items-center">
-                <ProfilePictureWithIndicator user={user} />
-              </div>
-            </Tooltip>
-          </button>
+            </Button>
+          </Tooltip>
         </div>
       )}
       {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}

@@ -17,7 +17,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
-import { IconWrapper } from '../Icon';
+import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 
 interface ReadingStreakButtonProps {
@@ -122,7 +122,13 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={
-            <IconWrapper wrapperClassName="relative flex items-center gap-2">
+            <IconWrapper
+              size={compact ? IconSize.XSmall : undefined}
+              wrapperClassName={classnames(
+                'relative flex items-center gap-2',
+                compact && 'h-6 w-6 justify-center',
+              )}
+            >
               <ReadingStreakIcon secondary={hasReadToday} />
               {!isTimezoneOk && (
                 <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
@@ -130,14 +136,12 @@ export function ReadingStreakButton({
             </IconWrapper>
           }
           variant={
-            isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
+            compact || isLaptop || isMobile
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames(
-            'gap-1',
-            compact && 'text-accent-bacon-default',
-            className,
-          )}
+          className={classnames('gap-1', className)}
           size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}

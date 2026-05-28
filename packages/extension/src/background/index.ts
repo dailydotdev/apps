@@ -11,6 +11,8 @@ import { install, uninstall } from '@dailydotdev/shared/src/lib/constants';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
+import { frameEmbeddingPermissionBridgeTiming } from '@dailydotdev/shared/src/features/extensionEmbed/pagePermissionBridge';
+import type { PermissionGrantResponse } from '@dailydotdev/shared/src/features/extensionEmbed/pagePermissionBridge';
 import {
   getContentScriptPermissionAndRegister,
   registerEmbedTargetReadyContentScript,
@@ -20,6 +22,7 @@ import {
   disableFrameEmbeddingForTab,
   enableFrameEmbeddingForTab,
 } from '../lib/frameEmbedding';
+import { requestFrameEmbeddingPermissions } from '../lib/frameEmbeddingPermissions';
 
 type ChromeRuntimeMessageSender = Runtime.MessageSender;
 type ChromeSendResponse = (response?: unknown) => void;
@@ -183,6 +186,48 @@ async function handleMessages(
   if (message.type === ExtensionMessageType.DisableFrameEmbeddingForTab) {
     const tabId = await getTargetTabId(sender);
     return disableFrameEmbeddingForTab(tabId);
+  }
+
+  if (message.type === ExtensionMessageType.PingFrameEmbeddingReady) {
+    // Lightweight liveness check used by the content script to detect when
+    // the service worker is back online after the post-grant runtime.reload.
+    return { ready: true };
+  }
+
+  if (message.type === ExtensionMessageType.RequestFrameEmbeddingPermissions) {
+    // Relay path so the daily.dev page can drive chrome.permissions.request
+    // without losing the user gesture. chrome.permissions.request is only
+    // callable from extension pages, so the content script forwards here and
+    // the user gesture from the originating click is preserved via the
+    // Runtime.MessageSender.userGesture flag.
+    try {
+      const granted = await requestFrameEmbeddingPermissions();
+      if (granted) {
+        // Chromium needs a fresh extension context to pick up the just-granted
+        // optional host permission for declarativeNetRequest — without it the
+        // DNR session-rule call from frame.html hangs. Schedule the reload
+        // on the next tick so the response can be delivered first; the
+        // content script then polls until the new worker is up before
+        // resolving the grant Promise on the page.
+        globalThis.setTimeout(() => {
+          browser.runtime.reload();
+        }, frameEmbeddingPermissionBridgeTiming.reloadDelayMs);
+      }
+      const response: PermissionGrantResponse = {
+        granted,
+        willReload: granted,
+      };
+      return response;
+    } catch (error) {
+      const response: PermissionGrantResponse = {
+        granted: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to request frame embedding permissions',
+      };
+      return response;
+    }
   }
 
   await getContentScriptPermissionAndRegister();

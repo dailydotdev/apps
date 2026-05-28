@@ -6,6 +6,8 @@ export enum ExtensionMessageType {
   RequestUpdate = 'REQUEST_UPDATE',
   EnableFrameEmbeddingForTab = 'ENABLE_FRAME_EMBEDDING_FOR_TAB',
   DisableFrameEmbeddingForTab = 'DISABLE_FRAME_EMBEDDING_FOR_TAB',
+  RequestFrameEmbeddingPermissions = 'REQUEST_FRAME_EMBEDDING_PERMISSIONS',
+  PingFrameEmbeddingReady = 'PING_FRAME_EMBEDDING_READY',
 }
 
 export const getCompanionWrapper = (): HTMLElement | null =>

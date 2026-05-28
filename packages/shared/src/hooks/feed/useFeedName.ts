@@ -15,6 +15,7 @@ interface UseFeedName {
   isExploreLatest: boolean;
   isExploreUpvoted: boolean;
   isExploreDiscussed: boolean;
+  isExploreTag: boolean;
   isDiscussed: boolean;
   isCustomFeed: boolean;
   isSortableFeed: boolean;
@@ -47,6 +48,7 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
     isExploreLatest: feedName === OtherFeedPage.ExploreLatest,
     isExploreUpvoted: feedName === OtherFeedPage.ExploreUpvoted,
     isExploreDiscussed: feedName === OtherFeedPage.ExploreDiscussed,
+    isExploreTag: feedName === OtherFeedPage.ExploreTag,
     isDiscussed: feedName === OtherFeedPage.Discussed,
     isCustomFeed: customFeeds.includes(feedName),
     isSortableFeed: sortableFeeds.includes(feedName),

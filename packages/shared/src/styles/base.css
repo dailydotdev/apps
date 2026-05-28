@@ -895,6 +895,12 @@ meter::-webkit-meter-bar {
     background: radial-gradient(94% 48.83% at 50% 0%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-onion-default) 75.12%, var(--theme-accent-onion-baseline) 100%);
   }
 
+  &-onboarding-tall {
+    background:
+      radial-gradient(120% 30% at 100% 0%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 100%),
+      radial-gradient(120% 30% at 0% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 100%);
+  }
+
   &-hourglass {
     background: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 50%),
     radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 50%);

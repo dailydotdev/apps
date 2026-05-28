@@ -177,7 +177,7 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal', false);
+export const featureReaderModal = new Feature('reader_modal_v2', false);
 
 export const featureGenericReferralPopupV2 = new Feature(
   'generic_referral_popup_v2',
@@ -196,6 +196,23 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
+export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
+
+export const featureUpvoteCountThreshold = new Feature<{
+  threshold: number;
+  belowThresholdLabel: string;
+  newWindowHours: number;
+}>('upvote_count_threshold', {
+  threshold: 0,
+  belowThresholdLabel: '',
+  newWindowHours: 24,
+});
+
 export const featureFeedTagChips = new Feature('feed_tag_chips', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+export const featurePostHighlightCards = new Feature(
+  'post_highlight_cards',
+  false,
+);
