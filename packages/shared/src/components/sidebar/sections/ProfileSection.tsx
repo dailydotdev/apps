@@ -7,7 +7,6 @@ import {
   CoinIcon,
   DevCardIcon,
   JobIcon,
-  MedalBadgeIcon,
   UserIcon,
 } from '../../icons';
 import { Section } from '../Section';
@@ -41,6 +40,13 @@ export const ProfileSection = ({
         ),
       },
       {
+        title: 'Analytics',
+        path: `${webappUrl}analytics`,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <AnalyticsIcon secondary={active} />} />
+        ),
+      },
+      {
         title: 'Jobs',
         path: `${webappUrl}jobs${
           alerts.opportunityId ? `/${alerts.opportunityId}` : ''
@@ -62,24 +68,10 @@ export const ProfileSection = ({
           ]
         : []),
       {
-        title: 'Achievements',
-        path: `${webappUrl}${user.username}/achievements`,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <MedalBadgeIcon secondary={active} />} />
-        ),
-      },
-      {
         title: 'DevCard',
         path: `${settingsUrl}/customization/devcard`,
         icon: (active: boolean) => (
           <ListIcon Icon={() => <DevCardIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'Analytics',
-        path: `${webappUrl}analytics`,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <AnalyticsIcon secondary={active} />} />
         ),
       },
     ];

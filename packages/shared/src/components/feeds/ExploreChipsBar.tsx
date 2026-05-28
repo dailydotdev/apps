@@ -14,6 +14,10 @@ interface ExploreChipsBarProps {
   categories: ExploreCategory[];
   isPending?: boolean;
   className?: string;
+  // When true the chips render at the smaller h-8 size so they sit
+  // uniformly inside the v2 page-header strip (min-h-14) next to the
+  // h-8 action buttons.
+  compact?: boolean;
 }
 
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
@@ -32,6 +36,7 @@ export function ExploreChipsBar({
   categories,
   isPending,
   className,
+  compact,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -100,7 +105,10 @@ export function ExploreChipsBar({
                   });
                 }}
                 className={classNames(
-                  'inline-flex h-10 shrink-0 items-center rounded-12 border px-3 font-bold transition-colors typo-callout',
+                  'inline-flex shrink-0 items-center rounded-12 border font-bold transition-colors',
+                  compact
+                    ? 'h-8 px-2.5 typo-footnote'
+                    : 'h-10 px-3 typo-callout',
                   isActive
                     ? 'border-border-subtlest-tertiary bg-surface-float text-text-primary hover:bg-surface-hover'
                     : 'border-transparent bg-background-subtle text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
@@ -118,7 +126,11 @@ export function ExploreChipsBar({
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               aria-hidden
-              className={classNames('h-10 shrink-0 rounded-12', width)}
+              className={classNames(
+                'shrink-0 rounded-12',
+                compact ? 'h-8' : 'h-10',
+                width,
+              )}
             />
           ))}
       </div>

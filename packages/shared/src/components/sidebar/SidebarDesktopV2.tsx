@@ -14,9 +14,7 @@ import { ProfileSection } from './sections/ProfileSection';
 import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
-import { QuestButton } from '../quest/QuestButton';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
-import { AchievementTrackerPanel } from '../filters/AchievementTrackerButton';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
@@ -26,6 +24,7 @@ import {
   FeedbackIcon,
   HomeIcon,
   HotIcon,
+  JoystickIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
@@ -41,6 +40,7 @@ import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
+import { RailHoverRow } from './RailHoverRow';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -68,6 +68,7 @@ const SidebarCategory = {
   Main: 'main',
   Squads: 'squads',
   Discover: 'discover',
+  Notifications: 'notifications',
   Saved: 'saved',
   GameCenter: 'gameCenter',
   Profile: 'profile',
@@ -108,7 +109,9 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarCategory.Discover,
     label: 'Discover',
-    defaultPath: `${webappUrl}tags`,
+    // Discover's first sub-page is the Explore feed (`/posts`); clicking
+    // the rail icon should land you on that page, matching the submenu.
+    defaultPath: `${webappUrl}posts`,
     icon: (active) => (
       <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -124,7 +127,11 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarCategory.GameCenter,
     label: 'Game Center',
-    defaultPath: `${webappUrl}game-center`,
+    // First sub-page in the Game Center category is the Daily quests
+    // page (the panel that used to live in the sidebar). Clicking the
+    // rail icon lands you there; Game Center proper is one click away
+    // via the hover panel.
+    defaultPath: `${webappUrl}daily-quests`,
     icon: (active) => <QuestRailIcon active={active} />,
   },
   {
@@ -136,7 +143,13 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   },
 ];
 
-const discoverPathFragments = ['/tags', '/sources', '/users', '/discussed'];
+const discoverPathFragments = [
+  '/posts',
+  '/tags',
+  '/sources',
+  '/users',
+  '/discussed',
+];
 const profilePathFragments = [
   '/analytics',
   '/jobs',
@@ -145,23 +158,38 @@ const profilePathFragments = [
 ];
 
 const getSidebarCategoryForPath = (activePage: string): SidebarCategoryId => {
+  // Settings sub-pages that "belong" to another category should keep
+  // that category's rail icon highlighted (matches the click model:
+  // user opened the panel for category X → clicked X's settings →
+  // X's rail icon stays active so the user can still see where they
+  // are in the app). The general /settings fallback comes last.
+  if (
+    activePage.includes('/notifications') ||
+    activePage.includes('/settings/notifications')
+  ) {
+    return SidebarCategory.Notifications;
+  }
+  if (
+    activePage.includes('/game-center') ||
+    activePage.includes('/daily-quests') ||
+    activePage.includes('/settings/customization/gamification')
+  ) {
+    return SidebarCategory.GameCenter;
+  }
   if (activePage.includes('/bookmarks') || activePage.includes('/briefing')) {
     return SidebarCategory.Saved;
   }
   if (activePage.includes('/squads')) {
     return SidebarCategory.Squads;
   }
+  if (profilePathFragments.some((path) => activePage.includes(path))) {
+    return SidebarCategory.Profile;
+  }
   if (activePage.includes('/settings')) {
     return SidebarCategory.Settings;
   }
-  if (activePage.includes('/game-center')) {
-    return SidebarCategory.GameCenter;
-  }
   if (discoverPathFragments.some((path) => activePage.includes(path))) {
     return SidebarCategory.Discover;
-  }
-  if (profilePathFragments.some((path) => activePage.includes(path))) {
-    return SidebarCategory.Profile;
   }
   return SidebarCategory.Main;
 };
@@ -171,7 +199,7 @@ const railButtonClass =
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
-const RAIL_HOVER_OPEN_DELAY = 1000;
+const RAIL_HOVER_OPEN_DELAY = 300;
 const RAIL_HOVER_CLOSE_DELAY = 120;
 const RAIL_HOVER_SIDE_OFFSET = 12;
 const RAIL_HOVER_PROFILE_ALIGN_OFFSET = -304;
@@ -328,12 +356,7 @@ export const SidebarDesktopV2 = ({
   additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
-  const {
-    sidebarExpanded,
-    toggleSidebarExpanded,
-    loadedSettings,
-    optOutQuestSystem,
-  } = useSettingsContext();
+  const { sidebarExpanded, toggleSidebarExpanded } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
@@ -407,18 +430,10 @@ export const SidebarDesktopV2 = ({
     (category: SidebarCategoryId) => {
       setPendingCategory(category);
 
-      if (!sidebarExpanded) {
-        toggleSidebarExpanded();
-      }
-
-      // Settings has no panel-level landing page — keep navigating to the
-      // settings route so the click still has a destination. Every other
-      // category just pins the panel; hover and click now reveal the same
-      // content with no destination mismatch.
-      if (category !== SidebarCategory.Settings) {
-        return;
-      }
-
+      // Click navigates to the category's first sub-page (its
+      // `defaultPath`) — it no longer auto-expands the sidebar. The
+      // sidebar's open/closed state is controlled solely by the user
+      // via the dedicated toggle button.
       const targetPath = getCategoryDefaultPath(category);
       if (!targetPath) {
         return;
@@ -431,13 +446,7 @@ export const SidebarDesktopV2 = ({
         Promise.resolve(router.push(targetPath)).catch(() => undefined);
       }
     },
-    [
-      activePage,
-      getCategoryDefaultPath,
-      router,
-      sidebarExpanded,
-      toggleSidebarExpanded,
-    ],
+    [activePage, getCategoryDefaultPath, router],
   );
 
   const onPrefetchCategory = useCallback(
@@ -476,6 +485,7 @@ export const SidebarDesktopV2 = ({
       return (
         <DiscoverSection
           {...defaultRenderSectionProps}
+          onNavTabClick={onNavTabClick}
           isItemsButton={isNavButtons ?? false}
         />
       );
@@ -488,24 +498,30 @@ export const SidebarDesktopV2 = ({
         />
       );
     }
+    if (category === SidebarCategory.Notifications) {
+      return <NotificationsRailPanel />;
+    }
     if (category === SidebarCategory.GameCenter) {
-      const canRenderQuestPanel =
-        isLoggedIn && loadedSettings && !optOutQuestSystem;
+      // Daily quests (rail-icon landing) → Game Center hub → Quests
+      // settings. Same row pattern as the notifications panel; the
+      // Game Center hub stays reachable from the rail.
       return (
-        <div className="flex flex-col">
-          {canRenderQuestPanel ? (
-            <QuestButton panelOnly />
-          ) : (
-            <Link href={`${webappUrl}game-center`} passHref>
-              <a
-                href={`${webappUrl}game-center`}
-                className="focus-outline mx-3 flex h-9 items-center rounded-10 px-2 text-text-tertiary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
-              >
-                Open Game Center
-              </a>
-            </Link>
-          )}
-          <AchievementTrackerPanel />
+        <div className="flex flex-col px-2 pb-2">
+          <RailHoverRow
+            href={`${webappUrl}daily-quests`}
+            icon={<QuestRailIcon active={false} />}
+            label="Daily quests"
+          />
+          <RailHoverRow
+            href={`${webappUrl}game-center`}
+            icon={<JoystickIcon size={IconSize.XSmall} aria-hidden />}
+            label="Game Center"
+          />
+          <RailHoverRow
+            href={`${settingsUrl}/customization/gamification`}
+            icon={<SettingsIcon size={IconSize.XSmall} aria-hidden />}
+            label="Quests settings"
+          />
         </div>
       );
     }
@@ -547,12 +563,20 @@ export const SidebarDesktopV2 = ({
     (category) => category.id === selectedCategory,
   )?.label;
   const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
+  const isNotificationsSelected =
+    selectedCategory === SidebarCategory.Notifications;
   const isHomePanel = selectedCategory === SidebarCategory.Main;
   const isSquadsPanel = selectedCategory === SidebarCategory.Squads;
   const isUtilityPanelSelected = !isHomePanel;
-  const utilityPanelTitle = isSettingsSelected
-    ? 'Settings'
-    : selectedLabel ?? '';
+  const utilityPanelTitle = (() => {
+    if (isSettingsSelected) {
+      return 'Settings';
+    }
+    if (isNotificationsSelected) {
+      return 'Notifications';
+    }
+    return selectedLabel ?? '';
+  })();
 
   return (
     <SidebarAside
@@ -625,6 +649,23 @@ export const SidebarDesktopV2 = ({
           className="my-2 h-px w-6 bg-border-subtlest-quaternary"
         />
 
+        {isLoggedIn && (
+          <Tooltip
+            side="right"
+            content="New post"
+            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+          >
+            <div>
+              <CreatePostButton
+                compact
+                showIcon
+                size={ButtonSize.Small}
+                className="!size-10 !rounded-12 !border-0 !bg-transparent text-text-tertiary hover:!bg-surface-hover hover:!text-text-primary"
+              />
+            </div>
+          </Tooltip>
+        )}
+
         <div
           role="tablist"
           aria-label="Sidebar categories"
@@ -646,7 +687,13 @@ export const SidebarDesktopV2 = ({
                     enabled={!sidebarExpanded}
                   >
                     <div>
-                      <NotificationsBell rail noTooltip />
+                      <NotificationsBell
+                        rail
+                        noTooltip
+                        active={
+                          selectedCategory === SidebarCategory.Notifications
+                        }
+                      />
                     </div>
                   </RailHoverCard>
                 )}

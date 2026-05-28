@@ -14,10 +14,13 @@ import { checkIsExtension } from '../../../lib/func';
 
 type BriefShortcutButtonProps = {
   className?: string;
+  // When true the button renders icon-only (no "Generate brief" label).
+  iconOnly?: boolean;
 };
 
 export const BriefShortcutButton = ({
   className,
+  iconOnly,
 }: BriefShortcutButtonProps): ReactElement | null => {
   const { isLoggedIn, isAuthReady, user, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -64,7 +67,8 @@ export const BriefShortcutButton = ({
       <BriefIcon size={IconSize.XSmall} secondary aria-hidden />
     ) as ReactElement,
     className,
-    children: 'Generate brief',
+    'aria-label': 'Generate brief',
+    children: iconOnly ? undefined : 'Generate brief',
   };
 
   // Render the button for logged-out users on the extension new tab so

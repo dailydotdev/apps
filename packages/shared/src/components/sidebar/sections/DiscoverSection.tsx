@@ -18,11 +18,17 @@ import { ActionType } from '../../../graphql/actions';
 import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { OtherFeedPage } from '../../../lib/query';
+
+interface DiscoverSectionProps extends SidebarSectionProps {
+  onNavTabClick?: (tab: string) => void;
+}
 
 export const DiscoverSection = ({
   isItemsButton,
+  onNavTabClick,
   ...defaultRenderSectionProps
-}: SidebarSectionProps): ReactElement => {
+}: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -32,12 +38,9 @@ export const DiscoverSection = ({
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotIcon secondary={active} />} />
         ),
-        title: 'Hot Takes',
-        requiresLogin: true,
-        path: `${webappUrl}?openModal=hottakes`,
-        action: () => {
-          logEvent({ event_name: LogEvent.OpenHotAndCold });
-        },
+        title: 'Explore',
+        path: '/posts',
+        action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
       {
         icon: (active: boolean) => (
@@ -72,8 +75,19 @@ export const DiscoverSection = ({
           }
         },
       },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <HotIcon secondary={active} />} />
+        ),
+        title: 'Hot Takes',
+        requiresLogin: true,
+        path: `${webappUrl}?openModal=hottakes`,
+        action: () => {
+          logEvent({ event_name: LogEvent.OpenHotAndCold });
+        },
+      },
     ].filter(Boolean);
-  }, [completeAction, user, logEvent]);
+  }, [completeAction, user, logEvent, onNavTabClick]);
 
   return (
     <Section

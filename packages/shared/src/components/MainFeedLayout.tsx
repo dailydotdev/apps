@@ -348,9 +348,10 @@ export default function MainFeedLayout({
         <ExploreChipsBar
           categories={exploreCategories}
           isPending={isFeedTagsPending}
+          compact={isV2}
         />
       ) : null,
-    [showExploreChips, exploreCategories, isFeedTagsPending],
+    [showExploreChips, exploreCategories, isFeedTagsPending, isV2],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();

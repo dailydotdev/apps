@@ -7,7 +7,6 @@ import {
   DevPlusIcon,
   EyeIcon,
   HomeIcon,
-  HotIcon,
   JoystickIcon,
   MagicIcon,
   SquadIcon,
@@ -167,14 +166,6 @@ export const MainSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <SquadIcon secondary={active} />} />
           ),
-        },
-        {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <HotIcon secondary={active} />} />
-          ),
-          title: 'Explore',
-          path: '/posts',
-          action: () => onNavTabClick?.(OtherFeedPage.Explore),
         },
         {
           icon: (active: boolean) => (

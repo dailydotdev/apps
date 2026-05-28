@@ -30,12 +30,17 @@ interface MyFeedHeadingProps {
     'size' | 'variant' | 'className'
   > & { iconSize?: IconSize };
   onShortcutsClick?: () => void;
+  // When true the Feed settings button renders icon-only (no text
+  // label). Used by the v2 header strip when chips push the actions
+  // cluster to the right and the row needs to stay tight.
+  iconOnly?: boolean;
 }
 
 function MyFeedHeading({
   onOpenFeedFilters,
   feedSettingsButtonProps,
   onShortcutsClick,
+  iconOnly,
 }: MyFeedHeadingProps): ReactElement {
   const { push, pathname, query } = useRouter();
   const { completeAction } = useActions();
@@ -106,7 +111,7 @@ function MyFeedHeading({
           iconPosition={iconPosition}
           {...feedSettingsButtonOverrides}
         >
-          {!isMobile ? 'Feed settings' : null}
+          {!isMobile && !iconOnly ? 'Feed settings' : null}
         </FeedSettingsButton>
       ) : (
         <FeedSettingsButton
@@ -117,7 +122,7 @@ function MyFeedHeading({
           iconPosition={iconPosition}
           {...feedSettingsButtonOverrides}
         >
-          {!isMobile ? 'Feed settings' : null}
+          {!isMobile && !iconOnly ? 'Feed settings' : null}
         </FeedSettingsButton>
       )}
       {showToggleShortcuts && (

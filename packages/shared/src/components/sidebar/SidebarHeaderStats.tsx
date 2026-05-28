@@ -1,10 +1,16 @@
 import type { MouseEvent, ReactElement, ReactNode } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useLogContext } from '../../contexts/LogContext';
-import { walletUrl, isTesting } from '../../lib/constants';
+import { walletUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
 import { LogEvent } from '../../lib/log';
@@ -12,6 +18,7 @@ import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SimpleTooltip } from '../tooltips';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
+import { RootPortal } from '../tooltips/Portal';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReadingStreakIcon, ReputationIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -82,39 +89,83 @@ const StatSlot = ({
 
 const dividerClass = 'w-px self-stretch bg-border-subtlest-quaternary';
 
-type StreakPopupTooltipProps = Pick<TooltipProps, 'children'> & {
+type StreakPopoverProps = {
   streak: UserStreak;
-  shouldShowStreaks: boolean;
+  triggerRef: React.RefObject<HTMLElement>;
   onClose: () => void;
 };
 
-const StreakPopupTooltip = ({
-  children,
+// Manually positioned portal popover: read the trigger's bounding rect
+// and render the panel directly below it via a body-level portal. This
+// keeps the popover stable (no Tippy auto-flip surprises inside the
+// sidebar's transform / overflow context) and ensures it always drops
+// down from the streak button as expected.
+const StreakPopover = ({
   streak,
-  shouldShowStreaks,
+  triggerRef,
   onClose,
-}: StreakPopupTooltipProps): ReactElement => (
-  <SimpleTooltip
-    interactive
-    showArrow={false}
-    placement="bottom-start"
-    visible={shouldShowStreaks}
-    forceLoad={!isTesting}
-    appendTo={() => document.body}
-    zIndex={1000}
-    offset={[0, 8]}
-    container={{
-      paddingClassName: 'p-0',
-      bgClassName: 'bg-accent-pepper-subtlest',
-      textClassName: 'text-text-primary typo-callout',
-      className: 'border border-border-subtlest-tertiary rounded-16',
-    }}
-    content={<ReadingStreakPopup streak={streak} />}
-    onClickOutside={onClose}
-  >
-    {children}
-  </SimpleTooltip>
-);
+}: StreakPopoverProps): ReactElement | null => {
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  const updatePosition = useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) {
+      return;
+    }
+    const rect = trigger.getBoundingClientRect();
+    setPosition({ top: rect.bottom + 8, left: rect.left });
+  }, [triggerRef]);
+
+  useLayoutEffect(() => {
+    updatePosition();
+  }, [updatePosition]);
+
+  useEffect(() => {
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [updatePosition]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: globalThis.MouseEvent) => {
+      const target = event.target as Node | null;
+      if (
+        target &&
+        !popoverRef.current?.contains(target) &&
+        !triggerRef.current?.contains(target)
+      ) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose, triggerRef]);
+
+  if (!position) {
+    return null;
+  }
+
+  return (
+    <RootPortal>
+      <div
+        ref={popoverRef}
+        role="dialog"
+        aria-label="Reading streak"
+        className="fixed z-tooltip overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-primary shadow-3 typo-callout"
+        style={{ top: position.top, left: position.left }}
+      >
+        <ReadingStreakPopup streak={streak} />
+      </div>
+    </RootPortal>
+  );
+};
 
 const StreakHintTooltip = ({
   children,
@@ -130,6 +181,7 @@ export const SidebarHeaderStats = (): ReactElement | null => {
   const { streak, isStreaksEnabled } = useReadingStreak();
   const { logEvent } = useLogContext();
   const [isStreaksOpen, setIsStreaksOpen] = useState(false);
+  const streakSlotRef = useRef<HTMLDivElement>(null);
 
   const handleStreakClick = useCallback(() => {
     setIsStreaksOpen((open) => {
@@ -176,18 +228,21 @@ export const SidebarHeaderStats = (): ReactElement | null => {
     >
       {showStreak && (
         <>
-          {streak && isStreaksOpen ? (
-            <StreakPopupTooltip
+          <div ref={streakSlotRef} className="flex flex-1 items-stretch">
+            {isStreaksOpen ? (
+              streakSlot
+            ) : (
+              <StreakHintTooltip content="Reading streak">
+                {streakSlot}
+              </StreakHintTooltip>
+            )}
+          </div>
+          {streak && isStreaksOpen && (
+            <StreakPopover
               streak={streak}
-              shouldShowStreaks={isStreaksOpen}
+              triggerRef={streakSlotRef}
               onClose={() => setIsStreaksOpen(false)}
-            >
-              {streakSlot}
-            </StreakPopupTooltip>
-          ) : (
-            <StreakHintTooltip content="Reading streak">
-              {streakSlot}
-            </StreakHintTooltip>
+            />
           )}
           <span aria-hidden className={dividerClass} />
         </>

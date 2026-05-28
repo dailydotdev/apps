@@ -183,16 +183,23 @@ export const SearchControlHeader = ({
   );
 
   const dropdownIconSize = isV2Strip ? IconSize.XSmall : IconSize.Medium;
+  // When chips are present in the v2 strip the actions cluster moves to
+  // the right and rendered icon-only so the chips have horizontal room
+  // to scroll on the left.
+  const hasV2Chips = isV2Strip && !!chips;
   const primaryActions = [
     hasFeedActions && (
       <MyFeedHeading
         key="my-feed"
+        iconOnly={hasV2Chips}
         feedSettingsButtonProps={
           isV2Strip
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
-                className: compactTextButtonClassName,
+                className: hasV2Chips
+                  ? compactIconButtonClassName
+                  : compactTextButtonClassName,
                 iconSize: IconSize.XSmall,
               }
             : undefined
@@ -202,7 +209,10 @@ export const SearchControlHeader = ({
     hasFeedActions && isV2Strip && (
       <BriefShortcutButton
         key="brief-shortcut"
-        className={compactTextButtonClassName}
+        iconOnly={hasV2Chips}
+        className={
+          hasV2Chips ? compactIconButtonClassName : compactTextButtonClassName
+        }
       />
     ),
     isUpvoted ? (
@@ -236,7 +246,9 @@ export const SearchControlHeader = ({
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
-                className: compactTextButtonClassName,
+                className: hasV2Chips
+                  ? compactIconButtonClassName
+                  : compactTextButtonClassName,
               }
             : undefined
         }
@@ -275,10 +287,23 @@ export const SearchControlHeader = ({
   ];
 
   // In v2 the FeedContainer wraps these actions inside its own
-  // page-header strip. We return a self-contained layout: primary
-  // cluster on the left, trailing cluster (achievement tracker +
-  // install-extension secondary actions) docked to the right.
+  // page-header strip. Layout:
+  //   - With chips: chips fill the left (flex-1, scrollable), all
+  //     actions sit on the right as icon-only buttons.
+  //   - Without chips: primary cluster on the left, trailing cluster
+  //     (achievement tracker + install-extension) docked right.
   if (isV2Strip) {
+    if (hasV2Chips) {
+      return (
+        <div className="flex w-full items-center gap-2">
+          <div className="min-w-0 flex-1">{chips}</div>
+          <div className="flex shrink-0 items-center gap-1">
+            {actions}
+            {trailingActions}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="flex w-full items-center gap-2">
         <div className="flex min-w-0 items-center gap-1">{actions}</div>
