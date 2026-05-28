@@ -5,7 +5,13 @@ import dynamic from 'next/dynamic';
 
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
+import { featurePostHighlightCards } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
 import {
@@ -61,6 +67,12 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     optOut,
   } = useLegacyPostLayoutOptOut();
   const showReaderToggle = isReaderEligible && isReaderModalEnabled;
+  const { value: showHighlightCardsToggle } = useConditionalFeature({
+    feature: featurePostHighlightCards,
+    shouldEvaluate: true,
+  });
+  const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
+    useSettingsBooleanFlag('highlightCardsOptOut');
   const isReadInsideEnabled = !isLegacyLayoutOptedOut;
   const onToggleReadInside = () => {
     if (isReadInsideEnabled) {
@@ -147,6 +159,16 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               onToggle={onToggleReadInside}
             >
               Read articles inside daily.dev
+            </SettingsSwitch>
+          )}
+
+          {showHighlightCardsToggle && (
+            <SettingsSwitch
+              name="highlight-cards"
+              checked={!isHighlightCardsOptedOut}
+              onToggle={toggleHighlightCards}
+            >
+              Show featured cards for highlighted news
             </SettingsSwitch>
           )}
         </FlexCol>

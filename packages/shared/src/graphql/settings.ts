@@ -55,6 +55,7 @@ export type SettingsFlags = {
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
   legacyPostLayoutOptOut?: boolean;
+  highlightCardsOptOut?: boolean;
   // Persists that the user already chose to engage with the reader install
   // prompt (clicked "Enable permissions & read inside"). Future read clicks
   // skip the prompt and open the reader modal directly. Dismissing the prompt

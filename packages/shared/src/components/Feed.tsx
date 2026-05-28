@@ -25,6 +25,7 @@ import useFeedInfiniteScroll, {
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import { computeColSpans } from '../lib/feedHighlightColSpan';
+import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
 import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
@@ -383,8 +384,13 @@ export default function Feed<T>({
     feature: featurePostHighlightCards,
     shouldEvaluate: canRenderHighlightCards,
   });
+  const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
+    'highlightCardsOptOut',
+  );
   const isHighlightCardLayoutEnabled =
-    canRenderHighlightCards && isPostHighlightCardsEnabled;
+    canRenderHighlightCards &&
+    isPostHighlightCardsEnabled &&
+    !isHighlightCardsOptedOut;
   const currentPageSize = pageSize ?? currentSettings.pageSize;
   const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
