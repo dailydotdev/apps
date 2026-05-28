@@ -40,7 +40,7 @@ export const SquadList = ({
   return (
     <div
       {...attrs}
-      className="relative flex flex-row items-center gap-4"
+      className="group/squad-row relative flex flex-row items-center gap-4"
       ref={ad ? ref : undefined}
     >
       <Link

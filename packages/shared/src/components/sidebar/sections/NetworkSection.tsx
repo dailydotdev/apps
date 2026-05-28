@@ -43,6 +43,7 @@ export const NetworkSection = ({
             ),
           title: name,
           path: `${webappUrl}squads/${handle}`,
+          itemClassName: 'group/squad-row',
           rightIcon: () => <SquadFavoriteButton squad={squad} />,
         };
       }) ?? [];
