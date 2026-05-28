@@ -285,7 +285,7 @@ export function NewTabActivationPrimer({
           >
             {isRecovery
               ? 'Let’s turn it back on'
-              : 'Almost there — Chrome will ask one quick question.'}
+              : 'Welcome! Let’s activate your new tab.'}
           </Typography>
 
           <Typography
@@ -296,7 +296,7 @@ export function NewTabActivationPrimer({
           >
             {isRecovery
               ? 'Open the extensions page, find daily.dev, and flip the toggle back on.'
-              : 'Tap “Keep it” to finish setting up your new tab.'}
+              : 'Tap “Keep it” on the Chrome popup.'}
           </Typography>
         </div>
 
