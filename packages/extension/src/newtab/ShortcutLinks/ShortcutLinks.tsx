@@ -17,7 +17,6 @@ import { useShortcutsManager } from '@dailydotdev/shared/src/features/shortcuts/
 import { useShortcutsMigration } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsMigration';
 import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
 import { ShortcutLinksList } from './ShortcutLinksList';
-import { ShortcutGetStarted } from './ShortcutGetStarted';
 import { ShortcutLinksHub } from './ShortcutLinksHub';
 import { ShortcutImportFlow } from './ShortcutImportFlow';
 
@@ -105,25 +104,19 @@ function LegacyShortcutLinks({
 
   return (
     <>
-      {!hideShortcuts &&
-        (showGetStarted ? (
-          <ShortcutGetStarted
-            onTopSitesClick={toggleShowTopSites}
-            onCustomLinksClick={onOptionsOpen}
-          />
-        ) : (
-          <ShortcutLinksList
-            {...{
-              onLinkClick,
-              onOptionsOpen,
-              shortcutLinks: shortcutLinks ?? [],
-              shouldUseListFeedLayout,
-              toggleShowTopSites,
-              onReorder,
-              isManual,
-            }}
-          />
-        ))}
+      {!hideShortcuts && !showGetStarted && (
+        <ShortcutLinksList
+          {...{
+            onLinkClick,
+            onOptionsOpen,
+            shortcutLinks: shortcutLinks ?? [],
+            shouldUseListFeedLayout,
+            toggleShowTopSites,
+            onReorder,
+            isManual,
+          }}
+        />
+      )}
       {showPermissionsModal && <MostVisitedSitesModal isOpen />}
     </>
   );
@@ -132,9 +125,8 @@ function LegacyShortcutLinks({
 function NewShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement | null {
-  const { showTopSites, toggleShowTopSites, flags } = useSettingsContext();
+  const { showTopSites, flags } = useSettingsContext();
   const manager = useShortcutsManager();
-  const { openModal } = useLazyModal();
   useShortcutsMigration();
 
   if (!showTopSites) {
@@ -148,17 +140,10 @@ function NewShortcutLinks({
   const showOnboarding = mode === 'manual' && manager.shortcuts.length === 0;
 
   if (showOnboarding) {
-    return (
-      <>
-        <ShortcutGetStarted
-          onTopSitesClick={toggleShowTopSites}
-          onCustomLinksClick={() =>
-            openModal({ type: LazyModal.ShortcutsManage })
-          }
-        />
-        <ShortcutImportFlow />
-      </>
-    );
+    // Onboarding (no shortcuts yet) is now surfaced via the top hero
+    // banner row above the feed; render nothing here so it doesn't
+    // appear twice.
+    return <ShortcutImportFlow />;
   }
 
   return (

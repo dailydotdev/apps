@@ -6,12 +6,10 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
-import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
@@ -117,66 +115,66 @@ const TagsPage = ({
   const topTagsForSchema = tags.slice(0, 50);
 
   return (
-    <PageWrapperLayout className="flex flex-col gap-4">
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: getTagsSchemas(topTagsForSchema),
-          }}
-        />
-      </Head>
-      <BreadCrumbs className="mb-2">
-        <HashtagIcon size={IconSize.XSmall} secondary /> Tags
-      </BreadCrumbs>
-      <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-        <TagTopList
-          containerProps={{ title: 'Trending tags' }}
-          items={trendingTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{ title: 'Popular tags' }}
-          items={popularTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{
-            title: 'Recently added tags',
-            className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
-          }}
-          items={recentlyAddedTags}
-          isLoading={isLoading}
-        />
-      </div>
-      <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
-        <p className="font-bold typo-body">All tags</p>
-      </div>
-      <div className="columns-[17rem] px-4 tablet:px-0">
-        {tagsByFirstLetter &&
-          Object.entries(tagsByFirstLetter).map(([letter, value]) => {
-            return (
-              <div
-                key={letter}
-                className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
-              >
-                <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
-                  {letter}
-                </p>
-                {value.map((tag) => (
-                  <TagLink
-                    key={tag.value}
-                    tag={tag.value}
-                    className="!line-clamp-2 !h-auto py-1.5"
-                    isSelected={selectedTags.includes(tag.value)}
-                    buttonProps={{ size: ButtonSize.Small }}
-                  />
-                ))}
-              </div>
-            );
-          })}
-      </div>
-    </PageWrapperLayout>
+    <>
+      <PageHeader title="Tags" />
+      <PageWrapperLayout className="flex flex-col gap-4">
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: getTagsSchemas(topTagsForSchema),
+            }}
+          />
+        </Head>
+        <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
+          <TagTopList
+            containerProps={{ title: 'Trending tags' }}
+            items={trendingTags}
+            isLoading={isLoading}
+          />
+          <TagTopList
+            containerProps={{ title: 'Popular tags' }}
+            items={popularTags}
+            isLoading={isLoading}
+          />
+          <TagTopList
+            containerProps={{
+              title: 'Recently added tags',
+              className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
+            }}
+            items={recentlyAddedTags}
+            isLoading={isLoading}
+          />
+        </div>
+        <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
+          <p className="font-bold typo-body">All tags</p>
+        </div>
+        <div className="columns-[17rem] px-4 tablet:px-0">
+          {tagsByFirstLetter &&
+            Object.entries(tagsByFirstLetter).map(([letter, value]) => {
+              return (
+                <div
+                  key={letter}
+                  className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
+                >
+                  <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
+                    {letter}
+                  </p>
+                  {value.map((tag) => (
+                    <TagLink
+                      key={tag.value}
+                      tag={tag.value}
+                      className="!line-clamp-2 !h-auto py-1.5"
+                      isSelected={selectedTags.includes(tag.value)}
+                      buttonProps={{ size: ButtonSize.Small }}
+                    />
+                  ))}
+                </div>
+              );
+            })}
+        </div>
+      </PageWrapperLayout>
+    </>
   );
 };
 

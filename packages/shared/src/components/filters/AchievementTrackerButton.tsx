@@ -10,7 +10,6 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { getTargetCount } from '../../graphql/user/achievements';
-import { useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
@@ -20,6 +19,7 @@ import HoverCard from '../cards/common/HoverCard';
 import { AchievementCard } from '../../features/profile/components/achievements/AchievementCard';
 import { Tooltip } from '../tooltip/Tooltip';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { AchievementPickerContent } from '../modals/AchievementPickerModal';
 
 function AchievementIcon({
   imgSrc,
@@ -44,7 +44,6 @@ function AchievementIcon({
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -141,7 +140,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className="h-8 w-8 animate-pulse rounded-10"
       />
     );
   }
@@ -154,7 +153,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className="h-8 w-8 animate-pulse rounded-10"
       />
     );
   }
@@ -162,8 +161,12 @@ export function AchievementTrackerButton(): ReactElement | null {
   const buttonContent = (
     <div className="relative">
       <Button
-        size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        // Match the left-aligned Feed settings / Generate brief
+        // controls: Small size + Tertiary variant gives a transparent
+        // h-8 px-3 footprint instead of the previous Medium icon-only
+        // 40×40 chip.
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
         icon={
           (isTrackingAchievement ? (
             <AchievementIcon
@@ -210,5 +213,71 @@ export function AchievementTrackerButton(): ReactElement | null {
         <AchievementCard userAchievement={trackedAchievement} />
       </div>
     </HoverCard>
+  );
+}
+
+export function AchievementTrackerPanel(): ReactElement | null {
+  const { user } = useAuthContext();
+  const {
+    value: isAchievementTrackingWidgetEnabled,
+    isLoading: isAchievementTrackingWidgetLoading,
+  } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+  const {
+    achievements,
+    unlockedCount,
+    totalCount,
+    isPending: isAchievementsPending,
+  } = useProfileAchievements(user, isAchievementTrackingWidgetEnabled === true);
+  const shouldRender = shouldShowAchievementTracker({
+    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    unlockedCount,
+    totalCount,
+  });
+  const shouldQueryTrackedAchievement =
+    !!user &&
+    !isAchievementTrackingWidgetLoading &&
+    (isAchievementTrackingWidgetEnabled !== true || !isAchievementsPending) &&
+    shouldRender;
+  const {
+    trackedAchievement,
+    trackAchievement,
+    untrackAchievement,
+    isPending: isTrackedAchievementPending,
+  } = useTrackedAchievement(undefined, shouldQueryTrackedAchievement);
+
+  if (!user || isAchievementTrackingWidgetLoading) {
+    return null;
+  }
+
+  if (isAchievementTrackingWidgetEnabled !== true) {
+    return null;
+  }
+
+  if (isAchievementsPending || isTrackedAchievementPending) {
+    return (
+      <ElementPlaceholder
+        data-testid="achievement-tracker-skeleton"
+        className="h-32 animate-pulse rounded-12"
+      />
+    );
+  }
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  return (
+    <section className="mx-3 flex flex-col gap-4 border-t border-border-subtlest-tertiary py-3">
+      <AchievementPickerContent
+        achievements={achievements ?? []}
+        trackedAchievementId={trackedAchievement?.achievement.id}
+        onTrack={trackAchievement}
+        onUntrack={untrackAchievement}
+        origin="game_center_sidebar"
+      />
+    </section>
   );
 }

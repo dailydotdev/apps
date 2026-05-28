@@ -16,7 +16,37 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import type { Alerts } from '../../graphql/alerts';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
+import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktop } from './SidebarDesktop';
+
+jest.mock('../notifications/NotificationsBell', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../profile/ProfileButton', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../opportunity/OpportunityEntryButton', () => ({
+  __esModule: true,
+  OpportunityEntryButton: () => null,
+}));
+jest.mock('../header/QuestHeaderButton', () => ({
+  __esModule: true,
+  QuestHeaderButton: () => null,
+}));
+jest.mock('../help/HelpWidget', () => ({
+  __esModule: true,
+  HelpWidget: () => null,
+}));
+jest.mock('../layout/HeaderLogo', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../cards/highlight/HighlightPostSidebarWidget', () => ({
+  __esModule: true,
+  HighlightPostSidebarWidget: () => null,
+}));
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -80,11 +110,13 @@ const renderComponent = (
             }}
           >
             <SettingsContext.Provider value={settingsContext}>
-              <SidebarDesktop
-                activePage="my-feed"
-                onNavTabClick={jest.fn()}
-                isNavButtons={false}
-              />
+              <SpotlightProvider>
+                <SidebarDesktop
+                  activePage="my-feed"
+                  onNavTabClick={jest.fn()}
+                  isNavButtons={false}
+                />
+              </SpotlightProvider>
             </SettingsContext.Provider>
           </ProgressiveEnhancementContext.Provider>
         </AuthContext.Provider>
@@ -95,26 +127,38 @@ const renderComponent = (
 
 it('should render the sidebar as open by default', async () => {
   renderComponent();
-  const section = await screen.findByText('Discover');
-  expect(section).toBeInTheDocument();
-  const sectionTwo = await screen.findByText('Squads');
-  expect(sectionTwo).toBeInTheDocument();
+  const categoryRail = await screen.findByRole('tablist', {
+    name: 'Sidebar categories',
+  });
+  expect(categoryRail).toBeInTheDocument();
+  expect(await screen.findByText('Explore')).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: 'Home' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
 });
 
 it('should toggle the sidebar on button click', async () => {
   renderComponent();
-  const trigger = await screen.findByLabelText('Close sidebar');
+  // The collapse toggle is `hidden laptop:flex`; jsdom has no laptop
+  // breakpoint so it counts as hidden. Look it up with `hidden: true`
+  // so RTL still finds the always-mounted button.
+  const trigger = await screen.findByLabelText('Close sidebar', {
+    selector: 'button',
+  });
   trigger.click();
   await waitFor(() => expect(toggleSidebarExpanded).toBeCalled());
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
   renderComponent(defaultAlerts, [], null, false);
-  const trigger = await screen.findByLabelText('Open sidebar');
+  const trigger = await screen.findByLabelText('Open sidebar', {
+    selector: 'button',
+  });
   expect(trigger).toBeInTheDocument();
 
-  const section = await screen.findByText('Discover');
-  expect(section).toHaveClass('opacity-0');
+  const panel = await screen.findByRole('tabpanel', { hidden: true });
+  expect(panel).toHaveClass('opacity-0');
 });
 
 it('should show the For You items if the user has filters', async () => {
@@ -147,8 +191,9 @@ it('should require login before opening following for anonymous users', async ()
   );
 });
 
-const sidebarItems = [
-  ['Explore', '/posts'],
+const sidebarItems = [['Explore', '/posts']];
+
+const discoverItems = [
   ['Discussions', '/discussed'],
   ['Tags', '/tags'],
   ['Sources', '/sources'],
@@ -161,6 +206,20 @@ describe('sidebar items', () => {
     async (name, href) => {
       renderComponent();
       waitForNock();
+      const el = await screen.findByText(name);
+      expect(el).toBeInTheDocument();
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(el.closest('a')).toHaveAttribute('href', href);
+    },
+  );
+
+  it.each(discoverItems.map((item) => [item[0], item[1]]))(
+    'it should expect %s to exist in the Discover panel',
+    async (name, href) => {
+      renderComponent();
+      waitForNock();
+      const discoverTab = await screen.findByRole('tab', { name: 'Discover' });
+      fireEvent.click(discoverTab);
       const el = await screen.findByText(name);
       expect(el).toBeInTheDocument();
       // eslint-disable-next-line testing-library/no-node-access

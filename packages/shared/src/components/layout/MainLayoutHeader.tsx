@@ -17,6 +17,8 @@ import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SpotlightTrigger } from '../spotlight/SpotlightTrigger';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { isExtension } from '../../lib/func';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -35,12 +37,8 @@ function MainLayoutHeader({
   sidebarRendered,
   additionalButtons,
   onLogoClick,
-}: MainLayoutHeaderProps): ReactElement {
+}: MainLayoutHeaderProps): ReactElement | null {
   const { loadedSettings } = useSettingsContext();
-  // Header is `fixed` so it escapes the parent's `padding-right`. Read
-  // the customize sidebar width directly here and shrink the header to
-  // match — keeps it from sliding under the panel and lets it animate
-  // alongside the feed.
   const { panelWidth } = useCustomizeNewTab();
   const [hasHydrated, setHasHydrated] = useState(false);
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -62,6 +60,16 @@ function MainLayoutHeader({
     shouldUseLoadedSettings && isMobile && isSearchPage;
   const shouldRenderFeedNav =
     shouldUseLoadedSettings && isMobile && !isSearchPage;
+  const { isLoggedIn } = useAuthContext();
+  // The dual-sidebar layout owns the logo, search, and action buttons on
+  // laptop+ for authenticated users. Skip the global header entirely so
+  // chrome isn't duplicated and the content card can sit flush to the top.
+  // On the extension we also hide it for logged-out users — the new tab
+  // surfaces login/signup via the top hero card row, so we don't want
+  // the page to snap back to a separate header bar after sign-out.
+  const shouldHideForSidebar =
+    isLaptop && !!sidebarRendered && (isLoggedIn || isExtension);
+  const customizerWidth = panelWidth ? `${panelWidth}px` : '0px';
 
   useEffect(() => {
     setHasHydrated(true);
@@ -87,6 +95,10 @@ function MainLayoutHeader({
     );
   }, [shouldUseLoadedSettings, isSearchPage, hasBanner]);
 
+  if (shouldHideForSidebar) {
+    return null;
+  }
+
   if (shouldRenderFeedNav) {
     return (
       <>
@@ -111,9 +123,9 @@ function MainLayoutHeader({
       style={{
         ...(featureTheme ? featureTheme.navbar : undefined),
         right: panelWidth || undefined,
-        width: panelWidth ? `calc(100% - ${panelWidth}px)` : undefined,
+        width: panelWidth ? `calc(100% - ${customizerWidth})` : undefined,
         transition: panelWidth
-          ? 'right 200ms ease-in-out, width 200ms ease-in-out'
+          ? 'right 200ms ease-in-out, width 300ms ease-in-out'
           : undefined,
       }}
     >

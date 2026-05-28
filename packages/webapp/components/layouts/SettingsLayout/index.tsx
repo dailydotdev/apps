@@ -24,14 +24,27 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
+
+// Stable DOM ids for the per-page title / actions portal targets that
+// `AccountPageContainer` writes into via `createPortal`. Using fixed
+// ids (queried with `document.getElementById` from the consumer) avoids
+// having to expose live DOM nodes via React state — the previous
+// "ref={setState}" approach fired a state update during ref detach in
+// the commit phase, which on settings pages cascaded into React's
+// "Maximum update depth exceeded" guard.
+export const SETTINGS_HEADER_TITLE_PORTAL_ID = 'settings-header-title-portal';
+export const SETTINGS_HEADER_ACTIONS_PORTAL_ID =
+  'settings-header-actions-portal';
 
 const ProfileSettingsMenuMobile = dynamic(
   () =>
@@ -56,12 +69,19 @@ const ProfileSettingsMenuDesktop = dynamic(
 
 export const navigationKey = generateQueryKey(
   RequestKey.AccountNavigation,
-  null,
+  undefined,
 );
+
+// Mobile tray + dedicated sidebar still label this whole area as
+// "Settings". The top page-header strip on the floating card,
+// however, mirrors the *current page* (Profile, Account & Security,
+// Job preferences, ...) — the dedicated sidebar already establishes
+// that you're inside Settings, so repeating it in the page header
+// just pushes the actually-useful page title out of the visible area.
 
 export default function SettingsLayout({
   children,
-}: PropsWithChildren): ReactElement {
+}: PropsWithChildren): ReactElement | null {
   const router = useRouter();
   const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -84,11 +104,30 @@ export default function SettingsLayout({
 
   const { formRef } = useAuthForms();
 
+  const renderSettingsMenu = (): ReactElement | null => {
+    if (isMobile) {
+      return (
+        <ProfileSettingsMenuMobile
+          shouldKeepOpen
+          isOpen={isOpen}
+          onClose={() => router.push(profile?.permalink ?? webappUrl)}
+        />
+      );
+    }
+    if (isLaptop) {
+      return null;
+    }
+    return <ProfileSettingsMenuDesktop />;
+  };
+
   if (!isAuthReady) {
     return null;
   }
 
   if (!profile) {
+    if (!formRef) {
+      return null;
+    }
     return (
       <div className="flex w-full items-center justify-center pt-10">
         <AuthOptions
@@ -100,6 +139,17 @@ export default function SettingsLayout({
       </div>
     );
   }
+
+  // Title slot is just the portal target — `AccountPageContainer`
+  // injects the current page's title (or a custom node, e.g. tab
+  // navigation on the notifications page) into it. Keeping the slot
+  // empty by default avoids a brief "Settings" flash on hydration.
+  const laptopHeaderTitle = (
+    <span
+      id={SETTINGS_HEADER_TITLE_PORTAL_ID}
+      className="flex min-w-0 flex-1 items-center self-stretch"
+    />
+  );
 
   return (
     <>
@@ -134,13 +184,21 @@ export default function SettingsLayout({
           />
         </div>
       )}
+      {isLaptop && (
+        <PageHeader title={laptopHeaderTitle}>
+          <span id={SETTINGS_HEADER_ACTIONS_PORTAL_ID} className="contents" />
+        </PageHeader>
+      )}
       {router.query.redirectTo && router.query.redirectCopy && (
         <button
           type="button"
           onClick={() => router.push(router.query.redirectTo as string)}
           className="flex w-full items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-surface-float px-6 py-3 text-left transition-colors hover:bg-surface-hover"
         >
-          <ArrowIcon className="-rotate-90 text-text-tertiary" />
+          <ArrowIcon
+            size={IconSize.XSmall}
+            className="-rotate-90 text-text-tertiary"
+          />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
@@ -151,15 +209,7 @@ export default function SettingsLayout({
       )}
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
         <h1 className="sr-only">Settings</h1>
-        {isMobile ? (
-          <ProfileSettingsMenuMobile
-            shouldKeepOpen
-            isOpen={isOpen}
-            onClose={() => router.push(profile.permalink)}
-          />
-        ) : (
-          <ProfileSettingsMenuDesktop />
-        )}
+        {renderSettingsMenu()}
         {children}
       </div>
     </>
@@ -168,8 +218,8 @@ export default function SettingsLayout({
 
 export const getSettingsLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<SettingsLayout>{page}</SettingsLayout>, null, {
+    getMainLayout(<SettingsLayout>{page}</SettingsLayout>, undefined, {
       screenCentered: true,
-      showSidebar: false,
+      showSidebar: true,
     }),
   );

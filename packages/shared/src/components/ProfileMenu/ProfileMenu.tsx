@@ -12,20 +12,14 @@ import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
 
-import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { ProfileMenuHeader } from './ProfileMenuHeader';
+import { ProfileMenuStats } from './ProfileMenuStats';
 import { HorizontalSeparator } from '../utilities';
 
 import { ProfileSection } from './ProfileSection';
-import { ResourceSection } from './sections/ResourceSection';
-import { AccountSection } from './sections/AccountSection';
-import { MainSection } from './sections/MainSection';
-import { ThemeSection } from './sections/ThemeSection';
 import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { useCustomizeNewTabMenuItem } from './sections/ExtensionSection';
-import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
-import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
 const ExtensionSection = dynamic(() =>
   import(
@@ -35,15 +29,15 @@ const ExtensionSection = dynamic(() =>
 
 interface ProfileMenuProps {
   onClose: () => void;
+  position?: InteractivePopupPosition;
 }
 
 export default function ProfileMenu({
   onClose,
+  position = InteractivePopupPosition.ProfileMenu,
 }: ProfileMenuProps): ReactElement | null {
   const { events } = useRouter();
   const { user, logout } = useAuthContext();
-  const { showIndicator: showProfileCompletion } =
-    useProfileCompletionIndicator();
   const customizeMenuItem = useCustomizeNewTabMenuItem(onClose);
 
   useEffect(() => {
@@ -58,15 +52,21 @@ export default function ProfileMenu({
     return null;
   }
 
+  const logoutItem = {
+    title: 'Log out',
+    icon: ExitIcon,
+    onClick: () => logout(LogoutReason.ManualLogout),
+  };
+
   return (
     <InteractivePopup
       onClose={onClose}
       closeOutsideClick
-      position={InteractivePopupPosition.ProfileMenu}
+      position={position}
       className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
-      {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader />
+      <ProfileMenuStats />
 
       <UpgradeToPlus
         target={TargetId.ProfileDropdown}
@@ -77,37 +77,22 @@ export default function ProfileMenu({
       <HorizontalSeparator />
 
       <nav className="flex flex-col gap-2">
-        <MainSection />
+        {checkIsExtension() && (
+          <>
+            {customizeMenuItem && (
+              <ProfileSection items={[customizeMenuItem]} />
+            )}
+            <ExtensionSection />
+            <HorizontalSeparator />
+          </>
+        )}
 
-        <HorizontalSeparator />
-
-        <ThemeSection className="px-1" />
-
-        <HorizontalSeparator />
-
-        <AccountSection prepended={customizeMenuItem} />
-
-        {checkIsExtension() && <ExtensionSection />}
-
-        <HorizontalSeparator />
-
-        <ResourceSection />
         <FeedbackButtonSection className="px-1" />
 
         <HorizontalSeparator />
 
-        <ProfileSection
-          items={[
-            {
-              title: 'Log out',
-              icon: ExitIcon,
-              onClick: () => logout(LogoutReason.ManualLogout),
-            },
-          ]}
-        />
+        <ProfileSection items={[logoutItem]} />
       </nav>
-
-      <ProfileMenuFooter />
     </InteractivePopup>
   );
 }

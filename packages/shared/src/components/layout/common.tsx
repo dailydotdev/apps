@@ -8,6 +8,7 @@ import React, { useContext } from 'react';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
+import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import type { DropdownProps } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
 import { Button } from '../buttons/Button';
@@ -33,8 +34,8 @@ import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
+import { BriefShortcutButton } from '../cards/brief/BriefShortcutButton';
 import { LogEvent, Origin } from '../../lib/log';
-import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -84,35 +85,48 @@ export const SearchControlHeader = ({
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { sortingEnabled } = useContext(SettingsContext);
-  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
+  const isExtension = checkIsExtension();
   const feedsWithActions = [
     SharedFeedPage.MyFeed,
     SharedFeedPage.Custom,
     SharedFeedPage.CustomForm,
   ];
-  const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
+  // The extension's logged-out new tab still needs the Feed
+  // settings / Brief / Clickbait Shield strip so the page looks
+  // identical to the logged-in version. Each button intercepts
+  // !user clicks below to open the auth modal instead of running
+  // its normal action, so surfacing them here is safe.
+  const hasFeedActions =
+    feedsWithActions.includes(feedName as SharedFeedPage) ||
+    (isExtension && !user && isPopular);
 
   if (isMobile) {
     return null;
   }
 
+  const compactIconButtonClassName =
+    '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
+  const compactTextButtonClassName =
+    '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover';
+
   const dropdownProps: Partial<DropdownProps> = {
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      button: '!px-1',
+      button: compactIconButtonClassName,
       container: 'flex',
     },
     shouldIndicateSelected: true,
-    buttonSize: isMobile ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize: ButtonSize.Small,
     iconOnly: true,
-    buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
+    buttonVariant: ButtonVariant.Tertiary,
   };
 
   const hasDismissedInstallExtension = checkHasCompleted(
@@ -131,12 +145,18 @@ export const SearchControlHeader = ({
         key="install-extension"
         tag="a"
         href={downloadBrowserExtension}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        size={ButtonSize.Medium}
-        icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={
+          isEdge ? (
+            <EdgeIcon size={IconSize.XSmall} aria-hidden />
+          ) : (
+            <ChromeIcon size={IconSize.XSmall} aria-hidden />
+          )
+        }
         rel={anchorDefaultRel}
         target="_blank"
-        className="ml-auto"
+        className={isLaptop ? compactTextButtonClassName : undefined}
         onClick={() =>
           logEvent({
             event_name: LogEvent.DownloadExtension,
@@ -149,19 +169,39 @@ export const SearchControlHeader = ({
       <Button
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
-        icon={<ClearIcon secondary />}
+        icon={<ClearIcon size={IconSize.XSmall} secondary />}
+        aria-label="Dismiss install prompt"
+        className={isLaptop ? compactIconButtonClassName : undefined}
         onClick={() => completeAction(ActionType.DismissInstallExtension)}
       />
     </React.Fragment>
   );
 
   const primaryActions = [
-    hasFeedActions && <MyFeedHeading key="my-feed" />,
+    hasFeedActions && (
+      <MyFeedHeading
+        key="my-feed"
+        feedSettingsButtonProps={
+          isLaptop
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: compactTextButtonClassName,
+                iconSize: IconSize.XSmall,
+              }
+            : undefined
+        }
+      />
+    ),
+    <BriefShortcutButton
+      key="brief-shortcut"
+      className={isLaptop ? compactTextButtonClassName : undefined}
+    />,
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
         key="algorithm"
-        icon={<CalendarIcon size={IconSize.Medium} />}
+        icon={<CalendarIcon size={IconSize.XSmall} />}
         selectedIndex={selectedPeriod}
         options={periodTexts}
         onChange={(_, index) => setSelectedPeriod(index)}
@@ -171,7 +211,7 @@ export const SearchControlHeader = ({
       <Dropdown
         {...dropdownProps}
         key="sorting"
-        icon={<SortIcon size={IconSize.Medium} />}
+        icon={<SortIcon size={IconSize.XSmall} />}
         selectedIndex={selectedAlgo}
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
@@ -183,14 +223,46 @@ export const SearchControlHeader = ({
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
+        buttonProps={
+          isLaptop
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                // Non-Plus path renders "X/Y" text alongside the icon, so it
+                // needs the same h-8 + px-3 transparent treatment as the Feed
+                // settings button — width grows with content.
+                className: compactTextButtonClassName,
+              }
+            : undefined
+        }
+        iconButtonProps={
+          isLaptop
+            ? {
+                // Plus path is icon-only — match the square 32px sizing used
+                // by the Sort / Period dropdown icons in this header.
+                className: compactIconButtonClassName,
+              }
+            : undefined
+        }
+        iconSize={IconSize.XSmall}
         key="toggle-clickbait-shield"
       />
     ),
+  ];
+  // Right-aligned action: the achievement tracker lives on the
+  // opposite end of the strip from the feed-settings cluster so the
+  // current achievement / "track an achievement" CTA stays visually
+  // balanced against the primary controls and is easy to find while
+  // the rest of the row scrolls to fit smaller widths.
+  const rightActions = [
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
   ];
   const secondaryActions = [isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);
-  const sideActions = secondaryActions.filter(Boolean);
+  const trailingActions = [
+    ...rightActions.filter(Boolean),
+    ...secondaryActions.filter(Boolean),
+  ];
 
   return (
     <ConditionalWrapper
@@ -214,9 +286,11 @@ export const SearchControlHeader = ({
       }}
     >
       <div className="flex w-full items-center gap-2">
-        <div className="flex min-w-0 items-center gap-2">{actions}</div>
-        {sideActions.length > 0 && (
-          <div className="ml-auto flex items-center gap-2">{sideActions}</div>
+        <div className="flex min-w-0 items-center gap-1">{actions}</div>
+        {trailingActions.length > 0 && (
+          <div className="ml-auto flex items-center gap-1">
+            {trailingActions}
+          </div>
         )}
       </div>
     </ConditionalWrapper>

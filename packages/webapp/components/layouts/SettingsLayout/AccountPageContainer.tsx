@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import {
   Button,
@@ -14,7 +15,11 @@ import {
   AccountPageHeading,
   AccountPageSection,
 } from './common';
-import { navigationKey } from '.';
+import {
+  navigationKey,
+  SETTINGS_HEADER_ACTIONS_PORTAL_ID,
+  SETTINGS_HEADER_TITLE_PORTAL_ID,
+} from '.';
 
 interface ClassName {
   container?: string;
@@ -23,7 +28,13 @@ interface ClassName {
 }
 
 interface AccountPageContainerProps {
-  title: string;
+  /**
+   * Page title rendered into the master settings PageHeader strip on
+   * laptop and into the inline `AccountPageHeading` on mobile. Accepts
+   * a ReactNode so callers can render richer chrome (e.g. tab
+   * navigation that replaces the title — see settings/notifications).
+   */
+  title: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
   className?: ClassName;
@@ -38,41 +49,114 @@ export const AccountPageContainer = ({
   onBack,
 }: AccountPageContainerProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const [, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
   });
+  // Capture the laptop PageHeader's portal targets imperatively after
+  // SettingsLayout has committed. Reading the DOM in a useEffect (rather
+  // than via `ref={setState}`) avoids running setState from a ref-detach
+  // during the React commit phase, which previously cascaded into the
+  // "Maximum update depth exceeded" error on settings pages.
+  const [titleNode, setTitleNode] = useState<HTMLElement | null>(null);
+  const [actionsNode, setActionsNode] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!isLaptop) {
+      setTitleNode(null);
+      setActionsNode(null);
+      return;
+    }
+    setTitleNode(document.getElementById(SETTINGS_HEADER_TITLE_PORTAL_ID));
+    setActionsNode(document.getElementById(SETTINGS_HEADER_ACTIONS_PORTAL_ID));
+  }, [isLaptop]);
+
+  // Portal the page-specific title straight into the master PageHeader
+  // (no "Settings · " prefix — the dedicated sidebar already labels
+  // this surface as Settings, so the page strip should focus on where
+  // the user actually is). String titles get the standard bold callout
+  // styling; ReactNode titles are responsible for their own typography
+  // so consumers can render full-height tab nav etc.
+  const portaledTitle =
+    typeof title === 'string' ? (
+      <strong className="min-w-0 truncate typo-callout">{title}</strong>
+    ) : (
+      title
+    );
+
+  const portaledActions = (
+    <>
+      {onBack && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<ArrowIcon className="-rotate-90" />}
+          onClick={onBack}
+          aria-label="Back"
+        />
+      )}
+      {actions}
+    </>
+  );
 
   return (
-    <AccountPageContent className={classNames('relative', className.container)}>
-      <AccountPageHeading className={classNames('sticky', className.heading)}>
-        <Button
-          className={classNames('mr-2 flex tablet:hidden', { hidden: onBack })}
-          icon={<ArrowIcon className="-rotate-90" />}
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.XSmall}
-          onClick={() => setIsOpen(true)}
-        />
-        {onBack && (
-          <Button
-            className="mr-2"
-            icon={<ArrowIcon className="-rotate-90" />}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            onClick={onBack}
-          />
-        )}
-        {title}
-        {actions && <span className="ml-auto flex flex-row">{actions}</span>}
-      </AccountPageHeading>
-      <AccountPageSection
+    <>
+      {isLaptop && titleNode && createPortal(portaledTitle, titleNode)}
+      {isLaptop &&
+        actionsNode &&
+        (actions || onBack) &&
+        createPortal(portaledActions, actionsNode)}
+      <AccountPageContent
         className={classNames(
-          isMobile && `h-[calc(100dvh-7.75rem)] overflow-y-scroll`,
-          className.section,
+          'relative',
+          // The unified PageHeader at the top of the floating card already
+          // owns the visual frame on laptop, so drop the inner card border
+          // there to avoid the nested-box look. Tablet still renders the
+          // standalone card since it isn't wrapped by the floating shell.
+          'laptop:rounded-none laptop:border-0',
+          className.container,
         )}
       >
-        {children}
-      </AccountPageSection>
-    </AccountPageContent>
+        {!isLaptop && (
+          <AccountPageHeading
+            className={classNames('sticky', className.heading)}
+          >
+            <Button
+              type="button"
+              className={classNames('mr-2 flex tablet:hidden', {
+                hidden: onBack,
+              })}
+              icon={<ArrowIcon className="-rotate-90" />}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              onClick={() => setIsOpen(true)}
+            />
+            {onBack && (
+              <Button
+                type="button"
+                className="mr-2"
+                icon={<ArrowIcon className="-rotate-90" />}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                onClick={onBack}
+              />
+            )}
+            {title}
+            {actions && (
+              <span className="ml-auto flex flex-row">{actions}</span>
+            )}
+          </AccountPageHeading>
+        )}
+        <AccountPageSection
+          className={classNames(
+            isMobile && `h-[calc(100dvh-7.75rem)] overflow-y-scroll`,
+            className.section,
+          )}
+        >
+          {children}
+        </AccountPageSection>
+      </AccountPageContent>
+    </>
   );
 };

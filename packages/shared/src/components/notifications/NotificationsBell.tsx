@@ -13,8 +13,15 @@ import { webappUrl } from '../../lib/constants';
 import { useViewSize, ViewSize } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
+import { IconSize } from '../Icon';
 
-function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
+function NotificationsBell({
+  compact,
+  rail,
+}: {
+  compact?: boolean;
+  rail?: boolean;
+}): ReactElement {
   const router = useRouter();
   const atNotificationsPage = router.pathname === notificationsUrl;
   const { logEvent } = useLogContext();
@@ -30,6 +37,39 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
   };
 
   const mobileVariant = atNotificationsPage ? undefined : ButtonVariant.Option;
+
+  if (rail) {
+    return (
+      <Tooltip side="right" content="Notifications">
+        <div>
+          <Link href={`${webappUrl}notifications`} passHref>
+            <a
+              href={`${webappUrl}notifications`}
+              aria-label="Notifications"
+              className={classNames(
+                'focus-outline relative flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                atNotificationsPage &&
+                  'bg-background-default text-text-primary',
+              )}
+              onClick={onNavigateNotifications}
+            >
+              <BellIcon
+                secondary={atNotificationsPage}
+                size={IconSize.Small}
+                aria-hidden
+                className="pointer-events-none"
+              />
+              {hasNotification && (
+                <Bubble className="-right-1 top-0 cursor-pointer px-1">
+                  {getUnreadText(unreadCount)}
+                </Bubble>
+              )}
+            </a>
+          </Link>
+        </div>
+      </Tooltip>
+    );
+  }
 
   return (
     <Tooltip side="bottom" content="Notifications">

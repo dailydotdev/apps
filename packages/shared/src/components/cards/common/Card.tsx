@@ -50,7 +50,7 @@ const clickableCardClasses = classNames(
 export const CardLink = classed('a', clickableCardClasses);
 
 const cardClassess =
-  'snap-start relative max-h-cardLarge h-full flex flex-col p-0 rounded-16 border border-border-subtlest-tertiary hover:border-border-subtlest-secondary bg-background-subtle';
+  'snap-start relative max-h-cardLarge h-full flex flex-col p-0 rounded-16 border border-border-subtlest-quaternary hover:border-border-subtlest-tertiary bg-background-subtle';
 
 export const Card = classed('article', styles.card, cardClassess);
 
@@ -71,7 +71,7 @@ export const CardHeader = classed(
 export const ListCard = classed(
   'article',
   styles.card,
-  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
+  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-16 bg-background-subtle border border-border-subtlest-quaternary hover:border-border-subtlest-tertiary shadow-2',
 );
 
 export const ListCardDivider = classed(

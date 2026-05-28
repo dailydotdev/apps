@@ -317,7 +317,11 @@ describe('squad page', () => {
 describe('squad page header', () => {
   it('should show squad name', async () => {
     renderComponent();
-    await screen.findByText(defaultSquad.name);
+    // The squad name now renders both in the slim PageHeader at the top of
+    // the page and in the big SquadPageHeader identity block, so we expect
+    // multiple matches.
+    const matches = await screen.findAllByText(defaultSquad.name);
+    expect(matches.length).toBeGreaterThan(0);
   });
 
   it('should show squad handle', async () => {

@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
-import { pageMainClassNames } from '../layout/PageWrapperLayout';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { OrganizationMemberRole } from '../../features/organizations/types';
 
@@ -98,11 +97,7 @@ export const BaseFeedPage = classed(
   styles.feedPage,
 );
 
-export const FeedPage = classed(
-  BaseFeedPage,
-  pageMainClassNames,
-  styles.feedPage,
-);
+export const FeedPage = classed(BaseFeedPage, styles.feedPage);
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,

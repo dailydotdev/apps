@@ -198,12 +198,13 @@ const Page = ({ experience }: PageProps): ReactElement => {
           }`}
           actions={
             <Button
-              type="submit"
+              type="button"
               className="ml-auto"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
               disabled={isPending}
               loading={isPending}
+              onClick={methods.handleSubmit(() => save())}
             >
               Save
             </Button>

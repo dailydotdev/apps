@@ -51,16 +51,14 @@ export const OpportunityEntryButton = () => {
     hasOpportunityAlert && hasNotClickedOpportunity
       ? OpportunityTooltip
       : SimpleTooltip;
+  const href = `${webappUrl}jobs/${
+    hasOpportunityAlert ? alerts.opportunityId : ''
+  }`;
 
   return (
     <RenderTooltip content="Jobs" placement="bottom-end">
       <div>
-        <Link
-          href={`${webappUrl}jobs/${
-            hasOpportunityAlert ? alerts.opportunityId : ''
-          }`}
-          passHref
-        >
+        <Link href={href} passHref>
           <Button
             variant={ButtonVariant.Float}
             className="relative w-10 justify-center"

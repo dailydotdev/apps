@@ -30,6 +30,7 @@ import {
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
+import { PageHeader, pageHeaderClassName } from '../layout/PageHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -43,7 +44,6 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
-  showBriefCard?: boolean;
   disableListFrame?: boolean;
 }
 
@@ -129,7 +129,6 @@ export const FeedContainer = ({
   actionButtons,
   isHorizontal,
   feedContainerRef,
-  showBriefCard,
   disableListFrame = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
@@ -139,7 +138,7 @@ export const FeedContainer = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
-  const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
+  const { isExplorePopular, isExploreLatest } = useFeedName({
     feedName: activeFeedName,
   });
   const router = useRouter();
@@ -193,8 +192,14 @@ export const FeedContainer = ({
       }
     },
   });
+  // The extension surfaces the CV upload promo as one of the top hero
+  // cards above the feed, so we suppress the in-feed banner here to
+  // avoid showing the same CTA twice.
   const shouldShowBanner =
-    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
+    !isExtension &&
+    !!marketingCta &&
+    shouldShow &&
+    activeFeedName === SharedFeedPage.MyFeed;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
@@ -210,6 +215,17 @@ export const FeedContainer = ({
     return <></>;
   }
 
+  // The extension must always use the same page-header strip as the
+  // webapp for these feed actions. Do not send it through the `isSearch`
+  // header branch below; that branch is intentionally borderless and was
+  // centering this control row in the extension.
+  const extensionActionsHeader =
+    isExtension && !!actionButtons ? (
+      <header className={classNames(pageHeaderClassName, 'justify-start')}>
+        {actionButtons}
+      </header>
+    ) : null;
+
   return (
     <div
       className={classNames(
@@ -219,18 +235,10 @@ export const FeedContainer = ({
       )}
     >
       {shouldShowBanner && (
-        <div
-          className={classNames(
-            'laptop:px-0 laptop:pt-0',
-            showBriefCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
-          )}
-        >
+        <div className="tablet:px-4 tablet:pt-1 laptop:px-0 laptop:pt-0">
           <ProfileUploadBanner
             className={{
-              container: classNames({
-                'mb-0': isList,
-                'mt-0 tablet:mt-4': !showBriefCard,
-              }),
+              container: classNames('mt-0 tablet:mt-4', isList && 'mb-0'),
               image: isList
                 ? 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]'
                 : undefined,
@@ -270,20 +278,27 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {topContent}
-          {isSearch && !shouldUseListFeedLayout && (
-            <span
+          {/* In grid mode (no list-frame wrapper) the extension actions
+              are dropped on the floor by default — render the strip
+              above the grid so they show with a bottom border. In list
+              mode the strip renders inside the list-frame box below. */}
+          {!shouldUseListFeedLayout && extensionActionsHeader}
+          {isSearch && !isExtension && !shouldUseListFeedLayout && (
+            <header
               className={classNames(
-                'flex flex-1 items-center',
-                isExtension ? 'flex-col-reverse' : 'flex-row',
+                'flex items-center',
+                isExtension && 'flex-1 flex-col-reverse',
+                !isExtension &&
+                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3',
               )}
             >
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
+                <span className="-mr-1 flex flex-1 flex-row items-center gap-1">
                   {actionButtons}
                 </span>
               )}
               {shortcuts}
-            </span>
+            </header>
           )}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
@@ -292,22 +307,18 @@ export const FeedContainer = ({
                 className={classNames(
                   'flex flex-col',
                   !disableListFrame &&
-                    'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                    'overflow-hidden rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   !disableListFrame && isSearch && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                <ConditionalWrapper
-                  condition={isLaptop && !!(feedHeading || actionButtons)}
-                  wrapper={(component) => (
-                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                      <strong className="typo-title3">{feedHeading}</strong>
-                      <span className="flex flex-row gap-3">{component}</span>
-                    </span>
-                  )}
-                >
-                  {actionButtons || null}
-                </ConditionalWrapper>
+                {isExtension && extensionActionsHeader}
+                {!isExtension &&
+                  (isLaptop && !!(feedHeading || actionButtons) ? (
+                    <PageHeader title={feedHeading}>{actionButtons}</PageHeader>
+                  ) : (
+                    actionButtons || null
+                  ))}
                 {isExtension && shortcuts}
                 {child}
               </div>
@@ -316,8 +327,11 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
+                // Inset the grid inside the list-frame box so cards stay
+                // off the rounded edges and don't kiss the header border.
+                shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
+                !shouldUseListFeedLayout && 'tablet:p-2 laptop:p-6',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
                 gapClass({

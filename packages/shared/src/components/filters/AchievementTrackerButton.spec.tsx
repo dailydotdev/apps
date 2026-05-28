@@ -159,7 +159,7 @@ it('renders skeleton placeholder while achievements list is loading', () => {
   });
   renderComponent();
   const skeleton = screen.getByTestId('achievement-tracker-skeleton');
-  expect(skeleton).toHaveClass('animate-pulse', 'h-10', 'w-10');
+  expect(skeleton).toHaveClass('animate-pulse', 'h-8', 'w-8');
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
@@ -171,7 +171,7 @@ it('renders skeleton placeholder while tracked achievement query is pending', ()
   renderComponent();
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
   const skeleton = screen.getByTestId('achievement-tracker-skeleton');
-  expect(skeleton).toHaveClass('animate-pulse', 'h-10', 'w-10');
+  expect(skeleton).toHaveClass('animate-pulse', 'h-8', 'w-8');
 });
 
 it('renders icon-only button with no text label when not tracking', () => {

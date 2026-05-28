@@ -14,6 +14,7 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import useActiveNav from '../../hooks/useActiveNav';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 jest.mock('next/dynamic', () => () => {
   return function MockDynamicComponent() {
@@ -54,6 +55,10 @@ jest.mock('../../hooks/feed/useFeedName', () => ({
 
 jest.mock('../../hooks/useActiveNav', () => jest.fn());
 
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuthContext: jest.fn(),
+}));
+
 jest.mock('../header/MobileExploreHeader', () => ({
   MobileExploreHeader: ({ path }: { path: string }) => (
     <div data-testid="mobile-explore-header">{path}</div>
@@ -68,6 +73,7 @@ const mockUseFeatureTheme = useFeatureTheme as jest.Mock;
 const mockUseScrollTopClassName = useScrollTopClassName as jest.Mock;
 const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseActiveNav = useActiveNav as jest.Mock;
+const mockUseAuthContext = useAuthContext as jest.Mock;
 
 describe('MainLayoutHeader', () => {
   beforeEach(() => {
@@ -84,6 +90,7 @@ describe('MainLayoutHeader', () => {
       isSearch: false,
     });
     mockUseActiveNav.mockReturnValue({ profile: false });
+    mockUseAuthContext.mockReturnValue({ isLoggedIn: false });
   });
 
   afterEach(() => {

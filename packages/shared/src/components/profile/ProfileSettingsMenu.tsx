@@ -6,16 +6,10 @@ import {
   AddUserIcon,
   BellIcon,
   EditIcon,
-  DevCardIcon,
   EmbedIcon,
-  DocsIcon,
-  FeedbackIcon,
   AppIcon,
-  PrivacyIcon,
-  MegaphoneIcon,
   UserIcon,
   BlockIcon,
-  CoinIcon,
   CreditCardIcon,
   HashtagIcon,
   HotIcon,
@@ -24,8 +18,6 @@ import {
   MailIcon,
   EyeIcon,
   NewTabIcon,
-  PhoneIcon,
-  ReputationLightningIcon,
   ExitIcon,
   OrganizationIcon,
   TrendingIcon,
@@ -33,18 +25,9 @@ import {
   TerminalIcon,
   TourIcon,
   FeatherIcon,
-  JoystickIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
-import {
-  appsUrl,
-  businessWebsiteUrl,
-  docs,
-  reputation,
-  settingsUrl,
-  walletUrl,
-  webappUrl,
-} from '../../lib/constants';
+import { settingsUrl, webappUrl } from '../../lib/constants';
 
 import type {
   ProfileSectionItemProps,
@@ -57,17 +40,16 @@ import type { WithClassNameProps } from '../utilities';
 import { HorizontalSeparator } from '../utilities';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
+import { ThemeSection } from '../ProfileMenu/sections/ThemeSection';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
 import { TypographyColor, TypographyType } from '../typography/Typography';
-import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
 import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
-import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 
 type MenuItems = Record<
@@ -83,7 +65,6 @@ const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
-  const { user } = useAuthContext();
 
   const items = useMemo(
     () =>
@@ -207,12 +188,9 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
         playground: {
           title: 'Gamification',
           items: {
-            gameCenter: {
-              title: 'Game Center',
-              icon: JoystickIcon,
-              href: `${webappUrl}game-center`,
-              external: true,
-            },
+            // Game Center, Achievements, and DevCard are intentionally
+            // omitted here — they live in the sidebar Profile rail. The
+            // settings menu is for settings, not duplicate dashboard links.
             gamification: {
               title: 'Feature visibility',
               icon: EyeIcon,
@@ -223,12 +201,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: HotIcon,
               href: `${settingsUrl}/customization/streaks`,
             },
-            achievements: {
-              title: 'Achievements',
-              icon: MedalBadgeIcon,
-              href: `${webappUrl}${user?.username}/achievements`,
-              external: true,
-            },
             hotTakes: {
               title: 'Hot Takes',
               icon: HotIcon,
@@ -238,11 +210,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                 logEvent({ event_name: LogEvent.OpenHotAndCold });
                 onClose?.();
               },
-            },
-            devcard: {
-              title: 'DevCard',
-              icon: DevCardIcon,
-              href: `${settingsUrl}/customization/devcard`,
             },
           },
         },
@@ -274,56 +241,14 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: OrganizationIcon,
               href: `${settingsUrl}/organization`,
             },
-            coreWallet: {
-              title: 'Core Wallet',
-              icon: CoinIcon,
-              href: walletUrl,
-              external: true,
-            },
+            // Core wallet lives in the sidebar Profile rail (when the user
+            // has access). Removed from the settings menu to avoid duplicate
+            // destinations.
             adsDashboard: {
               title: 'Ads dashboard',
               icon: TrendingIcon,
               onClick: () => openModal({ type: LazyModal.AdsDashboard }),
             } as ProfileSectionItemPropsWithoutHref,
-          },
-        },
-        help: {
-          title: 'Help center',
-          items: {
-            feedback: {
-              title: 'Your Feedback',
-              icon: FeedbackIcon,
-              href: `${settingsUrl}/feedback`,
-            },
-            privacy: {
-              title: 'Privacy',
-              icon: PrivacyIcon,
-              href: `${settingsUrl}/privacy`,
-            },
-            reputation: {
-              title: 'Reputation',
-              icon: ReputationLightningIcon,
-              href: reputation,
-              external: true,
-            },
-            advertise: {
-              title: 'Advertise',
-              icon: MegaphoneIcon,
-              href: businessWebsiteUrl,
-              external: true,
-            },
-            apps: {
-              title: 'Apps',
-              icon: PhoneIcon,
-              href: appsUrl,
-              external: true,
-            },
-            docs: {
-              title: 'Docs',
-              icon: DocsIcon,
-              href: docs,
-              external: true,
-            },
           },
         },
         logout: {
@@ -337,7 +262,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           },
         },
       }),
-    [logEvent, onClose, openModal, user?.username],
+    [logEvent, onClose, openModal],
   );
 
   return { items };
@@ -355,11 +280,12 @@ export const InnerProfileSettingsMenu = ({
 }: WithClassNameProps & { onClose?: () => void }) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const hasAccessToCores = useHasAccessToCores();
   const { items: accountPageItems } = useAccountPageItems({ onClose });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
+      <ThemeSection className="px-1" />
+      <HorizontalSeparator />
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
         const lastItem = index === arr.length - 1;
 
@@ -368,26 +294,18 @@ export const InnerProfileSettingsMenu = ({
             key={key}
             withSeparator={!lastItem}
             title={menuItem.title ?? undefined}
-            items={Object.entries(menuItem.items)
-              .filter(([, item]) => {
-                if (item.href === walletUrl && !hasAccessToCores) {
-                  return false;
-                }
-
-                return true;
-              })
-              .map(([, item]: [string, ProfileSectionItemProps]) => {
-                return {
-                  ...item,
-                  isActive: asPath === item.href,
-                  ...(isMobile && {
-                    typography: {
-                      type: TypographyType.Body,
-                      color: TypographyColor.Secondary,
-                    },
-                  }),
-                };
-              })}
+            items={Object.entries(menuItem.items).map(
+              ([, item]: [string, ProfileSectionItemProps]) => ({
+                ...item,
+                isActive: asPath === item.href,
+                ...(isMobile && {
+                  typography: {
+                    type: TypographyType.Body,
+                    color: TypographyColor.Secondary,
+                  },
+                }),
+              }),
+            )}
           />
         );
       })}

@@ -1,15 +1,23 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { getDayOfYear } from 'date-fns';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
+import { IconSize } from '../Icon';
+import { MiniCloseIcon } from '../icons';
+import { LogEvent, TargetType } from '../../lib/log';
+
+interface FeedbackWidgetProps {
+  placement?: 'fixed' | 'sidebar' | 'support';
+}
 
 const TEAM_MEMBERS = [
   {
@@ -68,19 +76,25 @@ const getDailyTrio = (): ReadonlyArray<(typeof TEAM_MEMBERS)[number]> => {
   return [0, 1, 2].map((i) => TEAM_MEMBERS[(dayOfYear + i) % len]);
 };
 
-export function FeedbackWidget(): ReactElement | null {
+export function FeedbackWidget({
+  placement = 'fixed',
+}: FeedbackWidgetProps): ReactElement | null {
   const { user } = useAuthContext();
-  const { showFeedbackButton } = useSettingsContext();
+  const { showFeedbackButton, toggleShowFeedbackButton } = useSettingsContext();
+  const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const dailyTrio = useMemo(getDailyTrio, []);
   const [isCompact, setIsCompact] = useState(false);
 
   const { panelWidth } = useCustomizeNewTab();
-  // Only show for authenticated users on desktop when the setting is on.
-  // Mobile feedback is handled by FooterPlusButton. Hide during the
-  // panel rather than a competing pill in the corner.
-  const isVisible = !!user && !isMobile && showFeedbackButton;
+  // Only show for authenticated users on desktop. The sidebar variant is
+  // additionally gated by the `showFeedbackButton` setting; the support-menu
+  // variant is always available so users can re-open the widget after
+  // dismissing it from the sidebar.
+  const isSupport = placement === 'support';
+  const isSidebar = placement === 'sidebar';
+  const isVisible = !!user && !isMobile && (isSupport || showFeedbackButton);
 
   useEffect(() => {
     if (!isVisible) {
@@ -96,12 +110,69 @@ export function FeedbackWidget(): ReactElement | null {
     return () => window.removeEventListener('scroll', callback);
   }, [isVisible]);
 
+  const onHideFeedbackButton = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.FeedbackButton,
+      target_id: 'hide',
+    });
+    return toggleShowFeedbackButton();
+  }, [logEvent, toggleShowFeedbackButton]);
+
   if (!isVisible) {
     return null;
   }
 
+  if (isSidebar || isSupport) {
+    return (
+      <div className="group/feedback relative">
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          className="group !h-auto w-full justify-between !gap-0 border border-border-subtlest-tertiary !bg-transparent !px-3 py-2 !text-text-secondary shadow-none hover:!bg-surface-hover hover:!text-text-primary"
+          onClick={() => openModal({ type: LazyModal.Feedback })}
+          aria-label="Send feedback. Real people reply."
+        >
+          <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
+            <span>Feedback</span>
+            <span className="opacity-80 font-normal typo-caption2">
+              Real people reply
+            </span>
+          </span>
+          <span className="ml-3 flex shrink-0">
+            {dailyTrio.map((member, index) => (
+              <ProfilePicture
+                key={member.username}
+                user={member}
+                size={ProfileImageSize.Small}
+                rounded="full"
+                className={classNames(
+                  'border-2 border-background-default group-hover:border-surface-hover',
+                  index !== 0 && '-ml-3',
+                )}
+              />
+            ))}
+          </span>
+        </Button>
+
+        {isSidebar && (
+          <button
+            type="button"
+            onClick={onHideFeedbackButton}
+            aria-label="Hide feedback button"
+            className="focus-outline pointer-events-none absolute right-0 top-0 z-1 flex size-6 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-tertiary opacity-0 shadow-2 transition hover:bg-surface-hover hover:text-text-primary group-hover/feedback:pointer-events-auto group-hover/feedback:opacity-100"
+          >
+            <MiniCloseIcon size={IconSize.XSmall} aria-hidden />
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <Button
+      type="button"
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
       className="group fixed bottom-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"

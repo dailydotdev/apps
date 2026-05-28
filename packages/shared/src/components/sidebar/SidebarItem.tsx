@@ -33,7 +33,7 @@ export const SidebarItem = ({
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
-        'mx-1 rounded-10',
+        'mx-3 rounded-10',
         item.itemClassName,
         isCollapsed && 'justify-center',
       )}

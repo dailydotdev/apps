@@ -15,11 +15,14 @@ describe('MainLayout', () => {
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
   });
 
-  const renderLayout = (user: LoggedUser = null): RenderResult => {
+  const renderLayout = (user: LoggedUser | null = null): RenderResult => {
     const client = new QueryClient();
 
     return render(
-      <TestBootProvider client={client} auth={{ user, showLogin }}>
+      <TestBootProvider
+        client={client}
+        auth={{ user: user ?? undefined, showLogin }}
+      >
         <MainLayout />
       </TestBootProvider>,
     );
@@ -44,9 +47,9 @@ describe('MainLayout', () => {
       reputation: 5,
       permalink: 'https://app.daily.dev/ido',
       infoConfirmed: true,
+      balance: { amount: 0 },
     });
     const [el] = await screen.findAllByAltText(`idoshamun's profile`);
     expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
-    expect(screen.getByText('5')).toBeInTheDocument();
   });
 });

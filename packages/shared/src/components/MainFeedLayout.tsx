@@ -180,7 +180,6 @@ export interface MainFeedLayoutProps
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
   hideFeedActionButtons?: boolean;
-  disableBriefCard?: boolean;
 }
 
 const getQueryBasedOnLogin = (
@@ -221,7 +220,6 @@ export default function MainFeedLayout({
   isFinder,
   onNavTabClick,
   hideFeedActionButtons,
-  disableBriefCard,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -725,16 +723,7 @@ export default function MainFeedLayout({
           commentClassName={commentClassName}
         />
       ) : (
-        feedProps && (
-          <Feed
-            {...feedProps}
-            shortcuts={shortcuts}
-            disableBriefCard={disableBriefCard}
-            className={classNames(
-              shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-            )}
-          />
-        )
+        feedProps && <Feed {...feedProps} shortcuts={shortcuts} />
       )}
       {children}
     </FeedPageLayoutComponent>

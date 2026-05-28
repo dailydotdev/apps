@@ -16,18 +16,30 @@ import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetId } from '../../lib/log';
+import type { IconProps } from '../Icon';
 import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
+import { AuthTriggers } from '../../lib/auth';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
 
 export const ToggleClickbaitShield = ({
   origin,
   buttonProps = {},
+  iconButtonProps,
+  iconSize,
 }: {
   origin: Origin;
+  /** Applied to both render paths (Plus icon-only and non-Plus icon+text). */
   buttonProps?: ButtonProps<'button'>;
+  /**
+   * Applied only to the Plus (icon-only) render path on top of `buttonProps`.
+   * Use to keep the icon-only case sized like sibling icon-buttons in compact
+   * headers without forcing min-widths on the non-Plus "X/Y" text variant.
+   */
+  iconButtonProps?: ButtonProps<'button'>;
+  iconSize?: IconProps['size'];
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
@@ -36,9 +48,14 @@ export const ToggleClickbaitShield = ({
   const { flags, updateFlag } = useSettingsContext();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
+  const triggerLogin = () =>
+    showLogin({
+      trigger: AuthTriggers.MainButton,
+      options: { isLogin: false },
+    });
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -62,13 +79,17 @@ export const ToggleClickbaitShield = ({
           {...commonIconProps}
           icon={
             hasUsedFreeTrial ? (
-              <ShieldWarningIcon className="text-accent-ketchup-default" />
+              <ShieldWarningIcon
+                className="text-accent-ketchup-default"
+                size={iconSize}
+              />
             ) : (
-              <ShieldPlusIcon />
+              <ShieldPlusIcon size={iconSize} />
             )
           }
           onClick={() => {
             if (!user) {
+              triggerLogin();
               return;
             }
             router.push(
@@ -91,15 +112,20 @@ export const ToggleClickbaitShield = ({
     >
       <Button
         {...commonIconProps}
+        {...iconButtonProps}
         icon={
           isClickbaitShieldEnabled ? (
-            <ShieldCheckIcon className="text-status-success" />
+            <ShieldCheckIcon className="text-status-success" size={iconSize} />
           ) : (
-            <ShieldIcon />
+            <ShieldIcon size={iconSize} />
           )
         }
         loading={loading}
         onClick={async () => {
+          if (!user) {
+            triggerLogin();
+            return;
+          }
           const newState = !isClickbaitShieldEnabled;
           setLoading(true);
           await updateFlag(

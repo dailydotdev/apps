@@ -27,6 +27,8 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { PostHiddenPanel } from '../../post/block/PostHiddenPanel';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -60,6 +62,9 @@ export const ShareList = forwardRef(function ShareList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
+  const { data: blockPanelData } = useBlockPostPanel(post);
+  const isHideMode =
+    blockPanelData?.showTagsPanel === true && blockPanelData?.mode === 'hide';
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -111,6 +116,10 @@ export const ShareList = forwardRef(function ShareList(
     post.source?.permalink,
     sharedPost?.source?.handle,
   ]);
+
+  if (isHideMode) {
+    return <PostHiddenPanel className="h-full overflow-hidden" post={post} />;
+  }
 
   return (
     <FeedItemContainer

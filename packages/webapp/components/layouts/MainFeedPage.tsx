@@ -8,6 +8,9 @@ import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities'
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
+import { ExtensionMockupPanel } from '@dailydotdev/shared/src/features/extensionMockupPreview/ExtensionMockupPanel';
+import { ExtensionSignInStrip } from '@dailydotdev/shared/src/features/extensionMockupPreview/ExtensionSignInStrip';
+import { ExtensionTopBanners } from '@dailydotdev/shared/src/features/extensionMockupPreview/ExtensionTopBanners';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -103,16 +106,19 @@ export default function MainFeedPage({
   }
 
   return (
-    <MainFeedLayout
-      feedName={feedName}
-      isSearchOn={isSearchOn}
-      searchQuery={router.query?.q?.toString()}
-      isFinder={isFinder}
-      searchChildren={searchChildren}
-    >
-      <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
-      {children}
-    </MainFeedLayout>
+    <>
+      <MainFeedLayout
+        feedName={feedName}
+        isSearchOn={isSearchOn}
+        searchQuery={router.query?.q?.toString()}
+        isFinder={isFinder}
+        searchChildren={searchChildren}
+      >
+        <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
+        {children}
+      </MainFeedLayout>
+      <ExtensionMockupPanel />
+    </>
   );
 }
 
@@ -131,4 +137,10 @@ export function getMainFeedLayout(
 export const mainFeedLayoutProps: MainLayoutProps = {
   mainPage: true,
   screenCentered: false,
+  topBanner: (
+    <>
+      <ExtensionSignInStrip />
+      <ExtensionTopBanners />
+    </>
+  ),
 };

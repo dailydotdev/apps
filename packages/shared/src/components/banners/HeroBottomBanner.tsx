@@ -1,65 +1,114 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { MiniCloseIcon } from '../icons';
-import feedStyles from '../Feed.module.css';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import CloseButton from '../CloseButton';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
 
 type TopHeroProps = {
   className?: string;
+  /**
+   * Small grey eyebrow above the bold headline. Omit for a single-line
+   * card that only shows the headline (`subtitle`). The original
+   * "Enable reminder" hero falls back to its legacy copy so existing
+   * webapp callers keep their two-line layout.
+   */
   title?: string;
   subtitle?: string;
-  onCtaClick: () => void;
-  onClose: () => void;
+  onCtaClick?: () => void;
+  /**
+   * When omitted, the dismiss/close button is not rendered (use for
+   * cards that the user must not be able to hide, e.g. the logged-out
+   * sign-in card).
+   */
+  onClose?: () => void;
+  /**
+   * Optional illustration rendered on the left side of the card.
+   * Defaults to the reading-reminder cat artwork to keep the original
+   * "Enable reminder" hero usage backwards-compatible.
+   */
+  illustration?: ReactNode;
+  ctaLabel?: string;
+  ctaVariant?: ButtonVariant;
+  /**
+   * Optional custom action node rendered in place of the default
+   * single-CTA button. Use when the card needs multiple buttons
+   * (e.g. Log in + Sign up).
+   */
+  actions?: ReactNode;
 };
+
+const defaultIllustration = (
+  <ReadingReminderCatLaptop className="!m-0 h-32 w-32 shrink-0 rounded-12 object-contain tablet:h-36 tablet:w-36" />
+);
 
 export const TopHero = ({
   className,
-  title = 'Never miss a learning day',
+  title,
   subtitle = 'Turn on your daily reading reminder and keep your routine.',
   onCtaClick,
   onClose,
+  illustration = defaultIllustration,
+  ctaLabel = 'Enable reminder',
+  ctaVariant = ButtonVariant.Primary,
+  actions,
 }: TopHeroProps): ReactElement => {
   return (
     <section
-      className={classNames('mb-4 w-full pb-0', feedStyles.cards, className)}
+      className={classNames(
+        // Small left padding so illustrations breathe against the card
+        // edge; larger right padding so headlines don't kiss the close
+        // button or the right border. Equal vertical padding lives on
+        // the card shell so every illustration/text combination has the
+        // same top and bottom breathing room.
+        'relative flex w-full items-center gap-4 overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default py-2 pl-3 pr-8 tablet:gap-5',
+        className,
+      )}
     >
-      <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
-        <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
-        <div className="top-hero-glow pointer-events-none absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
+      {illustration}
+      <div className="flex min-w-0 max-w-[18rem] flex-1 flex-col items-start gap-3">
+        <div className="flex flex-col">
+          {!!title && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {title}
+            </Typography>
+          )}
+          <Typography
+            type={TypographyType.Callout}
+            bold
+            className={classNames(title && 'mt-0.5')}
+          >
+            {subtitle}
+          </Typography>
+        </div>
+        {actions ?? (
           <Button
             type="button"
-            variant={ButtonVariant.Tertiary}
-            className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
-            icon={<MiniCloseIcon />}
-            aria-label="Close banner"
-            onClick={onClose}
-          />
-          <div className="flex flex-col tablet:flex-row tablet:items-stretch">
-            <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
-              <div className="flex flex-col items-center gap-1 tablet:items-start">
-                <p className="text-white/80 mt-2 text-[0.9375rem]">{title}</p>
-                <h3 className="font-bold text-white typo-title2">{subtitle}</h3>
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  className="mt-4 w-fit"
-                  onClick={onCtaClick}
-                >
-                  Enable reminder
-                </Button>
-              </div>
-            </div>
-            <div className="bg-black/20 flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
-              <ReadingReminderCatLaptop className="m-0 h-full w-full max-w-none scale-105 object-contain laptopL:scale-110" />
-            </div>
-          </div>
-        </div>
+            variant={ctaVariant}
+            size={ButtonSize.Small}
+            onClick={onCtaClick}
+          >
+            {ctaLabel}
+          </Button>
+        )}
       </div>
+      {onClose && (
+        <CloseButton
+          type="button"
+          size={ButtonSize.XSmall}
+          className="absolute right-2 top-2 shrink-0"
+          aria-label="Close banner"
+          onClick={onClose}
+        />
+      )}
     </section>
   );
 };

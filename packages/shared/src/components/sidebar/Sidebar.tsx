@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -18,13 +18,17 @@ const SidebarDesktop = dynamic(() =>
 
 interface SidebarProps {
   activePage: string;
+  additionalButtons?: ReactNode;
   isNavButtons?: boolean;
+  showFeedbackWidget?: boolean;
   onNavTabClick?: (tab: string) => void;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
 export const Sidebar = ({
+  additionalButtons,
   isNavButtons,
+  showFeedbackWidget,
   onNavTabClick,
   onLogoClick,
   activePage,
@@ -50,8 +54,11 @@ export const Sidebar = ({
         // because router does not update there
         activePage={isExtension ? activePage : undefined}
         featureTheme={featureTheme}
+        additionalButtons={additionalButtons}
         isNavButtons={isNavButtons}
+        showFeedbackWidget={showFeedbackWidget}
         onNavTabClick={onNavTabClick}
+        onLogoClick={onLogoClick}
       />
     );
   }

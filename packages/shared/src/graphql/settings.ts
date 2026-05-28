@@ -43,6 +43,11 @@ export type SettingsFlags = {
   sidebarOtherExpanded: boolean;
   sidebarResourcesExpanded: boolean;
   sidebarBookmarksExpanded: boolean;
+  // Client-only flags — must stay optional so SettingsContext hydration
+  // can detect their absence (`flags?.[key] === undefined`) and overlay
+  // the persisted localStorage value without being shadowed by defaults.
+  sidebarRecentExpanded?: boolean;
+  sidebarSelectedCategory?: SidebarSelectedCategory;
   clickbaitShieldEnabled: boolean;
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
@@ -64,7 +69,33 @@ export enum SidebarSettingsFlags {
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',
   BookmarksExpanded = 'sidebarBookmarksExpanded',
+  RecentExpanded = 'sidebarRecentExpanded',
+  SelectedCategory = 'sidebarSelectedCategory',
   ClickbaitShieldEnabled = 'clickbaitShieldEnabled',
+}
+
+// Flag keys that the frontend manages locally only — the daily-api
+// `SettingsFlagsPublicInput` schema does not accept these, so sending
+// them via `updateUserSettings` makes the GraphQL server reject the
+// whole mutation. They are persisted to localStorage instead and
+// stripped from the remote payload before the request is dispatched.
+export const CLIENT_ONLY_SETTINGS_FLAGS = [
+  'sidebarSelectedCategory',
+  'sidebarRecentExpanded',
+] as const satisfies ReadonlyArray<keyof SettingsFlags>;
+
+export type ClientOnlySettingsFlag =
+  (typeof CLIENT_ONLY_SETTINGS_FLAGS)[number];
+
+export enum SidebarSelectedCategory {
+  Main = 'main',
+  Feeds = 'feeds',
+  Squads = 'squads',
+  Saved = 'saved',
+  Discover = 'discover',
+  Profile = 'profile',
+  Settings = 'settings',
+  GameCenter = 'gameCenter',
 }
 
 export type RemoteSettings = {

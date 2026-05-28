@@ -38,7 +38,6 @@ import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
-import HijackingLoginStrip from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
@@ -67,7 +66,7 @@ const feedErrorFallback: ReactElement = (
   </div>
 );
 
-function HijackingPage({
+function OnboardingHijackPage({
   onPageChanged,
 }: {
   onPageChanged: (page: string) => void;
@@ -87,7 +86,6 @@ function HijackingPage({
       onPageChanged={onPageChanged}
       initialPage="/"
       shouldInitializeCurrentPage={false}
-      shortcuts={<HijackingLoginStrip />}
     />
   );
 }
@@ -108,8 +106,12 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
+  // Logged-out users now stay on the regular MainFeedPage (with the
+  // sticky sign-in strip up top + the public Popular feed). Only users
+  // who have signed up but haven't finished onboarding still get the
+  // onboarding hijack so we keep nudging them through the flow.
   const shouldRedirectOnboarding =
-    isPageReady && (!user || !isOnboardingComplete) && !isTesting;
+    isPageReady && !!user && !isOnboardingComplete && !isTesting;
 
   useCheckLocation();
   useCheckCoresRole();
@@ -150,7 +152,7 @@ function InternalApp(): ReactElement {
     return (
       <ErrorBoundary feature="extension-feed" fallback={feedErrorFallback}>
         <DndContextProvider>
-          <HijackingPage onPageChanged={onPageChanged} />
+          <OnboardingHijackPage onPageChanged={onPageChanged} />
         </DndContextProvider>
       </ErrorBoundary>
     );

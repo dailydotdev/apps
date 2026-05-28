@@ -12,7 +12,12 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
+import {
+  LogEvent,
+  NotificationTarget,
+  TargetType,
+  NotificationCtaPlacement,
+} from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -24,7 +29,6 @@ import {
   ActiveFeedNameContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { SmartComposerHotkey } from './post/SmartComposerHotkey';
 import { SmartComposerDevToggle } from './post/SmartComposerDevToggle';
@@ -38,6 +42,8 @@ import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
+import { TopHero } from './banners/HeroBottomBanner';
+import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -66,6 +72,13 @@ export interface MainLayoutProps
   canGoBack?: string;
   hideBackButton?: boolean;
   hideFeedbackWidget?: boolean;
+  /**
+   * Slot rendered above the floating feed card, next to the existing
+   * reading-reminder TopHero. Used by the extension new tab to render
+   * its row of onboarding hero cards in the same outer chrome where
+   * the reminder card lives, so the card sits OUTSIDE the feed frame.
+   */
+  topBanner?: ReactNode;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -76,32 +89,52 @@ function MainLayoutComponent({
   isNavItemsButton,
   customBanner,
   additionalButtons,
-  screenCentered = true,
   showSidebar = true,
   className,
   onLogoClick,
   onNavTabClick,
   canGoBack,
   hideFeedbackWidget = false,
+  topBanner,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, isAuthReady, showLogin } = useAuthContext();
+  const { user, isAuthReady, isLoggedIn, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
+  // The dual-sidebar layout takes ownership of the global header chrome
+  // (logo + search + user actions) for authenticated users on laptop+.
+  // When that's the case we hide the global header and switch the main
+  // content over to the floating card treatment (rounded, bordered, shadow)
+  // and hide the global feedback widget (the rail provides its own).
+  // On the extension we keep the floating card layout even for logged-out
+  // users so the new tab doesn't snap back to a header-on-top layout the
+  // moment the user logs out — login/signup are surfaced via the top
+  // hero card row instead.
+  const sidebarOwnsHeader =
+    (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
   const { isCustomFeed } = useFeedName({ feedName: currentFeedName });
   const { plusEntryAnnouncementBar } = usePlusEntry();
-  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useNotificationParams();
+
+  const {
+    shouldShowTopHero,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    onEnableHero: onEnableReadingReminder,
+    onDismissHero: onDismissReadingReminder,
+  } = useReadingReminderFeedHero({
+    itemCount: 0,
+    itemsPerRow: 1,
+  });
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -177,11 +210,8 @@ function MainLayoutComponent({
     return null;
   }
 
-  const isScreenCentered =
-    isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
-
   return (
-    <div className="antialiased">
+    <div className="antialiased laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]">
       {canGoBack && <GoBackHeaderMobile />}
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
@@ -203,33 +233,69 @@ function MainLayoutComponent({
 
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
-        sidebarRendered={sidebarRendered}
+        sidebarRendered={showSidebar && sidebarRendered}
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
       <main
         className={classNames(
-          'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
-          showSidebar && 'tablet:pl-16 laptop:pl-11',
+          'flex flex-col transition-[padding] duration-300 ease-in-out',
+          showSidebar && 'tablet:pl-16 laptop:pl-16',
+          !sidebarOwnsHeader && 'laptop:pt-16',
+          isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
           className,
-          isAuthReady &&
-            !isScreenCentered &&
-            sidebarExpanded &&
-            'laptop:!pl-60',
-          isBannerAvailable && 'laptop:pt-24',
+          isAuthReady && showSidebar && sidebarExpanded && 'laptop:!pl-[19rem]',
         )}
       >
         {isAuthReady && showSidebar && (
           <Sidebar
+            additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}
+            showFeedbackWidget={!hideFeedbackWidget}
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
-        {children}
+        <div
+          className={classNames(
+            'flex min-h-0 flex-1 flex-col',
+            sidebarOwnsHeader && 'laptop:my-3 laptop:ml-1 laptop:mr-3',
+          )}
+        >
+          {shouldShowTopHero && (
+            <TopHero
+              className={classNames(
+                'mx-4 mb-3',
+                sidebarOwnsHeader && 'laptop:mx-0',
+              )}
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              onCtaClick={() =>
+                onEnableReadingReminder(NotificationCtaPlacement.TopHero)
+              }
+              onClose={() =>
+                onDismissReadingReminder(NotificationCtaPlacement.TopHero)
+              }
+            />
+          )}
+          {topBanner}
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col',
+              sidebarOwnsHeader &&
+                'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
+              sidebarOwnsHeader &&
+                !shouldShowTopHero &&
+                !topBanner &&
+                'laptop:min-h-[calc(100vh-1.5rem)]',
+            )}
+          >
+            {children}
+          </div>
+        </div>
       </main>
-      {!hideFeedbackWidget && <FeedbackWidget />}
+      {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
     </div>
   );
 }

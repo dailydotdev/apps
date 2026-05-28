@@ -11,7 +11,10 @@ import {
 import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
+import type { IconSize } from '../Icon';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
@@ -20,10 +23,17 @@ import { useActiveFeedNameContext } from '../../contexts';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters?: () => void;
+  feedSettingsButtonProps?: {
+    size?: ButtonSize;
+    variant?: ButtonVariant;
+    className?: string;
+    iconSize?: IconSize;
+  };
 }
 
 function MyFeedHeading({
   onOpenFeedFilters,
+  feedSettingsButtonProps,
 }: MyFeedHeadingProps): ReactElement {
   const { push, pathname, query } = useRouter();
   const { completeAction } = useActions();
@@ -34,6 +44,7 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
+  const { user, showLogin } = useAuthContext();
 
   const editFeedUrl = useMemo(() => {
     if (isCustomDefaultFeed && pathname === '/') {
@@ -48,43 +59,85 @@ function MyFeedHeading({
   }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query]);
 
   const onClick = useCallback(() => {
+    if (!user) {
+      showLogin({
+        trigger: AuthTriggers.MainButton,
+        options: { isLogin: false },
+      });
+      return undefined;
+    }
+
     onOpenFeedFilters?.();
 
     return push(editFeedUrl);
-  }, [editFeedUrl, onOpenFeedFilters, push]);
+  }, [editFeedUrl, onOpenFeedFilters, push, user, showLogin]);
+  const onShortcutsClick = useCallback(() => {
+    if (isOldUserWithNoShortcuts) {
+      completeAction(ActionType.FirstShortcutsSession);
+      return;
+    }
+
+    toggleShowTopSites();
+  }, [completeAction, isOldUserWithNoShortcuts, toggleShowTopSites]);
+  const feedSettingsButtonSize =
+    feedSettingsButtonProps?.size ?? ButtonSize.Medium;
+  const feedSettingsButtonVariant =
+    feedSettingsButtonProps?.variant ??
+    (isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary);
+  const feedSettingsButtonLabel = !isMobile ? 'Feed settings' : null;
+  const feedSettingsButtonIcon = (
+    <FilterIcon size={feedSettingsButtonProps?.iconSize} />
+  );
 
   return (
     <>
-      <FeedSettingsButton
-        onClick={onClick}
-        size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        icon={<FilterIcon />}
-        iconPosition={
-          shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-        }
-      >
-        {!isMobile ? 'Feed settings' : null}
-      </FeedSettingsButton>
-      {showToggleShortcuts && (
-        <Button
-          size={ButtonSize.Medium}
-          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-          className="mr-auto"
-          onClick={() => {
-            if (isOldUserWithNoShortcuts) {
-              completeAction(ActionType.FirstShortcutsSession);
-              return;
-            }
-            toggleShowTopSites();
-          }}
-          icon={<PlusIcon />}
-          iconPosition={
-            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-          }
+      {shouldUseListFeedLayout ? (
+        <FeedSettingsButton
+          onClick={onClick}
+          size={feedSettingsButtonSize}
+          variant={feedSettingsButtonVariant}
+          className={feedSettingsButtonProps?.className}
+          icon={feedSettingsButtonIcon}
+          iconPosition={ButtonIconPosition.Right}
         >
-          Shortcuts
-        </Button>
+          {feedSettingsButtonLabel}
+        </FeedSettingsButton>
+      ) : (
+        <FeedSettingsButton
+          onClick={onClick}
+          size={feedSettingsButtonSize}
+          variant={feedSettingsButtonVariant}
+          className={feedSettingsButtonProps?.className}
+          icon={feedSettingsButtonIcon}
+        >
+          {feedSettingsButtonLabel}
+        </FeedSettingsButton>
+      )}
+      {showToggleShortcuts && (
+        <>
+          {shouldUseListFeedLayout ? (
+            <Button
+              size={ButtonSize.Medium}
+              variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+              className="mr-auto"
+              onClick={onShortcutsClick}
+              icon={<PlusIcon />}
+              iconPosition={ButtonIconPosition.Right}
+            >
+              Shortcuts
+            </Button>
+          ) : (
+            <Button
+              size={ButtonSize.Medium}
+              variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+              className="mr-auto"
+              onClick={onShortcutsClick}
+              icon={<PlusIcon />}
+            >
+              Shortcuts
+            </Button>
+          )}
+        </>
       )}
     </>
   );

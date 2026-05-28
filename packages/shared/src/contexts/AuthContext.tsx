@@ -10,6 +10,7 @@ import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
+import { clearRecentPages } from '../hooks/feed/useRecentPages';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
@@ -92,6 +93,9 @@ export const REGISTRATION_PATH = '/register';
 
 export const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
+  // Recent pages are stored per-browser, not per-user. Clear them on logout
+  // so the next user doesn't see the previous user's squads/tags/profiles.
+  clearRecentPages();
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(params.redirect_uri);
