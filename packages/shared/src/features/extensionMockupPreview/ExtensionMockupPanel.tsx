@@ -4,17 +4,14 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+} from '../../components/buttons/Button';
+import { Switch } from '../../components/fields/Switch';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  MiniCloseIcon,
-  SettingsIcon,
-} from '@dailydotdev/shared/src/components/icons';
+} from '../../components/typography/Typography';
+import { MiniCloseIcon, SettingsIcon } from '../../components/icons';
 import type { ExtensionMockupKey } from './useExtensionMockup';
 import { setExtensionMockup, useExtensionMockup } from './useExtensionMockup';
 

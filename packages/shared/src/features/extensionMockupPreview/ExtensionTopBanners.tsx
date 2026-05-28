@@ -1,28 +1,25 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
 import classNames from 'classnames';
-import { TopHero } from '@dailydotdev/shared/src/components/banners/HeroBottomBanner';
-import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
-import {
-  fileValidation,
-  useUploadCv,
-} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useActions } from '@dailydotdev/shared/src/hooks';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
-import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
-import ReadingReminderCatLaptop from '@dailydotdev/shared/src/components/banners/ReadingReminderCatLaptop';
+import { TopHero } from '../../components/banners/HeroBottomBanner';
+import { useReadingReminderHero } from '../../hooks/notifications/useReadingReminderHero';
+import { fileValidation, useUploadCv } from '../profile/hooks/useUploadCv';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useActions } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useIsShortcutsHubEnabled } from '../shortcuts/hooks/useIsShortcutsHubEnabled';
+import { useShortcutLinks } from '../shortcuts/hooks/useShortcutLinks';
+import { useThemedAsset } from '../../hooks/utils';
+import ReadingReminderCatLaptop from '../../components/banners/ReadingReminderCatLaptop';
 import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
   cloudinaryShortcutsIconsReddit,
   uploadCvBgMobile,
-} from '@dailydotdev/shared/src/lib/image';
+} from '../../lib/image';
 import { useExtensionMockup } from './useExtensionMockup';
 
 // Bare-illustration frame — slightly wider than tall so the CV cluster
@@ -220,7 +217,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
         ref={fileInputRef}
         type="file"
         accept={fileValidation.acceptedExtensions
-          .map((ext) => `.${ext}`)
+          .map((ext: string) => `.${ext}`)
           .join(',')}
         className="hidden"
         onChange={(event) => {

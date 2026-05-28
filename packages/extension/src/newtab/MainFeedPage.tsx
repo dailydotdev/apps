@@ -29,10 +29,10 @@ import { CustomizeNewTabSidebar } from '@dailydotdev/shared/src/features/customi
 import { isFocusActiveAt } from '@dailydotdev/shared/src/features/customizeNewTab/lib/focusSchedule';
 import { normaliseNewTabMode } from '@dailydotdev/shared/src/features/customizeNewTab/lib/newTabMode';
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
+import { ExtensionTopBanners } from '@dailydotdev/shared/src/features/extensionMockupPreview/ExtensionTopBanners';
+import { ExtensionSignInStrip } from '@dailydotdev/shared/src/features/extensionMockupPreview/ExtensionSignInStrip';
+import { ExtensionMockupPanel } from '@dailydotdev/shared/src/features/extensionMockupPreview/ExtensionMockupPanel';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
-import { ExtensionTopBanners } from './ExtensionTopBanners';
-import { ExtensionSignInStrip } from './ExtensionSignInStrip';
-import { ExtensionMockupPanel } from './ExtensionMockupPanel';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 import { getDefaultLink } from './dnd';

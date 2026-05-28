@@ -4,13 +4,13 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '../../components/buttons/Button';
 import {
   Typography,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+} from '../../components/typography/Typography';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 import { useExtensionMockup } from './useExtensionMockup';
 
 // Sticky banner pinned to the top of the new tab for logged-out users.
