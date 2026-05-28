@@ -8,6 +8,7 @@ import {
   HashtagIcon,
   HotIcon,
   SquadIcon,
+  TourIcon,
 } from '../../icons';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
@@ -19,6 +20,7 @@ import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 interface DiscoverSectionProps extends SidebarSectionProps {
   onNavTabClick?: (tab: string) => void;
@@ -32,6 +34,8 @@ export const DiscoverSection = ({
   const { completeAction } = useActions();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { isV2 } = useLayoutVariant();
+  const HotTakesIcon = isV2 ? TourIcon : HotIcon;
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
@@ -77,7 +81,7 @@ export const DiscoverSection = ({
       },
       {
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotIcon secondary={active} />} />
+          <ListIcon Icon={() => <HotTakesIcon secondary={active} />} />
         ),
         title: 'Hot Takes',
         requiresLogin: true,
@@ -87,7 +91,7 @@ export const DiscoverSection = ({
         },
       },
     ].filter(Boolean);
-  }, [completeAction, user, logEvent, onNavTabClick]);
+  }, [completeAction, user, logEvent, onNavTabClick, HotTakesIcon]);
 
   return (
     <Section
