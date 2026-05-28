@@ -122,18 +122,30 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={
-            <IconWrapper
-              size={compact ? IconSize.XSmall : undefined}
-              wrapperClassName={classnames(
-                'relative flex items-center gap-2',
-                compact && 'h-6 w-6 justify-center',
-              )}
-            >
-              <ReadingStreakIcon secondary={hasReadToday} />
-              {!isTimezoneOk && (
-                <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
-              )}
-            </IconWrapper>
+            compact ? (
+              <div className="relative flex h-6 w-6 items-center justify-center">
+                <IconWrapper
+                  size={IconSize.XSmall}
+                  wrapperClassName="flex h-full w-full items-center justify-center"
+                >
+                  <ReadingStreakIcon secondary={hasReadToday} />
+                </IconWrapper>
+                {!isTimezoneOk && (
+                  <WarningIcon
+                    size={IconSize.Size16}
+                    className="!absolute -bottom-1.5 -left-1.5 text-raw-cheese-40"
+                    secondary
+                  />
+                )}
+              </div>
+            ) : (
+              <IconWrapper wrapperClassName="relative flex items-center gap-2">
+                <ReadingStreakIcon secondary={hasReadToday} />
+                {!isTimezoneOk && (
+                  <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
+                )}
+              </IconWrapper>
+            )
           }
           variant={
             compact || isLaptop || isMobile
