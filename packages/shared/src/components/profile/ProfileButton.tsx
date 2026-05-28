@@ -3,8 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
-import { ProfileImageSize } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 import { CoreIcon, ReputationIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
@@ -37,6 +37,7 @@ export default function ProfileButton({
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user, isAuthReady } = useAuthContext();
+  const { showIndicator } = useProfileCompletionIndicator();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const hasCoresAccess = useHasAccessToCores();
   const [animatedCores, setAnimatedCores] = useState<number | null>(null);
@@ -208,77 +209,85 @@ export default function ProfileButton({
           icon={<SettingsIcon />}
         />
       ) : (
-        <div className="flex h-10 items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
-          {isStreaksEnabled && streak && (
-            <ReadingStreakButton
-              streak={streak}
-              isLoading={isLoading}
-              compact
-              className="!h-full !rounded-none !pl-1.5 !pr-2"
+        <div className="relative">
+          <div className="flex h-10 items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+            {isStreaksEnabled && streak && (
+              <ReadingStreakButton
+                streak={streak}
+                isLoading={isLoading}
+                compact
+                className="!h-full !rounded-none !pl-1.5 !pr-2"
+              />
+            )}
+            {hasCoresAccess && (
+              <Tooltip
+                content={
+                  <>
+                    Wallet
+                    <br />
+                    {preciseBalance} Cores
+                  </>
+                }
+              >
+                <div
+                  ref={coresCounterRef}
+                  className="flex origin-center justify-center will-change-transform"
+                >
+                  <Link href={walletUrl} passHref>
+                    <Button
+                      data-reward-target={QuestRewardType.Cores}
+                      icon={<CoreIcon />}
+                      tag="a"
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.Small}
+                      className="!h-full !rounded-none !pl-1.5 !pr-2"
+                    >
+                      {largeNumberFormat(displayedBalance)}
+                    </Button>
+                  </Link>
+                </div>
+              </Tooltip>
+            )}
+            <Tooltip side="bottom" content="Profile settings">
+              <Button
+                type="button"
+                aria-label="Profile settings"
+                icon={
+                  <ReputationIcon
+                    className="text-accent-onion-default"
+                    size={IconSize.Medium}
+                  />
+                }
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                className={classNames(
+                  '!h-full !gap-0 !rounded-none !pl-0.5 !pr-0',
+                  className,
+                )}
+                onClick={wrapHandler(() => onUpdate(!isOpen))}
+              >
+                <span
+                  ref={reputationCounterRef}
+                  data-reward-target={QuestRewardType.Reputation}
+                  className="inline-flex origin-center items-center will-change-transform"
+                >
+                  {largeNumberFormat(displayedReputation ?? 0)}
+                </span>
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.Large}
+                  className="ml-2 !h-9 !w-9 !rounded-10"
+                  nativeLazyLoading
+                />
+              </Button>
+            </Tooltip>
+          </div>
+          {showIndicator && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-1 right-[31px] size-3 rounded-full bg-accent-cheese-default"
             />
           )}
-          {hasCoresAccess && (
-            <Tooltip
-              content={
-                <>
-                  Wallet
-                  <br />
-                  {preciseBalance} Cores
-                </>
-              }
-            >
-              <div
-                ref={coresCounterRef}
-                className="flex origin-center justify-center will-change-transform"
-              >
-                <Link href={walletUrl} passHref>
-                  <Button
-                    data-reward-target={QuestRewardType.Cores}
-                    icon={<CoreIcon />}
-                    tag="a"
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Small}
-                    className="!h-full !rounded-none !pl-1.5 !pr-2"
-                  >
-                    {largeNumberFormat(displayedBalance)}
-                  </Button>
-                </Link>
-              </div>
-            </Tooltip>
-          )}
-          <Tooltip side="bottom" content="Profile settings">
-            <Button
-              type="button"
-              aria-label="Profile settings"
-              icon={
-                <ReputationIcon
-                  className="text-accent-onion-default"
-                  size={IconSize.Medium}
-                />
-              }
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              className={classNames(
-                '!h-full !gap-0 !rounded-none !pl-0.5 !pr-0',
-                className,
-              )}
-              onClick={wrapHandler(() => onUpdate(!isOpen))}
-            >
-              <span
-                ref={reputationCounterRef}
-                data-reward-target={QuestRewardType.Reputation}
-                className="inline-flex origin-center items-center will-change-transform"
-              >
-                {largeNumberFormat(displayedReputation ?? 0)}
-              </span>
-              <ProfilePictureWithIndicator
-                user={user}
-                size={ProfileImageSize.Large}
-                className="!h-9 !w-9 !rounded-10"
-                wrapperClassName="relative ml-2"
-              />
-            </Button>
-          </Tooltip>
         </div>
       )}
       {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}
