@@ -268,7 +268,7 @@ export function NewTabActivationPrimer({
   const isWaiting = state === 'waiting';
 
   return (
-    <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-10">
+    <div className="flex w-full flex-1 flex-col items-center justify-center px-6 py-10">
       <div
         className={classNames(
           'flex w-full flex-col items-center gap-5 text-center',
