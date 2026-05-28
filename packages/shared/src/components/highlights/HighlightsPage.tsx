@@ -9,14 +9,17 @@ import type {
 import {
   channelHighlightsFeedQueryOptions,
   highlightsPageQueryOptions,
+  postHighlightsFeedQueryOptions,
 } from '../../graphql/highlights';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
+const ALL_HIGHLIGHTS_LABEL = 'All';
 const SKELETON_COUNT = 5;
 const HIGHLIGHTS_BASE_URL = '/highlights';
+const ALL_HIGHLIGHTS_URL = `${HIGHLIGHTS_BASE_URL}/all`;
 
 const HighlightSkeleton = (): ReactElement => (
   <div className="flex flex-col gap-1 px-4 py-3">
@@ -124,10 +127,36 @@ const ChannelTab = ({
   );
 };
 
+const AllHighlightsTab = ({
+  active,
+  expandedId,
+}: {
+  active: boolean;
+  expandedId?: string;
+}): ReactElement => {
+  const { data, isFetching } = useQuery({
+    ...postHighlightsFeedQueryOptions(),
+    enabled: active,
+  });
+  const highlights = useMemo(
+    () => data?.postHighlightsFeed?.edges?.map((edge) => edge.node) ?? [],
+    [data],
+  );
+
+  return (
+    <HighlightFeedList
+      highlights={highlights}
+      loading={isFetching && !data}
+      expandedId={expandedId}
+    />
+  );
+};
+
 export const HighlightsPage = (): ReactElement => {
   const router = useRouter();
   const channel = getSingleQueryParam(router.query.channel);
   const expandedId = getSingleQueryParam(router.query.highlight);
+  const isAllTab = router.pathname === ALL_HIGHLIGHTS_URL;
   const { data, isFetching } = useQuery(highlightsPageQueryOptions());
 
   const channels = data?.channelConfigurations ?? [];
@@ -137,9 +166,10 @@ export const HighlightsPage = (): ReactElement => {
   );
   const majorLoading = isFetching && !data;
 
-  const activeTab =
-    channels.find((c) => c.channel === channel)?.displayName ??
-    MAJOR_HEADLINES_LABEL;
+  const channelLabel = channels.find((c) => c.channel === channel)?.displayName;
+  const activeTab = isAllTab
+    ? ALL_HIGHLIGHTS_LABEL
+    : channelLabel ?? MAJOR_HEADLINES_LABEL;
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
@@ -171,6 +201,9 @@ export const HighlightsPage = (): ReactElement => {
               loading={majorLoading}
               expandedId={expandedId}
             />
+          </Tab>,
+          <Tab key="all" label={ALL_HIGHLIGHTS_LABEL} url={ALL_HIGHLIGHTS_URL}>
+            <AllHighlightsTab active={isAllTab} expandedId={expandedId} />
           </Tab>,
           ...channels.map((ch) => (
             <Tab
