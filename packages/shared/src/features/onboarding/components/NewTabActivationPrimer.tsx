@@ -252,6 +252,18 @@ export function NewTabActivationPrimer({
   }, [goToRecovery, logEvent, startPolling, stopPolling, updateState]);
 
   const [showManualHint, setShowManualHint] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyExtensionsUrl = useCallback(async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText('chrome://extensions');
+      setCopied(true);
+      globalThis.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (rare in modern Chrome) — the URL is
+      // still rendered as text so the user can select and copy manually.
+    }
+  }, []);
 
   const handleOpenExtensionsPage = useCallback(async (): Promise<void> => {
     const result = await requestOpenExtensionsPageFromPage();
@@ -260,9 +272,11 @@ export function NewTabActivationPrimer({
     }
     // Bridge failed — almost always because Chrome already disabled the
     // extension. Web pages cannot navigate to chrome:// URLs without an
-    // enabled extension proxying, so fall back to telling the user.
+    // enabled extension proxying, so fall back to auto-copying the URL
+    // and showing the manual hint with a clickable copy affordance.
+    await copyExtensionsUrl();
     setShowManualHint(true);
-  }, []);
+  }, [copyExtensionsUrl]);
 
   const isRecovery = state === 'recovery';
   const isWaiting = state === 'waiting';
@@ -333,16 +347,63 @@ export function NewTabActivationPrimer({
               Open extensions page
             </Button>
             {showManualHint && (
-              <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                className="text-center"
-              >
-                Couldn&apos;t open it automatically — open a new tab and go to{' '}
-                <span className="text-text-primary">chrome://extensions</span>{' '}
-                to turn daily.dev back on.
-              </Typography>
+              <div className="flex flex-col items-center gap-2">
+                <Typography
+                  tag={TypographyTag.P}
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="max-w-[28rem] text-center"
+                >
+                  Couldn&apos;t open it automatically. We copied the link for
+                  you — paste it into a new tab.
+                </Typography>
+                <button
+                  type="button"
+                  onClick={copyExtensionsUrl}
+                  className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 font-mono text-text-primary transition-colors typo-callout hover:bg-surface-hover"
+                  aria-label="Copy chrome://extensions to clipboard"
+                >
+                  chrome://extensions
+                  <span className="flex items-center gap-1 font-sans text-text-tertiary typo-footnote">
+                    {copied ? (
+                      <>
+                        <svg
+                          aria-hidden
+                          viewBox="0 0 24 24"
+                          className="h-3.5 w-3.5 text-status-success"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="m4 12 5 5L20 6" />
+                        </svg>
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          aria-hidden
+                          viewBox="0 0 24 24"
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <rect x="9" y="9" width="13" height="13" rx="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy
+                      </>
+                    )}
+                  </span>
+                </button>
+              </div>
             )}
           </div>
         )}
