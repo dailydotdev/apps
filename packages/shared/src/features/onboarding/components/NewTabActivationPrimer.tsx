@@ -287,7 +287,7 @@ export function NewTabActivationPrimer({
             className="text-balance"
           >
             {isRecovery
-              ? 'Let’s turn it back on'
+              ? 'Let’s get your new tab back'
               : 'Welcome! Let’s activate your new tab.'}
           </Typography>
 
@@ -298,7 +298,7 @@ export function NewTabActivationPrimer({
             className="text-balance"
           >
             {isRecovery
-              ? 'Open the extensions page, find daily.dev, and flip the toggle back on.'
+              ? 'Open chrome://extensions and toggle daily.dev on.'
               : 'Tap “Keep it” on the Chrome popup.'}
           </Typography>
         </div>
