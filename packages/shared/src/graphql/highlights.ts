@@ -149,18 +149,11 @@ export type PostHighlightSignificance =
   | 'notable'
   | 'routine';
 
-export interface PostHighlightsFeedPageData {
+interface PostHighlightsFeedPageData {
   postHighlightsFeed: Connection<PostHighlightFeed>;
 }
 
-interface PostHighlightsFeedQueryArgs {
-  channel?: string;
-  significance?: PostHighlightSignificance[];
-  first?: number;
-  after?: string;
-}
-
-export const POST_HIGHLIGHTS_FEED_PAGE_QUERY = gql`
+const POST_HIGHLIGHTS_FEED_PAGE_QUERY = gql`
   query PostHighlightsFeedPage(
     $channel: String
     $significance: [String!]
@@ -187,24 +180,23 @@ export const POST_HIGHLIGHTS_FEED_PAGE_QUERY = gql`
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
 
-export const getPostHighlightsFeedQueryKey = ({
-  channel,
-  significance,
-}: Pick<PostHighlightsFeedQueryArgs, 'channel' | 'significance'>) => [
-  'post-highlights-feed',
-  channel ?? '',
-  [...(significance ?? [])].sort().join(','),
-];
-
 export const postHighlightsFeedQueryOptions = ({
   channel,
   significance,
   first = MAJOR_HEADLINES_MAX_FIRST,
   after,
-}: PostHighlightsFeedQueryArgs = {}) => ({
+}: {
+  channel?: string;
+  significance?: PostHighlightSignificance[];
+  first?: number;
+  after?: string;
+} = {}) => ({
   queryKey: [
-    ...getPostHighlightsFeedQueryKey({ channel, significance }),
+    'post-highlights-feed',
+    channel ?? '',
+    [...(significance ?? [])].sort().join(','),
     first,
+    after ?? '',
   ],
   queryFn: () =>
     gqlClient.request<PostHighlightsFeedPageData>(

@@ -44,12 +44,6 @@ const useChannelHighlights = (channel: string | undefined) =>
     enabled: !!channel,
   });
 
-const useAllHighlights = (enabled: boolean) =>
-  useQuery({
-    ...postHighlightsFeedQueryOptions(),
-    enabled,
-  });
-
 interface HighlightFeedListProps {
   highlights: PostHighlightFeed[];
   loading: boolean;
@@ -140,17 +134,19 @@ const AllHighlightsTab = ({
   active: boolean;
   expandedId?: string;
 }): ReactElement => {
-  const { data, isFetching } = useAllHighlights(active);
+  const { data, isFetching } = useQuery({
+    ...postHighlightsFeedQueryOptions(),
+    enabled: active,
+  });
   const highlights = useMemo(
     () => data?.postHighlightsFeed?.edges?.map((edge) => edge.node) ?? [],
     [data],
   );
-  const loading = isFetching && !data;
 
   return (
     <HighlightFeedList
       highlights={highlights}
-      loading={loading}
+      loading={isFetching && !data}
       expandedId={expandedId}
     />
   );
@@ -170,16 +166,10 @@ export const HighlightsPage = (): ReactElement => {
   );
   const majorLoading = isFetching && !data;
 
-  let activeTab: string;
-  if (isAllTab) {
-    activeTab = ALL_HIGHLIGHTS_LABEL;
-  } else if (channel) {
-    activeTab =
-      channels.find((c) => c.channel === channel)?.displayName ??
-      MAJOR_HEADLINES_LABEL;
-  } else {
-    activeTab = MAJOR_HEADLINES_LABEL;
-  }
+  const channelLabel = channels.find((c) => c.channel === channel)?.displayName;
+  const activeTab = isAllTab
+    ? ALL_HIGHLIGHTS_LABEL
+    : channelLabel ?? MAJOR_HEADLINES_LABEL;
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
