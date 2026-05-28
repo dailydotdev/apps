@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActions, useBoot } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
@@ -63,6 +64,7 @@ export const BootPopups = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
+  const { optOutAchievements } = useSettingsContext();
   const { updateUserProfile } = useProfileForm();
   const {
     alerts,
@@ -304,7 +306,11 @@ export const BootPopups = (): ReactElement => {
    * Bypasses the one-per-day queue so users see their unlock right away.
    */
   useEffect(() => {
-    if (!alerts?.showAchievementUnlock || !isActionsFetched) {
+    if (
+      !alerts?.showAchievementUnlock ||
+      !isActionsFetched ||
+      optOutAchievements
+    ) {
       return;
     }
 
@@ -329,6 +335,7 @@ export const BootPopups = (): ReactElement => {
     alerts?.showAchievementUnlock,
     checkHasCompleted,
     isActionsFetched,
+    optOutAchievements,
     updateAlerts,
   ]);
 

@@ -14,15 +14,51 @@ import { SettingsSwitch } from '../../../components/layouts/SettingsLayout/commo
 
 const GamificationSettingsPage = (): ReactElement => {
   const {
+    optOutReadingStreak,
     optOutLevelSystem,
     optOutQuestSystem,
+    optOutAchievements,
+    isGamificationEnabled,
+    toggleOptOutReadingStreak,
     toggleOptOutLevelSystem,
     toggleOptOutQuestSystem,
+    toggleOptOutAchievements,
+    toggleAllGamification,
   } = useSettingsContext();
 
   return (
     <AccountPageContainer title="Feature visibility">
       <div className="flex flex-col gap-6">
+        <section className="flex flex-col gap-2 border-b border-border-subtlest-tertiary pb-6">
+          <Typography bold type={TypographyType.Subhead}>
+            Show gamification features
+          </Typography>
+
+          <SettingsSwitch
+            name="all-gamification"
+            checked={isGamificationEnabled}
+            onToggle={toggleAllGamification}
+          >
+            Master toggle for all gamification features. Turning this off hides
+            streaks, levels, quests, and achievements across daily.dev.
+          </SettingsSwitch>
+        </section>
+
+        <section className="flex flex-col gap-2">
+          <Typography bold type={TypographyType.Subhead}>
+            Show reading streaks
+          </Typography>
+
+          <SettingsSwitch
+            name="reading-streak"
+            checked={!optOutReadingStreak}
+            onToggle={toggleOptOutReadingStreak}
+          >
+            Toggle to display or hide your daily reading streaks. Turning
+            streaks off will not affect your activity or progress.
+          </SettingsSwitch>
+        </section>
+
         <section className="flex flex-col gap-2">
           <Typography bold type={TypographyType.Subhead}>
             Show levels
@@ -50,6 +86,22 @@ const GamificationSettingsPage = (): ReactElement => {
             onToggle={toggleOptOutQuestSystem}
           >
             Toggle to display or hide the quest system UI across the product.
+          </SettingsSwitch>
+        </section>
+
+        <section className="flex flex-col gap-2">
+          <Typography bold type={TypographyType.Subhead}>
+            Show achievements
+          </Typography>
+
+          <SettingsSwitch
+            name="achievements"
+            checked={!optOutAchievements}
+            onToggle={toggleOptOutAchievements}
+          >
+            Toggle to display or hide achievements, badges, and achievement
+            notifications. Turning achievements off will not affect your
+            progress or unlocks.
           </SettingsSwitch>
         </section>
       </div>
