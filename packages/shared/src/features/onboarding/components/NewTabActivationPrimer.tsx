@@ -90,6 +90,10 @@ function ActivationDemoVideo({
       className={classNames(
         aspect,
         'w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2',
+        // Cap the primary-state video ~10% below the container's full
+        // width so it doesn't dominate the page; recovery state keeps
+        // its own container's natural width.
+        variant === 'primary' && 'max-w-[43rem]',
       )}
       muted
       autoPlay
@@ -320,17 +324,17 @@ export function NewTabActivationPrimer({
         <ActivationDemoVideo variant={isRecovery ? 'recovery' : 'primary'} />
 
         {!isRecovery && (
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-4">
             <Button
               type="button"
               variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
+              size={ButtonSize.XLarge}
               disabled={isWaiting}
               onClick={handleActivateClick}
             >
               {isWaiting ? 'Opening…' : 'Open new tab'}
             </Button>
-            <p className="text-text-tertiary typo-caption1">
+            <p className="text-text-tertiary typo-callout">
               Takes 2 seconds. Reversible anytime.
             </p>
           </div>
