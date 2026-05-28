@@ -32,7 +32,6 @@ import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
-import { PageHeader, pageHeaderClassName } from '../layout/PageHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -100,7 +99,7 @@ const cardClass = ({
   return isList ? 'grid-cols-1' : cardListClass[numberOfCards] ?? 'grid-cols-1';
 };
 
-const feedNameToHeading: Record<
+export const feedNameToHeading: Record<
   Extract<
     FeedPagesWithMobileLayoutType,
     | SharedFeedPage.Search
@@ -279,65 +278,49 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {topContent}
-          {isV2Laptop && !shouldUseListFeedLayout && !isExtension
-            ? // v2 grid pages render the shared page-header strip at the
-              // top of the floating card. `pageHeaderClassName` locks the
-              // height (min-h-14) and provides the bottom border so every
-              // page has the same vertical rhythm — content fills it
-              // when available, otherwise the feed heading takes the
-              // title slot.
-              (!!actionButtons || !!feedHeading) && (
-                <header className={pageHeaderClassName}>
-                  {actionButtons || (
-                    <strong className="min-w-0 flex-1 truncate typo-callout">
-                      {feedHeading}
-                    </strong>
-                  )}
-                </header>
-              )
-            : isSearch &&
-              !shouldUseListFeedLayout && (
-                <header
-                  className={classNames(
-                    'flex items-center',
-                    isExtension && 'flex-1 flex-col-reverse',
-                    !isExtension && 'flex-1 flex-row',
-                  )}
-                >
-                  {!!actionButtons && (
-                    <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
-                      {actionButtons}
-                    </span>
-                  )}
-                  {shortcuts}
-                </header>
+          {/* v2 hoists the shared page-header strip up to MainFeedLayout
+              so it can sit outside `FeedPageLayoutList`'s 680px width
+              clamp and span the full floating-card width. Non-v2 keeps
+              its in-container search header strip here. */}
+          {!isV2Laptop && isSearch && !shouldUseListFeedLayout && (
+            <header
+              className={classNames(
+                'flex items-center',
+                isExtension && 'flex-1 flex-col-reverse',
+                !isExtension && 'flex-1 flex-row',
               )}
+            >
+              {!!actionButtons && (
+                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
+                  {actionButtons}
+                </span>
+              )}
+              {shortcuts}
+            </header>
+          )}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
             wrapper={(child) => (
               <div
                 className={classNames(
                   'flex flex-col',
+                  // v2 drops the outside border around the list-frame so
+                  // the cards sit directly inside the floating card with
+                  // a single frame; legacy layout keeps the rounded
+                  // bordered box around the list.
                   !disableListFrame &&
+                    !isV2Laptop &&
                     'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
-                  // v2-only: clip hover backgrounds at the frame's rounded
-                  // corners + swap the list-card top separator token to
+                  // v2-only: swap the list-card top separator token to
                   // match the floating-card / card hierarchy.
                   !disableListFrame &&
                     isV2Laptop &&
-                    'overflow-hidden [&_article]:!border-border-subtlest-quaternary',
-                  !disableListFrame && isSearch && 'mt-6',
+                    '[&_article]:!border-border-subtlest-quaternary',
+                  !disableListFrame && isSearch && !isV2Laptop && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                {isV2Laptop && isLaptop && (feedHeading || actionButtons) ? (
-                  // v2: shared page-header strip inside the list-frame
-                  // box. Same component as the grid-mode strip so both
-                  // layouts have identical header treatment.
-                  <PageHeader title={feedHeading || undefined}>
-                    {actionButtons || undefined}
-                  </PageHeader>
-                ) : (
+                {!isV2Laptop && (
                   <ConditionalWrapper
                     condition={isLaptop && !!(feedHeading || actionButtons)}
                     wrapper={(component) => (

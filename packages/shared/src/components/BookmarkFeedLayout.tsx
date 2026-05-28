@@ -253,65 +253,71 @@ export default function BookmarkFeedLayout({
   );
 
   return (
-    <FeedPageLayoutComponent>
-      {children}
-      {isV2Laptop ? (
+    <>
+      {/* v2 hoists the page-header strip OUT of FeedPageLayoutComponent
+          so it spans the full floating-card width without being clamped
+          by `FeedPageLayoutList`'s 680px laptop max-width. */}
+      {isV2Laptop && (
         <PageHeader title={headerTitleSlot}>
           {sortDropdown}
           {shareButton}
           {folderMenu}
         </PageHeader>
-      ) : (
-        <>
-          <FeedPageHeader className="mb-5">
-            <Typography
-              bold
-              type={TypographyType.Title3}
-              tag={TypographyTag.H1}
+      )}
+      <FeedPageLayoutComponent>
+        {children}
+        {!isV2Laptop && (
+          <>
+            <FeedPageHeader className="mb-5">
+              <Typography
+                bold
+                type={TypographyType.Title3}
+                tag={TypographyTag.H1}
+              >
+                {title}
+              </Typography>
+            </FeedPageHeader>
+            <CustomFeedHeader
+              className={classNames(
+                'mb-6',
+                shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
+              )}
             >
-              {title}
-            </Typography>
-          </FeedPageHeader>
-          <CustomFeedHeader
-            className={classNames(
-              'mb-6',
-              shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-            )}
-          >
-            {searchChildren}
-            {sortDropdown}
-            {shareButton}
-            {folderMenu}
-          </CustomFeedHeader>
-        </>
-      )}
+              {searchChildren}
+              {sortDropdown}
+              {shareButton}
+              {folderMenu}
+            </CustomFeedHeader>
+          </>
+        )}
 
-      {showSharedBookmarks && (
-        <SharedBookmarksModal
-          isOpen={showSharedBookmarks}
-          onRequestClose={() => setShowSharedBookmarks(false)}
-        />
-      )}
-      <div className="relative mb-4 laptop:hidden">
-        <BookmarkSection
-          isItemsButton={false}
-          sidebarExpanded
-          shouldShowLabel
-          activePage=""
-        />
-        {plusEntryBookmark && (
-          <PlusMobileEntryBanner
-            arrow
-            targetType={TargetType.PlusEntryBookmarkTab}
-            {...plusEntryBookmark}
+        {showSharedBookmarks && (
+          <SharedBookmarksModal
+            isOpen={showSharedBookmarks}
+            onRequestClose={() => setShowSharedBookmarks(false)}
           />
         )}
-      </div>
-      {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
-      {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
-      {tokenRefreshed && (isSearchResults || loadedSort) && (
-        <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
-      )}
-    </FeedPageLayoutComponent>
+        <div className="relative mb-4 laptop:hidden">
+          <BookmarkSection
+            isItemsButton={false}
+            sidebarExpanded
+            shouldShowLabel
+            activePage=""
+          />
+          {plusEntryBookmark && (
+            <PlusMobileEntryBanner
+              arrow
+              targetType={TargetType.PlusEntryBookmarkTab}
+              {...plusEntryBookmark}
+            />
+          )}
+        </div>
+        {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
+        {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
+        {tokenRefreshed && (isSearchResults || loadedSort) && (
+          <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
+        )}
+      </FeedPageLayoutComponent>
+    </>
   );
 }

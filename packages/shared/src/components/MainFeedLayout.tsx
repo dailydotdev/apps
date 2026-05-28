@@ -52,10 +52,13 @@ import { useFeedName } from '../hooks/feed/useFeedName';
 import {
   useConditionalFeature,
   useFeedLayout,
+  useFeeds,
   useScrollRestoration,
   useViewSize,
   ViewSize,
 } from '../hooks';
+import { feedNameToHeading } from './feeds/FeedContainer';
+import { pageHeaderClassName } from './layout/PageHeader';
 import {
   customFeedVersion,
   discussedFeedVersion,
@@ -84,7 +87,6 @@ import { useReadingReminderHero } from '../hooks/notifications/useReadingReminde
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { pageHeaderClassName } from './layout/PageHeader';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -705,6 +707,35 @@ export default function MainFeedLayout({
   // the same tabs twice.
   const showExploreV2PageHeader = isAnyExplore && isV2;
 
+  // v2 also hoists the regular page-header strip up here, OUTSIDE
+  // `FeedPageLayoutComponent`, so it can span the full floating-card
+  // width without being clamped by `FeedPageLayoutList`'s 680px max
+  // (which keeps list cards at a comfortable reading width).
+  const { feeds: customFeedsData } = useFeeds();
+  const feedHeading = useMemo(() => {
+    if (feedName === SharedFeedPage.Custom) {
+      const customFeed = customFeedsData?.edges.find(
+        ({ node }) =>
+          node.id === router.query.slugOrId ||
+          node.slug === router.query.slugOrId,
+      )?.node;
+      if (customFeed?.flags?.name) {
+        return customFeed.flags.name;
+      }
+    }
+    if (feedName && feedName in feedNameToHeading) {
+      return feedNameToHeading[feedName as keyof typeof feedNameToHeading];
+    }
+    return '';
+  }, [customFeedsData, feedName, router.query.slugOrId]);
+  const v2ActionButtons = feedProps?.actionButtons;
+  const showFeedV2PageHeader =
+    isV2 &&
+    !isExtension &&
+    !showExploreV2PageHeader &&
+    !isSearchPageLaptop &&
+    (!!v2ActionButtons || !!feedHeading);
+
   return (
     <>
       {showExploreV2PageHeader && (
@@ -718,6 +749,15 @@ export default function MainFeedLayout({
               tabBarHeader: '!border-0',
             }}
           />
+        </header>
+      )}
+      {showFeedV2PageHeader && (
+        <header className={pageHeaderClassName}>
+          {v2ActionButtons || (
+            <strong className="min-w-0 flex-1 truncate typo-callout">
+              {feedHeading}
+            </strong>
+          )}
         </header>
       )}
       <FeedPageLayoutComponent
