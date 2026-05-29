@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useFeeds } from '../../hooks';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
@@ -38,6 +39,10 @@ const chipInactiveClass =
 function UnifiedMobileFeedNav(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
+  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
+    useSettingsContext();
+  const shouldHideGameCenter =
+    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
@@ -173,13 +178,15 @@ function UnifiedMobileFeedNav(): ReactElement {
           href: `${webappUrl}?openModal=hottakes`,
           group: 'rest',
         },
-        {
+      );
+      if (!shouldHideGameCenter) {
+        list.push({
           id: 'gamecenter',
           label: 'Game Center',
           href: `${webappUrl}game-center`,
           group: 'rest',
-        },
-      );
+        });
+      }
     }
 
     return list;
@@ -191,6 +198,7 @@ function UnifiedMobileFeedNav(): ReactElement {
     router.pathname,
     defaultFeedId,
     personalizedTags,
+    shouldHideGameCenter,
   ]);
 
   const activeId = useMemo(() => {
