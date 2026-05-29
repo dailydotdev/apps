@@ -33,7 +33,7 @@ export const NewStripCta = ({
           className,
         )}
       >
-        Want chips?
+        Want chips 🍟?
       </a>
     </Tooltip>
   );
