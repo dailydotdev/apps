@@ -1,80 +1,88 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../../buttons/Button';
-import { MiniCloseIcon } from '../../icons';
-import feedStyles from '../../Feed.module.css';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import CloseButton from '../../CloseButton';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
 import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
 
 type TopHeroProps = {
   className?: string;
   title?: string;
   subtitle?: string;
-  ctaLabel?: string;
-  illustration?: ReactNode;
-  onCtaClick: () => void;
+  onCtaClick?: () => void;
   onClose?: () => void;
+  illustration?: ReactNode;
+  ctaLabel?: string;
+  ctaVariant?: ButtonVariant;
+  actions?: ReactNode;
 };
+
+const defaultIllustration = (
+  <ReadingReminderCatLaptop className="!m-0 h-24 w-28 shrink-0 self-center rounded-12 object-contain tablet:h-28 tablet:w-32" />
+);
 
 export const TopHero = ({
   className,
-  title = 'Never miss a learning day',
+  title,
   subtitle = 'Turn on your daily reading reminder and keep your routine.',
-  ctaLabel = 'Enable reminder',
-  illustration,
   onCtaClick,
   onClose,
+  illustration = defaultIllustration,
+  ctaLabel = 'Enable reminder',
+  ctaVariant = ButtonVariant.Primary,
+  actions,
 }: TopHeroProps): ReactElement => {
   return (
     <section
-      className={classNames('mb-4 w-full pb-0', feedStyles.cards, className)}
+      className={classNames(
+        'relative flex w-full items-center gap-4 overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default py-2 pl-3 pr-8 tablet:gap-5',
+        className,
+      )}
     >
-      <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
-        <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
-        <div className="top-hero-glow pointer-events-none absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
-          {onClose && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Tertiary}
-              className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
-              icon={<MiniCloseIcon />}
-              aria-label="Close banner"
-              onClick={onClose}
-            />
-          )}
-          <div className="flex flex-col tablet:flex-row tablet:items-stretch">
-            <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
-              <div className="flex flex-col items-center gap-1 tablet:items-start">
-                <p className="text-white/80 mt-2 text-[0.9375rem]">{title}</p>
-                <h3 className="font-bold text-white typo-title2">{subtitle}</h3>
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  className="mt-4 w-fit"
-                  onClick={onCtaClick}
-                >
-                  {ctaLabel}
-                </Button>
-              </div>
-            </div>
-            <div
-              className={classNames(
-                'bg-black/20 flex w-full items-center justify-center p-2 tablet:p-3',
-                illustration
-                  ? 'tablet:h-auto tablet:w-auto'
-                  : 'h-[12.5rem] tablet:h-auto tablet:w-[14.5rem] laptopL:w-[16rem]',
-              )}
+      {illustration}
+      <div className="flex min-w-0 max-w-[18rem] flex-1 flex-col items-start gap-3">
+        <div className="flex flex-col">
+          {!!title && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
             >
-              {illustration ?? (
-                <ReadingReminderCatLaptop className="m-0 h-full w-full max-w-none scale-105 object-contain laptopL:scale-110" />
-              )}
-            </div>
-          </div>
+              {title}
+            </Typography>
+          )}
+          <Typography
+            type={TypographyType.Callout}
+            bold
+            className={classNames(title && 'mt-0.5')}
+          >
+            {subtitle}
+          </Typography>
         </div>
+        {actions ?? (
+          <Button
+            type="button"
+            variant={ctaVariant}
+            size={ButtonSize.Small}
+            onClick={onCtaClick}
+          >
+            {ctaLabel}
+          </Button>
+        )}
       </div>
+      {onClose && (
+        <CloseButton
+          type="button"
+          size={ButtonSize.XSmall}
+          className="absolute right-2 top-2 shrink-0"
+          aria-label="Close banner"
+          onClick={onClose}
+        />
+      )}
     </section>
   );
 };

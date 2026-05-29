@@ -12,12 +12,7 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import {
-  LogEvent,
-  NotificationCtaPlacement,
-  NotificationTarget,
-  TargetType,
-} from '../lib/log';
+import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -42,8 +37,10 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { TopHero } from './marketing/banners/HeroBottomBanner';
-import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import {
+  HomepageTopBanners,
+  useHomepageTopBannersVisibility,
+} from './marketing/banners/HomepageTopBanners';
 import { RouteProgressBar } from './RouteProgressBar';
 
 const GoBackHeaderMobile = dynamic(
@@ -122,20 +119,12 @@ function MainLayoutComponent({
   const { isV2 } = useLayoutVariant();
   useNotificationParams();
 
-  // v2 hoists the reading-reminder hero out of the in-feed slot and
-  // renders it here, above the floating card. `itemCount: 0` keeps the
-  // mid-feed placement disabled in this consumer — the feed still owns
-  // that one for both layouts.
-  const {
-    shouldShowTopHero,
-    title: readingReminderTitle,
-    subtitle: readingReminderSubtitle,
-    onEnableHero: onEnableReadingReminder,
-    onDismissHero: onDismissReadingReminder,
-  } = useReadingReminderFeedHero({
-    itemCount: 0,
-    itemsPerRow: 1,
-  });
+  // v2 hoists daily reminder/CV banner cards out of the in-feed slot
+  // and renders them here, above the floating card. We only need the
+  // visibility flags from the hook so MainLayout can adjust the
+  // floating-card min-height; the actual cards are rendered by
+  // `<HomepageTopBanners />` below.
+  const { hasAny: hasTopBanners } = useHomepageTopBannersVisibility();
 
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) on laptop+ for authenticated users
@@ -284,25 +273,13 @@ function MainLayoutComponent({
         )}
         {sidebarOwnsHeader ? (
           <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
-            {shouldShowTopHero && (
-              <TopHero
-                className="mx-4 mb-3 laptop:mx-0"
-                title={readingReminderTitle}
-                subtitle={readingReminderSubtitle}
-                onCtaClick={() =>
-                  onEnableReadingReminder(NotificationCtaPlacement.TopHero)
-                }
-                onClose={() =>
-                  onDismissReadingReminder(NotificationCtaPlacement.TopHero)
-                }
-              />
-            )}
+            <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
             {topBanner}
             <div
               className={classNames(
                 'relative flex min-h-0 flex-1 flex-col',
                 'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
-                !shouldShowTopHero &&
+                !hasTopBanners &&
                   !topBanner &&
                   'laptop:min-h-[calc(100vh-1.5rem)]',
               )}
