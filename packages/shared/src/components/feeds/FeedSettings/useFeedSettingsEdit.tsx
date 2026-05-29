@@ -101,8 +101,8 @@ export const useFeedSettingsEdit = ({
           name: '',
         },
         type: FeedType.Main,
-        createdAt: new Date()
-      }
+        createdAt: new Date(),
+      };
     }
 
     return feeds?.edges.find(
