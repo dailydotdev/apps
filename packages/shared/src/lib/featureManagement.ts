@@ -216,3 +216,8 @@ export const featurePostHighlightCards = new Feature(
   'post_highlight_cards',
   false,
 );
+
+export const featureOnboardingPermissionPrimer = new Feature(
+  'onboarding_permission_primer',
+  false,
+);

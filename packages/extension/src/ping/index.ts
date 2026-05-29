@@ -22,6 +22,12 @@ import type {
   PagePermissionBridgeResult,
   PermissionGrantResponse,
 } from '@dailydotdev/shared/src/features/extensionEmbed/pagePermissionBridge';
+import {
+  newTabActivationBridgeRequestEvent,
+  newTabActivationBridgeResultEvent,
+  newTabActivationSuccessKey,
+} from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
+import type { NewTabActivationBridgeResult } from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
 
 const INSTALL_MARKER = 'dailyExtensionInstalled';
 const ID_MARKER = 'dailyExtensionId';
@@ -64,6 +70,53 @@ const waitForExtensionReady = async (): Promise<void> => {
     await sleep(pingRetryDelayMs);
   }
 };
+
+browser.runtime.onMessage.addListener((message: { type?: string }) => {
+  if (message?.type === ExtensionMessageType.NotifyNewTabActivated) {
+    // Broadcast from the background after the post-install new tab page
+    // rendered. Writing localStorage here surfaces the signal to the
+    // primer running on this same daily.dev origin.
+    try {
+      localStorage.setItem(newTabActivationSuccessKey, Date.now().toString());
+    } catch {
+      // localStorage can fail in private contexts; the primer will fall
+      // back to its timeout-driven recovery screen.
+    }
+  }
+  return undefined;
+});
+
+window.addEventListener(newTabActivationBridgeRequestEvent, () => {
+  const dispatchResult = (result: NewTabActivationBridgeResult): void => {
+    window.dispatchEvent(
+      new CustomEvent<NewTabActivationBridgeResult>(
+        newTabActivationBridgeResultEvent,
+        { detail: result },
+      ),
+    );
+  };
+
+  browser.runtime
+    .sendMessage({
+      type: ExtensionMessageType.RequestOpenNewTab,
+    })
+    .then((response) => {
+      const typed = response as NewTabActivationBridgeResult | undefined;
+      dispatchResult({
+        triggered: !!typed?.triggered,
+        error: typed?.error,
+      });
+    })
+    .catch((error: unknown) => {
+      dispatchResult({
+        triggered: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to request new tab open',
+      });
+    });
+});
 
 window.addEventListener(pagePermissionBridgeRequestEvent, () => {
   const dispatchResult = (result: PagePermissionBridgeResult): void => {
