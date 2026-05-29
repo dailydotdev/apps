@@ -27,6 +27,7 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
+import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -43,9 +44,12 @@ const ArticleLink = ({
   onClick,
   children,
   ...props
-}: ComponentProps<'a'> & { href?: string; onClick?: () => void }) => {
+}: ComponentProps<'a'> & {
+  href?: string;
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
+}) => {
   const clickHandlers = onClick
-    ? combinedClicks<HTMLAnchorElement>(() => onClick())
+    ? combinedClicks<HTMLAnchorElement>(onClick)
     : undefined;
   return (
     <a
@@ -86,6 +90,20 @@ export function PostContentRaw({
     post,
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
+  const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
+    post,
+    {
+      onCloseParent: onClose
+        ? () => (onClose as (event?: unknown) => void)()
+        : undefined,
+    },
+  );
+  const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticle();
+  };
   const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const { title } = useSmartTitle(post);
@@ -220,7 +238,7 @@ export function PostContentRaw({
         {!isVideoType && (
           <ArticleLink
             href={post.permalink}
-            onClick={onReadArticle}
+            onClick={handleImageClick}
             className={classNames(
               'block cursor-pointer overflow-hidden rounded-16',
               isCompactModalSpacing || hasToc ? 'mb-4' : 'mb-10',
