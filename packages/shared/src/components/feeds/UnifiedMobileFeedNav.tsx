@@ -13,6 +13,7 @@ import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
+import { findActiveChipId } from './exploreCategories';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -55,24 +56,31 @@ function UnifiedMobileFeedNav(): ReactElement {
       id: 'foryou',
       label: isLoggedIn ? 'For you' : 'Home',
       href: myFeedHref,
-      // Always match the homepage so "For you" stays highlighted even when the
-      // default custom feed (also at `/`) would otherwise win.
-      matchPaths: [myFeedHref, webappUrl, `${webappUrl}my-feed`],
+      // When a custom feed is the default, `/` shows that feed (not "For you"
+      // content) — so restrict matching to `/my-feed`. Without a custom default
+      // `/` is MyFeed, so include both.
+      matchPaths: isCustomDefaultFeed
+        ? [`${webappUrl}my-feed`]
+        : [myFeedHref, webappUrl, `${webappUrl}my-feed`],
       group: 'forYou',
     });
 
     sortedFeeds.forEach(({ node: feed }) => {
-      const isEditingFeed =
-        router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
-      let feedPath = `${webappUrl}feeds/${feed.id}`;
-      if (!isEditingFeed && isCustomDefaultFeed && feed.id === defaultFeedId) {
-        feedPath = `${webappUrl}`;
-      }
-      const href = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
+      const isDefault = isCustomDefaultFeed && feed.id === defaultFeedId;
+      const slugPath = `${webappUrl}feeds/${feed.slug}`;
+      const idPath = `${webappUrl}feeds/${feed.id}`;
+      const matchPaths = [
+        slugPath,
+        idPath,
+        `${slugPath}/edit`,
+        `${idPath}/edit`,
+        ...(isDefault ? [webappUrl] : []),
+      ];
       list.push({
         id: `feed-${feed.id}`,
         label: feed.flags?.name || `Feed ${feed.id}`,
-        href,
+        href: isDefault ? webappUrl : idPath,
+        matchPaths,
         group: 'categories',
       });
     });
@@ -162,6 +170,8 @@ function UnifiedMobileFeedNav(): ReactElement {
           id: 'hottakes',
           label: 'Hot Takes',
           href: `${webappUrl}?openModal=hottakes`,
+          // Modal trigger, not a route — never mark this chip active by path.
+          matchPaths: [],
           group: 'rest',
         },
       );
@@ -180,33 +190,14 @@ function UnifiedMobileFeedNav(): ReactElement {
     isLoggedIn,
     isCustomDefaultFeed,
     sortedFeeds,
-    router.query.slugOrId,
-    router.pathname,
     defaultFeedId,
     shouldHideGameCenter,
   ]);
 
-  const activeId = useMemo(() => {
-    const normalize = (p: string): string => {
-      const noQuery = p?.split('?')?.[0];
-      if (!noQuery || noQuery === '/') {
-        return '/';
-      }
-      return noQuery.replace(/\/$/, '');
-    };
-    const path = normalize(router.asPath);
-    const matches = items.filter((item) => {
-      const candidates = item.matchPaths ?? [item.href];
-      return candidates.some((candidate) => normalize(candidate) === path);
-    });
-    if (!matches.length) {
-      return null;
-    }
-    // Prefer the For You match when multiple chips share the same path
-    // (e.g. user's default custom feed also lives at `/`).
-    const forYouMatch = matches.find((item) => item.id === 'foryou');
-    return forYouMatch ? forYouMatch.id : matches[matches.length - 1].id;
-  }, [items, router.asPath]);
+  const activeId = useMemo(
+    () => findActiveChipId(items, router.asPath, { preferId: 'foryou' }),
+    [items, router.asPath],
+  );
 
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {

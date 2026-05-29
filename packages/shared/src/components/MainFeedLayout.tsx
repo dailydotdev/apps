@@ -325,6 +325,7 @@ export default function MainFeedLayout({
 
   const isChipStripPage =
     router.pathname === '/' ||
+    router.pathname === '/my-feed' ||
     router.pathname === '/explore/[tag]' ||
     router.pathname === '/feeds/[slugOrId]' ||
     router.pathname === '/feeds/[slugOrId]/edit';
@@ -336,8 +337,12 @@ export default function MainFeedLayout({
     !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
   const { feeds } = useFeeds();
   const exploreCategories = useMemo(
-    () => buildPersonalizedCategories(feeds?.edges ?? []),
-    [feeds?.edges],
+    () =>
+      buildPersonalizedCategories(feeds?.edges ?? [], {
+        defaultFeedId,
+        isCustomDefaultFeed,
+      }),
+    [feeds?.edges, defaultFeedId, isCustomDefaultFeed],
   );
   const chipsNode = useMemo(
     () =>
@@ -533,7 +538,10 @@ export default function MainFeedLayout({
         actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
-            feedName={feedName}
+            // On `/` with a custom default feed the rendered feed is the
+            // custom feed (not MyFeed) — pass `Custom` so derived flags
+            // (isSortableFeed, etc.) reflect that, not the outer 'default'.
+            feedName={SharedFeedPage.Custom}
             chips={shouldUseListFeedLayout ? undefined : chipsNode}
           />
         ),
