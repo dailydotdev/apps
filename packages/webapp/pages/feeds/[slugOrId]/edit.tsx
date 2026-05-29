@@ -44,9 +44,7 @@ const EditFeedPage = (): ReactElement | null => {
   // Pre-chips behavior: non-Plus cannot edit custom feeds. Once the chips
   // feature is on, free users own their custom feeds and the editor opens.
   const isFeedEditRestricted =
-    !isFeedTagChipsEnabled &&
-    !isPlus &&
-    feed?.node.type === FeedType.Custom;
+    !isFeedTagChipsEnabled && !isPlus && feed?.node.type === FeedType.Custom;
 
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');
