@@ -24,7 +24,8 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import { computeColSpans } from '../lib/feedHighlightColSpan';
+import { computePlacements } from '../lib/feedHighlightColSpan';
+import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
 import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
@@ -163,11 +164,6 @@ const ProfileCompletionCard = dynamic(
       /* webpackChunkName: "profileCompletionCard" */ './cards/ProfileCompletionCard'
     ),
 );
-
-const calculateRow = (index: number, numCards: number): number =>
-  Math.floor(index / numCards);
-const calculateColumn = (index: number, numCards: number): number =>
-  index % numCards;
 
 export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
   {
@@ -383,8 +379,13 @@ export default function Feed<T>({
     feature: featurePostHighlightCards,
     shouldEvaluate: canRenderHighlightCards,
   });
+  const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
+    'highlightCardsOptOut',
+  );
   const isHighlightCardLayoutEnabled =
-    canRenderHighlightCards && isPostHighlightCardsEnabled;
+    canRenderHighlightCards &&
+    isPostHighlightCardsEnabled &&
+    !isHighlightCardsOptedOut;
   const currentPageSize = pageSize ?? currentSettings.pageSize;
   const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
@@ -409,9 +410,9 @@ export default function Feed<T>({
     adjustedHeroInsertIndex,
   ]);
 
-  const itemColSpans = useMemo(
+  const itemPlacements = useMemo(
     () =>
-      computeColSpans(items, {
+      computePlacements(items, {
         numCards: virtualizedNumCards,
         isMobile: isMobileViewport,
         isList: isListContext,
@@ -746,7 +747,8 @@ export default function Feed<T>({
               />
             )}
             {items.map((item, index) => {
-              const colSpan = itemColSpans[index] ?? 1;
+              const placement = itemPlacements[index];
+              const { colSpan } = placement;
               const isWidened = colSpan > 1;
               const wideColSpan =
                 isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
@@ -756,8 +758,8 @@ export default function Feed<T>({
                 <FeedItemComponent
                   item={item}
                   index={index}
-                  row={calculateRow(index, virtualizedNumCards)}
-                  column={calculateColumn(index, virtualizedNumCards)}
+                  row={placement.row}
+                  column={placement.column}
                   columns={virtualizedNumCards}
                   openNewTab={openNewTab}
                   postMenuIndex={postMenuIndex}

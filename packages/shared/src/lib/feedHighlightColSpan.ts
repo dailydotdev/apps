@@ -48,28 +48,38 @@ export const requestedColSpan = (item: FeedItem): number => {
   return SIGNIFICANCE_COL_SPAN[significance] ?? 1;
 };
 
-export interface ComputeColSpansOptions {
+export interface FeedItemPlacement {
+  colSpan: number;
+  row: number;
+  column: number;
+}
+
+export interface ComputePlacementsOptions {
   numCards: number;
   isMobile: boolean;
   isList: boolean;
   isEnabled: boolean;
   /**
    * Indices that have a full-row insertion (brief banner, hero, promo)
-   * rendered BEFORE the item at that index. The column tracker resets to
-   * column 0 before placing the item, so the item starts a fresh row.
+   * rendered BEFORE the item at that index. The current row tail is left
+   * empty (browser auto-flow does not backtrack), the banner consumes a
+   * row of its own, and the item at this index starts on the next fresh
+   * row at column 0.
    */
   fullRowInsertionBeforeIndex?: ReadonlySet<number>;
 }
 
 /**
- * Walks feed items in order and assigns each one a column span. Wide cards
- * never bump to a new row — when the requested colSpan exceeds the
- * remaining columns in the current row, it shrinks to fit. That keeps the
- * grid gap-free without needing `grid-auto-flow: dense`.
+ * Walks feed items in order and assigns each one a placement
+ * (`colSpan`, `row`, `column`) reflecting actual visual position in the
+ * grid. Wide cards never bump to a new row — when the requested colSpan
+ * exceeds the remaining columns in the current row, it shrinks to fit.
+ * That keeps the grid gap-free without needing `grid-auto-flow: dense`.
  *
- * Returns an array of colSpans (1..numCards) the same length as `items`.
+ * Used by `Feed.tsx` for both rendering (inline `gridColumn: span N`) and
+ * for accurate row/column analytics on impressions.
  */
-export const computeColSpans = (
+export const computePlacements = (
   items: FeedItem[],
   {
     numCards,
@@ -77,48 +87,65 @@ export const computeColSpans = (
     isList,
     isEnabled,
     fullRowInsertionBeforeIndex,
-  }: ComputeColSpansOptions,
-): number[] => {
+  }: ComputePlacementsOptions,
+): FeedItemPlacement[] => {
   if (!isEnabled || isMobile || isList || numCards <= 1) {
-    return items.map(() => 1);
+    return items.map((_, index) => ({
+      colSpan: 1,
+      row: Math.floor(index / Math.max(numCards, 1)),
+      column: index % Math.max(numCards, 1),
+    }));
   }
 
-  const colSpans = new Array<number>(items.length);
+  const placements = new Array<FeedItemPlacement>(items.length);
+  let row = 0;
   let col = 0;
   let largeCardsPlaced = 0;
 
   items.forEach((item, index) => {
-    if (fullRowInsertionBeforeIndex?.has(index) && col !== 0) {
+    if (fullRowInsertionBeforeIndex?.has(index)) {
+      // Browser auto-flow does not backtrack: an unfinished row left of the
+      // full-row banner stays empty, and the banner occupies the next row
+      // by itself.
+      if (col !== 0) {
+        row += 1;
+      }
+      row += 1;
       col = 0;
     }
 
     const requested = requestedColSpan(item);
+
+    let actual: number;
     if (requested === 1) {
-      colSpans[index] = 1;
-      col = (col + 1) % numCards;
-      return;
+      actual = 1;
+    } else {
+      // Rolling density cap: max one wide card per `perItems` items,
+      // cumulative.
+      const windowIndex = Math.floor(index / LARGE_CARD_DENSITY.perItems);
+      const expectedWindowLarge =
+        windowIndex * LARGE_CARD_DENSITY.maxLarge + LARGE_CARD_DENSITY.maxLarge;
+      if (largeCardsPlaced >= expectedWindowLarge) {
+        actual = 1;
+      } else {
+        const clampedToGrid = Math.min(requested, numCards);
+        const remainingInRow = numCards - col;
+        actual = Math.min(clampedToGrid, remainingInRow);
+      }
     }
 
-    // Rolling density cap: max one wide card per `perItems` items, cumulative.
-    const windowIndex = Math.floor(index / LARGE_CARD_DENSITY.perItems);
-    const expectedWindowLarge =
-      windowIndex * LARGE_CARD_DENSITY.maxLarge + LARGE_CARD_DENSITY.maxLarge;
-    if (largeCardsPlaced >= expectedWindowLarge) {
-      colSpans[index] = 1;
-      col = (col + 1) % numCards;
-      return;
-    }
+    placements[index] = { colSpan: actual, row, column: col };
 
-    const clampedToGrid = Math.min(requested, numCards);
-    const remainingInRow = numCards - col;
-    const actual = Math.min(clampedToGrid, remainingInRow);
-
-    colSpans[index] = actual;
     if (actual > 1) {
       largeCardsPlaced += 1;
     }
-    col = (col + actual) % numCards;
+
+    col += actual;
+    if (col >= numCards) {
+      row += 1;
+      col = 0;
+    }
   });
 
-  return colSpans;
+  return placements;
 };
