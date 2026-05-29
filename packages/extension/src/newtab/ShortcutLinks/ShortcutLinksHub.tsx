@@ -180,15 +180,14 @@ export function ShortcutLinksHub({
 
   const onManage = () => openModal({ type: LazyModal.ShortcutsManage });
 
-  // If permission is declined (or revoked since last boot), flip back to
-  // manual so the user isn't stranded with an empty auto row and no way out.
+  // Don't auto-revert to manual on a falsy permission response — that
+  // also fires when the polyfill hasn't loaded yet or the permission
+  // was silently re-granted, which would otherwise flicker the mode.
+  // The empty-state CTA in `ShortcutLinksHubAutoState` is the recovery.
   const switchToAuto = async () => {
     await updateFlag('shortcutsMode', 'auto');
     if (!hasCheckedTopSitesPermission || topSites === undefined) {
-      const granted = await askTopSitesPermission();
-      if (!granted) {
-        await updateFlag('shortcutsMode', 'manual');
-      }
+      await askTopSitesPermission();
     }
   };
 

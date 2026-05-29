@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import type { ShortcutsMode } from '../../shortcuts/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -35,17 +36,14 @@ const SOURCE_OPTIONS: SidebarSegmentedOption<ShortcutsSource>[] = [
 export const ShortcutsSection = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { showTopSites, toggleShowTopSites, customLinks } =
+  const { showTopSites, toggleShowTopSites, customLinks, flags, updateFlag } =
     useSettingsContext();
-  const {
-    isManual,
-    setIsManual,
-    hasCheckedPermission,
-    setShowPermissionsModal,
-    topSites,
-  } = useShortcuts();
+  const { hasCheckedPermission, askTopSitesPermission, topSites } =
+    useShortcuts();
   const hasCustomLinks = (customLinks?.length ?? 0) > 0;
 
+  const mode: ShortcutsMode = flags?.shortcutsMode ?? 'manual';
+  const isManual = mode === 'manual';
   const shortcutCount = isManual
     ? customLinks?.length || 0
     : topSites?.length || 0;
@@ -65,15 +63,15 @@ export const ShortcutsSection = (): ReactElement => {
       extra: JSON.stringify({ enabled: nextValue }),
     });
     if (nextValue && !hasCheckedPermission && !hasCustomLinks) {
-      setShowPermissionsModal(true);
+      askTopSitesPermission();
       return;
     }
     toggleShowTopSites();
   }, [
+    askTopSitesPermission,
     hasCheckedPermission,
     hasCustomLinks,
     logEvent,
-    setShowPermissionsModal,
     showTopSites,
     toggleShowTopSites,
   ]);
@@ -99,22 +97,22 @@ export const ShortcutsSection = (): ReactElement => {
         extra: JSON.stringify({ source: next }),
       });
       if (next === 'topsites') {
-        setIsManual(false);
+        updateFlag('shortcutsMode', 'auto');
         const needsPermission = !hasCheckedPermission || topSites === undefined;
         if (needsPermission) {
-          setShowPermissionsModal(true);
+          askTopSitesPermission();
         }
         return;
       }
-      setIsManual(true);
+      updateFlag('shortcutsMode', 'manual');
     },
     [
+      askTopSitesPermission,
       hasCheckedPermission,
       logEvent,
-      setIsManual,
-      setShowPermissionsModal,
       source,
       topSites,
+      updateFlag,
     ],
   );
 

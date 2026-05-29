@@ -98,7 +98,13 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
     await updateFlag('shortcutsMode', next);
     logShortcutsEvent(LogEvent.ChangeShortcutsMode, { mode: next });
 
-    if (next === 'auto' && topSites === undefined) {
+    // `hasCheckedTopSitesPermission` covers the race where the modal
+    // opens before `useTopSites` finishes loading the polyfill — its
+    // initial empty array would otherwise look like a granted state.
+    if (
+      next === 'auto' &&
+      (!hasCheckedTopSitesPermission || topSites === undefined)
+    ) {
       await askTopSitesPermission();
     }
   };

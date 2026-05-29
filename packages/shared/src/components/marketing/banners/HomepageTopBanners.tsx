@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import { TopHero } from './HeroBottomBanner';
 import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
 import { useReadingReminderHero } from '../../../hooks/notifications/useReadingReminderHero';
@@ -13,23 +12,6 @@ import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { uploadCvBgMobile } from '../../../lib/image';
-
-// Dev-only escape hatch: passing `?previewBanners=1` (or `=all`,
-// `=reminder`, `=cv`) on any v2 page forces the corresponding cards on
-// so designers/engineers can preview the strip without touching
-// IndexedDB or completing actions. Production behavior is unchanged.
-const usePreviewOverrides = (): { reminder: boolean; cv: boolean } => {
-  const router = useRouter();
-  const raw = router?.query?.previewBanners;
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  if (!value) {
-    return { reminder: false, cv: false };
-  }
-  if (value === '1' || value === 'all' || value === 'true') {
-    return { reminder: true, cv: true };
-  }
-  return { reminder: value === 'reminder', cv: value === 'cv' };
-};
 
 const illustrationFrameClass =
   '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
@@ -62,10 +44,9 @@ export const useHomepageTopBannersVisibility = (): {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const reminder = useReadingReminderHero({ requireMobile: false });
   const { shouldShow: shouldShowCv } = useUploadCv();
-  const preview = usePreviewOverrides();
   const enabled = isAuthReady && isLoggedIn;
-  const showReminder = enabled && (reminder.shouldShow || preview.reminder);
-  const showCv = enabled && (shouldShowCv || preview.cv);
+  const showReminder = enabled && reminder.shouldShow;
+  const showCv = enabled && shouldShowCv;
   return { showReminder, showCv, hasAny: showReminder || showCv };
 };
 
@@ -81,7 +62,6 @@ export const HomepageTopBanners = ({
   const { onUpload, shouldShow: shouldShowCv } = useUploadCv();
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const preview = usePreviewOverrides();
 
   if (!isAuthReady || !isLoggedIn) {
     return null;
@@ -89,7 +69,7 @@ export const HomepageTopBanners = ({
 
   const cards: ReactElement[] = [];
 
-  if (reminder.shouldShow || preview.reminder) {
+  if (reminder.shouldShow) {
     cards.push(
       <TopHero
         key="reminder"
@@ -105,7 +85,7 @@ export const HomepageTopBanners = ({
     );
   }
 
-  if (shouldShowCv || preview.cv) {
+  if (shouldShowCv) {
     cards.push(
       <TopHero
         key="cv"

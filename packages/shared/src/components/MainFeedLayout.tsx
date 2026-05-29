@@ -727,12 +727,16 @@ export default function MainFeedLayout({
     if (feedName && feedName in feedNameToHeading) {
       return feedNameToHeading[feedName as keyof typeof feedNameToHeading];
     }
+    // Extension new tab passes `feedName='default'`; fall through to
+    // the user's default feed so the v2 header isn't suppressed.
+    if ((feedName as string) === 'default') {
+      return feedNameToHeading[SharedFeedPage.MyFeed];
+    }
     return '';
   }, [customFeedsData, feedName, router.query.slugOrId]);
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
     isV2 &&
-    !isExtension &&
     !showExploreV2PageHeader &&
     !isSearchPageLaptop &&
     (!!v2ActionButtons || !!feedHeading);

@@ -127,9 +127,17 @@ function MyFeedHeading({
       )}
       {showToggleShortcuts && (
         <Button
-          size={ButtonSize.Medium}
-          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-          className="mr-auto"
+          size={isV2Compact ? ButtonSize.Small : ButtonSize.Medium}
+          variant={
+            isV2Compact || !isLaptop
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float
+          }
+          className={
+            isV2Compact
+              ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
+              : 'mr-auto'
+          }
           onClick={() => {
             if (onShortcutsClick) {
               onShortcutsClick();
@@ -144,7 +152,7 @@ function MyFeedHeading({
           icon={<PlusIcon />}
           iconPosition={iconPosition}
         >
-          Shortcuts
+          {iconOnly ? null : 'Shortcuts'}
         </Button>
       )}
     </>

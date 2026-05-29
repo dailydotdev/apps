@@ -119,12 +119,11 @@ function MainLayoutComponent({
   const { isV2 } = useLayoutVariant();
   useNotificationParams();
 
-  // v2 hoists daily reminder/CV banner cards out of the in-feed slot
-  // and renders them here, above the floating card. We only need the
-  // visibility flags from the hook so MainLayout can adjust the
-  // floating-card min-height; the actual cards are rendered by
-  // `<HomepageTopBanners />` below.
-  const { hasAny: hasTopBanners } = useHomepageTopBannersVisibility();
+  // Extension new tab mounts its own `ExtensionTopBanners` strip, so
+  // the webapp strip is suppressed there to avoid duplicate cards.
+  const { hasAny: hasTopBannersRaw } = useHomepageTopBannersVisibility();
+  const showHomepageTopBanners = !isExtension;
+  const hasTopBanners = showHomepageTopBanners && hasTopBannersRaw;
 
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) on laptop+ for authenticated users
@@ -273,7 +272,9 @@ function MainLayoutComponent({
         )}
         {sidebarOwnsHeader ? (
           <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
-            <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
+            {showHomepageTopBanners && (
+              <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
+            )}
             {topBanner}
             <div
               className={classNames(
