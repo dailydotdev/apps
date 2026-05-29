@@ -38,7 +38,7 @@ const ProfileAchievementsPage = ({
     }
   }, [optOutAchievements, user?.username, router]);
 
-  if (optOutAchievements) {
+  if (optOutAchievements || !user) {
     return null;
   }
 

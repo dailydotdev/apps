@@ -395,6 +395,14 @@ function GameCenterPage({
   };
   const handleMilestoneDestinationClick = useCallback(
     async (destination: QuestDestination) => {
+      if ('href' in destination) {
+        if (destination.openInNewTab) {
+          window.open(destination.href!, '_blank', 'noopener,noreferrer');
+          return;
+        }
+        window.location.assign(destination.href!);
+        return;
+      }
       await router.push(destination.path);
     },
     [router],
