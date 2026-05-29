@@ -606,13 +606,7 @@ describe('QuestButton', () => {
     });
   });
 
-  it('should never render the new quest indicator bubble regardless of dashboard state', () => {
-    mockUseQuestDashboard.mockReturnValue({
-      data: { ...questDashboard, hasNewQuestRotations: true },
-      isPending: false,
-      isError: false,
-    });
-
+  it('should never render the new quest indicator bubble', () => {
     renderComponent();
 
     expect(

@@ -88,17 +88,6 @@ export interface QuestUpdateData {
   questUpdate: QuestUpdate;
 }
 
-export interface QuestRotationUpdate {
-  updatedAt: Date;
-  type: QuestType;
-  periodStart: Date;
-  periodEnd: Date;
-}
-
-export interface QuestRotationUpdateData {
-  questRotationUpdate: QuestRotationUpdate;
-}
-
 export enum ClientQuestEventType {
   VisitExplorePage = 'visit_explore_page',
   VisitDiscussionsPage = 'visit_discussions_page',
