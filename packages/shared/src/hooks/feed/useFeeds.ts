@@ -141,16 +141,27 @@ export const useFeeds = (): UseFeeds => {
       return { id: feedId };
     },
 
-    onSuccess: (data) => {
+    onMutate: async ({ feedId }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<FeedList['feedList']>(queryKey);
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
         return {
           pageInfo: { hasNextPage: false },
           ...current,
           edges: (current?.edges || []).filter(
-            (edge) => edge.node.id !== data.id,
+            (edge) => edge.node.id !== feedId,
           ),
         };
       });
+
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(queryKey, ctx.previous);
+      }
+
+      displayToast(labels.error.generic);
     },
   });
 

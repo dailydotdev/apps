@@ -147,7 +147,9 @@ export const useFeedSettingsEdit = ({
 
       if (action === 'discard' && isNewFeed) {
         if (feedId) {
-          await deleteFeed({ feedId });
+          // Fire-and-forget — onMutate updates the cache optimistically so
+          // navigation is instant; the server round-trip happens in the bg.
+          deleteFeed({ feedId });
         }
 
         router.back();
