@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
@@ -9,6 +10,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ProfileAchievements } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievements';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -24,9 +26,21 @@ export const getStaticPaths = getProfileStaticPaths;
 const ProfileAchievementsPage = ({
   user,
   noindex,
-}: ProfileLayoutProps): ReactElement => {
+}: ProfileLayoutProps): ReactElement | null => {
   const { user: loggedUser } = useContext(AuthContext);
+  const { optOutAchievements } = useSettingsContext();
+  const router = useRouter();
   const isSameUser = user && loggedUser?.id === user.id;
+
+  useEffect(() => {
+    if (optOutAchievements && user?.username) {
+      router.replace(`/${user.username}`);
+    }
+  }, [optOutAchievements, user?.username, router]);
+
+  if (optOutAchievements || !user) {
+    return null;
+  }
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(

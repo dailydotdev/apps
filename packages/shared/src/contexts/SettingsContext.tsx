@@ -54,7 +54,10 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleOptOutReadingStreak: () => Promise<void>;
   toggleOptOutLevelSystem: () => Promise<void>;
   toggleOptOutQuestSystem: () => Promise<void>;
+  toggleOptOutAchievements: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
+  isGamificationEnabled: boolean;
+  toggleAllGamification: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   toggleShowFeedbackButton: () => Promise<void>;
   loadedSettings: boolean;
@@ -130,6 +133,7 @@ const defaultSettings: RemoteSettings = {
   optOutReadingStreak: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
+  optOutAchievements: false,
   // Companion is opt-in: it injects a side panel into every article page,
   // which only some users want. Default to off so new users see a clean
   // feed and can flip the toggle in the customize sidebar's Widgets
@@ -271,6 +275,35 @@ export const SettingsContextProvider = ({
           ...settings,
           optOutQuestSystem: !settings.optOutQuestSystem,
         }),
+      toggleOptOutAchievements: () =>
+        setSettings({
+          ...settings,
+          optOutAchievements: !settings.optOutAchievements,
+        }),
+      isGamificationEnabled:
+        !settings.optOutReadingStreak ||
+        !settings.optOutLevelSystem ||
+        !settings.optOutQuestSystem ||
+        !settings.optOutAchievements,
+      toggleAllGamification: () => {
+        const anyEnabled =
+          !settings.optOutReadingStreak ||
+          !settings.optOutLevelSystem ||
+          !settings.optOutQuestSystem ||
+          !settings.optOutAchievements;
+        if (anyEnabled && !settings.optOutReadingStreak) {
+          unsubscribePersonalizedDigest({
+            type: UserPersonalizedDigestType.StreakReminder,
+          });
+        }
+        return setSettings({
+          ...settings,
+          optOutReadingStreak: anyEnabled,
+          optOutLevelSystem: anyEnabled,
+          optOutQuestSystem: anyEnabled,
+          optOutAchievements: anyEnabled,
+        });
+      },
       toggleOptOutCompanion: () =>
         setSettings({
           ...settings,
