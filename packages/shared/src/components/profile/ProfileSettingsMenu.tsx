@@ -53,6 +53,7 @@ import type {
 import { ProfileSection } from '../ProfileMenu/ProfileSection';
 import { LogoutReason } from '../../lib/user';
 import { logout, useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import type { WithClassNameProps } from '../utilities';
 import { HorizontalSeparator } from '../utilities';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
@@ -84,6 +85,10 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
+  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
+    useSettingsContext();
+  const shouldHideGameCenter =
+    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
 
   const items = useMemo(
     () =>
@@ -207,12 +212,14 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
         playground: {
           title: 'Gamification',
           items: {
-            gameCenter: {
-              title: 'Game Center',
-              icon: JoystickIcon,
-              href: `${webappUrl}game-center`,
-              external: true,
-            },
+            ...(!shouldHideGameCenter && {
+              gameCenter: {
+                title: 'Game Center',
+                icon: JoystickIcon,
+                href: `${webappUrl}game-center`,
+                external: true,
+              },
+            }),
             gamification: {
               title: 'Feature visibility',
               icon: EyeIcon,
@@ -223,12 +230,14 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: HotIcon,
               href: `${settingsUrl}/customization/streaks`,
             },
-            achievements: {
-              title: 'Achievements',
-              icon: MedalBadgeIcon,
-              href: `${webappUrl}${user?.username}/achievements`,
-              external: true,
-            },
+            ...(!optOutAchievements && {
+              achievements: {
+                title: 'Achievements',
+                icon: MedalBadgeIcon,
+                href: `${webappUrl}${user?.username}/achievements`,
+                external: true,
+              },
+            }),
             hotTakes: {
               title: 'Hot Takes',
               icon: HotIcon,
@@ -337,7 +346,14 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           },
         },
       }),
-    [logEvent, onClose, openModal, user?.username],
+    [
+      logEvent,
+      onClose,
+      openModal,
+      user?.username,
+      optOutAchievements,
+      shouldHideGameCenter,
+    ],
   );
 
   return { items };

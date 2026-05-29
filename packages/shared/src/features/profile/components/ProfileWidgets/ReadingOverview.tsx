@@ -50,11 +50,11 @@ const readHistoryToTooltip = (
 };
 
 export interface ReadingOverviewProps {
-  readHistory: UserReadHistory[];
+  readHistory?: UserReadHistory[];
   before: Date;
   after: Date;
-  streak: UserStreak;
-  mostReadTags: MostReadTag[];
+  streak?: UserStreak;
+  mostReadTags?: MostReadTag[];
   isLoading?: boolean;
 }
 

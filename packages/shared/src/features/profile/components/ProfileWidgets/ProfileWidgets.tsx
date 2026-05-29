@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
 import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
 import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
@@ -54,6 +55,7 @@ export function ProfileWidgets({
   className,
 }: ProfileWidgetsProps): ReactElement {
   const { user: loggedUser, tokenRefreshed } = useAuthContext();
+  const { optOutAchievements } = useSettingsContext();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
   const { isPreviewMode, isOwner, togglePreview } = useProfilePreview(user);
@@ -137,13 +139,19 @@ export function ProfileWidgets({
         mostReadTags={readingHistory?.userMostReadTags}
         isLoading={isReadingHistoryLoading}
       />
-      {shouldShowTrackingWidget && <AchievementTrackingWidget user={user} />}
+      {shouldShowTrackingWidget && !optOutAchievements && (
+        <AchievementTrackingWidget user={user} />
+      )}
       {(isOwner || squads.length > 0) && (
         <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}
       <BadgesAndAwards user={user} />
-      <AchievementsWidget user={user} />
-      <AchievementSyncPromptCheck user={user} />
+      {!optOutAchievements && (
+        <>
+          <AchievementsWidget user={user} />
+          <AchievementSyncPromptCheck user={user} />
+        </>
+      )}
     </div>
   );
 }

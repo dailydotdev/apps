@@ -472,6 +472,14 @@ export const EXPAND_PINNED_POSTS_MUTATION = gql`
   }
 `;
 
+export const TOGGLE_FAVORITE_SOURCE_MUTATION = gql`
+  mutation ToggleFavoriteSource($sourceId: ID!) {
+    toggleFavoriteSource(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
 export const validateSourceHandle = (handle: string, source: Source): boolean =>
   source.handle === handle || source.handle === handle.toLowerCase();
 
@@ -716,6 +724,16 @@ export const expandPinnedPosts = async (
   });
 
   return res.expandPinnedPosts;
+};
+
+export const toggleFavoriteSource = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await gqlClient.request(TOGGLE_FAVORITE_SOURCE_MUTATION, {
+    sourceId,
+  });
+
+  return res.toggleFavoriteSource;
 };
 
 export const verifyPermission = (

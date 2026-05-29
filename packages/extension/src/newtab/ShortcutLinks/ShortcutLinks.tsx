@@ -8,10 +8,8 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { MostVisitedSitesModal } from '@dailydotdev/shared/src/features/shortcuts/components/modals/MostVisitedSitesModal';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useShortcutsManager } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsManager';
 import { useShortcutsMigration } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsMigration';
@@ -40,8 +38,6 @@ function LegacyShortcutLinks({
     hideShortcuts,
     isManual,
   } = useShortcutLinks();
-
-  const { showPermissionsModal } = useShortcuts();
 
   const shortcutSource = isTopSiteActive
     ? ShortcutsSourceType.Browser
@@ -124,7 +120,6 @@ function LegacyShortcutLinks({
             }}
           />
         ))}
-      {showPermissionsModal && <MostVisitedSitesModal isOpen />}
     </>
   );
 }

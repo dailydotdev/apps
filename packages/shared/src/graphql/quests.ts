@@ -63,7 +63,6 @@ export interface QuestDashboard {
   level: QuestLevel;
   currentStreak: number;
   longestStreak: number;
-  hasNewQuestRotations: boolean;
   daily: QuestBucket;
   weekly: QuestBucket;
   milestone: UserQuest[];
@@ -87,23 +86,6 @@ export interface QuestUpdate {
 
 export interface QuestUpdateData {
   questUpdate: QuestUpdate;
-}
-
-export interface QuestRotationUpdate {
-  updatedAt: Date;
-  type: QuestType;
-  periodStart: Date;
-  periodEnd: Date;
-}
-
-export interface QuestRotationUpdateData {
-  questRotationUpdate: QuestRotationUpdate;
-}
-
-export interface MarkQuestRotationsViewedData {
-  markQuestRotationsViewed: {
-    _: boolean;
-  };
 }
 
 export enum ClientQuestEventType {
@@ -260,7 +242,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
           amount
         }
       }
-      hasNewQuestRotations
     }
   }
 `;
@@ -417,14 +398,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
 export const TRACK_QUEST_EVENT_MUTATION = gql`
   mutation TrackQuestEvent($eventType: ClientQuestEventType!) {
     trackQuestEvent(eventType: $eventType) {
-      _
-    }
-  }
-`;
-
-export const MARK_QUEST_ROTATIONS_VIEWED_MUTATION = gql`
-  mutation MarkQuestRotationsViewed {
-    markQuestRotationsViewed {
       _
     }
   }

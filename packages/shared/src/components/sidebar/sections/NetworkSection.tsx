@@ -14,6 +14,7 @@ import type { SidebarSectionProps } from './common';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
+import { SquadFavoriteButton } from '../../squads/SquadFavoriteButton';
 
 export const NetworkSection = ({
   isItemsButton,
@@ -42,6 +43,8 @@ export const NetworkSection = ({
             ),
           title: name,
           path: `${webappUrl}squads/${handle}`,
+          itemClassName: 'group/squad-row',
+          rightIcon: () => <SquadFavoriteButton squad={squad} />,
         };
       }) ?? [];
     return [

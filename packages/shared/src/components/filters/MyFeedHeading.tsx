@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FilterIcon, PlusIcon } from '../icons';
 import type { IconSize } from '../Icon';
@@ -14,10 +14,13 @@ import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
+import { getHasSeenTags, setHasSeenTags } from '../../lib/feedSettings';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -43,7 +46,7 @@ function MyFeedHeading({
   iconOnly,
 }: MyFeedHeadingProps): ReactElement {
   const { push, pathname, query } = useRouter();
-  const { completeAction } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { toggleShowTopSites } = useSettingsContext();
   const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -52,15 +55,22 @@ function MyFeedHeading({
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
   const { user, showLogin } = useAuthContext();
-  // v2 layout (laptop) renders this button inside the floating-card
-  // page-header strip alongside other slim actions; use the compact ghost
-  // sizing so the strip stays consistent with the designer mock.
   const { isV2 } = useLayoutVariant();
   const isV2Compact = isV2;
+  const [hasSeenTagsState, setHasSeenTagsState] = useState<boolean | null>(
+    null,
+  );
+
+  const hasSeenTagsAction =
+    isActionsFetched && checkHasCompleted(ActionType.HasSeenTags);
 
   const editFeedUrl = useMemo(() => {
     if (isCustomDefaultFeed && pathname === '/') {
       return `${webappUrl}feeds/${defaultFeedId}/edit`;
+    }
+
+    if (feedName === SharedFeedPage.MyFeed && user?.id) {
+      return `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.Tags}`;
     }
 
     if (feedName === SharedFeedPage.Custom) {
@@ -68,7 +78,25 @@ function MyFeedHeading({
     }
 
     return `${settingsUrl}/feed/general`;
-  }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query]);
+  }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query, user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setHasSeenTagsState(null);
+      return;
+    }
+
+    if (hasSeenTagsAction) {
+      setHasSeenTags(user.id, true);
+      setHasSeenTagsState(true);
+      return;
+    }
+
+    setHasSeenTagsState(getHasSeenTags(user.id));
+  }, [hasSeenTagsAction, user?.id]);
+
+  const shouldShowTagsReminder =
+    feedName === SharedFeedPage.MyFeed && hasSeenTagsState === false;
 
   const onClick = useCallback(() => {
     if (!user) {
@@ -79,10 +107,24 @@ function MyFeedHeading({
       return undefined;
     }
 
+    if (shouldShowTagsReminder && user?.id) {
+      setHasSeenTags(user.id, true);
+      setHasSeenTagsState(true);
+      completeAction(ActionType.HasSeenTags).catch(() => null);
+    }
+
     onOpenFeedFilters?.();
 
     return push(editFeedUrl);
-  }, [editFeedUrl, onOpenFeedFilters, push, showLogin, user]);
+  }, [
+    completeAction,
+    editFeedUrl,
+    onOpenFeedFilters,
+    push,
+    shouldShowTagsReminder,
+    showLogin,
+    user,
+  ]);
 
   // Button's discriminated union requires `iconPosition` whenever `icon`
   // is set — `undefined` and conditional spreads both break it under
@@ -102,29 +144,37 @@ function MyFeedHeading({
 
   return (
     <>
-      {isV2Compact ? (
-        <FeedSettingsButton
-          onClick={onClick}
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Tertiary}
-          icon={filterIcon}
-          iconPosition={iconPosition}
-          {...feedSettingsButtonOverrides}
-        >
-          {!isMobile && !iconOnly ? 'Feed settings' : null}
-        </FeedSettingsButton>
-      ) : (
-        <FeedSettingsButton
-          onClick={onClick}
-          size={ButtonSize.Medium}
-          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-          icon={filterIcon}
-          iconPosition={iconPosition}
-          {...feedSettingsButtonOverrides}
-        >
-          {!isMobile && !iconOnly ? 'Feed settings' : null}
-        </FeedSettingsButton>
-      )}
+      <div className="relative">
+        {isV2Compact ? (
+          <FeedSettingsButton
+            onClick={onClick}
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Tertiary}
+            icon={filterIcon}
+            iconPosition={iconPosition}
+            {...feedSettingsButtonOverrides}
+          >
+            {!isMobile && !iconOnly ? 'Feed settings' : null}
+          </FeedSettingsButton>
+        ) : (
+          <FeedSettingsButton
+            onClick={onClick}
+            size={ButtonSize.Medium}
+            variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+            icon={filterIcon}
+            iconPosition={iconPosition}
+            {...feedSettingsButtonOverrides}
+          >
+            {!isMobile && !iconOnly ? 'Feed settings' : null}
+          </FeedSettingsButton>
+        )}
+        {shouldShowTagsReminder && (
+          <AlertDot
+            color={AlertColor.Bun}
+            className="pointer-events-none right-2 top-2 border border-background-default"
+          />
+        )}
+      </div>
       {showToggleShortcuts && (
         <Button
           size={isV2Compact ? ButtonSize.Small : ButtonSize.Medium}

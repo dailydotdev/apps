@@ -14,6 +14,7 @@ import { CardSelection } from '../CardSelection';
 import { LinksForm } from '../LinksForm';
 import { useShortcutLinks } from '../../hooks/useShortcutLinks';
 import { useShortcuts } from '../../contexts/ShortcutsProvider';
+import { MostVisitedSitesModal } from './MostVisitedSitesModal';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import {
@@ -30,8 +31,13 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const { onSaveChanges, formRef, hasTopSites } = useShortcutLinks();
-  const { isManual, setIsManual, onRevokePermission, askTopSitesPermission } =
-    useShortcuts();
+  const {
+    isManual,
+    setIsManual,
+    onRevokePermission,
+    showPermissionsModal,
+    setShowPermissionsModal,
+  } = useShortcuts();
 
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
@@ -139,11 +145,8 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
               icon={<SitesIcon size={IconSize.XLarge} secondary={!isManual} />}
               isActive={!isManual}
               onClick={() => {
-                // Ask directly — `MostVisitedSitesModal` only renders
-                // inside legacy `ShortcutLinks`, which v2 doesn't mount
-                // on the empty-state path.
                 if (!hasTopSites) {
-                  askTopSitesPermission();
+                  setShowPermissionsModal(true);
                 }
                 setIsManual(false);
               }}
@@ -174,6 +177,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
           )}
         </form>
       </Modal.Body>
+      {showPermissionsModal && <MostVisitedSitesModal isOpen />}
     </Modal>
   );
 }

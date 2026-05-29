@@ -5,6 +5,7 @@ import type { UserAchievement } from '../../graphql/user/achievements';
 import { AchievementType } from '../../graphql/user/achievements';
 
 const mockUseAuthContext = jest.fn();
+const mockUseSettingsContext = jest.fn();
 const mockUseConditionalFeature = jest.fn();
 const mockUseProfileAchievements = jest.fn();
 const mockUseTrackedAchievement = jest.fn();
@@ -13,6 +14,10 @@ const mockUseLazyModal = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
+}));
+
+jest.mock('../../contexts/SettingsContext', () => ({
+  useSettingsContext: () => mockUseSettingsContext(),
 }));
 
 jest.mock('../../hooks/useConditionalFeature', () => ({
@@ -122,6 +127,7 @@ const defaultProfileAchievementsHook = {
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseAuthContext.mockReturnValue({ user: { id: 'u1' } });
+  mockUseSettingsContext.mockReturnValue({ optOutAchievements: false });
   mockUseConditionalFeature.mockReturnValue({ value: true, isLoading: false });
   mockUseProfileAchievements.mockReturnValue(defaultProfileAchievementsHook);
   mockUseTrackedAchievement.mockReturnValue(defaultTrackedAchievementHook);
