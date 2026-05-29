@@ -3,12 +3,14 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
+import { PlusIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
 import type { ExploreCategory } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
+import { NewStripCta } from './NewStripCta';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -72,6 +74,7 @@ export function ExploreChipsBar({
         ref={scrollRef}
         className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
       >
+        <NewStripCta className="h-10 rounded-12 px-3" />
         {allCategories.map((category) => {
           // For You owns the homepage. Match it against both `/` and `/my-feed`
           // so the user's default custom feed (also at `/`) doesn't steal the
@@ -121,6 +124,15 @@ export function ExploreChipsBar({
               className={classNames('h-10 shrink-0 rounded-12', width)}
             />
           ))}
+        <Link href={`${webappUrl}feeds/new`}>
+          <a
+            href={`${webappUrl}feeds/new`}
+            aria-label="New feed"
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-12 border border-transparent bg-background-subtle px-3 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+          >
+            <PlusIcon />
+          </a>
+        </Link>
       </div>
       <div
         aria-hidden

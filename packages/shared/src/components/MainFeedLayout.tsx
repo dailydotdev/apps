@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode, SetStateAction } from 'react';
 import React, {
+  cloneElement,
   useCallback,
   useContext,
   useEffect,
@@ -14,7 +15,7 @@ import Feed from './Feed';
 import { FeedPageLayoutMobile } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
-import { useFeedTagsList } from '../hooks/useFeedTagsList';
+import { useFeeds } from '../hooks/feed/useFeeds';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
@@ -323,29 +324,27 @@ export default function MainFeedLayout({
   });
 
   const isChipStripPage =
-    router.pathname === '/' || router.pathname === '/explore/[tag]';
+    router.pathname === '/' ||
+    router.pathname === '/explore/[tag]' ||
+    router.pathname === '/feeds/[slugOrId]' ||
+    router.pathname === '/feeds/[slugOrId]/edit';
   const { value: isFeedTagChipsEnabled } = useConditionalFeature({
     feature: featureFeedTagChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
   const showExploreChips =
     !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
-  const { tags: feedTags, isPending: isFeedTagsPending } = useFeedTagsList({
-    enabled: showExploreChips,
-  });
+  const { feeds } = useFeeds();
   const exploreCategories = useMemo(
-    () => buildPersonalizedCategories(feedTags),
-    [feedTags],
+    () => buildPersonalizedCategories(feeds?.edges ?? []),
+    [feeds?.edges],
   );
   const chipsNode = useMemo(
     () =>
       showExploreChips ? (
-        <ExploreChipsBar
-          categories={exploreCategories}
-          isPending={isFeedTagsPending}
-        />
+        <ExploreChipsBar categories={exploreCategories} isPending={!feeds} />
       ) : null,
-    [showExploreChips, exploreCategories, isFeedTagsPending],
+    [showExploreChips, exploreCategories, feeds],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -505,6 +504,14 @@ export default function MainFeedLayout({
       return null;
     }
 
+    const baseEmptyScreen = propsByFeed[feedName]?.emptyScreen || (
+      <FeedEmptyScreen />
+    );
+    const emptyScreenWithChips = cloneElement(
+      baseEmptyScreen as ReactElement<{ chips?: ReactNode }>,
+      { chips: chipsNode },
+    );
+
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       if (!defaultFeedId) {
         return null;
@@ -522,7 +529,7 @@ export default function MainFeedLayout({
           feedId: defaultFeedId,
           feedName: SharedFeedPage.Custom,
         },
-        emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
+        emptyScreen: emptyScreenWithChips,
         actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
@@ -602,7 +609,7 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
+      emptyScreen: emptyScreenWithChips,
       actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}

@@ -15,6 +15,7 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../../../graphql/feedSettings';
 import {
+  useConditionalFeature,
   useEventListener,
   useFeeds,
   usePlusSubscription,
@@ -22,6 +23,7 @@ import {
   useViewSizeClient,
   ViewSize,
 } from '../../../hooks';
+import { featureFeedTagChips } from '../../../lib/featureManagement';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -56,6 +58,10 @@ export const useFeedSettingsEdit = ({
   isNewFeed,
 }: UseFeedSettingsEditProps): UseFeedSettingsEdit => {
   const { isPlus } = usePlusSubscription();
+  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
+    feature: featureFeedTagChips,
+    shouldEvaluate: !isPlus,
+  });
 
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const discardNewPrompt: PromptOptions = {
@@ -130,10 +136,10 @@ export const useFeedSettingsEdit = ({
 
   const onBackToFeed = useCallback(
     async ({ action }: { action?: 'discard' | 'save' }) => {
-      if (action === 'save' && isNewFeed && !isPlus) {
-        // for non plus members on confirm we save
-        // and navigate to plus page to upgrade
-
+      if (action === 'save' && isNewFeed && !isPlus && !isFeedTagChipsEnabled) {
+        // Pre-chips behavior: non-Plus saving a new feed gets redirected to
+        // the Plus upgrade page. Once the chips feature is on, free users
+        // own their feeds and land on the new feed instead.
         router.replace(plusUrl);
 
         return;
@@ -171,6 +177,7 @@ export const useFeedSettingsEdit = ({
       deleteFeed,
       feedId,
       isPlus,
+      isFeedTagChipsEnabled,
     ],
   );
 
@@ -185,7 +192,13 @@ export const useFeedSettingsEdit = ({
 
   const { mutateAsync: onSubmit, isPending: isSubmitPending } = useMutation({
     mutationFn: async () => {
-      const result = await updateFeed({ ...feedData, feedId });
+      // Free users can only edit name + icon; advanced flags are Plus-only and
+      // rejected server-side. Scope the payload so saving name/icon never trips
+      // that guard on feeds that already carry advanced flags.
+      const updatePayload = isPlus
+        ? { ...feedData, feedId }
+        : { feedId, name: feedData.name, icon: feedData.icon };
+      const result = await updateFeed(updatePayload);
       const tagPromises = [
         gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
           feedId: result.id,

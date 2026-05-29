@@ -8,11 +8,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useFeeds } from '../../hooks';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { useFeedTagsList } from '../../hooks/useFeedTagsList';
 import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { buildPersonalizedCategories } from './exploreCategories';
+import { NewStripCta } from './NewStripCta';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -41,7 +40,6 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
-  const { tags: personalizedTags } = useFeedTagsList();
   const { logEvent } = useLogContext();
 
   const items: ChipItem[] = useMemo(() => {
@@ -58,18 +56,6 @@ function UnifiedMobileFeedNav(): ReactElement {
       group: 'forYou',
     });
 
-    if (isLoggedIn) {
-      buildPersonalizedCategories(personalizedTags).forEach((category) => {
-        list.push({
-          id: `category-${category.id}`,
-          label: category.label,
-          href: category.path,
-          group: 'categories',
-          tag: category.tag,
-        });
-      });
-    }
-
     sortedFeeds.forEach(({ node: feed }) => {
       const isEditingFeed =
         router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
@@ -82,7 +68,7 @@ function UnifiedMobileFeedNav(): ReactElement {
         id: `feed-${feed.id}`,
         label: feed.flags?.name || `Feed ${feed.id}`,
         href,
-        group: 'rest',
+        group: 'categories',
       });
     });
     if (isLoggedIn) {
@@ -94,7 +80,7 @@ function UnifiedMobileFeedNav(): ReactElement {
           </span>
         ),
         href: `${webappUrl}feeds/new`,
-        group: 'rest',
+        group: 'categories',
         isIconOnly: true,
       });
     }
@@ -190,7 +176,6 @@ function UnifiedMobileFeedNav(): ReactElement {
     router.query.slugOrId,
     router.pathname,
     defaultFeedId,
-    personalizedTags,
   ]);
 
   const activeId = useMemo(() => {
@@ -231,6 +216,7 @@ function UnifiedMobileFeedNav(): ReactElement {
       ref={scrollRef}
       className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
     >
+      <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {

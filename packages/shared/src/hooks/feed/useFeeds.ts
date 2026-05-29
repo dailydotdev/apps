@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import type { FeedList, Feed } from '../../graphql/feed';
 import {
   FEED_LIST_QUERY,
@@ -11,6 +12,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
 import { gqlClient } from '../../graphql/common';
+import { useConditionalFeature } from '../useConditionalFeature';
+import { featureFeedTagChips } from '../../lib/featureManagement';
 
 export type CreateFeedProps = {
   name: string;
@@ -31,18 +34,38 @@ export type UseFeeds = {
 export const useFeeds = (): UseFeeds => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
-  const { user } = useAuthContext();
+  const { user, feeds: bootFeeds } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.Feeds, user);
+
+  const { value: includeTagChipFeeds } = useConditionalFeature({
+    feature: featureFeedTagChips,
+    shouldEvaluate: !!user,
+  });
+
+  const initialData: FeedList['feedList'] | undefined = useMemo(() => {
+    if (!bootFeeds) {
+      return undefined;
+    }
+
+    return {
+      edges: bootFeeds.map((node) => ({ node })),
+      pageInfo: { hasNextPage: false },
+    };
+  }, [bootFeeds]);
 
   const { data: feeds } = useQuery({
     queryKey,
 
     queryFn: async () => {
-      const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY);
+      const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY, {
+        includeTagChipFeeds,
+      });
 
       return result.feedList;
     },
     enabled: !!user,
+    initialData,
+    initialDataUpdatedAt: 0, // to interim force re-fetch until we sunset boot feeds data
     staleTime: StaleTime.OneHour,
   });
 

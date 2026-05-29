@@ -1,4 +1,5 @@
-import type { FeedTagsListItem } from '../../graphql/feedTagsList';
+import type { Edge } from '../../graphql/common';
+import type { Feed } from '../../graphql/feed';
 import { webappUrl } from '../../lib/constants';
 
 export type ExploreCategory = {
@@ -8,12 +9,13 @@ export type ExploreCategory = {
   tag?: string;
 };
 
+// Feeds are rendered in the order the API returns them.
 export const buildPersonalizedCategories = (
-  tags: FeedTagsListItem[],
+  edges: Edge<Feed>[],
 ): ExploreCategory[] =>
-  tags.map(({ value, label }) => ({
-    id: value,
-    label,
-    path: `${webappUrl}explore/${value}`,
-    tag: value,
+  edges.map(({ node: feed }) => ({
+    id: feed.id,
+    label: feed.flags?.name || `Feed ${feed.id}`,
+    path: `${webappUrl}feeds/${feed.slug}`,
+    tag: feed.id,
   }));
