@@ -88,7 +88,7 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
   );
 };
 
-export const FeedSettingsEditHeader = (): ReactElement => {
+export const FeedSettingsEditHeader = (): ReactElement | null => {
   const { onDiscard, onBackToFeed, feed, onSubmit } = useContext(
     FeedSettingsEditContext,
   );
@@ -136,7 +136,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
             }
 
             if (isMobile) {
-              setActiveView(undefined);
+              setActiveView?.(undefined);
             } else {
               onBackToFeed({ action: 'discard' });
             }

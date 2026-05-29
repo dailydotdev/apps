@@ -35,14 +35,14 @@ export const CustomFeedSection = ({
             ].includes(defaultRenderSectionProps.activePage);
 
             return {
-              title: feed.node.flags.name || `Feed ${feed.node.id}`,
+              title: feed.node.flags?.name || `Feed ${feed.node.id}`,
               // on extension we don't use router so no need for a path
               // onNavTabClick takes care of the navigation
               path: isExtension ? undefined : '/',
               action: isExtension
                 ? () => onNavTabClick?.('default')
                 : undefined,
-              icon: feed.node.flags.icon || (
+              icon: feed.node.flags?.icon || (
                 <HashtagIcon secondary={isCustomFeedPageActive} />
               ),
               rightIcon: () => (
@@ -55,9 +55,9 @@ export const CustomFeedSection = ({
           const feedPath = `${webappUrl}feeds/${feed.node.id}`;
 
           return {
-            title: feed.node.flags.name || `Feed ${feed.node.id}`,
+            title: feed.node.flags?.name || `Feed ${feed.node.id}`,
             path: feedPath,
-            icon: feed.node.flags.icon || (
+            icon: feed.node.flags?.icon || (
               <HashtagIcon
                 secondary={defaultRenderSectionProps.activePage === feedPath}
               />

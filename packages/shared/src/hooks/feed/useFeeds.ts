@@ -25,7 +25,7 @@ export type UpdateFeedProps = { feedId: string } & CreateFeedProps;
 export type DeleteFeedProps = Pick<UpdateFeedProps, 'feedId'>;
 
 export type UseFeeds = {
-  feeds: FeedList['feedList'];
+  feeds: FeedList['feedList'] | undefined;
   createFeed: (props: CreateFeedProps) => Promise<Feed>;
   updateFeed: (props: UpdateFeedProps) => Promise<Feed>;
   deleteFeed: (props: DeleteFeedProps) => Promise<Pick<Feed, 'id'>>;
@@ -82,6 +82,7 @@ export const useFeeds = (): UseFeeds => {
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
         return {
+          pageInfo: { hasNextPage: false },
           ...current,
           edges: [
             ...(current?.edges || []),
@@ -111,6 +112,7 @@ export const useFeeds = (): UseFeeds => {
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
         return {
+          pageInfo: { hasNextPage: false },
           ...current,
           edges: (current?.edges || []).map((edge) => {
             if (edge.node.id === data.id) {
@@ -142,6 +144,7 @@ export const useFeeds = (): UseFeeds => {
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
         return {
+          pageInfo: { hasNextPage: false },
           ...current,
           edges: (current?.edges || []).filter(
             (edge) => edge.node.id !== data.id,

@@ -89,10 +89,10 @@ export const useFeedSettingsEdit = ({
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
-  const feed = useMemo<Feed>(() => {
+  const feed = useMemo<Feed | undefined>(() => {
     // calculate main feed from user object as fallback for now
     // in the future feedList can return main feed as well
-    if (feedSlugOrId === user.id) {
+    if (user && feedSlugOrId === user.id) {
       return {
         id: user.id,
         userId: user.id,
@@ -101,8 +101,8 @@ export const useFeedSettingsEdit = ({
           name: '',
         },
         type: FeedType.Main,
-        createdAt: null,
-      };
+        createdAt: new Date()
+      }
     }
 
     return feeds?.edges.find(
@@ -129,7 +129,7 @@ export const useFeedSettingsEdit = ({
 
   // remove new feed that was not modified by user on page unload
   useEventListener(globalThis?.window, 'beforeunload', () => {
-    if (isNewFeed && !isDirty) {
+    if (isNewFeed && !isDirty && feedId) {
       deleteFeed({ feedId });
     }
   });
@@ -146,7 +146,9 @@ export const useFeedSettingsEdit = ({
       }
 
       if (action === 'discard' && isNewFeed) {
-        await deleteFeed({ feedId });
+        if (feedId) {
+          await deleteFeed({ feedId });
+        }
 
         router.back();
 
@@ -183,8 +185,8 @@ export const useFeedSettingsEdit = ({
 
   const feedData = useMemo<FeedSettingsFormData>(() => {
     return {
-      name: feed?.flags.name,
-      icon: feed?.flags.icon || '',
+      name: feed?.flags?.name ?? '',
+      icon: feed?.flags?.icon || '',
       ...feed?.flags,
       ...formState,
     };
@@ -192,6 +194,9 @@ export const useFeedSettingsEdit = ({
 
   const { mutateAsync: onSubmit, isPending: isSubmitPending } = useMutation({
     mutationFn: async () => {
+      if (!feedId) {
+        throw new Error('Cannot update feed without an id');
+      }
       // Free users can only edit name + icon; advanced flags are Plus-only and
       // rejected server-side. Scope the payload so saving name/icon never trips
       // that guard on feeds that already carry advanced flags.
@@ -276,6 +281,10 @@ export const useFeedSettingsEdit = ({
         throw new Error('User cancelled deletion');
       }
 
+      if (!feedId) {
+        throw new Error('Cannot delete feed without an id');
+      }
+
       const result = await deleteFeed({ feedId });
 
       return result;
@@ -306,7 +315,7 @@ export const useFeedSettingsEdit = ({
   useEffect(() => {
     return () => {
       // cleanup on discard or navigation without save
-      cleanupRef.current();
+      cleanupRef.current?.();
     };
   }, []);
 
@@ -324,18 +333,22 @@ export const useFeedSettingsEdit = ({
     onDelete,
     deleteStatus,
     onTagClick: useCallback(({ tag, action }) => {
+      if (!tag.name) {
+        return;
+      }
       setDirty(true);
+      const tagName = tag.name;
 
       if (action === 'follow') {
         setTagsToRemove((current) => {
           const newTags = { ...current };
-          delete newTags[tag.name];
+          delete newTags[tagName];
 
           return newTags;
         });
       } else {
         setTagsToRemove((current) => {
-          return { ...current, [tag.name]: true };
+          return { ...current, [tagName]: true };
         });
       }
     }, []),
