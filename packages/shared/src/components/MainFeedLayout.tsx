@@ -534,7 +534,7 @@ export default function MainFeedLayout({
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
-            chips={chipsNode}
+            chips={shouldUseListFeedLayout ? undefined : chipsNode}
           />
         ),
       };
@@ -614,12 +614,13 @@ export default function MainFeedLayout({
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
-          chips={chipsNode}
+          chips={shouldUseListFeedLayout ? undefined : chipsNode}
         />
       ),
     };
   }, [
     chipsNode,
+    shouldUseListFeedLayout,
     isUpvoted,
     isPopular,
     isSortableFeed,
@@ -747,8 +748,15 @@ export default function MainFeedLayout({
             {...feedProps}
             shortcuts={shortcuts}
             topContent={
-              isExploreTag && chipsNode ? (
-                <div className="mb-8 w-full">{chipsNode}</div>
+              (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
+                <div
+                  className={classNames(
+                    'mb-8 w-full',
+                    shouldUseListFeedLayout && 'mt-8',
+                  )}
+                >
+                  {chipsNode}
+                </div>
               ) : undefined
             }
             className={classNames(
