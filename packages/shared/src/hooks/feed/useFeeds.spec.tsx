@@ -86,6 +86,9 @@ describe('useFeeds hook', () => {
     mockGraphQL({
       request: {
         query: FEED_LIST_QUERY,
+        variables: {
+          includeTagChipFeeds: false,
+        },
       },
       result: () => {
         queryCalled = true;
