@@ -15,6 +15,8 @@ import type { BookmarkFolder } from '../../../graphql/bookmarks';
 import { useToastNotification } from '../../../hooks';
 import { useMoveBookmarkToFolder } from '../../../hooks/bookmark/useMoveBookmarkToFolder';
 
+const QUICK_SAVES_LABEL = 'Quick saves';
+
 type MoveBookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   listId?: string;
   postId: string;
@@ -42,20 +44,21 @@ const MoveBookmarkModal = ({
       return;
     }
     await moveBookmarkToFolder({ postId, listId: folder?.id });
-    displayToast(
-      folder?.name ? `✅ Moved to ${folder.name}` : '✅ Bookmark moved',
-      {
-        action: {
-          copy: 'Undo',
-          onClick: () => {
-            const previousFolderName = listId
+    const message = folder?.name
+      ? `✅ Moved to ${folder.name}`
+      : '✅ Bookmark moved';
+    displayToast(message, {
+      action: {
+        copy: 'Undo',
+        onClick: () =>
+          handleMoveBookmark({
+            id: listId,
+            name: listId
               ? folders?.find((f) => f.id === listId)?.name
-              : 'Quick saves';
-            handleMoveBookmark({ id: listId, name: previousFolderName });
-          },
-        },
+              : QUICK_SAVES_LABEL,
+          }),
       },
-    );
+    });
     onMoveBookmark?.(folder?.id);
     closeModal();
   };
@@ -102,13 +105,13 @@ const MoveBookmarkModal = ({
           New folder
         </Button>
         <Button
-          onClick={() => handleMoveBookmark({ name: 'Quick saves' })}
+          onClick={() => handleMoveBookmark({ name: QUICK_SAVES_LABEL })}
           icon={<BookmarkIcon />}
           variant={ButtonVariant.Option}
           role="radio"
           aria-checked={!listId}
         >
-          Quick saves
+          {QUICK_SAVES_LABEL}
           {!listId && (
             <span className="ml-auto">
               <VIcon secondary aria-hidden />
