@@ -1,13 +1,13 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
+import React from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import styles from './tagShowcase.module.css';
 
 interface TagHeroProps {
   title: string;
@@ -17,66 +17,16 @@ interface TagHeroProps {
   sponsoredHero?: ReactNode;
   onGetFeed: () => void;
   occurrences?: number;
-  relatedTopicsCount?: number;
   contributorsCount?: number;
   /** sr-only SEO links, kept in the DOM for crawlers. */
   children?: ReactNode;
 }
 
-const formatStat = (value: number): string =>
-  largeNumberFormat(value) ?? `${value}`;
-
 /**
- * Animated count-up. SSR (and the very first client render) shows the final
- * value so crawlers and no-JS users see real numbers; the ramp only runs after
- * mount via requestAnimationFrame.
- */
-const CountUp = ({ value }: { value: number }): ReactElement => {
-  const [display, setDisplay] = useState(value);
-  const startedRef = useRef(false);
-
-  useEffect(() => {
-    if (startedRef.current) {
-      return undefined;
-    }
-    startedRef.current = true;
-
-    const duration = 900;
-    let raf = 0;
-    let startTs: number | null = null;
-
-    const tick = (ts: number) => {
-      if (startTs === null) {
-        startTs = ts;
-      }
-      const progress = Math.min(1, (ts - startTs) / duration);
-      const eased = 1 - (1 - progress) ** 3;
-      setDisplay(Math.round(value * eased));
-      if (progress < 1) {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [value]);
-
-  return <>{formatStat(display)}</>;
-};
-
-interface HeroStat {
-  key: string;
-  value: number;
-  label: string;
-}
-
-/**
- * Cinematic tag hero — the page's "wow" moment.
- *
- * A full-width panel with an ambient drifting gradient, a live pulse, a
- * developer-flavored terminal line, a giant wordmark, and animated count-up
- * stats. Built to make a developer feel they've landed on the living home of a
- * topic, not a generic feed header.
+ * Compact tag identity bar. Deliberately small — it states what the page is
+ * (the tag, a couple of headline stats, the primary action) and gets out of the
+ * way so the actual hub content gets the attention. The "what is this tag"
+ * explanation now lives in the About module, not here.
  */
 export function TagHero({
   title,
@@ -85,94 +35,56 @@ export function TagHero({
   sponsoredHero,
   onGetFeed,
   occurrences,
-  relatedTopicsCount,
   contributorsCount,
   children,
 }: TagHeroProps): ReactElement {
-  const stats: HeroStat[] = [];
+  const stats: string[] = [];
   if (occurrences && occurrences > 0) {
-    stats.push({ key: 'posts', value: occurrences, label: 'Posts' });
+    stats.push(`${largeNumberFormat(occurrences) ?? occurrences} posts`);
   }
   if (contributorsCount && contributorsCount > 0) {
-    stats.push({
-      key: 'contributors',
-      value: contributorsCount,
-      label: 'Contributors',
-    });
-  }
-  if (relatedTopicsCount && relatedTopicsCount > 0) {
-    stats.push({ key: 'topics', value: relatedTopicsCount, label: 'Topics' });
+    stats.push(`${contributorsCount} contributors`);
   }
 
   return (
-    <header className="mx-4 flex animate-fade-slide-up flex-col gap-4">
-      <div className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float">
-        <div
-          aria-hidden
-          style={{ opacity: 0.16 }}
-          className={classNames(
-            styles.drift,
-            'pointer-events-none absolute inset-0 bg-gradient-to-br from-accent-cabbage-default via-accent-onion-default to-accent-bacon-default',
-          )}
-        />
-        <div className="relative z-1 flex flex-col gap-6 p-6 tablet:p-10">
-          {sponsoredHero}
-
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="flex items-center gap-2 rounded-8 bg-overlay-primary-pepper px-2.5 py-1 text-text-primary typo-caption1">
-              <span className="size-2 animate-scale-down-pulse rounded-full bg-accent-avocado-default" />
-              Live · curated daily
-            </span>
-            <code className="rounded-8 border border-border-subtlest-tertiary bg-background-default px-2.5 py-1 font-mono text-text-tertiary typo-caption1">
-              ~/feed $ follow #{title}
-              <span className="ml-0.5 inline-block animate-scale-down-pulse">
-                ▋
+    <header className="mx-4 flex flex-col gap-3">
+      {sponsoredHero}
+      <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            aria-hidden
+            className="flex size-12 shrink-0 items-center justify-center rounded-14 bg-surface-float text-text-primary"
+          >
+            <HashtagIcon size={IconSize.Large} />
+          </span>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <h1 className="truncate font-bold typo-title1">{title}</h1>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-text-tertiary typo-footnote">
+              <span className="flex items-center gap-1.5">
+                <span className="size-1.5 animate-scale-down-pulse rounded-full bg-accent-avocado-default" />
+                Updated daily
               </span>
-            </code>
-          </div>
-
-          <div className="flex min-w-0 flex-col gap-3">
-            <h1 className="break-words font-bold typo-mega3 tablet:typo-mega1">
-              <span aria-hidden className="text-brand-default">
-                #
-              </span>
-              {title}
-            </h1>
-            <p className="max-w-2xl text-text-secondary typo-title3">
-              {isLoggedIn
-                ? `The pulse of ${title} — the best posts, videos, and discussions, in one place.`
-                : `Everything happening in ${title}, in one feed — curated by millions of developers.`}
-            </p>
-          </div>
-
-          {stats.length > 0 && (
-            <dl className="flex flex-wrap gap-x-8 gap-y-3">
               {stats.map((stat) => (
-                <div key={stat.key} className="flex flex-col">
-                  <dd className="font-bold typo-title1 tablet:typo-mega3">
-                    <CountUp value={stat.value} />
-                  </dd>
-                  <dt className="text-text-tertiary typo-footnote">
-                    {stat.label}
-                  </dt>
-                </div>
+                <span key={stat} className="flex items-center gap-2">
+                  <span aria-hidden>·</span>
+                  {stat}
+                </span>
               ))}
-            </dl>
-          )}
-
-          <div className="flex flex-wrap items-center gap-3">
-            {!isLoggedIn && (
-              <Button
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Large}
-                onClick={onGetFeed}
-                aria-label={`Get my ${title} feed`}
-              >
-                Get my {title} feed
-              </Button>
-            )}
-            {actions}
+            </div>
           </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          {!isLoggedIn && (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              onClick={onGetFeed}
+              aria-label={`Get my ${title} feed`}
+            >
+              Get my {title} feed
+            </Button>
+          )}
+          {actions}
         </div>
       </div>
       {children}

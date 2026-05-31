@@ -11,9 +11,9 @@ interface TagSectionHeaderProps {
 }
 
 /**
- * Shared section header for the tag page so every block (Best of, People,
- * Learn, All posts) shares the same rhythm and hierarchy. Renders an <h2> so
- * the page keeps a clean heading outline under the single hero <h1>.
+ * Header for the main full-width sections (Best of, All posts). Icon and the
+ * title+subtitle text block sit on one baseline so the subtitle aligns under
+ * the title copy — not under the icon.
  */
 export function TagSectionHeader({
   icon,
@@ -23,17 +23,28 @@ export function TagSectionHeader({
   className,
 }: TagSectionHeaderProps): ReactElement {
   return (
-    <div className={classNames('mx-4 flex flex-col gap-1', className)}>
-      <div className="flex min-h-8 items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2 text-text-primary">
-          {icon}
-          <h2 className="truncate font-bold typo-title3">{title}</h2>
-        </div>
-        {action}
-      </div>
-      {subtitle && (
-        <p className="text-text-tertiary typo-footnote">{subtitle}</p>
+    <div
+      className={classNames(
+        'mx-4 flex items-center justify-between gap-3',
+        className,
       )}
+    >
+      <div className="flex min-w-0 items-center gap-2.5">
+        {icon && (
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-primary">
+            {icon}
+          </span>
+        )}
+        <div className="flex min-w-0 flex-col">
+          <h2 className="truncate font-bold typo-title3">{title}</h2>
+          {subtitle && (
+            <p className="truncate text-text-tertiary typo-footnote">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </div>
+      {action}
     </div>
   );
 }

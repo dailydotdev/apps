@@ -12,7 +12,6 @@ import {
   BlockIcon,
   DiscussIcon,
   HashtagIcon,
-  InfoIcon,
   MedalBadgeIcon,
   MiniCloseIcon as XIcon,
   OpenLinkIcon,
@@ -92,11 +91,13 @@ import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/Spons
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { TagHero } from '../../components/tags/TagHero';
 import { TagPulse } from '../../components/tags/TagPulse';
-import { TagConstellation } from '../../components/tags/TagConstellation';
 import { TagBestOfPosts } from '../../components/tags/TagBestOfPosts';
 import { TagPeople } from '../../components/tags/TagPeople';
 import { TagSectionHeader } from '../../components/tags/TagSectionHeader';
 import { TagFaq } from '../../components/tags/TagFaq';
+import { TagAbout } from '../../components/tags/TagAbout';
+import { TagRelatedTopics } from '../../components/tags/TagRelatedTopics';
+import { TagModule } from '../../components/tags/TagModule';
 import type { TagFaqItem } from '../../components/tags/tagContent';
 import { getTagFaqItems } from '../../components/tags/tagContent';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -662,34 +663,20 @@ const TagPage = ({
     />
   );
 
-  const learnSection = roadmapNode ? (
-    <section className="flex scroll-mt-16 flex-col gap-3">
-      <TagSectionHeader
-        icon={<MedalBadgeIcon size={IconSize.Medium} secondary />}
-        title={`Learn ${tag}`}
-        subtitle="A structured path to go from curious to confident."
-      />
-      <div className="mx-4">{roadmapNode}</div>
-    </section>
-  ) : null;
-
-  const overviewSection = initialData?.flags?.description ? (
-    <section className="flex scroll-mt-16 flex-col gap-2">
-      <TagSectionHeader
-        icon={<InfoIcon size={IconSize.Medium} secondary />}
-        title={`What is ${title}?`}
-      />
-      <p className="mx-4 max-w-3xl text-text-secondary typo-body">
-        {initialData.flags.description}
-      </p>
-    </section>
+  const learnModule = roadmapNode ? (
+    <TagModule
+      title={`Learn ${title}`}
+      icon={<MedalBadgeIcon size={IconSize.Small} secondary />}
+    >
+      {roadmapNode}
+    </TagModule>
   ) : null;
 
   if (isRedesign) {
     return (
       <FeedPageLayoutComponent>
         {jsonLdHead}
-        <div className="flex w-full flex-col gap-8 pb-10">
+        <div className="flex w-full flex-col gap-6 pb-10">
           {breadcrumbs}
           <TagHero
             title={title}
@@ -698,18 +685,30 @@ const TagPage = ({
             sponsoredHero={<SponsoredTagHero tag={tag} />}
             onGetFeed={onGetFeed}
             occurrences={initialData?.occurrences}
-            relatedTopicsCount={recommendedTags.length}
             contributorsCount={topContributors.length}
           >
             {seoLinks}
           </TagHero>
           <TagPulse tag={title} posts={topPosts} />
-          {overviewSection}
-          <TagConstellation tag={title} relatedTags={recommendedTags} />
           <TagBestOfPosts tag={tag} userId={user?.id} />
-          <TagPeople tag={tag} initialContributors={topContributors} />
-          {learnSection}
-          <TagFaq tag={title} items={faqItems} />
+          <div className="mx-4 flex flex-col gap-4 laptop:flex-row laptop:items-start">
+            <div className="flex min-w-0 flex-1 flex-col gap-4">
+              <TagAbout
+                title={title}
+                description={initialData?.flags?.description}
+                occurrences={initialData?.occurrences}
+                relatedTopicsCount={recommendedTags.length}
+                contributorsCount={topContributors.length}
+                createdAt={initialData?.createdAt}
+              />
+              <TagFaq tag={title} items={faqItems} />
+            </div>
+            <aside className="flex w-full flex-col gap-4 laptop:w-80 laptop:shrink-0">
+              <TagPeople tag={tag} initialContributors={topContributors} />
+              <TagRelatedTopics relatedTags={recommendedTags} />
+              {learnModule}
+            </aside>
+          </div>
           <section id="all-posts" className="flex scroll-mt-16 flex-col gap-3">
             <TagSectionHeader
               icon={<HashtagIcon size={IconSize.Medium} secondary />}
