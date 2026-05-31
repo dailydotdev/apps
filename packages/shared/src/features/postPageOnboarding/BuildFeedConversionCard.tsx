@@ -4,6 +4,7 @@ import type { Post } from '../../graphql/posts';
 import type { Tag } from '../../graphql/feedSettings';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
+import { capitalize } from '../../lib/strings';
 import {
   Button,
   ButtonSize,
@@ -17,51 +18,47 @@ import {
 } from '../../components/typography/Typography';
 import { TagElement } from '../../components/tags/TagElement';
 import { highlightsTitleGradientClassName } from '../../components/cards/highlight/common';
-import { PostSignupWidget } from '../../components/post/PostSignupWidget';
-import { useAnonPostOnboarding } from './useAnonPostOnboarding';
+import { HighlightPostSidebarWidget } from '../../components/cards/highlight/HighlightPostSidebarWidget';
 import { useAnonFeedTags } from './useAnonFeedTags';
 import { useBuildFeedSignup } from './useBuildFeedSignup';
+import { LivePulse } from './LivePulse';
 import { FeedTastePreview } from './FeedTastePreview';
 
-interface BuildYourFeedWidgetProps {
+interface BuildFeedConversionCardProps {
   post: Post;
 }
 
-const MAX_CHIPS = 8;
+const MAX_CHIPS = 6;
+
+const buildSubcopy = (chips: string[]): string => {
+  if (chips.length === 0) {
+    return 'Get a daily feed of the best dev content — handpicked for you, no noise.';
+  }
+  const primary = capitalize(chips[0]);
+  const list = chips.slice(0, 3).map(capitalize).join(', ');
+  return `Loving this ${primary} read? Get a daily feed of ${list} and more — the best dev content, picked for you.`;
+};
 
 /**
- * Anonymous post-page sidebar. Replaces the plain signup widget with a
- * personalized "build your feed" surface: social proof, no-password topic
- * following (seeded from the article's tags), a live taste of the resulting
- * feed, and a single benefit-framed CTA. Falls back to the existing
- * PostSignupWidget when the experiment is off so the slot is never empty.
+ * The single anonymous conversion surface in the right column. The whole
+ * panel is one cohesive, tinted card: a benefit-led hero made relevant by the
+ * article's own topics, a real-time activity pulse, no-password topic
+ * following, a taste of the resulting feed, and the live dev pulse — all
+ * driving one CTA.
  */
-export const BuildYourFeedWidget = ({
+export const BuildFeedConversionCard = ({
   post,
-}: BuildYourFeedWidgetProps): ReactElement | null => {
-  const { isEnabled } = useAnonPostOnboarding();
+}: BuildFeedConversionCardProps): ReactElement => {
   const { showLogin } = useAuthContext();
   const { triggerSignup } = useBuildFeedSignup();
   const { chips, selectedTags, previewTags, toggleTag } = useAnonFeedTags({
     postTags: post?.tags ?? [],
-    enabled: isEnabled,
+    enabled: true,
   });
 
-  if (!isEnabled) {
-    // Experiment off → keep the existing behavior untouched.
-    return <PostSignupWidget />;
-  }
-
-  const upvotes = post?.numUpvotes ?? 0;
-  const comments = post?.numComments ?? 0;
-  const proofParts = [
-    upvotes > 0 && `${upvotes} upvote${upvotes === 1 ? '' : 's'}`,
-    comments > 0 && `${comments} discussing`,
-  ].filter(Boolean);
-
   return (
-    <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
-      <header className="flex flex-col gap-1">
+    <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+      <header className="flex flex-col gap-1.5">
         <Typography
           bold
           type={TypographyType.Title3}
@@ -70,21 +67,21 @@ export const BuildYourFeedWidget = ({
           Build your personalized feed
         </Typography>
         <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
         >
-          Join millions of developers on daily.dev.
-          {proofParts.length > 0 && ` ${proofParts.join(' · ')} on this post.`}
+          {buildSubcopy(chips)}
         </Typography>
+        <LivePulse post={post} />
       </header>
 
       <div className="flex flex-col gap-2">
         <Typography
           type={TypographyType.Caption1}
-          color={TypographyColor.Secondary}
+          color={TypographyColor.Tertiary}
+          className="uppercase"
         >
-          Following {selectedTags.length || 'these'} topic
-          {selectedTags.length === 1 ? '' : 's'} — tap to tune your feed
+          Your topics · tap to tune
         </Typography>
         <div className="flex flex-wrap gap-2">
           {chips.slice(0, MAX_CHIPS).map((tag) => (
@@ -100,20 +97,14 @@ export const BuildYourFeedWidget = ({
         </div>
       </div>
 
-      <FeedTastePreview
-        tags={previewTags}
-        currentPostId={post?.id}
-        title="Your feed is forming"
-      />
-
       <div className="flex flex-col gap-2">
         <Button
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
+          size={ButtonSize.Large}
           className="w-full"
           onClick={() => triggerSignup(selectedTags, 'sidebar')}
         >
-          Get my feed
+          Build my feed
         </Button>
         <Typography
           type={TypographyType.Caption1}
@@ -135,6 +126,16 @@ export const BuildYourFeedWidget = ({
             Log in
           </ClickableText>
         </Typography>
+      </div>
+
+      <div className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-4">
+        <FeedTastePreview
+          tags={previewTags}
+          currentPostId={post?.id}
+          title="A taste of your feed"
+          maxItems={3}
+        />
+        <HighlightPostSidebarWidget />
       </div>
     </div>
   );

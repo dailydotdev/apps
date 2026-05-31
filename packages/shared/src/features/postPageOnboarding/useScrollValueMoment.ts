@@ -4,8 +4,8 @@ interface UseScrollValueMomentProps {
   enabled: boolean;
   /** Fraction of the page scrolled that counts as "got value" (0-1). */
   threshold?: number;
-  /** Fired once when the reader reaches the value moment. */
-  onValueMoment: () => void;
+  /** Fired once when the reader reaches the value moment (optional). */
+  onValueMoment?: () => void;
   /** Fired once when the pointer leaves through the top of the viewport. */
   onExitIntent?: () => void;
 }
@@ -39,7 +39,7 @@ export const useScrollValueMoment = ({
     }
 
     const checkScroll = () => {
-      if (valueFired.current) {
+      if (valueFired.current || !onValueMomentRef.current) {
         return;
       }
       const { scrollY, innerHeight } = window;

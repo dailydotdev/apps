@@ -52,9 +52,10 @@ export const useAnonConversionPrompt = ({
     setSeen(true);
   }, [setSeen]);
 
+  // Leave-intent only: the bottom prompt never interrupts mid-read. The
+  // persistent right-side card carries the value-moment conversion instead.
   useScrollValueMoment({
     enabled: canShow,
-    onValueMoment: () => openPrompt('value_moment'),
     onExitIntent: () => openPrompt('exit_intent'),
   });
 

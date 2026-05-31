@@ -17,7 +17,9 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
-import { BuildYourFeedWidget } from '../../features/postPageOnboarding/BuildYourFeedWidget';
+import { PostSignupWidget } from './PostSignupWidget';
+import { useAnonPostOnboarding } from '../../features/postPageOnboarding/useAnonPostOnboarding';
+import { BuildFeedConversionCard } from '../../features/postPageOnboarding/BuildFeedConversionCard';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -53,9 +55,25 @@ export function PostWidgets({
   origin,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
+  const { isEnabled: isAnonExperience } = useAnonPostOnboarding();
   const { source } = post;
 
   const cardClasses = 'w-full bg-transparent';
+
+  // Anonymous "build your feed" experience: the whole right column becomes a
+  // single cohesive conversion card, with the promo demoted to the last slot.
+  if (isAnonExperience) {
+    return (
+      <PageWidgets className={className}>
+        <BuildFeedConversionCard post={post} />
+        <PostSidebarAdWidget
+          postId={post.id}
+          className={{ container: cardClasses }}
+        />
+        <FooterLinks />
+      </PageWidgets>
+    );
+  }
 
   const creator = post.author || post.scout;
   let sourceCard = null;
@@ -83,7 +101,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <BuildYourFeedWidget post={post} />
+      <PostSignupWidget />
       {sourceCard}
       {creator && (
         <UserEntityCard
