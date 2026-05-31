@@ -6,6 +6,7 @@ import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import { ButtonSize } from '../buttons/common';
+import { ConversationHubHeader } from './experience/ConversationHubHeader';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -63,12 +64,15 @@ export function BasePostContent({
       )}
       {children}
       {!!engagementProps && (
-        <PostEngagements
-          post={post}
-          onCopyLinkClick={onCopyPostLink}
-          logOrigin={origin}
-          shouldOnboardAuthor={shouldOnboardAuthor}
-        />
+        <>
+          {isPostPage && <ConversationHubHeader post={post} />}
+          <PostEngagements
+            post={post}
+            onCopyLinkClick={onCopyPostLink}
+            logOrigin={origin}
+            shouldOnboardAuthor={shouldOnboardAuthor}
+          />
+        </>
       )}
     </>
   );

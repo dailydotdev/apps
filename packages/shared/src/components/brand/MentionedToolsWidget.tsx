@@ -169,15 +169,16 @@ export const MentionedToolsWidget = ({
     return null;
   }
 
-  const visibleTools = compact ? mentionedTools.slice(0, 2) : mentionedTools;
   const highlightedWordResult = getHighlightedWordConfig(postTags);
+  const visibleTools = compact ? mentionedTools.slice(0, 2) : mentionedTools;
+  const hiddenToolsCount = mentionedTools.length - visibleTools.length;
 
   return (
     <>
       <div
         className={classNames(
           'flex flex-col rounded-16 border border-border-subtlest-tertiary',
-          compact ? 'gap-2 p-3' : 'gap-4 p-4',
+          compact ? 'gap-3 p-3' : 'gap-4 p-4',
           className,
         )}
       >
@@ -189,7 +190,9 @@ export const MentionedToolsWidget = ({
           Sponsored tools
         </Typography>
 
-        <div className="flex flex-col gap-2">
+        <div
+          className={classNames('flex flex-col', compact ? 'gap-1' : 'gap-2')}
+        >
           {visibleTools.map((tool) => {
             const isSponsored =
               tool.isSponsored && hasAnySponsoredTag(postTags);
@@ -281,12 +284,13 @@ export const MentionedToolsWidget = ({
 
             return toolItem;
           })}
-          {compact && mentionedTools.length > visibleTools.length && (
+          {hiddenToolsCount > 0 && (
             <Typography
-              type={TypographyType.Footnote}
+              type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
+              className="px-3 pt-1"
             >
-              +{mentionedTools.length - visibleTools.length} more tools
+              +{hiddenToolsCount} more tools mentioned
             </Typography>
           )}
         </div>

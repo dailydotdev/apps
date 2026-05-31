@@ -41,9 +41,9 @@ export interface MobilePostFloatingBarProps {
 // + `px-2` spreads the icons edge-to-edge with a small pad so the outermost
 // icons don't kiss the rounded corner.
 const containerClasses = classNames(
-  'flex w-full items-center justify-between rounded-16 border border-border-subtlest-tertiary px-2 py-1',
-  'bg-surface-float backdrop-blur-[2.5rem]',
-  'shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
+  'flex w-full items-center justify-between rounded-24 border border-border-subtlest-tertiary px-2 py-1.5',
+  'bg-background-default/90 backdrop-blur-[2.5rem]',
+  'shadow-2',
 );
 
 // `QuaternaryButton` renders its children inside a sibling `<label>`, so the

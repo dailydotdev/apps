@@ -13,13 +13,11 @@ import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
-import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
-import PostSourceInfo from './PostSourceInfo';
 import { isSourceUserSource } from '../../graphql/sources';
 import { ProfileImageSize } from '../ProfilePicture';
 import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
@@ -27,6 +25,10 @@ import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import type { Post } from '../../graphql/posts';
+import { PostExperienceLayout } from './experience/PostExperienceLayout';
+import { PostHero } from './experience/PostHero';
+import { PostContextRail } from './experience/PostContextRail';
+import { PersonalizedFeedPreview } from './experience/PersonalizedFeedPreview';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -97,14 +99,7 @@ function SquadPostContentRaw({
     inlineActions,
   };
   const isUserSource = isSourceUserSource(post?.source);
-  let sourceInfoClassName: string | undefined;
-  if (!isUserSource) {
-    if (shouldShowBanner && isLaptop) {
-      sourceInfoClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
-    } else {
-      sourceInfoClassName = isCompactModalSpacing ? 'mb-4' : 'mb-6';
-    }
-  }
+  const heroTitle = post.title || post.sharedPost?.title || 'Post';
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -123,7 +118,7 @@ function SquadPostContentRaw({
   return (
     <PostContentContainer
       className={classNames(
-        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
+        'relative flex-1 flex-col px-2 py-3 tablet:px-4 laptop:pb-6',
         className?.container,
       )}
       hasNavigation={hasNavigation}
@@ -141,7 +136,7 @@ function SquadPostContentRaw({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
+          'relative flex min-w-0 flex-1 flex-col',
           className?.content,
         )}
       >
@@ -164,58 +159,60 @@ function SquadPostContentRaw({
           origin={origin}
           post={post}
         >
-          {shouldShowBanner && !isLaptop && (
-            <BoostNewPostStrip className="-mt-2 mb-4" />
-          )}
-          <div
-            className={
-              isUserSource
-                ? 'flex flex-row-reverse items-center justify-between gap-4'
-                : undefined
+          <PostExperienceLayout
+            hero={
+              <PostHero
+                hideSubscribeAction={hideSubscribeAction}
+                inlineActions={inlineActions}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                post={post}
+                title={heroTitle}
+              />
+            }
+            rail={
+              <PostContextRail
+                onCopyPostLink={onCopyPostLink}
+                origin={origin}
+                post={post}
+              />
             }
           >
-            <PostSourceInfo
-              post={post}
-              onClose={onClose}
-              onReadArticle={onReadArticle}
-              hideSubscribeAction={hideSubscribeAction}
-              className={sourceInfoClassName}
-            />
-            {shouldShowBanner && !isUserSource && isLaptop && (
-              <BoostNewPostStrip />
+            {shouldShowBanner && !isLaptop && (
+              <BoostNewPostStrip className="-mt-2" />
             )}
-            {(post?.author || isFallback) && (
-              <SquadPostAuthor
-                author={post?.author}
-                role={role}
-                date={post.createdAt}
-                className={{
-                  container: !isUserSource ? 'mt-3' : 'shrink truncate',
-                }}
-                isUserSource={isUserSource}
-                size={ProfileImageSize.Large}
-                showSkeletonWhenMissing={isFallback}
+            <section className="shadow-1 rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6">
+              <div
+                className={classNames(
+                  'mb-5 flex flex-col gap-3',
+                  isUserSource && 'tablet:flex-row-reverse tablet:items-center',
+                )}
+              >
+                {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
+                {(post?.author || isFallback) && (
+                  <SquadPostAuthor
+                    author={post?.author}
+                    className={{
+                      container: isUserSource ? 'shrink truncate' : undefined,
+                    }}
+                    date={post.createdAt}
+                    isUserSource={isUserSource}
+                    role={role}
+                    showSkeletonWhenMissing={isFallback}
+                    size={ProfileImageSize.Large}
+                  />
+                )}
+              </div>
+              <Content
+                isCompactSpacing={isCompactModalSpacing}
+                onReadArticle={onReadArticle}
+                post={post}
               />
-            )}
-          </div>
-          {shouldShowBanner && isUserSource && isLaptop && (
-            <BoostNewPostStrip className="mt-2" />
-          )}
-          <Content
-            post={post}
-            onReadArticle={onReadArticle}
-            isCompactSpacing={isCompactModalSpacing}
-          />
+            </section>
+            <PersonalizedFeedPreview post={post} />
+          </PostExperienceLayout>
         </BasePostContent>
       </div>
-      <SquadPostWidgets
-        onCopyPostLink={onCopyPostLink}
-        onReadArticle={onReadArticle}
-        post={post}
-        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
-        onClose={onClose}
-        origin={origin}
-      />
     </PostContentContainer>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useActivePostContext } from '../../contexts/ActivePostContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -21,6 +21,7 @@ export const BuildYourFeedWidget = (): ReactElement => {
   const activePost = useActivePostContext()?.activePost;
   const { showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
+  const [isClient, setIsClient] = useState(false);
   const topics = getPostTopicTags(activePost);
   const topicLabel = getPostTopicLabel(topics);
   const targetId = getPostTopicTargetId(activePost);
@@ -41,6 +42,10 @@ export const BuildYourFeedWidget = (): ReactElement => {
     target_type: TargetType.ArticleAnonymousCTA,
     extra,
   }));
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const onAuthStateUpdate = useCallback(
     (props: Partial<AuthProps>) => {
@@ -78,25 +83,27 @@ export const BuildYourFeedWidget = (): ReactElement => {
         </p>
       </div>
       <PostTopicChips topics={topics} />
-      <AuthOptions
-        compact
-        defaultDisplay={AuthDisplay.OnboardingSignup}
-        forceDefaultDisplay
-        formRef={null as unknown as React.MutableRefObject<HTMLFormElement>}
-        hideLoginLink
-        ignoreMessages
-        onAuthStateUpdate={onAuthStateUpdate}
-        onboardingSignupButton={{
-          size: ButtonSize.Medium,
-          variant: ButtonVariant.Primary,
-        }}
-        simplified
-        targetId={targetId}
-        trigger={AuthTriggers.PostPage}
-        className={{
-          onboardingSignup: '!gap-3',
-        }}
-      />
+      {isClient && (
+        <AuthOptions
+          compact
+          className={{
+            onboardingSignup: '!gap-3',
+          }}
+          defaultDisplay={AuthDisplay.OnboardingSignup}
+          forceDefaultDisplay
+          formRef={null as unknown as React.MutableRefObject<HTMLFormElement>}
+          hideLoginLink
+          ignoreMessages
+          onAuthStateUpdate={onAuthStateUpdate}
+          onboardingSignupButton={{
+            size: ButtonSize.Medium,
+            variant: ButtonVariant.Primary,
+          }}
+          simplified
+          targetId={targetId}
+          trigger={AuthTriggers.PostPage}
+        />
+      )}
     </WidgetContainer>
   );
 };
