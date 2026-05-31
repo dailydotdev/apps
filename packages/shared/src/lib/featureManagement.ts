@@ -38,7 +38,7 @@ export const featurePostPageHighlights = new Feature(
 );
 export const featureAnonymousPostExperience = new Feature(
   'anonymous_post_experience',
-  false,
+  true,
 );
 
 // @ts-expect-error stale feature without default
