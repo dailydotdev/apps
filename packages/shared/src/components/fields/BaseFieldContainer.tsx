@@ -1,9 +1,11 @@
 import classNames from 'classnames';
-import type { ReactElement, ReactNode, MutableRefObject } from 'react';
+import type { ReactElement, ReactNode, ForwardedRef } from 'react';
 import React, { forwardRef } from 'react';
 import type { FieldType, TextInputProps } from './common';
 import { BaseField } from './common';
 import type { IconProps } from '../Icon';
+import type { FieldSize } from './fieldSizes';
+import { fieldSizeToRadius } from './fieldSizes';
 
 interface FieldStateProps {
   readOnly?: boolean;
@@ -91,6 +93,7 @@ interface BaseFieldContainerProps extends FieldPlaceholderProps {
   className?: FieldClassName;
   inputId: string;
   fieldType?: FieldType;
+  fieldSize?: FieldSize;
   hint?: string;
   hintIcon?: ReactElement<IconProps>;
   saveHintSpace?: boolean;
@@ -112,11 +115,11 @@ export const getFieldPlaceholder = ({
   label,
 }: FieldPlaceholderProps): string => {
   if (isQuaternaryField) {
-    return placeholder;
+    return placeholder ?? '';
   }
 
   if (isTertiaryField) {
-    return focused ? placeholder : label;
+    return (focused ? placeholder : label) ?? '';
   }
 
   if (focused || isSecondaryField) {
@@ -150,6 +153,7 @@ function BaseFieldContainer(
   {
     className = {},
     fieldType = 'primary',
+    fieldSize,
     readOnly,
     isLocked,
     hasInput,
@@ -164,9 +168,12 @@ function BaseFieldContainer(
     saveHintSpace,
     focusInput,
   }: BaseFieldContainerProps,
-  ref?: MutableRefObject<HTMLDivElement>,
+  ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   const isSecondaryField = fieldType === 'secondary';
+  const radiusClass = fieldSize
+    ? fieldSizeToRadius[fieldSize]
+    : classNames(isSecondaryField ? 'rounded-10' : 'rounded-14');
 
   return (
     <div ref={ref} className={classNames('flex flex-col', className.container)}>
@@ -193,7 +200,7 @@ function BaseFieldContainer(
         onClick={focusInput}
         className={classNames(
           'relative flex',
-          isSecondaryField ? 'rounded-10' : 'rounded-14',
+          radiusClass,
           className.baseField,
           { readOnly, focused, invalid },
         )}

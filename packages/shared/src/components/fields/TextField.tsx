@@ -1,5 +1,5 @@
 import type {
-  MutableRefObject,
+  ForwardedRef,
   ReactElement,
   ReactNode,
   SyntheticEvent,
@@ -17,6 +17,8 @@ import BaseFieldContainer, {
 } from './BaseFieldContainer';
 import type { ButtonProps } from '../buttons/Button';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
+import type { FieldSize } from './fieldSizes';
+import { getFieldSizeTokens } from './fieldSizes';
 
 export interface TextFieldProps extends BaseFieldProps {
   progress?: string;
@@ -26,6 +28,13 @@ export interface TextFieldProps extends BaseFieldProps {
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
   showMaxLength?: boolean;
   inputRef?: (input: HTMLInputElement) => void;
+  /**
+   * Button-aligned sizing. When set, the field's height, radius, value
+   * typography and icon size match a button of the same size exactly, so a
+   * field and a button can sit together in one strip and look identical.
+   * When omitted, the field keeps its legacy `fieldType`-driven dimensions.
+   */
+  fieldSize?: FieldSize;
 }
 
 function TextFieldComponent(
@@ -47,6 +56,7 @@ function TextFieldComponent(
     placeholder,
     style,
     fieldType = 'primary',
+    fieldSize,
     isLocked,
     readOnly = isLocked,
     leftIcon,
@@ -60,7 +70,7 @@ function TextFieldComponent(
     inputRef: inputRefProp,
     ...props
   }: TextFieldProps,
-  ref?: MutableRefObject<HTMLDivElement>,
+  ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   const {
     validInput,
@@ -85,6 +95,17 @@ function TextFieldComponent(
   const invalid = validInput === false || (required && inputLength === 0);
   const hasValue = hasInput || !!inputRef?.current?.value?.length;
   const id = useId();
+  const sizeTokens = fieldSize ? getFieldSizeTokens(fieldSize) : null;
+  const heightClass = sizeTokens?.height ?? (isSecondaryField ? 'h-9' : 'h-12');
+  const withIconSize = (node: ReactNode): ReactNode => {
+    if (!sizeTokens || !React.isValidElement(node)) {
+      return node;
+    }
+    const element = node as React.ReactElement<IconProps>;
+    return React.cloneElement(element, {
+      size: element.props.size ?? sizeTokens.iconSize,
+    });
+  };
 
   return (
     <BaseFieldContainer
@@ -96,6 +117,7 @@ function TextFieldComponent(
       hint={hint}
       hintIcon={hintIcon}
       fieldType={fieldType}
+      fieldSize={fieldSize}
       readOnly={readOnly}
       isLocked={isLocked}
       hasInput={hasInput}
@@ -111,7 +133,7 @@ function TextFieldComponent(
           className.baseField,
           leftIcon && 'pl-3',
           actionButton && 'pr-3',
-          isSecondaryField ? 'h-9' : 'h-12',
+          heightClass,
         ),
       }}
     >
@@ -129,7 +151,7 @@ function TextFieldComponent(
             }),
           )}
         >
-          {leftIcon}
+          {withIconSize(leftIcon)}
         </span>
       )}
       <div
@@ -167,8 +189,10 @@ function TextFieldComponent(
           name={name}
           id={inputId.concat(id)}
           ref={(el) => {
-            inputRef.current = el;
-            inputRefProp?.(el);
+            inputRef.current = el as HTMLInputElement;
+            if (el) {
+              inputRefProp?.(el);
+            }
           }}
           onFocus={onFocus}
           onBlur={(e) => {
@@ -183,6 +207,7 @@ function TextFieldComponent(
           className={classNames(
             styles.input,
             'self-stretch text-ellipsis',
+            sizeTokens?.typo,
             className?.input,
             getFieldFontColor({
               readOnly,
@@ -220,7 +245,7 @@ function TextFieldComponent(
           {maxLength - (inputLength || 0)}
         </div>
       )}
-      {rightIcon}
+      {withIconSize(rightIcon)}
       {actionButton}
     </BaseFieldContainer>
   );
