@@ -110,6 +110,11 @@ export const SearchField = forwardRef(function SearchField(
       {...props}
       className={classNames(
         'items-center !border !border-border-subtlest-secondary !bg-background-default',
+        // The base `.field:hover` background is blocked by `!bg-background-default`,
+        // so the search field needs its own hover feedback. Brighten the border and
+        // tint the surface, scoped to `:not(.focused)` so it never overrides the
+        // focus ring while the field is active.
+        '[&:hover:not(.focused)]:!border-border-subtlest-primary [&:hover:not(.focused)]:!bg-surface-hover',
         gapClass,
         sizeClass,
         className,
