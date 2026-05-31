@@ -16,8 +16,8 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
-import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { BuildYourFeedWidget } from '../../features/postPageOnboarding/BuildYourFeedWidget';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -83,7 +83,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      <BuildYourFeedWidget post={post} />
       {sourceCard}
       {creator && (
         <UserEntityCard

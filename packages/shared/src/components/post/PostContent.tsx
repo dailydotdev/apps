@@ -28,6 +28,9 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
+import { useAnonPostOnboarding } from '../../features/postPageOnboarding/useAnonPostOnboarding';
+import { useAnonConversionPrompt } from '../../features/postPageOnboarding/useAnonConversionPrompt';
+import { AnonConversionPrompt } from '../../features/postPageOnboarding/AnonConversionPrompt';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -98,8 +101,43 @@ export function PostContentRaw({
         : undefined,
     },
   );
+  // Anonymous "build your feed" experience — only on the full post page.
+  const { isEnabled: isAnonExperience } = useAnonPostOnboarding();
+  const anonExperienceActive = isAnonExperience && !!isPostPage;
+  const {
+    isOpen: isConversionOpen,
+    reason: conversionReason,
+    openPrompt,
+    closePrompt,
+  } = useAnonConversionPrompt({ enabled: anonExperienceActive });
+
+  // Turn the bounce into the conversion: the click to read the original
+  // article is peak intent. Intercept it once for anonymous readers to offer
+  // a personalized feed instead of silently sending them off-site.
+  const interceptAnonRead = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ): boolean => {
+    if (!anonExperienceActive) {
+      return false;
+    }
+    if (openPrompt('read_intent')) {
+      event.preventDefault();
+      return true;
+    }
+    return false;
+  };
+
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (interceptAnonRead(event)) {
+      return;
+    }
     if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticle();
+  };
+  const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (interceptAnonRead(event)) {
       return;
     }
     onReadArticle();
@@ -183,7 +221,7 @@ export function PostContentRaw({
             className="break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
-            <ArticleLink href={post.permalink} onClick={onReadArticle}>
+            <ArticleLink href={post.permalink} onClick={handleTitleClick}>
               {title}
             </ArticleLink>
           </h1>
@@ -284,29 +322,38 @@ export function PostContentRaw({
   );
 
   return (
-    <PostContentContainer
-      hasNavigation={hasNavigation}
-      className={containerClass}
-      aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
-      navigationProps={
-        position === 'fixed'
-          ? {
-              ...navigationProps,
-              isBannerVisible: !!isBannerVisible,
-              className: {
-                ...className?.fixedNavigation,
-                container: classNames(
-                  className?.fixedNavigation?.container,
-                  isPostPage && 'tablet:max-w-[calc(100%-4rem)]',
-                ),
-              },
-            }
-          : undefined
-      }
-    >
-      {postMainColumn}
-      {postWidgetsColumn}
-    </PostContentContainer>
+    <>
+      <PostContentContainer
+        hasNavigation={hasNavigation}
+        className={containerClass}
+        aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
+        navigationProps={
+          position === 'fixed'
+            ? {
+                ...navigationProps,
+                isBannerVisible: !!isBannerVisible,
+                className: {
+                  ...className?.fixedNavigation,
+                  container: classNames(
+                    className?.fixedNavigation?.container,
+                    isPostPage && 'tablet:max-w-[calc(100%-4rem)]',
+                  ),
+                },
+              }
+            : undefined
+        }
+      >
+        {postMainColumn}
+        {postWidgetsColumn}
+      </PostContentContainer>
+      {anonExperienceActive && isConversionOpen && (
+        <AnonConversionPrompt
+          post={post}
+          reason={conversionReason}
+          onClose={closePrompt}
+        />
+      )}
+    </>
   );
 }
 

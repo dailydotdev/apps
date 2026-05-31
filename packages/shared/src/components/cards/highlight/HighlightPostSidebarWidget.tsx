@@ -33,16 +33,18 @@ const prefersReducedMotion = (): boolean => {
 };
 
 export const HighlightPostSidebarWidget = (): ReactElement | null => {
-  const { user } = useAuthContext();
+  const { isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
+  // Shown to logged-in AND anonymous readers: the live dev pulse is the
+  // strongest "this place is alive" hook for a first-time visitor.
   const { value: isEnabled } = useConditionalFeature({
     feature: featurePostPageHighlights,
-    shouldEvaluate: !!user,
+    shouldEvaluate: isAuthReady,
   });
 
   const { data } = useQuery({
     ...majorHeadlinesQueryOptions({ first: HIGHLIGHTS_LIMIT }),
-    enabled: isEnabled && !!user,
+    enabled: isEnabled,
     refetchInterval: ONE_MINUTE,
   });
 

@@ -177,6 +177,12 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
+// Anonymous post-page "build your feed" conversion experience. When enabled,
+// it replaces the simple signup widget with a personalized feed-building
+// surface and consolidates the redundant auth banners into a single timed
+// prompt. Off by default; opt-in per A/B experiment.
+export const featurePostBuildFeed = new Feature('post_build_feed', false);
+
 export const featureReaderModal = new Feature('reader_modal_v2', false);
 
 export const featureGenericReferralPopupV2 = new Feature(
