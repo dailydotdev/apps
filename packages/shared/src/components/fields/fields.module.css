@@ -1,5 +1,17 @@
 .field {
   --field-placeholder-color: var(--theme-text-secondary);
+  /*
+   * Resting hairline matches the Button v2 Float variant exactly: 15% of
+   * `border-subtlest-primary`. This reads as a faint "filled chip with edge"
+   * rather than a dominant outline, so fields and Float buttons share the same
+   * weight. Focus/hover override this below.
+   */
+  --field-border-color: color-mix(
+    in srgb,
+    var(--theme-border-subtlest-primary),
+    transparent 85%
+  );
+  border-color: var(--field-border-color);
   /* Match the toggle/button motion: quick, linear surface + ring transitions. */
   transition: background-color 0.12s linear, box-shadow 0.12s linear,
     border-color 0.12s linear;

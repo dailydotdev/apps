@@ -235,9 +235,13 @@ const LiveTextarea = (
   return <Textarea inputId={id} name={props.name ?? id} {...props} />;
 };
 
-// The faint border + optional surface fill applied to a redesigned dropdown.
+// The faint Float hairline (15% of border-subtlest-primary) + optional surface
+// fill applied to a redesigned dropdown, matching the resting border on fields.
 const dropdownTrigger = (extra?: string) => ({
-  button: classNames('border border-border-subtlest-secondary', extra),
+  button: classNames(
+    'border border-[color-mix(in_srgb,var(--theme-border-subtlest-primary),transparent_85%)]',
+    extra,
+  ),
 });
 
 // --- Stories ---------------------------------------------------------------
