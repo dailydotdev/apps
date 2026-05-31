@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import classNames from 'classnames';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
@@ -15,6 +16,16 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { featureTagPageRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -67,6 +78,9 @@ const TagsPage = ({
   popularTags,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
+  const isRedesign = useFeature(featureTagPageRedesign);
+  const { user, showLogin } = useAuthContext();
+  const [search, setSearch] = useState('');
 
   const { feedSettings } = useFeedSettings();
   const followedSet = useMemo(
@@ -113,9 +127,37 @@ const TagsPage = ({
       }, {});
   }, [tags]);
 
+  // Client-side filter for the A-Z wall. The full list is always in the SSG
+  // HTML (empty query), so crawlers still see every tag link.
+  const displayTagsByFirstLetter = useMemo(() => {
+    if (!tagsByFirstLetter) {
+      return null;
+    }
+    const query = search.trim().toLowerCase();
+    if (!query) {
+      return tagsByFirstLetter;
+    }
+    return Object.entries(tagsByFirstLetter).reduce<Record<string, Keyword[]>>(
+      (acc, [letter, value]) => {
+        const matches = value.filter((tag) =>
+          tag.value.toLowerCase().includes(query),
+        );
+        if (matches.length) {
+          acc[letter] = matches;
+        }
+        return acc;
+      },
+      {},
+    );
+  }, [tagsByFirstLetter, search]);
+
   if (isLoading) {
     return <></>;
   }
+
+  const hasFilteredResults =
+    !!displayTagsByFirstLetter &&
+    Object.keys(displayTagsByFirstLetter).length > 0;
 
   const topTagsForSchema = tags.slice(0, 50);
 
@@ -132,6 +174,32 @@ const TagsPage = ({
       <BreadCrumbs className="mb-2">
         <HashtagIcon size={IconSize.XSmall} secondary /> Tags
       </BreadCrumbs>
+      {isRedesign && (
+        <section
+          className={classNames(
+            'flex flex-col gap-3 px-4 tablet:px-0',
+            !user &&
+              'rounded-16 border border-border-subtlest-tertiary bg-gradient-to-b from-surface-float to-transparent p-4 tablet:p-6',
+          )}
+        >
+          <h1 className="typo-title2">Explore developer tags</h1>
+          <p className="text-text-tertiary typo-body">
+            Browse trending, popular, and new topics on daily.dev — and turn the
+            ones you care about into a personalized feed, joined by millions of
+            developers.
+          </p>
+          {!user && (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              className="mr-auto"
+              onClick={() => showLogin({ trigger: AuthTriggers.Filter })}
+            >
+              Create your feed
+            </Button>
+          )}
+        </section>
+      )}
       <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
         <TagTopList
           containerProps={{ title: 'Trending tags' }}
@@ -152,12 +220,23 @@ const TagsPage = ({
           isLoading={isLoading}
         />
       </div>
-      <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
+      <div className="flex min-h-10 flex-col gap-3 px-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:px-0">
         <p className="font-bold typo-body">All tags</p>
+        {isRedesign && (
+          <SearchField
+            inputId="tags-directory-search"
+            className="tablet:max-w-xs"
+            fieldSize="medium"
+            placeholder="Search tags"
+            value={search}
+            valueChanged={setSearch}
+            aria-label="Search tags"
+          />
+        )}
       </div>
       <div className="columns-[17rem] px-4 tablet:px-0">
-        {tagsByFirstLetter &&
-          Object.entries(tagsByFirstLetter).map(([letter, value]) => {
+        {displayTagsByFirstLetter &&
+          Object.entries(displayTagsByFirstLetter).map(([letter, value]) => {
             return (
               <div
                 key={letter}
@@ -179,6 +258,11 @@ const TagsPage = ({
             );
           })}
       </div>
+      {isRedesign && search.trim() && !hasFilteredResults && (
+        <p className="px-4 text-text-tertiary typo-body tablet:px-0">
+          No tags match “{search.trim()}”.
+        </p>
+      )}
     </PageWrapperLayout>
   );
 };
