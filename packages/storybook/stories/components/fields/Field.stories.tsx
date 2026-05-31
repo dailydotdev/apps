@@ -1,10 +1,13 @@
 import React, { useId } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { FieldSize } from '@dailydotdev/shared/src/components/fields/fieldSizes';
+import { FieldVariant } from '@dailydotdev/shared/src/components/fields/fieldVariants';
 import {
   Button,
   ButtonSize,
@@ -22,6 +25,12 @@ import { LegacyTextField } from './legacy/LegacyTextField';
 const figmaUrl =
   'https://www.figma.com/design/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System';
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false, refetchOnWindowFocus: false },
+  },
+});
+
 const meta: Meta<typeof TextField> = {
   title: 'Components/Fields/Field',
   component: TextField,
@@ -29,6 +38,13 @@ const meta: Meta<typeof TextField> = {
     layout: 'fullscreen',
     design: { type: 'figma', url: figmaUrl },
   },
+  decorators: [
+    (Story) => (
+      <QueryClientProvider client={queryClient}>
+        <Story />
+      </QueryClientProvider>
+    ),
+  ],
   tags: ['autodocs'],
 };
 
@@ -262,7 +278,7 @@ export const Comparison: Story = {
 
       <Section
         title="Password & Search"
-        description="Composed fields inherit the new ring. The password strength state paints the whole ring instead of a left-edge gradient."
+        description="Composed fields inherit the new look. Password keeps the previous left-edge strength indicator and colour-graded fill — type a password on the right to see it light up."
       >
         <div className="flex flex-col gap-3">
           <ComparisonHeader />
@@ -298,6 +314,97 @@ export const Comparison: Story = {
             }
             next={<SearchField inputId="search-new" placeholder="Search" />}
           />
+        </div>
+      </Section>
+
+      <Section
+        title="Variants"
+        description="Every field now carries a faint resting border so fields are delineated from the page. Filled sits on the floated surface; Outline is transparent and defined by its border alone (with a faint hover fill), mirroring the Subtle/Secondary button look."
+      >
+        <div className="flex flex-wrap gap-4">
+          <Card label="Filled · default">
+            <NewField
+              variant={FieldVariant.Filled}
+              fieldType="tertiary"
+              label="Email"
+              leftIcon={<AtIcon size={IconSize.Small} />}
+            />
+          </Card>
+          <Card label="Outline · transparent">
+            <NewField
+              variant={FieldVariant.Outline}
+              fieldType="tertiary"
+              label="Email"
+              leftIcon={<AtIcon size={IconSize.Small} />}
+            />
+          </Card>
+          <Card label="Filled · filled value">
+            <NewField
+              variant={FieldVariant.Filled}
+              fieldType="tertiary"
+              label="Email"
+              value="ido@daily.dev"
+            />
+          </Card>
+          <Card label="Outline · filled value">
+            <NewField
+              variant={FieldVariant.Outline}
+              fieldType="tertiary"
+              label="Email"
+              value="ido@daily.dev"
+            />
+          </Card>
+        </div>
+      </Section>
+
+      <Section
+        title="Dropdown & textarea"
+        description="The dropdown field and its popover are part of the family: faint border on the trigger, and a polished popover (rounded-14 card, inset items, smooth highlight). Click the dropdown to review the popover."
+      >
+        <div className="flex flex-wrap items-start gap-6">
+          <div className="flex w-72 flex-col gap-2">
+            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
+              Dropdown · filled
+            </span>
+            <Dropdown
+              placeholder="Pick a topic"
+              selectedIndex={-1}
+              options={['Frontend', 'Backend', 'AI', 'DevOps', 'Career']}
+              onChange={() => {}}
+              buttonSize={ButtonSize.Large}
+              className={{
+                button:
+                  'border border-border-subtlest-tertiary bg-surface-float',
+              }}
+            />
+          </div>
+          <div className="flex w-72 flex-col gap-2">
+            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
+              Dropdown · outline
+            </span>
+            <Dropdown
+              placeholder="Pick a topic"
+              selectedIndex={1}
+              options={['Frontend', 'Backend', 'AI', 'DevOps', 'Career']}
+              onChange={() => {}}
+              buttonSize={ButtonSize.Large}
+              className={{
+                button: 'border border-border-subtlest-tertiary',
+              }}
+            />
+          </div>
+          <div className="flex w-96 flex-col gap-2">
+            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
+              Textarea
+            </span>
+            <Textarea
+              inputId="textarea-showcase"
+              name="textarea-showcase"
+              label="Tell us more"
+              placeholder="Share the details…"
+              rows={3}
+            />
+          </div>
         </div>
       </Section>
 

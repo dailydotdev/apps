@@ -9,6 +9,7 @@ import BaseFieldContainer, {
   getFieldPlaceholder,
   InnerLabel,
 } from './BaseFieldContainer';
+import { FieldVariant, fieldVariantToClassName } from './fieldVariants';
 
 function Textarea(
   {
@@ -29,9 +30,11 @@ function Textarea(
     maxLength = 100,
     rows,
     fieldType = 'primary',
+    variant = FieldVariant.Filled,
     ...props
   }: BaseFieldProps<HTMLTextAreaElement> & {
     className?: FieldClassName;
+    variant?: FieldVariant;
   },
   ref: ForwardedRef<HTMLTextAreaElement>,
 ): ReactElement {
@@ -77,6 +80,7 @@ function Textarea(
         baseField: classNames(
           'flex-col',
           styles.field,
+          fieldVariantToClassName[variant],
           className.baseField,
           hasAdditionalSpacing ? 'pt-2' : 'pt-1',
         ),

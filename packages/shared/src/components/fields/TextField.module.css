@@ -5,9 +5,9 @@
 }
 
 /*
- * Fields v2: validity / readiness is communicated with a crisp, even inset ring
- * (no more left-edge accent bar). The ring width (2px) matches the toggle focus
- * ring so fields and toggles read as one family.
+ * Fields v2: focus / invalid / readonly use a crisp, even inset ring (2px,
+ * matching the toggle focus ring). Password strength keeps the previous
+ * left-edge indicator bar + colour-graded fill, which reads as a progress cue.
  */
 .field {
   &:global(.focused.readOnly) {
@@ -21,15 +21,63 @@
 
   &:global(.password-0),
   &:global(.password-1) {
-    box-shadow: inset 0 0 0 0.125rem var(--status-error);
+    box-shadow: inset 0.125rem 0 0 0 var(--status-error);
+
+    &:before {
+      content: '';
+      border-radius: 0.875rem 0 0 0.875rem;
+      opacity: 0.24;
+      background: linear-gradient(
+        270deg,
+        rgba(252, 83, 141, 0) 0%,
+        rgba(252, 83, 141, 1) 100%
+      );
+      width: 2.75rem;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
   }
 
   &:global(.password-2) {
-    box-shadow: inset 0 0 0 0.125rem var(--status-warning);
+    box-shadow: inset 0.125rem 0 0 0 var(--status-warning);
+
+    &:before {
+      content: '';
+      border-radius: 0.875rem 0 0 0.875rem;
+      opacity: 0.24;
+      background: linear-gradient(
+        270deg,
+        rgba(255, 142, 59, 0) 0%,
+        rgba(255, 142, 59, 1) 100%
+      );
+      width: 2.75rem;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
   }
 
   &:global(.password-3) {
-    box-shadow: inset 0 0 0 0.125rem var(--status-success);
+    box-shadow: inset 0.125rem 0 0 0 var(--status-success);
+
+    &:before {
+      content: '';
+      border-radius: 0.875rem 0 0 0.875rem;
+      opacity: 0.24;
+      background: linear-gradient(
+        270deg,
+        rgba(57, 229, 140, 0) 0%,
+        rgba(107, 244, 192, 1) 100%
+      );
+      width: 2.75rem;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
   }
 }
 

@@ -19,6 +19,7 @@ import type { ButtonProps } from '../buttons/Button';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 import type { FieldSize } from './fieldSizes';
 import { getFieldSizeTokens } from './fieldSizes';
+import { FieldVariant, fieldVariantToClassName } from './fieldVariants';
 
 export interface TextFieldProps extends BaseFieldProps {
   progress?: string;
@@ -35,6 +36,12 @@ export interface TextFieldProps extends BaseFieldProps {
    * When omitted, the field keeps its legacy `fieldType`-driven dimensions.
    */
   fieldSize?: FieldSize;
+  /**
+   * Background treatment. `Filled` (default) sits on the floated surface;
+   * `Outline` is transparent and defined by its border. Both share the faint
+   * resting border.
+   */
+  variant?: FieldVariant;
 }
 
 function TextFieldComponent(
@@ -57,6 +64,7 @@ function TextFieldComponent(
     style,
     fieldType = 'primary',
     fieldSize,
+    variant = FieldVariant.Filled,
     isLocked,
     readOnly = isLocked,
     leftIcon,
@@ -130,6 +138,7 @@ function TextFieldComponent(
         baseField: classNames(
           'flex-row items-center',
           styles.field,
+          fieldVariantToClassName[variant],
           className.baseField,
           leftIcon && 'pl-3',
           actionButton && 'pr-3',
