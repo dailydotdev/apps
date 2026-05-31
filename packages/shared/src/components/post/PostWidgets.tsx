@@ -63,14 +63,12 @@ export function PostWidgets({
   // Anonymous "build your feed" experience: the whole right column becomes a
   // single cohesive conversion card, with the promo demoted to the last slot.
   if (isAnonExperience) {
+    // Right panel does exactly one job for anonymous readers: sign up +
+    // customize. The promo moves into the feed; "Happening Now" is reserved
+    // for signed-in users.
     return (
       <PageWidgets className={className}>
         <BuildFeedConversionCard post={post} />
-        <HighlightPostSidebarWidget />
-        <PostSidebarAdWidget
-          postId={post.id}
-          className={{ container: cardClasses }}
-        />
         <FooterLinks />
       </PageWidgets>
     );

@@ -1,41 +1,33 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
-import type { Tag } from '../../graphql/feedSettings';
 import { capitalize } from '../../lib/strings';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { TagElement } from '../../components/tags/TagElement';
 import { onboardingGradientClasses } from '../../components/onboarding/common';
 import { useAnonFeedTags } from './useAnonFeedTags';
-import { useTypewriter } from './useTypewriter';
-import { LivePulse } from './LivePulse';
-import { AnimatedFeedPreview } from './AnimatedFeedPreview';
 import { BuildFeedAuthOptions } from './BuildFeedAuthOptions';
 
 interface BuildFeedConversionCardProps {
   post: Post;
 }
 
-const MAX_CHIPS = 6;
-
-const borderGradient: React.CSSProperties = {
-  backgroundImage:
-    'linear-gradient(90deg, var(--theme-accent-cabbage-default), var(--theme-accent-onion-default), var(--theme-accent-water-default), var(--theme-accent-cabbage-default))',
-  backgroundSize: '200% 100%',
-  animation: 'bf-border-shift 6s linear infinite',
-};
+const MAX_CHIPS = 8;
 
 /**
- * The standout anonymous conversion surface. Rather than listing features, it
- * *shows* the product working: an animated gradient frame, a live "building
- * your feed" line that types out the reader's own topics, real posts streaming
- * in to form a feed before their eyes, a real-time activity pulse, and inline
- * one-tap signup. Built to land the aha moment.
+ * The anonymous right panel — focused on exactly two jobs: customize (pick
+ * topics, pre-seeded from the article) and sign up (inline one-tap). Clean,
+ * compact, and explicit, with nothing else competing for attention.
  */
 export const BuildFeedConversionCard = ({
   post,
@@ -45,83 +37,67 @@ export const BuildFeedConversionCard = ({
     enabled: true,
   });
 
-  const typewriterWords =
-    chips.length > 0 ? chips.map(capitalize) : ['your stack', 'dev news'];
-  const typed = useTypewriter(typewriterWords);
-
   return (
-    <div className="rounded-[17px] p-px shadow-2" style={borderGradient}>
-      <style>
-        {`@keyframes bf-border-shift { to { background-position: 200% center; } }
-          @keyframes bf-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }`}
-      </style>
-      <div className="flex flex-col gap-4 rounded-16 bg-background-default p-4">
-        <header className="flex flex-col gap-2">
-          <Typography
-            bold
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="uppercase tracking-wider"
-          >
-            Built for developers like you
-          </Typography>
-          <Typography
-            bold
-            tag={TypographyTag.H2}
-            type={TypographyType.LargeTitle}
-            className={onboardingGradientClasses}
-          >
-            Your personalized dev feed
-          </Typography>
-          <div className="flex items-center font-mono text-text-secondary typo-footnote">
-            <span className="text-text-quaternary">{'> '}</span>
-            <span className="ml-1">building feed for&nbsp;</span>
-            <span className="font-bold text-text-primary">{typed}</span>
-            <span
-              aria-hidden
-              className="ml-px inline-block h-3.5 w-px bg-text-primary"
-              style={{ animation: 'bf-blink 1s step-end infinite' }}
-            />
-          </div>
-          <LivePulse post={post} />
-        </header>
+    <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
+      <header className="flex flex-col gap-1">
+        <Typography
+          bold
+          tag={TypographyTag.H2}
+          type={TypographyType.Title3}
+          className={onboardingGradientClasses}
+        >
+          Build your personalized feed
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
+        >
+          Pick your topics and get a daily feed of the dev content that matters.
+          Free, forever.
+        </Typography>
+      </header>
 
-        <div className="flex flex-col gap-1.5 rounded-12 bg-surface-float p-2">
-          <Typography
-            bold
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="px-1 uppercase tracking-wider"
-          >
-            Streaming now
-          </Typography>
-          <AnimatedFeedPreview tags={selectedTags} currentPostId={post?.id} />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="uppercase tracking-wider"
-          >
-            Tune your topics
-          </Typography>
-          <div className="flex flex-wrap gap-2">
-            {chips.slice(0, MAX_CHIPS).map((tag) => (
-              <TagElement
+      <div className="flex flex-col gap-2">
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="uppercase tracking-wider"
+        >
+          Your topics
+        </Typography>
+        <div className="flex flex-wrap gap-1.5">
+          {chips.slice(0, MAX_CHIPS).map((tag) => {
+            const isSelected = selectedTags.includes(tag);
+            if (isSelected) {
+              return (
+                <Button
+                  key={tag}
+                  type="button"
+                  size={ButtonSize.XSmall}
+                  variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
+                  onClick={() => toggleTag(tag)}
+                >
+                  {capitalize(tag)}
+                </Button>
+              );
+            }
+            return (
+              <Button
                 key={tag}
-                tag={{ name: tag } as Tag}
-                isSelected={selectedTags.includes(tag)}
-                onClick={({ tag: clicked }) =>
-                  clicked.name && toggleTag(clicked.name)
-                }
-              />
-            ))}
-          </div>
+                type="button"
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Float}
+                onClick={() => toggleTag(tag)}
+              >
+                {capitalize(tag)}
+              </Button>
+            );
+          })}
         </div>
-
-        <BuildFeedAuthOptions tags={selectedTags} origin="sidebar" />
       </div>
+
+      <BuildFeedAuthOptions tags={selectedTags} origin="sidebar" />
     </div>
   );
 };

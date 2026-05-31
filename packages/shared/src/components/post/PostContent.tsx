@@ -29,6 +29,7 @@ import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import { useAnonPostOnboarding } from '../../features/postPageOnboarding/useAnonPostOnboarding';
+import { AnonSourceStrip } from '../../features/postPageOnboarding/AnonSourceStrip';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -175,15 +176,24 @@ export function PostContentRaw({
         post={post}
       >
         <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
-          <div className="mb-3 flex items-center">
-            <PostSourceInfo
-              className="min-w-0 flex-1"
+          {anonExperienceActive ? (
+            <AnonSourceStrip
+              className="mb-3"
               post={post}
-              onClose={onClose}
+              onClose={onClose as () => void}
               onReadArticle={onReadArticle}
-              hideSubscribeAction={hideSubscribeAction}
             />
-          </div>
+          ) : (
+            <div className="mb-3 flex items-center">
+              <PostSourceInfo
+                className="min-w-0 flex-1"
+                post={post}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                hideSubscribeAction={hideSubscribeAction}
+              />
+            </div>
+          )}
           <h1
             className="break-words font-bold typo-large-title"
             data-testid="post-modal-title"
