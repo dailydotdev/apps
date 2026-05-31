@@ -18,11 +18,13 @@ import { LogEvent, Origin } from '../../../lib/log';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { ONE_HOUR, ONE_MINUTE } from '../../../lib/time';
+import { useAnonymousPostExperience } from '../../../hooks/post/useAnonymousPostExperience';
 
 const HIGHLIGHTS_LIMIT = 10;
 const ROTATION_INTERVAL_MS = 6000;
 const FADE_DURATION_MS = 500;
 const FEED_NAME = 'post-page-highlights';
+const ANONYMOUS_FEED_NAME = 'anonymous-post-page-highlights';
 const MAX_HIGHLIGHT_AGE_MS = 24 * ONE_HOUR;
 
 const prefersReducedMotion = (): boolean => {
@@ -35,14 +37,17 @@ const prefersReducedMotion = (): boolean => {
 export const HighlightPostSidebarWidget = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { value: isEnabled } = useConditionalFeature({
+  const { isAnonPostExperience } = useAnonymousPostExperience();
+  const { value: isHighlightsEnabled } = useConditionalFeature({
     feature: featurePostPageHighlights,
     shouldEvaluate: !!user,
   });
+  const isEnabled = isHighlightsEnabled || isAnonPostExperience;
+  const feedName = isAnonPostExperience ? ANONYMOUS_FEED_NAME : FEED_NAME;
 
   const { data } = useQuery({
     ...majorHeadlinesQueryOptions({ first: HIGHLIGHTS_LIMIT }),
-    enabled: isEnabled && !!user,
+    enabled: isEnabled && (!!user || isAnonPostExperience),
     refetchInterval: ONE_MINUTE,
   });
 
@@ -63,7 +68,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
   useLogEventOnce(
     () =>
       feedHighlightsLogEvent(LogEvent.Impression, {
-        feedName: FEED_NAME,
+        feedName,
         action: 'impression',
         count: highlights.length,
         highlightIds: highlights.map((h) => h.id),
@@ -123,7 +128,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
   const onHighlightClick = () => {
     logEvent(
       feedHighlightsLogEvent(LogEvent.Click, {
-        feedName: FEED_NAME,
+        feedName,
         action: 'highlight_click',
         position: index + 1,
         count: highlights.length,
@@ -137,7 +142,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
   const onReadAllClick = () => {
     logEvent(
       feedHighlightsLogEvent(LogEvent.Click, {
-        feedName: FEED_NAME,
+        feedName,
         action: 'read_all_click',
         count: highlights.length,
         highlightIds: highlights.map((h) => h.id),
