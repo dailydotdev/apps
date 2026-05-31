@@ -1,5 +1,5 @@
 .field {
-  --field-placeholder-color: var(--theme-text-tertiary);
+  --field-placeholder-color: var(--theme-text-secondary);
   /* Match the toggle/button motion: quick, linear surface + ring transitions. */
   transition: background-color 0.12s linear, box-shadow 0.12s linear,
     border-color 0.12s linear;

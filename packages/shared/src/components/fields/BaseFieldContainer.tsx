@@ -75,7 +75,10 @@ export const getFieldFontColor = ({
     return 'text-text-quaternary';
   }
 
-  return 'text-text-tertiary hover:text-text-primary';
+  // Resting (empty, editable) fields read as active — secondary content on the
+  // floated surface, brightening to primary on hover. Tertiary here made an
+  // empty field look indistinguishable from the dimmed disabled state.
+  return 'text-text-secondary hover:text-text-primary';
 };
 
 interface InnerLabelProps extends FieldStateProps {

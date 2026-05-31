@@ -237,7 +237,7 @@ const LiveTextarea = (
 
 // The faint border + optional surface fill applied to a redesigned dropdown.
 const dropdownTrigger = (extra?: string) => ({
-  button: classNames('border border-border-subtlest-tertiary', extra),
+  button: classNames('border border-border-subtlest-secondary', extra),
 });
 
 // --- Stories ---------------------------------------------------------------
