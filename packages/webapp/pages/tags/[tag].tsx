@@ -88,11 +88,9 @@ import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { TagMasthead } from '../../components/tags/TagMasthead';
-import { TagFrontPage } from '../../components/tags/TagFrontPage';
-import { TagBestOfPosts } from '../../components/tags/TagBestOfPosts';
-import { TagRibbon } from '../../components/tags/TagRibbon';
-import { TagFaq } from '../../components/tags/TagFaq';
+import { TagHubHeader } from '../../components/tags/TagHubHeader';
+import { TagPostList } from '../../components/tags/TagPostList';
+import { TagWidgets } from '../../components/tags/TagWidgets';
 import type { TagFaqItem } from '../../components/tags/tagContent';
 import { getTagFaqItems } from '../../components/tags/tagContent';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -658,45 +656,45 @@ const TagPage = ({
     />
   );
 
-  const learnEditorial = roadmapNode ? (
-    <section className="mx-4 flex flex-col gap-2">
-      <span className="uppercase tracking-widest text-text-quaternary typo-caption1">
-        Learn {title}
-      </span>
-      {roadmapNode}
-    </section>
-  ) : null;
-
   if (isRedesign) {
     return (
       <FeedPageLayoutComponent>
         {jsonLdHead}
-        <div className="flex w-full flex-col gap-8 pb-10">
+        <div className="flex w-full flex-col gap-6 pb-10">
           {breadcrumbs}
-          <TagMasthead
+          <TagHubHeader
             title={title}
             isLoggedIn={isLoggedIn}
             actions={headerActions}
             sponsoredHero={<SponsoredTagHero tag={tag} />}
             onGetFeed={onGetFeed}
-            description={initialData?.flags?.description}
             occurrences={initialData?.occurrences}
             contributorsCount={topContributors.length}
           >
             {seoLinks}
-          </TagMasthead>
-          <TagFrontPage posts={topPosts} />
-          <TagBestOfPosts tag={tag} userId={user?.id} />
-          <TagRibbon
-            tag={title}
+          </TagHubHeader>
+          <TagPostList
+            title={`Top in #${title}`}
+            posts={topPosts}
+            ranked
+            live
+            seeAllHref="#all-posts"
+          />
+          <TagWidgets
+            title={title}
+            tag={tag}
+            description={initialData?.flags?.description}
+            occurrences={initialData?.occurrences}
+            contributorsCount={topContributors.length}
+            createdAt={initialData?.createdAt}
             contributors={topContributors}
             relatedTags={recommendedTags}
+            roadmap={roadmapNode}
+            faqItems={faqItems}
           />
-          {learnEditorial}
-          <TagFaq tag={title} items={faqItems} />
           <section id="all-posts" className="flex scroll-mt-16 flex-col gap-3">
             <div className="mx-4 flex items-baseline justify-between border-b border-border-subtlest-tertiary pb-2">
-              <h2 className="font-bold typo-title3">More in #{title}</h2>
+              <h2 className="font-bold typo-title3">Latest in #{title}</h2>
               <span className="text-text-tertiary typo-footnote">
                 Newest first
               </span>
