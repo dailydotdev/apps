@@ -1,28 +1,23 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { Post } from '../../graphql/posts';
 import type { Tag } from '../../graphql/feedSettings';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
 import { capitalize } from '../../lib/strings';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../components/buttons/Button';
-import { ClickableText } from '../../components/buttons/ClickableText';
+import { VIcon } from '../../components/icons';
+import { IconSize } from '../../components/Icon';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
 import { TagElement } from '../../components/tags/TagElement';
-import { highlightsTitleGradientClassName } from '../../components/cards/highlight/common';
-import { HighlightPostSidebarWidget } from '../../components/cards/highlight/HighlightPostSidebarWidget';
+import { onboardingGradientClasses } from '../../components/onboarding/common';
+import { authGradientBg } from '../../components/marketing/banners/common';
 import { useAnonFeedTags } from './useAnonFeedTags';
-import { useBuildFeedSignup } from './useBuildFeedSignup';
 import { LivePulse } from './LivePulse';
-import { FeedTastePreview } from './FeedTastePreview';
+import { BuildFeedAuthOptions } from './BuildFeedAuthOptions';
 
 interface BuildFeedConversionCardProps {
   post: Post;
@@ -30,112 +25,91 @@ interface BuildFeedConversionCardProps {
 
 const MAX_CHIPS = 6;
 
-const buildSubcopy = (chips: string[]): string => {
-  if (chips.length === 0) {
-    return 'Get a daily feed of the best dev content — handpicked for you, no noise.';
-  }
-  const primary = capitalize(chips[0]);
-  const list = chips.slice(0, 3).map(capitalize).join(', ');
-  return `Loving this ${primary} read? Get a daily feed of ${list} and more — the best dev content, picked for you.`;
-};
+const Benefit = ({ children }: { children: string }): ReactElement => (
+  <li className="flex items-start gap-2">
+    <VIcon
+      size={IconSize.Size16}
+      className="mt-0.5 shrink-0 text-accent-avocado-default"
+    />
+    <Typography type={TypographyType.Callout} color={TypographyColor.Primary}>
+      {children}
+    </Typography>
+  </li>
+);
 
 /**
- * The single anonymous conversion surface in the right column. The whole
- * panel is one cohesive, tinted card: a benefit-led hero made relevant by the
- * article's own topics, a real-time activity pulse, no-password topic
- * following, a taste of the resulting feed, and the live dev pulse — all
- * driving one CTA.
+ * The standout anonymous conversion surface. A focused product hero on the
+ * brand gradient: a headline made relevant by the article's topic, three
+ * explicit benefits, a real-time activity pulse, no-password topic tuning,
+ * and inline one-tap signup — engineered for the aha moment.
  */
 export const BuildFeedConversionCard = ({
   post,
 }: BuildFeedConversionCardProps): ReactElement => {
-  const { showLogin } = useAuthContext();
-  const { triggerSignup } = useBuildFeedSignup();
-  const { chips, selectedTags, previewTags, toggleTag } = useAnonFeedTags({
+  const { chips, selectedTags, toggleTag } = useAnonFeedTags({
     postTags: post?.tags ?? [],
     enabled: true,
   });
 
+  const primaryTopic = chips[0] ? capitalize(chips[0]) : null;
+  const topicList = chips.slice(0, 3).map(capitalize).join(', ');
+
   return (
-    <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-      <header className="flex flex-col gap-1.5">
+    <div className="overflow-hidden rounded-16 border border-accent-cabbage-default shadow-2">
+      <div className={classNames(authGradientBg, 'flex flex-col gap-3 p-4')}>
         <Typography
           bold
-          type={TypographyType.Title3}
-          className={highlightsTitleGradientClassName}
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="uppercase tracking-wider"
         >
-          Build your personalized feed
+          Personalized for you
         </Typography>
         <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
+          bold
+          tag={TypographyTag.H2}
+          type={TypographyType.Title2}
+          className={onboardingGradientClasses}
         >
-          {buildSubcopy(chips)}
+          {primaryTopic
+            ? `Your daily feed of ${primaryTopic}`
+            : 'Your personalized dev feed'}
         </Typography>
+        <ul className="flex flex-col gap-2">
+          <Benefit>
+            {topicList
+              ? `The best of ${topicList} — every morning`
+              : 'The best dev content — every morning'}
+          </Benefit>
+          <Benefit>Real discussions with developers who get it</Benefit>
+          <Benefit>Save, organize & never lose a great read</Benefit>
+        </ul>
         <LivePulse post={post} />
-      </header>
-
-      <div className="flex flex-col gap-2">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="uppercase"
-        >
-          Your topics · tap to tune
-        </Typography>
-        <div className="flex flex-wrap gap-2">
-          {chips.slice(0, MAX_CHIPS).map((tag) => (
-            <TagElement
-              key={tag}
-              tag={{ name: tag } as Tag}
-              isSelected={selectedTags.includes(tag)}
-              onClick={({ tag: clicked }) =>
-                clicked.name && toggleTag(clicked.name)
-              }
-            />
-          ))}
-        </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
-          className="w-full"
-          onClick={() => triggerSignup(selectedTags, 'sidebar')}
-        >
-          Build my feed
-        </Button>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="text-center"
-        >
-          Already a member?{' '}
-          <ClickableText
-            tag="button"
-            type="button"
-            inverseUnderline
-            onClick={() =>
-              showLogin({
-                trigger: AuthTriggers.PostPage,
-                options: { isLogin: true },
-              })
-            }
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-2">
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="uppercase tracking-wider"
           >
-            Log in
-          </ClickableText>
-        </Typography>
-      </div>
-
-      <div className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-4">
-        <FeedTastePreview
-          tags={previewTags}
-          currentPostId={post?.id}
-          title="A taste of your feed"
-          maxItems={3}
-        />
-        <HighlightPostSidebarWidget />
+            Tune your topics
+          </Typography>
+          <div className="flex flex-wrap gap-2">
+            {chips.slice(0, MAX_CHIPS).map((tag) => (
+              <TagElement
+                key={tag}
+                tag={{ name: tag } as Tag}
+                isSelected={selectedTags.includes(tag)}
+                onClick={({ tag: clicked }) =>
+                  clicked.name && toggleTag(clicked.name)
+                }
+              />
+            ))}
+          </div>
+        </div>
+        <BuildFeedAuthOptions tags={selectedTags} origin="sidebar" />
       </div>
     </div>
   );

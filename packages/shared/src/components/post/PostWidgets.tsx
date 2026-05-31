@@ -66,6 +66,7 @@ export function PostWidgets({
     return (
       <PageWidgets className={className}>
         <BuildFeedConversionCard post={post} />
+        <HighlightPostSidebarWidget />
         <PostSidebarAdWidget
           postId={post.id}
           className={{ container: cardClasses }}
