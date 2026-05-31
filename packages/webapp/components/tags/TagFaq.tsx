@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { InfoIcon, ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { TagFaqItem } from './tagContent';
-import { TagModule } from './TagModule';
 
 interface TagFaqProps {
   tag: string;
@@ -11,9 +10,9 @@ interface TagFaqProps {
 }
 
 /**
- * FAQ as native <details> elements: collapsible for a compact UI, but every
- * answer stays in the DOM so crawlers and answer engines (and the FAQPage
- * JSON-LD) see the full content. The first item starts open.
+ * Editorial FAQ — native <details> so answers stay in the DOM for crawlers and
+ * answer engines (and stay in sync with the FAQPage JSON-LD), presented as a
+ * clean Q&A column under a kicker rather than a boxed widget.
  */
 export function TagFaq({ tag, items }: TagFaqProps): ReactElement | null {
   if (items.length === 0) {
@@ -21,29 +20,30 @@ export function TagFaq({ tag, items }: TagFaqProps): ReactElement | null {
   }
 
   return (
-    <TagModule
-      title={`${tag} FAQ`}
-      icon={<InfoIcon size={IconSize.Small} secondary />}
-      flushBody
-    >
-      {items.map((item, index) => (
-        <details
-          key={item.question}
-          open={index === 0}
-          className="group border-b border-border-subtlest-tertiary last:border-b-0"
-        >
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-bold typo-callout [&::-webkit-details-marker]:hidden">
-            {item.question}
-            <ArrowIcon
-              size={IconSize.Small}
-              className="shrink-0 rotate-180 text-text-tertiary transition-transform group-open:rotate-0"
-            />
-          </summary>
-          <p className="px-4 pb-3 text-text-secondary typo-body">
-            {item.answer}
-          </p>
-        </details>
-      ))}
-    </TagModule>
+    <section className="mx-4 flex flex-col gap-2">
+      <span className="uppercase tracking-widest text-text-quaternary typo-caption1">
+        {tag} FAQ
+      </span>
+      <div className="border-t border-border-subtlest-tertiary">
+        {items.map((item, index) => (
+          <details
+            key={item.question}
+            open={index === 0}
+            className="group border-b border-border-subtlest-tertiary"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 font-bold typo-body [&::-webkit-details-marker]:hidden">
+              {item.question}
+              <ArrowIcon
+                size={IconSize.Small}
+                className="shrink-0 rotate-180 text-text-tertiary transition-transform group-open:rotate-0"
+              />
+            </summary>
+            <p className="max-w-3xl pb-4 text-text-secondary typo-body">
+              {item.answer}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
   );
 }

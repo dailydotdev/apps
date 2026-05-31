@@ -12,7 +12,6 @@ import {
   BlockIcon,
   DiscussIcon,
   HashtagIcon,
-  MedalBadgeIcon,
   MiniCloseIcon as XIcon,
   OpenLinkIcon,
   PlusIcon,
@@ -89,15 +88,11 @@ import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { TagHero } from '../../components/tags/TagHero';
-import { TagPulse } from '../../components/tags/TagPulse';
+import { TagMasthead } from '../../components/tags/TagMasthead';
+import { TagFrontPage } from '../../components/tags/TagFrontPage';
 import { TagBestOfPosts } from '../../components/tags/TagBestOfPosts';
-import { TagPeople } from '../../components/tags/TagPeople';
-import { TagSectionHeader } from '../../components/tags/TagSectionHeader';
+import { TagRibbon } from '../../components/tags/TagRibbon';
 import { TagFaq } from '../../components/tags/TagFaq';
-import { TagAbout } from '../../components/tags/TagAbout';
-import { TagRelatedTopics } from '../../components/tags/TagRelatedTopics';
-import { TagModule } from '../../components/tags/TagModule';
 import type { TagFaqItem } from '../../components/tags/tagContent';
 import { getTagFaqItems } from '../../components/tags/tagContent';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -663,58 +658,49 @@ const TagPage = ({
     />
   );
 
-  const learnModule = roadmapNode ? (
-    <TagModule
-      title={`Learn ${title}`}
-      icon={<MedalBadgeIcon size={IconSize.Small} secondary />}
-    >
+  const learnEditorial = roadmapNode ? (
+    <section className="mx-4 flex flex-col gap-2">
+      <span className="uppercase tracking-widest text-text-quaternary typo-caption1">
+        Learn {title}
+      </span>
       {roadmapNode}
-    </TagModule>
+    </section>
   ) : null;
 
   if (isRedesign) {
     return (
       <FeedPageLayoutComponent>
         {jsonLdHead}
-        <div className="flex w-full flex-col gap-6 pb-10">
+        <div className="flex w-full flex-col gap-8 pb-10">
           {breadcrumbs}
-          <TagHero
+          <TagMasthead
             title={title}
             isLoggedIn={isLoggedIn}
             actions={headerActions}
             sponsoredHero={<SponsoredTagHero tag={tag} />}
             onGetFeed={onGetFeed}
+            description={initialData?.flags?.description}
             occurrences={initialData?.occurrences}
             contributorsCount={topContributors.length}
           >
             {seoLinks}
-          </TagHero>
-          <TagPulse tag={title} posts={topPosts} />
+          </TagMasthead>
+          <TagFrontPage posts={topPosts} />
           <TagBestOfPosts tag={tag} userId={user?.id} />
-          <div className="mx-4 flex flex-col gap-4 laptop:flex-row laptop:items-start">
-            <div className="flex min-w-0 flex-1 flex-col gap-4">
-              <TagAbout
-                title={title}
-                description={initialData?.flags?.description}
-                occurrences={initialData?.occurrences}
-                relatedTopicsCount={recommendedTags.length}
-                contributorsCount={topContributors.length}
-                createdAt={initialData?.createdAt}
-              />
-              <TagFaq tag={title} items={faqItems} />
-            </div>
-            <aside className="flex w-full flex-col gap-4 laptop:w-80 laptop:shrink-0">
-              <TagPeople tag={tag} initialContributors={topContributors} />
-              <TagRelatedTopics relatedTags={recommendedTags} />
-              {learnModule}
-            </aside>
-          </div>
+          <TagRibbon
+            tag={title}
+            contributors={topContributors}
+            relatedTags={recommendedTags}
+          />
+          {learnEditorial}
+          <TagFaq tag={title} items={faqItems} />
           <section id="all-posts" className="flex scroll-mt-16 flex-col gap-3">
-            <TagSectionHeader
-              icon={<HashtagIcon size={IconSize.Medium} secondary />}
-              title={`All posts about ${tag}`}
-              subtitle="Every recent post, video, and discussion — newest first."
-            />
+            <div className="mx-4 flex items-baseline justify-between border-b border-border-subtlest-tertiary pb-2">
+              <h2 className="font-bold typo-title3">More in #{title}</h2>
+              <span className="text-text-tertiary typo-footnote">
+                Newest first
+              </span>
+            </div>
             {archiveCard}
             {allPostsFeed}
           </section>

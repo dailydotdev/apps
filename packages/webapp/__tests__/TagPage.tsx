@@ -314,9 +314,10 @@ it('should show login popup when logged-out on follow click', async () => {
 it('should render top contributors section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('Top contributors')).toBeInTheDocument();
-  // The contributor name appears both in the People card (a link) and in the
-  // FAQ prose; assert specifically against the linked occurrence.
+  // Contributors render under the editorial "Voices" ribbon column.
+  expect(await screen.findByText('Voices in react')).toBeInTheDocument();
+  // The contributor name appears both as a ribbon link and in the FAQ prose;
+  // assert specifically against the linked occurrence.
   const idoLink = screen
     .getAllByText('Ido')
     .map((el) => el.closest('a'))
