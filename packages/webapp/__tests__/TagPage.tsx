@@ -173,7 +173,9 @@ const renderComponent = (
     optOutReadingStreak: false,
     optOutLevelSystem: false,
     optOutQuestSystem: false,
+    optOutAchievements: false,
     optOutCompanion: false,
+    isGamificationEnabled: true,
     autoDismissNotifications: true,
     sortCommentsBy: SortCommentsBy.OldestFirst,
     showFeedbackButton: true,
@@ -191,7 +193,9 @@ const renderComponent = (
     toggleOptOutReadingStreak: jest.fn().mockResolvedValue(undefined),
     toggleOptOutLevelSystem: jest.fn().mockResolvedValue(undefined),
     toggleOptOutQuestSystem: jest.fn().mockResolvedValue(undefined),
+    toggleOptOutAchievements: jest.fn().mockResolvedValue(undefined),
     toggleOptOutCompanion: jest.fn().mockResolvedValue(undefined),
+    toggleAllGamification: jest.fn().mockResolvedValue(undefined),
     toggleAutoDismissNotifications: jest.fn().mockResolvedValue(undefined),
     toggleShowFeedbackButton: jest.fn().mockResolvedValue(undefined),
     updateCustomLinks: jest.fn().mockResolvedValue(undefined),
@@ -310,7 +314,7 @@ it('should show login popup when logged-out on follow click', async () => {
 it('should render top contributors section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
+  expect(await screen.findByText('Top contributors')).toBeInTheDocument();
   expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
     'href',
     '/idoshamun',
