@@ -63,17 +63,13 @@ export function PostWidgets({
   // Anonymous "build your feed" experience: the whole right column becomes a
   // single cohesive conversion card, with the promo demoted to the last slot.
   if (isAnonExperience) {
-    // Right rail for anonymous readers: a sticky sign-up + customize card
-    // (always in view as they explore the discovery experience below), with
-    // the promo beneath it. "Happening Now" is reserved for signed-in users.
+    // Right rail for anonymous readers: a single calm, sticky invite. No ads
+    // or promos competing for a first-time reader's trust; "Happening Now" is
+    // reserved for signed-in users.
     return (
       <PageWidgets className={className}>
-        <div className="sticky top-16 flex flex-col gap-4">
+        <div className="sticky top-16">
           <BuildFeedConversionCard post={post} />
-          <PostSidebarAdWidget
-            postId={post.id}
-            className={{ container: cardClasses }}
-          />
         </div>
         <FooterLinks />
       </PageWidgets>

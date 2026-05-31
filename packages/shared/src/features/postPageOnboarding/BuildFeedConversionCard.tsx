@@ -11,10 +11,8 @@ import {
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { onboardingGradientClasses } from '../../components/onboarding/common';
 import { useAnonFeedTags } from './useAnonFeedTags';
 import { BuildFeedAuthOptions } from './BuildFeedAuthOptions';
 
@@ -22,12 +20,13 @@ interface BuildFeedConversionCardProps {
   post: Post;
 }
 
-const MAX_CHIPS = 8;
+const MAX_CHIPS = 6;
 
 /**
- * The anonymous right panel — focused on exactly two jobs: customize (pick
- * topics, pre-seeded from the article) and sign up (inline one-tap). Clean,
- * compact, and explicit, with nothing else competing for attention.
+ * The anonymous right rail — deliberately calm and substance-first. No FOMO,
+ * no fake proof, no animation: an honest one-line description of what
+ * daily.dev is, the article's real topics presented as a quiet way to shape a
+ * feed, and a single low-key signup. The value does the work, not the pitch.
  */
 export const BuildFeedConversionCard = ({
   post,
@@ -38,66 +37,68 @@ export const BuildFeedConversionCard = ({
   });
 
   return (
-    <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
-      <header className="flex flex-col gap-1">
-        <Typography
-          bold
-          tag={TypographyTag.H2}
-          type={TypographyType.Title3}
-          className={onboardingGradientClasses}
-        >
-          Build your personalized feed
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
-        >
-          Pick your topics and get a daily feed of the dev content that matters.
-          Free, forever.
-        </Typography>
-      </header>
-
+    <aside className="flex flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-5">
       <div className="flex flex-col gap-2">
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
-          className="uppercase tracking-wider"
+          className="font-mono uppercase tracking-wider"
         >
-          Your topics
+          daily.dev
         </Typography>
-        <div className="flex flex-wrap gap-1.5">
-          {chips.slice(0, MAX_CHIPS).map((tag) => {
-            const isSelected = selectedTags.includes(tag);
-            if (isSelected) {
+        <Typography bold type={TypographyType.Title3}>
+          Keep up, without the noise
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+        >
+          The best of the dev web — articles, tools, and discussions — in one
+          feed you actually control.
+        </Typography>
+      </div>
+
+      {chips.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+          >
+            Shape it around this article
+          </Typography>
+          <div className="flex flex-wrap gap-1.5">
+            {chips.slice(0, MAX_CHIPS).map((tag) => {
+              if (selectedTags.includes(tag)) {
+                return (
+                  <Button
+                    key={tag}
+                    type="button"
+                    size={ButtonSize.XSmall}
+                    variant={ButtonVariant.Primary}
+                    color={ButtonColor.Cabbage}
+                    onClick={() => toggleTag(tag)}
+                  >
+                    {capitalize(tag)}
+                  </Button>
+                );
+              }
               return (
                 <Button
                   key={tag}
                   type="button"
                   size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Primary}
-                  color={ButtonColor.Cabbage}
+                  variant={ButtonVariant.Float}
                   onClick={() => toggleTag(tag)}
                 >
                   {capitalize(tag)}
                 </Button>
               );
-            }
-            return (
-              <Button
-                key={tag}
-                type="button"
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Float}
-                onClick={() => toggleTag(tag)}
-              >
-                {capitalize(tag)}
-              </Button>
-            );
-          })}
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       <BuildFeedAuthOptions tags={selectedTags} origin="sidebar" />
-    </div>
+    </aside>
   );
 };
