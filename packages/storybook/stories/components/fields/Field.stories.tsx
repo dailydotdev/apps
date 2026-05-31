@@ -23,6 +23,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { LegacyTextField } from './legacy/LegacyTextField';
+import { LegacyTextarea } from './legacy/LegacyTextarea';
 
 const figmaUrl =
   'https://www.figma.com/design/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System';
@@ -68,14 +69,38 @@ const PageHeader = () => (
     </span>
     <h1 className="typo-title1 font-bold">Fields — before &amp; after</h1>
     <p className="max-w-2xl typo-body text-text-tertiary">
-      A side-by-side review of the previous fields and the redesigned fields.
-      The new fields share their motion, focus ring and sizing language with the
-      redesigned Toggle and the Button system — a field and a button of the same
-      size line up pixel-for-pixel. Every field on this page is live: click to
-      focus, type, hover, and tab to verify the states and interactions. Use the
-      theme toolbar to check light and dark.
+      A complete side-by-side of every field, previous design on the left and
+      the redesign on the right, so the team can see exactly what changed and
+      play with it. The new fields share their motion, focus border and sizing
+      language with the redesigned Toggle and the Button system — a field and a
+      button of the same size line up pixel-for-pixel. Every field here is live:
+      click to focus, type, hover, tab. Use the theme toolbar to check light and
+      dark.
     </p>
   </header>
+);
+
+const whatChanged = [
+  'Resting border on every field so fields are delineated from the page.',
+  'Focus and validity use one 1px border: text-primary on focus, red on error, blue on a focused read-only field — no more left-edge accent bar.',
+  'Sizes share the button scale (height, radius, icon size) so fields and buttons line up.',
+  'Two background variants: Filled (floated surface) and Outline (transparent).',
+  'Password keeps its colour-graded strength indicator; disabled fields are dimmed.',
+  'Dropdown popover refreshed: rounded-14 card, inset rows, smooth highlight.',
+];
+
+const WhatChanged = () => (
+  <section className="flex flex-col gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-5">
+    <h2 className="typo-title3 font-bold">What changed</h2>
+    <ul className="flex flex-col gap-2">
+      {whatChanged.map((item) => (
+        <li key={item} className="flex gap-2 typo-callout text-text-tertiary">
+          <span className="text-accent-cabbage-default">→</span>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
 );
 
 const Section = ({
@@ -168,6 +193,53 @@ const NewField = (
   return <TextField inputId={id} name={props.name ?? id} {...props} />;
 };
 
+const popoverTopics = ['Frontend', 'Backend', 'AI', 'DevOps'];
+
+/**
+ * Static preview of the dropdown popover so the old vs new card can sit side by
+ * side without a click. `legacy` paints the previous values (rounded-12 card,
+ * no inset padding, 28px rows); the default is the redesigned popover
+ * (rounded-14 card, 6px inset padding, 32px rows, softer highlight).
+ */
+const PopoverPreview = ({ legacy }: { legacy?: boolean }) => (
+  <div
+    className={classNames(
+      'w-full border border-border-subtlest-secondary bg-background-subtle shadow-2',
+      legacy ? 'rounded-12 px-1 py-1' : 'rounded-14 p-1.5',
+    )}
+  >
+    {popoverTopics.map((topic, i) => (
+      <div
+        key={topic}
+        className={classNames(
+          'flex items-center truncate rounded-10 typo-footnote',
+          legacy ? 'h-7 px-2' : 'h-8 px-2.5',
+          i === 0 ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary',
+        )}
+      >
+        {topic}
+      </div>
+    ))}
+  </div>
+);
+
+const topics = ['Frontend', 'Backend', 'AI', 'DevOps', 'Career'];
+
+// Live, interactive new Textarea with the inputId/name boilerplate handled.
+const LiveTextarea = (
+  props: Omit<React.ComponentProps<typeof Textarea>, 'inputId' | 'name'> & {
+    name?: string;
+  },
+) => {
+  const id = useId();
+  return <Textarea inputId={id} name={props.name ?? id} {...props} />;
+};
+
+// The faint border + optional surface fill applied to a redesigned dropdown.
+const dropdownTrigger = (extra?: string) => ({
+  button: classNames('border border-border-subtlest-tertiary', extra),
+});
+
 // --- Stories ---------------------------------------------------------------
 
 /**
@@ -179,8 +251,10 @@ export const Comparison: Story = {
     <Page>
       <PageHeader />
 
+      <WhatChanged />
+
       <Section
-        title="States"
+        title="Text input · states"
         description="Same props on the previous field (left) and the new field (right). The new field drops the left-edge accent bar and communicates focus and validity with one consistent mechanism — a clean 1px border (text-primary on focus, red on error) — plus smooth surface transitions."
       >
         <div className="flex flex-col gap-3">
@@ -218,7 +292,16 @@ export const Comparison: Story = {
             }
           />
           <ComparisonRow
+            title="Read-only"
+            caption="not editable"
+            previous={
+              <LegacyTextField label="Email" defaultValue="ido@daily.dev" readOnly />
+            }
+            next={<NewField label="Email" value="ido@daily.dev" readOnly />}
+          />
+          <ComparisonRow
             title="Disabled"
+            caption="dimmed"
             previous={
               <LegacyTextField label="Email" defaultValue="ido@daily.dev" disabled />
             }
@@ -320,8 +403,131 @@ export const Comparison: Story = {
       </Section>
 
       <Section
-        title="Variants"
-        description="Every field now carries a faint resting border so fields are delineated from the page. Filled sits on the floated surface; Outline is transparent and defined by its border alone (with a faint hover fill), mirroring the Subtle/Secondary button look."
+        title="Textarea"
+        description="The multi-line field follows the same border language — faint resting border, focus and red error borders, dimmed when disabled — with the built-in character counter."
+      >
+        <div className="flex flex-col gap-3">
+          <ComparisonHeader />
+          <ComparisonRow
+            title="Rest"
+            caption="empty"
+            previous={<LegacyTextarea label="Tell us more" rows={3} />}
+            next={
+              <LiveTextarea
+                fieldType="tertiary"
+                label="Tell us more"
+                placeholder="Share the details…"
+                rows={3}
+              />
+            }
+          />
+          <ComparisonRow
+            title="Filled"
+            caption="has value"
+            previous={
+              <LegacyTextarea
+                label="Bio"
+                rows={3}
+                defaultValue="Frontend engineer who loves a tidy design system."
+              />
+            }
+            next={
+              <LiveTextarea
+                fieldType="tertiary"
+                label="Bio"
+                rows={3}
+                value="Frontend engineer who loves a tidy design system."
+              />
+            }
+          />
+          <ComparisonRow
+            title="Invalid"
+            caption="red border"
+            previous={
+              <LegacyTextarea
+                label="Bio"
+                rows={3}
+                defaultValue="too short"
+                invalid
+                hint="Tell us a little more"
+              />
+            }
+            next={
+              <LiveTextarea
+                fieldType="tertiary"
+                label="Bio"
+                rows={3}
+                value="too short"
+                valid={false}
+                hint="Tell us a little more"
+              />
+            }
+          />
+        </div>
+      </Section>
+
+      <Section
+        title="Dropdown"
+        description="The trigger joins the field family (faint border, shared size scale) and the popover is refreshed: a rounded-14 card with inset rows, taller 32px items and a smooth highlight. The triggers below are live — click to open the real popover."
+      >
+        <div className="flex flex-col gap-3">
+          <ComparisonHeader />
+          <ComparisonRow
+            title="Trigger"
+            caption="placeholder"
+            previous={
+              <Dropdown
+                placeholder="Pick a topic"
+                selectedIndex={-1}
+                options={topics}
+                onChange={() => {}}
+                buttonSize={ButtonSize.Large}
+              />
+            }
+            next={
+              <Dropdown
+                placeholder="Pick a topic"
+                selectedIndex={-1}
+                options={topics}
+                onChange={() => {}}
+                buttonSize={ButtonSize.Large}
+                className={dropdownTrigger('bg-surface-float')}
+              />
+            }
+          />
+          <ComparisonRow
+            title="Trigger"
+            caption="selected"
+            previous={
+              <Dropdown
+                selectedIndex={1}
+                options={topics}
+                onChange={() => {}}
+                buttonSize={ButtonSize.Large}
+              />
+            }
+            next={
+              <Dropdown
+                selectedIndex={1}
+                options={topics}
+                onChange={() => {}}
+                buttonSize={ButtonSize.Large}
+                className={dropdownTrigger('bg-surface-float')}
+              />
+            }
+          />
+          <ComparisonRow
+            title="Popover"
+            caption="open menu"
+            previous={<PopoverPreview legacy />}
+            next={<PopoverPreview />}
+          />
+        </div>
+      </Section>
+
+      <Section
+        title="New · background variants"
+        description="A new capability with no previous equivalent. Filled sits on the floated surface; Outline is transparent and defined by its border alone (with a faint hover fill), mirroring the Subtle/Secondary button look. Both share the faint resting border."
       >
         <div className="flex flex-wrap gap-4">
           <Card label="Filled · default">
@@ -360,58 +566,7 @@ export const Comparison: Story = {
       </Section>
 
       <Section
-        title="Dropdown & textarea"
-        description="The dropdown field and its popover are part of the family: faint border on the trigger, and a polished popover (rounded-14 card, inset items, smooth highlight). Click the dropdown to review the popover."
-      >
-        <div className="flex flex-wrap items-start gap-6">
-          <div className="flex w-72 flex-col gap-2">
-            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
-              Dropdown · filled
-            </span>
-            <Dropdown
-              placeholder="Pick a topic"
-              selectedIndex={-1}
-              options={['Frontend', 'Backend', 'AI', 'DevOps', 'Career']}
-              onChange={() => {}}
-              buttonSize={ButtonSize.Large}
-              className={{
-                button:
-                  'border border-border-subtlest-tertiary bg-surface-float',
-              }}
-            />
-          </div>
-          <div className="flex w-72 flex-col gap-2">
-            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
-              Dropdown · outline
-            </span>
-            <Dropdown
-              placeholder="Pick a topic"
-              selectedIndex={1}
-              options={['Frontend', 'Backend', 'AI', 'DevOps', 'Career']}
-              onChange={() => {}}
-              buttonSize={ButtonSize.Large}
-              className={{
-                button: 'border border-border-subtlest-tertiary',
-              }}
-            />
-          </div>
-          <div className="flex w-96 flex-col gap-2">
-            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
-              Textarea
-            </span>
-            <Textarea
-              inputId="textarea-showcase"
-              name="textarea-showcase"
-              label="Tell us more"
-              placeholder="Share the details…"
-              rows={3}
-            />
-          </div>
-        </div>
-      </Section>
-
-      <Section
-        title="Size alignment with buttons"
+        title="New · size alignment with buttons"
         description="The key change: fields now use the exact same size scale as buttons. A field and a button of the same size share height, corner radius and icon size, so they sit together cleanly in one strip."
       >
         <div className="flex flex-col gap-4">
@@ -477,7 +632,7 @@ export const NewDesign: Story = {
 
       <Section
         title="Interactions"
-        description="Hover to reveal the surface layer, click to focus the even ring, and type to see the value styling."
+        description="Hover to reveal the surface layer, click to focus the text-primary border, and type to see the value styling."
       >
         <div className="flex flex-wrap gap-4">
           <Card label="Hover me">
@@ -536,8 +691,6 @@ const StateGroup = ({
   </div>
 );
 
-const topics = ['Frontend', 'Backend', 'AI', 'DevOps', 'Career'];
-
 const LivePassword = () => {
   const id = useId();
   return <PasswordField inputId={id} name={id} label="Password" minLength={6} />;
@@ -583,19 +736,6 @@ const LiveSearch = (
   const id = useId();
   return <SearchField inputId={id} {...props} />;
 };
-
-const LiveTextarea = (
-  props: Omit<React.ComponentProps<typeof Textarea>, 'inputId' | 'name'> & {
-    name?: string;
-  },
-) => {
-  const id = useId();
-  return <Textarea inputId={id} name={props.name ?? id} {...props} />;
-};
-
-const dropdownTrigger = (extra?: string) => ({
-  button: classNames('border border-border-subtlest-tertiary', extra),
-});
 
 /**
  * Every state of the core text input on one page — rest, hover, focus, filled,
