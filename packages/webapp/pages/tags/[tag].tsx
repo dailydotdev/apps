@@ -12,6 +12,7 @@ import {
   BlockIcon,
   DiscussIcon,
   HashtagIcon,
+  MedalBadgeIcon,
   MiniCloseIcon as XIcon,
   OpenLinkIcon,
   PlusIcon,
@@ -91,6 +92,8 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 import { TagPageHeader } from '../../components/tags/TagPageHeader';
 import { TagBestOfPosts } from '../../components/tags/TagBestOfPosts';
 import { TagBuildYourFeed } from '../../components/tags/TagBuildYourFeed';
+import { TagPeople } from '../../components/tags/TagPeople';
+import { TagSectionHeader } from '../../components/tags/TagSectionHeader';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
@@ -600,62 +603,94 @@ const TagPage = ({
   );
 
   const allPostsFeed = (
-    <>
-      <div className="mx-4 mb-5 flex w-auto items-center">
-        <p className="flex items-center font-bold typo-body">
-          All posts about {tag}
-        </p>
-      </div>
-      <Feed
-        feedName={OtherFeedPage.Tag}
-        feedQueryKey={[
-          'tagFeed',
-          user?.id ?? 'anonymous',
-          Object.values(queryVariables),
-        ]}
-        query={TAG_FEED_QUERY}
-        variables={queryVariables}
-        className="!mx-4 !w-auto"
-      />
-    </>
+    <Feed
+      feedName={OtherFeedPage.Tag}
+      feedQueryKey={[
+        'tagFeed',
+        user?.id ?? 'anonymous',
+        Object.values(queryVariables),
+      ]}
+      query={TAG_FEED_QUERY}
+      variables={queryVariables}
+      className="!mx-4 !w-auto"
+    />
   );
+
+  // Redesign-only sections, composed with a shared section rhythm.
+  const buildLoggedInRelatedTopics = () => (
+    <section className="flex scroll-mt-16 flex-col gap-3">
+      <TagSectionHeader
+        icon={<HashtagIcon size={IconSize.Medium} secondary />}
+        title="Related topics"
+        subtitle="Tags developers follow alongside this one."
+      />
+      <div className="mx-4">
+        <TagRecommendedTags
+          tag={tag}
+          blockedTags={feedSettings?.blockedTags}
+          initialTags={recommendedTags}
+        />
+      </div>
+    </section>
+  );
+
+  let relatedTopicsSection: ReactElement | null = null;
+  if (tag && !isLoggedIn) {
+    relatedTopicsSection = (
+      <TagBuildYourFeed
+        tag={tag}
+        relatedTags={recommendedTags}
+        onCreateFeed={onGetFeed}
+      />
+    );
+  } else if (tag) {
+    relatedTopicsSection = buildLoggedInRelatedTopics();
+  }
+
+  const learnSection = roadmapNode ? (
+    <section className="flex scroll-mt-16 flex-col gap-3">
+      <TagSectionHeader
+        icon={<MedalBadgeIcon size={IconSize.Medium} secondary />}
+        title={`Learn ${tag}`}
+        subtitle="A structured path to go from curious to confident."
+      />
+      <div className="mx-4">{roadmapNode}</div>
+    </section>
+  ) : null;
 
   if (isRedesign) {
     return (
       <FeedPageLayoutComponent>
         {jsonLdHead}
-        {breadcrumbs}
-        <TagPageHeader
-          title={title}
-          description={initialData?.flags?.description}
-          isLoggedIn={isLoggedIn}
-          actions={headerActions}
-          sponsoredHero={<SponsoredTagHero tag={tag} />}
-          onGetFeed={onGetFeed}
-        >
-          {seoLinks}
-          {isLoggedIn
-            ? tag && (
-                <TagRecommendedTags
-                  tag={tag}
-                  blockedTags={feedSettings?.blockedTags}
-                  initialTags={recommendedTags}
-                />
-              )
-            : tag && (
-                <TagBuildYourFeed
-                  tag={tag}
-                  relatedTags={recommendedTags}
-                  onCreateFeed={onGetFeed}
-                />
-              )}
-          {roadmapNode}
-        </TagPageHeader>
-        {relatedEntities}
-        <TagBestOfPosts tag={tag} userId={user?.id} />
-        {archiveCard}
-        {allPostsFeed}
-        {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
+        <div className="flex w-full flex-col gap-8 pb-10">
+          {breadcrumbs}
+          <TagPageHeader
+            title={title}
+            description={initialData?.flags?.description}
+            isLoggedIn={isLoggedIn}
+            actions={headerActions}
+            sponsoredHero={<SponsoredTagHero tag={tag} />}
+            onGetFeed={onGetFeed}
+            relatedTopicsCount={recommendedTags.length}
+            contributorsCount={topContributors.length}
+          >
+            {seoLinks}
+          </TagPageHeader>
+          {relatedTopicsSection}
+          <TagBestOfPosts tag={tag} userId={user?.id} />
+          <TagPeople tag={tag} initialContributors={topContributors} />
+          {learnSection}
+          <section id="all-posts" className="flex scroll-mt-16 flex-col gap-3">
+            <TagSectionHeader
+              icon={<HashtagIcon size={IconSize.Medium} secondary />}
+              title={`All posts about ${tag}`}
+              subtitle="Every recent post, video, and discussion — newest first."
+            />
+            {archiveCard}
+            {allPostsFeed}
+          </section>
+          {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
+        </div>
       </FeedPageLayoutComponent>
     );
   }
@@ -746,6 +781,11 @@ const TagPage = ({
         />
       </ActiveFeedNameContext.Provider>
       {archiveCard}
+      <div className="mx-4 mb-5 flex w-auto items-center">
+        <p className="flex items-center font-bold typo-body">
+          All posts about {tag}
+        </p>
+      </div>
       {allPostsFeed}
     </FeedPageLayoutComponent>
   );

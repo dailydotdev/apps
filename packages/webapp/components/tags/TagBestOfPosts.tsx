@@ -9,7 +9,10 @@ import {
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { HotIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import TabList from '@dailydotdev/shared/src/components/tabs/TabList';
+import { TagSectionHeader } from './TagSectionHeader';
 
 const supportedTypes = [
   PostType.Article,
@@ -89,11 +92,13 @@ export function TagBestOfPosts({
   }, [tag, activeTab.key]);
 
   return (
-    <section className="mb-10 flex flex-col gap-1">
-      <div className="mx-4 flex items-center gap-2 laptop:mx-4">
-        <p className="font-bold typo-body">Best of {tag}</p>
-      </div>
-      <div className="mx-2 laptop:mx-2">
+    <section className="flex scroll-mt-16 flex-col gap-3">
+      <TagSectionHeader
+        icon={<HotIcon size={IconSize.Medium} secondary />}
+        title={`Best of ${tag}`}
+        subtitle="The standout posts, discussions, and most-upvoted reads."
+      />
+      <div className="mx-2 border-b border-border-subtlest-tertiary">
         <TabList<string>
           items={tabs.map((tab) => ({ label: tab.label }))}
           active={activeTab.label}
@@ -104,7 +109,7 @@ export function TagBestOfPosts({
             }
           }}
           autoScrollActive
-          className={{ item: '!py-2' }}
+          className={{ item: '!py-3' }}
         />
       </div>
       <ActiveFeedNameContext.Provider value={{ feedName: activeTab.feedName }}>

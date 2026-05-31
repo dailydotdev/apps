@@ -310,7 +310,7 @@ it('should show login popup when logged-out on follow click', async () => {
 it('should render top contributors section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
+  expect(await screen.findByText('Top contributors')).toBeInTheDocument();
   expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
     'href',
     '/idoshamun',

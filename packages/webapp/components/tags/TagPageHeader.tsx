@@ -15,7 +15,7 @@ interface TagPageHeaderProps {
   /**
    * Logged-out visitors (mostly SEO / shared-link traffic) get the
    * conversion-focused value proposition and a single primary CTA on top of the
-   * regular header. Logged-in members keep the existing, familiar header.
+   * regular header. Logged-in members keep the familiar, content-first header.
    */
   isLoggedIn: boolean;
   /** Follow / Block buttons + feed options menu, owned by the page. */
@@ -24,18 +24,25 @@ interface TagPageHeaderProps {
   sponsoredHero?: ReactNode;
   /** Anonymous primary CTA: build a personalized feed seeded with this tag. */
   onGetFeed: () => void;
-  /** Related tags / build-your-feed, sr-only SEO links, roadmap card, etc. */
+  relatedTopicsCount?: number;
+  contributorsCount?: number;
+  /** sr-only SEO links, kept in the DOM for crawlers. */
   children?: ReactNode;
 }
 
+const MetaChip = ({ children }: { children: ReactNode }): ReactElement => (
+  <span className="flex items-center rounded-8 bg-surface-float px-2 py-1 text-text-tertiary typo-caption1">
+    {children}
+  </span>
+);
+
 /**
- * Redesigned tag page header.
+ * Tag page hero — the topic's identity at a glance.
  *
- * Existing members see essentially the same compact header they have today
- * (icon + title + actions + description). Anonymous visitors additionally get a
- * value-proposition headline, social proof, and a single clear "Get my feed"
- * CTA so the daily.dev "aha moment" is visible the instant they land from SEO
- * or a shared link — without removing any of the SEO-relevant content.
+ * Content-first for everyone: a clear icon/title lockup, scannable meta, a
+ * readable description, and the follow/feed actions. Anonymous visitors get an
+ * additional value-proposition band with one primary "Get my feed" CTA so the
+ * daily.dev payoff is obvious the instant they arrive from SEO or a shared link.
  */
 export function TagPageHeader({
   title,
@@ -44,39 +51,55 @@ export function TagPageHeader({
   actions,
   sponsoredHero,
   onGetFeed,
+  relatedTopicsCount,
+  contributorsCount,
   children,
 }: TagPageHeaderProps): ReactElement {
   return (
-    <header
-      className={classNames(
-        'mx-4 flex flex-col gap-4 rounded-16 p-0',
-        !isLoggedIn &&
-          'border border-border-subtlest-tertiary bg-gradient-to-b from-surface-float to-transparent p-4 laptop:p-6',
-      )}
-    >
+    <header className="mx-4 flex flex-col gap-5">
       {sponsoredHero}
-      <div className="flex w-full items-center font-bold">
-        <HashtagIcon size={IconSize.XXLarge} />
-        <h1 className="ml-2 w-fit typo-title2">{title}</h1>
+      <div className="flex flex-col gap-4 tablet:flex-row tablet:items-start tablet:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <span
+            aria-hidden
+            className="flex size-12 shrink-0 items-center justify-center rounded-14 bg-surface-float text-text-primary"
+          >
+            <HashtagIcon size={IconSize.Large} />
+          </span>
+          <div className="flex min-w-0 flex-col gap-2">
+            <h1 className="break-words font-bold typo-title1">{title}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <MetaChip>Updated daily</MetaChip>
+              {!!relatedTopicsCount && (
+                <MetaChip>{relatedTopicsCount} related topics</MetaChip>
+              )}
+              {!!contributorsCount && (
+                <MetaChip>{contributorsCount} top contributors</MetaChip>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="shrink-0">{actions}</div>
       </div>
 
-      {!isLoggedIn && (
-        <p className="max-w-2xl typo-title3">
-          Everything happening in {title}, in one feed.
-        </p>
+      {description && (
+        <p className="max-w-3xl text-text-secondary typo-body">{description}</p>
       )}
 
-      {description && <p className="typo-body">{description}</p>}
-
       {!isLoggedIn && (
-        <p className="text-text-tertiary typo-footnote">
-          The best {title} posts, videos, and discussions — curated daily by
-          millions of developers.
-        </p>
-      )}
-
-      <div className="flex flex-row flex-wrap items-center gap-3">
-        {!isLoggedIn && (
+        <div
+          className={classNames(
+            'flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-5',
+            'bg-gradient-to-br from-surface-float to-transparent',
+          )}
+        >
+          <p className="font-bold typo-title3">
+            Everything happening in {title}, in one feed.
+          </p>
+          <p className="text-text-tertiary typo-callout">
+            The best {title} posts, videos, and discussions — curated daily by
+            millions of developers.
+          </p>
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
@@ -85,9 +108,8 @@ export function TagPageHeader({
           >
             Get my {title} feed
           </Button>
-        )}
-        {actions}
-      </div>
+        </div>
+      )}
 
       {children}
     </header>
