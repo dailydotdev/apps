@@ -6,15 +6,11 @@ import type {
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, { useContext, useMemo } from 'react';
-import classNames from 'classnames';
+import React, { useContext, useEffect, useMemo } from 'react';
 import {
   BlockIcon,
   DiscussIcon,
   HashtagIcon,
-  MiniCloseIcon as XIcon,
-  OpenLinkIcon,
-  PlusIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
@@ -32,33 +28,21 @@ import type {
   TopPostsData,
 } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
+import { MenuIcon } from '@dailydotdev/shared/src/components/MenuIcon';
+import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/Button';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import {
-  OtherFeedPage,
-  RequestKey,
-  StaleTime,
-} from '@dailydotdev/shared/src/lib/query';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { GET_RECOMMENDED_TAGS_QUERY } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
   ReferralCampaignKey,
   useFeedLayout,
 } from '@dailydotdev/shared/src/hooks';
-import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
-import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntities';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCES_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import type { Connection } from '@dailydotdev/shared/src/graphql/common';
@@ -68,8 +52,6 @@ import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalF
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
-import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
@@ -80,6 +62,17 @@ import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPr
 import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
+import {
+  getTagFaqItems,
+  TagBestOfTabs,
+  TagCommunity,
+  TagFaq,
+  TagFeaturedPost,
+  TagHero,
+  TagLearnSection,
+  TagSignupCta,
+  TagUniverse,
+} from '../../components/tags/TagPageSections';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -95,130 +88,23 @@ interface TagPageProps extends DynamicSeoProps {
   topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
   topContributors: UserShortProfile[];
+  topSources: Source[];
 }
-
-interface TagRecommendedTagsProps {
-  tag: string;
-  blockedTags?: string[];
-  initialTags?: TagsData['tags'];
-}
-
-const TagRecommendedTags = ({
-  tag,
-  blockedTags,
-  initialTags = [],
-}: TagRecommendedTagsProps): ReactElement => {
-  const { data: recommendedTags, isPending } = useQuery({
-    queryKey: [RequestKey.RecommendedTags, null, tag],
-
-    queryFn: async () =>
-      await gqlClient.request<{
-        recommendedTags: TagsData;
-      }>(GET_RECOMMENDED_TAGS_QUERY, {
-        tags: [tag],
-        excludedTags: blockedTags || [],
-      }),
-    enabled: !!tag,
-    staleTime: StaleTime.OneHour,
-  });
-
-  const tags = recommendedTags?.recommendedTags?.tags ?? initialTags;
-
-  return (
-    <RecommendedTags
-      isLoading={isPending && initialTags.length === 0}
-      tags={tags}
-    />
-  );
-};
-
-const TagTopSources = ({ tag }: { tag: string }) => {
-  const { data: topSources, isPending } = useQuery({
-    queryKey: [RequestKey.SourceByTag, null, tag],
-
-    queryFn: async () =>
-      await gqlClient.request<{ sourcesByTag: Connection<Source> }>(
-        SOURCES_BY_TAG_QUERY,
-        {
-          tag,
-          first: 6,
-        },
-      ),
-
-    enabled: !!tag,
-    staleTime: StaleTime.OneHour,
-  });
-
-  const sources = topSources?.sourcesByTag?.edges?.map((edge) => edge.node);
-  if (!sources || sources.length === 0) {
-    return null;
-  }
-
-  return (
-    <RelatedEntities
-      isLoading={isPending}
-      items={sources.map((source) => ({
-        id: source.id,
-        image: source.image,
-        imageAlt: `${source.name} logo`,
-        name: source.name,
-        permalink: source.permalink,
-      }))}
-      title="🔔 Top sources covering it"
-      className="mx-4"
-    />
-  );
-};
-
-const TagTopContributors = ({
-  tag,
-  initialUsers = [],
-}: {
-  tag: string;
-  initialUsers?: UserShortProfile[];
-}): ReactElement | null => {
-  const { data: topContributors, isPending } = useQuery({
-    queryKey: [RequestKey.TopCreatorsByTag, null, tag],
-
-    queryFn: async () =>
-      await gqlClient.request<{ topCreatorsByTag: UserShortProfile[] }>(
-        TOP_CREATORS_BY_TAG_QUERY,
-        {
-          tag,
-          limit: 6,
-        },
-      ),
-
-    enabled: !!tag,
-    staleTime: StaleTime.OneHour,
-  });
-
-  const users = topContributors?.topCreatorsByTag ?? initialUsers;
-
-  return (
-    <RelatedEntities
-      isLoading={isPending && initialUsers.length === 0}
-      items={users.map((user) => ({
-        id: user.id,
-        image: user.image,
-        imageAlt: `${user.name} avatar`,
-        name: user.name,
-        permalink: user.permalink,
-      }))}
-      title="👥 Top contributors"
-      className="mx-4"
-    />
-  );
-};
 
 const getTagPageJsonLd = ({
   tag,
   initialData,
   topPosts,
+  recommendedTags,
+  topContributors,
+  topSources,
 }: {
   tag: string;
   initialData: Keyword;
   topPosts: TopPost[];
+  recommendedTags: TagsData['tags'];
+  topContributors: UserShortProfile[];
+  topSources: Source[];
 }): string => {
   const encodedTag = encodeURIComponent(tag);
   const tagTitle = initialData.flags?.title || tag;
@@ -226,6 +112,15 @@ const getTagPageJsonLd = ({
     initialData.flags?.description ||
     `Find all the recent posts, videos, updates and discussions about ${tagTitle}`;
   const tagUrl = `${appOrigin}/tags/${encodedTag}`;
+  const faqItems = getTagFaqItems({
+    tag,
+    title: tagTitle,
+    description: tagDescription,
+    occurrences: initialData.occurrences,
+    recommendedTags,
+    topContributors,
+    topSources,
+  });
 
   return JSON.stringify({
     '@context': 'https://schema.org',
@@ -236,7 +131,19 @@ const getTagPageJsonLd = ({
         url: tagUrl,
         name: `${tagTitle} posts on daily.dev`,
         description: tagDescription,
+        about: { '@id': `${tagUrl}#term` },
         isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      {
+        '@type': 'DefinedTerm',
+        '@id': `${tagUrl}#term`,
+        name: tagTitle,
+        description: tagDescription,
+        inDefinedTermSet: {
+          '@type': 'DefinedTermSet',
+          name: 'daily.dev developer topics',
+          url: `${appOrigin}/tags`,
+        },
       },
       ...(topPosts.length
         ? [
@@ -249,6 +156,22 @@ const getTagPageJsonLd = ({
                 position: index + 1,
                 url: `${appOrigin}/posts/${post.slug || post.id}`,
                 name: post.title || '',
+              })),
+            },
+          ]
+        : []),
+      ...(faqItems.length
+        ? [
+            {
+              '@type': 'FAQPage',
+              '@id': `${tagUrl}#faq`,
+              mainEntity: faqItems.map((item) => ({
+                '@type': 'Question',
+                name: item.question,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: item.answer,
+                },
               })),
             },
           ]
@@ -285,8 +208,9 @@ const TagPage = ({
   topPosts,
   recommendedTags,
   topContributors,
+  topSources,
 }: TagPageProps): ReactElement => {
-  const { push } = useRouter();
+  const { push, replace, query } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -356,11 +280,25 @@ const TagPage = ({
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
   const jsonLd = initialData
-    ? getTagPageJsonLd({ tag, initialData, topPosts })
+    ? getTagPageJsonLd({
+        tag,
+        initialData,
+        topPosts,
+        recommendedTags,
+        topContributors,
+        topSources,
+      })
     : null;
   const { follow, unfollow } = useContentPreference({
     showToastOnSuccess: false,
   });
+  const personalizedTags = useMemo(() => {
+    const relatedTags = recommendedTags
+      .map((recommendedTag) => recommendedTag.name)
+      .filter((recommendedTag): recommendedTag is string => !!recommendedTag);
+
+    return Array.from(new Set([tag, ...relatedTags])).slice(0, 6);
+  }, [recommendedTags, tag]);
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {
@@ -377,37 +315,94 @@ const TagPage = ({
     return 'unfollowed';
   }, [feedSettings, tag]);
 
-  const followButtonProps: ButtonProps<'button'> = {
-    size: ButtonSize.Small,
-    icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
-    onClick: async (): Promise<void> => {
-      if (user) {
-        if (tagStatus === 'followed') {
-          await onUnfollowTags({ tags: [tag] });
-        } else {
-          await onFollowTags({ tags: [tag] });
-        }
-      } else {
-        showLogin({ trigger: AuthTriggers.Filter });
-      }
-    },
+  useEffect(() => {
+    const tagsToFollowParam = query.followTags;
+    if (!user || typeof tagsToFollowParam !== 'string') {
+      return;
+    }
+
+    const tagsToFollow = tagsToFollowParam
+      .split(',')
+      .map((value) => decodeURIComponent(value.trim()))
+      .filter(Boolean);
+
+    if (tagsToFollow.length === 0) {
+      return;
+    }
+
+    const followTags = async (): Promise<void> => {
+      await onFollowTags({ tags: Array.from(new Set(tagsToFollow)) });
+
+      const params = new URLSearchParams(globalThis.location.search);
+      params.delete('followTags');
+      const search = params.toString();
+      await replace(
+        `${globalThis.location.pathname}${search ? `?${search}` : ''}`,
+        undefined,
+        { shallow: true },
+      );
+    };
+
+    followTags().catch(() => undefined);
+  }, [onFollowTags, query.followTags, replace, user]);
+
+  const openPersonalizedSignup = (): void => {
+    const encodedTags = personalizedTags.map(encodeURIComponent).join(',');
+    showLogin({
+      trigger: AuthTriggers.Filter,
+      options: {
+        afterAuth: `/tags/${encodeURIComponent(tag)}?followTags=${encodedTags}`,
+      },
+    });
   };
 
-  const blockButtonProps: ButtonProps<'button'> = {
-    size: ButtonSize.Small,
-    icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
-    onClick: async (): Promise<void> => {
-      if (user) {
-        if (tagStatus === 'blocked') {
-          await onUnblockTags({ tags: [tag] });
-        } else {
-          await onBlockTags({ tags: [tag] });
-        }
-      } else {
-        showLogin({ trigger: AuthTriggers.Filter });
-      }
-    },
+  const handleFollowClick = async (): Promise<void> => {
+    if (!user) {
+      openPersonalizedSignup();
+      return;
+    }
+
+    if (tagStatus === 'followed') {
+      await onUnfollowTags({ tags: [tag] });
+      return;
+    }
+
+    await onFollowTags({ tags: [tag] });
   };
+
+  const handleBlockClick = async (): Promise<void> => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.Filter });
+      return;
+    }
+
+    if (tagStatus === 'blocked') {
+      await onUnblockTags({ tags: [tag] });
+      return;
+    }
+
+    await onBlockTags({ tags: [tag] });
+  };
+
+  const handlePrimaryAction = async (): Promise<void> => {
+    if (tagStatus === 'blocked') {
+      await handleBlockClick();
+      return;
+    }
+
+    await handleFollowClick();
+  };
+
+  const tagMenuOptions =
+    tagStatus === 'followed'
+      ? []
+      : [
+          {
+            icon: <MenuIcon Icon={BlockIcon} />,
+            label: tagStatus === 'blocked' ? 'Unblock tag' : 'Block tag',
+            action: handleBlockClick,
+          },
+        ];
 
   return (
     <FeedPageLayoutComponent>
@@ -423,32 +418,22 @@ const TagPage = ({
         items={[{ label: 'Tags', href: '/tags' }, { label: title }]}
         className="mx-4"
       />
-      <PageInfoHeader className={classNames('mx-4 !w-auto')}>
-        <SponsoredTagHero tag={tag} />
-        <div className="flex items-center font-bold">
-          <HashtagIcon size={IconSize.XXLarge} />
-          <h1 className="ml-2 w-fit typo-title2">{title}</h1>
-        </div>
-        <div className="flex flex-row gap-3">
-          {tagStatus !== 'blocked' && (
-            <Button
-              variant={ButtonVariant.Primary}
-              {...followButtonProps}
-              aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
-            >
-              {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
-            </Button>
-          )}
-          {tagStatus !== 'followed' && (
-            <Button
-              variant={ButtonVariant.Float}
-              {...blockButtonProps}
-              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            >
-              {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            </Button>
-          )}
+      <TagHero
+        tag={tag}
+        title={title}
+        description={initialData?.flags?.description}
+        occurrences={initialData?.occurrences}
+        contributorsCount={topContributors.length}
+        sourcesCount={topSources.length}
+        relatedTagsCount={recommendedTags.length}
+        tagStatus={tagStatus}
+        isAnonymous={!user}
+        onPrimaryAction={handlePrimaryAction}
+        sponsoredHero={<SponsoredTagHero tag={tag} />}
+        actions={
           <CustomFeedOptionsMenu
+            buttonVariant={ButtonVariant.Secondary}
+            additionalOptions={tagMenuOptions}
             onCreateNewFeed={() =>
               push(
                 `/feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
@@ -480,155 +465,177 @@ const TagPage = ({
               }),
             }}
           />
-        </div>
-        {initialData?.flags?.description && (
-          <p className="typo-body">{initialData?.flags?.description}</p>
-        )}
-        {topPosts.length > 0 && (
-          <div className="sr-only">
-            {topPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/posts/${post.slug || post.id}`}
-                prefetch={false}
-              >
-                <a>{post.title}</a>
-              </Link>
-            ))}
-          </div>
-        )}
-        {recommendedTags.length > 0 && (
-          <div className="sr-only">
-            {recommendedTags
-              .map((relatedTag) => relatedTag.name)
-              .filter((relatedTag): relatedTag is string => !!relatedTag)
-              .map((relatedTag) => (
-                <Link
-                  key={relatedTag}
-                  href={`/tags/${relatedTag}`}
-                  prefetch={false}
-                >
-                  <a>Posts about {relatedTag}</a>
-                </Link>
-              ))}
-          </div>
-        )}
-        {topContributors.length > 0 && (
-          <div className="sr-only">
-            {topContributors.map((contributor) => (
-              <Link
-                key={contributor.id}
-                href={contributor.permalink}
-                prefetch={false}
-              >
-                <a>Posts by {contributor.name}</a>
-              </Link>
-            ))}
-          </div>
-        )}
-        {tag && (
-          <TagRecommendedTags
-            tag={tag}
-            blockedTags={feedSettings?.blockedTags}
-            initialTags={recommendedTags}
-          />
-        )}
-        {showRoadmap && initialData?.flags?.roadmap && (
-          <Link href={initialData.flags.roadmap} passHref prefetch={false}>
-            <a
-              target="_blank"
-              rel={anchorDefaultRel}
-              className="mr-auto flex w-auto cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
-            >
-              <img
-                src={cloudinarySourceRoadmap}
-                alt="roadmap.sh logo"
-                className="size-10 rounded-full"
-              />
-              <div className="mx-3 flex-1">
-                <p className="font-bold typo-callout">
-                  Comprehensive roadmap for {tag}
-                </p>
-                <p className="text-text-tertiary typo-footnote">
-                  By roadmap.sh
-                </p>
+        }
+        seoLinks={
+          <>
+            {topPosts.length > 0 && (
+              <div className="sr-only">
+                {topPosts.map((post) => (
+                  <Link
+                    key={post.id}
+                    href={`/posts/${post.slug || post.id}`}
+                    prefetch={false}
+                  >
+                    <a>{post.title}</a>
+                  </Link>
+                ))}
               </div>
-              <Button
-                icon={<OpenLinkIcon />}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-              />
-            </a>
-          </Link>
-        )}
-      </PageInfoHeader>
-      <TagTopSources tag={tag} />
-      <TagTopContributors tag={tag} initialUsers={topContributors} />
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.TagsTopPosts }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.TagsTopPosts}
-          feedQueryKey={[
-            'tagsTopPosts',
-            user?.id ?? 'anonymous',
-            Object.values(topPostsQueryVariables),
-          ]}
-          query={TAG_FEED_QUERY}
-          variables={topPostsQueryVariables}
-          title={{
-            copy: 'Top posts',
-            icon: <HashtagIcon size={IconSize.Medium} className="mr-1.5" />,
-          }}
-          className="laptop:!mx-4"
-          emptyScreen={<></>}
+            )}
+            {recommendedTags.length > 0 && (
+              <div className="sr-only">
+                {recommendedTags
+                  .map((relatedTag) => relatedTag.name)
+                  .filter((relatedTag): relatedTag is string => !!relatedTag)
+                  .map((relatedTag) => (
+                    <Link
+                      key={relatedTag}
+                      href={`/tags/${relatedTag}`}
+                      prefetch={false}
+                    >
+                      <a>Posts about {relatedTag}</a>
+                    </Link>
+                  ))}
+              </div>
+            )}
+            {topContributors.length > 0 && (
+              <div className="sr-only">
+                {topContributors.map((contributor) => (
+                  <Link
+                    key={contributor.id}
+                    href={contributor.permalink}
+                    prefetch={false}
+                  >
+                    <a>Posts by {contributor.name}</a>
+                  </Link>
+                ))}
+              </div>
+            )}
+            {topSources.length > 0 && (
+              <div className="sr-only">
+                {topSources.map((source) => (
+                  <Link
+                    key={source.id || source.permalink}
+                    href={source.permalink}
+                    prefetch={false}
+                  >
+                    <a>Posts from {source.name}</a>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </>
+        }
+      />
+      <TagFeaturedPost tagTitle={title} post={topPosts[0]} />
+      {!user && (
+        <TagSignupCta
+          tagTitle={title}
+          relatedTagsCount={Math.max(personalizedTags.length - 1, 0)}
+          onClick={openPersonalizedSignup}
         />
-      </ActiveFeedNameContext.Provider>
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.TagsMostUpvoted}
-          feedQueryKey={[
-            'tagsMostUpvoted',
-            user?.id ?? 'anonymous',
-            Object.values(mostUpvotedQueryVariables),
-          ]}
-          query={MOST_UPVOTED_FEED_QUERY}
-          variables={mostUpvotedQueryVariables}
-          title={{
-            copy: 'Most upvoted posts',
-            icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
-          }}
-          className="laptop:!mx-4"
-          emptyScreen={<></>}
-        />
-      </ActiveFeedNameContext.Provider>
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.TagsBestDiscussed}
-          feedQueryKey={[
-            'tagsBestDiscussed',
-            user?.id ?? 'anonymous',
-            Object.values(bestDiscussedQueryVariables),
-          ]}
-          query={MOST_DISCUSSED_FEED_QUERY}
-          variables={bestDiscussedQueryVariables}
-          title={{
-            copy: 'Best discussed posts',
-            icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
-          }}
-          className="laptop:!mx-4"
-          emptyScreen={<></>}
-        />
-      </ActiveFeedNameContext.Provider>
-      <ArchiveEntryCard
-        scopeType={ArchiveScopeType.Tag}
-        scopeId={tag}
-        scopeName={title}
-        className="mx-4 mb-6 laptop:mx-4"
+      )}
+      <TagBestOfTabs
+        tagTitle={title}
+        topPostsFeed={
+          <ActiveFeedNameContext.Provider
+            value={{ feedName: OtherFeedPage.TagsTopPosts }}
+          >
+            <HorizontalFeed
+              feedName={OtherFeedPage.TagsTopPosts}
+              feedQueryKey={[
+                'tagsTopPosts',
+                user?.id ?? 'anonymous',
+                Object.values(topPostsQueryVariables),
+              ]}
+              query={TAG_FEED_QUERY}
+              variables={topPostsQueryVariables}
+              title={{
+                copy: 'Top posts',
+                icon: <HashtagIcon size={IconSize.Medium} className="mr-1.5" />,
+              }}
+              className="!mx-0 !mb-0 laptop:!mx-0"
+              emptyScreen={<></>}
+            />
+          </ActiveFeedNameContext.Provider>
+        }
+        mostUpvotedFeed={
+          <ActiveFeedNameContext.Provider
+            value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
+          >
+            <HorizontalFeed
+              feedName={OtherFeedPage.TagsMostUpvoted}
+              feedQueryKey={[
+                'tagsMostUpvoted',
+                user?.id ?? 'anonymous',
+                Object.values(mostUpvotedQueryVariables),
+              ]}
+              query={MOST_UPVOTED_FEED_QUERY}
+              variables={mostUpvotedQueryVariables}
+              title={{
+                copy: 'Most upvoted posts',
+                icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
+              }}
+              className="!mx-0 !mb-0 laptop:!mx-0"
+              emptyScreen={<></>}
+            />
+          </ActiveFeedNameContext.Provider>
+        }
+        bestDiscussedFeed={
+          <ActiveFeedNameContext.Provider
+            value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
+          >
+            <HorizontalFeed
+              feedName={OtherFeedPage.TagsBestDiscussed}
+              feedQueryKey={[
+                'tagsBestDiscussed',
+                user?.id ?? 'anonymous',
+                Object.values(bestDiscussedQueryVariables),
+              ]}
+              query={MOST_DISCUSSED_FEED_QUERY}
+              variables={bestDiscussedQueryVariables}
+              title={{
+                copy: 'Best discussed posts',
+                icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
+              }}
+              className="!mx-0 !mb-0 laptop:!mx-0"
+              emptyScreen={<></>}
+            />
+          </ActiveFeedNameContext.Provider>
+        }
+      />
+      <TagCommunity
+        tag={tag}
+        tagTitle={title}
+        initialUsers={topContributors}
+        initialSources={topSources}
+      />
+      <TagUniverse
+        tag={tag}
+        tagTitle={title}
+        blockedTags={feedSettings?.blockedTags}
+        initialTags={recommendedTags}
+      />
+      <TagLearnSection
+        tag={tag}
+        tagTitle={title}
+        roadmapUrl={showRoadmap ? initialData?.flags?.roadmap : undefined}
+        archive={
+          <ArchiveEntryCard
+            scopeType={ArchiveScopeType.Tag}
+            scopeId={tag}
+            scopeName={title}
+            className="!mx-0 !mb-0 laptop:!mx-0"
+          />
+        }
+      />
+      <TagFaq
+        tag={tag}
+        tagTitle={title}
+        description={initialData?.flags?.description}
+        occurrences={initialData?.occurrences}
+        recommendedTags={recommendedTags}
+        topContributors={topContributors}
+        topSources={topSources}
       />
       <div className="mx-4 mb-5 flex w-auto items-center">
         <p className="flex items-center font-bold typo-body">
@@ -698,6 +705,7 @@ export async function getStaticProps({
       topPosts: [],
       recommendedTags: [],
       topContributors: [],
+      topSources: [],
       seo: getSeoData(tag),
     },
   };
@@ -708,6 +716,7 @@ export async function getStaticProps({
       topPostsResult,
       recommendedTagsResult,
       topContributorsResult,
+      topSourcesResult,
     ] = await Promise.all([
       gqlClient.request<{ keyword: Keyword }>(KEYWORD_QUERY, {
         value: tag,
@@ -733,6 +742,12 @@ export async function getStaticProps({
           },
         )
         .catch(() => null),
+      gqlClient
+        .request<{ sourcesByTag: Connection<Source> }>(SOURCES_BY_TAG_QUERY, {
+          tag,
+          first: 6,
+        })
+        .catch(() => null),
     ]);
 
     if (!keywordResult?.keyword) {
@@ -746,6 +761,8 @@ export async function getStaticProps({
         .filter((post) => !!post.title) ?? [];
     const recommendedTags = recommendedTagsResult?.recommendedTags?.tags ?? [];
     const topContributors = topContributorsResult?.topCreatorsByTag ?? [];
+    const topSources =
+      topSourcesResult?.sourcesByTag?.edges?.map((edge) => edge.node) ?? [];
     const seo = getSeoData(
       initialData.flags?.title || tag,
       initialData.flags?.description,
@@ -759,6 +776,7 @@ export async function getStaticProps({
         topPosts,
         recommendedTags,
         topContributors,
+        topSources,
       },
       revalidate: 3600,
     };
