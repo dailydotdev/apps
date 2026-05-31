@@ -14,19 +14,38 @@ import {
   cloudinaryAuthBannerBackground1440w as laptopBg,
   cloudinaryAuthBannerBackground1920w as desktopBg,
 } from '../../lib/image';
-import { AuthDisplay } from './common';
+import { AuthDisplay, type AuthOptionsProps, type AuthProps } from './common';
+import type { AuthTriggersType } from '../../lib/auth';
 
 const Section = classed('div', 'flex flex-col');
 
 interface AuthenticationBannerProps extends PropsWithChildren {
   compact?: boolean;
+  onAuthStateUpdate?: AuthOptionsProps['onAuthStateUpdate'];
+  targetId?: string;
+  trigger?: AuthTriggersType;
 }
 
 export function AuthenticationBanner({
   children,
   compact,
+  onAuthStateUpdate,
+  targetId,
+  trigger = AuthTriggers.Onboarding,
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
+
+  const handleAuthStateUpdate = (props: Partial<AuthProps>): void => {
+    onAuthStateUpdate?.(props);
+    showLogin({
+      trigger,
+      options: {
+        isLogin: !!props.isLoginFlow,
+        defaultDisplay: props.defaultDisplay,
+        formValues: props.email ? { email: props.email } : undefined,
+      },
+    });
+  };
 
   return (
     <BottomBannerContainer
@@ -75,23 +94,15 @@ export function AuthenticationBanner({
           <AuthOptions
             ignoreMessages
             formRef={null as unknown as React.MutableRefObject<HTMLFormElement>}
-            trigger={AuthTriggers.Onboarding}
+            trigger={trigger}
             simplified
             defaultDisplay={AuthDisplay.OnboardingSignup}
             forceDefaultDisplay
+            targetId={targetId}
             className={{
               onboardingSignup: compact ? '!gap-3' : '!gap-4',
             }}
-            onAuthStateUpdate={(props) => {
-              showLogin({
-                trigger: AuthTriggers.Onboarding,
-                options: {
-                  isLogin: !!props.isLoginFlow,
-                  defaultDisplay: props.defaultDisplay,
-                  formValues: props.email ? { email: props.email } : undefined,
-                },
-              });
-            }}
+            onAuthStateUpdate={handleAuthStateUpdate}
             onboardingSignupButton={{
               variant: ButtonVariant.Primary,
             }}
