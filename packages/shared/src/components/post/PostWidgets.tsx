@@ -18,8 +18,6 @@ import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
-import { useAnonymousPostExperience } from '../../hooks/post/useAnonymousPostExperience';
-import { BuildYourFeedWidget } from './BuildYourFeedWidget';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -55,7 +53,6 @@ export function PostWidgets({
   origin,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
-  const { isAnonPostExperience } = useAnonymousPostExperience();
   const { source } = post;
 
   const cardClasses = 'w-full bg-transparent';
@@ -86,7 +83,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {isAnonPostExperience ? <BuildYourFeedWidget /> : <PostSignupWidget />}
+      <PostSignupWidget />
       {sourceCard}
       {creator && (
         <UserEntityCard
@@ -96,16 +93,11 @@ export function PostWidgets({
           user={creator as UserShortProfile}
         />
       )}
-      {!isAnonPostExperience && (
-        <PostSidebarAdWidget
-          postId={post.id}
-          className={{ container: cardClasses }}
-        />
-      )}
-      <MentionedToolsWidget
-        compact={isAnonPostExperience}
-        postTags={post.tags || []}
+      <PostSidebarAdWidget
+        postId={post.id}
+        className={{ container: cardClasses }}
       />
+      <MentionedToolsWidget postTags={post.tags || []} />
       <ShareBar post={post} />
       <ShareMobile
         post={post}
@@ -115,7 +107,7 @@ export function PostWidgets({
       />
       <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
-      {!isAnonPostExperience && <FeaturedArchives postId={post.id} />}
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );

@@ -48,7 +48,6 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { useAnonymousPostExperience } from '@dailydotdev/shared/src/hooks/post/useAnonymousPostExperience';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -91,12 +90,6 @@ const PostAuthBanner = dynamic(() =>
   import(
     /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
   ).then((module) => module.PostAuthBanner),
-);
-
-const PostTopicAuthBanner = dynamic(() =>
-  import(
-    /* webpackChunkName: "postTopicAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostTopicAuthBanner'
-  ).then((module) => module.PostTopicAuthBanner),
 );
 
 const BriefPostContent = dynamic(() =>
@@ -193,7 +186,6 @@ export const PostPage = ({
   const router = useRouter();
   const isFallback = false;
   const { shouldShowAuthBanner } = useOnboardingActions();
-  const { isAnonPostExperience } = useAnonymousPostExperience();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
     id,
@@ -296,13 +288,7 @@ export const PostPage = ({
               },
             }}
           />
-          {shouldShowAuthBanner &&
-            isLaptop &&
-            (isAnonPostExperience ? (
-              <PostTopicAuthBanner />
-            ) : (
-              <PostAuthBanner />
-            ))}
+          {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

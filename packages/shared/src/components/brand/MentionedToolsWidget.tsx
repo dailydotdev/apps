@@ -34,7 +34,6 @@ interface Tool {
 interface MentionedToolsWidgetProps {
   postTags: string[];
   className?: string;
-  compact?: boolean;
 }
 
 /**
@@ -46,7 +45,6 @@ interface MentionedToolsWidgetProps {
 export const MentionedToolsWidget = ({
   postTags,
   className,
-  compact,
 }: MentionedToolsWidgetProps): ReactElement | null => {
   const router = useRouter();
   const { user, showLogin } = useAuthContext();
@@ -169,20 +167,18 @@ export const MentionedToolsWidget = ({
     return null;
   }
 
-  const visibleTools = compact ? mentionedTools.slice(0, 2) : mentionedTools;
   const highlightedWordResult = getHighlightedWordConfig(postTags);
 
   return (
     <>
       <div
         className={classNames(
-          'flex flex-col rounded-16 border border-border-subtlest-tertiary',
-          compact ? 'gap-2 p-3' : 'gap-4 p-4',
+          'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4',
           className,
         )}
       >
         <Typography
-          type={compact ? TypographyType.Callout : TypographyType.Body}
+          type={TypographyType.Body}
           color={TypographyColor.Primary}
           bold
         >
@@ -190,7 +186,7 @@ export const MentionedToolsWidget = ({
         </Typography>
 
         <div className="flex flex-col gap-2">
-          {visibleTools.map((tool) => {
+          {mentionedTools.map((tool) => {
             const isSponsored =
               tool.isSponsored && hasAnySponsoredTag(postTags);
             const isInStack = isToolInStack(tool.name);
@@ -205,10 +201,7 @@ export const MentionedToolsWidget = ({
                     ? () => handleSponsoredToolHover(tool.name)
                     : undefined
                 }
-                className={classNames(
-                  'group flex w-full cursor-pointer items-center justify-between gap-3 rounded-12 px-3 text-left transition-colors hover:bg-surface-hover',
-                  compact ? 'h-10' : 'h-12',
-                )}
+                className="group flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-12 px-3 text-left transition-colors hover:bg-surface-hover"
               >
                 <div className="flex items-center gap-2">
                   {tool.icon ? (
@@ -281,14 +274,6 @@ export const MentionedToolsWidget = ({
 
             return toolItem;
           })}
-          {compact && mentionedTools.length > visibleTools.length && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              +{mentionedTools.length - visibleTools.length} more tools
-            </Typography>
-          )}
         </div>
       </div>
 

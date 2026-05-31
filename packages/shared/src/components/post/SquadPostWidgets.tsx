@@ -18,8 +18,6 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
-import { useAnonymousPostExperience } from '../../hooks/post/useAnonymousPostExperience';
-import { BuildYourFeedWidget } from './BuildYourFeedWidget';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -28,7 +26,6 @@ export function SquadPostWidgets({
   className,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
-  const { isAnonPostExperience } = useAnonymousPostExperience();
   const { source } = post;
   const isUserSource = source ? isSourceUserSource(source) : false;
   const isSquadSource = source?.type === SourceType.Squad;
@@ -39,7 +36,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {isAnonPostExperience ? <BuildYourFeedWidget /> : <PostSignupWidget />}
+      <PostSignupWidget />
       {!isUserSource &&
         (isSquadSource ? (
           <SquadEntityCard
@@ -65,12 +62,10 @@ export function SquadPostWidgets({
           user={post.author as UserShortProfile}
         />
       )}
-      {!isAnonPostExperience && (
-        <PostSidebarAdWidget
-          postId={post.id}
-          className={{ container: cardClasses }}
-        />
-      )}
+      <PostSidebarAdWidget
+        postId={post.id}
+        className={{ container: cardClasses }}
+      />
       {canShare && (
         <>
           <ShareBar post={post} />
@@ -84,7 +79,7 @@ export function SquadPostWidgets({
       )}
       <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
-      {!isAnonPostExperience && <FeaturedArchives postId={post.id} />}
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );

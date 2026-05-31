@@ -32,7 +32,6 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useAnonymousPostExperience } from '../../hooks/post/useAnonymousPostExperience';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -64,8 +63,7 @@ function PostEngagements({
     useSettingsContext();
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { isAnonPostExperience } = useAnonymousPostExperience();
-  const commentRef = useRef<NewCommentRef>(null);
+  const commentRef = useRef<NewCommentRef>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
@@ -93,7 +91,6 @@ function PostEngagements({
     setPermissionNotificationCommentId(comment.id);
 
     if (
-      post.source &&
       isSourcePublicSquad(post.source) &&
       !post.source?.currentMember &&
       !isJoinSquadBannerDismissed
@@ -139,9 +136,7 @@ function PostEngagements({
           icon={
             <TimeSortIcon
               secondary
-              className={
-                sortBy === SortCommentsBy.OldestFirst ? 'rotate-180' : undefined
-              }
+              className={sortBy === SortCommentsBy.OldestFirst && 'rotate-180'}
             />
           }
           onClick={() =>
@@ -166,7 +161,7 @@ function PostEngagements({
         shouldHandleCommentQuery
         CommentInputOrModal={CommentInputOrModal}
       />
-      {!isPlus && !isAnonPostExperience && <AdAsComment postId={post.id} />}
+      {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
         sortBy={sortBy}
@@ -181,9 +176,7 @@ function PostEngagements({
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={
-            !user
-              ? () => showLogin({ trigger: AuthTriggers.Author })
-              : undefined
+            !user && (() => showLogin({ trigger: AuthTriggers.Author }))
           }
         />
       )}
