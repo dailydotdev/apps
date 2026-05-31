@@ -11,7 +11,6 @@ import {
 
 interface TagPageHeaderProps {
   title: string;
-  description?: string;
   /**
    * Logged-out visitors (mostly SEO / shared-link traffic) get the
    * conversion-focused value proposition and a single primary CTA on top of the
@@ -24,67 +23,41 @@ interface TagPageHeaderProps {
   sponsoredHero?: ReactNode;
   /** Anonymous primary CTA: build a personalized feed seeded with this tag. */
   onGetFeed: () => void;
-  relatedTopicsCount?: number;
-  contributorsCount?: number;
   /** sr-only SEO links, kept in the DOM for crawlers. */
   children?: ReactNode;
 }
 
-const MetaChip = ({ children }: { children: ReactNode }): ReactElement => (
-  <span className="flex items-center rounded-8 bg-surface-float px-2 py-1 text-text-tertiary typo-caption1">
-    {children}
-  </span>
-);
-
 /**
- * Tag page hero — the topic's identity at a glance.
+ * Tag page hero — the topic's identity and primary action.
  *
- * Content-first for everyone: a clear icon/title lockup, scannable meta, a
- * readable description, and the follow/feed actions. Anonymous visitors get an
- * additional value-proposition band with one primary "Get my feed" CTA so the
- * daily.dev payoff is obvious the instant they arrive from SEO or a shared link.
+ * Intentionally compact: the icon/title lockup plus follow/feed actions. The
+ * substance (key facts, overview, FAQ) lives in dedicated sections below so the
+ * page reads as an authoritative topic hub rather than a feed with a banner.
+ * Anonymous visitors get an extra value-proposition band with one clear CTA.
  */
 export function TagPageHeader({
   title,
-  description,
   isLoggedIn,
   actions,
   sponsoredHero,
   onGetFeed,
-  relatedTopicsCount,
-  contributorsCount,
   children,
 }: TagPageHeaderProps): ReactElement {
   return (
-    <header className="mx-4 flex flex-col gap-5">
+    <header className="mx-4 flex flex-col gap-4">
       {sponsoredHero}
-      <div className="flex flex-col gap-4 tablet:flex-row tablet:items-start tablet:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
+      <div className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
           <span
             aria-hidden
             className="flex size-12 shrink-0 items-center justify-center rounded-14 bg-surface-float text-text-primary"
           >
             <HashtagIcon size={IconSize.Large} />
           </span>
-          <div className="flex min-w-0 flex-col gap-2">
-            <h1 className="break-words font-bold typo-title1">{title}</h1>
-            <div className="flex flex-wrap items-center gap-2">
-              <MetaChip>Updated daily</MetaChip>
-              {!!relatedTopicsCount && (
-                <MetaChip>{relatedTopicsCount} related topics</MetaChip>
-              )}
-              {!!contributorsCount && (
-                <MetaChip>{contributorsCount} top contributors</MetaChip>
-              )}
-            </div>
-          </div>
+          <h1 className="break-words font-bold typo-title1">{title}</h1>
         </div>
         <div className="shrink-0">{actions}</div>
       </div>
-
-      {description && (
-        <p className="max-w-3xl text-text-secondary typo-body">{description}</p>
-      )}
 
       {!isLoggedIn && (
         <div

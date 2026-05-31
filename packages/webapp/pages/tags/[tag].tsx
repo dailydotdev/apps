@@ -12,6 +12,7 @@ import {
   BlockIcon,
   DiscussIcon,
   HashtagIcon,
+  InfoIcon,
   MedalBadgeIcon,
   MiniCloseIcon as XIcon,
   OpenLinkIcon,
@@ -94,6 +95,10 @@ import { TagBestOfPosts } from '../../components/tags/TagBestOfPosts';
 import { TagBuildYourFeed } from '../../components/tags/TagBuildYourFeed';
 import { TagPeople } from '../../components/tags/TagPeople';
 import { TagSectionHeader } from '../../components/tags/TagSectionHeader';
+import { TagKeyFacts } from '../../components/tags/TagKeyFacts';
+import { TagFaq } from '../../components/tags/TagFaq';
+import type { TagFaqItem } from '../../components/tags/tagContent';
+import { getTagFaqItems } from '../../components/tags/tagContent';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
@@ -228,10 +233,12 @@ const getTagPageJsonLd = ({
   tag,
   initialData,
   topPosts,
+  faqItems,
 }: {
   tag: string;
   initialData: Keyword;
   topPosts: TopPost[];
+  faqItems: TagFaqItem[];
 }): string => {
   const encodedTag = encodeURIComponent(tag);
   const tagTitle = initialData.flags?.title || tag;
@@ -250,7 +257,36 @@ const getTagPageJsonLd = ({
         name: `${tagTitle} posts on daily.dev`,
         description: tagDescription,
         isPartOf: { '@type': 'WebSite', url: appOrigin },
+        about: { '@id': `${tagUrl}#term` },
       },
+      {
+        '@type': 'DefinedTerm',
+        '@id': `${tagUrl}#term`,
+        name: tagTitle,
+        description: tagDescription,
+        url: tagUrl,
+        inDefinedTermSet: {
+          '@type': 'DefinedTermSet',
+          name: 'daily.dev tags',
+          url: `${appOrigin}/tags`,
+        },
+      },
+      ...(faqItems.length
+        ? [
+            {
+              '@type': 'FAQPage',
+              '@id': `${tagUrl}#faq`,
+              mainEntity: faqItems.map((item) => ({
+                '@type': 'Question',
+                name: item.question,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: item.answer,
+                },
+              })),
+            },
+          ]
+        : []),
       ...(topPosts.length
         ? [
             {
@@ -368,8 +404,18 @@ const TagPage = ({
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
+  const faqItems: TagFaqItem[] = useMemo(
+    () =>
+      getTagFaqItems({
+        title,
+        topContributors,
+        recommendedTags,
+        roadmap: initialData?.flags?.roadmap,
+      }),
+    [title, initialData, topContributors, recommendedTags],
+  );
   const jsonLd = initialData
-    ? getTagPageJsonLd({ tag, initialData, topPosts })
+    ? getTagPageJsonLd({ tag, initialData, topPosts, faqItems })
     : null;
   const { follow, unfollow } = useContentPreference({
     showToastOnSuccess: false,
@@ -658,6 +704,18 @@ const TagPage = ({
     </section>
   ) : null;
 
+  const overviewSection = initialData?.flags?.description ? (
+    <section className="flex scroll-mt-16 flex-col gap-2">
+      <TagSectionHeader
+        icon={<InfoIcon size={IconSize.Medium} secondary />}
+        title={`What is ${title}?`}
+      />
+      <p className="mx-4 max-w-3xl text-text-secondary typo-body">
+        {initialData.flags.description}
+      </p>
+    </section>
+  ) : null;
+
   if (isRedesign) {
     return (
       <FeedPageLayoutComponent>
@@ -666,20 +724,27 @@ const TagPage = ({
           {breadcrumbs}
           <TagPageHeader
             title={title}
-            description={initialData?.flags?.description}
             isLoggedIn={isLoggedIn}
             actions={headerActions}
             sponsoredHero={<SponsoredTagHero tag={tag} />}
             onGetFeed={onGetFeed}
-            relatedTopicsCount={recommendedTags.length}
-            contributorsCount={topContributors.length}
           >
             {seoLinks}
           </TagPageHeader>
+          <div className="mx-4">
+            <TagKeyFacts
+              occurrences={initialData?.occurrences}
+              relatedTopicsCount={recommendedTags.length}
+              contributorsCount={topContributors.length}
+              createdAt={initialData?.createdAt}
+            />
+          </div>
+          {overviewSection}
           {relatedTopicsSection}
           <TagBestOfPosts tag={tag} userId={user?.id} />
           <TagPeople tag={tag} initialContributors={topContributors} />
           {learnSection}
+          <TagFaq tag={title} items={faqItems} />
           <section id="all-posts" className="flex scroll-mt-16 flex-col gap-3">
             <TagSectionHeader
               icon={<HashtagIcon size={IconSize.Medium} secondary />}

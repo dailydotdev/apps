@@ -315,10 +315,13 @@ it('should render top contributors section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
   expect(await screen.findByText('Top contributors')).toBeInTheDocument();
-  expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
-    'href',
-    '/idoshamun',
-  );
+  // The contributor name appears both in the People card (a link) and in the
+  // FAQ prose; assert specifically against the linked occurrence.
+  const idoLink = screen
+    .getAllByText('Ido')
+    .map((el) => el.closest('a'))
+    .find((el): el is HTMLAnchorElement => !!el);
+  expect(idoLink).toHaveAttribute('href', '/idoshamun');
 });
 
 it('should show login popup when logged-out on block click', async () => {
