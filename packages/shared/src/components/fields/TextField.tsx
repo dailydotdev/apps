@@ -22,7 +22,6 @@ import {
   getFieldSizeTokens,
   fieldSizeToIconSize,
   fieldSizeToGap,
-  fieldSizeToIconLeftPadding,
 } from './fieldSizes';
 import { FieldVariant, fieldVariantToClassName } from './fieldVariants';
 
@@ -153,7 +152,7 @@ function TextFieldComponent(
           styles.field,
           fieldVariantToClassName[variant],
           className.baseField,
-          leftIcon && fieldSizeToIconLeftPadding[resolvedSize],
+          leftIcon && 'pl-3',
           actionButton && 'pr-3',
           heightClass,
         ),

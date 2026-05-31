@@ -14,11 +14,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
-import {
-  FieldSize,
-  fieldSizeToIconLeftPadding,
-  fieldSizeToRadius,
-} from './fieldSizes';
+import { FieldSize, fieldSizeToRadius } from './fieldSizes';
 
 export interface SearchFieldProps
   extends Pick<
@@ -115,9 +111,6 @@ export const SearchField = forwardRef(function SearchField(
   // other fields and a button of the same height.
   const searchIconSize = isMedium ? IconSize.Small : IconSize.Medium;
   const gapClass = isMedium ? 'gap-1' : 'gap-1.5';
-  // The leading search icon hugs the edge per the shared icon-left rule, so a
-  // search field's glyph inset matches every other field and the buttons.
-  const iconLeftPadding = fieldSizeToIconLeftPadding[resolvedFieldSize];
 
   return (
     <BaseField
@@ -132,7 +125,6 @@ export const SearchField = forwardRef(function SearchField(
         // focus ring while the field is active.
         '[&:hover:not(.focused)]:!border-border-subtlest-secondary [&:hover:not(.focused)]:!bg-surface-hover',
         gapClass,
-        iconLeftPadding,
         sizeClass,
         className,
         disabled && 'pointer-events-none opacity-32',
