@@ -8,33 +8,26 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HighlightPostSidebarWidget } from './HighlightPostSidebarWidget';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useLogContext } from '../../../contexts/LogContext';
 import { gqlClient } from '../../../graphql/common';
 import { ONE_HOUR } from '../../../lib/time';
-import {
-  featureAnonymousPostExperience,
-  featurePostPageHighlights,
-} from '../../../lib/featureManagement';
+import { useAnonymousPostExperience } from '../../../hooks/post/useAnonymousPostExperience';
 
 jest.mock('../../../lib/constants', () => ({
   webappUrl: '/',
   isDevelopment: false,
 }));
 
-jest.mock('../../../contexts/AuthContext');
-jest.mock('../../../hooks/useConditionalFeature');
 jest.mock('../../../contexts/LogContext');
+jest.mock('../../../hooks/post/useAnonymousPostExperience');
 jest.mock('../../../graphql/common', () => ({
   gqlClient: {
     request: jest.fn(),
   },
 }));
 
-const mockUseAuthContext = jest.mocked(useAuthContext);
-const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 const mockUseLogContext = jest.mocked(useLogContext);
+const mockUseAnonymousPostExperience = jest.mocked(useAnonymousPostExperience);
 const mockGqlRequest = jest.mocked(gqlClient.request);
 
 const buildHighlight = (id: string, headline: string, hoursAgo = 1) => ({
@@ -72,13 +65,9 @@ describe('HighlightPostSidebarWidget', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGqlRequest.mockReset();
-    mockUseAuthContext.mockReturnValue({
-      user: { id: 'u1' },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
+    mockUseAnonymousPostExperience.mockReturnValue({
+      isAnonPostExperience: false,
+      isPostPageExperience: true,
     });
     mockUseLogContext.mockReturnValue({
       logEvent,
@@ -148,51 +137,11 @@ describe('HighlightPostSidebarWidget', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('returns null when feature flag is off', () => {
-    mockUseConditionalFeature.mockReturnValue({
-      value: false,
-      isLoading: false,
+  it('renders for anonymous users by default', async () => {
+    mockUseAnonymousPostExperience.mockReturnValue({
+      isAnonPostExperience: true,
+      isPostPageExperience: true,
     });
-    mockGqlRequest.mockResolvedValue(
-      buildResponse([buildHighlight('h1', 'Hidden headline')]),
-    );
-
-    renderWidget();
-
-    expect(screen.queryByText('Happening Now')).not.toBeInTheDocument();
-    expect(
-      screen.queryByTestId('postPageHighlightWidget'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders for anonymous users when the anonymous post experience is enabled', async () => {
-    mockUseAuthContext.mockReturnValue({
-      isAuthReady: true,
-      user: undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
-    mockUseConditionalFeature.mockImplementation(
-      ({ feature, shouldEvaluate }) => {
-        if (feature.id === featureAnonymousPostExperience.id) {
-          return {
-            value: !!shouldEvaluate,
-            isLoading: false,
-          };
-        }
-
-        if (feature.id === featurePostPageHighlights.id) {
-          return {
-            value: false,
-            isLoading: false,
-          };
-        }
-
-        return {
-          value: false,
-          isLoading: false,
-        };
-      },
-    );
     mockGqlRequest.mockResolvedValue(
       buildResponse([buildHighlight('h1', 'Anonymous headline')]),
     );

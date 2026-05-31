@@ -93,7 +93,7 @@ describe('PostWidgets', () => {
   it('shows the topic feed widget and hides low-intent widgets in the anonymous experience', () => {
     mockUseAnonymousPostExperience.mockReturnValue({
       isAnonPostExperience: true,
-      isLoading: false,
+      isPostPageExperience: true,
     });
 
     renderComponent();
@@ -110,20 +110,25 @@ describe('PostWidgets', () => {
     );
   });
 
-  it('keeps the existing widgets outside the anonymous experience', () => {
+  it('keeps signup hidden but applies layout cleanup for signed-in users', () => {
     mockUseAnonymousPostExperience.mockReturnValue({
       isAnonPostExperience: false,
-      isLoading: false,
+      isPostPageExperience: true,
     });
 
     renderComponent();
 
-    expect(screen.getByTestId('post-signup-widget')).toBeInTheDocument();
-    expect(screen.getByTestId('post-sidebar-ad-widget')).toBeInTheDocument();
-    expect(screen.getByTestId('featured-archives')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('build-your-feed-widget'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('post-signup-widget')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('post-sidebar-ad-widget'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('featured-archives')).not.toBeInTheDocument();
     expect(screen.getByTestId('tools-widget')).toHaveAttribute(
       'data-compact',
-      'false',
+      'true',
     );
   });
 });

@@ -28,7 +28,6 @@ import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { TimeSortIcon } from '../icons/Sort/Time';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -63,8 +62,7 @@ function PostEngagements({
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
   const { user, showLogin } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
-  const { isAnonPostExperience } = useAnonymousPostExperience();
+  const { isPostPageExperience } = useAnonymousPostExperience();
   const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
@@ -166,7 +164,7 @@ function PostEngagements({
         shouldHandleCommentQuery
         CommentInputOrModal={CommentInputOrModal}
       />
-      {!isPlus && !isAnonPostExperience && <AdAsComment postId={post.id} />}
+      {!isPostPageExperience && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
         sortBy={sortBy}

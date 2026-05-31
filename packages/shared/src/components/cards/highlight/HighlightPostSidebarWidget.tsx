@@ -10,9 +10,6 @@ import {
 } from '../../../graphql/highlights';
 import { RelativeTime } from '../../utilities/RelativeTime';
 import Link from '../../utilities/Link';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featurePostPageHighlights } from '../../../lib/featureManagement';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../lib/log';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
@@ -35,19 +32,12 @@ const prefersReducedMotion = (): boolean => {
 };
 
 export const HighlightPostSidebarWidget = (): ReactElement | null => {
-  const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isAnonPostExperience } = useAnonymousPostExperience();
-  const { value: isHighlightsEnabled } = useConditionalFeature({
-    feature: featurePostPageHighlights,
-    shouldEvaluate: !!user,
-  });
-  const isEnabled = isHighlightsEnabled || isAnonPostExperience;
   const feedName = isAnonPostExperience ? ANONYMOUS_FEED_NAME : FEED_NAME;
 
   const { data } = useQuery({
     ...majorHeadlinesQueryOptions({ first: HIGHLIGHTS_LIMIT }),
-    enabled: isEnabled && (!!user || isAnonPostExperience),
     refetchInterval: ONE_MINUTE,
   });
 
@@ -62,7 +52,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
   const fadeOutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasHighlights = highlights.length > 0;
-  const shouldRender = isEnabled && hasHighlights;
+  const shouldRender = hasHighlights;
   const canRotate = shouldRender && highlights.length > 1 && !isPaused;
 
   useLogEventOnce(

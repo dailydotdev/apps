@@ -16,7 +16,6 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
-import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 import { useAnonymousPostExperience } from '../../hooks/post/useAnonymousPostExperience';
 import { BuildYourFeedWidget } from './BuildYourFeedWidget';
@@ -55,7 +54,8 @@ export function PostWidgets({
   origin,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
-  const { isAnonPostExperience } = useAnonymousPostExperience();
+  const { isAnonPostExperience, isPostPageExperience } =
+    useAnonymousPostExperience();
   const { source } = post;
 
   const cardClasses = 'w-full bg-transparent';
@@ -86,7 +86,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {isAnonPostExperience ? <BuildYourFeedWidget /> : <PostSignupWidget />}
+      {isAnonPostExperience && <BuildYourFeedWidget />}
       {sourceCard}
       {creator && (
         <UserEntityCard
@@ -96,14 +96,14 @@ export function PostWidgets({
           user={creator as UserShortProfile}
         />
       )}
-      {!isAnonPostExperience && (
+      {!isPostPageExperience && (
         <PostSidebarAdWidget
           postId={post.id}
           className={{ container: cardClasses }}
         />
       )}
       <MentionedToolsWidget
-        compact={isAnonPostExperience}
+        compact={isPostPageExperience}
         postTags={post.tags || []}
       />
       <ShareBar post={post} />
@@ -115,7 +115,7 @@ export function PostWidgets({
       />
       <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
-      {!isAnonPostExperience && <FeaturedArchives postId={post.id} />}
+      {!isPostPageExperience && <FeaturedArchives postId={post.id} />}
       <FooterLinks />
     </PageWidgets>
   );

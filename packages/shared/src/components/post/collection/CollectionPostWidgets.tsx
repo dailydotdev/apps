@@ -10,7 +10,6 @@ import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
-import { PostSignupWidget } from '../PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../../cards/highlight/HighlightPostSidebarWidget';
 import { useAnonymousPostExperience } from '../../../hooks/post/useAnonymousPostExperience';
 import { BuildYourFeedWidget } from '../BuildYourFeedWidget';
@@ -21,17 +20,18 @@ export const CollectionPostWidgets = ({
   origin,
   className,
 }: PostWidgetsProps): ReactElement => {
-  const { isAnonPostExperience } = useAnonymousPostExperience();
+  const { isAnonPostExperience, isPostPageExperience } =
+    useAnonymousPostExperience();
 
   return (
     <PageWidgets className={className}>
-      {isAnonPostExperience ? <BuildYourFeedWidget /> : <PostSignupWidget />}
+      {isAnonPostExperience && <BuildYourFeedWidget />}
       <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}
         relationType={PostRelationType.Collection}
       />
-      {!isAnonPostExperience && (
+      {!isPostPageExperience && (
         <PostSidebarAdWidget
           postId={post.id}
           className={{ container: 'w-full bg-transparent' }}
@@ -45,7 +45,7 @@ export const CollectionPostWidgets = ({
         link={post.commentsPermalink}
       />
       <HighlightPostSidebarWidget />
-      {!isAnonPostExperience && <FeaturedArchives postId={post.id} />}
+      {!isPostPageExperience && <FeaturedArchives postId={post.id} />}
       <FooterLinks />
     </PageWidgets>
   );
