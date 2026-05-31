@@ -181,7 +181,7 @@ export function Dropdown({
             {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
           </span>
           <ArrowIcon
-            size={IconSize.XSmall}
+            size={IconSize.Size16}
             className={classNames(
               'ml-auto shrink-0 text-text-quaternary transition-transform group-hover:text-text-primary',
               isVisible ? 'rotate-0' : 'rotate-180',
