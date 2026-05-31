@@ -1,0 +1,60 @@
+/* Scoped, page-local animations for the tag showcase. Colors come from
+   design-system Tailwind classes on the elements; these keyframes only animate
+   transforms / positions so nothing escapes the design system. */
+
+.drift {
+  background-size: 220% 220%;
+  animation: tagDrift 16s ease-in-out infinite;
+}
+
+.marqueeTrack {
+  animation: tagMarquee 45s linear infinite;
+  width: max-content;
+}
+
+.marquee:hover .marqueeTrack {
+  animation-play-state: paused;
+}
+
+.float {
+  animation: tagFloat 7s ease-in-out infinite;
+}
+
+@keyframes tagDrift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes tagMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes tagFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drift,
+  .marqueeTrack,
+  .float {
+    animation: none;
+  }
+}

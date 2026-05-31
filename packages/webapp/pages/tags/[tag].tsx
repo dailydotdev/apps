@@ -90,12 +90,12 @@ import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { TagPageHeader } from '../../components/tags/TagPageHeader';
+import { TagHero } from '../../components/tags/TagHero';
+import { TagPulse } from '../../components/tags/TagPulse';
+import { TagConstellation } from '../../components/tags/TagConstellation';
 import { TagBestOfPosts } from '../../components/tags/TagBestOfPosts';
-import { TagBuildYourFeed } from '../../components/tags/TagBuildYourFeed';
 import { TagPeople } from '../../components/tags/TagPeople';
 import { TagSectionHeader } from '../../components/tags/TagSectionHeader';
-import { TagKeyFacts } from '../../components/tags/TagKeyFacts';
 import { TagFaq } from '../../components/tags/TagFaq';
 import type { TagFaqItem } from '../../components/tags/tagContent';
 import { getTagFaqItems } from '../../components/tags/tagContent';
@@ -662,37 +662,6 @@ const TagPage = ({
     />
   );
 
-  // Redesign-only sections, composed with a shared section rhythm.
-  const buildLoggedInRelatedTopics = () => (
-    <section className="flex scroll-mt-16 flex-col gap-3">
-      <TagSectionHeader
-        icon={<HashtagIcon size={IconSize.Medium} secondary />}
-        title="Related topics"
-        subtitle="Tags developers follow alongside this one."
-      />
-      <div className="mx-4">
-        <TagRecommendedTags
-          tag={tag}
-          blockedTags={feedSettings?.blockedTags}
-          initialTags={recommendedTags}
-        />
-      </div>
-    </section>
-  );
-
-  let relatedTopicsSection: ReactElement | null = null;
-  if (tag && !isLoggedIn) {
-    relatedTopicsSection = (
-      <TagBuildYourFeed
-        tag={tag}
-        relatedTags={recommendedTags}
-        onCreateFeed={onGetFeed}
-      />
-    );
-  } else if (tag) {
-    relatedTopicsSection = buildLoggedInRelatedTopics();
-  }
-
   const learnSection = roadmapNode ? (
     <section className="flex scroll-mt-16 flex-col gap-3">
       <TagSectionHeader
@@ -722,25 +691,21 @@ const TagPage = ({
         {jsonLdHead}
         <div className="flex w-full flex-col gap-8 pb-10">
           {breadcrumbs}
-          <TagPageHeader
+          <TagHero
             title={title}
             isLoggedIn={isLoggedIn}
             actions={headerActions}
             sponsoredHero={<SponsoredTagHero tag={tag} />}
             onGetFeed={onGetFeed}
+            occurrences={initialData?.occurrences}
+            relatedTopicsCount={recommendedTags.length}
+            contributorsCount={topContributors.length}
           >
             {seoLinks}
-          </TagPageHeader>
-          <div className="mx-4">
-            <TagKeyFacts
-              occurrences={initialData?.occurrences}
-              relatedTopicsCount={recommendedTags.length}
-              contributorsCount={topContributors.length}
-              createdAt={initialData?.createdAt}
-            />
-          </div>
+          </TagHero>
+          <TagPulse tag={title} posts={topPosts} />
           {overviewSection}
-          {relatedTopicsSection}
+          <TagConstellation tag={title} relatedTags={recommendedTags} />
           <TagBestOfPosts tag={tag} userId={user?.id} />
           <TagPeople tag={tag} initialContributors={topContributors} />
           {learnSection}
