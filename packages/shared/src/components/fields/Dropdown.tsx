@@ -23,6 +23,7 @@ import { RootPortal } from '../tooltips/Portal';
 import type { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 
 export interface DropdownClassName {
@@ -142,7 +143,7 @@ export function Dropdown({
       size={buttonSize}
       disabled={disabled}
       className={classNames(
-        'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
+        'group flex w-full items-center px-3 font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
         className?.button,
         iconOnly && 'items-center justify-center',
       )}
@@ -172,13 +173,14 @@ export function Dropdown({
       {iconOnly ? null : (
         <>
           <span
-            className={classNames('mr-1 flex flex-1 truncate', className.label)}
+            className={classNames('mr-2 flex flex-1 truncate', className.label)}
           >
             {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
           </span>
           <ArrowIcon
+            size={IconSize.Small}
             className={classNames(
-              'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
+              'ml-auto text-text-quaternary transition-transform group-hover:text-text-primary',
               isVisible ? 'rotate-0' : 'rotate-180',
               styles.chevron,
               className.chevron,

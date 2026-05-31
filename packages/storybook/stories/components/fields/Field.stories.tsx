@@ -83,7 +83,7 @@ const PageHeader = () => (
 const whatChanged = [
   'Resting border on every field so fields are delineated from the page.',
   'Focus and validity use one 1px border: text-primary on focus, red on error, blue on a focused read-only field — no more left-edge accent bar.',
-  'Sizes share the button scale (height, radius, icon size) so fields and buttons line up.',
+  'Sizes share the button scale (height, radius) so fields and buttons line up; icons and the icon↔text gap follow the button scale one rung down so glyphs stay balanced inside an input.',
   'Two background variants: Filled (floated surface) and Outline (transparent).',
   'Password keeps its colour-graded strength indicator; disabled fields are dimmed.',
   'Dropdown popover refreshed: rounded-14 card, inset rows, smooth highlight.',
@@ -567,7 +567,7 @@ export const Comparison: Story = {
 
       <Section
         title="New · size alignment with buttons"
-        description="The key change: fields now use the exact same size scale as buttons. A field and a button of the same size share height, corner radius and icon size, so they sit together cleanly in one strip."
+        description="The key change: fields now use the exact same size scale as buttons. A field and a button of the same size share height and corner radius, so they sit together cleanly in one strip; the field's icon and icon↔text gap follow the button scale one rung down so the glyph stays balanced next to the value."
       >
         <div className="flex flex-col gap-4">
           {[
@@ -985,7 +985,7 @@ export const Sizes: Story = {
     <Page>
       <Section
         title="Sizes — aligned with buttons"
-        description="A field and a button of the same size share height, corner radius and icon size, so they line up pixel-for-pixel in a strip."
+        description="A field and a button of the same size share height and corner radius, so they line up pixel-for-pixel in a strip. The field icon sits one rung down from the button glyph so it stays balanced beside the value text."
       >
         <div className="flex flex-col gap-4">
           {(

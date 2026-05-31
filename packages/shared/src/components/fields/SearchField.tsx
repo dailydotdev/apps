@@ -13,6 +13,7 @@ import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
 import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
 
 export interface SearchFieldProps
   extends Pick<
@@ -97,14 +98,19 @@ export const SearchField = forwardRef(function SearchField(
 
   const isPrimary = fieldType === 'primary';
   const isSecondary = fieldType === 'secondary';
-  const sizeClass =
-    fieldSize === 'medium' ? 'h-10 rounded-12' : 'h-12 rounded-14';
+  const isMedium = fieldSize === 'medium';
+  const sizeClass = isMedium ? 'h-10 rounded-12' : 'h-12 rounded-14';
+  // Mirror the TextField icon/gap scale so a search field lines up with the
+  // other fields and a button of the same height.
+  const searchIconSize = isMedium ? IconSize.Small : IconSize.Medium;
+  const gapClass = isMedium ? 'gap-1' : 'gap-1.5';
 
   return (
     <BaseField
       {...props}
       className={classNames(
-        'items-center !border !border-border-subtlest-tertiary !bg-background-default',
+        'items-center !border !border-border-subtlest-secondary !bg-background-default',
+        gapClass,
         sizeClass,
         className,
         disabled && 'pointer-events-none opacity-32',
@@ -118,21 +124,19 @@ export const SearchField = forwardRef(function SearchField(
         (isSecondary && hasInput ? (
           <Button
             aria-label="Clear input text"
-            className="mr-2"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
             title="Clear query"
             onClick={onClearClick}
-            icon={
-              <CloseIcon className="icon text-lg group-hover:text-text-primary" />
-            }
+            icon={<CloseIcon className="icon group-hover:text-text-primary" />}
             disabled={!hasInput}
           />
         ) : (
           <SearchIcon
             aria-hidden
-            className="icon mr-2 text-2xl"
+            className="icon"
             role="presentation"
+            size={searchIconSize}
             secondary={focused}
             style={{
               color:

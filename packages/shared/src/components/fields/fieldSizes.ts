@@ -52,15 +52,31 @@ export const fieldSizeToHorizontalPadding: Record<FieldSize, string> = {
 };
 
 /**
- * Icon size per field size — identical to the button icon mapping so a "medium"
- * icon is the same glyph size whether it lives in a button or a field.
+ * Icon size per field size. Fields sit one notch below the button icon scale:
+ * an icon inside an input is a left/right adornment, not the primary visual, so
+ * a full button-sized glyph (e.g. 32px in a Large button) reads as oversized in
+ * a text field. Stepping down one rung keeps the glyph optically balanced with
+ * the value text while still scaling in lockstep with the field height.
  */
 export const fieldSizeToIconSize: Record<FieldSize, IconSize> = {
-  [FieldSize.XLarge]: IconSize.XLarge,
-  [FieldSize.Large]: IconSize.Large,
-  [FieldSize.Medium]: IconSize.Medium,
-  [FieldSize.Small]: IconSize.Small,
+  [FieldSize.XLarge]: IconSize.Large,
+  [FieldSize.Large]: IconSize.Medium,
+  [FieldSize.Medium]: IconSize.Small,
+  [FieldSize.Small]: IconSize.XSmall,
   [FieldSize.XSmall]: IconSize.XSmall,
+};
+
+/**
+ * Gap between an adornment (icon / action) and the value — identical to the
+ * button gap scale (`SizeToGapV2`) so icon-to-label rhythm matches a button of
+ * the same size.
+ */
+export const fieldSizeToGap: Record<FieldSize, string> = {
+  [FieldSize.XLarge]: 'gap-2',
+  [FieldSize.Large]: 'gap-1.5',
+  [FieldSize.Medium]: 'gap-1',
+  [FieldSize.Small]: 'gap-1',
+  [FieldSize.XSmall]: 'gap-1',
 };
 
 export interface FieldSizeTokens {
@@ -69,6 +85,7 @@ export interface FieldSizeTokens {
   typo: string;
   horizontalPadding: string;
   iconSize: IconSize;
+  gap: string;
 }
 
 export const getFieldSizeTokens = (size: FieldSize): FieldSizeTokens => ({
@@ -77,4 +94,5 @@ export const getFieldSizeTokens = (size: FieldSize): FieldSizeTokens => ({
   typo: fieldSizeToTypo[size],
   horizontalPadding: fieldSizeToHorizontalPadding[size],
   iconSize: fieldSizeToIconSize[size],
+  gap: fieldSizeToGap[size],
 });
