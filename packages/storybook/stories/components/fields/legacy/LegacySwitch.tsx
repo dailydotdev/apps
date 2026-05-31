@@ -6,9 +6,12 @@ import type {
 } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import styles from './Switch.module.css';
+import styles from './LegacySwitch.module.css';
 
-export interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {
+// Snapshot of the previous Switch design, kept only for the Storybook
+// before/after comparison page. Do not use in production code.
+export interface LegacySwitchProps
+  extends InputHTMLAttributes<HTMLInputElement> {
   children?: ReactNode;
   className?: string;
   labelClassName?: string;
@@ -20,7 +23,7 @@ export interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {
   defaultTypo?: boolean;
 }
 
-function SwitchComponent(
+function LegacySwitchComponent(
   {
     className,
     labelClassName,
@@ -34,7 +37,7 @@ function SwitchComponent(
     disabled,
     'aria-label': ariaLabel,
     ...props
-  }: SwitchProps,
+  }: LegacySwitchProps,
   ref: ForwardedRef<HTMLLabelElement>,
 ): ReactElement {
   return (
@@ -43,9 +46,10 @@ function SwitchComponent(
       className={classNames(
         className,
         'group relative flex items-center',
-        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        disabled
+          ? 'pointer-events-none cursor-not-allowed opacity-32'
+          : 'cursor-pointer',
         styles.switch,
-        disabled && styles.disabled,
       )}
       ref={ref}
     >
@@ -59,25 +63,23 @@ function SwitchComponent(
         onChange={onToggle}
         className="absolute h-0 w-0 opacity-0"
       />
-      <span className="relative block h-6 w-11">
-        <span
-          className={classNames('absolute inset-0 rounded-8', styles.track)}
-        />
+      <span
+        className={classNames(
+          'relative block',
+          compact ? 'h-4 w-8' : 'h-5 w-10',
+        )}
+      >
         <span
           className={classNames(
-            'absolute inset-0.5 rounded-6',
-            styles.hoverLayer,
+            'absolute bottom-0 left-0 top-0 my-auto w-full bg-theme-overlay-quaternary',
+            compact ? 'h-2.5 rounded-3' : 'h-3 rounded-4',
+            styles.track,
           )}
         />
         <span
           className={classNames(
-            'pointer-events-none absolute inset-0 rounded-8 border-2 border-solid',
-            styles.focusRing,
-          )}
-        />
-        <span
-          className={classNames(
-            'absolute left-0.5 top-0.5 h-5 w-5 rounded-6',
+            'absolute left-0 top-0 bg-text-tertiary',
+            compact ? 'h-4 w-4 rounded-3' : 'h-5 w-5 rounded-6',
             styles.knob,
           )}
         />
@@ -85,8 +87,8 @@ function SwitchComponent(
       {children ? (
         <span
           className={classNames(
-            'ml-3 font-bold',
-            defaultTypo && (compact ? 'typo-footnote' : 'typo-callout'),
+            'ml-3 font-bold text-text-tertiary',
+            defaultTypo && 'typo-footnote',
             styles.children,
             labelClassName,
           )}
@@ -100,4 +102,4 @@ function SwitchComponent(
   );
 }
 
-export const Switch = React.forwardRef(SwitchComponent);
+export const LegacySwitch = React.forwardRef(LegacySwitchComponent);
