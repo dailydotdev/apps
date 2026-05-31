@@ -257,9 +257,9 @@ const getTagPageStats = ({
 
   if (recommendedTagsCount > 0) {
     stats.push({
-      label: 'Related tags',
+      label: 'Adjacent topics',
       value: recommendedTagsCount.toString(),
-      caption: 'nearby topics',
+      caption: 'ways to branch out',
     });
   }
 
@@ -706,16 +706,16 @@ const TagPage = ({
         <TagSectionNav
           className="mx-4"
           items={[
-            { href: '#best-posts', label: 'Best posts' },
-            { href: '#upvoted-posts', label: 'Upvoted' },
-            { href: '#discussed-posts', label: 'Discussed' },
+            { href: '#best-posts', label: 'Signal board' },
+            { href: '#upvoted-posts', label: 'Consensus' },
+            { href: '#discussed-posts', label: 'Debate' },
             {
               href: '#people-sources',
-              label: 'People & sources',
+              label: 'Trust graph',
               isVisible: topContributors.length > 0,
             },
             { href: '#archive', label: 'Archive' },
-            { href: '#all-posts', label: 'All posts' },
+            { href: '#all-posts', label: 'Live feed' },
           ]}
         />
         <TagBestOfShowcase
@@ -795,13 +795,28 @@ const TagPage = ({
           }
         />
         <TagPeopleSourcesSection tag={tag} initialUsers={topContributors} />
-        <div id="archive">
-          <ArchiveEntryCard
-            scopeType={ArchiveScopeType.Tag}
-            scopeId={tag}
-            scopeName={title}
-            className="mx-4 mb-6 laptop:mx-4"
-          />
+        <div
+          id="archive"
+          className="shadow-1 mx-4 mb-6 rounded-24 border border-border-subtlest-tertiary bg-background-default p-3"
+        >
+          <div className="rounded-20 border border-border-subtlest-tertiary bg-surface-primary p-5">
+            <p className="w-fit rounded-full bg-accent-burger-subtlest px-3 py-1 font-bold text-accent-burger-default typo-caption1">
+              Time machine
+            </p>
+            <h2 className="mt-4 font-bold typo-title2">
+              Best of #{tag}, by month
+            </h2>
+            <p className="mt-2 max-w-[42rem] text-text-tertiary typo-callout">
+              Use the archive when you need the durable version of the topic,
+              not just what is fresh today.
+            </p>
+            <ArchiveEntryCard
+              scopeType={ArchiveScopeType.Tag}
+              scopeId={tag}
+              scopeName={title}
+              className="mt-5"
+            />
+          </div>
         </div>
         {!user && (
           <TagJoinStrip
@@ -809,14 +824,17 @@ const TagPage = ({
             onJoin={() => showLogin({ trigger: AuthTriggers.Filter })}
           />
         )}
-        <section id="all-posts">
-          <div className="mx-4 mb-5 flex w-auto flex-col gap-1">
-            <p className="flex items-center font-bold typo-title3">
-              All posts about {tag}
+        <section id="all-posts" className="mx-4">
+          <div className="mb-5 rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-5">
+            <p className="w-fit rounded-full bg-accent-cabbage-subtlest px-3 py-1 font-bold text-accent-cabbage-default typo-caption1">
+              Live feed
             </p>
-            <p className="text-text-tertiary typo-callout">
-              The live feed keeps moving as developers publish, save, upvote,
-              and discuss.
+            <h2 className="mt-4 font-bold typo-title2">
+              Everything moving through #{tag}
+            </h2>
+            <p className="mt-2 max-w-[42rem] text-text-tertiary typo-callout">
+              After the curated signal, this is the full stream: newest posts,
+              videos, discussions, and updates as developers publish them.
             </p>
           </div>
           <Feed
@@ -828,7 +846,7 @@ const TagPage = ({
             ]}
             query={TAG_FEED_QUERY}
             variables={queryVariables}
-            className="!mx-4 !w-auto"
+            className="!mx-0 !w-auto"
           />
         </section>
       </FeedPageLayoutComponent>

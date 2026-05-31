@@ -83,13 +83,13 @@ const EntityRail = ({
             key={item.id || item.permalink}
             prefetch={false}
           >
-            <a className="group relative flex min-w-56 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:bg-surface-hover hover:shadow-2">
+            <a className="group relative flex min-w-56 overflow-hidden rounded-18 border border-border-subtlest-tertiary bg-surface-float p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:bg-surface-hover hover:shadow-2">
               <div className="from-accent-cabbage-default/0 to-accent-onion-default/0 group-hover:opacity-5 pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-200" />
               <div className="relative flex min-w-0 items-center gap-3">
                 <img
                   src={item.image}
                   alt={item.imageAlt}
-                  className="size-12 shrink-0 rounded-full object-cover"
+                  className="size-14 shrink-0 rounded-full border border-border-subtlest-tertiary object-cover"
                 />
                 <div className="min-w-0">
                   <Typography
@@ -104,7 +104,7 @@ const EntityRail = ({
                     color={TypographyColor.Tertiary}
                     className="truncate"
                   >
-                    {item.label}
+                    {item.label} signal
                   </Typography>
                 </div>
               </div>
@@ -144,41 +144,66 @@ export const TagPeopleSources = ({
     <section
       id="people-sources"
       className={classNames(
-        'shadow-1 mb-6 flex flex-col gap-6 rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-4 laptop:p-6',
+        'mb-6 overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2',
         className,
       )}
     >
-      <div className="flex flex-col gap-2">
-        <span className="w-fit rounded-full bg-accent-water-subtlest px-3 py-1 font-bold text-accent-water-default typo-caption1">
-          Community signal
-        </span>
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title2} bold>
-          Who shapes #{tag}
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="max-w-[42rem]"
-        >
-          Follow the people and publications that keep this topic useful.
-        </Typography>
+      <div className="grid gap-3 laptop:grid-cols-[20rem_minmax(0,1fr)]">
+        <aside className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-5">
+          <div className="bg-accent-water-default/15 pointer-events-none absolute -right-14 -top-14 size-44 rounded-full blur-3xl" />
+          <div className="relative">
+            <span className="w-fit rounded-full bg-accent-water-subtlest px-3 py-1 font-bold text-accent-water-default typo-caption1">
+              Trust graph
+            </span>
+            <Typography
+              tag={TypographyTag.H2}
+              type={TypographyType.Title2}
+              bold
+              className="mt-4"
+            >
+              Who shapes #{tag}
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+              className="mt-3"
+            >
+              Directories work when they tell you who to trust. This hub exposes
+              the developers and sources repeatedly connected to the topic.
+            </Typography>
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <div className="rounded-16 bg-surface-float p-3">
+                <p className="font-bold typo-title3">
+                  {contributors?.length ?? 0}
+                </p>
+                <p className="text-text-tertiary typo-caption1">contributors</p>
+              </div>
+              <div className="rounded-16 bg-surface-float p-3">
+                <p className="font-bold typo-title3">{sources?.length ?? 0}</p>
+                <p className="text-text-tertiary typo-caption1">sources</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div className="flex flex-col gap-6 rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-4 laptop:p-5">
+          <EntityRail
+            id="contributors"
+            title="Top contributors"
+            description="Developers consistently posting and discussing this topic."
+            items={contributors}
+            isLoading={isContributorsLoading}
+            type="contributors"
+          />
+          <EntityRail
+            id="sources"
+            title="Top sources covering it"
+            description="Publications and communities with repeated coverage."
+            items={sources}
+            isLoading={isSourcesLoading}
+            type="sources"
+          />
+        </div>
       </div>
-      <EntityRail
-        id="contributors"
-        title="Top contributors"
-        description="Developers consistently posting and discussing this topic."
-        items={contributors}
-        isLoading={isContributorsLoading}
-        type="contributors"
-      />
-      <EntityRail
-        id="sources"
-        title="Top sources covering it"
-        description="Publications and communities with repeated coverage."
-        items={sources}
-        isLoading={isSourcesLoading}
-        type="sources"
-      />
     </section>
   );
 };
