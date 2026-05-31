@@ -18,7 +18,7 @@ import { useMoveBookmarkToFolder } from '../../../hooks/bookmark/useMoveBookmark
 type MoveBookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   listId?: string;
   postId: string;
-  onMoveBookmark?: (targetId: string) => void;
+  onMoveBookmark?: (targetId?: string) => void;
 };
 
 const MoveBookmarkModal = ({
@@ -42,18 +42,29 @@ const MoveBookmarkModal = ({
       return;
     }
     await moveBookmarkToFolder({ postId, listId: folder?.id });
-    displayToast(`✅ Moved to ${folder?.name}`, {
-      action: {
-        copy: 'Undo',
-        onClick: () => handleMoveBookmark({ id: listId }),
+    displayToast(
+      folder?.name ? `✅ Moved to ${folder.name}` : '✅ Bookmark moved',
+      {
+        action: {
+          copy: 'Undo',
+          onClick: () => {
+            const previousFolderName = listId
+              ? folders?.find((f) => f.id === listId)?.name
+              : 'Quick saves';
+            handleMoveBookmark({ id: listId, name: previousFolderName });
+          },
+        },
       },
-    });
+    );
     onMoveBookmark?.(folder?.id);
     closeModal();
   };
 
   const onCreateNewFolder = async (folder: BookmarkFolder) => {
     const newFolder = await createFolder(folder);
+    if (!newFolder) {
+      return;
+    }
     handleMoveBookmark(newFolder);
     closeModal();
   };
