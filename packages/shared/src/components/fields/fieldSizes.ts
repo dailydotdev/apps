@@ -79,6 +79,22 @@ export const fieldSizeToGap: Record<FieldSize, string> = {
   [FieldSize.XSmall]: 'gap-1',
 };
 
+/**
+ * Left padding when a field carries a left icon. Mirrors the button's
+ * icon-side rule (`IconSidePaddingV2` in ButtonV2.tsx) — the glyph reads with
+ * weight, so the icon side hugs the edge tighter than the value side. Values
+ * sit one rung below the button scale, matching how field icons are themselves
+ * one rung smaller than a button's, so a field's icon inset lines up with a
+ * button of the same height. The right/value side keeps the field's base inset.
+ */
+export const fieldSizeToIconLeftPadding: Record<FieldSize, string> = {
+  [FieldSize.XLarge]: 'pl-4',
+  [FieldSize.Large]: 'pl-2',
+  [FieldSize.Medium]: 'pl-1.5',
+  [FieldSize.Small]: 'pl-1',
+  [FieldSize.XSmall]: 'pl-1',
+};
+
 export interface FieldSizeTokens {
   height: string;
   radius: string;
