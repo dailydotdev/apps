@@ -4,8 +4,7 @@ import React, { forwardRef } from 'react';
 import type { FieldType, TextInputProps } from './common';
 import { BaseField } from './common';
 import type { IconProps } from '../Icon';
-import type { FieldSize } from './fieldSizes';
-import { fieldSizeToRadius } from './fieldSizes';
+import { FieldSize, fieldSizeToRadius } from './fieldSizes';
 
 interface FieldStateProps {
   readOnly?: boolean;
@@ -174,9 +173,14 @@ function BaseFieldContainer(
   ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   const isSecondaryField = fieldType === 'secondary';
-  const radiusClass = fieldSize
-    ? fieldSizeToRadius[fieldSize]
-    : classNames(isSecondaryField ? 'rounded-10' : 'rounded-14');
+  // Radius always comes from the shared button-aligned scale, so a field's
+  // corner radius matches a button of the same size. The default (no explicit
+  // `fieldSize`) maps the compact secondary field to Small and every other
+  // field to Large — the same rung the default heights resolve to.
+  const radiusClass =
+    fieldSizeToRadius[
+      fieldSize ?? (isSecondaryField ? FieldSize.Small : FieldSize.Large)
+    ];
 
   return (
     <div ref={ref} className={classNames('flex flex-col', className.container)}>

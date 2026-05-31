@@ -14,7 +14,11 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
-import { FieldSize, fieldSizeToIconLeftPadding } from './fieldSizes';
+import {
+  FieldSize,
+  fieldSizeToIconLeftPadding,
+  fieldSizeToRadius,
+} from './fieldSizes';
 
 export interface SearchFieldProps
   extends Pick<
@@ -100,15 +104,20 @@ export const SearchField = forwardRef(function SearchField(
   const isPrimary = fieldType === 'primary';
   const isSecondary = fieldType === 'secondary';
   const isMedium = fieldSize === 'medium';
-  const sizeClass = isMedium ? 'h-10 rounded-12' : 'h-12 rounded-14';
+  const resolvedFieldSize = isMedium ? FieldSize.Medium : FieldSize.Large;
+  // Height + radius both come from the shared button-aligned scale so a search
+  // field lines up with a button (and every other field) of the same size.
+  const sizeClass = classNames(
+    isMedium ? 'h-10' : 'h-12',
+    fieldSizeToRadius[resolvedFieldSize],
+  );
   // Mirror the TextField icon/gap scale so a search field lines up with the
   // other fields and a button of the same height.
   const searchIconSize = isMedium ? IconSize.Small : IconSize.Medium;
   const gapClass = isMedium ? 'gap-1' : 'gap-1.5';
   // The leading search icon hugs the edge per the shared icon-left rule, so a
   // search field's glyph inset matches every other field and the buttons.
-  const iconLeftPadding =
-    fieldSizeToIconLeftPadding[isMedium ? FieldSize.Medium : FieldSize.Large];
+  const iconLeftPadding = fieldSizeToIconLeftPadding[resolvedFieldSize];
 
   return (
     <BaseField
