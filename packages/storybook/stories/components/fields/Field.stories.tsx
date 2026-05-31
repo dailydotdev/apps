@@ -1,4 +1,5 @@
 import React, { useId } from 'react';
+import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
@@ -18,6 +19,7 @@ import {
   LockIcon,
   SearchIcon,
   MagicIcon,
+  EyeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { LegacyTextField } from './legacy/LegacyTextField';
@@ -179,7 +181,7 @@ export const Comparison: Story = {
 
       <Section
         title="States"
-        description="Same props on the previous field (left) and the new field (right). The new field swaps the left-edge accent bar for a crisp, even ring and adds smooth surface transitions."
+        description="Same props on the previous field (left) and the new field (right). The new field drops the left-edge accent bar and communicates focus and validity with one consistent mechanism — a clean 1px border (text-primary on focus, red on error) — plus smooth surface transitions."
       >
         <div className="flex flex-col gap-3">
           <ComparisonHeader />
@@ -197,7 +199,7 @@ export const Comparison: Story = {
           />
           <ComparisonRow
             title="Invalid"
-            caption="error ring"
+            caption="red border"
             previous={
               <LegacyTextField
                 label="Email"
@@ -487,6 +489,668 @@ export const NewDesign: Story = {
           <Card label="Type to fill">
             <NewField label="Type here" />
           </Card>
+        </div>
+      </Section>
+    </Page>
+  ),
+};
+
+// --- Comprehensive state coverage ------------------------------------------
+
+const StateRow = ({
+  label,
+  caption,
+  children,
+}: {
+  label: string;
+  caption?: string;
+  children: React.ReactNode;
+}) => (
+  <div className="flex items-start gap-4">
+    <div className="flex w-44 shrink-0 flex-col pt-2.5">
+      <span className="typo-caption1 font-bold uppercase tracking-wide text-text-tertiary">
+        {label}
+      </span>
+      {caption && (
+        <span className="typo-caption1 text-text-quaternary">{caption}</span>
+      )}
+    </div>
+    <div className="w-80">{children}</div>
+  </div>
+);
+
+const StateGroup = ({
+  title,
+  children,
+}: {
+  title?: string;
+  children: React.ReactNode;
+}) => (
+  <div className="flex flex-col gap-4 rounded-12 border border-border-subtlest-tertiary p-5">
+    {title && (
+      <span className="typo-footnote font-bold uppercase tracking-wide text-accent-cabbage-default">
+        {title}
+      </span>
+    )}
+    {children}
+  </div>
+);
+
+const topics = ['Frontend', 'Backend', 'AI', 'DevOps', 'Career'];
+
+const LivePassword = () => {
+  const id = useId();
+  return <PasswordField inputId={id} name={id} label="Password" minLength={6} />;
+};
+
+const StaticPassword = ({
+  level,
+  value,
+  hint,
+  progress,
+  hintColor,
+}: {
+  level: number;
+  value: string;
+  hint: string;
+  progress?: string;
+  hintColor: string;
+}) => {
+  const id = useId();
+  return (
+    <TextField
+      inputId={id}
+      name={id}
+      type="password"
+      label="Password"
+      value={value}
+      leftIcon={<LockIcon size={IconSize.Small} />}
+      hint={hint}
+      progress={progress}
+      className={{ baseField: `password-${level}`, hint: hintColor }}
+      actionButton={
+        <button type="button" aria-label="Toggle password visibility">
+          <EyeIcon className="text-text-secondary" />
+        </button>
+      }
+    />
+  );
+};
+
+const LiveSearch = (
+  props: Omit<React.ComponentProps<typeof SearchField>, 'inputId'>,
+) => {
+  const id = useId();
+  return <SearchField inputId={id} {...props} />;
+};
+
+const LiveTextarea = (
+  props: Omit<React.ComponentProps<typeof Textarea>, 'inputId' | 'name'> & {
+    name?: string;
+  },
+) => {
+  const id = useId();
+  return <Textarea inputId={id} name={props.name ?? id} {...props} />;
+};
+
+const dropdownTrigger = (extra?: string) => ({
+  button: classNames('border border-border-subtlest-tertiary', extra),
+});
+
+/**
+ * Every state of the core text input on one page — rest, hover, focus, filled,
+ * invalid (+ focused), required, read-only, disabled — plus every affordance
+ * (icons, action button, char counter, hint).
+ */
+export const TextFieldStates: Story = {
+  name: 'TextField · states',
+  render: () => (
+    <Page>
+      <Section
+        title="TextField — every state"
+        description="Focus and validity use the same 1px border mechanism: text-primary on focus, red on error, blue on a focused read-only field. Hover/focus rows are forced for the snapshot; every field is still live."
+      >
+        <StateGroup title="Core states">
+          <StateRow label="Rest" caption="empty">
+            <NewField fieldType="tertiary" label="Email" />
+          </StateRow>
+          <StateRow label="Hover" caption="surface layer">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              className={{ baseField: '!bg-surface-hover' }}
+            />
+          </StateRow>
+          <StateRow label="Focused" caption="text-primary border">
+            <NewField fieldType="tertiary" label="Email" focused />
+          </StateRow>
+          <StateRow label="Filled" caption="has value">
+            <NewField fieldType="tertiary" label="Email" value="ido@daily.dev" />
+          </StateRow>
+          <StateRow label="Invalid" caption="red border">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              value="not-an-email"
+              valid={false}
+              hint="Enter a valid email"
+            />
+          </StateRow>
+          <StateRow label="Invalid + focused">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              value="not-an-email"
+              valid={false}
+              focused
+              hint="Enter a valid email"
+            />
+          </StateRow>
+          <StateRow label="Required" caption="failed validation">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              required
+              valid={false}
+              hint="This field is required"
+            />
+          </StateRow>
+          <StateRow label="Read-only">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              value="ido@daily.dev"
+              readOnly
+            />
+          </StateRow>
+          <StateRow label="Read-only focused" caption="blue border">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              value="ido@daily.dev"
+              readOnly
+              focused
+            />
+          </StateRow>
+          <StateRow label="Disabled" caption="dimmed">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              value="ido@daily.dev"
+              disabled
+            />
+          </StateRow>
+          <StateRow label="Disabled empty">
+            <NewField fieldType="tertiary" label="Email" disabled />
+          </StateRow>
+        </StateGroup>
+
+        <StateGroup title="Affordances">
+          <StateRow label="Left icon">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              leftIcon={<AtIcon size={IconSize.Small} />}
+            />
+          </StateRow>
+          <StateRow label="Right icon">
+            <NewField
+              fieldType="tertiary"
+              label="Search"
+              rightIcon={<MagicIcon size={IconSize.Small} />}
+            />
+          </StateRow>
+          <StateRow label="Action button">
+            <NewField
+              fieldType="tertiary"
+              label="Coupon code"
+              actionButton={
+                <Button size={ButtonSize.XSmall} variant={ButtonVariant.Primary}>
+                  Apply
+                </Button>
+              }
+            />
+          </StateRow>
+          <StateRow label="Char counter">
+            <NewField
+              fieldType="tertiary"
+              label="Headline"
+              maxLength={40}
+              value="A short headline"
+            />
+          </StateRow>
+          <StateRow label="Hint" caption="helper text">
+            <NewField
+              fieldType="tertiary"
+              label="Email"
+              hint="We'll never share it."
+            />
+          </StateRow>
+        </StateGroup>
+      </Section>
+    </Page>
+  ),
+};
+
+/** The three label behaviours, each across rest / focus / filled / invalid. */
+export const FieldTypes: Story = {
+  name: 'TextField · field types',
+  render: () => (
+    <Page>
+      <Section
+        title="Field types"
+        description="primary floats the label once filled, secondary keeps an outer label, tertiary uses the label as the placeholder."
+      >
+        {(['primary', 'secondary', 'tertiary'] as const).map((ft) => (
+          <StateGroup key={ft} title={ft}>
+            <StateRow label="Rest">
+              <NewField fieldType={ft} label="Full name" placeholder="Jane Doe" />
+            </StateRow>
+            <StateRow label="Focused">
+              <NewField
+                fieldType={ft}
+                label="Full name"
+                placeholder="Jane Doe"
+                focused
+              />
+            </StateRow>
+            <StateRow label="Filled">
+              <NewField fieldType={ft} label="Full name" value="Jane Doe" />
+            </StateRow>
+            <StateRow label="Invalid">
+              <NewField
+                fieldType={ft}
+                label="Full name"
+                value="x"
+                valid={false}
+                hint="Too short"
+              />
+            </StateRow>
+          </StateGroup>
+        ))}
+      </Section>
+    </Page>
+  ),
+};
+
+/** Filled vs Outline background treatments across the key states. */
+export const Variants: Story = {
+  name: 'TextField · variants',
+  render: () => (
+    <Page>
+      <Section
+        title="Variants × states"
+        description="Filled sits on the floated surface; Outline is transparent and defined by its border alone. Both share the faint resting border and the same focus/validity borders."
+      >
+        {[
+          { variant: FieldVariant.Filled, title: 'Filled' },
+          { variant: FieldVariant.Outline, title: 'Outline' },
+        ].map(({ variant, title }) => (
+          <StateGroup key={title} title={title}>
+            <StateRow label="Rest">
+              <NewField
+                variant={variant}
+                fieldType="tertiary"
+                label="Email"
+                leftIcon={<AtIcon size={IconSize.Small} />}
+              />
+            </StateRow>
+            <StateRow label="Focused">
+              <NewField
+                variant={variant}
+                fieldType="tertiary"
+                label="Email"
+                leftIcon={<AtIcon size={IconSize.Small} />}
+                focused
+              />
+            </StateRow>
+            <StateRow label="Filled">
+              <NewField
+                variant={variant}
+                fieldType="tertiary"
+                label="Email"
+                value="ido@daily.dev"
+              />
+            </StateRow>
+            <StateRow label="Invalid">
+              <NewField
+                variant={variant}
+                fieldType="tertiary"
+                label="Email"
+                value="nope"
+                valid={false}
+                hint="Enter a valid email"
+              />
+            </StateRow>
+            <StateRow label="Disabled">
+              <NewField
+                variant={variant}
+                fieldType="tertiary"
+                label="Email"
+                value="ido@daily.dev"
+                disabled
+              />
+            </StateRow>
+          </StateGroup>
+        ))}
+      </Section>
+    </Page>
+  ),
+};
+
+/** Every field size, each next to the button of the same size. */
+export const Sizes: Story = {
+  name: 'TextField · sizes',
+  render: () => (
+    <Page>
+      <Section
+        title="Sizes — aligned with buttons"
+        description="A field and a button of the same size share height, corner radius and icon size, so they line up pixel-for-pixel in a strip."
+      >
+        <div className="flex flex-col gap-4">
+          {(
+            [
+              [FieldSize.XLarge, ButtonSize.XLarge, 'XLarge'],
+              [FieldSize.Large, ButtonSize.Large, 'Large'],
+              [FieldSize.Medium, ButtonSize.Medium, 'Medium'],
+              [FieldSize.Small, ButtonSize.Small, 'Small'],
+              [FieldSize.XSmall, ButtonSize.XSmall, 'XSmall'],
+            ] as const
+          ).map(([fs, bs, label]) => (
+            <div key={label} className="flex items-center gap-3">
+              <span className="w-16 typo-caption1 uppercase tracking-wide text-text-quaternary">
+                {label}
+              </span>
+              <NewField
+                fieldSize={fs}
+                fieldType="tertiary"
+                label="Email"
+                leftIcon={<AtIcon />}
+                className={{ container: 'flex-1' }}
+              />
+              <Button size={bs} variant={ButtonVariant.Primary}>
+                Subscribe
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Section>
+    </Page>
+  ),
+};
+
+/** Password strength ladder (static previews) plus the live, interactive field. */
+export const PasswordStates: Story = {
+  name: 'PasswordField · states',
+  render: () => (
+    <Page>
+      <Section
+        title="Password — strength & visibility"
+        description="Strength uses the left-edge colour-graded indicator, a coloured hint and a progress bar (a progress cue, not a validity cue). A too-short password is invalid and gets the red border like any other field."
+      >
+        <StateGroup title="Strength ladder">
+          <StateRow label="Rest" caption="empty">
+            <NewField
+              type="password"
+              label="Password"
+              leftIcon={<LockIcon size={IconSize.Small} />}
+              actionButton={
+                <button type="button" aria-label="Toggle password visibility">
+                  <EyeIcon className="text-text-secondary" />
+                </button>
+              }
+            />
+          </StateRow>
+          <StateRow label="Risky" caption="level 0–1">
+            <StaticPassword
+              level={0}
+              value="abcdef"
+              hint="Risky"
+              progress="bg-status-error w-1/6"
+              hintColor="text-status-error"
+            />
+          </StateRow>
+          <StateRow label="Almost" caption="level 2">
+            <StaticPassword
+              level={2}
+              value="abcd1234"
+              hint="You're almost there"
+              progress="bg-status-warning w-1/4"
+              hintColor="text-status-warning"
+            />
+          </StateRow>
+          <StateRow label="Strong" caption="level 3">
+            <StaticPassword
+              level={3}
+              value="Str0ng!Pass#2026"
+              hint="Strong as it gets"
+              progress="bg-status-success w-1/2"
+              hintColor="text-status-success"
+            />
+          </StateRow>
+          <StateRow label="Invalid" caption="too short → red border">
+            <NewField
+              type="password"
+              label="Password"
+              value="ab"
+              valid={false}
+              leftIcon={<LockIcon size={IconSize.Small} />}
+              hint="Password needs a minimum length of 6"
+            />
+          </StateRow>
+        </StateGroup>
+        <StateGroup title="Live">
+          <StateRow label="Live field" caption="type to see it light up">
+            <LivePassword />
+          </StateRow>
+        </StateGroup>
+      </Section>
+    </Page>
+  ),
+};
+
+/** Search field across states, sizes and the primary/secondary variants. */
+export const SearchStates: Story = {
+  name: 'SearchField · states',
+  render: () => (
+    <Page>
+      <Section
+        title="Search — states, sizes & variants"
+        description="The search field shares the field border and surface. Primary shows an inline clear button when filled; secondary shows a submit affordance."
+      >
+        <StateGroup title="Primary · large">
+          <StateRow label="Rest">
+            <LiveSearch placeholder="Search" />
+          </StateRow>
+          <StateRow label="With value" caption="clear button">
+            <LiveSearch value="react" />
+          </StateRow>
+          <StateRow label="Disabled" caption="dimmed">
+            <LiveSearch placeholder="Search" disabled />
+          </StateRow>
+        </StateGroup>
+        <StateGroup title="Sizes">
+          <StateRow label="Large">
+            <LiveSearch placeholder="Search" fieldSize="large" />
+          </StateRow>
+          <StateRow label="Medium">
+            <LiveSearch placeholder="Search" fieldSize="medium" />
+          </StateRow>
+        </StateGroup>
+        <StateGroup title="Secondary">
+          <StateRow label="Rest" caption="submit button">
+            <LiveSearch placeholder="Search" fieldType="secondary" />
+          </StateRow>
+          <StateRow label="With value">
+            <LiveSearch value="typescript" fieldType="secondary" />
+          </StateRow>
+        </StateGroup>
+      </Section>
+    </Page>
+  ),
+};
+
+/** Textarea across rest / focus / filled / invalid / disabled / read-only. */
+export const TextareaStates: Story = {
+  name: 'Textarea · states',
+  render: () => (
+    <Page>
+      <Section
+        title="Textarea — states"
+        description="Same border language as the inputs (focus, red error border, dimmed disabled) with a built-in character counter."
+      >
+        <div
+          className="grid gap-4"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          }}
+        >
+          <Card label="Rest">
+            <LiveTextarea
+              fieldType="tertiary"
+              label="Tell us about yourself"
+              rows={3}
+            />
+          </Card>
+          <Card label="Focused">
+            <LiveTextarea
+              fieldType="tertiary"
+              label="Tell us about yourself"
+              rows={3}
+              className={{ baseField: 'focused' }}
+            />
+          </Card>
+          <Card label="Filled">
+            <LiveTextarea
+              fieldType="tertiary"
+              label="Bio"
+              rows={3}
+              value="Frontend engineer who loves a tidy design system."
+            />
+          </Card>
+          <Card label="Invalid">
+            <LiveTextarea
+              fieldType="tertiary"
+              label="Bio"
+              rows={3}
+              value="too short"
+              valid={false}
+              hint="Tell us a little more"
+            />
+          </Card>
+          <Card label="Disabled">
+            <LiveTextarea
+              fieldType="tertiary"
+              label="Bio"
+              rows={3}
+              value="Read-only content"
+              disabled
+            />
+          </Card>
+          <Card label="Read-only">
+            <LiveTextarea
+              fieldType="tertiary"
+              label="Bio"
+              rows={3}
+              value="Read-only content"
+              readOnly
+            />
+          </Card>
+        </div>
+      </Section>
+    </Page>
+  ),
+};
+
+/** Dropdown trigger states + sizes. Click any trigger to review the popover. */
+export const DropdownStates: Story = {
+  name: 'Dropdown · states',
+  render: () => (
+    <Page>
+      <Section
+        title="Dropdown — trigger states"
+        description="Click any trigger to review the popover (rounded-14 card, inset rows, smooth highlight). The trigger shares the field border and surface."
+      >
+        <div className="flex flex-wrap gap-6">
+          <div className="flex w-64 flex-col gap-2">
+            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
+              Placeholder
+            </span>
+            <Dropdown
+              placeholder="Pick a topic"
+              selectedIndex={-1}
+              options={topics}
+              onChange={() => {}}
+              buttonSize={ButtonSize.Large}
+              className={dropdownTrigger('bg-surface-float')}
+            />
+          </div>
+          <div className="flex w-64 flex-col gap-2">
+            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
+              Selected · filled
+            </span>
+            <Dropdown
+              selectedIndex={1}
+              options={topics}
+              onChange={() => {}}
+              buttonSize={ButtonSize.Large}
+              className={dropdownTrigger('bg-surface-float')}
+            />
+          </div>
+          <div className="flex w-64 flex-col gap-2">
+            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
+              Selected · outline
+            </span>
+            <Dropdown
+              selectedIndex={2}
+              options={topics}
+              onChange={() => {}}
+              buttonSize={ButtonSize.Large}
+              className={dropdownTrigger()}
+            />
+          </div>
+          <div className="flex w-64 flex-col gap-2">
+            <span className="typo-caption1 uppercase tracking-wide text-text-quaternary">
+              Disabled
+            </span>
+            <Dropdown
+              placeholder="Pick a topic"
+              selectedIndex={-1}
+              options={topics}
+              onChange={() => {}}
+              disabled
+              buttonSize={ButtonSize.Large}
+              className={dropdownTrigger('bg-surface-float')}
+            />
+          </div>
+        </div>
+      </Section>
+
+      <Section
+        title="Dropdown sizes"
+        description="The trigger uses the button size scale, so dropdowns line up with buttons and fields of the same size."
+      >
+        <div className="flex flex-col gap-4">
+          {(
+            [
+              [ButtonSize.Large, 'Large'],
+              [ButtonSize.Medium, 'Medium'],
+              [ButtonSize.Small, 'Small'],
+            ] as const
+          ).map(([bs, label]) => (
+            <div key={label} className="flex items-center gap-3">
+              <span className="w-16 typo-caption1 uppercase tracking-wide text-text-quaternary">
+                {label}
+              </span>
+              <Dropdown
+                selectedIndex={0}
+                options={topics}
+                onChange={() => {}}
+                buttonSize={bs}
+                className={dropdownTrigger('bg-surface-float')}
+              />
+            </div>
+          ))}
         </div>
       </Section>
     </Page>

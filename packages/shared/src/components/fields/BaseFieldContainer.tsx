@@ -202,6 +202,7 @@ function BaseFieldContainer(
           'relative flex',
           radiusClass,
           className.baseField,
+          disabled && 'pointer-events-none opacity-32',
           { readOnly, focused, invalid },
         )}
       >

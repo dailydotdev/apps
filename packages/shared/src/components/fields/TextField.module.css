@@ -5,18 +5,26 @@
 }
 
 /*
- * Fields v2: focus / invalid / readonly use a crisp, even inset ring (2px,
- * matching the toggle focus ring). Password strength keeps the previous
- * left-edge indicator bar + colour-graded fill, which reads as a progress cue.
+ * Fields v2: focus / invalid / readonly all use the same 1px border mechanism
+ * so the states read as one family (no mix of border + ring). Focus paints the
+ * border text-primary (see fields.module.css); the rules below override the
+ * border colour for the read-only "ready" and invalid states. Password strength
+ * keeps the previous left-edge indicator bar + colour-graded fill (a progress
+ * cue rather than a validity cue).
  */
 .field {
+  /* Read-only "ready" affordance: a blue border while focused. */
   &:global(.focused.readOnly) {
-    box-shadow: inset 0 0 0 0.125rem var(--theme-accent-blueCheese-default);
     border-color: var(--theme-accent-blueCheese-default);
   }
 
-  &:global(.invalid) {
-    box-shadow: inset 0 0 0 0.125rem var(--status-error);
+  /*
+   * Invalid: a solid red border. Same width/mechanism as the focus border, and
+   * it stays red while focused/typing so the error remains visible until fixed.
+   */
+  &:global(.invalid),
+  &:global(.focused.invalid) {
+    border-color: var(--status-error);
   }
 
   &:global(.password-0),

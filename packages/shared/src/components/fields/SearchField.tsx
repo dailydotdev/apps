@@ -88,11 +88,11 @@ export const SearchField = forwardRef(function SearchField(
     onInput,
     focusInput,
     setInput,
-  } = useInputField(value, valueChanged);
+  } = useInputField(value as string | number | readonly string[], valueChanged);
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
-    setInput(null);
+    setInput('');
   };
 
   const isPrimary = fieldType === 'primary';
@@ -107,6 +107,7 @@ export const SearchField = forwardRef(function SearchField(
         'items-center !border !border-border-subtlest-tertiary !bg-background-default',
         sizeClass,
         className,
+        disabled && 'pointer-events-none opacity-32',
         { focused },
       )}
       onClick={focusInput}
