@@ -1202,6 +1202,44 @@ export const TextareaStates: Story = {
           </Card>
         </div>
       </Section>
+
+      <Section
+        title="Textarea — label placement"
+        description="Two layouts: a primary field keeps the title inside (a caption that floats above the value once you focus/fill), while a field with no label centres its content with equal padding on every side — no more cramped top inset."
+      >
+        <div
+          className="grid gap-4"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          }}
+        >
+          <Card label="Title inside (primary)">
+            <LiveTextarea
+              fieldType="primary"
+              label="Bio"
+              rows={3}
+              value="Frontend engineer who loves a tidy design system."
+            />
+          </Card>
+          <Card label="No label · equal padding">
+            <LiveTextarea
+              fieldType="quaternary"
+              label=""
+              placeholder="Write a comment…"
+              rows={3}
+            />
+          </Card>
+          <Card label="No label · filled">
+            <LiveTextarea
+              fieldType="quaternary"
+              label=""
+              placeholder="Write a comment…"
+              rows={3}
+              value="Looks much more balanced now that every side shares the same inset."
+            />
+          </Card>
+        </div>
+      </Section>
     </Page>
   ),
 };
