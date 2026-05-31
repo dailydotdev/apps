@@ -15,7 +15,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { Loader } from '../../components/Loader';
 import {
   Typography,
   TypographyColor,
@@ -25,58 +24,68 @@ import { useAnonPostOnboarding } from './useAnonPostOnboarding';
 import { useAnonFeedTags } from './useAnonFeedTags';
 import { FeedConversionBanner } from './FeedConversionBanner';
 
-const PAGE_SIZE = 7;
-const BANNER_AFTER = 3;
+const PAGE_SIZE = 8;
+const BANNER_AFTER = 2;
 
 interface ContinueReadingFeedProps {
   post: Post;
 }
 
-const ContinueReadingItem = ({ post }: { post: Post }): ReactElement => (
-  <article className="relative flex items-start gap-4 rounded-16 p-3 hover:bg-surface-hover">
+const FeedCard = ({ post }: { post: Post }): ReactElement => (
+  <article className="group relative flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary transition-colors hover:border-border-subtlest-primary">
     <CardLink href={post.commentsPermalink} title={post.title} />
     <LazyImage
       imgSrc={post.image}
       imgAlt={post.title ?? 'Post cover image'}
-      className="h-20 w-32 shrink-0 rounded-12"
+      className="h-36 w-full"
       fallbackSrc={cloudinaryPostImageCoverPlaceholder}
     />
-    <div className="flex min-w-0 flex-1 flex-col">
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-        truncate
-      >
-        {post.source?.name}
-      </Typography>
-      <h3 className="multi-truncate mb-1 break-words font-bold text-text-primary typo-body">
+    <div className="flex flex-1 flex-col gap-1 p-3">
+      <div className="flex items-center gap-2">
+        <LazyImage
+          imgSrc={post.source?.image ?? ''}
+          imgAlt={post.source?.name ?? ''}
+          className="size-5 shrink-0 rounded-full"
+        />
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          truncate
+        >
+          {post.source?.name}
+        </Typography>
+      </div>
+      <h3 className="line-clamp-2 break-words font-bold text-text-primary typo-callout">
         {post.title}
       </h3>
       <PostEngagementCounts
         upvotes={post.numUpvotes ?? 0}
         comments={post.numComments ?? 0}
-        className="text-text-tertiary"
+        className="mt-auto pt-1 text-text-tertiary"
       />
     </div>
   </article>
 );
 
-const ItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="flex items-start gap-4 p-3">
-    <ElementPlaceholder className="h-20 w-32 shrink-0 rounded-12" />
-    <div className="flex flex-1 flex-col gap-2">
+const CardPlaceholder = (): ReactElement => (
+  <div
+    aria-busy
+    className="flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+  >
+    <ElementPlaceholder className="h-36 w-full" />
+    <div className="flex flex-col gap-2 p-3">
       <ElementPlaceholder className="h-3 w-1/3 rounded-12" />
       <ElementPlaceholder className="h-4 w-4/5 rounded-12" />
       <ElementPlaceholder className="h-3 w-1/4 rounded-12" />
     </div>
-  </article>
+  </div>
 );
 
 /**
- * A personalized "Keep reading" feed below the comments so an anonymous reader
- * who finishes the article keeps discovering relevant dev content. Loads in
- * pages via an explicit "Load more" button (cheaper than auto infinite scroll)
- * and weaves a conversion banner into the flow.
+ * A visual, card-based "Keep reading" feed below the comments — turns the end
+ * of the article into an addictive discovery grid of relevant dev content,
+ * with a conversion banner woven in and an explicit "Load more" for
+ * performance (no runaway auto-fetching).
  */
 export const ContinueReadingFeed = ({
   post,
@@ -135,19 +144,22 @@ export const ContinueReadingFeed = ({
         More {primary} stories developers are reading right now
       </Typography>
 
-      <div className="flex flex-col gap-1">
+      <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
         {query.isLoading ? (
           <>
-            <ItemPlaceholder />
-            <ItemPlaceholder />
-            <ItemPlaceholder />
+            <CardPlaceholder />
+            <CardPlaceholder />
+            <CardPlaceholder />
+            <CardPlaceholder />
           </>
         ) : (
           posts.map((item, index) => (
             <Fragment key={item.id}>
-              <ContinueReadingItem post={item} />
+              <FeedCard post={item} />
               {index === BANNER_AFTER - 1 && (
-                <FeedConversionBanner tags={selectedTags} />
+                <div className="tablet:col-span-2">
+                  <FeedConversionBanner tags={selectedTags} />
+                </div>
               )}
             </Fragment>
           ))
@@ -158,12 +170,12 @@ export const ContinueReadingFeed = ({
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.Medium}
-          className="mt-4 self-center"
+          className="mt-5 self-center"
           loading={query.isFetchingNextPage}
           disabled={query.isFetchingNextPage}
           onClick={() => query.fetchNextPage()}
         >
-          {query.isFetchingNextPage ? <Loader /> : 'Load more articles'}
+          Load more articles
         </Button>
       )}
     </section>

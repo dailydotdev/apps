@@ -1,11 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { Post } from '../../graphql/posts';
 import type { Tag } from '../../graphql/feedSettings';
 import { capitalize } from '../../lib/strings';
-import { VIcon } from '../../components/icons';
-import { IconSize } from '../../components/Icon';
 import {
   Typography,
   TypographyColor,
@@ -14,9 +11,10 @@ import {
 } from '../../components/typography/Typography';
 import { TagElement } from '../../components/tags/TagElement';
 import { onboardingGradientClasses } from '../../components/onboarding/common';
-import { authGradientBg } from '../../components/marketing/banners/common';
 import { useAnonFeedTags } from './useAnonFeedTags';
+import { useTypewriter } from './useTypewriter';
 import { LivePulse } from './LivePulse';
+import { AnimatedFeedPreview } from './AnimatedFeedPreview';
 import { BuildFeedAuthOptions } from './BuildFeedAuthOptions';
 
 interface BuildFeedConversionCardProps {
@@ -25,23 +23,19 @@ interface BuildFeedConversionCardProps {
 
 const MAX_CHIPS = 6;
 
-const Benefit = ({ children }: { children: string }): ReactElement => (
-  <li className="flex items-start gap-2">
-    <VIcon
-      size={IconSize.Size16}
-      className="mt-0.5 shrink-0 text-accent-avocado-default"
-    />
-    <Typography type={TypographyType.Callout} color={TypographyColor.Primary}>
-      {children}
-    </Typography>
-  </li>
-);
+const borderGradient: React.CSSProperties = {
+  backgroundImage:
+    'linear-gradient(90deg, var(--theme-accent-cabbage-default), var(--theme-accent-onion-default), var(--theme-accent-water-default), var(--theme-accent-cabbage-default))',
+  backgroundSize: '200% 100%',
+  animation: 'bf-border-shift 6s linear infinite',
+};
 
 /**
- * The standout anonymous conversion surface. A focused product hero on the
- * brand gradient: a headline made relevant by the article's topic, three
- * explicit benefits, a real-time activity pulse, no-password topic tuning,
- * and inline one-tap signup — engineered for the aha moment.
+ * The standout anonymous conversion surface. Rather than listing features, it
+ * *shows* the product working: an animated gradient frame, a live "building
+ * your feed" line that types out the reader's own topics, real posts streaming
+ * in to form a feed before their eyes, a real-time activity pulse, and inline
+ * one-tap signup. Built to land the aha moment.
  */
 export const BuildFeedConversionCard = ({
   post,
@@ -51,43 +45,59 @@ export const BuildFeedConversionCard = ({
     enabled: true,
   });
 
-  const primaryTopic = chips[0] ? capitalize(chips[0]) : null;
-  const topicList = chips.slice(0, 3).map(capitalize).join(', ');
+  const typewriterWords =
+    chips.length > 0 ? chips.map(capitalize) : ['your stack', 'dev news'];
+  const typed = useTypewriter(typewriterWords);
 
   return (
-    <div className="overflow-hidden rounded-16 border border-accent-cabbage-default shadow-2">
-      <div className={classNames(authGradientBg, 'flex flex-col gap-3 p-4')}>
-        <Typography
-          bold
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="uppercase tracking-wider"
-        >
-          Personalized for you
-        </Typography>
-        <Typography
-          bold
-          tag={TypographyTag.H2}
-          type={TypographyType.Title2}
-          className={onboardingGradientClasses}
-        >
-          {primaryTopic
-            ? `Your daily feed of ${primaryTopic}`
-            : 'Your personalized dev feed'}
-        </Typography>
-        <ul className="flex flex-col gap-2">
-          <Benefit>
-            {topicList
-              ? `The best of ${topicList} — every morning`
-              : 'The best dev content — every morning'}
-          </Benefit>
-          <Benefit>Real discussions with developers who get it</Benefit>
-          <Benefit>Save, organize & never lose a great read</Benefit>
-        </ul>
-        <LivePulse post={post} />
-      </div>
+    <div className="rounded-[17px] p-px shadow-2" style={borderGradient}>
+      <style>
+        {`@keyframes bf-border-shift { to { background-position: 200% center; } }
+          @keyframes bf-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }`}
+      </style>
+      <div className="flex flex-col gap-4 rounded-16 bg-background-default p-4">
+        <header className="flex flex-col gap-2">
+          <Typography
+            bold
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="uppercase tracking-wider"
+          >
+            Built for developers like you
+          </Typography>
+          <Typography
+            bold
+            tag={TypographyTag.H2}
+            type={TypographyType.LargeTitle}
+            className={onboardingGradientClasses}
+          >
+            Your personalized dev feed
+          </Typography>
+          <div className="flex items-center font-mono text-text-secondary typo-footnote">
+            <span className="text-text-quaternary">{'> '}</span>
+            <span className="ml-1">building feed for&nbsp;</span>
+            <span className="font-bold text-text-primary">{typed}</span>
+            <span
+              aria-hidden
+              className="ml-px inline-block h-3.5 w-px bg-text-primary"
+              style={{ animation: 'bf-blink 1s step-end infinite' }}
+            />
+          </div>
+          <LivePulse post={post} />
+        </header>
 
-      <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-1.5 rounded-12 bg-surface-float p-2">
+          <Typography
+            bold
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="px-1 uppercase tracking-wider"
+          >
+            Streaming now
+          </Typography>
+          <AnimatedFeedPreview tags={selectedTags} currentPostId={post?.id} />
+        </div>
+
         <div className="flex flex-col gap-2">
           <Typography
             type={TypographyType.Caption1}
@@ -109,6 +119,7 @@ export const BuildFeedConversionCard = ({
             ))}
           </div>
         </div>
+
         <BuildFeedAuthOptions tags={selectedTags} origin="sidebar" />
       </div>
     </div>
