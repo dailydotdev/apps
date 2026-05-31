@@ -42,15 +42,6 @@ export const fieldSizeToTypo: Record<FieldSize, string> = {
   [FieldSize.XSmall]: 'typo-caption1',
 };
 
-/** Horizontal padding per size — identical to the button horizontal padding. */
-export const fieldSizeToHorizontalPadding: Record<FieldSize, string> = {
-  [FieldSize.XLarge]: 'px-7',
-  [FieldSize.Large]: 'px-6',
-  [FieldSize.Medium]: 'px-4',
-  [FieldSize.Small]: 'px-3',
-  [FieldSize.XSmall]: 'px-2',
-};
-
 /**
  * Icon size per field size. Fields sit one notch below the button icon scale:
  * an icon inside an input is a left/right adornment, not the primary visual, so
@@ -78,21 +69,3 @@ export const fieldSizeToGap: Record<FieldSize, string> = {
   [FieldSize.Small]: 'gap-1',
   [FieldSize.XSmall]: 'gap-1',
 };
-
-export interface FieldSizeTokens {
-  height: string;
-  radius: string;
-  typo: string;
-  horizontalPadding: string;
-  iconSize: IconSize;
-  gap: string;
-}
-
-export const getFieldSizeTokens = (size: FieldSize): FieldSizeTokens => ({
-  height: fieldSizeToHeight[size],
-  radius: fieldSizeToRadius[size],
-  typo: fieldSizeToTypo[size],
-  horizontalPadding: fieldSizeToHorizontalPadding[size],
-  iconSize: fieldSizeToIconSize[size],
-  gap: fieldSizeToGap[size],
-});

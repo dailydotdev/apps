@@ -31,9 +31,13 @@
   &:global(.password-1) {
     box-shadow: inset 0.125rem 0 0 0 var(--status-error);
 
+    /*
+     * The strength bar inherits the field's rounded left corners via the
+     * parent's `overflow: hidden` clip, so it matches whatever radius the
+     * field size resolves to instead of a hardcoded value.
+     */
     &:before {
       content: '';
-      border-radius: 0.875rem 0 0 0.875rem;
       opacity: 0.24;
       background: linear-gradient(
         270deg,
@@ -53,7 +57,6 @@
 
     &:before {
       content: '';
-      border-radius: 0.875rem 0 0 0.875rem;
       opacity: 0.24;
       background: linear-gradient(
         270deg,
@@ -73,7 +76,6 @@
 
     &:before {
       content: '';
-      border-radius: 0.875rem 0 0 0.875rem;
       opacity: 0.24;
       background: linear-gradient(
         270deg,

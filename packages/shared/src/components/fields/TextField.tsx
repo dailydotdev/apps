@@ -19,7 +19,8 @@ import type { ButtonProps } from '../buttons/Button';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 import {
   FieldSize,
-  getFieldSizeTokens,
+  fieldSizeToHeight,
+  fieldSizeToTypo,
   fieldSizeToIconSize,
   fieldSizeToGap,
 } from './fieldSizes';
@@ -107,8 +108,9 @@ function TextFieldComponent(
   const invalid = validInput === false || (required && inputLength === 0);
   const hasValue = hasInput || !!inputRef?.current?.value?.length;
   const id = useId();
-  const sizeTokens = fieldSize ? getFieldSizeTokens(fieldSize) : null;
-  const heightClass = sizeTokens?.height ?? (isSecondaryField ? 'h-9' : 'h-12');
+  const typoClass = fieldSize ? fieldSizeToTypo[fieldSize] : undefined;
+  const defaultHeight = isSecondaryField ? 'h-9' : 'h-12';
+  const heightClass = fieldSize ? fieldSizeToHeight[fieldSize] : defaultHeight;
   // Resolve a button-aligned size for the icon glyph and the adornment gap even
   // when no explicit `fieldSize` is set, so spacing/icon scale stays consistent
   // with a button of the equivalent height.
@@ -223,7 +225,7 @@ function TextFieldComponent(
           className={classNames(
             styles.input,
             'self-stretch text-ellipsis',
-            sizeTokens?.typo,
+            typoClass,
             className?.input,
             getFieldFontColor({
               readOnly,

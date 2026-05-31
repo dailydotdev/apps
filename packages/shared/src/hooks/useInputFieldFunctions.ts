@@ -80,14 +80,22 @@ function useInputFieldFunctions<
   }, [validInput]);
 
   // An externally-controlled `valid` prop is authoritative whenever it is
-  // provided — including on first render — so a field that is rendered already
-  // invalid (e.g. server-side form errors) shows its error state immediately
-  // instead of waiting for the user to interact.
+  // provided. Reflect `valid=true` immediately, but only surface an invalid
+  // state once the field actually has content: a pristine, untouched field that
+  // is technically invalid (e.g. required + empty, or a value-derived
+  // `valid={!!x}` / `valid={value.length > 0}`) must not flash a red border
+  // before the user types. Server-side and submit errors arrive with content,
+  // so they still show right away.
   useEffect(() => {
-    if (valid !== undefined) {
-      setValidInput(valid);
+    if (valid === undefined) {
+      return;
     }
-  }, [valid]);
+    if (valid === false && !inputRef.current?.value) {
+      return;
+    }
+    setValidInput(valid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [valid, hasInput]);
 
   const onBlur = () => {
     clearIdleTimeout();
