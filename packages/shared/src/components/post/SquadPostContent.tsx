@@ -29,6 +29,7 @@ import { PostExperienceLayout } from './experience/PostExperienceLayout';
 import { PostHero } from './experience/PostHero';
 import { PostContextRail } from './experience/PostContextRail';
 import { PersonalizedFeedPreview } from './experience/PersonalizedFeedPreview';
+import { PostCommunitySection } from './experience/PostCommunitySection';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -155,7 +156,6 @@ function SquadPostContentRaw({
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
-          engagementProps={engagementActions}
           origin={origin}
           post={post}
         >
@@ -209,6 +209,12 @@ function SquadPostContentRaw({
                 post={post}
               />
             </section>
+            <PostCommunitySection
+              onCopyPostLink={onCopyPostLink}
+              origin={origin}
+              post={post}
+              shouldOnboardAuthor={shouldOnboardAuthor}
+            />
             <PersonalizedFeedPreview post={post} />
           </PostExperienceLayout>
         </BasePostContent>

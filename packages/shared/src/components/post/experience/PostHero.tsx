@@ -43,9 +43,9 @@ export const PostHero = ({
   const readText = getReadPostButtonText(post);
 
   return (
-    <section className="relative grid min-h-[28rem] gap-6 overflow-hidden bg-surface-float p-4 tablet:p-6 laptop:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)] laptop:p-8">
-      <div className="flex min-w-0 flex-col justify-between gap-8">
-        <div className="flex flex-col gap-6">
+    <section className="relative overflow-hidden bg-background-subtle px-4 py-6 tablet:px-6 laptop:px-8 laptop:py-10">
+      <div className="mx-auto grid w-full max-w-[64rem] gap-8 laptop:grid-cols-[minmax(0,1fr)_22rem] laptop:items-center">
+        <div className="flex min-w-0 flex-col gap-6">
           <PostSourceInfo
             className="min-w-0"
             hideSubscribeAction={hideSubscribeAction}
@@ -54,11 +54,11 @@ export const PostHero = ({
             post={post}
           />
           <div className="flex flex-col gap-4">
-            <div className="border-accent-cabbage-default/30 inline-flex w-fit rounded-10 border bg-accent-cabbage-subtlest px-2.5 py-1 text-accent-cabbage-default typo-caption1">
-              Dev intelligence briefing
+            <div className="inline-flex w-fit rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1 text-text-tertiary typo-caption1">
+              External article discussed on daily.dev
             </div>
             <h1
-              className="max-w-[46rem] break-words font-bold typo-large-title laptop:typo-mega3"
+              className="max-w-[48rem] break-words font-bold typo-large-title laptop:typo-mega2"
               data-testid="post-modal-title"
             >
               {title}
@@ -69,81 +69,78 @@ export const PostHero = ({
             )}
             <PostTopicChips topics={topics} />
           </div>
-        </div>
 
-        <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center">
-          {!!onReadArticle && readHref && (
-            <Button
-              className="w-full tablet:w-auto"
-              href={readHref}
-              onClick={() => onReadArticle()}
-              size={ButtonSize.Large}
-              tag="a"
-              target="_blank"
-              variant={ButtonVariant.Primary}
-            >
-              {readText}
-            </Button>
-          )}
-          <PostHeaderActions
-            buttonSize={ButtonSize.Large}
-            className="justify-center tablet:justify-start"
-            contextMenuId="post-experience-hero-actions"
-            hideSubscribeAction={hideSubscribeAction}
-            inlineActions={inlineActions}
-            onClose={onClose}
-            onReadArticle={onReadArticle}
-            post={post}
-          />
-        </div>
-      </div>
-
-      <div
-        className={classNames(
-          'group relative min-h-[16rem] overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2',
-          isVideoType && 'flex items-center justify-center p-6',
-        )}
-      >
-        {!isVideoType && (
-          <a
-            className="block size-full"
-            href={readHref}
-            onClick={onImageClick}
-            rel="noopener"
-            target="_blank"
-            title="Go to post"
-          >
-            <LazyImage
-              eager
-              fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-              fetchPriority="high"
-              imgAlt="Post cover image"
-              imgSrc={post.image}
-              ratio="68%"
+          <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center">
+            {!!onReadArticle && readHref && (
+              <Button
+                className="w-full tablet:w-auto"
+                href={readHref}
+                onClick={() => onReadArticle()}
+                size={ButtonSize.Large}
+                tag="a"
+                target="_blank"
+                variant={ButtonVariant.Primary}
+              >
+                {readText}
+              </Button>
+            )}
+            <PostHeaderActions
+              buttonSize={ButtonSize.Large}
+              className="justify-center tablet:justify-start"
+              contextMenuId="post-experience-hero-actions"
+              hideSubscribeAction={hideSubscribeAction}
+              inlineActions={inlineActions}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+              post={post}
             />
-            <div className="from-background-default/80 opacity-90 pointer-events-none absolute inset-0 bg-gradient-to-t via-transparent to-transparent" />
-            <div className="bg-background-default/80 pointer-events-none absolute bottom-4 left-4 right-4 rounded-16 border border-border-subtlest-tertiary p-3 shadow-2 backdrop-blur">
-              <p className="font-bold text-text-primary typo-callout">
-                Open the original story
+          </div>
+        </div>
+
+        <div
+          className={classNames(
+            'shadow-1 group relative min-h-[14rem] overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default',
+            isVideoType && 'flex items-center justify-center p-6',
+          )}
+        >
+          {!isVideoType && (
+            <a
+              className="block size-full"
+              href={readHref}
+              onClick={onImageClick}
+              rel="noopener"
+              target="_blank"
+              title="Go to post"
+            >
+              <LazyImage
+                eager
+                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                fetchPriority="high"
+                imgAlt="Post cover image"
+                imgSrc={post.image}
+                ratio="68%"
+              />
+              <div className="from-background-default/90 pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t to-transparent p-4 pt-16">
+                <p className="font-bold text-text-primary typo-callout">
+                  Read the original article
+                </p>
+                <p className="text-text-tertiary typo-footnote">
+                  Then see what the developer community thinks about it.
+                </p>
+              </div>
+            </a>
+          )}
+          {isVideoType && (
+            <div className="flex max-w-sm flex-col gap-3 text-center">
+              <p className="font-bold text-text-primary typo-title2">
+                Watch the original video
               </p>
-              <p className="text-text-tertiary typo-footnote">
-                daily.dev adds the context, feed preview, and community around
-                it.
+              <p className="text-text-tertiary typo-callout">
+                Then continue into the developer discussion below.
               </p>
             </div>
-          </a>
-        )}
-        {isVideoType && (
-          <div className="flex max-w-sm flex-col gap-3 text-center">
-            <p className="font-bold text-text-primary typo-title2">
-              Watch and discuss with developers
-            </p>
-            <p className="text-text-tertiary typo-callout">
-              Jump into the video, then come back for comments, related posts,
-              and live developer context.
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </section>
   );

@@ -25,17 +25,20 @@ export const PostExperienceLayout = ({
     >
       <div className="bg-accent-cabbage-default/10 pointer-events-none absolute -left-20 -top-20 size-80 rounded-full blur-3xl" />
       <div className="bg-accent-onion-default/10 pointer-events-none absolute -right-16 top-16 size-72 rounded-full blur-3xl" />
-      <div className="bg-accent-water-default/10 pointer-events-none absolute bottom-0 left-1/3 size-56 rounded-full blur-3xl" />
 
       <div className="relative z-1">{hero}</div>
-      <div className="relative z-1 grid gap-6 border-t border-border-subtlest-tertiary p-4 tablet:p-6 laptop:grid-cols-[minmax(0,1fr)_20rem] laptop:p-8">
-        <div className="flex min-w-0 flex-col gap-6">{children}</div>
-        {rail && (
-          <aside className="flex min-w-0 flex-col gap-3 laptop:sticky laptop:top-20 laptop:self-start">
-            {rail}
-          </aside>
-        )}
+      <div className="relative z-1 border-t border-border-subtlest-tertiary px-4 py-6 tablet:px-6 laptop:px-8">
+        <main className="mx-auto flex w-full min-w-0 max-w-[48rem] flex-col gap-8">
+          {children}
+        </main>
       </div>
+      {rail && (
+        <aside className="bg-surface-float/50 relative z-1 border-t border-border-subtlest-tertiary px-4 py-6 tablet:px-6 laptop:px-8">
+          <div className="mx-auto grid w-full max-w-[64rem] gap-3 laptop:grid-cols-3">
+            {rail}
+          </div>
+        </aside>
+      )}
     </div>
   );
 };

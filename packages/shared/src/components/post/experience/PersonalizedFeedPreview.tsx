@@ -22,16 +22,17 @@ export const PersonalizedFeedPreview = ({
 
   return (
     <section
-      className="shadow-1 overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle"
+      className="overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle"
       data-testid="personalized-feed-preview"
     >
-      <div className="border-b border-border-subtlest-tertiary bg-surface-float p-4 tablet:p-5">
-        <p className="font-bold text-text-primary typo-title2">
-          Your feed would continue with this
-        </p>
+      <div className="border-b border-border-subtlest-tertiary p-4 tablet:p-5">
+        <p className="text-text-tertiary typo-caption1">Keep reading</p>
+        <h2 className="mt-1 font-bold text-text-primary typo-title2">
+          More stories after the discussion
+        </h2>
         <p className="mt-1 text-text-tertiary typo-callout">
-          Because you are reading about {topicLabel}, daily.dev can keep the
-          best posts, tools, and discussions moving in your direction.
+          If this topic matters to you, daily.dev can keep the useful follow-up
+          stories flowing around {topicLabel}.
         </p>
         <PostTopicChips className="mt-3" topics={topics} />
       </div>

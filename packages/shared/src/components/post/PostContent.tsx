@@ -26,6 +26,7 @@ import { PostHero } from './experience/PostHero';
 import { PostInsightPanel } from './experience/PostInsightPanel';
 import { PostContextRail } from './experience/PostContextRail';
 import { PersonalizedFeedPreview } from './experience/PersonalizedFeedPreview';
+import { PostCommunitySection } from './experience/PostCommunitySection';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -33,7 +34,7 @@ export const SCROLL_OFFSET = 80;
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ './PostCodeSnippets').then(
-    (mod) => mod.PostCodeSnippets,
+    (mod) => ({ default: mod.PostCodeSnippets }),
   ),
 );
 
@@ -155,7 +156,6 @@ export function PostContentRaw({
         customNavigation={customNavigation}
         shouldOnboardAuthor={shouldOnboardAuthor}
         navigationProps={navigationProps}
-        engagementProps={engagementActions}
         origin={origin}
         post={post}
       >
@@ -220,6 +220,12 @@ export function PostContentRaw({
               />
             )}
           </PostInsightPanel>
+          <PostCommunitySection
+            onCopyPostLink={onCopyPostLink}
+            origin={origin}
+            post={post}
+            shouldOnboardAuthor={shouldOnboardAuthor}
+          />
           <PersonalizedFeedPreview post={post} />
         </PostExperienceLayout>
       </BasePostContent>

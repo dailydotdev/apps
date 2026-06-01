@@ -24,6 +24,7 @@ import { PostExperienceLayout } from '../experience/PostExperienceLayout';
 import { PostHero } from '../experience/PostHero';
 import { PostContextRail } from '../experience/PostContextRail';
 import { PersonalizedFeedPreview } from '../experience/PersonalizedFeedPreview';
+import { PostCommunitySection } from '../experience/PostCommunitySection';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -130,7 +131,6 @@ const CollectionPostContentRaw = ({
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
-          engagementProps={engagementActions}
           origin={origin}
           post={post}
         >
@@ -195,6 +195,12 @@ const CollectionPostContentRaw = ({
                 <Markdown content={contentHtml ?? ''} />
               </div>
             </section>
+            <PostCommunitySection
+              onCopyPostLink={onCopyPostLink}
+              origin={origin}
+              post={post}
+              shouldOnboardAuthor={shouldOnboardAuthor}
+            />
             <PersonalizedFeedPreview post={post} />
           </PostExperienceLayout>
         </BasePostContent>

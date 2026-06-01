@@ -24,7 +24,7 @@ const basePost = {
 } as Post;
 
 describe('PostInsightPanel', () => {
-  it('promotes summary, topics, and engagement stats', () => {
+  it('promotes the external article summary and story signals', () => {
     render(
       <PostInsightPanel
         post={{
@@ -35,13 +35,14 @@ describe('PostInsightPanel', () => {
       />,
     );
 
-    expect(screen.getByText('In 30 seconds')).toBeInTheDocument();
+    expect(screen.getByText('Article summary')).toBeInTheDocument();
+    expect(screen.getByText('What this story is about')).toBeInTheDocument();
     expect(
       screen.getByText('A concise summary of the post.'),
     ).toBeInTheDocument();
-    expect(screen.getByText('5 min')).toBeInTheDocument();
-    expect(screen.getByText('42')).toBeInTheDocument();
-    expect(screen.getByText('7 comments')).toBeInTheDocument();
+    expect(
+      screen.getByText('5 min read · 42 upvotes · 7 comments'),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('post-tag-list')).toHaveTextContent(
       'react,typescript',
     );
