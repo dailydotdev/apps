@@ -201,7 +201,7 @@ it('should render and fetch initial data if logged user can recover streak', asy
   expect(haveFetched).toBeTruthy();
 
   // and rendered
-  const popup = screen.queryByTestId('streak-recover-modal-heading');
+  const popup = await screen.findByTestId('streak-recover-modal-heading');
   expect(popup).toBeInTheDocument();
 });
 
@@ -253,7 +253,7 @@ it('Should have no cost for first time recovery', async () => {
   await waitForNock();
 
   // rendered
-  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
+  const popupHeader = await screen.findByTestId('streak-recover-modal-heading');
   expect(popupHeader).toBeInTheDocument();
 
   // expect cost to be 0
@@ -281,7 +281,7 @@ it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
   await waitForNock();
 
   // rendered
-  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
+  const popupHeader = await screen.findByTestId('streak-recover-modal-heading');
   expect(popupHeader).toBeInTheDocument();
 
   // expect cost to be 100
@@ -309,7 +309,7 @@ it('Should show buy Cores message if user does not have enough Cores', async () 
   await waitForNock();
 
   // rendered
-  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
+  const popupHeader = await screen.findByTestId('streak-recover-modal-heading');
   expect(popupHeader).toBeInTheDocument();
 
   // expect not enough Cores message
@@ -343,7 +343,7 @@ it('Should show success message on recover', async () => {
   await waitForNock();
 
   // rendered
-  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
+  const popupHeader = await screen.findByTestId('streak-recover-modal-heading');
   expect(popupHeader).toBeInTheDocument();
 
   // button is there
