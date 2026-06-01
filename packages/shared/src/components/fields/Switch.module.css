@@ -24,13 +24,21 @@
   transition: opacity 0.1s linear;
 }
 
+/*
+ * Knob color is theme-aware: a light brand tint (cabbage 10) on dark,
+ * and white on light. In both cases it contrasts the solid brand track.
+ */
 .knob {
-  background: var(--theme-surface-invert);
+  background: var(--theme-accent-cabbage-subtlest);
   transform: translateX(0) scale(1);
   transform-origin: center;
   will-change: transform, background-color, opacity;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.12s linear, opacity 0.12s linear;
+}
+
+:global(.light) .knob {
+  background: var(--theme-surface-invert);
 }
 
 .children {
