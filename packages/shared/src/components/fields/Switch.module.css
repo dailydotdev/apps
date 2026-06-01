@@ -24,14 +24,21 @@
   transition: opacity 0.1s linear;
 }
 
-/* Knob stays white in both themes so it always contrasts the track. */
+/*
+ * Knob is white on light; on dark it softens to a slightly off-white (salt 20)
+ * so it isn't a harsh pure white. It always contrasts the track.
+ */
 .knob {
-  background: theme('colors.raw.salt.0');
+  background: theme('colors.raw.salt.20');
   transform: translateX(0) scale(1);
   transform-origin: center;
   will-change: transform, background-color, opacity;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.12s linear, opacity 0.12s linear;
+}
+
+:global(.light) .knob {
+  background: theme('colors.raw.salt.0');
 }
 
 .children {
