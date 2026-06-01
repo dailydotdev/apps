@@ -21,11 +21,6 @@ jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
 }));
 
-jest.mock('@dailydotdev/shared/src/graphql/common', () => ({
-  ...jest.requireActual('@dailydotdev/shared/src/graphql/common'),
-  gqlClient: { request: jest.fn().mockResolvedValue({ page: { edges: [] } }) },
-}));
-
 const LogContext = getLogContextStatic();
 const mockUseAuthContext = useAuthContext as jest.MockedFunction<
   typeof useAuthContext
