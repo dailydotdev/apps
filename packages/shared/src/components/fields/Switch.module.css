@@ -64,25 +64,17 @@
   color: var(--theme-text-primary);
 }
 
-/* Checked (on) */
+/* Checked (on) — solid brand track, contrasting theme-aware knob (à la iOS/Chrome) */
 .switch input:checked ~ * .track {
-  background: color-mix(
-    in srgb,
-    var(--theme-accent-cabbage-bolder),
-    transparent 84%
-  );
+  background: var(--theme-accent-cabbage-default);
 }
 
 .switch input:checked ~ * .hoverLayer {
-  background: color-mix(
-    in srgb,
-    var(--theme-accent-cabbage-bolder),
-    transparent 88%
-  );
+  background: color-mix(in srgb, var(--theme-surface-invert), transparent 88%);
 }
 
 .switch input:checked ~ * .knob {
-  background: var(--theme-accent-cabbage-default);
+  background: var(--theme-surface-invert);
   transform: translateX(20px) scale(1);
 }
 
