@@ -6,7 +6,7 @@
  */
 
 .track {
-  background: var(--theme-surface-float);
+  background: var(--theme-surface-active);
   will-change: background-color;
   transition: background-color 0.12s linear;
 }
@@ -24,8 +24,9 @@
   transition: opacity 0.1s linear;
 }
 
+/* Knob is solid primary white in both themes and states. */
 .knob {
-  background: var(--theme-surface-secondary);
+  background: theme('colors.raw.salt.0');
   transform: translateX(0) scale(1);
   transform-origin: center;
   will-change: transform, background-color, opacity;
@@ -36,13 +37,6 @@
 .children {
   color: var(--theme-text-secondary);
   transition: color 0.12s linear;
-}
-
-/* Off knob turns to the primary surface on hover / focus / press */
-.switch:hover input:not(:checked) ~ * .knob,
-.switch:active input:not(:checked) ~ * .knob,
-.switch input:not(:checked):focus-visible ~ * .knob {
-  background: var(--theme-surface-primary);
 }
 
 .switch:hover .hoverLayer {
@@ -64,25 +58,16 @@
   color: var(--theme-text-primary);
 }
 
-/* Checked (on) */
+/* Checked (on) — solid brand track, white knob (à la iOS/Chrome) */
 .switch input:checked ~ * .track {
-  background: color-mix(
-    in srgb,
-    var(--theme-accent-cabbage-bolder),
-    transparent 84%
-  );
+  background: var(--theme-accent-cabbage-default);
 }
 
 .switch input:checked ~ * .hoverLayer {
-  background: color-mix(
-    in srgb,
-    var(--theme-accent-cabbage-bolder),
-    transparent 88%
-  );
+  background: color-mix(in srgb, var(--theme-surface-invert), transparent 88%);
 }
 
 .switch input:checked ~ * .knob {
-  background: var(--theme-accent-cabbage-default);
   transform: translateX(20px) scale(1);
 }
 
@@ -96,7 +81,11 @@
   transform: translateX(10px) scale(0.6);
 }
 
-/* Disabled */
+/* Disabled — bump the off track so the toggle stays visible; knob unchanged */
+.disabled .track {
+  background: var(--theme-surface-disabled);
+}
+
 .disabled .knob {
   opacity: 0.32;
 }

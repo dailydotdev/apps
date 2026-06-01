@@ -231,7 +231,7 @@ export const Comparison: Story = {
 
       <Section
         title="Interactions & animations"
-        description="These are real, interactive toggles. Hover to reveal the surface layer, click and hold to see the knob squeeze to the centre, and use Tab to see the keyboard focus ring."
+        description="These are real, interactive toggles. Hover to reveal the surface layer, click and hold to squeeze the knob then drag it left/right to slide the switch (it snaps to the nearest side on release), and use Tab to see the keyboard focus ring."
       >
         <div className="flex flex-wrap gap-4">
           <Card label="Hover me">
