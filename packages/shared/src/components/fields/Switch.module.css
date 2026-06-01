@@ -88,7 +88,11 @@
   transform: translateX(10px) scale(0.6);
 }
 
-/* Disabled */
+/* Disabled — bump the off track so the toggle stays visible; knob unchanged */
+.disabled .track {
+  background: var(--theme-surface-disabled);
+}
+
 .disabled .knob {
   opacity: 0.32;
 }
