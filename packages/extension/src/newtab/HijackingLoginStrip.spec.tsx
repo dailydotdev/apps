@@ -109,7 +109,9 @@ describe('HijackingLoginStrip', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('heading', { name: 'Your dev feed should know you.' }),
+      screen.getByRole('heading', {
+        name: 'Make every new tab feel like yours.',
+      }),
     ).toBeVisible();
 
     const signup = screen.getByRole('button', { name: 'Sign up' });
