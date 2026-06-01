@@ -25,7 +25,7 @@
 }
 
 .knob {
-  background: var(--theme-surface-secondary);
+  background: var(--theme-surface-invert);
   transform: translateX(0) scale(1);
   transform-origin: center;
   will-change: transform, background-color, opacity;
@@ -36,13 +36,6 @@
 .children {
   color: var(--theme-text-secondary);
   transition: color 0.12s linear;
-}
-
-/* Off knob turns to the primary surface on hover / focus / press */
-.switch:hover input:not(:checked) ~ * .knob,
-.switch:active input:not(:checked) ~ * .knob,
-.switch input:not(:checked):focus-visible ~ * .knob {
-  background: var(--theme-surface-primary);
 }
 
 .switch:hover .hoverLayer {
@@ -74,7 +67,6 @@
 }
 
 .switch input:checked ~ * .knob {
-  background: var(--theme-surface-invert);
   transform: translateX(20px) scale(1);
 }
 
