@@ -21,6 +21,11 @@ jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
 }));
 
+jest.mock('@dailydotdev/shared/src/graphql/common', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/graphql/common'),
+  gqlClient: { request: jest.fn().mockResolvedValue({ page: { edges: [] } }) },
+}));
+
 const LogContext = getLogContextStatic();
 const mockUseAuthContext = useAuthContext as jest.MockedFunction<
   typeof useAuthContext
@@ -104,7 +109,7 @@ describe('HijackingLoginStrip', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('heading', { name: 'Your feed is one tap away' }),
+      screen.getByRole('heading', { name: 'Make this feed yours' }),
     ).toBeVisible();
 
     const signup = screen.getByRole('button', { name: 'Sign up' });

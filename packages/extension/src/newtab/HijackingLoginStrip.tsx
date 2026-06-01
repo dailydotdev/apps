@@ -1,6 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
+import { gql } from 'graphql-request';
 import {
   Button,
   ButtonSize,
@@ -16,12 +18,18 @@ import {
   type SocialProvider,
 } from '@dailydotdev/shared/src/components/auth/common';
 import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/onboarding/common';
+import {
+  UpvoteIcon,
+  DiscussIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import LogoText from '@dailydotdev/shared/src/svg/LogoText';
@@ -34,6 +42,56 @@ const primaryCta =
 const glassCta =
   '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
 
+interface PeekPost {
+  id: string;
+  title: string;
+  numUpvotes?: number;
+  numComments?: number;
+  source?: { name?: string; image?: string };
+}
+
+const FEED_PEEK_QUERY = gql`
+  query HijackingFeedPeek($first: Int, $supportedTypes: [String!]) {
+    page: mostUpvotedFeed(first: $first, supportedTypes: $supportedTypes) {
+      edges {
+        node {
+          id
+          title
+          numUpvotes
+          numComments
+          source {
+            name
+            image
+          }
+        }
+      }
+    }
+  }
+`;
+
+interface FeedPeekData {
+  page?: { edges?: { node: PeekPost }[] };
+}
+
+function useFeedPeek(enabled: boolean): PeekPost[] {
+  const { data } = useQuery({
+    queryKey: ['hijacking', 'feed-peek'],
+    queryFn: () =>
+      gqlClient.request<FeedPeekData>(FEED_PEEK_QUERY, {
+        first: 8,
+        supportedTypes: ['article'],
+      }),
+    enabled,
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    retry: false,
+  });
+
+  return (data?.page?.edges ?? [])
+    .map((edge) => edge.node)
+    .filter((node): node is PeekPost => !!node?.title);
+}
+
 function BrandLockup(): ReactElement {
   return (
     <span className="flex items-center gap-2 text-white">
@@ -43,16 +101,50 @@ function BrandLockup(): ReactElement {
   );
 }
 
-function HeroChrome({ children }: { children: ReactNode }): ReactElement {
+function FeedPeekCard({ post }: { post: PeekPost }): ReactElement {
   return (
-    <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
-      <div className="relative overflow-hidden rounded-b-none rounded-t-16 bg-raw-pepper-90 shadow-2">
-        <div className="top-hero-aurora pointer-events-none absolute inset-0" />
-        <div className="dark relative z-1 flex flex-col items-center px-6 py-14 text-center tablet:py-16">
-          {children}
-        </div>
+    <div className="border-white/10 w-full rounded-16 border bg-white/[0.05] p-3 shadow-2 backdrop-blur-sm">
+      <div className="flex items-center gap-2">
+        {!!post.source?.image && (
+          <img
+            src={post.source.image}
+            alt=""
+            className="bg-white/10 size-6 rounded-full object-cover"
+          />
+        )}
+        <span className="text-white/60 truncate typo-footnote">
+          {post.source?.name}
+        </span>
       </div>
-    </section>
+      <p className="mt-2 line-clamp-2 text-left font-bold text-white typo-callout">
+        {post.title}
+      </p>
+      <div className="mt-3 flex items-center gap-4 text-white/50">
+        <span className="flex items-center gap-1 typo-caption1">
+          <UpvoteIcon size={IconSize.Size16} />
+          {post.numUpvotes ?? 0}
+        </span>
+        <span className="flex items-center gap-1 typo-caption1">
+          <DiscussIcon size={IconSize.Size16} />
+          {post.numComments ?? 0}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function FeedPeekRail({ posts }: { posts: PeekPost[] }): ReactElement {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none relative hidden w-[19rem] shrink-0 self-stretch laptop:block"
+    >
+      <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 rotate-2 flex-col gap-3 [mask-image:linear-gradient(to_bottom,transparent_0%,#000_16%,#000_84%,transparent_100%)]">
+        {posts.slice(0, 4).map((post) => (
+          <FeedPeekCard key={post.id} post={post} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -80,6 +172,9 @@ export default function HijackingLoginStrip(): ReactElement {
 
     return hasContinueAs ? 'continue' : 'signin';
   })();
+
+  const feedPeek = useFeedPeek(variant === 'signin');
+  const showPeek = variant === 'signin' && feedPeek.length >= 4;
 
   const onboardingHref = (() => {
     const base = new URL(onboardingUrl);
@@ -126,9 +221,18 @@ export default function HijackingLoginStrip(): ReactElement {
     });
   };
 
+  const chrome = (children: ReactNode): ReactElement => (
+    <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
+      <div className="relative overflow-hidden rounded-b-none rounded-t-16 bg-raw-pepper-90 shadow-2">
+        <div className="top-hero-aurora pointer-events-none absolute inset-0" />
+        <div className="dark relative z-1">{children}</div>
+      </div>
+    </section>
+  );
+
   if (variant === 'onboarding') {
-    return (
-      <HeroChrome>
+    return chrome(
+      <div className="flex flex-col items-center px-6 py-14 text-center tablet:py-16">
         <BrandLockup />
         <h2
           className={classNames(
@@ -151,13 +255,13 @@ export default function HijackingLoginStrip(): ReactElement {
         >
           Continue&nbsp;➔
         </Button>
-      </HeroChrome>
+      </div>,
     );
   }
 
   if (variant === 'continue' && signBack) {
-    return (
-      <HeroChrome>
+    return chrome(
+      <div className="flex flex-col items-center px-6 py-14 text-center tablet:py-16">
         <div className="relative">
           <ProfilePicture
             user={signBack}
@@ -209,44 +313,59 @@ export default function HijackingLoginStrip(): ReactElement {
             Create an account
           </ClickableText>
         </div>
-      </HeroChrome>
+      </div>,
     );
   }
 
-  return (
-    <HeroChrome>
-      <BrandLockup />
-      <h2
-        className={classNames(
-          'mt-6 text-balance typo-title1 tablet:typo-mega2',
-          onboardingGradientClasses,
-        )}
-      >
-        Your feed is one tap away
-      </h2>
-      <p className="text-white/70 mt-3 max-w-[24rem] text-balance typo-callout tablet:typo-title3">
-        All the dev news, tools, and discussions that matter — in every new tab.
-      </p>
-      <div className="mt-7 flex w-full max-w-80 flex-col gap-3">
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
-          className={classNames('w-full', primaryCta)}
-          onClick={onSignupClick}
+  return chrome(
+    <div
+      className={classNames(
+        'flex flex-col items-center gap-8 px-6 py-14 text-center',
+        showPeek
+          ? 'laptop:flex-row laptop:items-stretch laptop:justify-between laptop:gap-6 laptop:py-12 laptop:pl-10 laptop:pr-0 laptop:text-left'
+          : 'tablet:py-16',
+      )}
+    >
+      <div className="flex flex-col items-center laptop:items-start laptop:justify-center">
+        <BrandLockup />
+        <h2
+          className={classNames(
+            'mt-6 text-balance typo-title1 tablet:typo-mega2',
+            onboardingGradientClasses,
+          )}
         >
-          Sign up
-        </Button>
-        <Button
-          type="button"
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Large}
-          className={classNames('w-full', glassCta)}
-          onClick={onLoginClick}
+          Make this feed yours
+        </h2>
+        <p className="text-white/70 mt-3 max-w-[24rem] text-balance typo-callout tablet:typo-title3">
+          The dev news, tools, and discussions that matter — in every new tab.
+        </p>
+        <div
+          className={classNames(
+            'mt-7 flex w-full max-w-80 flex-col gap-3',
+            showPeek && 'laptop:mx-0',
+          )}
         >
-          Log in
-        </Button>
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
+            className={classNames('w-full', primaryCta)}
+            onClick={onSignupClick}
+          >
+            Sign up
+          </Button>
+          <Button
+            type="button"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Large}
+            className={classNames('w-full', glassCta)}
+            onClick={onLoginClick}
+          >
+            Log in
+          </Button>
+        </div>
       </div>
-    </HeroChrome>
+      {showPeek && <FeedPeekRail posts={feedPeek} />}
+    </div>,
   );
 }
