@@ -7,10 +7,13 @@ import type {
 } from 'react';
 import React, { forwardRef, useEffect, useState, useId } from 'react';
 import classNames from 'classnames';
-import { VIcon } from '../icons';
-import styles from './Checkbox.module.css';
+import { VIcon } from '@dailydotdev/shared/src/components/icons';
+import styles from './LegacyCheckbox.module.css';
 
-export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+// Frozen snapshot of the previous Checkbox design, used only by the
+// /dev/checkbox-radio review page. Do not use in production code.
+export interface LegacyCheckboxProps
+  extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
   checked?: boolean;
   id?: string;
@@ -20,7 +23,7 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   onToggleCallback?: (checked: boolean) => unknown;
 }
 
-export const Checkbox = forwardRef(function Checkbox(
+export const LegacyCheckbox = forwardRef(function LegacyCheckbox(
   {
     name,
     checked,
@@ -32,7 +35,7 @@ export const Checkbox = forwardRef(function Checkbox(
     disabled,
     defaultChecked,
     ...props
-  }: CheckboxProps,
+  }: LegacyCheckboxProps,
   ref: LegacyRef<HTMLInputElement>,
 ): ReactElement {
   const [actualChecked, setActualChecked] = useState(checked ?? defaultChecked);
@@ -86,7 +89,7 @@ export const Checkbox = forwardRef(function Checkbox(
       >
         <VIcon
           aria-hidden
-          className="icon h-full w-full opacity-0"
+          className="icon h-full w-full text-text-primary opacity-0"
           role="presentation"
           style={{ transition: 'opacity 0.1s linear' }}
         />

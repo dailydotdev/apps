@@ -1,55 +1,66 @@
-.item {
-  &.checked {
-    @apply text-text-primary;
+/*
+ * Radio — daily.dev design system.
+ * Same family as the redesigned Toggle/Switch, Checkbox and Button system:
+ *  - selected = a solid brand disc (accent-cabbage-default) with a white center
+ *    dot, identical in light & dark (no per-theme overrides);
+ *  - a soft surface-hover halo behind the control on hover/focus;
+ *  - a surface-focus (blueCheese) keyboard ring on :focus-visible;
+ *  - a subtle press squeeze for tactile feedback.
+ */
 
-    & .innerRing {
-      @apply border-4 border-raw-cabbage-40 bg-raw-cabbage-80;
-    }
+.checkmark {
+  transition: background-color 0.12s linear;
+}
+
+.innerRing {
+  position: relative;
+  transition: background-color 0.12s linear, border-color 0.12s linear,
+    box-shadow 0.1s linear, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* White center dot — scales in when selected. */
+  &:after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: theme('colors.raw.salt.0');
+    transform: scale(0);
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-.item:hover .checkmark, input:focus-visible ~ .checkmark {
+.item.checked .innerRing {
+  @apply border-accent-cabbage-default bg-accent-cabbage-default;
+
+  &:after {
+    transform: scale(1);
+  }
+}
+
+/* Hover / keyboard focus reveal the halo and lift the resting border. */
+.item:hover .checkmark,
+.item input:focus-visible ~ .checkmark {
   @apply bg-surface-hover;
 
   & .innerRing {
-    @apply border-4 border-text-primary;
+    @apply border-text-primary;
   }
 }
 
-.item.checked:hover .checkmark, .checked input:focus-visible ~ .checkmark {
-  background: theme('colors.raw.cabbage.50')3D;
-
-  & .innerRing {
-    @apply border-raw-cabbage-20;
-  }
+.item.checked:hover .checkmark .innerRing,
+.item.checked input:focus-visible ~ .checkmark .innerRing {
+  @apply border-accent-cabbage-default;
 }
 
-:global(.light) {
-  & .item.checked {
-    & .innerRing {
-      @apply border-raw-cabbage-60 bg-raw-cabbage-20;
-    }
-  }
-
-  & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
-    & .innerRing {
-      @apply border-raw-cabbage-80;
-    }
-  }
+/* Keyboard focus — an even blue ring (matches Switch / fields v2). */
+.item input:focus-visible ~ .checkmark .innerRing {
+  box-shadow: 0 0 0 2px var(--theme-surface-focus);
 }
 
-@media (prefers-color-scheme: light) {
-  :global(.auto) {
-    & .item.checked {
-      & .innerRing {
-        @apply border-raw-cabbage-60 bg-raw-cabbage-20;
-      }
-    }
-
-    & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
-      & .innerRing {
-        @apply border-raw-cabbage-80;
-      }
-    }
-  }
+/* Press — a subtle squeeze for tactile feedback. */
+.item:active .innerRing {
+  transform: scale(0.9);
 }

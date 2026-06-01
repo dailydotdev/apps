@@ -69,7 +69,7 @@ export function RadioItem<T extends string>({
         >
           <span
             className={classNames(
-              'flex h-full w-full rounded-full border-2 ',
+              'flex h-full w-full rounded-full border-2 border-border-subtlest-primary',
               disabled && '!border-surface-disabled !bg-surface-disabled',
               styles.innerRing,
             )}

@@ -1,4 +1,20 @@
+/*
+ * Checkbox — daily.dev design system.
+ * Aligned with the redesigned Toggle/Switch and Button system so fields,
+ * buttons, toggles, checkboxes and radios read as one family:
+ *  - a single semantic brand fill when checked (accent-cabbage-default) with a
+ *    solid white glyph, identical in light & dark (no per-theme overrides);
+ *  - a soft surface-hover halo behind the box on hover;
+ *  - a surface-focus (blueCheese) keyboard ring on :focus-visible;
+ *  - a subtle press squeeze for tactile feedback (à la the Switch knob).
+ */
+
 .checkmark {
+  background: transparent;
+  transition: background-color 0.12s linear, border-color 0.12s linear,
+    box-shadow 0.1s linear, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Soft surface halo behind the box; the offset trick centers a 2rem square. */
   &:before {
     content: '';
     position: absolute;
@@ -10,94 +26,70 @@
     height: 2rem;
     margin: auto;
     border-radius: 0.625rem;
+    background: var(--theme-surface-hover);
     opacity: 0;
-    transition: background-color 0.1s linear, opacity 0.1s linear;
+    transition: background-color 0.12s linear, opacity 0.12s linear;
     pointer-events: none;
     z-index: -1;
   }
 }
 
+/* The check glyph stays solid white in every theme/state for contrast. */
+.checkmark :global(.icon) {
+  color: theme('colors.raw.salt.0');
+}
+
 .label {
-  &:global(.disabled), &:global(.checked.disabled) {
+  &:global(.disabled),
+  &:global(.checked.disabled) {
     color: var(--theme-text-disabled);
   }
 
   &:global(.checked) {
     color: var(--theme-text-primary);
 
-    & .checkmark {
-      & :global(.icon) {
-        opacity: 1;
-      }
+    & .checkmark :global(.icon) {
+      opacity: 1;
     }
   }
 
-  /* &:hover, */
-  &:hover:not(:global(.disabled)),
-  &:focus-within:not(:global(.disabled)) {
-    & .checkmark {
-      border-color: var(--theme-text-primary);
+  /* Hover / keyboard focus lift the border and reveal the halo. */
+  &:hover:not(:global(.disabled)) .checkmark,
+  & input:focus-visible ~ .checkmark {
+    border-color: var(--theme-text-primary);
 
-      &:before {
-        background: var(--theme-surface-hover);
-        opacity: 1;
-      }
+    &:before {
+      opacity: 1;
     }
   }
 
-  &:active {
-    & .checkmark:before {
-      background: var(--theme-active);
-    }
+  /* Keyboard focus — an even blue ring (matches Switch / fields v2). */
+  & input:focus-visible ~ .checkmark {
+    box-shadow: 0 0 0 2px var(--theme-surface-focus);
   }
 
-  &:global(.checked) {
-    & .checkmark {
-      background: theme('colors.raw.cabbage.40');
-      border-color: transparent;
-    }
-
-    &:global(.disabled) {
-      & .checkmark {
-        background: var(--theme-text-disabled);
-      }
-    }
-
-    &:hover:not(:global(.disabled)),
-    &:focus-within:not(:global(.disabled)) {
-      & .checkmark {
-        background: theme('colors.raw.cabbage.20');
-
-        &:before {
-          background: theme('colors.overlay.quaternary.cabbage');
-        }
-      }
-    }
-
-    &:active {
-      & .checkmark:before {
-        background: theme('colors.overlay.tertiary.cabbage');
-      }
-    }
-  }
-}
-
-:global(.light) .label:global(.checked) .checkmark {
-  background: theme('colors.raw.cabbage.60');
-}
-
-:global(.light) .label:global(.checked):hover .checkmark,
-:global(.light) .label:global(.checked):focus-within .checkmark {
-  background: theme('colors.raw.cabbage.80');
-}
-
-@media (prefers-color-scheme: light) {
-  :global(.auto) .label:global(.checked) .checkmark {
-    background: theme('colors.raw.cabbage.60');
+  /* Press — a subtle squeeze for tactile feedback. */
+  &:active:not(:global(.disabled)) .checkmark {
+    transform: scale(0.9);
   }
 
-  :global(.auto) .label:global(.checked):hover .checkmark,
-  :global(.auto) .label:global(.checked):focus-within .checkmark {
-    background: theme('colors.raw.cabbage.80');
+  /* Checked — solid brand fill, identical in light & dark. */
+  &:global(.checked) .checkmark {
+    background: var(--theme-accent-cabbage-default);
+    border-color: transparent;
+  }
+
+  &:global(.checked):hover:not(:global(.disabled)) .checkmark:before,
+  &:global(.checked) input:focus-visible ~ .checkmark:before {
+    background: theme('colors.overlay.quaternary.cabbage');
+  }
+
+  /* Disabled — muted surface, no brand. */
+  &:global(.disabled) .checkmark {
+    border-color: var(--theme-surface-disabled);
+  }
+
+  &:global(.checked.disabled) .checkmark {
+    background: var(--theme-surface-disabled);
   }
 }
