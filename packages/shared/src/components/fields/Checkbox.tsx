@@ -51,7 +51,7 @@ export const Checkbox = forwardRef(function Checkbox(
   return (
     <label
       className={classNames(
-        'relative z-1 inline-flex select-none items-center p-1 pr-3 text-text-tertiary typo-footnote',
+        'relative z-1 inline-flex select-none items-center p-1 pr-3 font-medium text-text-secondary antialiased typo-footnote',
         !disabled && 'cursor-pointer',
         styles.label,
         className,
@@ -87,7 +87,7 @@ export const Checkbox = forwardRef(function Checkbox(
         <VIcon
           aria-hidden
           secondary
-          className="icon h-full w-full scale-125 opacity-0"
+          className="icon h-full w-full scale-110 opacity-0"
           role="presentation"
           style={{ transition: 'opacity 0.1s linear' }}
         />
