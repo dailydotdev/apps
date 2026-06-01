@@ -7,11 +7,14 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
+  AuthDisplay,
+  type AuthOptionsProps,
   providerMap,
   type SocialProvider,
 } from '@dailydotdev/shared/src/components/auth/common';
@@ -66,12 +69,19 @@ function CatHeroImage(): ReactElement {
 interface SigninHeroProps {
   onSignupClick: () => void;
   onLoginClick: () => void;
+  formRef: AuthOptionsProps['formRef'];
+  onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'];
 }
+
+type HeroActionButtonsProps = Pick<
+  SigninHeroProps,
+  'onSignupClick' | 'onLoginClick'
+>;
 
 function HeroActionButtons({
   onSignupClick,
   onLoginClick,
-}: SigninHeroProps): ReactElement {
+}: HeroActionButtonsProps): ReactElement {
   return (
     <div className="mt-8 flex w-full max-w-[23rem] flex-row gap-3 tablet:mx-0">
       <Button
@@ -137,8 +147,8 @@ function CatStageHero({
 }
 
 function OnboardingSignupHero({
-  onSignupClick,
-  onLoginClick,
+  formRef,
+  onAuthStateUpdate,
 }: SigninHeroProps): ReactElement {
   return (
     <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
@@ -161,12 +171,12 @@ function OnboardingSignupHero({
           />
         </picture>
         <div className="bg-raw-pepper-90/55 pointer-events-none absolute inset-0" />
-        <div className="via-raw-pepper-90/80 to-raw-pepper-90/25 pointer-events-none absolute inset-0 bg-gradient-to-r from-raw-pepper-90" />
+        <div className="via-raw-pepper-90/80 from-raw-pepper-90/60 pointer-events-none absolute inset-0 bg-gradient-to-b to-raw-pepper-90/40" />
         <div className="via-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="top-hero-aurora opacity-80 pointer-events-none absolute inset-0" />
         <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
-        <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_21rem] tablet:px-10 tablet:py-16 tablet:text-left">
-          <div className="flex flex-col items-center tablet:items-start">
+        <div className="dark relative z-1 mx-auto flex min-h-[22rem] w-full max-w-[48rem] flex-col items-center justify-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:px-10 tablet:py-16">
+          <div className="flex flex-col items-center">
             <BrandLockup />
             <h2 className="mt-7 max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
               Where developers make every tab count.
@@ -176,16 +186,30 @@ function OnboardingSignupHero({
               saves, and community in every new tab.
             </p>
           </div>
-          <div className="border-white/10 rounded-24 border bg-white/[0.07] p-4 shadow-2 backdrop-blur-md tablet:p-5">
-            <p className="text-left font-bold text-white typo-title3">
+          <div className="border-white/10 w-full max-w-[23rem] rounded-24 border bg-white/[0.07] p-4 text-center shadow-2 backdrop-blur-md tablet:p-5">
+            <p className="font-bold text-white typo-title3">
               Set up your developer feed
             </p>
-            <p className="text-white/60 mt-2 text-left typo-footnote">
+            <p className="text-white/60 mt-2 typo-footnote">
               The same onboarding energy, compressed into one calm hero.
             </p>
-            <HeroActionButtons
-              onSignupClick={onSignupClick}
-              onLoginClick={onLoginClick}
+            <AuthOptions
+              ignoreMessages
+              compact
+              formRef={formRef}
+              trigger={AuthTriggers.Onboarding}
+              simplified
+              defaultDisplay={AuthDisplay.OnboardingSignup}
+              forceDefaultDisplay
+              className={{
+                container: 'mx-auto mt-5 !max-w-none !overflow-visible',
+                onboardingSignup: '!gap-3',
+              }}
+              onAuthStateUpdate={onAuthStateUpdate}
+              onboardingSignupButton={{
+                variant: ButtonVariant.Primary,
+                size: ButtonSize.Large,
+              }}
             />
           </div>
         </div>
@@ -207,6 +231,9 @@ export default function HijackingLoginStrip(): ReactElement {
   const { logEvent } = useLogContext();
   const { signBack, provider, isLoaded: isSignBackLoaded } = useSignBack();
   const hasLoggedImpression = useRef(false);
+  const authFormRef = useRef<HTMLFormElement>(
+    null,
+  ) as unknown as AuthOptionsProps['formRef'];
 
   const isLoggedOut = !user;
   const hasContinueAs = isLoggedOut && isSignBackLoaded && !!signBack?.name;
@@ -274,6 +301,16 @@ export default function HijackingLoginStrip(): ReactElement {
     showLogin({
       trigger: AuthTriggers.Onboarding,
       options: { isLogin: true },
+    });
+  };
+  const onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'] = (props) => {
+    showLogin({
+      trigger: AuthTriggers.Onboarding,
+      options: {
+        isLogin: !!props.isLoginFlow,
+        defaultDisplay: props.defaultDisplay,
+        formValues: props.email ? { email: props.email } : undefined,
+      },
     });
   };
   const SigninHero = SigninHeroVariationMap[signinHeroVariation];
@@ -375,6 +412,11 @@ export default function HijackingLoginStrip(): ReactElement {
   }
 
   return (
-    <SigninHero onSignupClick={onSignupClick} onLoginClick={onLoginClick} />
+    <SigninHero
+      onSignupClick={onSignupClick}
+      onLoginClick={onLoginClick}
+      formRef={authFormRef}
+      onAuthStateUpdate={onAuthStateUpdate}
+    />
   );
 }

@@ -5,7 +5,10 @@ import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthConte
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { SocialProvider } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AuthDisplay,
+  SocialProvider,
+} from '@dailydotdev/shared/src/components/auth/common';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -20,6 +23,45 @@ jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
 jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
 }));
+
+jest.mock('@dailydotdev/shared/src/components/auth/AuthOptions', () => {
+  const { AuthDisplay: MockAuthDisplay } = jest.requireActual(
+    '@dailydotdev/shared/src/components/auth/common',
+  );
+
+  return {
+    __esModule: true,
+    default: ({
+      onAuthStateUpdate,
+    }: {
+      onAuthStateUpdate?: (props: { defaultDisplay?: string }) => void;
+    }) => (
+      <div>
+        <button type="button">Continue with Google</button>
+        <button type="button">Continue with GitHub</button>
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({
+              defaultDisplay: MockAuthDisplay.Registration,
+            })
+          }
+        >
+          Continue with email
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({ defaultDisplay: MockAuthDisplay.Default })
+          }
+        >
+          Log in
+        </button>
+        <p>By continuing, you agree to the Terms of Service</p>
+      </div>
+    ),
+  };
+});
 
 const LogContext = getLogContextStatic();
 const mockUseAuthContext = useAuthContext as jest.MockedFunction<
@@ -115,17 +157,30 @@ describe('HijackingLoginStrip', () => {
       }),
     ).toBeVisible();
 
-    const signup = screen.getByRole('button', { name: 'Sign up' });
-    fireEvent.click(signup);
+    expect(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: 'Continue with GitHub' }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: 'Continue with email' }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(/By continuing, you agree to the Terms of Service/),
+    ).toBeVisible();
 
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.Click,
-      target_type: TargetType.SignupButton,
-      target_id: 'hijacking',
-    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Continue with email' }),
+    );
+
     expect(showLogin).toHaveBeenCalledWith({
       trigger: AuthTriggers.Onboarding,
-      options: { isLogin: false },
+      options: {
+        isLogin: false,
+        defaultDisplay: AuthDisplay.Registration,
+        formValues: undefined,
+      },
     });
   });
 
