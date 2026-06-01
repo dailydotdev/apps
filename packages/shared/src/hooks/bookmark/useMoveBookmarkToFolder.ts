@@ -9,7 +9,7 @@ import { useToastNotification } from '../useToastNotification';
 interface UseMoveBookmarkToFolder {
   isPending: boolean;
   moveBookmarkToFolder: (
-    options: Record<'postId' | 'listId', string>,
+    options: MoveBookmarkToFolderProps,
   ) => Promise<EmptyResponse>;
 }
 
