@@ -104,7 +104,7 @@ describe('HijackingLoginStrip', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('heading', { name: "Let's sign you in" }),
+      screen.getByRole('heading', { name: 'Your feed is one tap away' }),
     ).toBeVisible();
 
     const signup = screen.getByRole('button', { name: 'Sign up' });
@@ -146,11 +146,11 @@ describe('HijackingLoginStrip', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('heading', { name: 'Welcome back!' }),
+      screen.getByRole('heading', { name: /Welcome back, Tsahi/ }),
     ).toBeVisible();
     expect(screen.getByText('tsahi@daily.dev')).toBeVisible();
 
-    const cta = screen.getByRole('button', { name: 'Continue as Tsahi' });
+    const cta = screen.getByRole('button', { name: /Continue as Tsahi/ });
     fireEvent.click(cta);
 
     expect(logEvent).toHaveBeenCalledWith({
@@ -190,10 +190,12 @@ describe('HijackingLoginStrip', () => {
     renderComponent({ user: loggedUser, isLoggedIn: true });
 
     expect(
-      screen.getByText('Finish onboarding to unlock your personalized feed.'),
+      screen.getByText(
+        'Finish onboarding to unlock the full daily.dev experience.',
+      ),
     ).toBeVisible();
 
-    const cta = screen.getByRole('link', { name: 'Continue onboarding' });
+    const cta = screen.getByRole('link', { name: /Continue/ });
     const expectedUrl = new URL(onboardingUrl);
     expectedUrl.searchParams.append('r', 'extension');
 

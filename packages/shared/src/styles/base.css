@@ -1080,15 +1080,6 @@ meter::-webkit-meter-bar {
     background: rgb(255 0 168 / 35%);
   }
 
-  .top-hero-dots {
-    background-image: radial-gradient(
-      rgb(255 255 255 / 9%) 1px,
-      transparent 1px
-    );
-    background-size: 18px 18px;
-    mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 75%);
-  }
-
   @keyframes enable-notification-bell-ring {
     0%,
     100% {
