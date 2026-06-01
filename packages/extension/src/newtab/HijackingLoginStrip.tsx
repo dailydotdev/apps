@@ -30,7 +30,7 @@ import LogoText from '@dailydotdev/shared/src/svg/LogoText';
 type CoverVariant = 'continue' | 'signin' | 'onboarding';
 
 const primaryCta =
-  '!bg-gradient-to-r !from-accent-cabbage-default !to-accent-onion-default shadow-2-cabbage transition-transform duration-200 ease-out hover:-translate-y-0.5';
+  'transition-transform duration-200 ease-out hover:-translate-y-0.5';
 
 const glassCta =
   '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
@@ -236,12 +236,9 @@ export default function HijackingLoginStrip(): ReactElement {
         <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_24rem] tablet:px-10 tablet:py-16 tablet:text-left">
           <div className="flex flex-col items-center tablet:items-start">
             <BrandLockup />
-            <p className="mt-7 text-accent-cabbage-default typo-footnote">
-              Your developer home, remembered
-            </p>
             <h2
               className={classNames(
-                'mt-3 max-w-[42rem] text-balance typo-title1 tablet:typo-mega2',
+                'mt-7 max-w-[42rem] text-balance typo-title1 tablet:typo-mega2',
                 onboardingGradientClasses,
               )}
             >
