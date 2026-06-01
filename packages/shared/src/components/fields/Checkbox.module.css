@@ -13,8 +13,11 @@
 
 .checkmark {
   background: transparent;
+  /* Resting outline matches the label tone (text-secondary); hover/focus lift
+   * it to text-primary, mirroring the field's resting→focus border. */
+  border-color: var(--theme-text-secondary);
   transition: background-color 0.12s linear, border-color 0.12s linear,
-    box-shadow 0.1s linear, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow 0.12s linear, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Soft surface halo behind the box; the offset trick centers a 2rem square. */
   &:before {
