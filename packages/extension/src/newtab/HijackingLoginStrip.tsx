@@ -26,16 +26,41 @@ import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 
 type CoverVariant = 'continue' | 'signin' | 'onboarding';
 
+const accentText =
+  'bg-gradient-to-r from-accent-cabbage-bolder to-accent-onion-default bg-clip-text text-transparent';
+
+const primaryCta =
+  'shadow-2-cabbage transition-transform duration-200 ease-out hover:-translate-y-0.5';
+
+const glassCta =
+  '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
+
+function BrandEyebrow(): ReactElement {
+  return (
+    <span className="border-white/10 bg-white/5 text-white/80 mb-4 inline-flex items-center gap-2 rounded-10 border px-3 py-1 font-bold uppercase tracking-wider backdrop-blur-sm typo-caption2">
+      <span className="relative flex size-2">
+        <span className="bg-accent-cabbage-default/70 absolute inline-flex size-full animate-ping rounded-full" />
+        <span className="relative inline-flex size-2 rounded-full bg-accent-cabbage-default" />
+      </span>
+      daily.dev
+    </span>
+  );
+}
+
 function HeroChrome({ children }: { children: ReactNode }): ReactElement {
   return (
     <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
       <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
         <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
-        <div className="top-hero-glow pointer-events-none absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
-          <div className="flex flex-col items-center px-6 py-8 text-center tablet:py-10">
+        <div className="pointer-events-none absolute bottom-0 left-0 z-2 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+        <div className="pointer-events-none absolute bottom-0 right-0 z-2 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+        <div className="ring-white/10 relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2 ring-1 ring-inset">
+          <div className="from-accent-cabbage-default/20 to-accent-onion-default/25 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent" />
+          <div className="bg-accent-cabbage-default/30 pointer-events-none absolute -left-24 -top-28 size-72 rounded-full blur-3xl" />
+          <div className="bg-accent-onion-default/30 pointer-events-none absolute -bottom-28 -right-20 size-72 rounded-full blur-3xl" />
+          <div className="top-hero-dots pointer-events-none absolute inset-0" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          <div className="dark relative flex flex-col items-center px-6 py-10 text-center tablet:py-12">
             {children}
           </div>
         </div>
@@ -117,10 +142,10 @@ export default function HijackingLoginStrip(): ReactElement {
   if (variant === 'onboarding') {
     return (
       <HeroChrome>
-        <h2 className="font-bold text-white typo-title2 tablet:typo-title1">
-          You&apos;re almost set
+        <h2 className="text-balance font-bold text-white typo-title1 tablet:typo-mega3">
+          You&apos;re <span className={accentText}>almost&nbsp;set</span>
         </h2>
-        <p className="text-white/70 mt-2 max-w-[26rem] text-balance typo-callout tablet:typo-body">
+        <p className="text-white/70 mt-3 max-w-[28rem] text-balance typo-callout tablet:typo-title3">
           Finish onboarding to unlock your personalized feed.
         </p>
         <Button
@@ -128,7 +153,7 @@ export default function HijackingLoginStrip(): ReactElement {
           href={onboardingHref}
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
-          className="mt-5"
+          className={classNames('mt-6', primaryCta)}
           onClick={() => logClick(TargetType.LoginButton)}
         >
           Continue onboarding
@@ -140,26 +165,34 @@ export default function HijackingLoginStrip(): ReactElement {
   if (variant === 'continue' && signBack) {
     return (
       <HeroChrome>
-        <h2 className="font-bold text-white typo-title2 tablet:typo-title1">
-          Welcome back!
+        <BrandEyebrow />
+        <h2 className="text-balance font-bold text-white typo-title1 tablet:typo-mega3">
+          Welcome <span className={accentText}>back!</span>
         </h2>
-        <p className="text-white/70 mt-2 typo-callout">
+        <p className="text-white/70 mt-3 typo-callout tablet:typo-title3">
           Let&apos;s pick up right where you left off.
         </p>
-        <div className="relative mt-5">
-          <ProfilePicture
-            user={signBack}
-            size={ProfileImageSize.XXXXLarge}
-            nativeLazyLoading
+        <div className="relative mt-7">
+          <div
+            aria-hidden
+            className="bg-accent-cabbage-default/25 absolute -inset-3 rounded-full blur-2xl"
           />
-          {!!providerIcon && (
-            <span className="absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-8 bg-white text-surface-invert shadow-2">
-              {providerIcon}
-            </span>
-          )}
+          <div className="relative">
+            <ProfilePicture
+              user={signBack}
+              size={ProfileImageSize.XXXXLarge}
+              nativeLazyLoading
+              className="ring-white/20 ring-2"
+            />
+            {!!providerIcon && (
+              <span className="absolute -bottom-1.5 -right-1.5 flex size-8 items-center justify-center rounded-10 bg-white text-surface-invert shadow-2 ring-2 ring-raw-pepper-90">
+                {providerIcon}
+              </span>
+            )}
+          </div>
         </div>
         {!!signBack?.email && (
-          <span className="mt-3 font-bold text-white typo-callout">
+          <span className="mt-4 font-bold text-white typo-callout">
             {signBack.email}
           </span>
         )}
@@ -167,7 +200,7 @@ export default function HijackingLoginStrip(): ReactElement {
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
-          className="mt-5 w-full max-w-80"
+          className={classNames('mt-5 w-full max-w-80', primaryCta)}
           onClick={onLoginClick}
         >
           Continue as {firstName}
@@ -196,22 +229,29 @@ export default function HijackingLoginStrip(): ReactElement {
 
   return (
     <HeroChrome>
-      <span className="bg-white/10 flex size-16 items-center justify-center rounded-full text-white">
-        <LogoIcon className={{ container: 'h-8 w-auto' }} />
+      <BrandEyebrow />
+      <span className="relative flex size-16 items-center justify-center">
+        <span
+          aria-hidden
+          className="bg-accent-cabbage-default/25 absolute -inset-2 rounded-full blur-2xl"
+        />
+        <span className="from-accent-cabbage-default/30 to-accent-onion-default/30 ring-white/20 rounded-2xl relative flex size-16 items-center justify-center bg-gradient-to-br ring-1 ring-inset">
+          <LogoIcon className={{ container: 'h-7 w-auto' }} />
+        </span>
       </span>
-      <h2 className="mt-4 font-bold text-white typo-title2 tablet:typo-title1">
-        Let&apos;s sign you in
+      <h2 className="mt-5 text-balance font-bold text-white typo-title1 tablet:typo-mega3">
+        Let&apos;s sign you <span className={accentText}>in</span>
       </h2>
-      <p className="text-white/70 mt-2 max-w-[28rem] text-balance typo-callout tablet:typo-body">
-        Sign in to start using daily.dev — keep your personalized feed, streak,
-        and reputation in sync wherever you open a new tab.
+      <p className="text-white/70 mt-3 max-w-[30rem] text-balance typo-callout tablet:typo-title3">
+        Keep your personalized feed, streak, and reputation in sync wherever you
+        open a new tab.
       </p>
-      <div className="mt-6 flex w-full max-w-80 flex-col gap-3">
+      <div className="mt-7 flex w-full max-w-80 flex-col gap-3">
         <Button
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
-          className="w-full"
+          className={classNames('w-full', primaryCta)}
           onClick={onSignupClick}
         >
           Sign up
@@ -220,7 +260,7 @@ export default function HijackingLoginStrip(): ReactElement {
           type="button"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Large}
-          className="w-full"
+          className={classNames('w-full', glassCta)}
           onClick={onLoginClick}
         >
           Log in
