@@ -21,7 +21,10 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
-import { featureInlineLogin } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featureInlineLogin,
+  featureOnboardingPermissionPrimer,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -102,6 +105,7 @@ const getPage = () => window.location.pathname;
 
 const onboardingExcludedPaths = [
   '/onboarding',
+  '/activate',
   '/recruiter',
   '/jobs',
   '/settings',
@@ -184,6 +188,17 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     feature: featureInlineLogin,
     shouldEvaluate: shouldShowLogin,
   });
+  // Users arriving from the extension install link land on `/?ref=install`.
+  // Only evaluate the permission primer experiment for them while onboarding
+  // is still pending, so we can route them to the activation step.
+  const isComingFromInstall = router.query.ref === 'install';
+  const {
+    value: isPermissionPrimerEnabled,
+    isLoading: isPermissionPrimerLoading,
+  } = useConditionalFeature({
+    feature: featureOnboardingPermissionPrimer,
+    shouldEvaluate: isComingFromInstall && isOnboardingActionsReady,
+  });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -244,12 +259,26 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
-    if (
-      isFunnel ||
-      !isOnboardingActionsReady ||
-      isOnboardingComplete ||
-      isOnboardingExcludedPath(router.pathname)
-    ) {
+    // Never redirect away from onboarding-related surfaces (prevents loops).
+    if (isOnboardingExcludedPath(router.pathname)) {
+      return;
+    }
+
+    // Wait for the permission primer experiment to resolve before redirecting
+    // install referrals, so we don't race them to `/onboarding`.
+    if (isComingFromInstall && isPermissionPrimerLoading) {
+      return;
+    }
+
+    // The activation primer takes priority over onboarding: enrolled install
+    // referrals go to `/activate` regardless of onboarding completion or the
+    // other onboarding gates below.
+    if (isComingFromInstall && isPermissionPrimerEnabled) {
+      router.replace('/activate');
+      return;
+    }
+
+    if (isFunnel || !isOnboardingActionsReady || isOnboardingComplete) {
       return;
     }
 
@@ -273,6 +302,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     isOnboardingComplete,
     inlineLoginEnabled,
     isSwipeOnboardingPreviewForced,
+    isComingFromInstall,
+    isPermissionPrimerEnabled,
+    isPermissionPrimerLoading,
   ]);
 
   useEffect(() => {
