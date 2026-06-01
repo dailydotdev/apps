@@ -53,10 +53,12 @@ const useReviewAllowed = (): boolean => {
 const InteractiveCheckbox = ({
   variant,
   checked: initial,
+  indeterminate,
   ...props
 }: {
   variant: 'previous' | 'new';
   checked?: boolean;
+  indeterminate?: boolean;
   disabled?: boolean;
   children?: ReactNode;
   className?: string;
@@ -65,12 +67,26 @@ const InteractiveCheckbox = ({
 }) => {
   const id = useId();
   const [checked, setChecked] = useState(Boolean(initial));
-  const Component = variant === 'previous' ? LegacyCheckbox : Checkbox;
+
+  // `indeterminate` only exists on the new checkbox, so branch rather than
+  // forwarding it into the legacy snapshot.
+  if (variant === 'previous') {
+    return (
+      <LegacyCheckbox
+        {...props}
+        name={id}
+        checked={checked}
+        onToggleCallback={(next) => setChecked(next)}
+      />
+    );
+  }
+
   return (
-    <Component
+    <Checkbox
       {...props}
       name={id}
       checked={checked}
+      indeterminate={indeterminate}
       onToggleCallback={(next) => setChecked(next)}
     />
   );
@@ -322,6 +338,20 @@ const CheckboxRadioDevPage = (): ReactElement => {
                 }
                 next={
                   <InteractiveCheckbox variant="new" checked disabled>
+                    Checkbox label
+                  </InteractiveCheckbox>
+                }
+              />
+              <TableRow
+                title="Indeterminate"
+                caption='mixed — aria-checked="mixed" (new only)'
+                previous={
+                  <span className="text-text-quaternary typo-footnote">
+                    — not supported
+                  </span>
+                }
+                next={
+                  <InteractiveCheckbox variant="new" indeterminate>
                     Checkbox label
                   </InteractiveCheckbox>
                 }

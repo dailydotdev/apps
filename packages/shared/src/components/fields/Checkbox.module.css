@@ -2,11 +2,13 @@
  * Checkbox — daily.dev design system.
  * Aligned with the redesigned Toggle/Switch and Button system so fields,
  * buttons, toggles, checkboxes and radios read as one family:
- *  - a single semantic brand fill when checked (accent-cabbage-default) with a
+ *  - a single semantic brand fill when selected (accent-cabbage-default) with a
  *    solid white glyph, identical in light & dark (no per-theme overrides);
  *  - a soft surface-hover halo behind the box on hover;
  *  - a surface-focus (blueCheese) keyboard ring on :focus-visible;
- *  - a subtle press squeeze for tactile feedback (à la the Switch knob).
+ *  - a subtle press squeeze for tactile feedback (à la the Switch knob);
+ *  - a tri-state "indeterminate" dash (aria-checked="mixed").
+ * Motion is disabled under prefers-reduced-motion (see bottom).
  */
 
 .checkmark {
@@ -37,20 +39,44 @@
 /* The check glyph stays solid white in every theme/state for contrast. */
 .checkmark :global(.icon) {
   color: theme('colors.raw.salt.0');
+  transition: opacity 0.12s linear;
+}
+
+/* Indeterminate dash — a centered white bar, shown for the "mixed" state. */
+.dash {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.625rem;
+  height: 0.125rem;
+  border-radius: 9999px;
+  background: theme('colors.raw.salt.0');
+  opacity: 0;
+  transition: opacity 0.12s linear;
+  pointer-events: none;
 }
 
 .label {
   &:global(.disabled),
-  &:global(.checked.disabled) {
+  &:global(.checked.disabled),
+  &:global(.indeterminate.disabled) {
     color: var(--theme-text-disabled);
   }
 
-  &:global(.checked) {
+  /* Selected (checked or indeterminate) lifts the label to primary. */
+  &:global(.checked),
+  &:global(.indeterminate) {
     color: var(--theme-text-primary);
+  }
 
-    & .checkmark :global(.icon) {
-      opacity: 1;
-    }
+  /* Show the check only when checked and NOT indeterminate. */
+  &:global(.checked):not(:global(.indeterminate)) .checkmark :global(.icon) {
+    opacity: 1;
+  }
+
+  /* Show the dash for the indeterminate state. */
+  &:global(.indeterminate) .checkmark .dash {
+    opacity: 1;
   }
 
   /* Hover / keyboard focus lift the border and reveal the halo. */
@@ -73,14 +99,17 @@
     transform: scale(0.9);
   }
 
-  /* Checked — solid brand fill, identical in light & dark. */
-  &:global(.checked) .checkmark {
+  /* Selected — solid brand fill, identical in light & dark. */
+  &:global(.checked) .checkmark,
+  &:global(.indeterminate) .checkmark {
     background: var(--theme-accent-cabbage-default);
     border-color: transparent;
   }
 
   &:global(.checked):hover:not(:global(.disabled)) .checkmark:before,
-  &:global(.checked) input:focus-visible ~ .checkmark:before {
+  &:global(.indeterminate):hover:not(:global(.disabled)) .checkmark:before,
+  &:global(.checked) input:focus-visible ~ .checkmark:before,
+  &:global(.indeterminate) input:focus-visible ~ .checkmark:before {
     background: theme('colors.overlay.quaternary.cabbage');
   }
 
@@ -89,7 +118,23 @@
     border-color: var(--theme-surface-disabled);
   }
 
-  &:global(.checked.disabled) .checkmark {
+  &:global(.checked.disabled) .checkmark,
+  &:global(.indeterminate.disabled) .checkmark {
     background: var(--theme-surface-disabled);
+  }
+}
+
+/* Respect users who prefer reduced motion: keep the state changes, drop the
+ * movement (press squeeze) and instant-swap the glyph/halo transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .checkmark,
+  .checkmark:before,
+  .dash,
+  .checkmark :global(.icon) {
+    transition: none;
+  }
+
+  .label:active:not(:global(.disabled)) .checkmark {
+    transform: none;
   }
 }

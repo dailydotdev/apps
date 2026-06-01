@@ -70,3 +70,17 @@
 .item:active .innerRing {
   transform: scale(0.9);
 }
+
+/* Respect users who prefer reduced motion: keep the state changes, drop the
+ * movement (press squeeze, dot scale-in, ring fatten) and instant-swap. */
+@media (prefers-reduced-motion: reduce) {
+  .checkmark,
+  .innerRing,
+  .innerRing:after {
+    transition: none;
+  }
+
+  .item:active .innerRing {
+    transform: none;
+  }
+}
