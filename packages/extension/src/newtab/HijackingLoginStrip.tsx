@@ -47,29 +47,11 @@ function BrandLockup(): ReactElement {
 function CatHeroImage(): ReactElement {
   return (
     <div className="relative w-full max-w-[26rem] tablet:max-w-[30rem]">
-      <div className="bg-accent-cabbage-default/25 pointer-events-none absolute -inset-x-8 bottom-0 h-28 rounded-full blur-3xl" />
-      <div className="via-accent-cabbage-default/80 pointer-events-none absolute inset-x-10 bottom-5 h-px bg-gradient-to-r from-transparent to-transparent" />
       <img
         src={cloudinaryReadingReminderCat}
         alt="Sleeping cat on laptop"
-        className="relative z-1 w-full rounded-16 object-contain shadow-2"
+        className="relative z-1 w-full rounded-16 object-contain"
       />
-    </div>
-  );
-}
-
-function HeroBenefits(): ReactElement {
-  return (
-    <div className="text-white/60 mt-6 flex flex-wrap justify-center gap-2 tablet:justify-start">
-      <span className="rounded-12 bg-white/[0.05] px-3 py-2 typo-footnote">
-        remembers your topics
-      </span>
-      <span className="rounded-12 bg-white/[0.05] px-3 py-2 typo-footnote">
-        keeps your saves
-      </span>
-      <span className="rounded-12 bg-white/[0.05] px-3 py-2 typo-footnote">
-        carries your reputation
-      </span>
     </div>
   );
 }
@@ -263,14 +245,13 @@ export default function HijackingLoginStrip(): ReactElement {
                 onboardingGradientClasses,
               )}
             >
-              Make every new tab feel like yours.
+              Own your new tab. Make it your dev briefing.
             </h2>
             <div className="via-accent-cabbage-default/70 mt-5 h-px w-40 bg-gradient-to-r from-transparent to-transparent" />
             <p className="text-white/70 mt-4 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
-              Sign in to turn daily.dev into a calm briefing built around what
-              you read, save, upvote, and discuss.
+              Sign in and daily.dev will remember the topics, saves, upvotes,
+              and discussions that matter to you.
             </p>
-            <HeroBenefits />
             <div className="mt-8 flex w-full max-w-[23rem] flex-row gap-3 tablet:mx-0">
               <Button
                 type="button"
