@@ -336,11 +336,10 @@ export default function Feed<T>({
   } = useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
+  // Viewport gating lives in useReaderModalEligibility (isReaderEligible is
+  // already tablet-or-larger), so no separate isTabletViewport check here.
   const isReaderModalOn =
-    isReaderEligible &&
-    readerModalFromGrowthBook &&
-    !isLegacyLayoutOptedOut &&
-    isTabletViewport;
+    isReaderEligible && readerModalFromGrowthBook && !isLegacyLayoutOptedOut;
   const isReaderModalFeatureReady = !isReaderFeatureLoading;
   const readerEligiblePostTypes = useMemo(
     () =>

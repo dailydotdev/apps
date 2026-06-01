@@ -117,74 +117,76 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           label="Choose an icon"
         />
       )}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <Typography bold type={TypographyType.Body}>
-            Set as your default feed
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Make this feed the first one you see every time you open daily.dev.
-          </Typography>
+      {(isPlus || isMainFeed) && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <Typography bold type={TypographyType.Body}>
+              Set as your default feed
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Make this feed the first one you see every time you open
+              daily.dev.
+            </Typography>
+          </div>
+          {isCustomFeed && (
+            <Button
+              className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}
+              type="button"
+              pressed
+              size={ButtonSize.Small}
+              color={isDefaultFeed ? ColorName.Avocado : undefined}
+              variant={
+                isDefaultFeed ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+              }
+              icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
+              onClick={async () =>
+                editFeedSettings(() =>
+                  updateUserProfile({
+                    defaultFeedId: isDefaultFeed ? null : feed.id,
+                  }),
+                )
+              }
+            >
+              {isDefaultFeed ? 'Default feed set' : 'Make default'}
+            </Button>
+          )}
+          {isMainFeed && (
+            <Tooltip
+              visible={isDefaultFeed}
+              content="Your main feed is already your default feed"
+              side="bottom"
+            >
+              <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
+                <Button
+                  type="button"
+                  pressed
+                  size={ButtonSize.Small}
+                  color={isDefaultFeed ? ColorName.Avocado : undefined}
+                  variant={
+                    user.defaultFeedId === null
+                      ? ButtonVariant.Tertiary
+                      : ButtonVariant.Secondary
+                  }
+                  icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
+                  disabled={user.defaultFeedId === null}
+                  onClick={async () => {
+                    editFeedSettings(() =>
+                      updateUserProfile({
+                        defaultFeedId: null,
+                      }),
+                    );
+                  }}
+                >
+                  {isDefaultFeed ? 'Default feed set' : 'Make default'}
+                </Button>
+              </div>
+            </Tooltip>
+          )}
         </div>
-        {isCustomFeed && (
-          <Button
-            className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}
-            type="button"
-            pressed
-            size={ButtonSize.Small}
-            color={isDefaultFeed ? ColorName.Avocado : undefined}
-            variant={
-              isDefaultFeed ? ButtonVariant.Tertiary : ButtonVariant.Secondary
-            }
-            disabled={!isPlus}
-            icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
-            onClick={async () =>
-              editFeedSettings(() =>
-                updateUserProfile({
-                  defaultFeedId: isDefaultFeed ? null : feed.id,
-                }),
-              )
-            }
-          >
-            {isDefaultFeed ? 'Default feed set' : 'Make default'}
-          </Button>
-        )}
-        {isMainFeed && (
-          <Tooltip
-            visible={isDefaultFeed}
-            content="Your main feed is already your default feed"
-            side="bottom"
-          >
-            <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
-              <Button
-                type="button"
-                pressed
-                size={ButtonSize.Small}
-                color={isDefaultFeed ? ColorName.Avocado : undefined}
-                variant={
-                  user.defaultFeedId === null
-                    ? ButtonVariant.Tertiary
-                    : ButtonVariant.Secondary
-                }
-                icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
-                disabled={user.defaultFeedId === null}
-                onClick={async () => {
-                  editFeedSettings(() =>
-                    updateUserProfile({
-                      defaultFeedId: null,
-                    }),
-                  );
-                }}
-              >
-                {isDefaultFeed ? 'Default feed set' : 'Make default'}
-              </Button>
-            </div>
-          </Tooltip>
-        )}
-      </div>
+      )}
       <Divider className="my-1 bg-border-subtlest-tertiary" />
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">

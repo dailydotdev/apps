@@ -17,6 +17,7 @@ import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
 import type { AuthDisplay } from '../components/auth/common';
 import type { Squad } from '../graphql/sources';
+import type { Feed } from '../graphql/feed';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
@@ -80,6 +81,7 @@ export interface AuthContextData {
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
   isFunnel?: boolean;
+  feeds?: Feed[];
 }
 
 const isExtension = checkIsExtension();
@@ -142,6 +144,7 @@ export type AuthContextProviderProps = {
   | 'refetchBoot'
   | 'geo'
   | 'isAndroidApp'
+  | 'feeds'
 >;
 
 export const AuthContextProvider = ({
@@ -157,6 +160,7 @@ export const AuthContextProvider = ({
   visit,
   accessToken,
   squads,
+  feeds,
   firstLoad,
   geo,
   isAndroidApp,
@@ -244,6 +248,7 @@ export const AuthContextProvider = ({
         deleteAccount,
         accessToken,
         squads,
+        feeds,
         geo,
         isAndroidApp,
         isValidRegion,

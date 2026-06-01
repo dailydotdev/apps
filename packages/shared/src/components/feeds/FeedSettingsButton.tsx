@@ -16,7 +16,11 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { plusUrl, webappUrl } from '../../lib/constants';
 import { FeedType } from '../../graphql/feed';
 import { labels } from '../../lib/labels';
-import { featurePlusCtaCopy } from '../../lib/featureManagement';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+  featurePlusCtaCopy,
+} from '../../lib/featureManagement';
 
 const editPlusSubscribePrompt: PromptOptions = {
   title: labels.feed.prompt.editPlusSubscribe.title,
@@ -37,6 +41,11 @@ export function FeedSettingsButton({
 }: ButtonProps<'button'>): ReactElement {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: !isPlus,
+  });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const { feeds, deleteFeed } = useFeeds();
   const router = useRouter();
   const { showPrompt } = usePrompt();
@@ -44,42 +53,47 @@ export function FeedSettingsButton({
     value: { full: plusCta },
   } = useConditionalFeature({
     feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus,
+    shouldEvaluate: !isPlus && !isFeedChipsEnabled,
   });
 
   const onButtonClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     logEvent({ event_name: LogEvent.ManageTags });
 
-    const feedSlugOrId = router?.query?.slugOrId;
+    // Pre-chips behavior: non-Plus on a Custom feed is prompted to upgrade,
+    // and on decline the feed is deleted. Once the chips feature is on, free
+    // users open the editor and `FeedSettingsPlusGate` upsells advanced sections.
+    if (!isFeedChipsEnabled && !isPlus) {
+      const feedSlugOrId = router?.query?.slugOrId;
 
-    const feed = feeds?.edges.find(
-      (item) =>
-        item.node.id === feedSlugOrId || item.node.slug === feedSlugOrId,
-    );
+      const feed = feeds?.edges.find(
+        (item) =>
+          item.node.id === feedSlugOrId || item.node.slug === feedSlugOrId,
+      );
 
-    if (!isPlus && feed?.node.type === FeedType.Custom) {
-      const subscribeToPlus = await showPrompt({
-        ...editPlusSubscribePrompt,
-        description: editPlusSubscribePrompt.description,
-        okButton: {
-          ...editPlusSubscribePrompt.okButton,
-          title: plusCta,
-        },
-      });
+      if (feed?.node.type === FeedType.Custom) {
+        const subscribeToPlus = await showPrompt({
+          ...editPlusSubscribePrompt,
+          description: editPlusSubscribePrompt.description,
+          okButton: {
+            ...editPlusSubscribePrompt.okButton,
+            title: plusCta,
+          },
+        });
 
-      if (subscribeToPlus) {
-        router?.push(plusUrl);
+        if (subscribeToPlus) {
+          router?.push(plusUrl);
+
+          return;
+        }
+
+        deleteFeed({
+          feedId: feed.node.id,
+        });
+
+        router?.replace(webappUrl);
 
         return;
       }
-
-      deleteFeed({
-        feedId: feed.node.id,
-      });
-
-      router?.replace(webappUrl);
-
-      return;
     }
 
     onClick?.(event);

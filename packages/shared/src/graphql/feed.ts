@@ -249,6 +249,10 @@ export const normalizeFeedPage = (
   throw new Error('Unsupported feed page shape');
 };
 
+export enum FeedOrigin {
+  TagChip = 'TAG_CHIP',
+}
+
 export type FeedFlags = {
   name: string;
   icon?: string;
@@ -257,6 +261,7 @@ export type FeedFlags = {
   minUpvotes?: number;
   minViews?: number;
   disableEngagementFilter?: boolean;
+  origin?: FeedOrigin;
 };
 
 export enum FeedType {
@@ -764,8 +769,8 @@ export const PREVIEW_FEED_QUERY = gql`
 `;
 
 export const FEED_LIST_QUERY = gql`
-  query FeedList {
-    feedList {
+  query FeedList($includeTagChipFeeds: Boolean) {
+    feedList(includeTagChipFeeds: $includeTagChipFeeds) {
       pageInfo {
         endCursor
         hasNextPage

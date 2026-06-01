@@ -179,11 +179,6 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureReaderModal = new Feature('reader_modal_v2', false);
 
-export const featureGenericReferralPopupV2 = new Feature(
-  'generic_referral_popup_v2',
-  isDevelopment,
-);
-
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
 export const featureNewTabCustomizer = new Feature(
@@ -208,7 +203,14 @@ export const featureUpvoteCountThreshold = new Feature<{
   newWindowHours: 24,
 });
 
-export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+export enum FeedChipsVariant {
+  None = 'none',
+  V2 = 'v2',
+}
+export const featureFeedChips = new Feature<FeedChipsVariant>(
+  'feed_chips',
+  FeedChipsVariant.None,
+);
 
 export const featureLayoutV2 = new Feature('layout_v2', false);
 
@@ -216,5 +218,10 @@ export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
 export const featurePostHighlightCards = new Feature(
   'post_highlight_cards',
+  false,
+);
+
+export const featureOnboardingPermissionPrimer = new Feature(
+  'onboarding_permission_primer',
   false,
 );

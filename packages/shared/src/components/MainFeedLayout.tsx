@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode, SetStateAction } from 'react';
 import React, {
+  cloneElement,
   useCallback,
   useContext,
   useEffect,
@@ -14,7 +15,7 @@ import Feed from './Feed';
 import { FeedPageLayoutMobile } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
-import { useFeedTagsList } from '../hooks/useFeedTagsList';
+import { useFeeds } from '../hooks/feed/useFeeds';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
@@ -52,7 +53,6 @@ import { useFeedName } from '../hooks/feed/useFeedName';
 import {
   useConditionalFeature,
   useFeedLayout,
-  useFeeds,
   useScrollRestoration,
   useViewSize,
   ViewSize,
@@ -63,7 +63,8 @@ import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
-  featureFeedTagChips,
+  featureFeedChips,
+  FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
@@ -328,30 +329,37 @@ export default function MainFeedLayout({
   });
 
   const isChipStripPage =
-    router.pathname === '/' || router.pathname === '/explore/[tag]';
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
+    router.pathname === '/' ||
+    router.pathname === '/my-feed' ||
+    router.pathname === '/explore/[tag]' ||
+    router.pathname === '/feeds/[slugOrId]' ||
+    router.pathname === '/feeds/[slugOrId]/edit';
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const showExploreChips =
-    !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
-  const { tags: feedTags, isPending: isFeedTagsPending } = useFeedTagsList({
-    enabled: showExploreChips,
-  });
+    !!user && isLaptop && isChipStripPage && isFeedChipsEnabled;
+  const { feeds } = useFeeds();
   const exploreCategories = useMemo(
-    () => buildPersonalizedCategories(feedTags),
-    [feedTags],
+    () =>
+      buildPersonalizedCategories(feeds?.edges ?? [], {
+        defaultFeedId,
+        isCustomDefaultFeed,
+      }),
+    [feeds?.edges, defaultFeedId, isCustomDefaultFeed],
   );
   const chipsNode = useMemo(
     () =>
       showExploreChips ? (
         <ExploreChipsBar
           categories={exploreCategories}
-          isPending={isFeedTagsPending}
+          isPending={!feeds}
           compact={isV2}
         />
       ) : null,
-    [showExploreChips, exploreCategories, isFeedTagsPending, isV2],
+    [showExploreChips, exploreCategories, feeds, isV2],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -511,6 +519,14 @@ export default function MainFeedLayout({
       return null;
     }
 
+    const baseEmptyScreen = propsByFeed[feedName]?.emptyScreen || (
+      <FeedEmptyScreen />
+    );
+    const emptyScreenWithChips = cloneElement(
+      baseEmptyScreen as ReactElement<{ chips?: ReactNode }>,
+      { chips: chipsNode },
+    );
+
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       if (!defaultFeedId) {
         return null;
@@ -528,11 +544,14 @@ export default function MainFeedLayout({
           feedId: defaultFeedId,
           feedName: SharedFeedPage.Custom,
         },
-        emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
+        emptyScreen: emptyScreenWithChips,
         actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
-            feedName={feedName}
+            // On `/` with a custom default feed the rendered feed is the
+            // custom feed (not MyFeed) — pass `Custom` so derived flags
+            // (isSortableFeed, etc.) reflect that, not the outer 'default'.
+            feedName={SharedFeedPage.Custom}
             chips={shouldUseListFeedLayout ? undefined : chipsNode}
           />
         ),
@@ -608,7 +627,7 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
+      emptyScreen: emptyScreenWithChips,
       actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
