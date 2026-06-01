@@ -70,6 +70,13 @@ const getTargetTabId = async (
 
 const client = new GraphQLClient(graphqlUrl, { fetch: globalThis.fetch });
 
+// Once-off signal set when the activation primer opens chrome://newtab. The
+// new tab page consumes it on load to route a logged-out user into onboarding
+// a single time. Kept in memory (no `storage` permission in prod) — the
+// service worker stays alive across the brief open-tab → tab-load handoff; if
+// it doesn't, the new tab simply falls back to its normal behavior.
+let activateOnboardingPending = false;
+
 const excludedCompanionOrigins = [
   'http://127.0.0.1:5002',
   'http://localhost',
@@ -192,6 +199,36 @@ async function handleMessages(
     // Lightweight liveness check used by the content script to detect when
     // the service worker is back online after the post-grant runtime.reload.
     return { ready: true };
+  }
+
+  if (message.type === ExtensionMessageType.RequestOpenNewTab) {
+    // Open a real new tab so Chrome shows the new-tab override-confirmation
+    // bubble. The literal `chrome://newtab` URL is required —
+    // `chrome.runtime.getURL('index.html')` loads the override page directly
+    // via `chrome-extension://` and does NOT register as an NTP visit. We also
+    // arm the once-off onboarding signal so the new tab can route a logged-out
+    // user straight into onboarding a single time.
+    try {
+      activateOnboardingPending = true;
+      await browser.tabs.create({ url: 'chrome://newtab', active: true });
+      return { triggered: true };
+    } catch (error) {
+      activateOnboardingPending = false;
+      return {
+        triggered: false,
+        error:
+          error instanceof Error ? error.message : 'Failed to open new tab',
+      };
+    }
+  }
+
+  if (message.type === ExtensionMessageType.ConsumeActivateOnboarding) {
+    // The new tab page asks once on load whether it should route into
+    // onboarding. Reset immediately so this only ever fires for the tab the
+    // primer just opened.
+    const pending = activateOnboardingPending;
+    activateOnboardingPending = false;
+    return { pending };
   }
 
   if (message.type === ExtensionMessageType.RequestFrameEmbeddingPermissions) {

@@ -22,6 +22,11 @@ import type {
   PagePermissionBridgeResult,
   PermissionGrantResponse,
 } from '@dailydotdev/shared/src/features/extensionEmbed/pagePermissionBridge';
+import {
+  newTabActivationBridgeRequestEvent,
+  newTabActivationBridgeResultEvent,
+} from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
+import type { NewTabActivationBridgeResult } from '@dailydotdev/shared/src/features/extensionEmbed/newTabActivationBridge';
 
 const INSTALL_MARKER = 'dailyExtensionInstalled';
 const ID_MARKER = 'dailyExtensionId';
@@ -64,6 +69,38 @@ const waitForExtensionReady = async (): Promise<void> => {
     await sleep(pingRetryDelayMs);
   }
 };
+
+window.addEventListener(newTabActivationBridgeRequestEvent, () => {
+  const dispatchResult = (result: NewTabActivationBridgeResult): void => {
+    window.dispatchEvent(
+      new CustomEvent<NewTabActivationBridgeResult>(
+        newTabActivationBridgeResultEvent,
+        { detail: result },
+      ),
+    );
+  };
+
+  browser.runtime
+    .sendMessage({
+      type: ExtensionMessageType.RequestOpenNewTab,
+    })
+    .then((response) => {
+      const typed = response as NewTabActivationBridgeResult | undefined;
+      dispatchResult({
+        triggered: !!typed?.triggered,
+        error: typed?.error,
+      });
+    })
+    .catch((error: unknown) => {
+      dispatchResult({
+        triggered: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to request new tab open',
+      });
+    });
+});
 
 window.addEventListener(pagePermissionBridgeRequestEvent, () => {
   const dispatchResult = (result: PagePermissionBridgeResult): void => {
