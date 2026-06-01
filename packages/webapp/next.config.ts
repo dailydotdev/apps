@@ -303,6 +303,11 @@ const nextConfig: NextConfig = {
           destination: '/jobs',
           permanent: true,
         },
+        {
+          source: '/em/t/c',
+          destination: `${process.env.NEXT_PUBLIC_API_URL}/em/t/c`,
+          permanent: false,
+        },
       ];
     },
     headers: async () => {
