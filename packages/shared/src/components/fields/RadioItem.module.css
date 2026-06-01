@@ -15,7 +15,8 @@
 .innerRing {
   position: relative;
   transition: background-color 0.12s linear, border-color 0.12s linear,
-    box-shadow 0.1s linear, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    border-width 0.12s linear, box-shadow 0.1s linear,
+    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* White center dot — scales in when selected. */
   &:after {
@@ -40,16 +41,21 @@
   }
 }
 
-/* Hover / keyboard focus reveal the halo and lift the resting border. */
+/*
+ * Hover / keyboard focus reveal the halo and thicken the ring to text-primary
+ * (the well-liked legacy "fattening" hover affordance).
+ */
 .item:hover .checkmark,
 .item input:focus-visible ~ .checkmark {
   @apply bg-surface-hover;
 
   & .innerRing {
-    @apply border-text-primary;
+    @apply border-4 border-text-primary;
   }
 }
 
+/* Checked stays brand-coloured on hover/focus; the thicker border is hidden
+ * behind the filled disc, so only the unchecked ring visibly fattens. */
 .item.checked:hover .checkmark .innerRing,
 .item.checked input:focus-visible ~ .checkmark .innerRing {
   @apply border-accent-cabbage-default;

@@ -86,7 +86,8 @@ export const Checkbox = forwardRef(function Checkbox(
       >
         <VIcon
           aria-hidden
-          className="icon h-full w-full opacity-0"
+          secondary
+          className="icon h-full w-full scale-125 opacity-0"
           role="presentation"
           style={{ transition: 'opacity 0.1s linear' }}
         />
