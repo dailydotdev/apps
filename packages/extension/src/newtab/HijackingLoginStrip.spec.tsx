@@ -111,7 +111,7 @@ describe('HijackingLoginStrip', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Own your new tab. Make it your dev briefing.',
+        name: 'Where developers make every tab count.',
       }),
     ).toBeVisible();
 

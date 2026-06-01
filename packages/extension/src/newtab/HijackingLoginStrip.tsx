@@ -21,13 +21,20 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
-import { cloudinaryReadingReminderCat } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinaryOnboardingFullBackgroundDesktop,
+  cloudinaryOnboardingFullBackgroundMobile,
+  cloudinaryReadingReminderCat,
+} from '@dailydotdev/shared/src/lib/image';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import LogoText from '@dailydotdev/shared/src/svg/LogoText';
 
 type CoverVariant = 'continue' | 'signin' | 'onboarding';
+type SigninHeroVariation = 'catStage' | 'onboardingSignup';
+
+const signinHeroVariation: SigninHeroVariation = 'onboardingSignup';
 
 const primaryCta =
   'transition-transform duration-200 ease-out hover:-translate-y-0.5';
@@ -55,6 +62,145 @@ function CatHeroImage(): ReactElement {
     </div>
   );
 }
+
+interface SigninHeroProps {
+  onSignupClick: () => void;
+  onLoginClick: () => void;
+}
+
+function HeroActionButtons({
+  onSignupClick,
+  onLoginClick,
+}: SigninHeroProps): ReactElement {
+  return (
+    <div className="mt-8 flex w-full max-w-[23rem] flex-row gap-3 tablet:mx-0">
+      <Button
+        type="button"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+        className={classNames('flex-1', primaryCta)}
+        onClick={onSignupClick}
+      >
+        Sign up
+      </Button>
+      <Button
+        type="button"
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Large}
+        className={classNames('flex-1', glassCta)}
+        onClick={onLoginClick}
+      >
+        Log in
+      </Button>
+    </div>
+  );
+}
+
+function CatStageHero({
+  onSignupClick,
+  onLoginClick,
+}: SigninHeroProps): ReactElement {
+  return (
+    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
+        <div className="top-hero-stage pointer-events-none absolute inset-0" />
+        <div className="top-hero-aurora opacity-70 pointer-events-none absolute inset-0" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
+        <div className="via-white/25 pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
+        <div className="bg-accent-cabbage-default/20 pointer-events-none absolute -bottom-8 left-1/2 h-32 w-[82%] -translate-x-1/2 rounded-[100%] blur-2xl" />
+        <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
+        <div className="bg-accent-cabbage-default/12 pointer-events-none absolute -left-28 bottom-0 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
+        <div className="bg-accent-onion-default/14 pointer-events-none absolute -right-28 top-4 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
+        <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_24rem] tablet:px-10 tablet:py-16 tablet:text-left">
+          <div className="flex flex-col items-center tablet:items-start">
+            <BrandLockup />
+            <h2 className="mt-7 max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
+              Own your new tab. Make it your dev briefing.
+            </h2>
+            <div className="via-accent-cabbage-default/70 mt-5 h-px w-40 bg-gradient-to-r from-transparent to-transparent" />
+            <p className="text-white/70 mt-4 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
+              Sign in and daily.dev will remember the topics, saves, upvotes,
+              and discussions that matter to you.
+            </p>
+            <HeroActionButtons
+              onSignupClick={onSignupClick}
+              onLoginClick={onLoginClick}
+            />
+          </div>
+          <div className="flex justify-center tablet:justify-end">
+            <CatHeroImage />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OnboardingSignupHero({
+  onSignupClick,
+  onLoginClick,
+}: SigninHeroProps): ReactElement {
+  return (
+    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
+        <picture>
+          <source
+            media="(max-width: 655px)"
+            srcSet={cloudinaryOnboardingFullBackgroundMobile}
+          />
+          <source
+            media="(min-width: 656px)"
+            srcSet={cloudinaryOnboardingFullBackgroundDesktop}
+          />
+          <img
+            alt=""
+            aria-hidden
+            className="opacity-55 pointer-events-none absolute inset-0 size-full object-cover"
+            role="presentation"
+            src={cloudinaryOnboardingFullBackgroundDesktop}
+          />
+        </picture>
+        <div className="bg-raw-pepper-90/55 pointer-events-none absolute inset-0" />
+        <div className="via-raw-pepper-90/80 to-raw-pepper-90/25 pointer-events-none absolute inset-0 bg-gradient-to-r from-raw-pepper-90" />
+        <div className="via-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+        <div className="top-hero-aurora opacity-80 pointer-events-none absolute inset-0" />
+        <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
+        <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_21rem] tablet:px-10 tablet:py-16 tablet:text-left">
+          <div className="flex flex-col items-center tablet:items-start">
+            <BrandLockup />
+            <h2 className="mt-7 max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
+              Where developers make every tab count.
+            </h2>
+            <p className="text-white/75 mt-4 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
+              Sign in to turn daily.dev into your personalized feed, reputation,
+              saves, and community in every new tab.
+            </p>
+          </div>
+          <div className="border-white/10 rounded-24 border bg-white/[0.07] p-4 shadow-2 backdrop-blur-md tablet:p-5">
+            <p className="text-left font-bold text-white typo-title3">
+              Set up your developer feed
+            </p>
+            <p className="text-white/60 mt-2 text-left typo-footnote">
+              The same onboarding energy, compressed into one calm hero.
+            </p>
+            <HeroActionButtons
+              onSignupClick={onSignupClick}
+              onLoginClick={onLoginClick}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const SigninHeroVariationMap = {
+  catStage: CatStageHero,
+  onboardingSignup: OnboardingSignupHero,
+} satisfies Record<
+  SigninHeroVariation,
+  (props: SigninHeroProps) => ReactElement
+>;
 
 export default function HijackingLoginStrip(): ReactElement {
   const { showLogin, user } = useAuthContext();
@@ -130,6 +276,7 @@ export default function HijackingLoginStrip(): ReactElement {
       options: { isLogin: true },
     });
   };
+  const SigninHero = SigninHeroVariationMap[signinHeroVariation];
 
   const chrome = (children: ReactNode): ReactElement => (
     <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
@@ -228,53 +375,6 @@ export default function HijackingLoginStrip(): ReactElement {
   }
 
   return (
-    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
-      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
-        <div className="top-hero-stage pointer-events-none absolute inset-0" />
-        <div className="top-hero-aurora opacity-70 pointer-events-none absolute inset-0" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
-        <div className="via-white/25 pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
-        <div className="bg-accent-cabbage-default/20 pointer-events-none absolute -bottom-8 left-1/2 h-32 w-[82%] -translate-x-1/2 rounded-[100%] blur-2xl" />
-        <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
-        <div className="bg-accent-cabbage-default/12 pointer-events-none absolute -left-28 bottom-0 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
-        <div className="bg-accent-onion-default/14 pointer-events-none absolute -right-28 top-4 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
-        <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_24rem] tablet:px-10 tablet:py-16 tablet:text-left">
-          <div className="flex flex-col items-center tablet:items-start">
-            <BrandLockup />
-            <h2 className="mt-7 max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
-              Own your new tab. Make it your dev briefing.
-            </h2>
-            <div className="via-accent-cabbage-default/70 mt-5 h-px w-40 bg-gradient-to-r from-transparent to-transparent" />
-            <p className="text-white/70 mt-4 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
-              Sign in and daily.dev will remember the topics, saves, upvotes,
-              and discussions that matter to you.
-            </p>
-            <div className="mt-8 flex w-full max-w-[23rem] flex-row gap-3 tablet:mx-0">
-              <Button
-                type="button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Large}
-                className={classNames('flex-1', primaryCta)}
-                onClick={onSignupClick}
-              >
-                Sign up
-              </Button>
-              <Button
-                type="button"
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Large}
-                className={classNames('flex-1', glassCta)}
-                onClick={onLoginClick}
-              >
-                Log in
-              </Button>
-            </div>
-          </div>
-          <div className="flex justify-center tablet:justify-end">
-            <CatHeroImage />
-          </div>
-        </div>
-      </div>
-    </section>
+    <SigninHero onSignupClick={onSignupClick} onLoginClick={onLoginClick} />
   );
 }
