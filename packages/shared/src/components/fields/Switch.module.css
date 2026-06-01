@@ -25,11 +25,11 @@
 }
 
 /*
- * Knob is white on light; on dark it softens to a slightly off-white (salt 20)
+ * Knob is white on light; on dark it softens to a darker off-white (salt 30)
  * so it isn't a harsh pure white. It always contrasts the track.
  */
 .knob {
-  background: theme('colors.raw.salt.20');
+  background: theme('colors.raw.salt.30');
   transform: translateX(0) scale(1);
   transform-origin: center;
   will-change: transform, background-color, opacity;
