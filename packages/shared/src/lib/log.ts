@@ -486,6 +486,10 @@ export enum LogEvent {
   ReaderEmbedError = 'reader embed error',
   // Onboarding personas
   SelectOnboardingPersona = 'select onboarding persona',
+  // Extension activation primer
+  ExtensionPrimerShown = 'impression extension primer',
+  ExtensionPrimerCtaClick = 'click extension primer cta',
+  ExtensionPrimerSkipped = 'skip extension primer',
 }
 
 export enum TargetType {

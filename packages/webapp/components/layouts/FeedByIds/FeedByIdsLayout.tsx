@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
+import classNames from 'classnames';
 
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -54,7 +55,12 @@ export default function FeedByIdsLayout({
         <MobileFeedActions />
       </div>
       <FeedPageHeader className="mb-5" />
-      {!showEmptyScreen && !!ids?.length && <Feed {...feedProps} />}
+      {!showEmptyScreen && !!ids?.length && (
+        <Feed
+          {...feedProps}
+          className={classNames('laptop:px-10', feedProps.className)}
+        />
+      )}
       {showEmptyScreen && <SearchEmptyScreen />}
     </>
   );

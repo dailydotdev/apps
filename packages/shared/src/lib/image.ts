@@ -268,6 +268,9 @@ export const cloudinaryOnboardingExtension = {
   },
 };
 
+export const cloudinaryOnboardingActivationDemo =
+  'https://media.daily.dev/video/upload/v1780303637/daily.dev_-_Keep_it_acphx8.mp4';
+
 export const bookmarkFolderSoonImage =
   'https://media.daily.dev/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
 
