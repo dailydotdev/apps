@@ -85,7 +85,7 @@ function SwitchComponent(
       {children ? (
         <span
           className={classNames(
-            'ml-3 font-bold',
+            'ml-3 font-medium antialiased',
             defaultTypo && (compact ? 'typo-footnote' : 'typo-callout'),
             styles.children,
             labelClassName,

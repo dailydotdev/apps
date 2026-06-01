@@ -34,7 +34,7 @@
 }
 
 .children {
-  color: var(--theme-text-tertiary);
+  color: var(--theme-text-secondary);
   transition: color 0.12s linear;
 }
 
