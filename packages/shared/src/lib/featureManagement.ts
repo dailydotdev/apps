@@ -179,11 +179,6 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureReaderModal = new Feature('reader_modal_v2', false);
 
-export const featureGenericReferralPopupV2 = new Feature(
-  'generic_referral_popup_v2',
-  isDevelopment,
-);
-
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
 export const featureNewTabCustomizer = new Feature(
