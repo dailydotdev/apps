@@ -449,6 +449,13 @@ const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
+const AskForReviewConfirmModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "askForReviewConfirmModal" */ './AskForReviewConfirmModal'
+    ),
+);
+
 const HotAndColdModal = dynamic(
   () =>
     import(
@@ -581,6 +588,7 @@ export const modals = {
   [LazyModal.RecruiterSeats]: RecruiterSeatsModal,
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
+  [LazyModal.AskForReviewConfirm]: AskForReviewConfirmModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
   [LazyModal.HotAndCold]: HotAndColdModal,
   [LazyModal.AchievementPicker]: AchievementPickerModal,

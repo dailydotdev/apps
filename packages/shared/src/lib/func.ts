@@ -82,6 +82,9 @@ export const isAppleDevice = (): boolean => {
 export const isIOS = (): boolean =>
   /iPhone|iPad/i.test(globalThis?.navigator.userAgent);
 
+export const isAndroid = (): boolean =>
+  /Android/i.test(globalThis?.navigator?.userAgent ?? '');
+
 export const isIOSNative = (): boolean => {
   const runtimeWindow = globalThis as unknown as RuntimeWindow;
   return (

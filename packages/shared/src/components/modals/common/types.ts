@@ -97,6 +97,7 @@ export enum LazyModal {
   RecruiterSeats = 'recruiterSeats',
   CandidateSignIn = 'candidateSignIn',
   Feedback = 'feedback',
+  AskForReviewConfirm = 'askForReviewConfirm',
   HotAndCold = 'hotAndCold',
   AchievementSyncPrompt = 'achievementSyncPrompt',
   AchievementPicker = 'achievementPicker',
