@@ -113,9 +113,9 @@ export const Checkbox = forwardRef(function Checkbox(
         id={inputId}
         name={name}
         onChange={onChange}
-        ref={setRefs}
         type="checkbox"
         {...props}
+        ref={setRefs}
       />
       <div
         aria-checked={indeterminate ? 'mixed' : actualChecked}
