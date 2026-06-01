@@ -1,8 +1,11 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import { SocialProvider } from '@dailydotdev/shared/src/components/auth/common';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -14,10 +17,15 @@ jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
+  useSignBack: jest.fn(),
+}));
+
 const LogContext = getLogContextStatic();
 const mockUseAuthContext = useAuthContext as jest.MockedFunction<
   typeof useAuthContext
 >;
+const mockUseSignBack = useSignBack as jest.MockedFunction<typeof useSignBack>;
 const logEvent = jest.fn();
 const showLogin = jest.fn();
 
@@ -61,40 +69,92 @@ const renderComponent = (
     ...authContext,
   });
 
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
   return render(
-    <LogContext.Provider
-      value={{
-        logEvent,
-        logEventStart: jest.fn(),
-        logEventEnd: jest.fn(),
-        sendBeacon: jest.fn(),
-      }}
-    >
-      <HijackingLoginStrip />
-    </LogContext.Provider>,
+    <QueryClientProvider client={queryClient}>
+      <LogContext.Provider
+        value={{
+          logEvent,
+          logEventStart: jest.fn(),
+          logEventEnd: jest.fn(),
+          sendBeacon: jest.fn(),
+        }}
+      >
+        <HijackingLoginStrip />
+      </LogContext.Provider>
+    </QueryClientProvider>,
   );
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseSignBack.mockReturnValue({
+    isLoaded: true,
+    signBack: undefined,
+    provider: undefined,
+    onUpdateSignBack: jest.fn(),
+  });
 });
 
 describe('HijackingLoginStrip', () => {
-  it('shows a login CTA for logged out users', () => {
+  it('encourages signup for logged out users without a remembered account', () => {
     renderComponent();
 
     expect(
-      screen.getByText('Unlock the full daily.dev experience'),
-    ).toBeVisible();
-    expect(
-      screen.getByText('Log in to pick up where you left off.'),
+      screen.getByRole('heading', { name: "Let's sign you in" }),
     ).toBeVisible();
 
-    const cta = screen.getByRole('button', { name: 'Log in to continue' });
-    fireEvent.click(cta);
+    const signup = screen.getByRole('button', { name: 'Sign up' });
+    fireEvent.click(signup);
 
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Click,
+      target_type: TargetType.SignupButton,
+      target_id: 'hijacking',
+    });
+    expect(showLogin).toHaveBeenCalledWith({
+      trigger: AuthTriggers.Onboarding,
+      options: { isLogin: false },
+    });
+  });
+
+  it('logs a signup impression for new visitors', () => {
+    renderComponent();
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.SignupButton,
+      target_id: 'hijacking',
+    });
+  });
+
+  it('offers a welcome-back "Continue as" for users with a remembered account', () => {
+    mockUseSignBack.mockReturnValue({
+      isLoaded: true,
+      signBack: {
+        name: 'Tsahi Matsliah',
+        email: 'tsahi@daily.dev',
+        image: 'https://daily.dev/tsahi.png',
+      },
+      provider: SocialProvider.Google,
+      onUpdateSignBack: jest.fn(),
+    });
+
+    renderComponent();
+
+    expect(
+      screen.getByRole('heading', { name: 'Welcome back!' }),
+    ).toBeVisible();
+    expect(screen.getByText('tsahi@daily.dev')).toBeVisible();
+
+    const cta = screen.getByRole('button', { name: 'Continue as Tsahi' });
+    fireEvent.click(cta);
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
       target_type: TargetType.LoginButton,
       target_id: 'hijacking',
     });
@@ -104,13 +164,33 @@ describe('HijackingLoginStrip', () => {
     });
   });
 
+  it('lets remembered users create a different account', () => {
+    mockUseSignBack.mockReturnValue({
+      isLoaded: true,
+      signBack: {
+        name: 'Tsahi Matsliah',
+        email: 'tsahi@daily.dev',
+        image: 'https://daily.dev/tsahi.png',
+      },
+      provider: SocialProvider.Google,
+      onUpdateSignBack: jest.fn(),
+    });
+
+    renderComponent();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create an account' }));
+
+    expect(showLogin).toHaveBeenCalledWith({
+      trigger: AuthTriggers.Onboarding,
+      options: { isLogin: false },
+    });
+  });
+
   it('shows an onboarding CTA for logged in users who still need onboarding', () => {
     renderComponent({ user: loggedUser, isLoggedIn: true });
 
     expect(
-      screen.getByText(
-        'You still have a few onboarding steps left. Finish them to unlock the full experience.',
-      ),
+      screen.getByText('Finish onboarding to unlock your personalized feed.'),
     ).toBeVisible();
 
     const cta = screen.getByRole('link', { name: 'Continue onboarding' });
