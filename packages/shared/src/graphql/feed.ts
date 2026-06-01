@@ -483,6 +483,20 @@ export const TAG_TOP_POSTS_QUERY = gql`
           id
           title
           slug
+          image
+          permalink
+          commentsPermalink
+          readTime
+          numUpvotes
+          numComments
+          createdAt
+          source {
+            id
+            name
+            image
+            permalink
+            handle
+          }
         }
       }
     }
@@ -493,6 +507,20 @@ export type TopPost = {
   id: string;
   title?: string;
   slug?: string;
+  image?: string;
+  permalink?: string;
+  commentsPermalink?: string;
+  readTime?: number;
+  numUpvotes?: number;
+  numComments?: number;
+  createdAt?: string;
+  source?: {
+    id: string;
+    name: string;
+    image: string;
+    permalink: string;
+    handle?: string;
+  };
 };
 
 export type TopPostsData = {

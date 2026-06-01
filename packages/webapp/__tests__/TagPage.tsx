@@ -173,6 +173,8 @@ const renderComponent = (
     optOutReadingStreak: false,
     optOutLevelSystem: false,
     optOutQuestSystem: false,
+    optOutAchievements: false,
+    isGamificationEnabled: true,
     optOutCompanion: false,
     autoDismissNotifications: true,
     sortCommentsBy: SortCommentsBy.OldestFirst,
@@ -191,6 +193,8 @@ const renderComponent = (
     toggleOptOutReadingStreak: jest.fn().mockResolvedValue(undefined),
     toggleOptOutLevelSystem: jest.fn().mockResolvedValue(undefined),
     toggleOptOutQuestSystem: jest.fn().mockResolvedValue(undefined),
+    toggleOptOutAchievements: jest.fn().mockResolvedValue(undefined),
+    toggleAllGamification: jest.fn().mockResolvedValue(undefined),
     toggleOptOutCompanion: jest.fn().mockResolvedValue(undefined),
     toggleAutoDismissNotifications: jest.fn().mockResolvedValue(undefined),
     toggleShowFeedbackButton: jest.fn().mockResolvedValue(undefined),
@@ -310,11 +314,15 @@ it('should show login popup when logged-out on follow click', async () => {
 it('should render top contributors section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
-  expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
-    'href',
-    '/idoshamun',
-  );
+  // Contributors render in the "People & sources" widget.
+  expect(await screen.findByText('Top contributors')).toBeInTheDocument();
+  // The contributor name appears both as a widget link and in the FAQ prose;
+  // assert specifically against the linked occurrence.
+  const idoLink = screen
+    .getAllByText('Ido')
+    .map((el) => el.closest('a'))
+    .find((el): el is HTMLAnchorElement => !!el);
+  expect(idoLink).toHaveAttribute('href', '/idoshamun');
 });
 
 it('should show login popup when logged-out on block click', async () => {

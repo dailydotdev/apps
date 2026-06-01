@@ -211,3 +211,7 @@ export const featurePostHighlightCards = new Feature(
   'post_highlight_cards',
   false,
 );
+
+// Tag page + tags directory redesign. Default ON for review/testing; the
+// new-user (anonymous) conversion layer renders on top of the existing layout.
+export const featureTagPageRedesign = new Feature('tag_page_redesign', true);
