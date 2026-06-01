@@ -80,6 +80,7 @@ export default function HijackingLoginStrip(): ReactElement {
 
     return hasContinueAs ? 'continue' : 'signin';
   })();
+  const isReadyToLogImpression = !isLoggedOut || isSignBackLoaded;
 
   const onboardingHref = (() => {
     const base = new URL(onboardingUrl);
@@ -97,6 +98,10 @@ export default function HijackingLoginStrip(): ReactElement {
   };
 
   useEffect(() => {
+    if (!isReadyToLogImpression) {
+      return;
+    }
+
     if (hasLoggedImpression.current) {
       return;
     }
@@ -108,7 +113,7 @@ export default function HijackingLoginStrip(): ReactElement {
         variant === 'signin' ? TargetType.SignupButton : TargetType.LoginButton,
       target_id: 'hijacking',
     });
-  }, [variant, logEvent]);
+  }, [isReadyToLogImpression, variant, logEvent]);
 
   const onSignupClick = (): void => {
     logClick(TargetType.SignupButton);
@@ -127,8 +132,8 @@ export default function HijackingLoginStrip(): ReactElement {
   };
 
   const chrome = (children: ReactNode): ReactElement => (
-    <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
-      <div className="relative overflow-hidden rounded-b-none rounded-t-16 bg-raw-pepper-90 shadow-2">
+    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
         <div className="top-hero-aurora pointer-events-none absolute inset-0" />
         <div className="dark relative z-1">{children}</div>
       </div>
@@ -223,8 +228,8 @@ export default function HijackingLoginStrip(): ReactElement {
   }
 
   return (
-    <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
-      <div className="relative overflow-hidden rounded-b-none rounded-t-16 bg-raw-pepper-90 shadow-2">
+    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
         <div className="top-hero-stage pointer-events-none absolute inset-0" />
         <div className="top-hero-aurora opacity-70 pointer-events-none absolute inset-0" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
@@ -236,12 +241,7 @@ export default function HijackingLoginStrip(): ReactElement {
         <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_24rem] tablet:px-10 tablet:py-16 tablet:text-left">
           <div className="flex flex-col items-center tablet:items-start">
             <BrandLockup />
-            <h2
-              className={classNames(
-                'mt-7 max-w-[42rem] text-balance typo-title1 tablet:typo-mega2',
-                onboardingGradientClasses,
-              )}
-            >
+            <h2 className="mt-7 max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
               Own your new tab. Make it your dev briefing.
             </h2>
             <div className="via-accent-cabbage-default/70 mt-5 h-px w-40 bg-gradient-to-r from-transparent to-transparent" />

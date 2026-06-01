@@ -73,7 +73,11 @@ const renderComponent = (
     defaultOptions: { queries: { retry: false } },
   });
 
-  return render(
+  const Wrapper = ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.ReactElement => (
     <QueryClientProvider client={queryClient}>
       <LogContext.Provider
         value={{
@@ -83,10 +87,12 @@ const renderComponent = (
           sendBeacon: jest.fn(),
         }}
       >
-        <HijackingLoginStrip />
+        {children}
       </LogContext.Provider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+
+  return render(<HijackingLoginStrip />, { wrapper: Wrapper });
 };
 
 beforeEach(() => {
@@ -127,6 +133,48 @@ describe('HijackingLoginStrip', () => {
     renderComponent();
 
     expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.SignupButton,
+      target_id: 'hijacking',
+    });
+  });
+
+  it('waits for remembered account storage before logging the impression', () => {
+    let signBackState: ReturnType<typeof useSignBack> = {
+      isLoaded: false,
+      signBack: undefined,
+      provider: undefined,
+      onUpdateSignBack: jest.fn(),
+    };
+
+    mockUseSignBack.mockImplementation(() => signBackState);
+
+    const { rerender } = renderComponent();
+
+    expect(logEvent).not.toHaveBeenCalled();
+
+    signBackState = {
+      isLoaded: true,
+      signBack: {
+        name: 'Tsahi Matsliah',
+        email: 'tsahi@daily.dev',
+        image: 'https://daily.dev/tsahi.png',
+      },
+      provider: SocialProvider.Google,
+      onUpdateSignBack: jest.fn(),
+    };
+
+    rerender(<HijackingLoginStrip />);
+
+    expect(
+      screen.getByRole('heading', { name: /Welcome back, Tsahi/ }),
+    ).toBeVisible();
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.LoginButton,
+      target_id: 'hijacking',
+    });
+    expect(logEvent).not.toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
       target_type: TargetType.SignupButton,
       target_id: 'hijacking',
