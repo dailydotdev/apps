@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   ButtonSize,
@@ -14,6 +14,7 @@ import {
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { cloudinaryOnboardingActivationDemo } from '../../../lib/image';
+import { requestOpenNewTabFromPage } from '../../extensionEmbed/newTabActivationBridge';
 
 type NewTabActivationPrimerProps = {
   onComplete: () => void;
@@ -42,13 +43,19 @@ export function NewTabActivationPrimer({
   onComplete,
 }: NewTabActivationPrimerProps): ReactElement {
   const { logEvent } = useLogContext();
+  const [isOpening, setIsOpening] = useState(false);
 
   useEffect(() => {
     logEvent({ event_name: LogEvent.ExtensionPrimerShown });
   }, [logEvent]);
 
-  const handleContinue = useCallback((): void => {
+  const handleOpenNewTab = useCallback(async (): Promise<void> => {
     logEvent({ event_name: LogEvent.ExtensionPrimerCtaClick });
+    setIsOpening(true);
+    // Ask the extension to open chrome://newtab so Chrome's confirmation
+    // bubble appears. Advance this tab afterwards regardless of the result,
+    // so the user is never stranded on the primer.
+    await requestOpenNewTabFromPage();
     onComplete();
   }, [logEvent, onComplete]);
 
@@ -72,7 +79,7 @@ export function NewTabActivationPrimer({
             color={TypographyColor.Secondary}
             className="text-balance"
           >
-            Open a new tab and tap “Keep it” on the Chrome popup.
+            Tap “Keep it” on the Chrome popup.
           </Typography>
         </div>
 
@@ -83,9 +90,10 @@ export function NewTabActivationPrimer({
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
-            onClick={handleContinue}
+            disabled={isOpening}
+            onClick={handleOpenNewTab}
           >
-            Continue
+            {isOpening ? 'Opening…' : 'Open new tab'}
           </Button>
           <p className="text-text-tertiary typo-callout">
             Takes 2 seconds. Reversible anytime.

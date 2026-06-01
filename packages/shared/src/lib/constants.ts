@@ -17,7 +17,7 @@ export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const recruiterScheduleUrl = 'https://recruiter.daily.dev/schedule';
 export const initialDataKey = 'initial';
-export const install = 'https://app.local.fylla.dev:5002?ref=install';
+export const install = 'https://r.daily.dev/install';
 export const uninstall = 'https://r.daily.dev/uninstall';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
