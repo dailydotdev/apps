@@ -3,12 +3,15 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
+import { PlusIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
 import type { ExploreCategory } from './exploreCategories';
+import { findActiveChipId } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
+import { NewStripCta } from './NewStripCta';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -20,14 +23,6 @@ const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
 
 const FOR_YOU_CATEGORY_ID = 'foryou';
 
-const normalizePath = (p: string): string => {
-  const noQuery = p.split('?')[0];
-  if (!noQuery || noQuery === '/') {
-    return '/';
-  }
-  return noQuery.replace(/\/$/, '');
-};
-
 export function ExploreChipsBar({
   categories,
   isPending,
@@ -37,22 +32,32 @@ export function ExploreChipsBar({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
 
-  const forYouCategory: ExploreCategory = useMemo(
-    () => ({
+  const forYouCategory: ExploreCategory = useMemo(() => {
+    const path = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
+    return {
       id: FOR_YOU_CATEGORY_ID,
       label: 'For you',
-      path: isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl,
-    }),
-    [isCustomDefaultFeed],
-  );
-  const activePath = useMemo(
-    () => normalizePath(router.asPath),
-    [router.asPath],
-  );
+      path,
+      // When a custom feed is the default, `/` shows that feed (not "For you"
+      // content) — restrict matching to `/my-feed`. Without a custom default
+      // `/` is MyFeed, so include both.
+      matchPaths: isCustomDefaultFeed
+        ? [`${webappUrl}my-feed`]
+        : [path, webappUrl, `${webappUrl}my-feed`],
+    };
+  }, [isCustomDefaultFeed]);
 
   const allCategories = useMemo(
     () => [forYouCategory, ...categories],
     [forYouCategory, categories],
+  );
+
+  const activeId = useMemo(
+    () =>
+      findActiveChipId(allCategories, router.asPath, {
+        preferId: FOR_YOU_CATEGORY_ID,
+      }),
+    [allCategories, router.asPath],
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -64,7 +69,7 @@ export function ExploreChipsBar({
       return;
     }
     active.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [activePath, allCategories]);
+  }, [activeId, allCategories]);
 
   return (
     <div className={classNames('relative', className)}>
@@ -72,17 +77,9 @@ export function ExploreChipsBar({
         ref={scrollRef}
         className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
       >
+        <NewStripCta className="h-10 rounded-12 px-3" />
         {allCategories.map((category) => {
-          // For You owns the homepage. Match it against both `/` and `/my-feed`
-          // so the user's default custom feed (also at `/`) doesn't steal the
-          // active state.
-          const isForYou = category.id === FOR_YOU_CATEGORY_ID;
-          const candidates = isForYou
-            ? [category.path, webappUrl, `${webappUrl}my-feed`]
-            : [category.path];
-          const isActive = candidates.some(
-            (candidate) => normalizePath(candidate) === activePath,
-          );
+          const isActive = category.id === activeId;
           return (
             <Link key={category.id} href={category.path}>
               <a
@@ -121,6 +118,15 @@ export function ExploreChipsBar({
               className={classNames('h-10 shrink-0 rounded-12', width)}
             />
           ))}
+        <Link href={`${webappUrl}feeds/new`}>
+          <a
+            href={`${webappUrl}feeds/new`}
+            aria-label="New feed"
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-12 border border-transparent bg-background-subtle px-3 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+          >
+            <PlusIcon />
+          </a>
+        </Link>
       </div>
       <div
         aria-hidden

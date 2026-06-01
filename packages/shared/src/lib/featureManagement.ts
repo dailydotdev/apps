@@ -203,7 +203,14 @@ export const featureUpvoteCountThreshold = new Feature<{
   newWindowHours: 24,
 });
 
-export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+export enum FeedChipsVariant {
+  None = 'none',
+  V2 = 'v2',
+}
+export const featureFeedChips = new Feature<FeedChipsVariant>(
+  'feed_chips',
+  FeedChipsVariant.None,
+);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
