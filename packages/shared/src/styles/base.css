@@ -1100,31 +1100,6 @@ meter::-webkit-meter-bar {
       );
   }
 
-  .top-hero-col {
-    animation-name: top-hero-col-scroll;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-
-  .top-hero-col-reverse {
-    animation-direction: reverse;
-  }
-
-  @keyframes top-hero-col-scroll {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(-50%);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .top-hero-col {
-      animation: none;
-    }
-  }
-
   @keyframes enable-notification-bell-ring {
     0%,
     100% {
