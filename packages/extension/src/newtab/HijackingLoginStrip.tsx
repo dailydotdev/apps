@@ -22,7 +22,6 @@ import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
-import { cloudinaryOnboardingGlow } from '@dailydotdev/shared/src/lib/image';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import LogoText from '@dailydotdev/shared/src/svg/LogoText';
@@ -47,20 +46,10 @@ function BrandLockup(): ReactElement {
 function HeroChrome({ children }: { children: ReactNode }): ReactElement {
   return (
     <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
-      <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
-        <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
-        <div className="pointer-events-none absolute bottom-0 left-0 z-2 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="pointer-events-none absolute bottom-0 right-0 z-2 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
-          <img
-            src={cloudinaryOnboardingGlow}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-0 mx-auto w-[33rem] max-w-full"
-          />
-          <div className="dark relative z-1 flex flex-col items-center px-6 py-12 text-center tablet:py-14">
-            {children}
-          </div>
+      <div className="relative overflow-hidden rounded-b-none rounded-t-16 bg-raw-pepper-90 shadow-2">
+        <div className="top-hero-aurora pointer-events-none absolute inset-0" />
+        <div className="dark relative z-1 flex flex-col items-center px-6 py-14 text-center tablet:py-16">
+          {children}
         </div>
       </div>
     </section>
@@ -149,7 +138,7 @@ export default function HijackingLoginStrip(): ReactElement {
         >
           Let&apos;s jump back in!
         </h2>
-        <p className="text-white/70 mt-3 max-w-[26rem] text-balance typo-callout tablet:typo-title3">
+        <p className="text-white/70 mt-3 max-w-[24rem] text-balance typo-callout tablet:typo-title3">
           Finish onboarding to unlock the full daily.dev experience.
         </p>
         <Button
@@ -235,9 +224,8 @@ export default function HijackingLoginStrip(): ReactElement {
       >
         Your feed is one tap away
       </h2>
-      <p className="text-white/70 mt-3 max-w-[28rem] text-balance typo-callout tablet:typo-title3">
-        Sign in to keep the dev news, tools, and discussions that matter synced
-        across every new tab.
+      <p className="text-white/70 mt-3 max-w-[24rem] text-balance typo-callout tablet:typo-title3">
+        All the dev news, tools, and discussions that matter — in every new tab.
       </p>
       <div className="mt-7 flex w-full max-w-80 flex-col gap-3">
         <Button
