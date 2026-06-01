@@ -30,7 +30,7 @@ import LogoText from '@dailydotdev/shared/src/svg/LogoText';
 type CoverVariant = 'continue' | 'signin' | 'onboarding';
 
 const primaryCta =
-  'shadow-2-cabbage transition-transform duration-200 ease-out hover:-translate-y-0.5';
+  '!bg-gradient-to-r !from-accent-cabbage-default !to-accent-onion-default shadow-2-cabbage transition-transform duration-200 ease-out hover:-translate-y-0.5';
 
 const glassCta =
   '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
@@ -46,8 +46,9 @@ function BrandLockup(): ReactElement {
 
 function CatHeroImage(): ReactElement {
   return (
-    <div className="relative w-full max-w-[24rem]">
-      <div className="bg-accent-cabbage-default/20 pointer-events-none absolute inset-x-8 bottom-4 h-20 rounded-full blur-3xl" />
+    <div className="relative w-full max-w-[26rem] tablet:max-w-[30rem]">
+      <div className="bg-accent-cabbage-default/25 pointer-events-none absolute -inset-x-8 bottom-0 h-28 rounded-full blur-3xl" />
+      <div className="via-accent-cabbage-default/80 pointer-events-none absolute inset-x-10 bottom-5 h-px bg-gradient-to-r from-transparent to-transparent" />
       <img
         src={cloudinaryReadingReminderCat}
         alt="Sleeping cat on laptop"
@@ -242,22 +243,29 @@ export default function HijackingLoginStrip(): ReactElement {
   return (
     <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
       <div className="relative overflow-hidden rounded-b-none rounded-t-16 bg-raw-pepper-90 shadow-2">
-        <div className="top-hero-aurora pointer-events-none absolute inset-0" />
+        <div className="top-hero-stage pointer-events-none absolute inset-0" />
+        <div className="top-hero-aurora opacity-70 pointer-events-none absolute inset-0" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
         <div className="via-white/25 pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
-        <div className="bg-accent-cabbage-default/10 pointer-events-none absolute -left-28 bottom-0 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
-        <div className="bg-accent-onion-default/10 pointer-events-none absolute -right-28 top-4 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
+        <div className="bg-accent-cabbage-default/20 pointer-events-none absolute -bottom-8 left-1/2 h-32 w-[82%] -translate-x-1/2 rounded-[100%] blur-2xl" />
+        <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
+        <div className="bg-accent-cabbage-default/12 pointer-events-none absolute -left-28 bottom-0 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
+        <div className="bg-accent-onion-default/14 pointer-events-none absolute -right-28 top-4 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
         <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_24rem] tablet:px-10 tablet:py-16 tablet:text-left">
           <div className="flex flex-col items-center tablet:items-start">
             <BrandLockup />
+            <p className="mt-7 text-accent-cabbage-default typo-footnote">
+              Your developer home, remembered
+            </p>
             <h2
               className={classNames(
-                'mt-7 max-w-[42rem] text-balance typo-title1 tablet:typo-mega2',
+                'mt-3 max-w-[42rem] text-balance typo-title1 tablet:typo-mega2',
                 onboardingGradientClasses,
               )}
             >
               Make every new tab feel like yours.
             </h2>
+            <div className="via-accent-cabbage-default/70 mt-5 h-px w-40 bg-gradient-to-r from-transparent to-transparent" />
             <p className="text-white/70 mt-4 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
               Sign in to turn daily.dev into a calm briefing built around what
               you read, save, upvote, and discuss.

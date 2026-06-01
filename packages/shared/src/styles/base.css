@@ -1100,6 +1100,37 @@ meter::-webkit-meter-bar {
       );
   }
 
+  .top-hero-stage {
+    background:
+      linear-gradient(
+        118deg,
+        transparent 0%,
+        rgb(255 255 255 / 5%) 42%,
+        transparent 58%
+      ),
+      radial-gradient(
+        78% 88% at 76% 112%,
+        color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 6%)
+          0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        70% 84% at 16% 112%,
+        color-mix(in srgb, var(--theme-accent-onion-default), transparent 20%) 0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        62% 72% at 92% 4%,
+        color-mix(in srgb, var(--theme-accent-bacon-default), transparent 54%) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        42% 48% at 26% 16%,
+        rgb(255 255 255 / 8%) 0%,
+        transparent 64%
+      );
+  }
+
   @keyframes enable-notification-bell-ring {
     0%,
     100% {
