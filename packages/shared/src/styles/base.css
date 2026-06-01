@@ -1100,6 +1100,26 @@ meter::-webkit-meter-bar {
       );
   }
 
+  .top-hero-feed-scroll {
+    animation: top-hero-feed-scroll 32s linear infinite;
+  }
+
+  @keyframes top-hero-feed-scroll {
+    from {
+      transform: rotate(2deg) translateY(0);
+    }
+    to {
+      transform: rotate(2deg) translateY(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .top-hero-feed-scroll {
+      animation: none;
+      transform: rotate(2deg);
+    }
+  }
+
   @keyframes enable-notification-bell-ring {
     0%,
     100% {

@@ -134,15 +134,21 @@ function FeedPeekCard({ post }: { post: PeekPost }): ReactElement {
 }
 
 function FeedPeekRail({ posts }: { posts: PeekPost[] }): ReactElement {
+  const visible = posts.slice(0, 4);
   return (
     <div
       aria-hidden
-      className="pointer-events-none relative hidden w-[19rem] shrink-0 self-stretch laptop:block"
+      className="pointer-events-none relative hidden w-[19rem] shrink-0 self-stretch overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0%,#000_16%,#000_84%,transparent_100%)] laptop:block"
     >
-      <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 rotate-2 flex-col gap-3 [mask-image:linear-gradient(to_bottom,transparent_0%,#000_16%,#000_84%,transparent_100%)]">
-        {posts.slice(0, 4).map((post) => (
-          <FeedPeekCard key={post.id} post={post} />
-        ))}
+      <div className="top-hero-feed-scroll absolute inset-x-0 top-0">
+        {/* Render the set twice so a -50% translate loops seamlessly. */}
+        {['a', 'b'].map((set) =>
+          visible.map((post) => (
+            <div key={`${set}-${post.id}`} className="mb-3">
+              <FeedPeekCard post={post} />
+            </div>
+          )),
+        )}
       </div>
     </div>
   );
