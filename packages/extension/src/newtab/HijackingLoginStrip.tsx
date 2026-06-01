@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
@@ -35,6 +35,9 @@ import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import LogoText from '@dailydotdev/shared/src/svg/LogoText';
 
 type CoverVariant = 'continue' | 'signin' | 'onboarding';
+
+const WALL_COLUMNS = 5;
+const WALL_MIN_POSTS = 9;
 
 const primaryCta =
   'shadow-2-cabbage transition-transform duration-200 ease-out hover:-translate-y-0.5';
@@ -78,7 +81,7 @@ function useFeedPeek(enabled: boolean): PeekPost[] {
     queryKey: ['hijacking', 'feed-peek'],
     queryFn: () =>
       gqlClient.request<FeedPeekData>(FEED_PEEK_QUERY, {
-        first: 8,
+        first: 18,
         supportedTypes: ['article'],
       }),
     enabled,
@@ -101,7 +104,7 @@ function BrandLockup(): ReactElement {
   );
 }
 
-function FeedPeekCard({ post }: { post: PeekPost }): ReactElement {
+function FeedWallCard({ post }: { post: PeekPost }): ReactElement {
   return (
     <div className="border-white/10 w-full rounded-16 border bg-white/[0.05] p-3 shadow-2 backdrop-blur-sm">
       <div className="flex items-center gap-2">
@@ -133,23 +136,59 @@ function FeedPeekCard({ post }: { post: PeekPost }): ReactElement {
   );
 }
 
-function FeedPeekRail({ posts }: { posts: PeekPost[] }): ReactElement {
-  const visible = posts.slice(0, 4);
+function WallColumn({
+  posts,
+  reverse,
+  durationSec,
+}: {
+  posts: PeekPost[];
+  reverse: boolean;
+  durationSec: number;
+}): ReactElement {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none relative hidden w-[19rem] shrink-0 self-stretch overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0%,#000_16%,#000_84%,transparent_100%)] laptop:block"
-    >
-      <div className="top-hero-feed-scroll absolute inset-x-0 top-0">
+    <div className="w-[15rem] shrink-0">
+      <div
+        className={classNames(
+          'top-hero-col',
+          reverse && 'top-hero-col-reverse',
+        )}
+        style={{ animationDuration: `${durationSec}s` }}
+      >
         {/* Render the set twice so a -50% translate loops seamlessly. */}
         {['a', 'b'].map((set) =>
-          visible.map((post) => (
+          posts.map((post) => (
             <div key={`${set}-${post.id}`} className="mb-3">
-              <FeedPeekCard post={post} />
+              <FeedWallCard post={post} />
             </div>
           )),
         )}
       </div>
+    </div>
+  );
+}
+
+function FeedWall({ posts }: { posts: PeekPost[] }): ReactElement {
+  const columns = useMemo(
+    () =>
+      Array.from({ length: WALL_COLUMNS }, (__, col) =>
+        posts.filter((_post, index) => index % WALL_COLUMNS === col),
+      ).filter((column) => column.length > 0),
+    [posts],
+  );
+
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 hidden justify-center gap-3 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0%,#000_12%,#000_88%,transparent_100%)] tablet:flex"
+    >
+      {columns.map((column, index) => (
+        <WallColumn
+          key={column.map((post) => post.id).join('-')}
+          posts={column}
+          reverse={index % 2 === 1}
+          durationSec={42 + index * 6}
+        />
+      ))}
     </div>
   );
 }
@@ -180,7 +219,7 @@ export default function HijackingLoginStrip(): ReactElement {
   })();
 
   const feedPeek = useFeedPeek(variant === 'signin');
-  const showPeek = variant === 'signin' && feedPeek.length >= 4;
+  const showWall = variant === 'signin' && feedPeek.length >= WALL_MIN_POSTS;
 
   const onboardingHref = (() => {
     const base = new URL(onboardingUrl);
@@ -323,55 +362,55 @@ export default function HijackingLoginStrip(): ReactElement {
     );
   }
 
-  return chrome(
-    <div
-      className={classNames(
-        'flex flex-col items-center gap-8 px-6 py-14 text-center',
-        showPeek
-          ? 'laptop:flex-row laptop:items-stretch laptop:justify-between laptop:gap-6 laptop:py-12 laptop:pl-10 laptop:pr-0 laptop:text-left'
-          : 'tablet:py-16',
-      )}
-    >
-      <div className="flex flex-col items-center laptop:items-start laptop:justify-center">
-        <BrandLockup />
-        <h2
-          className={classNames(
-            'mt-6 text-balance typo-title1 tablet:typo-mega2',
-            onboardingGradientClasses,
-          )}
-        >
-          Make this feed yours
-        </h2>
-        <p className="text-white/70 mt-3 max-w-[24rem] text-balance typo-callout tablet:typo-title3">
-          The dev news, tools, and discussions that matter — in every new tab.
-        </p>
-        <div
-          className={classNames(
-            'mt-7 flex w-full max-w-80 flex-col gap-3',
-            showPeek && 'laptop:mx-0',
-          )}
-        >
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Large}
-            className={classNames('w-full', primaryCta)}
-            onClick={onSignupClick}
+  return (
+    <section className={classNames('mb-4 w-full px-4 pb-0', feedStyles.cards)}>
+      <div className="relative overflow-hidden rounded-b-none rounded-t-16 bg-raw-pepper-90 shadow-2">
+        {showWall && <FeedWall posts={feedPeek} />}
+        {showWall && (
+          <div className="bg-raw-pepper-90/70 pointer-events-none absolute inset-0" />
+        )}
+        {showWall && (
+          <div className="bg-raw-pepper-90/90 pointer-events-none absolute left-1/2 top-1/2 h-72 w-[42rem] max-w-[92%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" />
+        )}
+        <div className="top-hero-aurora pointer-events-none absolute inset-0" />
+        <div className="dark relative z-1 flex min-h-[22rem] flex-col items-center justify-center px-6 py-16 text-center tablet:min-h-[30rem]">
+          <BrandLockup />
+          <h2
+            className={classNames(
+              'mt-6 text-balance typo-title1 tablet:typo-mega2',
+              onboardingGradientClasses,
+            )}
           >
-            Sign up
-          </Button>
-          <Button
-            type="button"
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Large}
-            className={classNames('w-full', glassCta)}
-            onClick={onLoginClick}
-          >
-            Log in
-          </Button>
+            Make this feed yours
+          </h2>
+          <p className="text-white/70 mt-3 max-w-[26rem] text-balance typo-callout tablet:typo-title3">
+            The dev news, tools, and discussions that matter — in every new tab.
+          </p>
+          <div className="mt-8 flex w-full max-w-80 flex-col gap-3">
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
+              className={classNames('w-full', primaryCta)}
+              onClick={onSignupClick}
+            >
+              Sign up
+            </Button>
+            <Button
+              type="button"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Large}
+              className={classNames('w-full', glassCta)}
+              onClick={onLoginClick}
+            >
+              Log in
+            </Button>
+          </div>
+          <p className="mt-5 text-white/50 typo-footnote">
+            Join millions of developers staying ahead.
+          </p>
         </div>
       </div>
-      {showPeek && <FeedPeekRail posts={feedPeek} />}
-    </div>,
+    </section>
   );
 }

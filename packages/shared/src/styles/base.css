@@ -1100,23 +1100,28 @@ meter::-webkit-meter-bar {
       );
   }
 
-  .top-hero-feed-scroll {
-    animation: top-hero-feed-scroll 32s linear infinite;
+  .top-hero-col {
+    animation-name: top-hero-col-scroll;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
   }
 
-  @keyframes top-hero-feed-scroll {
+  .top-hero-col-reverse {
+    animation-direction: reverse;
+  }
+
+  @keyframes top-hero-col-scroll {
     from {
-      transform: rotate(2deg) translateY(0);
+      transform: translateY(0);
     }
     to {
-      transform: rotate(2deg) translateY(-50%);
+      transform: translateY(-50%);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .top-hero-feed-scroll {
+    .top-hero-col {
       animation: none;
-      transform: rotate(2deg);
     }
   }
 
