@@ -194,57 +194,6 @@ async function handleMessages(
     return { ready: true };
   }
 
-  if (message.type === ExtensionMessageType.RequestOpenNewTab) {
-    // Trigger Chrome's "Keep changes / Change it back" confirmation bubble
-    // by opening a real new tab. The literal `chrome://newtab` URL is
-    // required — `chrome.runtime.getURL('index.html')` loads the override
-    // page directly via `chrome-extension://` and does NOT register as an
-    // NTP visit, so the bubble would be deferred to the next real new tab.
-    try {
-      await browser.tabs.create({ url: 'chrome://newtab', active: true });
-      return { triggered: true };
-    } catch (error) {
-      return {
-        triggered: false,
-        error:
-          error instanceof Error ? error.message : 'Failed to open new tab',
-      };
-    }
-  }
-
-  if (message.type === ExtensionMessageType.NewTabActivated) {
-    // Forwarded from the post-install new tab page so the primer (running
-    // in another tab on daily.dev) can learn the override was accepted.
-    // We broadcast to every daily.dev tab; the ping content script in each
-    // writes a localStorage marker the primer polls.
-    try {
-      const tabs = await browser.tabs.query({
-        url: ['https://daily.dev/*', 'https://*.daily.dev/*'],
-      });
-      await Promise.all(
-        tabs.map((tab) => {
-          if (typeof tab.id !== 'number') {
-            return Promise.resolve();
-          }
-          return browser.tabs
-            .sendMessage(tab.id, {
-              type: ExtensionMessageType.NotifyNewTabActivated,
-            })
-            .catch(() => undefined);
-        }),
-      );
-      return { delivered: true };
-    } catch (error) {
-      return {
-        delivered: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to broadcast new tab activation',
-      };
-    }
-  }
-
   if (message.type === ExtensionMessageType.RequestFrameEmbeddingPermissions) {
     // Relay path so the daily.dev page can drive chrome.permissions.request
     // without losing the user gesture. chrome.permissions.request is only

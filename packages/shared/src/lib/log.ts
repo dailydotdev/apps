@@ -489,8 +489,6 @@ export enum LogEvent {
   // Extension activation primer
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
-  ExtensionNewTabTriggered = 'trigger extension new tab',
-  ExtensionNewTabActivated = 'activate extension new tab',
   ExtensionPrimerSkipped = 'skip extension primer',
 }
 

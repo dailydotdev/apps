@@ -197,8 +197,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     isLoading: isPermissionPrimerLoading,
   } = useConditionalFeature({
     feature: featureOnboardingPermissionPrimer,
-    shouldEvaluate:
-      isComingFromInstall && isOnboardingActionsReady && !isOnboardingComplete,
+    shouldEvaluate: isComingFromInstall && isOnboardingActionsReady,
   });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
@@ -260,18 +259,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
-    if (
-      isFunnel ||
-      !isOnboardingActionsReady ||
-      isOnboardingComplete ||
-      isOnboardingExcludedPath(router.pathname)
-    ) {
-      return;
-    }
-
-    // Inline login experiment: while the auth intent is active, defer the rest
-    // of onboarding until they navigate to the main feed.
-    if (inlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
+    // Never redirect away from onboarding-related surfaces (prevents loops).
+    if (isOnboardingExcludedPath(router.pathname)) {
       return;
     }
 
@@ -281,14 +270,27 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       return;
     }
 
-    // The activation primer takes priority over onboarding the first time an
-    // install referral lands, so it runs before any onboarding variant.
-    let destination = '/onboarding';
+    // The activation primer takes priority over onboarding: enrolled install
+    // referrals go to `/activate` regardless of onboarding completion or the
+    // other onboarding gates below.
     if (isComingFromInstall && isPermissionPrimerEnabled) {
-      destination = '/activate';
-    } else if (isSwipeOnboardingPreviewForced) {
-      destination = '/onboarding?swipeOnboardingPreview=1';
+      router.replace('/activate');
+      return;
     }
+
+    if (isFunnel || !isOnboardingActionsReady || isOnboardingComplete) {
+      return;
+    }
+
+    // Inline login experiment: while the auth intent is active, defer the rest
+    // of onboarding until they navigate to the main feed.
+    if (inlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
+      return;
+    }
+
+    const destination = isSwipeOnboardingPreviewForced
+      ? '/onboarding?swipeOnboardingPreview=1'
+      : '/onboarding';
     router.replace(destination);
     // `router.pathname` is depended on explicitly because the `router` ref is
     // stable across in-app navigations.

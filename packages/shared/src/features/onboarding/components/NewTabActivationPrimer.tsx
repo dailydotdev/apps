@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   Button,
   ButtonSize,
@@ -13,35 +13,14 @@ import {
 } from '../../../components/typography/Typography';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-import {
-  newTabActivationSuccessKey,
-  requestOpenNewTabFromPage,
-} from '../../extensionEmbed/newTabActivationBridge';
+import { cloudinaryOnboardingActivationDemo } from '../../../lib/image';
 
 type NewTabActivationPrimerProps = {
   onComplete: () => void;
 };
 
-const POLL_INTERVAL_MS = 250;
-
-const clearActivationStorage = (): void => {
-  try {
-    localStorage.removeItem(newTabActivationSuccessKey);
-  } catch {
-    // Ignore — primer will simply not auto-advance.
-  }
-};
-
-const readActivationSuccess = (): boolean => {
-  try {
-    return !!localStorage.getItem(newTabActivationSuccessKey);
-  } catch {
-    return false;
-  }
-};
-
 // Aspect ratio matches source dimensions so the element hugs the frame.
-const DEMO_URL = '/activate-demo.mp4'; // 1748×1080
+const DEMO_URL = cloudinaryOnboardingActivationDemo; // 1748×1080
 
 function ActivationDemoVideo(): ReactElement {
   return (
@@ -63,67 +42,15 @@ export function NewTabActivationPrimer({
   onComplete,
 }: NewTabActivationPrimerProps): ReactElement {
   const { logEvent } = useLogContext();
-  const [isWaiting, setIsWaiting] = useState(false);
-  const pollTimerRef = useRef<ReturnType<typeof globalThis.setInterval>>();
-  const completedRef = useRef(false);
-  // Captured the moment the user clicks the primer CTA so we can measure
-  // the time-to-activation on Chrome's bubble.
-  const ctaClickAtRef = useRef<number | undefined>(undefined);
-
-  const stopPolling = useCallback((): void => {
-    if (pollTimerRef.current !== undefined) {
-      globalThis.clearInterval(pollTimerRef.current);
-      pollTimerRef.current = undefined;
-    }
-  }, []);
-
-  const finish = useCallback((): void => {
-    if (completedRef.current) {
-      return;
-    }
-    completedRef.current = true;
-    stopPolling();
-    const clickedAt = ctaClickAtRef.current;
-    const elapsedMs =
-      clickedAt !== undefined ? Date.now() - clickedAt : undefined;
-    logEvent({
-      event_name: LogEvent.ExtensionNewTabActivated,
-      extra:
-        elapsedMs !== undefined
-          ? JSON.stringify({ keep_it_click_time_ms: elapsedMs })
-          : undefined,
-    });
-    onComplete();
-  }, [logEvent, onComplete, stopPolling]);
 
   useEffect(() => {
     logEvent({ event_name: LogEvent.ExtensionPrimerShown });
-    clearActivationStorage();
-    return stopPolling;
-  }, [logEvent, stopPolling]);
+  }, [logEvent]);
 
-  const startPolling = useCallback((): void => {
-    stopPolling();
-    pollTimerRef.current = globalThis.setInterval(() => {
-      if (readActivationSuccess()) {
-        finish();
-      }
-    }, POLL_INTERVAL_MS);
-  }, [finish, stopPolling]);
-
-  const handleActivateClick = useCallback(async (): Promise<void> => {
-    ctaClickAtRef.current = Date.now();
+  const handleContinue = useCallback((): void => {
     logEvent({ event_name: LogEvent.ExtensionPrimerCtaClick });
-    setIsWaiting(true);
-    startPolling();
-    const result = await requestOpenNewTabFromPage();
-    if (result.triggered) {
-      logEvent({ event_name: LogEvent.ExtensionNewTabTriggered });
-      return;
-    }
-    stopPolling();
-    setIsWaiting(false);
-  }, [logEvent, startPolling, stopPolling]);
+    onComplete();
+  }, [logEvent, onComplete]);
 
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-center px-6 py-10">
@@ -145,7 +72,7 @@ export function NewTabActivationPrimer({
             color={TypographyColor.Secondary}
             className="text-balance"
           >
-            Tap “Keep it” on the Chrome popup.
+            Open a new tab and tap “Keep it” on the Chrome popup.
           </Typography>
         </div>
 
@@ -156,10 +83,9 @@ export function NewTabActivationPrimer({
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
-            disabled={isWaiting}
-            onClick={handleActivateClick}
+            onClick={handleContinue}
           >
-            {isWaiting ? 'Opening…' : 'Open new tab'}
+            Continue
           </Button>
           <p className="text-text-tertiary typo-callout">
             Takes 2 seconds. Reversible anytime.

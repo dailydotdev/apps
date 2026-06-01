@@ -8,9 +8,6 @@ export enum ExtensionMessageType {
   DisableFrameEmbeddingForTab = 'DISABLE_FRAME_EMBEDDING_FOR_TAB',
   RequestFrameEmbeddingPermissions = 'REQUEST_FRAME_EMBEDDING_PERMISSIONS',
   PingFrameEmbeddingReady = 'PING_FRAME_EMBEDDING_READY',
-  RequestOpenNewTab = 'REQUEST_OPEN_NEW_TAB',
-  NewTabActivated = 'NEW_TAB_ACTIVATED',
-  NotifyNewTabActivated = 'NOTIFY_NEW_TAB_ACTIVATED',
 }
 
 export const getCompanionWrapper = (): HTMLElement | null =>

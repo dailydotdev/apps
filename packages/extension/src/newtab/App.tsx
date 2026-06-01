@@ -26,9 +26,6 @@ import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionSt
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
@@ -49,7 +46,6 @@ import { useContentScriptStatus } from '../../../shared/src/hooks';
 structuredCloneJsonPolyfill();
 
 const DEFAULT_TAB_TITLE = 'New Tab';
-const NEWTAB_ACTIVATED_KEY = 'daily-extension-newtab-activated-fired';
 const router = new CustomRouter();
 const queryClient = new QueryClient(defaultQueryClientConfig);
 Modal.setAppElement('#__next');
@@ -107,7 +103,6 @@ function InternalApp(): ReactElement {
   const { hostGranted, isFetching: isCheckingHostPermissions } =
     useHostStatus();
   const routeChangedCallbackRef = useLogPageView();
-  const { logEvent } = useLogContext();
   useConsoleLogo();
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
@@ -140,25 +135,6 @@ function InternalApp(): ReactElement {
       getContentScriptPermissionAndRegister();
     }
   }, [contentScriptGranted]);
-
-  useEffect(() => {
-    // Fire the activation signal the first time the daily.dev new tab
-    // renders for this install — the only reliable success signal we have
-    // for Chrome's "Keep changes / Change it back" override bubble. The
-    // companion broadcast lets the post-install primer in the webapp tab
-    // know the user accepted the override.
-    if (!isPageReady) {
-      return;
-    }
-    if (localStorage.getItem(NEWTAB_ACTIVATED_KEY)) {
-      return;
-    }
-    localStorage.setItem(NEWTAB_ACTIVATED_KEY, Date.now().toString());
-    logEvent({ event_name: LogEvent.ExtensionNewTabActivated });
-    browser.runtime
-      .sendMessage({ type: ExtensionMessageType.NewTabActivated })
-      .catch(() => undefined);
-  }, [isPageReady, logEvent]);
 
   useEffect(() => {
     document.title = unreadCount
