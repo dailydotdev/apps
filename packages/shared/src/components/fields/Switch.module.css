@@ -6,7 +6,7 @@
  */
 
 .track {
-  background: var(--theme-surface-float);
+  background: var(--theme-surface-active);
   will-change: background-color;
   transition: background-color 0.12s linear;
 }
@@ -24,21 +24,14 @@
   transition: opacity 0.1s linear;
 }
 
-/*
- * Knob color is theme-aware: a light brand tint (cabbage 10) on dark,
- * and white on light. In both cases it contrasts the solid brand track.
- */
+/* Knob stays white in both themes so it always contrasts the track. */
 .knob {
-  background: var(--theme-accent-cabbage-subtlest);
+  background: theme('colors.raw.salt.0');
   transform: translateX(0) scale(1);
   transform-origin: center;
   will-change: transform, background-color, opacity;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.12s linear, opacity 0.12s linear;
-}
-
-:global(.light) .knob {
-  background: var(--theme-surface-invert);
 }
 
 .children {
@@ -65,7 +58,7 @@
   color: var(--theme-text-primary);
 }
 
-/* Checked (on) — solid brand track, contrasting theme-aware knob (à la iOS/Chrome) */
+/* Checked (on) — solid brand track, white knob (à la iOS/Chrome) */
 .switch input:checked ~ * .track {
   background: var(--theme-accent-cabbage-default);
 }
