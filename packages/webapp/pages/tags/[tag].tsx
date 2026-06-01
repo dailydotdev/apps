@@ -338,7 +338,7 @@ const TagPeopleSourcesSection = ({
       contributors={contributors}
       isSourcesLoading={isSourcesPending}
       isContributorsLoading={isContributorsPending && initialUsers.length === 0}
-      className="mx-4"
+      className="mx-4 mb-6"
     />
   );
 };
@@ -581,7 +581,7 @@ const TagPage = ({
           tagStatus={tagStatus}
           followButtonProps={followButtonProps}
           blockButtonProps={blockButtonProps}
-          className="mx-4 !w-auto"
+          className="mx-4 mb-4"
           sponsoredHero={<SponsoredTagHero tag={tag} />}
           optionsMenu={
             <CustomFeedOptionsMenu
@@ -704,14 +704,15 @@ const TagPage = ({
           }
         />
         <TagSectionNav
-          className="mx-4"
+          className="mx-4 mb-6"
+          tag={tag}
+          tagStatus={tagStatus}
+          followButtonProps={followButtonProps}
           items={[
-            { href: '#best-posts', label: 'Signal board' },
-            { href: '#upvoted-posts', label: 'Consensus' },
-            { href: '#discussed-posts', label: 'Debate' },
+            { href: '#best-posts', label: 'Best of' },
             {
               href: '#people-sources',
-              label: 'Trust graph',
+              label: 'People & sources',
               isVisible: topContributors.length > 0,
             },
             { href: '#archive', label: 'Archive' },
@@ -720,7 +721,7 @@ const TagPage = ({
         />
         <TagBestOfShowcase
           tag={tag}
-          className="mx-4"
+          className="mx-4 mb-6"
           topPosts={
             <ActiveFeedNameContext.Provider
               value={{ feedName: OtherFeedPage.TagsTopPosts }}
@@ -795,45 +796,36 @@ const TagPage = ({
           }
         />
         <TagPeopleSourcesSection tag={tag} initialUsers={topContributors} />
-        <div
+        <section
           id="archive"
-          className="shadow-1 mx-4 mb-6 rounded-24 border border-border-subtlest-tertiary bg-background-default p-3"
+          className="mx-4 mb-6 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-5 laptop:p-6"
         >
-          <div className="rounded-20 border border-border-subtlest-tertiary bg-surface-primary p-5">
-            <p className="w-fit rounded-full bg-accent-burger-subtlest px-3 py-1 font-bold text-accent-burger-default typo-caption1">
-              Time machine
-            </p>
-            <h2 className="mt-4 font-bold typo-title2">
-              Best of #{tag}, by month
-            </h2>
-            <p className="mt-2 max-w-[42rem] text-text-tertiary typo-callout">
-              Use the archive when you need the durable version of the topic,
-              not just what is fresh today.
-            </p>
-            <ArchiveEntryCard
-              scopeType={ArchiveScopeType.Tag}
-              scopeId={tag}
-              scopeName={title}
-              className="mt-5"
-            />
-          </div>
-        </div>
+          <h2 className="font-bold typo-title1">Best of #{tag}, by month</h2>
+          <p className="mt-1 max-w-[44rem] text-text-tertiary typo-callout">
+            The durable version of the topic — the standout posts from each
+            month, not just what is fresh today.
+          </p>
+          <ArchiveEntryCard
+            scopeType={ArchiveScopeType.Tag}
+            scopeId={tag}
+            scopeName={title}
+            className="mt-5"
+          />
+        </section>
         {!user && (
           <TagJoinStrip
             tag={tag}
+            className="mx-4 mb-6"
             onJoin={() => showLogin({ trigger: AuthTriggers.Filter })}
           />
         )}
         <section id="all-posts" className="mx-4">
-          <div className="mb-5 rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-5">
-            <p className="w-fit rounded-full bg-accent-cabbage-subtlest px-3 py-1 font-bold text-accent-cabbage-default typo-caption1">
-              Live feed
-            </p>
-            <h2 className="mt-4 font-bold typo-title2">
+          <div className="mb-5">
+            <h2 className="font-bold typo-title1">
               Everything moving through #{tag}
             </h2>
-            <p className="mt-2 max-w-[42rem] text-text-tertiary typo-callout">
-              After the curated signal, this is the full stream: newest posts,
+            <p className="mt-1 max-w-[44rem] text-text-tertiary typo-callout">
+              After the curated signal, the full live stream: newest posts,
               videos, discussions, and updates as developers publish them.
             </p>
           </div>

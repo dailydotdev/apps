@@ -1,6 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { PlusIcon } from '../icons';
+import type { TagStatus } from './TagPageHero';
 
 export interface TagSectionNavItem {
   href: string;
@@ -10,11 +14,17 @@ export interface TagSectionNavItem {
 
 interface TagSectionNavProps {
   items: TagSectionNavItem[];
+  tag: string;
+  tagStatus: TagStatus;
+  followButtonProps: ButtonProps<'button'>;
   className?: string;
 }
 
 export const TagSectionNav = ({
   items,
+  tag,
+  tagStatus,
+  followButtonProps,
   className,
 }: TagSectionNavProps): ReactElement | null => {
   const visibleItems = items.filter((item) => item.isVisible !== false);
@@ -27,28 +37,47 @@ export const TagSectionNav = ({
     <nav
       aria-label="Tag page sections"
       className={classNames(
-        'bg-background-default/95 shadow-1 sticky top-0 z-1 mb-6 overflow-hidden rounded-20 border border-border-subtlest-tertiary p-2 backdrop-blur',
+        'bg-background-default/80 sticky top-0 z-3 flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-1.5 backdrop-blur-xl',
         className,
       )}
     >
-      <div className="mb-2 flex items-center justify-between gap-3 px-2">
-        <p className="font-bold text-text-primary typo-caption1">Hub map</p>
-        <p className="hidden text-text-quaternary typo-caption1 mobileL:block">
-          Pick a path through the topic.
-        </p>
-      </div>
-      <ul className="no-scrollbar flex gap-1 overflow-x-auto rounded-16 bg-surface-primary p-1">
+      <span className="ml-1.5 hidden shrink-0 font-bold text-text-primary typo-callout tablet:block">
+        #{tag}
+      </span>
+      <ul className="no-scrollbar flex flex-1 gap-1 overflow-x-auto">
         {visibleItems.map((item) => (
           <li key={item.href} className="shrink-0">
             <a
               href={item.href}
-              className="block rounded-12 px-3 py-2 font-bold text-text-tertiary transition-all duration-200 typo-footnote hover:bg-surface-hover hover:text-text-primary"
+              className="block rounded-10 px-3 py-1.5 font-bold text-text-tertiary transition-colors duration-200 typo-footnote hover:bg-surface-hover hover:text-text-primary"
             >
               {item.label}
             </a>
           </li>
         ))}
       </ul>
+      {tagStatus !== 'blocked' && (
+        <Button
+          type="button"
+          variant={
+            tagStatus === 'followed'
+              ? ButtonVariant.Subtle
+              : ButtonVariant.Primary
+          }
+          size={ButtonSize.Small}
+          icon={<PlusIcon />}
+          {...followButtonProps}
+          aria-label={
+            tagStatus === 'followed' ? `Unfollow #${tag}` : `Follow #${tag}`
+          }
+          className={classNames(
+            'hidden shrink-0 tablet:flex',
+            followButtonProps.className,
+          )}
+        >
+          {tagStatus === 'followed' ? 'Following' : 'Follow'}
+        </Button>
+      )}
     </nav>
   );
 };

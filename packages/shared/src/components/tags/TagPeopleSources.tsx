@@ -41,10 +41,11 @@ const EntityRail = ({
   if (isLoading && (!items || items.length === 0)) {
     return (
       <section id={id} className="flex flex-col gap-3">
-        <ElementPlaceholder className="h-7 w-48 rounded-10" />
-        <div className="grid grid-cols-1 gap-3 mobileL:grid-cols-2">
-          <ElementPlaceholder className="h-24 rounded-16" />
-          <ElementPlaceholder className="h-24 rounded-16" />
+        <ElementPlaceholder className="h-6 w-48 rounded-10" />
+        <div className="grid grid-cols-1 gap-3 mobileL:grid-cols-2 laptop:grid-cols-3">
+          <ElementPlaceholder className="h-20 rounded-16" />
+          <ElementPlaceholder className="h-20 rounded-16" />
+          <ElementPlaceholder className="h-20 rounded-16" />
         </div>
       </section>
     );
@@ -58,22 +59,21 @@ const EntityRail = ({
 
   return (
     <section id={id} className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
-        <Typography
-          tag={TypographyTag.H3}
-          type={TypographyType.Title3}
-          bold
-          className="flex items-center gap-2"
-        >
-          <Icon size={IconSize.Small} className="text-accent-cabbage-default" />
-          {title}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {description}
-        </Typography>
+      <div className="flex items-center gap-2">
+        <span className="flex size-8 items-center justify-center rounded-10 bg-surface-float text-accent-cabbage-default">
+          <Icon size={IconSize.Small} />
+        </span>
+        <div className="min-w-0">
+          <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
+            {title}
+          </Typography>
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+          >
+            {description}
+          </Typography>
+        </div>
       </div>
       <div className="no-scrollbar flex gap-3 overflow-x-auto laptop:grid laptop:grid-cols-3 laptop:overflow-visible">
         {items.map((item) => (
@@ -83,30 +83,27 @@ const EntityRail = ({
             key={item.id || item.permalink}
             prefetch={false}
           >
-            <a className="group relative flex min-w-56 overflow-hidden rounded-18 border border-border-subtlest-tertiary bg-surface-float p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:bg-surface-hover hover:shadow-2">
-              <div className="from-accent-cabbage-default/0 to-accent-onion-default/0 group-hover:opacity-5 pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-200" />
-              <div className="relative flex min-w-0 items-center gap-3">
-                <img
-                  src={item.image}
-                  alt={item.imageAlt}
-                  className="size-14 shrink-0 rounded-full border border-border-subtlest-tertiary object-cover"
-                />
-                <div className="min-w-0">
-                  <Typography
-                    type={TypographyType.Callout}
-                    bold
-                    className="truncate"
-                  >
-                    {item.name}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                    className="truncate"
-                  >
-                    {item.label} signal
-                  </Typography>
-                </div>
+            <a className="group flex min-w-56 items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:bg-surface-hover">
+              <img
+                src={item.image}
+                alt={item.imageAlt}
+                className="size-12 shrink-0 rounded-full border border-border-subtlest-tertiary object-cover"
+              />
+              <div className="min-w-0">
+                <Typography
+                  type={TypographyType.Footnote}
+                  bold
+                  className="truncate"
+                >
+                  {item.name}
+                </Typography>
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  className="truncate"
+                >
+                  {item.label}
+                </Typography>
               </div>
             </a>
           </Link>
@@ -144,66 +141,38 @@ export const TagPeopleSources = ({
     <section
       id="people-sources"
       className={classNames(
-        'mb-6 overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2',
+        'flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-5 laptop:p-6',
         className,
       )}
     >
-      <div className="grid gap-3 laptop:grid-cols-[20rem_minmax(0,1fr)]">
-        <aside className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-5">
-          <div className="bg-accent-water-default/15 pointer-events-none absolute -right-14 -top-14 size-44 rounded-full blur-3xl" />
-          <div className="relative">
-            <span className="w-fit rounded-full bg-accent-water-subtlest px-3 py-1 font-bold text-accent-water-default typo-caption1">
-              Trust graph
-            </span>
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.Title2}
-              bold
-              className="mt-4"
-            >
-              Who shapes #{tag}
-            </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-              className="mt-3"
-            >
-              Directories work when they tell you who to trust. This hub exposes
-              the developers and sources repeatedly connected to the topic.
-            </Typography>
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <div className="rounded-16 bg-surface-float p-3">
-                <p className="font-bold typo-title3">
-                  {contributors?.length ?? 0}
-                </p>
-                <p className="text-text-tertiary typo-caption1">contributors</p>
-              </div>
-              <div className="rounded-16 bg-surface-float p-3">
-                <p className="font-bold typo-title3">{sources?.length ?? 0}</p>
-                <p className="text-text-tertiary typo-caption1">sources</p>
-              </div>
-            </div>
-          </div>
-        </aside>
-        <div className="flex flex-col gap-6 rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-4 laptop:p-5">
-          <EntityRail
-            id="contributors"
-            title="Top contributors"
-            description="Developers consistently posting and discussing this topic."
-            items={contributors}
-            isLoading={isContributorsLoading}
-            type="contributors"
-          />
-          <EntityRail
-            id="sources"
-            title="Top sources covering it"
-            description="Publications and communities with repeated coverage."
-            items={sources}
-            isLoading={isSourcesLoading}
-            type="sources"
-          />
-        </div>
+      <div>
+        <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
+          People &amp; sources shaping #{tag}
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="mt-1"
+        >
+          The developers and publications most consistently behind this topic.
+        </Typography>
       </div>
+      <EntityRail
+        id="contributors"
+        title="Top contributors"
+        description="Developers consistently posting and discussing this topic."
+        items={contributors}
+        isLoading={isContributorsLoading}
+        type="contributors"
+      />
+      <EntityRail
+        id="sources"
+        title="Top sources covering it"
+        description="Publications and communities with repeated coverage."
+        items={sources}
+        isLoading={isSourcesLoading}
+        type="sources"
+      />
     </section>
   );
 };
