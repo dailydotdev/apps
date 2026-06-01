@@ -5,7 +5,10 @@ import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import UnifiedMobileFeedNav from './UnifiedMobileFeedNav';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureFeedTagChips } from '../../lib/featureManagement';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '../../lib/featureManagement';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeeds, useViewSize, ViewSize } from '../../hooks';
@@ -63,10 +66,11 @@ function FeedNav(): ReactElement | null {
   const { home, bookmarks } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isBelowLaptop = !useViewSize(ViewSize.Laptop);
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: isBelowLaptop,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -147,7 +151,7 @@ function FeedNav(): ReactElement | null {
     >
       {isMobile && <MobileFeedActions />}
       <div className="mb-4 h-[3.25rem] tablet:relative tablet:mb-0 tablet:h-auto tablet:min-h-[3.25rem]">
-        {isBelowLaptop && isFeedTagChipsEnabled ? (
+        {isBelowLaptop && isFeedChipsEnabled ? (
           <UnifiedMobileFeedNav />
         ) : (
           <TabContainer

@@ -17,7 +17,8 @@ import { plusUrl, webappUrl } from '../../lib/constants';
 import { FeedType } from '../../graphql/feed';
 import { labels } from '../../lib/labels';
 import {
-  featureFeedTagChips,
+  FeedChipsVariant,
+  featureFeedChips,
   featurePlusCtaCopy,
 } from '../../lib/featureManagement';
 
@@ -40,10 +41,11 @@ export function FeedSettingsButton({
 }: ButtonProps<'button'>): ReactElement {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const { feeds, deleteFeed } = useFeeds();
   const router = useRouter();
   const { showPrompt } = usePrompt();
@@ -51,7 +53,7 @@ export function FeedSettingsButton({
     value: { full: plusCta },
   } = useConditionalFeature({
     feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus && !isFeedTagChipsEnabled,
+    shouldEvaluate: !isPlus && !isFeedChipsEnabled,
   });
 
   const onButtonClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -60,7 +62,7 @@ export function FeedSettingsButton({
     // Pre-chips behavior: non-Plus on a Custom feed is prompted to upgrade,
     // and on decline the feed is deleted. Once the chips feature is on, free
     // users open the editor and `FeedSettingsPlusGate` upsells advanced sections.
-    if (!isFeedTagChipsEnabled && !isPlus) {
+    if (!isFeedChipsEnabled && !isPlus) {
       const feedSlugOrId = router?.query?.slugOrId;
 
       const feed = feeds?.edges.find(

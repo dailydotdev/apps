@@ -23,7 +23,10 @@ import {
   useViewSizeClient,
   ViewSize,
 } from '../../../hooks';
-import { featureFeedTagChips } from '../../../lib/featureManagement';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '../../../lib/featureManagement';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -58,10 +61,11 @@ export const useFeedSettingsEdit = ({
   isNewFeed,
 }: UseFeedSettingsEditProps): UseFeedSettingsEdit => {
   const { isPlus } = usePlusSubscription();
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
 
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const discardNewPrompt: PromptOptions = {
@@ -136,7 +140,7 @@ export const useFeedSettingsEdit = ({
 
   const onBackToFeed = useCallback(
     async ({ action }: { action?: 'discard' | 'save' }) => {
-      if (action === 'save' && isNewFeed && !isPlus && !isFeedTagChipsEnabled) {
+      if (action === 'save' && isNewFeed && !isPlus && !isFeedChipsEnabled) {
         // Pre-chips behavior: non-Plus saving a new feed gets redirected to
         // the Plus upgrade page. Once the chips feature is on, free users
         // own their feeds and land on the new feed instead.
@@ -181,7 +185,7 @@ export const useFeedSettingsEdit = ({
       deleteFeed,
       feedId,
       isPlus,
-      isFeedTagChipsEnabled,
+      isFeedChipsEnabled,
     ],
   );
 

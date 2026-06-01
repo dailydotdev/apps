@@ -13,7 +13,10 @@ import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
 import { gqlClient } from '../../graphql/common';
 import { useConditionalFeature } from '../useConditionalFeature';
-import { featureFeedTagChips } from '../../lib/featureManagement';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '../../lib/featureManagement';
 
 export type CreateFeedProps = {
   name: string;
@@ -37,10 +40,11 @@ export const useFeeds = (): UseFeeds => {
   const { user, feeds: bootFeeds } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.Feeds, user);
 
-  const { value: includeTagChipFeeds } = useConditionalFeature({
-    feature: featureFeedTagChips,
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: !!user,
   });
+  const includeTagChipFeeds = feedChipsVariant === FeedChipsVariant.V2;
 
   const initialData: FeedList['feedList'] | undefined = useMemo(() => {
     if (!bootFeeds) {

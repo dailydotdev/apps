@@ -15,7 +15,8 @@ import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { FeedType } from '../../../graphql/feed';
 import {
-  featureFeedTagChips,
+  FeedChipsVariant,
+  featureFeedChips,
   featurePlusCtaCopy,
 } from '../../../lib/featureManagement';
 
@@ -95,22 +96,23 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
     feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus && !isFeedTagChipsEnabled,
+    shouldEvaluate: !isPlus && !isFeedChipsEnabled,
   });
 
   // Pre-chips behavior: non-Plus on Custom feeds saw a forced Plus CTA in
   // place of Save. Once the chips feature is on, free users get a working
   // SaveButton (advanced sections still self-upsell via FeedSettingsPlusGate).
   const showPlusCta =
-    !isFeedTagChipsEnabled && !isPlus && feed?.type === FeedType.Custom;
+    !isFeedChipsEnabled && !isPlus && feed?.type === FeedType.Custom;
 
   if (!activeView) {
     return null;

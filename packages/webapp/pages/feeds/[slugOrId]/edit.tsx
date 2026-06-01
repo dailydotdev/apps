@@ -11,7 +11,10 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { FeedType } from '@dailydotdev/shared/src/graphql/feed';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { featureFeedTagChips } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 
 import {
   getMainFeedLayout,
@@ -32,10 +35,11 @@ const EditFeedPage = (): ReactElement | null => {
   const { FeedPageLayoutComponent } = useFeedLayout();
   const feedSlugOrId = router.query.slugOrId as string;
   const { isPlus } = usePlusSubscription();
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const { feeds } = useFeeds();
   const feed = feeds?.edges.find(
     (item) => item.node.id === feedSlugOrId || item.node.slug === feedSlugOrId,
@@ -44,7 +48,7 @@ const EditFeedPage = (): ReactElement | null => {
   // Pre-chips behavior: non-Plus cannot edit custom feeds. Once the chips
   // feature is on, free users own their custom feeds and the editor opens.
   const isFeedEditRestricted =
-    !isFeedTagChipsEnabled && !isPlus && feed?.node.type === FeedType.Custom;
+    !isFeedChipsEnabled && !isPlus && feed?.node.type === FeedType.Custom;
 
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');

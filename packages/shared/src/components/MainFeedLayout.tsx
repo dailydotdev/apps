@@ -61,7 +61,8 @@ import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
-  featureFeedTagChips,
+  featureFeedChips,
+  FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
@@ -329,12 +330,13 @@ export default function MainFeedLayout({
     router.pathname === '/explore/[tag]' ||
     router.pathname === '/feeds/[slugOrId]' ||
     router.pathname === '/feeds/[slugOrId]/edit';
-  const { value: isFeedTagChipsEnabled } = useConditionalFeature({
-    feature: featureFeedTagChips,
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const showExploreChips =
-    !!user && isLaptop && isChipStripPage && isFeedTagChipsEnabled;
+    !!user && isLaptop && isChipStripPage && isFeedChipsEnabled;
   const { feeds } = useFeeds();
   const exploreCategories = useMemo(
     () =>
