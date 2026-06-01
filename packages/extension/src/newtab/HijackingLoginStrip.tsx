@@ -175,24 +175,17 @@ function OnboardingSignupHero({
         <div className="via-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="top-hero-aurora opacity-80 pointer-events-none absolute inset-0" />
         <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
-        <div className="dark relative z-1 mx-auto flex min-h-[22rem] w-full max-w-[48rem] flex-col items-center justify-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:px-10 tablet:py-16">
+        <div className="dark relative z-1 mx-auto flex min-h-[20rem] w-full max-w-[48rem] flex-col items-center justify-center gap-5 px-6 py-10 text-center tablet:min-h-[24rem] tablet:px-10 tablet:py-12">
           <div className="flex flex-col items-center">
-            <BrandLockup />
-            <h2 className="mt-7 max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
+            <h2 className="max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
               Where developers make every tab count.
             </h2>
-            <p className="text-white/75 mt-4 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
+            <p className="text-white/75 mt-3 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
               Sign in to turn daily.dev into your personalized feed, reputation,
               saves, and community in every new tab.
             </p>
           </div>
-          <div className="border-white/10 w-full max-w-[23rem] rounded-24 border bg-white/[0.07] p-4 text-center shadow-2 backdrop-blur-md tablet:p-5">
-            <p className="font-bold text-white typo-title3">
-              Set up your developer feed
-            </p>
-            <p className="text-white/60 mt-2 typo-footnote">
-              The same onboarding energy, compressed into one calm hero.
-            </p>
+          <div className="w-full max-w-[22rem] rounded-24 border border-border-subtlest-tertiary bg-white/[0.045] p-3 text-center backdrop-blur-md tablet:p-4">
             <AuthOptions
               ignoreMessages
               compact
@@ -202,7 +195,7 @@ function OnboardingSignupHero({
               defaultDisplay={AuthDisplay.OnboardingSignup}
               forceDefaultDisplay
               className={{
-                container: 'mx-auto mt-5 !max-w-none !overflow-visible',
+                container: 'mx-auto !max-w-none !overflow-visible',
                 onboardingSignup: '!gap-3',
               }}
               onAuthStateUpdate={onAuthStateUpdate}
