@@ -24,22 +24,14 @@
   transition: opacity 0.1s linear;
 }
 
-/*
- * Knob is white on light; on dark it uses a light brand tint (cabbage 10)
- * instead of pure white. It always contrasts the track. The color can be
- * overridden per instance via the --switch-knob custom property.
- */
+/* Knob is solid primary white in both themes and states. */
 .knob {
-  background: var(--switch-knob, theme('colors.raw.cabbage.10'));
+  background: theme('colors.raw.salt.0');
   transform: translateX(0) scale(1);
   transform-origin: center;
   will-change: transform, background-color, opacity;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.12s linear, opacity 0.12s linear;
-}
-
-:global(.light) .knob {
-  background: var(--switch-knob, theme('colors.raw.salt.0'));
 }
 
 .children {
