@@ -529,6 +529,7 @@ export const CUSTOM_FEED_FRAGMENT = gql`
       minUpvotes
       minViews
       disableEngagementFilter
+      origin
     }
     slug
     createdAt

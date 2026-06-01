@@ -7,14 +7,18 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
+import type { PromptOptions } from '../../../hooks/usePrompt';
+import { usePrompt } from '../../../hooks/usePrompt';
+import { labels } from '../../../lib/labels';
 import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { FeedType } from '../../../graphql/feed';
-import type { PromptOptions } from '../../../hooks/usePrompt';
-import { usePrompt } from '../../../hooks/usePrompt';
-import { labels } from '../../../lib/labels';
-import { featurePlusCtaCopy } from '../../../lib/featureManagement';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+  featurePlusCtaCopy,
+} from '../../../lib/featureManagement';
 
 const createGenericFeedPrompt: PromptOptions = {
   title: labels.feed.prompt.createGenericFeed.title,
@@ -85,19 +89,30 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
   );
 };
 
-export const FeedSettingsEditHeader = (): ReactElement => {
+export const FeedSettingsEditHeader = (): ReactElement | null => {
   const { onDiscard, onBackToFeed, feed, onSubmit } = useContext(
     FeedSettingsEditContext,
   );
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: !isPlus,
+  });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
     feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus,
+    shouldEvaluate: !isPlus && !isFeedChipsEnabled,
   });
+
+  // Pre-chips behavior: non-Plus on Custom feeds saw a forced Plus CTA in
+  // place of Save. Once the chips feature is on, free users get a working
+  // SaveButton (advanced sections still self-upsell via FeedSettingsPlusGate).
+  const showPlusCta =
+    !isFeedChipsEnabled && !isPlus && feed?.type === FeedType.Custom;
 
   if (!activeView) {
     return null;
@@ -123,7 +138,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
             }
 
             if (isMobile) {
-              setActiveView(undefined);
+              setActiveView?.(undefined);
             } else {
               onBackToFeed({ action: 'discard' });
             }
@@ -131,7 +146,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
         >
           Cancel
         </Button>
-        {!isPlus && feed?.type === FeedType.Custom ? (
+        {showPlusCta ? (
           <Button
             type="button"
             variant={ButtonVariant.Primary}
