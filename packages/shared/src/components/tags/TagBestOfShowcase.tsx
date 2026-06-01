@@ -67,7 +67,7 @@ export const TagBestOfShowcase = ({
     <section
       id="best-posts"
       className={classNames(
-        'overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-primary',
+        'overflow-hidden rounded-16 border border-border-subtlest-tertiary',
         className,
       )}
     >
@@ -87,7 +87,7 @@ export const TagBestOfShowcase = ({
         <div
           role="tablist"
           aria-label="Choose how to explore the best posts"
-          className="no-scrollbar flex gap-1 overflow-x-auto rounded-12 bg-surface-float p-1"
+          className="no-scrollbar flex gap-1 overflow-x-auto rounded-12 border border-border-subtlest-tertiary p-1"
         >
           {lenses.map((lens) => {
             const isActive = lens.id === active;
@@ -101,11 +101,17 @@ export const TagBestOfShowcase = ({
                 className={classNames(
                   'flex flex-1 shrink-0 items-center justify-center gap-1.5 rounded-10 px-3 py-2 font-bold transition-colors duration-200 typo-footnote',
                   isActive
-                    ? 'bg-surface-primary text-text-primary shadow-2'
-                    : 'text-text-tertiary hover:text-text-primary',
+                    ? 'bg-surface-float text-text-primary'
+                    : 'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
                 )}
               >
-                {lens.icon}
+                <span
+                  className={classNames(
+                    isActive && 'text-accent-cabbage-default',
+                  )}
+                >
+                  {lens.icon}
+                </span>
                 <span className="whitespace-nowrap">{lens.label}</span>
               </button>
             );

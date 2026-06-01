@@ -43,9 +43,9 @@ const EntityRail = ({
       <section id={id} className="flex flex-col gap-3">
         <ElementPlaceholder className="h-6 w-48 rounded-10" />
         <div className="grid grid-cols-1 gap-3 mobileL:grid-cols-2 laptop:grid-cols-3">
-          <ElementPlaceholder className="h-20 rounded-16" />
-          <ElementPlaceholder className="h-20 rounded-16" />
-          <ElementPlaceholder className="h-20 rounded-16" />
+          <ElementPlaceholder className="h-16 rounded-12" />
+          <ElementPlaceholder className="h-16 rounded-12" />
+          <ElementPlaceholder className="h-16 rounded-12" />
         </div>
       </section>
     );
@@ -60,20 +60,17 @@ const EntityRail = ({
   return (
     <section id={id} className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        <span className="flex size-8 items-center justify-center rounded-10 bg-surface-float text-accent-cabbage-default">
-          <Icon size={IconSize.Small} />
-        </span>
-        <div className="min-w-0">
-          <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
-            {title}
-          </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {description}
-          </Typography>
-        </div>
+        <Icon size={IconSize.Small} className="text-accent-cabbage-default" />
+        <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
+          {title}
+        </Typography>
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="hidden mobileL:block"
+        >
+          · {description}
+        </Typography>
       </div>
       <div className="no-scrollbar flex gap-3 overflow-x-auto laptop:grid laptop:grid-cols-3 laptop:overflow-visible">
         {items.map((item) => (
@@ -83,11 +80,11 @@ const EntityRail = ({
             key={item.id || item.permalink}
             prefetch={false}
           >
-            <a className="group flex min-w-56 items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:bg-surface-hover">
+            <a className="flex min-w-56 items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3 transition-colors duration-200 hover:border-border-subtlest-secondary hover:bg-surface-hover">
               <img
                 src={item.image}
                 alt={item.imageAlt}
-                className="size-12 shrink-0 rounded-full border border-border-subtlest-tertiary object-cover"
+                className="size-10 shrink-0 rounded-full object-cover"
               />
               <div className="min-w-0">
                 <Typography
@@ -141,7 +138,7 @@ export const TagPeopleSources = ({
     <section
       id="people-sources"
       className={classNames(
-        'flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-5 laptop:p-6',
+        'flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary p-5 laptop:p-6',
         className,
       )}
     >
@@ -160,7 +157,7 @@ export const TagPeopleSources = ({
       <EntityRail
         id="contributors"
         title="Top contributors"
-        description="Developers consistently posting and discussing this topic."
+        description="consistently posting and discussing this topic"
         items={contributors}
         isLoading={isContributorsLoading}
         type="contributors"
@@ -168,7 +165,7 @@ export const TagPeopleSources = ({
       <EntityRail
         id="sources"
         title="Top sources covering it"
-        description="Publications and communities with repeated coverage."
+        description="publications and communities with repeated coverage"
         items={sources}
         isLoading={isSourcesLoading}
         type="sources"

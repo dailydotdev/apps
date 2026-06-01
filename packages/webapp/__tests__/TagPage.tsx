@@ -471,7 +471,7 @@ it('should load title and description for tag', async () => {
 
   await waitFor(() => {
     expect(
-      screen.getByRole('heading', { name: '#React custom title' }),
+      screen.getByRole('heading', { name: /React custom title/ }),
     ).toBeInTheDocument();
     expect(
       screen.getByText('React is an amazing framework'),

@@ -798,7 +798,7 @@ const TagPage = ({
         <TagPeopleSourcesSection tag={tag} initialUsers={topContributors} />
         <section
           id="archive"
-          className="mx-4 mb-6 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-5 laptop:p-6"
+          className="mx-4 mb-6 rounded-16 border border-border-subtlest-tertiary p-5 laptop:p-6"
         >
           <h2 className="font-bold typo-title1">Best of #{tag}, by month</h2>
           <p className="mt-1 max-w-[44rem] text-text-tertiary typo-callout">

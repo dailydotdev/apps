@@ -37,12 +37,13 @@ export const TagSectionNav = ({
     <nav
       aria-label="Tag page sections"
       className={classNames(
-        'bg-background-default/80 sticky top-0 z-3 flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-1.5 backdrop-blur-xl',
+        'sticky top-0 z-3 flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-1.5',
         className,
       )}
     >
-      <span className="ml-1.5 hidden shrink-0 font-bold text-text-primary typo-callout tablet:block">
-        #{tag}
+      <span className="ml-2 hidden shrink-0 font-bold text-text-primary typo-callout tablet:block">
+        <span className="text-accent-cabbage-default">#</span>
+        {tag}
       </span>
       <ul className="no-scrollbar flex flex-1 gap-1 overflow-x-auto">
         {visibleItems.map((item) => (
