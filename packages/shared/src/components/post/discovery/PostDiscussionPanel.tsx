@@ -20,6 +20,19 @@ import {
 } from '../../ProfilePicture';
 import { Image } from '../../image/Image';
 import { fallbackImages } from '../../../lib/config';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
+import { TimeSortIcon } from '../../icons/Sort/Time';
+import { SortCommentsBy } from '../../../graphql/comments';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
@@ -39,6 +52,12 @@ export interface PostDiscussionPanelProps {
    * when a parent (e.g. the discovery focus card) surfaces the strip elsewhere.
    */
   showMetaBar?: boolean;
+  /**
+   * Renders a small comment-sort toggle ("Newest first"/"Oldest first") at the
+   * top of the comment list. Used by the discovery focus card, which moves the
+   * post stats/actions out of this panel.
+   */
+  showSortHeader?: boolean;
   /**
    * Lets a parent (e.g. a floating "comment" action) focus the composer.
    */
@@ -62,10 +81,13 @@ export const PostDiscussionPanel = ({
   origin = Origin.ArticlePage,
   className,
   showMetaBar = true,
+  showSortHeader = false,
   onRegisterFocusComment,
   modalParentSelector,
 }: PostDiscussionPanelProps): ReactElement => {
-  const { sortCommentsBy: sortBy } = useSettingsContext();
+  const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
+    useSettingsContext();
+  const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const commentRef = useRef<NewCommentRef | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -147,6 +169,38 @@ export const PostDiscussionPanel = ({
       aria-label="Discussion"
       className={classNames('flex min-h-0 min-w-0 flex-col gap-2', className)}
     >
+      {showSortHeader && (
+        <span className="flex shrink-0 flex-row items-center px-1">
+          <Typography
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Footnote}
+          >
+            Sort:
+          </Typography>
+          <Button
+            className="ml-1 !px-1 !text-text-tertiary"
+            icon={
+              <TimeSortIcon
+                secondary
+                className={isNewestFirst ? undefined : 'rotate-180'}
+              />
+            }
+            iconPosition={ButtonIconPosition.Right}
+            onClick={() =>
+              setSortBy(
+                isNewestFirst
+                  ? SortCommentsBy.OldestFirst
+                  : SortCommentsBy.NewestFirst,
+              )
+            }
+            size={ButtonSize.XSmall}
+            type="button"
+            variant={ButtonVariant.Tertiary}
+          >
+            {isNewestFirst ? 'Newest first' : 'Oldest first'}
+          </Button>
+        </span>
+      )}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
         <PostComments
           post={post}

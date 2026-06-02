@@ -13,9 +13,7 @@ import YoutubeVideo from '../../video/YoutubeVideo';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize } from '../../buttons/Button';
-import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { PostHeaderActions } from '../PostHeaderActions';
-import { PostActions } from '../PostActions';
 import { PostContainer } from '../common';
 import { PostTagList } from '../tags/PostTagList';
 import PostToc from '../../widgets/PostToc';
@@ -24,7 +22,7 @@ import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
-import { DiscussionMetaBar } from './DiscussionMetaBar';
+import { PostDiscoveryActionBar } from './PostDiscoveryActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 
 const PostCodeSnippets = dynamic(() =>
@@ -130,21 +128,12 @@ export const PostFocusCard = ({
             </h1>
           </div>
 
-          <DiscussionMetaBar
+          <PostDiscoveryActionBar
             post={post}
-            rightSlot={
-              post.clickbaitTitleDetected && <PostClickbaitShield post={post} />
-            }
+            origin={origin}
+            onComment={() => focusCommentRef.current()}
+            onCopyLinkClick={onCopyPostLink}
           />
-          <div className="border-b border-border-subtlest-tertiary pb-2 [&>div>div:first-child]:!rounded-none [&>div>div:first-child]:!border-0">
-            <PostActions
-              post={post}
-              postQueryKey={['post', post.id]}
-              onComment={() => focusCommentRef.current()}
-              onCopyLinkClick={onCopyPostLink}
-              origin={origin}
-            />
-          </div>
 
           {!isVideoType && post.summary && (
             <p
@@ -237,6 +226,7 @@ export const PostFocusCard = ({
           <PostDiscussionPanel
             className="h-full p-4"
             showMetaBar={false}
+            showSortHeader
             onRegisterFocusComment={(fn) => {
               focusCommentRef.current = fn;
             }}
