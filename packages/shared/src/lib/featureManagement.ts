@@ -42,7 +42,7 @@ export const featureAnonymousPostExperience = new Feature(
 );
 export const featurePostDiscoveryExperience = new Feature(
   'post_discovery_experience',
-  false,
+  true,
 );
 
 // @ts-expect-error stale feature without default

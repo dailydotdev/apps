@@ -216,8 +216,12 @@ export const PostPage = ({
   });
   const forceDiscovery =
     router.query.discovery === '1' || router.query.discovery === 'true';
+  const forceClassic =
+    router.query.discovery === '0' || router.query.discovery === 'false';
   const showDiscovery =
-    isDiscoveryEligible && (isDiscoveryFlagOn || forceDiscovery);
+    isDiscoveryEligible &&
+    !forceClassic &&
+    (isDiscoveryFlagOn || forceDiscovery);
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
     [
