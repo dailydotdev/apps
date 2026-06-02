@@ -13,8 +13,6 @@ import type {
 } from '../NewComment';
 import { NewComment } from '../NewComment';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { SendAirplaneIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
@@ -135,12 +133,8 @@ export const PostDiscussionPanel = ({
           Share your thoughts — what stood out, or what would you add?
         </span>
       </div>
-      <div className="flex items-center justify-between pl-11">
-        <span className="text-text-tertiary typo-caption1">
-          Markdown supported
-        </span>
-        <span className="flex items-center gap-1.5 rounded-10 bg-background-default px-3 py-1.5 text-text-secondary transition-colors typo-footnote group-hover:text-text-primary">
-          <SendAirplaneIcon size={IconSize.Small} />
+      <div className="flex items-center justify-end pl-11">
+        <span className="flex items-center rounded-10 bg-background-default px-3 py-1.5 text-text-secondary transition-colors typo-footnote group-hover:text-text-primary">
           Comment
         </span>
       </div>
