@@ -95,26 +95,7 @@ export const PostFocusCard = ({
     >
       <PostContainer className="relative laptop:shrink laptop:grow-0 laptop:basis-[832px] laptop:border-r-0">
         <div className="flex min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px] laptop:py-6">
-          <div className="flex min-h-8 min-w-0 items-center gap-2">
-            {post.source && (
-              <SourceStrip
-                compact
-                className="min-w-0 flex-1"
-                source={post.source as SourceTooltip}
-              />
-            )}
-            <PostHeaderActions
-              buttonSize={ButtonSize.Small}
-              className="ml-auto h-8 shrink-0 items-center"
-              contextMenuId="post-discovery-header-actions"
-              hideSubscribeAction
-              inlineActions
-              onReadArticle={onReadArticle}
-              post={post}
-            />
-          </div>
-
-          <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-3">
             <h1
               className="break-words font-bold text-text-primary typo-large-title"
               data-testid="post-modal-title"
@@ -122,17 +103,18 @@ export const PostFocusCard = ({
               {title}
             </h1>
             {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
-            {!isVideoType && post.summary && (
-              <p
-                className="select-text break-words text-text-secondary typo-markdown"
-                data-testid="tldr-container"
-              >
-                {post.summary}
-              </p>
+          </div>
+
+          <div className="flex min-h-8 min-w-0 items-center gap-3">
+            {post.source && (
+              <SourceStrip
+                compact
+                className="min-w-0 shrink"
+                source={post.source as SourceTooltip}
+              />
             )}
-            <PostTagList post={post} />
             <PostMetadata
-              className="!typo-callout"
+              className="shrink-0 !typo-callout"
               createdAt={post.createdAt}
               domain={
                 !isVideoType &&
@@ -154,7 +136,34 @@ export const PostFocusCard = ({
               isVideoType={isVideoType}
               readTime={post.readTime}
             />
+            <PostHeaderActions
+              buttonSize={ButtonSize.Small}
+              className="ml-auto h-8 shrink-0 items-center"
+              contextMenuId="post-discovery-header-actions"
+              hideSubscribeAction
+              inlineActions
+              onReadArticle={onReadArticle}
+              post={post}
+            />
           </div>
+
+          <DiscussionMetaBar post={post} />
+          <PostActions
+            post={post}
+            postQueryKey={['post', post.id]}
+            onComment={() => focusCommentRef.current()}
+            onCopyLinkClick={onCopyPostLink}
+            origin={origin}
+          />
+
+          {!isVideoType && post.summary && (
+            <p
+              className="select-text break-words text-text-secondary typo-markdown"
+              data-testid="tldr-container"
+            >
+              {post.summary}
+            </p>
+          )}
 
           {isVideoType ? (
             <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
@@ -191,6 +200,8 @@ export const PostFocusCard = ({
             </a>
           )}
 
+          <PostTagList post={post} />
+
           {hasToc && (
             <PostToc
               collapsible
@@ -204,15 +215,6 @@ export const PostFocusCard = ({
               <PostCodeSnippets post={post} />
             </div>
           )}
-
-          <DiscussionMetaBar post={post} />
-          <PostActions
-            post={post}
-            postQueryKey={['post', post.id]}
-            onComment={() => focusCommentRef.current()}
-            onCopyLinkClick={onCopyPostLink}
-            origin={origin}
-          />
         </div>
       </PostContainer>
 
