@@ -54,8 +54,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 
 export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
 
-export const featureInlineLogin = new Feature('inline_login', false);
-
 export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureSmartComposer = new Feature('smart_composer', false);
