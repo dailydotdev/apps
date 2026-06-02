@@ -103,7 +103,7 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { sidebarExpanded, autoDismissNotifications } =
+  const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
@@ -113,11 +113,44 @@ function MainLayoutComponent({
     feedName: currentFeedName,
   });
   const { plusEntryAnnouncementBar } = usePlusEntry();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
-  const { isV2 } = useLayoutVariant();
+  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   useNotificationParams();
+
+  // The main content's left padding settles from the rail width to the
+  // expanded-sidebar width once auth, settings, and the layout-variant flag
+  // resolve on the client. Without gating, the `transition-[padding]` below
+  // animates that initial settle on every hard refresh, sliding all content
+  // sideways. The layout is "settled" only once all three are resolved
+  // (`isLayoutVariantLoading` stays true until both auth and GrowthBook are
+  // ready, so it also covers the window where `isV2` hasn't reached its
+  // final value yet).
+  const layoutSettled =
+    isAuthReady && loadedSettings && !isLayoutVariantLoading;
+  const [contentTransitionsEnabled, setContentTransitionsEnabled] =
+    useState(false);
+  useEffect(() => {
+    if (layoutSettled) {
+      setContentTransitionsEnabled(true);
+    }
+  }, [layoutSettled]);
+  // v2 (experiment) snaps the initial settle into place (transitions enable
+  // one commit later, so only genuine toggles animate). The control variant
+  // keeps animating on `layoutSettled` exactly as before.
+  const animateContentPadding = isV2
+    ? contentTransitionsEnabled
+    : layoutSettled;
+
+  // On laptop the v1 and v2 chrome (sidebar + global header) look different,
+  // so rendering before the experiment resolves makes v2 users flash the v1
+  // layout and then swap. Hold the variant-specific chrome until the flag has
+  // resolved so the correct layout paints once. Below laptop there is no v2
+  // chrome and `isLayoutVariantLoading` never resolves (the flag isn't
+  // evaluated there), so treat non-laptop as always resolved.
+  const isLayoutChromeResolved = !isLaptop || !isLayoutVariantLoading;
 
   // Extension new tab mounts its own `ExtensionTopBanners` strip, so
   // the webapp strip is suppressed there to avoid duplicate cards.
@@ -236,7 +269,7 @@ function MainLayoutComponent({
         />
       )}
 
-      {!sidebarOwnsHeader && (
+      {!sidebarOwnsHeader && isLayoutChromeResolved && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
@@ -246,7 +279,9 @@ function MainLayoutComponent({
       )}
       <main
         className={classNames(
-          'flex flex-col transition-[padding] duration-300 ease-in-out',
+          'flex flex-col',
+          animateContentPadding &&
+            'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
             (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
@@ -260,7 +295,7 @@ function MainLayoutComponent({
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
         )}
       >
-        {isAuthReady && showSidebar && (
+        {isAuthReady && isLayoutChromeResolved && showSidebar && (
           <Sidebar
             additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}

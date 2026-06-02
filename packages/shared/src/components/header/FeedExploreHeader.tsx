@@ -7,6 +7,11 @@ import { CalendarIcon, HotIcon } from '../icons';
 import { IconSize } from '../Icon';
 import TabList from '../tabs/TabList';
 import { Tab, TabContainer } from '../tabs/TabContainer';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '../squads/layout/SquadDirectoryNavbar';
+import { ButtonSize } from '../buttons/Button';
 import { checkIsExtension } from '../../lib/func';
 import { getFeedName } from '../../lib/feed';
 import { Dropdown } from '../fields/Dropdown';
@@ -54,6 +59,10 @@ interface FeedExploreHeaderProps {
   };
   showBreadcrumbs?: boolean;
   showDropdown?: boolean;
+  // v2 only: render the tabs with the shared Squads directory navbar
+  // (Button + underline) so the explore header matches the canonical
+  // tabbed-header design. The v1/mobile callers keep the TabContainer look.
+  directoryTabs?: boolean;
 }
 
 const withDateRange = [
@@ -66,13 +75,15 @@ const withDateRange = [
 export function FeedExploreHeader({
   tab,
   setTab,
-  className,
+  className = {},
   showBreadcrumbs = true,
   showDropdown = true,
+  directoryTabs = false,
 }: FeedExploreHeaderProps): ReactElement {
   const isExtension = checkIsExtension();
   const router = useRouter();
   const path = getFeedName(router.pathname);
+  const currentPathname = (router.asPath || router.pathname).split('?')[0];
   const [period, setPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
@@ -100,7 +111,7 @@ export function FeedExploreHeader({
           className.tabWrapper,
         )}
       >
-        {isExtension ? (
+        {isExtension && (
           <TabList<ExploreTabs>
             items={Object.values(ExploreTabs).map((label) => ({
               label,
@@ -108,9 +119,27 @@ export function FeedExploreHeader({
             active={tab}
             onClick={setTab}
           />
-        ) : (
+        )}
+        {!isExtension && directoryTabs && (
+          <SquadDirectoryNavbar
+            aria-label="Explore navigation"
+            className="!mx-0 min-w-0 flex-1 !border-0 !px-0"
+          >
+            {Object.entries(urlToTab).map(([url, label]) => (
+              <SquadDirectoryNavbarItem
+                key={label}
+                buttonSize={ButtonSize.Small}
+                isActive={currentPathname === url}
+                label={label}
+                ariaLabel={`Show ${label}`}
+                path={url}
+              />
+            ))}
+          </SquadDirectoryNavbar>
+        )}
+        {!isExtension && !directoryTabs && (
           <TabContainer
-            controlledActive={tabsToFeedMap[path]}
+            controlledActive={tabsToFeedMap[path as OtherFeedPage]}
             className={{
               header: classNames('border-b-0', className.tabBarHeader),
               container: className.tabBarContainer,

@@ -24,13 +24,13 @@ import { QuestRailIcon } from '../quest/QuestRailIcon';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
+import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
   BookmarkIcon,
   FeedbackIcon,
   HomeIcon,
   HotIcon,
-  JoystickIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
@@ -46,7 +46,6 @@ import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
-import { RailHoverRow } from './RailHoverRow';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -96,12 +95,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Home',
     defaultPath: webappUrl,
     icon: (active) => (
-      <HomeIcon
-        secondary={active}
-        size={IconSize.Small}
-        aria-hidden
-        className={active ? '[&_path]:!fill-current' : undefined}
-      />
+      <HomeIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
   {
@@ -346,7 +340,7 @@ const SidebarSupportButton = (): ReactElement => {
           onClick={wrapHandler(() => onUpdate(!isOpen))}
           className={classNames(
             railButtonClass,
-            isOpen && 'bg-background-default text-text-primary',
+            isOpen && 'bg-background-default !text-text-primary',
           )}
         >
           <FeedbackIcon secondary={isOpen} size={IconSize.Small} aria-hidden />
@@ -392,7 +386,8 @@ export const SidebarDesktopV2 = ({
   additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, toggleSidebarExpanded } = useSettingsContext();
+  const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
+    useSettingsContext();
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
@@ -424,6 +419,23 @@ export const SidebarDesktopV2 = ({
       setPendingCategory(null);
     }
   }, [pendingCategory, resolvedCategory]);
+
+  // Settings load client-side, so on a hard refresh `sidebarExpanded`
+  // flips from its `false` default to the user's stored value once
+  // `loadedSettings` resolves. The width/opacity transitions below would
+  // animate that initial settle, making the sidebar appear to slide/fade
+  // in. Keep transitions off until settings have loaded so the sidebar
+  // snaps into its final state on first paint and only genuine user
+  // toggles animate afterwards.
+  const [transitionsEnabled, setTransitionsEnabled] = useState(false);
+  useEffect(() => {
+    if (loadedSettings) {
+      setTransitionsEnabled(true);
+    }
+  }, [loadedSettings]);
+  const suppressTransition = transitionsEnabled
+    ? undefined
+    : '!transition-none';
 
   // Escape resets the pinned panel back to Main so the keyboard story
   // mirrors the click model — Tab+Enter opens a panel, Escape backs out.
@@ -538,27 +550,11 @@ export const SidebarDesktopV2 = ({
       return <NotificationsRailPanel />;
     }
     if (category === SidebarCategory.GameCenter) {
-      // Daily quests (rail-icon landing) → Game Center hub → Quests
-      // settings. Same row pattern as the notifications panel; the
-      // Game Center hub stays reachable from the rail.
       return (
-        <div className="flex flex-col px-2 pb-2">
-          <RailHoverRow
-            href={`${webappUrl}daily-quests`}
-            icon={<QuestRailIcon active={false} />}
-            label="Daily quests"
-          />
-          <RailHoverRow
-            href={`${webappUrl}game-center`}
-            icon={<JoystickIcon size={IconSize.XSmall} aria-hidden />}
-            label="Game Center"
-          />
-          <RailHoverRow
-            href={`${settingsUrl}/customization/gamification`}
-            icon={<SettingsIcon size={IconSize.XSmall} aria-hidden />}
-            label="Quests settings"
-          />
-        </div>
+        <GameCenterSection
+          {...defaultRenderSectionProps}
+          isItemsButton={false}
+        />
       );
     }
     if (category === SidebarCategory.Profile) {
@@ -624,6 +620,7 @@ export const SidebarDesktopV2 = ({
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
         featureTheme && 'bg-transparent',
+        suppressTransition,
       )}
     >
       {sidebarExpanded && (
@@ -760,7 +757,7 @@ export const SidebarDesktopV2 = ({
                     }}
                     className={classNames(
                       railButtonClass,
-                      isSelected && 'bg-background-default text-text-primary',
+                      isSelected && 'bg-background-default !text-text-primary',
                     )}
                   >
                     {category.icon(isSelected)}
@@ -795,7 +792,7 @@ export const SidebarDesktopV2 = ({
                 className={classNames(
                   railButtonClass,
                   isSettingsSelected &&
-                    'bg-background-default text-text-primary',
+                    'bg-background-default !text-text-primary',
                 )}
                 onClick={() => onSelectCategory(SidebarCategory.Settings)}
                 onMouseEnter={() =>
@@ -829,6 +826,7 @@ export const SidebarDesktopV2 = ({
           className={classNames(
             'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
             sidebarExpanded ? 'left-[16.5rem]' : 'left-[3.125rem]',
+            suppressTransition,
           )}
         >
           <button
@@ -841,6 +839,7 @@ export const SidebarDesktopV2 = ({
               sidebarExpanded
                 ? 'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
                 : 'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
+              suppressTransition,
             )}
           >
             <SidebarArrowLeft
@@ -849,6 +848,7 @@ export const SidebarDesktopV2 = ({
               className={classNames(
                 'transition-transform duration-300 ease-in-out',
                 !sidebarExpanded && 'rotate-180',
+                suppressTransition,
               )}
             />
           </button>
@@ -865,6 +865,7 @@ export const SidebarDesktopV2 = ({
           sidebarExpanded
             ? 'w-60 opacity-100'
             : 'pointer-events-none w-0 opacity-0',
+          suppressTransition,
         )}
       >
         {isHomePanel ? (

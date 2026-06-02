@@ -766,13 +766,11 @@ export default function MainFeedLayout({
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           <FeedExploreHeader
+            directoryTabs
             tab={tab}
             setTab={onTabChange}
             showBreadcrumbs={false}
-            className={{
-              container: 'min-w-0 flex-1',
-              tabBarHeader: '!border-0',
-            }}
+            className={{ container: 'min-w-0 flex-1' }}
           />
         </header>
       )}

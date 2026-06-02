@@ -23,6 +23,7 @@ interface ClassName {
   container?: string;
   heading?: string;
   section?: string;
+  header?: string;
 }
 
 interface AccountPageContainerProps {
@@ -61,7 +62,7 @@ export const AccountPageContainer = ({
   }, [isV2Laptop]);
 
   const pageHeader = isV2Laptop ? (
-    <PageHeader title={title}>
+    <PageHeader title={title} className={className.header}>
       {onBack && (
         <Button
           type="button"
