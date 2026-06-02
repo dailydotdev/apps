@@ -21,12 +21,14 @@ type SourceStripProps = {
   source: SourceTooltip;
   className?: string;
   compact?: boolean;
+  followButtonVariant?: ButtonVariant;
 };
 
 export function SourceStrip({
   source,
   className,
   compact = false,
+  followButtonVariant = ButtonVariant.Secondary,
 }: SourceStripProps): ReactElement | null {
   const sourceId = source?.id ?? '';
   const sourceName = source?.name ?? '';
@@ -120,7 +122,7 @@ export function SourceStrip({
           entityId={sourceId}
           entityName={sourceName}
           type={ContentPreferenceType.Source}
-          variant={ButtonVariant.Secondary}
+          variant={followButtonVariant}
           status={contentPreference?.status}
           showSubscribe={false}
           buttonClassName={compact ? '!h-7 !px-2' : '!h-8'}

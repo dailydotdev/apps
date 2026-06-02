@@ -39,6 +39,7 @@ export function PostHeaderActions({
   buttonSize,
   hideSubscribeAction,
   hideMenuOptions,
+  readButtonVariant,
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
@@ -111,7 +112,7 @@ export function PostHeaderActions({
               variant={
                 isFixedNavigation || isMobile
                   ? ButtonVariant.Tertiary
-                  : ButtonVariant.Secondary
+                  : readButtonVariant ?? ButtonVariant.Secondary
               }
               tag="a"
               href={readHref}

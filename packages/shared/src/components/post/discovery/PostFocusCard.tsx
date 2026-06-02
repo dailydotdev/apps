@@ -12,7 +12,7 @@ import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
-import { ButtonSize } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostHeaderActions } from '../PostHeaderActions';
 import { PostContainer } from '../common';
 import { PostTagList } from '../tags/PostTagList';
@@ -105,6 +105,7 @@ export const PostFocusCard = ({
               <SourceStrip
                 compact
                 className="min-w-0 shrink"
+                followButtonVariant={ButtonVariant.Subtle}
                 source={post.source as SourceTooltip}
               />
             )}
@@ -116,6 +117,7 @@ export const PostFocusCard = ({
               hideSubscribeAction
               onReadArticle={onReadArticle}
               post={post}
+              readButtonVariant={ButtonVariant.Primary}
             />
           </div>
 
