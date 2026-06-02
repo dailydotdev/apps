@@ -93,8 +93,8 @@ export const PostFocusCard = ({
       className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default laptop:flex-row laptop:justify-center"
       data-testid="post-focus-card"
     >
-      <PostContainer className="relative laptop:shrink laptop:grow-0 laptop:basis-[768px] laptop:border-r-0">
-        <div className="flex min-w-0 flex-col gap-4 py-6 laptop:py-6">
+      <PostContainer className="relative laptop:shrink laptop:grow-0 laptop:basis-[832px] laptop:border-r-0">
+        <div className="flex min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px] laptop:py-6">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {post.source && (
               <SourceStrip
