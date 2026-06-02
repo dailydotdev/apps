@@ -156,6 +156,7 @@ export const PostDiscussionPanel = ({
           onShare={(comment) => openShareComment(comment, post)}
           onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
           modalParentSelector={resolveModalParent}
+          removeTopSpacing
         />
       </div>
       <div className="flex shrink-0 flex-col gap-3 pt-3">
