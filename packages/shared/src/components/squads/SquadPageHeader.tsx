@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { BasicSourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
@@ -56,11 +56,9 @@ export function SquadPageHeader({
   hideHeaderBar = false,
 }: SquadPageHeaderProps): ReactElement {
   const { openModal } = useLazyModal();
-  const isSmartComposerEnabled = useSmartComposer();
+  const { evaluateSmartComposer } = useSmartComposer();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
-  const shouldUseSmartComposer =
-    isSmartComposerEnabled && isLaptop && allowedToPost;
   const { category } = squad;
   const squadId = squad.id ?? '';
   const isSquadMember = !!squad.currentMember;
@@ -75,6 +73,20 @@ export function SquadPageHeader({
   const listMax = isMobile
     ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
     : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
+  const onNewPostClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!isLaptop || !evaluateSmartComposer()) {
+        return;
+      }
+
+      event.preventDefault();
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: { initialSquadHandle: squad.handle },
+      });
+    },
+    [evaluateSmartComposer, isLaptop, openModal, squad.handle],
+  );
 
   return (
     <FlexCol
@@ -259,32 +271,16 @@ export function SquadPageHeader({
                 <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-border-subtlest-tertiary tablet:hidden" />
                 <span className="z-0 bg-background-default px-4">or</span>
               </FlexCentered>
-              {shouldUseSmartComposer ? (
-                <Button
-                  type="button"
-                  onClick={() =>
-                    openModal({
-                      type: LazyModal.SmartComposer,
-                      props: { initialSquadHandle: squad.handle },
-                    })
-                  }
-                  variant={ButtonVariant.Primary}
-                  color={ButtonColor.Cabbage}
-                  className="w-full tablet:w-auto"
-                >
-                  New post
-                </Button>
-              ) : (
-                <Button
-                  tag="a"
-                  href={`${link.post.create}?sid=${squad.handle}`}
-                  variant={ButtonVariant.Primary}
-                  color={ButtonColor.Cabbage}
-                  className="w-full tablet:w-auto"
-                >
-                  New post
-                </Button>
-              )}
+              <Button
+                tag="a"
+                href={`${link.post.create}?sid=${squad.handle}`}
+                onClick={onNewPostClick}
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Cabbage}
+                className="w-full tablet:w-auto"
+              >
+                New post
+              </Button>
               <Divider />
             </>
           )}

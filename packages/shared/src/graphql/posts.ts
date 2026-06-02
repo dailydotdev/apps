@@ -1015,7 +1015,7 @@ export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
 
 export interface CreatePostInMultipleSourcesArgs
   extends Partial<CreatePostProps>,
-    Pick<CreatePollPostProps, 'options' | 'duration'> {
+    Partial<Pick<CreatePollPostProps, 'options' | 'duration'>> {
   commentary?: string;
   externalLink?: string;
   imageUrl?: string;
