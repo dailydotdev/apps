@@ -45,12 +45,13 @@ const ProfileIndex = (): ReactElement => {
           title="Profile"
           actions={
             <Button
-              type="submit"
+              type="button"
               className="ml-auto"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
               disabled={isLoading}
               loading={isLoading}
+              onClick={handleSubmit}
             >
               Save
             </Button>

@@ -11,7 +11,7 @@ import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { CompanionPermission } from './CompanionPermission';
 
-export const CompanionPopupButton = (): ReactElement => {
+export const CompanionPopupButton = (): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);
@@ -56,6 +56,9 @@ export const CompanionPopupButton = (): ReactElement => {
       content={<CompanionPermission />}
       placement="bottom-start"
       showArrow={false}
+      // Portal to body so the popover escapes the v2 sidebar's
+      // `overflow-hidden` panel.
+      appendTo={() => document.body}
       container={{
         paddingClassName: 'px-6 py-4',
         bgClassName: 'bg-background-default',

@@ -12,6 +12,7 @@ import { useProfileAchievements } from '../../hooks/profile/useProfileAchievemen
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
@@ -42,11 +43,40 @@ function AchievementIcon({
   );
 }
 
+export function AchievementTrackerPanel(): ReactElement | null {
+  const { user } = useAuthContext();
+  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+  const { trackedAchievement } = useTrackedAchievement(
+    undefined,
+    isAchievementTrackingWidgetEnabled === true,
+  );
+
+  if (!user || isAchievementTrackingWidgetEnabled !== true) {
+    return null;
+  }
+
+  if (!trackedAchievement || trackedAchievement.unlockedAt) {
+    return null;
+  }
+
+  return (
+    <div className="px-3 pt-1">
+      <div className="overflow-hidden rounded-12 bg-background-popover">
+        <AchievementCard userAchievement={trackedAchievement} />
+      </div>
+    </div>
+  );
+}
+
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
   const { optOutAchievements } = useSettingsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -143,7 +173,11 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className={
+          isV2
+            ? 'h-8 w-8 animate-pulse rounded-10'
+            : 'h-10 w-10 animate-pulse rounded-12'
+        }
       />
     );
   }
@@ -156,7 +190,11 @@ export function AchievementTrackerButton(): ReactElement | null {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
-        className="h-10 w-10 animate-pulse rounded-12"
+        className={
+          isV2
+            ? 'h-8 w-8 animate-pulse rounded-10'
+            : 'h-10 w-10 animate-pulse rounded-12'
+        }
       />
     );
   }
@@ -164,8 +202,21 @@ export function AchievementTrackerButton(): ReactElement | null {
   const buttonContent = (
     <div className="relative">
       <Button
-        size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        size={isV2 ? ButtonSize.Small : ButtonSize.Medium}
+        variant={(() => {
+          if (isV2) {
+            return ButtonVariant.Tertiary;
+          }
+          return isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
+        })()}
+        className={(() => {
+          if (!isV2) {
+            return undefined;
+          }
+          return hasButtonLabel
+            ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
+            : '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
+        })()}
         icon={
           (isTrackingAchievement ? (
             <AchievementIcon

@@ -55,10 +55,10 @@ type DefaultValues = UserExperience & {
 };
 
 type PageProps = {
-  experience: DefaultValues | null;
+  experience: DefaultValues;
 };
 
-const splitMonthYear = (value?: string) => {
+const splitMonthYear = (value?: string | null) => {
   if (!value) {
     return ['', ''];
   }
@@ -116,7 +116,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const { cookies } = getCookiesAndHeadersFromRequest(req);
   const result = await getUserExperienceById(id as string, { Cookie: cookies });
 
-  if (!result || !result.isOwner) {
+  if (!result) {
     return {
       redirect: {
         destination: `/settings/profile/experience/${typeParam}`,
@@ -125,27 +125,39 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     };
   }
 
-  delete result.isOwner;
-  const [startedAtMonth, startedAtYear] = splitMonthYear(result.startedAt);
-  const [endedAtMonth, endedAtYear] = splitMonthYear(result.endedAt);
+  const { isOwner, ...experienceResult } = result;
+  if (!isOwner) {
+    return {
+      redirect: {
+        destination: `/settings/profile/experience/${typeParam}`,
+        permanent: false,
+      },
+    };
+  }
+
+  const [startedAtMonth, startedAtYear] = splitMonthYear(
+    experienceResult.startedAt,
+  );
+  const [endedAtMonth, endedAtYear] = splitMonthYear(experienceResult.endedAt);
 
   return {
     props: {
       experience: {
-        ...result,
-        companyId: result.company?.id || '',
-        customCompanyName: result.company?.name || result.customCompanyName,
-        storedCustomCompanyName: result.customCompanyName,
-        company: result.company,
+        ...experienceResult,
+        companyId: experienceResult.company?.id || '',
+        customCompanyName:
+          experienceResult.company?.name || experienceResult.customCompanyName,
+        storedCustomCompanyName: experienceResult.customCompanyName,
+        company: experienceResult.company,
         startedAtMonth,
         startedAtYear,
         endedAtMonth,
         endedAtYear,
-        current: !result.endedAt,
-        skills: result.skills?.map((skill) => skill.value),
-        location: result.location,
-        externalLocationId: result.location?.externalId || '',
-        repositorySearch: result.repository?.name || '',
+        current: !experienceResult.endedAt,
+        skills: experienceResult.skills?.map((skill) => skill.value),
+        location: experienceResult.location,
+        externalLocationId: experienceResult.location?.externalId || '',
+        repositorySearch: experienceResult.repository?.name || '',
       },
     },
   };
@@ -198,18 +210,19 @@ const Page = ({ experience }: PageProps): ReactElement => {
           }`}
           actions={
             <Button
-              type="submit"
+              type="button"
               className="ml-auto"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
               disabled={isPending}
               loading={isPending}
+              onClick={methods.handleSubmit(() => save())}
             >
               Save
             </Button>
           }
         >
-          {renderExperienceForm(experience?.type, experience)}
+          {renderExperienceForm(experience.type, experience)}
           {experience?.id && (
             <DeleteExperienceButton
               experienceId={experience.id}
