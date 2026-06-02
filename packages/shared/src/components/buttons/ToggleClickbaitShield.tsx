@@ -60,8 +60,6 @@ export const ToggleClickbaitShield = ({
     size: ButtonSize.Medium,
     variant: isV2Compact ? ButtonVariant.Tertiary : ButtonVariant.Float,
     iconSecondaryOnHover: true,
-    ...buttonProps,
-    ...iconButtonProps,
   };
   const sizedIcon = (icon: ReactElement, className?: string) =>
     iconSize
@@ -84,6 +82,7 @@ export const ToggleClickbaitShield = ({
       >
         <Button
           {...commonIconProps}
+          {...buttonProps}
           icon={
             hasUsedFreeTrial
               ? sizedIcon(<ShieldWarningIcon />, 'text-accent-ketchup-default')
@@ -117,6 +116,7 @@ export const ToggleClickbaitShield = ({
     >
       <Button
         {...commonIconProps}
+        {...iconButtonProps}
         icon={
           isClickbaitShieldEnabled
             ? sizedIcon(<ShieldCheckIcon />, 'text-status-success')

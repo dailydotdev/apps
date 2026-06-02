@@ -825,7 +825,7 @@ export const SidebarDesktopV2 = ({
         <div
           className={classNames(
             'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
-            sidebarExpanded ? 'left-[16.5rem]' : 'left-[3.125rem]',
+            sidebarExpanded ? 'left-[16.5rem]' : 'left-[3.5rem]',
             suppressTransition,
           )}
         >
