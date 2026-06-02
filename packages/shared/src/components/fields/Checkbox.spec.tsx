@@ -35,3 +35,15 @@ it('should add checked class', async () => {
   // eslint-disable-next-line testing-library/no-node-access
   await waitFor(() => expect(el.parentElement).toHaveClass('checked'));
 });
+
+it('should drive the native indeterminate property and aria-checked="mixed"', async () => {
+  renderComponent({ indeterminate: true });
+  const el = (await screen.findByTestId('checkbox-input')) as HTMLInputElement;
+  await waitFor(() => expect(el.indeterminate).toBe(true));
+  // eslint-disable-next-line testing-library/no-node-access
+  expect(el.parentElement).toHaveClass('indeterminate');
+  // The decorative checkmark box mirrors the mixed state for assistive tech.
+  // eslint-disable-next-line testing-library/no-node-access
+  const box = el.parentElement?.querySelector('[role="checkbox"]');
+  expect(box).toHaveAttribute('aria-checked', 'mixed');
+});
