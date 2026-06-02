@@ -21,9 +21,7 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
-import {
-  featureOnboardingPermissionPrimer,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
