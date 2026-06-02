@@ -69,6 +69,8 @@ export interface PostHeaderActionsProps {
   isFixedNavigation?: boolean;
   buttonSize?: ButtonSize;
   hideSubscribeAction?: boolean;
+  /** Hides the trailing "..." menu (e.g. when it is surfaced elsewhere). */
+  hideMenuOptions?: boolean;
 }
 
 export interface PostContentProps

@@ -104,7 +104,7 @@ export const PostFocusCard = ({
             {post.source && (
               <SourceStrip
                 compact
-                className="min-w-0 flex-1"
+                className="min-w-0 shrink"
                 source={post.source as SourceTooltip}
               />
             )}
@@ -112,8 +112,8 @@ export const PostFocusCard = ({
               buttonSize={ButtonSize.Small}
               className="ml-auto h-8 shrink-0 items-center"
               contextMenuId="post-discovery-header-actions"
+              hideMenuOptions
               hideSubscribeAction
-              inlineActions
               onReadArticle={onReadArticle}
               post={post}
             />

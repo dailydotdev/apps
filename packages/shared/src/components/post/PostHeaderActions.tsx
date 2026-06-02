@@ -38,6 +38,7 @@ export function PostHeaderActions({
   isFixedNavigation,
   buttonSize,
   hideSubscribeAction,
+  hideMenuOptions,
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
@@ -133,11 +134,13 @@ export function PostHeaderActions({
       {isCollection && !hideSubscribeAction && (
         <CollectionSubscribeButton post={post} />
       )}
-      <PostMenuOptions
-        post={post}
-        origin={Origin.ArticleModal}
-        buttonSize={buttonSize}
-      />
+      {!hideMenuOptions && (
+        <PostMenuOptions
+          post={post}
+          origin={Origin.ArticleModal}
+          buttonSize={buttonSize}
+        />
+      )}
     </Container>
   );
 }
