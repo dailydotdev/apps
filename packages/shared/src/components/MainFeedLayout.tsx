@@ -775,7 +775,7 @@ export default function MainFeedLayout({
         </header>
       )}
       {showFeedV2PageHeader && (
-        <header className={pageHeaderClassName}>
+        <header className={classNames(pageHeaderClassName, '!py-0')}>
           {v2ActionButtons || (
             <strong className="min-w-0 flex-1 truncate typo-callout">
               {feedHeading}
