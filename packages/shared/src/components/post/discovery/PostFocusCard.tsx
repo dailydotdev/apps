@@ -8,7 +8,6 @@ import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
-import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import { LazyImage } from '../../LazyImage';
@@ -17,7 +16,6 @@ import { ButtonSize } from '../../buttons/Button';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { PostHeaderActions } from '../PostHeaderActions';
 import { PostActions } from '../PostActions';
-import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostContainer } from '../common';
 import { PostTagList } from '../tags/PostTagList';
 import PostToc from '../../widgets/PostToc';
@@ -78,7 +76,6 @@ export const PostFocusCard = ({
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
-  const { onShowUpvoted } = useUpvoteQuery();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const readHref = getReadArticleHref(post);
@@ -190,11 +187,6 @@ export const PostFocusCard = ({
               <PostCodeSnippets post={post} />
             </div>
           )}
-
-          <PostUpvotesCommentsCount
-            post={post}
-            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
-          />
         </div>
       </PostContainer>
 
