@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
@@ -72,5 +72,9 @@ const ProfileAchievementsPage = ({
   );
 };
 
-ProfileAchievementsPage.getLayout = getProfileLayout;
+ProfileAchievementsPage.getLayout = (
+  page: ReactNode,
+  props: ProfileLayoutProps,
+): ReactNode =>
+  getProfileLayout(page, { ...props, pageHeaderTitle: 'Achievements' });
 export default ProfileAchievementsPage;

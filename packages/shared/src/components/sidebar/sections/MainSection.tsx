@@ -7,8 +7,8 @@ import {
   DevPlusIcon,
   EyeIcon,
   HomeIcon,
-  HotIcon,
   JoystickIcon,
+  MagicIcon,
   SquadIcon,
   MegaphoneIcon,
   YearInReviewIcon,
@@ -30,6 +30,7 @@ import {
   featurePlusApiLanding,
   featureYearInReview,
 } from '../../../lib/featureManagement';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
 
@@ -40,6 +41,7 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
@@ -74,9 +76,13 @@ export const MainSection = ({
           path: myFeedPath,
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
-          icon: () => (
-            <ProfilePicture size={ProfileImageSize.XSmall} user={user!} />
-          ),
+          icon: isV2
+            ? (active: boolean) => (
+                <ListIcon Icon={() => <MagicIcon secondary={active} />} />
+              )
+            : () => (
+                <ProfilePicture size={ProfileImageSize.XSmall} user={user!} />
+              ),
         }
       : {
           title: 'Home',
@@ -110,28 +116,31 @@ export const MainSection = ({
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
     }`;
 
-    const gameCenter = isLoggedIn
-      ? {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
-          ),
-          title: 'Game Center',
-          path: gameCenterPath,
-          isForcedLink: true,
-          requiresLogin: true,
-          ...(claimableMilestoneCount > 0 && {
-            rightIcon: () => (
-              <Typography
-                color={TypographyColor.Secondary}
-                bold
-                className="rounded-6 bg-background-subtle px-1.5"
-              >
-                {claimableMilestoneCount}
-              </Typography>
+    // v2: Game Center has its own rail icon, so suppress the inline
+    // entry to avoid duplicating navigation in the Home panel list.
+    const gameCenter =
+      isLoggedIn && !isV2
+        ? {
+            icon: (active: boolean) => (
+              <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
             ),
-          }),
-        }
-      : undefined;
+            title: 'Game Center',
+            path: gameCenterPath,
+            isForcedLink: true,
+            requiresLogin: true,
+            ...(claimableMilestoneCount > 0 && {
+              rightIcon: () => (
+                <Typography
+                  color={TypographyColor.Secondary}
+                  bold
+                  className="rounded-6 bg-background-subtle px-1.5"
+                >
+                  {claimableMilestoneCount}
+                </Typography>
+              ),
+            }),
+          }
+        : undefined;
 
     const yearInReview = showYearInReview
       ? {
@@ -157,14 +166,6 @@ export const MainSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <SquadIcon secondary={active} />} />
           ),
-        },
-        {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <HotIcon secondary={active} />} />
-          ),
-          title: 'Explore',
-          path: '/posts',
-          action: () => onNavTabClick?.(OtherFeedPage.Explore),
         },
         {
           icon: (active: boolean) => (
@@ -196,6 +197,7 @@ export const MainSection = ({
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
+    isV2,
     onNavTabClick,
     showYearInReview,
     user,

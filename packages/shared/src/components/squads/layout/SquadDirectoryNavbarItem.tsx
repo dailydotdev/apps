@@ -12,6 +12,9 @@ interface SquadNavbarItemProps {
   path?: string;
   onClick?: ButtonProps<'a'>['onClick'];
   elementProps?: Omit<ComponentProps<'li'>, 'onClick'>;
+  // Override the default "…'s directory page" label when this row is reused
+  // outside the Squads directory (e.g. the explore / notifications headers).
+  ariaLabel?: string;
 }
 
 export function SquadDirectoryNavbarItem({
@@ -21,11 +24,12 @@ export function SquadDirectoryNavbarItem({
   path,
   onClick,
   elementProps = {},
+  ariaLabel,
 }: SquadNavbarItemProps): ReactElement {
   const button = (
     <Button
       aria-current={isActive ? 'page' : undefined}
-      aria-label={`Navigate to ${label}'s directory page`}
+      aria-label={ariaLabel ?? `Navigate to ${label}'s directory page`}
       className="capitalize"
       href={path}
       onClick={onClick}

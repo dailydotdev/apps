@@ -9,7 +9,7 @@ import { useSquadNavigation } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { SquadImage } from '../../squads/SquadImage';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { webappUrl } from '../../../lib/constants';
+import { squadCategoriesPaths, webappUrl } from '../../../lib/constants';
 import type { SidebarSectionProps } from './common';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { Typography, TypographyColor } from '../../typography/Typography';
@@ -48,11 +48,22 @@ export const NetworkSection = ({
         };
       }) ?? [];
     return [
-      isModeratorInAnySquad &&
-        count > 0 && {
-          icon: () => <ListIcon Icon={() => <TimerIcon />} />,
-          title: 'Pending Posts',
-          path: `${webappUrl}squads/moderate`,
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SourceIcon secondary={active} />} />
+        ),
+        title: 'Find Squads',
+        // Point at the actual landing page (`/squads` redirects here)
+        // so the active-state highlight matches the URL the user
+        // actually navigates to.
+        path: squadCategoriesPaths.discover,
+        isForcedLink: true,
+      },
+      isModeratorInAnySquad && {
+        icon: () => <ListIcon Icon={() => <TimerIcon />} />,
+        title: 'Pending Posts',
+        path: `${webappUrl}squads/moderate`,
+        ...(count > 0 && {
           rightIcon: () => (
             <Typography
               color={TypographyColor.Secondary}
@@ -62,14 +73,7 @@ export const NetworkSection = ({
               {count >= 15 ? '15+' : count}
             </Typography>
           ),
-        },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <SourceIcon secondary={active} />} />
-        ),
-        title: 'Find Squads',
-        path: `${webappUrl}squads`,
-        isForcedLink: true,
+        }),
       },
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];

@@ -46,22 +46,22 @@ export const BookmarkSection = ({
   }, [openModal, closeModal, createFolder]);
 
   const allMenuItems = [
-    briefUIFeatureValue && {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <BriefIcon secondary={active} />} />
-      ),
-      title: 'Presidential briefings',
-      path: briefingUrl,
-      isForcedLink: true,
-      requiresLogin: true,
-      rightIcon,
-    },
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
       ),
       title: 'Quick saves',
       path: `${webappUrl}bookmarks`,
+      isForcedLink: true,
+      requiresLogin: true,
+      rightIcon,
+    },
+    briefUIFeatureValue && {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <BriefIcon secondary={active} />} />
+      ),
+      title: 'Presidential briefings',
+      path: briefingUrl,
       isForcedLink: true,
       requiresLogin: true,
       rightIcon,
