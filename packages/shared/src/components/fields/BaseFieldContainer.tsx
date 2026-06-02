@@ -1,9 +1,10 @@
 import classNames from 'classnames';
-import type { ReactElement, ReactNode, MutableRefObject } from 'react';
+import type { ReactElement, ReactNode, ForwardedRef } from 'react';
 import React, { forwardRef } from 'react';
 import type { FieldType, TextInputProps } from './common';
 import { BaseField } from './common';
 import type { IconProps } from '../Icon';
+import { FieldSize, fieldSizeToRadius } from './fieldSizes';
 
 interface FieldStateProps {
   readOnly?: boolean;
@@ -73,7 +74,10 @@ export const getFieldFontColor = ({
     return 'text-text-quaternary';
   }
 
-  return 'text-text-tertiary hover:text-text-primary';
+  // Resting (empty, editable) fields read as active — secondary content on the
+  // floated surface, brightening to primary on hover. Tertiary here made an
+  // empty field look indistinguishable from the dimmed disabled state.
+  return 'text-text-secondary hover:text-text-primary';
 };
 
 interface InnerLabelProps extends FieldStateProps {
@@ -91,6 +95,7 @@ interface BaseFieldContainerProps extends FieldPlaceholderProps {
   className?: FieldClassName;
   inputId: string;
   fieldType?: FieldType;
+  fieldSize?: FieldSize;
   hint?: string;
   hintIcon?: ReactElement<IconProps>;
   saveHintSpace?: boolean;
@@ -112,11 +117,11 @@ export const getFieldPlaceholder = ({
   label,
 }: FieldPlaceholderProps): string => {
   if (isQuaternaryField) {
-    return placeholder;
+    return placeholder ?? '';
   }
 
   if (isTertiaryField) {
-    return focused ? placeholder : label;
+    return (focused ? placeholder : label) ?? '';
   }
 
   if (focused || isSecondaryField) {
@@ -150,6 +155,7 @@ function BaseFieldContainer(
   {
     className = {},
     fieldType = 'primary',
+    fieldSize,
     readOnly,
     isLocked,
     hasInput,
@@ -164,9 +170,17 @@ function BaseFieldContainer(
     saveHintSpace,
     focusInput,
   }: BaseFieldContainerProps,
-  ref?: MutableRefObject<HTMLDivElement>,
+  ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   const isSecondaryField = fieldType === 'secondary';
+  // Radius always comes from the shared button-aligned scale, so a field's
+  // corner radius matches a button of the same size. The default (no explicit
+  // `fieldSize`) maps the compact secondary field to Small and every other
+  // field to Large — the same rung the default heights resolve to.
+  const radiusClass =
+    fieldSizeToRadius[
+      fieldSize ?? (isSecondaryField ? FieldSize.Small : FieldSize.Large)
+    ];
 
   return (
     <div ref={ref} className={classNames('flex flex-col', className.container)}>
@@ -193,8 +207,9 @@ function BaseFieldContainer(
         onClick={focusInput}
         className={classNames(
           'relative flex',
-          isSecondaryField ? 'rounded-10' : 'rounded-14',
+          radiusClass,
           className.baseField,
+          disabled && 'pointer-events-none opacity-32',
           { readOnly, focused, invalid },
         )}
       >
