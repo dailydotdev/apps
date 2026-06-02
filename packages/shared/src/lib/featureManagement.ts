@@ -54,8 +54,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 
 export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
 
-export const featureInlineLogin = new Feature('inline_login', false);
-
 export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureSmartComposer = new Feature('smart_composer', false);
@@ -203,11 +201,23 @@ export const featureUpvoteCountThreshold = new Feature<{
   newWindowHours: 24,
 });
 
-export const featureFeedTagChips = new Feature('feed_tag_chips', false);
+export enum FeedChipsVariant {
+  None = 'none',
+  V2 = 'v2',
+}
+export const featureFeedChips = new Feature<FeedChipsVariant>(
+  'feed_chips',
+  FeedChipsVariant.None,
+);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
 export const featurePostHighlightCards = new Feature(
   'post_highlight_cards',
+  false,
+);
+
+export const featureOnboardingPermissionPrimer = new Feature(
+  'onboarding_permission_primer',
   false,
 );

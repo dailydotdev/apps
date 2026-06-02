@@ -86,6 +86,9 @@ describe('useFeeds hook', () => {
     mockGraphQL({
       request: {
         query: FEED_LIST_QUERY,
+        variables: {
+          includeTagChipFeeds: false,
+        },
       },
       result: () => {
         queryCalled = true;
@@ -184,7 +187,7 @@ describe('useFeeds hook', () => {
     await waitFor(() => expect(queryCalled).toBe(true));
 
     expect(result.current.feeds).toBeTruthy();
-    expect(result.current.feeds.edges).toMatchObject(feeds);
+    expect(result.current.feeds!.edges).toMatchObject(feeds);
   });
 
   it('should create a feed', async () => {
@@ -204,7 +207,7 @@ describe('useFeeds hook', () => {
     expect(feed).toBeTruthy();
     expect(feed!.flags!.name).toBe('New feed');
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === feed!.id),
+      result.current.feeds!.edges.find((f) => f.node.id === feed!.id),
     ).toBeTruthy();
   });
 
@@ -227,7 +230,7 @@ describe('useFeeds hook', () => {
     expect(feed).toBeTruthy();
     expect(feed!.flags!.name).toBe('Updated feed');
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === feed!.id),
+      result.current.feeds!.edges.find((f) => f.node.id === feed!.id),
     ).toBeTruthy();
   });
 
@@ -245,7 +248,7 @@ describe('useFeeds hook', () => {
     rerender();
 
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === 'cf1'),
+      result.current.feeds!.edges.find((f) => f.node.id === 'cf1'),
     ).toBeFalsy();
   });
 });

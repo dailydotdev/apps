@@ -17,8 +17,11 @@ const FeedPage = (): ReactElement => {
   const { feeds } = useFeeds();
 
   const feed = useMemo(() => {
-    return feeds?.edges.find(({ node }) => node.id === router.query.slugOrId)
-      ?.node;
+    return feeds?.edges.find(
+      ({ node }) =>
+        node.id === router.query.slugOrId ||
+        node.slug === router.query.slugOrId,
+    )?.node;
   }, [feeds, router.query.slugOrId]);
 
   useEffect(() => {
