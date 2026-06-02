@@ -1,21 +1,24 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import { isVideoPost } from '../../../graphql/posts';
+import {
+  getReadArticleHref,
+  getReadPostButtonText,
+  isVideoPost,
+} from '../../../graphql/posts';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
-import { PostHero } from '../experience/PostHero';
-import { PostInsightPanel } from '../experience/PostInsightPanel';
-import { PostTopicChips } from '../PostTopicChips';
-import {
-  getPostTopicLabel,
-  getPostTopicTags,
-} from '../anonymousPostExperience';
+import { PostTagList } from '../tags/PostTagList';
+import PostSourceInfo from '../PostSourceInfo';
+import { PostHeaderActions } from '../PostHeaderActions';
+import { PostClickbaitShield } from '../common/PostClickbaitShield';
+import { LazyImage } from '../../LazyImage';
+import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 
 export type FocusCardLeftVariant = 'lean' | 'rich';
@@ -24,10 +27,6 @@ interface PostFocusCardProps {
   post: Post;
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
-  /**
-   * Anchor id the "jump to related" teaser scrolls to (the discovery feed).
-   */
-  discoveryAnchorId?: string;
 }
 
 /**
@@ -50,7 +49,6 @@ export const PostFocusCard = ({
   post,
   origin,
   leftVariant = 'rich',
-  discoveryAnchorId,
 }: PostFocusCardProps): ReactElement => {
   const isVideoType = isVideoPost(post);
   const { title } = useSmartTitle(post);
@@ -64,99 +62,135 @@ export const PostFocusCard = ({
     onReadArticle();
   };
 
-  const topics = getPostTopicTags(post);
-  const topicLabel = getPostTopicLabel(topics);
   const keyPoints = leftVariant === 'rich' ? getKeyPoints(post.summary) : [];
+  const readHref = getReadArticleHref(post);
+  const readText = getReadPostButtonText(post);
 
   return (
     <article
-      className="relative flex w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2"
+      className="grid w-full overflow-hidden rounded-24 bg-background-default laptop:grid-cols-[minmax(0,1fr)_24rem]"
       data-testid="post-focus-card"
     >
-      <div className="bg-accent-cabbage-default/10 pointer-events-none absolute -left-20 -top-20 size-80 rounded-full blur-3xl" />
-      <div className="bg-accent-onion-default/10 pointer-events-none absolute -right-16 top-16 size-72 rounded-full blur-3xl" />
-
-      <div className="relative z-1">
-        <PostHero
-          isVideoType={isVideoType}
-          metadata={
+      <div className="flex min-w-0 flex-col gap-6 p-4 tablet:p-6 laptop:p-8">
+        <div className="flex min-w-0 flex-col gap-4">
+          <PostSourceInfo
+            className="min-w-0"
+            hideSubscribeAction
+            onReadArticle={onReadArticle}
+            post={post}
+            showActions={false}
+          />
+          <div className="flex min-w-0 flex-col gap-3">
+            <h1
+              className="break-words font-bold text-text-primary typo-large-title laptop:typo-mega3"
+              data-testid="post-modal-title"
+            >
+              {title}
+            </h1>
             <PostMetadata
-              className="!typo-callout"
+              className="!mt-0 !typo-callout"
               createdAt={post.createdAt}
               isVideoType={isVideoType}
               readTime={post.readTime}
             />
-          }
-          onImageClick={handleImageClick}
-          onReadArticle={onReadArticle}
-          post={post}
-          title={title}
-        />
-      </div>
-
-      <div className="relative z-1 grid gap-6 border-t border-border-subtlest-tertiary p-4 tablet:p-6 laptop:grid-cols-[minmax(0,1fr)_24rem] laptop:gap-8">
-        <div className="flex min-w-0 flex-col gap-5">
-          {isVideoType && post.videoId && (
-            <YoutubeVideo
-              className="shadow-1 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3"
-              placeholderProps={{ post, onWatchVideo: onReadArticle }}
-              videoId={post.videoId}
-            />
-          )}
-
-          <PostInsightPanel post={post} />
-
-          {leftVariant === 'rich' && keyPoints.length > 0 && (
-            <section className="flex flex-col gap-3 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-4">
-              <p className="font-bold text-text-primary typo-title3">
-                Key takeaways
-              </p>
-              <ul className="flex flex-col gap-2">
-                {keyPoints.map((point) => (
-                  <li
-                    key={point}
-                    className="flex gap-2 text-text-secondary typo-callout"
-                  >
-                    <span
-                      aria-hidden
-                      className="mt-2 size-1.5 shrink-0 rounded-full bg-accent-cabbage-default"
-                    />
-                    <span className="min-w-0">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {leftVariant === 'rich' && (
-            <a
-              href={discoveryAnchorId ? `#${discoveryAnchorId}` : undefined}
-              className={classNames(
-                'flex flex-col gap-3 rounded-24 border border-dashed border-border-subtlest-tertiary bg-background-subtle p-4 transition-colors',
-                discoveryAnchorId && 'hover:border-accent-cabbage-default',
-              )}
-            >
-              <p className="text-accent-cabbage-default typo-caption1">
-                Keep exploring
-              </p>
-              <p className="font-bold text-text-primary typo-title3">
-                More developer stories on {topicLabel}
-              </p>
-              <PostTopicChips topics={topics} />
-            </a>
-          )}
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-3 laptop:max-h-[44rem] laptop:overflow-y-auto laptop:pr-1">
-          <div className="flex flex-col gap-1">
-            <p className="text-text-tertiary typo-caption1">Community</p>
-            <h2 className="font-bold text-text-primary typo-title2">
-              What developers are saying
-            </h2>
+            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           </div>
-          <PostDiscussionPanel post={post} origin={origin} />
+
+          <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center">
+            {!!readHref && (
+              <Button
+                className="w-full tablet:w-auto"
+                href={readHref}
+                onClick={() => onReadArticle()}
+                size={ButtonSize.Large}
+                tag="a"
+                target="_blank"
+                variant={ButtonVariant.Primary}
+              >
+                {readText}
+              </Button>
+            )}
+            <PostHeaderActions
+              buttonSize={ButtonSize.Large}
+              className="justify-center tablet:justify-start"
+              contextMenuId="post-discovery-actions"
+              hideSubscribeAction
+              inlineActions
+              onReadArticle={onReadArticle}
+              post={post}
+            />
+          </div>
         </div>
+
+        {isVideoType && post.videoId ? (
+          <YoutubeVideo
+            className="rounded-16 bg-background-subtle"
+            placeholderProps={{ post, onWatchVideo: onReadArticle }}
+            videoId={post.videoId}
+          />
+        ) : (
+          <a
+            className="block overflow-hidden rounded-16 bg-background-subtle"
+            href={readHref}
+            onClick={handleImageClick}
+            rel="noopener"
+            target="_blank"
+            title="Go to post"
+          >
+            <LazyImage
+              eager
+              fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+              fetchPriority="high"
+              imgAlt="Post cover image"
+              imgSrc={post.image}
+              ratio="56%"
+            />
+          </a>
+        )}
+
+        <section className="flex min-w-0 flex-col gap-3">
+          <p className="text-text-tertiary typo-caption1">TL;DR</p>
+          {post.summary ? (
+            <p
+              className="select-text break-words text-text-secondary typo-markdown"
+              data-testid="tldr-container"
+            >
+              {post.summary}
+            </p>
+          ) : (
+            <p className="text-text-secondary typo-callout">
+              Read the original post, then use the developer discussion and feed
+              below to keep exploring related stories.
+            </p>
+          )}
+        </section>
+
+        {leftVariant === 'rich' && keyPoints.length > 0 && (
+          <section className="flex min-w-0 flex-col gap-3">
+            <p className="text-text-tertiary typo-caption1">Key takeaways</p>
+            <ul className="flex flex-col gap-2">
+              {keyPoints.map((point) => (
+                <li
+                  key={point}
+                  className="flex gap-2 text-text-secondary typo-callout"
+                >
+                  <span
+                    aria-hidden
+                    className="mt-2 size-1.5 shrink-0 rounded-full bg-accent-cabbage-default"
+                  />
+                  <span className="min-w-0">{point}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <PostTagList post={post} />
       </div>
+
+      <aside className="flex min-h-0 min-w-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6 laptop:sticky laptop:top-16 laptop:max-h-[calc(100vh-8rem)] laptop:border-l laptop:border-t-0 laptop:p-4">
+        <PostDiscussionPanel post={post} origin={origin} />
+      </aside>
     </article>
   );
 };

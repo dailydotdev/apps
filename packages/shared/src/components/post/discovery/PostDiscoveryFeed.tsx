@@ -99,8 +99,8 @@ export const PostDiscoveryFeed = ({
               variables={{ tags }}
               disableAds
               allowFetchMore={false}
-              pageSize={12}
-              isHorizontal
+              pageSize={9}
+              disableListFrame
             />
           </FeedWithColumns>
         </section>
@@ -112,12 +112,15 @@ export const PostDiscoveryFeed = ({
           title="Discover more"
           description="A fresh stream of developer stories, discussions, and tools."
         />
-        <Feed
-          feedName={SharedFeedPage.Popular}
-          feedQueryKey={['post-discovery-more', post.id]}
-          query={mainQuery}
-          variables={{}}
-        />
+        <FeedWithColumns columns={3}>
+          <Feed
+            feedName={SharedFeedPage.Popular}
+            feedQueryKey={['post-discovery-more', post.id]}
+            query={mainQuery}
+            variables={{}}
+            disableListFrame
+          />
+        </FeedWithColumns>
       </section>
     </div>
   );

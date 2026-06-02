@@ -10,10 +10,7 @@ import { ArrowIcon } from '../../icons';
 import { BuildYourFeedWidget } from '../BuildYourFeedWidget';
 import type { FocusCardLeftVariant } from './PostFocusCard';
 import { PostFocusCard } from './PostFocusCard';
-import {
-  POST_DISCOVERY_FEED_ANCHOR,
-  PostDiscoveryFeed,
-} from './PostDiscoveryFeed';
+import { PostDiscoveryFeed } from './PostDiscoveryFeed';
 
 interface PostDiscoveryLayoutProps {
   post: Post;
@@ -77,9 +74,8 @@ export const PostDiscoveryLayout = ({
   return (
     <div className="flex w-full flex-col bg-background-default">
       <div className="mx-auto flex w-full max-w-[75rem] flex-col gap-10 px-4 py-6 tablet:px-6 laptop:px-8 laptop:py-8">
-        <div className="mx-auto w-full max-w-[64rem]">
+        <div className="mx-auto w-full max-w-[75rem]">
           <PostFocusCard
-            discoveryAnchorId={POST_DISCOVERY_FEED_ANCHOR}
             leftVariant={leftVariant}
             origin={origin}
             post={post}
