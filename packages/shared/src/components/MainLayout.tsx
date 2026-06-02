@@ -234,8 +234,15 @@ function MainLayoutComponent({
     });
   }, [shouldShowLogin, showLogin]);
 
+  // Pages that render the app chrome (sidebar layout) wait for boot before
+  // painting — the same `isPageReady` gate the feeds already use. The v1/v2
+  // chrome differs structurally and the variant only resolves after boot, so
+  // rendering early makes v2 users paint the v1 layout and then snap. Holding
+  // until boot lets the resolved layout paint once. The gate is
+  // breakpoint-independent (false on both server and first client render until
+  // ready), so it stays free of hydration mismatches.
   if (
-    (!isPageReady && isPageApplicableForOnboarding) ||
+    (!isPageReady && (isPageApplicableForOnboarding || showSidebar)) ||
     shouldRedirectOnboarding
   ) {
     return null;
