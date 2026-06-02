@@ -89,10 +89,10 @@ export const PostFocusCard = ({
 
   return (
     <article
-      className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default laptop:flex-row"
+      className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default laptop:flex-row laptop:justify-center"
       data-testid="post-focus-card"
     >
-      <PostContainer className="relative laptop:border-r-0">
+      <PostContainer className="relative laptop:shrink laptop:grow-0 laptop:basis-[768px] laptop:border-r-0">
         <div className="flex min-w-0 flex-col gap-6 py-6 laptop:py-8">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {post.source && (
@@ -214,7 +214,7 @@ export const PostFocusCard = ({
         </div>
       </PostContainer>
 
-      <aside className="flex min-h-0 min-w-0 shrink-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle laptop:sticky laptop:top-16 laptop:h-[calc(100vh-4rem)] laptop:max-h-[calc(100vh-4rem)] laptop:w-[26rem] laptop:border-t-0 laptop:bg-background-default">
+      <aside className="flex min-h-0 min-w-0 shrink-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle laptop:sticky laptop:top-16 laptop:h-[calc(100vh-4rem)] laptop:max-h-[calc(100vh-4rem)] laptop:w-[340px] laptop:border-t-0 laptop:bg-background-default">
         <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2 laptop:h-full">
           <PostDiscussionPanel
             className="h-full p-4"
