@@ -1,0 +1,106 @@
+/* Frozen snapshot of the PREVIOUS Checkbox design, used only by the
+ * /dev/checkbox-radio review page for the before/after comparison.
+ * Do not use in production code. */
+
+.checkmark {
+  &:before {
+    content: '';
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    right: -9999px;
+    bottom: -9999px;
+    width: 2rem;
+    height: 2rem;
+    margin: auto;
+    border-radius: 0.625rem;
+    opacity: 0;
+    transition: background-color 0.1s linear, opacity 0.1s linear;
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+.label {
+  &:global(.disabled), &:global(.checked.disabled) {
+    color: var(--theme-text-disabled);
+  }
+
+  &:global(.checked) {
+    color: var(--theme-text-primary);
+
+    & .checkmark {
+      & :global(.icon) {
+        opacity: 1;
+      }
+    }
+  }
+
+  &:hover:not(:global(.disabled)),
+  &:focus-within:not(:global(.disabled)) {
+    & .checkmark {
+      border-color: var(--theme-text-primary);
+
+      &:before {
+        background: var(--theme-surface-hover);
+        opacity: 1;
+      }
+    }
+  }
+
+  &:active {
+    & .checkmark:before {
+      background: var(--theme-active);
+    }
+  }
+
+  &:global(.checked) {
+    & .checkmark {
+      background: theme('colors.raw.cabbage.40');
+      border-color: transparent;
+    }
+
+    &:global(.disabled) {
+      & .checkmark {
+        background: var(--theme-text-disabled);
+      }
+    }
+
+    &:hover:not(:global(.disabled)),
+    &:focus-within:not(:global(.disabled)) {
+      & .checkmark {
+        background: theme('colors.raw.cabbage.20');
+
+        &:before {
+          background: theme('colors.overlay.quaternary.cabbage');
+        }
+      }
+    }
+
+    &:active {
+      & .checkmark:before {
+        background: theme('colors.overlay.tertiary.cabbage');
+      }
+    }
+  }
+}
+
+:global(.light) .label:global(.checked) .checkmark {
+  background: theme('colors.raw.cabbage.60');
+}
+
+:global(.light) .label:global(.checked):hover .checkmark,
+:global(.light) .label:global(.checked):focus-within .checkmark {
+  background: theme('colors.raw.cabbage.80');
+}
+
+@media (prefers-color-scheme: light) {
+  :global(.auto) .label:global(.checked) .checkmark {
+    background: theme('colors.raw.cabbage.60');
+  }
+
+  :global(.auto) .label:global(.checked):hover .checkmark,
+  :global(.auto) .label:global(.checked):focus-within .checkmark {
+    background: theme('colors.raw.cabbage.80');
+  }
+}
