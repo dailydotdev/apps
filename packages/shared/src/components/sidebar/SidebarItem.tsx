@@ -8,6 +8,7 @@ import { ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
 import { SimpleTooltip } from '../tooltips';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
@@ -23,6 +24,7 @@ export const SidebarItem = ({
   shouldShowLabel,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
+  const { isV2 } = useLayoutVariant();
   const isActive = item.active || item.path === activePage;
   const isCollapsed = !shouldShowLabel;
 
@@ -33,7 +35,7 @@ export const SidebarItem = ({
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
-        'mx-1 rounded-10',
+        isV2 ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
         item.itemClassName,
         isCollapsed && 'justify-center',
       )}

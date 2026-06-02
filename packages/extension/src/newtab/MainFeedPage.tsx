@@ -19,6 +19,8 @@ import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
@@ -31,6 +33,8 @@ import { isFocusActiveAt } from '@dailydotdev/shared/src/features/customizeNewTa
 import { normaliseNewTabMode } from '@dailydotdev/shared/src/features/customizeNewTab/lib/newTabMode';
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
+import { ExtensionTopBanners } from './ExtensionTopBanners';
+import { ExtensionSignInStrip } from './ExtensionSignInStrip';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 import { getDefaultLink } from './dnd';
@@ -110,6 +114,7 @@ const MainFeedPageInner = ({
   );
   const [searchQuery, setSearchQuery] = useState<string>();
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { isV2 } = useLayoutVariant();
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -170,7 +175,11 @@ const MainFeedPageInner = ({
     setSearchQuery(undefined);
   };
 
-  const { optOutCompanion } = useSettingsContext();
+  const { optOutCompanion, showTopSites } = useSettingsContext();
+  // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
+  // shortcut row and the marketing CTA card are mutually exclusive.
+  const { shortcutLinks } = useShortcutLinks();
+  const hasShortcutsToShow = showTopSites && (shortcutLinks?.length ?? 0) > 0;
   // Push the entire main column left by the panel width so the user
   // sees their feed shrink alongside the sidebar sliding in. This is a
   // visual signal that customizer changes affect THEIR feed, not just
@@ -197,6 +206,17 @@ const MainFeedPageInner = ({
           customBanner={isDndActive && <DndBanner />}
           additionalButtons={
             !loadingUser && !optOutCompanion && <CompanionPopupButton />
+          }
+          topBanner={
+            <>
+              <ExtensionSignInStrip />
+              {isV2 && hasShortcutsToShow && (
+                <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
+                  <ShortcutLinks shouldUseListFeedLayout={false} />
+                </div>
+              )}
+              <ExtensionTopBanners />
+            </>
           }
         >
           <FeedLayoutProvider>
@@ -225,11 +245,13 @@ const MainFeedPageInner = ({
                 />
               }
               shortcuts={
-                shortcuts ?? (
-                  <ShortcutLinks
-                    shouldUseListFeedLayout={shouldUseListFeedLayout}
-                  />
-                )
+                isV2
+                  ? undefined
+                  : shortcuts ?? (
+                      <ShortcutLinks
+                        shouldUseListFeedLayout={shouldUseListFeedLayout}
+                      />
+                    )
               }
             />
           </FeedLayoutProvider>

@@ -19,6 +19,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
 import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -26,6 +27,11 @@ interface ReadingStreakButtonProps {
   compact?: boolean;
   iconPosition?: ButtonIconPosition;
   className?: string;
+  // Portal the popup to <body> so it escapes parents with `overflow:hidden`
+  // (e.g. the sidebar panel). Pair with `zIndex` so it stacks above the
+  // sidebar surface.
+  appendTooltipToBody?: boolean;
+  zIndex?: number;
 }
 
 interface CustomStreaksTooltipProps {
@@ -34,6 +40,8 @@ interface CustomStreaksTooltipProps {
   shouldShowStreaks?: boolean;
   setShouldShowStreaks?: (value: boolean) => void;
   placement: TooltipPosition;
+  appendTooltipToBody?: boolean;
+  zIndex?: number;
 }
 
 function CustomStreaksTooltip({
@@ -42,6 +50,8 @@ function CustomStreaksTooltip({
   shouldShowStreaks,
   setShouldShowStreaks,
   placement,
+  appendTooltipToBody,
+  zIndex,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
@@ -50,6 +60,8 @@ function CustomStreaksTooltip({
       placement={placement}
       visible={shouldShowStreaks}
       forceLoad={!isTesting}
+      appendTo={appendTooltipToBody ? () => document.body : undefined}
+      zIndex={zIndex}
       container={{
         paddingClassName: 'p-0',
         bgClassName: 'bg-accent-pepper-subtlest',
@@ -70,11 +82,14 @@ export function ReadingStreakButton({
   compact,
   iconPosition,
   className,
+  appendTooltipToBody,
+  zIndex,
 }: ReadingStreakButtonProps): ReactElement {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { isV2 } = useLayoutVariant();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
@@ -112,6 +127,8 @@ export function ReadingStreakButton({
             shouldShowStreaks={shouldShowStreaks}
             setShouldShowStreaks={setShouldShowStreaks}
             placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'}
+            appendTooltipToBody={appendTooltipToBody}
+            zIndex={zIndex}
           >
             {children}
           </Tooltip>
@@ -153,7 +170,7 @@ export function ReadingStreakButton({
               : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames('gap-1', className)}
+          className={classnames(isV2 ? 'gap-0.5' : 'gap-1', className)}
           size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}

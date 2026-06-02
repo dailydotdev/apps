@@ -21,10 +21,7 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
-import {
-  featureInlineLogin,
-  featureOnboardingPermissionPrimer,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -110,8 +107,8 @@ const onboardingExcludedPaths = [
   '/jobs',
   '/settings',
 ];
-// While inline_login is active for an auth intent, only force the rest of
-// onboarding when the user lands on the main feed.
+// While an auth intent is active, only force the rest of onboarding when the
+// user lands on the main feed.
 const mainFeedPathnames = new Set([
   '/',
   '/popular',
@@ -184,10 +181,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     closeLogin,
     loginState,
   } = useAuthContext();
-  const { value: inlineLoginEnabled } = useConditionalFeature({
-    feature: featureInlineLogin,
-    shouldEvaluate: shouldShowLogin,
-  });
   // Users arriving from the extension install link land on `/?ref=install`.
   // Only evaluate the permission primer experiment for them while onboarding
   // is still pending, so we can route them to the activation step.
@@ -282,9 +275,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       return;
     }
 
-    // Inline login experiment: while the auth intent is active, defer the rest
-    // of onboarding until they navigate to the main feed.
-    if (inlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
+    // While the auth intent is active, defer the rest of onboarding until they
+    // navigate to the main feed.
+    if (shouldShowLogin && !mainFeedPathnames.has(router.pathname)) {
       return;
     }
 
@@ -300,7 +293,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     router,
     router.pathname,
     isOnboardingComplete,
-    inlineLoginEnabled,
+    shouldShowLogin,
     isSwipeOnboardingPreviewForced,
     isComingFromInstall,
     isPermissionPrimerEnabled,
@@ -456,7 +449,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
         </DndContextProvider>
-        {inlineLoginEnabled && shouldShowLogin && (
+        {shouldShowLogin && (
           <AuthModal
             isOpen={shouldShowLogin}
             onRequestClose={closeLogin}

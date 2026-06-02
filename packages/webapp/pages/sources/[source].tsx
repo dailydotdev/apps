@@ -65,6 +65,8 @@ import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuth
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -217,6 +219,8 @@ const SourcePage = ({
   topPosts = [],
 }: SourcePageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
   const { shouldShowAuthBanner } = useOnboardingActions();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
   const { user } = useContext(AuthContext);
@@ -259,124 +263,135 @@ const SourcePage = ({
   const jsonLd = getSourcePageJsonLd(source);
 
   return (
-    <FeedPageLayoutComponent className="overflow-x-hidden">
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLd }}
-        />
-      </Head>
-      <ArchiveBreadcrumbs
-        items={[{ label: 'Sources', href: '/sources' }, { label: source.name }]}
-        className={pageSectionClassName}
-      />
-      <PageInfoHeader className={pageSectionAutoWidthClassName}>
-        <div className="flex items-center font-bold">
-          <img
-            src={source.image}
-            alt={`${source.name} logo`}
-            className="size-10 rounded-full"
+    <>
+      {/* v2: hoist the page-header strip OUT of FeedPageLayoutComponent
+          so it spans the full floating-card width without being clamped
+          by the list-mode max-width. */}
+      {isV2Laptop && <PageHeader title={source.name} />}
+      <FeedPageLayoutComponent className="overflow-x-hidden">
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
-          <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
-        </div>
-        <div className="flex flex-row gap-3">
-          <SourceActions source={source} />
-        </div>
-        {source?.description && (
-          <p className="typo-body">{source?.description}</p>
+        </Head>
+        <ArchiveBreadcrumbs
+          items={[
+            { label: 'Sources', href: '/sources' },
+            { label: source.name },
+          ]}
+          className={pageSectionClassName}
+        />
+        <PageInfoHeader className={pageSectionAutoWidthClassName}>
+          <div className="flex items-center font-bold">
+            <img
+              src={source.image}
+              alt={`${source.name} logo`}
+              className="size-10 rounded-full"
+            />
+            <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
+          </div>
+          <div className="flex flex-row gap-3">
+            <SourceActions source={source} />
+          </div>
+          {source?.description && (
+            <p className="typo-body">{source?.description}</p>
+          )}
+          <SourceRelatedTags sourceId={source.id} initialTags={relatedTags} />
+        </PageInfoHeader>
+        <SimilarSources sourceId={source.id} />
+        {relatedTags.length > 0 && (
+          <div className="sr-only">
+            {relatedTags
+              .map((tag) => tag.name)
+              .filter((tag): tag is string => !!tag)
+              .map((tag) => (
+                <Link key={tag} href={`/tags/${tag}`} prefetch={false}>
+                  <a>Posts about {tag}</a>
+                </Link>
+              ))}
+          </div>
         )}
-        <SourceRelatedTags sourceId={source.id} initialTags={relatedTags} />
-      </PageInfoHeader>
-      <SimilarSources sourceId={source.id} />
-      {relatedTags.length > 0 && (
-        <div className="sr-only">
-          {relatedTags
-            .map((tag) => tag.name)
-            .filter((tag): tag is string => !!tag)
-            .map((tag) => (
-              <Link key={tag} href={`/tags/${tag}`} prefetch={false}>
-                <a>Posts about {tag}</a>
+        {topPosts.length > 0 && (
+          <div className="sr-only">
+            {topPosts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/posts/${post.slug || post.id}`}
+                prefetch={false}
+              >
+                <a>{post.title}</a>
               </Link>
             ))}
-        </div>
-      )}
-      {topPosts.length > 0 && (
-        <div className="sr-only">
-          {topPosts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/posts/${post.slug || post.id}`}
-              prefetch={false}
-            >
-              <a>{post.title}</a>
-            </Link>
-          ))}
-        </div>
-      )}
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.SourceMostUpvoted}
-          feedQueryKey={[
-            'sourceMostUpvoted',
-            user?.id ?? 'anonymous',
-            Object.values(mostUpvotedQueryVariables),
-          ]}
-          query={MOST_UPVOTED_FEED_QUERY}
-          variables={mostUpvotedQueryVariables}
-          title={{
-            copy: 'Most upvoted posts',
-            icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
-          }}
-          className={horizontalFeedClassName}
-          emptyScreen={<></>}
+          </div>
+        )}
+        <ActiveFeedNameContext.Provider
+          value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
+        >
+          <HorizontalFeed
+            feedName={OtherFeedPage.SourceMostUpvoted}
+            feedQueryKey={[
+              'sourceMostUpvoted',
+              user?.id ?? 'anonymous',
+              Object.values(mostUpvotedQueryVariables),
+            ]}
+            query={MOST_UPVOTED_FEED_QUERY}
+            variables={mostUpvotedQueryVariables}
+            title={{
+              copy: 'Most upvoted posts',
+              icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
+            }}
+            className={horizontalFeedClassName}
+            emptyScreen={<></>}
+          />
+        </ActiveFeedNameContext.Provider>
+        <ActiveFeedNameContext.Provider
+          value={{ feedName: OtherFeedPage.SourceBestDiscussed }}
+        >
+          <HorizontalFeed
+            feedName={OtherFeedPage.SourceBestDiscussed}
+            feedQueryKey={[
+              'sourceBestDiscussed',
+              user?.id ?? 'anonymous',
+              Object.values(bestDiscussedQueryVariables),
+            ]}
+            query={MOST_DISCUSSED_FEED_QUERY}
+            variables={bestDiscussedQueryVariables}
+            title={{
+              copy: 'Best discussed posts',
+              icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
+            }}
+            className={horizontalFeedClassName}
+            emptyScreen={<></>}
+          />
+        </ActiveFeedNameContext.Provider>
+        <ArchiveEntryCard
+          scopeType={ArchiveScopeType.Source}
+          scopeId={source.id ?? ''}
+          scopeName={source.name}
+          className={`${pageSectionClassName} mb-6`}
         />
-      </ActiveFeedNameContext.Provider>
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.SourceBestDiscussed }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.SourceBestDiscussed}
+        <div
+          className={`${pageSectionClassName} mb-5 flex w-auto items-center`}
+        >
+          <p className="flex items-center font-bold typo-body">
+            All posts from {source.name}
+          </p>
+        </div>
+        <Feed
+          feedName={OtherFeedPage.Squad}
           feedQueryKey={[
-            'sourceBestDiscussed',
+            'sourceFeed',
             user?.id ?? 'anonymous',
-            Object.values(bestDiscussedQueryVariables),
+            Object.values(queryVariables),
           ]}
-          query={MOST_DISCUSSED_FEED_QUERY}
-          variables={bestDiscussedQueryVariables}
-          title={{
-            copy: 'Best discussed posts',
-            icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
-          }}
-          className={horizontalFeedClassName}
-          emptyScreen={<></>}
+          query={SOURCE_FEED_QUERY}
+          variables={queryVariables}
+          className={pageFeedClassName}
         />
-      </ActiveFeedNameContext.Provider>
-      <ArchiveEntryCard
-        scopeType={ArchiveScopeType.Source}
-        scopeId={source.id ?? ''}
-        scopeName={source.name}
-        className={`${pageSectionClassName} mb-6`}
-      />
-      <div className={`${pageSectionClassName} mb-5 flex w-auto items-center`}>
-        <p className="flex items-center font-bold typo-body">
-          All posts from {source.name}
-        </p>
-      </div>
-      <Feed
-        feedName={OtherFeedPage.Squad}
-        feedQueryKey={[
-          'sourceFeed',
-          user?.id ?? 'anonymous',
-          Object.values(queryVariables),
-        ]}
-        query={SOURCE_FEED_QUERY}
-        variables={queryVariables}
-        className={pageFeedClassName}
-      />
-      {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
-    </FeedPageLayoutComponent>
+        {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
+      </FeedPageLayoutComponent>
+    </>
   );
 };
 

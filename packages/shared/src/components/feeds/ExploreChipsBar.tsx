@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
@@ -17,6 +18,10 @@ interface ExploreChipsBarProps {
   categories: ExploreCategory[];
   isPending?: boolean;
   className?: string;
+  // v2 page-header strip: render the categories as directory-style tabs
+  // (text + active Float background + bottom-border underline) so the chips
+  // header matches the canonical tabbed page header. Off → legacy pills.
+  compact?: boolean;
 }
 
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
@@ -27,6 +32,7 @@ export function ExploreChipsBar({
   categories,
   isPending,
   className,
+  compact,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -77,25 +83,65 @@ export function ExploreChipsBar({
         ref={scrollRef}
         className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
       >
-        <NewStripCta className="h-10 rounded-12 px-3" />
+        <NewStripCta
+          className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
+        />
         {allCategories.map((category) => {
           const isActive = category.id === activeId;
+          const onClick = () => {
+            if (!category.tag) {
+              return;
+            }
+
+            logEvent({
+              event_name: LogEvent.ClickFeedTagChip,
+              target_id: category.tag,
+            });
+          };
+
+          // v2 strip: reuse the exact Squads directory tab (Button
+          // Float/Tertiary + bottom-border underline) so the chips header
+          // matches the canonical tabbed page header. The `py-3` wrapper makes
+          // the tab the tallest item so its underline lands on the strip's
+          // bottom border. We skip the directory's `capitalize` to preserve
+          // tag casing.
+          if (compact) {
+            return (
+              <span
+                key={category.id}
+                data-active={isActive ? 'true' : undefined}
+                className={classNames(
+                  'relative flex shrink-0 items-center py-3',
+                  isActive &&
+                    'after:absolute after:inset-x-0 after:bottom-0 after:mx-auto after:w-1/2 after:border-b-2 after:border-text-primary',
+                )}
+              >
+                <Link href={category.path} legacyBehavior>
+                  <Button
+                    tag="a"
+                    href={category.path}
+                    aria-current={isActive ? 'page' : undefined}
+                    onClick={onClick}
+                    size={ButtonSize.Small}
+                    pressed={isActive}
+                    variant={
+                      isActive ? ButtonVariant.Float : ButtonVariant.Tertiary
+                    }
+                  >
+                    {category.label}
+                  </Button>
+                </Link>
+              </span>
+            );
+          }
+
           return (
             <Link key={category.id} href={category.path}>
               <a
                 href={category.path}
                 aria-current={isActive ? 'page' : undefined}
                 data-active={isActive ? 'true' : undefined}
-                onClick={() => {
-                  if (!category.tag) {
-                    return;
-                  }
-
-                  logEvent({
-                    event_name: LogEvent.ClickFeedTagChip,
-                    target_id: category.tag,
-                  });
-                }}
+                onClick={onClick}
                 className={classNames(
                   'inline-flex h-10 shrink-0 items-center rounded-12 border px-3 font-bold transition-colors typo-callout',
                   isActive
@@ -115,7 +161,11 @@ export function ExploreChipsBar({
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               aria-hidden
-              className={classNames('h-10 shrink-0 rounded-12', width)}
+              className={classNames(
+                'shrink-0 rounded-12',
+                compact ? 'h-8' : 'h-10',
+                width,
+              )}
             />
           ))}
         <Link href={`${webappUrl}feeds/new`}>
