@@ -88,7 +88,7 @@ export const DiscussionShareRow = ({
             onClick={onCopy}
             size={ButtonSize.Small}
             type="button"
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
         <Tooltip content="Share on X">
@@ -98,7 +98,7 @@ export const DiscussionShareRow = ({
             onClick={() => onShare(ShareProvider.Twitter)}
             size={ButtonSize.Small}
             type="button"
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
         <Tooltip content="Share on WhatsApp">
@@ -108,7 +108,7 @@ export const DiscussionShareRow = ({
             onClick={() => onShare(ShareProvider.WhatsApp)}
             size={ButtonSize.Small}
             type="button"
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
         <Tooltip content="More sharing options">
@@ -118,7 +118,7 @@ export const DiscussionShareRow = ({
             onClick={onMore}
             size={ButtonSize.Small}
             type="button"
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
       </div>
