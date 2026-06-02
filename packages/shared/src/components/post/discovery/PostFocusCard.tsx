@@ -121,10 +121,14 @@ export const PostFocusCard = ({
             >
               {title}
             </h1>
-            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           </div>
 
-          <DiscussionMetaBar post={post} />
+          <DiscussionMetaBar
+            post={post}
+            rightSlot={
+              post.clickbaitTitleDetected && <PostClickbaitShield post={post} />
+            }
+          />
           <div className="border-b border-border-subtlest-tertiary pb-2 [&>div>div:first-child]:!rounded-none [&>div>div:first-child]:!border-0">
             <PostActions
               post={post}

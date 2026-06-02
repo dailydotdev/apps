@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -18,6 +18,8 @@ import { webappUrl } from '../../../lib/constants';
 interface DiscussionMetaBarProps {
   post: Post;
   className?: string;
+  /** Optional content rendered on the right edge of the strip (e.g. clickbait shield). */
+  rightSlot?: ReactNode;
 }
 
 /**
@@ -28,6 +30,7 @@ interface DiscussionMetaBarProps {
 export const DiscussionMetaBar = ({
   post,
   className,
+  rightSlot,
 }: DiscussionMetaBarProps): ReactElement => {
   const { user } = useAuthContext();
   const { onShowUpvoted } = useUpvoteQuery();
@@ -93,6 +96,11 @@ export const DiscussionMetaBar = ({
           className="!text-text-tertiary"
         />
       </div>
+      {rightSlot && (
+        <div className="flex shrink-0 items-center [&_.mr-2]:!mr-0 [&_.mt-4]:!mt-0 [&_.mt-6]:!mt-0">
+          {rightSlot}
+        </div>
+      )}
     </div>
   );
 };
