@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
@@ -39,6 +39,7 @@ import { moderationRequired } from '../../components/squads/utils';
 import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
+import { useLogPostCreated } from '../post/useLogPostCreated';
 
 const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
   !!(error as ApiErrorResult)?.response?.errors;
@@ -108,9 +109,11 @@ export const usePostToSquad = ({
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
+  const logPostCreated = useLogPostCreated();
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { completeAction } = useActions();
+  const moderationCreationRef = useRef<PostType | null>(null);
   const [preview, setPreview] = useState<ExternalLinkPreview>(
     initialPreview ?? {},
   );
@@ -151,7 +154,15 @@ export const usePostToSquad = ({
     mutationFn: createPost,
     onMutate,
     onError: (err) => handleMutationError(err),
-    onSuccess: handlePostSuccess,
+    onSuccess: (data) => {
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
+      handlePostSuccess(data);
+    },
   });
   const {
     mutateAsync: editPostMutation,
@@ -185,6 +196,12 @@ export const usePostToSquad = ({
           },
         });
       }
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
       handlePostSuccess(data);
     },
     onError: (err) => handleMutationError(err),
@@ -213,12 +230,24 @@ export const usePostToSquad = ({
     isPending: isPostModerationLoading,
   } = useSourcePostModeration({
     onSuccess: (data) => {
+      if (moderationCreationRef.current) {
+        logPostCreated({
+          postId: data.id,
+          postType: moderationCreationRef.current,
+          sourceCount: 1,
+          moderationCount: 1,
+          targetType: 'moderation_item',
+        });
+      }
       completeAction(ActionType.SquadFirstPost);
       onSourcePostModerationSuccess?.(data);
       handleComplete();
     },
     onError: () => {
       displayToast(DEFAULT_ERROR);
+    },
+    onSettled: () => {
+      moderationCreationRef.current = null;
     },
   });
 
@@ -230,6 +259,7 @@ export const usePostToSquad = ({
 
       if (moderationRequired(squad)) {
         const squadId = getSquadIdOrThrow(squad);
+        moderationCreationRef.current = null;
 
         await onCreatePostModeration({
           ...editedPost,
@@ -274,6 +304,12 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: addPostToSquad(requestMethod),
     onSuccess: (data) => {
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
       onSharedPostSuccessfully();
       handlePostSuccess(data);
     },
@@ -301,6 +337,10 @@ export const usePostToSquad = ({
     mutationFn: (params: SubmitExternalLink) =>
       submitExternalLink(params, requestMethod),
     onSuccess: (_, { url }) => {
+      logPostCreated({
+        postType: PostType.Share,
+        sourceCount: 1,
+      });
       onSharedPostSuccessfully();
       if (!url) {
         throw new Error('Missing external link url in usePostToSquad');
@@ -346,6 +386,7 @@ export const usePostToSquad = ({
 
       if (preview.id) {
         if (moderationRequired(squad)) {
+          moderationCreationRef.current = PostType.Share;
           return onCreatePostModeration({
             type: PostType.Share,
             sourceId: squadId,
@@ -370,6 +411,7 @@ export const usePostToSquad = ({
       }
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = null;
         return onCreatePostModeration({
           externalLink: url,
           title,
@@ -409,6 +451,7 @@ export const usePostToSquad = ({
       const squadId = getSquadIdOrThrow(squad);
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Share;
         return onCreatePostModeration({
           postId,
           type: PostType.Share,
@@ -432,6 +475,7 @@ export const usePostToSquad = ({
       const squadId = getSquadIdOrThrow(squad);
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Freeform;
         await onCreatePostModeration({
           ...post,
           sourceId: squadId,
@@ -457,6 +501,7 @@ export const usePostToSquad = ({
       }));
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Poll;
         await onCreatePostModeration({
           ...post,
           pollOptions: orderedOpts,
