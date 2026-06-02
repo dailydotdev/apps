@@ -11,12 +11,7 @@ import { PostComments } from '../PostComments';
 import type { NewCommentRef } from '../NewComment';
 import { NewComment } from '../NewComment';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { AnalyticsIcon } from '../../icons';
 import { SortCommentsBy } from '../../../graphql/comments';
@@ -111,7 +106,7 @@ export const PostDiscussionPanel = ({
     >
       <div className="flex shrink-0 flex-col gap-3">
         {actionBar && (
-          <div className="border-b border-border-subtlest-tertiary pb-3">
+          <div className="border-b border-border-subtlest-tertiary pb-2">
             {actionBar}
           </div>
         )}
@@ -141,39 +136,29 @@ export const PostDiscussionPanel = ({
                 </ClickableText>
               </Link>
             )}
+            <Button
+              type="button"
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Tertiary}
+              icon={
+                <TimeSortIcon
+                  secondary
+                  className={isNewestFirst ? undefined : 'rotate-180'}
+                />
+              }
+              onClick={() =>
+                setSortBy(
+                  isNewestFirst
+                    ? SortCommentsBy.OldestFirst
+                    : SortCommentsBy.NewestFirst,
+                )
+              }
+              aria-label={sortLabel}
+              title={sortLabel}
+              className="!text-text-tertiary"
+            />
           </div>
-          <Button
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Tertiary}
-            iconPosition={ButtonIconPosition.Right}
-            icon={
-              <TimeSortIcon
-                secondary
-                className={isNewestFirst ? undefined : 'rotate-180'}
-              />
-            }
-            onClick={() =>
-              setSortBy(
-                isNewestFirst
-                  ? SortCommentsBy.OldestFirst
-                  : SortCommentsBy.NewestFirst,
-              )
-            }
-            aria-label={sortLabel}
-            className="!text-text-tertiary"
-          >
-            {isNewestFirst ? 'Newest first' : 'Oldest first'}
-          </Button>
         </div>
-        <NewComment
-          post={post}
-          ref={commentRef as LegacyRef<NewCommentRef>}
-          shouldHandleCommentQuery
-          onComposerOpenChange={setIsComposerOpen}
-          size={ProfileImageSize.Medium}
-          CommentInputOrModal={CommentInputOrModal}
-        />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
         <PostComments
@@ -184,6 +169,16 @@ export const PostDiscussionPanel = ({
           onShare={(comment) => openShareComment(comment, post)}
           onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
           modalParentSelector={resolveModalParent}
+        />
+      </div>
+      <div className="shrink-0">
+        <NewComment
+          post={post}
+          ref={commentRef as LegacyRef<NewCommentRef>}
+          shouldHandleCommentQuery
+          onComposerOpenChange={setIsComposerOpen}
+          size={ProfileImageSize.Medium}
+          CommentInputOrModal={CommentInputOrModal}
         />
       </div>
       <div className="shrink-0 border-t border-border-subtlest-tertiary pt-3">

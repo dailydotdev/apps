@@ -43,10 +43,12 @@ interface PostActionsProps {
   origin?: PostOrigin;
   onCopyLinkClick?: (post?: Post) => void;
   borderless?: boolean;
+  compact?: boolean;
 }
 
 export function PostActions({
   borderless = false,
+  compact = false,
   onCopyLinkClick,
   post,
   onComment,
@@ -62,6 +64,7 @@ export function PostActions({
     receivingUser: post.author as LoggedUser | undefined,
   });
   const { getUpvoteAnimation } = useBrandSponsorship();
+  const actionDensity = compact ? ('compact' as const) : undefined;
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
@@ -207,7 +210,7 @@ export function PostActions({
         <CardActionBar
           ref={actionsRef}
           layout="between"
-          className="overflow-hidden p-2"
+          className={classNames('overflow-hidden', compact ? 'p-1' : 'p-2')}
         >
           <Tooltip
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
@@ -216,6 +219,7 @@ export function PostActions({
               id="upvote-post-btn"
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
+              density={actionDensity}
               icon={<UpvoteButtonIcon brandAnimation={brandAnimation} />}
               iconPressed={
                 <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
@@ -231,6 +235,7 @@ export function PostActions({
               id="downvote-post-btn"
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
+              density={actionDensity}
               icon={<DownvoteIcon />}
               iconPressed={<DownvoteIcon secondary />}
               label="Downvote"
@@ -241,6 +246,7 @@ export function PostActions({
             id="comment-post-btn"
             pressed={post.commented}
             onClick={onComment}
+            density={actionDensity}
             icon={<CommentIcon />}
             iconPressed={<CommentIcon secondary />}
             label="Comment"
@@ -261,6 +267,7 @@ export function PostActions({
               <CardAction
                 id="award-post-btn"
                 pressed={isAwarded}
+                density={actionDensity}
                 onClick={() => {
                   if (!user) {
                     showLogin({ trigger: AuthTriggers.GiveAward });
@@ -298,12 +305,14 @@ export function PostActions({
             id="bookmark-post-btn"
             pressed={post.bookmarked}
             onClick={onToggleBookmark}
+            density={actionDensity}
             label="Bookmark"
             labelVisible
           />
           <CardAction
             id="copy-post-btn-post"
             onClick={() => onCopyLinkClick?.(post)}
+            density={actionDensity}
             icon={<LinkIcon />}
             label="Copy"
             labelVisible

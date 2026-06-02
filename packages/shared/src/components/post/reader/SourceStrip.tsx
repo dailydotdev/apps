@@ -20,11 +20,13 @@ import SourceEntityCard from '../../cards/entity/SourceEntityCard';
 type SourceStripProps = {
   source: SourceTooltip;
   className?: string;
+  compact?: boolean;
 };
 
 export function SourceStrip({
   source,
   className,
+  compact = false,
 }: SourceStripProps): ReactElement | null {
   const sourceId = source?.id ?? '';
   const sourceName = source?.name ?? '';
@@ -43,14 +45,25 @@ export function SourceStrip({
   const sourceHandle = source.handle ? `@${source.handle}` : null;
 
   return (
-    <div className={classNames('flex min-w-0 items-center gap-2', className)}>
+    <div
+      className={classNames(
+        'flex min-w-0 items-center',
+        compact ? 'gap-1.5' : 'gap-2',
+        className,
+      )}
+    >
       <HoverCard
         appendTo={globalThis?.document?.body}
         side="top"
         align="start"
         sideOffset={10}
         trigger={
-          <div className="group flex min-w-0 flex-1 items-center gap-3 rounded-10 px-1 py-0.5">
+          <div
+            className={classNames(
+              'group flex min-w-0 flex-1 items-center rounded-10',
+              compact ? 'gap-2 px-0 py-0' : 'gap-3 px-1 py-0.5',
+            )}
+          >
             <Link passHref href={source.permalink} prefetch={false}>
               <a
                 className="shrink-0"
@@ -60,7 +73,10 @@ export function SourceStrip({
                 <img
                   src={source.image}
                   alt=""
-                  className="size-8 rounded-full"
+                  className={classNames(
+                    'rounded-full',
+                    compact ? 'size-7' : 'size-8',
+                  )}
                   loading="lazy"
                   aria-hidden
                 />
@@ -70,7 +86,9 @@ export function SourceStrip({
               <Link passHref href={source.permalink} prefetch={false}>
                 <Typography
                   tag={TypographyTag.Link}
-                  type={TypographyType.Subhead}
+                  type={
+                    compact ? TypographyType.Footnote : TypographyType.Subhead
+                  }
                   color={TypographyColor.Primary}
                   className="truncate group-hover:underline group-focus-visible:underline"
                   title={source.name}
@@ -82,7 +100,9 @@ export function SourceStrip({
               {sourceHandle && (
                 <Typography
                   tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
+                  type={
+                    compact ? TypographyType.Caption2 : TypographyType.Caption1
+                  }
                   color={TypographyColor.Tertiary}
                   className="truncate"
                 >
@@ -103,7 +123,7 @@ export function SourceStrip({
           variant={ButtonVariant.Secondary}
           status={contentPreference?.status}
           showSubscribe={false}
-          buttonClassName="!h-8"
+          buttonClassName={compact ? '!h-7 !px-2' : '!h-8'}
         />
       )}
     </div>

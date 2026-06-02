@@ -3,6 +3,7 @@ import React, { useContext, useMemo } from 'react';
 import type { Post } from '../../../graphql/posts';
 import Feed from '../../Feed';
 import SettingsContext from '../../../contexts/SettingsContext';
+import { FeedLayoutProvider } from '../../../contexts/FeedContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ActiveFeedNameContext } from '../../../contexts';
 import {
@@ -62,7 +63,7 @@ const DiscoveryFeedGridScope = ({
   return (
     <ActiveFeedNameContext.Provider value={{ feedName }}>
       <SettingsContext.Provider value={settingsContextValue}>
-        {children}
+        <FeedLayoutProvider>{children}</FeedLayoutProvider>
       </SettingsContext.Provider>
     </ActiveFeedNameContext.Provider>
   );

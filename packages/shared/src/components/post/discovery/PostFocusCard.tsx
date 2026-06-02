@@ -94,16 +94,17 @@ export const PostFocusCard = ({
     >
       <PostContainer className="relative laptop:border-r-0">
         <div className="flex min-w-0 flex-col gap-6 py-6 laptop:py-8">
-          <div className="flex min-w-0 items-start gap-3">
+          <div className="flex min-h-8 min-w-0 items-center gap-2">
             {post.source && (
               <SourceStrip
+                compact
                 className="min-w-0 flex-1"
                 source={post.source as SourceTooltip}
               />
             )}
             <PostHeaderActions
               buttonSize={ButtonSize.Small}
-              className="ml-auto shrink-0"
+              className="ml-auto h-8 shrink-0 items-center"
               contextMenuId="post-discovery-header-actions"
               hideSubscribeAction
               inlineActions
@@ -119,7 +120,8 @@ export const PostFocusCard = ({
             >
               {title}
             </h1>
-            {post.summary && (
+            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
+            {!isVideoType && post.summary && (
               <p
                 className="select-text break-words text-text-secondary typo-title3"
                 data-testid="tldr-container"
@@ -127,7 +129,6 @@ export const PostFocusCard = ({
                 {post.summary}
               </p>
             )}
-            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
             <PostTagList post={post} />
             <PostMetadata
               className="!typo-callout"
@@ -155,11 +156,20 @@ export const PostFocusCard = ({
           </div>
 
           {isVideoType ? (
-            <YoutubeVideo
-              className="shadow-1 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3"
-              placeholderProps={{ post, onWatchVideo: onReadArticle }}
-              videoId={post.videoId ?? ''}
-            />
+            <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
+              <YoutubeVideo
+                placeholderProps={{ post, onWatchVideo: onReadArticle }}
+                videoId={post.videoId ?? ''}
+              />
+              {post.summary && (
+                <p
+                  className="select-text break-words px-1 pb-1 text-text-secondary typo-title3"
+                  data-testid="tldr-container"
+                >
+                  {post.summary}
+                </p>
+              )}
+            </div>
           ) : (
             <a
               className="block overflow-hidden rounded-16 bg-background-subtle"
@@ -202,6 +212,7 @@ export const PostFocusCard = ({
             actionBar={
               <PostActions
                 borderless
+                compact
                 post={post}
                 postQueryKey={['post', post.id]}
                 onComment={() => focusCommentRef.current()}
