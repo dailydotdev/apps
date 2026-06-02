@@ -125,13 +125,15 @@ export const PostFocusCard = ({
           </div>
 
           <DiscussionMetaBar post={post} />
-          <PostActions
-            post={post}
-            postQueryKey={['post', post.id]}
-            onComment={() => focusCommentRef.current()}
-            onCopyLinkClick={onCopyPostLink}
-            origin={origin}
-          />
+          <div className="border-b border-border-subtlest-tertiary pb-2 [&>div>div:first-child]:!rounded-none [&>div>div:first-child]:!border-0">
+            <PostActions
+              post={post}
+              postQueryKey={['post', post.id]}
+              onComment={() => focusCommentRef.current()}
+              onCopyLinkClick={onCopyPostLink}
+              origin={origin}
+            />
+          </div>
 
           {!isVideoType && post.summary && (
             <p
