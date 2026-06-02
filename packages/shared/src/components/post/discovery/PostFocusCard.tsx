@@ -123,7 +123,7 @@ export const PostFocusCard = ({
 
           <div className="flex min-w-0 flex-col gap-3">
             <h1
-              className="break-words font-bold text-text-primary typo-large-title"
+              className="break-words py-2 font-bold text-text-primary typo-large-title"
               data-testid="post-modal-title"
             >
               {title}
