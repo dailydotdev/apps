@@ -95,47 +95,14 @@ export const PostFocusCard = ({
     >
       <PostContainer className="relative laptop:shrink laptop:grow-0 laptop:basis-[832px] laptop:border-r-0">
         <div className="flex min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px] laptop:py-6">
-          <div className="flex min-w-0 flex-col gap-3">
-            <h1
-              className="break-words font-bold text-text-primary typo-large-title"
-              data-testid="post-modal-title"
-            >
-              {title}
-            </h1>
-            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
-          </div>
-
-          <div className="flex min-h-8 min-w-0 items-center gap-3">
+          <div className="flex min-h-8 min-w-0 items-center gap-2">
             {post.source && (
               <SourceStrip
                 compact
-                className="min-w-0 shrink"
+                className="min-w-0 flex-1"
                 source={post.source as SourceTooltip}
               />
             )}
-            <PostMetadata
-              className="shrink-0 !typo-callout"
-              createdAt={post.createdAt}
-              domain={
-                !isVideoType &&
-                post.domain &&
-                post.domain.length > 0 && (
-                  <TruncateText>
-                    From{' '}
-                    <ArticleLink
-                      className="hover:underline"
-                      href={post.permalink}
-                      onClick={onReadArticle}
-                      title={post.domain}
-                    >
-                      {post.domain}
-                    </ArticleLink>
-                  </TruncateText>
-                )
-              }
-              isVideoType={isVideoType}
-              readTime={post.readTime}
-            />
             <PostHeaderActions
               buttonSize={ButtonSize.Small}
               className="ml-auto h-8 shrink-0 items-center"
@@ -145,6 +112,16 @@ export const PostFocusCard = ({
               onReadArticle={onReadArticle}
               post={post}
             />
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-3">
+            <h1
+              className="break-words font-bold text-text-primary typo-large-title"
+              data-testid="post-modal-title"
+            >
+              {title}
+            </h1>
+            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           </div>
 
           <DiscussionMetaBar post={post} />
@@ -199,6 +176,30 @@ export const PostFocusCard = ({
               />
             </a>
           )}
+
+          <PostMetadata
+            className="!typo-callout"
+            createdAt={post.createdAt}
+            domain={
+              !isVideoType &&
+              post.domain &&
+              post.domain.length > 0 && (
+                <TruncateText>
+                  From{' '}
+                  <ArticleLink
+                    className="hover:underline"
+                    href={post.permalink}
+                    onClick={onReadArticle}
+                    title={post.domain}
+                  >
+                    {post.domain}
+                  </ArticleLink>
+                </TruncateText>
+              )
+            }
+            isVideoType={isVideoType}
+            readTime={post.readTime}
+          />
 
           <PostTagList post={post} />
 
