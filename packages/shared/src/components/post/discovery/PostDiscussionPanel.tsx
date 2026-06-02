@@ -2,7 +2,6 @@ import dynamic from 'next/dynamic';
 import type { LegacyRef, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import type { Post } from '../../../graphql/posts';
 import { useShareComment } from '../../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
@@ -14,16 +13,8 @@ import type {
 } from '../NewComment';
 import { NewComment } from '../NewComment';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { TimeSortIcon } from '../../icons/Sort/Time';
-import { AnalyticsIcon, SendAirplaneIcon } from '../../icons';
+import { SendAirplaneIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { SortCommentsBy } from '../../../graphql/comments';
-import { ClickableText } from '../../buttons/ClickableText';
-import Link from '../../utilities/Link';
-import { largeNumberFormat } from '../../../lib';
-import { canViewPostAnalytics } from '../../../lib/user';
-import { webappUrl } from '../../../lib/constants';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
@@ -32,6 +23,7 @@ import {
 import { Image } from '../../image/Image';
 import { fallbackImages } from '../../../lib/config';
 import ShareBar from '../../ShareBar';
+import { DiscussionMetaBar } from './DiscussionMetaBar';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -44,6 +36,11 @@ export interface PostDiscussionPanelProps {
   post: Post;
   origin?: Origin;
   className?: string;
+  /**
+   * Renders the post stats + comment sort strip inside the panel. Disable it
+   * when a parent (e.g. the discovery focus card) surfaces the strip elsewhere.
+   */
+  showMetaBar?: boolean;
   /**
    * Lets a parent (e.g. a floating "comment" action) focus the composer.
    */
@@ -58,30 +55,24 @@ export interface PostDiscussionPanelProps {
 const noopFocus = (): void => {};
 
 /**
- * The discussion surface (counts, sort, composer, comments, share) shared by
- * the reader's EngagementRail and the post discovery focus card. Extracted so
- * both surfaces stay in sync instead of duplicating the comment stack.
+ * The discussion surface (comments, composer, share) shared by the reader's
+ * EngagementRail and the post discovery focus card. Extracted so both surfaces
+ * stay in sync instead of duplicating the comment stack.
  */
 export const PostDiscussionPanel = ({
   post,
   origin = Origin.ArticlePage,
   className,
+  showMetaBar = true,
   onRegisterFocusComment,
   modalParentSelector,
 }: PostDiscussionPanelProps): ReactElement => {
-  const { user } = useAuthContext();
-  const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
-    useSettingsContext();
+  const { sortCommentsBy: sortBy } = useSettingsContext();
   const commentRef = useRef<NewCommentRef | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(origin);
-  const upvotes = post.numUpvotes || 0;
-  const comments = post.numComments || 0;
-  const canSeeAnalytics = canViewPostAnalytics({ user, post });
-  const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
-  const sortLabel = isNewestFirst ? 'Sort: Newest first' : 'Sort: Oldest first';
 
   useEffect(() => {
     if (!onRegisterFocusComment) {
@@ -152,7 +143,7 @@ export const PostDiscussionPanel = ({
     <section
       ref={rootRef}
       aria-label="Discussion"
-      className={classNames('flex min-h-0 min-w-0 flex-col gap-3', className)}
+      className={classNames('flex min-h-0 min-w-0 flex-col gap-2', className)}
     >
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
         <PostComments
@@ -165,7 +156,7 @@ export const PostDiscussionPanel = ({
           modalParentSelector={resolveModalParent}
         />
       </div>
-      <div className="flex shrink-0 flex-col gap-3 border-t border-border-subtlest-tertiary pt-3">
+      <div className="flex shrink-0 flex-col gap-2 border-t border-border-subtlest-tertiary pt-3">
         <NewComment
           post={post}
           ref={commentRef as LegacyRef<NewCommentRef>}
@@ -175,55 +166,7 @@ export const PostDiscussionPanel = ({
           CommentInputOrModal={CommentInputOrModal}
           renderTrigger={renderComposerTrigger}
         />
-        <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-4">
-            {upvotes > 0 && (
-              <ClickableText onClick={() => onShowUpvoted(post.id, upvotes)}>
-                {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
-              </ClickableText>
-            )}
-            <span>
-              {largeNumberFormat(comments)} Comment{comments === 1 ? '' : 's'}
-            </span>
-            {canSeeAnalytics && (
-              <Link
-                href={`${webappUrl}posts/${post.id}/analytics`}
-                passHref
-                prefetch={false}
-              >
-                <ClickableText
-                  tag="a"
-                  className="gap-1"
-                  textClassName="text-text-tertiary"
-                >
-                  <AnalyticsIcon />
-                  Analytics
-                </ClickableText>
-              </Link>
-            )}
-            <Button
-              type="button"
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Tertiary}
-              icon={
-                <TimeSortIcon
-                  secondary
-                  className={isNewestFirst ? undefined : 'rotate-180'}
-                />
-              }
-              onClick={() =>
-                setSortBy(
-                  isNewestFirst
-                    ? SortCommentsBy.OldestFirst
-                    : SortCommentsBy.NewestFirst,
-                )
-              }
-              aria-label={sortLabel}
-              title={sortLabel}
-              className="!text-text-tertiary"
-            />
-          </div>
-        </div>
+        {showMetaBar && <DiscussionMetaBar post={post} />}
         <div className="border-t border-border-subtlest-tertiary pt-3">
           <ShareBar post={post} visibleRows={1} />
         </div>

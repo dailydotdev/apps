@@ -73,8 +73,8 @@ export const PostDiscoveryLayout = ({
 
   return (
     <div className="flex w-full flex-col bg-background-default">
-      <div className="mx-auto flex w-full max-w-[75rem] flex-col gap-10 px-4 py-6 tablet:px-6 laptop:px-8 laptop:py-8">
-        <div className="mx-auto w-full max-w-[75rem]">
+      <div className="mx-auto flex w-full max-w-[78rem] flex-col gap-8 px-4 py-6 tablet:px-6 laptop:px-8 laptop:py-8">
+        <div className="mx-auto w-full max-w-[78rem]">
           <PostFocusCard
             leftVariant={leftVariant}
             origin={origin}
