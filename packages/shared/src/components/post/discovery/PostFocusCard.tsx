@@ -14,7 +14,7 @@ import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import { PostTagList } from '../tags/PostTagList';
 import PostSourceInfo from '../PostSourceInfo';
-import { PostHeaderActions } from '../PostHeaderActions';
+import { PostMenuOptions } from '../PostMenuOptions';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
@@ -110,13 +110,9 @@ export const PostFocusCard = ({
                 {readText}
               </Button>
             )}
-            <PostHeaderActions
+            <PostMenuOptions
               buttonSize={ButtonSize.Large}
-              className="justify-center tablet:justify-start"
-              contextMenuId="post-discovery-actions"
-              hideSubscribeAction
-              inlineActions
-              onReadArticle={onReadArticle}
+              origin={origin}
               post={post}
             />
           </div>
