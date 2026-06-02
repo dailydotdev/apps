@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
 import type { Post } from '../../../graphql/posts';
 import Feed from '../../Feed';
-import FeedContext from '../../../contexts/FeedContext';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ActiveFeedNameContext } from '../../../contexts';
@@ -49,25 +48,12 @@ const SectionHeader = ({
  */
 const DiscoveryFeedGridScope = ({
   feedName,
-  columns,
   children,
 }: {
   feedName: AllFeedPages;
-  columns?: number;
   children: ReactElement;
 }): ReactElement => {
-  const currentFeedSettings = useContext(FeedContext);
   const settings = useContext(SettingsContext);
-  const feedContextValue = useMemo(() => {
-    if (!columns) {
-      return currentFeedSettings;
-    }
-
-    return {
-      ...currentFeedSettings,
-      numCards: { eco: columns, roomy: columns, cozy: columns },
-    };
-  }, [columns, currentFeedSettings]);
   const settingsContextValue = useMemo(
     () => ({ ...settings, insaneMode: false }),
     [settings],
@@ -76,9 +62,7 @@ const DiscoveryFeedGridScope = ({
   return (
     <ActiveFeedNameContext.Provider value={{ feedName }}>
       <SettingsContext.Provider value={settingsContextValue}>
-        <FeedContext.Provider value={feedContextValue}>
-          {children}
-        </FeedContext.Provider>
+        {children}
       </SettingsContext.Provider>
     </ActiveFeedNameContext.Provider>
   );
@@ -112,10 +96,7 @@ export const PostDiscoveryFeed = ({
             title={`More on ${topicLabel}`}
             description="Hand-picked stories close to what you just read."
           />
-          <DiscoveryFeedGridScope
-            columns={3}
-            feedName={OtherFeedPage.ExploreTag}
-          >
+          <DiscoveryFeedGridScope feedName={OtherFeedPage.ExploreTag}>
             <Feed
               className="mt-8"
               feedName={OtherFeedPage.ExploreTag}
