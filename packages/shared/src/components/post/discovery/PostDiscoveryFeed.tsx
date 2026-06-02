@@ -3,7 +3,9 @@ import React, { useContext, useMemo } from 'react';
 import type { Post } from '../../../graphql/posts';
 import Feed from '../../Feed';
 import FeedContext from '../../../contexts/FeedContext';
+import SettingsContext from '../../../contexts/SettingsContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { ActiveFeedNameContext } from '../../../contexts';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_BY_TAGS_QUERY,
@@ -52,15 +54,28 @@ const FeedWithColumns = ({
   children: ReactElement;
 }): ReactElement => {
   const currentSettings = useContext(FeedContext);
-  const value = useMemo(
+  const settings = useContext(SettingsContext);
+  const feedContextValue = useMemo(
     () => ({
       ...currentSettings,
       numCards: { eco: columns, roomy: columns, cozy: columns },
     }),
     [currentSettings, columns],
   );
+  const settingsContextValue = useMemo(
+    () => ({ ...settings, insaneMode: false }),
+    [settings],
+  );
 
-  return <FeedContext.Provider value={value}>{children}</FeedContext.Provider>;
+  return (
+    <ActiveFeedNameContext.Provider value={{ feedName: OtherFeedPage.Tag }}>
+      <SettingsContext.Provider value={settingsContextValue}>
+        <FeedContext.Provider value={feedContextValue}>
+          {children}
+        </FeedContext.Provider>
+      </SettingsContext.Provider>
+    </ActiveFeedNameContext.Provider>
+  );
 };
 
 /**
