@@ -110,9 +110,6 @@ export const PostDiscussionPanel = ({
       <div className="flex shrink-0 flex-col gap-3">
         <div className="flex min-w-0 flex-col gap-1 border-b border-border-subtlest-tertiary pb-3">
           <p className="text-text-tertiary typo-caption1">Discussion</p>
-          <h2 className="font-bold text-text-primary typo-title3">
-            What developers are saying
-          </h2>
         </div>
         <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout">
           <div className="flex min-w-0 flex-wrap items-center gap-x-4">

@@ -191,23 +191,27 @@ export const PostFocusCard = ({
             </div>
           )}
 
-          <section className="flex min-w-0 flex-col gap-3 border-t border-border-subtlest-tertiary pt-4">
+          <section className="flex min-w-0 flex-col gap-3 border-t border-border-subtlest-tertiary pt-4 tablet:flex-row tablet:items-center tablet:justify-between">
             <PostUpvotesCommentsCount
+              compact
+              className="shrink-0"
               post={post}
               onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
             />
-            <PostActions
-              post={post}
-              postQueryKey={['post', post.id]}
-              onComment={() => focusCommentRef.current()}
-              onCopyLinkClick={onCopyPostLink}
-              origin={origin}
-            />
+            <div className="min-w-0 flex-1">
+              <PostActions
+                post={post}
+                postQueryKey={['post', post.id]}
+                onComment={() => focusCommentRef.current()}
+                onCopyLinkClick={onCopyPostLink}
+                origin={origin}
+              />
+            </div>
           </section>
         </div>
       </PostContainer>
 
-      <aside className="flex min-h-0 min-w-0 shrink-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle p-3 tablet:p-4 laptop:sticky laptop:top-20 laptop:h-[calc(100vh-6rem)] laptop:max-h-[calc(100vh-6rem)] laptop:w-[26rem] laptop:border-t-0 laptop:bg-background-default">
+      <aside className="flex min-h-0 min-w-0 shrink-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle laptop:sticky laptop:top-16 laptop:h-[calc(100vh-4rem)] laptop:max-h-[calc(100vh-4rem)] laptop:w-[26rem] laptop:border-t-0 laptop:bg-background-default">
         <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2 laptop:h-full">
           <PostDiscussionPanel
             className="h-full p-4"
