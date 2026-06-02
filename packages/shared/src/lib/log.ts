@@ -103,6 +103,7 @@ export enum LogEvent {
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
+  CreatePost = 'create post',
   SwitchComposerKind = 'switch composer kind',
   ToggleComposerMarkdown = 'toggle composer markdown',
   ToggleComposerExpand = 'toggle composer expand',
