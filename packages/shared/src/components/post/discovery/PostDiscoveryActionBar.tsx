@@ -18,6 +18,7 @@ import {
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import { BookmarkButton } from '../../buttons/BookmarkButton';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
+import { IconSize } from '../../Icon';
 import {
   AnalyticsIcon,
   DiscussIcon as CommentIcon,
@@ -97,7 +98,12 @@ export const PostDiscoveryActionBar = ({
             id="upvote-post-btn"
             aria-label="Upvote"
             color={ButtonColor.Avocado}
-            icon={<UpvoteButtonIcon secondary={isUpvoteActive} />}
+            icon={
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={IconSize.Large}
+              />
+            }
             onClick={onToggleUpvote}
             pressed={isUpvoteActive}
             size={ButtonSize.Medium}
@@ -113,7 +119,12 @@ export const PostDiscoveryActionBar = ({
             id="downvote-post-btn"
             aria-label="Downvote"
             color={ButtonColor.Ketchup}
-            icon={<DownvoteIcon secondary={isDownvoteActive} />}
+            icon={
+              <DownvoteIcon
+                secondary={isDownvoteActive}
+                size={IconSize.Large}
+              />
+            }
             onClick={onToggleDownvote}
             pressed={isDownvoteActive}
             size={ButtonSize.Medium}
@@ -125,7 +136,9 @@ export const PostDiscoveryActionBar = ({
             id="comment-post-btn"
             aria-label="Comment"
             color={ButtonColor.BlueCheese}
-            icon={<CommentIcon secondary={post.commented} />}
+            icon={
+              <CommentIcon secondary={post.commented} size={IconSize.Large} />
+            }
             onClick={onComment}
             pressed={post.commented}
             size={ButtonSize.Medium}
@@ -139,6 +152,7 @@ export const PostDiscoveryActionBar = ({
       <div className="flex items-center gap-2">
         <BookmarkButton
           post={post}
+          iconSize={IconSize.Large}
           buttonProps={{
             id: 'bookmark-post-btn',
             pressed: post.bookmarked,
@@ -150,7 +164,7 @@ export const PostDiscoveryActionBar = ({
           <Button
             aria-label="Copy link"
             color={ButtonColor.Cabbage}
-            icon={<LinkIcon />}
+            icon={<LinkIcon size={IconSize.Large} />}
             onClick={() => onCopyLinkClick?.(post)}
             size={ButtonSize.Medium}
             type="button"
@@ -166,7 +180,7 @@ export const PostDiscoveryActionBar = ({
             >
               <Button
                 aria-label="Analytics"
-                icon={<AnalyticsIcon />}
+                icon={<AnalyticsIcon size={IconSize.Large} />}
                 size={ButtonSize.Medium}
                 tag="a"
                 variant={ButtonVariant.Tertiary}
