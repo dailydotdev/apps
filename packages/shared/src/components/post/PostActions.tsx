@@ -42,9 +42,11 @@ interface PostActionsProps {
   onComment?: () => unknown;
   origin?: PostOrigin;
   onCopyLinkClick?: (post?: Post) => void;
+  borderless?: boolean;
 }
 
 function PostActionsV1({
+  borderless = false,
   onCopyLinkClick,
   post,
   onComment,
@@ -214,7 +216,12 @@ function PostActionsV1({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
+      <div
+        className={classNames(
+          'flex items-center rounded-16',
+          !borderless && 'border border-border-subtlest-tertiary',
+        )}
+      >
         <div
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}

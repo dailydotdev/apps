@@ -187,7 +187,7 @@ export const PostDiscussionPanel = ({
         />
       </div>
       <div className="shrink-0 border-t border-border-subtlest-tertiary pt-3">
-        <ShareBar post={post} />
+        <ShareBar post={post} visibleRows={1} />
       </div>
     </section>
   );

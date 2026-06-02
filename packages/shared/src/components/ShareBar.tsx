@@ -23,16 +23,19 @@ import { useAuthContext } from '../contexts/AuthContext';
 
 interface ShareBarProps {
   post: Post;
+  visibleRows?: number;
 }
 
-const visibleRows = 2;
 const columns = 4;
 const fixedOptions = 4;
-const maxVisibleOptions = visibleRows * columns;
-const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
 
-export default function ShareBar({ post }: ShareBarProps): ReactElement {
+export default function ShareBar({
+  post,
+  visibleRows = 2,
+}: ShareBarProps): ReactElement {
   const [isExpanded, setIsExpanded] = useState(false);
+  const maxVisibleOptions = visibleRows * columns;
+  const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
   const href = post.commentsPermalink;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();

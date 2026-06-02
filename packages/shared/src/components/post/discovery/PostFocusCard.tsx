@@ -203,6 +203,7 @@ export const PostFocusCard = ({
           <PostDiscussionPanel
             actionBar={
               <PostActions
+                borderless
                 post={post}
                 postQueryKey={['post', post.id]}
                 onComment={() => focusCommentRef.current()}

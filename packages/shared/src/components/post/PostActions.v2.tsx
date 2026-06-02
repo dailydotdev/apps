@@ -42,9 +42,11 @@ interface PostActionsProps {
   onComment?: () => unknown;
   origin?: PostOrigin;
   onCopyLinkClick?: (post?: Post) => void;
+  borderless?: boolean;
 }
 
 export function PostActions({
+  borderless = false,
   onCopyLinkClick,
   post,
   onComment,
@@ -196,7 +198,12 @@ export function PostActions({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
+      <div
+        className={classNames(
+          'flex items-center rounded-16',
+          !borderless && 'border border-border-subtlest-tertiary',
+        )}
+      >
         <CardActionBar
           ref={actionsRef}
           layout="between"
