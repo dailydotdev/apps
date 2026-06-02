@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { LegacyRef, ReactElement } from 'react';
+import type { LegacyRef, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -39,6 +39,7 @@ export interface PostDiscussionPanelProps {
   post: Post;
   origin?: Origin;
   className?: string;
+  actionBar?: ReactNode;
   /**
    * Lets a parent (e.g. a floating "comment" action) focus the composer.
    */
@@ -61,6 +62,7 @@ export const PostDiscussionPanel = ({
   post,
   origin = Origin.ArticlePage,
   className,
+  actionBar,
   onRegisterFocusComment,
   modalParentSelector,
 }: PostDiscussionPanelProps): ReactElement => {
@@ -108,9 +110,11 @@ export const PostDiscussionPanel = ({
       className={classNames('flex min-h-0 min-w-0 flex-col gap-3', className)}
     >
       <div className="flex shrink-0 flex-col gap-3">
-        <div className="flex min-w-0 flex-col gap-1 border-b border-border-subtlest-tertiary pb-3">
-          <p className="text-text-tertiary typo-caption1">Discussion</p>
-        </div>
+        {actionBar && (
+          <div className="border-b border-border-subtlest-tertiary pb-3">
+            {actionBar}
+          </div>
+        )}
         <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout">
           <div className="flex min-w-0 flex-wrap items-center gap-x-4">
             {upvotes > 0 && (
