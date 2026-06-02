@@ -102,7 +102,7 @@ export const PostFocusCard = ({
               />
             )}
             <PostHeaderActions
-              buttonSize={ButtonSize.Large}
+              buttonSize={ButtonSize.Small}
               className="ml-auto shrink-0"
               contextMenuId="post-discovery-header-actions"
               hideSubscribeAction
