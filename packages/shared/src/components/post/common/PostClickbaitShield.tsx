@@ -12,6 +12,7 @@ import {
 } from '../../../hooks';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
+import { IconSize } from '../../Icon';
 
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import type { Post } from '../../../graphql/posts';
@@ -23,7 +24,13 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import { TargetId } from '../../../lib/log';
 
-export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
+export const PostClickbaitShield = ({
+  post,
+  iconOnly = false,
+}: {
+  post: Post;
+  iconOnly?: boolean;
+}): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
@@ -32,6 +39,78 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
+
+  if (iconOnly) {
+    const isActive = isPlus ? shieldActive : fetchedSmartTitle;
+    const handleIconClick = async () => {
+      if (isPlus || !hasUsedFreeTrial) {
+        await fetchSmartTitle();
+        return;
+      }
+
+      if (isMobile) {
+        openModal({ type: LazyModal.ClickbaitShield });
+        return;
+      }
+
+      if (!user) {
+        throw new Error(
+          'PostClickbaitShield requires an authenticated user to edit feed settings',
+        );
+      }
+
+      router.push(
+        `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
+      );
+    };
+
+    const tooltipContent = (() => {
+      if (isActive) {
+        return 'Click to see the original title';
+      }
+      return isPlus
+        ? 'Click to see the optimized title'
+        : 'Optimize this title with Clickbait Shield';
+    })();
+
+    const renderIcon = () => {
+      if (isActive) {
+        return (
+          <ShieldCheckIcon
+            className="text-status-success"
+            size={IconSize.Large}
+          />
+        );
+      }
+      if (isPlus) {
+        return <ShieldIcon size={IconSize.Large} />;
+      }
+      return (
+        <ShieldWarningIcon
+          className={
+            hasUsedFreeTrial
+              ? 'text-accent-ketchup-default'
+              : 'text-accent-cheese-default'
+          }
+          size={IconSize.Large}
+        />
+      );
+    };
+
+    return (
+      <Tooltip content={tooltipContent}>
+        <Button
+          aria-label="Clickbait Shield"
+          icon={renderIcon()}
+          iconSecondaryOnHover
+          onClick={handleIconClick}
+          size={ButtonSize.Medium}
+          type="button"
+          variant={ButtonVariant.Tertiary}
+        />
+      </Tooltip>
+    );
+  }
 
   if (!isPlus) {
     return (

@@ -171,6 +171,9 @@ export const PostDiscoveryActionBar = ({
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
+        {post.clickbaitTitleDetected && (
+          <PostClickbaitShield post={post} iconOnly />
+        )}
         {canSeeAnalytics && (
           <Tooltip content="Analytics">
             <Link
@@ -193,11 +196,6 @@ export const PostDiscoveryActionBar = ({
           origin={Origin.ArticleModal}
           buttonSize={ButtonSize.Medium}
         />
-        {post.clickbaitTitleDetected && (
-          <div className="flex items-center [&_.mr-2]:!mr-0 [&_.mt-4]:!mt-0 [&_.mt-6]:!mt-0">
-            <PostClickbaitShield post={post} />
-          </div>
-        )}
       </div>
     </div>
   );
