@@ -1,0 +1,59 @@
+/* Frozen snapshot of the PREVIOUS Radio design, used only by the
+ * /dev/checkbox-radio review page for the before/after comparison.
+ * Do not use in production code. */
+
+.item {
+  &.checked {
+    @apply text-text-primary;
+
+    & .innerRing {
+      @apply border-4 border-raw-cabbage-40 bg-raw-cabbage-80;
+    }
+  }
+}
+
+.item:hover .checkmark, input:focus-visible ~ .checkmark {
+  @apply bg-surface-hover;
+
+  & .innerRing {
+    @apply border-4 border-text-primary;
+  }
+}
+
+.item.checked:hover .checkmark, .checked input:focus-visible ~ .checkmark {
+  background: theme('colors.raw.cabbage.50')3D;
+
+  & .innerRing {
+    @apply border-raw-cabbage-20;
+  }
+}
+
+:global(.light) {
+  & .item.checked {
+    & .innerRing {
+      @apply border-raw-cabbage-60 bg-raw-cabbage-20;
+    }
+  }
+
+  & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
+    & .innerRing {
+      @apply border-raw-cabbage-80;
+    }
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :global(.auto) {
+    & .item.checked {
+      & .innerRing {
+        @apply border-raw-cabbage-60 bg-raw-cabbage-20;
+      }
+    }
+
+    & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
+      & .innerRing {
+        @apply border-raw-cabbage-80;
+      }
+    }
+  }
+}
