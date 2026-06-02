@@ -4,67 +4,91 @@
   }
 }
 
+/*
+ * Fields v2: focus / invalid / readonly all use the same 1px border mechanism
+ * so the states read as one family (no mix of border + ring). Focus paints the
+ * border text-primary (see fields.module.css); the rules below override the
+ * border colour for the read-only "ready" and invalid states. Password strength
+ * keeps the previous left-edge indicator bar + colour-graded fill (a progress
+ * cue rather than a validity cue).
+ */
 .field {
-  &:hover {
-    box-shadow: inset 0.125rem 0 0 0 var(--theme-text-primary);
-  }
-
+  /* Read-only "ready" affordance: a blue border while focused. */
   &:global(.focused.readOnly) {
-    box-shadow: inset 0.125rem 0 0 0 var(--theme-accent-blueCheese-default);
     border-color: var(--theme-accent-blueCheese-default);
   }
 
-  &:global(.focused) {
-    box-shadow: inset 0.125rem 0 0 0 var(--theme-text-primary);
-    border-color: var(--theme-text-primary);
+  /*
+   * Invalid: a solid red border. Same width/mechanism as the focus border, and
+   * it stays red while focused/typing so the error remains visible until fixed.
+   */
+  &:global(.invalid),
+  &:global(.focused.invalid) {
+    border-color: var(--status-error);
   }
 
-  &:global(.invalid) {
+  &:global(.password-0),
+  &:global(.password-1) {
     box-shadow: inset 0.125rem 0 0 0 var(--status-error);
+
+    /*
+     * The strength bar inherits the field's rounded left corners via the
+     * parent's `overflow: hidden` clip, so it matches whatever radius the
+     * field size resolves to instead of a hardcoded value.
+     */
+    &:before {
+      content: '';
+      opacity: 0.24;
+      background: linear-gradient(
+        270deg,
+        rgba(252, 83, 141, 0) 0%,
+        rgba(252, 83, 141, 1) 100%
+      );
+      width: 2.75rem;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
   }
 
-   &:global(.password-0), &:global(.password-1) {
-      box-shadow: inset 0.125rem 0 0 0 var(--status-error);
-      &:before {
-         content: '';
-         border-radius: 14px 0px 0px 14px;
-         opacity: 0.24;
-         background: linear-gradient(270deg, rgba(252, 83, 141, 0) 0%, rgba(252, 83, 141, 1) 100%);
-         width: 44px;
-         height: 100%;
-         position: absolute;
-         left: 0;
-         top: 0;
-       }
-    }
   &:global(.password-2) {
-     box-shadow: inset 0.125rem 0 0 0 var(--status-warning);
+    box-shadow: inset 0.125rem 0 0 0 var(--status-warning);
+
     &:before {
-         content: '';
-         border-radius: 14px 0px 0px 14px;
-         opacity: 0.24;
-         background: linear-gradient(270deg, rgba(255, 142, 59, 0) 0%, rgba(255, 142, 59, 1) 100%);
-         width: 44px;
-         height: 100%;
-         position: absolute;
-         left: 0;
-         top: 0;
-     }
-   }
+      content: '';
+      opacity: 0.24;
+      background: linear-gradient(
+        270deg,
+        rgba(255, 142, 59, 0) 0%,
+        rgba(255, 142, 59, 1) 100%
+      );
+      width: 2.75rem;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+
   &:global(.password-3) {
-     box-shadow: inset 0.125rem 0 0 0 var(--status-success);
-      &:before {
-         content: '';
-         border-radius: 14px 0px 0px 14px;
-         opacity: 0.24;
-         background: linear-gradient(270deg, rgba(57, 229, 140, 0) 0%, rgba(107, 244, 192, 1) 100%);
-         width: 44px;
-         height: 100%;
-         position: absolute;
-         left: 0;
-         top: 0;
-       }
-   }
+    box-shadow: inset 0.125rem 0 0 0 var(--status-success);
+
+    &:before {
+      content: '';
+      opacity: 0.24;
+      background: linear-gradient(
+        270deg,
+        rgba(57, 229, 140, 0) 0%,
+        rgba(107, 244, 192, 1) 100%
+      );
+      width: 2.75rem;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
 }
 
 .field input[type='number']::-webkit-inner-spin-button,

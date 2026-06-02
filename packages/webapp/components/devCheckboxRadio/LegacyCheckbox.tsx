@@ -1,0 +1,102 @@
+import type {
+  ChangeEvent,
+  LegacyRef,
+  ReactElement,
+  ReactNode,
+  InputHTMLAttributes,
+} from 'react';
+import React, { forwardRef, useEffect, useState, useId } from 'react';
+import classNames from 'classnames';
+import { VIcon } from '@dailydotdev/shared/src/components/icons';
+import styles from './LegacyCheckbox.module.css';
+
+// Frozen snapshot of the previous Checkbox design, used only by the
+// /dev/checkbox-radio review page. Do not use in production code.
+export interface LegacyCheckboxProps
+  extends InputHTMLAttributes<HTMLInputElement> {
+  name: string;
+  checked?: boolean;
+  id?: string;
+  children?: ReactNode;
+  className?: string;
+  checkmarkClassName?: string;
+  onToggleCallback?: (checked: boolean) => unknown;
+}
+
+export const LegacyCheckbox = forwardRef(function LegacyCheckbox(
+  {
+    name,
+    checked,
+    children,
+    className,
+    checkmarkClassName,
+    onToggleCallback,
+    id = '',
+    disabled,
+    defaultChecked,
+    ...props
+  }: LegacyCheckboxProps,
+  ref: LegacyRef<HTMLInputElement>,
+): ReactElement {
+  const [actualChecked, setActualChecked] = useState(checked ?? defaultChecked);
+  const checkId = useId();
+  const inputId = id.concat(checkId);
+
+  useEffect(() => {
+    setActualChecked(checked ?? defaultChecked);
+  }, [checked, defaultChecked]);
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setActualChecked(event.target.checked);
+    onToggleCallback?.(event.target.checked);
+  };
+
+  return (
+    <label
+      className={classNames(
+        'relative z-1 inline-flex select-none items-center p-1 pr-3 text-text-tertiary typo-footnote',
+        !disabled && 'cursor-pointer',
+        styles.label,
+        className,
+        { checked: actualChecked, disabled },
+      )}
+      style={{ transition: 'color 0.1s linear' }}
+      htmlFor={inputId}
+    >
+      <input
+        aria-labelledby={`label-span-${checkId}`}
+        checked={checked}
+        defaultChecked={defaultChecked}
+        className="absolute h-0 w-0 opacity-0"
+        data-testid="checkbox-input"
+        disabled={disabled}
+        id={inputId}
+        name={name}
+        onChange={onChange}
+        ref={ref}
+        type="checkbox"
+        {...props}
+      />
+      <div
+        aria-checked={checked}
+        aria-labelledby={`label-${checkId}`}
+        className={classNames(
+          'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-6 border-2 border-border-subtlest-primary',
+          styles.checkmark,
+          checkmarkClassName,
+        )}
+        role="checkbox"
+      >
+        <VIcon
+          aria-hidden
+          className="icon h-full w-full text-text-primary opacity-0"
+          role="presentation"
+          style={{ transition: 'opacity 0.1s linear' }}
+        />
+      </div>
+      <span className="min-w-0 flex-1" id={`label-span-${checkId}`}>
+        {children}
+      </span>
+    </label>
+  );
+});
