@@ -22,8 +22,8 @@ import {
 } from '../../ProfilePicture';
 import { Image } from '../../image/Image';
 import { fallbackImages } from '../../../lib/config';
-import ShareBar from '../../ShareBar';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
+import { DiscussionShareRow } from './DiscussionShareRow';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -105,37 +105,45 @@ export const PostDiscussionPanel = ({
       type="button"
       aria-label="Add a comment"
       onClick={() => onCommentClick(Origin.StartDiscussion)}
-      className="group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-2 pl-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
+      className="group flex min-h-24 w-full flex-col justify-between gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
     >
-      {triggerUser ? (
-        <ProfilePicture
-          className="shrink-0"
-          nativeLazyLoading
-          size={ProfileImageSize.Medium}
-          user={triggerUser}
-        />
-      ) : (
-        <Image
-          alt="Placeholder image for anonymous user"
-          aria-hidden
-          className={classNames(
-            'shrink-0',
-            getProfilePictureClasses(ProfileImageSize.Medium),
-          )}
-          fetchPriority="low"
-          height={32}
-          loading="lazy"
-          role="presentation"
-          src={fallbackImages.avatar}
-          width={32}
-        />
-      )}
-      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-callout">
-        Add a comment…
-      </span>
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-12 bg-background-default text-text-secondary transition-colors group-hover:text-text-primary">
-        <SendAirplaneIcon size={IconSize.Small} />
-      </span>
+      <div className="flex min-w-0 items-start gap-3">
+        {triggerUser ? (
+          <ProfilePicture
+            className="shrink-0"
+            nativeLazyLoading
+            size={ProfileImageSize.Medium}
+            user={triggerUser}
+          />
+        ) : (
+          <Image
+            alt="Placeholder image for anonymous user"
+            aria-hidden
+            className={classNames(
+              'shrink-0',
+              getProfilePictureClasses(ProfileImageSize.Medium),
+            )}
+            fetchPriority="low"
+            height={32}
+            loading="lazy"
+            role="presentation"
+            src={fallbackImages.avatar}
+            width={32}
+          />
+        )}
+        <span className="min-w-0 flex-1 text-text-tertiary typo-callout">
+          Share your thoughts — what stood out, or what would you add?
+        </span>
+      </div>
+      <div className="flex items-center justify-between pl-11">
+        <span className="text-text-tertiary typo-caption1">
+          Markdown supported
+        </span>
+        <span className="flex items-center gap-1.5 rounded-10 bg-background-default px-3 py-1.5 text-text-secondary transition-colors typo-footnote group-hover:text-text-primary">
+          <SendAirplaneIcon size={IconSize.Small} />
+          Comment
+        </span>
+      </div>
     </button>
   );
 
@@ -167,9 +175,10 @@ export const PostDiscussionPanel = ({
           renderTrigger={renderComposerTrigger}
         />
         {showMetaBar && <DiscussionMetaBar post={post} />}
-        <div className="border-t border-border-subtlest-tertiary pt-3">
-          <ShareBar post={post} visibleRows={1} />
-        </div>
+        <DiscussionShareRow
+          post={post}
+          className="border-t border-border-subtlest-tertiary pt-3"
+        />
       </div>
     </section>
   );
