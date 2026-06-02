@@ -26,12 +26,15 @@ import type { PostContentProps } from '@dailydotdev/shared/src/components/post/c
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
+  useConditionalFeature,
   useEventListener,
   useJoinReferral,
   usePostById,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
+import { featurePostDiscoveryExperience } from '@dailydotdev/shared/src/lib/featureManagement';
+import { PostDiscoveryLayout } from '@dailydotdev/shared/src/components/post/discovery/PostDiscoveryLayout';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
@@ -203,6 +206,18 @@ export const PostPage = ({
     },
   });
   const featureTheme = useFeatureTheme();
+  const isDiscoveryEligible = [
+    PostType.Article,
+    PostType.VideoYouTube,
+  ].includes(post?.type);
+  const { value: isDiscoveryFlagOn } = useConditionalFeature({
+    feature: featurePostDiscoveryExperience,
+    shouldEvaluate: isDiscoveryEligible,
+  });
+  const forceDiscovery =
+    router.query.discovery === '1' || router.query.discovery === 'true';
+  const showDiscovery =
+    isDiscoveryEligible && (isDiscoveryFlagOn || forceDiscovery);
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
     [
@@ -278,25 +293,30 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           <PostSEOSchema post={post} topComments={topComments} />
-          <Content
-            position={position}
-            isPostPage
-            post={post}
-            isFallback={isFallback}
-            backToSquad={!!router?.query?.squad}
-            shouldOnboardAuthor={!!router.query?.author}
-            origin={Origin.ArticlePage}
-            isBannerVisible={shouldShowAuthBanner && !isLaptop}
-            className={{
-              container: containerClass,
-              fixedNavigation: { container: 'flex laptop:hidden' },
-              navigation: {
-                container: 'flex tablet:hidden',
-                actions: 'flex-1 justify-between',
-              },
-            }}
-          />
-          {shouldShowAuthBanner &&
+          {showDiscovery ? (
+            <PostDiscoveryLayout post={post} origin={Origin.ArticlePage} />
+          ) : (
+            <Content
+              position={position}
+              isPostPage
+              post={post}
+              isFallback={isFallback}
+              backToSquad={!!router?.query?.squad}
+              shouldOnboardAuthor={!!router.query?.author}
+              origin={Origin.ArticlePage}
+              isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              className={{
+                container: containerClass,
+                fixedNavigation: { container: 'flex laptop:hidden' },
+                navigation: {
+                  container: 'flex tablet:hidden',
+                  actions: 'flex-1 justify-between',
+                },
+              }}
+            />
+          )}
+          {!showDiscovery &&
+            shouldShowAuthBanner &&
             isLaptop &&
             (isAnonPostExperience ? (
               <PostTopicAuthBanner />
