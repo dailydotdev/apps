@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import type { ComponentProps, ReactElement } from 'react';
 import React, { useRef } from 'react';
 import type { Post } from '../../../graphql/posts';
-import { isVideoPost } from '../../../graphql/posts';
+import { getReadArticleHref, isVideoPost } from '../../../graphql/posts';
 import type { SourceTooltip } from '../../../graphql/sources';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
@@ -11,10 +11,16 @@ import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromp
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
+import { LazyImage } from '../../LazyImage';
+import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
+import { ButtonSize } from '../../buttons/Button';
+import { PostClickbaitShield } from '../common/PostClickbaitShield';
+import { PostHeaderActions } from '../PostHeaderActions';
 import { PostActions } from '../PostActions';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
-import { PostHero } from '../experience/PostHero';
-import { PostInsightPanel } from '../experience/PostInsightPanel';
+import { PostContainer } from '../common';
+import { PostTagList } from '../tags/PostTagList';
+import PostToc from '../../widgets/PostToc';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
@@ -75,6 +81,8 @@ export const PostFocusCard = ({
   const { onShowUpvoted } = useUpvoteQuery();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
+  const readHref = getReadArticleHref(post);
+  const hasToc = (post.toc?.length ?? 0) > 0;
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -84,15 +92,46 @@ export const PostFocusCard = ({
 
   return (
     <article
-      className="grid w-full overflow-hidden rounded-24 bg-background-default laptop:grid-cols-[minmax(0,1fr)_24rem]"
+      className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default laptop:flex-row"
       data-testid="post-focus-card"
     >
-      <div className="flex min-w-0 flex-col">
-        <PostHero
-          hideSubscribeAction
-          inlineActions
-          isVideoType={isVideoType}
-          metadata={
+      <PostContainer className="relative">
+        <div className="flex min-w-0 flex-col gap-6 py-6 laptop:py-8">
+          <div className="flex min-w-0 items-start gap-3">
+            {post.source && (
+              <SourceStrip
+                className="min-w-0 flex-1"
+                source={post.source as SourceTooltip}
+              />
+            )}
+            <PostHeaderActions
+              buttonSize={ButtonSize.Large}
+              className="ml-auto shrink-0"
+              contextMenuId="post-discovery-header-actions"
+              hideSubscribeAction
+              inlineActions
+              onReadArticle={onReadArticle}
+              post={post}
+            />
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-4">
+            <h1
+              className="break-words font-bold text-text-primary typo-large-title laptop:typo-mega2"
+              data-testid="post-modal-title"
+            >
+              {title}
+            </h1>
+            {post.summary && (
+              <p
+                className="select-text break-words text-text-secondary typo-title3"
+                data-testid="tldr-container"
+              >
+                {post.summary}
+              </p>
+            )}
+            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
+            <PostTagList post={post} />
             <PostMetadata
               className="!typo-callout"
               createdAt={post.createdAt}
@@ -116,38 +155,41 @@ export const PostFocusCard = ({
               isVideoType={isVideoType}
               readTime={post.readTime}
             />
-          }
-          onImageClick={handleImageClick}
-          onReadArticle={onReadArticle}
-          post={post}
-          sourceInfo={
-            post.source ? (
-              <SourceStrip
-                className="w-full"
-                source={post.source as SourceTooltip}
-              />
-            ) : undefined
-          }
-          title={title}
-        />
+          </div>
 
-        <div className="flex min-w-0 flex-col gap-6 border-t border-border-subtlest-tertiary p-4 tablet:p-6 laptop:p-8">
-          {isVideoType && (
+          {isVideoType ? (
             <YoutubeVideo
               className="shadow-1 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3"
               placeholderProps={{ post, onWatchVideo: onReadArticle }}
               videoId={post.videoId ?? ''}
             />
+          ) : (
+            <a
+              className="block overflow-hidden rounded-16 bg-background-subtle"
+              href={readHref}
+              onClick={handleImageClick}
+              rel="noopener"
+              target="_blank"
+              title="Go to post"
+            >
+              <LazyImage
+                eager
+                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                fetchPriority="high"
+                imgAlt="Post cover image"
+                imgSrc={post.image}
+                ratio="48%"
+              />
+            </a>
           )}
 
-          <PostInsightPanel post={post}>
-            {showCodeSnippets && (
-              <PostCodeSnippets
-                className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}
-                post={post}
-              />
-            )}
-          </PostInsightPanel>
+          {hasToc && <PostToc post={post} />}
+
+          {showCodeSnippets && (
+            <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
+              <PostCodeSnippets post={post} />
+            </div>
+          )}
 
           <section className="flex min-w-0 flex-col gap-3 border-t border-border-subtlest-tertiary pt-4">
             <PostUpvotesCommentsCount
@@ -163,9 +205,9 @@ export const PostFocusCard = ({
             />
           </section>
         </div>
-      </div>
+      </PostContainer>
 
-      <aside className="flex min-h-0 min-w-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6 laptop:sticky laptop:top-16 laptop:max-h-[calc(100vh-8rem)] laptop:border-l laptop:border-t-0 laptop:p-4">
+      <aside className="flex min-h-0 min-w-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6 laptop:sticky laptop:top-16 laptop:max-h-[calc(100vh-8rem)] laptop:w-96 laptop:border-t-0 laptop:p-4">
         <PostDiscussionPanel
           onRegisterFocusComment={(fn) => {
             focusCommentRef.current = fn;
