@@ -38,6 +38,10 @@ export const useUploadCv = ({
     () => checkHasCompleted(ActionType.UploadedCV),
     [checkHasCompleted],
   );
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
 
   const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);
   const { openModal } = useLazyModal();
@@ -81,7 +85,7 @@ export const useUploadCv = ({
     status,
     isSuccess,
     isPending,
-    shouldShow: isActionsFetched && !hasUploadedCv,
+    shouldShow: isActionsFetched && !hasUploadedCv && !hasClosedBanner,
     onCloseBanner,
   };
 };
