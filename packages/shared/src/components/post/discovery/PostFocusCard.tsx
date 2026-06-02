@@ -95,7 +95,7 @@ export const PostFocusCard = ({
       className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default laptop:flex-row"
       data-testid="post-focus-card"
     >
-      <PostContainer className="relative">
+      <PostContainer className="relative laptop:border-r-0">
         <div className="flex min-w-0 flex-col gap-6 py-6 laptop:py-8">
           <div className="flex min-w-0 items-start gap-3">
             {post.source && (
