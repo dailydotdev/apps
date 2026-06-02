@@ -164,7 +164,7 @@ export const PostDiscussionPanel = ({
           modalParentSelector={resolveModalParent}
         />
       </div>
-      <div className="flex shrink-0 flex-col gap-2 border-t border-border-subtlest-tertiary pt-3">
+      <div className="flex shrink-0 flex-col gap-3 pt-3">
         <NewComment
           post={post}
           ref={commentRef as LegacyRef<NewCommentRef>}
@@ -175,10 +175,7 @@ export const PostDiscussionPanel = ({
           renderTrigger={renderComposerTrigger}
         />
         {showMetaBar && <DiscussionMetaBar post={post} />}
-        <DiscussionShareRow
-          post={post}
-          className="border-t border-border-subtlest-tertiary pt-3"
-        />
+        <DiscussionShareRow post={post} />
       </div>
     </section>
   );
