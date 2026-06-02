@@ -120,6 +120,7 @@ export const PostDiscoveryFeed = ({
         />
         <DiscoveryFeedGridScope feedName={SharedFeedPage.Popular}>
           <Feed
+            className="mt-8"
             feedName={SharedFeedPage.Popular}
             feedQueryKey={['post-discovery-more', post.id]}
             query={mainQuery}
