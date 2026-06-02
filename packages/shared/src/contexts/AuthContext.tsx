@@ -8,8 +8,6 @@ import React, {
 } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import type { GrowthBookContextValue } from '@growthbook/growthbook-react';
-import { GrowthBookContext } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
@@ -85,8 +83,6 @@ export interface AuthContextData {
 }
 
 const isExtension = checkIsExtension();
-const inlineLoginFeatureId = 'inline_login';
-const inlineLoginDefaultValue: boolean = false;
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
@@ -171,10 +167,6 @@ export const AuthContextProvider = ({
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
-  const growthbookContext = useContext(
-    GrowthBookContext,
-  ) as unknown as GrowthBookContextValue;
-  const growthbook = growthbookContext?.growthbook;
   const isValidRegion = useMemo(
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
@@ -201,37 +193,18 @@ export const AuthContextProvider = ({
               return;
             }
 
-            const params = new URLSearchParams(globalThis?.location.search);
-            const shouldUseInlineLogin =
-              !isExtension &&
-              growthbook?.getFeatureValue(
-                inlineLoginFeatureId,
-                inlineLoginDefaultValue,
-              ) === true;
-
             setLoginState({ ...options, trigger });
-            if (isExtension) {
-              params.delete(AFTER_AUTH_PARAM);
-            } else if (options.afterAuth) {
-              params.set(AFTER_AUTH_PARAM, options.afterAuth);
-            } else if (!params.get(AFTER_AUTH_PARAM)) {
-              params.set(AFTER_AUTH_PARAM, window.location.pathname);
-            }
 
-            const onboardingPath = isExtension
-              ? `${onboardingUrl}?${params.toString()}`
-              : `/onboarding?${params.toString()}`;
-
-            // Inline login experiment: render the modal in-place instead of
-            // redirecting to /onboarding. Extension keeps the redirect because
-            // it has no host page to mount the modal on.
-            if (shouldUseInlineLogin) {
+            if (!isExtension) {
               return;
             }
 
-            router.push(onboardingPath);
+            const params = new URLSearchParams(globalThis?.location.search);
+            params.delete(AFTER_AUTH_PARAM);
+
+            router.push(`${onboardingUrl}?${params.toString()}`);
           },
-          [growthbook, router],
+          [router],
         ),
         closeLogin: useCallback(() => setLoginState(null), []),
         loginState,

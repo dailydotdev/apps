@@ -44,6 +44,8 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import {
   Divider,
   ResponsivePageContainer,
@@ -243,6 +245,8 @@ function GameCenterPage({
     optOutAchievements,
     loadedSettings,
   } = useSettingsContext();
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
   const isGameCenterEmpty =
     optOutLevelSystem && optOutQuestSystem && optOutAchievements;
 
@@ -726,19 +730,22 @@ function GameCenterPage({
 
   return (
     <ProtectedPage>
+      {isV2Laptop && <PageHeader title="Game Center" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        <LayoutHeader
-          className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
-        >
-          <Typography
-            type={TypographyType.Title3}
-            bold
-            color={TypographyColor.Primary}
-            className="flex-1"
+        {!isV2Laptop && (
+          <LayoutHeader
+            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
           >
-            Game Center
-          </Typography>
-        </LayoutHeader>
+            <Typography
+              type={TypographyType.Title3}
+              bold
+              color={TypographyColor.Primary}
+              className="flex-1"
+            >
+              Game Center
+            </Typography>
+          </LayoutHeader>
+        )}
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
           <section className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
             <div className="pointer-events-none absolute inset-0">

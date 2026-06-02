@@ -76,6 +76,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutAchievements: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   autoDismissNotifications: true,
@@ -513,7 +514,7 @@ it('should trigger show login callback', async () => {
   await expectToHaveTestValue(login, JSON.stringify({ trigger: expected }));
 });
 
-it('should keep inline login on page when enabled after auth intent', async () => {
+it('should keep login inline on the webapp after auth intent', async () => {
   const push = jest.fn();
   mockUseRouter({
     push,
@@ -523,16 +524,6 @@ it('should keep inline login on page when enabled after auth intent', async () =
   renderComponent(<AuthMock loginTrigger={AuthTriggers.Comment} />, {
     ...defaultBootData,
     user: defaultAnonymousUser,
-    exp: {
-      f: '{}',
-      e: [],
-      a: [],
-      features: {
-        inline_login: {
-          defaultValue: true,
-        },
-      },
-    },
   });
 
   const login = await screen.findByText('Log in');
