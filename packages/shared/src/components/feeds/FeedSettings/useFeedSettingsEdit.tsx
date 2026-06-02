@@ -291,9 +291,9 @@ export const useFeedSettingsEdit = ({
         throw new Error('Cannot delete feed without an id');
       }
 
-      const result = await deleteFeed({ feedId });
+      deleteFeed({ feedId });
 
-      return result;
+      return { id: feedId };
     },
 
     onSuccess: (data) => {

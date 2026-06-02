@@ -5,6 +5,7 @@ import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { pageMainClassNames } from '../layout/PageWrapperLayout';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { OrganizationMemberRole } from '../../features/organizations/types';
 
@@ -98,11 +99,23 @@ export const BaseFeedPage = classed(
   styles.feedPage,
 );
 
-export const FeedPage = classed(
-  BaseFeedPage,
-  pageMainClassNames,
-  styles.feedPage,
-);
+// v2 (dual-sidebar layout) ships the feed inside the floating-card chrome,
+// which provides its own outer inset. The legacy `pageMainClassNames`
+// (`laptop:p-10`) adds another 40px on top, which reads as way too much
+// side spacing inside the card. Drop that padding under v2; control keeps
+// the existing behavior unchanged.
+export const FeedPage = ({
+  className,
+  ...props
+}: HTMLAttributes<HTMLElement>): ReactElement => {
+  const { isV2 } = useLayoutVariant();
+  return (
+    <BaseFeedPage
+      {...props}
+      className={classNames(!isV2 && pageMainClassNames, className)}
+    />
+  );
+};
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,

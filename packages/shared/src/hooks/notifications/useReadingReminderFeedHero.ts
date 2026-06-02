@@ -20,6 +20,10 @@ interface UseReadingReminderFeedHeroProps {
   itemCount: number;
   itemsPerRow: number;
   firstSlotOffset?: number;
+  // When true, the top-hero placement is suppressed entirely (including
+  // its impression event). Used when a parent layout owns the top hero
+  // and the feed itself should not render or measure it.
+  disableTopHero?: boolean;
 }
 
 interface UseReadingReminderFeedHero {
@@ -44,6 +48,7 @@ export const useReadingReminderFeedHero = ({
   itemCount,
   itemsPerRow,
   firstSlotOffset = 0,
+  disableTopHero = false,
 }: UseReadingReminderFeedHeroProps): UseReadingReminderFeedHero => {
   const safeItemsPerRow = Math.max(1, itemsPerRow);
   const heroInsertIndex =
@@ -92,6 +97,7 @@ export const useReadingReminderFeedHero = ({
 
   const canShowReminderPlacements = shouldEvaluateReminderPlacement;
   const shouldShowTopHero =
+    !disableTopHero &&
     canShowReminderPlacements &&
     isHero &&
     !dismissedPlacements[NotificationCtaPlacement.TopHero];

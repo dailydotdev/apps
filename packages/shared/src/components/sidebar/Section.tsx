@@ -76,7 +76,11 @@ export function Section({
           {/* Header content shown when sidebar is expanded */}
           <div
             className={classNames(
-              'group/section flex min-h-9 w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
+              // `ml-3 mr-2 ... pl-1` aligns the section title's left edge
+              // with the items below it (items have `mx-3`), so "Feeds v"
+              // and the feed entries share the same x. Without this the
+              // header was indented less than the items.
+              'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
