@@ -10,6 +10,7 @@ import {
   FEED_BY_TAGS_QUERY,
   FEED_V2_QUERY,
 } from '../../../graphql/feed';
+import type { AllFeedPages } from '../../../lib/query';
 import { OtherFeedPage } from '../../../lib/query';
 import { SharedFeedPage } from '../../utilities';
 import {
@@ -34,7 +35,7 @@ const SectionHeader = ({
   title,
   description,
 }: SectionHeaderProps): ReactElement => (
-  <header className="mb-4 flex flex-col gap-1">
+  <header className="mb-4 flex flex-col gap-1 px-4 tablet:px-6 laptop:px-8">
     <p className="text-accent-cabbage-default typo-caption1">{eyebrow}</p>
     <h2 className="font-bold text-text-primary typo-title2">{title}</h2>
     <p className="text-text-tertiary typo-callout">{description}</p>
@@ -46,8 +47,10 @@ const SectionHeader = ({
  * route itself is a post page, which normally forces list layout.
  */
 const DiscoveryFeedGridScope = ({
+  feedName,
   children,
 }: {
+  feedName: AllFeedPages;
   children: ReactElement;
 }): ReactElement => {
   const settings = useContext(SettingsContext);
@@ -57,7 +60,7 @@ const DiscoveryFeedGridScope = ({
   );
 
   return (
-    <ActiveFeedNameContext.Provider value={{ feedName: OtherFeedPage.Tag }}>
+    <ActiveFeedNameContext.Provider value={{ feedName }}>
       <SettingsContext.Provider value={settingsContextValue}>
         {children}
       </SettingsContext.Provider>
@@ -93,7 +96,7 @@ export const PostDiscoveryFeed = ({
             title={`More on ${topicLabel}`}
             description="Hand-picked stories close to what you just read."
           />
-          <DiscoveryFeedGridScope>
+          <DiscoveryFeedGridScope feedName={OtherFeedPage.ExploreTag}>
             <Feed
               feedName={OtherFeedPage.ExploreTag}
               feedQueryKey={['post-discovery-related', post.id]}
@@ -114,7 +117,7 @@ export const PostDiscoveryFeed = ({
           title="Discover more"
           description="A fresh stream of developer stories, discussions, and tools."
         />
-        <DiscoveryFeedGridScope>
+        <DiscoveryFeedGridScope feedName={SharedFeedPage.Popular}>
           <Feed
             feedName={SharedFeedPage.Popular}
             feedQueryKey={['post-discovery-more', post.id]}
