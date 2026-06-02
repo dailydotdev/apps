@@ -115,7 +115,7 @@ export const PostFocusCard = ({
 
           <div className="flex min-w-0 flex-col gap-4">
             <h1
-              className="break-words font-bold text-text-primary typo-large-title laptop:typo-mega2"
+              className="break-words font-bold text-text-primary typo-large-title"
               data-testid="post-modal-title"
             >
               {title}
@@ -123,7 +123,7 @@ export const PostFocusCard = ({
             {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
             {!isVideoType && post.summary && (
               <p
-                className="select-text break-words text-text-secondary typo-title3"
+                className="select-text break-words text-text-secondary typo-markdown"
                 data-testid="tldr-container"
               >
                 {post.summary}
@@ -163,7 +163,7 @@ export const PostFocusCard = ({
               />
               {post.summary && (
                 <p
-                  className="select-text break-words px-1 pb-1 text-text-secondary typo-title3"
+                  className="select-text break-words px-1 pb-1 text-text-secondary typo-markdown"
                   data-testid="tldr-container"
                 >
                   {post.summary}
@@ -203,23 +203,20 @@ export const PostFocusCard = ({
               <PostCodeSnippets post={post} />
             </div>
           )}
+
+          <PostActions
+            post={post}
+            postQueryKey={['post', post.id]}
+            onComment={() => focusCommentRef.current()}
+            onCopyLinkClick={onCopyPostLink}
+            origin={origin}
+          />
         </div>
       </PostContainer>
 
       <aside className="flex min-h-0 min-w-0 shrink-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle laptop:sticky laptop:top-16 laptop:h-[calc(100vh-4rem)] laptop:max-h-[calc(100vh-4rem)] laptop:w-[26rem] laptop:border-t-0 laptop:bg-background-default">
         <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2 laptop:h-full">
           <PostDiscussionPanel
-            actionBar={
-              <PostActions
-                borderless
-                compact
-                post={post}
-                postQueryKey={['post', post.id]}
-                onComment={() => focusCommentRef.current()}
-                onCopyLinkClick={onCopyPostLink}
-                origin={origin}
-              />
-            }
             className="h-full p-4"
             onRegisterFocusComment={(fn) => {
               focusCommentRef.current = fn;

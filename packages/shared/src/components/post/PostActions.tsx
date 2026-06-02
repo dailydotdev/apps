@@ -17,7 +17,7 @@ import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { BookmarkButton } from '../buttons';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
@@ -42,13 +42,9 @@ interface PostActionsProps {
   onComment?: () => unknown;
   origin?: PostOrigin;
   onCopyLinkClick?: (post?: Post) => void;
-  borderless?: boolean;
-  compact?: boolean;
 }
 
 function PostActionsV1({
-  borderless = false,
-  compact = false,
   onCopyLinkClick,
   post,
   onComment,
@@ -64,7 +60,6 @@ function PostActionsV1({
     receivingUser: post.author as LoggedUser | undefined,
   });
   const { getUpvoteAnimation } = useBrandSponsorship();
-  const buttonSize = compact ? ButtonSize.Small : undefined;
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
@@ -219,17 +214,9 @@ function PostActionsV1({
 
   return (
     <div className="flex flex-col gap-4">
-      <div
-        className={classNames(
-          'flex items-center rounded-16',
-          !borderless && 'border border-border-subtlest-tertiary',
-        )}
-      >
+      <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
         <div
-          className={classNames(
-            'flex flex-1 items-center justify-between gap-x-1 overflow-hidden',
-            compact ? 'px-2 py-0' : 'py-2 pl-4 pr-6',
-          )}
+          className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}
         >
           <Tooltip
@@ -239,7 +226,6 @@ function PostActionsV1({
               id="upvote-post-btn"
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
-              size={buttonSize}
               icon={
                 <UpvoteButtonIcon
                   secondary={isUpvoteActive}
@@ -258,7 +244,6 @@ function PostActionsV1({
               id="downvote-post-btn"
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
-              size={buttonSize}
               icon={<DownvoteIcon secondary={isDownvoteActive} />}
               aria-label="Downvote"
               variant={ButtonVariant.Tertiary}
@@ -269,7 +254,6 @@ function PostActionsV1({
             id="comment-post-btn"
             pressed={post.commented}
             onClick={onComment}
-            size={buttonSize}
             icon={<CommentIcon secondary={post.commented} />}
             aria-label="Comment"
             className="btn-tertiary-blueCheese"
@@ -290,7 +274,6 @@ function PostActionsV1({
               <QuaternaryButton
                 id="award-post-btn"
                 pressed={post?.userState?.awarded}
-                size={buttonSize}
                 onClick={() => {
                   if (!user) {
                     showLogin({ trigger: AuthTriggers.GiveAward });
@@ -330,7 +313,6 @@ function PostActionsV1({
               id: 'bookmark-post-btn',
               pressed: post.bookmarked,
               onClick: onToggleBookmark,
-              size: buttonSize,
               className: 'btn-tertiary-bun',
             }}
           >
@@ -340,7 +322,6 @@ function PostActionsV1({
             <QuaternaryButton
               id="copy-post-btn-post"
               onClick={() => onCopyLinkClick?.(post)}
-              size={buttonSize}
               icon={<LinkIcon />}
               variant={ButtonVariant.Tertiary}
               className={classNames(
