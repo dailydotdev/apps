@@ -7,12 +7,10 @@ import usePostContent from '../../../hooks/usePostContent';
 import { BasePostContent } from '../BasePostContent';
 import { useMemberRoleForSource } from '../../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from '../SquadPostAuthor';
-import { SquadPostWidgets } from '../SquadPostWidgets';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { useViewPost } from '../../../hooks/post';
 import { withPostById } from '../withPostById';
-import PostSourceInfo from '../PostSourceInfo';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { BoostNewPostStrip } from '../../../features/boost/BoostNewPostStrip';
@@ -23,10 +21,15 @@ import usePoll from '../../../hooks/usePoll';
 import PollOptions from '../../cards/poll/PollOptions';
 import PostMetadata from '../../cards/common/PostMetadata';
 import { PostTagList } from '../tags/PostTagList';
-import { Typography, TypographyType } from '../../typography/Typography';
+import { Typography } from '../../typography/Typography';
 import { DiscussIcon } from '../../icons';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
+import { PostExperienceLayout } from '../experience/PostExperienceLayout';
+import { PostHero } from '../experience/PostHero';
+import { PostContextRail } from '../experience/PostContextRail';
+import { PersonalizedFeedPreview } from '../experience/PersonalizedFeedPreview';
+import { PostCommunitySection } from '../experience/PostCommunitySection';
 
 type PollPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -83,15 +86,6 @@ function PollPostContentRaw({
     inlineActions,
   };
   const isUserSource = isSourceUserSource(post?.source);
-  let sourceInfoClassName: string | undefined;
-  if (!isUserSource) {
-    if (shouldShowBanner && isLaptop) {
-      sourceInfoClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
-    } else {
-      sourceInfoClassName = isCompactModalSpacing ? 'mb-4' : 'mb-6';
-    }
-  }
-  const pollTitleClassName = isCompactModalSpacing ? 'mt-4' : 'mt-6';
   const pollMetaWrapperClassName = isCompactModalSpacing
     ? 'mb-4 mt-3'
     : 'mb-5 mt-4';
@@ -126,7 +120,7 @@ function PollPostContentRaw({
   return (
     <PostContentContainer
       className={classNames(
-        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
+        'relative flex-1 flex-col px-2 py-3 tablet:px-4 laptop:pb-6',
         className?.container,
       )}
       hasNavigation={hasNavigation}
@@ -144,7 +138,7 @@ function PollPostContentRaw({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
+          'relative flex min-w-0 flex-1 flex-col',
           className?.content,
         )}
       >
@@ -163,103 +157,101 @@ function PollPostContentRaw({
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
-          engagementProps={engagementActions}
           origin={origin}
           post={post}
         >
-          {shouldShowBanner && !isLaptop && (
-            <BoostNewPostStrip className="-mt-2 mb-4" />
-          )}
-          <div
-            className={
-              isUserSource
-                ? 'flex flex-row-reverse items-center justify-between truncate'
-                : undefined
+          <PostExperienceLayout
+            hero={
+              <PostHero
+                hideSubscribeAction={hideSubscribeAction}
+                inlineActions={inlineActions}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                post={post}
+                title={post?.title ?? 'Poll'}
+              />
+            }
+            rail={
+              <PostContextRail
+                onCopyPostLink={onCopyPostLink}
+                origin={origin}
+                post={post}
+              />
             }
           >
-            <PostSourceInfo
-              post={post}
-              onClose={onClose}
-              onReadArticle={onReadArticle}
-              hideSubscribeAction={hideSubscribeAction}
-              className={sourceInfoClassName}
-            />
-            {shouldShowBanner && !isUserSource && isLaptop && (
-              <BoostNewPostStrip />
+            {shouldShowBanner && !isLaptop && (
+              <BoostNewPostStrip className="-mt-2" />
             )}
-            <SquadPostAuthor
-              author={post?.author}
-              role={role}
-              date={post.createdAt}
-              className={{
-                container: !isUserSource ? 'mt-3' : 'shrink truncate',
-              }}
-              isUserSource={isUserSource}
-              size={ProfileImageSize.Large}
-            />
-          </div>
-          {shouldShowBanner && isUserSource && isLaptop && (
-            <BoostNewPostStrip className="mt-2" />
-          )}
-          <div className={pollTitleClassName}>
-            <Typography
-              type={TypographyType.LargeTitle}
-              bold
-              data-testid="post-modal-title"
-            >
-              {post?.title}
-            </Typography>
-            <div className={pollMetaWrapperClassName}>
-              <PostMetadata
-                pollMetadata={{
-                  endsAt: post?.endsAt,
-                  isAuthor: user?.id === post.author?.id,
-                  numPollVotes: post?.numPollVotes,
-                }}
-                createdAt={post.createdAt}
-                className="mb-6"
-              />
-              <PostTagList post={post} />
-              <PollOptions
-                options={post.pollOptions ?? []}
-                onClick={handleVote}
-                userVote={post?.userState?.pollOption?.id}
-                numPollVotes={post.numPollVotes || 0}
-                endsAt={post?.endsAt}
-                shouldAnimateResults={shouldAnimateResults}
-              />
-              {justVoted && (
-                <div className="mt-2 flex items-center justify-between rounded-16 bg-action-comment-float p-3">
-                  <div className="flex items-center gap-1">
-                    <DiscussIcon
-                      secondary
-                      className="text-action-comment-default"
-                    />
-                    <Typography bold>Why did you vote this way?</Typography>
+            <section className="shadow-1 rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6">
+              <div
+                className={classNames(
+                  'mb-5 flex flex-col gap-3',
+                  isUserSource && 'tablet:flex-row-reverse tablet:items-center',
+                )}
+              >
+                {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
+                <SquadPostAuthor
+                  author={post?.author}
+                  className={{
+                    container: isUserSource ? 'shrink truncate' : undefined,
+                  }}
+                  date={post.createdAt}
+                  isUserSource={isUserSource}
+                  role={role}
+                  size={ProfileImageSize.Large}
+                />
+              </div>
+              <div className={pollMetaWrapperClassName}>
+                <PostMetadata
+                  pollMetadata={{
+                    endsAt: post?.endsAt,
+                    isAuthor: user?.id === post.author?.id,
+                    numPollVotes: post?.numPollVotes,
+                  }}
+                  createdAt={post.createdAt}
+                  className="mb-6"
+                />
+                <PostTagList post={post} />
+                <PollOptions
+                  options={post.pollOptions ?? []}
+                  onClick={handleVote}
+                  userVote={post?.userState?.pollOption?.id}
+                  numPollVotes={post.numPollVotes || 0}
+                  endsAt={post?.endsAt}
+                  shouldAnimateResults={shouldAnimateResults}
+                />
+                {justVoted && (
+                  <div className="mt-2 flex items-center justify-between rounded-16 bg-action-comment-float p-3">
+                    <div className="flex items-center gap-1">
+                      <DiscussIcon
+                        secondary
+                        className="text-action-comment-default"
+                      />
+                      <Typography bold>Why did you vote this way?</Typography>
+                    </div>
+                    <Button
+                      className="text-text-primary"
+                      variant={ButtonVariant.Subtle}
+                      size={ButtonSize.XSmall}
+                      type="button"
+                      onClick={handleCommentClick}
+                    >
+                      Comment
+                    </Button>
                   </div>
-                  <Button
-                    className="text-text-primary"
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.XSmall}
-                    type="button"
-                    onClick={handleCommentClick}
-                  >
-                    Comment
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
+                )}
+              </div>
+            </section>
+            <PostCommunitySection
+              onCopyPostLink={onCopyPostLink}
+              origin={origin}
+              post={post}
+              shouldOnboardAuthor={shouldOnboardAuthor}
+            />
+            <PersonalizedFeedPreview post={post} />
+          </PostExperienceLayout>
         </BasePostContent>
       </div>
-      <SquadPostWidgets
-        onCopyPostLink={onCopyPostLink}
-        onReadArticle={onReadArticle}
-        post={post}
-        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
-        onClose={onClose}
-        origin={origin}
-      />
     </PostContentContainer>
   );
 }

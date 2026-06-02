@@ -34,6 +34,7 @@ interface Tool {
 interface MentionedToolsWidgetProps {
   postTags: string[];
   className?: string;
+  compact?: boolean;
 }
 
 /**
@@ -45,6 +46,7 @@ interface MentionedToolsWidgetProps {
 export const MentionedToolsWidget = ({
   postTags,
   className,
+  compact,
 }: MentionedToolsWidgetProps): ReactElement | null => {
   const router = useRouter();
   const { user, showLogin } = useAuthContext();
@@ -168,25 +170,30 @@ export const MentionedToolsWidget = ({
   }
 
   const highlightedWordResult = getHighlightedWordConfig(postTags);
+  const visibleTools = compact ? mentionedTools.slice(0, 2) : mentionedTools;
+  const hiddenToolsCount = mentionedTools.length - visibleTools.length;
 
   return (
     <>
       <div
         className={classNames(
-          'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4',
+          'flex flex-col rounded-16 border border-border-subtlest-tertiary',
+          compact ? 'gap-3 p-3' : 'gap-4 p-4',
           className,
         )}
       >
         <Typography
-          type={TypographyType.Body}
+          type={compact ? TypographyType.Callout : TypographyType.Body}
           color={TypographyColor.Primary}
           bold
         >
           Sponsored tools
         </Typography>
 
-        <div className="flex flex-col gap-2">
-          {mentionedTools.map((tool) => {
+        <div
+          className={classNames('flex flex-col', compact ? 'gap-1' : 'gap-2')}
+        >
+          {visibleTools.map((tool) => {
             const isSponsored =
               tool.isSponsored && hasAnySponsoredTag(postTags);
             const isInStack = isToolInStack(tool.name);
@@ -201,7 +208,10 @@ export const MentionedToolsWidget = ({
                     ? () => handleSponsoredToolHover(tool.name)
                     : undefined
                 }
-                className="group flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-12 px-3 text-left transition-colors hover:bg-surface-hover"
+                className={classNames(
+                  'group flex w-full cursor-pointer items-center justify-between gap-3 rounded-12 px-3 text-left transition-colors hover:bg-surface-hover',
+                  compact ? 'h-10' : 'h-12',
+                )}
               >
                 <div className="flex items-center gap-2">
                   {tool.icon ? (
@@ -274,6 +284,15 @@ export const MentionedToolsWidget = ({
 
             return toolItem;
           })}
+          {hiddenToolsCount > 0 && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="px-3 pt-1"
+            >
+              +{hiddenToolsCount} more tools mentioned
+            </Typography>
+          )}
         </div>
       </div>
 

@@ -23,7 +23,7 @@ const feature = {
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
-  showCodeSnippets: new Feature('show_code_snippets', false),
+  showCodeSnippets: new Feature('show_code_snippets', true),
 };
 
 export const followingFeedVersion = new Feature('following_feed_version', 2);
@@ -34,7 +34,11 @@ export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
-  false,
+  true,
+);
+export const featureAnonymousPostExperience = new Feature(
+  'anonymous_post_experience',
+  true,
 );
 
 // @ts-expect-error stale feature without default
@@ -173,9 +177,9 @@ export const featureOnboardingPersonas = new Feature(
   false,
 );
 
-export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+export const featurePostSignupWidget = new Feature('post_signup_widget', true);
 
-export const featureReaderModal = new Feature('reader_modal_v2', false);
+export const featureReaderModal = new Feature('reader_modal_v2', true);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
@@ -212,11 +216,11 @@ export const featureFeedChips = new Feature<FeedChipsVariant>(
 
 export const featureLayoutV2 = new Feature('layout_v2', false);
 
-export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+export const featureEngagementBarV2 = new Feature('engagement_bar_v2', true);
 
 export const featurePostHighlightCards = new Feature(
   'post_highlight_cards',
-  false,
+  true,
 );
 
 export const featureOnboardingPermissionPrimer = new Feature(

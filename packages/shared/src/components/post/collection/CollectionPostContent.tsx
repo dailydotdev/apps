@@ -1,23 +1,18 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
-import Link from '../../utilities/Link';
-import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
 import { BasePostContent } from '../BasePostContent';
-import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
-import { CollectionPostWidgets } from './CollectionPostWidgets';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
 import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
@@ -25,6 +20,11 @@ import { PostTagList } from '../tags/PostTagList';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { isPostUpdated, type Post } from '../../../graphql/posts';
 import { pluralize } from '../../../lib/strings';
+import { PostExperienceLayout } from '../experience/PostExperienceLayout';
+import { PostHero } from '../experience/PostHero';
+import { PostContextRail } from '../experience/PostContextRail';
+import { PersonalizedFeedPreview } from '../experience/PersonalizedFeedPreview';
+import { PostCommunitySection } from '../experience/PostCommunitySection';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -54,8 +54,7 @@ const CollectionPostContentRaw = ({
     origin,
     post,
   });
-  const { createdAt, updatedAt, contentHtml, image, numCollectionSources } =
-    post;
+  const { createdAt, updatedAt, contentHtml, numCollectionSources } = post;
   const wasUpdated = isPostUpdated(post);
   const dateToShow = wasUpdated ? updatedAt : createdAt;
   const hasSources = !!numCollectionSources && numCollectionSources > 0;
@@ -63,7 +62,7 @@ const CollectionPostContentRaw = ({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
-    'laptop:flex-row laptop:pb-0',
+    'px-2 py-3 tablet:px-4 laptop:flex-row laptop:pb-6',
     className?.container,
   );
 
@@ -109,7 +108,10 @@ const CollectionPostContentRaw = ({
       }
     >
       <PostContainer
-        className={classNames('relative', className?.content)}
+        className={classNames(
+          'relative overflow-visible !px-0 laptop:!border-r-0',
+          className?.content,
+        )}
         data-testid="postContainer"
       >
         <BasePostContent
@@ -129,80 +131,80 @@ const CollectionPostContentRaw = ({
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
-          engagementProps={engagementActions}
           origin={origin}
           post={post}
         >
-          <div className="mb-6 flex flex-col gap-6">
-            <CollectionsIntro className="mt-6 laptop:hidden" />
-            <div className="flex flex-row items-center gap-2 pt-6">
-              <Link href={`${webappUrl}sources/collections`} passHref>
+          <PostExperienceLayout
+            hero={
+              <PostHero
+                hideSubscribeAction={hideSubscribeAction}
+                inlineActions={inlineActions}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                post={post}
+                title={post.title ?? 'Collection'}
+              />
+            }
+            rail={
+              <PostContextRail
+                onCopyPostLink={onCopyPostLink}
+                origin={origin}
+                post={post}
+              />
+            }
+          >
+            <section className="shadow-1 rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6">
+              <div className="mb-5 flex flex-row items-center gap-2">
                 <Pill
-                  tag="a"
                   label="Collection"
                   className="bg-theme-overlay-float-cabbage text-brand-default"
                 />
-              </Link>
-              <CollectionPostHeaderActions
-                post={post}
-                onClose={onClose}
-                hideSubscribeAction={hideSubscribeAction}
-                className="ml-auto hidden laptop:flex"
-                contextMenuId="post-widgets-context"
-              />
-            </div>
-            <h1
-              className="break-words font-bold typo-large-title"
-              data-testid="post-modal-title"
-            >
-              {post.title}
-            </h1>
-            <PostTagList post={post} />
-            {!!dateToShow && (
-              <div className="flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
-                <DateFormat
-                  date={dateToShow}
-                  type={
-                    wasUpdated
-                      ? TimeFormatType.PostUpdated
-                      : TimeFormatType.Post
-                  }
-                  prefix={wasUpdated ? 'Last updated ' : undefined}
-                />
-                {hasSources && (
-                  <>
-                    <Separator />
-                    <span>
-                      {numCollectionSources}{' '}
-                      {pluralize('source', numCollectionSources)}
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
-            {image && (
-              <div className="block h-auto w-full overflow-hidden rounded-12">
-                <LazyImage
-                  imgSrc={image}
-                  imgAlt="Post cover image"
-                  ratio="52%"
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  eager
-                  fetchPriority="high"
+                <CollectionPostHeaderActions
+                  className="ml-auto hidden laptop:flex"
+                  contextMenuId="post-widgets-context"
+                  hideSubscribeAction={hideSubscribeAction}
+                  onClose={onClose}
+                  post={post}
                 />
               </div>
-            )}
-            <Markdown content={contentHtml ?? ''} />
-          </div>
+              <CollectionsIntro className="mb-5 laptop:hidden" />
+              <PostTagList post={post} />
+              {!!dateToShow && (
+                <div className="mt-4 flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
+                  <DateFormat
+                    date={dateToShow}
+                    prefix={wasUpdated ? 'Last updated ' : undefined}
+                    type={
+                      wasUpdated
+                        ? TimeFormatType.PostUpdated
+                        : TimeFormatType.Post
+                    }
+                  />
+                  {hasSources && (
+                    <>
+                      <Separator />
+                      <span>
+                        {numCollectionSources}{' '}
+                        {pluralize('source', numCollectionSources)}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              <div className="mt-6">
+                <Markdown content={contentHtml ?? ''} />
+              </div>
+            </section>
+            <PostCommunitySection
+              onCopyPostLink={onCopyPostLink}
+              origin={origin}
+              post={post}
+              shouldOnboardAuthor={shouldOnboardAuthor}
+            />
+            <PersonalizedFeedPreview post={post} />
+          </PostExperienceLayout>
         </BasePostContent>
       </PostContainer>
-      <CollectionPostWidgets
-        onCopyPostLink={onCopyPostLink}
-        post={post}
-        className="pb-8 pt-6"
-        onClose={onClose}
-        origin={origin}
-      />
     </PostContentContainer>
   );
 };

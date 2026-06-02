@@ -16,8 +16,9 @@ import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
-import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { useAnonymousPostExperience } from '../../hooks/post/useAnonymousPostExperience';
+import { BuildYourFeedWidget } from './BuildYourFeedWidget';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -26,6 +27,8 @@ export function SquadPostWidgets({
   className,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
+  const { isAnonPostExperience, isPostPageExperience } =
+    useAnonymousPostExperience();
   const { source } = post;
   const isUserSource = source ? isSourceUserSource(source) : false;
   const isSquadSource = source?.type === SourceType.Squad;
@@ -36,7 +39,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      {isAnonPostExperience && <BuildYourFeedWidget />}
       {!isUserSource &&
         (isSquadSource ? (
           <SquadEntityCard
@@ -62,10 +65,12 @@ export function SquadPostWidgets({
           user={post.author as UserShortProfile}
         />
       )}
-      <PostSidebarAdWidget
-        postId={post.id}
-        className={{ container: cardClasses }}
-      />
+      {!isPostPageExperience && (
+        <PostSidebarAdWidget
+          postId={post.id}
+          className={{ container: cardClasses }}
+        />
+      )}
       {canShare && (
         <>
           <ShareBar post={post} />
@@ -79,7 +84,7 @@ export function SquadPostWidgets({
       )}
       <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
-      <FeaturedArchives postId={post.id} />
+      {!isPostPageExperience && <FeaturedArchives postId={post.id} />}
       <FooterLinks />
     </PageWidgets>
   );

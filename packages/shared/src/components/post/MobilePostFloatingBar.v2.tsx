@@ -32,9 +32,9 @@ export interface MobilePostFloatingBarProps {
 }
 
 const containerClasses = classNames(
-  'w-full rounded-16 border border-border-subtlest-tertiary px-2 py-1',
-  'bg-surface-float backdrop-blur-[2.5rem]',
-  'shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
+  'w-full rounded-24 border border-border-subtlest-tertiary px-2 py-1.5',
+  'bg-background-default/90 backdrop-blur-[2.5rem]',
+  'shadow-2',
 );
 
 export function MobilePostFloatingBar({

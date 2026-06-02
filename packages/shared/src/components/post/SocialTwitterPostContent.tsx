@@ -6,7 +6,6 @@ import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import type { Post } from '../../graphql/posts';
 import { isSocialTwitterPost } from '../../graphql/posts';
-import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
 import { useViewPost } from '../../hooks/post';
@@ -31,6 +30,11 @@ import {
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
+import { PostExperienceLayout } from './experience/PostExperienceLayout';
+import { PostHero } from './experience/PostHero';
+import { PostContextRail } from './experience/PostContextRail';
+import { PersonalizedFeedPreview } from './experience/PersonalizedFeedPreview';
+import { PostCommunitySection } from './experience/PostCommunitySection';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -108,7 +112,7 @@ function SocialTwitterPostContentRaw({
   return (
     <PostContentContainer
       className={classNames(
-        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
+        'relative flex-1 flex-col px-2 py-3 tablet:px-4 laptop:pb-6',
         className?.container,
       )}
       hasNavigation={hasNavigation}
@@ -126,7 +130,7 @@ function SocialTwitterPostContentRaw({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
+          'relative flex min-w-0 flex-1 flex-col',
           className?.content,
         )}
       >
@@ -145,97 +149,120 @@ function SocialTwitterPostContentRaw({
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
-          engagementProps={engagementActions}
           origin={origin}
           post={post}
         >
-          {shouldShowBanner && !isLaptop && (
-            <BoostNewPostStrip className="-mt-2 mb-4" />
-          )}
-          <PostSourceInfo
-            post={post}
-            onClose={onClose}
-            onReadArticle={onReadArticle}
-            hideSubscribeAction={hideSubscribeAction}
-            className={sourceInfoClassName}
-          />
-          {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
-          <PostMetadata
-            createdAt={post.createdAt}
-            readTime={post.readTime}
-            className={classNames('mt-4 !typo-callout', 'mb-4')}
+          <PostExperienceLayout
+            hero={
+              <PostHero
+                hideSubscribeAction={hideSubscribeAction}
+                inlineActions={inlineActions}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                post={post}
+                title={title}
+              />
+            }
+            rail={
+              <PostContextRail
+                onCopyPostLink={onCopyPostLink}
+                origin={origin}
+                post={post}
+              />
+            }
           >
-            {!!post.createdAt && <Separator className="mx-0" />}
-            {metadataLabel}
-          </PostMetadata>
-          {!shouldHideRepostHeadlineAndTags &&
-            !shouldRenderPrimaryTweetPreview && (
-              <div className="mb-6 mt-0">
-                {post.titleHtml ? (
-                  <h1
-                    {...socialTextDirectionProps}
-                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                    data-testid="post-modal-title"
-                    dangerouslySetInnerHTML={{ __html: post.titleHtml }}
-                  />
-                ) : (
-                  <h1
-                    {...socialTextDirectionProps}
-                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                    data-testid="post-modal-title"
-                  >
-                    {title}
-                  </h1>
-                )}
-                {post.clickbaitTitleDetected && (
-                  <PostClickbaitShield post={post} />
-                )}
-              </div>
-            )}
-          {!shouldHideRepostHeadlineAndTags &&
-            !shouldRenderPrimaryTweetPreview &&
-            !!post.image &&
-            !isPlaceholderImage(post.image) &&
-            !!post.permalink && (
-              <a
-                href={post.permalink}
-                target="_blank"
-                rel="noopener"
-                className="mb-10 block cursor-pointer overflow-hidden rounded-16"
-                style={{ maxWidth: '25.625rem' }}
+            <section className="shadow-1 rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6">
+              {shouldShowBanner && !isLaptop && (
+                <BoostNewPostStrip className="-mt-2 mb-4" />
+              )}
+              <PostSourceInfo
+                post={post}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                hideSubscribeAction={hideSubscribeAction}
+                className={sourceInfoClassName}
+              />
+              {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
+              <PostMetadata
+                createdAt={post.createdAt}
+                readTime={post.readTime}
+                className={classNames('mt-4 !typo-callout', 'mb-4')}
               >
-                <LazyImage
-                  imgSrc={post.image}
-                  imgAlt="Post cover image"
-                  ratio="49%"
-                  eager
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  fetchPriority="high"
+                {!!post.createdAt && <Separator className="mx-0" />}
+                {metadataLabel}
+              </PostMetadata>
+              {!shouldHideRepostHeadlineAndTags &&
+                !shouldRenderPrimaryTweetPreview && (
+                  <div className="mb-6 mt-0">
+                    {post.titleHtml ? (
+                      <h1
+                        {...socialTextDirectionProps}
+                        className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                        data-testid="post-modal-title"
+                        dangerouslySetInnerHTML={{ __html: post.titleHtml }}
+                      />
+                    ) : (
+                      <h1
+                        {...socialTextDirectionProps}
+                        className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                        data-testid="post-modal-title"
+                      >
+                        {title}
+                      </h1>
+                    )}
+                    {post.clickbaitTitleDetected && (
+                      <PostClickbaitShield post={post} />
+                    )}
+                  </div>
+                )}
+              {!shouldHideRepostHeadlineAndTags &&
+                !shouldRenderPrimaryTweetPreview &&
+                !!post.image &&
+                !isPlaceholderImage(post.image) &&
+                !!post.permalink && (
+                  <a
+                    href={post.permalink}
+                    target="_blank"
+                    rel="noopener"
+                    className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+                    style={{ maxWidth: '25.625rem' }}
+                  >
+                    <LazyImage
+                      imgSrc={post.image}
+                      imgAlt="Post cover image"
+                      ratio="49%"
+                      eager
+                      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                      fetchPriority="high"
+                    />
+                  </a>
+                )}
+              {isThread && !!post.contentHtml && (
+                <Markdown
+                  content={post.contentHtml}
+                  className="mb-5 break-words"
                 />
-              </a>
-            )}
-          {isThread && !!post.contentHtml && (
-            <Markdown content={post.contentHtml} className="mb-5 break-words" />
-          )}
-          {shouldRenderPrimaryTweetPreview && (
-            <EmbeddedTweetPreview
+              )}
+              {shouldRenderPrimaryTweetPreview && (
+                <EmbeddedTweetPreview
+                  post={post}
+                  className="mb-5 w-full"
+                  textClampClass=""
+                  bodyClassName="typo-markdown"
+                  showImage
+                />
+              )}
+            </section>
+            <PostCommunitySection
+              onCopyPostLink={onCopyPostLink}
+              origin={origin}
               post={post}
-              className="mb-5 w-full"
-              textClampClass=""
-              bodyClassName="typo-markdown"
-              showImage
+              shouldOnboardAuthor={shouldOnboardAuthor}
             />
-          )}
+            <PersonalizedFeedPreview post={post} />
+          </PostExperienceLayout>
         </BasePostContent>
       </div>
-      <SquadPostWidgets
-        onCopyPostLink={onCopyPostLink}
-        onReadArticle={onReadArticle}
-        post={post}
-        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
-        onClose={onClose}
-        origin={origin}
-      />
     </PostContentContainer>
   );
 }

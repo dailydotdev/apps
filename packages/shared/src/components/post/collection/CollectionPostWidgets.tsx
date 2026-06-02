@@ -10,8 +10,9 @@ import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
-import { PostSignupWidget } from '../PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../../cards/highlight/HighlightPostSidebarWidget';
+import { useAnonymousPostExperience } from '../../../hooks/post/useAnonymousPostExperience';
+import { BuildYourFeedWidget } from '../BuildYourFeedWidget';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,
@@ -19,18 +20,23 @@ export const CollectionPostWidgets = ({
   origin,
   className,
 }: PostWidgetsProps): ReactElement => {
+  const { isAnonPostExperience, isPostPageExperience } =
+    useAnonymousPostExperience();
+
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      {isAnonPostExperience && <BuildYourFeedWidget />}
       <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}
         relationType={PostRelationType.Collection}
       />
-      <PostSidebarAdWidget
-        postId={post.id}
-        className={{ container: 'w-full bg-transparent' }}
-      />
+      {!isPostPageExperience && (
+        <PostSidebarAdWidget
+          postId={post.id}
+          className={{ container: 'w-full bg-transparent' }}
+        />
+      )}
       <ShareBar post={post} />
       <ShareMobile
         post={post}
@@ -39,7 +45,7 @@ export const CollectionPostWidgets = ({
         link={post.commentsPermalink}
       />
       <HighlightPostSidebarWidget />
-      <FeaturedArchives postId={post.id} />
+      {!isPostPageExperience && <FeaturedArchives postId={post.id} />}
       <FooterLinks />
     </PageWidgets>
   );
