@@ -87,11 +87,11 @@ export const PostDiscoveryActionBar = ({
   return (
     <div
       className={classNames(
-        'flex items-center justify-between gap-2 border-y border-border-subtlest-tertiary py-1',
+        'my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary px-1 py-3',
         className,
       )}
     >
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-2">
         <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'More like this'}>
           <QuaternaryButton
             id="upvote-post-btn"
@@ -100,7 +100,7 @@ export const PostDiscoveryActionBar = ({
             icon={<UpvoteButtonIcon secondary={isUpvoteActive} />}
             onClick={onToggleUpvote}
             pressed={isUpvoteActive}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             variant={ButtonVariant.Tertiary}
           >
             {upvotes > 0 ? largeNumberFormat(upvotes) : undefined}
@@ -116,7 +116,7 @@ export const PostDiscoveryActionBar = ({
             icon={<DownvoteIcon secondary={isDownvoteActive} />}
             onClick={onToggleDownvote}
             pressed={isDownvoteActive}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
@@ -128,7 +128,7 @@ export const PostDiscoveryActionBar = ({
             icon={<CommentIcon secondary={post.commented} />}
             onClick={onComment}
             pressed={post.commented}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             variant={ButtonVariant.Tertiary}
           >
             {comments > 0 ? largeNumberFormat(comments) : undefined}
@@ -136,14 +136,14 @@ export const PostDiscoveryActionBar = ({
         </Tooltip>
       </div>
 
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-2">
         <BookmarkButton
           post={post}
           buttonProps={{
             id: 'bookmark-post-btn',
             pressed: post.bookmarked,
             onClick: onToggleBookmark,
-            size: ButtonSize.Small,
+            size: ButtonSize.Medium,
           }}
         />
         <Tooltip content="Copy link">
@@ -152,7 +152,7 @@ export const PostDiscoveryActionBar = ({
             color={ButtonColor.Cabbage}
             icon={<LinkIcon />}
             onClick={() => onCopyLinkClick?.(post)}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             type="button"
             variant={ButtonVariant.Tertiary}
           />
@@ -167,7 +167,7 @@ export const PostDiscoveryActionBar = ({
               <Button
                 aria-label="Analytics"
                 icon={<AnalyticsIcon />}
-                size={ButtonSize.Small}
+                size={ButtonSize.Medium}
                 tag="a"
                 variant={ButtonVariant.Tertiary}
               />
@@ -177,7 +177,7 @@ export const PostDiscoveryActionBar = ({
         <PostMenuOptions
           post={post}
           origin={Origin.ArticleModal}
-          buttonSize={ButtonSize.Small}
+          buttonSize={ButtonSize.Medium}
         />
         {post.clickbaitTitleDetected && (
           <div className="flex items-center [&_.mr-2]:!mr-0 [&_.mt-4]:!mt-0 [&_.mt-6]:!mt-0">
