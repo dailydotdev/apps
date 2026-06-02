@@ -91,13 +91,6 @@ export const PostFocusCard = ({
       className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default laptop:flex-row laptop:justify-center"
       data-testid="post-focus-card"
     >
-      {/* Ghost column mirroring the comments rail width so the content column
-          stays optically centered in the page rather than the content+comments
-          pair being centered together. */}
-      <div
-        aria-hidden
-        className="hidden shrink-0 laptop:block laptop:w-[400px]"
-      />
       <PostContainer className="relative laptop:shrink laptop:grow-0 laptop:basis-[832px] laptop:border-r-0">
         <div className="flex min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px] laptop:py-6">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
