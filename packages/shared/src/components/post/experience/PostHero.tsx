@@ -20,6 +20,7 @@ interface PostHeroProps {
   title: string;
   isVideoType?: boolean;
   metadata?: ReactNode;
+  sourceInfo?: ReactNode;
   onReadArticle?: () => void;
   onImageClick?: MouseEventHandler<HTMLAnchorElement>;
   onClose?: MouseEventHandler | React.KeyboardEventHandler;
@@ -32,6 +33,7 @@ export const PostHero = ({
   title,
   isVideoType,
   metadata,
+  sourceInfo,
   onReadArticle,
   onImageClick,
   onClose,
@@ -46,13 +48,15 @@ export const PostHero = ({
     <section className="relative overflow-hidden bg-background-subtle px-4 py-6 tablet:px-6 laptop:px-8 laptop:py-10">
       <div className="mx-auto grid w-full max-w-[64rem] gap-8 laptop:grid-cols-[minmax(0,1fr)_22rem] laptop:items-center">
         <div className="flex min-w-0 flex-col gap-6">
-          <PostSourceInfo
-            className="min-w-0"
-            hideSubscribeAction={hideSubscribeAction}
-            onClose={onClose}
-            onReadArticle={onReadArticle}
-            post={post}
-          />
+          {sourceInfo ?? (
+            <PostSourceInfo
+              className="min-w-0"
+              hideSubscribeAction={hideSubscribeAction}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+              post={post}
+            />
+          )}
           <div className="flex flex-col gap-4">
             <div className="inline-flex w-fit rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1 text-text-tertiary typo-caption1">
               External article discussed on daily.dev

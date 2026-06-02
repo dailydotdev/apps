@@ -3,6 +3,7 @@ import type { ComponentProps, ReactElement } from 'react';
 import React, { useRef } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { isVideoPost } from '../../../graphql/posts';
+import type { SourceTooltip } from '../../../graphql/sources';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
@@ -18,6 +19,7 @@ import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
+import { SourceStrip } from '../reader/SourceStrip';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 
 const PostCodeSnippets = dynamic(() =>
@@ -118,6 +120,14 @@ export const PostFocusCard = ({
           onImageClick={handleImageClick}
           onReadArticle={onReadArticle}
           post={post}
+          sourceInfo={
+            post.source ? (
+              <SourceStrip
+                className="w-full"
+                source={post.source as SourceTooltip}
+              />
+            ) : undefined
+          }
           title={title}
         />
 

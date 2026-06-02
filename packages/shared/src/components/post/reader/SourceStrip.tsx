@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
@@ -18,9 +19,13 @@ import SourceEntityCard from '../../cards/entity/SourceEntityCard';
 
 type SourceStripProps = {
   source: SourceTooltip;
+  className?: string;
 };
 
-export function SourceStrip({ source }: SourceStripProps): ReactElement | null {
+export function SourceStrip({
+  source,
+  className,
+}: SourceStripProps): ReactElement | null {
   const sourceId = source?.id ?? '';
   const sourceName = source?.name ?? '';
   const { showActionBtn } = useShowFollowAction({
@@ -38,7 +43,7 @@ export function SourceStrip({ source }: SourceStripProps): ReactElement | null {
   const sourceHandle = source.handle ? `@${source.handle}` : null;
 
   return (
-    <div className="flex min-w-0 items-center gap-2">
+    <div className={classNames('flex min-w-0 items-center gap-2', className)}>
       <HoverCard
         appendTo={globalThis?.document?.body}
         side="top"
