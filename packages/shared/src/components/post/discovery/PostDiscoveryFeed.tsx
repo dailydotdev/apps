@@ -36,7 +36,7 @@ const SectionHeader = ({
   title,
   description,
 }: SectionHeaderProps): ReactElement => (
-  <header className="mb-4 flex flex-col gap-1 px-4 tablet:px-6 laptop:px-8">
+  <header className="mb-4 flex flex-col gap-1">
     <p className="text-accent-cabbage-default typo-caption1">{eyebrow}</p>
     <h2 className="font-bold text-text-primary typo-title2">{title}</h2>
     <p className="text-text-tertiary typo-callout">{description}</p>
@@ -87,7 +87,7 @@ export const PostDiscoveryFeed = ({
 
   return (
     <div
-      className="flex w-full flex-col gap-10"
+      className="flex w-full flex-col gap-10 px-4 laptop:px-10"
       id={POST_DISCOVERY_FEED_ANCHOR}
     >
       {hasTags && (
@@ -99,7 +99,6 @@ export const PostDiscoveryFeed = ({
           />
           <DiscoveryFeedGridScope feedName={OtherFeedPage.ExploreTag}>
             <Feed
-              className="mt-8"
               feedName={OtherFeedPage.ExploreTag}
               feedQueryKey={['post-discovery-related', post.id]}
               query={FEED_BY_TAGS_QUERY}
@@ -121,7 +120,6 @@ export const PostDiscoveryFeed = ({
         />
         <DiscoveryFeedGridScope feedName={SharedFeedPage.Popular}>
           <Feed
-            className="mt-8"
             feedName={SharedFeedPage.Popular}
             feedQueryKey={['post-discovery-more', post.id]}
             query={mainQuery}
