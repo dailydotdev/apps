@@ -172,7 +172,10 @@ export function ExploreChipsBar({
           <a
             href={`${webappUrl}feeds/new`}
             aria-label="New feed"
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-12 border border-transparent bg-background-subtle px-3 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            className={classNames(
+              'inline-flex shrink-0 items-center justify-center border border-transparent bg-background-subtle text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+              compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3',
+            )}
           >
             <PlusIcon />
           </a>
