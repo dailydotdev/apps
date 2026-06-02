@@ -180,7 +180,13 @@ export const PostFocusCard = ({
             </a>
           )}
 
-          {hasToc && <PostToc post={post} />}
+          {hasToc && (
+            <PostToc
+              collapsible
+              className="rounded-16 border border-border-subtlest-tertiary bg-surface-float"
+              post={post}
+            />
+          )}
 
           {showCodeSnippets && (
             <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
