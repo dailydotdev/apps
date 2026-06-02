@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
 import type { Post } from '../../../graphql/posts';
 import Feed from '../../Feed';
-import FeedContext from '../../../contexts/FeedContext';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ActiveFeedNameContext } from '../../../contexts';
@@ -43,25 +42,15 @@ const SectionHeader = ({
 );
 
 /**
- * Wraps a Feed in a FeedContext override so the discovery rail/grid uses a
- * deliberate column count instead of inheriting the user's feed density.
+ * Keeps the nested discovery feeds on the grid-card path even though the page
+ * route itself is a post page, which normally forces list layout.
  */
-const FeedWithColumns = ({
-  columns,
+const DiscoveryFeedGridScope = ({
   children,
 }: {
-  columns: number;
   children: ReactElement;
 }): ReactElement => {
-  const currentSettings = useContext(FeedContext);
   const settings = useContext(SettingsContext);
-  const feedContextValue = useMemo(
-    () => ({
-      ...currentSettings,
-      numCards: { eco: columns, roomy: columns, cozy: columns },
-    }),
-    [currentSettings, columns],
-  );
   const settingsContextValue = useMemo(
     () => ({ ...settings, insaneMode: false }),
     [settings],
@@ -70,9 +59,7 @@ const FeedWithColumns = ({
   return (
     <ActiveFeedNameContext.Provider value={{ feedName: OtherFeedPage.Tag }}>
       <SettingsContext.Provider value={settingsContextValue}>
-        <FeedContext.Provider value={feedContextValue}>
-          {children}
-        </FeedContext.Provider>
+        {children}
       </SettingsContext.Provider>
     </ActiveFeedNameContext.Provider>
   );
@@ -106,7 +93,7 @@ export const PostDiscoveryFeed = ({
             title={`More on ${topicLabel}`}
             description="Hand-picked stories close to what you just read."
           />
-          <FeedWithColumns columns={3}>
+          <DiscoveryFeedGridScope>
             <Feed
               feedName={OtherFeedPage.ExploreTag}
               feedQueryKey={['post-discovery-related', post.id]}
@@ -117,7 +104,7 @@ export const PostDiscoveryFeed = ({
               pageSize={9}
               disableListFrame
             />
-          </FeedWithColumns>
+          </DiscoveryFeedGridScope>
         </section>
       )}
 
@@ -127,7 +114,7 @@ export const PostDiscoveryFeed = ({
           title="Discover more"
           description="A fresh stream of developer stories, discussions, and tools."
         />
-        <FeedWithColumns columns={3}>
+        <DiscoveryFeedGridScope>
           <Feed
             feedName={SharedFeedPage.Popular}
             feedQueryKey={['post-discovery-more', post.id]}
@@ -135,7 +122,7 @@ export const PostDiscoveryFeed = ({
             variables={{}}
             disableListFrame
           />
-        </FeedWithColumns>
+        </DiscoveryFeedGridScope>
       </section>
     </div>
   );

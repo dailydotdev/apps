@@ -89,7 +89,9 @@ export const PostDiscoveryLayout = ({
             </div>
           </div>
         )}
+      </div>
 
+      <div className="w-full px-4 pb-10 tablet:px-6 laptop:px-8">
         <PostDiscoveryFeed post={post} />
       </div>
       <BackToTop />
