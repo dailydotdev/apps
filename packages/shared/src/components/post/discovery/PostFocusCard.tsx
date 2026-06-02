@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadArticleHref,
@@ -10,6 +10,7 @@ import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import { PostTagList } from '../tags/PostTagList';
@@ -19,6 +20,8 @@ import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { PostActions } from '../PostActions';
+import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 
 export type FocusCardLeftVariant = 'lean' | 'rich';
@@ -29,32 +32,17 @@ interface PostFocusCardProps {
   leftVariant?: FocusCardLeftVariant;
 }
 
-/**
- * Pulls the first sentences out of the summary to fake "key takeaways" for the
- * Rich mockup variant. Real key points would come from the backend.
- */
-const getKeyPoints = (summary?: string): string[] => {
-  if (!summary) {
-    return [];
-  }
-
-  return summary
-    .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length > 24)
-    .slice(0, 3);
-};
-
 export const PostFocusCard = ({
   post,
   origin,
-  leftVariant = 'rich',
 }: PostFocusCardProps): ReactElement => {
   const isVideoType = isVideoPost(post);
   const { title } = useSmartTitle(post);
-  const { onReadArticle } = usePostContent({ origin, post });
+  const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
+  const { onShowUpvoted } = useUpvoteQuery();
+  const focusCommentRef = useRef<() => void>(() => {});
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -62,7 +50,6 @@ export const PostFocusCard = ({
     onReadArticle();
   };
 
-  const keyPoints = leftVariant === 'rich' ? getKeyPoints(post.summary) : [];
   const readHref = getReadArticleHref(post);
   const readText = getReadPostButtonText(post);
 
@@ -161,31 +148,31 @@ export const PostFocusCard = ({
           )}
         </section>
 
-        {leftVariant === 'rich' && keyPoints.length > 0 && (
-          <section className="flex min-w-0 flex-col gap-3">
-            <p className="text-text-tertiary typo-caption1">Key takeaways</p>
-            <ul className="flex flex-col gap-2">
-              {keyPoints.map((point) => (
-                <li
-                  key={point}
-                  className="flex gap-2 text-text-secondary typo-callout"
-                >
-                  <span
-                    aria-hidden
-                    className="mt-2 size-1.5 shrink-0 rounded-full bg-accent-cabbage-default"
-                  />
-                  <span className="min-w-0">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         <PostTagList post={post} />
+
+        <section className="flex min-w-0 flex-col gap-3 border-t border-border-subtlest-tertiary pt-4">
+          <PostUpvotesCommentsCount
+            post={post}
+            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
+          />
+          <PostActions
+            post={post}
+            postQueryKey={['post', post.id]}
+            onComment={() => focusCommentRef.current()}
+            onCopyLinkClick={onCopyPostLink}
+            origin={origin}
+          />
+        </section>
       </div>
 
       <aside className="flex min-h-0 min-w-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6 laptop:sticky laptop:top-16 laptop:max-h-[calc(100vh-8rem)] laptop:border-l laptop:border-t-0 laptop:p-4">
-        <PostDiscussionPanel post={post} origin={origin} />
+        <PostDiscussionPanel
+          onRegisterFocusComment={(fn) => {
+            focusCommentRef.current = fn;
+          }}
+          post={post}
+          origin={origin}
+        />
       </aside>
     </article>
   );
