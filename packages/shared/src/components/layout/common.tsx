@@ -246,9 +246,10 @@ export const SearchControlHeader = ({
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
-                className: hasV2Chips
-                  ? compactIconButtonClassName
-                  : compactTextButtonClassName,
+                // free-trial variant renders icon + "5/5" text, so it must
+                // keep text-button sizing (auto width). Squashing it into the
+                // 32px icon square clips the hover target off the text.
+                className: compactTextButtonClassName,
               }
             : undefined
         }
