@@ -207,14 +207,17 @@ export const PostFocusCard = ({
         </div>
       </PostContainer>
 
-      <aside className="flex min-h-0 min-w-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6 laptop:sticky laptop:top-16 laptop:max-h-[calc(100vh-8rem)] laptop:w-96 laptop:border-t-0 laptop:p-4">
-        <PostDiscussionPanel
-          onRegisterFocusComment={(fn) => {
-            focusCommentRef.current = fn;
-          }}
-          post={post}
-          origin={origin}
-        />
+      <aside className="flex min-h-0 min-w-0 shrink-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle p-3 tablet:p-4 laptop:sticky laptop:top-20 laptop:h-[calc(100vh-6rem)] laptop:max-h-[calc(100vh-6rem)] laptop:w-[26rem] laptop:border-t-0 laptop:bg-background-default">
+        <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2 laptop:h-full">
+          <PostDiscussionPanel
+            className="h-full p-4"
+            onRegisterFocusComment={(fn) => {
+              focusCommentRef.current = fn;
+            }}
+            post={post}
+            origin={origin}
+          />
+        </div>
       </aside>
     </article>
   );

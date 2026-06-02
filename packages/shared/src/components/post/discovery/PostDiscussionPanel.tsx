@@ -105,77 +105,89 @@ export const PostDiscussionPanel = ({
     <section
       ref={rootRef}
       aria-label="Discussion"
-      className={classNames('flex min-w-0 flex-col gap-3', className)}
+      className={classNames('flex min-h-0 min-w-0 flex-col gap-3', className)}
     >
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-4">
-          {upvotes > 0 && (
-            <ClickableText onClick={() => onShowUpvoted(post.id, upvotes)}>
-              {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
-            </ClickableText>
-          )}
-          <span>
-            {largeNumberFormat(comments)} Comment{comments === 1 ? '' : 's'}
-          </span>
-          {canSeeAnalytics && (
-            <Link
-              href={`${webappUrl}posts/${post.id}/analytics`}
-              passHref
-              prefetch={false}
-            >
-              <ClickableText
-                tag="a"
-                className="gap-1"
-                textClassName="text-text-tertiary"
-              >
-                <AnalyticsIcon />
-                Analytics
-              </ClickableText>
-            </Link>
-          )}
+      <div className="flex shrink-0 flex-col gap-3">
+        <div className="flex min-w-0 flex-col gap-1 border-b border-border-subtlest-tertiary pb-3">
+          <p className="text-text-tertiary typo-caption1">Discussion</p>
+          <h2 className="font-bold text-text-primary typo-title3">
+            What developers are saying
+          </h2>
         </div>
-        <Button
-          type="button"
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Tertiary}
-          iconPosition={ButtonIconPosition.Right}
-          icon={
-            <TimeSortIcon
-              secondary
-              className={isNewestFirst ? undefined : 'rotate-180'}
-            />
-          }
-          onClick={() =>
-            setSortBy(
-              isNewestFirst
-                ? SortCommentsBy.OldestFirst
-                : SortCommentsBy.NewestFirst,
-            )
-          }
-          aria-label={sortLabel}
-          className="!text-text-tertiary"
-        >
-          {isNewestFirst ? 'Newest first' : 'Oldest first'}
-        </Button>
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-4">
+            {upvotes > 0 && (
+              <ClickableText onClick={() => onShowUpvoted(post.id, upvotes)}>
+                {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
+              </ClickableText>
+            )}
+            <span>
+              {largeNumberFormat(comments)} Comment{comments === 1 ? '' : 's'}
+            </span>
+            {canSeeAnalytics && (
+              <Link
+                href={`${webappUrl}posts/${post.id}/analytics`}
+                passHref
+                prefetch={false}
+              >
+                <ClickableText
+                  tag="a"
+                  className="gap-1"
+                  textClassName="text-text-tertiary"
+                >
+                  <AnalyticsIcon />
+                  Analytics
+                </ClickableText>
+              </Link>
+            )}
+          </div>
+          <Button
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            iconPosition={ButtonIconPosition.Right}
+            icon={
+              <TimeSortIcon
+                secondary
+                className={isNewestFirst ? undefined : 'rotate-180'}
+              />
+            }
+            onClick={() =>
+              setSortBy(
+                isNewestFirst
+                  ? SortCommentsBy.OldestFirst
+                  : SortCommentsBy.NewestFirst,
+              )
+            }
+            aria-label={sortLabel}
+            className="!text-text-tertiary"
+          >
+            {isNewestFirst ? 'Newest first' : 'Oldest first'}
+          </Button>
+        </div>
+        <NewComment
+          post={post}
+          ref={commentRef as LegacyRef<NewCommentRef>}
+          shouldHandleCommentQuery
+          onComposerOpenChange={setIsComposerOpen}
+          size={ProfileImageSize.Medium}
+          CommentInputOrModal={CommentInputOrModal}
+        />
       </div>
-      <NewComment
-        post={post}
-        ref={commentRef as LegacyRef<NewCommentRef>}
-        shouldHandleCommentQuery
-        onComposerOpenChange={setIsComposerOpen}
-        size={ProfileImageSize.Medium}
-        CommentInputOrModal={CommentInputOrModal}
-      />
-      <PostComments
-        post={post}
-        sortBy={sortBy}
-        origin={origin}
-        isComposerOpen={isComposerOpen}
-        onShare={(comment) => openShareComment(comment, post)}
-        onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
-        modalParentSelector={resolveModalParent}
-      />
-      <ShareBar post={post} />
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+        <PostComments
+          post={post}
+          sortBy={sortBy}
+          origin={origin}
+          isComposerOpen={isComposerOpen}
+          onShare={(comment) => openShareComment(comment, post)}
+          onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
+          modalParentSelector={resolveModalParent}
+        />
+      </div>
+      <div className="shrink-0 border-t border-border-subtlest-tertiary pt-3">
+        <ShareBar post={post} />
+      </div>
     </section>
   );
 };
