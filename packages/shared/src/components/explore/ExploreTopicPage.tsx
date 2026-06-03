@@ -53,6 +53,7 @@ import { SponsoredTagHero } from '../brand/SponsoredTagHero';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ExploreEntityCard } from './ExploreEntityCard';
 import { ExploreTopicNav } from './ExploreTopicNav';
+import { ExploreHubHeader } from './ExploreHubHeader';
 import { TagSignupBanner } from './TagSignupBanner';
 import { largeNumberFormat } from '../../lib';
 import { webappUrl } from '../../lib/constants';
@@ -326,6 +327,7 @@ export const ExploreTopicPage = ({
         </Head>
       )}
       <div className="mx-auto flex w-full max-w-screen-laptopL flex-col px-4 py-6 tablet:px-6">
+        <ExploreHubHeader className="mb-4" />
         <ExploreTopicNav
           activeTag={tag}
           recommendedTags={recommendedTags

@@ -6,7 +6,7 @@ import type { TagCategory } from '../../graphql/feedSettings';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { ExploreCategorySection } from './ExploreCategorySection';
 import { ExploreTopicSearch } from './ExploreTopicSearch';
-import { ExploreTopicNav } from './ExploreTopicNav';
+import { ExploreHubHeader } from './ExploreHubHeader';
 import { useChipBarNavigation } from './useChipBarNavigation';
 import { getTagPageLink } from '../../lib/links';
 import { formatKeyword } from '../../lib/strings';
@@ -153,11 +153,8 @@ export function ExploreTopicsPage({
 
   return (
     <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
-      {/* Consistent top nav: Explore + your tags + recommendations. */}
-      <ExploreTopicNav
-        recommendedTags={popularTags?.map((tag) => tag.value) ?? []}
-        className="mb-8"
-      />
+      {/* Unified Explore hub nav: Stories · Topics · Sources · People. */}
+      <ExploreHubHeader className="mb-8" />
 
       {/* Hero */}
       <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">

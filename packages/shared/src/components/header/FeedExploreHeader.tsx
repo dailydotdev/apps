@@ -21,7 +21,7 @@ import { OtherFeedPage } from '../../lib/query';
 import { useFeedLayout } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { featureExploreTopics } from '../../lib/featureManagement';
-import { webappUrl } from '../../lib/constants';
+import { ExploreHubHeader } from '../explore/ExploreHubHeader';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -99,7 +99,8 @@ export function FeedExploreHeader({
 
   return (
     <div className={classNames('flex w-full flex-col', className.container)}>
-      {showBreadcrumbs && (
+      {isExplore && !isExtension && <ExploreHubHeader className="mb-3 px-2" />}
+      {showBreadcrumbs && !isExplore && (
         <BreadCrumbs
           className={classNames(
             'px-2',
@@ -139,15 +140,6 @@ export function FeedExploreHeader({
                 path={url}
               />
             ))}
-            {isExplore && (
-              <SquadDirectoryNavbarItem
-                buttonSize={ButtonSize.Small}
-                isActive={currentPathname === `${webappUrl}tags`}
-                label="Topics"
-                ariaLabel="Explore topics"
-                path={`${webappUrl}tags`}
-              />
-            )}
           </SquadDirectoryNavbar>
         )}
         {!isExtension && !directoryTabs && (
@@ -160,14 +152,9 @@ export function FeedExploreHeader({
             shouldMountInactive
             tabTag="a"
           >
-            {[
-              ...Object.entries(urlToTab).map(([url, label]) => (
-                <Tab key={label} label={label} url={url} />
-              )),
-              ...(isExplore
-                ? [<Tab key="topics" label="Topics" url={`${webappUrl}tags`} />]
-                : []),
-            ]}
+            {Object.entries(urlToTab).map(([url, label]) => (
+              <Tab key={label} label={label} url={url} />
+            ))}
           </TabContainer>
         )}
         {showDropdown && (

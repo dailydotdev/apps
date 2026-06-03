@@ -24,6 +24,9 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/explore/ExploreHubHeader';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { featureExploreTopics } from '@dailydotdev/shared/src/lib/featureManagement';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -83,6 +86,7 @@ const SourcesPage = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isExplore = useFeature(featureExploreTopics);
 
   if (isLoading) {
     return <></>;
@@ -125,6 +129,7 @@ const SourcesPage = ({
         <PageHeader title="Sources">{suggestSourceButton}</PageHeader>
       )}
       <PageWrapperLayout className="py-6">
+        {isExplore && <ExploreHubHeader className="mb-6" />}
         <Head>
           <script
             type="application/ld+json"
