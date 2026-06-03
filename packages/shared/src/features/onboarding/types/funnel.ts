@@ -31,6 +31,7 @@ export enum FunnelStepType {
   OrganicCheckout = 'organicCheckout',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
+  PersonaQuiz = 'personaQuiz',
 }
 
 export enum FunnelBackgroundVariant {
@@ -377,6 +378,21 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepPersonaQuiz
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    cta?: string;
+  }> {
+  type: FunnelStepType.PersonaQuiz;
+  onTransition: FunnelStepTransitionCallback<{
+    persona?: string;
+    confidence?: number;
+    questions: number;
+    manual: boolean;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -397,7 +413,8 @@ export type FunnelStep =
   | FunnelStepOrganicCheckout
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepPersonaQuiz;
 
 export type FunnelPosition = {
   chapter: number;
@@ -446,4 +463,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
+  FunnelStepType.PersonaQuiz,
 ];
