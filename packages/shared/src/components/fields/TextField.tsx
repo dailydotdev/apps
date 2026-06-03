@@ -1,5 +1,5 @@
 import type {
-  MutableRefObject,
+  ForwardedRef,
   ReactElement,
   ReactNode,
   SyntheticEvent,
@@ -17,6 +17,14 @@ import BaseFieldContainer, {
 } from './BaseFieldContainer';
 import type { ButtonProps } from '../buttons/Button';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
+import {
+  FieldSize,
+  fieldSizeToHeight,
+  fieldSizeToTypo,
+  fieldSizeToIconSize,
+  fieldSizeToGap,
+} from './fieldSizes';
+import { FieldVariant, fieldVariantToClassName } from './fieldVariants';
 
 export interface TextFieldProps extends BaseFieldProps {
   progress?: string;
@@ -26,6 +34,19 @@ export interface TextFieldProps extends BaseFieldProps {
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
   showMaxLength?: boolean;
   inputRef?: (input: HTMLInputElement) => void;
+  /**
+   * Button-aligned sizing. When set, the field's height, radius, value
+   * typography and icon size match a button of the same size exactly, so a
+   * field and a button can sit together in one strip and look identical.
+   * When omitted, the field keeps its legacy `fieldType`-driven dimensions.
+   */
+  fieldSize?: FieldSize;
+  /**
+   * Background treatment. `Filled` (default) sits on the floated surface;
+   * `Outline` is transparent and defined by its border. Both share the faint
+   * resting border.
+   */
+  variant?: FieldVariant;
 }
 
 function TextFieldComponent(
@@ -47,6 +68,8 @@ function TextFieldComponent(
     placeholder,
     style,
     fieldType = 'primary',
+    fieldSize,
+    variant = FieldVariant.Filled,
     isLocked,
     readOnly = isLocked,
     leftIcon,
@@ -60,7 +83,7 @@ function TextFieldComponent(
     inputRef: inputRefProp,
     ...props
   }: TextFieldProps,
-  ref?: MutableRefObject<HTMLDivElement>,
+  ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   const {
     validInput,
@@ -85,6 +108,25 @@ function TextFieldComponent(
   const invalid = validInput === false || (required && inputLength === 0);
   const hasValue = hasInput || !!inputRef?.current?.value?.length;
   const id = useId();
+  const typoClass = fieldSize ? fieldSizeToTypo[fieldSize] : undefined;
+  const defaultHeight = isSecondaryField ? 'h-9' : 'h-12';
+  const heightClass = fieldSize ? fieldSizeToHeight[fieldSize] : defaultHeight;
+  // Resolve a button-aligned size for the icon glyph and the adornment gap even
+  // when no explicit `fieldSize` is set, so spacing/icon scale stays consistent
+  // with a button of the equivalent height.
+  const resolvedSize =
+    fieldSize ?? (isSecondaryField ? FieldSize.Small : FieldSize.Large);
+  const iconSize = fieldSizeToIconSize[resolvedSize];
+  const gapClass = fieldSizeToGap[resolvedSize];
+  const withIconSize = (node: ReactNode): ReactNode => {
+    if (!React.isValidElement(node)) {
+      return node;
+    }
+    const element = node as React.ReactElement<IconProps>;
+    return React.cloneElement(element, {
+      size: element.props.size ?? iconSize,
+    });
+  };
 
   return (
     <BaseFieldContainer
@@ -96,6 +138,7 @@ function TextFieldComponent(
       hint={hint}
       hintIcon={hintIcon}
       fieldType={fieldType}
+      fieldSize={fieldSize}
       readOnly={readOnly}
       isLocked={isLocked}
       hasInput={hasInput}
@@ -107,18 +150,20 @@ function TextFieldComponent(
         container: classNames('items-stretch', className.container),
         baseField: classNames(
           'flex-row items-center',
+          gapClass,
           styles.field,
+          fieldVariantToClassName[variant],
           className.baseField,
           leftIcon && 'pl-3',
           actionButton && 'pr-3',
-          isSecondaryField ? 'h-9' : 'h-12',
+          heightClass,
         ),
       }}
     >
       {leftIcon && (
         <span
           className={classNames(
-            'mr-2',
+            'flex items-center',
             getFieldFontColor({
               readOnly,
               disabled,
@@ -129,15 +174,10 @@ function TextFieldComponent(
             }),
           )}
         >
-          {leftIcon}
+          {withIconSize(leftIcon)}
         </span>
       )}
-      <div
-        className={classNames(
-          'flex max-w-full flex-1 flex-col items-start',
-          actionButton && 'mr-2',
-        )}
-      >
+      <div className="flex max-w-full flex-1 flex-col items-start">
         {isPrimaryField && (focusedHook || hasValue) && (
           <label
             className={classNames(
@@ -167,8 +207,10 @@ function TextFieldComponent(
           name={name}
           id={inputId.concat(id)}
           ref={(el) => {
-            inputRef.current = el;
-            inputRefProp?.(el);
+            inputRef.current = el as HTMLInputElement;
+            if (el) {
+              inputRefProp?.(el);
+            }
           }}
           onFocus={onFocus}
           onBlur={(e) => {
@@ -183,6 +225,7 @@ function TextFieldComponent(
           className={classNames(
             styles.input,
             'self-stretch text-ellipsis',
+            typoClass,
             className?.input,
             getFieldFontColor({
               readOnly,
@@ -213,14 +256,11 @@ function TextFieldComponent(
         )}
       </div>
       {maxLength && showMaxLength && (
-        <div
-          className="ml-2 font-bold typo-callout"
-          style={{ color: 'var(--field-placeholder-color)' }}
-        >
+        <div className="font-bold text-text-quaternary typo-callout">
           {maxLength - (inputLength || 0)}
         </div>
       )}
-      {rightIcon}
+      {withIconSize(rightIcon)}
       {actionButton}
     </BaseFieldContainer>
   );

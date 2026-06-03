@@ -9,6 +9,7 @@ import BaseFieldContainer, {
   getFieldPlaceholder,
   InnerLabel,
 } from './BaseFieldContainer';
+import { FieldVariant, fieldVariantToClassName } from './fieldVariants';
 
 function Textarea(
   {
@@ -29,9 +30,11 @@ function Textarea(
     maxLength = 100,
     rows,
     fieldType = 'primary',
+    variant = FieldVariant.Filled,
     ...props
   }: BaseFieldProps<HTMLTextAreaElement> & {
     className?: FieldClassName;
+    variant?: FieldVariant;
   },
   ref: ForwardedRef<HTMLTextAreaElement>,
 ): ReactElement {
@@ -56,7 +59,17 @@ function Textarea(
   const isTertiaryField = fieldType === 'tertiary';
   const isQuaternaryField = fieldType === 'quaternary';
   const invalid = validInput === false;
-  const hasAdditionalSpacing = isPrimaryField && !focused && !hasInput;
+  // A "title inside" caption only appears for a primary field that has a label.
+  // When it can't appear, nothing reserves the top, so the content should sit
+  // with equal padding on every side instead of the tight floating-label top.
+  const hasInnerLabel = isPrimaryField && !!label;
+  const hasAdditionalSpacing = hasInnerLabel && !focused && !hasInput;
+  const getPaddingClass = (): string => {
+    if (!hasInnerLabel) {
+      return 'py-4';
+    }
+    return hasAdditionalSpacing ? 'pt-2' : 'pt-1';
+  };
 
   return (
     <BaseFieldContainer
@@ -77,12 +90,15 @@ function Textarea(
         baseField: classNames(
           'flex-col',
           styles.field,
+          fieldVariantToClassName[variant],
           className.baseField,
-          hasAdditionalSpacing ? 'pt-2' : 'pt-1',
+          // With an inner label, keep the tight floating-label top; without one,
+          // pad every side equally (matches the 16px horizontal inset).
+          getPaddingClass(),
         ),
       }}
     >
-      {isPrimaryField && (focused || hasInput) && (
+      {hasInnerLabel && (focused || hasInput) && (
         <InnerLabel
           inputId={inputId}
           label={label}
@@ -134,7 +150,15 @@ function Textarea(
           }),
         )}
       />
-      <span className="ml-auto py-2 text-text-quaternary typo-caption1">
+      <span
+        className={classNames(
+          'ml-auto text-text-quaternary typo-caption1',
+          // With the tight top, the counter carries the bottom inset (py-2).
+          // With symmetric padding the field already pads the bottom, so the
+          // counter only needs a small gap above it.
+          hasInnerLabel ? 'py-2' : 'mt-2',
+        )}
+      >
         {`${inputLength || 0}/${maxLength}`}
       </span>
     </BaseFieldContainer>

@@ -2,7 +2,7 @@
 .DropdownMenuSubContent {
   user-select: none;
   z-index: 1000;
-  @apply py-1 px-0 m-0 bg-background-subtle rounded-12 border border-border-subtlest-secondary shadow-2;
+  @apply p-1.5 m-0 bg-background-subtle rounded-14 border border-border-subtlest-secondary shadow-2;
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
@@ -71,7 +71,15 @@
 .DropdownMenuSubTrigger {
   border-radius: 0.625rem;
   @apply text-text-tertiary;
-  @apply flex items-center typo-footnote h-7 px-2 py-0 truncate;
+  @apply flex items-center typo-footnote h-8 px-2.5 py-0 truncate;
+  transition: background-color 0.12s linear, color 0.12s linear;
+}
+
+.DropdownMenuItem[data-highlighted],
+.DropdownMenuCheckboxItem[data-highlighted],
+.DropdownMenuRadioItem[data-highlighted],
+.DropdownMenuSubTrigger[data-highlighted] {
+  @apply text-text-primary;
 }
 
 .DropdownMenuItem[data-disabled],
