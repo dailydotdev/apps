@@ -26,11 +26,19 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { getAppOrigin } from '../../lib/seo';
 
+// The Explore experience is canonically served at /explore; dedupe this route.
+const tagsCanonical = `${getAppOrigin()}/explore`;
 const seoTitles = getPageSeoTitles('Explore trending tags for developers');
 const seo: NextSeoProps = {
   title: seoTitles.title,
-  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  canonical: tagsCanonical,
+  openGraph: {
+    ...seoTitles.openGraph,
+    ...defaultOpenGraph,
+    url: tagsCanonical,
+  },
   description:
     'Discover trending, popular, and new tags on daily.dev. Browse topics that matter to developers and find relevant content quickly.',
 };

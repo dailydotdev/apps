@@ -6,6 +6,7 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { TagTopList } from '../cards/Leaderboard/TagTopList';
 import { ExploreCategorySection } from './ExploreCategorySection';
 import { ExploreTopicSearch } from './ExploreTopicSearch';
+import { useChipBarNavigation } from './useChipBarNavigation';
 import {
   Typography,
   TypographyColor,
@@ -35,6 +36,8 @@ export function ExploreTopicsPage({
   isLoading = false,
 }: ExploreTopicsPageProps): ReactElement {
   const { feedSettings } = useFeedSettings();
+  const { ref: categoryNavRef, onKeyDown: onCategoryNavKeyDown } =
+    useChipBarNavigation();
   const followedTags = useMemo(
     () => new Set(feedSettings?.includeTags ?? []),
     [feedSettings?.includeTags],
@@ -65,8 +68,14 @@ export function ExploreTopicsPage({
     <div className="mx-auto flex w-full max-w-screen-laptop flex-col px-4 py-6 tablet:px-6">
       {/* Category quick-nav: scrolls to the matching section below. */}
       {categories.length > 0 && (
-        <div className="relative mb-6">
-          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto">
+        <nav aria-label="Topic categories" className="relative mb-6">
+          <div
+            ref={categoryNavRef}
+            onKeyDown={onCategoryNavKeyDown}
+            role="toolbar"
+            aria-orientation="horizontal"
+            className="no-scrollbar flex items-center gap-2 overflow-x-auto"
+          >
             {categories.map((category) => (
               <button
                 key={category.id}
@@ -83,7 +92,7 @@ export function ExploreTopicsPage({
             aria-hidden
             className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default"
           />
-        </div>
+        </nav>
       )}
 
       <div className="flex flex-col items-center gap-6 py-4">

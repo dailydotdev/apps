@@ -54,10 +54,12 @@ import { TOP_CREATORS_BY_TAG_QUERY } from '../../graphql/users';
 import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
 import { RelatedEntities } from '../RelatedEntities';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import { largeNumberFormat } from '../../lib';
 import { getExploreTagPageLink, getTagPageLink } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
+import { useChipBarNavigation } from './useChipBarNavigation';
 import {
   Typography,
   TypographyColor,
@@ -90,6 +92,7 @@ const RelatedTagsBar = ({
   tag: string;
   tags: TagsData['tags'];
 }): ReactElement | null => {
+  const { ref, onKeyDown } = useChipBarNavigation();
   const names = (tags ?? [])
     .map((item) => item.name)
     .filter((name): name is string => !!name);
@@ -99,8 +102,14 @@ const RelatedTagsBar = ({
   }
 
   return (
-    <div className="relative mx-4">
-      <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12">
+    <nav aria-label="Related topics" className="relative mx-4">
+      <div
+        ref={ref}
+        onKeyDown={onKeyDown}
+        role="toolbar"
+        aria-orientation="horizontal"
+        className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
+      >
         <Link href={getExploreTagPageLink(tag)} legacyBehavior>
           <Button
             tag="a"
@@ -130,7 +139,7 @@ const RelatedTagsBar = ({
         aria-hidden
         className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default"
       />
-    </div>
+    </nav>
   );
 };
 
@@ -186,12 +195,9 @@ const WhoToFollow = ({
   });
 
   const users = topContributors?.topCreatorsByTag ?? initialUsers;
+  const isLoading = isPending && initialUsers.length === 0;
 
-  if (isPending && initialUsers.length === 0) {
-    return null;
-  }
-
-  if (!users || users.length === 0) {
+  if (!isLoading && (!users || users.length === 0)) {
     return null;
   }
 
@@ -206,13 +212,21 @@ const WhoToFollow = ({
         Who to follow
       </Typography>
       <div className="no-scrollbar flex gap-4 overflow-x-auto">
-        {users.map((user) => (
-          <UserEntityCard
-            key={user.id}
-            user={user}
-            className={{ container: 'shrink-0' }}
-          />
-        ))}
+        {isLoading
+          ? Array.from({ length: 3 }).map((_, index) => (
+              <ElementPlaceholder
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
+                className="h-40 w-80 shrink-0 rounded-16"
+              />
+            ))
+          : users.map((user) => (
+              <UserEntityCard
+                key={user.id}
+                user={user}
+                className={{ container: 'shrink-0' }}
+              />
+            ))}
       </div>
     </section>
   );

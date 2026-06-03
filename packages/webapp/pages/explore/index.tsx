@@ -20,11 +20,18 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { getAppOrigin } from '../../lib/seo';
 
+const exploreCanonical = `${getAppOrigin()}/explore`;
 const seoTitles = getPageSeoTitles('Explore topics for developers');
 const seo: NextSeoProps = {
   title: seoTitles.title,
-  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  canonical: exploreCanonical,
+  openGraph: {
+    ...seoTitles.openGraph,
+    ...defaultOpenGraph,
+    url: exploreCanonical,
+  },
   description:
     'Explore topics on daily.dev. Search, browse by category, and follow the topics that matter to developers.',
 };

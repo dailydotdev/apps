@@ -28,17 +28,23 @@ export interface TopicPageProps {
 }
 
 export const getTopicSeoData = (
+  tag: string,
   title: string,
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
 ): NextSeoProps => {
   const seoTitles = getPageSeoTitles(`${title} posts`);
+  // Both /tags/[tag] and /explore/[tag] render this surface; point the canonical
+  // at the Explore route so search engines don't see duplicate content.
+  const canonical = `${appOrigin}/explore/${encodeURIComponent(tag)}`;
 
   return {
     ...defaultSeo,
     ...seoTitles,
+    canonical,
     openGraph: {
       ...defaultOpenGraph,
       ...seoTitles.openGraph,
+      url: canonical,
     },
     description,
   };
@@ -61,7 +67,7 @@ export const getTopicPageStaticProps = async (
       topPosts: [],
       recommendedTags: [],
       topContributors: [],
-      seo: getTopicSeoData(tag),
+      seo: getTopicSeoData(tag, tag),
     },
   };
 
@@ -102,6 +108,7 @@ export const getTopicPageStaticProps = async (
     const recommendedTags = recommendedTagsResult?.recommendedTags?.tags ?? [];
     const topContributors = topContributorsResult?.topCreatorsByTag ?? [];
     const seo = getTopicSeoData(
+      tag,
       initialData.flags?.title || tag,
       initialData.flags?.description,
     );
