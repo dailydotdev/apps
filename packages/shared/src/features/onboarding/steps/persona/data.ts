@@ -189,7 +189,7 @@ export const QUESTIONS: PersonaQuestion[] = [
   { text: 'Your main language is TypeScript or JavaScript.', layer: 2, exclusiveGroup: 'main-language' },
   { text: 'Your main language is Python.', layer: 2, exclusiveGroup: 'main-language' },
   { text: 'Your main language is Go, Rust, or C/C++.', layer: 2, exclusiveGroup: 'main-language' },
-  { text: 'You let AI write whole functions or features for you, not just autocomplete suggestions.', layer: 2 },
+  { text: 'You use agentic AI tools (Claude Code, Cursor Agent) that run on tasks autonomously, not just chat or autocomplete.', layer: 2 },
   { text: 'You\'ve shipped code that calls OpenAI, Anthropic, or another LLM API.', layer: 2 },
   { text: 'You\'ve spent a weekend customizing your editor or dotfiles.', layer: 2 },
   { text: 'You\'ve fine-tuned an ML model in the last six months.', layer: 2 },
