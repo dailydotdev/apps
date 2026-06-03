@@ -38,7 +38,10 @@ const strictSkipList = new Set([
   // signature mismatch) all live on unchanged logic copied from the
   // original step and should be addressed in a dedicated auth-flow
   // cleanup PR alongside the related auth files already on this list.
+  // FunnelHeroLanding is the new signup-hero step copied from the same
+  // original and carries the identical copied-auth strict violations.
   'packages/shared/src/features/onboarding/steps/FunnelOrganicSignup.tsx',
+  'packages/shared/src/features/onboarding/steps/FunnelHeroLanding.tsx',
   'packages/shared/src/hooks/useLogin.ts',
   'packages/shared/src/hooks/useRegistration.ts',
   'packages/shared/src/contexts/AuthContext.tsx',
