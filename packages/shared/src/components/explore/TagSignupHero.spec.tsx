@@ -1,16 +1,19 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetType } from '../../lib/log';
-import { TagSignupBanner } from './TagSignupBanner';
+import { TagSignupHero } from './TagSignupHero';
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
 }));
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: jest.fn(),
+}));
+jest.mock('../auth/AuthOptions', () => ({
+  __esModule: true,
+  default: () => <div data-testid="auth-options" />,
 }));
 
 const showLogin = jest.fn();
@@ -29,12 +32,15 @@ beforeEach(() => {
   (useLogContext as jest.Mock).mockReturnValue({ logEvent });
 });
 
-describe('TagSignupBanner', () => {
-  it('renders a signup-first CTA and logs an impression for logged-out users', () => {
+describe('TagSignupHero', () => {
+  it('shows the auth hero and logs an impression for logged-out users', () => {
     mockAuth();
-    render(<TagSignupBanner tag="React" />);
+    render(<TagSignupHero tag="React" />);
 
-    expect(screen.getByRole('heading', { name: /Follow React/ })).toBeVisible();
+    expect(
+      screen.getByRole('heading', { name: /make every tab count/i }),
+    ).toBeVisible();
+    expect(screen.getByTestId('auth-options')).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
       target_type: TargetType.SignupButton,
@@ -42,21 +48,9 @@ describe('TagSignupBanner', () => {
     });
   });
 
-  it('opens registration on signup click', () => {
-    mockAuth();
-    render(<TagSignupBanner tag="React" />);
-
-    fireEvent.click(screen.getByRole('button', { name: /Sign up/ }));
-
-    expect(showLogin).toHaveBeenCalledWith({
-      trigger: AuthTriggers.Onboarding,
-      options: { isLogin: false },
-    });
-  });
-
   it('renders nothing for logged-in users', () => {
     mockAuth({ isLoggedIn: true });
-    const { container } = render(<TagSignupBanner tag="React" />);
+    const { container } = render(<TagSignupHero tag="React" />);
 
     expect(container).toBeEmptyDOMElement();
     expect(logEvent).not.toHaveBeenCalled();
