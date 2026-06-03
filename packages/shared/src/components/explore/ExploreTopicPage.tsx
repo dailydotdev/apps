@@ -52,10 +52,9 @@ import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ExploreEntityCard } from './ExploreEntityCard';
+import { ExploreTopicNav } from './ExploreTopicNav';
 import { largeNumberFormat } from '../../lib';
-import { getExploreTagPageLink } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
-import { useChipBarNavigation } from './useChipBarNavigation';
 import {
   Typography,
   TypographyColor,
@@ -96,64 +95,6 @@ const SectionHeading = ({
     {children}
   </Typography>
 );
-
-const RelatedTagsBar = ({
-  tag,
-  tags,
-}: {
-  tag: string;
-  tags: TagsData['tags'];
-}): ReactElement | null => {
-  const { ref, onKeyDown } = useChipBarNavigation();
-  const names = (tags ?? [])
-    .map((item) => item.name)
-    .filter((name): name is string => !!name);
-
-  if (names.length === 0) {
-    return null;
-  }
-
-  return (
-    <nav aria-label="Related topics" className="relative mx-4">
-      <div
-        ref={ref}
-        onKeyDown={onKeyDown}
-        role="toolbar"
-        aria-orientation="horizontal"
-        className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
-      >
-        <Link href={getExploreTagPageLink(tag)} legacyBehavior>
-          <Button
-            tag="a"
-            href={getExploreTagPageLink(tag)}
-            aria-current="page"
-            pressed
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
-          >
-            #{tag}
-          </Button>
-        </Link>
-        {names.map((name) => (
-          <Link key={name} href={getExploreTagPageLink(name)} legacyBehavior>
-            <Button
-              tag="a"
-              href={getExploreTagPageLink(name)}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-            >
-              #{name}
-            </Button>
-          </Link>
-        ))}
-      </div>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default"
-      />
-    </nav>
-  );
-};
 
 const ENTITY_GRID =
   'grid grid-cols-1 gap-4 mobileL:grid-cols-2 laptop:grid-cols-3';
@@ -371,7 +312,12 @@ export const ExploreTopicPage = ({
         </Head>
       )}
       <div className="flex w-full flex-col px-4 py-6">
-        <RelatedTagsBar tag={tag} tags={recommendedTags} />
+        <ExploreTopicNav
+          activeTag={tag}
+          recommendedTags={recommendedTags
+            .map((relatedTag) => relatedTag.name)
+            .filter((name): name is string => !!name)}
+        />
 
         {/* Identity header — centered & readable; content below spans full width. */}
         <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
