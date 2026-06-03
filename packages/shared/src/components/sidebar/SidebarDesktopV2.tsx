@@ -681,23 +681,6 @@ export const SidebarDesktopV2 = ({
           className="my-2 h-px w-6 bg-border-subtlest-quaternary"
         />
 
-        {isLoggedIn && (
-          <Tooltip
-            side="right"
-            content="New post"
-            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-          >
-            <div>
-              <CreatePostButton
-                compact
-                showIcon
-                size={ButtonSize.Small}
-                className="!size-10 !rounded-12 !border-0 !bg-transparent text-text-tertiary hover:!bg-surface-hover hover:!text-text-primary"
-              />
-            </div>
-          </Tooltip>
-        )}
-
         <div
           role="tablist"
           aria-label="Sidebar categories"
@@ -765,6 +748,23 @@ export const SidebarDesktopV2 = ({
               </React.Fragment>
             );
           })}
+
+          {isLoggedIn && (
+            <Tooltip
+              side="right"
+              content="New post"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <div>
+                <CreatePostButton
+                  compact
+                  showIcon
+                  size={ButtonSize.Small}
+                  className="!size-10 !rounded-12"
+                />
+              </div>
+            </Tooltip>
+          )}
         </div>
 
         <div
