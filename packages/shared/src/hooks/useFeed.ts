@@ -1,10 +1,17 @@
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import type { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
+import type {
+  InfiniteData,
+  QueryKey,
+  UseInfiniteQueryOptions,
+} from '@tanstack/react-query';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
-import type { Ad, FeedData, Post, PostsEngaged } from '../graphql/posts';
+import type { Ad, Post, PostsEngaged } from '../graphql/posts';
 import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
+import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
+import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
+import type { PostHighlight } from '../graphql/highlights';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
 import {
@@ -12,9 +19,10 @@ import {
   getNextPageParam,
   removeCachedPagePost,
   RequestKey,
+  StaleTime,
   updateCachedPagePost,
 } from '../lib/query';
-import type { MarketingCta } from '../components/marketingCta/common';
+import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
@@ -53,23 +61,43 @@ interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
   marketingCta: MarketingCta;
 }
 
+interface PlaceholderItem extends FeedItemBase<FeedItemType.Placeholder> {
+  index?: number;
+}
+
 export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   post: Post;
   page: number;
   index: number;
 }
 
+export interface HighlightItem extends FeedItemBase<FeedItemType.Highlight> {
+  highlights: PostHighlight[];
+  feedMeta: string | null;
+  impressionStatus?: number;
+}
+
 interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
   plusEntry: MarketingCta;
 }
 
+interface UserAcquisitionItem
+  extends FeedItemBase<FeedItemType.UserAcquisition> {}
+
+const createPlaceholderItem = (index?: number): PlaceholderItem => ({
+  type: FeedItemType.Placeholder,
+  dataUpdatedAt: Date.now(),
+  ...(typeof index === 'number' ? { index } : {}),
+});
+
 export type FeedItem =
   | PostItem
+  | HighlightItem
   | AdItem
   | AdSquadItem
   | MarketingCtaItem
-  | FeedItemBase<FeedItemType.Placeholder>
-  | FeedItemBase<FeedItemType.UserAcquisition>
+  | PlaceholderItem
+  | UserAcquisitionItem
   | PlusEntryItem;
 
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
@@ -109,7 +137,13 @@ export interface UseFeedOptionalParams<T> {
   query?: string;
   variables?: T;
   options?: Pick<
-    UseInfiniteQueryOptions<FeedData>,
+    UseInfiniteQueryOptions<
+      FeedItemData,
+      ClientError,
+      InfiniteData<FeedItemData, string>,
+      QueryKey,
+      string
+    >,
     'refetchOnMount' | 'gcTime' | 'placeholderData' | 'staleTime'
   >;
   settings?: UseFeedSettingParams;
@@ -138,15 +172,28 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
-  const feedQuery = useInfiniteQuery<FeedData>({
+  const feedQuery = useInfiniteQuery<
+    FeedItemData,
+    ClientError,
+    InfiniteData<FeedItemData, string>,
+    QueryKey,
+    string
+  >({
     queryKey: feedQueryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await gqlClient.request<FeedData>(query, {
+      if (!query) {
+        throw new Error('useFeed query is required');
+      }
+
+      const rawResult = await gqlClient.request<
+        FeedData | FeedItemData | FeedV2Data
+      >(query, {
         ...variables,
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
       });
+      const res = normalizeFeedPage(rawResult);
 
       const isEmpty =
         !feedQuery?.data?.pages[0]?.page.edges.length &&
@@ -165,13 +212,24 @@ export default function useFeed<T>(
         }
       }
 
-      fetchTranslations(res.page.edges.map(({ node }) => node));
+      fetchTranslations(
+        res.page.edges.reduce<Post[]>((posts, { node }) => {
+          const post = getFeedApiItemPost(node);
+
+          if (post) {
+            posts.push(post);
+          }
+
+          return posts;
+        }, []),
+      );
 
       return res;
     },
     refetchOnMount: false,
+    gcTime: StaleTime.OneHour,
     ...options,
-    enabled: query && tokenRefreshed,
+    enabled: !!query && tokenRefreshed,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: avoidRetry ? false : 3,
@@ -197,18 +255,26 @@ export default function useFeed<T>(
   }, [feedQuery.data?.pages, feedQueryKey, queryClient]);
 
   const clientError = feedQuery?.error as ClientError;
+  const adPostLength = settings?.adPostLength;
 
-  const isAdsQueryEnabled =
+  const isAdsQueryEnabled = Boolean(
     !isPlus &&
-    query &&
-    tokenRefreshed &&
-    !isFeedPreview &&
-    (!settings?.adPostLength ||
-      feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
-    !settings?.disableAds;
+      query &&
+      tokenRefreshed &&
+      !isFeedPreview &&
+      (!adPostLength ||
+        (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
+      !settings?.disableAds,
+  );
 
   const { fetchAd } = useFetchAd();
-  const adsQuery = useInfiniteQuery<Ad>({
+  const adsQuery = useInfiniteQuery<
+    Ad,
+    ClientError,
+    InfiniteData<Ad, string | number>,
+    QueryKey,
+    string | number
+  >({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
     queryFn: async ({ pageParam }) => {
       const ad = await fetchAd({
@@ -243,7 +309,7 @@ export default function useFeed<T>(
   } = adsQuery;
 
   const getAd = useCallback(
-    ({ index }: { index: number }) => {
+    ({ index }: { index: number }): AdItem | PlaceholderItem | undefined => {
       if (!isAdsQueryEnabled) {
         return undefined;
       }
@@ -268,10 +334,7 @@ export default function useFeed<T>(
       const adPage = adIndex / adRepeat; // page number for ad
 
       if (isLoading) {
-        return {
-          type: FeedItemType.Placeholder,
-          index: adPage,
-        };
+        return createPlaceholderItem(adPage);
       }
 
       const nextAd = adsData?.pages[adPage];
@@ -279,19 +342,13 @@ export default function useFeed<T>(
       if (!nextAd) {
         fetchNextAd({ cancelRefetch: false });
 
-        return {
-          type: FeedItemType.Placeholder,
-          index: adPage,
-        };
+        return createPlaceholderItem(adPage);
       }
 
       // for now we return placeholder when no ad is available
       // this can be replace with some local replacements in the future
       if (nextAd.source === AD_PLACEHOLDER_SOURCE_ID) {
-        return {
-          type: FeedItemType.Placeholder,
-          index: adPage,
-        };
+        return createPlaceholderItem(adPage);
       }
 
       return {
@@ -317,82 +374,110 @@ export default function useFeed<T>(
     let newItems: FeedItem[] = [];
 
     // Check if marketing CTA should be shown as first card
-    const marketingCtaAsFirstCard = settings?.marketingCta?.flags?.asFirstCard;
-    const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
+    const marketingCta = settings?.marketingCta;
+    const marketingCtaAsFirstCard = marketingCta?.flags?.asFirstCard;
+    const plusEntry = settings?.plusEntry;
+    const plusEntryAsFirstCard = plusEntry?.flags?.asFirstCard;
+    const showAcquisitionForm = settings?.showAcquisitionForm ?? false;
 
     if (feedQuery.data) {
       const seenPostIds = new Set<string>();
-      newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
-        page.edges.forEach(({ node }: { node: Post }, index: number) => {
-          if (seenPostIds.has(node.id)) {
-            return;
-          }
-          seenPostIds.add(node.id);
+      newItems = feedQuery.data.pages.reduce<FeedItem[]>(
+        (acc, { page }, pageIndex) => {
+          page.edges.forEach(({ node }, index: number) => {
+            const adIndex = acc.length;
+            const adItem = getAd({ index: adIndex });
 
-          const adIndex = acc.length;
-          const adItem = getAd({ index: adIndex });
+            if (adItem) {
+              const withFirstIndex = (condition: boolean) =>
+                pageIndex === 0 && adItem.index === 0 && condition;
 
-          if (adItem) {
-            const withFirstIndex = (condition: boolean) =>
-              pageIndex === 0 && adItem.index === 0 && condition;
+              // Skip ad slot if marketing CTA is shown as first card
+              const shouldSkipAdForMarketingCta = withFirstIndex(
+                (marketingCtaAsFirstCard ?? false) ||
+                  (plusEntryAsFirstCard ?? false),
+              );
 
-            // Skip ad slot if marketing CTA is shown as first card
-            const shouldSkipAdForMarketingCta = withFirstIndex(
-              (marketingCtaAsFirstCard ?? false) ||
-                (plusEntryAsFirstCard ?? false),
-            );
-
-            if (shouldSkipAdForMarketingCta) {
-              // Don't push anything - marketing CTA is already at the top
-            } else if (withFirstIndex(!!settings.plusEntry)) {
-              acc.push({
-                type: FeedItemType.PlusEntry,
-                plusEntry: settings.plusEntry,
-              });
-            } else if (withFirstIndex(!!settings.marketingCta)) {
-              acc.push({
-                type: FeedItemType.MarketingCta,
-                marketingCta: settings.marketingCta,
-              });
-            } else if (withFirstIndex(settings.showAcquisitionForm ?? false)) {
-              acc.push({ type: FeedItemType.UserAcquisition });
-            } else {
-              acc.push(adItem);
+              if (shouldSkipAdForMarketingCta) {
+                // Don't push anything - marketing CTA is already at the top
+              } else if (plusEntry && withFirstIndex(true)) {
+                acc.push({
+                  type: FeedItemType.PlusEntry,
+                  plusEntry,
+                  dataUpdatedAt: feedQuery.dataUpdatedAt,
+                });
+              } else if (marketingCta && withFirstIndex(true)) {
+                acc.push({
+                  type: FeedItemType.MarketingCta,
+                  marketingCta,
+                  dataUpdatedAt: feedQuery.dataUpdatedAt,
+                });
+              } else if (withFirstIndex(showAcquisitionForm)) {
+                acc.push({
+                  type: FeedItemType.UserAcquisition,
+                  dataUpdatedAt: feedQuery.dataUpdatedAt,
+                });
+              } else {
+                acc.push(adItem);
+              }
             }
-          }
 
-          acc.push({
-            type: FeedItemType.Post,
-            post: node,
-            page: pageIndex,
-            index,
-            dataUpdatedAt: feedQuery.dataUpdatedAt,
+            if (node.itemType === 'highlight') {
+              if (!node.highlights.length) {
+                return;
+              }
+
+              acc.push({
+                type: FeedItemType.Highlight,
+                highlights: node.highlights,
+                feedMeta: node.feedMeta ?? null,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+
+              return;
+            }
+
+            const { post } = node;
+
+            if (seenPostIds.has(post.id)) {
+              return;
+            }
+            seenPostIds.add(post.id);
+
+            acc.push({
+              type: FeedItemType.Post,
+              post,
+              page: pageIndex,
+              index,
+              dataUpdatedAt: feedQuery.dataUpdatedAt,
+            });
           });
-        });
 
-        return acc;
-      }, []);
+          return acc;
+        },
+        [],
+      );
 
       // Prepend marketing CTA as first card if configured
-      if (plusEntryAsFirstCard && settings.plusEntry) {
+      if (plusEntryAsFirstCard && plusEntry) {
         newItems.unshift({
           type: FeedItemType.PlusEntry,
-          plusEntry: settings.plusEntry,
+          plusEntry,
           dataUpdatedAt: feedQuery.dataUpdatedAt,
         });
-      } else if (marketingCtaAsFirstCard && settings.marketingCta) {
+      } else if (marketingCtaAsFirstCard && marketingCta) {
         newItems.unshift({
           type: FeedItemType.MarketingCta,
-          marketingCta: settings.marketingCta,
+          marketingCta,
           dataUpdatedAt: feedQuery.dataUpdatedAt,
         });
       }
     }
     if (feedQuery.isFetching) {
       newItems.push(
-        ...Array(Math.max(0, placeholdersPerPage)).fill({
-          type: 'placeholder',
-        }),
+        ...Array.from({ length: Math.max(0, placeholdersPerPage) }, () =>
+          createPlaceholderItem(),
+        ),
       );
     }
 
@@ -412,12 +497,12 @@ export default function useFeed<T>(
     feedQuery.data,
     feedQuery.isFetching,
     feedQuery.dataUpdatedAt,
-    settings.marketingCta,
-    settings.showAcquisitionForm,
+    settings?.marketingCta,
+    settings?.showAcquisitionForm,
     placeholdersPerPage,
     getAd,
-    settings.plusEntry,
-    settings.staticAd,
+    settings?.plusEntry,
+    settings?.staticAd,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
@@ -428,13 +513,27 @@ export default function useFeed<T>(
     }),
     {
       next: (data: PostsEngaged) => {
+        if (!feedQuery.data) {
+          return;
+        }
+
         const { pageIndex, index } = findIndexOfPostInData(
           feedQuery.data,
           data.postsEngaged.id,
         );
         if (index > -1) {
+          const currentPost = getFeedApiItemPost(
+            feedQuery.data.pages[pageIndex].page.edges[index].node,
+          );
+
+          if (!currentPost) {
+            throw new Error(
+              `Missing post-backed feed item at page ${pageIndex} index ${index}`,
+            );
+          }
+
           updatePost(pageIndex, index, {
-            ...feedQuery.data.pages[pageIndex].page.edges[index].node,
+            ...currentPost,
             ...data.postsEngaged,
           });
         }

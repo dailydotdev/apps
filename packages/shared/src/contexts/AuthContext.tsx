@@ -9,19 +9,21 @@ import React, {
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
-import {
-  deleteAccount,
-  logout as dispatchLogout,
-  LogoutReason,
-} from '../lib/user';
+import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
+import type { AuthDisplay } from '../components/auth/common';
 import type { Squad } from '../graphql/sources';
+import type { Feed } from '../graphql/feed';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
-import { invalidPlusRegions, webFunnelPrefix } from '../lib/constants';
+import {
+  invalidPlusRegions,
+  onboardingUrl,
+  webFunnelPrefix,
+} from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -33,6 +35,11 @@ export interface LoginState {
   onLoginSuccess?: () => void;
   onRegistrationSuccess?: (user?: LoggedUser | AnonymousUser) => void;
   isLogin?: boolean;
+  afterAuth?: string;
+  // Lets callers (e.g. AuthenticationBanner) tell the inline modal which
+  // screen to open on, when the trigger originates from an inline AuthOptions
+  // surface that has already partially progressed the user.
+  defaultDisplay?: AuthDisplay;
 }
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
@@ -72,6 +79,7 @@ export interface AuthContextData {
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
   isFunnel?: boolean;
+  feeds?: Feed[];
 }
 
 const isExtension = checkIsExtension();
@@ -132,6 +140,7 @@ export type AuthContextProviderProps = {
   | 'refetchBoot'
   | 'geo'
   | 'isAndroidApp'
+  | 'feeds'
 >;
 
 export const AuthContextProvider = ({
@@ -147,6 +156,7 @@ export const AuthContextProvider = ({
   visit,
   accessToken,
   squads,
+  feeds,
   firstLoad,
   geo,
   isAndroidApp,
@@ -157,21 +167,6 @@ export const AuthContextProvider = ({
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
-  const isRecruiterPage = router?.pathname?.startsWith('/recruiter');
-  const isAuthTransitPage =
-    router?.pathname === '/callback' || router?.pathname === '/onboarding';
-
-  if (
-    firstLoad === true &&
-    endUser &&
-    !endUser?.infoConfirmed &&
-    !isFunnelRef.current &&
-    !isRecruiterPage &&
-    !isAuthTransitPage
-  ) {
-    logout(LogoutReason.IncomleteOnboarding);
-  }
-
   const isValidRegion = useMemo(
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
@@ -195,15 +190,19 @@ export const AuthContextProvider = ({
             if (hasCompanion) {
               const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
               window.open(signup);
-            } else {
-              const params = new URLSearchParams(globalThis?.location.search);
-
-              setLoginState({ ...options, trigger });
-              if (!params.get(AFTER_AUTH_PARAM)) {
-                params.set(AFTER_AUTH_PARAM, window.location.pathname);
-              }
-              router.push(`/onboarding?${params.toString()}`);
+              return;
             }
+
+            setLoginState({ ...options, trigger });
+
+            if (!isExtension) {
+              return;
+            }
+
+            const params = new URLSearchParams(globalThis?.location.search);
+            params.delete(AFTER_AUTH_PARAM);
+
+            router.push(`${onboardingUrl}?${params.toString()}`);
           },
           [router],
         ),
@@ -222,6 +221,7 @@ export const AuthContextProvider = ({
         deleteAccount,
         accessToken,
         squads,
+        feeds,
         geo,
         isAndroidApp,
         isValidRegion,

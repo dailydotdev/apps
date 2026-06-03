@@ -58,17 +58,17 @@ Allow: /
 # All other crawlers
 User-agent: *
 Allow: /
-Allow: /api/sitemaps/
 Disallow: /join
 Disallow: /error
 Disallow: /callback
 Disallow: /helloworld
 Disallow: /helloworld/
 Disallow: /welcome
-Disallow: /api/
+Disallow: /api/r/
 
-# Sitemap index
+# Sitemap indexes
 Sitemap: https://app.daily.dev/sitemap.xml
+Sitemap: https://app.daily.dev/api/sitemaps/index.xml
 
 # LLM-friendly documentation
 # https://app.daily.dev/llms.txt

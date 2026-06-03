@@ -55,7 +55,7 @@ describe('CookieBanner outside GDPR', () => {
   it('should render just a single button to accept all when outside GDPR coverage', async () => {
     renderComponent();
     await nextTick();
-    const el = await screen.findByText('I understand');
+    const el = await screen.findByRole('button', { name: 'I understand' });
     expect(el.tagName).toBe('BUTTON');
   });
 
@@ -83,7 +83,7 @@ describe('CookieBanner outside GDPR', () => {
     renderComponent();
 
     await screen.findByTestId('cookie_content');
-    const button = await screen.findByText('I understand');
+    const button = await screen.findByRole('button', { name: 'I understand' });
     await act(() => fireEvent.click(button));
     await nextTick();
     const cookies = getCookies([GdprConsentKey.Necessary]);

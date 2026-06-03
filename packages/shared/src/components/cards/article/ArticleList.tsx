@@ -28,6 +28,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -51,9 +52,11 @@ export const ArticleList = forwardRef(function ArticleList(
   const { type, pinnedAt, trending } = post;
   const isVideoType = isVideoPost(post);
 
-  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { showFeedback } = usePostFeedback({ post });
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
@@ -74,7 +77,7 @@ export const ArticleList = forwardRef(function ArticleList(
   );
 
   const metadata = useMemo(() => {
-    const authorName = post.author?.name ?? post.source.name;
+    const authorName = post.author?.name ?? post.source?.name;
 
     if (isUserSource) {
       return {
@@ -83,13 +86,13 @@ export const ArticleList = forwardRef(function ArticleList(
     }
 
     return {
-      topLabel: (
+      topLabel: post.source?.permalink ? (
         <Link href={post.source.permalink}>
           <a href={post.source.permalink} className="relative z-1">
             {post.source.name}
           </a>
         </Link>
-      ),
+      ) : undefined,
       bottomLabel: (
         <PostReadTime
           readTime={post.readTime}
@@ -98,6 +101,23 @@ export const ArticleList = forwardRef(function ArticleList(
       ),
     };
   }, [isUserSource, post]);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          style,
+          className,
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending, type }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer
@@ -109,19 +129,21 @@ export const ArticleList = forwardRef(function ArticleList(
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
-        !isFeedPreview && {
-          title: post.title,
-          href: post.commentsPermalink,
-          ...combinedClicks(onPostCardClick),
-        }
+        !isFeedPreview
+          ? {
+              title: post.title,
+              href: post.commentsPermalink,
+              ...combinedClicks(onPostCardClick),
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
       {showFeedback ? (
         <FeedbackList
           post={post}
-          onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
-          onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
+          onUpvoteClick={() => onUpvoteClick?.(post, Origin.FeedbackCard)}
+          onDownvoteClick={() => onDownvoteClick?.(post, Origin.FeedbackCard)}
           isVideoType={isVideoType}
         />
       ) : (
@@ -134,7 +156,7 @@ export const ArticleList = forwardRef(function ArticleList(
               onReadArticleClick={onReadArticleClick}
               metadata={metadata}
             >
-              {!isUserSource && (
+              {!isUserSource && post.source && (
                 <SourceButton
                   size={ProfileImageSize.Large}
                   source={post.source}
@@ -147,7 +169,7 @@ export const ArticleList = forwardRef(function ArticleList(
               <div className="mr-4 flex flex-1 flex-col">
                 <CardTitle
                   lineClamp={undefined}
-                  className={!!post.read && 'text-text-tertiary'}
+                  className={post.read ? 'text-text-tertiary' : undefined}
                 >
                   {truncatedTitle}
                 </CardTitle>

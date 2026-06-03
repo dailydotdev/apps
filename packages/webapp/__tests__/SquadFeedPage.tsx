@@ -14,6 +14,7 @@ import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type {
+  GraphQLRequest,
   GraphQLResult,
   MockedGraphQLResponse,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -31,18 +32,23 @@ import type {
   BasicSourceMembersData,
   SquadData,
   SquadEdgesData,
+  TopMembersBySquadData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
   BASIC_SQUAD_MEMBERS_QUERY,
+  MAX_TOP_MEMBERS_BY_SQUAD,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
+  TOP_MEMBERS_BY_SQUAD_QUERY,
+  getTopMembersBySquadSince,
 } from '@dailydotdev/shared/src/graphql/squads';
-import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import {
+  type SourceMember,
+  SourceType,
+  type Squad,
   SourceMemberRole,
   SourcePermissions,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import {
   ActionType,
   COMPLETE_ACTION_MUTATION,
@@ -52,13 +58,31 @@ import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
 } from '@dailydotdev/shared/src/graphql/contentPreference';
-import SquadPage from '../pages/squads/[handle]';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
+import SquadPage, { getServerSideProps } from '../pages/squads/[handle]';
 
 const defaultSquad: Squad = {
   ...generateTestSquad(),
   public: false,
 };
+const defaultCurrentMember = defaultSquad.currentMember as SourceMember;
 let requestedSquad: Partial<Squad> = {};
+const actualUseSquad = jest.requireActual(
+  '@dailydotdev/shared/src/hooks/squads/useSquad',
+).useSquad as typeof useSquad;
+const mockUseSquad = jest.mocked(useSquad);
+
+jest.mock('@dailydotdev/shared/src/hooks/squads/useSquad', () => {
+  const actual = jest.requireActual(
+    '@dailydotdev/shared/src/hooks/squads/useSquad',
+  );
+
+  return {
+    ...actual,
+    useSquad: jest.fn(actual.useSquad),
+  };
+});
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
@@ -74,6 +98,8 @@ jest.mock('next/router', () => ({
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
+  jest.useRealTimers();
+  mockUseSquad.mockImplementation(actualUseSquad);
   nock.cleanAll();
   requestedSquad = {};
 });
@@ -81,7 +107,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = SOURCE_FEED_QUERY,
-  variables: unknown = {
+  variables: GraphQLRequest['variables'] = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -131,7 +157,7 @@ Object.assign(navigator, {
 
 const createSourceMembersMock = (
   result = generateMembersResult(),
-  variables: unknown = { id: defaultSquad.id, first: 5 },
+  variables: GraphQLRequest['variables'] = { id: defaultSquad.id, first: 5 },
 ): MockedGraphQLResponse<SquadEdgesData> => ({
   request: { query: SQUAD_MEMBERS_QUERY, variables },
   result: { data: result },
@@ -139,14 +165,14 @@ const createSourceMembersMock = (
 
 const createBasicSourceMembersMock = (
   result = generateBasicMembersResult(),
-  variables: unknown = { id: defaultSquad.id, first: 5 },
+  variables: GraphQLRequest['variables'] = { id: defaultSquad.id, first: 5 },
 ): MockedGraphQLResponse<BasicSourceMembersData> => ({
   request: { query: BASIC_SQUAD_MEMBERS_QUERY, variables },
   result: { data: result },
 });
 
 const createContentPreferenceStatusMock = (
-  id: string = defaultSquad.id,
+  id = defaultSquad.id ?? '',
   entity: ContentPreferenceType = ContentPreferenceType.Source,
 ): MockedGraphQLResponse => ({
   request: {
@@ -159,6 +185,43 @@ const createContentPreferenceStatusMock = (
     },
   },
 });
+
+const createTopMembersBySquadMock = (
+  result: TopMembersBySquadData = {
+    topMembersBySquad: [
+      {
+        id: 'u2',
+        name: 'Top Member',
+        image: 'https://daily.dev/top-member.png',
+        username: 'topmember',
+        permalink: '/topmember',
+        createdAt: new Date().toISOString(),
+        reputation: 42,
+      },
+    ],
+  },
+  variables: GraphQLRequest['variables'] = {
+    sourceId: defaultSquad.id,
+    since: getTopMembersBySquadSince(),
+    limit: MAX_TOP_MEMBERS_BY_SQUAD,
+  },
+): MockedGraphQLResponse<TopMembersBySquadData> => ({
+  request: { query: TOP_MEMBERS_BY_SQUAD_QUERY, variables },
+  result: { data: result },
+});
+
+const createTopMembers = (
+  count = 1,
+): TopMembersBySquadData['topMembersBySquad'] =>
+  Array.from({ length: count }, (_, index) => ({
+    id: `u${index + 2}`,
+    name: count === 1 ? 'Top Member' : `Top Member ${index + 1}`,
+    image: `https://daily.dev/top-member-${index + 1}.png`,
+    username: `topmember${index + 1}`,
+    permalink: `/topmember${index + 1}`,
+    createdAt: new Date().toISOString(),
+    reputation: 42 + index,
+  }));
 
 let client: QueryClient;
 
@@ -182,7 +245,6 @@ const renderComponent = (
       client={client}
       auth={{ user, squads }}
       notification={{
-        app: BootApp.Webapp,
         isNotificationsReady: true,
         unreadCount: 0,
       }}
@@ -190,13 +252,44 @@ const renderComponent = (
       {SquadPage.getLayout(
         <SquadPage handle={handle} />,
         {},
-        SquadPage.layoutProps,
+        SquadPage.layoutProps as unknown as Parameters<
+          typeof SquadPage.getLayout
+        >[2],
       )}
     </TestBootProvider>,
   );
 };
 
 describe('squad page', () => {
+  it('should redirect machine sources to the canonical sources route', async () => {
+    jest.spyOn(gqlClient, 'request').mockResolvedValueOnce({
+      source: {
+        id: 'daily',
+        name: 'daily.dev',
+        image: 'https://daily.dev/daily.png',
+        handle: 'daily',
+        permalink: 'https://app.daily.dev/sources/daily',
+        type: SourceType.Machine,
+        public: true,
+      },
+    } as Awaited<ReturnType<typeof gqlClient.request>>);
+
+    const setHeader = jest.fn();
+    const result = await getServerSideProps({
+      params: { handle: 'daily' },
+      query: {},
+      res: { setHeader },
+    } as never);
+
+    expect(setHeader).toHaveBeenCalled();
+    expect(result).toEqual({
+      redirect: {
+        destination: '/sources/daily',
+        permanent: false,
+      },
+    });
+  });
+
   it('should request source feed', async () => {
     renderComponent();
     await waitForNock();
@@ -241,6 +334,50 @@ describe('squad page header', () => {
     renderComponent();
     const alt = `${defaultSquad.handle}'s logo`;
     await screen.findByAltText(alt);
+  });
+
+  it('should show top members below moderated by for public squads', async () => {
+    mockUseSquad.mockReturnValue({
+      squad: {
+        ...generateTestSquad({ public: true }),
+        topMembers: createTopMembers(),
+      },
+      isLoading: false,
+      isFetched: true,
+      isForbidden: false,
+    });
+
+    renderComponent(defaultSquad.handle, [
+      createFeedMock(),
+      createBasicSourceMembersMock(),
+    ]);
+
+    expect(await screen.findByText('Top members')).toBeInTheDocument();
+    expect(screen.getByText('Top Member')).toBeInTheDocument();
+  });
+
+  it('should show top members overflow in a modal', async () => {
+    mockUseSquad.mockReturnValue({
+      squad: {
+        ...generateTestSquad({ public: true }),
+        topMembers: createTopMembers(4),
+      },
+      isLoading: false,
+      isFetched: true,
+      isForbidden: false,
+    });
+
+    renderComponent(defaultSquad.handle, [
+      createFeedMock(),
+      createBasicSourceMembersMock(),
+    ]);
+
+    expect(await screen.findByText('Top Member 1')).toBeInTheDocument();
+    expect(screen.queryByText('Top Member 4')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /\+\d+/ }));
+
+    expect(await screen.findByText('Top Member 4')).toBeInTheDocument();
   });
 });
 
@@ -323,7 +460,7 @@ describe('squad header bar', () => {
   it('should copy invitation link', async () => {
     requestedSquad.public = false;
     requestedSquad.currentMember = {
-      ...defaultSquad.currentMember,
+      ...defaultCurrentMember,
       permissions: [SourcePermissions.Invite],
     };
     renderComponent();
@@ -348,10 +485,15 @@ describe('squad header bar', () => {
   it('should copy invitation link for public squad', async () => {
     requestedSquad.public = true;
     requestedSquad.currentMember = {
-      ...defaultSquad.currentMember,
+      ...defaultCurrentMember,
       permissions: [SourcePermissions.Invite],
     };
-    renderComponent();
+    renderComponent(defaultSquad.handle, [
+      createSourceMock(defaultSquad.handle),
+      createFeedMock(),
+      createBasicSourceMembersMock(),
+      createTopMembersBySquadMock(),
+    ]);
     const invite = await screen.findByText('Invitation link');
 
     mockGraphQL({
@@ -372,7 +514,7 @@ describe('squad header bar', () => {
 
   it('should not copy invitation link when member does not have invite permission', async () => {
     requestedSquad.currentMember = {
-      ...defaultSquad.currentMember,
+      ...defaultCurrentMember,
       permissions: [],
     };
     renderComponent();
@@ -390,6 +532,7 @@ describe('squad header bar', () => {
       createSourceMock(defaultSquad.handle),
       createFeedMock(),
       createBasicSourceMembersMock(),
+      createTopMembersBySquadMock(),
       createContentPreferenceStatusMock(
         defaultSquad.id,
         ContentPreferenceType.Source,
@@ -460,6 +603,7 @@ describe('squad members modal', () => {
 
   it('should show all blocked members of the squad when privileged', async () => {
     requestedSquad.currentMember = {
+      ...defaultCurrentMember,
       role: SourceMemberRole.Admin,
       permissions: [SourcePermissions.ViewBlockedMembers],
     };

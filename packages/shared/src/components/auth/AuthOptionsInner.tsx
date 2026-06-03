@@ -16,14 +16,21 @@ import {
 } from '../../lib/auth';
 import {
   getBetterAuthErrorMessage,
-  getBetterAuthSocialRedirectData,
   betterAuthSignInWithIdToken,
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
+  getBetterAuthSocialRedirectData,
 } from '../../lib/betterAuth';
+import {
+  getSocialAuthCallbackError,
+  GITHUB_EMAIL_NOT_VERIFIED_ERROR,
+  hasSocialAuthBootUser,
+  refetchSocialAuthBoot,
+  SOCIAL_AUTH_RETRY_MESSAGE,
+} from './socialAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import { isIOSNative } from '../../lib/func';
+import { shouldUseSocialAuthPopup } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -110,33 +117,6 @@ const EmailCodeVerification = dynamic(
 );
 
 const CHOSEN_PROVIDER_KEY = 'chosen_provider';
-const SOCIAL_AUTH_RETRY_MESSAGE =
-  "We couldn't complete your social sign-in. Please try again.";
-
-const getSocialAuthCallbackError = (data?: unknown): string | undefined => {
-  if (!data || typeof data !== 'object') {
-    return undefined;
-  }
-
-  const callbackData = data as Record<string, unknown>;
-  const { error, error_description: errorDescription, message } = callbackData;
-  if (typeof error === 'string' && error.trim().length > 0) {
-    return error;
-  }
-
-  if (
-    typeof errorDescription === 'string' &&
-    errorDescription.trim().length > 0
-  ) {
-    return errorDescription;
-  }
-
-  if (typeof message === 'string' && message.trim().length > 0) {
-    return message;
-  }
-
-  return undefined;
-};
 
 function AuthOptionsInner({
   onClose,
@@ -154,6 +134,10 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  hideLoginLink,
+  compact,
+  autoTriggerProvider,
+  socialProviderScopes,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -191,6 +175,24 @@ function AuthOptionsInner({
   const [isRegistration, setIsRegistration] = useState(false);
   const [isSocialAuthLoading, setIsSocialAuthLoading] = useState(false);
   const windowPopup = useRef<Window | null>(null);
+  const popupCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+  const authFlowCompletedRef = useRef(false);
+  const authFlowSucceededRef = useRef(false);
+
+  const clearPopupCheck = () => {
+    if (popupCheckIntervalRef.current) {
+      clearInterval(popupCheckIntervalRef.current);
+      popupCheckIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearPopupCheck();
+    };
+  }, []);
 
   const checkForOnboardedUser = async (data: LoggedUser) => {
     onAuthStateUpdate({ isLoading: true });
@@ -284,29 +286,26 @@ function AuthOptionsInner({
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
-  const autoCompleteProfileForRecruiter = async (
-    recruiterEmail: string,
+  const autoCompleteProfile = async (
+    userEmail: string,
     name?: string,
+    marketing = false,
   ) => {
     try {
-      // Generate name from email if not provided by OAuth
-      const displayName =
-        name || generateNameFromEmail(recruiterEmail, 'Recruiter');
+      const displayName = name || generateNameFromEmail(userEmail, 'User');
 
-      // Generate username from the display name
       const username = await generateUsername(displayName);
 
-      // Auto-complete profile
       updateUserProfile({
         name: displayName,
         username,
-        acceptedMarketing: false,
+        acceptedMarketing: marketing,
       });
     } catch (error) {
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
-          error: 'Failed to auto-complete profile for recruiter',
+          error: 'Failed to auto-complete profile',
           details: error instanceof Error ? error.message : 'Unknown error',
         }),
       });
@@ -347,8 +346,7 @@ function AuthOptionsInner({
         onSuccessfulLogin?.();
       }
     } else if (trigger === AuthTriggers.RecruiterSelfServe) {
-      // For RecruiterSelfServe, auto-complete profile without showing the form
-      await autoCompleteProfileForRecruiter(user.email, user.name);
+      await autoCompleteProfile(user.email, user.name, false);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -378,58 +376,77 @@ function AuthOptionsInner({
   };
 
   const handleLoginMessage = async (e?: MessageEvent) => {
-    const callbackError = getSocialAuthCallbackError(e?.data);
-    if (callbackError) {
-      setIsSocialAuthLoading(false);
-      logEvent({
-        event_name: socialErrorEventName.current,
-        extra: JSON.stringify({
-          error: callbackError,
-          origin: 'betterauth social auth callback',
-          data:
-            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
-        }),
-      });
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-      return;
+    authFlowCompletedRef.current = true;
+    clearPopupCheck();
+    const popup = windowPopup.current;
+    windowPopup.current = null;
+    if (popup && !popup.closed) {
+      popup.close();
+      // Retry after a short delay — some browsers defer the close when the
+      // popup is still settling after a redirect chain.
+      setTimeout(() => {
+        if (!popup.closed) {
+          popup.close();
+        }
+      }, 300);
     }
+
+    const callbackError = getSocialAuthCallbackError(e?.data);
+    const callbackData =
+      typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined;
+    const socialErrorMessage =
+      callbackError === GITHUB_EMAIL_NOT_VERIFIED_ERROR
+        ? labels.auth.error.githubEmailNotVerified
+        : SOCIAL_AUTH_RETRY_MESSAGE;
 
     let boot;
     try {
-      ({ data: boot } = await refetchBoot());
+      boot = await refetchSocialAuthBoot(refetchBoot);
     } catch (error) {
       setIsSocialAuthLoading(false);
+      onAuthStateUpdate?.({ isLoading: false });
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error: getBetterAuthErrorMessage(
             error,
             'Failed to refresh Better Auth social auth state',
           ),
+          callbackError,
           origin: 'betterauth social auth boot',
-          data:
-            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
+          data: callbackData,
         }),
       });
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      if (!authFlowSucceededRef.current) {
+        displayToast(socialErrorMessage);
+      }
       return;
     }
 
-    if (!boot.user || !('email' in boot.user)) {
+    if (!hasSocialAuthBootUser(boot?.user)) {
       setIsSocialAuthLoading(false);
+      onAuthStateUpdate?.({ isLoading: false });
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error:
+            callbackError ||
             'Could not find authenticated user after social authentication',
-          origin: 'betterauth social auth boot',
-          data:
-            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
+          origin: callbackError
+            ? 'betterauth social auth callback'
+            : 'betterauth social auth boot',
+          data: callbackData,
         }),
       });
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      if (!authFlowSucceededRef.current) {
+        displayToast(socialErrorMessage);
+      }
       return;
     }
+
+    authFlowSucceededRef.current = true;
 
     // If user is confirmed we can proceed with logging them in
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
@@ -442,11 +459,10 @@ function AuthOptionsInner({
       return;
     }
 
-    // For RecruiterSelfServe, auto-complete profile without showing the form
     if (trigger === AuthTriggers.RecruiterSelfServe) {
       setIsSocialAuthLoading(false);
       const loggedUser = boot.user as LoggedUser;
-      await autoCompleteProfileForRecruiter(loggedUser.email, loggedUser.name);
+      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
       return;
     }
 
@@ -473,6 +489,7 @@ function AuthOptionsInner({
       extra: JSON.stringify({ trigger }),
     });
     socialErrorEventName.current = authErrorEventName;
+    authFlowSucceededRef.current = false;
     setIsSocialAuthLoading(true);
 
     const additionalData = { timezone: getUserDefaultTimezone() };
@@ -493,6 +510,7 @@ function AuthOptionsInner({
         logEvent({
           event_name: authErrorEventName,
           extra: JSON.stringify({
+            provider,
             error: result.error,
             origin: 'betterauth native id token',
           }),
@@ -505,9 +523,9 @@ function AuthOptionsInner({
       await handleLoginMessage();
       return;
     }
-    const isIOSApp = isIOSNative();
+    const shouldUsePopup = shouldUseSocialAuthPopup();
     onAuthStateUpdate?.({ isLoading: true });
-    if (!isIOSApp) {
+    if (shouldUsePopup) {
       windowPopup.current = window.open();
     }
     const callbackURL = `${webappUrl}callback?login=true`;
@@ -515,11 +533,13 @@ function AuthOptionsInner({
       provider.toLowerCase(),
       callbackURL,
       additionalData,
+      socialProviderScopes,
     );
     if (!socialUrl) {
       logEvent({
         event_name: authErrorEventName,
         extra: JSON.stringify({
+          provider,
           error: error || 'Failed to get social login URL',
           origin: 'betterauth social url',
         }),
@@ -531,27 +551,47 @@ function AuthOptionsInner({
       onAuthStateUpdate?.({ isLoading: false });
       return;
     }
-    if (isIOSApp) {
-      window.location.href = socialUrl;
-      return;
-    }
     if (!windowPopup.current) {
-      logEvent({
-        event_name: authErrorEventName,
-        extra: JSON.stringify({
-          error: 'Failed to open social login window',
-          origin: 'betterauth social popup',
-        }),
-      });
-      setIsSocialAuthLoading(false);
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-      onAuthStateUpdate?.({ isLoading: false });
+      window.location.href = socialUrl;
       return;
     }
     windowPopup.current.location.href = socialUrl;
     await setChosenProvider(provider);
     onAuthStateUpdate?.({ isLoading: true });
+
+    authFlowCompletedRef.current = false;
+    clearPopupCheck();
+    const popup = windowPopup.current;
+    popupCheckIntervalRef.current = setInterval(() => {
+      if (popup && !popup.closed) {
+        return;
+      }
+      clearPopupCheck();
+      windowPopup.current = null;
+      if (authFlowCompletedRef.current) {
+        return;
+      }
+      // Popup closed without delivering a completion message. The user may
+      // still be authenticated (session cookies set even when postMessage is
+      // missed/dropped); verify via boot before surfacing an error toast.
+      handleLoginMessage();
+    }, 500);
   };
+
+  const onProviderClickRef = useRef(onProviderClick);
+  onProviderClickRef.current = onProviderClick;
+  const autoTriggerFiredProvider = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (
+      !autoTriggerProvider ||
+      autoTriggerFiredProvider.current === autoTriggerProvider
+    ) {
+      return;
+    }
+    autoTriggerFiredProvider.current = autoTriggerProvider;
+    onProviderClickRef.current(autoTriggerProvider, false);
+  }, [autoTriggerProvider]);
 
   const onProviderMessage = async (e: MessageEvent) => {
     if (checkIsLoginMessage(e)) {
@@ -611,7 +651,7 @@ function AuthOptionsInner({
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
         !simplified && 'bg-accent-pepper-subtlest',
-        defaultDisplay === AuthDisplay.OnboardingSignup
+        defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
           : undefined,
         className?.container,
@@ -647,7 +687,6 @@ function AuthOptionsInner({
             hints={hint}
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
-            trigger={trigger}
             simplified={simplified}
             {...(user?.isPlus && {
               title: 'Complete your profile',
@@ -664,12 +703,20 @@ function AuthOptionsInner({
                 ? () => onSetActiveDisplay(defaultDisplay)
                 : undefined
             }
-            onBackToIntro={() => {
-              onAuthStateUpdate({
-                isAuthenticating: undefined,
-                defaultDisplay: AuthDisplay.OnboardingSignup,
-              });
-            }}
+            onBackToIntro={
+              // Only offer "back to intro" when an OnboardingSignup screen is
+              // actually the entry point (e.g. /onboarding, auth banner).
+              // The inline modal lands on Default and there's no intro to
+              // return to.
+              defaultDisplay === AuthDisplay.OnboardingSignup
+                ? () => {
+                    onAuthStateUpdate({
+                      isAuthenticating: undefined,
+                      defaultDisplay: AuthDisplay.OnboardingSignup,
+                    });
+                  }
+                : undefined
+            }
             onExistingEmailLoginClick={() => {
               onAuthStateUpdate({
                 isLoginFlow: true,
@@ -689,24 +736,29 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onContinueWithEmail={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 defaultDisplay: AuthDisplay.Registration,
               });
+              setActiveDisplay(AuthDisplay.Registration);
             }}
             onSignup={(signupEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 email: signupEmail,
                 defaultDisplay: AuthDisplay.Registration,
               });
+              setEmail(signupEmail);
+              setActiveDisplay(AuthDisplay.Registration);
             }}
             onExistingEmail={(existingEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 isLoginFlow: true,
                 email: existingEmail,
               });
+              setEmail(existingEmail);
+              setActiveDisplay(AuthDisplay.Default);
             }}
             onProviderClick={onProviderClick}
             trigger={trigger}
@@ -716,6 +768,8 @@ function AuthOptionsInner({
             targetId={targetId}
             className={className}
             onboardingSignupButton={onboardingSignupButton}
+            hideLoginLink={hideLoginLink}
+            compact={compact}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

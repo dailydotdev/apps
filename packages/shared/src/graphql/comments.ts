@@ -3,7 +3,7 @@ import type { Connection, gqlClient } from './common';
 import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import type { EmptyResponse } from './emptyResponse';
 import type { UserShortProfile } from '../lib/user';
-import type { Post, UserVote } from './posts';
+import type { ContentEmbed, Post, UserVote } from './posts';
 import type { Company } from '../lib/userCompany';
 import type { ContentPreference } from './contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
@@ -38,6 +38,7 @@ export interface Comment {
   id: string;
   content?: string;
   contentHtml: string;
+  contentEmbeds?: ContentEmbed[];
   createdAt: string;
   lastUpdatedAt?: string;
   author?: Author;

@@ -5,6 +5,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import type { QuestDashboard } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
@@ -220,14 +221,20 @@ const questDashboard = {
     plus: [],
   },
   milestone: [],
+  intro: [],
 };
 
-const renderComponent = (
+const renderComponent = ({
   optOutLevelSystem = false,
-  client: QueryClient = new QueryClient(),
+  client = new QueryClient(),
   compact = false,
   log = {},
-) =>
+}: {
+  optOutLevelSystem?: boolean;
+  client?: QueryClient;
+  compact?: boolean;
+  log?: Record<string, unknown>;
+} = {}) =>
   render(
     <TestBootProvider
       client={client}
@@ -263,7 +270,7 @@ beforeEach(() => {
 
 describe('QuestButton', () => {
   it('should show level progress and xp rewards when levels are enabled', async () => {
-    renderComponent(false);
+    renderComponent();
 
     const button = screen.getByRole('button', {
       name: /Quests, level 7, 63% progress/i,
@@ -281,7 +288,7 @@ describe('QuestButton', () => {
   });
 
   it('should render a smaller trigger when compact', () => {
-    renderComponent(false, new QueryClient(), true);
+    renderComponent({ client: new QueryClient(), compact: true });
 
     const button = screen.getByRole('button', {
       name: /Quests, level 7, 63% progress/i,
@@ -304,7 +311,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     expect(
       screen.getByRole('button', {
@@ -314,7 +321,7 @@ describe('QuestButton', () => {
   });
 
   it('should hide level progress and xp rewards when levels are disabled', async () => {
-    renderComponent(true);
+    renderComponent({ optOutLevelSystem: true });
 
     const button = screen.getByRole('button', { name: 'Quests' });
 
@@ -330,7 +337,7 @@ describe('QuestButton', () => {
   });
 
   it('should route feed-based quests back to the main feed', async () => {
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -383,7 +390,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -431,7 +438,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -477,7 +484,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -490,7 +497,7 @@ describe('QuestButton', () => {
     ).toHaveAttribute('data-tooltip-content', 'Go to Leaderboards');
   });
 
-  it('should label arena quests as the Arena', async () => {
+  it('should route arena quests to agent highlights', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
         ...questDashboard,
@@ -521,7 +528,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -530,8 +537,8 @@ describe('QuestButton', () => {
     );
 
     expect(
-      await screen.findByRole('button', { name: 'Go to the Arena' }),
-    ).toHaveAttribute('data-tooltip-content', 'Go to the Arena');
+      await screen.findByRole('button', { name: 'Go to Happening Now' }),
+    ).toHaveAttribute('data-tooltip-content', 'Go to Happening Now');
   });
 
   it('should route link post quests to the squads create page', async () => {
@@ -565,7 +572,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -585,7 +592,7 @@ describe('QuestButton', () => {
   it('should log when opening the quest dropdown', async () => {
     const logEvent = jest.fn();
 
-    renderComponent(false, new QueryClient(), false, { logEvent });
+    renderComponent({ log: { logEvent } });
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -599,8 +606,199 @@ describe('QuestButton', () => {
     });
   });
 
+  it('should never render the new quest indicator bubble', () => {
+    renderComponent();
+
+    expect(
+      screen.queryByTestId('quest-button-new-indicator'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should log when a quest becomes claimable after a quest update', () => {
+    const logEvent = jest.fn();
+    const client = new QueryClient();
+    const subscriptions: Array<{
+      query: string;
+      next?: () => unknown;
+    }> = [];
+    let questDashboardState: {
+      data: QuestDashboard;
+      isPending: boolean;
+      isError: boolean;
+      dataUpdatedAt: number;
+    } = {
+      data: questDashboard,
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 1,
+    };
+
+    mockUseQuestDashboard.mockImplementation(() => questDashboardState);
+    mockUseSubscription.mockImplementation(
+      (
+        request: () => { query: string },
+        callbacks: { next?: () => unknown },
+      ) => {
+        subscriptions.push({
+          query: request().query,
+          next: callbacks.next,
+        });
+      },
+    );
+
+    const view = render(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    questDashboardState = {
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              ...questDashboard.daily.regular[0],
+              userQuestId: 'user-quest-1',
+              status: QuestStatus.Completed,
+              claimable: true,
+              completedAt: new Date('2026-04-13T10:00:00.000Z'),
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 2,
+    };
+
+    subscriptions
+      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
+      ?.next?.();
+
+    view.rerender(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.QuestClaimable,
+      target_id: 'quest-1',
+      target_type: TargetType.Quest,
+      extra: JSON.stringify({
+        questType: QuestType.Daily,
+        userQuestId: 'user-quest-1',
+        userId: undefined,
+        rotationId: 'daily-quest-1',
+      }),
+    });
+  });
+
+  it('should not log claimable for a locked plus quest after a quest update', () => {
+    const logEvent = jest.fn();
+    const client = new QueryClient();
+    const subscriptions: Array<{
+      query: string;
+      next?: () => unknown;
+    }> = [];
+    let questDashboardState: {
+      data: QuestDashboard;
+      isPending: boolean;
+      isError: boolean;
+      dataUpdatedAt: number;
+    } = {
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-plus-quest-1',
+              userQuestId: null,
+              progress: 1,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'plus-quest-1',
+                name: 'Plus read posts',
+                description: 'Read 3 posts today',
+                type: QuestType.Daily,
+                eventType: 'read_post',
+                targetCount: 3,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 150 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 1,
+    };
+
+    mockUseQuestDashboard.mockImplementation(() => questDashboardState);
+    mockUseSubscription.mockImplementation(
+      (
+        request: () => { query: string },
+        callbacks: { next?: () => unknown },
+      ) => {
+        subscriptions.push({
+          query: request().query,
+          next: callbacks.next,
+        });
+      },
+    );
+
+    const view = render(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    questDashboardState = {
+      data: {
+        ...questDashboardState.data,
+        daily: {
+          ...questDashboardState.data.daily,
+          plus: [
+            {
+              ...questDashboardState.data.daily.plus[0],
+              userQuestId: 'user-plus-quest-1',
+              status: QuestStatus.Completed,
+              progress: 3,
+              completedAt: new Date('2026-04-13T10:00:00.000Z'),
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 2,
+    };
+
+    subscriptions
+      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
+      ?.next?.();
+
+    view.rerender(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.QuestClaimable,
+        target_id: 'plus-quest-1',
+      }),
+    );
+  });
+
   it('should stay open when the page scrolls', async () => {
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -648,7 +846,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
     await userEvent.click(
       screen.getByRole('button', {
         name: /Quests, level 7, 63% progress/i,
@@ -708,7 +906,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -802,7 +1000,7 @@ describe('QuestButton', () => {
         variables: undefined,
       });
 
-      renderComponent(false);
+      renderComponent();
 
       act(() => {
         screen
@@ -944,7 +1142,7 @@ describe('QuestButton', () => {
         variables: undefined,
       });
 
-      renderComponent(false);
+      renderComponent();
 
       act(() => {
         screen
@@ -1017,7 +1215,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -1067,7 +1265,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -1114,7 +1312,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -1152,16 +1350,23 @@ describe('QuestButton', () => {
       },
     );
 
-    renderComponent(false, client);
+    renderComponent({ client });
 
-    expect(subscriptions.map((subscription) => subscription.query)).toEqual([
-      QUEST_UPDATE_SUBSCRIPTION,
-      QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-    ]);
+    expect(
+      Array.from(
+        new Set(subscriptions.map((subscription) => subscription.query)),
+      ),
+    ).toEqual([QUEST_UPDATE_SUBSCRIPTION, QUEST_ROTATION_UPDATE_SUBSCRIPTION]);
 
-    subscriptions.forEach((subscription) => {
-      subscription.next?.();
-    });
+    subscriptions
+      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
+      ?.next?.();
+    subscriptions
+      .find(
+        (subscription) =>
+          subscription.query === QUEST_ROTATION_UPDATE_SUBSCRIPTION,
+      )
+      ?.next?.();
 
     expect(invalidateQueries).toHaveBeenCalledTimes(2);
     expect(invalidateQueries).toHaveBeenNthCalledWith(1, {

@@ -75,7 +75,7 @@ const OpportunityCard = ({
   );
 };
 
-const ReviewListPage = (): ReactElement => {
+const ReviewListPage = (): ReactElement | null => {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
 

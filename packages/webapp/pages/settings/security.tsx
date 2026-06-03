@@ -37,7 +37,7 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Manage account security'),
+  ...getPageSeoTitles('Account & Security'),
 };
 
 const BETTER_AUTH_CHANGE_EMAIL_MESSAGE =

@@ -73,6 +73,7 @@ export const publishTimeLiveTimer: typeof publishTimeRelativeShort = (
 
 export enum TimeFormatType {
   Post = 'post',
+  PostUpdated = 'postUpdated',
   Comment = 'comment',
   ReadHistory = 'readHistory',
   TopReaderBadge = 'topReaderBadge',
@@ -112,6 +113,20 @@ export function postDateFormat(
     options.year = 'numeric';
   }
   return date.toLocaleString('en-US', options);
+}
+
+export function postUpdatedDateFormat(
+  value: Date | number | string,
+  now = new Date(),
+): string {
+  const date = new Date(value);
+
+  if (isSameDay(date, now) || isSameDay(date, subDays(now, 1))) {
+    const relative = publishTimeRelativeShort(value, now);
+    return relative === 'now' ? relative : `${relative} ago`;
+  }
+
+  return postDateFormat(value, now);
 }
 
 export function commentDateFormat(
@@ -201,9 +216,14 @@ export const getPlusMemberDateFormat = (date: string | Date): string => {
 
 export const getLastActivityDateFormat = (
   value: Date | number | string,
+  options?: {
+    maxHoursAgo?: number;
+  },
 ): string => {
   const date = new Date(value);
   const now = new Date();
+  const maxHoursAgo = options?.maxHoursAgo ?? 24;
+  const maxHoursAgoInSeconds = maxHoursAgo * oneHour;
 
   // Calculate time delta in seconds.
   const dt = (now.getTime() - date.getTime()) / 1000;
@@ -217,7 +237,7 @@ export const getLastActivityDateFormat = (
     return `${numMinutes}m ago`;
   }
 
-  if (dt <= oneDay) {
+  if (dt <= maxHoursAgoInSeconds) {
     const numHours = Math.round(dt / oneHour);
     return `${numHours}h ago`;
   }
@@ -280,6 +300,10 @@ export const formatDate = ({ value, type, now }: FormatDateProps): string => {
 
   if (type === TimeFormatType.Post) {
     return postDateFormat(date);
+  }
+
+  if (type === TimeFormatType.PostUpdated) {
+    return postUpdatedDateFormat(date);
   }
 
   if (type === TimeFormatType.Comment) {

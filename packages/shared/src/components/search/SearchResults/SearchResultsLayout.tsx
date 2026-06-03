@@ -17,7 +17,7 @@ import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
-import { AskSearchBanner } from '../../notifications/AskSearchBanner';
+import { AskSearchBanner } from '../../marketing/banners/AskSearchBanner';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 

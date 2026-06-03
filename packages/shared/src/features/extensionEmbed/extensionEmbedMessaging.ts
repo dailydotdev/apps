@@ -3,9 +3,14 @@ import {
   extensionSiteEmbedFrameMessageSource,
   extensionSiteEmbedParentEvent,
   extensionSiteEmbedParentMessageSource,
+  extensionSiteEmbedTargetEvent,
+  extensionSiteEmbedTargetMessageSource,
   getExtensionSiteEmbedErrorMessage,
 } from './common';
-import type { ExtensionSiteEmbedFrameMessage } from './common';
+import type {
+  ExtensionSiteEmbedFrameMessage,
+  ExtensionSiteEmbedTargetMessage,
+} from './common';
 
 const getFrameOrigin = (frame: HTMLIFrameElement | null): string | null => {
   if (!frame?.src) {
@@ -19,8 +24,9 @@ const getFrameOrigin = (frame: HTMLIFrameElement | null): string | null => {
   }
 };
 
-export const postExtensionSiteEmbedDisableMessage = (
+const postFrameMessage = (
   frame: HTMLIFrameElement | null,
+  type: (typeof extensionSiteEmbedParentEvent)[keyof typeof extensionSiteEmbedParentEvent],
 ): void => {
   if (!frame?.contentWindow) {
     return;
@@ -31,13 +37,27 @@ export const postExtensionSiteEmbedDisableMessage = (
     return;
   }
 
-  frame.contentWindow.postMessage(
-    {
-      source: extensionSiteEmbedParentMessageSource,
-      type: extensionSiteEmbedParentEvent.Disable,
-    },
-    frameOrigin,
-  );
+  try {
+    frame.contentWindow.postMessage(
+      {
+        source: extensionSiteEmbedParentMessageSource,
+        type,
+      },
+      frameOrigin,
+    );
+  } catch {
+    // Chrome throws when the iframe failed to navigate to the extension
+    // origin (e.g. blocked by `web_accessible_resources` or extension
+    // uninstalled mid-session) — the iframe ends up at about:blank inheriting
+    // the parent origin, which mismatches the strict `targetOrigin` we pass.
+    // The message would be a no-op anyway in that state, so swallow it.
+  }
+};
+
+export const postExtensionSiteEmbedDisableMessage = (
+  frame: HTMLIFrameElement | null,
+): void => {
+  postFrameMessage(frame, extensionSiteEmbedParentEvent.Disable);
 };
 
 type HandleExtensionSiteEmbedMessageOptions = {
@@ -47,8 +67,9 @@ type HandleExtensionSiteEmbedMessageOptions = {
   onPermissionsReady: () => void;
   onEmbeddingReady: () => void;
   onReloadRequested: () => void;
+  onOptOutRequested: () => void;
   onMissingPermission: () => void;
-  onError: (message: string) => void;
+  onError: (payload: { message: string; reason?: string }) => void;
 };
 
 export const handleExtensionSiteEmbedMessage = ({
@@ -58,6 +79,7 @@ export const handleExtensionSiteEmbedMessage = ({
   onPermissionsReady,
   onEmbeddingReady,
   onReloadRequested,
+  onOptOutRequested,
   onMissingPermission,
   onError,
 }: HandleExtensionSiteEmbedMessageOptions): void => {
@@ -86,6 +108,11 @@ export const handleExtensionSiteEmbedMessage = ({
     return;
   }
 
+  if (message.type === extensionSiteEmbedFrameEvent.OptOutRequested) {
+    onOptOutRequested();
+    return;
+  }
+
   if (message.type !== extensionSiteEmbedFrameEvent.Error) {
     return;
   }
@@ -102,10 +129,42 @@ export const handleExtensionSiteEmbedMessage = ({
     return;
   }
 
-  onError(
-    getExtensionSiteEmbedErrorMessage({
+  onError({
+    message: getExtensionSiteEmbedErrorMessage({
       reason: message.reason,
       error: message.error,
     }),
-  );
+    reason: message.reason,
+  });
+};
+
+type HandleExtensionSiteEmbedTargetMessageOptions = {
+  event: MessageEvent;
+  expectedTargetOrigin: string | null;
+  expectedTargetSource?: MessageEventSource | null;
+  onTargetDomReady: (payload: { target: string }) => void;
+};
+
+export const handleExtensionSiteEmbedTargetMessage = ({
+  event,
+  expectedTargetOrigin,
+  expectedTargetSource,
+  onTargetDomReady,
+}: HandleExtensionSiteEmbedTargetMessageOptions): void => {
+  const isExpectedTarget = expectedTargetSource
+    ? event.source === expectedTargetSource
+    : !!expectedTargetOrigin && event.origin === expectedTargetOrigin;
+
+  if (
+    !isExpectedTarget ||
+    event.data?.source !== extensionSiteEmbedTargetMessageSource
+  ) {
+    return;
+  }
+
+  const message = event.data as ExtensionSiteEmbedTargetMessage;
+
+  if (message.type === extensionSiteEmbedTargetEvent.DomReady) {
+    onTargetDomReady({ target: message.target ?? '' });
+  }
 };

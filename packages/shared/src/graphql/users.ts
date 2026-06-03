@@ -34,6 +34,30 @@ export const CHECK_LOCATION_QUERY = gql`
   }
 `;
 
+export const JOIN_HACKATHON_MUTATION = gql`
+  mutation JoinHackathon {
+    joinHackathon {
+      _
+    }
+  }
+`;
+
+export const HACKATHON_PARTICIPATION_QUERY = gql`
+  query HackathonParticipation {
+    whoami {
+      id
+      isHackathonParticipant
+    }
+  }
+`;
+
+export type HackathonParticipationData = {
+  whoami: {
+    id: string;
+    isHackathonParticipant: boolean;
+  };
+};
+
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
     user(id: $id) {
@@ -67,6 +91,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
         status
       }
       coresRole
+      noindex
     }
   }
 `;
@@ -796,6 +821,16 @@ export const TOP_READER_BADGE = gql`
   }
 
   ${TOP_READER_BADGE_FRAGMENT}
+`;
+
+export const TOP_CREATORS_BY_TAG_QUERY = gql`
+  query TopCreatorsByTag($tag: String!, $limit: Int) {
+    topCreatorsByTag(tag: $tag, limit: $limit) {
+      ...UserShortInfo
+    }
+  }
+
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const TOP_READER_BADGE_BY_ID = gql`

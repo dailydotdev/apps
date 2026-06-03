@@ -17,8 +17,13 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { useNewD1ExperienceFeature } from '../../../hooks/useNewD1ExperienceFeature';
 
-export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
+export const ClickbaitShield = ({
+  post,
+}: {
+  post: Post;
+}): ReactElement | null => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
@@ -27,11 +32,17 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
+  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
+    shouldEvaluate: !isPlus,
+  });
 
   if (!isPlus) {
+    if (isNewD1Experience) {
+      return null;
+    }
     return (
       <Tooltip
-        className="max-w-70 text-center !typo-subhead"
+        className="max-w-70 text-left !typo-subhead"
         content={
           fetchedSmartTitle ? (
             <>
@@ -100,7 +111,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
 
   return (
     <Tooltip
-      className="max-w-70 text-center !typo-subhead"
+      className="max-w-70 text-left !typo-subhead"
       content={
         shieldActive
           ? 'Click to see the original title'

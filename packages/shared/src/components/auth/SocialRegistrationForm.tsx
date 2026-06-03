@@ -1,10 +1,7 @@
 import classNames from 'classnames';
 import type { MutableRefObject, ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
-import type {
-  AuthTriggersType,
-  SocialRegistrationParameters,
-} from '../../lib/auth';
+import type { SocialRegistrationParameters } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -35,7 +32,6 @@ export interface SocialRegistrationFormProps extends AuthFormProps {
   provider?: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   title?: string;
-  trigger: AuthTriggersType;
   hints?: ProfileFormHint;
   onUpdateHints?: (errors: ProfileFormHint) => void;
   onSignup?: (params: SocialRegistrationParameters) => void;
@@ -241,9 +237,6 @@ export const SocialRegistrationForm = ({
           hint={experienceLevelHint}
           saveHintSpace
         />
-        <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
-          Your email will be used to send you product and community updates
-        </span>
         <Checkbox name="optOutMarketing" className="font-normal">
           I don’t want to receive updates and promotions via email
         </Checkbox>

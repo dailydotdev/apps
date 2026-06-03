@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
@@ -25,7 +25,7 @@ import {
   getApiError,
   gqlClient,
 } from '../../graphql/common';
-import { useToastNotification, ToastSubject } from '../useToastNotification';
+import { useToastNotification } from '../useToastNotification';
 import type { NotifyOptionalProps } from '../useToastNotification';
 import type { SourcePostModeration } from '../../graphql/squads';
 import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
@@ -39,20 +39,7 @@ import { moderationRequired } from '../../components/squads/utils';
 import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
-import {
-  ButtonIconPosition,
-  ButtonVariant,
-} from '../../components/buttons/Button';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { usePushNotificationMutation } from '../notifications/usePushNotificationMutation';
-import {
-  NotificationCtaKind,
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/log';
-import { useNotificationCtaExperiment } from '../notifications/useNotificationCtaExperiment';
-import { useNotificationCtaAnalytics } from '../notifications/useNotificationCtaAnalytics';
+import { useLogPostCreated } from '../post/useLogPostCreated';
 
 const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
   !!(error as ApiErrorResult)?.response?.errors;
@@ -89,6 +76,7 @@ interface UsePostToSquad {
 
 interface UsePostToSquadProps {
   onPostSuccess?: (post: Post, url: string) => void;
+  onComplete?: () => void;
   onSourcePostModerationSuccess?: (data: SourcePostModeration) => void;
   onExternalLinkSuccess?: (data: ExternalLinkPreview, url: string) => void;
   getSharedPostSuccessToast?: (params: {
@@ -97,6 +85,7 @@ interface UsePostToSquadProps {
   initialPreview?: ExternalLinkPreview;
   onMutate?: (data: unknown) => void;
   onError?: (error: ApiErrorResult) => void;
+  displayMutationErrors?: boolean;
 }
 
 const getSquadIdOrThrow = (squad: Squad): string => {
@@ -109,52 +98,53 @@ const getSquadIdOrThrow = (squad: Squad): string => {
 
 export const usePostToSquad = ({
   onPostSuccess,
+  onComplete,
   onMutate,
   onError,
   onExternalLinkSuccess,
   onSourcePostModerationSuccess,
   getSharedPostSuccessToast,
   initialPreview,
+  displayMutationErrors = false,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
+  const logPostCreated = useLogPostCreated();
   const { user } = useAuthContext();
-  const { isSubscribed } = usePushNotificationContext();
-  const { onEnablePush } = usePushNotificationMutation();
-  const { logClick, logImpression } = useNotificationCtaAnalytics();
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
   const client = useQueryClient();
   const { completeAction } = useActions();
+  const moderationCreationRef = useRef<PostType | null>(null);
   const [preview, setPreview] = useState<ExternalLinkPreview>(
     initialPreview ?? {},
   );
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
-  const shouldShowEnableNotificationToast =
-    isNotificationCtaExperimentEnabled && !isSubscribed;
 
   const handleMutationError = useCallback(
-    (err: unknown): void => {
+    (err: unknown, options: { displayError?: boolean } = {}): void => {
       if (!isApiErrorResult(err)) {
         return;
       }
 
+      const { displayError = true } = options;
+      if (displayMutationErrors && displayError) {
+        displayToast(err.response?.errors?.[0]?.message ?? DEFAULT_ERROR);
+      }
+
       onError?.(err);
     },
-    [onError],
+    [displayMutationErrors, displayToast, onError],
   );
 
   const handlePostSuccess = useCallback(
     (post: Post): void => {
-      if (!onPostSuccess) {
-        return;
-      }
-
-      onPostSuccess(post, post?.permalink ?? '');
+      onPostSuccess?.(post, post?.permalink ?? '');
+      onComplete?.();
     },
-    [onPostSuccess],
+    [onComplete, onPostSuccess],
   );
+
+  const handleComplete = useCallback((): void => onComplete?.(), [onComplete]);
 
   const {
     mutateAsync: onCreatePost,
@@ -163,8 +153,16 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: createPost,
     onMutate,
-    onError: handleMutationError,
-    onSuccess: handlePostSuccess,
+    onError: (err) => handleMutationError(err),
+    onSuccess: (data) => {
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
+      handlePostSuccess(data);
+    },
   });
   const {
     mutateAsync: editPostMutation,
@@ -174,7 +172,7 @@ export const usePostToSquad = ({
     mutationFn: editPost,
     onMutate,
     onSuccess: handlePostSuccess,
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -198,14 +196,21 @@ export const usePostToSquad = ({
           },
         });
       }
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
     useMutation({
       mutationFn: (url: string) => getExternalLinkPreview(url, requestMethod),
+      retry: false,
       onSuccess: (data, url) => {
         const newPreview = { ...data, finalUrl: data.url, url };
         setPreview(newPreview);
@@ -215,7 +220,7 @@ export const usePostToSquad = ({
         const rateLimited = getApiError(err, ApiError.RateLimited);
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
-        handleMutationError(err);
+        handleMutationError(err, { displayError: false });
       },
     });
 
@@ -225,11 +230,24 @@ export const usePostToSquad = ({
     isPending: isPostModerationLoading,
   } = useSourcePostModeration({
     onSuccess: (data) => {
+      if (moderationCreationRef.current) {
+        logPostCreated({
+          postId: data.id,
+          postType: moderationCreationRef.current,
+          sourceCount: 1,
+          moderationCount: 1,
+          targetType: 'moderation_item',
+        });
+      }
       completeAction(ActionType.SquadFirstPost);
       onSourcePostModerationSuccess?.(data);
+      handleComplete();
     },
     onError: () => {
       displayToast(DEFAULT_ERROR);
+    },
+    onSettled: () => {
+      moderationCreationRef.current = null;
     },
   });
 
@@ -241,6 +259,7 @@ export const usePostToSquad = ({
 
       if (moderationRequired(squad)) {
         const squadId = getSquadIdOrThrow(squad);
+        moderationCreationRef.current = null;
 
         await onCreatePostModeration({
           ...editedPost,
@@ -265,34 +284,6 @@ export const usePostToSquad = ({
     const customToast = getSharedPostSuccessToast?.({ isUpdate: update });
     if (customToast) {
       displayToast(customToast.message, customToast.options);
-    } else if (!update && shouldShowEnableNotificationToast) {
-      logImpression({
-        kind: NotificationCtaKind.ToastCta,
-        targetType: TargetType.EnableNotifications,
-        source: NotificationPromptSource.SquadPostCommentary,
-        placement: NotificationCtaPlacement.SquadShareToast,
-      });
-      displayToast('Post shared. Don’t miss the replies.', {
-        subject: ToastSubject.Feed,
-        action: {
-          copy: 'Turn on',
-          onClick: async () => {
-            logClick({
-              kind: NotificationCtaKind.ToastCta,
-              targetType: TargetType.EnableNotifications,
-              source: NotificationPromptSource.SquadPostCommentary,
-              placement: NotificationCtaPlacement.SquadShareToast,
-            });
-            await onEnablePush(NotificationPromptSource.SquadPostCommentary);
-          },
-          buttonProps: {
-            size: ButtonSize.Small,
-            variant: ButtonVariant.Primary,
-            icon: <BellIcon />,
-            iconPosition: ButtonIconPosition.Left,
-          },
-        },
-      });
     } else {
       displayToast(
         update
@@ -313,10 +304,16 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: addPostToSquad(requestMethod),
     onSuccess: (data) => {
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
       onSharedPostSuccessfully();
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -329,7 +326,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully(true);
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -340,17 +337,22 @@ export const usePostToSquad = ({
     mutationFn: (params: SubmitExternalLink) =>
       submitExternalLink(params, requestMethod),
     onSuccess: (_, { url }) => {
+      logPostCreated({
+        postType: PostType.Share,
+        sourceCount: 1,
+      });
       onSharedPostSuccessfully();
       if (!url) {
         throw new Error('Missing external link url in usePostToSquad');
       }
       onExternalLinkSuccess?.(preview, url);
+      handleComplete();
     },
     onError: (err: ApiErrorResult) => {
       const rateLimited = getApiError(err, ApiError.RateLimited);
       const message = rateLimited?.message ?? DEFAULT_ERROR;
       displayToast(message);
-      handleMutationError(err);
+      handleMutationError(err, { displayError: false });
     },
   });
 
@@ -384,6 +386,7 @@ export const usePostToSquad = ({
 
       if (preview.id) {
         if (moderationRequired(squad)) {
+          moderationCreationRef.current = PostType.Share;
           return onCreatePostModeration({
             type: PostType.Share,
             sourceId: squadId,
@@ -408,6 +411,7 @@ export const usePostToSquad = ({
       }
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = null;
         return onCreatePostModeration({
           externalLink: url,
           title,
@@ -447,6 +451,7 @@ export const usePostToSquad = ({
       const squadId = getSquadIdOrThrow(squad);
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Share;
         return onCreatePostModeration({
           postId,
           type: PostType.Share,
@@ -470,6 +475,7 @@ export const usePostToSquad = ({
       const squadId = getSquadIdOrThrow(squad);
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Freeform;
         await onCreatePostModeration({
           ...post,
           sourceId: squadId,
@@ -495,6 +501,7 @@ export const usePostToSquad = ({
       }));
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Poll;
         await onCreatePostModeration({
           ...post,
           pollOptions: orderedOpts,

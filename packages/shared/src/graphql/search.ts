@@ -1,8 +1,6 @@
 import { gql } from 'graphql-request';
-import { apiUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
 import { webappUrl } from '../lib/constants';
-import type { Post } from './posts';
 import { labels } from '../lib';
 import type { ContentPreference } from './contentPreference';
 
@@ -264,34 +262,6 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
   const searchParamsString = searchParams.toString();
 
   return `${searchUrl}${searchParamsString ? `?${searchParamsString}` : ''}`;
-};
-
-export const smartPromptQueryUrl = `${apiUrl}/search/prompts`;
-export const searchQueryUrl = `${apiUrl}/search/query`;
-
-export const sendPrompt = async (
-  params: URLSearchParams,
-  url?: string,
-): Promise<EventSource> => {
-  return new EventSource(`${url || searchQueryUrl}?${params}`);
-};
-
-export const sendSmartPromptQuery = async ({
-  query,
-  token,
-  post,
-}: {
-  query: string;
-  token: string;
-  post: Post;
-}): Promise<EventSource> => {
-  const params = new URLSearchParams({
-    prompt: query,
-    token,
-    post_id: post.id,
-  });
-
-  return sendPrompt(params, smartPromptQueryUrl);
 };
 
 export type SearchSuggestion = {

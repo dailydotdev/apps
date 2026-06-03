@@ -26,11 +26,11 @@ import type { PostContentProps } from '@dailydotdev/shared/src/components/post/c
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
-  usePostById,
+  useEventListener,
   useJoinReferral,
+  usePostById,
   useViewSize,
   ViewSize,
-  useEventListener,
 } from '@dailydotdev/shared/src/hooks';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -46,6 +46,8 @@ import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/Acti
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
+import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
+import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -125,15 +127,16 @@ type PostContentComponent = ComponentType<PostContentProps>;
 
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
-  share: SquadPostContent,
-  welcome: SquadPostContent,
-  freeform: SquadPostContent,
+  share: SquadPostContent as PostContentComponent,
+  welcome: SquadPostContent as PostContentComponent,
+  freeform: SquadPostContent as PostContentComponent,
   [PostType.VideoYouTube]: PostContent as PostContentComponent,
-  collection: CollectionPostContent,
+  collection: CollectionPostContent as PostContentComponent,
   [PostType.Brief]: BriefPostContent as PostContentComponent,
-  [PostType.Poll]: PollPostContent,
+  [PostType.Poll]: PollPostContent as PostContentComponent,
   [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
   [PostType.Digest]: DigestPostContent,
+  [PostType.LiveRoom]: PostContent as PostContentComponent,
 };
 
 export interface PostParams extends ParsedUrlQuery {
@@ -177,6 +180,7 @@ export const PostPage = ({
 }: Props): ReactElement => {
   useJoinReferral();
   const { logEvent } = useLogContext();
+  const { getCreativeForTags } = useEngagementAdsContext();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
@@ -253,9 +257,11 @@ export const PostPage = ({
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
         selector={() => {
+          const creative = getCreativeForTags(post?.tags || []);
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
+            ...(creative && { gen_id: creative.genId }),
           };
         }}
       >
@@ -283,6 +289,7 @@ export const PostPage = ({
             }}
           />
           {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+          <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
     </ActivePostContextProvider>

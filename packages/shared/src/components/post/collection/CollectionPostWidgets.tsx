@@ -9,6 +9,9 @@ import { PostRelationType } from '../../../graphql/posts';
 import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
+import { FeaturedArchives } from '../../widgets/FeaturedArchives';
+import { PostSignupWidget } from '../PostSignupWidget';
+import { HighlightPostSidebarWidget } from '../../cards/highlight/HighlightPostSidebarWidget';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,
@@ -18,6 +21,7 @@ export const CollectionPostWidgets = ({
 }: PostWidgetsProps): ReactElement => {
   return (
     <PageWidgets className={className}>
+      <PostSignupWidget />
       <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}
@@ -34,6 +38,8 @@ export const CollectionPostWidgets = ({
         onCopyPostLink={onCopyPostLink}
         link={post.commentsPermalink}
       />
+      <HighlightPostSidebarWidget />
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );

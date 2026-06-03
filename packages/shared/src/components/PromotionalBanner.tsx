@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -13,6 +13,9 @@ import { BannerCustomTheme } from '../graphql/banner';
 import { Theme } from './utilities';
 import { useBanner } from '../hooks/useBanner';
 import CloseButton from './CloseButton';
+import { useLogContext } from '../contexts/LogContext';
+import { LogEvent, TargetType } from '../lib/log';
+import useLogEventOnce from '../hooks/log/useLogEventOnce';
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
   [BannerCustomTheme.CabbageOnion]: [
@@ -36,8 +39,39 @@ const classNamesByTheme: Record<BannerTheme, string[]> = {
 
 export default function PromotionalBanner(): ReactElement {
   const { latestBanner: banner, dismiss } = useBanner();
+  const { logEvent } = useLogContext();
 
-  // Disable this component in Jest environment
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.PromotionalBanner,
+      target_id: banner?.timestamp,
+    }),
+    { condition: !isTesting && !!banner },
+  );
+
+  const onCtaClick = useCallback(() => {
+    if (!banner) {
+      return;
+    }
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.PromotionalBanner,
+      target_id: banner.timestamp,
+    });
+  }, [banner, logEvent]);
+
+  const onDismiss = useCallback(() => {
+    if (banner) {
+      logEvent({
+        event_name: LogEvent.MarketingCtaDismiss,
+        target_type: TargetType.PromotionalBanner,
+        target_id: banner.timestamp,
+      });
+    }
+    dismiss();
+  }, [banner, dismiss, logEvent]);
+
   if (isTesting) {
     return <></>;
   }
@@ -70,6 +104,7 @@ export default function PromotionalBanner(): ReactElement {
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           className="mt-2 laptop:ml-4 laptop:mt-0"
+          onClick={onCtaClick}
         >
           {banner.cta}
         </Button>
@@ -80,6 +115,7 @@ export default function PromotionalBanner(): ReactElement {
           size={ButtonSize.XSmall}
           variant={ButtonVariant.Primary}
           className="mt-2 laptop:ml-4 laptop:mt-0"
+          onClick={onCtaClick}
         >
           {banner.cta}
         </Button>
@@ -87,7 +123,7 @@ export default function PromotionalBanner(): ReactElement {
       <CloseButton
         size={ButtonSize.XSmall}
         className="absolute right-2 top-2 laptop:inset-y-0 laptop:my-auto"
-        onClick={dismiss}
+        onClick={onDismiss}
       />
     </div>
   );

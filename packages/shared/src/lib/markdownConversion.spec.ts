@@ -9,6 +9,12 @@ describe('markdownConversion', () => {
     );
   });
 
+  it('should convert strikethrough markdown to html', () => {
+    const html = markdownToHtmlBasic('~~gone~~');
+
+    expect(html).toBe('<p><s>gone</s></p>');
+  });
+
   it('should convert fenced code blocks to html', () => {
     const html = markdownToHtmlBasic('```js\nconst a = 1;\n```');
 
@@ -29,6 +35,12 @@ describe('markdownConversion', () => {
     );
 
     expect(markdown).toBe('```\nconst a = 1;\n```');
+  });
+
+  it('should convert html strikethrough to markdown', () => {
+    const markdown = htmlToMarkdownBasic('<p><s>gone</s></p>');
+
+    expect(markdown).toBe('~~gone~~');
   });
 
   it('should preserve images while converting html and markdown', () => {
@@ -111,6 +123,14 @@ describe('markdownConversion', () => {
 
   it('should keep simple bold in markdown round-trip', () => {
     const initialMarkdown = '**bold**';
+    const html = markdownToHtmlBasic(initialMarkdown);
+    const markdown = htmlToMarkdownBasic(html);
+
+    expect(markdown).toBe(initialMarkdown);
+  });
+
+  it('should keep simple strikethrough in markdown round-trip', () => {
+    const initialMarkdown = '~~gone~~';
     const html = markdownToHtmlBasic(initialMarkdown);
     const markdown = htmlToMarkdownBasic(html);
 

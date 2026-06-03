@@ -20,7 +20,7 @@ type UpdateReadingStreakConfig = {
 };
 
 interface UserReadingStreak {
-  streak: UserStreak;
+  streak?: UserStreak;
   isLoading: boolean;
   isUpdatingConfig: boolean;
   checkReadingStreak: () => void;
@@ -67,7 +67,7 @@ export const useReadingStreak = (): UserReadingStreak => {
       isSameDayInTimezone(
         new Date(streak.lastViewAt),
         new Date(),
-        user.timezone,
+        user!.timezone,
       );
 
     if (!hasReadToday) {

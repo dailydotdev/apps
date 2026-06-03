@@ -64,6 +64,7 @@ export const useClaimQuestReward = () => {
             daily: claimResult.daily,
             weekly: claimResult.weekly,
             milestone: claimResult.milestone,
+            intro: claimResult.intro,
           };
         },
       );

@@ -36,6 +36,7 @@ interface MarkdownProps {
   className?: string;
   content: string;
   appendTooltipTo?: () => HTMLElement;
+  openLinksInNewTab?: boolean;
 }
 
 const TOOLTIP_SPACING = 8;
@@ -50,7 +51,8 @@ function isMentionLink(
 }
 
 function getTooltipOffset(element: HTMLAnchorElement): CaretOffset {
-  const topOffset = element.parentElement.offsetTop + element.offsetTop;
+  const parentOffsetTop = element.parentElement?.offsetTop ?? 0;
+  const topOffset = parentOffsetTop + element.offsetTop;
   const leftSpacing =
     TOOLTIP_HALF_WIDTH - element.getBoundingClientRect().width / 2;
   return [element.offsetLeft - leftSpacing, topOffset * -1 + TOOLTIP_SPACING];
@@ -60,6 +62,7 @@ export default function Markdown({
   className,
   content,
   appendTooltipTo,
+  openLinksInNewTab = false,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,7 +93,24 @@ export default function Markdown({
       img.setAttribute('role', 'button');
       img.setAttribute('aria-label', 'Open image in new tab');
     });
-  }, [content]);
+  });
+
+  useEffect(() => {
+    if (!openLinksInNewTab) {
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const links = container.querySelectorAll('a[href]');
+    links.forEach((link) => {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    });
+  });
 
   const onHoverHandler: MouseEventHandler<HTMLDivElement> = useCallback(
     (e) => {
@@ -104,6 +124,10 @@ export default function Markdown({
       }
 
       const { mentionId } = element.dataset;
+
+      if (!mentionId) {
+        return;
+      }
 
       cancelUserClearing();
       setOffset(getTooltipOffset(element));

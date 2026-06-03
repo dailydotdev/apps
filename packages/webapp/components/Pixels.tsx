@@ -177,7 +177,6 @@ const GtagTracking = ({
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
   const { cookieExists: acceptedMarketing } = useConsentCookie(
     GdprConsentKey.Marketing,

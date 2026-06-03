@@ -94,6 +94,7 @@ export enum NotificationType {
   NewOpportunityMatch = 'new_opportunity_match',
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
+  LiveRoomStarted = 'live_room_started',
 }
 
 export enum NotificationIconType {
@@ -411,6 +412,11 @@ export const ACTIVITY_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.ArticleReportApproved,
     label: 'Report updates',
+    group: false,
+  },
+  {
+    id: NotificationType.UserFollow,
+    label: 'New followers',
     group: false,
   },
 ];

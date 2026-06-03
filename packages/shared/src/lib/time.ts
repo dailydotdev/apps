@@ -1,0 +1,6 @@
+export const MINUTES_IN_HOUR = 60;
+export const MILLISECONDS_IN_MINUTE = 60 * 1000;
+export const ONE_MINUTE = MILLISECONDS_IN_MINUTE;
+export const FIVE_MINUTES = ONE_MINUTE * 5;
+export const THIRTY_MINUTES = ONE_MINUTE * 30;
+export const ONE_HOUR = ONE_MINUTE * MINUTES_IN_HOUR;

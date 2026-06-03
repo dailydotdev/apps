@@ -1,4 +1,16 @@
-import { v4 as uuidv4 } from 'uuid';
+import { markdownToHtmlBasic } from './markdownConversion';
+
+const generateFallbackId = (): string => {
+  const cryptoApi =
+    typeof globalThis !== 'undefined'
+      ? (globalThis.crypto as Crypto | undefined)
+      : undefined;
+  if (cryptoApi?.randomUUID) {
+    return cryptoApi.randomUUID().slice(0, 8);
+  }
+
+  return `${Date.now()}${Math.random().toString(36).slice(2)}`.slice(0, 8);
+};
 
 export const removeLinkTargetElement = (link: string): string => {
   const { origin, pathname, search } = new URL(link);
@@ -65,7 +77,7 @@ export const generateNameFromEmail = (
   email: string,
   entity = 'User',
 ): string => {
-  const fallbackName = `${entity} ${uuidv4().slice(0, 8)}`;
+  const fallbackName = `${entity} ${generateFallbackId()}`;
 
   if (!email || !email.includes('@')) {
     return fallbackName;
@@ -102,6 +114,32 @@ export const generateNameFromEmail = (
  */
 export const stripHtmlTags = (html: string): string => {
   return html?.replace(/<[^>]*>/g, '').trim() || '';
+};
+
+interface RichContentPlainTextOptions {
+  html?: string | null;
+  markdown?: string | null;
+}
+
+/**
+ * Converts rich text content into plain text for metadata and external consumers.
+ * Prefer rendered HTML when available, and fall back to converting markdown first
+ * so link labels are preserved without leaking markdown syntax or raw URLs.
+ */
+export const getPlainTextFromRichContent = ({
+  html,
+  markdown,
+}: RichContentPlainTextOptions): string => {
+  const htmlText = stripHtmlTags(html ?? '');
+  if (htmlText) {
+    return htmlText;
+  }
+
+  if (!markdown) {
+    return '';
+  }
+
+  return stripHtmlTags(markdownToHtmlBasic(markdown));
 };
 
 /**

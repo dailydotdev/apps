@@ -42,7 +42,7 @@ export const usePostCodeSnippetsQuery = ({
   const enabled = !!postId;
 
   const queryResult = useInfiniteQuery({
-    queryKey: generateQueryKey(RequestKey.PostCodeSnippets, null, {
+    queryKey: generateQueryKey(RequestKey.PostCodeSnippets, undefined, {
       id: postId,
     }),
     queryFn: async ({ pageParam }) => {
@@ -65,10 +65,6 @@ export const usePostCodeSnippetsQuery = ({
         : enabled,
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
     select: useCallback((data: InfiniteData<UsePostCodeSnippetsData>) => {
-      if (!data) {
-        return undefined;
-      }
-
       return {
         ...data,
         // filter out last page with no edges returned by api paginator

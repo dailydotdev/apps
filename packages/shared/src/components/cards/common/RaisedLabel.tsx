@@ -56,7 +56,7 @@ export function RaisedLabel({
         )}
       >
         <ConditionalWrapper
-          condition={description?.length > 0}
+          condition={!!description?.length}
           wrapper={(children) => (
             <Tooltip content={description}>{children}</Tooltip>
           )}
@@ -84,7 +84,7 @@ export function RaisedLabel({
       )}
     >
       <ConditionalWrapper
-        condition={description?.length > 0}
+        condition={!!description?.length}
         wrapper={(children) => (
           <Tooltip content={description}>{children}</Tooltip>
         )}

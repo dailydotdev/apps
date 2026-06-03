@@ -32,6 +32,10 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
+export const featurePostPageHighlights = new Feature(
+  'post_page_highlights',
+  false,
+);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -47,6 +51,14 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Level Up with Plus',
   short: 'Upgrade',
 });
+
+export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
+
+export const featureLuckyButton = new Feature('lucky_button', false);
+
+export const featureSmartComposer = new Feature('smart_composer', false);
+
+export const featureStandupCreation = new Feature('standup_creation', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
@@ -70,10 +82,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
-export const notificationCtaV2Feature = new Feature(
-  'notification_cta_v2',
-  false,
-);
 
 export const featureReadingReminderVariation = new Feature<
   'control' | 'hero' | 'inline'
@@ -104,7 +112,7 @@ export const briefCardFeedFeature = new Feature(
 
 export const profileCompletionCardFeature = new Feature(
   'profile_completion_card',
-  false,
+  isDevelopment,
 );
 
 export const briefGeneratePricing = new Feature<Record<BriefingType, number>>(
@@ -138,7 +146,12 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
-export const questsFeature = new Feature('quests', false);
+export const featureNewD1Experience = new Feature(
+  'new_d1_experience',
+  isDevelopment,
+);
+
+export const questsFeature = new Feature('quests', true);
 
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
@@ -150,10 +163,63 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
+export const featureOnboardingTagRecommender = new Feature(
+  'onboarding_tag_recommender',
+  false,
+);
+
+export const featureOnboardingPersonas = new Feature(
+  'onboarding_personas',
+  false,
+);
+
+export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+
+export const featureReaderModal = new Feature('reader_modal_v2', false);
+
+export const featureShortcutsHub = new Feature('shortcuts_hub', false);
+
+export const featureNewTabCustomizer = new Feature(
+  'extension_newtab_customizer',
+  false,
+);
+
+export const featureCompanionDemoWidget = new Feature(
+  'companion_demo_widget',
+  false,
+);
+
+export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
+
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;
+  newWindowHours: number;
 }>('upvote_count_threshold', {
   threshold: 0,
   belowThresholdLabel: '',
+  newWindowHours: 24,
 });
+
+export enum FeedChipsVariant {
+  None = 'none',
+  V2 = 'v2',
+}
+export const featureFeedChips = new Feature<FeedChipsVariant>(
+  'feed_chips',
+  FeedChipsVariant.None,
+);
+
+export const featureLayoutV2 = new Feature('layout_v2', false);
+
+export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+export const featurePostHighlightCards = new Feature(
+  'post_highlight_cards_v2',
+  false,
+);
+
+export const featureOnboardingPermissionPrimer = new Feature(
+  'onboarding_permission_primer',
+  false,
+);

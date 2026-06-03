@@ -13,15 +13,15 @@ import { LogoPosition } from '../Logo';
 import Link from '../utilities/Link';
 import {
   isTesting,
-  plusUrl,
   squadCategoriesPaths,
   webappUrl,
 } from '../../lib/constants';
 import {
   AiIcon,
-  DevPlusIcon,
+  BellIcon,
   HomeIcon,
   JobIcon,
+  MegaphoneIcon,
   SourceIcon,
   UserIcon,
 } from '../icons';
@@ -32,8 +32,7 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { getFeedName } from '../../lib/feed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import HeaderLogo from '../layout/HeaderLogo';
-import { useConditionalFeature, useActions } from '../../hooks';
-import { featurePlusCtaCopy } from '../../lib/featureManagement';
+import { useActions } from '../../hooks';
 import { Bubble } from '../tooltips/utils';
 import { NewOpportunityPopover } from '../opportunity/NewOpportunityPopover';
 import { SimpleTooltip } from '../tooltips';
@@ -41,6 +40,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
 import { TargetId } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { getUnreadText } from '../notifications/utils';
 
 export const SidebarTablet = ({
   activePage,
@@ -56,6 +57,7 @@ export const SidebarTablet = ({
 }): ReactElement => {
   const { alerts } = useAlertsContext();
   const { user, isLoggedIn, squads } = useAuthContext();
+  const { unreadCount } = useNotificationContext();
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
     size: ButtonSize.Large,
@@ -66,12 +68,7 @@ export const SidebarTablet = ({
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
   });
-  const isPlus = user?.isPlus;
-  const { value: ctaCopy } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus,
-  });
-  const hasSquads = squads?.length > 0;
+  const hasSquads = (squads?.length ?? 0) > 0;
   const squadsUrl = hasSquads
     ? `${webappUrl}${squadCategoriesPaths['My Squads'].substring(1)}`
     : `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`;
@@ -112,6 +109,77 @@ export const SidebarTablet = ({
         </Button>
       </Link>
 
+      <Link href={`${webappUrl}posts`} prefetch={false} passHref>
+        <Button
+          {...buttonProps}
+          tag="a"
+          icon={<AiIcon secondary={activeNav.explore} size={IconSize.Medium} />}
+          iconPosition={ButtonIconPosition.Top}
+          variant={ButtonVariant.Option}
+          pressed={activeNav.explore}
+        >
+          Explore
+        </Button>
+      </Link>
+
+      <Link href={`${webappUrl}highlights`} prefetch={false} passHref>
+        <Button
+          {...buttonProps}
+          tag="a"
+          icon={
+            <MegaphoneIcon
+              secondary={activeNav.highlights}
+              size={IconSize.Medium}
+            />
+          }
+          iconPosition={ButtonIconPosition.Top}
+          variant={ButtonVariant.Option}
+          pressed={activeNav.highlights}
+        >
+          Headlines
+        </Button>
+      </Link>
+
+      <Link href={`${webappUrl}notifications`} prefetch={false} passHref>
+        <Button
+          {...buttonProps}
+          tag="a"
+          icon={
+            <span className="relative">
+              <BellIcon
+                secondary={activeNav.notifications}
+                size={IconSize.Medium}
+              />
+              {!!unreadCount && (
+                <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
+                  {getUnreadText(unreadCount)}
+                </Bubble>
+              )}
+            </span>
+          }
+          iconPosition={ButtonIconPosition.Top}
+          variant={ButtonVariant.Option}
+          pressed={activeNav.notifications}
+        >
+          Activity
+        </Button>
+      </Link>
+
+      <Link href={squadsUrl} prefetch={false} passHref>
+        <Button
+          {...buttonProps}
+          tag="a"
+          icon={
+            <SourceIcon secondary={activeNav.squads} size={IconSize.Medium} />
+          }
+          iconPosition={ButtonIconPosition.Top}
+          variant={ButtonVariant.Option}
+          pressed={activeNav.squads}
+        >
+          Squads
+        </Button>
+      </Link>
+
       <ConditionalWrapper
         condition={hasOpportunityAlert && hasNotClickedOpportunity}
         wrapper={(component) => (
@@ -134,9 +202,11 @@ export const SidebarTablet = ({
       >
         <div className="relative">
           <Link
-            href={`${webappUrl}jobs/${
-              hasOpportunityAlert ? alerts.opportunityId : ''
-            }`}
+            href={
+              hasOpportunityAlert
+                ? `${webappUrl}jobs/${alerts.opportunityId}`
+                : `${webappUrl}jobs`
+            }
             prefetch={false}
             passHref
           >
@@ -162,53 +232,7 @@ export const SidebarTablet = ({
         </div>
       </ConditionalWrapper>
 
-      {!isPlus ? (
-        <Link href={plusUrl} prefetch={false} passHref>
-          <Button
-            {...buttonProps}
-            tag="a"
-            icon={<DevPlusIcon size={IconSize.Medium} />}
-            iconPosition={ButtonIconPosition.Top}
-            variant={ButtonVariant.Option}
-            className={classNames(
-              buttonProps.className,
-              '!text-accent-avocado-default',
-            )}
-          >
-            {ctaCopy.short}
-          </Button>
-        </Link>
-      ) : undefined}
-
-      <Link href={`${webappUrl}posts`} prefetch={false} passHref>
-        <Button
-          {...buttonProps}
-          tag="a"
-          icon={<AiIcon secondary={activeNav.explore} size={IconSize.Medium} />}
-          iconPosition={ButtonIconPosition.Top}
-          variant={ButtonVariant.Option}
-          pressed={activeNav.explore}
-        >
-          Explore
-        </Button>
-      </Link>
-
-      <Link href={squadsUrl} prefetch={false} passHref>
-        <Button
-          {...buttonProps}
-          tag="a"
-          icon={
-            <SourceIcon secondary={activeNav.squads} size={IconSize.Medium} />
-          }
-          iconPosition={ButtonIconPosition.Top}
-          variant={ButtonVariant.Option}
-          pressed={activeNav.squads}
-        >
-          Squads
-        </Button>
-      </Link>
-
-      {isLoggedIn && (
+      {isLoggedIn && user && (
         <Link href={user.permalink} prefetch={false} passHref>
           <Button
             {...buttonProps}

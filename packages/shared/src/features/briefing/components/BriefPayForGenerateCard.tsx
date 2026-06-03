@@ -91,7 +91,8 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
   );
   const [isBuyOpen, setBuyOpen] = useToggle(false);
 
-  const prices = useFeature(briefGeneratePricing);
+  const prices =
+    useFeature(briefGeneratePricing) ?? briefGeneratePricing.defaultValue;
   const price = prices[briefingType];
 
   const isFirstBrief =

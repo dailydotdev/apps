@@ -23,6 +23,7 @@ import { RootPortal } from '../tooltips/Portal';
 import type { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 
 export interface DropdownClassName {
@@ -40,6 +41,7 @@ export interface DropdownProps {
   shouldIndicateSelected?: boolean;
   className?: DropdownClassName;
   style?: CSSProperties;
+  buttonAriaLabel?: string;
   selectedIndex: number;
   options: string[];
   onChange: (value: string, index: number) => unknown;
@@ -66,6 +68,7 @@ export function Dropdown({
   selectedIndex,
   options,
   onChange,
+  buttonAriaLabel,
   onOpenChange,
   shouldIndicateSelected,
   buttonSize = ButtonSize.Large,
@@ -88,7 +91,7 @@ export function Dropdown({
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isVisible, setVisibility] = useState(false);
   const wasVisible = usePrevious(`${isVisible}`);
-  const triggerRef = useRef<HTMLButtonElement>();
+  const triggerRef = useRef<HTMLAnchorElement | HTMLButtonElement>(null);
 
   useEffect(() => {
     onOpenChange?.(isVisible);
@@ -140,13 +143,17 @@ export function Dropdown({
       size={buttonSize}
       disabled={disabled}
       className={classNames(
-        'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
+        // `!pl-4 !pr-2.5` overrides the Button's built-in Large padding (px-6)
+        // so the value lines up with the other fields' 16px text inset and the
+        // chevron sits tight to the right edge instead of floating 24px in.
+        'group flex w-full items-center !pl-4 !pr-2.5 font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
         className?.button,
         iconOnly && 'items-center justify-center',
       )}
       onClick={fullScreen ? handleMenuTrigger : undefined}
       onKeyDown={handleKeyboard}
       tabIndex={0}
+      aria-label={buttonAriaLabel}
       aria-haspopup="true"
       aria-expanded={isVisible}
       aria-controls={(() => {
@@ -156,25 +163,27 @@ export function Dropdown({
         return fullScreen ? id : `${id}-content`;
       })()}
       icon={
-        icon &&
-        React.cloneElement(icon as ReactElement<IconProps>, {
-          'aria-hidden': true,
-          role: 'presentation',
-          secondary:
-            (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
-        })
+        icon
+          ? React.cloneElement(icon as ReactElement<IconProps>, {
+              'aria-hidden': true,
+              role: 'presentation',
+              secondary:
+                (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
+            })
+          : undefined
       }
     >
       {iconOnly ? null : (
         <>
           <span
-            className={classNames('mr-1 flex flex-1 truncate', className.label)}
+            className={classNames('mr-2 flex flex-1 truncate', className.label)}
           >
             {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
           </span>
           <ArrowIcon
+            size={IconSize.Size16}
             className={classNames(
-              'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
+              'ml-auto shrink-0 text-text-quaternary transition-transform group-hover:text-text-primary',
               isVisible ? 'rotate-0' : 'rotate-180',
               styles.chevron,
               className.chevron,

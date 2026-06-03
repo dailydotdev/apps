@@ -8,7 +8,12 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
-import { checkIsExtension, getCurrentBrowserName } from '../../lib/func';
+import {
+  checkIsExtension,
+  getCurrentBrowserName,
+  isExtensionCapableBrowser,
+} from '../../lib/func';
+import { ActionType } from '../../graphql/actions';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -51,6 +56,7 @@ jest.mock('../../lib/func', () => ({
   ...jest.requireActual('../../lib/func'),
   checkIsExtension: jest.fn(),
   getCurrentBrowserName: jest.fn(),
+  isExtensionCapableBrowser: jest.fn(),
 }));
 
 jest.mock('../filters/MyFeedHeading', () => ({
@@ -72,6 +78,32 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
   },
 }));
 
+jest.mock('../filters/IntroQuestButton', () => ({
+  IntroQuestButton: function MockIntroQuestButton() {
+    return null;
+  },
+}));
+
+jest.mock('../filters/LuckyButton', () => ({
+  LuckyButton: function MockLuckyButton() {
+    return null;
+  },
+}));
+
+jest.mock('../tooltip/Tooltip', () => ({
+  Tooltip: function MockTooltip({
+    children,
+  }: {
+    children: React.ReactElement;
+  }) {
+    return children;
+  },
+}));
+
+jest.mock('../../hooks/useNewD1ExperienceFeature', () => ({
+  useNewD1ExperienceFeature: jest.fn().mockReturnValue({ value: false }),
+}));
+
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
@@ -81,6 +113,27 @@ const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseQueryState = useQueryState as jest.Mock;
 const mockCheckIsExtension = checkIsExtension as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
+const mockIsExtensionCapableBrowser = isExtensionCapableBrowser as jest.Mock;
+
+const createActionsState = ({
+  dismissedInstallExtension = false,
+  isActionsFetched = true,
+  completeAction = jest.fn(),
+}: {
+  dismissedInstallExtension?: boolean;
+  isActionsFetched?: boolean;
+  completeAction?: jest.Mock;
+} = {}) => ({
+  checkHasCompleted: jest.fn((type: ActionType) => {
+    if (type === ActionType.DismissInstallExtension) {
+      return dismissedInstallExtension;
+    }
+
+    return false;
+  }),
+  completeAction,
+  isActionsFetched,
+});
 
 const renderComponent = () =>
   render(
@@ -109,6 +162,7 @@ describe('SearchControlHeader', () => {
     mockUseQueryState.mockReturnValue([0, jest.fn()]);
     mockCheckIsExtension.mockReturnValue(false);
     mockGetCurrentBrowserName.mockReturnValue('Chrome');
+    mockIsExtensionCapableBrowser.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -116,11 +170,9 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the install extension prompt before actions are fetched', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: false,
-    });
+    mockUseActions.mockReturnValue(
+      createActionsState({ isActionsFetched: false }),
+    );
 
     renderComponent();
 
@@ -130,11 +182,9 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the install extension prompt after dismissal', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(true),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(
+      createActionsState({ dismissedInstallExtension: true }),
+    );
 
     renderComponent();
 
@@ -144,11 +194,7 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the install extension prompt for extension users', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(createActionsState());
     mockCheckIsExtension.mockReturnValue(true);
 
     renderComponent();
@@ -158,12 +204,19 @@ describe('SearchControlHeader', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('does not render the install extension prompt on browsers without an extension build', () => {
+    mockUseActions.mockReturnValue(createActionsState());
+    mockIsExtensionCapableBrowser.mockReturnValue(false);
+
+    renderComponent();
+
+    expect(
+      screen.queryByRole('link', { name: 'Get it for Chrome' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('does not render the install extension prompt after extension usage is recorded', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(createActionsState());
     mockUseAuthContext.mockReturnValue({
       user: { flags: { lastExtensionUse: '2025-01-01T00:00:00.000Z' } },
     });
@@ -176,11 +229,7 @@ describe('SearchControlHeader', () => {
   });
 
   it('renders the install extension prompt when actions are fetched and not dismissed', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(createActionsState());
 
     renderComponent();
 

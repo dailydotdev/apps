@@ -32,12 +32,15 @@ const tabs = Object.values(FeedSettingsBlockingSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsBlockingSection = (): ReactElement => {
-  const [activeView, setActiveView] = useState<string>(
+  const [activeView, setActiveViewState] = useState<string>(
     () => FeedSettingsBlockingSectionTabs.Sources,
   );
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [onSearch] = useDebounceFn(setSearchQuery, 200);
+  const [onSearch] = useDebounceFn<string>(
+    (value) => setSearchQuery(value ?? ''),
+    200,
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -52,15 +55,19 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
         color={TypographyColor.Tertiary}
         type={TypographyType.Callout}
       >
-        Manage everything you’ve excluded from your feed. Search and block
-        sources, squads, users, or tags to fine-tune your content.
+        Block sources, squads, users, or tags you never want to see. Anything
+        blocked here is removed from your feed entirely.
       </Typography>
       <BlockedWords />
       <ModalPropsContext.Provider
         value={{
           tabs,
           activeView,
-          setActiveView,
+          setActiveView: (view) => {
+            if (view !== undefined) {
+              setActiveViewState(view);
+            }
+          },
           onRequestClose: noop,
           kind: ModalKind.FlexibleCenter,
           size: ModalSize.Medium,

@@ -1,0 +1,52 @@
+/*
+ * Frozen snapshot of the PREVIOUS field look (left-edge accent bar), kept only
+ * for the Storybook before/after comparison page. Do not use in production.
+ */
+.field {
+  --field-placeholder-color: var(--theme-text-tertiary);
+
+  &:hover {
+    background: var(--theme-surface-hover);
+    --field-placeholder-color: var(--theme-text-primary);
+    box-shadow: inset 0.125rem 0 0 0 var(--theme-text-primary);
+  }
+
+  &:global(.focused) {
+    background: transparent;
+    border-color: var(--theme-text-primary);
+    box-shadow: inset 0.125rem 0 0 0 var(--theme-text-primary);
+    --field-placeholder-color: var(--theme-text-quaternary);
+  }
+
+  &:global(.invalid) {
+    box-shadow: inset 0.125rem 0 0 0 var(--status-error);
+  }
+
+  &:global(.password-3) {
+    box-shadow: inset 0.125rem 0 0 0 var(--status-success);
+
+    &:before {
+      content: '';
+      border-radius: 14px 0px 0px 14px;
+      opacity: 0.24;
+      background: linear-gradient(
+        270deg,
+        rgba(57, 229, 140, 0) 0%,
+        rgba(107, 244, 192, 1) 100%
+      );
+      width: 44px;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+
+  & input::placeholder {
+    color: var(--field-placeholder-color);
+  }
+
+  & input:focus::placeholder {
+    color: var(--theme-text-quaternary);
+  }
+}

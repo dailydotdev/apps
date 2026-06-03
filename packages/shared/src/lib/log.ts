@@ -5,6 +5,7 @@ export enum Origin {
   ReadingHistoryContextMenu = 'reading history context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
+  ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
   CommentFeed = 'comment feed',
@@ -49,10 +50,12 @@ export enum Origin {
   PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
+  FeedCard = 'feed card',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
   EditTag = 'edit_tag',
+  OnboardingPersona = 'onboarding persona',
   // Collection
   CollectionModal = 'collection modal',
   Settings = 'settings',
@@ -82,10 +85,36 @@ export enum Origin {
   HotTakeList = 'hot take list',
   HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
+  // Auth
+  BetterAuthEmailLogin = 'betterauth email login',
+  BetterAuthEmailLoginBoot = 'betterauth email login boot',
+  BetterAuthNativeIdToken = 'betterauth native id token',
+  BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
+  BetterAuthSocialUrl = 'betterauth social url',
+  LoginTurnstile = 'login turnstile',
+  // Engagement ads
+  HighlightedKeyword = 'highlighted keyword',
+  ProfileStack = 'profile stack',
+  BrandedTag = 'branded tag',
+  MentionedTool = 'mentioned tool',
 }
 
 export enum LogEvent {
+  OpenSmartComposer = 'open smart composer',
+  CloseSmartComposer = 'close smart composer',
+  SubmitSmartComposer = 'submit smart composer',
+  CreatePost = 'create post',
+  SwitchComposerKind = 'switch composer kind',
+  ToggleComposerMarkdown = 'toggle composer markdown',
+  ToggleComposerExpand = 'toggle composer expand',
+  AddComposerCover = 'add composer cover',
+  RemoveComposerCover = 'remove composer cover',
+  DismissComposerPreview = 'dismiss composer preview',
   HidePost = 'hide post',
+  HidePostFeedbackSubmit = 'hide post feedback submit',
+  HidePostReport = 'hide post report',
+  HidePostUndo = 'hide post undo',
+  HidePostDismiss = 'hide post dismiss',
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
@@ -94,6 +123,7 @@ export enum LogEvent {
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
+  ClickFeedTagChip = 'click feed tag chip',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
@@ -189,6 +219,15 @@ export enum LogEvent {
   RevokeShortcutAccess = 'revoke shortcut access',
   SaveShortcutAccess = 'save shortcut access',
   OpenShortcutConfig = 'open shortcut config',
+  AddShortcut = 'add shortcut',
+  EditShortcut = 'edit shortcut',
+  RemoveShortcut = 'remove shortcut',
+  ReorderShortcuts = 'reorder shortcuts',
+  ImportShortcuts = 'import shortcuts',
+  UndoRemoveShortcut = 'undo remove shortcut',
+  ChangeShortcutsMode = 'change shortcuts mode',
+  ChangeShortcutsAppearance = 'change shortcuts appearance',
+  ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
   GenerateDevcard = 'generate devcard',
@@ -229,6 +268,41 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
+  // Standups
+  ViewStandup = 'view standup',
+  CreateStandup = 'create standup',
+  LeaveStandup = 'leave standup',
+  StartStandup = 'start standup',
+  EndStandup = 'end standup',
+  JoinStandupQueue = 'join standup queue',
+  RaiseStandupHand = 'raise standup hand',
+  RemoveStandupHand = 'remove standup hand',
+  JoinStandupStage = 'join standup stage',
+  LeaveStandupStage = 'leave standup stage',
+  OpenStandupSettings = 'open standup settings',
+  OpenStandupReactions = 'open standup reactions',
+  SwitchStandupPanelTab = 'switch standup panel tab',
+  SendStandupReaction = 'send standup reaction',
+  SendStandupChatReaction = 'send standup chat reaction',
+  RemoveStandupChatReaction = 'remove standup chat reaction',
+  SendStandupChatMessage = 'send standup chat message',
+  DeleteStandupChatMessage = 'delete standup chat message',
+  UpdateStandupChatAccess = 'update standup chat access',
+  SubscribeStandup = 'subscribe standup',
+  UnsubscribeStandup = 'unsubscribe standup',
+  ShareStandup = 'share standup',
+  AddStandupToCalendar = 'add standup to calendar',
+  GrantStandupCoHost = 'grant standup co-host',
+  RevokeStandupCoHost = 'revoke standup co-host',
+  PromoteStandupSpeaker = 'promote standup speaker',
+  RemoveStandupSpeaker = 'remove standup speaker',
+  KickStandupParticipant = 'kick standup participant',
+  ChangeStandupSettings = 'change standup settings',
+  StandupError = 'standup error',
+  FocusStandupSpeaker = 'focus standup speaker',
+  ImpressionStandupsStrip = 'impression standups strip',
+  ClickStandupsStrip = 'click standups strip',
+  // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
   StartAddingIntegration = 'start adding integration',
@@ -278,6 +352,7 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  SetHighlightsPlacement = 'set highlights placement',
   InstallPWA = 'install pwa',
   // Start Share
   ShareProfile = 'share profile',
@@ -287,10 +362,6 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   // End Share
-  // Start Smart Prompts
-  SmartPrompt = 'smart prompt',
-  ToggleSmartPrompts = 'toggle smart prompts',
-  // End Smart Prompts
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -396,12 +467,35 @@ export enum LogEvent {
   ImpressionAchievementSyncPrompt = 'impression achievement sync',
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
+  // Engagement ads
+  HoverEngagementTooltip = 'hover engagement tooltip',
   // Quests
+  QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
   Dismiss = 'dismiss',
+  // Reader modal
+  ImpressionReaderModal = 'impression reader modal',
+  CloseReaderModal = 'close reader modal',
+  ToggleEmbeddedReader = 'toggle embedded reader',
+  ImpressionReaderInstallPrompt = 'impression reader install prompt',
+  ClickReaderInstallExtension = 'click reader install extension',
+  ClickReaderInstallPreview = 'click reader install preview',
+  ClickReaderInstallSkip = 'click reader install skip',
+  ImpressionReaderFallback = 'impression reader fallback',
+  ReaderEmbedReady = 'reader embed ready',
+  ReaderEmbedPermissionRequired = 'reader embed permission required',
+  ReaderEmbedError = 'reader embed error',
+  // Onboarding personas
+  SelectOnboardingPersona = 'select onboarding persona',
+  // Extension activation primer
+  ExtensionPrimerShown = 'impression extension primer',
+  ExtensionPrimerCtaClick = 'click extension primer cta',
+  ExtensionPrimerSkipped = 'skip extension primer',
 }
 
 export enum TargetType {
+  Spotlight = 'spotlight',
+  SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
@@ -424,10 +518,12 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
   PromotionCard = 'promotion_card',
+  PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaBrief = 'promotion_briefing',
+  MarketingCtaHelpGuide = 'promotion_help_guide',
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',
   PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',
@@ -437,6 +533,7 @@ export enum TargetType {
   Source = 'source',
   Tag = 'tag',
   Quest = 'quest',
+  IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
   Theme = 'theme',
@@ -462,11 +559,16 @@ export enum TargetType {
   AchievementTracker = 'achievement tracker',
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
+  HighlightsCard = 'highlights card',
+  AdvertiseHereCta = 'advertise here cta',
+  ExtensionPromo = 'extension promo',
+  CustomizeNewTab = 'customize new tab',
 }
 
 export enum TargetId {
   On = 'on',
   Off = 'off',
+  SpotlightOpen = 'spotlight open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
@@ -487,6 +589,9 @@ export enum TargetId {
   Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
+  AdCard = 'ad card',
+  AdSidebar = 'ad sidebar',
+  AdComment = 'ad comment',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
@@ -499,7 +604,6 @@ export enum TargetId {
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
   ContextMenu = 'context',
-  SmartPrompt = 'smart prompt',
   Account = 'account',
   Brief = 'brief',
   NotificationSettings = 'notification settings',
@@ -517,8 +621,13 @@ export enum TargetId {
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
+  HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
+  HackathonPage = 'hackathon page',
+  ReaderHeader = 'reader header',
+  ReaderInstallPrompt = 'reader install prompt',
+  ReaderPermissionPrompt = 'reader permission prompt',
 }
 
 export enum NotificationChannel {
@@ -572,6 +681,7 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
+  StandupLobby = 'standup lobby',
 }
 
 export enum ShortcutsSourceType {
@@ -579,6 +689,7 @@ export enum ShortcutsSourceType {
   Browser = 'browser',
   Placeholder = 'placeholder',
   Button = 'button',
+  Bookmarks = 'bookmarks',
 }
 
 export enum UserAcquisitionEvent {

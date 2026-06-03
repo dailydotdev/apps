@@ -19,14 +19,17 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
+import {
+  isTesting,
+  onboardingUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
@@ -39,6 +42,7 @@ import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
+import HijackingLoginStrip from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
@@ -66,6 +70,31 @@ const feedErrorFallback: ReactElement = (
     </button>
   </div>
 );
+
+function HijackingPage({
+  onPageChanged,
+}: {
+  onPageChanged: (page: string) => void;
+}): ReactElement {
+  const { setCurrentPage } = useExtensionContext();
+
+  useEffect(() => {
+    setCurrentPage('/hijacking');
+
+    return () => {
+      setCurrentPage('/');
+    };
+  }, [setCurrentPage]);
+
+  return (
+    <MainFeedPage
+      onPageChanged={onPageChanged}
+      initialPage="/"
+      shouldInitializeCurrentPage={false}
+      shortcuts={<HijackingLoginStrip />}
+    />
+  );
+}
 
 function InternalApp(): ReactElement {
   const { isOnboardingComplete } = useOnboardingActions();
@@ -112,6 +141,29 @@ function InternalApp(): ReactElement {
   }, [contentScriptGranted]);
 
   useEffect(() => {
+    if (!isPageReady) {
+      return undefined;
+    }
+    let isActive = true;
+    // Ask the background once whether the activation primer opened this tab.
+    // If so, a logged-out user is routed into onboarding a single time; every
+    // later new tab falls back to the normal behavior below.
+    browser.runtime
+      .sendMessage({ type: ExtensionMessageType.ConsumeActivateOnboarding })
+      .then((response) => {
+        const pending = (response as { pending?: boolean } | undefined)
+          ?.pending;
+        if (isActive && pending && !user) {
+          window.location.href = onboardingUrl;
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      isActive = false;
+    };
+  }, [isPageReady, user]);
+
+  useEffect(() => {
     document.title = unreadCount
       ? `(${unreadCount}) ${DEFAULT_TAB_TITLE}`
       : DEFAULT_TAB_TITLE;
@@ -122,7 +174,13 @@ function InternalApp(): ReactElement {
   }
 
   if (shouldRedirectOnboarding) {
-    return <ExtensionOnboarding />;
+    return (
+      <ErrorBoundary feature="extension-feed" fallback={feedErrorFallback}>
+        <DndContextProvider>
+          <HijackingPage onPageChanged={onPageChanged} />
+        </DndContextProvider>
+      </ErrorBoundary>
+    );
   }
 
   return (

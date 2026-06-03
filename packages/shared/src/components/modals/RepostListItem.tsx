@@ -3,15 +3,10 @@ import React from 'react';
 import { ProfileImageSize } from '../ProfilePicture';
 import { SourceAvatar } from '../profile/source/SourceAvatar';
 import Link from '../utilities/Link';
-import { UserVote } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import { DiscussIcon, LockIcon, UpvoteIcon } from '../icons';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureUpvoteCountThreshold } from '../../lib/featureManagement';
-import { getUpvoteCountDisplay } from '../../lib/post';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { TimeFormatType, formatDate } from '../../lib/dateFormat';
 
@@ -26,24 +21,10 @@ export function RepostListItem({
   scrollingContainer,
   appendTooltipTo,
 }: RepostListItemProps): ReactElement {
-  const { user } = useAuthContext();
-  const isLoggedIn = !!user;
-  const { value: upvoteThresholdConfig } = useConditionalFeature({
-    feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
-  });
   const { source } = post;
   const isUserSource = source ? isSourceUserSource(source) : false;
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
-  const userHasUpvoted = post.userState?.vote === UserVote.Up;
-  const { showCount: showUpvotes, belowThresholdLabel: upvoteLabel } =
-    getUpvoteCountDisplay(
-      upvotes,
-      upvoteThresholdConfig.threshold,
-      upvoteThresholdConfig.belowThresholdLabel,
-      userHasUpvoted,
-    );
   const { author } = post;
   const showSquadPreview = !isUserSource && !!source;
   const isPrivateSquad = !!source && !source.public;
@@ -140,10 +121,15 @@ export function RepostListItem({
 
       {/* Upvotes and comments */}
       <div className="mt-3 flex items-center gap-4 text-text-quaternary typo-callout">
-        <span className="flex items-center gap-1.5">
-          <UpvoteIcon className="size-4" />
-          {showUpvotes ? largeNumberFormat(upvotes) : upvoteLabel}
-        </span>
+        {upvotes > 0 && (
+          <span
+            className="flex items-center gap-1.5"
+            data-testid="repost-upvotes"
+          >
+            <UpvoteIcon className="size-4" />
+            {largeNumberFormat(upvotes)}
+          </span>
+        )}
         <span className="flex items-center gap-1.5">
           <DiscussIcon className="size-4" />
           {largeNumberFormat(comments)}

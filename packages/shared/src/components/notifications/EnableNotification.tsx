@@ -12,13 +12,11 @@ import {
   cloudinaryNotificationsBrowserEnabled,
   cloudinaryNotificationsBrowser,
 } from '../../lib/image';
-import { VIcon, BellIcon, BellNotifyIcon } from '../icons';
+import { VIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/log';
 import type { NotificationCtaPlacement } from '../../lib/log';
 import { useEnableNotification } from '../../hooks/notifications';
-import { NotificationSvg } from './NotificationSvg';
-import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
@@ -72,8 +70,6 @@ function EnableNotification({
   label,
   onEnableAction,
 }: EnableNotificationProps): ReactElement | null {
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
     useEnableNotification({
       source,
@@ -87,15 +83,11 @@ function EnableNotification({
 
   const sourceToMessage: Partial<Record<NotificationPromptSource, string>> = {
     [NotificationPromptSource.SquadPostModal]: '',
-    [NotificationPromptSource.NewComment]: isNotificationCtaExperimentEnabled
-      ? 'Someone might reply soon. Don’t miss it.'
-      : `Want to get notified when ${
-          contentName ?? 'someone'
-        } responds so you can continue the conversation?`,
+    [NotificationPromptSource.NewComment]: `Want to get notified when ${
+      contentName ?? 'someone'
+    } responds so you can continue the conversation?`,
     [NotificationPromptSource.NotificationsPage]:
-      isNotificationCtaExperimentEnabled
-        ? 'Get notified when someone replies to your posts, mentions you, or when discussions you follow get new activity.'
-        : 'Stay in the loop whenever you get a mention, reply and other important updates.',
+      'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
     [NotificationPromptSource.NotificationItem]: '',
     [NotificationPromptSource.SquadPostCommentary]: '',
@@ -111,55 +103,6 @@ function EnableNotification({
   const buttonText = sourceToButtonText[source] ?? 'Enable notifications';
   const shouldUseTopRightCloseButton =
     source === NotificationPromptSource.NotificationsPage;
-  const shouldShowNotificationArtwork =
-    source === NotificationPromptSource.NotificationsPage;
-  const shouldAnimateBellCta =
-    source === NotificationPromptSource.NotificationsPage ||
-    source === NotificationPromptSource.NewComment;
-  const shouldShowInlineNotificationImage =
-    source !== NotificationPromptSource.NotificationsPage &&
-    source !== NotificationPromptSource.NewComment;
-  const shouldInlineActionWithMessage =
-    source === NotificationPromptSource.NewComment && !acceptedJustNow;
-  const shouldUseVerticalContentLayout =
-    source === NotificationPromptSource.NotificationsPage;
-  const notificationVisual = (() => {
-    if (shouldShowNotificationArtwork) {
-      return (
-        <div className="hidden h-16 w-32 shrink-0 overflow-hidden tablet:block">
-          {acceptedJustNow ? (
-            <img
-              src={cloudinaryNotificationsBrowserEnabled}
-              alt="A sample browser notification"
-            />
-          ) : (
-            <NotificationSvg />
-          )}
-        </div>
-      );
-    }
-
-    if (!shouldShowInlineNotificationImage) {
-      return null;
-    }
-
-    return (
-      <img
-        className={classNames(
-          source === NotificationPromptSource.SourceSubscribe
-            ? 'h-16 w-auto'
-            : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
-          acceptedJustNow ? 'right-14' : 'right-4',
-        )}
-        src={
-          acceptedJustNow
-            ? cloudinaryNotificationsBrowserEnabled
-            : cloudinaryNotificationsBrowser
-        }
-        alt="A sample browser notification"
-      />
-    );
-  })();
 
   if (source === NotificationPromptSource.SquadPostModal) {
     return (
@@ -184,217 +127,71 @@ function EnableNotification({
     );
   }
 
-  if (!isNotificationCtaExperimentEnabled) {
-    return (
-      <div
-        className={classNames(
-          'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
-          classes,
-          className,
-        )}
-      >
-        {source === NotificationPromptSource.NotificationsPage && (
-          <span className="flex flex-row font-bold">
-            {acceptedJustNow && <VIcon className="mr-2" />}
-            {`Push notifications${
-              acceptedJustNow ? ' successfully enabled' : ''
-            }`}
-          </span>
-        )}
-        <div className="mt-2 flex justify-between gap-2">
-          <p
-            className={classNames(
-              'w-full text-text-tertiary tablet:w-3/5',
-              source === NotificationPromptSource.SourceSubscribe && 'flex-1',
-            )}
-          >
-            {acceptedJustNow ? (
-              <>
-                Changing your{' '}
-                <a
-                  className="underline hover:no-underline"
-                  href={`${webappUrl}account/notifications`}
-                >
-                  notification settings
-                </a>{' '}
-                can be done anytime through your account details
-              </>
-            ) : (
-              message
-            )}
-          </p>
-          <img
-            className={classNames(
-              source === NotificationPromptSource.SourceSubscribe
-                ? 'h-16 w-auto'
-                : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
-              acceptedJustNow ? 'right-14' : 'right-4',
-            )}
-            src={
-              acceptedJustNow
-                ? cloudinaryNotificationsBrowserEnabled
-                : cloudinaryNotificationsBrowser
-            }
-            alt="A sample browser notification"
-          />
-        </div>
-        <div className="mt-4 flex items-center justify-start">
-          {!acceptedJustNow && (
-            <Button
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
-              className="mr-4"
-              onClick={onEnable}
-            >
-              {buttonText}
-            </Button>
-          )}
-          {showTextCloseButton && (
-            <Button
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              onClick={onDismiss}
-            >
-              Dismiss
-            </Button>
-          )}
-          {!showTextCloseButton && !shouldUseTopRightCloseButton && (
-            <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
-          )}
-        </div>
-        {shouldUseTopRightCloseButton && (
-          <CloseButton
-            size={ButtonSize.XSmall}
-            className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
-            onClick={onDismiss}
-          />
-        )}
-      </div>
-    );
-  }
-
   return (
     <div
       className={classNames(
         'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
-        source === NotificationPromptSource.NewComment && 'flex',
         classes,
         className,
       )}
     >
-      <div
-        className={classNames(
-          'flex gap-4',
-          shouldUseVerticalContentLayout ? 'justify-start' : 'justify-between',
-          source === NotificationPromptSource.NewComment
-            ? 'mt-0 w-full'
-            : 'mt-2',
-          shouldUseVerticalContentLayout && 'items-center',
-          source === NotificationPromptSource.NewComment && 'items-center',
-        )}
-      >
-        <div
+      {source === NotificationPromptSource.NotificationsPage && (
+        <span className="flex flex-row font-bold">
+          {acceptedJustNow && <VIcon className="mr-2" />}
+          {`Push notifications${
+            acceptedJustNow ? ' successfully enabled' : ''
+          }`}
+        </span>
+      )}
+      <div className="mt-2 flex justify-between gap-2">
+        <p
           className={classNames(
-            'flex min-w-0 flex-1',
-            shouldInlineActionWithMessage
-              ? 'items-center gap-2'
-              : 'flex-col gap-3',
+            'w-full text-text-tertiary tablet:w-3/5',
+            source === NotificationPromptSource.SourceSubscribe && 'flex-1',
           )}
         >
-          {source === NotificationPromptSource.NotificationsPage && (
-            <h2 className="flex flex-row font-bold typo-body">
-              {acceptedJustNow && <VIcon className="mr-2" />}
-              Stay in the dev loop
-            </h2>
-          )}
-          <p
-            className={classNames(
-              'min-w-0 flex-1 text-text-tertiary',
-              source === NotificationPromptSource.NewComment &&
-                'text-primary break-words typo-markdown tablet:w-full',
-              shouldInlineActionWithMessage && 'flex-1',
-            )}
-          >
-            {acceptedJustNow ? (
-              <>
-                Changing your{' '}
-                <a
-                  className="underline hover:no-underline"
-                  href={`${webappUrl}account/notifications`}
-                >
-                  notification settings
-                </a>{' '}
-                can be done anytime through your account details
-              </>
-            ) : (
-              message
-            )}
-          </p>
-          {shouldInlineActionWithMessage && (
-            <div className="flex items-center gap-1">
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                className="shrink-0"
-                icon={
-                  shouldAnimateBellCta ? (
-                    <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
-                  ) : undefined
-                }
-                onClick={onEnable}
+          {acceptedJustNow ? (
+            <>
+              Changing your{' '}
+              <a
+                className="underline hover:no-underline"
+                href={`${webappUrl}account/notifications`}
               >
-                {buttonText}
-              </Button>
-              <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
-            </div>
+                notification settings
+              </a>{' '}
+              can be done anytime through your account details
+            </>
+          ) : (
+            message
           )}
-          {shouldUseVerticalContentLayout &&
-            !acceptedJustNow &&
-            !shouldInlineActionWithMessage && (
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                className="w-fit"
-                icon={
-                  shouldAnimateBellCta ? (
-                    <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
-                  ) : undefined
-                }
-                onClick={onEnable}
-              >
-                {buttonText}
-              </Button>
-            )}
-        </div>
-        {notificationVisual}
+        </p>
+        <img
+          className={classNames(
+            source === NotificationPromptSource.SourceSubscribe
+              ? 'h-16 w-auto'
+              : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
+            acceptedJustNow ? 'right-14' : 'right-4',
+          )}
+          src={
+            acceptedJustNow
+              ? cloudinaryNotificationsBrowserEnabled
+              : cloudinaryNotificationsBrowser
+          }
+          alt="A sample browser notification"
+        />
       </div>
-      <div
-        className={classNames(
-          'flex items-center justify-start',
-          source === NotificationPromptSource.NewComment ? 'mt-3' : 'mt-4',
-          source === NotificationPromptSource.NewComment && 'justify-end',
+      <div className="mt-4 flex items-center justify-start">
+        {!acceptedJustNow && (
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            className="mr-4"
+            onClick={onEnable}
+          >
+            {buttonText}
+          </Button>
         )}
-      >
-        {!acceptedJustNow &&
-          !shouldInlineActionWithMessage &&
-          !shouldUseVerticalContentLayout && (
-            <Button
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              className={classNames(
-                source !== NotificationPromptSource.NewComment && 'mr-4',
-              )}
-              icon={
-                shouldAnimateBellCta ? (
-                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
-                ) : undefined
-              }
-              onClick={onEnable}
-            >
-              {buttonText}
-            </Button>
-          )}
         {showTextCloseButton && (
           <Button
             size={ButtonSize.Small}
@@ -404,11 +201,9 @@ function EnableNotification({
             Dismiss
           </Button>
         )}
-        {!showTextCloseButton &&
-          !shouldInlineActionWithMessage &&
-          !shouldUseTopRightCloseButton && (
-            <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
-          )}
+        {!showTextCloseButton && !shouldUseTopRightCloseButton && (
+          <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
+        )}
       </div>
       {shouldUseTopRightCloseButton && (
         <CloseButton

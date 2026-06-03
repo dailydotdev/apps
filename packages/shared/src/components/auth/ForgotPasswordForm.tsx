@@ -15,7 +15,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { betterAuthForgetPassword } from '../../lib/betterAuth';
-import { webappUrl } from '../../lib/constants';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
@@ -45,7 +44,7 @@ function ForgotPasswordForm({
 
     setIsLoading(true);
     setHint('');
-    const redirectTo = `${webappUrl}reset-password`;
+    const redirectTo = `${window.location.origin}/reset-password`;
     const res = await betterAuthForgetPassword(email, redirectTo);
     setIsLoading(false);
 

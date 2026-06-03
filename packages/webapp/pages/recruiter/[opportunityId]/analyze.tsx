@@ -14,7 +14,7 @@ import {
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -29,9 +29,11 @@ import {
   parseOpportunityMutationOptions,
   getParseOpportunityMutationErrorMessage,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { setParseOpportunityError } from '@dailydotdev/shared/src/features/opportunity/parseError';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import {
   getLayout,
@@ -44,7 +46,6 @@ interface UseNewOpportunityParserResult {
 
 const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
   const router = useRouter();
-  const { displayToast } = useToastNotification();
   const { pendingSubmission, clearPendingSubmission } = usePendingSubmission();
   const hasStartedParsing = useRef(false);
   const [parsingComplete, setParsingComplete] = useState(false);
@@ -64,8 +65,8 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     onError: (error: ApiErrorResult) => {
       setParsingComplete(true);
       clearPendingSubmission();
-      displayToast(getParseOpportunityMutationErrorMessage(error));
-      router.push(`/recruiter?openModal=joblink`);
+      setParseOpportunityError(getParseOpportunityMutationErrorMessage(error));
+      router.push(`${webappUrl}recruiter?openModal=joblink`);
     },
   });
 
@@ -75,7 +76,7 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     }
 
     if (!pendingSubmission) {
-      router.push(`/recruiter?openModal=joblink`);
+      router.push(`${webappUrl}recruiter?openModal=joblink`);
       return;
     }
 
@@ -99,7 +100,6 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
 
 const RecruiterPageContent = () => {
   const router = useRouter();
-  const { displayToast } = useToastNotification();
   const { user, isAuthReady, isLoggedIn } = useAuthContext();
   const { openModal } = useLazyModal();
   const {
@@ -111,14 +111,16 @@ const RecruiterPageContent = () => {
 
   const isParseError = opportunity?.state === OpportunityState.ERROR;
 
-  // Show toast and redirect when background parsing fails
+  // Redirect to modal with error when background parsing fails
   useEffect(() => {
     if (isParseError) {
-      displayToast(getParseOpportunityMutationErrorMessage());
-
+      setParseOpportunityError(
+        opportunity?.flags?.parseErrorUserMessage ||
+          getParseOpportunityMutationErrorMessage(),
+      );
       router.push(`${webappUrl}recruiter?openModal=joblink`);
     }
-  }, [isParseError, displayToast, router]);
+  }, [isParseError, router, opportunity?.flags?.parseErrorUserMessage]);
 
   // Consider parsing in progress if mutation is pending OR background parsing is happening
   const isParsing = isMutationParsing || isBackgroundParsing;

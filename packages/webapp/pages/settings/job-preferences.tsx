@@ -61,7 +61,7 @@ import { AccountPageContainer } from '../../components/layouts/SettingsLayout/Ac
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Manage job preferences'),
+  ...getPageSeoTitles('Job preferences'),
 };
 
 const options = [
@@ -84,9 +84,9 @@ const JobPreferencesPage = (): ReactElement => {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
-  const [option, setOption] = useState(null);
+  const [option, setOption] = useState<CandidateStatus | null>(null);
 
-  const opts = getCandidatePreferencesOptions(user?.id);
+  const opts = getCandidatePreferencesOptions(user?.id ?? '');
   const updateQuery = useUpdateQuery(opts);
 
   const { data: preferences, isPending } = useQuery(opts);
@@ -282,7 +282,7 @@ const JobPreferencesPage = (): ReactElement => {
 };
 
 export const getStaticProps: GetStaticProps<{
-  dehydratedState: DehydratedState;
+  dehydratedState: DehydratedState | null;
 }> = async () => {
   const queryClient = new QueryClient();
   try {

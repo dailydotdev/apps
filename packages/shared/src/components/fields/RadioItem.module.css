@@ -1,14 +1,57 @@
-.item {
-  &.checked {
-    @apply text-text-primary;
+/*
+ * Radio — daily.dev design system.
+ * Same family as the redesigned Toggle/Switch, Checkbox and Button system:
+ *  - resting outline = label tone (text-secondary); lifts to text-primary on
+ *    hover/focus (mirrors the field border behaviour);
+ *  - selected = a solid brand disc (accent-cabbage-default) with a white center
+ *    dot, identical in light & dark (no per-theme overrides);
+ *  - hover/focus halo: surface-hover when unselected, brand cabbage tint when
+ *    selected (matching the checkbox), never grey-on-brand;
+ *  - a surface-focus (blueCheese) keyboard ring on :focus-visible;
+ *  - the legacy "fattening" ring (2px → 4px) plus a subtle press squeeze.
+ * Motion is disabled under prefers-reduced-motion (see bottom).
+ */
 
-    & .innerRing {
-      @apply border-4 border-raw-cabbage-40 bg-raw-cabbage-80;
-    }
+.checkmark {
+  transition: background-color 0.12s linear;
+}
+
+.innerRing {
+  position: relative;
+  border-color: var(--theme-text-secondary);
+  transition: background-color 0.12s linear, border-color 0.12s linear,
+    border-width 0.12s linear, box-shadow 0.12s linear,
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* White center dot — scales in when selected. */
+  &:after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: theme('colors.raw.salt.0');
+    transform: scale(0);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-.item:hover .checkmark, input:focus-visible ~ .checkmark {
+.item.checked .innerRing {
+  @apply border-accent-cabbage-default bg-accent-cabbage-default;
+
+  &:after {
+    transform: scale(1);
+  }
+}
+
+/*
+ * Hover / keyboard focus reveal the halo and thicken the ring to text-primary
+ * (the well-liked legacy "fattening" hover affordance).
+ */
+.item:hover .checkmark,
+.item input:focus-visible ~ .checkmark {
   @apply bg-surface-hover;
 
   & .innerRing {
@@ -16,40 +59,40 @@
   }
 }
 
-.item.checked:hover .checkmark, .checked input:focus-visible ~ .checkmark {
-  background: theme('colors.raw.cabbage.50')3D;
-
-  & .innerRing {
-    @apply border-raw-cabbage-20;
-  }
+/*
+ * Selected hover/focus stays on-brand: cabbage-tinted halo (matching the
+ * checkbox) instead of grey, and the ring keeps its brand colour.
+ */
+.item.checked:hover .checkmark,
+.item.checked input:focus-visible ~ .checkmark {
+  background-color: theme('colors.overlay.quaternary.cabbage');
 }
 
-:global(.light) {
-  & .item.checked {
-    & .innerRing {
-      @apply border-raw-cabbage-60 bg-raw-cabbage-20;
-    }
-  }
-
-  & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
-    & .innerRing {
-      @apply border-raw-cabbage-80;
-    }
-  }
+.item.checked:hover .checkmark .innerRing,
+.item.checked input:focus-visible ~ .checkmark .innerRing {
+  @apply border-accent-cabbage-default;
 }
 
-@media (prefers-color-scheme: light) {
-  :global(.auto) {
-    & .item.checked {
-      & .innerRing {
-        @apply border-raw-cabbage-60 bg-raw-cabbage-20;
-      }
-    }
+/* Keyboard focus — an even blue ring (matches Switch / fields / buttons). */
+.item input:focus-visible ~ .checkmark .innerRing {
+  box-shadow: 0 0 0 2px var(--theme-surface-focus);
+}
 
-    & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
-      & .innerRing {
-        @apply border-raw-cabbage-80;
-      }
-    }
+/* Press — a subtle squeeze for tactile feedback. */
+.item:active .innerRing {
+  transform: scale(0.9);
+}
+
+/* Respect users who prefer reduced motion: keep the state changes, drop the
+ * movement (press squeeze, dot scale-in, ring fatten) and instant-swap. */
+@media (prefers-reduced-motion: reduce) {
+  .checkmark,
+  .innerRing,
+  .innerRing:after {
+    transition: none;
+  }
+
+  .item:active .innerRing {
+    transform: none;
   }
 }

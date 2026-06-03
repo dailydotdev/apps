@@ -4,10 +4,18 @@ import type { NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import { FeedSettingsEdit } from '@dailydotdev/shared/src/components/feeds/FeedSettings/FeedSettingsEdit';
 import { useRouter } from 'next/router';
-
-import { useFeeds, usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useFeeds,
+  usePlusSubscription,
+} from '@dailydotdev/shared/src/hooks';
 import { FeedType } from '@dailydotdev/shared/src/graphql/feed';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '@dailydotdev/shared/src/lib/featureManagement';
+
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -22,17 +30,25 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const EditFeedPage = (): ReactElement => {
+const EditFeedPage = (): ReactElement | null => {
   const router = useRouter();
   const { FeedPageLayoutComponent } = useFeedLayout();
   const feedSlugOrId = router.query.slugOrId as string;
   const { isPlus } = usePlusSubscription();
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: !isPlus,
+  });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const { feeds } = useFeeds();
   const feed = feeds?.edges.find(
     (item) => item.node.id === feedSlugOrId || item.node.slug === feedSlugOrId,
   );
 
-  const isFeedEditRestricted = !isPlus && feed?.node.type === FeedType.Custom;
+  // Pre-chips behavior: non-Plus cannot edit custom feeds. Once the chips
+  // feature is on, free users own their custom feeds and the editor opens.
+  const isFeedEditRestricted =
+    !isFeedChipsEnabled && !isPlus && feed?.node.type === FeedType.Custom;
 
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');

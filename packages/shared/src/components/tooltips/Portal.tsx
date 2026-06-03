@@ -6,13 +6,13 @@ import { getCompanionWrapper } from '../../lib/extension';
 
 interface PortalProps {
   children: ReactNode;
-  container: Element;
+  container: Element | null;
 }
 
 export const Portal = ({
   children,
   container,
-}: PortalProps): ReturnType<typeof createPortal> => {
+}: PortalProps): ReturnType<typeof createPortal> | null => {
   if (!container) {
     return null;
   }

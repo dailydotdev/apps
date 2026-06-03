@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
@@ -28,16 +28,14 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import { shouldShowAchievementTracker } from '@dailydotdev/shared/src/lib/achievements';
+import { gameCenterMilestoneSectionId } from '@dailydotdev/shared/src/lib/constants';
 import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
-import {
-  achievementTrackingWidgetFeature,
-  questsFeature,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { achievementTrackingWidgetFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { fetchTopReaders } from '@dailydotdev/shared/src/lib/topReader';
 import { getFirstName } from '@dailydotdev/shared/src/lib/user';
 import {
@@ -46,6 +44,8 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import {
   Divider,
   ResponsivePageContainer,
@@ -89,7 +89,6 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import ProtectedPage from '../../components/ProtectedPage';
-import Custom404Seo from '../404';
 import { defaultOpenGraph } from '../../next-seo';
 import {
   getAchievementSummary,
@@ -240,12 +239,22 @@ function GameCenterPage({
 }: GameCenterPageProps): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
-  const { optOutLevelSystem } = useSettingsContext();
-  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
-    useConditionalFeature({
-      feature: questsFeature,
-      shouldEvaluate: !!user,
-    });
+  const {
+    optOutLevelSystem,
+    optOutQuestSystem,
+    optOutAchievements,
+    loadedSettings,
+  } = useSettingsContext();
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
+  const isGameCenterEmpty =
+    optOutLevelSystem && optOutQuestSystem && optOutAchievements;
+
+  useEffect(() => {
+    if (loadedSettings && isGameCenterEmpty) {
+      router.replace('/');
+    }
+  }, [loadedSettings, isGameCenterEmpty, router]);
   const { value: isAchievementTrackingEnabled } = useConditionalFeature({
     feature: achievementTrackingWidgetFeature,
     shouldEvaluate: !!user,
@@ -282,9 +291,14 @@ function GameCenterPage({
   );
   const hasCoresAccess = useHasAccessToCores();
   const showLevelSystem = !optOutLevelSystem;
+  const showAchievements = !optOutAchievements;
   const milestoneQuests = useMemo(
     () => questDashboard?.milestone ?? [],
     [questDashboard?.milestone],
+  );
+  const claimableMilestoneCount = useMemo(
+    () => milestoneQuests.filter((quest) => quest.claimable).length,
+    [milestoneQuests],
   );
   const claimingMilestoneQuestId = isClaimQuestPending
     ? claimQuestVariables?.userQuestId
@@ -345,6 +359,7 @@ function GameCenterPage({
   );
   const hasCommunityLeaderboards =
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
+  const milestoneHash = `#${gameCenterMilestoneSectionId}`;
   let mostEarnedBadgeSubtitle =
     'Read in a topic more than once to see a favorite';
 
@@ -384,6 +399,14 @@ function GameCenterPage({
   };
   const handleMilestoneDestinationClick = useCallback(
     async (destination: QuestDestination) => {
+      if ('href' in destination) {
+        if (destination.openInNewTab) {
+          window.open(destination.href!, '_blank', 'noopener,noreferrer');
+          return;
+        }
+        window.location.assign(destination.href!);
+        return;
+      }
       await router.push(destination.path);
     },
     [router],
@@ -398,6 +421,20 @@ function GameCenterPage({
     },
     [claimQuestReward],
   );
+
+  useEffect(() => {
+    if (!router.isReady || claimableMilestoneCount === 0) {
+      return;
+    }
+
+    if (!router.asPath?.includes(milestoneHash)) {
+      return;
+    }
+
+    document
+      .getElementById(gameCenterMilestoneSectionId)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [claimableMilestoneCount, milestoneHash, router.asPath, router.isReady]);
 
   let milestoneQuestContent: ReactElement;
 
@@ -414,9 +451,6 @@ function GameCenterPage({
         title="Milestones"
         quests={milestoneQuests}
         layout="grid"
-        initialVisibleCount={4}
-        showMoreLabel="Show more"
-        showLessLabel="Show less"
         showLevelSystem={showLevelSystem}
         onDestinationClick={handleMilestoneDestinationClick}
         claimingQuestId={claimingMilestoneQuestId}
@@ -695,23 +729,23 @@ function GameCenterPage({
   }
 
   return (
-    <ProtectedPage
-      shouldFallback={isQuestsFeatureLoading || isQuestsFeatureEnabled !== true}
-      fallback={isQuestsFeatureLoading ? <></> : <Custom404Seo />}
-    >
+    <ProtectedPage>
+      {isV2Laptop && <PageHeader title="Game Center" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        <LayoutHeader
-          className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
-        >
-          <Typography
-            type={TypographyType.Title3}
-            bold
-            color={TypographyColor.Primary}
-            className="flex-1"
+        {!isV2Laptop && (
+          <LayoutHeader
+            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
           >
-            Game Center
-          </Typography>
-        </LayoutHeader>
+            <Typography
+              type={TypographyType.Title3}
+              bold
+              color={TypographyColor.Primary}
+              className="flex-1"
+            >
+              Game Center
+            </Typography>
+          </LayoutHeader>
+        )}
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
           <section className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
             <div className="pointer-events-none absolute inset-0">
@@ -808,84 +842,88 @@ function GameCenterPage({
                     </Typography>
                   </div>
 
-                  <div className="bg-background-default/70 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                        bold
-                      >
-                        Closest achievement
-                      </Typography>
-                      {isFeaturedAchievementTrackable && (
-                        <Tooltip
-                          content={
-                            isFeaturedAchievementTracked
-                              ? 'Stop tracking achievement'
-                              : 'Track achievement'
-                          }
-                          side="top"
-                        >
-                          <Button
-                            variant={ButtonVariant.Subtle}
-                            size={ButtonSize.Small}
-                            icon={
-                              <PinIcon
-                                secondary={isFeaturedAchievementTracked}
-                              />
-                            }
-                            pressed={isFeaturedAchievementTracked}
-                            disabled={isFeaturedAchievementTrackingPending}
-                            onClick={handleFeaturedAchievementTracking}
-                            aria-label={
-                              isFeaturedAchievementTracked
-                                ? `Stop tracking ${featuredAchievement.achievement.name}`
-                                : `Track ${featuredAchievement.achievement.name}`
-                            }
-                          />
-                        </Tooltip>
-                      )}
-                    </div>
-                    <div className="mt-3 flex items-start gap-3">
-                      {featuredAchievement && (
-                        <LazyImage
-                          imgSrc={featuredAchievement.achievement.image}
-                          imgAlt={featuredAchievement.achievement.name}
-                          className="size-14 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
-                          fallbackSrc="https://daily.dev/default-achievement.png"
-                        />
-                      )}
-                      <div className="min-w-0">
+                  {showAchievements && (
+                    <div className="bg-background-default/70 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-sm">
+                      <div className="flex items-start justify-between gap-3">
                         <Typography
-                          type={TypographyType.Callout}
-                          bold
-                          className={classNames(
-                            'line-clamp-2',
-                            !featuredAchievement && 'mt-1',
-                          )}
-                        >
-                          {featuredAchievement?.achievement.name ??
-                            'No tracked achievement'}
-                        </Typography>
-                        <Typography
-                          type={TypographyType.Footnote}
+                          type={TypographyType.Caption1}
                           color={TypographyColor.Tertiary}
-                          className="mt-1"
+                          bold
                         >
-                          {featuredAchievement
-                            ? `${featuredAchievement.progress}/${getTargetCount(
-                                featuredAchievement.achievement,
-                              )} progress`
-                            : 'Once achievements load, your closest milestone shows here.'}
+                          Closest achievement
                         </Typography>
+                        {isFeaturedAchievementTrackable && (
+                          <Tooltip
+                            content={
+                              isFeaturedAchievementTracked
+                                ? 'Stop tracking achievement'
+                                : 'Track achievement'
+                            }
+                            side="top"
+                          >
+                            <Button
+                              variant={ButtonVariant.Subtle}
+                              size={ButtonSize.Small}
+                              icon={
+                                <PinIcon
+                                  secondary={isFeaturedAchievementTracked}
+                                />
+                              }
+                              pressed={isFeaturedAchievementTracked}
+                              disabled={isFeaturedAchievementTrackingPending}
+                              onClick={handleFeaturedAchievementTracking}
+                              aria-label={
+                                isFeaturedAchievementTracked
+                                  ? `Stop tracking ${featuredAchievement.achievement.name}`
+                                  : `Track ${featuredAchievement.achievement.name}`
+                              }
+                            />
+                          </Tooltip>
+                        )}
+                      </div>
+                      <div className="mt-3 flex items-start gap-3">
+                        {featuredAchievement && (
+                          <LazyImage
+                            imgSrc={featuredAchievement.achievement.image}
+                            imgAlt={featuredAchievement.achievement.name}
+                            className="size-14 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
+                            fallbackSrc="https://daily.dev/default-achievement.png"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <Typography
+                            type={TypographyType.Callout}
+                            bold
+                            className={classNames(
+                              'line-clamp-2',
+                              !featuredAchievement && 'mt-1',
+                            )}
+                          >
+                            {featuredAchievement?.achievement.name ??
+                              'No tracked achievement'}
+                          </Typography>
+                          <Typography
+                            type={TypographyType.Footnote}
+                            color={TypographyColor.Tertiary}
+                            className="mt-1"
+                          >
+                            {featuredAchievement
+                              ? `${
+                                  featuredAchievement.progress
+                                }/${getTargetCount(
+                                  featuredAchievement.achievement,
+                                )} progress`
+                              : 'Once achievements load, your closest milestone shows here.'}
+                          </Typography>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
               <div className="bg-background-default/70 flex min-w-[14rem] flex-col items-start justify-center gap-4 rounded-20 border border-border-subtlest-tertiary p-5 backdrop-blur-sm">
-                {isQuestsFeatureEnabled === true && questDashboard ? (
+                {questDashboard ? (
                   <>
                     <div className="flex items-center gap-4">
                       <QuestLevelProgressCircle
@@ -929,24 +967,26 @@ function GameCenterPage({
                     </div>
                   </>
                 ) : (
-                  <>
-                    <Typography
-                      type={TypographyType.Caption1}
-                      color={TypographyColor.Tertiary}
-                    >
-                      Personal highlight
-                    </Typography>
-                    <Typography type={TypographyType.Title2} bold>
-                      {achievementSummary.unlockedCount}/
-                      {achievementSummary.totalCount}
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                    >
-                      achievements unlocked so far
-                    </Typography>
-                  </>
+                  showAchievements && (
+                    <>
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                      >
+                        Personal highlight
+                      </Typography>
+                      <Typography type={TypographyType.Title2} bold>
+                        {achievementSummary.unlockedCount}/
+                        {achievementSummary.totalCount}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        achievements unlocked so far
+                      </Typography>
+                    </>
+                  )
                 )}
               </div>
             </div>
@@ -954,7 +994,10 @@ function GameCenterPage({
 
           <Divider className={dividerClassName} />
 
-          <section className="flex flex-col gap-4">
+          <section
+            id={gameCenterMilestoneSectionId}
+            className="flex scroll-mt-16 flex-col gap-4"
+          >
             <SectionHeader
               title="Milestone quests"
               description="Longer-running quest goals that track your progress until they are ready to claim."
@@ -1088,26 +1131,30 @@ function GameCenterPage({
             )}
           </section>
 
-          <Divider className={dividerClassName} />
+          {showAchievements && (
+            <>
+              <Divider className={dividerClassName} />
 
-          <section className="flex flex-col gap-4">
-            <SectionHeader
-              title="Achievement shelf"
-              description="A mix of what you just unlocked, what is rare, and what is closest to completion."
-              action={
-                user?.username ? (
-                  <Link href={`/${user.username}/achievements`} passHref>
-                    <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
-                      View all achievements
-                      <ArrowIcon className="rotate-90" />
-                    </a>
-                  </Link>
-                ) : undefined
-              }
-            />
+              <section className="flex flex-col gap-4">
+                <SectionHeader
+                  title="Achievement shelf"
+                  description="A mix of what you just unlocked, what is rare, and what is closest to completion."
+                  action={
+                    user?.username ? (
+                      <Link href={`/${user.username}/achievements`} passHref>
+                        <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
+                          View all achievements
+                          <ArrowIcon className="rotate-90" />
+                        </a>
+                      </Link>
+                    ) : undefined
+                  }
+                />
 
-            {achievementShelfContent}
-          </section>
+                {achievementShelfContent}
+              </section>
+            </>
+          )}
 
           <Divider className={dividerClassName} />
 

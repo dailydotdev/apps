@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ReactElement } from 'react';
+import type { AnchorHTMLAttributes, ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import type { Ad } from '../../../graphql/posts';
@@ -39,16 +39,21 @@ const getLinkProps = ({
 
 export const SignalAdList = forwardRef(function SignalAdList(
   { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
-  inViewRef: InViewRef,
+  inViewRef: Ref<HTMLElement>,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const { ref } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
+  const { ref } = useAutoRotatingAds(
+    ad,
+    index,
+    feedIndex,
+    inViewRef as InViewRef,
+  );
 
   const sourceName = ad.company?.trim() || ad.source?.trim() || 'Promoted';
   const sourceImage = getAdFaviconImageLink({
     ad,
-    adImprovementsV3,
+    adImprovementsV3: adImprovementsV3 ?? false,
     size: 20,
   });
   const sourceHandle = ad.company?.trim() || ad.source?.trim() || 'promoted';
@@ -64,7 +69,10 @@ export const SignalAdList = forwardRef(function SignalAdList(
       }}
       ref={ref}
       data-testid="adItem"
-      linkProps={getLinkProps({ ad, onLinkClick })}
+      linkProps={getLinkProps({
+        ad,
+        onLinkClick: onLinkClick ?? (() => undefined),
+      })}
     >
       <div className="flex flex-col gap-1 px-4 pb-6 pt-3 text-left">
         <div className="my-1.5 flex items-center gap-1 text-text-quaternary typo-callout">
@@ -97,8 +105,8 @@ export const SignalAdList = forwardRef(function SignalAdList(
         <p className="font-bold text-text-primary typo-callout">
           {ad.description}
         </p>
-        {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
-          <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
+        {adImprovementsV3 && (ad?.matchingTags?.length ?? 0) > 0 ? (
+          <PostTags post={{ tags: ad.matchingTags?.slice(0, 6) ?? [] }} />
         ) : null}
         {!!ad.callToAction && (
           <div className="relative z-1 mt-2 flex items-center">

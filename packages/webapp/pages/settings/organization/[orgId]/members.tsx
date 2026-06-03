@@ -73,7 +73,7 @@ const OrganizationOptionsMenu = ({
   member,
 }: {
   member: Omit<OrganizationMember, 'lastActive'>;
-}) => {
+}): ReactElement | null => {
   const { user: currentUser } = useAuthContext();
   const router = useRouter();
   const {
@@ -84,7 +84,11 @@ const OrganizationOptionsMenu = ({
     includeMembers: true,
   });
 
-  const { user, role, seatType } = member || {};
+  const { user, role, seatType } = member;
+
+  if (!currentUser) {
+    return null;
+  }
 
   const isCurrentUser = currentUser.id === user.id;
 
@@ -312,7 +316,7 @@ const OrganizationMembersItem = ({
   );
 };
 
-const Page = (): ReactElement => {
+const Page = (): ReactElement | null => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { push, query } = useRouter();
   const { openModal } = useLazyModal();
@@ -344,11 +348,11 @@ const Page = (): ReactElement => {
     }
   };
 
-  const isRegularMember = !isPrivilegedOrganizationRole(role);
-
-  if (isFetching || !organization) {
+  if (isFetching || !organization || !user || !role || !seatType) {
     return null;
   }
+
+  const isRegularMember = !isPrivilegedOrganizationRole(role);
 
   const members = [
     { role, user, seatType, lastActive: new Date() },
@@ -473,7 +477,7 @@ const Page = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Organization members'),
+  ...getPageSeoTitles('Members'),
 };
 
 Page.getLayout = getOrganizationLayout;

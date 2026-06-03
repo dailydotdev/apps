@@ -5,11 +5,11 @@ import React from 'react';
 import nock from 'nock';
 import { useRouter } from 'next/router';
 import ShareBar from './ShareBar';
-import Post from '../../__tests__/fixture/post';
+import Post, { sharePost } from '../../__tests__/fixture/post';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import loggedUser from '../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../__tests__/fixture/squads';
-import { getFacebookShareLink } from '../lib/share';
+import { getFacebookShareLink, getTwitterShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { NotificationsContextProvider } from '../contexts/NotificationsContext';
 
@@ -50,13 +50,14 @@ const manySquads = Array.from({ length: 5 }, (_, index) =>
 const renderComponent = (
   loggedIn = true,
   customSquads: typeof squads = squads,
+  post = defaultPost,
 ): RenderResult => {
   const client = new QueryClient();
 
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={loggedIn ? loggedUser : null}
+        user={loggedIn ? loggedUser : undefined}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
@@ -66,7 +67,7 @@ const renderComponent = (
       >
         <NotificationsContextProvider>
           <LazyModalElement />
-          <ShareBar post={defaultPost} />
+          <ShareBar post={post} />
         </NotificationsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
@@ -75,7 +76,7 @@ const renderComponent = (
 
 describe('ShareBar Test Suite:', () => {
   const mockWindowOpen = jest.fn();
-  let origWindowOpen: typeof window.open | null = null;
+  let origWindowOpen: typeof window.open = window.open;
 
   beforeEach(() => {
     origWindowOpen = window.open;
@@ -132,6 +133,20 @@ describe('ShareBar Test Suite:', () => {
     await waitFor(() => {
       expect(mockWindowOpen).toHaveBeenCalledWith(
         getFacebookShareLink(defaultPost.commentsPermalink),
+        '_blank',
+      );
+    });
+  });
+
+  it('should fall back to shared post title on Twitter share when shared post has no title', async () => {
+    const post = { ...sharePost, title: undefined };
+    renderComponent(true, squads, post);
+
+    fireEvent.click(await screen.findByTestId('social-share-X'));
+
+    await waitFor(() => {
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        getTwitterShareLink(post.commentsPermalink, post.sharedPost!.title),
         '_blank',
       );
     });

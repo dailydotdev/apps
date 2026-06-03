@@ -55,7 +55,10 @@ import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const seo: NextSeoProps = { ...defaultSeo, ...getPageSeoTitles('Invite') };
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  ...getPageSeoTitles('Invite Friends'),
+};
 
 const AccountInvitePage = (): ReactElement => {
   const { openModal } = useLazyModal();
@@ -88,10 +91,10 @@ const AccountInvitePage = (): ReactElement => {
       getNextPageParam(referredUsers?.pageInfo),
   });
   const users: UserShortProfile[] = useMemo(() => {
-    const list = [];
+    const list: UserShortProfile[] = [];
     usersResult.data?.pages.forEach((page) => {
       page?.referredUsers.edges.forEach(({ node }) => {
-        list.push(node);
+        list.push(node as UserShortProfile);
       });
     }, []);
 

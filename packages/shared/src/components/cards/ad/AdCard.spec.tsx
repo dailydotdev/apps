@@ -9,9 +9,12 @@ import { SignalAdList } from './SignalAdList';
 import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
+import { businessWebsiteUrl } from '../../../lib/constants';
 
 const defaultProps: AdCardProps = {
   ad,
+  index: 0,
+  feedIndex: 0,
   onLinkClick: jest.fn(),
 };
 
@@ -19,24 +22,13 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
-  const client = new QueryClient();
-  return render(
-    <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
-        <AdGrid {...defaultProps} {...props} />
-      </ActiveFeedContext.Provider>
-    </TestBootProvider>,
-  );
-};
-
 const renderListComponent = (
   props: Partial<AdCardProps> = {},
 ): RenderResult => {
   const client = new QueryClient();
   return render(
     <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <AdList {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
     </TestBootProvider>,
@@ -49,7 +41,7 @@ const renderSignalListComponent = (
   const client = new QueryClient();
   return render(
     <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <SignalAdList {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
     </TestBootProvider>,
@@ -59,8 +51,22 @@ const renderSignalListComponent = (
 const getNormalizedText = (element?: Element | null): string =>
   element?.textContent?.replace(/\u200B/g, '').trim() ?? '';
 
+const renderGridComponent = (
+  props: Partial<AdCardProps> = {},
+): RenderResult => {
+  const client = new QueryClient();
+
+  return render(
+    <TestBootProvider client={client}>
+      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
+        <AdGrid {...defaultProps} {...props} />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
+};
+
 it('should call on click on component left click', async () => {
-  renderComponent();
+  renderGridComponent();
   const el = await screen.findByTestId('adItem');
   const links = await within(el).findAllByRole('link');
   links[0].click();
@@ -68,7 +74,7 @@ it('should call on click on component left click', async () => {
 });
 
 it('should call on click on component middle mouse up', async () => {
-  renderComponent();
+  renderGridComponent();
   const el = await screen.findByTestId('adItem');
   const links = await within(el).findAllByRole('link');
   links[0].dispatchEvent(
@@ -78,7 +84,7 @@ it('should call on click on component middle mouse up', async () => {
 });
 
 it('should show a single image by default', async () => {
-  renderComponent();
+  renderGridComponent();
   const img = await screen.findByAltText('Ad image');
   const background = screen.queryByAltText('Ad image background');
   expect(img).toBeInTheDocument();
@@ -86,7 +92,7 @@ it('should show a single image by default', async () => {
 });
 
 it('should show blurred image for carbon', async () => {
-  renderComponent({ ad: { ...ad, source: 'Carbon' } });
+  renderGridComponent({ ad: { ...ad, source: 'Carbon' } });
   const img = await screen.findByAltText('Ad image');
   const background = screen.queryByAltText('Ad image background');
   expect(img).toHaveClass('absolute');
@@ -94,11 +100,20 @@ it('should show blurred image for carbon', async () => {
 });
 
 it('should show pixel images', async () => {
-  renderComponent({
+  renderGridComponent({
     ad: { ...ad, pixel: ['https://daily.dev/pixel'] },
   });
   const el = await screen.findByTestId('pixel');
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
+});
+
+it('should render advertise link on grid ad', () => {
+  renderGridComponent();
+
+  expect(screen.getByRole('link', { name: 'Advertise here' })).toHaveAttribute(
+    'href',
+    businessWebsiteUrl,
+  );
 });
 
 it('should render promoted attribution outside of list title clamp', async () => {
@@ -112,6 +127,15 @@ it('should render promoted attribution outside of list title clamp', async () =>
   const title = screen.getByRole('heading', { level: 3 });
   expect(getNormalizedText(title)).not.toContain('Promoted');
   expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
+});
+
+it('should render advertise link on list ad', () => {
+  renderListComponent();
+
+  expect(screen.getByRole('link', { name: 'Advertise here' })).toHaveAttribute(
+    'href',
+    businessWebsiteUrl,
+  );
 });
 
 it('should render company logo and company name in signal ad header', async () => {

@@ -16,6 +16,10 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 - Use early returns instead of if-else blocks for cleaner, flatter code
 - Handle the errors or checks first and return early then proceed with happy path at the end of code block
 
+**Comments:**
+- Do not add comments that restate what the code already says. If a variable name, condition, or function call makes the intent clear, no comment is needed.
+- Only comment to explain *why* something non-obvious is done (a constraint, a gotcha, a deliberate trade-off) — never to narrate *what* the code does line by line.
+
 **Invariant handling:**
 - Do not silently ignore impossible states (for example, no-op rollback fallbacks in mutation/cache flows)
 - Fail fast with a clear thrown error message when an internal invariant is violated
@@ -41,7 +45,7 @@ This is a pnpm monorepo containing the daily.dev application suite:
 ## Technology Stack
 
 - **Node.js v24.14** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
-- **pnpm 9.14.4** for package management (see `package.json` `packageManager` property)
+- **pnpm 10.33.4** for package management (see `package.json` `packageManager` property)
 - **TypeScript** across all packages
 - **React 18.3.1** with Next.js 15 for webapp (Pages Router, NOT App Router/Server Components)
 - **TanStack Query v5** for server state and data fetching
@@ -171,7 +175,8 @@ This ensures type safety, reduces duplication, and keeps types automatically in 
 ```bash
 # Setup
 nvm use                   # Use correct Node version from .nvmrc
-npm i -g pnpm@9.14.4
+corepack enable
+corepack prepare pnpm@10.33.4 --activate
 pnpm install
 
 # Development
@@ -195,6 +200,10 @@ pnpm --filter extension build:chrome # Build Chrome extension
 **IMPORTANT**: Do NOT run `build` commands while the dev server is running - it will break hot reload. Only run builds at the end to verify your work compiles successfully. During development, rely on the dev server's hot reload and TypeScript/ESLint checks instead.
 
 **IMPORTANT**: For changed `.ts`/`.tsx` files, run `node ./scripts/typecheck-strict-changed.js` or the package's strict `tsc` command before finishing. Do not add context-specific props to shared primitives when the behavior can be scoped in the parent list/container.
+
+**IMPORTANT**: For text truncation inside flex layouts, scope the ellipsis to the text element and make the nearest flex item shrinkable with `min-w-0` (and `flex-1` when it should consume remaining space). Do not rely on `truncate` on the whole row.
+
+**IMPORTANT**: In `flex-col items-center` layouts, sections and constrained content blocks need an explicit `w-full` alongside any `max-w-*` cap. `max-w-*` alone can leave the element shrink-to-content and cause width changes when child content expands.
 
 **IMPORTANT**: When changing SEO, gating, or noindex logic, preserve existing `undefined`/nullable behavior unless the requirement explicitly changes it, and verify field names against the typed GraphQL model instead of ticket prose.
 
@@ -442,6 +451,11 @@ When reviewing code (or writing code that will be reviewed):
 - **Handle pre-selected values in paginated dropdowns** - When a dropdown uses infinite scroll and a value was previously selected (e.g. from a saved integration), that value may not be in the first page of results. Insert an artificial placeholder entry (e.g. `{ id, name: "Channel ${id}" }`) at the front of the list so the selection is visible immediately, and deduplicate by `id` once the real item is fetched during scrolling. Do not auto-fetch pages in a loop to find the selected item. Never use `findIndex(...) || 0` — it silently falls back to the first item when the value isn't found; use `?? -1` so the dropdown shows the placeholder instead.
 - **Portaled drawers must stop click propagation** - The `BaseDrawer` overlay stops click propagation so that portaled child drawers (e.g. `ListDrawer` inside a `Dropdown` inside a modal-as-drawer) don't accidentally close the parent modal via `useOutsideClick`. When adding new portaled overlays, always `stopPropagation` on the overlay and handle outside-click dismissal locally.
 - **Update text-asserting tests when copy changes** - If you rename visible labels in menus/buttons/toasts, update the impacted RTL/Jest selectors in the same PR (e.g. `findByText('...')`) to keep behavior tests aligned with intentional UX copy updates.
+- **Scope card layout constraints per variant** - When a shared card content component has `grid`/`list` variants, only apply height/scroll constraints (e.g. `min-h-0 overflow-y-auto`, `flex-1`) to the variant that lives in a height-constrained container. Grid cards sit in equal-height feed rows and must scroll inside a fixed area; list cards stack vertically with no row constraint and should fit content naturally. Don't carry grid scroll wrappers into the list variant.
+- **Keep CSS Grid feed cards from stretching their row** - In the feed grid (`grid-auto-rows: auto`), an item's intrinsic content height contributes to the row's track size even when `max-h-*` caps the visual height. To prevent a content-heavy card (e.g. the Happening Now grid card) from pushing the row taller and stretching its neighbors, wrap the card's content in an `absolute inset-0 flex flex-col` child so the content is out-of-flow, and add `min-h-card` on the Card to match the baseline used by `ArticleGrid` (`packages/shared/src/components/cards/article/ArticleGrid.tsx`).
+- **Floating actions over positioned siblings need both DOM order and z-index** - When stacking a control (e.g. a lightbox close button) over a sibling that uses `position: relative`/`absolute` (e.g. an `<img>` with `relative` for centering), do BOTH: render the floating control AFTER the content in the JSX, and give it an explicit `z-*` class (`z-1` matches the `ModalClose` default in `packages/shared/src/components/modals/common/ModalClose.tsx`). z-index alone is fragile in flex/stacking-context edge cases — pair it with DOM order so painting is unambiguous.
+- **Pick the overlay tier to match the surface, not the Modal default** - Overlay tokens come in tiers (`primary` ~64%, `secondary` ~40%, `tertiary` ~32%, `quaternary` ~24%). The standard `Modal` uses `bg-overlay-quaternary-onion`, but full-screen photo/media lightboxes need a darker tint so the image stands out — prefer a darker neutral like `bg-overlay-primary-pepper`. Don't default to `quaternary-onion` for every overlay; pick the tier and base color appropriate for the surface.
+- **CloseButton over images/media: use `ButtonVariant.Primary`, not `Float`** - `ButtonVariant.Float` paints with `--theme-surface-float` (~8% opacity surface), which is nearly invisible against a dark blurred backdrop or photo. For close buttons overlaid on image content (lightboxes, image-input previews, photo cards), use `ButtonVariant.Primary` for a solid background — this matches the existing `ImageInput.tsx` pattern (`packages/shared/src/components/fields/ImageInput.tsx`). Reserve `Float` for buttons floating over solid app backgrounds, not over content that bleeds through.
 
 ## Node.js Version Upgrade Checklist
 

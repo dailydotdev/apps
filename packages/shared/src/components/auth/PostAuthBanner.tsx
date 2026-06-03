@@ -9,38 +9,44 @@ import { useAuthContext } from '../../contexts/AuthContext';
 const UserPersonalizedBanner = dynamic(
   () =>
     import(
-      /* webpackChunkName: "userPersonalizedBanner" */ '../banners/personalized/UserPersonalizedBanner'
+      /* webpackChunkName: "userPersonalizedBanner" */ '../marketing/banners/personalized/UserPersonalizedBanner'
     ),
 );
 
 const SocialPersonalizedBanner = dynamic(
   /* webpackChunkName: "socialPersonalizedBanner" */ () =>
-    import('../banners/personalized/SocialPersonalizedBanner'),
+    import('../marketing/banners/personalized/SocialPersonalizedBanner'),
 );
 
 const GeoPersonalizedBanner = dynamic(
   /* webpackChunkName: "geoPersonalizedBanner" */
-  () => import('../banners/personalized/GeoPersonalizedBanner'),
+  () => import('../marketing/banners/personalized/GeoPersonalizedBanner'),
 );
 
-export const PostAuthBanner = (): ReactElement => {
+interface PostAuthBannerProps {
+  compact?: boolean;
+}
+
+export const PostAuthBanner = ({
+  compact,
+}: PostAuthBannerProps = {}): ReactElement => {
   const searchParams = useSearchParams();
   const { geo } = useAuthContext();
 
   const userId = searchParams?.get('userid');
 
   if (userId) {
-    return <UserPersonalizedBanner userId={userId} />;
+    return <UserPersonalizedBanner userId={userId} compact={compact} />;
   }
 
   const social = getSocialReferrer();
   if (social) {
-    return <SocialPersonalizedBanner site={social} />;
+    return <SocialPersonalizedBanner site={social} compact={compact} />;
   }
 
   if (geo?.region) {
-    return <GeoPersonalizedBanner geo={geo.region} />;
+    return <GeoPersonalizedBanner geo={geo.region} compact={compact} />;
   }
 
-  return <AuthenticationBanner />;
+  return <AuthenticationBanner compact={compact} />;
 };

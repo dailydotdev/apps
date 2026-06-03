@@ -32,6 +32,7 @@ export enum ActionType {
   DisableReadingStreakMilestone = 'disable_reading_streak_milestone',
   DisableReadingStreakRecover = 'disable_reading_streak_recover',
   FirstShortcutsSession = 'first_shortcuts_session',
+  ShortcutsMigratedFromTopSites = 'shortcuts_migrated_from_top_sites',
   VotePost = 'vote_post',
   BookmarkPost = 'bookmark_post',
   DigestConfig = 'digest_config',
@@ -39,16 +40,19 @@ export enum ActionType {
   FetchedSmartTitle = 'fetched_smart_title',
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
+  HasSeenTags = 'has_seen_tags',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
-  SmartPrompt = 'smart_prompt',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',
+  ViewedIntroQuests = 'viewed_intro_quests',
+  IntroQuestsCompleted = 'intro_quests_completed',
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
   DisableBriefCardCta = 'disable_brief_card_cta',
   SeenPostPollTooltip = 'seen_post_poll_tooltip',
   SeenPostPollTab = 'seen_post_poll_tab',
+  SeenStandupTab = 'seen_standup_tab',
   OpportunityWelcomePage = 'opportunity_welcome_page',
   OpportunityInitialView = 'opportunity_initial_view',
   UserCandidatePreferencesSaved = 'user_candidate_preferences_saved',
@@ -62,6 +66,10 @@ export enum ActionType {
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
+  DismissedNewTabCustomizer = 'dismissed_new_tab_customizer',
+  SeenKeepItOverlay = 'seen_keep_it_overlay',
+  DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
+  ClickedNewStripCta = 'click_new_strip_cta',
 }
 
 export const cvActions = [
@@ -75,7 +83,7 @@ export interface Action {
 }
 
 export const COMPLETED_USER_ACTIONS = gql`
-  {
+  query CompletedUserActions {
     actions {
       type
       completedAt

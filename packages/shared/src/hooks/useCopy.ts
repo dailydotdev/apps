@@ -8,6 +8,7 @@ type CopyNotifyFunctionProps = NotifyOptionalProps & {
   message?: string;
   textToCopy?: string;
   shorten?: boolean;
+  disableToast?: boolean;
 };
 
 const defaultMessage = '✅ Copied to clipboard';
@@ -48,7 +49,10 @@ export function useCopyLink(
           console.warn('Error copying to clipboard', e);
         }
       }
-      displayToast(props.message || defaultLinkMessage, props);
+
+      if (!props.disableToast) {
+        displayToast(props.message || defaultLinkMessage, props);
+      }
     } else {
       displayToast(noLinkErrorMessage, props);
     }
@@ -68,7 +72,10 @@ export function useCopyText(text?: string): [boolean, CopyNotifyFunction] {
 
   const copy: CopyNotifyFunction = async (props = {}) => {
     await navigator.clipboard.writeText(props.textToCopy || text);
-    displayToast(props.message || defaultMessage, props);
+
+    if (!props.disableToast) {
+      displayToast(props.message || defaultMessage, props);
+    }
 
     setCopying(true);
     setTimeout(() => {

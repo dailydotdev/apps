@@ -69,12 +69,10 @@ export const useEnableNotification = ({
     DISMISS_PERMISSION_BANNER,
     false,
   );
-  const [isSessionDismissed, setIsSessionDismissed] = useState(false);
   const shouldIgnoreDismissStateForSource =
-    source === NotificationPromptSource.NewComment ||
     source === NotificationPromptSource.SquadPage;
   const effectiveIsDismissed = shouldIgnoreDismissStateForSource
-    ? isSessionDismissed
+    ? false
     : isDismissed;
   useEffect(() => {
     setHasCompletedEnableAction(!onEnableAction);
@@ -89,7 +87,6 @@ export const useEnableNotification = ({
       source,
       placement,
     });
-    setIsSessionDismissed(true);
     setIsDismissed(true);
   }, [logDismiss, placement, setIsDismissed, source]);
 

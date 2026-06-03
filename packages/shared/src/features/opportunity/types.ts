@@ -105,6 +105,7 @@ type OpportunityFlagsPublic = Partial<{
   plan: string;
   showSlack: boolean;
   showFeedback: boolean;
+  parseErrorUserMessage: string;
 }>;
 
 export type Opportunity = {

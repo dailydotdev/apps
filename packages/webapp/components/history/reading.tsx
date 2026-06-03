@@ -67,7 +67,7 @@ export function ReadingHistory(): ReactElement {
       />
       {hasData && (
         <ReadingHistoryList
-          data={data}
+          data={data!}
           onHide={hideReadHistory}
           infiniteScrollRef={infiniteScrollRef}
         />

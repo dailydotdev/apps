@@ -15,7 +15,7 @@ import { PlusHeader } from './PlusHeader';
 
 export default function PlusLayout({
   children,
-}: MainFeedPageProps): ReactElement {
+}: MainFeedPageProps): ReactElement | null {
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const router = useRouter();

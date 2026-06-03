@@ -16,6 +16,8 @@ function PostNavigation({
   onPreviousPost,
   onNextPost,
   className = {},
+  leadingContent,
+  customActions,
   contextMenuId = 'post-navigation-context',
   post,
   ...props
@@ -42,9 +44,10 @@ function PostNavigation({
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={onPreviousPost}
-            disabled={[PostPosition.First, PostPosition.Only].includes(
-              postPosition,
-            )}
+            disabled={
+              !postPosition ||
+              [PostPosition.First, PostPosition.Only].includes(postPosition)
+            }
           />
         </Tooltip>
       )}
@@ -56,13 +59,16 @@ function PostNavigation({
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={onNextPost}
-            disabled={[PostPosition.Last, PostPosition.Only].includes(
-              postPosition,
-            )}
+            disabled={
+              !postPosition ||
+              [PostPosition.Last, PostPosition.Only].includes(postPosition)
+            }
           />
         </Tooltip>
       )}
+      {leadingContent}
       <div className="ml-auto flex items-center gap-1">
+        {customActions}
         {shouldShowUpgrade && <BriefPlusUpgradeCTA />}
         {post && (
           <PostHeaderActions

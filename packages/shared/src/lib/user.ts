@@ -57,6 +57,7 @@ export interface PublicProfile {
   plusMemberSince?: Date;
   experienceLevel?: keyof typeof UserExperienceLevel;
   location?: TLocation;
+  noindex?: boolean;
 }
 
 export enum UserExperienceLevel {
@@ -301,7 +302,7 @@ export const canViewPostAnalytics = ({
   post,
 }: {
   user?: Pick<LoggedUser, 'id' | 'isTeamMember'>;
-  post?: Pick<Post, 'author'>;
+  post?: { author?: Pick<NonNullable<Post['author']>, 'id'> };
 }): boolean => {
   if (user?.isTeamMember) {
     return true;

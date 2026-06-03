@@ -26,6 +26,7 @@ import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -47,8 +48,9 @@ export const FreeformList = forwardRef(function SharePostCard(
   const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onPostCardClick = () => onPostClick(post);
-  const containerRef = useRef<HTMLDivElement>();
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick?.(post, event);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
@@ -59,6 +61,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -79,7 +82,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
 
   const metadata = useMemo(() => {
-    const authorName = post.author?.name ?? post.source.name;
+    const authorName = post.author?.name ?? post.source?.name;
 
     if (isUserSource) {
       return {
@@ -88,11 +91,11 @@ export const FreeformList = forwardRef(function SharePostCard(
     }
 
     return {
-      topLabel: enableSourceHeader ? post.source.name : authorName,
+      topLabel: enableSourceHeader ? post.source?.name : authorName,
       bottomLabel: enableSourceHeader
-        ? post.author?.name ?? `@${post.source.handle ?? 'unknown'}`
+        ? post.author?.name ?? `@${post.source?.handle ?? 'unknown'}`
         : `@${
-            post.source.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
+            post.source?.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
           }`,
     };
   }, [
@@ -104,6 +107,22 @@ export const FreeformList = forwardRef(function SharePostCard(
     post?.source?.name,
   ]);
 
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: classNames(domProps.className),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, type: postType }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
+
   return (
     <FeedItemContainer
       domProps={{
@@ -113,17 +132,19 @@ export const FreeformList = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, type: postType }}
       linkProps={
-        !isFeedPreview && {
-          title: post.title,
-          onClick: onPostCardClick,
-          href: post.commentsPermalink,
-        }
+        !isFeedPreview
+          ? {
+              title: post.title,
+              onClick: onPostCardClick,
+              href: post.commentsPermalink,
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
       <CardContainer>
         <PostCardHeader post={post} metadata={metadata}>
-          {!isUserSource && (
+          {!isUserSource && post.source && (
             <SquadHeaderPicture
               source={post.source}
               reverse={!enableSourceHeader}

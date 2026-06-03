@@ -16,7 +16,7 @@ export function useProfile(initialUser?: PublicProfile): {
   });
   const { data: user } = useQuery({
     queryKey: userQueryKey,
-    queryFn: () => getProfile(initialUser?.id),
+    queryFn: () => getProfile(initialUser!.id),
     ...disabledRefetch,
     staleTime: StaleTime.OneHour,
     initialData: initialUser,
@@ -24,7 +24,7 @@ export function useProfile(initialUser?: PublicProfile): {
   });
 
   return {
-    user,
+    user: user!,
     userQueryKey,
     isUserSame: !!(loggedUser && loggedUser?.id === initialUser?.id),
   };

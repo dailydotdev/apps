@@ -1,0 +1,393 @@
+/*
+ * btn-v2 — base styles for the refreshed button system.
+ *
+ * Pairs with the `tailwind/buttons-v2.ts` plugin which emits the
+ * `--button-v2-{state}-{prop}` custom properties per variant/color.
+ *
+ * Differences from `.btn` (v1, in `buttons.css`):
+ *
+ * - 150 ms transition (was 200 ms) — Primer / Linear band.
+ * - Transition stack drops `transform` (no press scale).
+ * - Disabled cursor is `not-allowed` (was `default`).
+ * - Per-variant focus-ring color via `--button-v2-default-focus-ring-color`
+ *   with a 2 px ring + 2 px offset (WCAG 2.4.13 enhanced).
+ * - aria-disabled (the "inactive" pattern) is decorative-only — keeps
+ *   the button keyboard focusable and clickable so callers can show a
+ *   tooltip / toast explaining why.
+ *
+ * Polish layer (added on top of v1):
+ *
+ * - antialiased / grayscale font rendering (matches Linear / Notion /
+ *   Vercel / Cursor / ChatGPT / Claude — fixes "fat label" on Apple).
+ * - tabular-nums so counts / prices don't jiggle the button width.
+ * - touch-action: manipulation + tap-highlight transparent for mobile.
+ * - appearance: none + user-select: none for native-chrome cleanup.
+ * - background-clip: padding-box stops translucent fills bleeding into
+ *   the border antialiasing.
+ * - isolation: isolate so loaders / badges can't punch through the
+ *   neighbouring button's focus ring.
+ * - forced-colors: active block for Windows High Contrast support.
+ */
+
+.btn-v2,
+.btn {
+  /*
+   * Soft label tokens for filled-Primary surfaces.
+   *
+   * Pure `#FFFFFF` on saturated brand fills (Cabbage / Bun / Water /
+   * Onion / Burger / Ketchup) reads as "harsh" / "too shiny" — the
+   * Claude / ChatGPT / Vercel visual lever is to step the label
+   * ~8–12 % off the page-text colour so the brand reads as confident
+   * rather than fluorescent.
+   *
+   * 92 % white / 88 % near-black is the band that:
+   *   - keeps every Primary AA-strict contrast cell ≥ 4.5 : 1
+   *     (every cell in `Buttons.mdx` → "Final contrast matrix" sits
+   *     at 5.18 + after the discount; cabbage-light drops 5.18 → 4.77,
+   *     burger-light 6.45 → 5.93 — all safe).
+   *   - keeps every AA-large cell ≥ 3 : 1 (cabbage-dark 3.76 → 3.46,
+   *     bacon 3.11 → 2.86 — bacon now AAlg-borderline, documented).
+   *   - matches Claude's "Send" button (~rgba(255,255,255,0.92)) and
+   *     ChatGPT's send/CTA cluster (~0.90).
+   *
+   * Routed through `--btn-label-on-fill-{light,dark}` so V1 and V2
+   * share the value and the `Buttons.mdx` contrast section remains
+   * the single source of truth.
+   */
+  --btn-label-on-fill-light: rgba(255, 255, 255, 0.92);
+  --btn-label-on-fill-dark: rgba(14, 18, 23, 0.88);
+}
+
+.btn-v2 {
+  /*
+   * Hover-lift shadow tokens. Theme-aware so the same perceptual depth
+   * reads correctly on both light and dark surfaces.
+   *
+   * Replaces v1 / first-pass v2 stack:
+   *   - shadow-3-{color}: 14 px blur @ 64 % brand-tinted halo (too heavy)
+   *   - shadow-2-{color}: 6 px blur @ 40 % brand-tinted halo  (too heavy)
+   *
+   * Modern reference band: Tailwind UI (5 %), Notion (6 %), Claude (6 %),
+   * Material 3 elevation 1 (15-30 % at 1-3 px). All neutral, all subtle.
+   *
+   * Two-layer recipe:
+   *   bottom: 1 px y, 2 px blur — defines the bottom edge ("rule line")
+   *   ambient: 2 px y, 4-6 px blur — soft body lift
+   *
+   * Light mode tints with pepper.90 (our cool-grey text colour, same as
+   * Notion's surface shadow). Dark mode uses pure black at higher opacity
+   * because black-on-black absorbs visibly less light.
+   */
+  --btn-v2-shadow-hover:
+    0 1px 2px 0 rgba(0, 0, 0, 0.5),
+    0 2px 6px -2px rgba(0, 0, 0, 0.3);
+
+  /*
+   * Press-feedback inset shadow for `:active` on filled variants
+   * (Primary, Secondary-pressed). Replaces v1 / first-pass v2's
+   * `box-shadow: none`, which made active read as weaker than hover —
+   * hover lifted via outer shadow, active just removed it. Six of
+   * seven reference systems (Linear, Vercel, ChatGPT, Apple HIG,
+   * GitHub Primer, Material 3) ship some form of inset press feedback;
+   * we were the outlier.
+   *
+   * Two-layer recipe:
+   *   top hairline: 1 px inset rule that defines the "into-page" edge
+   *   ambient body: 2-3 px inset blur for depth
+   *
+   * Dark theme uses black at 30 % / 20 % (visible on dark fills).
+   * Light theme uses pepper.90 at 8 % / 6 % (subtle on light fills) —
+   * same opacity discount we apply to `--btn-v2-shadow-hover` because
+   * shadows on white show at a much lower threshold than on black.
+   *
+   * Why no `transform: scale` instead? — vestibular motion, fights
+   * inertial scrolling on mobile, and the inset shadow gives a
+   * stronger "pressed" cue without moving the click target.
+   */
+  --btn-v2-shadow-active:
+    inset 0 1px 0 0 rgba(0, 0, 0, 0.3),
+    inset 0 2px 3px 0 rgba(0, 0, 0, 0.2);
+
+  /*
+   * --- Type rendering ---
+   * `font-smoothing: antialiased` renders ~½ px thinner on macOS, which
+   * is THE single biggest polish lever for white text on saturated fills
+   * (bun / cheese / water Primary). Without it the labels look chunky
+   * and "fat-bordered" in Chrome / Safari / Edge on Apple displays.
+   * Linear, Notion, Vercel, ChatGPT, Claude, Cursor, GitHub, Stripe all
+   * ship this on their button systems.
+   *
+   * `tabular-nums` keeps button width stable when the label contains a
+   * number that ticks ("Loading 9/10" → "Loading 10/10", "Like 999" →
+   * "Like 1.0K"). Without it, the digit "1" is narrower than "0", so
+   * the button visibly jumps. Universal in Linear / Vercel / Stripe.
+   */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+
+  /*
+   * --- Mobile UX ---
+   * `touch-action: manipulation` opts out of the legacy 300 ms click
+   *   delay and the double-tap-to-zoom gesture on mobile browsers. On
+   *   a chat surface or feed, that 300 ms feels broken.
+   * `-webkit-tap-highlight-color: transparent` removes the grey iOS
+   *   flash on tap; our `:active` state owns the press feedback so the
+   *   browser-default flash is just visual noise.
+   */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  /*
+   * --- Native chrome / selection ---
+   * `appearance: none` strips Safari / iOS's default <button> bevel
+   *   (still visible on iOS even with our background overrides — a
+   *   classic "looks subtly disabled on iPhone" bug source).
+   * `user-select: none` keeps the label from highlighting if a user
+   *   clicks-and-drags on a button (common with mis-aimed double-clicks).
+   */
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  /*
+   * --- Paint / stacking ---
+   * `background-clip: padding-box` stops the (sometimes translucent)
+   *   fill from bleeding under a transparent border into the corner
+   *   antialiasing — fixes a hairline halo on Tertiary-colored hover.
+   * `isolation: isolate` gives the button its own stacking context so
+   *   absolutely-positioned children (loader, badge, notification dot)
+   *   can't accidentally render OVER a neighbouring button's focus ring
+   *   or shadow.
+   */
+  background-clip: padding-box;
+  isolation: isolate;
+
+  transition: 0.15s ease-out;
+  transition-property: border-color, background-color, box-shadow, color;
+  background: var(--button-v2-background, var(--button-v2-default-background, none));
+  border-color: var(--button-v2-border-color, var(--button-v2-default-border-color, transparent));
+  color: var(--button-v2-color, var(--button-v2-default-color));
+  --loader-color: var(--button-v2-color, var(--button-v2-default-color));
+
+  /*
+   * Icon spacing is handled by the parent's `flex gap-X` (set per
+   * size in `SizeToGapV2` in ButtonV2.tsx). The `.btn-icon-left` /
+   * `.btn-icon-right` classes are kept as position markers (consumers
+   * can target them from MDX / CSS modules) but carry no margin —
+   * we deliberately removed the v1 negative-margin trick because it
+   * was hardcoded for `px-2` and produced asymmetric padding on every
+   * button size larger than XSmall.
+   *
+   * Social icons keep a slightly wider trailing gap because brand
+   * marks (twitter, linkedin, etc.) read tighter than UI glyphs and
+   * benefit from extra breathing room before the label.
+   */
+  &:not(.iconOnly) {
+    & .socialIcon {
+      margin-right: 0.5rem;
+    }
+  }
+
+  &[aria-busy='true'] {
+    pointer-events: none;
+
+    & > * {
+      visibility: hidden;
+    }
+
+    & .btn-loader {
+      display: block;
+      visibility: unset;
+    }
+  }
+
+  &:not(:focus-visible) {
+    box-shadow: var(--button-v2-box-shadow, var(--button-v2-default-box-shadow, none));
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--theme-background-default),
+      0 0 0 4px var(
+        --button-v2-default-focus-ring-color,
+        var(--theme-accent-blueCheese-default)
+      );
+  }
+
+  &[aria-pressed="true"] {
+    --button-v2-background: var(--button-v2-pressed-background);
+    --button-v2-border-color: var(--button-v2-pressed-border-color);
+    --button-v2-color: var(--button-v2-pressed-color);
+    --button-v2-box-shadow: var(--button-v2-pressed-box-shadow);
+  }
+
+  &:not(.readOnly) {
+    &:hover, &.hover {
+      --button-v2-background: var(--button-v2-hover-background);
+      --button-v2-border-color: var(--button-v2-hover-border-color);
+      --button-v2-color: var(--button-v2-hover-color);
+      --button-v2-box-shadow: var(--button-v2-hover-box-shadow);
+    }
+  }
+
+  &:active, &.active {
+    --button-v2-background: var(--button-v2-active-background);
+    --button-v2-border-color: var(--button-v2-active-border-color);
+    --button-v2-color: var(--button-v2-active-color);
+    --button-v2-box-shadow: var(--button-v2-active-box-shadow);
+  }
+
+  &.readOnly {
+    --button-v2-border-color: var(--button-v2-disabled-border-color);
+    --button-v2-box-shadow: var(--button-v2-disabled-box-shadow);
+
+    pointer-events: none;
+    cursor: default;
+  }
+
+  &[disabled] {
+    --button-v2-background: var(--button-v2-disabled-background);
+    --button-v2-border-color: var(--button-v2-disabled-border-color);
+    --button-v2-color: var(--button-v2-disabled-color);
+    --button-v2-box-shadow: var(--button-v2-disabled-box-shadow);
+
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  /*
+   * Inactive (Primer-style "looks active, behaves disabled") —
+   * keyboard-focusable, clickable, but semantically not actionable.
+   * Visuals stay at the default state so callers can wire onClick to
+   * a tooltip/toast that explains why the action isn't available.
+   */
+  &[aria-disabled="true"]:not([disabled]) {
+    cursor: not-allowed;
+  }
+}
+
+/*
+ * Light-theme override for the hover shadow.
+ * Tinted with pepper.90 (#0E1217) at 8 % / 6 % — same recipe Notion
+ * uses for input shadows on white surfaces. Dramatically lower opacity
+ * than dark mode because shadows on white show at a much lower
+ * threshold than shadows on dark.
+ */
+.light .btn-v2,
+.invert .btn-v2 {
+  --btn-v2-shadow-hover:
+    0 1px 2px 0 rgba(14, 18, 23, 0.08),
+    0 2px 4px -1px rgba(14, 18, 23, 0.06);
+
+  --btn-v2-shadow-active:
+    inset 0 1px 0 0 rgba(14, 18, 23, 0.08),
+    inset 0 2px 3px 0 rgba(14, 18, 23, 0.06);
+}
+
+/*
+ * `CardAction` responsive collapse — square hit-target when the
+ * content wrapper hides.
+ *
+ * Context: `CardAction` brings the counter / label INSIDE the click
+ * target (Reddit / X pattern). When the post-detail bar overflows
+ * its container, `usePostActionsLabelVisibility` adds `.hidden` to
+ * the `.card-action-content` wrapper to shrink the button back to
+ * icon-only. Without this rule, the button still ships its
+ * label-mode chrome (`px-4` / `px-3`, `gap-2` / `gap-1.5`) and
+ * renders as a rectangle with empty space on the right of the icon
+ * (e.g. 64 × 40 instead of 40 × 40 for comfortable, 56 × 32 instead
+ * of 32 × 32 for compact).
+ *
+ * `:has()` lets us key off the live state of the child wrapper, so
+ * the same DOM the hook already mutates also drives the geometry of
+ * the parent — no class to keep in sync on the button itself.
+ *
+ *   - `padding-inline: 0` — kill the label-mode horizontal padding
+ *     (`!important` overrides ButtonV2's per-size `px-X` Tailwind
+ *     utility, which has high specificity from the framework).
+ *   - `aspect-ratio: 1 / 1` — width follows height (`h-10` / `h-8`),
+ *     producing a true square regardless of which density the
+ *     consumer picked. No fixed width literal needed.
+ *
+ * Browser support: `:has()` is universal across Safari 15.4+,
+ * Chrome 105+, Firefox 121+ — predates daily.dev's minimum
+ * supported browser matrix.
+ */
+.btn-v2:has(> .card-action-content.hidden) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  aspect-ratio: 1 / 1;
+}
+
+/*
+ * Quiz keeps its v1 visual contract so feed/quiz toggles can migrate
+ * cleanly. Borders and corners are tuned to the new radius scale.
+ */
+.btn-v2-quiz {
+  @apply !border-solid border-border-subtlest-tertiary;
+  @apply rounded-8 !px-4;
+  @apply bg-surface-hover hover:bg-surface-active;
+  @apply text-text-primary;
+
+  &.simplified {
+    @apply bg-[unset];
+  }
+
+  &:is([aria-pressed="true"], [aria-checked="true"]) {
+    @apply bg-brand-active;
+    @apply border-brand-default;
+  }
+}
+
+/*
+ * Reduced-motion users get instant state changes — no transition.
+ * The four favorites all respect prefers-reduced-motion.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .btn-v2 {
+    transition-duration: 0s;
+  }
+}
+
+/*
+ * Windows High Contrast Mode (Edge / Win11 accessibility).
+ *
+ * In `forced-colors: active` the OS replaces every author-defined
+ * colour with a 7-colour system palette (`Canvas`, `CanvasText`,
+ * `ButtonFace`, `ButtonText`, `Highlight`, `LinkText`, `GrayText`).
+ * Buttons rendered without explicit handling collapse to their fill
+ * colour only and become invisible (e.g. our Subtle ghost buttons
+ * disappear because their border-only outline is repainted as
+ * Canvas → invisible on Canvas background).
+ *
+ * Fix: pin a 1 px CanvasText border on every variant in HCM so the
+ * button is unambiguously a button. Focus ring uses Highlight to
+ * match the OS focus colour. Disabled uses GrayText (the only
+ * "muted" colour HCM exposes).
+ *
+ * Reference: WCAG 1.4.1, MDN forced-colors guide, Material 3 HCM
+ * spec, GitHub Primer accessibility docs.
+ */
+@media (forced-colors: active) {
+  .btn-v2 {
+    border: 1px solid CanvasText;
+    /* Don't try to override the OS palette inside the button label. */
+    forced-color-adjust: none;
+  }
+
+  .btn-v2:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    /* Drop our author-coloured ring; the OS owns the focus colour. */
+    box-shadow: none;
+  }
+
+  .btn-v2[disabled],
+  .btn-v2[aria-disabled='true'] {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

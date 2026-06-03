@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
-import classNames from 'classnames';
 import { ModalSize } from '../common/types';
 import { ModalBody } from '../common/ModalBody';
 import type { ModalProps } from '../common/Modal';
@@ -18,10 +17,7 @@ import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRec
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
-import {
-  cloudinaryNotificationsBrowser,
-  cloudinaryStreakLost,
-} from '../../../lib/image';
+import { cloudinaryStreakLost } from '../../../lib/image';
 import { useReadingStreak } from '../../../hooks/streaks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { formatCoresCurrency } from '../../../lib/utils';
@@ -29,13 +25,6 @@ import type { UserStreakRecoverData } from '../../../graphql/users';
 import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
-import { NotificationPromptSource } from '../../../lib/log';
-import { usePushNotificationMutation } from '../../../hooks/notifications';
-import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
-import usePersistentContext, {
-  PersistentContextKeys,
-} from '../../../hooks/usePersistentContext';
-import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -176,74 +165,11 @@ export const StreakRecoverOptout = ({
   </div>
 );
 
-const StreakRecoverNotificationReminder = () => {
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
-  const { isSubscribed, isInitialized, isPushSupported } =
-    usePushNotificationContext();
-  const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
-    PersistentContextKeys.StreakAlertPushKey,
-    true,
-  );
-  const { onTogglePermission } = usePushNotificationMutation();
-  const showAlert =
-    isNotificationCtaExperimentEnabled &&
-    isPushSupported &&
-    isAlertShown &&
-    isInitialized &&
-    !isSubscribed;
-
-  if (!showAlert) {
-    return null;
-  }
-
-  return (
-    <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
-      <div className="flex w-full flex-1 justify-between gap-3">
-        <Typography bold type={TypographyType.Callout} className="flex-1">
-          Get notified to keep your streak
-        </Typography>
-
-        <div className="h-12 w-22 overflow-hidden">
-          <img
-            src={cloudinaryNotificationsBrowser}
-            alt="A sample browser notification"
-          />
-        </div>
-      </div>
-
-      <div className="flex w-full justify-between gap-3">
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Primary}
-          onClick={() =>
-            onTogglePermission(NotificationPromptSource.NotificationsPage)
-          }
-        >
-          Enable notification
-        </Button>
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-          onClick={() => {
-            setIsAlertShown(false);
-          }}
-        >
-          Dismiss
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement | null => {
   const { isOpen, onRequestClose, onAfterClose, user } = props;
   const { isStreaksEnabled } = useReadingStreak();
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
-
   const id = useId();
   const { recover, hideForever, onClose, onRecover } = useStreakRecover({
     onAfterClose,
@@ -267,20 +193,7 @@ export const StreakRecoverModal = (
         title="Close streak recover popup"
       />
       <ModalBody className="!p-4">
-        {isNotificationCtaExperimentEnabled && (
-          <StreakRecoverOptout
-            id={id}
-            className="absolute left-0 top-0 z-1 ml-4 mr-4 flex h-10 flex-row items-center gap-2"
-            hideForever={hideForever}
-            compact
-          />
-        )}
-        <div
-          className={classNames(
-            'flex flex-col gap-4',
-            isNotificationCtaExperimentEnabled && 'pt-8',
-          )}
-        >
+        <div className="flex flex-col gap-4">
           <StreakRecoverCover />
           <StreakRecoverHeading days={recover.oldStreakLength} />
           <StreakRecoveryCopy recover={recover} />
@@ -289,13 +202,8 @@ export const StreakRecoverModal = (
             recover={recover}
             loading={recover.isRecoverPending}
           />
-          {!isNotificationCtaExperimentEnabled && (
-            <StreakRecoverOptout id={id} hideForever={hideForever} />
-          )}
+          <StreakRecoverOptout id={id} hideForever={hideForever} />
         </div>
-        {isNotificationCtaExperimentEnabled && (
-          <StreakRecoverNotificationReminder />
-        )}
       </ModalBody>
     </Modal>
   );

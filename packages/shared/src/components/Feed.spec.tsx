@@ -20,6 +20,7 @@ import {
   POST_BY_ID_QUERY,
   REPORT_POST_MUTATION,
   PostType,
+  UNHIDE_POST_MUTATION,
   UserVote,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
@@ -29,7 +30,7 @@ import {
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
 import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
-import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
+import { ANONYMOUS_FEED_QUERY, FEED_V2_QUERY } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -189,6 +190,7 @@ function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user?: LoggedUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
+  query = ANONYMOUS_FEED_QUERY,
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
 
@@ -231,7 +233,7 @@ function renderComponent(
           <Feed
             feedQueryKey={['feed']}
             feedName={feedName}
-            query={ANONYMOUS_FEED_QUERY}
+            query={query}
             variables={variables}
           />
         </SettingsContext.Provider>
@@ -328,6 +330,179 @@ describe('Feed logged in', () => {
     expect(
       new Date(getPostCreatedAt(latestPost, 'latest')).getTime(),
     ).toBeGreaterThan(new Date(getPostCreatedAt(oldPost, 'old')).getTime());
+  });
+
+  it('should render posts from feedV2 post items', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: defaultFeedPage.edges.map((edge) => ({
+                  node: {
+                    __typename: 'FeedPostItem',
+                    post: edge.node,
+                    feedMeta: edge.node.feedMeta ?? null,
+                  },
+                })),
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+    );
+
+    await waitForNock();
+    expect(await screen.findAllByTestId('postItem')).not.toHaveLength(0);
+  });
+
+  it('should render feedV2 highlight items as cards', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedHighlightsItem',
+                      feedMeta: null,
+                      highlights: [
+                        {
+                          id: 'highlight-1',
+                          channel: 'agents',
+                          headline: 'The first highlight',
+                          highlightedAt: '2026-04-05T09:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[0].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[0].node.commentsPermalink,
+                          },
+                        },
+                        {
+                          id: 'highlight-2',
+                          channel: 'agents',
+                          headline: 'The second highlight',
+                          highlightedAt: '2026-04-05T08:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[1].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[1].node.commentsPermalink,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[0].node,
+                      feedMeta: defaultFeedPage.edges[0].node.feedMeta ?? null,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+    );
+
+    await waitForNock();
+    expect(await screen.findByText('Happening Now')).toBeInTheDocument();
+    expect(screen.getByText('The first highlight')).toBeInTheDocument();
+    expect(screen.getByText('Read all')).toBeInTheDocument();
+  });
+
+  it('should keep feedV2 highlights in the response order', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[0].node,
+                      feedMeta: defaultFeedPage.edges[0].node.feedMeta ?? null,
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[1].node,
+                      feedMeta: defaultFeedPage.edges[1].node.feedMeta ?? null,
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedHighlightsItem',
+                      feedMeta: null,
+                      highlights: [
+                        {
+                          id: 'highlight-1',
+                          channel: 'agents',
+                          headline: 'The first highlight',
+                          highlightedAt: '2026-04-05T09:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[0].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[0].node.commentsPermalink,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[2].node,
+                      feedMeta: defaultFeedPage.edges[2].node.feedMeta ?? null,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+    );
+
+    await waitForNock();
+
+    const orderedItems = await screen.findAllByTestId(/postItem|highlightItem/);
+
+    expect(
+      orderedItems.map((item) => item.getAttribute('data-testid')),
+    ).toEqual(['postItem', 'postItem', 'highlightItem', 'postItem']);
   });
 
   it('should send upvote mutation', async () => {
@@ -635,8 +810,8 @@ describe('Feed logged in', () => {
     );
   });
 
-  it('should hide post', async () => {
-    let mutationCalled = false;
+  it('should hide post and replace card with the hidden feedback panel', async () => {
+    let hideCalled = false;
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,
@@ -648,7 +823,7 @@ describe('Feed logged in', () => {
           variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
         },
         result: () => {
-          mutationCalled = true;
+          hideCalled = true;
           return { data: { _: true } };
         },
       },
@@ -659,12 +834,275 @@ describe('Feed logged in', () => {
     });
     const contextBtn = await screen.findByText('Hide');
     contextBtn.click();
-    await waitFor(() => expect(mutationCalled).toBeTruthy());
+    await waitFor(() => expect(hideCalled).toBeTruthy());
+    expect(
+      await screen.findByText("Got it. You'll see less like this."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should restore the post when clicking Undo on the hidden feedback panel', async () => {
+    let unhideCalled = false;
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+      {
+        request: {
+          query: HIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+      {
+        request: {
+          query: UNHIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => {
+          unhideCalled = true;
+          return { data: { _: true } };
+        },
+      },
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    (await screen.findByText('Hide')).click();
+    const undoBtn = await screen.findByRole('button', { name: 'Undo' });
+    fireEvent.click(undoBtn);
+
+    await waitFor(() => expect(unhideCalled).toBeTruthy());
     await waitFor(() =>
       expect(
-        screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+        screen.queryByText("Got it. You'll see less like this."),
       ).not.toBeInTheDocument(),
     );
+    expect(
+      await screen.findByTitle(
+        'Eminem Quotes Generator - Simple PHP RESTful API',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('should remove the post from the feed when dismissing the hidden feedback panel', async () => {
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+      {
+        request: {
+          query: HIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    (await screen.findByText('Hide')).click();
+
+    const closeBtn = await screen.findByTestId('postHiddenPanelClose');
+    fireEvent.click(closeBtn);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Got it. You'll see less like this."),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should keep the Done button disabled until something is selected', async () => {
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+      {
+        request: {
+          query: HIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    (await screen.findByText('Hide')).click();
+
+    const doneBtn = await screen.findByTestId('postHiddenPanelDone');
+    expect(doneBtn).toBeDisabled();
+
+    fireEvent.click(await screen.findByTestId('hideBlockSourceButton'));
+    expect(doneBtn).not.toBeDisabled();
+  });
+
+  it('should batch source + tags into a single submit and show a toast with Undo', async () => {
+    let blockTagCalled = false;
+    let blockSourceCalled = false;
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+      {
+        request: {
+          query: HIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+      {
+        request: {
+          query: ADD_FILTERS_TO_FEED_MUTATION,
+          variables: { filters: { blockedTags: ['javascript'] } },
+        },
+        result: () => {
+          blockTagCalled = true;
+          return { data: { _: true } };
+        },
+      },
+      {
+        request: {
+          query: ADD_FILTERS_TO_FEED_MUTATION,
+          variables: { filters: { excludeSources: ['echojs'] } },
+        },
+        result: () => {
+          blockSourceCalled = true;
+          return { data: { _: true } };
+        },
+      },
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    mockGraphQL(createTagsSettingsMock());
+    await waitFor(async () => {
+      const data = await queryClient.getQueryData(
+        getFeedSettingsQueryKey(defaultUser),
+      );
+      expect(data).toBeTruthy();
+    });
+    (await screen.findByText('Hide')).click();
+
+    fireEvent.click(await screen.findByTestId('hideBlockSourceButton'));
+    fireEvent.click(await screen.findByTestId('hideBlockTagButton'));
+    fireEvent.click(await screen.findByTestId('postHiddenPanelDone'));
+
+    await waitFor(() => expect(blockTagCalled).toBeTruthy());
+    await waitFor(() => expect(blockSourceCalled).toBeTruthy());
+
+    expect(
+      await screen.findByText('Unfollowed Echo JS and blocked #javascript'),
+    ).toBeInTheDocument();
+    const toastUndo = await screen.findByRole('button', { name: 'Undo' });
+    expect(toastUndo).toBeInTheDocument();
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should restore post and unblock when clicking Undo on the success toast', async () => {
+    let unhideCalled = false;
+    let unblockTagCalled = false;
+    let unblockSourceCalled = false;
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+      {
+        request: {
+          query: HIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+      {
+        request: {
+          query: ADD_FILTERS_TO_FEED_MUTATION,
+          variables: { filters: { blockedTags: ['javascript'] } },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+      {
+        request: {
+          query: ADD_FILTERS_TO_FEED_MUTATION,
+          variables: { filters: { excludeSources: ['echojs'] } },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+      {
+        request: {
+          query: UNHIDE_POST_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => {
+          unhideCalled = true;
+          return { data: { _: true } };
+        },
+      },
+      {
+        request: {
+          query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+          variables: { filters: { blockedTags: ['javascript'] } },
+        },
+        result: () => {
+          unblockTagCalled = true;
+          return { data: { _: true } };
+        },
+      },
+      {
+        request: {
+          query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+          variables: { filters: { excludeSources: ['echojs'] } },
+        },
+        result: () => {
+          unblockSourceCalled = true;
+          return { data: { _: true } };
+        },
+      },
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    mockGraphQL(createTagsSettingsMock());
+    await waitFor(async () => {
+      const data = await queryClient.getQueryData(
+        getFeedSettingsQueryKey(defaultUser),
+      );
+      expect(data).toBeTruthy();
+    });
+    (await screen.findByText('Hide')).click();
+
+    fireEvent.click(await screen.findByTestId('hideBlockSourceButton'));
+    fireEvent.click(await screen.findByTestId('hideBlockTagButton'));
+    fireEvent.click(await screen.findByTestId('postHiddenPanelDone'));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Got it. You'll see less like this."),
+      ).not.toBeInTheDocument(),
+    );
+
+    const toastAlert = await screen.findByRole('alert');
+    const toastUndo = await within(toastAlert).findByRole('button', {
+      name: 'Undo',
+    });
+    fireEvent.click(toastUndo);
+
+    await waitFor(() => expect(unhideCalled).toBeTruthy());
+    await waitFor(() => expect(unblockTagCalled).toBeTruthy());
+    await waitFor(() => expect(unblockSourceCalled).toBeTruthy());
   });
 
   it('should block a source', async () => {
@@ -998,15 +1436,14 @@ describe('Feed logged in', () => {
       'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
-    const submitBtn = await screen.findByText('Submit report');
+    const submitBtn = await screen.findByRole('button', {
+      name: 'Submit report',
+    });
     expect(submitBtn).toBeDisabled();
-    const javascriptElements = await screen.findAllByText('#javascript');
-    const javascriptBtn = javascriptElements.find(
-      (item) => item.tagName === 'BUTTON',
-    );
-    fireEvent.click(
-      getRequiredValue(javascriptBtn, 'Expected javascript report tag button'),
-    );
+    const javascriptBtn = await screen.findByRole('button', {
+      name: '#javascript',
+    });
+    fireEvent.click(javascriptBtn);
     expect(submitBtn).toBeEnabled();
     fireEvent.click(submitBtn);
 
@@ -1037,14 +1474,13 @@ describe('Feed logged in', () => {
       'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
-    const submitBtn = await screen.findByText('Submit report');
-    const javascriptElements = await screen.findAllByText('#javascript');
-    const javascriptBtn = javascriptElements.find(
-      (item) => item.tagName === 'BUTTON',
-    );
-    fireEvent.click(
-      getRequiredValue(javascriptBtn, 'Expected javascript report tag button'),
-    );
+    const submitBtn = await screen.findByRole('button', {
+      name: 'Submit report',
+    });
+    const javascriptBtn = await screen.findByRole('button', {
+      name: '#javascript',
+    });
+    fireEvent.click(javascriptBtn);
     expect(submitBtn).toBeEnabled();
 
     const brokenLinkBtn = await screen.findByText('Broken link');

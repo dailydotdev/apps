@@ -57,6 +57,13 @@ export interface TagCategory {
   emoji: string;
 }
 
+export interface GQLPersona {
+  id: string;
+  title: string;
+  emoji: string;
+  tags: string[];
+}
+
 export interface AllTagCategoriesData {
   feedSettings?: FeedSettings;
   loggedIn?: boolean;
@@ -187,6 +194,25 @@ export const GET_RECOMMENDED_TAGS_QUERY = gql`
       tags: hits {
         name
       }
+    }
+  }
+`;
+
+export const ONBOARDING_RECOMMEND_TAGS_MUTATION = gql`
+  mutation OnboardingRecommendTags($selectedTags: [String!]!, $n: Int) {
+    onboardingRecommendTags(selectedTags: $selectedTags, n: $n) {
+      tags
+    }
+  }
+`;
+
+export const GET_ONBOARDING_PERSONAS_QUERY = gql`
+  query OnboardingPersonas {
+    onboardingPersonas {
+      id
+      title
+      emoji
+      tags
     }
   }
 `;

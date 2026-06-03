@@ -1,5 +1,23 @@
+import { z } from 'zod';
 import { webappUrl } from './constants';
 import { checkIsExtension, isExtension } from './func';
+
+export const urlStartRegexMatch = /^https?:\/\//i;
+
+export const urlParseSchema = z.preprocess(
+  (val) => {
+    if (typeof val === 'string') {
+      return val.match(urlStartRegexMatch) ? val : `https://${val}`;
+    }
+
+    return val;
+  },
+  z.url({
+    protocol: /^https?$/,
+    hostname: z.regexes.domain,
+    normalize: true,
+  }),
+);
 
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
@@ -27,6 +45,14 @@ export const stripLinkParameters = (link: string): string => {
   const { origin, pathname } = new URL(link);
 
   return origin + pathname;
+};
+
+export const getDomainFromUrl = (link: string): string => {
+  try {
+    return new URL(withHttps(link)).hostname.replace(/^www\./, '');
+  } catch (_) {
+    return link;
+  }
 };
 
 export const removeQueryParam = (url: string, param: string): string => {
@@ -77,11 +103,22 @@ export const getPathnameWithQuery = (
   pathname: string,
   params: URLSearchParams | string,
 ): string => {
-  const searchParams = new URLSearchParams(params);
-  const queryString = searchParams.toString();
+  const [basePath, existingQuery] = pathname.split('?');
+  const merged = new URLSearchParams(existingQuery?.trim());
+  const overrides = new URLSearchParams(params);
+  overrides.forEach((value, key) => {
+    merged.set(key, value);
+  });
+  const queryString = merged.toString();
 
-  return `${pathname}${queryString ? `?${queryString}` : ''}`;
+  return `${basePath}${queryString ? `?${queryString}` : ''}`;
 };
+
+export const agentsHighlightsPath = '/highlights/vibes';
+
+export const agentsHighlightsUrl = `${webappUrl}${agentsHighlightsPath.slice(
+  1,
+)}`;
 
 export const withPrefix = (prefix: string, url?: string): string => {
   if (!url) {

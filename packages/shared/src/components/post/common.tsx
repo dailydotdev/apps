@@ -25,7 +25,12 @@ export interface PostContentClassName {
 
 type PostActions = Pick<
   PostHeaderActionsProps,
-  'post' | 'onClose' | 'onReadArticle' | 'inlineActions' | 'isFixedNavigation'
+  | 'post'
+  | 'onClose'
+  | 'onReadArticle'
+  | 'inlineActions'
+  | 'isFixedNavigation'
+  | 'hideSubscribeAction'
 >;
 
 export interface PostNavigationClassName {
@@ -39,6 +44,8 @@ export interface PostNavigationProps extends Omit<PostActions, 'post'> {
   onPreviousPost?: () => unknown;
   onNextPost?: () => unknown;
   className?: PostNavigationClassName;
+  leadingContent?: ReactNode;
+  customActions?: ReactNode;
   isBannerVisible?: boolean;
   contextMenuId?: string;
   post?: Post;
@@ -61,10 +68,14 @@ export interface PostHeaderActionsProps {
   contextMenuId: string;
   isFixedNavigation?: boolean;
   buttonSize?: ButtonSize;
+  hideSubscribeAction?: boolean;
 }
 
 export interface PostContentProps
-  extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
+  extends Pick<
+      PostHeaderActionsProps,
+      'onClose' | 'inlineActions' | 'hideSubscribeAction'
+    >,
     PassedPostNavigationProps {
   post?: Post;
   isFallback?: boolean;

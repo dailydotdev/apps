@@ -19,7 +19,9 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
+import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -32,11 +34,13 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useManualScrollRestoration,
+} from '@dailydotdev/shared/src/hooks';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
@@ -66,6 +70,22 @@ const CookieBanner = dynamic(
     ),
 );
 
+const AuthModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
+    ),
+);
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() =>
+        import('@tanstack/react-query-devtools').then(
+          (mod) => mod.ReactQueryDevtools,
+        ),
+      )
+    : (): null => null;
+
 interface ComponentGetLayout {
   getLayout?: (
     page: ReactNode,
@@ -82,13 +102,26 @@ const getPage = () => window.location.pathname;
 
 const onboardingExcludedPaths = [
   '/onboarding',
+  '/activate',
   '/recruiter',
   '/jobs',
   '/settings',
 ];
+// While an auth intent is active, only force the rest of onboarding when the
+// user lands on the main feed.
+const mainFeedPathnames = new Set([
+  '/',
+  '/popular',
+  '/upvoted',
+  '/discussed',
+  '/latest',
+  '/following',
+  '/my-feed',
+]);
 const hotAndColdModalQueryKey = 'openModal';
 const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
+const swipeOnboardingPreviewQueryKey = 'swipeOnboardingPreview';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
@@ -140,7 +173,25 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, trackingId, isFunnel } = useAuthContext();
+  const {
+    user,
+    trackingId,
+    isFunnel,
+    shouldShowLogin,
+    closeLogin,
+    loginState,
+  } = useAuthContext();
+  // Users arriving from the extension install link land on `/?ref=install`.
+  // Only evaluate the permission primer experiment for them while onboarding
+  // is still pending, so we can route them to the activation step.
+  const isComingFromInstall = router.query.ref === 'install';
+  const {
+    value: isPermissionPrimerEnabled,
+    isLoading: isPermissionPrimerLoading,
+  } = useConditionalFeature({
+    feature: featureOnboardingPermissionPrimer,
+    shouldEvaluate: isComingFromInstall && isOnboardingActionsReady,
+  });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -160,6 +211,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     (Array.isArray(hotAndColdModalQuery) &&
       (hotAndColdModalQuery.includes(hotAndColdModalQueryValue) ||
         hotAndColdModalQuery.includes(hotAndColdModalLegacyQueryValue)));
+  const swipeOnboardingPreviewQuery =
+    router.query[swipeOnboardingPreviewQueryKey];
+  const isSwipeOnboardingPreviewForced =
+    swipeOnboardingPreviewQuery === '1' ||
+    swipeOnboardingPreviewQuery === 'true' ||
+    (Array.isArray(swipeOnboardingPreviewQuery) &&
+      (swipeOnboardingPreviewQuery.includes('1') ||
+        swipeOnboardingPreviewQuery.includes('true')));
 
   useEffect(() => {
     if (!shouldOpenHotAndColdFromQuery) {
@@ -193,15 +252,53 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
-    if (
-      !isFunnel &&
-      isOnboardingActionsReady &&
-      !isOnboardingComplete &&
-      !isOnboardingExcludedPath(router.pathname)
-    ) {
-      router.replace('/onboarding');
+    // Never redirect away from onboarding-related surfaces (prevents loops).
+    if (isOnboardingExcludedPath(router.pathname)) {
+      return;
     }
-  }, [isFunnel, isOnboardingActionsReady, router, isOnboardingComplete]);
+
+    // Wait for the permission primer experiment to resolve before redirecting
+    // install referrals, so we don't race them to `/onboarding`.
+    if (isComingFromInstall && isPermissionPrimerLoading) {
+      return;
+    }
+
+    // The activation primer takes priority over onboarding: enrolled install
+    // referrals go to `/activate` regardless of onboarding completion or the
+    // other onboarding gates below.
+    if (isComingFromInstall && isPermissionPrimerEnabled) {
+      router.replace('/activate');
+      return;
+    }
+
+    if (isFunnel || !isOnboardingActionsReady || isOnboardingComplete) {
+      return;
+    }
+
+    // While the auth intent is active, defer the rest of onboarding until they
+    // navigate to the main feed.
+    if (shouldShowLogin && !mainFeedPathnames.has(router.pathname)) {
+      return;
+    }
+
+    const destination = isSwipeOnboardingPreviewForced
+      ? '/onboarding?swipeOnboardingPreview=1'
+      : '/onboarding';
+    router.replace(destination);
+    // `router.pathname` is depended on explicitly because the `router` ref is
+    // stable across in-app navigations.
+  }, [
+    isFunnel,
+    isOnboardingActionsReady,
+    router,
+    router.pathname,
+    isOnboardingComplete,
+    shouldShowLogin,
+    isSwipeOnboardingPreviewForced,
+    isComingFromInstall,
+    isPermissionPrimerEnabled,
+    isPermissionPrimerLoading,
+  ]);
 
   useEffect(() => {
     const id = user?.id || trackingId;
@@ -328,8 +425,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           />
 
           <link rel="preconnect" href="https://api.daily.dev" />
-          <link rel="preconnect" href="https://sso.daily.dev" />
           <link rel="preconnect" href="https://media.daily.dev" />
+          <link rel="dns-prefetch" href="https://connect.facebook.net" />
+          <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+          <link rel="dns-prefetch" href="https://static.hotjar.com" />
+          <link rel="dns-prefetch" href="https://static.ads-twitter.com" />
+          <link rel="dns-prefetch" href="https://www.redditstatic.com" />
+          <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
         </Head>
         <DefaultSeo
           {...Seo}
@@ -347,6 +449,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
         </DndContextProvider>
+        {shouldShowLogin && (
+          <AuthModal
+            isOpen={shouldShowLogin}
+            onRequestClose={closeLogin}
+            contentLabel="Login Modal"
+            trigger={loginState?.trigger}
+          />
+        )}
         {showBanner && !isFunnel && !isImageGenerator && (
           <CookieBanner
             onAccepted={onAcceptCookies}
@@ -366,6 +476,15 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   );
 }
 
+/**
+ * Pages under `/dev/*` are internal review surfaces that don't need the
+ * full app shell (BootDataProvider, Serwist offline page, auth, etc.).
+ * They hit production APIs that won't accept localhost cookies, so we
+ * short-circuit to a minimal QueryClient-only tree.
+ */
+const isDevReviewRoute = (pathname: string | undefined): boolean =>
+  !!pathname && pathname.startsWith('/dev/');
+
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
 ): ReactElement {
@@ -378,9 +497,18 @@ export default function App(
   useManualScrollRestoration();
   useScrollbarWidth();
 
-  const {
-    pageProps: { dehydratedState },
-  } = props;
+  const { Component, pageProps, router } = props;
+  const { dehydratedState } = pageProps;
+
+  if (isDevReviewRoute(router?.pathname)) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <HydrationBoundary state={dehydratedState}>
+          <Component {...pageProps} />
+        </HydrationBoundary>
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <ProgressiveEnhancementContextProvider>
@@ -397,7 +525,9 @@ export default function App(
               <PushNotificationContextProvider>
                 <SubscriptionContextProvider>
                   <PostReferrerContextProvider>
-                    <InternalApp {...props} />
+                    <ShortcutsProvider>
+                      <InternalApp {...props} />
+                    </ShortcutsProvider>
                   </PostReferrerContextProvider>
                 </SubscriptionContextProvider>
               </PushNotificationContextProvider>

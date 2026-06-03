@@ -34,6 +34,8 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   isSocialAuthLoading?: boolean;
   className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
+  hideLoginLink?: boolean;
+  compact?: boolean;
 }
 
 export const isWebView = (): boolean => {
@@ -103,6 +105,9 @@ export const OnboardingRegistrationForm = ({
   onProviderClick,
   targetId,
   trigger,
+  onboardingSignupButton,
+  hideLoginLink,
+  compact,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
 
@@ -131,16 +136,16 @@ export const OnboardingRegistrationForm = ({
         {getSignupProviders().map((provider) => (
           <li key={provider.value}>
             <Button
-              aria-label={`Continue using ${provider.label}`}
+              aria-label={`Continue with ${provider.label}`}
               className="w-full"
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
               icon={provider.icon}
               loading={!isReady || isSocialAuthLoading}
               onClick={() => onProviderClick?.(provider.value, false)}
-              size={ButtonSize.Large}
+              size={onboardingSignupButton?.size ?? ButtonSize.Large}
               type="button"
-              variant={ButtonVariant.Primary}
+              variant={onboardingSignupButton?.variant ?? ButtonVariant.Primary}
             >
               Continue with {provider.label}
             </Button>
@@ -154,25 +159,27 @@ export const OnboardingRegistrationForm = ({
         label="OR"
       />
       <div className="flex flex-col-reverse text-center">
-        <MemberAlready
-          onLogin={() => onExistingEmail?.('')}
-          className={{
-            container:
-              'mx-auto mt-6 text-center text-text-secondary typo-callout',
-            login: '!text-inherit',
-          }}
-        />
+        {!hideLoginLink && (
+          <MemberAlready
+            onLogin={() => onExistingEmail?.('')}
+            className={{
+              container:
+                'mx-auto mt-6 text-center text-text-secondary typo-callout',
+              login: '!text-inherit',
+            }}
+          />
+        )}
         <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
         <Button
           aria-label="Signup using email"
-          className="mb-8"
+          className={compact ? 'mb-4' : 'mb-8'}
           data-funnel-track={FunnelTargetId.SignupProvider}
           disabled={isSocialAuthLoading}
           onClick={() => {
             trackOpenSignup();
             onContinueWithEmail?.();
           }}
-          size={ButtonSize.Large}
+          size={onboardingSignupButton?.size ?? ButtonSize.Large}
           type="button"
           variant={ButtonVariant.Float}
         >

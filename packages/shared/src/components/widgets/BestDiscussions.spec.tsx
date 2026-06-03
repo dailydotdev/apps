@@ -45,7 +45,6 @@ it('should show number comments', async () => {
 
 it('should set feeling lucky link to the first post', async () => {
   renderComponent();
-  const el = await screen.findByText(`I'm feeling lucky`);
-  // eslint-disable-next-line testing-library/no-node-access
+  const el = await screen.findByRole('link', { name: `I'm feeling lucky` });
   expect(el).toHaveAttribute('href', defaultPosts[0].commentsPermalink);
 });

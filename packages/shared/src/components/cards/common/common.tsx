@@ -39,12 +39,16 @@ export const getGroupedHoverContainer = <
 ): ClassedHTML<P, T> => classed<P, T>(type, visibleOnGroupHover);
 
 export type Callback = (post: Post) => unknown;
+export type PostCardClickCallback = (
+  post: Post,
+  event?: React.MouseEvent,
+) => unknown;
 
 export const Container = classed('div', 'relative flex flex-1 flex-col');
 
 export interface PostCardProps extends CommonCardCoverProps {
   post: Post;
-  onPostClick?: Callback;
+  onPostClick?: PostCardClickCallback;
   onPostAuxClick?: Callback;
   onBookmarkClick?: Callback;
   onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
@@ -81,6 +85,7 @@ export const generateTitleClamp = ({
 
 export enum FeedItemType {
   'Post' = 'post',
+  Highlight = 'highlight',
   'Ad' = 'ad',
   PlusEntry = 'plusEntry',
   Placeholder = 'placeholder',

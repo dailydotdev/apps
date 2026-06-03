@@ -26,6 +26,7 @@ import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
+import type { Post } from '../../graphql/posts';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -33,6 +34,20 @@ const ContentMap = {
   [PostType.Share]: SharePostContent,
   [PostType.VideoYouTube]: ShareYouTubeContent,
 };
+
+const getSquadContentComponent = (type: PostType) => {
+  if (type === PostType.Freeform || type === PostType.Welcome) {
+    return ContentMap[PostType.Freeform];
+  }
+
+  if (type === PostType.VideoYouTube) {
+    return ContentMap[PostType.VideoYouTube];
+  }
+
+  return ContentMap[PostType.Share];
+};
+
+type SquadPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
 function SquadPostContentRaw({
   post,
@@ -42,6 +57,7 @@ function SquadPostContentRaw({
   position,
   postPosition,
   inlineActions,
+  hideSubscribeAction,
   className,
   customNavigation,
   onPreviousPost,
@@ -49,7 +65,7 @@ function SquadPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement {
+}: SquadPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -102,7 +118,7 @@ function SquadPostContentRaw({
   const finalType = isVideoPost(post)
     ? PostType.VideoYouTube
     : socialTwitterType || post?.type;
-  const Content = ContentMap[finalType];
+  const Content = getSquadContentComponent(finalType);
 
   return (
     <PostContentContainer
@@ -120,7 +136,7 @@ function SquadPostContentRaw({
               onReadArticle,
               className: className?.fixedNavigation,
             }
-          : null
+          : undefined
       }
     >
       <div
@@ -162,6 +178,7 @@ function SquadPostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
+              hideSubscribeAction={hideSubscribeAction}
               className={sourceInfoClassName}
             />
             {shouldShowBanner && !isUserSource && isLaptop && (

@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { PublicProfile } from '../../../../lib/user';
+import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useShowcaseAchievements } from '../../../../hooks/profile/useShowcaseAchievements';
 import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
 import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
@@ -35,9 +36,14 @@ export function ProfileAchievementShowcase({
   user,
 }: ProfileAchievementShowcaseProps): ReactElement | null {
   const { isOwner } = useProfilePreview(user);
+  const { optOutAchievements } = useSettingsContext();
   const { showcaseAchievements } = useShowcaseAchievements(user);
   const { achievements } = useProfileAchievements(user);
   const { openModal } = useLazyModal();
+
+  if (optOutAchievements) {
+    return null;
+  }
 
   const hasShowcase = showcaseAchievements.length > 0;
 

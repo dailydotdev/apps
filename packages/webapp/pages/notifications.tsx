@@ -17,9 +17,11 @@ import {
   pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
-import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/notifications/DigestUpsellBanner';
+import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/marketing/banners/DigestUpsellBanner';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling, {
   checkFetchMore,
@@ -110,20 +112,25 @@ const Notifications = (): ReactElement => {
   usePromotionModal();
   useStreakRecoverModal();
   useTopReaderModal();
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
 
   return (
     <ProtectedPage>
+      {isV2Laptop && <PageHeader title="Notifications" />}
       <main
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
-        <h2
-          className="p-6 font-bold typo-body"
-          data-testid="notification_page-title"
-        >
-          Notifications
-        </h2>
+        {!isV2Laptop && (
+          <h2
+            className="p-6 font-bold typo-body"
+            data-testid="notification_page-title"
+          >
+            Notifications
+          </h2>
+        )}
         <InfiniteScrolling
           isFetchingNextPage={queryResult.isFetchingNextPage}
           canFetchMore={checkFetchMore(queryResult)}

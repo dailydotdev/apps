@@ -6,12 +6,20 @@ import type { RemoteSettings } from '../graphql/settings';
 import type { Post } from '../graphql/posts';
 import type { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
-import type { MarketingCta } from '../components/marketingCta/common';
+import type {
+  MarketingCta,
+  MarketingCtaVariant,
+} from '../components/marketing/cta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
+import type { EngagementCreative } from './engagementAds';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
+}
+
+interface LiveRoomsBootData {
+  hasLive: boolean;
 }
 
 export type PostBootData = Pick<
@@ -63,6 +71,13 @@ export type Boot = {
     features?: Record<string, FeatureDefinition>;
   };
   marketingCta?: MarketingCta | null;
+  /**
+   * Per-variant hint of which marketing CTAs the user is targeted for.
+   * Acts as a fetch gate for `useMarketingCtas(variant)` — the dedicated GraphQL
+   * query only fires when the variant appears in this list, so the boot payload
+   * stays small and lazy-loaded variants don't ping the API for nothing.
+   */
+  marketingCtaVariants?: MarketingCtaVariant[];
   feeds: Feed[];
   language?: string;
   geo: {
@@ -71,6 +86,8 @@ export type Boot = {
     continent?: Continent;
   };
   isAndroidApp?: boolean;
+  engagementCreatives?: EngagementCreative[];
+  liveRooms?: LiveRoomsBootData;
 };
 
 export type BootCacheData = Pick<
@@ -153,5 +170,5 @@ export async function getBootData({
     },
   });
   const result = await res.json();
-  return await enrichBootWithFeatures(result);
+  return enrichBootWithFeatures(result);
 }

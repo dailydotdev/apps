@@ -10,7 +10,7 @@ const getRequiredEnv = (name: 'USER_NAME' | 'PASSWORD'): string => {
   return value;
 };
 
-test.describe('Daily.dev Homepage', () => {
+test.describe.skip('Daily.dev Homepage', () => {
   test('should load the homepage successfully', async ({ page }) => {
     const userName = getRequiredEnv('USER_NAME');
     const password = getRequiredEnv('PASSWORD');

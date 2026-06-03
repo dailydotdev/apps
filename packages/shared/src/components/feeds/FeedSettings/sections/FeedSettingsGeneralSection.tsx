@@ -19,8 +19,23 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ColorName } from '../../../../styles/colors';
 import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
-import { usePlusSubscription } from '../../../../hooks';
+import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { Tooltip } from '../../../tooltip/Tooltip';
+import { Dropdown } from '../../../fields/Dropdown';
+import { useSettingsContext } from '../../../../contexts/SettingsContext';
+import {
+  HighlightsPlacement,
+  SidebarSettingsFlags,
+} from '../../../../graphql/settings';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, Origin } from '../../../../lib/log';
+import { labels } from '../../../../lib';
+
+const highlightsPlacementOptions = [
+  { value: HighlightsPlacement.Default, label: 'Default' },
+  { value: HighlightsPlacement.Pinned, label: 'Pin to top' },
+  { value: HighlightsPlacement.Disabled, label: 'Disabled' },
+];
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete, editFeedSettings } = useContext(
@@ -31,6 +46,9 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const isMainFeed = feed?.type === FeedType.Main;
   const isCustomFeed = feed?.type === FeedType.Custom;
   const { isPlus } = usePlusSubscription();
+  const { flags, updateFlag } = useSettingsContext();
+  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
@@ -99,73 +117,118 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           label="Choose an icon"
         />
       )}
+      {(isPlus || isMainFeed) && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <Typography bold type={TypographyType.Body}>
+              Set as your default feed
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Make this feed the first one you see every time you open
+              daily.dev.
+            </Typography>
+          </div>
+          {isCustomFeed && (
+            <Button
+              className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}
+              type="button"
+              pressed
+              size={ButtonSize.Small}
+              color={isDefaultFeed ? ColorName.Avocado : undefined}
+              variant={
+                isDefaultFeed ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+              }
+              icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
+              onClick={async () =>
+                editFeedSettings(() =>
+                  updateUserProfile({
+                    defaultFeedId: isDefaultFeed ? null : feed.id,
+                  }),
+                )
+              }
+            >
+              {isDefaultFeed ? 'Default feed set' : 'Make default'}
+            </Button>
+          )}
+          {isMainFeed && (
+            <Tooltip
+              visible={isDefaultFeed}
+              content="Your main feed is already your default feed"
+              side="bottom"
+            >
+              <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
+                <Button
+                  type="button"
+                  pressed
+                  size={ButtonSize.Small}
+                  color={isDefaultFeed ? ColorName.Avocado : undefined}
+                  variant={
+                    user.defaultFeedId === null
+                      ? ButtonVariant.Tertiary
+                      : ButtonVariant.Secondary
+                  }
+                  icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
+                  disabled={user.defaultFeedId === null}
+                  onClick={async () => {
+                    editFeedSettings(() =>
+                      updateUserProfile({
+                        defaultFeedId: null,
+                      }),
+                    );
+                  }}
+                >
+                  {isDefaultFeed ? 'Default feed set' : 'Make default'}
+                </Button>
+              </div>
+            </Tooltip>
+          )}
+        </div>
+      )}
+      <Divider className="my-1 bg-border-subtlest-tertiary" />
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
-            Set as your default feed
+            Happening Now placement
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Make this feed the first one you see every time you open daily.dev.
+            Choose where the Happening Now card appears in your feed, or hide it
+            entirely.
           </Typography>
         </div>
-        {isCustomFeed && (
-          <Button
-            className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}
-            type="button"
-            pressed
-            size={ButtonSize.Small}
-            color={isDefaultFeed ? ColorName.Avocado : undefined}
-            variant={
-              isDefaultFeed ? ButtonVariant.Tertiary : ButtonVariant.Secondary
-            }
-            disabled={!isPlus}
-            icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
-            onClick={async () =>
-              editFeedSettings(() =>
-                updateUserProfile({
-                  defaultFeedId: isDefaultFeed ? null : feed.id,
-                }),
-              )
-            }
-          >
-            {isDefaultFeed ? 'Default feed set' : 'Make default'}
-          </Button>
-        )}
-        {isMainFeed && (
-          <Tooltip
-            visible={isDefaultFeed}
-            content="Your main feed is already your default feed"
-            side="bottom"
-          >
-            <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
-              <Button
-                type="button"
-                pressed
-                size={ButtonSize.Small}
-                color={isDefaultFeed ? ColorName.Avocado : undefined}
-                variant={
-                  user.defaultFeedId === null
-                    ? ButtonVariant.Tertiary
-                    : ButtonVariant.Secondary
-                }
-                icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
-                disabled={user.defaultFeedId === null}
-                onClick={async () => {
-                  editFeedSettings(() =>
-                    updateUserProfile({
-                      defaultFeedId: null,
-                    }),
-                  );
-                }}
-              >
-                {isDefaultFeed ? 'Default feed set' : 'Make default'}
-              </Button>
-            </div>
-          </Tooltip>
-        )}
+        <Dropdown
+          className={{ container: 'w-full tablet:max-w-70' }}
+          selectedIndex={Math.max(
+            highlightsPlacementOptions.findIndex(
+              (option) =>
+                option.value ===
+                (flags?.highlightsPlacement ?? HighlightsPlacement.Default),
+            ),
+            0,
+          )}
+          options={highlightsPlacementOptions.map((option) => option.label)}
+          onChange={async (_, index) => {
+            const next = highlightsPlacementOptions[index].value;
+            await updateFlag(SidebarSettingsFlags.Highlights, next);
+
+            displayToast(
+              labels.feed.settings.globalPreferenceNotice.highlightsPlacement,
+            );
+
+            logEvent({
+              event_name: LogEvent.SetHighlightsPlacement,
+              target_id: next,
+              extra: JSON.stringify({
+                origin: Origin.Settings,
+              }),
+            });
+          }}
+        />
       </div>
       {isCustomFeed && (
         <>

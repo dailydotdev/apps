@@ -14,6 +14,10 @@ import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { FeaturedArchives } from '../widgets/FeaturedArchives';
+import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
+import { PostSignupWidget } from './PostSignupWidget';
+import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -64,7 +68,6 @@ export function PostWidgets({
         }}
         handle={source.handle}
         origin={origin}
-        showNotificationCtaOnJoin
       />
     );
   } else if (source) {
@@ -80,6 +83,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
+      <PostSignupWidget />
       {sourceCard}
       {creator && (
         <UserEntityCard
@@ -87,13 +91,13 @@ export function PostWidgets({
             container: cardClasses,
           }}
           user={creator as UserShortProfile}
-          showNotificationCtaOnFollow
         />
       )}
       <PostSidebarAdWidget
         postId={post.id}
         className={{ container: cardClasses }}
       />
+      <MentionedToolsWidget postTags={post.tags || []} />
       <ShareBar post={post} />
       <ShareMobile
         post={post}
@@ -101,7 +105,9 @@ export function PostWidgets({
         link={post.commentsPermalink}
         onCopyPostLink={onCopyPostLink}
       />
+      <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );

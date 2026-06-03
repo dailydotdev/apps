@@ -57,6 +57,9 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   ...withBundleAnalyzer({
     compiler: {
       reactRemoveProperties: { properties: ['^data-testid$'] },
@@ -109,6 +112,14 @@ const nextConfig: NextConfig = {
     },
     env: {
       CURRENT_VERSION: version,
+      // If both CHROME and EDGE IDs are present (e.g. in a shared CI environment),
+      // Chrome silently takes precedence. Since the ID is baked into the build and
+      // getBrowserExtensionInstallId cannot distinguish the user's browser, this is expected.
+      NEXT_PUBLIC_DAILY_EXTENSION_ID:
+        process.env.NEXT_PUBLIC_DAILY_EXTENSION_ID ||
+        process.env.EXTENSION_ID_CHROME ||
+        process.env.EXTENSION_ID_EDGE ||
+        '',
     },
     assetPrefix: process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX,
     rewrites: async () => {
@@ -215,6 +226,11 @@ const nextConfig: NextConfig = {
           destination: '/tags/:path*',
           permanent: true,
         },
+        {
+          source: '/posts/release-notes-updates-live-jp5x9el1t',
+          destination: '/posts/release-notes-updates-live--jp5x9el1t',
+          permanent: true,
+        },
         ...oldPublicAssets.map((asset) => ({
           source: `/${asset}`,
           destination: `${
@@ -286,6 +302,11 @@ const nextConfig: NextConfig = {
           source: '/jobs/welcome',
           destination: '/jobs',
           permanent: true,
+        },
+        {
+          source: '/em/t/c',
+          destination: `${process.env.NEXT_PUBLIC_API_URL}/em/t/c`,
+          permanent: false,
         },
       ];
     },

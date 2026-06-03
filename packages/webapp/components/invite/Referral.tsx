@@ -42,7 +42,7 @@ export function Referral({
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.push(redirectTo);
+      router.push(redirectTo ?? '/');
     }
 
     // router is an unstable dependency

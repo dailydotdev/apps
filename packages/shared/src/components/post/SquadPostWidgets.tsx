@@ -15,6 +15,9 @@ import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { FeaturedArchives } from '../widgets/FeaturedArchives';
+import { PostSignupWidget } from './PostSignupWidget';
+import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -33,6 +36,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
+      <PostSignupWidget />
       {!isUserSource &&
         (isSquadSource ? (
           <SquadEntityCard
@@ -41,7 +45,6 @@ export function SquadPostWidgets({
             }}
             handle={source.handle}
             origin={origin}
-            showNotificationCtaOnJoin
           />
         ) : (
           <SourceEntityCard
@@ -57,7 +60,6 @@ export function SquadPostWidgets({
             container: cardClasses,
           }}
           user={post.author as UserShortProfile}
-          showNotificationCtaOnFollow
         />
       )}
       <PostSidebarAdWidget
@@ -75,7 +77,9 @@ export function SquadPostWidgets({
           />
         </>
       )}
+      <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );

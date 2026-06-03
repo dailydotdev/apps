@@ -14,6 +14,7 @@ import { RaisedLabel, RaisedLabelType } from '../RaisedLabel';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
+import { getTrendingDescription } from '../getTrendingDescription';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -47,12 +48,13 @@ function FeedItemContainer(
     ? RaisedLabelType.Pinned
     : RaisedLabelType.Hot;
   const description =
-    [RaisedLabelType.Hot].includes(raisedLabelType) && trending > 0
-      ? `${trending} devs read it last hour`
+    raisedLabelType === RaisedLabelType.Hot
+      ? getTrendingDescription(trending)
       : undefined;
   const isFeedPreview = useFeedPreviewMode();
   const showFlag = (!!pinnedAt || !!trending) && !isFeedPreview;
-  const showTypeLabel = !!adAttribution || !!type;
+  const typeLabelValue = adAttribution ?? type;
+  const showTypeLabel = !!typeLabelValue;
   const [focus, setFocus] = useState(false);
 
   return (
@@ -70,7 +72,7 @@ function FeedItemContainer(
         ...(highlightBookmarkedPost && { background: bookmarkProviderListBg }),
       }}
     >
-      {linkProps && (
+      {linkProps?.href && (
         <Link href={linkProps.href}>
           <CardLink
             {...linkProps}
@@ -81,10 +83,10 @@ function FeedItemContainer(
       )}
       {(showTypeLabel || showFlag) && (
         <fieldset>
-          {showTypeLabel && (
+          {typeLabelValue && (
             <TypeLabel
               focus={focus}
-              type={adAttribution ?? type}
+              type={typeLabelValue}
               className="absolute left-3"
             />
           )}

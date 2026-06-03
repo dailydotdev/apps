@@ -7,12 +7,14 @@ import {
 } from '../../typography/Typography';
 import { DevPlusIcon } from '../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
-import type { MarketingCta } from '../../marketingCta/common';
+import type { MarketingCta } from '../../marketing/cta/common';
 import CloseButton from '../../CloseButton';
 import { useBoot } from '../../../hooks';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { PlusItemStatus, PlusListItem } from '../../plus/PlusListItem';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePlusApiLanding } from '../../../lib/featureManagement';
 
 const bulletPointsControl = [
   {
@@ -40,11 +42,13 @@ const bulletPointsControl = [
 const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
+  const isApiLanding = useFeature(featurePlusApiLanding);
 
   if (!flags) {
     return null;
   }
   const { title, description, ctaText, ctaUrl } = flags;
+  const ctaColor = isApiLanding ? ButtonColor.Bacon : ButtonColor.Avocado;
 
   const handleClose = () => {
     logEvent({
@@ -109,7 +113,7 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
           tag="a"
           href={ctaUrl || '/plus'}
           variant={ButtonVariant.Primary}
-          color={ButtonColor.Avocado}
+          color={ctaColor}
           onClick={handleClick}
         >
           {ctaText}

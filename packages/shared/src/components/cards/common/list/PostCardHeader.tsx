@@ -38,10 +38,15 @@ interface CardHeaderProps {
   openNewTab?: boolean;
   readButtonContent?: string;
   readButtonIcon?: ReactElement;
+  primaryAction?: ReactNode;
   metadata?: {
     topLabel?: PostMetadataProps['topLabel'];
     bottomLabel?: PostMetadataProps['bottomLabel'];
     dateFirst?: PostMetadataProps['dateFirst'];
+    createdAt?: PostMetadataProps['createdAt'];
+    dateLabel?: PostMetadataProps['dateLabel'];
+    numSources?: PostMetadataProps['numSources'];
+    dateType?: PostMetadataProps['dateType'];
   };
 }
 
@@ -56,6 +61,7 @@ export const PostCardHeader = ({
   openNewTab,
   readButtonContent,
   readButtonIcon,
+  primaryAction,
   metadata,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
@@ -69,6 +75,7 @@ export const PostCardHeader = ({
   const showCTA =
     !isFeedPreview &&
     ([PostType.Article, PostType.VideoYouTube].includes(post.type) ||
+      !!primaryAction ||
       !!readButtonContent);
 
   return (
@@ -111,17 +118,18 @@ export const PostCardHeader = ({
         >
           {!isFeedPreview && (
             <>
-              {showCTA && (
-                <ReadArticleButton
-                  content={readButtonContent ?? postButtonText}
-                  className="mr-2"
-                  variant={ButtonVariant.Tertiary}
-                  icon={readButtonIcon ?? <OpenLinkIcon />}
-                  href={postLink}
-                  onClick={onReadArticleClick}
-                  openNewTab={openNewTab}
-                />
-              )}
+              {showCTA &&
+                (primaryAction ?? (
+                  <ReadArticleButton
+                    content={readButtonContent ?? postButtonText ?? ''}
+                    className="mr-2"
+                    variant={ButtonVariant.Tertiary}
+                    icon={readButtonIcon ?? <OpenLinkIcon />}
+                    href={postLink ?? ''}
+                    onClick={onReadArticleClick}
+                    openNewTab={openNewTab}
+                  />
+                ))}
               <PostOptionButton post={post} />
             </>
           )}

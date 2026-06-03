@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { BasicSourceMember, Squad } from '../../graphql/sources';
-import { SourcePermissions } from '../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
-import { FlexCentered, FlexCol } from '../utilities';
+import { FlexCentered, FlexCol, getRoleName } from '../utilities';
 import SharePostBar from './SharePostBar';
 import { verifyPermission } from '../../graphql/squads';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
@@ -21,6 +21,7 @@ import {
 } from '../../lib/config';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { LazyModal } from '../modals/common/types';
 import { SquadStat } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -37,6 +38,12 @@ interface SquadPageHeaderProps {
   squad: Squad;
   members: BasicSourceMember[];
   shouldUseListMode: boolean;
+  /**
+   * v2: hide the in-card `<SquadHeaderBar>` when the unified PageHeader at
+   * the top of the floating card already hosts the action bar. Keeps the
+   * squad identity card focused on identity + sharing.
+   */
+  hideHeaderBar?: boolean;
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
@@ -46,8 +53,11 @@ export function SquadPageHeader({
   squad,
   members,
   shouldUseListMode,
+  hideHeaderBar = false,
 }: SquadPageHeaderProps): ReactElement {
   const { openModal } = useLazyModal();
+  const { evaluateSmartComposer } = useSmartComposer();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const { category } = squad;
   const squadId = squad.id ?? '';
@@ -57,10 +67,26 @@ export function SquadPageHeader({
     ? formatMonthYearOnly(squad.createdAt)
     : null;
   const privilegedLength = squad.privilegedMembers?.length || 0;
+  const topMembers = squad.topMembers ?? [];
+  const topMembersLength = topMembers.length;
   const isMobile = useViewSize(ViewSize.MobileL);
   const listMax = isMobile
     ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
     : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
+  const onNewPostClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!isLaptop || !evaluateSmartComposer()) {
+        return;
+      }
+
+      event.preventDefault();
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: { initialSquadHandle: squad.handle },
+      });
+    },
+    [evaluateSmartComposer, isLaptop, openModal, squad.handle],
+  );
 
   return (
     <FlexCol
@@ -152,7 +178,9 @@ export function SquadPageHeader({
           {squad.description}
         </Typography>
       )}
-      <SquadHeaderBar squad={squad} members={members} className="mt-5" />
+      {!hideHeaderBar && (
+        <SquadHeaderBar squad={squad} members={members} className="mt-5" />
+      )}
       <Typography
         bold
         className="mt-6"
@@ -164,7 +192,12 @@ export function SquadPageHeader({
       </Typography>
       <div className="mt-2 flex flex-row items-center gap-3">
         {squad.privilegedMembers?.slice(0, listMax).map((member) => (
-          <PrivilegedMemberItem key={member.user.id} member={member} />
+          <PrivilegedMemberItem
+            key={member.user.id}
+            user={member.user}
+            role={member.role}
+            badge={getRoleName(member.role)}
+          />
         ))}
         {privilegedLength > listMax && (
           <Button
@@ -181,6 +214,42 @@ export function SquadPageHeader({
           </Button>
         )}
       </div>
+      {topMembers.length > 0 && (
+        <>
+          <Typography
+            bold
+            className="mt-4"
+            color={TypographyColor.Tertiary}
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+          >
+            Top members
+          </Typography>
+          <div className="mt-2 flex flex-row items-center gap-3">
+            {topMembers.slice(0, listMax).map((member) => (
+              <PrivilegedMemberItem
+                key={member.id}
+                user={member}
+                role={SourceMemberRole.Member}
+              />
+            ))}
+            {topMembersLength > listMax && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                className="aspect-square border border-border-subtlest-tertiary"
+                onClick={() =>
+                  openModal({
+                    type: LazyModal.TopMembers,
+                    props: { source: squad },
+                  })
+                }
+              >
+                +{topMembersLength - listMax}
+              </Button>
+            )}
+          </div>
+        </>
+      )}
       <div className={classNames('w-full', MAX_WIDTH)}>
         <SquadStack squad={squad} />
       </div>
@@ -205,6 +274,7 @@ export function SquadPageHeader({
               <Button
                 tag="a"
                 href={`${link.post.create}?sid=${squad.handle}`}
+                onClick={onNewPostClick}
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Cabbage}
                 className="w-full tablet:w-auto"

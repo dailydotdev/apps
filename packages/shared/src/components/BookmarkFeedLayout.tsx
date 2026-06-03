@@ -1,4 +1,4 @@
-import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useCallback,
   useContext,
@@ -21,14 +21,15 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { PageHeader } from './layout/PageHeader';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
-import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
-import { DigestBookmarkBanner } from './notifications/DigestBookmarkBanner';
+import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
+import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
 import {
   Typography,
   TypographyTag,
@@ -60,17 +61,6 @@ const SharedBookmarksModal = dynamic(
     ),
 );
 
-const ShareBookmarksButton = ({
-  children,
-  ...props
-}: PropsWithChildren<
-  Pick<ButtonProps<'button'>, 'className' | 'onClick' | 'icon'>
->) => (
-  <Button variant={ButtonVariant.Secondary} {...props}>
-    {children}
-  </Button>
-);
-
 const bookmarkSortOptions = [
   { label: 'Newest first', value: BookmarkSort.TimeDesc },
   { label: 'Oldest first', value: BookmarkSort.TimeAsc },
@@ -87,7 +77,7 @@ export default function BookmarkFeedLayout({
   folder,
   title = 'Bookmarks',
   isReminderOnly,
-}: BookmarkFeedLayoutProps): ReactElement {
+}: BookmarkFeedLayoutProps): ReactElement | null {
   const [isHydrated, setIsHydrated] = useState(false);
   const {
     shouldUseListFeedLayout,
@@ -103,6 +93,8 @@ export default function BookmarkFeedLayout({
     DEFAULT_BOOKMARK_SORT_INDEX,
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
   const isSearchResults = !!searchQuery;
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
@@ -190,81 +182,142 @@ export default function BookmarkFeedLayout({
     return null;
   }
 
-  return (
-    <FeedPageLayoutComponent>
-      {children}
-      <FeedPageHeader className="mb-5">
-        <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
-          {title}
-        </Typography>
-      </FeedPageHeader>
-      <CustomFeedHeader
-        className={classNames(
-          'mb-6',
-          shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-        )}
+  const sortDropdown = !isSearchResults && (
+    <Dropdown
+      className={{
+        label: 'hidden',
+        chevron: 'hidden',
+        button: isV2Laptop ? undefined : '!px-1',
+        container: isV2Laptop ? 'flex' : 'ml-4 flex',
+      }}
+      shouldIndicateSelected
+      icon={<SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />}
+      iconOnly
+      selectedIndex={selectedSort}
+      options={bookmarkSortOptionLabels}
+      onChange={(_, index) => setSelectedSort(index)}
+      buttonVariant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      buttonSize={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
+      drawerProps={{ displayCloseButton: true }}
+    />
+  );
+  const shareButton = !isFolderPage && (
+    <Button
+      aria-label="Share bookmarks"
+      className={isV2Laptop ? undefined : 'ml-4 flex'}
+      icon={
+        <ShareIcon
+          size={isV2Laptop ? IconSize.XSmall : IconSize.Medium}
+          secondary={showSharedBookmarks}
+          aria-hidden
+        />
+      }
+      onClick={() => setShowSharedBookmarks(true)}
+      size={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
+      variant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Secondary}
+    >
+      {isLaptop ? <span>Share bookmarks</span> : null}
+    </Button>
+  );
+  const folderMenu = folder && !isReminderOnly && (
+    <BookmarkFolderContextMenu
+      folder={folder}
+      buttonProps={
+        isV2Laptop
+          ? {
+              className: 'flex',
+              size: ButtonSize.Small,
+              variant: ButtonVariant.Tertiary,
+            }
+          : undefined
+      }
+    />
+  );
+  const headerTitleSlot = isV2Laptop ? (
+    <div className="flex min-w-0 flex-1 items-center gap-3">
+      <Typography
+        bold
+        type={TypographyType.Callout}
+        tag={TypographyTag.H1}
+        truncate
+        className="min-w-0 shrink"
       >
-        {searchChildren}
-        {!isSearchResults && (
-          <Dropdown
-            className={{
-              label: 'hidden',
-              chevron: 'hidden',
-              button: '!px-1',
-              container: 'ml-4 flex',
-            }}
-            shouldIndicateSelected
-            icon={<SortIcon size={IconSize.Medium} />}
-            iconOnly
-            selectedIndex={selectedSort}
-            options={bookmarkSortOptionLabels}
-            onChange={(_, index) => setSelectedSort(index)}
-            buttonVariant={ButtonVariant.Float}
-            buttonSize={ButtonSize.Medium}
-            drawerProps={{ displayCloseButton: true }}
-          />
-        )}
-        {!isFolderPage && (
-          <ShareBookmarksButton
-            aria-label="Share bookmarks"
-            className="ml-4 flex"
-            icon={<ShareIcon secondary={showSharedBookmarks} aria-hidden />}
-            onClick={() => setShowSharedBookmarks(true)}
-          >
-            {isLaptop ? <span>Share bookmarks</span> : null}
-          </ShareBookmarksButton>
-        )}
-        {isFolderPage && !isReminderOnly && (
-          <BookmarkFolderContextMenu folder={folder} />
-        )}
-      </CustomFeedHeader>
+        {title}
+      </Typography>
+      {searchChildren && (
+        <div className="min-w-0 max-w-[20rem] flex-1">{searchChildren}</div>
+      )}
+    </div>
+  ) : (
+    title
+  );
 
-      {showSharedBookmarks && (
-        <SharedBookmarksModal
-          isOpen={showSharedBookmarks}
-          onRequestClose={() => setShowSharedBookmarks(false)}
-        />
+  return (
+    <>
+      {/* v2 hoists the page-header strip OUT of FeedPageLayoutComponent
+          so it spans the full floating-card width without being clamped
+          by `FeedPageLayoutList`'s 680px laptop max-width. */}
+      {isV2Laptop && (
+        <PageHeader title={headerTitleSlot}>
+          {sortDropdown}
+          {shareButton}
+          {folderMenu}
+        </PageHeader>
       )}
-      <div className="relative mb-4 laptop:hidden">
-        <BookmarkSection
-          isItemsButton={false}
-          sidebarExpanded
-          shouldShowLabel
-          activePage=""
-        />
-        {plusEntryBookmark && (
-          <PlusMobileEntryBanner
-            arrow
-            targetType={TargetType.PlusEntryBookmarkTab}
-            {...plusEntryBookmark}
+      <FeedPageLayoutComponent>
+        {children}
+        {!isV2Laptop && (
+          <>
+            <FeedPageHeader className="mb-5">
+              <Typography
+                bold
+                type={TypographyType.Title3}
+                tag={TypographyTag.H1}
+              >
+                {title}
+              </Typography>
+            </FeedPageHeader>
+            <CustomFeedHeader
+              className={classNames(
+                'mb-6',
+                shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
+              )}
+            >
+              {searchChildren}
+              {sortDropdown}
+              {shareButton}
+              {folderMenu}
+            </CustomFeedHeader>
+          </>
+        )}
+
+        {showSharedBookmarks && (
+          <SharedBookmarksModal
+            isOpen={showSharedBookmarks}
+            onRequestClose={() => setShowSharedBookmarks(false)}
           />
         )}
-      </div>
-      {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
-      {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
-      {tokenRefreshed && (isSearchResults || loadedSort) && (
-        <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
-      )}
-    </FeedPageLayoutComponent>
+        <div className="relative mb-4 laptop:hidden">
+          <BookmarkSection
+            isItemsButton={false}
+            sidebarExpanded
+            shouldShowLabel
+            activePage=""
+          />
+          {plusEntryBookmark && (
+            <PlusMobileEntryBanner
+              arrow
+              targetType={TargetType.PlusEntryBookmarkTab}
+              {...plusEntryBookmark}
+            />
+          )}
+        </div>
+        {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
+        {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
+        {tokenRefreshed && (isSearchResults || loadedSort) && (
+          <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
+        )}
+      </FeedPageLayoutComponent>
+    </>
   );
 }

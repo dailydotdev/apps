@@ -152,6 +152,7 @@ export function CodeField({
           autoComplete="off"
           inputMode="numeric"
           pattern="[0-9]*"
+          autoFocus={index === 0}
           inputRef={(el) => {
             if (el) {
               elementsRef.current[index] = el;

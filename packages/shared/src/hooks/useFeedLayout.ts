@@ -66,6 +66,7 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.ExploreTag,
   OtherFeedPage.FeedByIds,
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
@@ -116,7 +117,7 @@ export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptopSize = useViewSize(ViewSize.Laptop);
-  const isLaptop = typeof window === 'undefined' || isLaptopSize;
+  const isLaptop = isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();

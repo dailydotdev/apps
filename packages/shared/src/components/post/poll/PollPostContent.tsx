@@ -26,6 +26,9 @@ import { PostTagList } from '../tags/PostTagList';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { DiscussIcon } from '../../icons';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import type { Post } from '../../../graphql/posts';
+
+type PollPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
 function PollPostContentRaw({
   post,
@@ -35,6 +38,7 @@ function PollPostContentRaw({
   position,
   postPosition,
   inlineActions,
+  hideSubscribeAction,
   className,
   customNavigation,
   onPreviousPost,
@@ -42,7 +46,7 @@ function PollPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement {
+}: PollPostContentRawProps): ReactElement {
   const [justVoted, setJustVoted] = useState(false);
   const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
   const router = useRouter();
@@ -135,7 +139,7 @@ function PollPostContentRaw({
               onReadArticle,
               className: className?.fixedNavigation,
             }
-          : null
+          : undefined
       }
     >
       <div
@@ -177,6 +181,7 @@ function PollPostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
+              hideSubscribeAction={hideSubscribeAction}
               className={sourceInfoClassName}
             />
             {shouldShowBanner && !isUserSource && isLaptop && (
@@ -216,7 +221,7 @@ function PollPostContentRaw({
               />
               <PostTagList post={post} />
               <PollOptions
-                options={post.pollOptions}
+                options={post.pollOptions ?? []}
                 onClick={handleVote}
                 userVote={post?.userState?.pollOption?.id}
                 numPollVotes={post.numPollVotes || 0}

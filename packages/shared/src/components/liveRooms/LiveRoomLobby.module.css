@@ -1,0 +1,88 @@
+.lobbyBackground {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+  --halo-x: 50%;
+  background-image: radial-gradient(
+    ellipse 80% 55% at var(--halo-x) 0%,
+    color-mix(
+      in srgb,
+      var(--theme-accent-bacon-default),
+      transparent 55%
+    ),
+    transparent 75%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 60%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 60%,
+    transparent 100%
+  );
+}
+
+@media (min-width: 1020px) {
+  .lobbyBackground {
+    --halo-x: calc(50% - 11rem - 6px);
+  }
+}
+
+.pulseRing {
+  position: absolute;
+  top: 0;
+  left: var(--halo-x, 50%);
+  width: clamp(28rem, 65vw, 56rem);
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  border: 3px solid
+    color-mix(in srgb, var(--theme-accent-bacon-default), transparent 55%);
+  transform: translate(-50%, -50%) scale(0.05);
+  opacity: 0;
+  animation: liveRoomLobbyPulse 10s ease-out infinite;
+  will-change: transform, opacity;
+}
+
+.pulseRingDelay1 {
+  animation-delay: -2s;
+}
+
+.pulseRingDelay2 {
+  animation-delay: -4s;
+}
+
+.pulseRingDelay3 {
+  animation-delay: -6s;
+}
+
+.pulseRingDelay4 {
+  animation-delay: -8s;
+}
+
+@keyframes liveRoomLobbyPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.05);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulseRing {
+    animation: none;
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+}

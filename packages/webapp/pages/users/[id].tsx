@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -15,16 +15,21 @@ import {
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
-import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon, SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -60,73 +65,72 @@ const LeaderboardDetailPage = ({
   userItems,
   companyItems,
 }: PageProps): ReactElement => {
-  const router = useRouter();
-  const { isFallback: isLoading } = router;
-  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
-    useConditionalFeature({
-      feature: questsFeature,
-    });
+  const { isFallback: isLoading } = useRouter();
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
 
   const isCompany = isCompanyLeaderboard(leaderboardType);
   const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
   const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
 
-  useEffect(() => {
-    if (
-      !isLevelLeaderboard ||
-      isQuestsFeatureLoading ||
-      isQuestsFeatureEnabled === true
-    ) {
-      return;
-    }
-
-    router.replace('/users');
-  }, [
-    isLevelLeaderboard,
-    isQuestsFeatureEnabled,
-    isQuestsFeatureLoading,
-    router,
-  ]);
-
-  if (
-    isLoading ||
-    !title ||
-    (isLevelLeaderboard &&
-      (isQuestsFeatureLoading || isQuestsFeatureEnabled !== true))
-  ) {
+  if (isLoading || !title) {
     return <></>;
   }
 
   return (
-    <PageWrapperLayout>
-      <div className="mb-6 hidden justify-between laptop:flex">
-        <BreadCrumbs>
-          <SquadIcon size={IconSize.XSmall} secondary />
-          <Link href="/users" passHref prefetch={false}>
-            <a className="hover:underline">Leaderboard</a>
-          </Link>
-          <span className="px-1">/</span>
-          {title}
-        </BreadCrumbs>
-      </div>
-      <div className="mx-auto w-full max-w-screen-laptop">
-        {isCompany ? (
-          <CompanyTopList
-            containerProps={{ title }}
-            items={companyItems || []}
-            isLoading={isLoading}
-          />
-        ) : (
-          <UserTopList
-            containerProps={{ title }}
-            items={userItems || []}
-            isLoading={isLoading}
-            concatScore={concatScore}
-            showLevel={isLevelLeaderboard}
-          />
+    <>
+      {isV2Laptop && (
+        <PageHeader
+          title={
+            <span className="flex min-w-0 flex-1 items-center gap-2">
+              <Link href="/users" passHref prefetch={false}>
+                <Button
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  icon={<ArrowIcon className="-rotate-90" />}
+                  aria-label="Back to leaderboards"
+                />
+              </Link>
+              <strong className="min-w-0 flex-1 truncate typo-callout">
+                Leaderboard / {title}
+              </strong>
+            </span>
+          }
+        />
+      )}
+      <PageWrapperLayout>
+        {!isV2Laptop && (
+          <div className="mb-6 hidden justify-between laptop:flex">
+            <BreadCrumbs>
+              <SquadIcon size={IconSize.XSmall} secondary />
+              <Link href="/users" passHref prefetch={false}>
+                <a className="hover:underline">Leaderboard</a>
+              </Link>
+              <span className="px-1">/</span>
+              {title}
+            </BreadCrumbs>
+          </div>
         )}
-      </div>
-    </PageWrapperLayout>
+        <div className="mx-auto w-full max-w-screen-laptop">
+          {isCompany ? (
+            <CompanyTopList
+              containerProps={{ title }}
+              items={companyItems || []}
+              isLoading={isLoading}
+            />
+          ) : (
+            <UserTopList
+              containerProps={{ title }}
+              items={userItems || []}
+              isLoading={isLoading}
+              concatScore={concatScore}
+              showLevel={isLevelLeaderboard}
+            />
+          )}
+        </div>
+      </PageWrapperLayout>
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MyProfileEmptyScreen } from '../../../components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '../../../components/profile/ProfileEmptyScreen';
 import { link } from '../../../lib/links';
@@ -216,4 +217,14 @@ export const useActivityFeedProps = (
   );
 
   return { postsFeedProps, upvotedFeedProps };
+};
+
+export const useActivityCachedFeedData = (queryKey: readonly unknown[]) => {
+  const queryClient = useQueryClient();
+
+  return useQuery<FeedData | undefined>({
+    queryKey,
+    queryFn: () => queryClient.getQueryData<FeedData>(queryKey),
+    enabled: false,
+  });
 };

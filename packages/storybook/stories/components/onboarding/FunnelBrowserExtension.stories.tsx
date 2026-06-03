@@ -38,6 +38,9 @@ const defaultArgs = {
     headline: 'Transform every new tab into a learning powerhouse',
     explainer:
       'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!',
+    cta: 'Get it for {browser}',
+    skip: 'Dare to skip? <strong>You might miss out</strong>.',
+    showReviews: false,
   },
   onTransition: fn(),
 };

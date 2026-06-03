@@ -12,19 +12,30 @@ import {
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
+import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import {
   BaseFeedPage,
   FeedPageLayoutList,
 } from '@dailydotdev/shared/src/components/utilities';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { SquadStaticData } from '@dailydotdev/shared/src/graphql/squads';
 import {
   getSquadMembers,
+  getSquad,
   getSquadStaticFields,
 } from '@dailydotdev/shared/src/graphql/squads';
 import type {
   BasicSourceMember,
+  SourceData,
   Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  isSourceUserSource,
+  SOURCE_QUERY,
+  SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
@@ -51,7 +62,10 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type {
+  PublicProfile,
+  UserShortProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import {
   ToastSubject,
   useToastNotification,
@@ -156,7 +170,69 @@ interface SourcePageProps extends DynamicSeoProps {
   initialData?: SquadStaticData;
   referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
   jsonLd?: string;
+  seoUsers?: SquadSeoUsers;
 }
+
+type SquadSeoUser = Pick<UserShortProfile, 'id' | 'name' | 'permalink'>;
+
+interface SquadSeoUsers {
+  privilegedMembers: SquadSeoUser[];
+  topMembers: SquadSeoUser[];
+}
+
+const getSeoSquadUsers = (squad?: Squad): SquadSeoUsers | undefined => {
+  if (!squad?.public) {
+    return undefined;
+  }
+
+  return {
+    privilegedMembers:
+      squad.privilegedMembers?.map(({ user }) => ({
+        id: user.id,
+        name: user.name,
+        permalink: user.permalink,
+      })) ?? [],
+    topMembers:
+      squad.topMembers?.map(({ id, name, permalink }) => ({
+        id,
+        name,
+        permalink,
+      })) ?? [],
+  };
+};
+
+const SquadSeoLinks = ({
+  seoUsers,
+}: {
+  seoUsers?: SquadSeoUsers;
+}): ReactElement | null => {
+  if (!seoUsers) {
+    return null;
+  }
+
+  return (
+    <>
+      {seoUsers.privilegedMembers.length > 0 && (
+        <div className="sr-only">
+          {seoUsers.privilegedMembers.map((member) => (
+            <Link key={member.id} href={member.permalink} prefetch={false}>
+              <a>Posts by {member.name}</a>
+            </Link>
+          ))}
+        </div>
+      )}
+      {seoUsers.topMembers.length > 0 && (
+        <div className="sr-only">
+          {seoUsers.topMembers.map((member) => (
+            <Link key={member.id} href={member.permalink} prefetch={false}>
+              <a>Posts by {member.name}</a>
+            </Link>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   const { squad, children, ...restProtectedPageProps } = props;
@@ -172,6 +248,7 @@ const SquadPage = ({
   handle,
   initialData,
   jsonLd,
+  seoUsers,
 }: SourcePageProps): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
@@ -180,6 +257,8 @@ const SquadPage = ({
   const { displayToast } = useToastNotification();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -318,18 +397,37 @@ const SquadPage = ({
   }, [shouldManageSlack, squad, openModal, router]);
 
   const privateSourceJoin = usePrivateSourceJoin();
+  const initialSeoUsers = getSeoSquadUsers(initialData as Squad | undefined);
+  const resolvedSeoUsers =
+    getSeoSquadUsers(squad) ?? seoUsers ?? initialSeoUsers;
+  const seoContent = (
+    <>
+      {jsonLd && (
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd }}
+          />
+        </Head>
+      )}
+      <SquadSeoLinks seoUsers={resolvedSeoUsers} />
+    </>
+  );
 
   if ((isLoading && !isFetched) || privateSourceJoin.isActive) {
     return (
-      <SquadLoading
-        squad={squad || initialData}
-        sidebarRendered={sidebarRendered}
-      />
+      <>
+        {seoContent}
+        <SquadLoading
+          squad={squad || initialData}
+          sidebarRendered={sidebarRendered}
+        />
+      </>
     );
   }
 
   if (!isFetched) {
-    return <></>;
+    return <>{seoContent}</>;
   }
 
   if (isForbidden) {
@@ -346,19 +444,22 @@ const SquadPage = ({
 
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
-      {jsonLd && (
-        <Head>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: jsonLd }}
+      {seoContent}
+      {isV2Laptop && (
+        <PageHeader title={squad.name}>
+          <SquadHeaderBar
+            squad={squad}
+            members={squadMembers ?? []}
+            className="!gap-1"
           />
-        </Head>
+        </PageHeader>
       )}
       <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}
           members={squadMembers ?? []}
           shouldUseListMode={shouldUseListMode}
+          hideHeaderBar={isV2Laptop}
         />
         <FeedPageComponent>
           <Feed
@@ -416,6 +517,32 @@ export async function getServerSideProps({
   };
 
   try {
+    const sourceResult = await gqlClient.request<SourceData>(SOURCE_QUERY, {
+      id: handle,
+    });
+
+    if (isSourceUserSource(sourceResult.source)) {
+      setCacheHeader();
+
+      return {
+        redirect: {
+          destination: `/${sourceResult.source.id}`,
+          permanent: false,
+        },
+      };
+    }
+
+    if (sourceResult.source?.type === SourceType.Machine) {
+      setCacheHeader();
+
+      return {
+        redirect: {
+          destination: `/sources/${handle}`,
+          permanent: false,
+        },
+      };
+    }
+
     const referringUserPromise =
       userId && campaign
         ? gqlClient
@@ -433,6 +560,12 @@ export async function getServerSideProps({
       getSquadStaticFields(handle),
       referringUserPromise,
     ]);
+
+    const seoUsers = squad.public
+      ? await getSquad(handle)
+          .then((fullSquad) => getSeoSquadUsers(fullSquad))
+          .catch(() => undefined)
+      : undefined;
 
     setCacheHeader();
 
@@ -457,7 +590,8 @@ export async function getServerSideProps({
         seo,
         handle,
         initialData: squad as Squad,
-        referringUser: referringUser ?? undefined,
+        ...(seoUsers && { seoUsers }),
+        ...(referringUser && { referringUser }),
         ...(squad.public && {
           jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
         }),
@@ -466,8 +600,9 @@ export async function getServerSideProps({
   } catch (err) {
     const clientError = err as ClientError;
     const errors = Object.values(ApiError);
+    const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
 
-    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+    if (errors.includes(errorCode)) {
       setCacheHeader();
 
       return {

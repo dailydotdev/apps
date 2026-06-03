@@ -10,7 +10,7 @@ export interface PlaceholderCommentListProps extends PlaceholderCommentProps {
 const MAX_DISPLAY = 5;
 
 export default function PlaceholderCommentList({
-  placeholderAmount,
+  placeholderAmount = MAX_DISPLAY,
   ...props
 }: PlaceholderCommentListProps): ReactElement {
   const amount =

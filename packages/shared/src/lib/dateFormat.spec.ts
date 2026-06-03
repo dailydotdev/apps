@@ -2,6 +2,7 @@ import { addDays, subDays } from 'date-fns';
 import {
   postDateFormat,
   commentDateFormat,
+  getLastActivityDateFormat,
   getReadHistoryDateFormat,
   isDateOnlyEqual,
   getTodayTz,
@@ -248,5 +249,43 @@ describe('formatDate invalid input', () => {
         type: TimeFormatType.LiveTimer,
       }),
     ).toBe('');
+  });
+});
+
+describe('getLastActivityDateFormat', () => {
+  it('should keep showing hours up to 72 hours when configured', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-04-05T12:00:00.000Z'));
+
+    expect(
+      getLastActivityDateFormat('2026-04-03T13:00:00.000Z', {
+        maxHoursAgo: 72,
+      }),
+    ).toEqual('47h ago');
+
+    jest.useRealTimers();
+  });
+
+  it('should switch to days after the configured hour threshold', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-04-06T12:00:00.000Z'));
+
+    expect(
+      getLastActivityDateFormat('2026-04-03T13:00:00.000Z', {
+        maxHoursAgo: 72,
+      }),
+    ).toEqual('71h ago');
+
+    expect(
+      getLastActivityDateFormat('2026-04-03T12:00:00.000Z', {
+        maxHoursAgo: 72,
+      }),
+    ).toEqual('72h ago');
+
+    expect(
+      getLastActivityDateFormat('2026-04-03T11:00:00.000Z', {
+        maxHoursAgo: 72,
+      }),
+    ).toEqual('3d ago');
+
+    jest.useRealTimers();
   });
 });

@@ -2,9 +2,10 @@
   "manifest_version": 3,
   "__firefox__manifest_version": 2,
   "version": "0.0.0",
-  "name": "daily.dev | The homepage developers deserve",
+  "default_locale": "en",
+  "name": "__MSG_extensionName__",
   "short_name": "daily.dev",
-  "description": "Get one personalized feed for all the knowledge you need as a developer.",
+  "description": "__MSG_extensionDescription__",
   "homepage_url": "https://daily.dev",
   "icons": {
     "16": "icons/16.png",
@@ -32,8 +33,8 @@
     "https://*.staging.daily.dev/"
   ],
   "__firefox|dev__permissions": ["storage", "http://localhost/", "https://*.local.fylla.dev/"],
-  "optional_permissions": ["topSites", "declarativeNetRequestWithHostAccess"],
-  "__firefox__optional_permissions": ["topSites", "*://*/*"],
+  "optional_permissions": ["topSites", "bookmarks", "declarativeNetRequestWithHostAccess"],
+  "__firefox__optional_permissions": ["topSites", "bookmarks", "*://*/*"],
   "__chrome|opera|edge__optional_host_permissions": [ "*://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
@@ -58,6 +59,24 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://daily.dev/*",
+        "https://*.daily.dev/*"
+      ],
+      "__dev__matches": [
+        "https://daily.dev/*",
+        "https://*.daily.dev/*",
+        "https://staging.daily.dev/*",
+        "https://*.staging.daily.dev/*",
+        "https://*.local.fylla.dev/*"
+      ],
+      "js": ["js/ping.bundle.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
   "web_accessible_resources": [
     {
       "resources": ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
@@ -74,7 +93,8 @@
       "__dev__matches": [
         "https://staging.daily.dev/*",
         "https://*.staging.daily.dev/*",
-        "https://*.local.fylla.dev/*"
+        "https://*.local.fylla.dev/*",
+        "https://preview.app.daily.dev/*"
       ]
     }
   ],

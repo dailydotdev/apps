@@ -49,7 +49,7 @@ const PlusList = dynamic(() =>
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Manage plus'),
+  ...getPageSeoTitles('Subscriptions'),
 };
 
 const PlusInfo = (): ReactElement => {

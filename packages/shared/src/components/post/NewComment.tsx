@@ -1,8 +1,9 @@
-import type { MutableRefObject, ReactElement } from 'react';
+import type { ForwardedRef, ReactElement } from 'react';
 import React, {
   forwardRef,
   useCallback,
   useEffect,
+  useId,
   useImperativeHandle,
   useState,
 } from 'react';
@@ -24,17 +25,42 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
+import type { LoggedUser } from '../../lib/user';
+
+export interface NewCommentTriggerRenderProps {
+  user: LoggedUser | null;
+  onCommentClick: (origin: Origin) => void;
+}
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
   shouldHandleCommentQuery?: boolean;
   CommentInputOrModal: React.ElementType;
   onComposerOpenChange?: (isOpen: boolean) => void;
+  renderTrigger?: (props: NewCommentTriggerRenderProps) => ReactElement;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
   large: ButtonSize.Medium,
   medium: ButtonSize.Small,
+};
+
+const focusInputById = (inputId: string, remainingFrames = 30): void => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.focus();
+    return;
+  }
+
+  if (remainingFrames <= 0) {
+    return;
+  }
+
+  requestAnimationFrame(() => focusInputById(inputId, remainingFrames - 1));
 };
 
 export interface NewCommentRef {
@@ -50,15 +76,19 @@ function NewCommentComponent(
     shouldHandleCommentQuery = false,
     CommentInputOrModal,
     onComposerOpenChange,
+    renderTrigger,
     ...props
   }: NewCommentProps,
-  ref: MutableRefObject<NewCommentRef>,
+  ref: ForwardedRef<NewCommentRef>,
 ): ReactElement {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
-  const [inputContent, setInputContent] = useState<string>(undefined);
+  const inputId = `comment-input-${useId()}`;
+  const [inputContent, setInputContent] = useState<string | undefined>(
+    undefined,
+  );
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
     setInputContent(undefined);
@@ -113,7 +143,9 @@ function NewCommentComponent(
       return showLogin({ trigger: AuthTriggers.NewComment });
     }
 
-    return onShowComment(origin);
+    onShowComment(origin);
+    focusInputById(inputId);
+    return undefined;
   };
 
   useImperativeHandle(ref, () => ({
@@ -125,12 +157,18 @@ function NewCommentComponent(
       <CommentInputOrModal
         {...props}
         post={post}
+        inputId={inputId}
+        autoFocus={false}
         className={{ input: { container: 'my-4', tab: className?.tab } }}
         onCommented={onSuccess}
         initialContent={inputContent}
         onClose={() => setInputContent(undefined)}
       />
     );
+  }
+
+  if (renderTrigger) {
+    return renderTrigger({ user: user ?? null, onCommentClick });
   }
 
   const pictureClasses = 'hidden tablet:flex';

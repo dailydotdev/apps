@@ -24,6 +24,12 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
+import {
+  computePlacements,
+  requestedColSpan,
+} from '../lib/feedHighlightColSpan';
+import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
@@ -45,12 +51,14 @@ import {
   useFeedLayout,
   useFeedVotePost,
   useMutationSubscription,
+  useViewSize,
+  ViewSize,
 } from '../hooks';
 import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
-import { MarketingCtaVariant } from './marketingCta/common';
+import { MarketingCtaVariant } from './marketing/cta/common';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
@@ -65,14 +73,19 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
+  featurePostHighlightCards,
 } from '../lib/featureManagement';
+import { useNewD1ExperienceFeature } from '../hooks/useNewD1ExperienceFeature';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
-import { TopHero } from './banners/HeroBottomBanner';
+import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -101,6 +114,7 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
+  topContent?: ReactNode;
 }
 
 interface RankVariables {
@@ -155,23 +169,19 @@ const ProfileCompletionCard = dynamic(
     ),
 );
 
-const calculateRow = (index: number, numCards: number): number =>
-  Math.floor(index / numCards);
-const calculateColumn = (index: number, numCards: number): number =>
-  index % numCards;
-
-export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
-  [PostType.Article]: ArticlePostModal,
-  [PostType.Share]: SharePostModal,
-  [PostType.Welcome]: SharePostModal,
-  [PostType.Freeform]: SharePostModal,
-  [PostType.VideoYouTube]: ArticlePostModal,
-  [PostType.Collection]: CollectionPostModal,
-  [PostType.Brief]: BriefPostModal,
-  [PostType.Digest]: ArticlePostModal,
-  [PostType.Poll]: PollPostModal,
-  [PostType.SocialTwitter]: SocialTwitterPostModal,
-};
+export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
+  {
+    [PostType.Article]: ArticlePostModal,
+    [PostType.Share]: SharePostModal,
+    [PostType.Welcome]: SharePostModal,
+    [PostType.Freeform]: SharePostModal,
+    [PostType.VideoYouTube]: ArticlePostModal,
+    [PostType.Collection]: CollectionPostModal,
+    [PostType.Brief]: BriefPostModal,
+    [PostType.Digest]: ArticlePostModal,
+    [PostType.Poll]: PollPostModal,
+    [PostType.SocialTwitter]: SocialTwitterPostModal,
+  };
 
 export default function Feed<T>({
   feedName,
@@ -196,6 +206,7 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
+  topContent: topContentProp,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -217,7 +228,8 @@ export default function Feed<T>({
   const marketingCta =
     getMarketingCta(MarketingCtaVariant.Card) ||
     getMarketingCta(MarketingCtaVariant.BriefCard) ||
-    getMarketingCta(MarketingCtaVariant.YearInReview);
+    getMarketingCta(MarketingCtaVariant.YearInReview) ||
+    getMarketingCta(MarketingCtaVariant.Video);
   const { plusEntryFeed } = usePlusEntry();
   const hasDismissBriefCta =
     isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
@@ -247,7 +259,11 @@ export default function Feed<T>({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,
   });
-  const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
+  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
+    shouldEvaluate: shouldEvaluateBriefCard,
+  });
+  const showBriefCard =
+    shouldEvaluateBriefCard && briefCardFeatureValue && !isNewD1Experience;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
@@ -317,6 +333,35 @@ export default function Feed<T>({
     feedName,
   });
   const {
+    isEligible: isReaderEligible,
+    isReaderModalEnabled: readerModalFromGrowthBook,
+    isReaderFeatureLoading,
+  } = useReaderModalEligibility();
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const isTabletViewport = useViewSize(ViewSize.Tablet);
+  // Viewport gating lives in useReaderModalEligibility (isReaderEligible is
+  // already tablet-or-larger), so no separate isTabletViewport check here.
+  const isReaderModalOn =
+    isReaderEligible && readerModalFromGrowthBook && !isLegacyLayoutOptedOut;
+  const isReaderModalFeatureReady = !isReaderFeatureLoading;
+  const readerEligiblePostTypes = useMemo(
+    () =>
+      new Set<PostType>([
+        PostType.Article,
+        PostType.Digest,
+        PostType.VideoYouTube,
+      ]),
+    [],
+  );
+  const isReaderEligiblePost = useCallback(
+    (post: Post): boolean =>
+      isReaderModalFeatureReady &&
+      isReaderModalOn &&
+      readerEligiblePostTypes.has(post.type),
+    [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
+  );
+  const { isV2 } = useLayoutVariant();
+  const {
     adjustedHeroInsertIndex,
     shouldShowTopHero,
     shouldShowInFeedHero,
@@ -328,7 +373,75 @@ export default function Feed<T>({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
     firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
+    // Layout v2 hoists the top hero into MainLayout above the floating
+    // feed card, so the feed must not render or measure it here.
+    disableTopHero: isV2,
   });
+
+  const isMobileViewport = !isTabletViewport;
+  const isListContext = useList || shouldUseListFeedLayout;
+  const canRenderHighlightCards =
+    !isMobileViewport && !isListContext && virtualizedNumCards > 1;
+  const hasEligibleHighlightItem = useMemo(() => {
+    if (!canRenderHighlightCards) {
+      return false;
+    }
+
+    return items.some((item) => requestedColSpan(item) > 1);
+  }, [canRenderHighlightCards, items]);
+  const { value: isPostHighlightCardsEnabled } = useConditionalFeature({
+    feature: featurePostHighlightCards,
+    shouldEvaluate: hasEligibleHighlightItem,
+  });
+  const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
+    'highlightCardsOptOut',
+  );
+  const isHighlightCardLayoutEnabled =
+    canRenderHighlightCards &&
+    isPostHighlightCardsEnabled &&
+    !isHighlightCardsOptedOut;
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const showPromoBanner = !!briefBannerPage;
+  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
+  const indexWhenShowingPromoBanner =
+    currentPageSize * Number(briefBannerPage) - // number of items at that page
+    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
+    Number(showFirstSlotCard);
+
+  const fullRowInsertionBeforeIndex = useMemo(() => {
+    const set = new Set<number>();
+    if (showPromoBanner) {
+      set.add(indexWhenShowingPromoBanner);
+    }
+    if (shouldShowInFeedHero) {
+      set.add(adjustedHeroInsertIndex);
+    }
+    return set;
+  }, [
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
+    shouldShowInFeedHero,
+    adjustedHeroInsertIndex,
+  ]);
+
+  const itemPlacements = useMemo(
+    () =>
+      computePlacements(items, {
+        numCards: virtualizedNumCards,
+        isMobile: isMobileViewport,
+        isList: isListContext,
+        isEnabled: isHighlightCardLayoutEnabled,
+        fullRowInsertionBeforeIndex,
+      }),
+    [
+      items,
+      virtualizedNumCards,
+      isMobileViewport,
+      isListContext,
+      isHighlightCardLayoutEnabled,
+      fullRowInsertionBeforeIndex,
+    ],
+  );
 
   useMutationSubscription({
     matcher: ({ mutation }) => {
@@ -491,6 +604,13 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
+  const PostModal = useMemo(() => {
+    if (!selectedPost) {
+      return undefined;
+    }
+    return PostModalMap[selectedPost.type];
+  }, [selectedPost]);
+
   if (!loadedSettings || isFallback) {
     return <></>;
   }
@@ -523,11 +643,25 @@ export default function Feed<T>({
     row,
     column,
     isAuxClick,
+    event,
   ) => {
+    const isMiddleClick = event?.type === 'auxclick' || event?.button === 1;
+    const isModifierClick = !!(event && (event.ctrlKey || event.metaKey));
+    const readerEligible = isReaderEligiblePost(post);
+    const skipsPostModal = post.type === PostType.LiveRoom;
+    const shouldOpenModal =
+      !skipsPostModal &&
+      !isAuxClick &&
+      !isMiddleClick &&
+      !isModifierClick &&
+      (!shouldUseListFeedLayout || readerEligible);
+    if (shouldOpenModal && shouldUseListFeedLayout && event) {
+      event.preventDefault();
+    }
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!isAuxClick && !shouldUseListFeedLayout) {
+    if (shouldOpenModal) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -558,12 +692,10 @@ export default function Feed<T>({
         is_ad: isAd,
       }),
     );
-    if (!shouldUseListFeedLayout) {
+    if (!shouldUseListFeedLayout || isReaderEligiblePost(post)) {
       onPostModalOpen({ index, row, column });
     }
   };
-
-  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
 
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
@@ -577,29 +709,23 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner = !!briefBannerPage;
-  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
-  const indexWhenShowingPromoBanner =
-    currentPageSize * Number(briefBannerPage) - // number of items at that page
-    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showFirstSlotCard);
-
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
-        topContent: shouldShowTopHero ? (
-          <TopHero
-            className="pt-2"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
-            onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
-          />
-        ) : undefined,
+        topContent:
+          topContentProp ??
+          (shouldShowTopHero ? (
+            <TopHero
+              className="pt-2"
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
+              onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
+            />
+          ) : undefined),
         header,
         inlineHeader,
         className,
@@ -634,50 +760,20 @@ export default function Feed<T>({
                 }}
               />
             )}
-            {items.map((item, index) => (
-              <FeedCardContext.Provider
-                key={getFeedItemKey(item, index)}
-                value={{
-                  boostedBy: isBoostedPostAd(item)
-                    ? item.ad.data?.post?.author || item.ad.data?.post?.scout
-                    : undefined,
-                }}
-              >
-                {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                  <BriefBannerFeed
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  />
-                )}
-                {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
-                  <div
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  >
-                    <TopHero
-                      className="pt-0"
-                      title={readingReminderTitle}
-                      subtitle={readingReminderSubtitle}
-                      onCtaClick={() =>
-                        onEnableHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                      onClose={() =>
-                        onDismissHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                    />
-                  </div>
-                )}
+            {items.map((item, index) => {
+              const placement = itemPlacements[index];
+              const { colSpan } = placement;
+              const isWidened = colSpan > 1;
+              const wideColSpan =
+                isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
+                  ? (colSpan as FeaturedWideColSpan)
+                  : undefined;
+              const itemNode = (
                 <FeedItemComponent
                   item={item}
                   index={index}
-                  row={calculateRow(index, virtualizedNumCards)}
-                  column={calculateColumn(index, virtualizedNumCards)}
+                  row={placement.row}
+                  column={placement.column}
                   columns={virtualizedNumCards}
                   openNewTab={openNewTab}
                   postMenuIndex={postMenuIndex}
@@ -695,23 +791,81 @@ export default function Feed<T>({
                   onReadArticleClick={onReadArticleClick}
                   virtualizedNumCards={virtualizedNumCards}
                   disableAdRefresh={disableAdRefresh}
+                  wideColSpan={wideColSpan}
                 />
-              </FeedCardContext.Provider>
-            ))}
+              );
+
+              return (
+                <FeedCardContext.Provider
+                  key={getFeedItemKey(item, index)}
+                  value={{
+                    boostedBy: isBoostedPostAd(item)
+                      ? item.ad.data?.post?.author || item.ad.data?.post?.scout
+                      : undefined,
+                  }}
+                >
+                  {showPromoBanner && index === indexWhenShowingPromoBanner && (
+                    <BriefBannerFeed
+                      style={{
+                        gridColumn: !shouldUseListFeedLayout
+                          ? `span ${virtualizedNumCards}`
+                          : undefined,
+                      }}
+                    />
+                  )}
+                  {shouldShowInFeedHero &&
+                    index === adjustedHeroInsertIndex && (
+                      <div
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      >
+                        <TopHero
+                          className="pt-0"
+                          title={readingReminderTitle}
+                          subtitle={readingReminderSubtitle}
+                          onCtaClick={() =>
+                            onEnableHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                          onClose={() =>
+                            onDismissHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                        />
+                      </div>
+                    )}
+                  {isWidened ? (
+                    <div
+                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      style={{ gridColumn: `span ${colSpan}` }}
+                      data-testid="feedItemColSpanWrapper"
+                    >
+                      {itemNode}
+                    </div>
+                  ) : (
+                    itemNode
+                  )}
+                </FeedCardContext.Provider>
+              );
+            })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
-            {!shouldUseListFeedLayout && selectedPost && PostModal && (
-              <PostModal
-                isOpen={!!selectedPost}
-                id={selectedPost.id}
-                onRequestClose={onPostModalClose}
-                onPreviousPost={onPrevious}
-                onNextPost={onNext}
-                postPosition={postPosition}
-                post={selectedPost}
-              />
-            )}
+            {selectedPost &&
+              PostModal &&
+              (!shouldUseListFeedLayout ||
+                isReaderEligiblePost(selectedPost)) && (
+                <PostModal
+                  isOpen={!!selectedPost}
+                  id={selectedPost.id}
+                  onRequestClose={onPostModalClose}
+                  onPreviousPost={onPrevious}
+                  onNextPost={onNext}
+                  postPosition={postPosition}
+                  post={selectedPost}
+                />
+              )}
           </>
         )}
       </FeedWrapperComponent>

@@ -32,10 +32,8 @@ export const CookieConsentModal = ({
 }: CookieConsentModalProps): ReactElement => {
   const { onRequestClose } = modalProps;
 
-  const onAcceptPreferences = (e: React.FormEvent) => {
-    e.preventDefault();
-    // get the form
-    const formData = new FormData((e.target as HTMLInputElement).form);
+  const submitAcceptedPreferences = (form: HTMLFormElement) => {
+    const formData = new FormData(form);
     const formProps = Object.fromEntries(formData);
     const keys = Object.keys(formProps);
     const acceptedConsents = keys.filter(
@@ -47,6 +45,11 @@ export const CookieConsentModal = ({
       (option) => !acceptedConsents.includes(option),
     );
     onAcceptCookies(acceptedConsents, rejectedConsents);
+  };
+
+  const onAcceptPreferences = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    submitAcceptedPreferences(e.currentTarget);
 
     onRequestClose(null);
   };
@@ -58,6 +61,17 @@ export const CookieConsentModal = ({
 
   const onRejectAll = (e: React.MouseEvent) => {
     onAcceptCookies(); // this will accept just the necessary ones
+    onRequestClose(e);
+  };
+
+  const onSavePreferences = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const { form } = e.currentTarget;
+
+    if (!form) {
+      throw new Error('Cookie consent form is missing');
+    }
+
+    submitAcceptedPreferences(form);
     onRequestClose(e);
   };
 
@@ -120,7 +134,7 @@ export const CookieConsentModal = ({
         <Button
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
-          onClick={onAcceptPreferences}
+          onClick={onSavePreferences}
           form="consent_form"
           className="ml-auto"
           type="submit"

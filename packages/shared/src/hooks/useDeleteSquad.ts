@@ -41,10 +41,10 @@ export const useDeleteSquad = ({
     if (await showPrompt(options)) {
       logEvent({
         event_name: LogEvent.DeleteSquad,
-        extra: JSON.stringify({ squad: squad.id }),
+        extra: JSON.stringify({ squad: squad.id! }),
       });
-      await deleteSquad(squad.id);
-      deleteCachedSquad(squad.id);
+      await deleteSquad(squad.id!);
+      deleteCachedSquad(squad.id!);
       await callback?.();
     }
   };

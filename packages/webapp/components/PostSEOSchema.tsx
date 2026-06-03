@@ -367,7 +367,7 @@ export interface PostSEOSchemaProps {
 export const PostSEOSchema = ({
   post,
   topComments,
-}: PostSEOSchemaProps): ReactElement => {
+}: PostSEOSchemaProps): ReactElement | null => {
   if (!post) {
     return null;
   }

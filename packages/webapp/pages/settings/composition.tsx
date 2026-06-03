@@ -19,16 +19,16 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const defaultWriteTabs: RadioItemProps[] = Object.keys(WriteFormTab).map(
   (key) => ({
-    label: WriteFormTab[key],
+    label: WriteFormTab[key as keyof typeof WriteFormTab],
     value: key,
   }),
 );
 
-const AccountManageSubscriptionPage = (): ReactElement => {
+const PostingSettingsPage = (): ReactElement => {
   const { updateFlag, flags } = useSettingsContext();
 
   return (
-    <AccountPageContainer title="Composition">
+    <AccountPageContainer title="Posting">
       <div id="compose" aria-hidden />
       <FlexCol className="gap-2">
         <Typography bold type={TypographyType.Subhead}>
@@ -38,9 +38,13 @@ const AccountManageSubscriptionPage = (): ReactElement => {
         <Radio
           name="default-write-tab"
           options={defaultWriteTabs}
-          value={flags.defaultWriteTab}
+          value={flags?.defaultWriteTab}
           onChange={(value) => {
-            updateFlag('defaultWriteTab', value);
+            // Radio's generic defaults to `string`, so `value` is widened
+            // even though every option originates from `WriteFormTab`.
+            // `updateFlag` is now typed per-flag (was `string | boolean`),
+            // so narrow the argument to keep the call site honest.
+            updateFlag('defaultWriteTab', value as WriteFormTab);
           }}
           className={{
             content: 'w-full justify-between !pr-0',
@@ -56,10 +60,10 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Appearance'),
+  ...getPageSeoTitles('Posting'),
 };
 
-AccountManageSubscriptionPage.getLayout = getSettingsLayout;
-AccountManageSubscriptionPage.layoutProps = { seo };
+PostingSettingsPage.getLayout = getSettingsLayout;
+PostingSettingsPage.layoutProps = { seo };
 
-export default AccountManageSubscriptionPage;
+export default PostingSettingsPage;

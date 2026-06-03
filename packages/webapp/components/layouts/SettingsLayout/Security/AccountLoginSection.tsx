@@ -42,7 +42,7 @@ function AccountLoginSection({
   children,
   className,
   buttonVariant = ButtonVariant.Primary,
-}: AccountLoginSectionProps): ReactElement {
+}: AccountLoginSectionProps): ReactElement | null {
   if (!providers?.length) {
     return null;
   }

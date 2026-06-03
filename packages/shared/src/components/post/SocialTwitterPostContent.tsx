@@ -44,6 +44,7 @@ function SocialTwitterPostContentRaw({
   position,
   postPosition,
   inlineActions,
+  hideSubscribeAction,
   className,
   customNavigation,
   onPreviousPost,
@@ -155,6 +156,7 @@ function SocialTwitterPostContentRaw({
             post={post}
             onClose={onClose}
             onReadArticle={onReadArticle}
+            hideSubscribeAction={hideSubscribeAction}
             className={sourceInfoClassName}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}

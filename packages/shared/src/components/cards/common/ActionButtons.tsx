@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
@@ -11,9 +11,6 @@ import {
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
-import { getUpvoteCountDisplay } from '../../../lib/post';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -22,8 +19,10 @@ import PostAwardAction from '../../post/PostAwardAction';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
+import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
+import ActionButtonsV2 from './ActionButtons.v2';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -65,7 +64,7 @@ const variantConfig = {
   },
 } as const;
 
-const ActionButtons = ({
+const ActionButtonsV1 = ({
   post,
   onUpvoteClick,
   onCommentClick,
@@ -79,8 +78,7 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const { user } = useAuthContext();
-  const isLoggedIn = !!user;
+  const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
     isUpvoteActive,
@@ -99,10 +97,22 @@ const ActionButtons = ({
     closeTagsPanelOnUpvote: variant === 'list',
   });
 
-  const { value: upvoteThresholdConfig } = useConditionalFeature({
-    feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
-  });
+  // Get brand animation config if post has sponsored tags
+  const brandAnimation = useMemo(() => {
+    const animationResult = getUpvoteAnimation(post.tags || []);
+    if (
+      !animationResult.shouldAnimate ||
+      !animationResult.colors ||
+      !animationResult.config
+    ) {
+      return null;
+    }
+    return {
+      colors: animationResult.colors,
+      config: animationResult.config,
+      brandLogo: animationResult.brandLogo,
+    };
+  }, [getUpvoteAnimation, post.tags]);
 
   if (isFeedPreview) {
     return null;
@@ -110,14 +120,6 @@ const ActionButtons = ({
 
   const commentCount = post.numComments ?? 0;
   const upvoteCount = post.numUpvotes ?? 0;
-
-  const { showCount: showUpvoteCount, belowThresholdLabel: upvoteLabel } =
-    getUpvoteCountDisplay(
-      upvoteCount,
-      upvoteThresholdConfig.threshold,
-      upvoteThresholdConfig.belowThresholdLabel,
-      isUpvoteActive,
-    );
 
   const commentButton = config.useCommentLink ? (
     <LinkWithTooltip
@@ -195,10 +197,11 @@ const ActionButtons = ({
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
                 size={config.iconSize}
+                brandAnimation={brandAnimation}
               />
             }
           >
-            {showUpvoteCount ? (
+            {upvoteCount > 0 && (
               <InteractionCounter
                 className={classNames(
                   'tabular-nums',
@@ -206,17 +209,6 @@ const ActionButtons = ({
                 )}
                 value={upvoteCount}
               />
-            ) : (
-              !!upvoteLabel && (
-                <span
-                  className={classNames(
-                    'tabular-nums',
-                    variant === 'grid' && 'typo-footnote',
-                  )}
-                >
-                  {upvoteLabel}
-                </span>
-              )
             )}
           </QuaternaryButton>
         </Tooltip>
@@ -299,6 +291,14 @@ const ActionButtons = ({
   }
 
   return buttons;
+};
+
+const ActionButtons = (props: ActionButtonsProps): ReactElement => {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <ActionButtonsV2 {...props} />;
+  }
+  return <ActionButtonsV1 {...props} />;
 };
 
 export default ActionButtons;

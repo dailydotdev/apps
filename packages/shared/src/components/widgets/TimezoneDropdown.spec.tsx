@@ -24,10 +24,6 @@ beforeEach(() => {
 
 const defaultLoggedUser: LoggedUser = {
   ...loggedUser,
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: true,
 };
 
@@ -56,15 +52,15 @@ const renderComponent = (): RenderResult => {
 it('should change user timezone', async () => {
   renderComponent();
   const { firstChild } = await screen.findByTestId('timezone_dropdown');
-  fireEvent.click(firstChild);
+  fireEvent.click(firstChild!);
   const [{ textContent }] = await screen.findAllByRole('menuitem');
   const tz = getTimeZoneOptions().find(({ label }) => label === textContent);
-  const timezone = await screen.findByText(textContent);
+  const timezone = await screen.findByText(textContent!);
   let mutationCalled = false;
   mockGraphQL({
     request: {
       query: UPDATE_USER_PROFILE_MUTATION,
-      variables: { data: { timezone: tz.value } },
+      variables: { data: { timezone: tz!.value } },
     },
     result: () => {
       mutationCalled = true;

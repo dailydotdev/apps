@@ -39,7 +39,7 @@ export const DevCardStep1 = ({ onGenerateImage }: Step1Props): ReactElement => {
 
   return (
     <div className="flex flex-col items-center">
-      <DevCardPlaceholder profileImage={user.image} />
+      <DevCardPlaceholder profileImage={user!.image} />
       <Typography bold tag={TypographyTag.H1} type={TypographyType.Title1}>
         Generate your DevCard
       </Typography>

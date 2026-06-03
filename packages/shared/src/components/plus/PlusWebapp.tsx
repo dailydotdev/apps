@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { usePaymentContext } from '../../contexts/payment/context';
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import { useBoot } from '../../hooks';
 import { ButtonVariant, Button } from '../buttons/Button';
 import PlusListModalSection from './PlusListModalSection';

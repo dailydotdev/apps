@@ -54,7 +54,7 @@ export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'> &
 const PlusPage = ({
   giftToUser,
   shouldShowPlusHeader,
-}: PlusPageProps): ReactElement => {
+}: PlusPageProps): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);

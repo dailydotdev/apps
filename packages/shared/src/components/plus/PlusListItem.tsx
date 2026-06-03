@@ -27,6 +27,7 @@ export interface PlusItem {
   id?: string;
   icon?: ReactElement;
   iconClasses?: string;
+  highlight?: boolean;
   modalProps?: {
     title: string;
     description: string;
@@ -81,6 +82,7 @@ export const PlusListItem = ({
             {...iconProps}
             className={classNames(
               'mr-1 mt-px inline-block',
+              item.highlight && 'text-action-plus-default',
               iconProps?.className,
             )}
           />
@@ -90,6 +92,10 @@ export const PlusListItem = ({
           type={TypographyType.Body}
           color={TypographyColor.Primary}
           {...typographyProps}
+          {...(item.highlight && {
+            color: TypographyColor.Plus,
+            bold: true,
+          })}
           className={classNames(
             '-mt-px flex flex-1 flex-wrap items-baseline gap-2',
             typographyProps?.className,

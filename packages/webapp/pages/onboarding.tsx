@@ -26,6 +26,8 @@ import {
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import type {
   AuthOptionsProps,
   AuthProps,
@@ -62,7 +64,9 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
+import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { getPageSeoTitles } from '../components/layouts/utils';
+import { FunnelSwipeOnboardingStep } from '../components/onboarding/FunnelSwipeOnboardingStep';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const seoTitles = getPageSeoTitles('Get started');
@@ -77,6 +81,13 @@ type PageProps = {
   initialStepId: string | null;
   showCookieBanner?: boolean;
 };
+
+const isSwipeOnboardingPreviewQueryForced = (
+  query: string | string[] | undefined,
+): boolean =>
+  query === '1' ||
+  query === 'true' ||
+  (Array.isArray(query) && (query.includes('1') || query.includes('true')));
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
@@ -158,14 +169,15 @@ const isValidAction = (
 };
 
 const useOnboardingAuth = () => {
-  const formRef = useRef<HTMLFormElement>();
+  const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
   const router = useRouter();
-  const action = isValidAction(router.query.action) && router.query.action;
-  const {
-    data: { funnelState },
-  } = useOnboardingBoot();
+  const action = isValidAction(router.query.action)
+    ? router.query.action
+    : undefined;
+  const { data } = useOnboardingBoot();
+  const funnelState = data?.funnelState;
 
   const [auth, setAuth] = useAtom(authAtom);
   const { isLoginFlow, defaultDisplay } = auth;
@@ -239,8 +251,10 @@ const useOnboardingAuth = () => {
       targetId: ExperimentWinner.OnboardingV4,
       onSuccessfulRegistration: () => updateAuth({ isAuthenticating: false }),
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
-      onAuthStateUpdate: (props: AuthProps) =>
-        updateAuth({ isAuthenticating: true, ...props }),
+      onAuthStateUpdate: (props: Partial<AuthProps>) => {
+        const { isAuthenticating: incoming, ...rest } = props;
+        updateAuth({ isAuthenticating: incoming ?? true, ...rest });
+      },
       onboardingSignupButton: {
         size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
         variant: ButtonVariant.Primary,
@@ -268,7 +282,7 @@ const useOnboardingAuth = () => {
   };
 };
 
-function Onboarding({ initialStepId }: PageProps): ReactElement {
+function Onboarding({ initialStepId }: PageProps): ReactElement | null {
   const router = useRouter();
   const {
     isAuthenticating,
@@ -280,6 +294,30 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
+  const { value: isSwipeOnboardingEnabled } = useConditionalFeature({
+    feature: swipeOnboardingFeature,
+    shouldEvaluate: isAuthReady && !!funnelState,
+  });
+  const swipeOnboardingPreviewQuery = router.query.swipeOnboardingPreview;
+  const isSwipeOnboardingPreviewForced = isSwipeOnboardingPreviewQueryForced(
+    swipeOnboardingPreviewQuery,
+  );
+  const stepComponentOverrides = useMemo(
+    () =>
+      isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
+        ? {
+            [FunnelStepType.EditTags]: FunnelSwipeOnboardingStep,
+          }
+        : undefined,
+    [isSwipeOnboardingEnabled, isSwipeOnboardingPreviewForced],
+  );
+  const swipeOnboardingStepId = useMemo(
+    () =>
+      funnelState?.funnel.chapters
+        .flatMap((chapter) => chapter.steps)
+        .find((step) => step.type === FunnelStepType.EditTags)?.id,
+    [funnelState?.funnel.chapters],
+  );
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
@@ -307,7 +345,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       return;
     }
 
-    if (isOnboardingComplete) {
+    if (isOnboardingComplete && !isSwipeOnboardingPreviewForced) {
       // If the user is logged in and has completed the onboarding steps,
       // AND no active stepId is there, redirect them to app.
       redirectToApp(router);
@@ -322,6 +360,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     isAuthReady,
     isAuthenticating,
     isFunnelReady,
+    isSwipeOnboardingPreviewForced,
     isLoggedIn,
     isOnboardingActionsReady,
     router,
@@ -343,22 +382,28 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     );
   }
 
+  if (!isFunnelReady || !funnelState) {
+    return null;
+  }
+
   return (
-    isFunnelReady && (
-      <div className="flex min-h-dvh min-w-full flex-col">
-        <FunnelStepper
-          {...funnelState}
-          initialStepId={initialStepId}
-          onComplete={onComplete}
-        />
-        {/* <HotJarTracking hotjarId="3871311" /> */}
-      </div>
-    )
+    <div className="flex min-h-dvh min-w-full flex-col">
+      <FunnelStepper
+        {...funnelState}
+        initialStepId={
+          isSwipeOnboardingPreviewForced ? swipeOnboardingStepId : initialStepId
+        }
+        onComplete={onComplete}
+        stepComponentOverrides={stepComponentOverrides}
+      />
+      {/* <HotJarTracking hotjarId="3871311" /> */}
+    </div>
   );
 }
 
 function Page(props: PageProps) {
   const { autoDismissNotifications } = useSettingsContext();
+
   return (
     <JotaiProvider>
       <ErrorBoundary feature="onboarding">

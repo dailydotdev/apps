@@ -15,7 +15,7 @@ export const labels = {
     feedbackText: 'Thanks for your feedback!',
     shortDescription:
       'Explore daily.dev Search, the AI-powered search engine for developers. Learn about its unique features, integration with the daily.dev platform, and how to get the most accurate search results. Your go-to guide for leveraging daily.dev Search in your coding journey.',
-    rateLimitExceeded: 'Rate limiting exceeded. Please try again later.',
+    rateLimitExceeded: 'Rate limit exceeded. Please try again later.',
     unexpectedError: 'It worked on my machine. Can you please try again?',
     stoppedGenerating: 'Oops! We encountered an error! Can you try refreshing?',
   },
@@ -23,9 +23,11 @@ export const labels = {
     error: {
       invalidEmailOrPassword: 'Invalid email or password',
       generic:
-        '❌ We got some unexpected error from our side, nothing to worry about. Please try again.',
+        '❌ We ran into an unexpected error on our end. Please try again.',
       existingEmail:
-        'Email linked to different sign-in method. Please try another provider.',
+        'That email is linked to a different sign-in method. Please try another provider.',
+      githubEmailNotVerified:
+        'Your GitHub email address is not verified. Please verify it on GitHub and try again.',
     },
   },
   referral: {
@@ -35,8 +37,8 @@ export const labels = {
   },
   devcard: {
     generic: {
-      shareText: `Check out my #DevCard by @dailydotdev! Flex yours (if it's flex worthy)`,
-      emailTitle: 'Checkout my devcard from daily.dev!',
+      shareText: `Check out my #DevCard by @dailydotdev! Flex yours (if it's flex-worthy)`,
+      emailTitle: 'Check out my Dev Card from daily.dev!',
     },
   },
   feed: {
@@ -77,7 +79,7 @@ export const labels = {
     },
     error: {
       feedLimit: {
-        api: 'You have reached maximum number of feeds for your user',
+        api: 'You have reached the maximum number of feeds.',
         client: "Too many feeds, don't you think?",
       },
       feedNameInvalid: {
@@ -88,7 +90,8 @@ export const labels = {
       globalPreferenceNotice: {
         clickbaitShield: 'Clickbait shield has been applied for all feeds',
         contentLanguage: 'New language preferences set for all feeds',
-        smartPrompt: 'Smart Prompt setting has been applied for all feeds',
+        highlightsPlacement:
+          'Happening Now placement preference applied to all your feeds',
       },
     },
   },
@@ -97,7 +100,7 @@ export const labels = {
       deleteIntegration: {
         title: 'Delete integration',
         description:
-          'Are you sure you want to delete this integration? We will no longer have access to your slack workspace.',
+          'Are you sure you want to delete this integration? We will no longer have access to your Slack workspace.',
         okButton: 'Yes, delete integration',
       },
       deleteSourceIntegration: {
@@ -161,13 +164,13 @@ export const labels = {
         overview: 'Tell us about the role',
         responsibilities: 'List the key responsibilities',
         requirements: 'Specify the requirements',
-        whatYoullDo: 'Describe what candidate will do',
+        whatYoullDo: 'Describe what the candidate will do',
         interviewProcess: 'Explain the interview process',
         generic: 'Tell us more',
       },
     },
     assignSeat: {
-      title: 'Adding more seats was successful',
+      title: 'Additional seats added',
       description: 'Do you want to assign your new seat to this job?',
       okButton: 'Continue',
       cancelButton: 'Later',

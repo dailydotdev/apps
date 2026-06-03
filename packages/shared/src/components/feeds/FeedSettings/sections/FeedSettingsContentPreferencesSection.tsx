@@ -16,7 +16,7 @@ import {
 import { FilterCheckbox } from '../../../fields/FilterCheckbox';
 import { FeedType } from '../../../../graphql/feed';
 
-export const TOGGLEABLE_TYPES = ['Videos', 'Polls', 'Social'];
+export const TOGGLEABLE_TYPES = ['Videos', 'Polls', 'Social', 'Standups'];
 const CUSTOM_FEEDS_ONLY = ['Article'];
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
@@ -50,6 +50,14 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
 
   return (
     <>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        Shape your feed by choosing which types and categories of content appear
+        in it. These are hard filters, so anything you turn off here won&apos;t
+        show up at all.
+      </Typography>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
@@ -63,7 +71,12 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
           </Typography>
         </div>
         <div className="flex flex-col">
-          {toggleableTypes.map(({ id, title, defaultEnabledState }) => {
+          {toggleableTypes.map((setting) => {
+            if (!setting) {
+              return null;
+            }
+
+            const { id, title, defaultEnabledState } = setting;
             const isDisabled =
               CUSTOM_FEEDS_ONLY.includes(title) &&
               feed?.type !== FeedType.Custom;
@@ -96,29 +109,38 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
-            Categories
+            Post types
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Pick the categories of content you&apos;d like to see in your feed.
+            These are the types of posts that can appear in your feed. Turn off
+            the ones you&apos;d rather not see.
           </Typography>
         </div>
-        {contentSourceList?.map(({ id, title, description, options }) => (
-          <FilterCheckbox
-            key={id}
-            name={`${ADVANCED_SETTINGS_KEY}-${id}`}
-            checked={!checkSourceBlocked(options.source)}
-            description={description}
-            onToggleCallback={() =>
-              editFeedSettings(() => onToggleSource(options.source))
-            }
-            descriptionClassName="text-text-tertiary"
-          >
-            <Typography bold>{title}</Typography>
-          </FilterCheckbox>
-        ))}
+        {contentSourceList?.map(({ id, title, description, options }) => {
+          if (!options?.source) {
+            return null;
+          }
+
+          const { source } = options;
+
+          return (
+            <FilterCheckbox
+              key={id}
+              name={`${ADVANCED_SETTINGS_KEY}-${id}`}
+              checked={!checkSourceBlocked(source)}
+              description={description}
+              onToggleCallback={() =>
+                editFeedSettings(() => onToggleSource(source))
+              }
+              descriptionClassName="text-text-tertiary"
+            >
+              <Typography bold>{title}</Typography>
+            </FilterCheckbox>
+          );
+        })}
         {contentCurationList?.map(
           ({ id, title, description, defaultEnabledState }) => (
             <FilterCheckbox

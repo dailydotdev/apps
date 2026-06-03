@@ -1,6 +1,11 @@
 import { gql } from 'graphql-request';
 import type { SortCommentsBy } from './comments';
 import type { WriteFormTab } from '../components/fields/form/common';
+import type {
+  ShortcutMeta,
+  ShortcutsAppearance,
+  ShortcutsMode,
+} from '../features/shortcuts/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -10,6 +15,34 @@ export enum CampaignCtaPlacement {
   ProfileMenu = 'profileMenu',
 }
 
+export enum HighlightsPlacement {
+  Default = 'default',
+  Pinned = 'pinned',
+  Disabled = 'disabled',
+}
+
+export type NewTabMode = 'discover' | 'focus';
+
+export type FocusScheduleWindow = {
+  start: number;
+  end: number;
+  enabled: boolean;
+};
+
+export type FocusScheduleWeekday =
+  | 'mon'
+  | 'tue'
+  | 'wed'
+  | 'thu'
+  | 'fri'
+  | 'sat'
+  | 'sun';
+
+export type FocusSchedule = {
+  pauseUntil?: number | null;
+  windows?: Partial<Record<FocusScheduleWeekday, FocusScheduleWindow | null>>;
+};
+
 export type SettingsFlags = {
   sidebarSquadExpanded: boolean;
   sidebarCustomFeedsExpanded: boolean;
@@ -17,11 +50,26 @@ export type SettingsFlags = {
   sidebarResourcesExpanded: boolean;
   sidebarBookmarksExpanded: boolean;
   clickbaitShieldEnabled: boolean;
+  highlightsPlacement?: HighlightsPlacement;
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
-  lastPrompt?: string;
   defaultWriteTab?: WriteFormTab;
+  legacyPostLayoutOptOut?: boolean;
+  highlightCardsOptOut?: boolean;
+  // Persists that the user already chose to engage with the reader install
+  // prompt (clicked "Enable permissions & read inside"). Future read clicks
+  // skip the prompt and open the reader modal directly. Dismissing the prompt
+  // without choosing an option leaves this unset so the prompt reappears.
+  readerInstallPromptAcknowledged?: boolean;
+  shortcutMeta?: Record<string, ShortcutMeta>;
+  shortcutsMode?: ShortcutsMode;
+  shortcutsAppearance?: ShortcutsAppearance;
+  showShortcutsOnWebapp?: boolean;
+  newTabMode?: NewTabMode;
+  focusSchedule?: FocusSchedule;
 };
+
+export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
@@ -30,6 +78,8 @@ export enum SidebarSettingsFlags {
   ResourcesExpanded = 'sidebarResourcesExpanded',
   BookmarksExpanded = 'sidebarBookmarksExpanded',
   ClickbaitShieldEnabled = 'clickbaitShieldEnabled',
+  // Renamed to avoid shadowing the HighlightsPlacement enum above.
+  Highlights = 'highlightsPlacement',
 }
 
 export type RemoteSettings = {
@@ -44,6 +94,7 @@ export type RemoteSettings = {
   optOutReadingStreak: boolean;
   optOutLevelSystem: boolean;
   optOutQuestSystem: boolean;
+  optOutAchievements: boolean;
   optOutCompanion: boolean;
   autoDismissNotifications: boolean;
   sortCommentsBy: SortCommentsBy;

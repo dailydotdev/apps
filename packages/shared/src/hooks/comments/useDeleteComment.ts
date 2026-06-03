@@ -49,7 +49,10 @@ export function useDeleteComment(): UseDeleteCommentRet {
         logEvent(postLogEvent(LogEvent.DeleteComment, post));
         await deleteComment(commentId, requestMethod);
         displayToast('The comment has been deleted');
-        removePostComments(client, post, commentId, parentId);
+        // Callers pass `null` for root comments; `removePostComments` treats
+        // `parentId === commentId` as the root case, matching the convention
+        // used in MainComment (`parentId={comment.id}`).
+        removePostComments(client, post, commentId, parentId ?? commentId);
       },
       [client, showPrompt, logEvent, displayToast, requestMethod],
     ),

@@ -15,12 +15,14 @@ import {
 import {
   EditIcon,
   LinkIcon,
+  MicrophoneIcon,
   PlusIcon,
   PollIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { RootPortal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useStandupCreation } from '@dailydotdev/shared/src/hooks/liveRooms/useStandupCreation';
 
 const ActionButton = <TagName extends AllowedTags>({
   children,
@@ -48,7 +50,8 @@ export function FooterPlusButton({
   className,
 }: FooterPlusButtonProps): ReactElement {
   const { user } = useAuthContext();
-  const drawerRef = useRef<DrawerRef>();
+  const isStandupCreationEnabled = useStandupCreation();
+  const drawerRef = useRef<DrawerRef>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const props = user
     ? { onClick: () => setIsDrawerOpen(true) }
@@ -90,6 +93,15 @@ export function FooterPlusButton({
             >
               Poll
             </ActionButton>
+            {isStandupCreationEnabled && (
+              <ActionButton
+                tag="a"
+                icon={<MicrophoneIcon />}
+                href={`${link.post.create}?standup=1`}
+              >
+                Standup
+              </ActionButton>
+            )}
           </div>
         </Drawer>
       </RootPortal>

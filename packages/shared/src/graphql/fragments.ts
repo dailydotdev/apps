@@ -92,6 +92,50 @@ export const USER_AUTHOR_FRAGMENT = gql`
   ${USER_SHORT_INFO_TOP_READER_FRAGMENT}
 `;
 
+export const CONTENT_EMBED_FRAGMENT = gql`
+  fragment ContentEmbedFragment on ContentEmbed {
+    id
+    referenceType
+    url
+    sortOrder
+    post {
+      title
+      image
+      createdAt
+      readTime
+      numUpvotes
+      numComments
+      numAwards
+      numReposts
+      analytics {
+        impressions
+      }
+      numCollectionSources
+      numPollVotes
+      endsAt
+      featuredAward {
+        award {
+          name
+          image
+        }
+      }
+      type
+      sharedPost {
+        type
+      }
+      commentsPermalink
+      source {
+        handle
+        name
+        image
+      }
+      author {
+        id
+      }
+    }
+  }
+`;
+
 export const USER_BASIC_INFO = gql`
   fragment UserBasicInfo on User {
     id
@@ -246,6 +290,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       username
       permalink
       reputation
+      createdAt
       bio
       companies {
         name
@@ -289,6 +334,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     slug
     clickbaitTitleDetected
+    domain
     language
     translation {
       ...PostTranslateableFields
@@ -307,6 +353,13 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       numVotes
     }
     endsAt
+    liveRoom {
+      id
+      topic
+      status
+      scheduledStart
+      subscribed
+    }
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
@@ -417,6 +470,9 @@ export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
     contentHtml
+    contentEmbeds {
+      ...ContentEmbedFragment
+    }
     createdAt
     lastUpdatedAt
     permalink
@@ -440,6 +496,7 @@ export const COMMENT_FRAGMENT = gql`
       }
     }
   }
+  ${CONTENT_EMBED_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
   ${FEATURED_AWARD_FRAGMENT}
 `;
@@ -472,6 +529,7 @@ export const CUSTOM_FEED_FRAGMENT = gql`
       minUpvotes
       minViews
       disableEngagementFilter
+      origin
     }
     slug
     createdAt
@@ -637,6 +695,13 @@ export const FEED_POST_FRAGMENT = gql`
         value
         name
       }
+    }
+    postHighlight {
+      id
+      significance
+      headline
+      channel
+      highlightedAt
     }
   }
   ${FEED_POST_INFO_FRAGMENT}

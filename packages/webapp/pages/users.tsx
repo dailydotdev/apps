@@ -7,15 +7,16 @@ import {
   HIGHEST_LEVEL_QUERY,
   LEADERBOARD_QUERY,
   LeaderboardType,
+  POPULAR_HOT_TAKES_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
@@ -59,6 +60,14 @@ const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
   );
 };
 
+const isPopularHotTakesSchemaMissing = (error: GraphQLError): boolean => {
+  return (
+    error?.response?.errors?.some(({ message }) =>
+      message?.includes('Cannot query field "popularHotTakes"'),
+    ) ?? false
+  );
+};
+
 const LeaderboardPage = ({
   highestReputation,
   longestStreak,
@@ -73,107 +82,111 @@ const LeaderboardPage = ({
   popularHotTakes,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-  const { value: isQuestsFeatureEnabled } = useConditionalFeature({
-    feature: questsFeature,
-  });
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
 
   if (isLoading) {
     return <></>;
   }
 
   return (
-    <PageWrapperLayout>
-      <div className="mb-6 hidden justify-between laptop:flex">
-        <BreadCrumbs>
-          <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
-        </BreadCrumbs>
-      </div>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-        {isQuestsFeatureEnabled === true && isHighestLevelSupported && (
+    <>
+      {isV2Laptop && <PageHeader title="Leaderboard" />}
+      <PageWrapperLayout>
+        {!isV2Laptop && (
+          <div className="mb-6 hidden justify-between laptop:flex">
+            <BreadCrumbs>
+              <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
+            </BreadCrumbs>
+          </div>
+        )}
+        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
+          {isHighestLevelSupported && (
+            <UserTopList
+              containerProps={{
+                title: 'Highest level',
+                titleHref: `/users/${LeaderboardType.HighestLevel}`,
+              }}
+              items={highestLevel}
+              isLoading={isLoading}
+              showLevel
+            />
+          )}
           <UserTopList
             containerProps={{
-              title: 'Highest level',
-              titleHref: `/users/${LeaderboardType.HighestLevel}`,
+              title: 'Highest reputation',
+              titleHref: `/users/${LeaderboardType.HighestReputation}`,
             }}
-            items={highestLevel}
+            items={highestReputation}
             isLoading={isLoading}
-            showLevel
           />
-        )}
-        <UserTopList
-          containerProps={{
-            title: 'Highest reputation',
-            titleHref: `/users/${LeaderboardType.HighestReputation}`,
-          }}
-          items={highestReputation}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Longest streak',
-            titleHref: `/users/${LeaderboardType.LongestStreak}`,
-          }}
-          items={longestStreak}
-          isLoading={isLoading}
-          concatScore={false}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Highest post views',
-            titleHref: `/users/${LeaderboardType.HighestPostViews}`,
-          }}
-          items={highestPostViews}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most upvoted',
-            titleHref: `/users/${LeaderboardType.MostUpvoted}`,
-          }}
-          items={mostUpvoted}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most referrals',
-            titleHref: `/users/${LeaderboardType.MostReferrals}`,
-          }}
-          items={mostReferrals}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most reading days',
-            titleHref: `/users/${LeaderboardType.MostReadingDays}`,
-          }}
-          items={mostReadingDays}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          containerProps={{
-            title: 'Most achievement points',
-            titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
-          }}
-          items={mostAchievementPoints}
-          isLoading={isLoading}
-        />
-        <CompanyTopList
-          containerProps={{
-            title: 'Most verified employees',
-            titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
-          }}
-          items={mostVerifiedUsers}
-          isLoading={isLoading}
-        />
-        <PopularHotTakesList
-          containerProps={{
-            title: 'Most popular hot takes',
-          }}
-          items={popularHotTakes}
-          isLoading={isLoading}
-        />
-      </div>
-    </PageWrapperLayout>
+          <UserTopList
+            containerProps={{
+              title: 'Longest streak',
+              titleHref: `/users/${LeaderboardType.LongestStreak}`,
+            }}
+            items={longestStreak}
+            isLoading={isLoading}
+            concatScore={false}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Highest post views',
+              titleHref: `/users/${LeaderboardType.HighestPostViews}`,
+            }}
+            items={highestPostViews}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most upvoted',
+              titleHref: `/users/${LeaderboardType.MostUpvoted}`,
+            }}
+            items={mostUpvoted}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most referrals',
+              titleHref: `/users/${LeaderboardType.MostReferrals}`,
+            }}
+            items={mostReferrals}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most reading days',
+              titleHref: `/users/${LeaderboardType.MostReadingDays}`,
+            }}
+            items={mostReadingDays}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            containerProps={{
+              title: 'Most achievement points',
+              titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
+            }}
+            items={mostAchievementPoints}
+            isLoading={isLoading}
+          />
+          <CompanyTopList
+            containerProps={{
+              title: 'Most verified employees',
+              titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
+            }}
+            items={mostVerifiedUsers}
+            isLoading={isLoading}
+          />
+          <PopularHotTakesList
+            containerProps={{
+              title: 'Most popular hot takes',
+            }}
+            items={popularHotTakes}
+            isLoading={isLoading}
+          />
+        </div>
+      </PageWrapperLayout>
+    </>
   );
 };
 
@@ -192,16 +205,31 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await gqlClient.request<Omit<PageProps, 'highestLevel'>>(
-      LEADERBOARD_QUERY,
-    );
+    const res = await gqlClient.request<
+      Omit<PageProps, 'highestLevel' | 'popularHotTakes'>
+    >(LEADERBOARD_QUERY);
 
     let highestLevel: UserLeaderboard[] = [];
     let isHighestLevelSupported = false;
+    let popularHotTakes: PopularHotTakes[] = [];
+
+    try {
+      const hotTakesRes = await gqlClient.request<{
+        popularHotTakes: PopularHotTakes[];
+      }>(POPULAR_HOT_TAKES_QUERY, { limit: 10 });
+      popularHotTakes = hotTakesRes.popularHotTakes ?? [];
+    } catch (hotTakesError: unknown) {
+      const error = hotTakesError as GraphQLError;
+
+      if (!isPopularHotTakesSchemaMissing(error)) {
+        throw hotTakesError;
+      }
+    }
+
     try {
       const levelRes = await gqlClient.request<{
         highestLevel: UserLeaderboard[];
-      }>(HIGHEST_LEVEL_QUERY);
+      }>(HIGHEST_LEVEL_QUERY, { limit: 10 });
       highestLevel = levelRes.highestLevel ?? [];
       isHighestLevelSupported = true;
     } catch (levelError: unknown) {
@@ -224,7 +252,7 @@ export async function getStaticProps(): Promise<
         highestLevel,
         isHighestLevelSupported,
         mostVerifiedUsers: res.mostVerifiedUsers,
-        popularHotTakes: res.popularHotTakes,
+        popularHotTakes,
       },
       revalidate: 3600,
     };

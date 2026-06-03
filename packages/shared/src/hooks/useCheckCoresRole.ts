@@ -19,9 +19,9 @@ export const useCheckCoresRole = (): void => {
         checkCoresRole: Pick<LoggedUser, 'coresRole'>;
       }>(CHECK_CORES_ROLE_QUERY);
 
-      if (result.checkCoresRole.coresRole !== user.coresRole) {
+      if (result.checkCoresRole.coresRole !== user!.coresRole) {
         await updateUser({
-          ...user,
+          ...user!,
           coresRole: result.checkCoresRole.coresRole,
         });
       }

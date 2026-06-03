@@ -38,6 +38,10 @@ export const useUploadCv = ({
     () => checkHasCompleted(ActionType.UploadedCV),
     [checkHasCompleted],
   );
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
 
   const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);
   const { openModal } = useLazyModal();
@@ -72,7 +76,7 @@ export const useUploadCv = ({
     },
     onError: (data: ApiErrorResult) => {
       const error = data?.response?.errors?.[0]?.message;
-      displayToast(error || 'An error occured, please try again');
+      displayToast(error || 'An error occurred, please try again');
     },
   });
 
@@ -81,7 +85,7 @@ export const useUploadCv = ({
     status,
     isSuccess,
     isPending,
-    shouldShow: isActionsFetched && !hasUploadedCv,
+    shouldShow: isActionsFetched && !hasUploadedCv && !hasClosedBanner,
     onCloseBanner,
   };
 };

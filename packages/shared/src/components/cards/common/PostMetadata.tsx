@@ -6,10 +6,7 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
-import { getUpvoteCountDisplay } from '../../../lib/post';
+import { pluralize } from '../../../lib/strings';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { PollMetadataProps } from './PollMetadata';
@@ -24,7 +21,9 @@ interface PostMetadataProps
   isVideoType?: boolean;
   domain?: ReactNode;
   pollMetadata?: PollMetadataProps;
-  userHasUpvoted?: boolean;
+  numSources?: number;
+  dateLabel?: string;
+  dateType?: TimeFormatType;
 }
 
 export default function PostMetadata({
@@ -37,27 +36,16 @@ export default function PostMetadata({
   isVideoType,
   domain,
   pollMetadata,
-  userHasUpvoted = false,
+  numSources,
+  dateLabel,
+  dateType = TimeFormatType.Post,
 }: PostMetadataProps): ReactElement {
+  const hasUpvoteCount = typeof numUpvotes === 'number';
   const upvoteCount = numUpvotes ?? 0;
   const readTimeValue = readTime ?? 0;
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
-  const { user } = useAuthContext();
-  const isLoggedIn = !!user;
-
-  const { value: upvoteThresholdConfig } = useConditionalFeature({
-    feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
-  });
-  const { showCount: showUpvoteCount, belowThresholdLabel: upvoteLabel } =
-    getUpvoteCountDisplay(
-      upvoteCount,
-      upvoteThresholdConfig.threshold,
-      upvoteThresholdConfig.belowThresholdLabel,
-      userHasUpvoted,
-    );
 
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
@@ -81,7 +69,13 @@ export default function PostMetadata({
     !!createdAt &&
       !boostedBy && {
         key: 'date',
-        node: <DateFormat date={createdAt} type={TimeFormatType.Post} />,
+        node: (
+          <DateFormat
+            date={createdAt}
+            type={dateType}
+            prefix={dateLabel ? `${dateLabel} ` : undefined}
+          />
+        ),
       },
     showReadTime && {
       key: 'readTime',
@@ -91,26 +85,31 @@ export default function PostMetadata({
         </span>
       ),
     },
+    !!numSources &&
+      numSources > 0 && {
+        key: 'sources',
+        node: (
+          <span data-testid="numSources">
+            {numSources} {pluralize('source', numSources)}
+          </span>
+        ),
+      },
     !!showReadTime && domain && { key: 'domain', node: domain },
-    showUpvoteCount && {
-      key: 'upvotes',
-      node: (
-        <span data-testid="numUpvotes">
-          {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
-        </span>
-      ),
-    },
-    !showUpvoteCount &&
-      !!upvoteLabel && {
+    hasUpvoteCount &&
+      upvoteCount > 0 && {
         key: 'upvotes',
-        node: <span data-testid="numUpvotes">{upvoteLabel}</span>,
+        node: (
+          <span data-testid="numUpvotes">
+            {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
+          </span>
+        ),
       },
   ].filter(Boolean) as { key: string; node: ReactNode }[];
 
   return (
     <div
       className={classNames(
-        'flex items-center text-text-tertiary typo-footnote',
+        'flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote',
         className,
       )}
     >

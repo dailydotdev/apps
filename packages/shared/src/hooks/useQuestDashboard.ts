@@ -5,7 +5,9 @@ import { QUEST_DASHBOARD_QUERY } from '../graphql/quests';
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useRequestProtocol } from './useRequestProtocol';
 
-export const useQuestDashboard = () => {
+export const useQuestDashboard = ({
+  enabled = true,
+}: { enabled?: boolean } = {}) => {
   const { isLoggedIn, user } = useAuthContext();
   const { requestMethod } = useRequestProtocol();
 
@@ -18,7 +20,7 @@ export const useQuestDashboard = () => {
 
       return result.questDashboard;
     },
-    enabled: isLoggedIn,
+    enabled: isLoggedIn && enabled,
     staleTime: StaleTime.OneMinute,
     retry: false,
   });

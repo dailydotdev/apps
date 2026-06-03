@@ -9,6 +9,7 @@ import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';
 import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
+import buttonsV2 from './tailwind/buttons-v2';
 import background from './tailwind/colors/background';
 import accent from './tailwind/colors/accent';
 import brand from './tailwind/colors/brand';
@@ -252,12 +253,66 @@ export default {
             backgroundColor: 'transparent',
           },
         },
+        'reaction-burst': {
+          '0%': {
+            transform: 'translate(0, 0) scale(0.4)',
+            opacity: '0',
+          },
+          '15%': {
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translate(var(--burst-tx), var(--burst-ty)) scale(1)',
+            opacity: '0',
+          },
+        },
+        'raise-hand-pop': {
+          '0%': { transform: 'scale(0.5)', opacity: '0' },
+          '60%': { transform: 'scale(1.08)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'raise-hand-wave': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%': { transform: 'rotate(-18deg)' },
+          '40%': { transform: 'rotate(14deg)' },
+          '60%': { transform: 'rotate(-10deg)' },
+          '80%': { transform: 'rotate(6deg)' },
+        },
+        'queue-attention': {
+          '0%': { boxShadow: '0 0 0 0 var(--status-warning)' },
+          '70%': { boxShadow: '0 0 0 8px transparent' },
+          '100%': { boxShadow: '0 0 0 0 transparent' },
+        },
+        'queue-attention-wave': {
+          '0%, 60%, 100%': { transform: 'rotate(0deg)' },
+          '15%': { transform: 'rotate(-18deg)' },
+          '30%': { transform: 'rotate(14deg)' },
+          '45%': { transform: 'rotate(-8deg)' },
+        },
+        'nudge-shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '15%': { transform: 'translateX(-4px) rotate(-3deg)' },
+          '30%': { transform: 'translateX(4px) rotate(3deg)' },
+          '45%': { transform: 'translateX(-3px) rotate(-2deg)' },
+          '60%': { transform: 'translateX(3px) rotate(2deg)' },
+          '75%': { transform: 'translateX(-2px) rotate(-1deg)' },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'reaction-burst':
+          'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',
+        'raise-hand-pop':
+          'raise-hand-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'raise-hand-wave': 'raise-hand-wave 700ms ease-in-out 240ms both',
+        'queue-attention':
+          'queue-attention 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'queue-attention-wave':
+          'queue-attention-wave 1.6s ease-in-out infinite',
+        'nudge-shake': 'nudge-shake 600ms ease-in-out',
       },
     },
     lineClamp: {
@@ -273,7 +328,7 @@ export default {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons, safeArea, containerQueries],
+  plugins: [caret, typography, buttons, buttonsV2, safeArea, containerQueries],
   corePlugins: {
     invert: false,
   },

@@ -31,7 +31,7 @@ export interface DevCardQueryData {
 }
 
 export interface UseDevCard {
-  devcard: DevCardData;
+  devcard: Partial<DevCardData> & { streak: { max: number } };
   isLoading: boolean;
   coverImage: string;
 }
@@ -53,13 +53,13 @@ export const useDevCard = (userId: string): UseDevCard => {
 
   const { isProfileCover, user } = devCard ?? {};
   const coverImage =
-    (isProfileCover ? user.cover : undefined) ??
+    (isProfileCover ? user!.cover : undefined) ??
     cloudinaryDevcardDefaultCoverImage;
 
   return {
     devcard: {
       ...devCard,
-      streak: { ...userStreakProfile },
+      streak: { max: userStreakProfile?.max ?? 0 },
     },
     isLoading,
     coverImage,

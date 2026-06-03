@@ -10,12 +10,12 @@ import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { Origin, TargetType } from '../lib/log';
+import { LogEvent, Origin, TargetType } from '../lib/log';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
-import { MarketingCtaCard } from './marketingCta';
-import { MarketingCtaList } from './marketingCta/MarketingCtaList';
+import { MarketingCtaCard } from './marketing/cta';
+import { MarketingCtaList } from './marketing/cta/MarketingCtaList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
@@ -28,6 +28,8 @@ import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
+import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
@@ -41,18 +43,26 @@ import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
-import { adLogEvent, feedLogExtra } from '../lib/feed';
+import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
+import { findCreativeForTags } from '../lib/engagementAds';
+import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
-import { MarketingCtaVariant } from './marketingCta/common';
-import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
-import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
+import { MarketingCtaVariant } from './marketing/cta/common';
+import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
+import { MarketingCtaYearInReview } from './marketing/cta/MarketingCtaYearInReview';
+import { MarketingCtaVideo } from './marketing/cta/MarketingCtaVideo';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
+import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
+import { LiveRoomPostList } from './cards/liveRoom/LiveRoomPostList';
 import { SignalList } from './cards/common/list/SignalList';
 import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
+import { HighlightGrid } from './cards/highlight/HighlightGrid';
+import { HighlightList } from './cards/highlight/HighlightList';
+import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -90,6 +100,12 @@ export type FeedItemComponentProps = {
   ) => unknown;
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
+  /**
+   * When set, render the post as a wide featured highlight card spanning
+   * the given number of grid columns. Only used for article-like post
+   * types with an active `postHighlight`.
+   */
+  wideColSpan?: FeaturedWideColSpan;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -97,6 +113,8 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
   switch (item.type) {
     case 'post':
       return item.post.id;
+    case 'highlight':
+      return getHighlightIdsKey(item.highlights) || `highlight-${index}`;
     case 'ad':
       return `ad-${index}`;
     default:
@@ -116,6 +134,7 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
   [PostType.Digest]: ArticleGrid,
+  [PostType.LiveRoom]: LiveRoomPostGrid,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -130,6 +149,7 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Poll]: PollList,
   [PostType.SocialTwitter]: SocialTwitterList,
   [PostType.Digest]: ArticleList,
+  [PostType.LiveRoom]: LiveRoomPostList,
 };
 
 const getPostTypeForCard = (post?: Post): PostType => {
@@ -187,6 +207,7 @@ export const withFeedLogExtraContext = (
     props: FeedItemComponentProps,
   ): ReactElement | null => {
     const { item } = props;
+    const { creatives } = useEngagementAdsContext();
 
     if ([FeedItemType.Ad, FeedItemType.Post].includes(item?.type)) {
       return (
@@ -208,6 +229,17 @@ export const withFeedLogExtraContext = (
               extraData.referrer_target_type = post?.id
                 ? TargetType.Post
                 : undefined;
+
+              if (
+                item.type === FeedItemType.Post &&
+                post?.tags &&
+                creatives.length > 0
+              ) {
+                const creative = findCreativeForTags(creatives, post.tags);
+                if (creative) {
+                  extraData.gen_id = creative.genId;
+                }
+              }
             }
 
             if (isBoostedSquadAd(item)) {
@@ -256,7 +288,7 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
-  disableAdRefresh,
+  wideColSpan,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
@@ -267,10 +299,59 @@ function FeedItemComponent({
     row,
     feedName,
     ranking,
+    wideColSpan,
   );
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { boostedBy } = useFeedCardContext();
+
+  if (item.type === FeedItemType.Highlight) {
+    const HighlightTag =
+      shouldUseListFeedLayout || shouldUseListMode
+        ? HighlightList
+        : HighlightGrid;
+    const highlightIds = getHighlightIds(item.highlights);
+
+    return (
+      <HighlightTag
+        ref={inViewRef}
+        highlights={item.highlights}
+        onReadAllClick={() => {
+          logEvent(
+            feedHighlightsLogEvent(LogEvent.Click, {
+              columns: virtualizedNumCards,
+              column,
+              row,
+              feedName,
+              ranking,
+              action: 'read_all_click',
+              count: item.highlights.length,
+              highlightIds,
+              feedMeta: item.feedMeta,
+            }),
+          );
+        }}
+        onHighlightClick={(highlight, position) => {
+          logEvent(
+            feedHighlightsLogEvent(LogEvent.Click, {
+              columns: virtualizedNumCards,
+              column,
+              row,
+              feedName,
+              ranking,
+              action: 'highlight_click',
+              position,
+              count: item.highlights.length,
+              clickedHighlight: highlight,
+              highlightIds,
+              feedMeta: item.feedMeta,
+            }),
+          );
+        }}
+      />
+    );
+  }
+
   const {
     PostTag,
     AdTag,
@@ -324,72 +405,67 @@ function FeedItemComponent({
       return null;
     }
 
+    const postCardProps = {
+      enableSourceHeader:
+        feedName !== 'squad' && isSourceSquadOrMachine(itemPost.source),
+      ref: inViewRef,
+      post: { ...itemPost },
+      'data-testid': 'postItem',
+      onUpvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleUpvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onDownvoteClick: (post: Post, origin = Origin.Feed) => {
+        toggleDownvote({
+          payload: post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      onPostClick: (post: Post, event?: React.MouseEvent) =>
+        onPostClick(post, index, row, column, false, event),
+      onPostAuxClick: (post: Post) =>
+        onPostClick(post, index, row, column, true),
+      onReadArticleClick: () =>
+        onReadArticleClick(itemPost, index, row, column),
+      onShare: (post: Post) => onShare(post, row, column),
+      onBookmarkClick: (post: Post, origin = Origin.Feed) => {
+        toggleBookmark({
+          post,
+          origin,
+          opts: { columns, column, row },
+        });
+      },
+      openNewTab,
+      enableMenu: !!user,
+      onMenuClick: (event: React.MouseEvent) =>
+        onMenuClick(event, index, row, column),
+      onCopyLinkClick: (event: React.MouseEvent, post: Post) =>
+        onCopyLinkClick(event, post, index, row, column),
+      menuOpened: postMenuIndex === index,
+      onCommentClick: (post: Post) =>
+        onCommentClick(post, index, row, column, !!boostedBy),
+      eagerLoadImage: row === 0 && column === 0,
+    };
+
+    const isWidenedFeaturedPost =
+      item.type === FeedItemType.Post && !!wideColSpan && wideColSpan > 1;
+
     return (
       <ActivePostContextProvider post={itemPost}>
-        <PostTag
-          enableSourceHeader={
-            feedName !== 'squad' && isSourceSquadOrMachine(itemPost.source)
-          }
-          ref={inViewRef}
-          post={{ ...itemPost }}
-          data-testid="postItem"
-          onUpvoteClick={(post: Post, origin = Origin.Feed) => {
-            toggleUpvote({
-              payload: post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          onDownvoteClick={(post: Post, origin = Origin.Feed) => {
-            toggleDownvote({
-              payload: post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          onPostClick={(post: Post) => onPostClick(post, index, row, column)}
-          onPostAuxClick={(post: Post) =>
-            onPostClick(post, index, row, column, true)
-          }
-          onReadArticleClick={() =>
-            onReadArticleClick(itemPost, index, row, column)
-          }
-          onShare={(post: Post) => onShare(post, row, column)}
-          onBookmarkClick={(post: Post, origin = Origin.Feed) => {
-            toggleBookmark({
-              post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          openNewTab={openNewTab}
-          enableMenu={!!user}
-          onMenuClick={(event: React.MouseEvent) =>
-            onMenuClick(event, index, row, column)
-          }
-          onCopyLinkClick={(event: React.MouseEvent, post: Post) =>
-            onCopyLinkClick(event, post, index, row, column)
-          }
-          menuOpened={postMenuIndex === index}
-          onCommentClick={(post: Post) =>
-            onCommentClick(post, index, row, column, !!boostedBy)
-          }
-          eagerLoadImage={row === 0 && column === 0}
-        >
-          {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
-        </PostTag>
+        {isWidenedFeaturedPost ? (
+          <ArticleFeaturedWideGridCard
+            {...postCardProps}
+            wideColSpan={wideColSpan}
+          />
+        ) : (
+          <PostTag {...postCardProps}>
+            {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
+          </PostTag>
+        )}
       </ActivePostContextProvider>
     );
   }
@@ -406,11 +482,6 @@ function FeedItemComponent({
           index={item.index}
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
-          onRefresh={
-            disableAdRefresh
-              ? undefined
-              : (ad: Ad) => onAdAction(AdActions.Refresh, ad)
-          }
         />
       );
     }
@@ -423,6 +494,10 @@ function FeedItemComponent({
 
       if (item.marketingCta.variant === MarketingCtaVariant.YearInReview) {
         return <MarketingCtaYearInReview marketingCta={item.marketingCta} />;
+      }
+
+      if (item.marketingCta.variant === MarketingCtaVariant.Video) {
+        return <MarketingCtaVideo marketingCta={item.marketingCta} />;
       }
 
       return (

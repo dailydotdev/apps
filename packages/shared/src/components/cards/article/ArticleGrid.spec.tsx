@@ -141,9 +141,7 @@ it('should show author image when available', async () => {
 it('should show trending flag', async () => {
   const usePost = { ...post, trending: 20 };
   renderComponent({ post: usePost });
-  expect(
-    await screen.findByText('20 devs read it last hour'),
-  ).toBeInTheDocument();
+  expect(await screen.findByText('Trending now')).toBeInTheDocument();
 });
 
 it('should open the article when clicking the read post button', async () => {

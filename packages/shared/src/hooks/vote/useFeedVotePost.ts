@@ -10,6 +10,7 @@ import { voteMutationMatcher, voteMutationHandlers } from './types';
 import { useVotePost } from './useVotePost';
 import { mutateVoteFeedPost } from './utils';
 import { updatePostCache } from '../../lib/query';
+import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 
 export type UseFeedVotePostProps = {
   feedName: string;
@@ -29,6 +30,7 @@ export const useFeedVotePost = ({
   feedQueryKey,
 }: UseFeedVotePostProps): UseFeedVotePost => {
   const queryClient = useQueryClient();
+  const { getCreativeForTags } = useEngagementAdsContext();
 
   useMutationSubscription({
     matcher: voteMutationMatcher,
@@ -67,7 +69,11 @@ export const useFeedVotePost = ({
     ...restVotePost,
     toggleUpvote: useCallback(
       ({ payload, origin, opts }) => {
-        const logExtra = feedLogExtra(feedName, ranking, opts?.extra);
+        const creative = getCreativeForTags(payload?.tags || []);
+        const logExtra = feedLogExtra(feedName, ranking, {
+          ...opts?.extra,
+          ...(creative && { gen_id: creative.genId }),
+        });
 
         return toggleUpvote({
           payload,
@@ -78,11 +84,15 @@ export const useFeedVotePost = ({
           },
         });
       },
-      [toggleUpvote, feedName, ranking],
+      [toggleUpvote, feedName, ranking, getCreativeForTags],
     ),
     toggleDownvote: useCallback(
       ({ payload, origin, opts }) => {
-        const logExtra = feedLogExtra(feedName, ranking, opts?.extra);
+        const creative = getCreativeForTags(payload?.tags || []);
+        const logExtra = feedLogExtra(feedName, ranking, {
+          ...opts?.extra,
+          ...(creative && { gen_id: creative.genId }),
+        });
 
         return toggleDownvote({
           payload,
@@ -93,7 +103,7 @@ export const useFeedVotePost = ({
           },
         });
       },
-      [toggleDownvote, feedName, ranking],
+      [toggleDownvote, feedName, ranking, getCreativeForTags],
     ),
   };
 };

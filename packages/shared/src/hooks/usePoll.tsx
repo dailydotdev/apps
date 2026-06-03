@@ -2,6 +2,7 @@ import React from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Ad, FeedData, Post } from '../graphql/posts';
+import { getFeedApiItemPost } from '../graphql/feed';
 import { votePoll } from '../graphql/posts';
 import {
   findIndexOfPostInData,
@@ -67,12 +68,16 @@ const usePoll = ({ post }: { post: Post }) => {
         );
 
         if (pageIndex > -1 && index > -1) {
-          const currentPost = feedData.pages[pageIndex].page.edges[index].node;
-          const updatedPost = {
-            ...currentPost,
-            ...postUpdate,
-          };
-          updateFeed(pageIndex, index, updatedPost);
+          const currentPost = getFeedApiItemPost(
+            feedData.pages[pageIndex].page.edges[index].node,
+          );
+
+          if (currentPost) {
+            updateFeed(pageIndex, index, {
+              ...currentPost,
+              ...postUpdate,
+            });
+          }
         }
       }
 

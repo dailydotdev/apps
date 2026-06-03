@@ -44,12 +44,20 @@ export function Section({
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const shouldAlwaysBeVisible = isAlwaysOpenOnMobile && !sidebarRendered;
-  const isVisible = useRef(
-    isNullOrUndefined(flags?.[flag]) ? true : flags[flag],
-  );
+  const currentFlagValue = flag ? flags?.[flag] : undefined;
+  const initialIsVisible = isNullOrUndefined(currentFlagValue)
+    ? true
+    : currentFlagValue;
+  const isVisible = useRef(initialIsVisible);
+
   const toggleFlag = () => {
-    updateFlag(flag, !isVisible.current);
-    isVisible.current = !isVisible.current;
+    const nextIsVisible = !isVisible.current;
+
+    if (flag) {
+      updateFlag(flag, nextIsVisible);
+    }
+
+    isVisible.current = nextIsVisible;
   };
 
   return (
@@ -68,7 +76,11 @@ export function Section({
           {/* Header content shown when sidebar is expanded */}
           <div
             className={classNames(
-              'group/section flex min-h-9 w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
+              // `ml-3 mr-2 ... pl-1` aligns the section title's left edge
+              // with the items below it (items have `mx-3`), so "Feeds v"
+              // and the feed entries share the same x. Without this the
+              // header was indented less than the items.
+              'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
@@ -121,21 +133,23 @@ export function Section({
       <div
         id={flag ? `section-${flag}` : undefined}
         className={classNames(
-          'flex flex-col overflow-hidden transition-all duration-300',
+          'grid transition-[grid-template-rows,opacity] duration-300',
           isVisible.current || shouldAlwaysBeVisible
-            ? 'max-h-[2000px] opacity-100'
-            : 'max-h-0 opacity-0',
+            ? 'grid-rows-[1fr] opacity-100'
+            : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        {items.map((item) => (
-          <SidebarItem
-            key={`${item.title}-${item.path}`}
-            item={item}
-            activePage={activePage}
-            isItemsButton={isItemsButton}
-            shouldShowLabel={shouldShowLabel}
-          />
-        ))}
+        <div className="flex min-h-0 flex-col overflow-hidden">
+          {items.map((item) => (
+            <SidebarItem
+              key={`${item.title}-${item.path}`}
+              item={item}
+              activePage={activePage}
+              isItemsButton={isItemsButton}
+              shouldShowLabel={shouldShowLabel}
+            />
+          ))}
+        </div>
       </div>
     </NavSection>
   );

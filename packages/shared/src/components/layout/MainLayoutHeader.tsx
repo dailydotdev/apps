@@ -11,8 +11,9 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
+import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
-import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
 
 export interface MainLayoutHeaderProps {
@@ -22,10 +23,10 @@ export interface MainLayoutHeaderProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
-const SearchPanel = dynamic(
+const SpotlightTrigger = dynamic(
   () =>
     import(
-      /* webpackChunkName: "searchPanel" */ '../search/SearchPanel/SearchPanel'
+      /* webpackChunkName: "spotlightTrigger" */ '../spotlight/SpotlightTrigger'
     ),
 );
 
@@ -41,18 +42,24 @@ function MainLayoutHeader({
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
+  // Header is `fixed` so it escapes the parent's `padding-right`. Read
+  // the customize sidebar width directly here and shrink the header to
+  // match — keeps it from sliding under the panel and lets it animate
+  // alongside the feed.
+  const { panelWidth } = useCustomizeNewTab();
   const [hasHydrated, setHasHydrated] = useState(false);
   const { streak, isStreaksEnabled } = useReadingStreak();
-  const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
+  const isStreakLarge = (streak?.current ?? 0) > 99; // if we exceed 100, we need to display it differently in the UI
   const { feedName } = useActiveFeedNameContext();
+  const activeFeedName = feedName ?? SharedFeedPage.Popular;
   const { isAnyExplore, isSearch } = useFeedName({
-    feedName,
+    feedName: activeFeedName,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-  const { profile } = useActiveNav(feedName);
+  const { profile } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobileProfile = profile && !isLaptop;
   const isMobile = !isLaptop;
@@ -68,18 +75,17 @@ function MainLayoutHeader({
   const renderSearchPanel = useCallback(
     () =>
       shouldUseLoadedSettings && (
-        <SearchPanel
-          className={{
-            container: classNames(
-              'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
-              isSearchPage
-                ? 'relative right-0 tablet:!left-0 laptop:top-0'
-                : 'hidden laptop:flex',
-              hasBanner && 'tablet:top-18',
-            ),
-            field: 'mx-2 laptop:mx-auto',
-          }}
-        />
+        <div
+          className={classNames(
+            'left-0 top-0 z-header mx-2 items-center py-3 tablet:left-16 laptop:left-0',
+            isSearchPage
+              ? 'relative right-0 tablet:!left-0 laptop:top-0'
+              : 'hidden laptop:flex',
+            hasBanner && 'tablet:top-18',
+          )}
+        >
+          <SpotlightTrigger />
+        </div>
       ),
     [shouldUseLoadedSettings, isSearchPage, hasBanner],
   );
@@ -101,35 +107,37 @@ function MainLayoutHeader({
         'z-header',
         !isMobileSearchPage &&
           (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
-        hasBanner && 'laptop:top-8',
+        hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
         !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
         !isMobileSearchPage && scrollClassName,
       )}
-      style={featureTheme ? featureTheme.navbar : undefined}
+      style={{
+        ...(featureTheme ? featureTheme.navbar : undefined),
+        right: panelWidth || undefined,
+        width: panelWidth ? `calc(100% - ${panelWidth}px)` : undefined,
+        transition: panelWidth
+          ? 'right 200ms ease-in-out, width 200ms ease-in-out'
+          : undefined,
+      }}
     >
-      {isMobileSearchPage ? (
-        <>
-          {renderSearchPanel()}
-          {!isSearch && <MobileExploreHeader path={feedName as string} />}
-        </>
-      ) : (
-        sidebarRendered !== undefined && (
-          <>
-            <div>
-              <HeaderLogo
-                position={
-                  isStreaksEnabled && isStreakLarge
-                    ? LogoPosition.Relative
-                    : LogoPosition.Absolute
-                }
-                onLogoClick={onLogoClick}
-              />
-            </div>
-            {renderSearchPanel()}
-            <HeaderButtons additionalButtons={additionalButtons} />
-          </>
-        )
-      )}
+      {isMobileSearchPage
+        ? renderSearchPanel()
+        : sidebarRendered !== undefined && (
+            <>
+              <div>
+                <HeaderLogo
+                  position={
+                    isStreaksEnabled && isStreakLarge
+                      ? LogoPosition.Relative
+                      : LogoPosition.Absolute
+                  }
+                  onLogoClick={onLogoClick}
+                />
+              </div>
+              {renderSearchPanel()}
+              <HeaderButtons additionalButtons={additionalButtons} />
+            </>
+          )}
     </header>
   );
 }

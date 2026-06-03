@@ -22,17 +22,22 @@ export const uninstall = 'https://r.daily.dev/uninstall';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
 export const docs = 'https://r.daily.dev/docs';
+export const plusPublicApiDocs = 'https://docs.daily.dev/docs/plus/public-api';
+export const chipsDocs = 'https://docs.daily.dev/chips/';
 export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 export const careers = 'https://r.daily.dev/careers';
 export const firstNotificationLink = 'https://r.daily.dev/notifications';
 export const reportSquadMember = 'https://r.daily.dev/report-squad-member';
 export const squadFeedback = 'https://r.daily.dev/squad-feedback';
-export const downloadBrowserExtension = 'https://r.daily.dev/download';
+export const downloadBrowserExtension = 'https://r.daily.dev/extension';
 export const twitter = 'https://r.daily.dev/twitter';
 export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
 export const appsUrl = 'https://daily.dev/apps';
+export const appStoreUrl = 'https://apps.apple.com/app/daily-dev/id6740634400';
+export const playStoreUrl =
+  'https://play.google.com/store/apps/details?id=dev.daily';
 export const timezoneSettingsUrl = 'https://r.daily.dev/timezone';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProductionAPI =
@@ -43,7 +48,7 @@ export const isTesting =
 export const isGBDevMode = process.env.NEXT_PUBLIC_GB_DEV_MODE === 'true';
 
 export const isBrave = (): boolean => {
-  if (!window.Promise) {
+  if (typeof window === 'undefined' || !window.Promise) {
     return false;
   }
   return typeof navigator.brave?.isBrave === 'function';
@@ -53,6 +58,7 @@ export const isChrome = (): boolean =>
   /Google Inc/.test(globalThis?.navigator?.vendor);
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
+export const gameCenterMilestoneSectionId = 'milestone-quests';
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';

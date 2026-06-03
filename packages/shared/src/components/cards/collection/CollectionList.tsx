@@ -18,6 +18,9 @@ import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { isPostUpdated } from '../../../graphql/posts';
+import { TimeFormatType } from '../../../lib/dateFormat';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -37,7 +40,10 @@ export const CollectionList = forwardRef(function CollectionCard(
 ) {
   const isMobile = useViewSize(ViewSize.MobileL);
   const image = usePostImage(post);
-  const { title } = useTruncatedSummary(post?.title);
+  const { title } = useTruncatedSummary(post?.title ?? '');
+  const wasUpdated = isPostUpdated(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+
   const actionButtons = (
     <Container className="pointer-events-none mt-2">
       <ActionButtons
@@ -53,6 +59,26 @@ export const CollectionList = forwardRef(function CollectionCard(
     </Container>
   );
 
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: domProps.className,
+        }}
+        ref={ref}
+        flagProps={{
+          pinnedAt: post.pinnedAt,
+          type: post.type,
+          trending: post.trending,
+        }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
+
   return (
     <FeedItemContainer
       domProps={{
@@ -60,23 +86,37 @@ export const CollectionList = forwardRef(function CollectionCard(
         className: domProps.className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt: post.pinnedAt, type: post.type }}
+      flagProps={{
+        pinnedAt: post.pinnedAt,
+        type: post.type,
+        trending: post.trending,
+      }}
       linkProps={{
         title: post.title,
-        onClick: () => onPostClick(post),
+        onClick: () => onPostClick?.(post),
         href: post.commentsPermalink,
       }}
       bookmarked={post.bookmarked}
     >
       <CardContainer>
-        <PostCardHeader post={post}>
+        <PostCardHeader
+          post={post}
+          metadata={{
+            createdAt: wasUpdated ? post.updatedAt : post.createdAt,
+            dateLabel: wasUpdated ? 'Updated' : undefined,
+            dateType: wasUpdated
+              ? TimeFormatType.PostUpdated
+              : TimeFormatType.Post,
+            numSources: post.numCollectionSources,
+          }}
+        >
           <CollectionPillSources
             className={{
               main: classNames(!!post.collectionSources?.length && '-my-0.5'),
               avatar: 'group-hover:border-background-subtle',
             }}
-            sources={post.collectionSources}
-            totalSources={post.numCollectionSources}
+            sources={post.collectionSources ?? []}
+            totalSources={post.numCollectionSources ?? 0}
             alwaysShowSources
           />
         </PostCardHeader>

@@ -37,11 +37,11 @@ export const useSlack = (): UseSlack => {
       const redirectUrl = new URL(`${apiUrl}/integrations/slack/auth/callback`);
       url.searchParams.append('redirect_uri', redirectUrl.toString());
 
-      url.searchParams.append('state', user.id);
+      url.searchParams.append('state', user!.id);
       url.searchParams.append('scope', scopes.join(','));
       url.searchParams.append(
         'client_id',
-        process.env.NEXT_PUBLIC_SLACK_CLIENT_ID,
+        process.env.NEXT_PUBLIC_SLACK_CLIENT_ID!,
       );
 
       setCookie('slackRedirectPath', redirectPath, {
@@ -54,7 +54,7 @@ export const useSlack = (): UseSlack => {
 
       window.location.href = url.toString();
     },
-    [user?.id],
+    [user],
   );
 
   const connectSource = useCallback<UseSlack['connectSource']>(

@@ -9,6 +9,7 @@ import {
   POST_CODE_SNIPPET_FRAGMENT,
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
+  CONTENT_EMBED_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
@@ -20,6 +21,7 @@ import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
+import type { LiveRoomPost } from './liveRooms';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -92,6 +94,10 @@ export const isPostOrSharedPostTwitter = (
 ): boolean =>
   isSocialTwitterPost(post) || isSocialTwitterPost(post?.sharedPost as Post);
 
+export const isPostUpdated = (
+  post: Pick<Post, 'createdAt' | 'updatedAt'>,
+): boolean => !!post.updatedAt && post.updatedAt !== post.createdAt;
+
 /**
  * For social:twitter quote posts, resolve to the top tweet (the post itself)
  * rather than the referenced/shared tweet. For all other post types, fall back
@@ -114,6 +120,16 @@ export const getPostReadTarget = <
     parentId: post.sharedPost ? post.id : undefined,
   };
 };
+
+/**
+ * Resolve the external URL the "Read post" affordance should navigate to.
+ * For shared posts that falls through to the original article's permalink;
+ * otherwise the post's own permalink.
+ */
+export const getReadArticleHref = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost' | 'permalink'>,
+): string | undefined =>
+  getPostReadTarget(post).target?.permalink ?? post.permalink;
 
 export const getReadPostButtonText = (post: Post): string => {
   if (isVideoPost(post)) {
@@ -167,6 +183,42 @@ type PostFlags = {
   ad?: DigestPostAd | null;
 };
 
+export type ContentEmbedPost = {
+  __typename?: string;
+  title?: string;
+  image?: string;
+  source?: Pick<Source, 'handle' | 'name' | 'image'>;
+  author?: Pick<Author, 'id'>;
+  createdAt?: string;
+  readTime?: number;
+  numUpvotes?: number;
+  numComments?: number;
+  numAwards?: number;
+  numReposts?: number;
+  numCollectionSources?: number;
+  numPollVotes?: number;
+  endsAt?: string;
+  analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  featuredAward?: {
+    award?: Pick<FeaturedAward, 'name' | 'image'>;
+  };
+  type: PostType;
+  sharedPost?: { type: PostType };
+  commentsPermalink?: string;
+};
+
+export type ContentEmbed = {
+  __typename?: string;
+  id: string;
+  url: string;
+  sortOrder: number;
+  startOffset?: number;
+  endOffset?: number;
+  referenceType: string;
+  referenceId?: string;
+  post?: ContentEmbedPost | null;
+};
+
 export enum UserVote {
   Up = 1,
   None = 0,
@@ -184,6 +236,20 @@ export interface PostUserState {
   pollOption?: { id: string };
 }
 
+export type PostHighlightSignificance =
+  | 'breaking'
+  | 'major'
+  | 'notable'
+  | 'routine';
+
+export interface PostHighlight {
+  id: string;
+  channel: string;
+  highlightedAt: string;
+  headline: string;
+  significance: PostHighlightSignificance | null;
+}
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -193,6 +259,7 @@ export interface Post {
   image: string;
   content?: string;
   contentHtml?: string;
+  contentEmbeds?: ContentEmbed[];
   createdAt?: string;
   pinnedAt?: Date | string;
   readTime?: number;
@@ -245,7 +312,9 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
+  liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
+  postHighlight?: PostHighlight | null;
 }
 
 export type RelatedPost = Pick<
@@ -323,6 +392,9 @@ export const POST_BY_ID_QUERY = gql`
       trending
       content
       contentHtml
+      contentEmbeds {
+        ...ContentEmbedFragment
+      }
       pinnedAt
       bookmarkList {
         id
@@ -364,6 +436,7 @@ export const POST_BY_ID_QUERY = gql`
   }
   ${SHARED_POST_INFO_FRAGMENT}
   ${RELATED_POST_FRAGMENT}
+  ${CONTENT_EMBED_FRAGMENT}
 `;
 
 export const getPostById = (id: string) =>
@@ -942,7 +1015,7 @@ export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
 
 export interface CreatePostInMultipleSourcesArgs
   extends Partial<CreatePostProps>,
-    Pick<CreatePollPostProps, 'options' | 'duration'> {
+    Partial<Pick<CreatePollPostProps, 'options' | 'duration'>> {
   commentary?: string;
   externalLink?: string;
   imageUrl?: string;
@@ -960,12 +1033,17 @@ export type CreatePostInMultipleSourcesResponse = Array<{
 export const createPostInMultipleSources = async (
   variables: CreatePostInMultipleSourcesArgs,
 ) => {
+  const { image, ...rest } = variables;
+  const sanitized = {
+    ...rest,
+    ...(image instanceof File && image.size > 0 ? { image } : {}),
+  };
   const res = await gqlClient.request<
     {
       createPostInMultipleSources: CreatePostInMultipleSourcesResponse;
     },
     CreatePostInMultipleSourcesArgs
-  >(CREATE_POST_IN_MULTIPLE_SOURCES, variables);
+  >(CREATE_POST_IN_MULTIPLE_SOURCES, sanitized);
   return res.createPostInMultipleSources;
 };
 

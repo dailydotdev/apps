@@ -27,6 +27,7 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -49,8 +50,9 @@ export const ShareList = forwardRef(function ShareList(
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onPostCardClick = () => onPostClick(post);
-  const containerRef = useRef<HTMLDivElement>();
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick?.(post, event);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isFeedPreview = useFeedPreviewMode();
   const { sharedPost } = post;
   const isVideoType = isVideoPost(post);
@@ -59,6 +61,7 @@ export const ShareList = forwardRef(function ShareList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -79,7 +82,7 @@ export const ShareList = forwardRef(function ShareList(
   );
 
   const metadata = useMemo(() => {
-    const authorName = post.author?.name ?? post.source.name;
+    const authorName = post.author?.name ?? post.source?.name;
 
     if (isUserSource) {
       return {
@@ -88,15 +91,16 @@ export const ShareList = forwardRef(function ShareList(
     }
 
     return {
-      topLabel: enableSourceHeader ? (
-        <Link href={post.source.permalink}>
-          <a href={post.source.permalink} className="relative z-1">
-            {post.source.name}
-          </a>
-        </Link>
-      ) : (
-        authorName
-      ),
+      topLabel:
+        enableSourceHeader && post.source?.permalink ? (
+          <Link href={post.source.permalink}>
+            <a href={post.source.permalink} className="relative z-1">
+              {post.source.name}
+            </a>
+          </Link>
+        ) : (
+          authorName
+        ),
       bottomLabel: enableSourceHeader
         ? authorName
         : `@${sharedPost?.source?.handle}`,
@@ -105,10 +109,26 @@ export const ShareList = forwardRef(function ShareList(
     enableSourceHeader,
     isUserSource,
     post?.author?.name,
-    post.source.name,
-    post.source.permalink,
+    post.source?.name,
+    post.source?.permalink,
     sharedPost?.source?.handle,
   ]);
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: domProps.className,
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending, type }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer
@@ -119,11 +139,13 @@ export const ShareList = forwardRef(function ShareList(
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
-        !isFeedPreview && {
-          title: post.title,
-          onClick: onPostCardClick,
-          href: post.commentsPermalink,
-        }
+        !isFeedPreview
+          ? {
+              title: post.title,
+              onClick: onPostCardClick,
+              href: post.commentsPermalink,
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
@@ -137,7 +159,7 @@ export const ShareList = forwardRef(function ShareList(
         metadata={metadata}
         postLink={sharedPost?.permalink}
       >
-        {!isUserSource && (
+        {!isUserSource && post.source && (
           <SourceButton
             size={ProfileImageSize.Large}
             source={post.source}
@@ -151,7 +173,7 @@ export const ShareList = forwardRef(function ShareList(
             {!!post.title && (
               <CardTitle
                 lineClamp={undefined}
-                className={!!post.read && 'text-text-tertiary'}
+                className={post.read ? 'text-text-tertiary' : undefined}
               >
                 {truncatedTitle}
               </CardTitle>
@@ -176,7 +198,7 @@ export const ShareList = forwardRef(function ShareList(
           <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
               lineClamp={undefined}
-              className={!!post.read && 'text-text-tertiary'}
+              className={post.read ? 'text-text-tertiary' : undefined}
             >
               {truncatedTitle}
             </CardTitle>

@@ -52,13 +52,16 @@ import {
   useToastNotification,
   invalidatePostCacheById,
   usePostById,
+  useViewSize,
+  ViewSize,
 } from '../../hooks';
+import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePostLogEvent } from '../../lib/feed';
 import { useFeedCardContext } from './FeedCardContext';
-import useReportPost from '../../hooks/useReportPost';
+import { useHidePost } from '../../hooks/post/useHidePost';
 import { useSharePost } from '../../hooks/useSharePost';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -187,11 +190,16 @@ const PostOptionButtonContent = ({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { boostedBy } = useFeedCardContext();
-  const { hidePost, unhidePost } = useReportPost();
+  const { onHide } = useHidePost({
+    post,
+    origin: Origin.PostContextMenu,
+  });
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
+  const { evaluateSmartComposer } = useSmartComposer();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { canBoost } = useCanBoostPost(post);
 
@@ -436,27 +444,6 @@ const PostOptionButtonContent = ({
       showMessageAndRemovePost(copy, postIndex, onUndo),
   });
 
-  const onHidePost = async (): Promise<void> => {
-    const { successful } = await hidePost(post.id);
-
-    if (!successful) {
-      return;
-    }
-
-    logEvent(
-      postLogEvent(LogEvent.HidePost, post, {
-        extra: { origin: Origin.PostContextMenu },
-        ...logOpts,
-      }),
-    );
-
-    showMessageAndRemovePost(
-      "🙈 This post won't show up on your feed anymore",
-      postIndex,
-      () => unhidePost(post.id),
-    );
-  };
-
   const postOptions: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
@@ -483,7 +470,7 @@ const PostOptionButtonContent = ({
     postOptions.push({
       icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
-      action: onHidePost,
+      action: onHide,
     });
 
     postOptions.push({
@@ -819,6 +806,16 @@ const PostOptionButtonContent = ({
         icon: <MenuIcon Icon={EditIcon} />,
         label: 'Edit post',
         action: () => {
+          const canUseSmartComposer =
+            isLaptop &&
+            (post.type === PostType.Freeform || post.type === PostType.Welcome);
+          if (canUseSmartComposer && evaluateSmartComposer()) {
+            openModal({
+              type: LazyModal.SmartComposer,
+              props: { editPost: post },
+            });
+            return;
+          }
           router.push(`${post.commentsPermalink}/edit`);
         },
       });

@@ -32,13 +32,13 @@ import {
 const squads = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
-admin.source.members.edges = members;
+admin.source.members!.edges = members;
 admin.source.membersCount = members.length;
 const defaultSquad = generateTestSquad();
 
 const createSourceMembersMock = (
   result = generateMembersResult(),
-  variables: unknown = { id: defaultSquad.id, first: 5 },
+  variables: Record<string, unknown> = { id: defaultSquad.id, first: 5 },
 ): MockedGraphQLResponse<SquadEdgesData> => ({
   request: { query: SQUAD_MEMBERS_QUERY, variables },
   result: { data: result },
@@ -126,7 +126,7 @@ it('should render the component and member short list when members are provided'
     `View ${membersCount} squad members`,
   );
   expect(memberCount).toHaveTextContent(
-    admin.source.members.edges.length.toString(),
+    admin.source.members!.edges.length.toString(),
   );
 });
 

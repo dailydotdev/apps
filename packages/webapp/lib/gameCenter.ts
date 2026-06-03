@@ -102,7 +102,9 @@ export const getMostProgressedQuest = (
   quests?: UserQuest[],
 ): UserQuest | null => {
   const activeQuests =
-    quests?.filter((quest) => quest.status !== QuestStatus.Claimed) ?? [];
+    quests?.filter(
+      (quest) => !quest.claimable && quest.status !== QuestStatus.Claimed,
+    ) ?? [];
 
   if (activeQuests.length === 0) {
     return null;
@@ -122,10 +124,6 @@ export const getMostProgressedQuest = (
 
     if (left.progress !== right.progress) {
       return right.progress - left.progress;
-    }
-
-    if (left.claimable !== right.claimable) {
-      return left.claimable ? -1 : 1;
     }
 
     return getQuestRewardTotal(right) - getQuestRewardTotal(left);

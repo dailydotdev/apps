@@ -25,9 +25,9 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
-import { SmartPrompt } from './smartPrompts/SmartPrompt';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
+import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -39,6 +39,32 @@ const PostCodeSnippets = dynamic(() =>
   ),
 );
 
+const ArticleLink = ({
+  href,
+  onClick,
+  children,
+  ...props
+}: ComponentProps<'a'> & {
+  href?: string;
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
+}) => {
+  const clickHandlers = onClick
+    ? combinedClicks<HTMLAnchorElement>(onClick)
+    : undefined;
+  return (
+    <a
+      href={href}
+      title="Go to post"
+      target="_blank"
+      rel="noopener"
+      {...clickHandlers}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+};
+
 export function PostContentRaw({
   post,
   className = {},
@@ -46,6 +72,7 @@ export function PostContentRaw({
   origin,
   position,
   inlineActions,
+  hideSubscribeAction,
   onPreviousPost,
   onNextPost,
   onClose,
@@ -63,6 +90,20 @@ export function PostContentRaw({
     post,
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
+  const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
+    post,
+    {
+      onCloseParent: onClose
+        ? () => (onClose as (event?: unknown) => void)()
+        : undefined,
+    },
+  );
+  const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticle();
+  };
   const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const { title } = useSmartTitle(post);
@@ -93,6 +134,7 @@ export function PostContentRaw({
     onReadArticle,
     onClose,
     inlineActions,
+    hideSubscribeAction,
   };
 
   // Only send view post if the post is a video type
@@ -104,20 +146,142 @@ export function PostContentRaw({
     onSendViewPost(post.id);
   }, [isVideoType, onSendViewPost, post.id, user?.id]);
 
-  const ArticleLink = ({ children, ...props }: ComponentProps<'a'>) => {
-    return (
-      <a
-        href={post.permalink}
-        title="Go to post"
-        target="_blank"
-        rel="noopener"
-        {...combinedClicks(onReadArticle)}
-        {...props}
+  const postMainColumn = (
+    <PostContainer
+      className={classNames('relative', className?.content)}
+      data-testid="postContainer"
+    >
+      <BasePostContent
+        className={{
+          ...className,
+          onboarding: classNames(className?.onboarding, backToSquad && 'mb-6'),
+          navigation: {
+            actions: className?.navigation?.actions,
+            container: classNames('pt-6', className?.navigation?.container),
+          },
+        }}
+        isPostPage={isPostPage}
+        isFallback={isFallback}
+        customNavigation={customNavigation}
+        shouldOnboardAuthor={shouldOnboardAuthor}
+        navigationProps={navigationProps}
+        engagementProps={engagementActions}
+        origin={origin}
+        post={post}
       >
-        {children}
-      </a>
-    );
-  };
+        <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
+          <div className="mb-3 flex items-center">
+            <PostSourceInfo
+              className="min-w-0 flex-1"
+              post={post}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+              hideSubscribeAction={hideSubscribeAction}
+            />
+          </div>
+          <h1
+            className="break-words font-bold typo-large-title"
+            data-testid="post-modal-title"
+          >
+            <ArticleLink href={post.permalink} onClick={onReadArticle}>
+              {title}
+            </ArticleLink>
+          </h1>
+          {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
+        </div>
+        {isVideoType && (
+          <YoutubeVideo
+            placeholderProps={{ post, onWatchVideo: onReadArticle }}
+            videoId={post.videoId ?? ''}
+            className="mb-7"
+          />
+        )}
+        {post.summary && (
+          <div
+            className={classNames(
+              'mb-6 overflow-hidden text-text-secondary',
+              isCompactModalSpacing && 'mb-4',
+            )}
+          >
+            <p
+              className="select-text break-words typo-markdown"
+              data-testid="tldr-container"
+            >
+              {post.summary}
+            </p>
+          </div>
+        )}
+        <PostTagList post={post} />
+        <PostMetadata
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+          isVideoType={isVideoType}
+          className={metadataClassName}
+          domain={
+            !isVideoType &&
+            post.domain &&
+            post.domain.length > 0 && (
+              <TruncateText>
+                From{' '}
+                <ArticleLink
+                  href={post.permalink}
+                  onClick={onReadArticle}
+                  title={post.domain}
+                  className="hover:underline"
+                >
+                  {post.domain}
+                </ArticleLink>
+              </TruncateText>
+            )
+          }
+        />
+        {!isVideoType && (
+          <ArticleLink
+            href={post.permalink}
+            onClick={handleImageClick}
+            className={classNames(
+              'block cursor-pointer overflow-hidden rounded-16',
+              isCompactModalSpacing || hasToc ? 'mb-4' : 'mb-10',
+            )}
+            style={{ maxWidth: '25.625rem' }}
+          >
+            <LazyImage
+              imgSrc={post.image}
+              imgAlt="Post cover image"
+              ratio="49%"
+              eager
+              fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+              fetchPriority="high"
+            />
+          </ArticleLink>
+        )}
+        {hasToc && (
+          <PostToc
+            post={post}
+            collapsible
+            className="mb-4 flex laptop:hidden"
+          />
+        )}
+        {showCodeSnippets && (
+          <PostCodeSnippets
+            className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+            post={post}
+          />
+        )}
+      </BasePostContent>
+    </PostContainer>
+  );
+
+  const postWidgetsColumn = (
+    <PostWidgets
+      onReadArticle={onReadArticle}
+      post={post}
+      className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
+      onClose={onClose}
+      origin={origin}
+      onCopyPostLink={onCopyPostLink}
+    />
+  );
 
   return (
     <PostContentContainer
@@ -140,119 +304,8 @@ export function PostContentRaw({
           : undefined
       }
     >
-      <PostContainer
-        className={classNames('relative', className?.content)}
-        data-testid="postContainer"
-      >
-        <BasePostContent
-          className={{
-            ...className,
-            onboarding: classNames(
-              className?.onboarding,
-              backToSquad && 'mb-6',
-            ),
-            navigation: {
-              actions: className?.navigation?.actions,
-              container: classNames('pt-6', className?.navigation?.container),
-            },
-          }}
-          isPostPage={isPostPage}
-          isFallback={isFallback}
-          customNavigation={customNavigation}
-          shouldOnboardAuthor={shouldOnboardAuthor}
-          navigationProps={navigationProps}
-          engagementProps={engagementActions}
-          origin={origin}
-          post={post}
-        >
-          <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
-            <PostSourceInfo
-              className="mb-3"
-              post={post}
-              onClose={onClose}
-              onReadArticle={onReadArticle}
-            />
-            <h1
-              className="break-words font-bold typo-large-title"
-              data-testid="post-modal-title"
-            >
-              <ArticleLink>{title}</ArticleLink>
-            </h1>
-            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
-          </div>
-          {isVideoType && (
-            <YoutubeVideo
-              placeholderProps={{ post, onWatchVideo: onReadArticle }}
-              videoId={post.videoId ?? ''}
-              className="mb-7"
-            />
-          )}
-          {post.summary && (
-            <SmartPrompt
-              post={post}
-              className={isCompactModalSpacing ? 'mb-4 gap-2' : undefined}
-            />
-          )}
-          <PostTagList post={post} />
-          <PostMetadata
-            createdAt={post.createdAt}
-            readTime={post.readTime}
-            isVideoType={isVideoType}
-            className={metadataClassName}
-            domain={
-              !isVideoType &&
-              post.domain &&
-              post.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink title={post.domain} className="hover:underline">
-                    {post.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-          />
-          {!isVideoType && (
-            <ArticleLink
-              className={classNames(
-                'block cursor-pointer overflow-hidden rounded-16',
-                isCompactModalSpacing || hasToc ? 'mb-4' : 'mb-10',
-              )}
-              style={{ maxWidth: '25.625rem' }}
-            >
-              <LazyImage
-                imgSrc={post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
-                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                fetchPriority="high"
-              />
-            </ArticleLink>
-          )}
-          {hasToc && (
-            <PostToc
-              post={post}
-              collapsible
-              className="mb-4 flex laptop:hidden"
-            />
-          )}
-          {showCodeSnippets && (
-            <PostCodeSnippets
-              className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
-              post={post}
-            />
-          )}
-        </BasePostContent>
-      </PostContainer>
-      <PostWidgets
-        onReadArticle={onReadArticle}
-        post={post}
-        className="!gap-2 pb-8 pt-4"
-        onClose={onClose}
-        origin={origin}
-        onCopyPostLink={onCopyPostLink}
-      />
+      {postMainColumn}
+      {postWidgetsColumn}
     </PostContentContainer>
   );
 }

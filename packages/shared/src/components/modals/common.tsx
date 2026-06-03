@@ -48,6 +48,13 @@ const CreateSharedPostModal = dynamic(
     ),
 );
 
+const SmartComposerModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "smartComposerModal" */ './post/SmartComposerModal'
+    ),
+);
+
 const ReportPostModal = dynamic(
   () =>
     import(
@@ -106,7 +113,7 @@ const ReputationPrivilegesModal = dynamic(
 const MarketingCtaModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "marketingCtaModal" */ '../marketingCta/MarketingCtaModal'
+      /* webpackChunkName: "marketingCtaModal" */ '../marketing/cta/MarketingCtaModal'
     ),
 );
 
@@ -118,6 +125,12 @@ const PrivilegedMemberModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "privilegedMembersModal" */ './squads/PrivilegedMembersModal'
+    ),
+);
+const TopMembersModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "topMembersModal" */ './squads/TopMembersModal'
     ),
 );
 
@@ -207,18 +220,6 @@ const AddToCustomFeedModal = dynamic(
     ),
 );
 
-const SmartPromptModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "smartPromptModal" */ './plus/SmartPromptModal'
-  ).then((mod) => mod.SmartPromptModal),
-);
-
-const MobileSmartPromptsModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "mobileSmartPromptsModal" */ './plus/MobileSmartPromptsModal'
-  ).then((mod) => mod.MobileSmartPromptsModal),
-);
-
 const CookieConsentModal = dynamic(
   () =>
     import(
@@ -264,6 +265,27 @@ const CustomLinksModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "customLinksModal" */ '../../features/shortcuts/components/modals/CustomLinksModal'
+    ),
+);
+
+const ShortcutEditModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "shortcutEditModal" */ '../../features/shortcuts/components/modals/ShortcutEditModal'
+    ),
+);
+
+const ShortcutsManageModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "shortcutsManageModal" */ '../../features/shortcuts/components/modals/ShortcutsManageModal'
+    ),
+);
+
+const ImportPickerModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "importPickerModal" */ '../../features/shortcuts/components/modals/ImportPickerModal'
     ),
 );
 
@@ -461,6 +483,24 @@ const AchievementShowcaseModal = dynamic(
     ),
 );
 
+const IntroQuestModal = dynamic(
+  () => import(/* webpackChunkName: "introQuestModal" */ './IntroQuestModal'),
+);
+
+const ReaderInstallPromptModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerInstallPromptModal" */ './ReaderInstallPromptModal'
+    ),
+);
+
+const ReaderPreviewLazyModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerPreviewLazyModal" */ './ReaderPreviewLazyModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -469,6 +509,7 @@ export const modals = {
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
+  [LazyModal.SmartComposer]: SmartComposerModal,
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
@@ -481,6 +522,7 @@ export const modals = {
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
+  [LazyModal.TopMembers]: TopMembersModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
@@ -496,8 +538,6 @@ export const modals = {
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
-  [LazyModal.SmartPrompt]: SmartPromptModal,
-  [LazyModal.MobileSmartPrompts]: MobileSmartPromptsModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
   [LazyModal.PlusMarketing]: PlusMarketingModal,
@@ -506,6 +546,9 @@ export const modals = {
   [LazyModal.GiveAward]: GiveAwardModal,
   [LazyModal.ContentModal]: ContentModal,
   [LazyModal.CustomLinks]: CustomLinksModal,
+  [LazyModal.ShortcutEdit]: ShortcutEditModal,
+  [LazyModal.ShortcutsManage]: ShortcutsManageModal,
+  [LazyModal.ImportPicker]: ImportPickerModal,
   [LazyModal.ListAwards]: ListAwardsModal,
   [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,
@@ -536,6 +579,9 @@ export const modals = {
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
+  [LazyModal.IntroQuests]: IntroQuestModal,
+  [LazyModal.ReaderInstallPrompt]: ReaderInstallPromptModal,
+  [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
 };
 
 type GetComponentProps<T> = T extends

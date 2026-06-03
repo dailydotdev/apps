@@ -78,7 +78,9 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const [authDisplay, setAuthDisplay] = useState(
       AuthDisplay.OnboardingSignup,
     );
-    const isEmailSignupActive = authDisplay === AuthDisplay.Registration;
+    const isEmailSignupActive =
+      authDisplay === AuthDisplay.Registration ||
+      authDisplay === AuthDisplay.EmailVerification;
     const isSocialSignupActive =
       isAuthReady &&
       isLoggedIn &&

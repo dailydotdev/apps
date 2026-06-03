@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
-  UpvoteIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -14,7 +13,7 @@ import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useMutationSubscription, useVotePost } from '../../hooks';
-import { NotificationCtaPlacement, Origin } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
@@ -31,15 +30,11 @@ import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import { Tooltip } from '../tooltip/Tooltip';
-import EnableNotificationsCta from '../cards/entity/EnableNotificationsCta';
-import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
-import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../graphql/contentPreference';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
+import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
+import { UpvoteButtonIcon } from '../cards/common/UpvoteButtonIcon';
+import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
+import { PostActions as PostActionsV2 } from './PostActions.v2';
 
 interface PostActionsProps {
   post: Post;
@@ -49,7 +44,7 @@ interface PostActionsProps {
   onCopyLinkClick?: (post?: Post) => void;
 }
 
-export function PostActions({
+function PostActionsV1({
   onCopyLinkClick,
   post,
   onComment,
@@ -57,12 +52,6 @@ export function PostActions({
 }: PostActionsProps): ReactElement {
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
-  const creator = post.author || post.scout;
-  const [showNotificationCta, setShowNotificationCta] = useState(false);
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment({
-      shouldEvaluate: showNotificationCta,
-    });
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -70,17 +59,28 @@ export function PostActions({
     sendingUser: user,
     receivingUser: post.author as LoggedUser | undefined,
   });
-  const { subscribe } = useContentPreference();
-  const { data: creatorContentPreference } = useContentPreferenceStatusQuery({
-    id: creator?.id ?? '',
-    entity: ContentPreferenceType.User,
-  });
-  const shouldRenderNotificationCta =
-    isNotificationCtaExperimentEnabled && showNotificationCta;
+  const { getUpvoteAnimation } = useBrandSponsorship();
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
+
+  // Get brand animation config if post has sponsored tags
+  const brandAnimation = useMemo(() => {
+    const animationResult = getUpvoteAnimation(post.tags || []);
+    if (
+      !animationResult.shouldAnimate ||
+      !animationResult.colors ||
+      !animationResult.config
+    ) {
+      return null;
+    }
+    return {
+      colors: animationResult.colors,
+      config: animationResult.config,
+      brandLogo: animationResult.brandLogo,
+    };
+  }, [getUpvoteAnimation, post.tags]);
 
   const { toggleBookmark } = useBookmarkPost();
 
@@ -89,25 +89,11 @@ export function PostActions({
   };
 
   const onToggleUpvote = async () => {
-    const isNewUpvote = post?.userState?.vote !== UserVote.Up;
-
     if (post?.userState?.vote === UserVote.None) {
       onClose(true);
     }
 
     await toggleUpvote({ payload: post, origin });
-
-    if (!isNewUpvote) {
-      return;
-    }
-
-    if (
-      creatorContentPreference?.status === ContentPreferenceStatus.Subscribed
-    ) {
-      return;
-    }
-
-    setShowNotificationCta(true);
   };
 
   const onToggleDownvote = async () => {
@@ -195,10 +181,6 @@ export function PostActions({
   });
 
   useEffect(() => {
-    setShowNotificationCta(false);
-  }, [post.id]);
-
-  useEffect(() => {
     const adjustActions = () => {
       const actions = actionsRef.current;
       if (!actions) {
@@ -230,19 +212,6 @@ export function PostActions({
     // for labels is executed after the DOM is updated with the new state.
   }, [post?.userState?.awarded, canAward]);
 
-  const handleEnableNotifications = async () => {
-    if (!creator?.id || !creator?.username) {
-      throw new Error('Cannot subscribe to notifications without creator id');
-    }
-
-    await subscribe({
-      id: creator.id,
-      entity: ContentPreferenceType.User,
-      entityName: creator.username,
-    });
-    setShowNotificationCta(false);
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
@@ -257,7 +226,12 @@ export function PostActions({
               id="upvote-post-btn"
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
-              icon={<UpvoteIcon secondary={isUpvoteActive} />}
+              icon={
+                <UpvoteButtonIcon
+                  secondary={isUpvoteActive}
+                  brandAnimation={brandAnimation}
+                />
+              }
               aria-label="Upvote"
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Avocado}
@@ -361,19 +335,17 @@ export function PostActions({
           </div>
         </div>
       </div>
-      {shouldRenderNotificationCta && (
-        <EnableNotificationsCta
-          onEnable={handleEnableNotifications}
-          analytics={{
-            placement: NotificationCtaPlacement.PostActions,
-            targetType: ContentPreferenceType.User,
-            targetId: creator?.id,
-          }}
-        />
-      )}
       {showTagsPanel !== undefined && (
         <PostTagsPanel post={post} className="mt-4" toastOnSuccess={false} />
       )}
     </div>
   );
+}
+
+export function PostActions(props: PostActionsProps): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <PostActionsV2 {...props} />;
+  }
+  return <PostActionsV1 {...props} />;
 }

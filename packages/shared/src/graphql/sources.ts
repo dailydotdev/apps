@@ -79,6 +79,7 @@ export interface Squad extends Source {
   public: boolean;
   type: SourceType.Squad;
   members?: Connection<SourceMember>;
+  topMembers?: UserShortProfile[];
   membersCount: number;
   description: string;
   memberPostingRole: SourceMemberRole;
@@ -87,6 +88,7 @@ export interface Squad extends Source {
   referralUrl?: string;
   category?: SourceCategory;
   moderationPostCount: number;
+  favoritedAt?: string | null;
 }
 
 interface SourceFlags {
