@@ -370,7 +370,7 @@ export const ExploreTopicPage = ({
             color={TypographyColor.Tertiary}
             className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
           >
-            <span>Topic</span>
+            <span>Tag</span>
             {statParts.map((part) => (
               <React.Fragment key={(part as ReactElement).key}>
                 <span aria-hidden>·</span>

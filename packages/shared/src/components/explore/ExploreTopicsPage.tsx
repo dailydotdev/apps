@@ -10,6 +10,7 @@ import { useChipBarNavigation } from './useChipBarNavigation';
 import { getExploreTagPageLink } from '../../lib/links';
 import { formatKeyword } from '../../lib/strings';
 import Link from '../utilities/Link';
+import { ClickableText } from '../buttons/ClickableText';
 import {
   Typography,
   TypographyColor,
@@ -28,6 +29,8 @@ interface ExploreTopicsPageProps {
 const OTHER_LETTER = '#';
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
 const LETTERS = [...ALPHABET, OTHER_LETTER];
+// Initial cap per letter (~10 per column across 4 columns) before "Show all".
+const LETTER_LIMIT = 40;
 
 const firstLetterOf = (value: string): string => {
   const raw = value[0]?.toLowerCase() ?? OTHER_LETTER;
@@ -46,6 +49,20 @@ export function ExploreTopicsPage({
   const { ref: letterNavRef, onKeyDown: onLetterNavKeyDown } =
     useChipBarNavigation();
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [expandedLetters, setExpandedLetters] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const toggleLetterExpanded = (letter: string): void =>
+    setExpandedLetters((prev) => {
+      const next = new Set(prev);
+      if (next.has(letter)) {
+        next.delete(letter);
+      } else {
+        next.add(letter);
+      }
+      return next;
+    });
 
   const followedTags = useMemo(
     () => new Set(feedSettings?.includeTags ?? []),
@@ -201,62 +218,76 @@ export function ExploreTopicsPage({
 
       <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
 
-      {/* Featured — trending / popular / recently added, flat link columns. */}
-      {featuredLists.length > 0 && (
-        <div className="grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
+      {/* Featured — trending / popular / recently added, flat link columns.
+          Hidden once a letter is selected so the letter's tags sit right
+          under the A–Z filter. */}
+      {!activeLetter && featuredLists.length > 0 && (
+        <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
           {featuredLists.map((list) => (
             <ExploreCategorySection key={list.id} category={list} />
           ))}
         </div>
       )}
 
-      {/* Border separating the featured lists from the full directory. */}
-      {featuredLists.length > 0 && visibleLetters.length > 0 && (
-        <div className="mb-10 mt-2 h-px w-full bg-border-subtlest-tertiary" />
-      )}
-
       {/* Directory — all tags grouped alphabetically. */}
       <div className="flex w-full flex-col gap-10">
-        {visibleLetters.map((letter) => (
-          <section
-            key={letter}
-            id={`explore-letter-${letter}`}
-            className="scroll-mt-24"
-          >
-            <div className="mb-4 flex items-center gap-3">
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title2}
-                color={TypographyColor.Primary}
-                bold
-                className="uppercase"
-              >
-                {letter}
-              </Typography>
-              <div className="h-px flex-1 bg-border-subtlest-tertiary" />
-            </div>
-            <ul className="columns-2 gap-x-10 tablet:columns-3 laptop:columns-4">
-              {tagsByLetter[letter]?.map((tag) => (
-                <li key={tag.value} className="break-inside-avoid">
-                  <Link
-                    href={getExploreTagPageLink(tag.value)}
-                    passHref
-                    prefetch={false}
-                  >
-                    <Typography
-                      tag={TypographyTag.Link}
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Secondary}
-                      className="block cursor-pointer py-1 no-underline transition-colors hover:text-text-primary"
+        {visibleLetters.map((letter) => {
+          const group = tagsByLetter[letter] ?? [];
+          const isExpanded = expandedLetters.has(letter);
+          const shown = isExpanded ? group : group.slice(0, LETTER_LIMIT);
+          const hasMore = group.length > LETTER_LIMIT;
+
+          return (
+            <section
+              key={letter}
+              id={`explore-letter-${letter}`}
+              className="scroll-mt-24"
+            >
+              <div className="mb-4 flex items-center gap-3">
+                <Typography
+                  tag={TypographyTag.H2}
+                  type={TypographyType.Title2}
+                  color={TypographyColor.Primary}
+                  bold
+                  className="uppercase"
+                >
+                  {letter}
+                </Typography>
+                <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+              </div>
+              <ul className="columns-2 gap-x-10 tablet:columns-3 laptop:columns-4">
+                {shown.map((tag) => (
+                  <li key={tag.value} className="break-inside-avoid">
+                    <Link
+                      href={getExploreTagPageLink(tag.value)}
+                      passHref
+                      prefetch={false}
                     >
-                      {formatKeyword(tag.value)}
-                    </Typography>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
+                      <Typography
+                        tag={TypographyTag.Link}
+                        type={TypographyType.Callout}
+                        color={TypographyColor.Secondary}
+                        className="block cursor-pointer py-1 no-underline transition-colors hover:text-text-primary"
+                      >
+                        {formatKeyword(tag.value)}
+                      </Typography>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {hasMore && (
+                <ClickableText
+                  tag="button"
+                  type="button"
+                  onClick={() => toggleLetterExpanded(letter)}
+                  className="mt-3 w-fit"
+                >
+                  {isExpanded ? 'Show less' : `Show all ${group.length} tags`}
+                </ClickableText>
+              )}
+            </section>
+          );
+        })}
       </div>
     </div>
   );
