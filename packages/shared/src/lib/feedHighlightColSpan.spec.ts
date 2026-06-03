@@ -1,4 +1,4 @@
-import type { Ad, Post, PostHighlightSignificance } from '../graphql/posts';
+import type { Ad, Post, PostHeroSignificance } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
@@ -6,7 +6,7 @@ import { computePlacements, requestedColSpan } from './feedHighlightColSpan';
 
 const makePost = (
   overrides: Partial<Post> & {
-    significance?: PostHighlightSignificance | null;
+    significance?: PostHeroSignificance | null;
   } = {},
 ): Post => {
   const { significance, ...rest } = overrides;
@@ -16,10 +16,9 @@ const makePost = (
     image: '',
     commentsPermalink: '',
     ...(significance !== undefined && {
-      postHighlight: significance
+      hero: significance
         ? {
             id: 'h1',
-            channel: 'vibes',
             highlightedAt: '2026-05-25T00:00:00.000Z',
             headline: 'h',
             significance,
@@ -46,11 +45,11 @@ const makeAdItem = (): FeedItem =>
   } as FeedItem);
 
 describe('requestedColSpan', () => {
-  it('returns 1 for items without postHighlight', () => {
+  it('returns 1 for items without hero', () => {
     expect(requestedColSpan(makePostItem(makePost()))).toBe(1);
   });
 
-  it.each<[PostHighlightSignificance, number]>([
+  it.each<[PostHeroSignificance, number]>([
     ['breaking', 4],
     ['major', 3],
     ['notable', 2],

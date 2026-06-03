@@ -242,6 +242,11 @@ export type PostHighlightSignificance =
   | 'notable'
   | 'routine';
 
+export type PostHeroSignificance =
+  | PostHighlightSignificance
+  | 'breakout'
+  | 'evergreen';
+
 export interface PostHighlight {
   id: string;
   channel: string;
@@ -315,6 +320,14 @@ export interface Post {
   liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
   postHighlight?: PostHighlight | null;
+  hero?: PostHero | null;
+}
+
+export interface PostHero {
+  id: string;
+  headline: string;
+  significance: PostHeroSignificance;
+  highlightedAt: string;
 }
 
 export type RelatedPost = Pick<

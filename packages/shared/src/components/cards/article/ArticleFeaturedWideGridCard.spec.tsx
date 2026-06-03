@@ -8,8 +8,8 @@ import post from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import type {
   Post,
-  PostHighlight,
-  PostHighlightSignificance,
+  PostHero,
+  PostHeroSignificance,
 } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleFeaturedWideGridCard } from './ArticleFeaturedWideGridCard';
@@ -39,13 +39,10 @@ const defaultProps: PostCardProps = {
   onReadArticleClick: jest.fn(),
 };
 
-const makeHighlight = (
-  significance: PostHighlightSignificance | null,
-): PostHighlight | null =>
+const makeHero = (significance: PostHeroSignificance | null): PostHero | null =>
   significance
     ? {
         id: 'h1',
-        channel: 'vibes',
         highlightedAt: '2026-05-25T00:00:00.000Z',
         headline: 'A breaking event',
         significance,
@@ -61,12 +58,12 @@ const renderComponent = (
     </TestBootProvider>,
   );
 
-const postWith = (significance: PostHighlightSignificance | null): Post => ({
+const postWith = (significance: PostHeroSignificance | null): Post => ({
   ...post,
-  postHighlight: makeHighlight(significance),
+  hero: makeHero(significance),
 });
 
-it.each<[PostHighlightSignificance, string]>([
+it.each<[PostHeroSignificance, string]>([
   ['breaking', 'Breaking'],
   ['major', 'Major'],
   ['notable', 'Notable'],
