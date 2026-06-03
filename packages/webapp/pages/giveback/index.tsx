@@ -40,7 +40,7 @@ const GivebackRoute = (): ReactElement | null => {
     }
   }, [isLoading, isEnabled, router]);
 
-  if (isLoading || !isEnabled) {
+  if (!isEnabled) {
     return null;
   }
 

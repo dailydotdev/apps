@@ -179,7 +179,7 @@ export const featureReaderModal = new Feature('reader_modal_v2', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
-export const featureGiveback = new Feature('giveback', isDevelopment);
+export const featureGiveback = new Feature('giveback', true);
 
 export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
