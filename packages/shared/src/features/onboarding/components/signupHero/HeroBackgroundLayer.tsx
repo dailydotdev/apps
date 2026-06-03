@@ -9,8 +9,11 @@ import { DeskBackground } from './DeskBackground';
 
 // =============================================================
 // Background layer — renders the selected background's artwork.
-// In 'colors' image mode the artwork is omitted, leaving just the
-// gradient backdrop.
+//
+// The cards and split backgrounds are always the live feed-cards
+// mosaic. `imageMode` only applies to the desk background (the only
+// one with an actual photo): 'colors' omits the photo, leaving just
+// the gradient backdrop.
 // =============================================================
 
 type HeroBackgroundLayerProps = {
@@ -22,13 +25,9 @@ export const HeroBackgroundLayer = ({
   background,
   imageMode,
 }: HeroBackgroundLayerProps): ReactElement | null => {
-  if (imageMode === 'colors') {
-    return null;
+  if (background === 'desk') {
+    return imageMode === 'colors' ? null : <DeskBackground />;
   }
 
-  return background === 'desk' ? (
-    <DeskBackground />
-  ) : (
-    <CardsBackground splitMode={background === 'split'} />
-  );
+  return <CardsBackground splitMode={background === 'split'} />;
 };
