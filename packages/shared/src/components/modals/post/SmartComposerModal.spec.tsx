@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useNotificationToggle } from '../../../hooks/notifications';
@@ -16,6 +17,10 @@ jest.mock('../../../contexts/AuthContext', () => ({
 
 jest.mock('../../../contexts/LogContext', () => ({
   useLogContext: jest.fn(),
+}));
+
+jest.mock('../../../contexts/SettingsContext', () => ({
+  useSettingsContext: jest.fn(),
 }));
 
 jest.mock('../../../hooks', () => {
@@ -96,6 +101,10 @@ describe('SmartComposerModal', () => {
     jest.mocked(useLogContext).mockReturnValue({
       logEvent,
     } as unknown as ReturnType<typeof useLogContext>);
+    jest.mocked(useSettingsContext).mockReturnValue({
+      flags: {},
+      loadedSettings: true,
+    } as unknown as ReturnType<typeof useSettingsContext>);
     jest
       .mocked(useViewSize)
       .mockImplementation((size) => size === ViewSize.Laptop);
