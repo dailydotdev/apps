@@ -31,7 +31,6 @@ import {
   QUEST_UPDATE_SUBSCRIPTION,
 } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
-import { useMarkQuestRotationsViewed } from '../../hooks/useMarkQuestRotationsViewed';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -507,6 +506,7 @@ const QuestLevelFireworkLayer = ({
 
 interface QuestButtonProps {
   compact?: boolean;
+  panelOnly?: boolean;
 }
 
 interface QuestDropdownPanelProps {
@@ -659,6 +659,7 @@ const QuestDropdownPanel = ({
 
 export const QuestButton = ({
   compact = false,
+  panelOnly = false,
 }: QuestButtonProps): ReactElement => {
   const router = useRouter();
   const { optOutLevelSystem } = useSettingsContext();
@@ -758,7 +759,6 @@ export const QuestButton = ({
   const level = data?.level?.level ?? 1;
   const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
   const showLevelSystem = !optOutLevelSystem;
-  const { mutate: markQuestRotationsViewed } = useMarkQuestRotationsViewed();
   const claimableCount = useMemo(() => {
     if (!data) {
       return 0;
@@ -813,11 +813,6 @@ export const QuestButton = ({
   const triggerVisualClassName = compact ? 'size-8' : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
   const [isOpen, setIsOpen] = useState(false);
-  const isAccountOlderThan24Hours =
-    !!user?.createdAt &&
-    Date.now() - new Date(user.createdAt).getTime() > 24 * 60 * 60 * 1000;
-  const hasNewQuestRotations =
-    (data?.hasNewQuestRotations ?? false) && isAccountOlderThan24Hours;
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
@@ -835,14 +830,6 @@ export const QuestButton = ({
     [deferredClaimedStampRotationIds],
   );
   const scrollFadeRef = useScrollFade<HTMLDivElement>();
-
-  useEffect(() => {
-    if (!isOpen || !hasNewQuestRotations) {
-      return;
-    }
-
-    markQuestRotationsViewed();
-  }, [hasNewQuestRotations, isOpen, markQuestRotationsViewed]);
 
   const clearProgressTimers = useCallback(() => {
     progressTimersRef.current.forEach((timerId) => {
@@ -1210,6 +1197,44 @@ export const QuestButton = ({
     };
   }, [clearClaimedStampTimers, clearProgressTimers]);
 
+  if (panelOnly) {
+    return (
+      <>
+        <div ref={scrollFadeRef} className="overflow-y-auto bg-inherit">
+          <QuestDropdownPanel
+            showLevelSystem={showLevelSystem}
+            renderedLevel={renderedLevel}
+            data={data}
+            isPending={isPending}
+            isError={isError}
+            claimingQuestId={claimingQuestId}
+            animatingClaimRotationIds={animatingClaimRotationIdSet}
+            claimedStampRotationIds={claimedStampRotationIdSet}
+            animatingClaimedStampRotationIds={
+              animatingClaimedStampRotationIdSet
+            }
+            deferredClaimedStampRotationIds={deferredClaimedStampRotationIdSet}
+            onClaim={handleClaim}
+            onDestinationClick={handleDestinationClick}
+          />
+        </div>
+        {rewardFlightLayers.map((layer) => (
+          <QuestRewardFlightLayer
+            key={layer.claimRotationId}
+            flights={layer.flights}
+            onDone={() => handleRewardFlightLayerDone(layer.claimRotationId)}
+          />
+        ))}
+        {levelFireworkParticles.length > 0 && (
+          <QuestLevelFireworkLayer
+            particles={levelFireworkParticles}
+            onDone={clearLevelFireworkParticles}
+          />
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -1228,12 +1253,8 @@ export const QuestButton = ({
                 showLevelSystem
                   ? `Quests, level ${renderedLevel}, ${Math.round(
                       renderedLevelProgress,
-                    )}% progress${
-                      hasNewQuestRotations ? ', new quests available' : ''
-                    }`
-                  : `Quests${
-                      hasNewQuestRotations ? ', new quests available' : ''
-                    }`
+                    )}% progress`
+                  : 'Quests'
               }
             >
               {showLevelSystem ? (
@@ -1291,20 +1312,6 @@ export const QuestButton = ({
                 >
                   <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
                 </span>
-              )}
-              {hasNewQuestRotations && (
-                <Bubble
-                  aria-hidden
-                  data-testid="quest-button-new-indicator"
-                  className={classNames(
-                    'left-0 top-0 !min-h-0 !min-w-0 !py-0.5 px-1.5 !font-bold lowercase typo-caption2',
-                    compact
-                      ? '-translate-x-1.5 -translate-y-1'
-                      : '-translate-x-2 -translate-y-1.5',
-                  )}
-                >
-                  new
-                </Bubble>
               )}
               {claimableCount > 0 && (
                 <Bubble

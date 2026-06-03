@@ -19,13 +19,17 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { isTesting } from '@dailydotdev/shared/src/lib/constants';
+import {
+  isTesting,
+  onboardingUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
@@ -135,6 +139,29 @@ function InternalApp(): ReactElement {
       getContentScriptPermissionAndRegister();
     }
   }, [contentScriptGranted]);
+
+  useEffect(() => {
+    if (!isPageReady) {
+      return undefined;
+    }
+    let isActive = true;
+    // Ask the background once whether the activation primer opened this tab.
+    // If so, a logged-out user is routed into onboarding a single time; every
+    // later new tab falls back to the normal behavior below.
+    browser.runtime
+      .sendMessage({ type: ExtensionMessageType.ConsumeActivateOnboarding })
+      .then((response) => {
+        const pending = (response as { pending?: boolean } | undefined)
+          ?.pending;
+        if (isActive && pending && !user) {
+          window.location.href = onboardingUrl;
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      isActive = false;
+    };
+  }, [isPageReady, user]);
 
   useEffect(() => {
     document.title = unreadCount

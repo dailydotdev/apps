@@ -5,6 +5,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import * as layoutVariant from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import MainLayout from '../components/layouts/MainLayout';
 
 describe('MainLayout', () => {
@@ -13,13 +14,19 @@ describe('MainLayout', () => {
   beforeEach(() => {
     showLogin.mockReset();
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    jest
+      .spyOn(layoutVariant, 'useLayoutVariant')
+      .mockReturnValue({ isV2: false, isLoading: false });
   });
 
-  const renderLayout = (user: LoggedUser = null): RenderResult => {
+  const renderLayout = (user: LoggedUser | null = null): RenderResult => {
     const client = new QueryClient();
 
     return render(
-      <TestBootProvider client={client} auth={{ user, showLogin }}>
+      <TestBootProvider
+        client={client}
+        auth={{ user: user as LoggedUser, showLogin }}
+      >
         <MainLayout />
       </TestBootProvider>,
     );
@@ -44,7 +51,7 @@ describe('MainLayout', () => {
       reputation: 5,
       permalink: 'https://app.daily.dev/ido',
       infoConfirmed: true,
-    });
+    } as LoggedUser);
     const [el] = await screen.findAllByAltText(`idoshamun's profile`);
     expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
     expect(screen.getByText('5')).toBeInTheDocument();

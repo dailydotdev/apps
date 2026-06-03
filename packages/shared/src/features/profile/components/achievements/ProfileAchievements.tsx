@@ -20,6 +20,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../../../lib/achievements';
+import { useLayoutVariant } from '../../../../hooks/layout/useLayoutVariant';
 
 const AchievementTrackingWidget = dynamic(() =>
   import('../ProfileWidgets/AchievementTrackingWidget').then(
@@ -61,6 +62,7 @@ export function ProfileAchievements({
 }: ProfileAchievementsProps): ReactElement {
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
+  const { isV2 } = useLayoutVariant();
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -91,14 +93,16 @@ export function ProfileAchievements({
     return (
       <div className={classNames('flex flex-col gap-4', className)}>
         <div className="flex flex-col items-center gap-1">
-          <Typography
-            type={TypographyType.Title1}
-            tag={TypographyTag.H1}
-            color={TypographyColor.Primary}
-            bold
-          >
-            Achievements
-          </Typography>
+          {!isV2 && (
+            <Typography
+              type={TypographyType.Title1}
+              tag={TypographyTag.H1}
+              color={TypographyColor.Primary}
+              bold
+            >
+              Achievements
+            </Typography>
+          )}
           <div className="h-5 w-32 animate-pulse rounded-8 bg-surface-float" />
         </div>
         <AchievementsSkeleton />
@@ -131,14 +135,16 @@ export function ProfileAchievements({
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       <div className="flex flex-col items-center gap-1">
-        <Typography
-          type={TypographyType.Title1}
-          tag={TypographyTag.H1}
-          color={TypographyColor.Primary}
-          bold
-        >
-          Achievements
-        </Typography>
+        {!isV2 && (
+          <Typography
+            type={TypographyType.Title1}
+            tag={TypographyTag.H1}
+            color={TypographyColor.Primary}
+            bold
+          >
+            Achievements
+          </Typography>
+        )}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
             <MedalBadgeIcon className="size-6 text-text-primary" />

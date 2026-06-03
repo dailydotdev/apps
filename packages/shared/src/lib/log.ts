@@ -50,6 +50,7 @@ export enum Origin {
   PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
+  FeedCard = 'feed card',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
@@ -102,6 +103,7 @@ export enum LogEvent {
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
+  CreatePost = 'create post',
   SwitchComposerKind = 'switch composer kind',
   ToggleComposerMarkdown = 'toggle composer markdown',
   ToggleComposerExpand = 'toggle composer expand',
@@ -142,10 +144,6 @@ export enum LogEvent {
   EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
   ScheduleDigest = 'schedule digest',
-  EnableMajorHeadlinesAlerts = 'enable major headlines alerts',
-  DisableMajorHeadlinesAlerts = 'disable major headlines alerts',
-  ImpressionMajorHeadlinesAlertsBanner = 'impression major headlines alerts banner',
-  DismissMajorHeadlinesAlertsBanner = 'dismiss major headlines alerts banner',
   // notifications - end
   // squads - start
   ViewSquadInvitation = 'view squad invitation',
@@ -481,12 +479,18 @@ export enum LogEvent {
   ToggleEmbeddedReader = 'toggle embedded reader',
   ImpressionReaderInstallPrompt = 'impression reader install prompt',
   ClickReaderInstallExtension = 'click reader install extension',
+  ClickReaderInstallPreview = 'click reader install preview',
+  ClickReaderInstallSkip = 'click reader install skip',
   ImpressionReaderFallback = 'impression reader fallback',
   ReaderEmbedReady = 'reader embed ready',
   ReaderEmbedPermissionRequired = 'reader embed permission required',
   ReaderEmbedError = 'reader embed error',
   // Onboarding personas
   SelectOnboardingPersona = 'select onboarding persona',
+  // Extension activation primer
+  ExtensionPrimerShown = 'impression extension primer',
+  ExtensionPrimerCtaClick = 'click extension primer cta',
+  ExtensionPrimerSkipped = 'skip extension primer',
 }
 
 export enum TargetType {
@@ -677,9 +681,6 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
-  MajorHeadlinesSettings = 'major headlines settings',
-  MajorHeadlinesPage = 'major headlines page',
-  MajorHeadlinesCard = 'major headlines card',
   StandupLobby = 'standup lobby',
 }
 

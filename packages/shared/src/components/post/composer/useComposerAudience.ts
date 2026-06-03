@@ -21,6 +21,7 @@ interface UseComposerAudience {
 
 export const useComposerAudience = (
   initialSquadHandle?: string,
+  initialSquadId?: string,
 ): UseComposerAudience => {
   const { user, squads } = useAuthContext();
 
@@ -42,6 +43,14 @@ export const useComposerAudience = (
   );
 
   const defaultId = useMemo(() => {
+    if (initialSquadId) {
+      const match = audiences.find(
+        (audience) => audience.id === initialSquadId,
+      );
+      if (match?.id) {
+        return match.id;
+      }
+    }
     if (initialSquadHandle) {
       const match = audiences.find(
         (audience) => audience.handle === initialSquadHandle,
@@ -51,7 +60,7 @@ export const useComposerAudience = (
       }
     }
     return userAudienceId;
-  }, [audiences, initialSquadHandle, userAudienceId]);
+  }, [audiences, initialSquadHandle, initialSquadId, userAudienceId]);
 
   const [selectedIds, setSelectedIds] = useState<string[]>(() =>
     defaultId ? [defaultId] : [],

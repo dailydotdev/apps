@@ -14,13 +14,16 @@ import { Image } from '../image/Image';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import type { LoggedUser } from '../../lib/user';
+import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
+import PostAwardActionV2 from './PostAwardAction.v2';
 
 export interface PostAwardActionProps {
   post: Post;
   iconSize?: IconSize;
+  density?: 'comfortable' | 'compact';
 }
 
-const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
+const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
   const isSameUser = user?.id === post?.author?.id;
@@ -103,6 +106,14 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
       </QuaternaryButton>
     </Tooltip>
   );
+};
+
+const PostAwardAction = (props: PostAwardActionProps) => {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <PostAwardActionV2 {...props} />;
+  }
+  return <PostAwardActionV1 {...props} />;
 };
 
 export default PostAwardAction;

@@ -21,6 +21,7 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
+import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -36,7 +37,10 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useManualScrollRestoration,
+} from '@dailydotdev/shared/src/hooks';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
@@ -52,8 +56,6 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureInlineLogin } from '@dailydotdev/shared/src/lib/featureManagement';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
@@ -100,13 +102,13 @@ const getPage = () => window.location.pathname;
 
 const onboardingExcludedPaths = [
   '/onboarding',
+  '/activate',
   '/recruiter',
   '/jobs',
   '/settings',
 ];
-// When the inline_login experiment is on, we only force the rest of onboarding
-// when the user lands on the main feed — everywhere else they can keep
-// browsing after the inline first step.
+// While an auth intent is active, only force the rest of onboarding when the
+// user lands on the main feed.
 const mainFeedPathnames = new Set([
   '/',
   '/popular',
@@ -119,6 +121,7 @@ const mainFeedPathnames = new Set([
 const hotAndColdModalQueryKey = 'openModal';
 const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
+const swipeOnboardingPreviewQueryKey = 'swipeOnboardingPreview';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
@@ -178,7 +181,17 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     closeLogin,
     loginState,
   } = useAuthContext();
-  const isInlineLoginEnabled = useFeature(featureInlineLogin);
+  // Users arriving from the extension install link land on `/?ref=install`.
+  // Only evaluate the permission primer experiment for them while onboarding
+  // is still pending, so we can route them to the activation step.
+  const isComingFromInstall = router.query.ref === 'install';
+  const {
+    value: isPermissionPrimerEnabled,
+    isLoading: isPermissionPrimerLoading,
+  } = useConditionalFeature({
+    feature: featureOnboardingPermissionPrimer,
+    shouldEvaluate: isComingFromInstall && isOnboardingActionsReady,
+  });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -198,6 +211,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     (Array.isArray(hotAndColdModalQuery) &&
       (hotAndColdModalQuery.includes(hotAndColdModalQueryValue) ||
         hotAndColdModalQuery.includes(hotAndColdModalLegacyQueryValue)));
+  const swipeOnboardingPreviewQuery =
+    router.query[swipeOnboardingPreviewQueryKey];
+  const isSwipeOnboardingPreviewForced =
+    swipeOnboardingPreviewQuery === '1' ||
+    swipeOnboardingPreviewQuery === 'true' ||
+    (Array.isArray(swipeOnboardingPreviewQuery) &&
+      (swipeOnboardingPreviewQuery.includes('1') ||
+        swipeOnboardingPreviewQuery.includes('true')));
 
   useEffect(() => {
     if (!shouldOpenHotAndColdFromQuery) {
@@ -231,22 +252,39 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
-    if (
-      isFunnel ||
-      !isOnboardingActionsReady ||
-      isOnboardingComplete ||
-      isOnboardingExcludedPath(router.pathname)
-    ) {
+    // Never redirect away from onboarding-related surfaces (prevents loops).
+    if (isOnboardingExcludedPath(router.pathname)) {
       return;
     }
 
-    // Inline login experiment: defer the rest of onboarding until the user
-    // navigates to the main feed; otherwise let them keep browsing.
-    if (isInlineLoginEnabled && !mainFeedPathnames.has(router.pathname)) {
+    // Wait for the permission primer experiment to resolve before redirecting
+    // install referrals, so we don't race them to `/onboarding`.
+    if (isComingFromInstall && isPermissionPrimerLoading) {
       return;
     }
 
-    router.replace('/onboarding');
+    // The activation primer takes priority over onboarding: enrolled install
+    // referrals go to `/activate` regardless of onboarding completion or the
+    // other onboarding gates below.
+    if (isComingFromInstall && isPermissionPrimerEnabled) {
+      router.replace('/activate');
+      return;
+    }
+
+    if (isFunnel || !isOnboardingActionsReady || isOnboardingComplete) {
+      return;
+    }
+
+    // While the auth intent is active, defer the rest of onboarding until they
+    // navigate to the main feed.
+    if (shouldShowLogin && !mainFeedPathnames.has(router.pathname)) {
+      return;
+    }
+
+    const destination = isSwipeOnboardingPreviewForced
+      ? '/onboarding?swipeOnboardingPreview=1'
+      : '/onboarding';
+    router.replace(destination);
     // `router.pathname` is depended on explicitly because the `router` ref is
     // stable across in-app navigations.
   }, [
@@ -255,7 +293,11 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     router,
     router.pathname,
     isOnboardingComplete,
-    isInlineLoginEnabled,
+    shouldShowLogin,
+    isSwipeOnboardingPreviewForced,
+    isComingFromInstall,
+    isPermissionPrimerEnabled,
+    isPermissionPrimerLoading,
   ]);
 
   useEffect(() => {
@@ -407,7 +449,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
         </DndContextProvider>
-        {isInlineLoginEnabled && shouldShowLogin && (
+        {shouldShowLogin && (
           <AuthModal
             isOpen={shouldShowLogin}
             onRequestClose={closeLogin}

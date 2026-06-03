@@ -38,6 +38,7 @@ import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
+import { BriefShortcutButton } from '../cards/brief/BriefShortcutButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -50,6 +51,7 @@ import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -94,6 +96,8 @@ export const SearchControlHeader = ({
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { isV2 } = useLayoutVariant();
+  const isV2Strip = isV2;
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
@@ -124,17 +128,26 @@ export const SearchControlHeader = ({
     return null;
   }
 
+  // v2 compact ghost styles for the page-header action strip: 32px
+  // square icon buttons + 32px-tall text buttons, no border/bg, with
+  // a surface-hover affordance on hover.
+  const compactIconButtonClassName =
+    '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
+  const compactTextButtonClassName =
+    '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover';
+
   const dropdownProps: Partial<DropdownProps> = {
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      button: '!px-1',
+      button: isV2Strip ? compactIconButtonClassName : '!px-1',
       container: 'flex',
     },
     shouldIndicateSelected: true,
-    buttonSize: isMobile ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize: isMobile || isV2Strip ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
-    buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
+    buttonVariant:
+      isV2Strip || !isLaptop ? ButtonVariant.Tertiary : ButtonVariant.Float,
   };
 
   const shouldShowInstallExtensionPrompt =
@@ -169,13 +182,44 @@ export const SearchControlHeader = ({
     </React.Fragment>
   );
 
+  const dropdownIconSize = isV2Strip ? IconSize.XSmall : IconSize.Medium;
+  // When chips are present in the v2 strip the actions cluster moves to
+  // the right and rendered icon-only so the chips have horizontal room
+  // to scroll on the left.
+  const hasV2Chips = isV2Strip && !!chips;
   const primaryActions = [
-    hasFeedActions && <MyFeedHeading key="my-feed" />,
+    hasFeedActions && (
+      <MyFeedHeading
+        key="my-feed"
+        iconOnly={hasV2Chips}
+        feedSettingsButtonProps={
+          isV2Strip
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: hasV2Chips
+                  ? compactIconButtonClassName
+                  : compactTextButtonClassName,
+                iconSize: IconSize.XSmall,
+              }
+            : undefined
+        }
+      />
+    ),
+    hasFeedActions && isV2Strip && (
+      <BriefShortcutButton
+        key="brief-shortcut"
+        iconOnly={hasV2Chips}
+        className={
+          hasV2Chips ? compactIconButtonClassName : compactTextButtonClassName
+        }
+      />
+    ),
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
         key="algorithm"
-        icon={<CalendarIcon size={IconSize.Medium} />}
+        icon={<CalendarIcon size={dropdownIconSize} />}
         selectedIndex={selectedPeriod}
         options={periodTexts}
         onChange={(_, index) => setSelectedPeriod(index)}
@@ -185,7 +229,7 @@ export const SearchControlHeader = ({
       <Dropdown
         {...dropdownProps}
         key="sorting"
-        icon={<SortIcon size={IconSize.Medium} />}
+        icon={<SortIcon size={dropdownIconSize} />}
         selectedIndex={selectedAlgo}
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
@@ -197,15 +241,81 @@ export const SearchControlHeader = ({
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
+        buttonProps={
+          isV2Strip
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                // free-trial variant renders icon + "5/5" text, so it must
+                // keep text-button sizing (auto width). Squashing it into the
+                // 32px icon square clips the hover target off the text.
+                className: compactTextButtonClassName,
+              }
+            : undefined
+        }
+        iconButtonProps={
+          isV2Strip
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: compactIconButtonClassName,
+              }
+            : undefined
+        }
+        iconSize={isV2Strip ? IconSize.XSmall : undefined}
         key="toggle-clickbait-shield"
       />
     ),
-    hasFeedActions && <IntroQuestButton key="intro-quests" />,
-    hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
-    hasFeedActions && <LuckyButton key="lucky" />,
+    hasFeedActions && !isV2Strip && <IntroQuestButton key="intro-quests" />,
+    hasFeedActions && !isV2Strip && (
+      <AchievementTrackerButton key="achievement-tracker-inline" />
+    ),
+    hasFeedActions && !isV2Strip && <LuckyButton key="lucky" />,
+  ];
+  // v2: AchievementTrackerButton is right-aligned so the current
+  // achievement / track CTA stays balanced against the primary
+  // controls. Non-v2 keeps it inline above.
+  const rightActions = [
+    hasFeedActions && isV2Strip && (
+      <AchievementTrackerButton key="achievement-tracker" />
+    ),
   ];
   const secondaryActions = [isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);
+  const trailingActions = [
+    ...rightActions.filter(Boolean),
+    ...secondaryActions.filter(Boolean),
+  ];
+
+  // In v2 the FeedContainer wraps these actions inside its own
+  // page-header strip. Layout:
+  //   - With chips: chips fill the left (flex-1, scrollable), all
+  //     actions sit on the right as icon-only buttons.
+  //   - Without chips: primary cluster on the left, trailing cluster
+  //     (achievement tracker + install-extension) docked right.
+  if (isV2Strip) {
+    if (hasV2Chips) {
+      return (
+        <div className="flex w-full items-center gap-2">
+          <div className="min-w-0 flex-1">{chips}</div>
+          <div className="flex shrink-0 items-center gap-1">
+            {actions}
+            {trailingActions}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="flex w-full items-center gap-2">
+        <div className="flex min-w-0 items-center gap-1">{actions}</div>
+        {trailingActions.length > 0 && (
+          <div className="ml-auto flex items-center gap-1">
+            {trailingActions}
+          </div>
+        )}
+      </div>
+    );
+  }
   const sideActions = secondaryActions.filter(Boolean);
 
   return (
@@ -229,13 +339,13 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div className="flex w-full items-center gap-2">
+      <header className="flex w-full items-center gap-2">
         {!!chips && <div className="min-w-0 flex-1">{chips}</div>}
         <div className="flex shrink-0 items-center gap-2">{actions}</div>
         {sideActions.length > 0 && (
           <div className="ml-auto flex items-center gap-2">{sideActions}</div>
         )}
-      </div>
+      </header>
     </ConditionalWrapper>
   );
 };

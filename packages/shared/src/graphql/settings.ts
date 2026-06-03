@@ -55,6 +55,12 @@ export type SettingsFlags = {
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
   legacyPostLayoutOptOut?: boolean;
+  highlightCardsOptOut?: boolean;
+  // Persists that the user already chose to engage with the reader install
+  // prompt (clicked "Enable permissions & read inside"). Future read clicks
+  // skip the prompt and open the reader modal directly. Dismissing the prompt
+  // without choosing an option leaves this unset so the prompt reappears.
+  readerInstallPromptAcknowledged?: boolean;
   shortcutMeta?: Record<string, ShortcutMeta>;
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
@@ -88,6 +94,7 @@ export type RemoteSettings = {
   optOutReadingStreak: boolean;
   optOutLevelSystem: boolean;
   optOutQuestSystem: boolean;
+  optOutAchievements: boolean;
   optOutCompanion: boolean;
   autoDismissNotifications: boolean;
   sortCommentsBy: SortCommentsBy;

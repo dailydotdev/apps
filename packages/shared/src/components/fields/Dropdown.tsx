@@ -23,6 +23,7 @@ import { RootPortal } from '../tooltips/Portal';
 import type { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 
 export interface DropdownClassName {
@@ -142,7 +143,10 @@ export function Dropdown({
       size={buttonSize}
       disabled={disabled}
       className={classNames(
-        'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
+        // `!pl-4 !pr-2.5` overrides the Button's built-in Large padding (px-6)
+        // so the value lines up with the other fields' 16px text inset and the
+        // chevron sits tight to the right edge instead of floating 24px in.
+        'group flex w-full items-center !pl-4 !pr-2.5 font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
         className?.button,
         iconOnly && 'items-center justify-center',
       )}
@@ -172,13 +176,14 @@ export function Dropdown({
       {iconOnly ? null : (
         <>
           <span
-            className={classNames('mr-1 flex flex-1 truncate', className.label)}
+            className={classNames('mr-2 flex flex-1 truncate', className.label)}
           >
             {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
           </span>
           <ArrowIcon
+            size={IconSize.Size16}
             className={classNames(
-              'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
+              'ml-auto shrink-0 text-text-quaternary transition-transform group-hover:text-text-primary',
               isVisible ? 'rotate-0' : 'rotate-180',
               styles.chevron,
               className.chevron,

@@ -10,7 +10,9 @@ export const FieldInput = classed(
 
 export const BaseField = classed(
   'div',
-  'flex px-4 overflow-hidden bg-surface-float border border-transparent cursor-text',
+  // Border width only — the resting border *color* is the Float hairline set on
+  // `.field` (fields.module.css) so every field matches the Button v2 weight.
+  'flex px-4 overflow-hidden bg-surface-float border cursor-text',
   styles.field,
 );
 

@@ -24,6 +24,7 @@ import { useContentPreference } from '../../../hooks/contentPreference/useConten
 import type { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { Loader } from '../../Loader';
 import { FeedSettingsEdit } from './FeedSettingsEdit';
+import { webappUrl } from '../../../lib/constants';
 
 export const FeedSettingsCreate = (): ReactElement => {
   const [newFeedId] = useState(() => Date.now().toString());
@@ -62,6 +63,7 @@ export const FeedSettingsCreate = (): ReactElement => {
     data: createdFeedData,
     mutate: onSubmit,
     isPending: isSubmitPending,
+    isError,
   } = useMutation({
     mutationFn: createFeed,
     onSuccess: async (newFeed) => {
@@ -96,6 +98,8 @@ export const FeedSettingsCreate = (): ReactElement => {
       ) {
         displayToast(labels.feed.error.feedLimit.client);
 
+        router.replace(webappUrl);
+
         return;
       }
 
@@ -122,7 +126,11 @@ export const FeedSettingsCreate = (): ReactElement => {
   }, [completeAction, user]);
 
   const shouldCreateNewFeed =
-    !!user && !isSubmitPending && !createdFeedData && !shouldUseQuickFeedCreate;
+    !!user &&
+    !isSubmitPending &&
+    !createdFeedData &&
+    !shouldUseQuickFeedCreate &&
+    !isError;
 
   useEffect(() => {
     if (!shouldCreateNewFeed) {

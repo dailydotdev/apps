@@ -32,11 +32,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
-export const featureMajorHeadlinesPush = new Feature(
-  'major_headlines_push',
-  false,
-);
 export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,
@@ -58,8 +53,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 });
 
 export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
-
-export const featureInlineLogin = new Feature('inline_login', false);
 
 export const featureLuckyButton = new Feature('lucky_button', false);
 
@@ -182,12 +175,7 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal', false);
-
-export const featureGenericReferralPopupV2 = new Feature(
-  'generic_referral_popup_v2',
-  isDevelopment,
-);
+export const featureReaderModal = new Feature('reader_modal_v2', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
@@ -201,4 +189,37 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
-export const featureFeedTagChips = new Feature('feed_tag_chips', true);
+export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
+
+export const featureUpvoteCountThreshold = new Feature<{
+  threshold: number;
+  belowThresholdLabel: string;
+  newWindowHours: number;
+}>('upvote_count_threshold', {
+  threshold: 0,
+  belowThresholdLabel: '',
+  newWindowHours: 24,
+});
+
+export enum FeedChipsVariant {
+  None = 'none',
+  V2 = 'v2',
+}
+export const featureFeedChips = new Feature<FeedChipsVariant>(
+  'feed_chips',
+  FeedChipsVariant.None,
+);
+
+export const featureLayoutV2 = new Feature('layout_v2', false);
+
+export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+export const featurePostHighlightCards = new Feature(
+  'post_highlight_cards_v2',
+  false,
+);
+
+export const featureOnboardingPermissionPrimer = new Feature(
+  'onboarding_permission_primer',
+  false,
+);

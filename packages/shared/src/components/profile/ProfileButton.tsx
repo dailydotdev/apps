@@ -3,12 +3,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
-import { CoreIcon, SettingsIcon } from '../icons';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
+import { CoreIcon, ReputationIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
-import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
+import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { walletUrl } from '../../lib/constants';
@@ -37,6 +37,7 @@ export default function ProfileButton({
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user, isAuthReady } = useAuthContext();
+  const { showIndicator } = useProfileCompletionIndicator();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const hasCoresAccess = useHasAccessToCores();
   const [animatedCores, setAnimatedCores] = useState<number | null>(null);
@@ -197,6 +198,8 @@ export default function ProfileButton({
     return <></>;
   }
 
+  // The pill groups streak / cores / reputation / avatar into one
+  // bordered control with edge-to-edge hover slots.
   return (
     <>
       {settingsIconOnly ? (
@@ -206,71 +209,85 @@ export default function ProfileButton({
           icon={<SettingsIcon />}
         />
       ) : (
-        <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
-          {isStreaksEnabled && streak && (
-            <ReadingStreakButton
-              streak={streak}
-              isLoading={isLoading}
-              compact
-              className="pl-4"
+        <div className="relative">
+          <div className="flex h-10 items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+            {isStreaksEnabled && streak && (
+              <ReadingStreakButton
+                streak={streak}
+                isLoading={isLoading}
+                compact
+                className="!h-full !rounded-none !pl-1.5 !pr-2"
+              />
+            )}
+            {hasCoresAccess && (
+              <Tooltip
+                content={
+                  <>
+                    Wallet
+                    <br />
+                    {preciseBalance} Cores
+                  </>
+                }
+              >
+                <div
+                  ref={coresCounterRef}
+                  className="flex origin-center justify-center will-change-transform"
+                >
+                  <Link href={walletUrl} passHref>
+                    <Button
+                      data-reward-target={QuestRewardType.Cores}
+                      icon={<CoreIcon />}
+                      tag="a"
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.Small}
+                      className="!h-full !rounded-none !pl-1.5 !pr-2"
+                    >
+                      {largeNumberFormat(displayedBalance)}
+                    </Button>
+                  </Link>
+                </div>
+              </Tooltip>
+            )}
+            <Tooltip side="bottom" content="Profile settings">
+              <Button
+                type="button"
+                aria-label="Profile settings"
+                icon={
+                  <ReputationIcon
+                    className="text-accent-onion-default"
+                    size={IconSize.Medium}
+                  />
+                }
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                className={classNames(
+                  '!h-full !gap-0 !rounded-none !pl-0.5 !pr-0',
+                  className,
+                )}
+                onClick={wrapHandler(() => onUpdate(!isOpen))}
+              >
+                <span
+                  ref={reputationCounterRef}
+                  data-reward-target={QuestRewardType.Reputation}
+                  className="inline-flex origin-center items-center will-change-transform"
+                >
+                  {largeNumberFormat(displayedReputation ?? 0)}
+                </span>
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.Large}
+                  className="ml-2 !h-9 !w-9 !rounded-10"
+                  nativeLazyLoading
+                />
+              </Button>
+            </Tooltip>
+          </div>
+          {showIndicator && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-1 right-[31px] size-3 rounded-full bg-accent-cheese-default"
             />
           )}
-          {hasCoresAccess && (
-            <Tooltip
-              content={
-                <>
-                  Wallet
-                  <br />
-                  {preciseBalance} Cores
-                </>
-              }
-            >
-              <div
-                ref={coresCounterRef}
-                className="flex origin-center justify-center will-change-transform"
-              >
-                <Link href={walletUrl} passHref>
-                  <Button
-                    data-reward-target={QuestRewardType.Cores}
-                    icon={<CoreIcon />}
-                    tag="a"
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Small}
-                  >
-                    {largeNumberFormat(displayedBalance)}
-                  </Button>
-                </Link>
-              </div>
-            </Tooltip>
-          )}
-          <button
-            type="button"
-            aria-label="Profile settings"
-            className={classNames(
-              'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
-              className ?? 'flex',
-            )}
-            onClick={wrapHandler(() => onUpdate(!isOpen))}
-          >
-            <span
-              ref={reputationCounterRef}
-              className="inline-flex items-center"
-              data-reward-target={QuestRewardType.Reputation}
-            >
-              <ReputationUserBadge
-                className="ml-1 !typo-subhead"
-                user={{ reputation: displayedReputation ?? 0 }}
-                iconProps={{
-                  size: IconSize.Small,
-                }}
-              />
-            </span>
-            <Tooltip side="bottom" content="Profile settings">
-              <div className="flex items-center">
-                <ProfilePictureWithIndicator user={user} />
-              </div>
-            </Tooltip>
-          </button>
         </div>
       )}
       {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}

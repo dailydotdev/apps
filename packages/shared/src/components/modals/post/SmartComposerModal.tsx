@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useQueryClient } from '@tanstack/react-query';
 import type { LazyModalCommonProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalKind, ModalSize } from '../common/types';
@@ -30,7 +31,8 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePrompt } from '../../../hooks/usePrompt';
-import type { ExternalLinkPreview } from '../../../graphql/posts';
+import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
+import { getPostByIdKey } from '../../../lib/query';
 import { AudienceChip } from '../../post/composer/AudienceChip';
 import { KindModePicker } from '../../post/composer/KindModePicker';
 import {
@@ -64,6 +66,7 @@ export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialSquadHandle?: string;
   preview?: ExternalLinkPreview;
+  editPost?: Post;
 }
 
 export function SmartComposerModal({
@@ -71,29 +74,58 @@ export function SmartComposerModal({
   initialUrl,
   initialSquadHandle,
   preview: initialPreview,
+  editPost,
   ...props
 }: SmartComposerModalProps): ReactElement {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
   const isStandupEnabled = useStandupCreation();
-  const [kind, setKind] = useState<ComposerKind>(initialUrl ? 'link' : 'text');
-  const [text, setText] = useState<TextFormState>(DEFAULT_TEXT);
+  const isEditing = !!editPost;
+  const [kind, setKind] = useState<ComposerKind>(() => {
+    if (isEditing) {
+      return 'text';
+    }
+    return initialUrl ? 'link' : 'text';
+  });
+  const [text, setText] = useState<TextFormState>(() =>
+    editPost
+      ? { title: editPost.title ?? '', body: editPost.content ?? '' }
+      : DEFAULT_TEXT,
+  );
   const [link, setLink] = useState<LinkFormState>({
     ...DEFAULT_LINK,
     url: initialUrl ?? '',
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
   const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
-  const [cover, setCover] = useState<TextFormCover | null>(null);
+  const [cover, setCover] = useState<TextFormCover | null>(() =>
+    editPost?.image ? { preview: editPost.image } : null,
+  );
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const textFormRef = useRef<TextFormHandle>(null);
 
   const isDirty = useMemo(() => {
+    if (editPost) {
+      if (text.title !== (editPost.title ?? '')) {
+        return true;
+      }
+      if (text.body !== (editPost.content ?? '')) {
+        return true;
+      }
+      if (cover?.file) {
+        return true;
+      }
+      if (!cover && editPost.image) {
+        return true;
+      }
+      return false;
+    }
     if (cover) {
       return true;
     }
@@ -110,7 +142,7 @@ export function SmartComposerModal({
       return true;
     }
     return false;
-  }, [cover, text, link, poll, standup]);
+  }, [cover, text, link, poll, standup, editPost]);
 
   const handleClose = useCallback(
     async (event?: React.MouseEvent | React.KeyboardEvent) => {
@@ -126,7 +158,7 @@ export function SmartComposerModal({
         return;
       }
       const confirmed = await showPrompt({
-        title: 'Discard draft?',
+        title: isEditing ? 'Discard changes?' : 'Discard draft?',
         description:
           'You have unsaved changes. Are you sure you want to discard them?',
         okButton: {
@@ -140,7 +172,7 @@ export function SmartComposerModal({
         closeAndLog();
       }
     },
-    [isDirty, kind, logEvent, onRequestClose, showPrompt],
+    [isDirty, kind, logEvent, onRequestClose, showPrompt, isEditing],
   );
 
   useEffect(() => {
@@ -206,7 +238,7 @@ export function SmartComposerModal({
   );
 
   const { audiences, selectedIds, selected, setSelectedIds, userAudienceId } =
-    useComposerAudience(initialSquadHandle);
+    useComposerAudience(initialSquadHandle, editPost?.source?.id);
   const primary = selected[0];
   const isMulti = selected.length > 1;
 
@@ -229,7 +261,13 @@ export function SmartComposerModal({
     selectedIds,
     isMulti,
     initialPreview,
+    editPostId: editPost?.id,
     onComplete: () => {
+      if (editPost?.id) {
+        queryClient.invalidateQueries({
+          queryKey: getPostByIdKey(editPost.id),
+        });
+      }
       onSubmitted();
       onRequestClose?.();
     },
@@ -241,7 +279,9 @@ export function SmartComposerModal({
     selected.filter((audience) => !isUserAudience(audience)).length > 1;
   const isStandupScheduled = standup.scheduleChoice === 'later';
   let submitLabel: string;
-  if (isStandup) {
+  if (isEditing) {
+    submitLabel = 'Save changes';
+  } else if (isStandup) {
     submitLabel = isStandupScheduled ? 'Schedule standup' : 'Create standup';
   } else if (kind === 'poll') {
     submitLabel = 'Post poll';
@@ -249,7 +289,7 @@ export function SmartComposerModal({
     submitLabel = 'Post';
   }
 
-  const kindPickerNode = (
+  const kindPickerNode = isEditing ? null : (
     <KindModePicker
       value={kind}
       onChange={onKindChange}
@@ -276,7 +316,7 @@ export function SmartComposerModal({
       type="submit"
       variant={ButtonVariant.Primary}
       size={ButtonSize.Small}
-      disabled={isSubmitDisabled || isCoverUploading}
+      disabled={isSubmitDisabled || isCoverUploading || (isEditing && !isDirty)}
       loading={isInFlight || isCoverUploading}
       className="ml-2 px-5"
     >
@@ -322,7 +362,7 @@ export function SmartComposerModal({
               selectedIds={selectedIds}
               onChange={setSelectedIds}
               userAudienceId={userAudienceId}
-              disabled={isInFlight}
+              disabled={isInFlight || isEditing}
             />
           )}
         </div>

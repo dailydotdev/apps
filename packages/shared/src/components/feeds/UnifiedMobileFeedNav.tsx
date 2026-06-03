@@ -5,14 +5,15 @@ import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useFeeds } from '../../hooks';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { useFeedTagsList } from '../../hooks/useFeedTagsList';
 import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { buildPersonalizedCategories } from './exploreCategories';
+import { NewStripCta } from './NewStripCta';
+import { findActiveChipId } from './exploreCategories';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -38,10 +39,13 @@ const chipInactiveClass =
 function UnifiedMobileFeedNav(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
+  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
+    useSettingsContext();
+  const shouldHideGameCenter =
+    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
-  const { tags: personalizedTags } = useFeedTagsList();
   const { logEvent } = useLogContext();
 
   const items: ChipItem[] = useMemo(() => {
@@ -52,37 +56,32 @@ function UnifiedMobileFeedNav(): ReactElement {
       id: 'foryou',
       label: isLoggedIn ? 'For you' : 'Home',
       href: myFeedHref,
-      // Always match the homepage so "For you" stays highlighted even when the
-      // default custom feed (also at `/`) would otherwise win.
-      matchPaths: [myFeedHref, webappUrl, `${webappUrl}my-feed`],
+      // When a custom feed is the default, `/` shows that feed (not "For you"
+      // content) — so restrict matching to `/my-feed`. Without a custom default
+      // `/` is MyFeed, so include both.
+      matchPaths: isCustomDefaultFeed
+        ? [`${webappUrl}my-feed`]
+        : [myFeedHref, webappUrl, `${webappUrl}my-feed`],
       group: 'forYou',
     });
 
-    if (isLoggedIn) {
-      buildPersonalizedCategories(personalizedTags).forEach((category) => {
-        list.push({
-          id: `category-${category.id}`,
-          label: category.label,
-          href: category.path,
-          group: 'categories',
-          tag: category.tag,
-        });
-      });
-    }
-
     sortedFeeds.forEach(({ node: feed }) => {
-      const isEditingFeed =
-        router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
-      let feedPath = `${webappUrl}feeds/${feed.id}`;
-      if (!isEditingFeed && isCustomDefaultFeed && feed.id === defaultFeedId) {
-        feedPath = `${webappUrl}`;
-      }
-      const href = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
+      const isDefault = isCustomDefaultFeed && feed.id === defaultFeedId;
+      const slugPath = `${webappUrl}feeds/${feed.slug}`;
+      const idPath = `${webappUrl}feeds/${feed.id}`;
+      const matchPaths = [
+        slugPath,
+        idPath,
+        `${slugPath}/edit`,
+        `${idPath}/edit`,
+        ...(isDefault ? [webappUrl] : []),
+      ];
       list.push({
         id: `feed-${feed.id}`,
         label: feed.flags?.name || `Feed ${feed.id}`,
-        href,
-        group: 'rest',
+        href: isDefault ? webappUrl : idPath,
+        matchPaths,
+        group: 'categories',
       });
     });
     if (isLoggedIn) {
@@ -94,7 +93,7 @@ function UnifiedMobileFeedNav(): ReactElement {
           </span>
         ),
         href: `${webappUrl}feeds/new`,
-        group: 'rest',
+        group: 'categories',
         isIconOnly: true,
       });
     }
@@ -171,15 +170,19 @@ function UnifiedMobileFeedNav(): ReactElement {
           id: 'hottakes',
           label: 'Hot Takes',
           href: `${webappUrl}?openModal=hottakes`,
+          // Modal trigger, not a route — never mark this chip active by path.
+          matchPaths: [],
           group: 'rest',
         },
-        {
+      );
+      if (!shouldHideGameCenter) {
+        list.push({
           id: 'gamecenter',
           label: 'Game Center',
           href: `${webappUrl}game-center`,
           group: 'rest',
-        },
-      );
+        });
+      }
     }
 
     return list;
@@ -187,33 +190,14 @@ function UnifiedMobileFeedNav(): ReactElement {
     isLoggedIn,
     isCustomDefaultFeed,
     sortedFeeds,
-    router.query.slugOrId,
-    router.pathname,
     defaultFeedId,
-    personalizedTags,
+    shouldHideGameCenter,
   ]);
 
-  const activeId = useMemo(() => {
-    const normalize = (p: string): string => {
-      const noQuery = p?.split('?')?.[0];
-      if (!noQuery || noQuery === '/') {
-        return '/';
-      }
-      return noQuery.replace(/\/$/, '');
-    };
-    const path = normalize(router.asPath);
-    const matches = items.filter((item) => {
-      const candidates = item.matchPaths ?? [item.href];
-      return candidates.some((candidate) => normalize(candidate) === path);
-    });
-    if (!matches.length) {
-      return null;
-    }
-    // Prefer the For You match when multiple chips share the same path
-    // (e.g. user's default custom feed also lives at `/`).
-    const forYouMatch = matches.find((item) => item.id === 'foryou');
-    return forYouMatch ? forYouMatch.id : matches[matches.length - 1].id;
-  }, [items, router.asPath]);
+  const activeId = useMemo(
+    () => findActiveChipId(items, router.asPath, { preferId: 'foryou' }),
+    [items, router.asPath],
+  );
 
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -229,8 +213,9 @@ function UnifiedMobileFeedNav(): ReactElement {
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-3 py-2"
+      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
     >
+      <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {

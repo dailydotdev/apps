@@ -35,8 +35,7 @@ function SharePostBar({
   const [url, setUrl] = useState<string>('');
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isSmartComposerEnabled = useSmartComposer();
-  const shouldUseSmartComposer = isSmartComposerEnabled && isLaptop;
+  const { evaluateSmartComposer } = useSmartComposer();
   const [urlFocused, toggleUrlFocus] = useState(false);
   const onSharedSuccessfully = () => {
     if (inputRef.current) {
@@ -48,7 +47,7 @@ function SharePostBar({
   const shouldRenderReadingHistory = !urlFocused && url.length === 0;
 
   const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) => {
-    if (shouldUseSmartComposer) {
+    if (isLaptop && evaluateSmartComposer()) {
       openModal({
         type: LazyModal.SmartComposer,
         props: {

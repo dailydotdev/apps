@@ -24,6 +24,12 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
+import {
+  computePlacements,
+  requestedColSpan,
+} from '../lib/feedHighlightColSpan';
+import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
@@ -67,6 +73,7 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
+  featurePostHighlightCards,
 } from '../lib/featureManagement';
 import { useNewD1ExperienceFeature } from '../hooks/useNewD1ExperienceFeature';
 import type { AwardProps } from '../graphql/njord';
@@ -76,6 +83,7 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 
@@ -147,13 +155,6 @@ const SocialTwitterPostModal = dynamic(
     ),
 );
 
-const ReaderPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
-    ),
-);
-
 const BriefCardFeed = dynamic(
   () =>
     import(
@@ -167,11 +168,6 @@ const ProfileCompletionCard = dynamic(
       /* webpackChunkName: "profileCompletionCard" */ './cards/ProfileCompletionCard'
     ),
 );
-
-const calculateRow = (index: number, numCards: number): number =>
-  Math.floor(index / numCards);
-const calculateColumn = (index: number, numCards: number): number =>
-  index % numCards;
 
 export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
   {
@@ -343,11 +339,10 @@ export default function Feed<T>({
   } = useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
+  // Viewport gating lives in useReaderModalEligibility (isReaderEligible is
+  // already tablet-or-larger), so no separate isTabletViewport check here.
   const isReaderModalOn =
-    isReaderEligible &&
-    readerModalFromGrowthBook &&
-    !isLegacyLayoutOptedOut &&
-    isTabletViewport;
+    isReaderEligible && readerModalFromGrowthBook && !isLegacyLayoutOptedOut;
   const isReaderModalFeatureReady = !isReaderFeatureLoading;
   const readerEligiblePostTypes = useMemo(
     () =>
@@ -365,6 +360,7 @@ export default function Feed<T>({
       readerEligiblePostTypes.has(post.type),
     [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
   );
+  const { isV2 } = useLayoutVariant();
   const {
     adjustedHeroInsertIndex,
     shouldShowTopHero,
@@ -377,7 +373,75 @@ export default function Feed<T>({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
     firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
+    // Layout v2 hoists the top hero into MainLayout above the floating
+    // feed card, so the feed must not render or measure it here.
+    disableTopHero: isV2,
   });
+
+  const isMobileViewport = !isTabletViewport;
+  const isListContext = useList || shouldUseListFeedLayout;
+  const canRenderHighlightCards =
+    !isMobileViewport && !isListContext && virtualizedNumCards > 1;
+  const hasEligibleHighlightItem = useMemo(() => {
+    if (!canRenderHighlightCards) {
+      return false;
+    }
+
+    return items.some((item) => requestedColSpan(item) > 1);
+  }, [canRenderHighlightCards, items]);
+  const { value: isPostHighlightCardsEnabled } = useConditionalFeature({
+    feature: featurePostHighlightCards,
+    shouldEvaluate: hasEligibleHighlightItem,
+  });
+  const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
+    'highlightCardsOptOut',
+  );
+  const isHighlightCardLayoutEnabled =
+    canRenderHighlightCards &&
+    isPostHighlightCardsEnabled &&
+    !isHighlightCardsOptedOut;
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const showPromoBanner = !!briefBannerPage;
+  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
+  const indexWhenShowingPromoBanner =
+    currentPageSize * Number(briefBannerPage) - // number of items at that page
+    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
+    Number(showFirstSlotCard);
+
+  const fullRowInsertionBeforeIndex = useMemo(() => {
+    const set = new Set<number>();
+    if (showPromoBanner) {
+      set.add(indexWhenShowingPromoBanner);
+    }
+    if (shouldShowInFeedHero) {
+      set.add(adjustedHeroInsertIndex);
+    }
+    return set;
+  }, [
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
+    shouldShowInFeedHero,
+    adjustedHeroInsertIndex,
+  ]);
+
+  const itemPlacements = useMemo(
+    () =>
+      computePlacements(items, {
+        numCards: virtualizedNumCards,
+        isMobile: isMobileViewport,
+        isList: isListContext,
+        isEnabled: isHighlightCardLayoutEnabled,
+        fullRowInsertionBeforeIndex,
+      }),
+    [
+      items,
+      virtualizedNumCards,
+      isMobileViewport,
+      isListContext,
+      isHighlightCardLayoutEnabled,
+      fullRowInsertionBeforeIndex,
+    ],
+  );
 
   useMutationSubscription({
     matcher: ({ mutation }) => {
@@ -544,20 +608,8 @@ export default function Feed<T>({
     if (!selectedPost) {
       return undefined;
     }
-    const readerEligibleTypes = new Set([
-      PostType.Article,
-      PostType.Digest,
-      PostType.VideoYouTube,
-    ]);
-    if (
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligibleTypes.has(selectedPost.type)
-    ) {
-      return ReaderPostModal;
-    }
     return PostModalMap[selectedPost.type];
-  }, [selectedPost, isReaderModalFeatureReady, isReaderModalOn]);
+  }, [selectedPost]);
 
   if (!loadedSettings || isFallback) {
     return <></>;
@@ -657,14 +709,6 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner = !!briefBannerPage;
-  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
-  const indexWhenShowingPromoBanner =
-    currentPageSize * Number(briefBannerPage) - // number of items at that page
-    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showFirstSlotCard);
-
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
@@ -716,50 +760,20 @@ export default function Feed<T>({
                 }}
               />
             )}
-            {items.map((item, index) => (
-              <FeedCardContext.Provider
-                key={getFeedItemKey(item, index)}
-                value={{
-                  boostedBy: isBoostedPostAd(item)
-                    ? item.ad.data?.post?.author || item.ad.data?.post?.scout
-                    : undefined,
-                }}
-              >
-                {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                  <BriefBannerFeed
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  />
-                )}
-                {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
-                  <div
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  >
-                    <TopHero
-                      className="pt-0"
-                      title={readingReminderTitle}
-                      subtitle={readingReminderSubtitle}
-                      onCtaClick={() =>
-                        onEnableHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                      onClose={() =>
-                        onDismissHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                    />
-                  </div>
-                )}
+            {items.map((item, index) => {
+              const placement = itemPlacements[index];
+              const { colSpan } = placement;
+              const isWidened = colSpan > 1;
+              const wideColSpan =
+                isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
+                  ? (colSpan as FeaturedWideColSpan)
+                  : undefined;
+              const itemNode = (
                 <FeedItemComponent
                   item={item}
                   index={index}
-                  row={calculateRow(index, virtualizedNumCards)}
-                  column={calculateColumn(index, virtualizedNumCards)}
+                  row={placement.row}
+                  column={placement.column}
                   columns={virtualizedNumCards}
                   openNewTab={openNewTab}
                   postMenuIndex={postMenuIndex}
@@ -777,9 +791,64 @@ export default function Feed<T>({
                   onReadArticleClick={onReadArticleClick}
                   virtualizedNumCards={virtualizedNumCards}
                   disableAdRefresh={disableAdRefresh}
+                  wideColSpan={wideColSpan}
                 />
-              </FeedCardContext.Provider>
-            ))}
+              );
+
+              return (
+                <FeedCardContext.Provider
+                  key={getFeedItemKey(item, index)}
+                  value={{
+                    boostedBy: isBoostedPostAd(item)
+                      ? item.ad.data?.post?.author || item.ad.data?.post?.scout
+                      : undefined,
+                  }}
+                >
+                  {showPromoBanner && index === indexWhenShowingPromoBanner && (
+                    <BriefBannerFeed
+                      style={{
+                        gridColumn: !shouldUseListFeedLayout
+                          ? `span ${virtualizedNumCards}`
+                          : undefined,
+                      }}
+                    />
+                  )}
+                  {shouldShowInFeedHero &&
+                    index === adjustedHeroInsertIndex && (
+                      <div
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      >
+                        <TopHero
+                          className="pt-0"
+                          title={readingReminderTitle}
+                          subtitle={readingReminderSubtitle}
+                          onCtaClick={() =>
+                            onEnableHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                          onClose={() =>
+                            onDismissHero(NotificationCtaPlacement.InFeedHero)
+                          }
+                        />
+                      </div>
+                    )}
+                  {isWidened ? (
+                    <div
+                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      style={{ gridColumn: `span ${colSpan}` }}
+                      data-testid="feedItemColSpanWrapper"
+                    >
+                      {itemNode}
+                    </div>
+                  ) : (
+                    itemNode
+                  )}
+                </FeedCardContext.Provider>
+              );
+            })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}

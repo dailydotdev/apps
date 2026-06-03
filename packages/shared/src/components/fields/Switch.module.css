@@ -1,61 +1,95 @@
+/*
+ * Toggle / Switch — daily.dev design system.
+ * Track 44x24 (rounded-8), knob 20x20 (rounded-6) with a 2px inset.
+ * On press the knob squeezes to the track center (12x12) for tactile feedback,
+ * then snaps to the destination side on release.
+ */
+
 .track {
-  will-change: background-color, opacity;
-  transition: background-color 0.1s linear, opacity 0.2s linear;
+  background: var(--theme-surface-active);
+  will-change: background-color;
+  transition: background-color 0.12s linear;
 }
 
+.hoverLayer {
+  opacity: 0;
+  background: var(--theme-surface-hover);
+  will-change: opacity, background-color;
+  transition: opacity 0.15s linear, background-color 0.12s linear;
+}
+
+.focusRing {
+  opacity: 0;
+  border-color: var(--theme-surface-focus);
+  transition: opacity 0.1s linear;
+}
+
+/* Knob is solid primary white in both themes and states. */
 .knob {
-  will-change: transform, background-color;
-  transition: background-color 0.1s linear, transform 0.2s linear;
+  background: theme('colors.raw.salt.0');
+  transform: translateX(0) scale(1);
+  transform-origin: center;
+  will-change: transform, background-color, opacity;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.12s linear, opacity 0.12s linear;
 }
 
-.switch {
-  &:hover .knob {
-    background: var(--theme-text-primary);
-  }
-
-  &:hover input:checked ~ * .knob {
-    background: theme('colors.raw.cabbage.20');
-  }
-
-  &:active {
-    background: none;
-  }
-
-  & input:checked {
-      & ~ * .track {
-        background: theme('colors.raw.cabbage.50');
-        opacity: 0.24;
-      }
-
-      & ~ * .knob {
-        transform: translateX(100%);
-        background: theme('colors.raw.cabbage.40');
-      }
-
-      & ~ .children {
-        color: var(--theme-text-primary);
-      }
-  }
+.children {
+  color: var(--theme-text-secondary);
+  transition: color 0.12s linear;
 }
 
-:global(.light) .switch {
-   & input:checked ~ * .knob {
-    background: theme('colors.raw.cabbage.80');
-  }
-
-  &:hover input:checked ~ * .knob {
-    background: theme('colors.raw.cabbage.60');
-  }
+.switch:hover .hoverLayer {
+  opacity: 1;
 }
 
-@media (prefers-color-scheme: light) {
-  :global(.auto) .switch {
-    & input:checked ~ * .knob {
-     background: theme('colors.raw.cabbage.80');
-   }
+.switch:hover .children,
+.switch:active .children {
+  color: var(--theme-text-primary);
+}
 
-   &:hover input:checked ~ * .knob {
-     background: theme('colors.raw.cabbage.60');
-   }
- }
+/* Keyboard focus */
+.switch input:focus-visible ~ * .focusRing,
+.switch input:focus-visible ~ * .hoverLayer {
+  opacity: 1;
+}
+
+.switch input:focus-visible ~ .children {
+  color: var(--theme-text-primary);
+}
+
+/* Checked (on) — solid brand track, white knob (à la iOS/Chrome) */
+.switch input:checked ~ * .track {
+  background: var(--theme-accent-cabbage-default);
+}
+
+.switch input:checked ~ * .hoverLayer {
+  background: color-mix(in srgb, var(--theme-surface-invert), transparent 88%);
+}
+
+.switch input:checked ~ * .knob {
+  transform: translateX(20px) scale(1);
+}
+
+.switch input:checked ~ .children {
+  color: var(--theme-text-primary);
+}
+
+/* Press — knob squeezes toward the track center for both states */
+.switch:active .knob,
+.switch:active input:checked ~ * .knob {
+  transform: translateX(10px) scale(0.6);
+}
+
+/* Disabled — bump the off track so the toggle stays visible; knob unchanged */
+.disabled .track {
+  background: var(--theme-surface-disabled);
+}
+
+.disabled .knob {
+  opacity: 0.32;
+}
+
+.disabled .children {
+  color: var(--theme-text-disabled);
 }

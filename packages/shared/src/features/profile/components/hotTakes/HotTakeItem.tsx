@@ -18,6 +18,8 @@ import InteractionCounter from '../../../../components/InteractionCounter';
 import { IconSize } from '../../../../components/Icon';
 import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButton';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
+import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
+import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
 
 interface HotTakeItemProps {
   item: HotTake;
@@ -27,7 +29,7 @@ interface HotTakeItemProps {
   onUpvoteClick?: (item: HotTake) => void;
 }
 
-export function HotTakeItem({
+function HotTakeItemV1({
   item,
   isOwner,
   onEdit,
@@ -121,4 +123,12 @@ export function HotTakeItem({
       </div>
     </div>
   );
+}
+
+export function HotTakeItem(props: HotTakeItemProps): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <HotTakeItemV2 {...props} />;
+  }
+  return <HotTakeItemV1 {...props} />;
 }

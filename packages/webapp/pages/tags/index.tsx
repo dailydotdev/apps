@@ -5,17 +5,18 @@ import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
-import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
+import { TagChip } from '@dailydotdev/shared/src/components/tags/TagChip';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -68,25 +69,31 @@ const TagsPage = ({
   popularTags,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
 
   const { feedSettings } = useFeedSettings();
-  const selectedTags = feedSettings?.includeTags || [];
+  const followedSet = useMemo(
+    () => new Set(feedSettings?.includeTags || []),
+    [feedSettings?.includeTags],
+  );
 
   const recentlyAddedTags = useMemo(() => {
     return tags
-      ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      ?.slice()
+      .sort((a, b) => +new Date(b.createdAt ?? 0) - +new Date(a.createdAt ?? 0))
       .slice(0, 10);
   }, [tags]);
 
-  const tagsByFirstLetter = useMemo(() => {
-    const filteredTags = tags?.reduce((acc, cur) => {
+  const tagsByFirstLetter = useMemo<Record<string, Keyword[]> | null>(() => {
+    const filteredTags = tags?.reduce<Record<string, Keyword[]>>((acc, cur) => {
       const rawLetter = cur.value[0].toLowerCase();
       const firstLetter: string = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
         ? rawLetter
         : '#';
       acc[firstLetter] = (acc[firstLetter] || []).concat([cur]);
       return acc;
-    }, []);
+    }, {});
 
     if (!filteredTags) {
       return null;
@@ -94,8 +101,8 @@ const TagsPage = ({
 
     return Object.keys(filteredTags)
       .sort()
-      .reduce((acc, cur) => {
-        acc[cur] = filteredTags[cur].sort((a: Keyword, b: Keyword) => {
+      .reduce<Record<string, Keyword[]>>((acc, cur) => {
+        acc[cur] = filteredTags[cur].slice().sort((a: Keyword, b: Keyword) => {
           if (a.value < b.value) {
             return -1;
           }
@@ -107,7 +114,7 @@ const TagsPage = ({
           return 0;
         });
         return acc;
-      }, []);
+      }, {});
   }, [tags]);
 
   if (isLoading) {
@@ -117,66 +124,71 @@ const TagsPage = ({
   const topTagsForSchema = tags.slice(0, 50);
 
   return (
-    <PageWrapperLayout className="flex flex-col gap-4">
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: getTagsSchemas(topTagsForSchema),
-          }}
-        />
-      </Head>
-      <BreadCrumbs className="mb-2">
-        <HashtagIcon size={IconSize.XSmall} secondary /> Tags
-      </BreadCrumbs>
-      <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-        <TagTopList
-          containerProps={{ title: 'Trending tags' }}
-          items={trendingTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{ title: 'Popular tags' }}
-          items={popularTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{
-            title: 'Recently added tags',
-            className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
-          }}
-          items={recentlyAddedTags}
-          isLoading={isLoading}
-        />
-      </div>
-      <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
-        <p className="font-bold typo-body">All tags</p>
-      </div>
-      <div className="columns-[17rem] px-4 tablet:px-0">
-        {tagsByFirstLetter &&
-          Object.entries(tagsByFirstLetter).map(([letter, value]) => {
-            return (
-              <div
-                key={letter}
-                className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
-              >
-                <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
-                  {letter}
-                </p>
-                {value.map((tag) => (
-                  <TagLink
-                    key={tag.value}
-                    tag={tag.value}
-                    className="!line-clamp-2 !h-auto py-1.5"
-                    isSelected={selectedTags.includes(tag.value)}
-                    buttonProps={{ size: ButtonSize.Small }}
-                  />
-                ))}
-              </div>
-            );
-          })}
-      </div>
-    </PageWrapperLayout>
+    <>
+      {isV2Laptop && <PageHeader title="Tags" />}
+      <PageWrapperLayout className="flex flex-col gap-4">
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: getTagsSchemas(topTagsForSchema),
+            }}
+          />
+        </Head>
+        {!isV2Laptop && (
+          <BreadCrumbs className="mb-2">
+            <HashtagIcon size={IconSize.XSmall} secondary /> Tags
+          </BreadCrumbs>
+        )}
+        <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
+          <TagTopList
+            containerProps={{ title: 'Trending tags' }}
+            items={trendingTags}
+            isLoading={isLoading}
+          />
+          <TagTopList
+            containerProps={{ title: 'Popular tags' }}
+            items={popularTags}
+            isLoading={isLoading}
+          />
+          <TagTopList
+            containerProps={{
+              title: 'Recently added tags',
+              className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
+            }}
+            items={recentlyAddedTags}
+            isLoading={isLoading}
+          />
+        </div>
+        <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
+          <p className="font-bold typo-body">All tags</p>
+        </div>
+        <div className="columns-[17rem] px-4 tablet:px-0">
+          {tagsByFirstLetter &&
+            Object.entries(tagsByFirstLetter).map(([letter, value]) => {
+              return (
+                <div
+                  key={letter}
+                  className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
+                >
+                  <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout [break-after:avoid-column]">
+                    {letter}
+                  </p>
+                  {value.map((tag) => (
+                    <TagChip
+                      key={tag.value}
+                      tag={tag.value}
+                      size="md"
+                      isFollowed={followedSet.has(tag.value)}
+                      className="break-inside-avoid"
+                    />
+                  ))}
+                </div>
+              );
+            })}
+        </div>
+      </PageWrapperLayout>
+    </>
   );
 };
 

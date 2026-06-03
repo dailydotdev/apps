@@ -20,6 +20,7 @@ import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
+import { FeedSettingsPlusGate } from './FeedSettingsPlusGate';
 import { FeedType } from '../../../graphql/feed';
 
 import { SuspenseLoader } from './components/SuspenseLoader';
@@ -195,19 +196,27 @@ export const FeedSettingsEdit = (
               <FeedSettingsTagsSection />
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={feedSettingsMenuTitle.sources}>
-              <FeedSettingsContentSourcesSection />
+              <FeedSettingsPlusGate>
+                <FeedSettingsContentSourcesSection />
+              </FeedSettingsPlusGate>
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={feedSettingsMenuTitle.preferences}>
-              <FeedSettingsContentPreferencesSection />
+              <FeedSettingsPlusGate>
+                <FeedSettingsContentPreferencesSection />
+              </FeedSettingsPlusGate>
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={feedSettingsMenuTitle.ai}>
               <FeedSettingsAISection />
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={feedSettingsMenuTitle.filters}>
-              <FeedSettingsFiltersSection />
+              <FeedSettingsPlusGate>
+                <FeedSettingsFiltersSection />
+              </FeedSettingsPlusGate>
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={feedSettingsMenuTitle.blocking}>
-              <FeedSettingsBlockingSection />
+              <FeedSettingsPlusGate>
+                <FeedSettingsBlockingSection />
+              </FeedSettingsPlusGate>
             </FeedSettingsEditBody>
           </Modal.Sidebar.Inner>
         </Modal.Sidebar>

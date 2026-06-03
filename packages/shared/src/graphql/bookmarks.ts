@@ -49,7 +49,7 @@ export const MOVE_BOOKMARK_TO_FOLDER = gql`
 
 export interface MoveBookmarkToFolderProps {
   postId: string;
-  listId: string;
+  listId?: string;
 }
 
 export const moveBookmarkToFolder = ({

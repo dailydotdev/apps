@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActions, useBoot } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
@@ -18,8 +19,6 @@ import { MarketingCtaPopoverSmall } from '../marketing/cta/MarketingCtaPopoverSm
 import { ButtonVariant } from '../buttons/common';
 import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureGenericReferralPopupV2 } from '../../lib/featureManagement';
 
 const REP_TRESHOLD = 250;
 
@@ -63,6 +62,7 @@ export const BootPopups = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
+  const { optOutAchievements } = useSettingsContext();
   const { updateUserProfile } = useProfileForm();
   const {
     alerts,
@@ -196,10 +196,6 @@ export const BootPopups = (): ReactElement => {
   }, [marketingCtaPopoverSmall]);
 
   const shouldShowGenericReferral = alerts?.showGenericReferral === true;
-  const { value: isGenericReferralV2 } = useConditionalFeature({
-    feature: featureGenericReferralPopupV2,
-    shouldEvaluate: shouldShowGenericReferral,
-  });
 
   /** *
    * Boot popup for generic referral campaign
@@ -210,9 +206,7 @@ export const BootPopups = (): ReactElement => {
     }
 
     addBootPopup({
-      type: isGenericReferralV2
-        ? LazyModal.GenericReferralV2
-        : LazyModal.GenericReferral,
+      type: LazyModal.GenericReferral,
       props: {
         onAfterOpen: () => {
           updateLastBootPopup();
@@ -220,7 +214,7 @@ export const BootPopups = (): ReactElement => {
         isDrawerOnMobile: true,
       },
     });
-  }, [shouldShowGenericReferral, isGenericReferralV2, updateLastBootPopup]);
+  }, [shouldShowGenericReferral, updateLastBootPopup]);
 
   /**
    * Streak recovery modal
@@ -304,7 +298,11 @@ export const BootPopups = (): ReactElement => {
    * Bypasses the one-per-day queue so users see their unlock right away.
    */
   useEffect(() => {
-    if (!alerts?.showAchievementUnlock || !isActionsFetched) {
+    if (
+      !alerts?.showAchievementUnlock ||
+      !isActionsFetched ||
+      optOutAchievements
+    ) {
       return;
     }
 
@@ -329,6 +327,7 @@ export const BootPopups = (): ReactElement => {
     alerts?.showAchievementUnlock,
     checkHasCompleted,
     isActionsFetched,
+    optOutAchievements,
     updateAlerts,
   ]);
 
