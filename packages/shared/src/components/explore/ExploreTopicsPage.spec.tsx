@@ -51,14 +51,14 @@ describe('ExploreTopicsPage', () => {
     expect(
       screen.getByRole('heading', { name: /Web Development/ }),
     ).toBeInTheDocument();
-    expect(screen.getByText('#react')).toBeInTheDocument();
-    expect(screen.getByText('#vue')).toBeInTheDocument();
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Vue')).toBeInTheDocument();
   });
 
-  it('should link topic chips to the explore topic page', () => {
+  it('should link topic entries to the explore topic page', () => {
     renderComponent();
 
-    expect(screen.getByText('#react').closest('a')).toHaveAttribute(
+    expect(screen.getByText('React').closest('a')).toHaveAttribute(
       'href',
       expect.stringContaining('explore/react'),
     );

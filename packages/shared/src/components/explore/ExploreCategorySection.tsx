@@ -2,8 +2,9 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import type { TagCategory } from '../../graphql/feedSettings';
-import { TagChip } from '../tags/TagChip';
 import { getExploreTagPageLink } from '../../lib/links';
+import { formatKeyword } from '../../lib/strings';
+import Link from '../utilities/Link';
 import {
   Typography,
   TypographyColor,
@@ -12,17 +13,17 @@ import {
 } from '../typography/Typography';
 import { ClickableText } from '../buttons/ClickableText';
 
-const COLLAPSED_COUNT = 12;
+const COLLAPSED_COUNT = 8;
 
 interface ExploreCategorySectionProps {
   category: TagCategory;
-  followedTags: Set<string>;
   className?: string;
 }
 
+// One column block in the Explore directory: an emoji + title heading above a
+// vertical list of topic links (Medium "Explore topics" / glossary hub style).
 export function ExploreCategorySection({
   category,
-  followedTags,
   className,
 }: ExploreCategorySectionProps): ReactElement | null {
   const [expanded, setExpanded] = useState(false);
@@ -39,7 +40,10 @@ export function ExploreCategorySection({
   return (
     <section
       id={`explore-category-${category.id}`}
-      className={classNames('flex scroll-mt-20 flex-col gap-3', className)}
+      className={classNames(
+        'mb-8 flex scroll-mt-24 break-inside-avoid flex-col gap-3',
+        className,
+      )}
     >
       <Typography
         tag={TypographyTag.H2}
@@ -50,17 +54,22 @@ export function ExploreCategorySection({
         {category.emoji ? `${category.emoji} ` : ''}
         {category.title}
       </Typography>
-      <div className="flex flex-wrap gap-2">
+      <ul className="flex flex-col gap-2.5">
         {visibleTags.map((tag) => (
-          <TagChip
-            key={tag}
-            tag={tag}
-            size="md"
-            isFollowed={followedTags.has(tag)}
-            link={getExploreTagPageLink(tag)}
-          />
+          <li key={tag}>
+            <Link href={getExploreTagPageLink(tag)} passHref prefetch={false}>
+              <Typography
+                tag={TypographyTag.Link}
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+                className="cursor-pointer no-underline transition-colors hover:text-text-primary"
+              >
+                {formatKeyword(tag)}
+              </Typography>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
       {hasMore && (
         <ClickableText
           tag="button"
@@ -68,7 +77,7 @@ export function ExploreCategorySection({
           onClick={() => setExpanded((prev) => !prev)}
           className="w-fit"
         >
-          {expanded ? 'Show less' : `Show all ${category.tags.length}`}
+          {expanded ? 'Show less' : 'More'}
         </ClickableText>
       )}
     </section>

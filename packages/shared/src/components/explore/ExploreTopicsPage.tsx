@@ -60,21 +60,47 @@ export function ExploreTopicsPage({
   );
 
   const recommendedTags = useMemo(
-    () => popularTags?.slice(0, 4).map((tag) => tag.value) ?? [],
+    () => popularTags?.slice(0, 5).map((tag) => tag.value) ?? [],
     [popularTags],
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-screen-laptop flex-col px-4 py-6 tablet:px-6">
-      {/* Category quick-nav: scrolls to the matching section below. */}
+    <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
+      {/* Hero */}
+      <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.LargeTitle}
+          color={TypographyColor.Primary}
+          bold
+        >
+          Explore topics
+        </Typography>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+          className="max-w-[34rem]"
+        >
+          Browse the topics millions of developers follow on daily.dev. Search
+          thousands of tags, dive into a category, and follow the ones that
+          matter to you.
+        </Typography>
+        <ExploreTopicSearch
+          followedTags={followedTags}
+          recommendedTags={recommendedTags}
+          className="w-full"
+        />
+      </header>
+
+      {/* Category quick-nav — jumps to a section in the directory below. */}
       {categories.length > 0 && (
-        <nav aria-label="Topic categories" className="relative mb-6">
+        <nav aria-label="Topic categories" className="mt-8 w-full">
           <div
             ref={categoryNavRef}
             onKeyDown={onCategoryNavKeyDown}
             role="toolbar"
             aria-orientation="horizontal"
-            className="no-scrollbar flex items-center gap-2 overflow-x-auto"
+            className="flex flex-wrap items-center justify-center gap-2"
           >
             {categories.map((category) => (
               <button
@@ -88,60 +114,52 @@ export function ExploreTopicsPage({
               </button>
             ))}
           </div>
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default"
-          />
         </nav>
       )}
 
-      <div className="flex flex-col items-center gap-6 py-4">
+      <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
+
+      {/* Directory — categories as columns of topic links. */}
+      {categories.length > 0 && (
+        <div className="w-full columns-1 gap-x-10 tablet:columns-2 laptop:columns-3">
+          {categories.map((category) => (
+            <ExploreCategorySection key={category.id} category={category} />
+          ))}
+        </div>
+      )}
+
+      {/* Featured leaderboards */}
+      <section className="mt-6 w-full">
         <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
+          tag={TypographyTag.H2}
+          type={TypographyType.Title2}
           color={TypographyColor.Primary}
-          center
           bold
+          className="mb-6 text-center"
         >
-          Explore topics
+          Trending on daily.dev
         </Typography>
-        <ExploreTopicSearch
-          followedTags={followedTags}
-          recommendedTags={recommendedTags}
-          className="max-w-screen-tablet"
-        />
-      </div>
-
-      <div className="my-8 flex flex-col gap-10">
-        {categories.map((category) => (
-          <ExploreCategorySection
-            key={category.id}
-            category={category}
-            followedTags={followedTags}
+        <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
+          <TagTopList
+            containerProps={{ title: 'Trending tags' }}
+            items={trendingTags}
+            isLoading={isLoading}
           />
-        ))}
-      </div>
-
-      <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-        <TagTopList
-          containerProps={{ title: 'Trending tags' }}
-          items={trendingTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{ title: 'Popular tags' }}
-          items={popularTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{
-            title: 'Recently added tags',
-            className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
-          }}
-          items={recentlyAddedTags}
-          isLoading={isLoading}
-        />
-      </div>
+          <TagTopList
+            containerProps={{ title: 'Popular tags' }}
+            items={popularTags}
+            isLoading={isLoading}
+          />
+          <TagTopList
+            containerProps={{
+              title: 'Recently added tags',
+              className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
+            }}
+            items={recentlyAddedTags}
+            isLoading={isLoading}
+          />
+        </div>
+      </section>
     </div>
   );
 }

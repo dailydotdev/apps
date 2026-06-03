@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo } from 'react';
-import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import Head from 'next/head';
@@ -14,7 +13,6 @@ import type { TopPost } from '../../graphql/feed';
 import AuthContext from '../../contexts/AuthContext';
 import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { PageInfoHeader } from '../utilities';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { AuthTriggers } from '../../lib/auth';
 import { OtherFeedPage, RequestKey, StaleTime } from '../../lib/query';
@@ -42,11 +40,10 @@ import { PostType } from '../../graphql/posts';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { cloudinarySourceRoadmap } from '../../lib/image';
-import { anchorDefaultRel } from '../../lib/strings';
+import { anchorDefaultRel, formatKeyword } from '../../lib/strings';
 import Link from '../utilities/Link';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 import { ArchiveEntryCard } from '../archive/ArchiveEntryCard';
-import { ArchiveBreadcrumbs } from '../archive/ArchiveBreadcrumbs';
 import { ArchiveScopeType } from '../../graphql/archive';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
@@ -57,7 +54,7 @@ import { RelatedEntities } from '../RelatedEntities';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import { largeNumberFormat } from '../../lib';
-import { getExploreTagPageLink, getTagPageLink } from '../../lib/links';
+import { getExploreTagPageLink } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
 import { useChipBarNavigation } from './useChipBarNavigation';
 import {
@@ -84,6 +81,22 @@ export interface ExploreTopicPageProps {
   topContributors: UserShortProfile[];
   jsonLd?: string | null;
 }
+
+const SectionHeading = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => (
+  <Typography
+    tag={TypographyTag.H2}
+    type={TypographyType.Title3}
+    color={TypographyColor.Primary}
+    bold
+    className="mb-4 mt-2"
+  >
+    {children}
+  </Typography>
+);
 
 const RelatedTagsBar = ({
   tag,
@@ -251,7 +264,7 @@ export const ExploreTopicPage = ({
     showToastOnSuccess: false,
   });
 
-  const title = initialData?.flags?.title || tag;
+  const title = initialData?.flags?.title || formatKeyword(tag);
   const followers = initialData?.followers;
   const occurrences = initialData?.occurrences ?? 0;
 
@@ -337,269 +350,236 @@ export const ExploreTopicPage = ({
           />
         </Head>
       )}
-      <ArchiveBreadcrumbs
-        items={[
-          { label: 'Explore', href: `${webappUrl}explore` },
-          { label: title },
-        ]}
-        className="mx-4"
-      />
-      <RelatedTagsBar tag={tag} tags={recommendedTags} />
-      <PageInfoHeader
-        className={classNames('mx-4 !w-auto items-center text-center')}
-      >
-        <SponsoredTagHero tag={tag} />
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.Title1}
-          color={TypographyColor.Primary}
-          bold
-          center
-        >
-          {title}
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="flex items-center justify-center gap-2"
-        >
-          <span>Topic</span>
-          {statParts.map((part) => (
-            <React.Fragment key={(part as ReactElement).key}>
-              <span aria-hidden>·</span>
-              {part}
-            </React.Fragment>
-          ))}
-        </Typography>
-        {initialData?.flags?.description && (
+      <div className="mx-auto flex w-full max-w-screen-laptop flex-col px-4 py-6">
+        <RelatedTagsBar tag={tag} tags={recommendedTags} />
+
+        {/* Identity header — centered, editorial. */}
+        <header className="mx-auto flex w-full max-w-screen-tablet flex-col items-center gap-4 py-8 text-center">
+          <SponsoredTagHero tag={tag} />
           <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Secondary}
+            tag={TypographyTag.H1}
+            type={TypographyType.LargeTitle}
+            color={TypographyColor.Primary}
+            bold
             center
-            className="mx-auto max-w-screen-tablet"
           >
-            {initialData.flags.description}
+            {title}
           </Typography>
-        )}
-        <div className="flex flex-row items-center justify-center gap-3">
-          {tagStatus !== 'blocked' && (
-            <Button
-              variant={ButtonVariant.Primary}
-              {...followButtonProps}
-              aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
-            >
-              {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
-            </Button>
-          )}
-          {tagStatus !== 'followed' && (
-            <Button
-              variant={ButtonVariant.Float}
-              {...blockButtonProps}
-              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            >
-              {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            </Button>
-          )}
-          <CustomFeedOptionsMenu
-            onCreateNewFeed={() =>
-              push(
-                `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
-              )
-            }
-            onAdd={(feedId) =>
-              follow({
-                id: tag,
-                entity: ContentPreferenceType.Keyword,
-                entityName: tag,
-                feedId,
-              })
-            }
-            onUndo={(feedId) =>
-              unfollow({
-                id: tag,
-                entity: ContentPreferenceType.Keyword,
-                entityName: tag,
-                feedId,
-              })
-            }
-            shareProps={{
-              text: `Check out the ${tag} tag on daily.dev`,
-              link: globalThis?.location?.href,
-              cid: ReferralCampaignKey.ShareTag,
-              logObject: () => ({
-                event_name: LogEvent.ShareTag,
-                target_id: tag,
-              }),
-            }}
-          />
-        </div>
-        {/* SEO crawl paths preserved from the legacy tag page. */}
-        {topPosts.length > 0 && (
-          <div className="sr-only">
-            {topPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={`${webappUrl}posts/${post.slug || post.id}`}
-                prefetch={false}
-              >
-                <a>{post.title}</a>
-              </Link>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
+          >
+            <span>Topic</span>
+            {statParts.map((part) => (
+              <React.Fragment key={(part as ReactElement).key}>
+                <span aria-hidden>·</span>
+                {part}
+              </React.Fragment>
             ))}
+          </Typography>
+          {initialData?.flags?.description && (
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Secondary}
+              center
+              className="max-w-[34rem]"
+            >
+              {initialData.flags.description}
+            </Typography>
+          )}
+          <div className="mt-1 flex flex-row items-center justify-center gap-3">
+            {tagStatus !== 'blocked' && (
+              <Button
+                variant={ButtonVariant.Primary}
+                {...followButtonProps}
+                aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
+              >
+                {tagStatus === 'followed' ? 'Following' : 'Follow'}
+              </Button>
+            )}
+            {tagStatus !== 'followed' && (
+              <Button
+                variant={ButtonVariant.Float}
+                {...blockButtonProps}
+                aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+              >
+                {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+              </Button>
+            )}
+            <CustomFeedOptionsMenu
+              onCreateNewFeed={() =>
+                push(
+                  `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
+                )
+              }
+              onAdd={(feedId) =>
+                follow({
+                  id: tag,
+                  entity: ContentPreferenceType.Keyword,
+                  entityName: tag,
+                  feedId,
+                })
+              }
+              onUndo={(feedId) =>
+                unfollow({
+                  id: tag,
+                  entity: ContentPreferenceType.Keyword,
+                  entityName: tag,
+                  feedId,
+                })
+              }
+              shareProps={{
+                text: `Check out the ${tag} tag on daily.dev`,
+                link: globalThis?.location?.href,
+                cid: ReferralCampaignKey.ShareTag,
+                logObject: () => ({
+                  event_name: LogEvent.ShareTag,
+                  target_id: tag,
+                }),
+              }}
+            />
           </div>
-        )}
-        {recommendedTags.length > 0 && (
-          <div className="sr-only">
-            {recommendedTags
-              .map((relatedTag) => relatedTag.name)
-              .filter((relatedTag): relatedTag is string => !!relatedTag)
-              .map((relatedTag) => (
+          {showRoadmap && initialData?.flags?.roadmap && (
+            <Link href={initialData.flags.roadmap} passHref prefetch={false}>
+              <a
+                target="_blank"
+                rel={anchorDefaultRel}
+                className="mt-2 flex w-full max-w-sm cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
+              >
+                <img
+                  src={cloudinarySourceRoadmap}
+                  alt="roadmap.sh logo"
+                  className="size-10 rounded-full"
+                />
+                <div className="mx-3 flex-1 text-left">
+                  <p className="font-bold typo-callout">
+                    Comprehensive roadmap for {title}
+                  </p>
+                  <p className="text-text-tertiary typo-footnote">
+                    By roadmap.sh
+                  </p>
+                </div>
+                <Button
+                  icon={<OpenLinkIcon />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                />
+              </a>
+            </Link>
+          )}
+          {/* SEO crawl paths preserved from the legacy tag page. */}
+          {topPosts.length > 0 && (
+            <div className="sr-only">
+              {topPosts.map((post) => (
                 <Link
-                  key={relatedTag}
-                  href={getTagPageLink(relatedTag)}
+                  key={post.id}
+                  href={`${webappUrl}posts/${post.slug || post.id}`}
                   prefetch={false}
                 >
-                  <a>Posts about {relatedTag}</a>
+                  <a>{post.title}</a>
                 </Link>
               ))}
-          </div>
-        )}
-        {topContributors.length > 0 && (
-          <div className="sr-only">
-            {topContributors.map((contributor) => (
-              <Link
-                key={contributor.id}
-                href={contributor.permalink}
-                prefetch={false}
-              >
-                <a>Posts by {contributor.name}</a>
-              </Link>
-            ))}
-          </div>
-        )}
-        {showRoadmap && initialData?.flags?.roadmap && (
-          <Link href={initialData.flags.roadmap} passHref prefetch={false}>
-            <a
-              target="_blank"
-              rel={anchorDefaultRel}
-              className="mx-auto flex w-auto cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
-            >
-              <img
-                src={cloudinarySourceRoadmap}
-                alt="roadmap.sh logo"
-                className="size-10 rounded-full"
-              />
-              <div className="mx-3 flex-1 text-left">
-                <p className="font-bold typo-callout">
-                  Comprehensive roadmap for {tag}
-                </p>
-                <p className="text-text-tertiary typo-footnote">
-                  By roadmap.sh
-                </p>
-              </div>
-              <Button
-                icon={<OpenLinkIcon />}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-              />
-            </a>
-          </Link>
-        )}
-      </PageInfoHeader>
+            </div>
+          )}
+          {topContributors.length > 0 && (
+            <div className="sr-only">
+              {topContributors.map((contributor) => (
+                <Link
+                  key={contributor.id}
+                  href={contributor.permalink}
+                  prefetch={false}
+                >
+                  <a>Posts by {contributor.name}</a>
+                </Link>
+              ))}
+            </div>
+          )}
+        </header>
 
-      <div className="mx-4 mb-5 mt-2">
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Title3}
-          color={TypographyColor.Primary}
-          bold
+        <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
+
+        {/* Recommended stories */}
+        <SectionHeading>Recommended stories</SectionHeading>
+        <ActiveFeedNameContext.Provider
+          value={{ feedName: OtherFeedPage.TagsTopPosts }}
         >
-          Recommended stories
-        </Typography>
-      </div>
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.TagsTopPosts }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.TagsTopPosts}
-          feedQueryKey={[
-            'tagsTopPosts',
-            user?.id ?? 'anonymous',
-            Object.values(topPostsQueryVariables),
-          ]}
+          <HorizontalFeed
+            feedName={OtherFeedPage.TagsTopPosts}
+            feedQueryKey={[
+              'tagsTopPosts',
+              user?.id ?? 'anonymous',
+              Object.values(topPostsQueryVariables),
+            ]}
+            query={TAG_FEED_QUERY}
+            variables={topPostsQueryVariables}
+            title={{ copy: 'Top posts' }}
+            className="!mx-0"
+            emptyScreen={<></>}
+          />
+        </ActiveFeedNameContext.Provider>
+
+        <WhoToFollow tag={tag} initialUsers={topContributors} />
+        <TagTopSources tag={tag} />
+
+        <ActiveFeedNameContext.Provider
+          value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
+        >
+          <HorizontalFeed
+            feedName={OtherFeedPage.TagsMostUpvoted}
+            feedQueryKey={[
+              'tagsMostUpvoted',
+              user?.id ?? 'anonymous',
+              Object.values(mostUpvotedQueryVariables),
+            ]}
+            query={MOST_UPVOTED_FEED_QUERY}
+            variables={mostUpvotedQueryVariables}
+            title={{
+              copy: 'Most upvoted posts',
+              icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
+            }}
+            className="!mx-0"
+            emptyScreen={<></>}
+          />
+        </ActiveFeedNameContext.Provider>
+        <ActiveFeedNameContext.Provider
+          value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
+        >
+          <HorizontalFeed
+            feedName={OtherFeedPage.TagsBestDiscussed}
+            feedQueryKey={[
+              'tagsBestDiscussed',
+              user?.id ?? 'anonymous',
+              Object.values(bestDiscussedQueryVariables),
+            ]}
+            query={MOST_DISCUSSED_FEED_QUERY}
+            variables={bestDiscussedQueryVariables}
+            title={{
+              copy: 'Best discussed posts',
+              icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
+            }}
+            className="!mx-0"
+            emptyScreen={<></>}
+          />
+        </ActiveFeedNameContext.Provider>
+        <ArchiveEntryCard
+          scopeType={ArchiveScopeType.Tag}
+          scopeId={tag}
+          scopeName={title}
+          className="mb-6"
+        />
+
+        <div className="my-2 h-px w-full bg-border-subtlest-tertiary" />
+
+        <SectionHeading>All posts about {title}</SectionHeading>
+        <Feed
+          feedName={OtherFeedPage.Tag}
+          feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}
           query={TAG_FEED_QUERY}
-          variables={topPostsQueryVariables}
-          title={{ copy: 'Top posts' }}
-          className="laptop:!mx-4"
-          emptyScreen={<></>}
+          variables={mainFeedQueryVariables}
+          className="!mx-0 !w-auto"
         />
-      </ActiveFeedNameContext.Provider>
-
-      <WhoToFollow tag={tag} initialUsers={topContributors} />
-      <TagTopSources tag={tag} />
-
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.TagsMostUpvoted}
-          feedQueryKey={[
-            'tagsMostUpvoted',
-            user?.id ?? 'anonymous',
-            Object.values(mostUpvotedQueryVariables),
-          ]}
-          query={MOST_UPVOTED_FEED_QUERY}
-          variables={mostUpvotedQueryVariables}
-          title={{
-            copy: 'Most upvoted posts',
-            icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
-          }}
-          className="laptop:!mx-4"
-          emptyScreen={<></>}
-        />
-      </ActiveFeedNameContext.Provider>
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
-      >
-        <HorizontalFeed
-          feedName={OtherFeedPage.TagsBestDiscussed}
-          feedQueryKey={[
-            'tagsBestDiscussed',
-            user?.id ?? 'anonymous',
-            Object.values(bestDiscussedQueryVariables),
-          ]}
-          query={MOST_DISCUSSED_FEED_QUERY}
-          variables={bestDiscussedQueryVariables}
-          title={{
-            copy: 'Best discussed posts',
-            icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
-          }}
-          className="laptop:!mx-4"
-          emptyScreen={<></>}
-        />
-      </ActiveFeedNameContext.Provider>
-      <ArchiveEntryCard
-        scopeType={ArchiveScopeType.Tag}
-        scopeId={tag}
-        scopeName={title}
-        className="mx-4 mb-6 laptop:mx-4"
-      />
-      <div className="mx-4 mb-5 flex w-auto items-center">
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Title3}
-          color={TypographyColor.Primary}
-          bold
-        >
-          All posts about {tag}
-        </Typography>
       </div>
-      <Feed
-        feedName={OtherFeedPage.Tag}
-        feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}
-        query={TAG_FEED_QUERY}
-        variables={mainFeedQueryVariables}
-        className="!mx-4 !w-auto"
-      />
     </FeedPageLayoutComponent>
   );
 };
