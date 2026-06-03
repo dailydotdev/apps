@@ -30,6 +30,8 @@ const {
   fallbackPersonaId,
   maxQuestions,
   minQuestions,
+  instantLockThreshold,
+  instantLockMargin,
 } = PERSONA_ENGINE_CONFIG;
 
 const FALLBACK_PERSONA_INDEX = personaIndexById(fallbackPersonaId);
@@ -130,11 +132,20 @@ export const usePersonaQuiz = (): PersonaQuizState => {
 
   const advance = useCallback(
     (nextBelief: number[], shownSoFar: number) => {
-      const topBelief = Math.max(...nextBelief);
+      const ranked = rankBelief(nextBelief);
+      const top = ranked[0]?.belief ?? 0;
+      const margin = top - (ranked[1]?.belief ?? 0);
       const reachedConfidence =
-        topBelief >= confidenceThreshold && shownSoFar >= minQuestions;
+        top >= confidenceThreshold && shownSoFar >= minQuestions;
+      // Instant lock: when one persona overwhelmingly dominates, reveal early.
+      const reachedInstantLock =
+        top >= instantLockThreshold && margin >= instantLockMargin;
 
-      if (shownSoFar >= maxQuestions || reachedConfidence) {
+      if (
+        shownSoFar >= maxQuestions ||
+        reachedConfidence ||
+        reachedInstantLock
+      ) {
         finish(nextBelief);
         return;
       }
@@ -171,16 +182,37 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         return;
       }
 
+      const question = QUESTIONS[currentQuestion];
       const nextBelief = updateBelief(belief, currentQuestion, value);
       setBelief(nextBelief);
       setIsThinking(true);
 
       thinkingTimeout.current = setTimeout(() => {
         setIsThinking(false);
+
+        // Hard lock: when a self-identification question is answered yes,
+        // trust the user and reveal that persona regardless of belief.
+        if (value === 1 && question.lockPersonaId) {
+          const lockIndex = PERSONAS.findIndex(
+            (persona) => persona.id === question.lockPersonaId,
+          );
+          if (lockIndex >= 0) {
+            reveal(lockIndex, nextBelief);
+            return;
+          }
+        }
+
         advance(nextBelief, questionsShown);
       }, THINKING_DURATION_MS);
     },
-    [advance, belief, currentQuestion, isThinking, questionsShown],
+    [
+      advance,
+      belief,
+      currentQuestion,
+      isThinking,
+      questionsShown,
+      reveal,
+    ],
   );
 
   const chooseTiebreak = useCallback(
