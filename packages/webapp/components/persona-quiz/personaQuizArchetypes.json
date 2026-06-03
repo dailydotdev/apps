@@ -1,322 +1,548 @@
 [
   {
-    "id": "ui_engineer",
-    "name": "UI Engineer",
-    "headline": "Where design systems meet real components",
-    "description": "Your feed covers component libraries, accessibility, and CSS architecture. Opinionated about design tokens and when to reach for a framework.",
+    "id": "design_systems_engineer",
+    "name": "Design Systems Engineer",
+    "headline": "Tokens, components, and the contracts between them",
+    "description": "Your feed runs on component libraries, design tokens, and the API design of UI itself. You treat a well-documented component like a public interface.",
     "keyTags": [
+      "design-systems",
       "frontend",
       "react",
-      "typescript",
       "css",
-      "design-systems",
-      "accessibility",
-      "tailwind-css",
-      "web-components",
-      "ui",
       "storybook",
+      "typescript",
+      "ui",
+      "web-components",
       "styled-components",
-      "ui-design"
+      "tailwind-css"
     ]
   },
   {
-    "id": "web_performance_engineer",
-    "name": "Web Perf Engineer",
-    "headline": "Milliseconds are a product decision",
-    "description": "Your feed surfaces Core Web Vitals, bundle analysis, and rendering strategies. You've strong feelings about when not to hydrate.",
+    "id": "accessibility_engineer",
+    "name": "Accessibility Engineer",
+    "headline": "Interfaces everyone can actually use",
+    "description": "Your feed mixes ARIA patterns, inclusive UX, and the CSS to back them. A failed audit reads as a bug to you, not a nice-to-have.",
+    "keyTags": [
+      "accessibility",
+      "frontend",
+      "css",
+      "ui",
+      "ui-ux",
+      "ui-design",
+      "web-components",
+      "react",
+      "typography",
+      "user-testing"
+    ]
+  },
+  {
+    "id": "rendering_performance_engineer",
+    "name": "Rendering Performance Engineer",
+    "headline": "Frames, paints, and the cost of hydration",
+    "description": "Your feed surfaces Core Web Vitals, rendering strategies, and when not to ship JavaScript at all.",
     "keyTags": [
       "performance",
-      "webassembly",
-      "nextjs",
-      "javascript",
-      "vite",
-      "webdev",
       "lighthouse",
-      "web-development",
+      "nextjs",
       "react",
-      "typescript",
+      "javascript",
+      "web-development",
       "pwa",
-      "webgpu"
+      "webassembly",
+      "frontend",
+      "vite"
     ]
   },
   {
-    "id": "mobile_engineer",
-    "name": "Mobile Engineer",
-    "headline": "Native feel, cross-platform pragmatism",
-    "description": "Your feed covers iOS and Android patterns, React Native trade-offs, and everything shipping to an app store. Push notifications are personal.",
+    "id": "build_performance_engineer",
+    "name": "Build Performance Engineer",
+    "headline": "Fast builds, lean bundles, happy CI",
+    "description": "Your feed covers bundlers, tree-shaking, and shaving seconds off every install and deploy.",
     "keyTags": [
-      "react-native",
-      "flutter",
+      "performance",
+      "webpack",
+      "vite",
+      "bun",
+      "javascript",
+      "typescript",
+      "frontend",
+      "web-development",
+      "cicd",
+      "devtools"
+    ]
+  },
+  {
+    "id": "native_mobile_engineer",
+    "name": "Native Mobile Engineer",
+    "headline": "Platform-native, down to the gesture",
+    "description": "Your feed covers Swift, Kotlin, and the platform APIs that make an app feel at home on the device.",
+    "keyTags": [
       "ios",
       "android",
       "swift",
       "kotlin",
+      "swiftui",
+      "jetpack-compose",
       "mobile",
       "mobile-dev",
-      "expo",
-      "jetpack-compose",
-      "swiftui",
       "android-development"
     ]
   },
   {
-    "id": "fullstack_builder",
-    "name": "Full-Stack Builder",
-    "headline": "From database schema to deploy button",
-    "description": "Your feed blends API design, frontend frameworks, and deployment pipelines. You appreciate the satisfaction of owning the whole feature.",
+    "id": "cross_platform_mobile_engineer",
+    "name": "Cross-Platform Mobile Engineer",
+    "headline": "One codebase, two app stores",
+    "description": "Your feed blends React Native, Flutter, and the trade-offs of shipping everywhere at once.",
     "keyTags": [
-      "nodejs",
-      "nextjs",
+      "react-native",
+      "flutter",
+      "expo",
+      "mobile",
+      "mobile-dev",
       "typescript",
-      "graphql",
-      "react",
-      "supabase",
-      "prisma",
-      "rest-api",
-      "backend",
-      "postgresql",
-      "serverless",
-      "vercel"
+      "ios",
+      "android",
+      "javascript"
     ]
   },
   {
-    "id": "cloud_platform_engineer",
-    "name": "Cloud Platform Engineer",
-    "headline": "Terraform applies and nobody flinches",
-    "description": "Your feed covers Kubernetes, IaC, and cloud-provider internals. You care deeply about blast radius and the art of writing runbooks that actually get read.",
+    "id": "product_fullstack_engineer",
+    "name": "Product Full-Stack Engineer",
+    "headline": "Whole features, database to deploy",
+    "description": "Your feed blends frontend frameworks, APIs, and deploys. You like owning a feature end to end.",
     "keyTags": [
-      "kubernetes",
+      "nextjs",
+      "react",
+      "typescript",
+      "nodejs",
+      "vercel",
+      "serverless",
+      "rest-api",
+      "supabase",
+      "backend"
+    ]
+  },
+  {
+    "id": "api_fullstack_engineer",
+    "name": "API & Data-Layer Engineer",
+    "headline": "The contract the whole product leans on",
+    "description": "Your feed covers GraphQL and REST API design, Postgres schemas, and the data layer behind the UI. You sweat the shape of every payload.",
+    "keyTags": [
+      "graphql",
+      "rest-api",
+      "postgresql",
+      "prisma",
+      "nodejs",
+      "typescript",
+      "backend",
+      "openapi",
+      "api"
+    ]
+  },
+  {
+    "id": "cloud_infrastructure_engineer",
+    "name": "Cloud Infrastructure Engineer",
+    "headline": "Terraform applies and nobody flinches",
+    "description": "Your feed covers cloud-provider internals, Terraform and IaC, and the blast radius of every change.",
+    "keyTags": [
       "terraform",
       "aws",
       "gcp",
       "azure",
-      "helm",
       "iac",
+      "cloud",
       "cloud-native",
-      "platform-engineering",
+      "infrastructure",
+      "pulumi",
       "devops",
-      "docker",
-      "infrastructure"
+      "multi-cloud"
     ]
   },
   {
-    "id": "sre_reliability_engineer",
-    "name": "SRE",
-    "headline": "On-call is a design problem, not a ritual",
-    "description": "Your feed surfaces observability tooling, incident retrospectives, and SLO frameworks. You define reliability as a feature, not a post-launch concern.",
+    "id": "kubernetes_platform_engineer",
+    "name": "Kubernetes Platform Engineer",
+    "headline": "Orchestrating the substrate everything runs on",
+    "description": "Your feed runs on Kubernetes, Helm, and the golden paths other teams build on.",
     "keyTags": [
-      "sre",
+      "kubernetes",
+      "helm",
+      "docker",
+      "cloud-native",
+      "platform-engineering",
+      "devops",
+      "infrastructure",
+      "iac",
+      "self-hosted"
+    ]
+  },
+  {
+    "id": "observability_engineer",
+    "name": "Observability Engineer",
+    "headline": "If it moves, you measure it",
+    "description": "Your feed surfaces Prometheus metrics, OpenTelemetry traces, and the Grafana dashboards that catch trouble before users do.",
+    "keyTags": [
       "observability",
       "monitoring",
       "prometheus",
       "grafana",
       "opentelemetry",
-      "distributed-systems",
       "logging",
-      "cicd",
-      "architecture",
       "apm",
+      "sre",
+      "distributed-systems"
+    ]
+  },
+  {
+    "id": "incident_reliability_engineer",
+    "name": "Reliability Engineer",
+    "headline": "On-call is a design problem, not a ritual",
+    "description": "Your feed mixes SLOs, incident retros, and error budgets. You treat reliability as a feature and watch your DORA metrics.",
+    "keyTags": [
+      "sre",
+      "observability",
+      "distributed-systems",
+      "dora",
+      "cicd",
+      "monitoring",
+      "cloud",
+      "architecture",
+      "logging"
+    ]
+  },
+  {
+    "id": "application_security_engineer",
+    "name": "Application Security Engineer",
+    "headline": "Threat modeling starts at sprint planning",
+    "description": "Your feed covers appsec, code scanning, and the vulnerabilities that ship in someone else’s dependency.",
+    "keyTags": [
+      "appsec",
+      "security",
+      "web-security",
+      "code-security",
+      "vulnerability",
+      "authentication",
+      "cryptography",
+      "devsecops",
+      "pentesting"
+    ]
+  },
+  {
+    "id": "infrastructure_security_engineer",
+    "name": "Infrastructure Security Engineer",
+    "headline": "Securing the pipeline and everything it touches",
+    "description": "Your feed mixes supply-chain threats, secrets management, and SBOMs — hardening the build itself.",
+    "keyTags": [
+      "security",
+      "devsecops",
+      "sbom",
+      "secrets-management",
+      "zero-day",
+      "compliance",
+      "vulnerability",
+      "infrastructure",
       "cloud"
     ]
   },
   {
-    "id": "security_engineer",
-    "name": "Security Engineer",
-    "headline": "Ships fast and still sleeps at night",
-    "description": "Your feed mixes appsec, supply-chain threats, and zero-days. You think threat modelling should start in sprint planning, not the week before launch.",
+    "id": "developer_experience_engineer",
+    "name": "Developer Experience Engineer",
+    "headline": "Measuring productivity in friction removed",
+    "description": "Your feed covers internal tooling, Git and CI workflows, and shaving minutes off every engineer’s day.",
     "keyTags": [
-      "security",
-      "appsec",
-      "devsecops",
-      "vulnerability",
-      "pentesting",
-      "cryptography",
-      "authentication",
-      "web-security",
-      "code-security",
-      "zero-day",
-      "sbom",
-      "secrets-management"
+      "devtools",
+      "productivity",
+      "cli",
+      "git",
+      "vs-code",
+      "open-source",
+      "cicd",
+      "testing",
+      "code-review"
     ]
   },
   {
-    "id": "devtools_engineer",
-    "name": "Dev Tools Engineer",
-    "headline": "Building the picks and shovels of software",
-    "description": "Your feed covers compilers, build systems, CLIs, and developer experience improvements. You measure productivity in keystrokes saved per engineer per day.",
+    "id": "build_systems_engineer",
+    "name": "Build Systems Engineer",
+    "headline": "Compilers, build graphs, and fast feedback",
+    "description": "Your feed runs on build tooling, compilers in Rust and Go, and the CLIs other engineers live in.",
     "keyTags": [
       "devtools",
       "cli",
       "rust",
       "go",
-      "commandline",
-      "vs-code",
-      "git",
-      "cicd",
-      "testing",
-      "open-source",
+      "bun",
       "vite",
-      "bun"
+      "commandline",
+      "open-source",
+      "cicd"
     ]
   },
   {
-    "id": "ml_engineer",
-    "name": "ML Engineer",
-    "headline": "Getting models out of notebooks and into production",
-    "description": "Your feed covers model training, deployment, and evaluation frameworks. You've debugged enough shape mismatches to have opinions about tensor libraries.",
+    "id": "ml_training_engineer",
+    "name": "ML Training Engineer",
+    "headline": "Where architectures and benchmarks meet",
+    "description": "Your feed covers model training, neural architectures, and the math behind the benchmark scores.",
     "keyTags": [
       "machine-learning",
       "pytorch",
       "tensorflow",
-      "mlops",
       "deep-learning",
-      "huggingface",
-      "python",
       "neural-networks",
-      "llm",
+      "transformers",
       "cuda",
-      "scikit",
-      "transformers"
+      "python",
+      "scikit"
     ]
   },
   {
-    "id": "ai_application_builder",
-    "name": "AI App Builder",
+    "id": "mlops_engineer",
+    "name": "MLOps Engineer",
+    "headline": "Getting models out of notebooks and into production",
+    "description": "Your feed mixes serving, evaluation, and the pipelines that keep a model healthy in prod.",
+    "keyTags": [
+      "mlops",
+      "machine-learning",
+      "python",
+      "huggingface",
+      "pytorch",
+      "llmops",
+      "deep-learning",
+      "cicd",
+      "data-engineering"
+    ]
+  },
+  {
+    "id": "llm_app_engineer",
+    "name": "AI Application Engineer",
     "headline": "LLMs as infrastructure, products as the goal",
-    "description": "Your feed surfaces RAG architectures, prompt engineering, and emerging AI app patterns. You think the interesting layer is the one between the model and the user.",
+    "description": "Your feed surfaces prompt design, agent patterns, and the layer between the model and the user.",
     "keyTags": [
       "llm",
-      "rag",
-      "langchain",
       "openai",
+      "anthropic",
       "genai",
       "prompt-engineering",
+      "langchain",
+      "ai",
+      "semantic-kernel",
+      "llmops"
+    ]
+  },
+  {
+    "id": "rag_retrieval_engineer",
+    "name": "Retrieval & RAG Engineer",
+    "headline": "Grounding answers in the right context",
+    "description": "Your feed covers embeddings, vector search, and the retrieval that keeps an LLM honest.",
+    "keyTags": [
+      "rag",
       "vector-search",
       "embeddings",
-      "anthropic",
-      "llmops",
+      "llm",
+      "langchain",
+      "genai",
+      "openai",
       "ai",
       "semantic-kernel"
     ]
   },
   {
-    "id": "data_engineer",
-    "name": "Data Engineer",
-    "headline": "Reliable pipelines are the unsexy superpower",
-    "description": "Your feed covers streaming, batch processing, and data-lake architecture. You have a war story involving a timezone bug that cost someone a quarter.",
+    "id": "streaming_data_engineer",
+    "name": "Streaming Data Engineer",
+    "headline": "Pipelines that never sleep",
+    "description": "Your feed runs on Kafka, Flink, and the freshness SLAs behind real-time data.",
     "keyTags": [
       "data-engineering",
       "apache-kafka",
+      "apache-flink",
+      "data-streaming",
+      "change-data-capture",
+      "real-time-analytics",
+      "big-data",
+      "etl",
+      "data-quality"
+    ]
+  },
+  {
+    "id": "batch_data_engineer",
+    "name": "Batch & Warehouse Engineer",
+    "headline": "Lakehouses, warehouses, and trustworthy tables",
+    "description": "Your feed covers Spark, Airflow, and the lakehouse architecture behind the warehouse.",
+    "keyTags": [
+      "data-engineering",
       "apache-spark",
       "apache-airflow",
-      "change-data-capture",
       "apache-iceberg",
       "snowflake",
       "databricks",
       "data-warehouse",
       "etl",
-      "big-data",
-      "apache-flink"
+      "big-data"
     ]
   },
   {
-    "id": "analytics_engineer",
+    "id": "analytics_bi_engineer",
     "name": "Analytics Engineer",
-    "headline": "Turning queries into decisions, not just dashboards",
-    "description": "Your feed mixes SQL craft, BI tooling, and data-modelling patterns. You believe a well-named metric definition is worth a thousand ad-hoc queries.",
+    "headline": "Turning queries into decisions",
+    "description": "Your feed mixes SQL craft, BI tooling, and metric definitions worth a thousand ad-hoc queries.",
     "keyTags": [
       "analytics-platforms",
-      "data-visualization",
-      "data-analysis",
       "sql",
       "bi",
-      "data-science",
-      "predictive-analytics",
-      "python",
-      "exploratory-data-analysis",
-      "statistical-analysis",
-      "real-time-analytics",
-      "duckdb"
+      "data-visualization",
+      "data-analysis",
+      "duckdb",
+      "data-warehouse",
+      "real-time-analytics"
     ]
   },
   {
-    "id": "game_developer",
-    "name": "Game Developer",
-    "headline": "Rendering 60fps and shipping before crunch",
-    "description": "Your feed covers game engines, graphics programming, and the physics of fun. You benchmark shaders the way others benchmark APIs.",
+    "id": "data_science_analyst",
+    "name": "Data Scientist",
+    "headline": "From raw data to a defensible answer",
+    "description": "Your feed covers statistics, exploratory analysis, and the models behind a prediction.",
+    "keyTags": [
+      "data-science",
+      "statistical-analysis",
+      "exploratory-data-analysis",
+      "predictive-analytics",
+      "python",
+      "jupyter",
+      "scikit",
+      "data-analysis"
+    ]
+  },
+  {
+    "id": "gameplay_developer",
+    "name": "Gameplay Developer",
+    "headline": "Where mechanics become fun",
+    "description": "Your feed covers engines, game design, and the iteration loop that turns mechanics into play.",
     "keyTags": [
       "game-development",
       "gamedev",
       "unity",
       "unreal-engine",
+      "godot",
+      "game-design",
+      "gaming",
+      "c++",
+      "3d"
+    ]
+  },
+  {
+    "id": "graphics_programmer",
+    "name": "Graphics Programmer",
+    "headline": "Rendering pipelines and 60 honest frames",
+    "description": "Your feed runs on shaders, GPUs, and the rendering math behind every frame.",
+    "keyTags": [
       "graphics-programming",
       "webgpu",
       "vulkan",
-      "game-design",
-      "c++",
       "3d",
-      "godot",
+      "c++",
+      "game-development",
+      "unreal-engine",
+      "gamedev",
       "gaming"
     ]
   },
   {
-    "id": "embedded_systems_engineer",
-    "name": "Embedded Engineer",
+    "id": "firmware_engineer",
+    "name": "Firmware Engineer",
     "headline": "Code that runs where there is no OS",
-    "description": "Your feed surfaces firmware patterns, RTOS trade-offs, and IoT protocols. You think in bytes because kilobytes are a luxury.",
+    "description": "Your feed surfaces RTOS trade-offs, bare-metal C, and counting every byte.",
     "keyTags": [
       "embedded",
-      "iot",
-      "rust",
-      "c",
-      "c++",
       "firmware",
-      "raspberry-pi",
+      "c",
+      "rust",
+      "c++",
+      "arm",
+      "hardware",
+      "sensors",
+      "raspberry-pi"
+    ]
+  },
+  {
+    "id": "iot_robotics_engineer",
+    "name": "IoT & Robotics Engineer",
+    "headline": "Bytes that move motors and read the world",
+    "description": "Your feed covers sensors, robotics, and the protocols connecting devices to the cloud.",
+    "keyTags": [
+      "iot",
       "robotics",
       "sensors",
       "mqtt",
-      "arm",
-      "hardware"
+      "embedded",
+      "raspberry-pi",
+      "hardware",
+      "rust",
+      "c++"
     ]
   },
   {
-    "id": "engineering_leader",
-    "name": "Engineering Leader",
-    "headline": "Growing teams, not just code",
-    "description": "Your feed covers org design, engineering culture, and delivery frameworks. You measure success by what your team ships when you are not in the room.",
+    "id": "engineering_manager",
+    "name": "Engineering Manager",
+    "headline": "Growing people, not just code",
+    "description": "Your feed covers team health, delivery, and the rituals that help engineers do their best work.",
     "keyTags": [
       "leadership",
-      "career",
-      "continuous-improvement",
-      "agile",
-      "devrel",
-      "productivity",
       "company-culture",
       "project-management",
       "scrum",
+      "agile",
       "remote-work",
-      "technical-debt",
-      "architecture"
+      "career",
+      "continuous-improvement",
+      "productivity"
     ]
   },
   {
-    "id": "technical_founder",
+    "id": "technical_lead_architect",
+    "name": "Technical Lead / Architect",
+    "headline": "Setting technical direction the team can run with",
+    "description": "Your feed mixes architecture, design patterns, and paying down debt before it compounds.",
+    "keyTags": [
+      "architecture",
+      "design-patterns",
+      "technical-debt",
+      "leadership",
+      "continuous-improvement",
+      "distributed-systems",
+      "agile",
+      "code-review"
+    ]
+  },
+  {
+    "id": "startup_founder",
     "name": "Technical Founder",
     "headline": "Building a company one hard decision at a time",
-    "description": "Your feed mixes startup strategy, technical architecture, and growth tactics. You have shipped product, pitched investors, and debugged production on the same day.",
+    "description": "Your feed blends startup strategy, fundraising, and shipping product on a runway.",
     "keyTags": [
       "startup",
       "entrepreneurship",
       "business",
       "venture-capital",
       "product-management",
-      "open-source",
       "revenue",
-      "investing",
       "y-combinator",
-      "business-development",
       "series-a",
-      "finance"
+      "investing"
+    ]
+  },
+  {
+    "id": "developer_advocate",
+    "name": "Developer Advocate",
+    "headline": "Engineering that meets the community",
+    "description": "Your feed covers devrel, open source, and turning hard tech into things developers love.",
+    "keyTags": [
+      "devrel",
+      "open-source",
+      "career",
+      "productivity",
+      "business-development",
+      "remote-work",
+      "leadership",
+      "continuous-improvement"
     ]
   }
 ]

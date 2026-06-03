@@ -418,7 +418,14 @@ export interface FunnelStepPersonaQuizParameters {
     maxQuestions: number;
     targetTotalTags: number;
     tagConfidenceFloor: number;
+    /** Generic backfill used when no domain-specific list applies. */
     fallbackTags?: string[];
+    /**
+     * Domain-specific backfill keyed by the Q1 (opener) option id. Preferred
+     * over `fallbackTags` so a sparse result is topped up with tags relevant
+     * to the user's chosen domain rather than generic ones.
+     */
+    fallbackTagsByDomain?: Record<string, string[]>;
   };
   /**
    * Finite set of persona archetypes the quiz can resolve to. The user's path

@@ -168,7 +168,9 @@ const parameters: FunnelStepPersonaQuiz['parameters'] = {
       name: 'Frontend Dev',
       headline: 'TypeScript frontend dev',
       description: 'Heavy TS + React feed coming up.',
-      keyTags: ['react', 'typescript', 'tailwind'],
+      // `design-systems` isn't produced by any answer below — it can only end
+      // up in the final tags if the archetype's keyTags seed the list.
+      keyTags: ['design-systems', 'react', 'typescript', 'tailwind'],
     },
     {
       id: 'backend_dev',
@@ -254,6 +256,26 @@ describe('FunnelPersonaQuiz', () => {
               { questionId: 'q_domain', optionId: 'frontend' },
               { questionId: 'q_fe_yn', optionId: 'yes' },
             ],
+          }),
+        }),
+      );
+    });
+  });
+
+  it('seeds the final tag list with the resolved archetype keyTags', async () => {
+    const { onTransition } = renderStep();
+    fireEvent.click(await screen.findByText('Frontend'));
+    fireEvent.click(await screen.findByText('Yes'));
+    expect(
+      await screen.findByText('TypeScript frontend dev'),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Looks good'));
+    await waitFor(() => {
+      expect(onTransition).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: FunnelStepTransitionType.Complete,
+          details: expect.objectContaining({
+            tags: expect.arrayContaining(['design-systems']),
           }),
         }),
       );

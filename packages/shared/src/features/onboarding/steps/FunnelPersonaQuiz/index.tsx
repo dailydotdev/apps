@@ -140,9 +140,21 @@ function FunnelPersonaQuizComponent({
         archetypes.find((a) => a.id === terminalQuestion?.archetypeId) ?? null;
       setRevealArchetype(archetype);
 
+      // Backfill with tags relevant to the chosen domain (the opener answer)
+      // rather than a generic list, falling back to the generic one.
+      const domainAnswer = committedAnswers[0]?.optionId;
+      const fallback =
+        (domainAnswer && selection.fallbackTagsByDomain?.[domainAnswer]) ||
+        selection.fallbackTags ||
+        [];
+
+      // Seed the persona's canonical tags first so the reveal headline and the
+      // followed tags stay coherent, then the user's strongest answer-derived
+      // tags, then domain backfill. Cap at the target.
       const merged = dedupePreserveOrder([
+        ...(archetype?.keyTags ?? []).slice(0, 4),
         ...accumulatedTags,
-        ...(selection.fallbackTags ?? []),
+        ...fallback,
       ]).slice(0, selection.targetTotalTags);
 
       // Most tags are already followed (we stream them incrementally above);
@@ -163,6 +175,7 @@ function FunnelPersonaQuizComponent({
       accumulatedTags,
       selection.targetTotalTags,
       selection.fallbackTags,
+      selection.fallbackTagsByDomain,
       enrichmentComplete,
       followTags,
       refetchPreview,
