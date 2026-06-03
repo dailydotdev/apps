@@ -38,6 +38,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   hideLoginLink?: boolean;
   compact?: boolean;
   splitSignupStyle?: boolean;
+  preferGithub?: boolean;
 }
 
 export const isWebView = (): boolean => {
@@ -114,9 +115,13 @@ export const OnboardingRegistrationForm = ({
   hideLoginLink,
   compact,
   splitSignupStyle = false,
+  preferGithub,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const isOnboardingTrigger = trigger === AuthTriggers.Onboarding;
+  const signupProviders = getSignupProviders(
+    preferGithub ?? isOnboardingTrigger,
+  );
 
   const trackOpenSignup = () => {
     logEvent({
@@ -220,7 +225,7 @@ export const OnboardingRegistrationForm = ({
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
       <ul aria-label="Social login buttons" className="flex flex-col gap-4">
-        {getSignupProviders(isOnboardingTrigger).map((provider) => (
+        {signupProviders.map((provider) => (
           <li key={provider.value}>
             <Button
               aria-label={

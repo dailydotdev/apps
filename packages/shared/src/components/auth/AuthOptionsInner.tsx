@@ -136,6 +136,7 @@ function AuthOptionsInner({
   hideLoginLink,
   compact,
   splitSignupStyle,
+  preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
 }: AuthOptionsProps): ReactElement {
@@ -767,6 +768,7 @@ function AuthOptionsInner({
             hideLoginLink={hideLoginLink}
             compact={compact}
             splitSignupStyle={splitSignupStyle}
+            preferGithub={preferGithub}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

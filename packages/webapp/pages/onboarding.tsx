@@ -19,11 +19,13 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+import {
+  FooterLinks,
+  withFeaturesBoundary,
+} from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import dynamic from 'next/dynamic';
 import type {
   AuthOptionsProps,
   AuthProps,
@@ -55,34 +57,13 @@ import {
 import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
+import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { getPageSeoTitles } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
-
-const OnboardingSignupHero = dynamic(
-  () =>
-    import(
-      '@dailydotdev/shared/src/features/onboarding/components/OnboardingSignupHero'
-    ).then((m) => m.OnboardingSignupHero),
-  { ssr: false },
-);
-
-const FORM_FOCUSED_DISPLAYS = new Set<AuthDisplay>([
-  AuthDisplay.Registration,
-  AuthDisplay.SocialRegistration,
-  AuthDisplay.EmailVerification,
-  AuthDisplay.ChangePassword,
-  AuthDisplay.ForgotPassword,
-]);
-
-const HEADLINE_BY_DISPLAY: Partial<Record<AuthDisplay, string>> = {
-  [AuthDisplay.Default]: 'Log in to daily.dev.',
-  [AuthDisplay.SignBack]: 'Welcome back.',
-  [AuthDisplay.OnboardingSignup]: 'The homepage every developer deserves.',
-};
 
 const seoTitles = getPageSeoTitles('Get started');
 const seo: NextSeoProps = {
@@ -245,7 +226,7 @@ const useOnboardingAuth = () => {
       simplified: true,
       className: {
         container: classNames(
-          'w-full rounded-none tablet:max-w-[340px]',
+          'w-full rounded-none tablet:max-w-[30rem]',
           auth.isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
@@ -290,18 +271,12 @@ const useOnboardingAuth = () => {
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const {
-    auth,
     isAuthenticating,
     isAuthReady,
     authOptionProps,
     funnelState,
     isLoggedIn,
   } = useOnboardingAuth();
-  const display = auth?.defaultDisplay;
-  const isFormFocused = !!display && FORM_FOCUSED_DISPLAYS.has(display);
-  const heroHeadline =
-    (display && HEADLINE_BY_DISPLAY[display]) ??
-    'The homepage every developer deserves.';
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
@@ -354,12 +329,17 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
 
   if (isAuthenticating) {
     return (
-      <OnboardingSignupHero
-        isFormExpanded={isFormFocused}
-        headline={heroHeadline}
+      <div
+        className={classNames(
+          'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+        )}
       >
-        <AuthOptions {...authOptionProps} />
-      </OnboardingSignupHero>
+        <OnboardingHeader />
+        <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
+          <AuthOptions {...authOptionProps} />
+        </div>
+        <FooterLinks className="mx-auto pb-6" />
+      </div>
     );
   }
 

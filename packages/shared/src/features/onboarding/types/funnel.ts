@@ -29,6 +29,7 @@ export enum FunnelStepType {
   PlusCards = 'plusCards',
   OrganicSignup = 'organicRegistration',
   OrganicCheckout = 'organicCheckout',
+  HeroLanding = 'heroLanding',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
 }
@@ -318,6 +319,29 @@ export interface FunnelStepOrganicCheckout extends FunnelStepCommon {
   type: FunnelStepType.OrganicCheckout;
 }
 
+// Redesigned signup landing — the "hero". Its own step type so its
+// individually toggleable building blocks don't collide with the original
+// organic signup. Each parameter is optional; the renderer applies defaults.
+export type FunnelSignupHeroBackground = 'cards' | 'split' | 'desk';
+export type FunnelSignupHeroImageMode = 'image' | 'colors';
+export type FunnelSignupOauthOrder = 'githubFirst' | 'googleFirst';
+
+export interface FunnelStepHeroLanding
+  extends FunnelStepCommon<{
+    headline?: string;
+    background?: FunnelSignupHeroBackground;
+    imageMode?: FunnelSignupHeroImageMode;
+    showOrbs?: boolean;
+    oauthOrder?: FunnelSignupOauthOrder;
+    splitSignupStyle?: boolean;
+    forceDarkTheme?: boolean;
+  }> {
+  type: FunnelStepType.HeroLanding;
+  onTransition: FunnelStepTransitionCallback<{
+    user: LoggedUser | AnonymousUser;
+  }>;
+}
+
 export interface PlanCard {
   cta: string;
   title: string;
@@ -395,6 +419,7 @@ export type FunnelStep =
   | FunnelStepInstallPwa
   | FunnelStepOrganicSignup
   | FunnelStepOrganicCheckout
+  | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
   | FunnelStepUploadCv;
@@ -439,6 +464,7 @@ export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
   ];
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
+  FunnelStepType.HeroLanding,
   FunnelStepType.EditTags,
   FunnelStepType.ContentTypes,
   FunnelStepType.PlusCards,

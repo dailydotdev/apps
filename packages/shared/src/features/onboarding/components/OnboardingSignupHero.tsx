@@ -1,543 +1,40 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
-import type { AuthOptionsProps } from '../../../components/auth/common';
-import { ErrorBoundary } from '../../../components/ErrorBoundary';
-import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
-import { ActiveFeedNameContext } from '../../../contexts/ActiveFeedNameContext';
-import { SharedFeedPage } from '../../../components/utilities';
-import { gqlClient } from '../../../graphql/common';
-import { MOST_UPVOTED_FEED_QUERY } from '../../../graphql/feed';
-import type { Post } from '../../../graphql/posts';
 import {
   ThemeMode,
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
-const HERO_STYLES = `
-.onb-bg {
-  background:
-    radial-gradient(ellipse 65% 50% at 15% 18%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default) 8%, transparent) 0%,
-      transparent 65%),
-    radial-gradient(ellipse 55% 45% at 88% 32%,
-      color-mix(in srgb, var(--theme-accent-water-default) 7%, transparent) 0%,
-      transparent 70%),
-    var(--theme-background-default);
-}
-.onb-orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(110px);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  opacity: 0.55;
-  animation: onb-breathe 22s ease-in-out infinite;
-}
-.onb-orb--delay { animation-delay: -8s; }
-@keyframes onb-breathe {
-  0%, 100% { opacity: 0.48; }
-  50% { opacity: 0.68; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .onb-orb { animation: none; opacity: 0.55; }
-}
-.onb-form-halo {
-  background:
-    radial-gradient(
-      ellipse 78% 55% at 50% 92%,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 0.98) 20%,
-      rgba(0, 0, 0, 0.9) 36%,
-      rgba(0, 0, 0, 0.7) 52%,
-      rgba(0, 0, 0, 0.4) 68%,
-      rgba(0, 0, 0, 0.15) 82%,
-      transparent 94%
-    );
-}
-.onb-center-halo {
-  background:
-    radial-gradient(
-      ellipse 55% 36% at 50% 54%,
-      rgba(0, 0, 0, 0.96) 0%,
-      rgba(0, 0, 0, 0.88) 22%,
-      rgba(0, 0, 0, 0.68) 42%,
-      rgba(0, 0, 0, 0.42) 60%,
-      rgba(0, 0, 0, 0.18) 76%,
-      transparent 92%
-    );
-}
-.onb-bottom-vignette {
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    transparent 32%,
-    rgba(0, 0, 0, 0.45) 56%,
-    rgba(0, 0, 0, 0.85) 78%,
-    rgba(0, 0, 0, 1) 100%
-  );
-}
-.onb-top-fade {
-  background: linear-gradient(
-    to bottom,
-    rgba(8, 8, 12, 0.55) 0%,
-    rgba(8, 8, 12, 0.12) 28%,
-    transparent 44%
-  );
-}
-.onb-prod-scrim {
-  background: linear-gradient(
-    to top,
-    rgba(8, 8, 12, 0.78) 0%,
-    rgba(8, 8, 12, 0.55) 28%,
-    rgba(8, 8, 12, 0.25) 58%,
-    rgba(8, 8, 12, 0.05) 82%,
-    transparent 100%
-  );
-}
-.onb-headline { text-shadow: 0 2px 32px rgba(0, 0, 0, 0.95), 0 0 64px rgba(0, 0, 0, 0.6); }
-.onb-grid-mask {
-  -webkit-mask-image:
-    radial-gradient(
-      ellipse 78% 58% at 50% 95%,
-      transparent 0%,
-      transparent 16%,
-      rgba(0, 0, 0, 0.45) 36%,
-      rgba(0, 0, 0, 0.95) 62%,
-      black 100%
-    );
-  mask-image:
-    radial-gradient(
-      ellipse 78% 58% at 50% 95%,
-      transparent 0%,
-      transparent 16%,
-      rgba(0, 0, 0, 0.45) 36%,
-      rgba(0, 0, 0, 0.95) 62%,
-      black 100%
-    );
-}
-.onb-cover-shade {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 60%,
-    rgba(0, 0, 0, 0.35) 100%
-  );
-}
-.onb-split-grid-mask {
-  -webkit-mask-image:
-    linear-gradient(
-      to right,
-      black 0%,
-      black 55%,
-      rgba(0, 0, 0, 0.75) 78%,
-      transparent 100%
-    );
-  mask-image:
-    linear-gradient(
-      to right,
-      black 0%,
-      black 55%,
-      rgba(0, 0, 0, 0.75) 78%,
-      transparent 100%
-    );
-}
-.onb-split-left-fade {
-  background:
-    linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0, 0, 0, 0.25) 55%,
-      rgba(0, 0, 0, 0.72) 82%,
-      rgba(8, 8, 12, 1) 100%
-    );
-}
-.onb-split-left-water-glow {
-  background:
-    radial-gradient(
-      ellipse 85% 65% at 18% 100%,
-      color-mix(in srgb, var(--theme-accent-water-default) 14%, transparent) 0%,
-      color-mix(in srgb, var(--theme-accent-water-default) 5%, transparent) 42%,
-      transparent 72%
-    );
-}
-.onb-bg-split {
-  background: var(--theme-background-default);
-}
-.onb-split-right-panel {
-  background: var(--theme-background-default);
-}
-`;
+import type {
+  FunnelSignupHeroBackground,
+  FunnelSignupHeroImageMode,
+} from '../types/funnel';
+import { HERO_STYLES } from './signupHero/heroStyles';
+import { HeroBackgroundLayer } from './signupHero/HeroBackgroundLayer';
+import { AuroraOrbs } from './signupHero/HeroDecorations';
 
 // =============================================================
-// Variant A — Cards: real daily.dev feed cards
-// =============================================================
-
-type FeedQueryResult = {
-  page: { edges: Array<{ node: Post }> };
-};
-
-const noop = (): void => undefined;
-
-const useExplorePosts = (): Post[] => {
-  const { data } = useQuery({
-    queryKey: ['onboarding-explore-feed'],
-    queryFn: async () => {
-      const res = await gqlClient.request<FeedQueryResult>(
-        MOST_UPVOTED_FEED_QUERY,
-        {
-          first: 30,
-          period: 7,
-          loggedIn: false,
-          supportedTypes: ['article', 'video:youtube'],
-        },
-      );
-      return res.page.edges
-        .map((edge) => edge.node)
-        .filter((post): post is Post => !!post && !!post.id && !!post.title)
-        .map((post) => ({ ...post, clickbaitTitleDetected: false }));
-    },
-    staleTime: 1000 * 60 * 10,
-    retry: 1,
-  });
-  return data ?? [];
-};
-
-const ExplorePostCard = ({ post }: { post: Post }): ReactElement => (
-  <ErrorBoundary fallback={null}>
-    <ArticleGrid
-      post={post}
-      onPostClick={noop}
-      onPostAuxClick={noop}
-      onUpvoteClick={noop}
-      onDownvoteClick={noop}
-      onCommentClick={noop}
-      onBookmarkClick={noop}
-      onShare={noop}
-      onCopyLinkClick={noop}
-      onReadArticleClick={noop}
-    />
-  </ErrorBoundary>
-);
-
-const CardsBackground = ({
-  splitMode = false,
-}: {
-  splitMode?: boolean;
-}): ReactElement => {
-  const posts = useExplorePosts();
-  const feedMaskClass = splitMode
-    ? 'onb-split-grid-mask inset-0 -z-1'
-    : 'onb-grid-mask inset-0 -z-1';
-
-  return (
-    <ActiveFeedNameContext.Provider
-      value={{ feedName: SharedFeedPage.Popular }}
-    >
-      <div
-        aria-hidden
-        className={classNames(
-          'pointer-events-none absolute select-none overflow-hidden opacity-[0.4] [&_*]:!pointer-events-none',
-          feedMaskClass,
-        )}
-      >
-        <div
-          className={classNames(
-            'grid auto-rows-min gap-8 px-10 pb-5 pt-10 tablet:px-14 tablet:pb-7 tablet:pt-14',
-            splitMode
-              ? 'grid-cols-2 laptop:grid-cols-2 laptopL:grid-cols-3'
-              : 'grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6',
-          )}
-        >
-          {posts.map((post) => (
-            <ExplorePostCard key={post.id} post={post} />
-          ))}
-        </div>
-      </div>
-    </ActiveFeedNameContext.Provider>
-  );
-};
-
-// =============================================================
-// Variant C — Desk: full-cover photo backdrop
-// =============================================================
-
-const DESK_HERO_SRC = '/assets/onboarding-hero-desk.webp';
-const DESK_HERO_SRCSET = [
-  '/assets/onboarding-hero-desk-1280.webp 1280w',
-  '/assets/onboarding-hero-desk-1920.webp 1920w',
-  '/assets/onboarding-hero-desk-2560.webp 2560w',
-].join(', ');
-
-const DeskBackground = (): ReactElement => (
-  <div
-    aria-hidden
-    className="pointer-events-none absolute inset-0 -z-1 select-none"
-  >
-    <picture>
-      <source type="image/webp" srcSet={DESK_HERO_SRCSET} sizes="100vw" />
-      <img
-        src={DESK_HERO_SRC}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover object-center"
-        style={{
-          imageRendering: 'auto',
-          filter: 'contrast(1.05) saturate(1.05)',
-        }}
-        decoding="async"
-        fetchPriority="high"
-      />
-    </picture>
-  </div>
-);
-
-// =============================================================
-// Image mode — production signup image (toggle overrides each variant)
-// =============================================================
-
-// The actual desktop + mobile artwork used on the live signup wall.
-// Source: cloudinaryOnboardingFullBackgroundDesktop / Mobile in shared/lib/image.
-const PROD_IMAGE_DESKTOP =
-  'https://media.daily.dev/image/upload/s--r2ffZPB4--/f_auto/v1716969841/dailydev_where_developers_suffer_together_sfvfog';
-const PROD_IMAGE_MOBILE =
-  'https://media.daily.dev/image/upload/s--EwsBTBt6--/f_auto/v1716969841/dailydev_where_developers_suffer_together_mobile_shkn1w';
-
-const ProdSignupBackground = ({
-  splitMode = false,
-  visible = true,
-}: {
-  splitMode?: boolean;
-  visible?: boolean;
-}): ReactElement => (
-  <div
-    aria-hidden
-    className={classNames(
-      'pointer-events-none absolute -z-1 select-none overflow-hidden transition-opacity duration-300',
-      splitMode ? 'onb-split-grid-mask inset-0' : 'inset-0',
-      visible ? 'opacity-100' : 'opacity-0',
-    )}
-  >
-    <picture>
-      <source media="(max-width: 768px)" srcSet={PROD_IMAGE_MOBILE} />
-      <img
-        src={PROD_IMAGE_DESKTOP}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover object-center"
-        decoding="async"
-        fetchPriority="high"
-      />
-    </picture>
-  </div>
-);
-
-// =============================================================
-// Variant registry & switcher
-// =============================================================
-
-type VariantId = 'cards' | 'desk' | 'split';
-type ImageMode = 'original' | 'prod' | 'colors';
-
-type VariantDef = {
-  id: VariantId;
-  label: string;
-  render: (mode: ImageMode) => ReactElement | null;
-};
-
-const renderVariantBackground = (
-  variant: VariantId,
-  mode: ImageMode,
-): ReactElement => {
-  const splitMode = variant === 'split';
-  const showOriginal = mode === 'original';
-  const showProd = mode === 'prod';
-  let originalLayer: ReactElement | null = null;
-  if (variant === 'cards' || variant === 'split') {
-    originalLayer = <CardsBackground splitMode={splitMode} />;
-  } else {
-    originalLayer = <DeskBackground />;
-  }
-  return (
-    <>
-      {showOriginal && originalLayer}
-      <ProdSignupBackground splitMode={splitMode} visible={showProd} />
-    </>
-  );
-};
-
-const VARIANTS: VariantDef[] = [
-  {
-    id: 'cards',
-    label: 'Cards',
-    render: (mode) => renderVariantBackground('cards', mode),
-  },
-  {
-    id: 'split',
-    label: 'X',
-    render: (mode) => renderVariantBackground('split', mode),
-  },
-  {
-    id: 'desk',
-    label: 'Desk',
-    render: (mode) => renderVariantBackground('desk', mode),
-  },
-];
-
-const IMAGE_MODES: Array<{ id: ImageMode; label: string }> = [
-  { id: 'original', label: 'Original' },
-  { id: 'prod', label: 'Prod image' },
-  { id: 'colors', label: 'Colors only' },
-];
-
-const VARIANT_STORAGE_KEY = 'onb-hero-variant';
-const IMAGE_MODE_STORAGE_KEY = 'onb-hero-mode';
-const VARIANT_IDS = new Set(VARIANTS.map((v) => v.id));
-const IMAGE_MODE_IDS = new Set(IMAGE_MODES.map((m) => m.id));
-
-const isVariantId = (value: string | null): value is VariantId =>
-  !!value && VARIANT_IDS.has(value as VariantId);
-
-const isImageMode = (value: string | null): value is ImageMode =>
-  !!value && IMAGE_MODE_IDS.has(value as ImageMode);
-
-const readInitialVariant = (): VariantId => {
-  if (typeof window === 'undefined') {
-    return VARIANTS[0].id;
-  }
-  const fromUrl = new URLSearchParams(window.location.search).get('variant');
-  if (isVariantId(fromUrl)) {
-    return fromUrl;
-  }
-  const fromStorage = window.localStorage.getItem(VARIANT_STORAGE_KEY);
-  if (isVariantId(fromStorage)) {
-    return fromStorage;
-  }
-  return VARIANTS[0].id;
-};
-
-const readInitialImageMode = (): ImageMode => {
-  if (typeof window === 'undefined') {
-    return 'original';
-  }
-  const fromUrl = new URLSearchParams(window.location.search).get('mode');
-  if (isImageMode(fromUrl)) {
-    return fromUrl;
-  }
-  const fromStorage = window.localStorage.getItem(IMAGE_MODE_STORAGE_KEY);
-  if (isImageMode(fromStorage)) {
-    return fromStorage;
-  }
-  return 'original';
-};
-
-const VARIANT_SWITCHER_Z_INDEX = 9999;
-
-const VariantSwitcher = ({
-  value,
-  onChange,
-  imageMode,
-  onImageModeChange,
-}: {
-  value: VariantId;
-  onChange: (next: VariantId) => void;
-  imageMode: ImageMode;
-  onImageModeChange: (next: ImageMode) => void;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'pointer-events-auto flex items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 p-1 shadow-2',
-      // Mobile: inline, centered, two-row stack at the bottom of the flow
-      'relative z-1 mt-3 max-w-[calc(100vw-1.5rem)] flex-col self-center',
-      // Tablet+: detach to top-right
-      'tablet:fixed tablet:right-6 tablet:top-6 tablet:mt-0 tablet:max-w-[min(calc(100vw-3rem),32rem)] tablet:flex-row tablet:flex-wrap tablet:self-auto tablet:p-1.5',
-    )}
-    role="toolbar"
-    aria-label="Background variant"
-    style={{ zIndex: VARIANT_SWITCHER_Z_INDEX }}
-  >
-    <div className="flex items-center gap-1">
-      <span className="hidden shrink-0 px-2 text-text-quaternary typo-caption2 tablet:inline">
-        Variant
-      </span>
-      <div
-        role="radiogroup"
-        aria-label="Background variant"
-        className="flex items-center gap-1"
-      >
-        {VARIANTS.map((variant) => {
-          const active = variant.id === value;
-          return (
-            <button
-              key={variant.id}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={(event) => {
-                event.stopPropagation();
-                onChange(variant.id);
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-              className={classNames(
-                'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
-                active
-                  ? 'bg-white/15 text-text-primary'
-                  : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
-              )}
-            >
-              {variant.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-    <div className="mx-1 hidden h-5 w-px bg-border-subtlest-tertiary tablet:block" />
-    <div className="flex items-center gap-1">
-      <span className="hidden shrink-0 px-2 text-text-quaternary typo-caption2 tablet:inline">
-        Image
-      </span>
-      <div
-        role="radiogroup"
-        aria-label="Image source"
-        className="flex items-center gap-1"
-      >
-        {IMAGE_MODES.map((mode) => {
-          const active = mode.id === imageMode;
-          return (
-            <button
-              key={mode.id}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={(event) => {
-                event.stopPropagation();
-                onImageModeChange(mode.id);
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-              className={classNames(
-                'pointer-events-auto cursor-pointer rounded-full px-3 py-1 font-medium tracking-tight transition-colors typo-caption2',
-                active
-                  ? 'bg-accent-cabbage-default text-white'
-                  : 'hover:bg-white/10 text-text-tertiary hover:text-text-primary',
-              )}
-            >
-              {mode.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-);
-
-// =============================================================
-// Main hero
+// Onboarding signup hero — a shell that composes individually
+// toggleable building blocks (background, orbs) driven by funnel
+// parameters. There is intentionally no runtime switcher: every
+// block is selected by the props passed in from the step.
+//
+// The halo/vignette is a legibility treatment intrinsic to the
+// backgrounds that need it (desk photo, split layout) rather than a
+// standalone toggle.
 // =============================================================
 
 type Props = {
   children: ReactNode;
   isFormExpanded?: boolean;
   headline?: string | null;
+  background?: FunnelSignupHeroBackground;
+  imageMode?: FunnelSignupHeroImageMode;
+  showOrbs?: boolean;
+  forceDarkTheme?: boolean;
 };
 
 const DEFAULT_HEADLINE = 'The homepage every developer deserves.';
@@ -547,46 +44,26 @@ export const OnboardingSignupHero = ({
   children,
   isFormExpanded = false,
   headline = DEFAULT_HEADLINE,
+  background = 'cards',
+  imageMode = 'image',
+  showOrbs = true,
+  forceDarkTheme = true,
 }: Props): ReactElement => {
   const { applyThemeMode } = useSettingsContext();
-  const [variantId, setVariantId] = useState<VariantId>(VARIANTS[0].id);
-  const [imageMode, setImageMode] = useState<ImageMode>('original');
 
   useEffect(() => {
-    setVariantId(readInitialVariant());
-    setImageMode(readInitialImageMode());
-  }, []);
-
-  useEffect(() => {
+    if (!forceDarkTheme) {
+      return undefined;
+    }
     applyThemeMode(ThemeMode.Dark);
     return () => {
       applyThemeMode();
     };
-  }, [applyThemeMode]);
+  }, [applyThemeMode, forceDarkTheme]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    window.localStorage.setItem(VARIANT_STORAGE_KEY, variantId);
-  }, [variantId]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    window.localStorage.setItem(IMAGE_MODE_STORAGE_KEY, imageMode);
-  }, [imageMode]);
-
-  const activeVariant = VARIANTS.find((v) => v.id === variantId) ?? VARIANTS[0];
-  const isSplitLayout = variantId === 'split';
-  const isDeskVariant = variantId === 'desk';
-  const isProdImageMode = imageMode === 'prod';
-
-  const signupForm =
-    isSplitLayout && React.isValidElement<AuthOptionsProps>(children)
-      ? React.cloneElement(children, { splitSignupStyle: true })
-      : children;
+  const isSplitLayout = background === 'split';
+  const isDeskVariant = background === 'desk';
+  const showOrbsLayer = showOrbs;
 
   const splitSignupColumn = (
     <>
@@ -610,7 +87,7 @@ export const OnboardingSignupHero = ({
             </h1>
           )}
 
-          {signupForm}
+          {children}
         </div>
       </main>
 
@@ -634,23 +111,18 @@ export const OnboardingSignupHero = ({
     >
       <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
 
-      {!isSplitLayout && activeVariant.render(imageMode)}
+      {!isSplitLayout && (
+        <HeroBackgroundLayer background={background} imageMode={imageMode} />
+      )}
 
       {isSplitLayout && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-1 select-none laptop:hidden"
         >
-          {renderVariantBackground('split', imageMode)}
-          {!isProdImageMode && (
-            <>
-              <div className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]" />
-              <div className="onb-form-halo pointer-events-none absolute inset-0" />
-            </>
-          )}
-          {isProdImageMode && (
-            <div className="onb-prod-scrim pointer-events-none absolute inset-x-0 bottom-0 h-[65vh]" />
-          )}
+          <HeroBackgroundLayer background="split" imageMode={imageMode} />
+          <div className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]" />
+          <div className="onb-form-halo pointer-events-none absolute inset-0" />
         </div>
       )}
 
@@ -660,66 +132,26 @@ export const OnboardingSignupHero = ({
             aria-hidden
             className="onb-split-left-water-glow pointer-events-none absolute inset-0 -z-2"
           />
-          {renderVariantBackground('split', imageMode)}
-          {!isProdImageMode && (
-            <>
-              <div
-                aria-hidden
-                className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
-              />
-              <span
-                className="onb-orb bg-accent-cabbage-default"
-                style={{
-                  width: '38rem',
-                  height: '38rem',
-                  top: '-10rem',
-                  left: '-8rem',
-                }}
-              />
-              <span
-                aria-hidden
-                className="onb-orb onb-orb--delay bg-accent-water-default"
-                style={{
-                  width: '32rem',
-                  height: '32rem',
-                  bottom: '-8rem',
-                  left: '5%',
-                  top: 'auto',
-                  right: 'auto',
-                }}
-              />
-            </>
-          )}
+          <HeroBackgroundLayer background="split" imageMode={imageMode} />
+          <div
+            aria-hidden
+            className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
+          />
+          {showOrbsLayer && <AuroraOrbs variant="split" />}
         </div>
       )}
 
-      {!isSplitLayout && !isProdImageMode && (
+      {!isSplitLayout && showOrbsLayer && (
         <div
           aria-hidden
+          data-testid="hero-orbs"
           className="pointer-events-none absolute inset-0 -z-1 select-none"
         >
-          <span
-            className="onb-orb bg-accent-cabbage-default"
-            style={{
-              width: '38rem',
-              height: '38rem',
-              top: '-10rem',
-              left: '-8rem',
-            }}
-          />
-          <span
-            className="onb-orb onb-orb--delay bg-accent-water-default"
-            style={{
-              width: '32rem',
-              height: '32rem',
-              top: '18%',
-              right: '-10rem',
-            }}
-          />
+          <AuroraOrbs variant="full" />
         </div>
       )}
 
-      {!isSplitLayout && !isProdImageMode && (
+      {isDeskVariant && (
         <>
           <div
             aria-hidden
@@ -727,23 +159,17 @@ export const OnboardingSignupHero = ({
           />
           <div
             aria-hidden
+            data-testid="hero-halo"
             className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
           />
         </>
-      )}
-
-      {!isSplitLayout && isProdImageMode && (
-        <div
-          aria-hidden
-          className="onb-prod-scrim pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[65vh]"
-        />
       )}
 
       <div
         aria-hidden
         className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
       />
-      {!isSplitLayout && !isProdImageMode && (
+      {isDeskVariant && (
         <div
           aria-hidden
           className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
@@ -778,7 +204,7 @@ export const OnboardingSignupHero = ({
               </h1>
             )}
 
-            {signupForm}
+            {children}
           </div>
         </main>
       )}
@@ -819,16 +245,7 @@ export const OnboardingSignupHero = ({
         <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
       </div>
 
-      <VariantSwitcher
-        value={variantId}
-        onChange={setVariantId}
-        imageMode={imageMode}
-        onImageModeChange={setImageMode}
-      />
-
       <div className="h-3 w-full tablet:hidden" />
     </div>
   );
 };
-
-export default OnboardingSignupHero;

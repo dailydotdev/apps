@@ -60,6 +60,7 @@ const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
   FunnelStepType.OrganicSignup,
+  FunnelStepType.HeroLanding,
   FunnelStepType.BrowserExtension,
 ];
 

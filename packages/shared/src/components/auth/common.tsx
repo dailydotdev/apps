@@ -128,6 +128,8 @@ export interface AuthOptionsProps {
   compact?: boolean;
   /** X-style split onboarding: "Sign up with", "Create account", Sign in button */
   splitSignupStyle?: boolean;
+  /** Order GitHub before Google in the OAuth provider list (developer-first). */
+  preferGithub?: boolean;
   autoTriggerProvider?: string;
   socialProviderScopes?: string[];
 }
