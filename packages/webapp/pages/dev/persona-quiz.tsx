@@ -3,6 +3,8 @@ import React, { useCallback, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { FunnelStepPersonaQuiz } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { FunnelPersonaQuiz } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPersonaQuiz';
+import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { NextSeo } from 'next-seo';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { buildSamplePersonaQuizStep } from '../../components/persona-quiz/personaQuizSampleConfig';
@@ -43,7 +45,7 @@ const PersonaQuizDevPage = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} />
-      <main className="mx-auto flex min-h-dvh w-full flex-col items-center bg-background-default px-4 py-6 laptop:py-10">
+      <main className="bg-gradient-funnel-default mx-auto flex min-h-dvh w-full flex-col items-center px-4 py-6 laptop:py-10">
         {completion ? (
           <section className="flex w-full max-w-md flex-col gap-4 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-6">
             <h2 className="font-bold text-text-primary typo-title3">
@@ -64,7 +66,18 @@ const PersonaQuizDevPage = (): ReactElement => {
             </button>
           </section>
         ) : (
-          <FunnelPersonaQuiz key={resetKey} {...step} />
+          // `/dev/*` routes get a minimal QueryClient-only tree from `_app`, so
+          // supply the contexts the quiz reads. Anonymous on purpose — that also
+          // hides the API-backed feed preview, which can't reach prod here.
+          <AuthContextProvider
+            getRedirectUri={() => ''}
+            updateUser={async () => undefined}
+            tokenRefreshed={false}
+          >
+            <SettingsContextProvider loadedSettings>
+              <FunnelPersonaQuiz key={resetKey} {...step} />
+            </SettingsContextProvider>
+          </AuthContextProvider>
         )}
       </main>
     </>

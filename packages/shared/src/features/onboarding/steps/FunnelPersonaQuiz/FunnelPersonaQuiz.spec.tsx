@@ -229,6 +229,26 @@ describe('FunnelPersonaQuiz', () => {
     });
   });
 
+  it('shows an intro screen and starts the quiz on Begin when a headline is set', async () => {
+    renderStep({
+      parameters: {
+        ...parameters,
+        headline: 'Let me guess who you are',
+        explainer: 'A few quick questions.',
+      },
+    });
+    expect(
+      await screen.findByText('Let me guess who you are'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Where do you spend most time?'),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('Begin'));
+    expect(
+      await screen.findByText('Where do you spend most time?'),
+    ).toBeInTheDocument();
+  });
+
   it('walks Q→A→reveal via static `next` pointers and emits Complete with payload', async () => {
     const { onTransition } = renderStep();
     fireEvent.click(await screen.findByText('Frontend'));

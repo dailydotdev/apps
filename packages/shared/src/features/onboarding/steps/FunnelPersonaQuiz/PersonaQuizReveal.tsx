@@ -9,7 +9,6 @@ import {
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { Origin } from '../../../../lib/log';
@@ -24,6 +23,7 @@ import { PREVIEW_FEED_QUERY } from '../../../../graphql/feed';
 import { SearchField } from '../../../../components/fields/SearchField';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { useTagSearch } from '../../../../hooks/useTagSearch';
+import { onboardingGradientClasses } from '../../../../components/onboarding/common';
 
 interface PersonaQuizRevealProps {
   archetype: PersonaArchetype | null;
@@ -89,33 +89,49 @@ export const PersonaQuizReveal = ({
   });
   const searchTags = searchResult?.searchTags?.tags ?? [];
 
-  const headline = archetype?.headline ?? headlineFromTags(tags);
-  const eyebrow = archetype?.name ?? reveal.eyebrow;
+  // The persona name is the hero; its headline is the smaller tagline beneath.
+  // With no resolved archetype, fall back to a tag-derived hero line.
+  const title = archetype?.name ?? headlineFromTags(tags);
+  const subtitle = archetype?.headline;
+  const { eyebrow } = reveal;
   const description = archetype?.description;
 
   return (
     <div className="flex w-full flex-1 flex-col gap-6 px-4 py-6 tablet:mx-auto tablet:max-w-4xl">
-      <header className="flex flex-col items-center gap-2 text-center">
+      <header className="flex flex-col items-center gap-3 text-center">
+        <div className="relative grid place-items-center">
+          <div
+            aria-hidden
+            className="bg-accent-cabbage-default/20 absolute h-24 w-24 rounded-full blur-3xl"
+          />
+          <span aria-hidden className="animate-float-slow relative text-7xl">
+            🧞
+          </span>
+        </div>
         {eyebrow && (
           <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
+            type={TypographyType.Caption1}
+            className="uppercase tracking-[0.15em] text-accent-cabbage-default"
           >
             {eyebrow}
           </Typography>
         )}
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Title1}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {headline}
-        </Typography>
+        <h2 className={classNames('typo-mega2', onboardingGradientClasses)}>
+          {title}
+        </h2>
+        {subtitle && (
+          <Typography
+            type={TypographyType.Title3}
+            color={TypographyColor.Secondary}
+          >
+            {subtitle}
+          </Typography>
+        )}
         {description && (
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
+            className="max-w-md"
           >
             {description}
           </Typography>

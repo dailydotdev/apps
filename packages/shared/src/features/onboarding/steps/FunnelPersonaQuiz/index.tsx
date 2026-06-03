@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useCallback,
   useEffect,
@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   FunnelStepPersonaQuiz,
@@ -29,6 +30,17 @@ import Feed from '../../../../components/Feed';
 import { FeedLayoutProvider } from '../../../../contexts/FeedContext';
 import { OtherFeedPage, RequestKey } from '../../../../lib/query';
 import { PREVIEW_FEED_QUERY } from '../../../../graphql/feed';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../../components/typography/Typography';
+import { onboardingGradientClasses } from '../../../../components/onboarding/common';
 
 const dedupePreserveOrder = (tags: string[]): string[] =>
   Array.from(new Set(tags));
@@ -52,6 +64,8 @@ function FunnelPersonaQuizComponent({
     archetypes,
     reveal: revealCopy,
     entryQuestionId,
+    headline,
+    explainer,
   } = params;
 
   const {
@@ -68,6 +82,11 @@ function FunnelPersonaQuizComponent({
 
   const [revealArchetype, setRevealArchetype] =
     useState<PersonaArchetype | null>(null);
+
+  // When the step provides an intro headline, gate the quiz behind a "Begin"
+  // screen; otherwise start immediately (keeps embeddings without an intro,
+  // e.g. tests, unchanged).
+  const [started, setStarted] = useState(!params.headline);
 
   const didStartLogRef = useRef(false);
   useEffect(() => {
@@ -182,9 +201,13 @@ function FunnelPersonaQuizComponent({
     ],
   );
 
-  // Bootstrap: on first render with no current question, route to the opener.
+  // Bootstrap: once started, on first render with no current question, route
+  // to the opener.
   const bootstrapRef = useRef(false);
   useEffect(() => {
+    if (!started) {
+      return;
+    }
     if (bootstrapRef.current) {
       return;
     }
@@ -201,6 +224,7 @@ function FunnelPersonaQuizComponent({
       finishQuiz(answers);
     }
   }, [
+    started,
     phase,
     currentQuestion,
     entryQuestionId,
@@ -305,11 +329,70 @@ function FunnelPersonaQuizComponent({
     [revealArchetype, finalTags, logEvent],
   );
 
+  // Soft, drifting accent glows behind every screen for the "cosmic" feel —
+  // pure decoration, built from design-system accent tokens (no raw colours).
+  const withBackdrop = (node: ReactNode): ReactElement => (
+    <div className="relative flex w-full flex-1 flex-col">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="animate-float-slow bg-accent-cabbage-default/10 absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl" />
+        <div className="animate-float-slow-reverse bg-accent-onion-default/[0.08] absolute -right-24 top-1/3 h-64 w-64 rounded-full blur-3xl" />
+        <div className="animate-float-slow-delayed bg-accent-bacon-default/[0.06] absolute bottom-0 left-1/3 h-56 w-56 rounded-full blur-3xl" />
+      </div>
+      <div className="relative z-1 flex flex-1 flex-col">{node}</div>
+    </div>
+  );
+
+  if (!started) {
+    return withBackdrop(
+      <div className="flex w-full flex-1 flex-col items-center justify-center gap-8 px-4 py-10 text-center tablet:mx-auto tablet:max-w-xl">
+        <div className="relative grid place-items-center">
+          <div
+            aria-hidden
+            className="bg-accent-cabbage-default/20 absolute h-32 w-32 rounded-full blur-3xl"
+          />
+          <span aria-hidden className="animate-float-slow relative text-8xl">
+            🧞
+          </span>
+        </div>
+        {headline && (
+          <h1
+            className={classNames(
+              'typo-mega2 tablet:typo-giga3',
+              onboardingGradientClasses,
+            )}
+          >
+            {headline}
+          </h1>
+        )}
+        {explainer && (
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Tertiary}
+            className="max-w-md"
+          >
+            {explainer}
+          </Typography>
+        )}
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.XLarge}
+          onClick={() => setStarted(true)}
+        >
+          Begin
+        </Button>
+      </div>,
+    );
+  }
+
   if (phase === 'question') {
     if (!currentQuestion) {
       return null;
     }
-    return (
+    return withBackdrop(
       <div className="flex w-full flex-1 flex-col">
         <PersonaQuizQuestionView
           question={currentQuestion}
@@ -333,7 +416,7 @@ function FunnelPersonaQuizComponent({
             />
           </FeedLayoutProvider>
         )}
-      </div>
+      </div>,
     );
   }
 
@@ -344,7 +427,7 @@ function FunnelPersonaQuizComponent({
     return null;
   }
 
-  return (
+  return withBackdrop(
     <PersonaQuizReveal
       archetype={revealArchetype}
       tags={finalTags}
@@ -361,7 +444,7 @@ function FunnelPersonaQuizComponent({
           : finalTags;
         finalizeMutation.mutate(latest);
       }}
-    />
+    />,
   );
 }
 
