@@ -330,7 +330,11 @@ export function ExploreTopicsPage({
                       >
                         {letter}
                       </Typography>
-                      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+                      {/* Skip the heading rule when filtered to one letter so
+                          it doesn't double up with the separator above. */}
+                      {!activeLetter && (
+                        <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+                      )}
                     </div>
                     <ul className={COLUMNS}>
                       {shown.map((tag) => (
