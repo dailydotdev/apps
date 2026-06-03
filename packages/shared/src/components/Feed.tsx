@@ -24,7 +24,10 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import { computePlacements } from '../lib/feedHighlightColSpan';
+import {
+  computePlacements,
+  requestedColSpan,
+} from '../lib/feedHighlightColSpan';
 import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
 import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
@@ -379,9 +382,16 @@ export default function Feed<T>({
   const isListContext = useList || shouldUseListFeedLayout;
   const canRenderHighlightCards =
     !isMobileViewport && !isListContext && virtualizedNumCards > 1;
+  const hasEligibleHighlightItem = useMemo(() => {
+    if (!canRenderHighlightCards) {
+      return false;
+    }
+
+    return items.some((item) => requestedColSpan(item) > 1);
+  }, [canRenderHighlightCards, items]);
   const { value: isPostHighlightCardsEnabled } = useConditionalFeature({
     feature: featurePostHighlightCards,
-    shouldEvaluate: canRenderHighlightCards,
+    shouldEvaluate: hasEligibleHighlightItem,
   });
   const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
     'highlightCardsOptOut',
