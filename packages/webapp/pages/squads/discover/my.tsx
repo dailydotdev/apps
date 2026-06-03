@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { SquadFavoriteButton } from '@dailydotdev/shared/src/components/squads/SquadFavoriteButton';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useRouter } from 'next/router';
 import {
   squadCategoriesPaths,
@@ -60,7 +62,9 @@ const SquadSection = ({ squads, title }: SquadSectionProps): ReactElement => {
             key={squad.handle}
             squad={squad}
             shouldShowCount={false}
-          />
+          >
+            <SquadFavoriteButton squad={squad} iconSize={IconSize.Medium} />
+          </SquadList>
         ))}
       </div>
     </section>

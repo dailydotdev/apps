@@ -9,30 +9,19 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { BlockIcon, DevPlusIcon, FlagIcon, GiftIcon } from '../../icons';
+import { DevPlusIcon } from '../../icons';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { IconSize } from '../../Icon';
 import JoinedDate from '../../profile/JoinedDate';
 import { FollowButton } from '../../contentPreference/FollowButton';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../../graphql/contentPreference';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
-import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
-import { LazyModal } from '../../modals/common/types';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../../../lib/log';
-import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
-import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
-import type { MenuItemProps } from '../../dropdown/common';
 
 type Props = {
   user?: UserShortProfile;
@@ -43,90 +32,22 @@ type Props = {
 
 const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = loggedUser?.id === user?.id;
-  const userId = user?.id ?? '';
   const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: userId,
+    id: user?.id,
     entity: ContentPreferenceType.User,
   });
-  const { unblock, block } = useContentPreference();
-  const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
-  const { openModal } = useLazyModal();
-  const { logSubscriptionEvent } = usePlusSubscription();
-  const menuProps = useUserMenuProps({ user });
   const { isLoading } = useShowFollowAction({
-    entityId: userId,
+    entityId: user?.id,
     entityType: ContentPreferenceType.User,
   });
 
-  const onReportUser = React.useCallback(
-    (defaultBlocked = false) => {
-      if (!user?.id || !user.username) {
-        return;
-      }
-
-      openModal({
-        type: LazyModal.ReportUser,
-        props: {
-          offendingUser: {
-            id: user.id,
-            username: user.username,
-          },
-          defaultBlockUser: defaultBlocked,
-        },
-      });
-    },
-    [user, openModal],
-  );
-  const { username, bio, name, image, isPlus, createdAt, id, permalink } =
-    user || {};
-
-  const showActionBtns = !!user && !isLoading && !isSameUser;
-
-  if (!user || !id || !username || !permalink || !createdAt) {
+  if (!user?.id || !user.username || !user.permalink || !user.createdAt) {
     return null;
   }
 
-  const options: MenuItemProps[] = [
-    {
-      icon: <BlockIcon />,
-      label: `${blocked ? 'Unblock' : 'Block'} ${username}`,
-      action: () =>
-        blocked
-          ? unblock({
-              id,
-              entity: ContentPreferenceType.User,
-              entityName: username,
-            })
-          : block({
-              id,
-              entity: ContentPreferenceType.User,
-              entityName: username,
-            }),
-    },
-    {
-      icon: <FlagIcon />,
-      label: 'Report',
-      action: () => onReportUser(),
-    },
-  ];
-
-  if (!blocked && !isPlus && !isSameUser) {
-    options.push({
-      icon: <GiftIcon />,
-      label: 'Gift daily.dev Plus',
-      action: () => {
-        logSubscriptionEvent({
-          event_name: LogEvent.GiftSubscription,
-          target_id: TargetId.Cards,
-        });
-        openModal({
-          type: LazyModal.GiftPlus,
-          props: { preselected: user },
-        });
-      },
-    });
-  }
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
+  const isSameUser = loggedUser?.id === id;
+  const showActionBtns = !isLoading && !isSameUser;
 
   return (
     <EntityCard
@@ -140,25 +61,14 @@ const UserEntityCard = ({ user, className }: Props) => {
       entityName={username}
       actionButtons={
         showActionBtns && (
-          <>
-            <CustomFeedOptionsMenu
-              buttonVariant={ButtonVariant.Option}
-              className={{
-                menu: 'z-[9999]',
-                button: 'invisible group-hover/menu:visible',
-              }}
-              {...menuProps}
-              additionalOptions={options}
-            />
-            <FollowButton
-              variant={ButtonVariant.Primary}
-              entityId={id}
-              status={contentPreference?.status}
-              showSubscribe={false}
-              type={ContentPreferenceType.User}
-              entityName={username}
-            />
-          </>
+          <FollowButton
+            variant={ButtonVariant.Primary}
+            entityId={id}
+            status={contentPreference?.status}
+            showSubscribe={false}
+            type={ContentPreferenceType.User}
+            entityName={username}
+          />
         )
       }
     >
@@ -194,7 +104,7 @@ const UserEntityCard = ({ user, className }: Props) => {
           />
         </div>
         <div className="flex min-w-0 gap-2">
-          {!!user?.reputation && (
+          {!!user.reputation && (
             <div className="rounded-8 border border-border-subtlest-tertiary px-2">
               <ReputationUserBadge
                 iconProps={{

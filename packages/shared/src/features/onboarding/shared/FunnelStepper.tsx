@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import React, { useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
@@ -57,6 +57,8 @@ export interface FunnelStepperProps {
   onComplete?: () => void;
   session: FunnelSession;
   showCookieBanner?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- step types have heterogeneous props and are selected by step.type at runtime
+  stepComponentOverrides?: Partial<Record<FunnelStepType, ComponentType<any>>>;
 }
 
 const stepComponentMap = {
@@ -81,9 +83,18 @@ const stepComponentMap = {
   [FunnelStepType.UploadCv]: FunnelUploadCv,
 } as const;
 
-function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
-  const { type } = props;
-  const Component = stepComponentMap[type];
+function FunnelStepComponent(props: {
+  stepComponentOverrides?: FunnelStepperProps['stepComponentOverrides'];
+  [key: string]: unknown;
+}) {
+  const { stepComponentOverrides, type } = props;
+  const stepType = type as FunnelStepType;
+  const Component =
+    stepComponentOverrides?.[stepType] ??
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- step types have heterogeneous props and are selected by step.type at runtime
+    (stepComponentMap as Partial<Record<FunnelStepType, ComponentType<any>>>)[
+      stepType
+    ];
 
   if (!Component) {
     return null;
@@ -98,7 +109,8 @@ export const FunnelStepper = ({
   session,
   showCookieBanner,
   onComplete,
-}: FunnelStepperProps): ReactElement => {
+  stepComponentOverrides,
+}: FunnelStepperProps): ReactElement | null => {
   const steps = useMemo(
     () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
     [funnel?.chapters],
@@ -125,7 +137,9 @@ export const FunnelStepper = ({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
   });
-  useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
+  useEventListener(globalThis.window, 'scrollend', trackOnScroll, {
+    passive: true,
+  });
 
   const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   const currentNavigationRef = useRef({ step, position });
@@ -189,11 +203,12 @@ export const FunnelStepper = ({
   );
 
   const successCallback = useCallback(
-    (event?: PaddleEventData) =>
+    (event: unknown) =>
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: {
-          subscribed: event?.data?.customer?.email,
+          subscribed: (event as PaddleEventData | undefined)?.data?.customer
+            ?.email,
         },
       }),
     [onTransition],
@@ -256,7 +271,7 @@ export const FunnelStepper = ({
             !layout.isFullWidth && 'tablet:max-w-md laptopXL:max-w-lg',
           )}
         >
-          {layout.hasBanner && (
+          {layout.hasBanner && funnel.parameters.banner && (
             <FunnelBannerMessage {...funnel.parameters.banner} />
           )}
           <Header
@@ -297,6 +312,7 @@ export const FunnelStepper = ({
                       isActive={isActive}
                       onTransition={onTransition}
                       onRegisterStepToSkip={onRegisterStepToSkip}
+                      stepComponentOverrides={stepComponentOverrides}
                     />
                   </div>
                 );

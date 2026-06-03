@@ -44,7 +44,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
   const { openModal } = useLazyModal();
-  const isSmartComposerEnabled = useSmartComposer();
+  const { evaluateSmartComposer } = useSmartComposer();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
@@ -106,7 +106,15 @@ export function CreatePostButton<Tag extends AllowedTags>({
     });
   };
 
-  const shouldUseSmartComposer = isSmartComposerEnabled && isLaptop && !onClick;
+  const onCreatePostClick = (
+    event: React.MouseEvent<AllowedElements, MouseEvent>,
+  ) => {
+    if (!isLaptop || !evaluateSmartComposer()) {
+      return;
+    }
+
+    openSmartComposer(event);
+  };
 
   const buttonProps: {
     tag?: AllowedTags;
@@ -115,13 +123,10 @@ export function CreatePostButton<Tag extends AllowedTags>({
     if (onClick) {
       return { onClick };
     }
-    if (shouldUseSmartComposer) {
-      return { onClick: openSmartComposer };
-    }
-    return { tag: 'a' };
+    return { tag: 'a', onClick: onCreatePostClick };
   })();
 
-  const shouldUseLink = !onClick && !shouldUseSmartComposer;
+  const shouldUseLink = !onClick;
 
   const shouldShowAsCompact =
     compact !== false && ((isLaptop && !isLaptopL) || compact);

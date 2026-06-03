@@ -2,12 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
-  EyeIcon,
   MiniCloseIcon as CloseIcon,
+  SettingsIcon,
   SidebarArrowRight,
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { useLegacyPostLayoutOptOut } from './hooks/useLegacyPostLayoutOptOut';
+import { settingsUrl } from '../../../lib/constants';
 
 export const readerHeaderActionGroupClassName =
   'flex h-9 items-center gap-px rounded-12 border border-border-subtlest-tertiary bg-background-default p-px shadow-3';
@@ -59,33 +59,19 @@ export function ReaderCloseButton({
   );
 }
 
-type ReaderLegacyLayoutToggleButtonProps = {
-  target?: 'classic' | 'reader';
-};
-
-export function ReaderLegacyLayoutToggleButton({
-  target = 'classic',
-}: ReaderLegacyLayoutToggleButtonProps): ReactElement {
-  const { optIn, optOut } = useLegacyPostLayoutOptOut();
-  const isClassicTarget = target === 'classic';
-
+// Link to the appearance settings page where the user can toggle the
+// "Read articles inside daily.dev" preference. Opens in the same tab.
+export function ReaderSettingsLink(): ReactElement {
   return (
-    <Tooltip
-      side="bottom"
-      content={
-        isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
-      }
-    >
+    <Tooltip side="bottom" content="Reader settings">
       <Button
+        tag="a"
         variant={ButtonVariant.Tertiary}
-        icon={<EyeIcon />}
+        icon={<SettingsIcon />}
         size={ButtonSize.Small}
-        type="button"
+        href={`${settingsUrl}/appearance`}
         className={iconButtonClassName}
-        onClick={isClassicTarget ? () => optOut() : optIn}
-        aria-label={
-          isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
-        }
+        aria-label="Reader settings"
       />
     </Tooltip>
   );
@@ -94,15 +80,19 @@ export function ReaderLegacyLayoutToggleButton({
 type ReaderHeaderActionGroupProps = {
   onToggleRail?: () => void;
   onClose?: () => void;
-  showLegacyLayoutOptOut?: boolean;
+  /**
+   * Render the appearance-settings link alongside the close button so users
+   * always have a one-click path to opt out of the reader experience.
+   */
+  showSettingsLink?: boolean;
 };
 
 export function ReaderHeaderActionGroup({
   onToggleRail,
   onClose,
-  showLegacyLayoutOptOut = false,
+  showSettingsLink = false,
 }: ReaderHeaderActionGroupProps): ReactElement | null {
-  if (!onToggleRail && !onClose && !showLegacyLayoutOptOut) {
+  if (!onToggleRail && !onClose && !showSettingsLink) {
     return null;
   }
 
@@ -113,11 +103,9 @@ export function ReaderHeaderActionGroup({
           <ReaderDiscussionToggleButton onToggleRail={onToggleRail} />
         </div>
       ) : null}
-      {onClose || showLegacyLayoutOptOut ? (
+      {onClose || showSettingsLink ? (
         <div className={readerHeaderActionGroupClassName}>
-          {showLegacyLayoutOptOut ? (
-            <ReaderLegacyLayoutToggleButton target="classic" />
-          ) : null}
+          {showSettingsLink ? <ReaderSettingsLink /> : null}
           {onClose ? <ReaderCloseButton onClose={onClose} /> : null}
         </div>
       ) : null}

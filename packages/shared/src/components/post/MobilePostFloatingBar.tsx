@@ -25,6 +25,8 @@ import { ShareProvider } from '../../lib/share';
 import { postLogEvent } from '../../lib/feed';
 import type { Origin } from '../../lib/log';
 import { LogEvent, Origin as LogOrigin } from '../../lib/log';
+import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
+import { MobilePostFloatingBar as MobilePostFloatingBarV2 } from './MobilePostFloatingBar.v2';
 
 export interface MobilePostFloatingBarProps {
   post: Post;
@@ -52,7 +54,7 @@ const containerClasses = classNames(
 // muted icons.
 const counterClasses = 'tabular-nums text-text-tertiary';
 
-export function MobilePostFloatingBar({
+function MobilePostFloatingBarV1({
   post,
   onCommentClick,
   className,
@@ -169,4 +171,14 @@ export function MobilePostFloatingBar({
       />
     </div>
   );
+}
+
+export function MobilePostFloatingBar(
+  props: MobilePostFloatingBarProps,
+): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <MobilePostFloatingBarV2 {...props} />;
+  }
+  return <MobilePostFloatingBarV1 {...props} />;
 }

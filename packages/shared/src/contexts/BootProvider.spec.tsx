@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import React, { useContext } from 'react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -47,9 +49,19 @@ jest.mock('../lib/user', () => {
 
 const getRedirectUriMock = jest.fn();
 
+const mockUseRouter = (router: Partial<NextRouter> = {}) => {
+  jest.mocked(useRouter).mockReturnValue({
+    query: {},
+    push: jest.fn(),
+    pathname: '/',
+    ...router,
+  } as unknown as NextRouter);
+};
+
 beforeEach(() => {
   nock.cleanAll();
   localStorage.clear();
+  mockUseRouter();
 });
 
 const defaultAlerts: Alerts = { filter: true, rankLastSeen: undefined };
@@ -64,6 +76,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutAchievements: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   autoDismissNotifications: true,
@@ -499,6 +512,31 @@ it('should trigger show login callback', async () => {
   await expectToHaveTestValue(login, 'null');
   fireEvent.click(login);
   await expectToHaveTestValue(login, JSON.stringify({ trigger: expected }));
+});
+
+it('should keep login inline on the webapp after auth intent', async () => {
+  const push = jest.fn();
+  mockUseRouter({
+    push,
+    pathname: '/posts/shared',
+  });
+
+  renderComponent(<AuthMock loginTrigger={AuthTriggers.Comment} />, {
+    ...defaultBootData,
+    user: defaultAnonymousUser,
+  });
+
+  const login = await screen.findByText('Log in');
+  await expectToHaveTestValue(login, 'null');
+  expect(push).not.toHaveBeenCalled();
+
+  fireEvent.click(login);
+
+  await expectToHaveTestValue(
+    login,
+    JSON.stringify({ trigger: AuthTriggers.Comment }),
+  );
+  expect(push).not.toHaveBeenCalled();
 });
 
 it('should trigger close login callback', async () => {

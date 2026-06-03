@@ -23,6 +23,7 @@ import {
 } from '../../lib/betterAuth';
 import {
   getSocialAuthCallbackError,
+  GITHUB_EMAIL_NOT_VERIFIED_ERROR,
   hasSocialAuthBootUser,
   refetchSocialAuthBoot,
   SOCIAL_AUTH_RETRY_MESSAGE,
@@ -395,6 +396,10 @@ function AuthOptionsInner({
     const callbackError = getSocialAuthCallbackError(e?.data);
     const callbackData =
       typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined;
+    const socialErrorMessage =
+      callbackError === GITHUB_EMAIL_NOT_VERIFIED_ERROR
+        ? labels.auth.error.githubEmailNotVerified
+        : SOCIAL_AUTH_RETRY_MESSAGE;
 
     let boot;
     try {
@@ -416,7 +421,7 @@ function AuthOptionsInner({
         }),
       });
       if (!authFlowSucceededRef.current) {
-        displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+        displayToast(socialErrorMessage);
       }
       return;
     }
@@ -438,7 +443,7 @@ function AuthOptionsInner({
         }),
       });
       if (!authFlowSucceededRef.current) {
-        displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+        displayToast(socialErrorMessage);
       }
       return;
     }

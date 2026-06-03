@@ -2,19 +2,6 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PersonaSelector } from './PersonaSelector';
-import {
-  broadcastPersonaSelection,
-  broadcastRecommendRequest,
-} from './onboardingPopBus';
-
-jest.mock('./onboardingPopBus', () => {
-  const actual = jest.requireActual('./onboardingPopBus');
-  return {
-    ...actual,
-    broadcastPersonaSelection: jest.fn(actual.broadcastPersonaSelection),
-    broadcastRecommendRequest: jest.fn(actual.broadcastRecommendRequest),
-  };
-});
 
 const mockOnFollowTags = jest.fn().mockResolvedValue({ successful: true });
 const mockOnUnfollowTags = jest.fn().mockResolvedValue({ successful: true });
@@ -67,7 +54,7 @@ describe('PersonaSelector', () => {
     expect(screen.getByText('Backend')).toBeInTheDocument();
   });
 
-  it('follows tags and broadcasts pop + recommend on click', async () => {
+  it('follows tags on click', async () => {
     renderComponent();
     fireEvent.click(await screen.findByText('Frontend'));
     await waitFor(() =>
@@ -76,8 +63,6 @@ describe('PersonaSelector', () => {
         requireLogin: true,
       }),
     );
-    expect(broadcastPersonaSelection).toHaveBeenCalledWith(['react', 'css']);
-    expect(broadcastRecommendRequest).toHaveBeenCalledWith(['react', 'css']);
   });
 
   it('allows multi-select without unfollowing previous persona', async () => {

@@ -14,14 +14,17 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button } from '../buttons/Button';
+import type { ButtonProps } from '../buttons/Button';
 import type { MenuItemProps } from '../dropdown/common';
 
 interface BookmarkFolderContextMenuProps {
   folder: BookmarkFolder;
+  buttonProps?: Pick<ButtonProps<'button'>, 'className' | 'size' | 'variant'>;
 }
 
 export const BookmarkFolderContextMenu = ({
   folder,
+  buttonProps,
 }: BookmarkFolderContextMenuProps): ReactElement => {
   const { openModal, closeModal } = useLazyModal();
   const { showPrompt } = usePrompt();
@@ -68,9 +71,9 @@ export const BookmarkFolderContextMenu = ({
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
         <Button
-          className="ml-3"
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Secondary}
+          className={buttonProps?.className ?? 'ml-3'}
+          size={buttonProps?.size ?? ButtonSize.Medium}
+          variant={buttonProps?.variant ?? ButtonVariant.Secondary}
           icon={<MenuIcon />}
         />
       </DropdownMenuTrigger>

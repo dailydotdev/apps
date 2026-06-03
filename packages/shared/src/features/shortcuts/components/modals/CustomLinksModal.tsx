@@ -14,6 +14,7 @@ import { CardSelection } from '../CardSelection';
 import { LinksForm } from '../LinksForm';
 import { useShortcutLinks } from '../../hooks/useShortcutLinks';
 import { useShortcuts } from '../../contexts/ShortcutsProvider';
+import { MostVisitedSitesModal } from './MostVisitedSitesModal';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import {
@@ -30,8 +31,13 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const { onSaveChanges, formRef, hasTopSites } = useShortcutLinks();
-  const { isManual, setIsManual, onRevokePermission, setShowPermissionsModal } =
-    useShortcuts();
+  const {
+    isManual,
+    setIsManual,
+    onRevokePermission,
+    showPermissionsModal,
+    setShowPermissionsModal,
+  } = useShortcuts();
 
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
@@ -41,7 +47,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');
 
-    logRef.current({
+    logRef.current?.({
       event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
@@ -61,8 +67,8 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
           <Button
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
-            onClick={() => {
-              props?.onRequestClose?.(undefined);
+            onClick={(event: React.MouseEvent) => {
+              props?.onRequestClose?.(event);
             }}
           >
             Cancel
@@ -79,7 +85,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
       </Modal.Header>
       <Modal.Body>
         <form
-          ref={formRef}
+          ref={formRef as React.RefObject<HTMLFormElement>}
           id="shortcuts-modal"
           className="flex flex-col gap-6"
           onSubmit={async (event) => {
@@ -88,7 +94,9 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
               return;
             }
 
-            props?.onRequestClose?.(undefined);
+            props?.onRequestClose?.(
+              event as unknown as React.MouseEvent<Element, MouseEvent>,
+            );
           }}
         >
           <div className="flex gap-4">
@@ -169,6 +177,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
           )}
         </form>
       </Modal.Body>
+      {showPermissionsModal && <MostVisitedSitesModal isOpen />}
     </Modal>
   );
 }

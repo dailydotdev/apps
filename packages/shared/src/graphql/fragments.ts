@@ -529,6 +529,7 @@ export const CUSTOM_FEED_FRAGMENT = gql`
       minUpvotes
       minViews
       disableEngagementFilter
+      origin
     }
     slug
     createdAt
@@ -694,6 +695,13 @@ export const FEED_POST_FRAGMENT = gql`
         value
         name
       }
+    }
+    postHighlight {
+      id
+      significance
+      headline
+      channel
+      highlightedAt
     }
   }
   ${FEED_POST_INFO_FRAGMENT}

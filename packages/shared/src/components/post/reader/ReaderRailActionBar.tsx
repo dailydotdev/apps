@@ -24,6 +24,8 @@ import { LazyModal } from '../../modals/common/types';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
 import type { LoggedUser } from '../../../lib/user';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
+import { ReaderRailActionBar as ReaderRailActionBarV2 } from './ReaderRailActionBar.v2';
 
 type ReaderRailActionBarProps = {
   post: Post;
@@ -31,7 +33,7 @@ type ReaderRailActionBarProps = {
   className?: string;
 };
 
-export function ReaderRailActionBar({
+function ReaderRailActionBarV1({
   post,
   onCommentClick,
   className,
@@ -178,4 +180,14 @@ export function ReaderRailActionBar({
       </Tooltip>
     </div>
   );
+}
+
+export function ReaderRailActionBar(
+  props: ReaderRailActionBarProps,
+): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <ReaderRailActionBarV2 {...props} />;
+  }
+  return <ReaderRailActionBarV1 {...props} />;
 }

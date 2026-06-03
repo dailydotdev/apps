@@ -57,6 +57,9 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   ...withBundleAnalyzer({
     compiler: {
       reactRemoveProperties: { properties: ['^data-testid$'] },
@@ -299,6 +302,11 @@ const nextConfig: NextConfig = {
           source: '/jobs/welcome',
           destination: '/jobs',
           permanent: true,
+        },
+        {
+          source: '/em/t/c',
+          destination: `${process.env.NEXT_PUBLIC_API_URL}/em/t/c`,
+          permanent: false,
         },
       ];
     },

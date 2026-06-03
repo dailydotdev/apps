@@ -1,5 +1,5 @@
 import type { SyntheticEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useDebounceFn from './useDebounceFn';
 import type { UseInputField, ValidInputElement } from './useInputField';
 import { useInputField } from './useInputField';
@@ -34,19 +34,21 @@ function useInputFieldFunctions<
     onInput: baseOnInput,
     focusInput,
     setInput,
-  } = useInputField<T>(value, valueChanged);
-  const [inputLength, setInputLength] = useState<number>(undefined);
-  const [validInput, setValidInput] = useState<boolean>(undefined);
-  const validInputRef = useRef<boolean>(undefined);
+  } = useInputField<T>(
+    value as string | number | readonly string[],
+    valueChanged,
+  );
+  const [inputLength, setInputLength] = useState<number | undefined>(undefined);
+  const [validInput, setValidInput] = useState<boolean | undefined>(undefined);
   const [idleTimeout, clearIdleTimeout] = useDebounceFn(() => {
-    setValidInput(inputRef.current.checkValidity());
+    setValidInput(inputRef.current?.checkValidity());
   }, 500);
 
   useEffect(() => {
-    if (inputRef.current?.value) {
-      setInputLength(inputRef.current.value.length);
-      const inputValidity = inputRef.current.checkValidity();
-      if (inputValidity) {
+    const input = inputRef.current;
+    if (input?.value) {
+      setInputLength(input.value.length);
+      if (input.checkValidity()) {
         setValidInput(true);
       }
     }
@@ -60,7 +62,7 @@ function useInputFieldFunctions<
     }
     const len = event.currentTarget.value.length;
     setInputLength(len);
-    const inputValidity = inputRef.current.checkValidity();
+    const inputValidity = inputRef.current?.checkValidity();
 
     if (inputValidity) {
       setValidInput(true);
@@ -72,17 +74,28 @@ function useInputFieldFunctions<
   useEffect(() => {
     if (validInput !== undefined) {
       validityChanged?.(validInput);
-      validInputRef.current = validInput;
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validInput]);
 
+  // An externally-controlled `valid` prop is authoritative whenever it is
+  // provided. Reflect `valid=true` immediately, but only surface an invalid
+  // state once the field actually has content: a pristine, untouched field that
+  // is technically invalid (e.g. required + empty, or a value-derived
+  // `valid={!!x}` / `valid={value.length > 0}`) must not flash a red border
+  // before the user types. Server-side and submit errors arrive with content,
+  // so they still show right away.
   useEffect(() => {
-    if (validInputRef.current !== undefined && valid !== undefined) {
-      setValidInput(valid);
+    if (valid === undefined) {
+      return;
     }
-  }, [valid]);
+    if (valid === false && !inputRef.current?.value) {
+      return;
+    }
+    setValidInput(valid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [valid, hasInput]);
 
   const onBlur = () => {
     clearIdleTimeout();

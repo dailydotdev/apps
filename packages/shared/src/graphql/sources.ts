@@ -88,6 +88,7 @@ export interface Squad extends Source {
   referralUrl?: string;
   category?: SourceCategory;
   moderationPostCount: number;
+  favoritedAt?: string | null;
 }
 
 interface SourceFlags {

@@ -11,9 +11,30 @@ import type { LazyModal } from '../../../components/modals/common/types';
 const [ShortcutsProvider, useShortcuts] = createContextProvider(
   () => {
     const { logEvent } = useLogContext();
-    const { customLinks } = useSettingsContext();
+    const { flags, updateFlag } = useSettingsContext();
 
-    const [isManual, setIsManual] = useState(false);
+    // `isManual` is the legacy boolean view of `flags.shortcutsMode`.
+    // Bridge writes both directions so legacy modals stay in sync with
+    // the canonical flag the hub reads from.
+    const [isManualState, setIsManualState] = useState<boolean>(
+      (flags?.shortcutsMode ?? 'manual') === 'manual',
+    );
+    const setIsManual = useCallback(
+      (next: boolean) => {
+        setIsManualState(next);
+        const desired = next ? 'manual' : 'auto';
+        if ((flags?.shortcutsMode ?? 'manual') !== desired) {
+          updateFlag('shortcutsMode', desired);
+        }
+      },
+      [flags?.shortcutsMode, updateFlag],
+    );
+    const isManual = isManualState;
+    useEffect(() => {
+      const expected = (flags?.shortcutsMode ?? 'manual') === 'manual';
+      setIsManualState((prev) => (prev === expected ? prev : expected));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [flags?.shortcutsMode]);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const [showImportSource, setShowImportSourceRaw] =
       useState<ImportSource | null>(null);
@@ -57,18 +78,6 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
         target_type: TargetType.Shortcuts,
       });
     };
-
-    useEffect(() => {
-      if (hasCheckedPermission && topSites?.length) {
-        setIsManual(false);
-      }
-    }, [hasCheckedPermission, topSites?.length]);
-
-    useEffect(() => {
-      if ((customLinks?.length ?? 0) > 0 && !isManual) {
-        setIsManual(true);
-      }
-    }, [customLinks, isManual]);
 
     return {
       isManual,

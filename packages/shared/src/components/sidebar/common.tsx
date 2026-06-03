@@ -75,6 +75,21 @@ export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
   <Icon className="pointer-events-none h-5 w-5" />
 );
 
+// Compares a (possibly absolute, possibly query-bearing) menu href against
+// the current page so v2 rail panels can flag the active row with a single
+// shared rule instead of each panel rolling its own check.
+export const isSidebarItemActive = (
+  activePage: string | undefined,
+  href: string,
+): boolean => {
+  if (!activePage) {
+    return false;
+  }
+  const current = activePage.split('?')[0];
+  const target = href.replace(/^https?:\/\/[^/]+/, '').split('?')[0];
+  return current === target;
+};
+
 type ItemInnerIconProps = Pick<SidebarMenuItem, 'alert' | 'icon' | 'active'> & {
   iconClassName?: string;
 };
