@@ -2,8 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { BellIcon, BookmarkIcon, HashtagIcon, UpvoteIcon } from '../icons';
-import { IconSize } from '../Icon';
+import { ClickableText } from '../buttons/ClickableText';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
@@ -22,16 +21,8 @@ interface TagSignupBannerProps {
 
 const TARGET_ID = 'tag_page';
 
-const benefits = [
-  { icon: HashtagIcon, copy: 'A feed tuned to your stack' },
-  { icon: BookmarkIcon, copy: 'Save posts to read later' },
-  { icon: UpvoteIcon, copy: 'Upvote & discuss with devs' },
-  { icon: BellIcon, copy: 'Never miss what matters' },
-];
-
-// Signup-first conversion banner for the high-traffic, logged-out SEO/AEO
-// landings on a topic page (mirrors the new-tab hijacking strip from #6127).
-// Renders nothing for logged-in users.
+// A simple, sharp signup prompt for logged-out visitors landing on a tag page:
+// one clear message + a single primary action. Renders nothing when logged in.
 export function TagSignupBanner({
   tag,
   className,
@@ -81,73 +72,39 @@ export function TagSignupBanner({
   return (
     <aside
       className={classNames(
-        'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6',
+        'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5 mobileL:flex-row mobileL:items-center mobileL:justify-between mobileL:gap-6',
         className,
       )}
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <Typography
           tag={TypographyTag.H2}
-          type={TypographyType.Title2}
+          type={TypographyType.Title3}
           color={TypographyColor.Primary}
           bold
         >
-          Get the best of {tag} — personalized
+          Follow {tag} on daily.dev
         </Typography>
         <Typography
-          type={TypographyType.Body}
+          type={TypographyType.Callout}
           color={TypographyColor.Secondary}
-          className="max-w-[40rem]"
         >
-          Join millions of developers on daily.dev. Follow {tag}, build a feed
-          tuned to your stack, and keep up with everything you care about — in
-          one place.
+          Create a free account to follow the tags you care about and get a feed
+          built around your stack.
         </Typography>
       </div>
-
-      <ul className="grid grid-cols-1 gap-2 mobileL:grid-cols-2">
-        {benefits.map(({ icon: Icon, copy }) => (
-          <li key={copy} className="flex items-center gap-2">
-            <Icon
-              size={IconSize.Size16}
-              className="shrink-0 text-text-secondary"
-            />
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              {copy}
-            </Typography>
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex flex-col gap-3 mobileL:flex-row mobileL:items-center">
+      <div className="flex shrink-0 items-center gap-4">
         <Button
           type="button"
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
+          size={ButtonSize.Medium}
           onClick={onSignup}
         >
-          Sign up — it&apos;s free
+          Sign up
         </Button>
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Large}
-          onClick={onLogin}
-        >
+        <ClickableText tag="button" type="button" onClick={onLogin}>
           Log in
-        </Button>
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="mobileL:ml-2"
-        >
-          Free forever · No credit card
-        </Typography>
+        </ClickableText>
       </div>
     </aside>
   );

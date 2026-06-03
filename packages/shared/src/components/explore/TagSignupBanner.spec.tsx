@@ -34,9 +34,7 @@ describe('TagSignupBanner', () => {
     mockAuth();
     render(<TagSignupBanner tag="React" />);
 
-    expect(
-      screen.getByRole('heading', { name: /Get the best of React/ }),
-    ).toBeVisible();
+    expect(screen.getByRole('heading', { name: /Follow React/ })).toBeVisible();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
       target_type: TargetType.SignupButton,
