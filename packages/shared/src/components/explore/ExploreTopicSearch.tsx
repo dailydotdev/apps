@@ -39,10 +39,10 @@ export function ExploreTopicSearch({
     <div className={classNames('flex w-full flex-col gap-3', className)}>
       <SearchField
         inputId="explore-topic-search"
-        placeholder="Search all topics"
+        placeholder="Search all tags"
         value={inputValue}
         valueChanged={onValueChange}
-        aria-label="Search all topics"
+        aria-label="Search all tags"
         autoComplete="off"
       />
       {!inputValue && recommendedTags.length > 0 && (

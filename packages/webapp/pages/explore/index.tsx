@@ -21,7 +21,7 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 
 const exploreCanonical = `${getAppOrigin()}/tags`;
-const seoTitles = getPageSeoTitles('Explore topics for developers');
+const seoTitles = getPageSeoTitles('Explore tags for developers');
 const seo: NextSeoProps = {
   title: seoTitles.title,
   canonical: exploreCanonical,
@@ -31,7 +31,7 @@ const seo: NextSeoProps = {
     url: exploreCanonical,
   },
   description:
-    'Explore topics on daily.dev. Search, browse by category, and follow the topics that matter to developers.',
+    'Explore tags on daily.dev. Search, browse by category, and follow the tags that matter to developers.',
 };
 
 interface ExplorePageProps {
@@ -49,8 +49,8 @@ const getExploreSchema = (tags: Keyword[]): string =>
         '@type': 'CollectionPage',
         '@id': 'https://app.daily.dev/explore#collection',
         url: 'https://app.daily.dev/explore',
-        name: 'Explore topics for developers',
-        description: 'Explore topics on daily.dev.',
+        name: 'Explore tags for developers',
+        description: 'Explore tags on daily.dev.',
       },
       {
         '@type': 'ItemList',

@@ -30,7 +30,7 @@ it('shows recommended topics before typing', () => {
 it('reports the query live as the user types', async () => {
   renderComponent();
 
-  fireEvent.input(screen.getByPlaceholderText('Search all topics'), {
+  fireEvent.input(screen.getByPlaceholderText('Search all tags'), {
     target: { value: 'rea' },
   });
 

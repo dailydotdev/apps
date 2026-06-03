@@ -58,7 +58,7 @@ export function ExploreHeader({
           isActive={!activeTag}
           label="Explore"
           path={exploreUrl}
-          ariaLabel="Explore topics"
+          ariaLabel="Explore tags"
         />
         {tags.map((tag) => (
           <SquadDirectoryNavbarItem

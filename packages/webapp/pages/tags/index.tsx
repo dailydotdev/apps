@@ -39,7 +39,7 @@ const seo: NextSeoProps = {
     url: tagsCanonical,
   },
   description:
-    'Discover trending, popular, and new tags on daily.dev. Browse topics that matter to developers and find relevant content quickly.',
+    'Discover trending, popular, and new tags on daily.dev. Browse tags that matter to developers and find relevant content quickly.',
 };
 
 interface TagsPageProps {

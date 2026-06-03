@@ -37,11 +37,9 @@ describe('ExploreTopicsPage', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('heading', { name: 'Explore topics' }),
+      screen.getByRole('heading', { name: 'Explore tags' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Search all topics'),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search all tags')).toBeInTheDocument();
   });
 
   it('should render an A–Z filter with enabled letters for present tags', () => {

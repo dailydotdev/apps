@@ -203,16 +203,15 @@ export function ExploreTopicsPage({
             color={TypographyColor.Primary}
             bold
           >
-            Explore topics
+            Explore tags
           </Typography>
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Secondary}
             className="max-w-[34rem]"
           >
-            Browse the topics millions of developers follow on daily.dev. Search
-            thousands of tags, jump to any letter, and follow the ones that
-            matter to you.
+            Browse the tags millions of developers follow on daily.dev. Search,
+            jump to any letter, and follow the ones that matter to you.
           </Typography>
           <ExploreTopicSearch
             onQueryChange={setSearch}
@@ -232,7 +231,7 @@ export function ExploreTopicsPage({
             >
               {searchResults.length > 0
                 ? `Results for “${search.trim()}”`
-                : `No topics match “${search.trim()}”`}
+                : `No tags match “${search.trim()}”`}
             </Typography>
             {searchResults.length > 0 && (
               <ul className={COLUMNS}>
@@ -251,7 +250,7 @@ export function ExploreTopicsPage({
           <>
             {/* A–Z filter — narrows the directory below to a single letter. */}
             {availableLetters.length > 0 && (
-              <nav aria-label="Filter topics by letter" className="mt-8 w-full">
+              <nav aria-label="Filter tags by letter" className="mt-8 w-full">
                 <div
                   ref={letterNavRef}
                   onKeyDown={onLetterNavKeyDown}
