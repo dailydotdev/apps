@@ -16,9 +16,54 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { usePersonaQuiz } from './persona/usePersonaQuiz';
+import type { DeveloperPersona } from './persona/data';
 
 // Placeholder until the Patchy mascot creative is ready.
 const MASCOT_EMOJI = '🧞';
+
+type PersonaCardSize = 'medium' | 'small';
+
+interface PersonaCardProps {
+  persona: DeveloperPersona;
+  onSelect: (personaId: string) => void;
+  size?: PersonaCardSize;
+}
+
+const PersonaCard = ({
+  persona,
+  onSelect,
+  size = 'medium',
+}: PersonaCardProps): ReactElement => (
+  <button
+    key={persona.id}
+    type="button"
+    onClick={() => onSelect(persona.id)}
+    className="flex flex-col items-center gap-2 rounded-16 border-2 border-border-subtlest-tertiary bg-surface-float p-6 text-center transition-all hover:-translate-y-1 hover:border-accent-cabbage-default tablet:p-8"
+  >
+    <span
+      className={
+        size === 'small'
+          ? 'text-4xl leading-none'
+          : 'text-5xl leading-none'
+      }
+      style={{ color: persona.color }}
+    >
+      {persona.emoji}
+    </span>
+    <Typography
+      type={size === 'small' ? TypographyType.Body : TypographyType.Title3}
+      bold
+    >
+      {persona.name}
+    </Typography>
+    <Typography
+      type={TypographyType.Footnote}
+      color={TypographyColor.Secondary}
+    >
+      {persona.tagline}
+    </Typography>
+  </button>
+);
 
 function FunnelPersonaQuizComponent({
   parameters: { headline, explainer, cta },
@@ -29,6 +74,7 @@ function FunnelPersonaQuizComponent({
     questionText,
     isThinking,
     tiebreakPersonas,
+    triplebreakPersonas,
     personas,
     result,
     isManual,
@@ -158,30 +204,48 @@ function FunnelPersonaQuizComponent({
         </Typography>
         <div className="grid w-full max-w-2xl grid-cols-1 gap-4 tablet:grid-cols-2">
           {tiebreakPersonas.map((persona) => (
-            <button
+            <PersonaCard
               key={persona.id}
-              type="button"
-              onClick={() => chooseTiebreak(persona.id)}
-              className="flex flex-col items-center gap-2 rounded-16 border-2 border-border-subtlest-tertiary bg-surface-float p-8 text-center transition-all hover:-translate-y-1 hover:border-accent-cabbage-default"
-            >
-              <span
-                className="text-5xl leading-none"
-                style={{ color: persona.color }}
-              >
-                {persona.emoji}
-              </span>
-              <Typography type={TypographyType.Title3} bold>
-                {persona.name}
-              </Typography>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Secondary}
-              >
-                {persona.tagline}
-              </Typography>
-            </button>
+              persona={persona}
+              onSelect={chooseTiebreak}
+            />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (phase === 'triplebreak') {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
+        <span className="text-6xl leading-none">{MASCOT_EMOJI}</span>
+        <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
+          You&apos;re a tough one. Could be any of these three.
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+        >
+          Pick the one that fits best.
+        </Typography>
+        <div className="grid w-full max-w-3xl grid-cols-1 gap-4 tablet:grid-cols-3">
+          {triplebreakPersonas.map((persona) => (
+            <PersonaCard
+              key={persona.id}
+              persona={persona}
+              onSelect={chooseTiebreak}
+              size="small"
+            />
+          ))}
+        </div>
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Medium}
+          onClick={pickManually}
+          type="button"
+        >
+          None of these. Let me pick.
+        </Button>
       </div>
     );
   }

@@ -14,6 +14,7 @@ export type PersonaQuizPhase =
   | 'intro'
   | 'playing'
   | 'tiebreak'
+  | 'triplebreak'
   | 'picker'
   | 'reveal';
 
@@ -24,6 +25,7 @@ const {
   confidenceThreshold,
   tiebreakThreshold,
   tiebreakMargin,
+  triplebreakFloor,
   fallbackFloor,
   fallbackPersonaId,
   maxQuestions,
@@ -45,6 +47,7 @@ export interface PersonaQuizState {
   progress: number;
   isThinking: boolean;
   tiebreakPersonas: DeveloperPersona[];
+  triplebreakPersonas: DeveloperPersona[];
   personas: DeveloperPersona[];
   result: PersonaResult | null;
   /** True when the user picked their persona instead of playing the quiz. */
@@ -64,7 +67,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
   const [currentQuestion, setCurrentQuestion] = useState<number | null>(null);
   const [questionsShown, setQuestionsShown] = useState(0);
   const [isThinking, setIsThinking] = useState(false);
-  const [tiebreak, setTiebreak] = useState<[number, number] | null>(null);
+  const [tiebreak, setTiebreak] = useState<number[] | null>(null);
   const [resultIndex, setResultIndex] = useState<number | null>(null);
   const [isManual, setIsManual] = useState(false);
 
@@ -80,8 +83,12 @@ export const usePersonaQuiz = (): PersonaQuizState => {
 
   const finish = useCallback(
     (nextBelief: number[]) => {
-      const [top, runnerUp] = rankBelief(nextBelief);
+      const ranked = rankBelief(nextBelief);
+      const top = ranked[0];
+      const runnerUp = ranked[1];
+      const third = ranked[2];
 
+      // 1. Confident top-1: reveal directly.
       if (
         top.belief >= tiebreakThreshold &&
         top.belief - runnerUp.belief >= tiebreakMargin
@@ -90,14 +97,33 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         return;
       }
 
+      // 2. Belief is too diffuse: fall back to the generalist.
       if (top.belief < fallbackFloor) {
         reveal(FALLBACK_PERSONA_INDEX, nextBelief);
         return;
       }
 
-      setTiebreak([top.index, runnerUp.index]);
-      setBelief(nextBelief);
-      setPhase('tiebreak');
+      // 3. Belief is moderate but not decisive: offer a two-way pick.
+      if (top.belief >= triplebreakFloor && runnerUp) {
+        setTiebreak([top.index, runnerUp.index]);
+        setBelief(nextBelief);
+        setPhase('tiebreak');
+        return;
+      }
+
+      // 4. Belief is low but above fallback: offer a three-way pick.
+      const candidates = [top.index, runnerUp?.index, third?.index].filter(
+        (index): index is number => typeof index === 'number',
+      );
+
+      if (candidates.length >= 2) {
+        setTiebreak(candidates.slice(0, 3));
+        setBelief(nextBelief);
+        setPhase(candidates.length >= 3 ? 'triplebreak' : 'tiebreak');
+        return;
+      }
+
+      reveal(top.index, nextBelief);
     },
     [reveal],
   );
@@ -202,10 +228,19 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     askedRef.current = new Set();
   }, []);
 
-  const tiebreakPersonas = useMemo(
-    () => (tiebreak ? tiebreak.map((index) => PERSONAS[index]) : []),
-    [tiebreak],
-  );
+  const tiebreakPersonas = useMemo(() => {
+    if (!tiebreak || phase !== 'tiebreak') {
+      return [];
+    }
+    return tiebreak.slice(0, 2).map((index) => PERSONAS[index]);
+  }, [phase, tiebreak]);
+
+  const triplebreakPersonas = useMemo(() => {
+    if (!tiebreak || phase !== 'triplebreak') {
+      return [];
+    }
+    return tiebreak.slice(0, 3).map((index) => PERSONAS[index]);
+  }, [phase, tiebreak]);
 
   const result = useMemo<PersonaResult | null>(() => {
     if (resultIndex === null) {
@@ -226,6 +261,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     progress: Math.min(questionsShown / maxQuestions, 1),
     isThinking,
     tiebreakPersonas,
+    triplebreakPersonas,
     personas: PERSONAS,
     result,
     isManual,
