@@ -53,6 +53,7 @@ import { SponsoredTagHero } from '../brand/SponsoredTagHero';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ExploreEntityCard } from './ExploreEntityCard';
 import { ExploreTopicNav } from './ExploreTopicNav';
+import { TagSignupBanner } from './TagSignupBanner';
 import { largeNumberFormat } from '../../lib';
 import { webappUrl } from '../../lib/constants';
 import {
@@ -477,6 +478,9 @@ export const ExploreTopicPage = ({
         </header>
 
         <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
+
+        {/* Convert logged-out SEO/AEO visitors — sits above the feed. */}
+        <TagSignupBanner tag={title} className="mb-10" />
 
         {/* Recommended stories */}
         <ActiveFeedNameContext.Provider
