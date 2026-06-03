@@ -5,7 +5,7 @@ import { ListIcon, isSidebarItemActive } from '../common';
 import { JoystickIcon, SettingsIcon } from '../../icons';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
-import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { webappUrl } from '../../../lib/constants';
 import { QuestRailIcon } from '../../quest/QuestRailIcon';
 
 // Daily quests (rail-icon landing) → Game Center hub → Quests settings.
@@ -19,7 +19,9 @@ export const GameCenterSection = ({
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const dailyQuestsPath = `${webappUrl}daily-quests`;
     const gameCenterPath = `${webappUrl}game-center`;
-    const questsSettingsPath = `${settingsUrl}/customization/gamification`;
+    // Category-owned settings shortcut: keeps the Game Center panel active
+    // (the canonical /settings/customization/gamification page keeps Settings).
+    const questsSettingsPath = `${webappUrl}game-center/settings`;
 
     return [
       {

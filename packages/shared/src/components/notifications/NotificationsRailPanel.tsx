@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { Typography, TypographyType } from '../typography/Typography';
-import { settingsUrl, webappUrl } from '../../lib/constants';
+import { webappUrl } from '../../lib/constants';
 import { BellIcon, SettingsIcon } from '../icons';
 import type { SidebarMenuItem } from '../sidebar/common';
 import { ListIcon, isSidebarItemActive } from '../sidebar/common';
@@ -21,7 +21,9 @@ export const NotificationsRailPanel = (): ReactElement => {
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const allActivityPath = `${webappUrl}notifications`;
-    const settingsPath = `${settingsUrl}/notifications`;
+    // Category-owned settings shortcut: keeps the Notifications panel active
+    // (the canonical /settings/notifications page keeps the Settings panel).
+    const settingsPath = `${webappUrl}notifications/settings`;
 
     return [
       {
