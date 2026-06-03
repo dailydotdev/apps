@@ -66,14 +66,19 @@ export function ExploreHubHeader({
   }, [router.pathname]);
 
   return (
-    <div className={classNames('relative w-full', className)}>
+    <div
+      className={classNames(
+        'relative w-full border-b border-border-subtlest-tertiary',
+        className,
+      )}
+    >
       <nav aria-label="Explore">
         <div
           ref={ref}
           onKeyDown={onKeyDown}
           role="toolbar"
           aria-orientation="horizontal"
-          className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
+          className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-2 pr-12"
         >
           {HUB_TABS.map((tab) => {
             const isActive = tab.id === activeId;

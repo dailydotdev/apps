@@ -10,8 +10,6 @@ import type { TagCategory } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TAGS_CATEGORIES_QUERY } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ExploreTopicsPage } from '@dailydotdev/shared/src/components/explore/ExploreTopicsPage';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { featureExploreTopics } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -80,7 +78,6 @@ const ExplorePage = ({
 }: ExplorePageProps): ReactElement => {
   const router = useRouter();
   const isExplore = useFeature(featureExploreTopics);
-  const { isV2 } = useLayoutVariant();
 
   // When the experiment is off, the lobby lives at /tags — send visitors there.
   useEffect(() => {
@@ -95,7 +92,6 @@ const ExplorePage = ({
 
   return (
     <>
-      {isV2 && <PageHeader title="Explore" />}
       <Head>
         <script
           type="application/ld+json"

@@ -30,7 +30,7 @@ import {
 import type { TagsData } from '../../graphql/feedSettings';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { ReferralCampaignKey, useFeedLayout } from '../../hooks';
-import type { Source } from '../../graphql/sources';
+import type { SourceTooltip } from '../../graphql/sources';
 import { SOURCES_BY_TAG_QUERY } from '../../graphql/sources';
 import type { Connection } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
@@ -50,8 +50,9 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { TOP_CREATORS_BY_TAG_QUERY } from '../../graphql/users';
 import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import { ExploreEntityCard } from './ExploreEntityCard';
+import UserEntityCard from '../cards/entity/UserEntityCard';
+import SourceEntityCard from '../cards/entity/SourceEntityCard';
+import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { ExploreTopicNav } from './ExploreTopicNav';
 import { ExploreHubHeader } from './ExploreHubHeader';
 import { TagSignupBanner } from './TagSignupBanner';
@@ -110,17 +111,15 @@ const RailWithFade = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-const ENTITY_GRID =
-  'grid grid-cols-1 gap-4 mobileL:grid-cols-2 laptop:grid-cols-3';
+// Fixed-width entity cards (w-80) wrap into rows, matching the source/squad
+// pages — compact "cards you'd follow" rather than full-width blocks.
+const ENTITY_ROW = 'flex flex-wrap gap-4';
 
-const EntityGridSkeleton = (): ReactElement => (
-  <div className={ENTITY_GRID}>
+const EntityRowSkeleton = (): ReactElement => (
+  <div className={ENTITY_ROW}>
     {Array.from({ length: 3 }).map((_, index) => (
-      <ElementPlaceholder
-        // eslint-disable-next-line react/no-array-index-key
-        key={index}
-        className="h-40 w-full rounded-16"
-      />
+      // eslint-disable-next-line react/no-array-index-key
+      <EntityCardSkeleton key={index} />
     ))}
   </div>
 );
@@ -129,7 +128,7 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
     queryFn: async () =>
-      gqlClient.request<{ sourcesByTag: Connection<Source> }>(
+      gqlClient.request<{ sourcesByTag: Connection<SourceTooltip> }>(
         SOURCES_BY_TAG_QUERY,
         { tag, first: 6 },
       ),
@@ -147,21 +146,11 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
     <section className="mb-10">
       <SectionHeading>Top sources covering it</SectionHeading>
       {isPending ? (
-        <EntityGridSkeleton />
+        <EntityRowSkeleton />
       ) : (
-        <div className={ENTITY_GRID}>
+        <div className={ENTITY_ROW}>
           {sources.map((source) => (
-            <ExploreEntityCard
-              key={source.id}
-              entityId={source.id ?? ''}
-              entityType={ContentPreferenceType.Source}
-              entityName={source.handle || source.name || ''}
-              name={source.name ?? ''}
-              image={source.image}
-              handle={source.handle}
-              bio={source.description}
-              permalink={source.permalink ?? ''}
-            />
+            <SourceEntityCard key={source.id} source={source} />
           ))}
         </div>
       )}
@@ -198,22 +187,11 @@ const WhoToFollow = ({
     <section className="mb-10">
       <SectionHeading>Who to follow</SectionHeading>
       {isLoading ? (
-        <EntityGridSkeleton />
+        <EntityRowSkeleton />
       ) : (
-        <div className={ENTITY_GRID}>
+        <div className={ENTITY_ROW}>
           {users.map((user) => (
-            <ExploreEntityCard
-              key={user.id}
-              entityId={user.id}
-              entityType={ContentPreferenceType.User}
-              entityName={user.username || user.name || ''}
-              name={user.name ?? ''}
-              image={user.image}
-              handle={user.username}
-              bio={user.bio}
-              permalink={user.permalink ?? ''}
-              reputation={user.reputation}
-            />
+            <UserEntityCard key={user.id} user={user} />
           ))}
         </div>
       )}

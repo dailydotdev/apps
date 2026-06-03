@@ -139,7 +139,6 @@ const TagsPage = ({
   if (isExplore) {
     return (
       <>
-        {isV2Laptop && <PageHeader title="Explore" />}
         <ExploreTopicsPage
           tags={tags}
           trendingTags={trendingTags}

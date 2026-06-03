@@ -2,9 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import type { TagCategory } from '../../graphql/feedSettings';
-import { getTagPageLink } from '../../lib/links';
-import { formatKeyword } from '../../lib/strings';
-import Link from '../utilities/Link';
+import { ExploreTagListItem } from './ExploreTagListItem';
 import {
   Typography,
   TypographyColor,
@@ -17,13 +15,17 @@ const COLLAPSED_COUNT = 8;
 
 interface ExploreCategorySectionProps {
   category: TagCategory;
+  followedTags: Set<string>;
+  onToggleFollow: (tag: string) => void;
   className?: string;
 }
 
 // One column block in the Explore directory: an emoji + title heading above a
-// vertical list of topic links (Medium "Explore topics" / glossary hub style).
+// vertical list of topic rows with follow controls.
 export function ExploreCategorySection({
   category,
+  followedTags,
+  onToggleFollow,
   className,
 }: ExploreCategorySectionProps): ReactElement | null {
   const [expanded, setExpanded] = useState(false);
@@ -54,20 +56,14 @@ export function ExploreCategorySection({
         {category.emoji ? `${category.emoji} ` : ''}
         {category.title}
       </Typography>
-      <ul className="flex flex-col gap-2.5">
+      <ul className="flex flex-col">
         {visibleTags.map((tag) => (
-          <li key={tag}>
-            <Link href={getTagPageLink(tag)} passHref prefetch={false}>
-              <Typography
-                tag={TypographyTag.Link}
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-                className="cursor-pointer no-underline transition-colors hover:text-text-primary"
-              >
-                {formatKeyword(tag)}
-              </Typography>
-            </Link>
-          </li>
+          <ExploreTagListItem
+            key={tag}
+            tag={tag}
+            isFollowed={followedTags.has(tag)}
+            onToggleFollow={onToggleFollow}
+          />
         ))}
       </ul>
       {hasMore && (
