@@ -137,6 +137,873 @@ const buildDomain = (root, prefix) => {
   return out;
 };
 
+// Graft a 4th decision level onto a leaf: a colour question, then a branch that
+// forks into two finer sub-personas. Used for the deeper data/infra trees.
+const splitLeaf = (s) => {
+  const yesEnd = E(
+    `${s.a.archetypeId}_terminal`,
+    s.a.terminalPrompt,
+    s.a.terminalYesTags,
+    s.a.terminalNoTags,
+    s.a.archetypeId,
+  );
+  const noEnd = E(
+    `${s.b.archetypeId}_terminal`,
+    s.b.terminalPrompt,
+    s.b.terminalYesTags,
+    s.b.terminalNoTags,
+    s.b.archetypeId,
+  );
+  const b4 = B(
+    s.branch.axis,
+    s.branch.prompt,
+    { tags: s.branch.yesTags, to: yesEnd },
+    { tags: s.branch.noTags, to: noEnd },
+  );
+  return C(s.colour.axis, s.colour.prompt, s.colour.yesTags, s.colour.noTags, b4);
+};
+
+// LLM-authored sub-persona splits (colour + B4 branch + 2 terminals each)
+// for the deeper data/infra trees. See generatePersonaQuiz docs.
+const DATA_SPLITS = {
+  "ml_training_engineer": {
+    "colour": {
+      "axis": "data_ml_research_flavour",
+      "prompt": "Reading academic papers is how you keep sharp in your domain.",
+      "yesTags": {
+        "deep-learning": 2,
+        "transformers": 1
+      },
+      "noTags": {
+        "machine-learning": 1,
+        "python": 1
+      }
+    },
+    "branch": {
+      "axis": "data_ml_research_applied",
+      "prompt": "Exploring novel architectures matters more to you than proving they work at scale.",
+      "yesTags": {
+        "deep-learning": 1,
+        "transformers": 1
+      },
+      "noTags": {
+        "pytorch": 1,
+        "cuda": 1
+      }
+    },
+    "a": {
+      "archetypeId": "ml_research_engineer",
+      "terminalPrompt": "You measure your impact by papers written or techniques contributed, not by models in production.",
+      "terminalYesTags": {
+        "deep-learning": 2,
+        "transformers": 1,
+        "neural-networks": 1
+      },
+      "terminalNoTags": {
+        "machine-learning": 1,
+        "python": 1
+      }
+    },
+    "b": {
+      "archetypeId": "ml_training_engineer",
+      "terminalPrompt": "A new architecture paper can pull you in as fast as a new benchmark score.",
+      "terminalYesTags": {
+        "deep-learning": 2,
+        "neural-networks": 1,
+        "transformers": 1
+      },
+      "terminalNoTags": {
+        "machine-learning": 1,
+        "python": 1
+      }
+    }
+  },
+  "mlops_engineer": {
+    "colour": {
+      "axis": "data_mlops_holistic",
+      "prompt": "Model cards, deployment logs, and monitoring dashboards are equally important to you.",
+      "yesTags": {
+        "mlops": 2,
+        "llmops": 1
+      },
+      "noTags": {
+        "machine-learning": 1,
+        "python": 1
+      }
+    },
+    "branch": {
+      "axis": "data_mlops_evaluation_serving",
+      "prompt": "Evaluating whether a model is production-ready fascinates you more than operating the serving layer.",
+      "yesTags": {
+        "deep-learning": 1,
+        "cicd": 1
+      },
+      "noTags": {
+        "mlops": 1,
+        "huggingface": 1
+      }
+    },
+    "a": {
+      "archetypeId": "mlops_evaluation_engineer",
+      "terminalPrompt": "You've built an evaluation framework that catches regressions the way a test suite catches bugs.",
+      "terminalYesTags": {
+        "mlops": 2,
+        "deep-learning": 1,
+        "data-science": 1
+      },
+      "terminalNoTags": {
+        "machine-learning": 1,
+        "python": 1
+      }
+    },
+    "b": {
+      "archetypeId": "mlops_engineer",
+      "terminalPrompt": "A model is only interesting to you once it is serving traffic without falling over.",
+      "terminalYesTags": {
+        "mlops": 2,
+        "llmops": 1,
+        "cicd": 1
+      },
+      "terminalNoTags": {
+        "machine-learning": 1,
+        "python": 1
+      }
+    }
+  },
+  "llm_app_engineer": {
+    "colour": {
+      "axis": "data_llm_agentic_wonder",
+      "prompt": "Watching an LLM solve multi-step problems through tool use still feels like magic.",
+      "yesTags": {
+        "llm": 2,
+        "prompt-engineering": 1
+      },
+      "noTags": {
+        "genai": 1,
+        "ai": 1
+      }
+    },
+    "branch": {
+      "axis": "data_llm_agents_prompts",
+      "prompt": "Designing tool chains and agent flows excites you more than perfecting prompt wording.",
+      "yesTags": {
+        "langchain": 1,
+        "semantic-kernel": 1
+      },
+      "noTags": {
+        "prompt-engineering": 1,
+        "openai": 1
+      }
+    },
+    "a": {
+      "archetypeId": "llm_agentic_engineer",
+      "terminalPrompt": "Designing an agent that sequences tools correctly without explicit prompts feels like genuine progress.",
+      "terminalYesTags": {
+        "llm": 2,
+        "langchain": 1,
+        "semantic-kernel": 1
+      },
+      "terminalNoTags": {
+        "genai": 1,
+        "ai": 1
+      }
+    },
+    "b": {
+      "archetypeId": "llm_prompt_engineer",
+      "terminalPrompt": "Fine-tuning a prompt until a model consistently outputs your exact format feels like mastery.",
+      "terminalYesTags": {
+        "llm": 2,
+        "prompt-engineering": 1,
+        "openai": 1
+      },
+      "terminalNoTags": {
+        "genai": 1,
+        "ai": 1
+      }
+    }
+  },
+  "rag_retrieval_engineer": {
+    "colour": {
+      "axis": "data_rag_embedding_discussion",
+      "prompt": "Embedding model trade-offs are conversations you have as often as most engineers discuss latency.",
+      "yesTags": {
+        "rag": 2,
+        "vector-search": 1
+      },
+      "noTags": {
+        "llm": 1,
+        "genai": 1
+      }
+    },
+    "branch": {
+      "axis": "data_rag_pipeline_index",
+      "prompt": "Optimizing how documents flow into the index interests you more than what lives in it.",
+      "yesTags": {
+        "embeddings": 1,
+        "data-engineering": 1
+      },
+      "noTags": {
+        "vector-search": 1,
+        "llm": 1
+      }
+    },
+    "a": {
+      "archetypeId": "rag_ingestion_engineer",
+      "terminalPrompt": "You spend more effort on document chunking and refresh strategies than on tuning LLM prompts.",
+      "terminalYesTags": {
+        "rag": 2,
+        "embeddings": 1,
+        "data-engineering": 1
+      },
+      "terminalNoTags": {
+        "llm": 1,
+        "genai": 1
+      }
+    },
+    "b": {
+      "archetypeId": "rag_vector_engineer",
+      "terminalPrompt": "Improving retrieval accuracy through smarter indexing and ranking is where you find satisfaction.",
+      "terminalYesTags": {
+        "vector-search": 2,
+        "embeddings": 1,
+        "rag": 1
+      },
+      "terminalNoTags": {
+        "llm": 1,
+        "genai": 1
+      }
+    }
+  },
+  "streaming_data_engineer": {
+    "colour": {
+      "axis": "data_streaming_freshness",
+      "prompt": "Real-time data freshness is baked into your system design from day one.",
+      "yesTags": {
+        "data-streaming": 2,
+        "apache-kafka": 1
+      },
+      "noTags": {
+        "data-engineering": 1,
+        "etl": 1
+      }
+    },
+    "branch": {
+      "axis": "data_streaming_ingestion_compute",
+      "prompt": "Reliably capturing changes from source systems fascinates you more than processing those events.",
+      "yesTags": {
+        "change-data-capture": 1,
+        "apache-kafka": 1
+      },
+      "noTags": {
+        "apache-flink": 1,
+        "real-time-analytics": 1
+      }
+    },
+    "a": {
+      "archetypeId": "streaming_ingestion_engineer",
+      "terminalPrompt": "A connector that catches every source change without data loss or double-counting is your achievement.",
+      "terminalYesTags": {
+        "change-data-capture": 2,
+        "apache-kafka": 1,
+        "data-streaming": 1
+      },
+      "terminalNoTags": {
+        "data-engineering": 1,
+        "etl": 1
+      }
+    },
+    "b": {
+      "archetypeId": "streaming_processor_engineer",
+      "terminalPrompt": "A correctly windowed join across a distributed stream that handles late events gracefully is elegant.",
+      "terminalYesTags": {
+        "data-streaming": 2,
+        "apache-flink": 1,
+        "real-time-analytics": 1
+      },
+      "terminalNoTags": {
+        "data-engineering": 1,
+        "etl": 1
+      }
+    }
+  },
+  "batch_data_engineer": {
+    "colour": {
+      "axis": "data_batch_schema_philosophy",
+      "prompt": "Your schema design philosophy shapes how you approach every transformation and pipeline.",
+      "yesTags": {
+        "data-warehouse": 2,
+        "apache-spark": 1
+      },
+      "noTags": {
+        "data-engineering": 1,
+        "etl": 1
+      }
+    },
+    "branch": {
+      "axis": "data_batch_lakehouse_warehouse",
+      "prompt": "Open table formats and schema-on-read appeal to you more than managed warehouse appliances.",
+      "yesTags": {
+        "apache-iceberg": 1,
+        "apache-spark": 1
+      },
+      "noTags": {
+        "snowflake": 1,
+        "databricks": 1
+      }
+    },
+    "a": {
+      "archetypeId": "lakehouse_engineer",
+      "terminalPrompt": "You chose Iceberg for schema evolution and time-travel because they align with your governance philosophy.",
+      "terminalYesTags": {
+        "apache-iceberg": 2,
+        "apache-spark": 1,
+        "data-warehouse": 1
+      },
+      "terminalNoTags": {
+        "data-engineering": 1,
+        "etl": 1
+      }
+    },
+    "b": {
+      "archetypeId": "warehouse_modeler_engineer",
+      "terminalPrompt": "A normalized dimensional model with clear lineage and documentation is an artifact you're proud of.",
+      "terminalYesTags": {
+        "snowflake": 2,
+        "databricks": 1,
+        "data-warehouse": 1
+      },
+      "terminalNoTags": {
+        "data-engineering": 1,
+        "etl": 1
+      }
+    }
+  },
+  "analytics_bi_engineer": {
+    "colour": {
+      "axis": "data_analytics_performance",
+      "prompt": "You consider data freshness and query performance as part of your craft.",
+      "yesTags": {
+        "analytics-platforms": 2,
+        "bi": 1
+      },
+      "noTags": {
+        "sql": 1,
+        "data-analysis": 1
+      }
+    },
+    "branch": {
+      "axis": "data_analytics_metrics_dashboards",
+      "prompt": "Building a governed metric layer matters more to you than crafting individual dashboards.",
+      "yesTags": {
+        "duckdb": 1,
+        "sql": 1
+      },
+      "noTags": {
+        "data-visualization": 1,
+        "analytics-platforms": 1
+      }
+    },
+    "a": {
+      "archetypeId": "metrics_platform_engineer",
+      "terminalPrompt": "When everyone stops arguing about which metric to use because there's one source of truth, you've won.",
+      "terminalYesTags": {
+        "analytics-platforms": 2,
+        "duckdb": 1,
+        "sql": 1
+      },
+      "terminalNoTags": {
+        "data-analysis": 1,
+        "data-visualization": 1
+      }
+    },
+    "b": {
+      "archetypeId": "bi_visualization_engineer",
+      "terminalPrompt": "Watching someone understand a complex data story through your dashboard is genuinely fulfilling.",
+      "terminalYesTags": {
+        "data-visualization": 2,
+        "analytics-platforms": 1,
+        "bi": 1
+      },
+      "terminalNoTags": {
+        "sql": 1,
+        "data-analysis": 1
+      }
+    }
+  },
+  "data_science_analyst": {
+    "colour": {
+      "axis": "data_science_hypothesis",
+      "prompt": "Hypothesis testing and experimental design are woven into how you think.",
+      "yesTags": {
+        "data-science": 2,
+        "statistical-analysis": 1
+      },
+      "noTags": {
+        "sql": 1,
+        "data-analysis": 1
+      }
+    },
+    "branch": {
+      "axis": "data_science_prediction_exploration",
+      "prompt": "Building models that predict the future excites you more than understanding what happened.",
+      "yesTags": {
+        "predictive-analytics": 1,
+        "scikit": 1
+      },
+      "noTags": {
+        "exploratory-data-analysis": 1,
+        "jupyter": 1
+      }
+    },
+    "a": {
+      "archetypeId": "predictive_modeler",
+      "terminalPrompt": "A model with strong cross-validation and lower error than the baseline is a win worth celebrating.",
+      "terminalYesTags": {
+        "predictive-analytics": 2,
+        "scikit": 1,
+        "data-science": 1
+      },
+      "terminalNoTags": {
+        "sql": 1,
+        "data-analysis": 1
+      }
+    },
+    "b": {
+      "archetypeId": "analytical_statistician",
+      "terminalPrompt": "Proving with statistical rigor that a treatment worked is more satisfying than any model prediction.",
+      "terminalYesTags": {
+        "statistical-analysis": 2,
+        "exploratory-data-analysis": 1,
+        "data-analysis": 1
+      },
+      "terminalNoTags": {
+        "data-science": 1,
+        "sql": 1
+      }
+    }
+  }
+};
+
+const INFRA_SPLITS = {
+  "cloud_infrastructure_engineer": {
+    "colour": {
+      "axis": "infra_cloud_provisioning_span",
+      "prompt": "Availability zones and traffic patterns weigh equally with the tooling you reach for.",
+      "yesTags": {
+        "multi-cloud": 2,
+        "infrastructure": 1
+      },
+      "noTags": {
+        "devops": 2,
+        "iac": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_cloud_layer",
+      "prompt": "When you pick up an infrastructure task, are you writing IaC or designing network topology?",
+      "yesTags": {
+        "terraform": 1,
+        "pulumi": 1,
+        "aws": 1
+      },
+      "noTags": {
+        "kubernetes": 1,
+        "architecture": 1,
+        "distributed-systems": 1
+      }
+    },
+    "a": {
+      "archetypeId": "cloud_provisioning_engineer",
+      "terminalPrompt": "You can explain why a Terraform workspace structure matters for scaling.",
+      "terminalYesTags": {
+        "terraform": 2,
+        "iac": 1
+      },
+      "terminalNoTags": {
+        "cloud": 1,
+        "devops": 1
+      }
+    },
+    "b": {
+      "archetypeId": "infrastructure_network_engineer",
+      "terminalPrompt": "A zone going dark does not concern you; your architecture absorbs it.",
+      "terminalYesTags": {
+        "architecture": 2,
+        "distributed-systems": 1
+      },
+      "terminalNoTags": {
+        "cloud": 1,
+        "infrastructure": 1
+      }
+    }
+  },
+  "kubernetes_platform_engineer": {
+    "colour": {
+      "axis": "infra_platform_abstraction",
+      "prompt": "Whether you are managing the cluster itself or what developers build on it, your work is fundamentally about platforms.",
+      "yesTags": {
+        "platform-engineering": 2,
+        "iac": 1
+      },
+      "noTags": {
+        "infrastructure": 2,
+        "devops": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_k8s_level",
+      "prompt": "Does your focus land on keeping the cluster running or on what developers build on top of it?",
+      "yesTags": {
+        "kubernetes": 1,
+        "helm": 1,
+        "docker": 1
+      },
+      "noTags": {
+        "platform-engineering": 1,
+        "productivity": 1,
+        "devtools": 1
+      }
+    },
+    "a": {
+      "archetypeId": "kubernetes_cluster_engineer",
+      "terminalPrompt": "You know your cluster's resource limits the way a DBA knows their indices.",
+      "terminalYesTags": {
+        "kubernetes": 2,
+        "infrastructure": 1
+      },
+      "terminalNoTags": {
+        "docker": 1,
+        "devops": 1
+      }
+    },
+    "b": {
+      "archetypeId": "idp_platform_engineer",
+      "terminalPrompt": "Developers deploy to production from the CLI without naming a single Kubernetes concept.",
+      "terminalYesTags": {
+        "platform-engineering": 2,
+        "productivity": 1
+      },
+      "terminalNoTags": {
+        "infrastructure": 1,
+        "devops": 1
+      }
+    }
+  },
+  "observability_engineer": {
+    "colour": {
+      "axis": "infra_observability_span",
+      "prompt": "Real-time dashboards and deep historical forensics are both part of how you think about systems.",
+      "yesTags": {
+        "observability": 2,
+        "monitoring": 1
+      },
+      "noTags": {
+        "sre": 1,
+        "distributed-systems": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_signal_type",
+      "prompt": "Are metrics and traces your natural habitat, or do logs and events tell the stories you care about?",
+      "yesTags": {
+        "prometheus": 1,
+        "opentelemetry": 1,
+        "apm": 1
+      },
+      "noTags": {
+        "logging": 1,
+        "data-analysis": 1,
+        "distributed-systems": 1
+      }
+    },
+    "a": {
+      "archetypeId": "metrics_tracing_engineer",
+      "terminalPrompt": "Five minutes and a query are enough to find where a service is losing time.",
+      "terminalYesTags": {
+        "observability": 2,
+        "prometheus": 1
+      },
+      "terminalNoTags": {
+        "monitoring": 1,
+        "logging": 1
+      }
+    },
+    "b": {
+      "archetypeId": "logs_events_engineer",
+      "terminalPrompt": "Your logs tell the incident story more truthfully than any dashboard ever could.",
+      "terminalYesTags": {
+        "logging": 2,
+        "data-analysis": 1
+      },
+      "terminalNoTags": {
+        "observability": 1,
+        "monitoring": 1
+      }
+    }
+  },
+  "incident_reliability_engineer": {
+    "colour": {
+      "axis": "infra_reliability_balance",
+      "prompt": "Preventing incidents and learning from them when they happen are both central to your role.",
+      "yesTags": {
+        "sre": 2,
+        "monitoring": 1
+      },
+      "noTags": {
+        "observability": 1,
+        "cloud": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_reliability_direction",
+      "prompt": "Would you rather design systems that fail gracefully or lead the team through crisis when they do not?",
+      "yesTags": {
+        "distributed-systems": 1,
+        "architecture": 1,
+        "cloud-native": 1
+      },
+      "noTags": {
+        "dora": 1,
+        "devops": 1,
+        "cicd": 1
+      }
+    },
+    "a": {
+      "archetypeId": "resilience_engineer",
+      "terminalPrompt": "Before scaling a service, you have already written its retry and timeout strategies.",
+      "terminalYesTags": {
+        "architecture": 2,
+        "distributed-systems": 1
+      },
+      "terminalNoTags": {
+        "sre": 1,
+        "monitoring": 1
+      }
+    },
+    "b": {
+      "archetypeId": "incident_commander_engineer",
+      "terminalPrompt": "A retro you ran left the team aligned on what actually failed and what to change.",
+      "terminalYesTags": {
+        "dora": 2,
+        "leadership": 1
+      },
+      "terminalNoTags": {
+        "sre": 1,
+        "monitoring": 1
+      }
+    }
+  },
+  "application_security_engineer": {
+    "colour": {
+      "axis": "infra_security_stance",
+      "prompt": "Your security mindset blends prevention and discovery, defense and offense, as partners.",
+      "yesTags": {
+        "appsec": 2,
+        "security": 1
+      },
+      "noTags": {
+        "devsecops": 1,
+        "vulnerability": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_security_timing",
+      "prompt": "When you find a vulnerability, did you stop it in the code or uncover it in the live system?",
+      "yesTags": {
+        "code-security": 1,
+        "authentication": 1,
+        "cryptography": 1
+      },
+      "noTags": {
+        "pentesting": 1,
+        "vulnerability": 1,
+        "web-security": 1
+      }
+    },
+    "a": {
+      "archetypeId": "defensive_appsec_engineer",
+      "terminalPrompt": "You threat-model a feature sketch before you open an IDE.",
+      "terminalYesTags": {
+        "appsec": 2,
+        "code-security": 1
+      },
+      "terminalNoTags": {
+        "security": 1,
+        "vulnerability": 1
+      }
+    },
+    "b": {
+      "archetypeId": "offensive_security_engineer",
+      "terminalPrompt": "You find the edge case that breaks the threat model.",
+      "terminalYesTags": {
+        "pentesting": 2,
+        "vulnerability": 1
+      },
+      "terminalNoTags": {
+        "appsec": 1,
+        "security": 1
+      }
+    }
+  },
+  "infrastructure_security_engineer": {
+    "colour": {
+      "axis": "infra_security_scope",
+      "prompt": "From artifact signing to key rotation, your security posture is built end to end.",
+      "yesTags": {
+        "devsecops": 2,
+        "security": 1
+      },
+      "noTags": {
+        "compliance": 1,
+        "infrastructure": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_security_layer",
+      "prompt": "Does hardening the build pipeline claim more of your focus than locking down access and secrets?",
+      "yesTags": {
+        "sbom": 1,
+        "cicd": 1,
+        "devsecops": 1
+      },
+      "noTags": {
+        "secrets-management": 1,
+        "compliance": 1,
+        "vulnerability": 1
+      }
+    },
+    "a": {
+      "archetypeId": "supply_chain_security_engineer",
+      "terminalPrompt": "Every binary in production can be traced back to its source commit and build logs.",
+      "terminalYesTags": {
+        "sbom": 2,
+        "devsecops": 1
+      },
+      "terminalNoTags": {
+        "security": 1,
+        "compliance": 1
+      }
+    },
+    "b": {
+      "archetypeId": "secrets_compliance_engineer",
+      "terminalPrompt": "Your team rotates every secret without a ticket or a Slack conversation.",
+      "terminalYesTags": {
+        "secrets-management": 2,
+        "compliance": 1
+      },
+      "terminalNoTags": {
+        "security": 1,
+        "devsecops": 1
+      }
+    }
+  },
+  "developer_experience_engineer": {
+    "colour": {
+      "axis": "infra_dx_metrics",
+      "prompt": "Whether you save time in the developer's loop or automate it away in the pipeline, friction reduction is your north star.",
+      "yesTags": {
+        "devtools": 2,
+        "productivity": 1
+      },
+      "noTags": {
+        "cicd": 1,
+        "git": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_dx_layer",
+      "prompt": "Does your work optimise how developers work or how the build pipeline runs at scale?",
+      "yesTags": {
+        "productivity": 1,
+        "vs-code": 1,
+        "git": 1
+      },
+      "noTags": {
+        "cicd": 1,
+        "devops": 1,
+        "testing": 1
+      }
+    },
+    "a": {
+      "archetypeId": "developer_workflow_engineer",
+      "terminalPrompt": "Your tool turns a five-step manual dance into a single, memorable command.",
+      "terminalYesTags": {
+        "productivity": 2,
+        "git": 1
+      },
+      "terminalNoTags": {
+        "devtools": 1,
+        "cli": 1
+      }
+    },
+    "b": {
+      "archetypeId": "cicd_automation_engineer",
+      "terminalPrompt": "A developer merges; everything else happens without a human decision.",
+      "terminalYesTags": {
+        "cicd": 2,
+        "devops": 1
+      },
+      "terminalNoTags": {
+        "devtools": 1,
+        "productivity": 1
+      }
+    }
+  },
+  "build_systems_engineer": {
+    "colour": {
+      "axis": "infra_build_scope",
+      "prompt": "The entire chain from language runtime to developer command line is where your expertise flows.",
+      "yesTags": {
+        "devtools": 2,
+        "cli": 1
+      },
+      "noTags": {
+        "open-source": 1,
+        "commandline": 1
+      }
+    },
+    "branch": {
+      "axis": "infra_build_depth",
+      "prompt": "Do you spend more time in compilers and runtimes or shipping CLIs that developers rely on?",
+      "yesTags": {
+        "rust": 1,
+        "go": 1,
+        "bun": 1
+      },
+      "noTags": {
+        "commandline": 1,
+        "open-source": 1,
+        "cicd": 1
+      }
+    },
+    "a": {
+      "archetypeId": "compiler_runtime_engineer",
+      "terminalPrompt": "You understand the performance cost of the code your compiler generates.",
+      "terminalYesTags": {
+        "rust": 2,
+        "architecture": 1
+      },
+      "terminalNoTags": {
+        "devtools": 1,
+        "cli": 1
+      }
+    },
+    "b": {
+      "archetypeId": "build_tooling_engineer",
+      "terminalPrompt": "Your build tool's help text is the only guide anyone needs.",
+      "terminalYesTags": {
+        "commandline": 2,
+        "devtools": 1
+      },
+      "terminalNoTags": {
+        "cli": 1,
+        "open-source": 1
+      }
+    }
+  }
+};
+
+
 // ==========================================================================
 // PRODUCT — root qp1.
 // ==========================================================================
@@ -300,25 +1167,11 @@ const productRoot = (() => {
 // INFRA — root qi1.
 // ==========================================================================
 const infraRoot = (() => {
-  const cloudEnd = E(
-    'infra_cloud_terminal',
-    'Provisioning a new environment is a piece of code you write, not a ticket you file.',
-    { terraform: 2, iac: 1 },
-    { cloud: 1, devops: 1 },
-    'cloud_infrastructure_engineer',
-  );
-  const k8sEnd = E(
-    'infra_kubernetes_terminal',
-    'Kubernetes is the substrate you expect everything else to run on.',
-    { kubernetes: 2, helm: 1, 'cloud-native': 1 },
-    { docker: 1, infrastructure: 1 },
-    'kubernetes_platform_engineer',
-  );
   const cloudForkB3 = B(
     'infra_cloud_approach',
     'You’re happiest deep in provider-level infrastructure and IaC.',
-    { tags: { terraform: 1, aws: 1, pulumi: 1, 'multi-cloud': 1 }, to: cloudEnd },
-    { tags: { kubernetes: 1, helm: 1, 'platform-engineering': 1 }, to: k8sEnd },
+    { tags: { terraform: 1, aws: 1, pulumi: 1, 'multi-cloud': 1 }, to: splitLeaf(INFRA_SPLITS.cloud_infrastructure_engineer) },
+    { tags: { kubernetes: 1, helm: 1, 'platform-engineering': 1 }, to: splitLeaf(INFRA_SPLITS.kubernetes_platform_engineer) },
   );
   const cloudColorC2 = C(
     'infra_cloud_golden_path',
@@ -328,25 +1181,11 @@ const infraRoot = (() => {
     cloudForkB3,
   );
 
-  const obsEnd = E(
-    'infra_observability_terminal',
-    'If a service moves, you want a metric or a trace that proves it.',
-    { observability: 2, prometheus: 1, opentelemetry: 1 },
-    { monitoring: 1, logging: 1 },
-    'observability_engineer',
-  );
-  const incidentEnd = E(
-    'infra_incident_terminal',
-    'A clean incident retro that closes real action items is genuinely satisfying to you.',
-    { sre: 2, dora: 1, 'distributed-systems': 1 },
-    { monitoring: 1, cloud: 1 },
-    'incident_reliability_engineer',
-  );
   const reliabilityForkB3 = B(
     'infra_reliability_focus',
-    'You’d rather instrument a system thoroughly than be the one paged when it breaks.',
-    { tags: { observability: 1, grafana: 1, apm: 1 }, to: obsEnd },
-    { tags: { sre: 1, dora: 1 }, to: incidentEnd },
+    'Instrumentation and dashboards are where your day goes, not the pager.',
+    { tags: { observability: 1, grafana: 1, apm: 1 }, to: splitLeaf(INFRA_SPLITS.observability_engineer) },
+    { tags: { sre: 1, dora: 1 }, to: splitLeaf(INFRA_SPLITS.incident_reliability_engineer) },
   );
   const reliabilityColorC2 = C(
     'infra_reliability_slo',
@@ -358,7 +1197,7 @@ const infraRoot = (() => {
 
   const platformForkB2 = B(
     'infra_platform_split',
-    'Standing up and wiring the cloud platform is the work you reach for first.',
+    'Building and running the platform is your home turf; observability and on-call are the next layer up.',
     { tags: { terraform: 1, kubernetes: 1, cloud: 1 }, to: cloudColorC2 },
     { tags: { observability: 1, sre: 1 }, to: reliabilityColorC2 },
   );
@@ -370,25 +1209,11 @@ const infraRoot = (() => {
     platformForkB2,
   );
 
-  const appsecEnd = E(
-    'infra_appsec_terminal',
-    'A vulnerability in someone else’s dependency still feels like your problem to fix.',
-    { appsec: 2, 'web-security': 1, 'code-security': 1 },
-    { security: 1, vulnerability: 1 },
-    'application_security_engineer',
-  );
-  const infrasecEnd = E(
-    'infra_supplychain_terminal',
-    'The build and release pipeline is the thing you most want to keep tamper-proof.',
-    { devsecops: 2, sbom: 1, 'secrets-management': 1 },
-    { security: 1, compliance: 1 },
-    'infrastructure_security_engineer',
-  );
   const securityForkB3 = B(
     'infra_security_focus',
     'When you look for risk, you read the application’s own code first.',
-    { tags: { appsec: 1, 'code-security': 1, cryptography: 1 }, to: appsecEnd },
-    { tags: { devsecops: 1, sbom: 1, 'secrets-management': 1 }, to: infrasecEnd },
+    { tags: { appsec: 1, 'code-security': 1, cryptography: 1 }, to: splitLeaf(INFRA_SPLITS.application_security_engineer) },
+    { tags: { devsecops: 1, sbom: 1, 'secrets-management': 1 }, to: splitLeaf(INFRA_SPLITS.infrastructure_security_engineer) },
   );
   const securityColorC2 = C(
     'infra_security_shiftleft',
@@ -398,25 +1223,11 @@ const infraRoot = (() => {
     securityForkB3,
   );
 
-  const dxEnd = E(
-    'infra_dx_terminal',
-    'You judge a tool by how many minutes it gives back to every engineer who uses it.',
-    { devtools: 2, productivity: 1, 'vs-code': 1 },
-    { cli: 1, 'open-source': 1 },
-    'developer_experience_engineer',
-  );
-  const buildSysEnd = E(
-    'infra_build_systems_terminal',
-    'A compiler or a build graph is somewhere you have happily spent real engineering time.',
-    { devtools: 2, rust: 1, go: 1 },
-    { cli: 1, 'open-source': 1 },
-    'build_systems_engineer',
-  );
   const devtoolsForkB3 = B(
     'infra_devtools_focus',
     'You measure your impact in the daily friction you remove for other engineers.',
-    { tags: { productivity: 1, git: 1, 'vs-code': 1 }, to: dxEnd },
-    { tags: { rust: 1, go: 1, bun: 1 }, to: buildSysEnd },
+    { tags: { productivity: 1, git: 1, 'vs-code': 1 }, to: splitLeaf(INFRA_SPLITS.developer_experience_engineer) },
+    { tags: { rust: 1, go: 1, bun: 1 }, to: splitLeaf(INFRA_SPLITS.build_systems_engineer) },
   );
   const devtoolsColorC2 = C(
     'infra_devtools_distribution',
@@ -446,12 +1257,19 @@ const infraRoot = (() => {
     { tags: { infrastructure: 2, cloud: 1 }, to: platformColorC1 },
     { tags: { devtools: 1, security: 1 }, to: dxSecColorC1 },
   );
+  const opsColorC0b = C(
+    'infra_toil',
+    'Automating away repetitive toil is a goal you actively chase.',
+    { devops: 1, productivity: 1 },
+    { infrastructure: 1, cloud: 1 },
+    opsB1,
+  );
   return C(
     'infra_iac_default',
     'Infrastructure as code is simply how your team runs everything.',
     { iac: 2, devops: 1 },
     { infrastructure: 2, cloud: 1 },
-    opsB1,
+    opsColorC0b,
   );
 })();
 
@@ -459,25 +1277,11 @@ const infraRoot = (() => {
 // DATA — root qd1.
 // ==========================================================================
 const dataRoot = (() => {
-  const trainingEnd = E(
-    'data_ml_training_terminal',
-    'A new architecture paper can pull you in as fast as a new benchmark score.',
-    { 'deep-learning': 2, 'neural-networks': 1, transformers: 1 },
-    { 'machine-learning': 1, python: 1 },
-    'ml_training_engineer',
-  );
-  const mlopsEnd = E(
-    'data_mlops_terminal',
-    'A model is only interesting to you once it is serving traffic without falling over.',
-    { mlops: 2, llmops: 1, cicd: 1 },
-    { 'machine-learning': 1, python: 1 },
-    'mlops_engineer',
-  );
   const mlForkB3 = B(
     'data_ml_focus',
     'You love digging into a model’s internals — its layers, attention, and gradients.',
-    { tags: { 'deep-learning': 1, pytorch: 1, cuda: 1 }, to: trainingEnd },
-    { tags: { mlops: 1, huggingface: 1 }, to: mlopsEnd },
+    { tags: { 'deep-learning': 1, pytorch: 1, cuda: 1 }, to: splitLeaf(DATA_SPLITS.ml_training_engineer) },
+    { tags: { mlops: 1, huggingface: 1 }, to: splitLeaf(DATA_SPLITS.mlops_engineer) },
   );
   const mlColorC2 = C(
     'data_ml_tooling',
@@ -487,25 +1291,11 @@ const dataRoot = (() => {
     mlForkB3,
   );
 
-  const llmAppEnd = E(
-    'data_llm_app_terminal',
-    'An agent that picks the right tool at the right moment is your kind of build.',
-    { llm: 2, openai: 1, 'prompt-engineering': 1 },
-    { genai: 1, ai: 1 },
-    'llm_app_engineer',
-  );
-  const ragEnd = E(
-    'data_rag_terminal',
-    'Keeping an answer grounded in the right context is a problem you enjoy solving.',
-    { rag: 2, 'vector-search': 1, embeddings: 1 },
-    { llm: 1, genai: 1 },
-    'rag_retrieval_engineer',
-  );
   const llmForkB3 = B(
     'data_llm_focus',
     'The product layer — prompts, tools, and agent behaviour — is where you spend your time.',
-    { tags: { llm: 1, 'prompt-engineering': 1, langchain: 1 }, to: llmAppEnd },
-    { tags: { rag: 1, 'vector-search': 1, embeddings: 1 }, to: ragEnd },
+    { tags: { llm: 1, 'prompt-engineering': 1, langchain: 1 }, to: splitLeaf(DATA_SPLITS.llm_app_engineer) },
+    { tags: { rag: 1, 'vector-search': 1, embeddings: 1 }, to: splitLeaf(DATA_SPLITS.rag_retrieval_engineer) },
   );
   const llmColorC2 = C(
     'data_llm_shipping',
@@ -529,25 +1319,11 @@ const dataRoot = (() => {
     aiForkB2,
   );
 
-  const streamingEnd = E(
-    'data_streaming_terminal',
-    'Stale data bothers you more than slow data; freshness is a number you watch.',
-    { 'data-streaming': 2, 'apache-kafka': 1, 'apache-flink': 1 },
-    { 'data-engineering': 1, etl: 1 },
-    'streaming_data_engineer',
-  );
-  const batchEnd = E(
-    'data_batch_terminal',
-    'A well-modelled table in the warehouse is an artefact you take real pride in.',
-    { 'data-warehouse': 2, 'apache-spark': 1, snowflake: 1 },
-    { 'data-engineering': 1, etl: 1 },
-    'batch_data_engineer',
-  );
   const deForkB3 = B(
     'data_eng_focus',
     'Events stream into your systems and you process them the moment they land.',
-    { tags: { 'data-streaming': 1, 'apache-kafka': 1, 'change-data-capture': 1 }, to: streamingEnd },
-    { tags: { 'apache-spark': 1, 'apache-airflow': 1, 'apache-iceberg': 1 }, to: batchEnd },
+    { tags: { 'data-streaming': 1, 'apache-kafka': 1, 'change-data-capture': 1 }, to: splitLeaf(DATA_SPLITS.streaming_data_engineer) },
+    { tags: { 'apache-spark': 1, 'apache-airflow': 1, 'apache-iceberg': 1 }, to: splitLeaf(DATA_SPLITS.batch_data_engineer) },
   );
   const deColorC2 = C(
     'data_eng_reliability',
@@ -557,25 +1333,11 @@ const dataRoot = (() => {
     deForkB3,
   );
 
-  const analyticsEnd = E(
-    'data_analytics_terminal',
-    'You’ll happily kill nine dashboards to protect one trustworthy metric.',
-    { 'analytics-platforms': 2, bi: 1, 'data-visualization': 1 },
-    { sql: 1, 'data-analysis': 1 },
-    'analytics_bi_engineer',
-  );
-  const dsEnd = E(
-    'data_science_terminal',
-    'Turning a fuzzy business question into a defensible, testable answer is the part you enjoy most.',
-    { 'data-science': 2, 'statistical-analysis': 1, 'predictive-analytics': 1 },
-    { sql: 1, 'data-analysis': 1 },
-    'data_science_analyst',
-  );
   const analyticsForkB3 = B(
     'data_analytics_focus',
     'You’d reach for a BI tool and a clean data model before a notebook of statistics.',
-    { tags: { bi: 1, 'data-visualization': 1, duckdb: 1 }, to: analyticsEnd },
-    { tags: { 'statistical-analysis': 1, 'exploratory-data-analysis': 1, jupyter: 1 }, to: dsEnd },
+    { tags: { bi: 1, 'data-visualization': 1, duckdb: 1 }, to: splitLeaf(DATA_SPLITS.analytics_bi_engineer) },
+    { tags: { 'statistical-analysis': 1, 'exploratory-data-analysis': 1, jupyter: 1 }, to: splitLeaf(DATA_SPLITS.data_science_analyst) },
   );
   const analyticsColorC2 = C(
     'data_analytics_sql',
@@ -605,12 +1367,19 @@ const dataRoot = (() => {
     { tags: { 'machine-learning': 2, ai: 1 }, to: aiColorC1 },
     { tags: { 'data-engineering': 1, 'data-analysis': 1 }, to: dataColorC1 },
   );
+  const dataColorC0b = C(
+    'data_reproducibility',
+    'A result you can’t reproduce isn’t finished, as far as you’re concerned.',
+    { 'data-engineering': 1, 'data-quality': 1 },
+    { 'data-science': 1, python: 1 },
+    modelsB1,
+  );
   return C(
     'data_python_default',
     'Python is where you live for most of your work.',
     { python: 2 },
     { sql: 2 },
-    modelsB1,
+    dataColorC0b,
   );
 })();
 
@@ -773,7 +1542,7 @@ const specialtyRoot = (() => {
   );
 })();
 
-// --- Archetypes (32 sub-personas) ------------------------------------------
+// --- Archetypes (48 sub-personas) ------------------------------------------
 const ARCHETYPES = [
   { id: 'design_systems_engineer', name: 'Design Systems Engineer', headline: 'Tokens, components, and the contracts between them', description: 'Your feed runs on component libraries, design tokens, and the API design of UI itself. You treat a well-documented component like a public interface.', keyTags: ['design-systems', 'frontend', 'react', 'css', 'storybook', 'typescript', 'ui', 'web-components', 'styled-components', 'tailwind-css'] },
   { id: 'accessibility_engineer', name: 'Accessibility Engineer', headline: 'Interfaces everyone can actually use', description: 'Your feed mixes ARIA patterns, inclusive UX, and the CSS to back them. A failed audit reads as a bug to you, not a nice-to-have.', keyTags: ['accessibility', 'frontend', 'css', 'ui', 'ui-ux', 'ui-design', 'web-components', 'react', 'typography', 'user-testing'] },
@@ -784,23 +1553,38 @@ const ARCHETYPES = [
   { id: 'product_fullstack_engineer', name: 'Product Full-Stack Engineer', headline: 'Whole features, database to deploy', description: 'Your feed blends frontend frameworks, APIs, and deploys. You like owning a feature end to end.', keyTags: ['nextjs', 'react', 'typescript', 'nodejs', 'vercel', 'serverless', 'rest-api', 'supabase', 'backend'] },
   { id: 'api_fullstack_engineer', name: 'API & Data-Layer Engineer', headline: 'The contract the whole product leans on', description: 'Your feed covers GraphQL and REST API design, Postgres schemas, and the data layer behind the UI. You sweat the shape of every payload.', keyTags: ['graphql', 'rest-api', 'postgresql', 'prisma', 'nodejs', 'typescript', 'backend', 'openapi', 'api'] },
 
-  { id: 'cloud_infrastructure_engineer', name: 'Cloud Infrastructure Engineer', headline: 'Terraform applies and nobody flinches', description: 'Your feed covers cloud-provider internals, Terraform and IaC, and the blast radius of every change.', keyTags: ['terraform', 'aws', 'gcp', 'azure', 'iac', 'cloud', 'cloud-native', 'infrastructure', 'pulumi', 'devops', 'multi-cloud'] },
-  { id: 'kubernetes_platform_engineer', name: 'Kubernetes Platform Engineer', headline: 'Orchestrating the substrate everything runs on', description: 'Your feed runs on Kubernetes, Helm, and the golden paths other teams build on.', keyTags: ['kubernetes', 'helm', 'docker', 'cloud-native', 'platform-engineering', 'devops', 'infrastructure', 'iac', 'self-hosted'] },
-  { id: 'observability_engineer', name: 'Observability Engineer', headline: 'If it moves, you measure it', description: 'Your feed surfaces Prometheus metrics, OpenTelemetry traces, and the Grafana dashboards that catch trouble before users do.', keyTags: ['observability', 'monitoring', 'prometheus', 'grafana', 'opentelemetry', 'logging', 'apm', 'sre', 'distributed-systems'] },
-  { id: 'incident_reliability_engineer', name: 'Reliability Engineer', headline: 'On-call is a design problem, not a ritual', description: 'Your feed mixes SLOs, incident retros, and error budgets. You treat reliability as a feature and watch your DORA metrics.', keyTags: ['sre', 'observability', 'distributed-systems', 'dora', 'cicd', 'monitoring', 'cloud', 'architecture', 'logging'] },
-  { id: 'application_security_engineer', name: 'Application Security Engineer', headline: 'Threat modeling starts at sprint planning', description: 'Your feed covers appsec, code scanning, and the vulnerabilities that ship in someone else’s dependency.', keyTags: ['appsec', 'security', 'web-security', 'code-security', 'vulnerability', 'authentication', 'cryptography', 'devsecops', 'pentesting'] },
-  { id: 'infrastructure_security_engineer', name: 'Infrastructure Security Engineer', headline: 'Securing the pipeline and everything it touches', description: 'Your feed mixes supply-chain threats, secrets management, and SBOMs — hardening the build itself.', keyTags: ['security', 'devsecops', 'sbom', 'secrets-management', 'zero-day', 'compliance', 'vulnerability', 'infrastructure', 'cloud'] },
-  { id: 'developer_experience_engineer', name: 'Developer Experience Engineer', headline: 'Measuring productivity in friction removed', description: 'Your feed covers internal tooling, Git and CI workflows, and shaving minutes off every engineer’s day.', keyTags: ['devtools', 'productivity', 'cli', 'git', 'vs-code', 'open-source', 'cicd', 'testing', 'code-review'] },
-  { id: 'build_systems_engineer', name: 'Build Systems Engineer', headline: 'Compilers, build graphs, and fast feedback', description: 'Your feed runs on build tooling, compilers in Rust and Go, and the CLIs other engineers live in.', keyTags: ['devtools', 'cli', 'rust', 'go', 'bun', 'vite', 'commandline', 'open-source', 'cicd'] },
-
-  { id: 'ml_training_engineer', name: 'ML Training Engineer', headline: 'Where architectures and benchmarks meet', description: 'Your feed covers model training, neural architectures, and the math behind the benchmark scores.', keyTags: ['machine-learning', 'pytorch', 'tensorflow', 'deep-learning', 'neural-networks', 'transformers', 'cuda', 'python', 'scikit'] },
-  { id: 'mlops_engineer', name: 'MLOps Engineer', headline: 'Getting models out of notebooks and into production', description: 'Your feed mixes serving, evaluation, and the pipelines that keep a model healthy in prod.', keyTags: ['mlops', 'machine-learning', 'python', 'huggingface', 'pytorch', 'llmops', 'deep-learning', 'cicd', 'data-engineering'] },
-  { id: 'llm_app_engineer', name: 'AI Application Engineer', headline: 'LLMs as infrastructure, products as the goal', description: 'Your feed surfaces prompt design, agent patterns, and the layer between the model and the user.', keyTags: ['llm', 'openai', 'anthropic', 'genai', 'prompt-engineering', 'langchain', 'ai', 'semantic-kernel', 'llmops'] },
-  { id: 'rag_retrieval_engineer', name: 'Retrieval & RAG Engineer', headline: 'Grounding answers in the right context', description: 'Your feed covers embeddings, vector search, and the retrieval that keeps an LLM honest.', keyTags: ['rag', 'vector-search', 'embeddings', 'llm', 'langchain', 'genai', 'openai', 'ai', 'semantic-kernel'] },
-  { id: 'streaming_data_engineer', name: 'Streaming Data Engineer', headline: 'Pipelines that never sleep', description: 'Your feed runs on Kafka, Flink, and the freshness SLAs behind real-time data.', keyTags: ['data-engineering', 'apache-kafka', 'apache-flink', 'data-streaming', 'change-data-capture', 'real-time-analytics', 'big-data', 'etl', 'data-quality'] },
-  { id: 'batch_data_engineer', name: 'Batch & Warehouse Engineer', headline: 'Lakehouses, warehouses, and trustworthy tables', description: 'Your feed covers Spark, Airflow, and the lakehouse architecture behind the warehouse.', keyTags: ['data-engineering', 'apache-spark', 'apache-airflow', 'apache-iceberg', 'snowflake', 'databricks', 'data-warehouse', 'etl', 'big-data'] },
-  { id: 'analytics_bi_engineer', name: 'Analytics Engineer', headline: 'Turning queries into decisions', description: 'Your feed mixes SQL craft, BI tooling, and metric definitions worth a thousand ad-hoc queries.', keyTags: ['analytics-platforms', 'sql', 'bi', 'data-visualization', 'data-analysis', 'duckdb', 'data-warehouse', 'real-time-analytics'] },
-  { id: 'data_science_analyst', name: 'Data Scientist', headline: 'From raw data to a defensible answer', description: 'Your feed covers statistics, exploratory analysis, and the models behind a prediction.', keyTags: ['data-science', 'statistical-analysis', 'exploratory-data-analysis', 'predictive-analytics', 'python', 'jupyter', 'scikit', 'data-analysis'] },
+  {"id": "ml_research_engineer", "name": "ML Research Engineer", "headline": "Pushing the boundaries of what models can learn", "description": "You're at the frontier of machine learning, exploring new architectures and training techniques. Publishing novel research excites you as much as any ship.", "keyTags": ["deep-learning", "transformers", "neural-networks", "machine-learning", "ai", "python", "jupyter", "scikit"]},
+  {"id": "ml_training_engineer", "name": "ML Training Engineer", "headline": "Where architectures and benchmarks meet", "description": "Your feed covers model training, neural architectures, and the math behind the benchmark scores.", "keyTags": ["machine-learning", "pytorch", "tensorflow", "cuda", "deep-learning", "neural-networks", "python", "mlops"]},
+  {"id": "mlops_evaluation_engineer", "name": "ML Evaluation Engineer", "headline": "Testing models like you test code", "description": "You treat model validation with the rigor of software testing, building benchmarks and metrics that prove a model is ready to ship.", "keyTags": ["machine-learning", "mlops", "deep-learning", "data-science", "python", "pytorch", "huggingface", "cicd", "data-engineering"]},
+  {"id": "mlops_engineer", "name": "MLOps Engineer", "headline": "Getting models out of notebooks and into production", "description": "Your feed mixes serving, evaluation, and the pipelines that keep a model healthy in prod.", "keyTags": ["mlops", "machine-learning", "python", "huggingface", "pytorch", "llmops", "deep-learning", "cicd", "data-engineering"]},
+  {"id": "llm_agentic_engineer", "name": "Agentic Systems Engineer", "headline": "Building AI that acts, not just talks", "description": "You architect multi-step LLM workflows with tool calling, memory, and decision logic. Your focus is on agent behaviour and system composition.", "keyTags": ["llm", "langchain", "semantic-kernel", "llmops", "genai", "ai", "anthropic", "vector-search"]},
+  {"id": "llm_prompt_engineer", "name": "LLM Prompt Engineer", "headline": "Coaxing the right output through language", "description": "You excel at prompt design, few-shot examples, and instruction engineering. The craft of exact phrasing gets the best responses out of models.", "keyTags": ["prompt-engineering", "llm", "openai", "anthropic", "genai", "ai", "semantic-kernel"]},
+  {"id": "rag_ingestion_engineer", "name": "RAG Data Pipeline Engineer", "headline": "Answers grounded in current, relevant context", "description": "You build data pipelines that feed LLMs with fresh, relevant context. Your focus is on chunking strategies, document processing, and keeping retrieval data current.", "keyTags": ["rag", "embeddings", "llm", "vector-search", "data-engineering", "genai", "langchain", "openai", "semantic-kernel"]},
+  {"id": "rag_vector_engineer", "name": "Vector Search Engineer", "headline": "Finding signal in embedding space", "description": "You optimize vector databases and similarity search for speed and recall. The algebra of embeddings and ranking strategies is your domain.", "keyTags": ["vector-search", "rag", "embeddings", "llm", "genai", "langchain", "openai", "semantic-kernel", "ai"]},
+  {"id": "streaming_ingestion_engineer", "name": "CDC & Integration Engineer", "headline": "Every change from every source system, reliably", "description": "You design CDC pipelines and source connectors that reliably ingest operational data in real time. Source system integration and reliability are your obsession.", "keyTags": ["data-engineering", "apache-kafka", "change-data-capture", "data-streaming", "etl", "real-time-analytics", "big-data", "data-quality", "python"]},
+  {"id": "streaming_processor_engineer", "name": "Stream Processing Engineer", "headline": "Computing answers from infinite data", "description": "You write Flink jobs and stream transformations that aggregate, enrich, and join events as they flow. Stream topology and windowing strategy consume your focus.", "keyTags": ["data-streaming", "apache-flink", "apache-kafka", "data-engineering", "real-time-analytics", "etl", "big-data", "data-quality", "python"]},
+  {"id": "lakehouse_engineer", "name": "Lakehouse & Open Format Engineer", "headline": "Data lakes that govern themselves", "description": "You build on open table formats like Iceberg and Delta, designing lakes with warehouse semantics. Schema evolution, time travel, and data governance are your tools.", "keyTags": ["data-engineering", "apache-spark", "apache-iceberg", "data-warehouse", "big-data", "etl", "databricks", "python", "data-quality"]},
+  {"id": "warehouse_modeler_engineer", "name": "Warehouse Architect & Modeler", "headline": "Structured data and clean dimensional models", "description": "You design fact and dimension tables in Snowflake or Databricks, optimizing for query performance and business semantics. Modeling discipline is your craft.", "keyTags": ["data-engineering", "snowflake", "databricks", "data-warehouse", "apache-spark", "apache-airflow", "big-data", "etl", "sql"]},
+  {"id": "metrics_platform_engineer", "name": "Metrics & Semantics Engineer", "headline": "One definition of truth across your org", "description": "You architect semantic layers and metric platforms so every team uses the same trusted definitions. Governance and consistency drive your work.", "keyTags": ["sql", "analytics-platforms", "data-warehouse", "duckdb", "data-engineering", "data-quality", "real-time-analytics", "bi"]},
+  {"id": "bi_visualization_engineer", "name": "BI & Analytics Designer", "headline": "Data insights through intuitive visuals", "description": "You craft interactive dashboards and reports that let non-technical users discover insights. Design and usability shape your analytics practice.", "keyTags": ["data-visualization", "bi", "analytics-platforms", "data-analysis", "sql", "exploratory-data-analysis", "real-time-analytics", "duckdb"]},
+  {"id": "predictive_modeler", "name": "Predictive Analytics Specialist", "headline": "Forecasting futures with statistical models", "description": "You build regression, classification, and time-series models that forecast outcomes. Feature engineering, model selection, and cross-validation are your daily work.", "keyTags": ["data-science", "predictive-analytics", "python", "jupyter", "scikit", "data-analysis", "exploratory-data-analysis", "statistical-analysis", "machine-learning"]},
+  {"id": "analytical_statistician", "name": "Analytical Statistician", "headline": "Drawing defensible conclusions from data", "description": "You conduct hypothesis tests, construct confidence intervals, and model causality to understand what drives outcomes. Statistical rigor is your foundation.", "keyTags": ["statistical-analysis", "data-analysis", "data-science", "exploratory-data-analysis", "python", "jupyter", "sql", "predictive-analytics", "scikit"]},
+  {"id": "cloud_provisioning_engineer", "name": "Cloud Provisioning Engineer", "headline": "Infrastructure is code; every state is versioned", "description": "Your feed covers state management, drift detection, and the IaC that engineers apply without tickets. Terraform feels like versioning your database schema.", "keyTags": ["terraform", "aws", "gcp", "azure", "iac", "cloud", "pulumi", "infrastructure", "devops", "multi-cloud"]},
+  {"id": "infrastructure_network_engineer", "name": "Infrastructure Network Engineer", "headline": "Topology, connectivity, and blast radius", "description": "Your feed runs on networking primitives, load balancer strategies, and how traffic flows across failure domains. You design VPCs, subnets, and failover patterns before they are needed.", "keyTags": ["infrastructure", "distributed-systems", "cloud", "architecture", "aws", "gcp", "docker", "cloud-native", "devops"]},
+  {"id": "kubernetes_cluster_engineer", "name": "Kubernetes Cluster Engineer", "headline": "K8s upgrades, etcd backups, cluster health", "description": "Your feed surfaces node pools, CNI plugins, version upgrades, and the substrate tuning that keeps a cluster reliable. You are the person who ensures the orchestrator itself runs well.", "keyTags": ["kubernetes", "helm", "docker", "cloud-native", "infrastructure", "devops", "iac", "distributed-systems", "monitoring"]},
+  {"id": "idp_platform_engineer", "name": "Internal Developer Platform Engineer", "headline": "Abstracting infrastructure so developers do not have to think about it", "description": "Your feed covers self-service deployments, paved roads, and the guardrails that let teams ship without ops. You hide complexity inside service and developer joy.", "keyTags": ["platform-engineering", "productivity", "devtools", "iac", "kubernetes", "cloud-native", "infrastructure", "cicd", "open-source"]},
+  {"id": "metrics_tracing_engineer", "name": "Metrics & Tracing Engineer", "headline": "Real-time signals flowing through your dashboards", "description": "Your feed surfaces Prometheus scrapes, distributed trace architectures, and the cardinality decisions that surprise you. You instrument systems so you can understand them in real time.", "keyTags": ["observability", "prometheus", "opentelemetry", "monitoring", "apm", "grafana", "distributed-systems", "cloud-native", "architecture"]},
+  {"id": "logs_events_engineer", "name": "Logs & Events Engineer", "headline": "Structured events that reconstruct what actually happened", "description": "Your feed runs on logging pipelines, event correlation, and the forensics that explain 3am production drama. Logs are your primary debugger and witness.", "keyTags": ["logging", "observability", "distributed-systems", "data-analysis", "monitoring", "devops", "infrastructure", "cloud-native", "data-engineering"]},
+  {"id": "resilience_engineer", "name": "Resilience Engineer", "headline": "Systems that degrade gracefully and self-heal", "description": "Your feed covers chaos engineering, bulkheads, retries, and the timeout logic that saves you. Failure is a first-class design concern, not an afterthought.", "keyTags": ["sre", "distributed-systems", "architecture", "cloud-native", "observability", "monitoring", "devops", "kubernetes", "infrastructure"]},
+  {"id": "incident_commander_engineer", "name": "Incident Commander Engineer", "headline": "Coordinating response, owning the retro", "description": "Your feed covers blameless post-mortems, DORA metric tracking, and the runbooks that guide teams through outages. You own the learning loop after something breaks.", "keyTags": ["sre", "dora", "devops", "cicd", "monitoring", "leadership", "distributed-systems", "observability", "cloud"]},
+  {"id": "defensive_appsec_engineer", "name": "Defensive AppSec Engineer", "headline": "Catching vulnerabilities before they reach prod", "description": "Your feed covers SAST, dependency audits, and the threat models that guide architecture decisions. Security starts in pull requests, not in the incident room.", "keyTags": ["appsec", "code-security", "authentication", "cryptography", "security", "devsecops", "vulnerability", "web-security", "cicd"]},
+  {"id": "offensive_security_engineer", "name": "Offensive Security Engineer", "headline": "Finding what the defense missed", "description": "Your feed covers penetration testing, exploitation chains, and the attack vectors that prove systems are fallible. You think and act like the person trying to break in.", "keyTags": ["pentesting", "vulnerability", "web-security", "appsec", "security", "zero-day", "cryptography", "authentication", "code-security"]},
+  {"id": "supply_chain_security_engineer", "name": "Supply Chain Security Engineer", "headline": "Every artifact signed, traced, and provenance-checked", "description": "Your feed surfaces SLSA levels, artifact attestations, and the build pinning that stops supply-chain attacks. You own and harden the entire pipeline from commit to production.", "keyTags": ["devsecops", "sbom", "cicd", "zero-day", "security", "infrastructure", "compliance", "vulnerability", "devops"]},
+  {"id": "secrets_compliance_engineer", "name": "Secrets & Compliance Engineer", "headline": "Zero trust access, automatic secret rotation, clean audits", "description": "Your feed covers secrets management, zero-trust policies, and compliance that auditors find flawless. You bind identity to access and proof to change.", "keyTags": ["secrets-management", "compliance", "security", "devsecops", "zero-day", "authentication", "vulnerability", "infrastructure", "devops"]},
+  {"id": "developer_workflow_engineer", "name": "Developer Workflow Engineer", "headline": "Every keystroke counts; eliminate friction", "description": "Your feed covers IDE extensions, shell aliases, and git hooks that protect engineers from themselves. The human-in-the-loop is where you optimise.", "keyTags": ["devtools", "productivity", "git", "vs-code", "cli", "open-source", "testing", "commandline", "code-review"]},
+  {"id": "cicd_automation_engineer", "name": "CI/CD Automation Engineer", "headline": "The pipeline that runs without human input", "description": "Your feed runs on GitHub Actions, GitLab CI, and the automation that scales to thousands of merges a day. The machine does the tireless work.", "keyTags": ["cicd", "devops", "devtools", "testing", "git", "infrastructure", "kubernetes", "cloud-native", "open-source"]},
+  {"id": "compiler_runtime_engineer", "name": "Compiler & Runtime Engineer", "headline": "Optimising the machinery that optimises code", "description": "Your feed covers ASTs, intermediate representations, and code generation that turns intent into instructions. You build the foundation others build upon.", "keyTags": ["devtools", "rust", "go", "bun", "cli", "open-source", "cicd", "commandline", "architecture"]},
+  {"id": "build_tooling_engineer", "name": "Build Tooling Engineer", "headline": "The CLI developers run a thousand times daily", "description": "Your feed covers Bazel, task runners, and the build systems that scale to massive codebases. You are the bridge between engineers and compilers.", "keyTags": ["cli", "devtools", "commandline", "open-source", "cicd", "devops", "testing", "git", "architecture"]},
 
   { id: 'gameplay_developer', name: 'Gameplay Developer', headline: 'Where mechanics become fun', description: 'Your feed covers engines, game design, and the iteration loop that turns mechanics into play.', keyTags: ['game-development', 'gamedev', 'unity', 'unreal-engine', 'godot', 'game-design', 'gaming', 'c++', '3d'] },
   { id: 'graphics_programmer', name: 'Graphics Programmer', headline: 'Rendering pipelines and 60 honest frames', description: 'Your feed runs on shaders, GPUs, and the rendering math behind every frame.', keyTags: ['graphics-programming', 'webgpu', 'vulkan', '3d', 'c++', 'game-development', 'unreal-engine', 'gamedev', 'gaming'] },

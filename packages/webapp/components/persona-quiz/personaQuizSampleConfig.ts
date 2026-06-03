@@ -76,9 +76,11 @@ export const personaQuizSampleParameters: FunnelStepPersonaQuiz['parameters'] =
     entryQuestionId: 'q1_domain',
     questions: QUESTIONS,
     selection: {
-      // A full path is Q1 + 7 = 8 questions; this is a safety cap only — the
-      // graph self-terminates on the node carrying an `archetypeId`.
-      maxQuestions: 10,
+      // Paths run Q1 + 7 (product/specialty) to Q1 + 10 (data/infra, depth-4);
+      // this is a safety cap only — the graph self-terminates on the node
+      // carrying an `archetypeId`, and the progress bar uses the real per-path
+      // depth.
+      maxQuestions: 12,
       targetTotalTags: 8,
       // Require a tag to be reinforced (one weight-2 answer or two answers)
       // before it counts, so a single incidental answer can't muddy the result.

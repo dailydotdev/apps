@@ -118,6 +118,32 @@ function FunnelPersonaQuizComponent({
     [accumulatedTags],
   );
 
+  // Distance (in questions) from each node to its furthest terminal. Paths vary
+  // in length by domain, so the progress bar uses this real depth rather than a
+  // fixed cap to fill correctly on every path.
+  const questionDepth = useMemo(() => {
+    const byId = new Map(questions.map((q) => [q.id, q]));
+    const memo = new Map<string, number>();
+    function visit(qid: string): number {
+      const cached = memo.get(qid);
+      if (cached !== undefined) {
+        return cached;
+      }
+      const q = byId.get(qid);
+      if (!q) {
+        return 1;
+      }
+      const nexts = [...new Set(q.options.map((o) => o.next))].filter(
+        (n): n is string => Boolean(n),
+      );
+      const depth = nexts.length ? 1 + Math.max(...nexts.map(visit)) : 1;
+      memo.set(qid, depth);
+      return depth;
+    }
+    questions.forEach((q) => visit(q.id));
+    return memo;
+  }, [questions]);
+
   // The server's `feedPreview` resolver reads from the user's persisted
   // `feedSettings` rather than the inline `filters` argument we can pass
   // through `Feed`'s `variables` prop. So to make the preview reflect the
@@ -397,7 +423,9 @@ function FunnelPersonaQuizComponent({
         <PersonaQuizQuestionView
           question={currentQuestion}
           step={answers.length + 1}
-          totalSteps={selection.maxQuestions}
+          totalSteps={
+            answers.length + (questionDepth.get(currentQuestion.id) ?? 1)
+          }
           onSelect={handleAnswer}
         />
         {answers.length >= 1 && user?.id && previewTags.length > 0 && (
