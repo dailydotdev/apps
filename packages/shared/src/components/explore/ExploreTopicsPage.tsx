@@ -148,7 +148,7 @@ export function ExploreTopicsPage({
       lists.push({
         id: 'trending-tags',
         title: 'Trending tags',
-        emoji: '🔥',
+        emoji: '',
         tags: toTagValues(trendingTags),
       });
     }
@@ -156,7 +156,7 @@ export function ExploreTopicsPage({
       lists.push({
         id: 'popular-tags',
         title: 'Popular tags',
-        emoji: '⭐',
+        emoji: '',
         tags: toTagValues(popularTags),
       });
     }
@@ -164,7 +164,7 @@ export function ExploreTopicsPage({
       lists.push({
         id: 'recently-added-tags',
         title: 'Recently added tags',
-        emoji: '🆕',
+        emoji: '',
         tags: toTagValues(recentlyAddedTags),
       });
     }

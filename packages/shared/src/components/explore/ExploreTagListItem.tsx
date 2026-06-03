@@ -52,7 +52,7 @@ export function ExploreTagListItem({
           className={classNames(
             'shrink-0',
             isFollowed
-              ? 'text-status-success'
+              ? 'text-brand-default'
               : 'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
           )}
         />
