@@ -219,6 +219,10 @@ export const featurePostHighlightCards = new Feature(
   false,
 );
 
+// Medium-style Explore topics surface (/explore lobby + /explore/[tag]).
+// Defaults ON so the redesign can be reviewed before the experiment is live.
+export const featureExploreTopics = new Feature('explore_topics_v2', true);
+
 export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,

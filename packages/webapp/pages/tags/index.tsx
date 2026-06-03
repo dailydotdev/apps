@@ -5,6 +5,11 @@ import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
+import type { TagCategory } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { TAGS_CATEGORIES_QUERY } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { ExploreTopicsPage } from '@dailydotdev/shared/src/components/explore/ExploreTopicsPage';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { featureExploreTopics } from '@dailydotdev/shared/src/lib/featureManagement';
 import { TagChip } from '@dailydotdev/shared/src/components/tags/TagChip';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -34,6 +39,7 @@ interface TagsPageProps {
   tags: Keyword[];
   trendingTags: Keyword[];
   popularTags: Keyword[];
+  tagsCategories: TagCategory[];
 }
 
 const getTagsSchemas = (tags: Keyword[]): string =>
@@ -67,10 +73,12 @@ const TagsPage = ({
   tags,
   trendingTags,
   popularTags,
+  tagsCategories,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isExplore = useFeature(featureExploreTopics);
 
   const { feedSettings } = useFeedSettings();
   const followedSet = useMemo(
@@ -119,6 +127,20 @@ const TagsPage = ({
 
   if (isLoading) {
     return <></>;
+  }
+
+  if (isExplore) {
+    return (
+      <>
+        {isV2Laptop && <PageHeader title="Explore" />}
+        <ExploreTopicsPage
+          tags={tags}
+          trendingTags={trendingTags}
+          popularTags={popularTags}
+          tagsCategories={tagsCategories}
+        />
+      </>
+    );
   }
 
   const topTagsForSchema = tags.slice(0, 50);
@@ -206,12 +228,18 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<TagsPageProps>
 > {
   try {
-    const res = await gqlClient.request<TagsPageProps>(TAG_DIRECTORY_QUERY);
+    const [res, categories] = await Promise.all([
+      gqlClient.request<TagsPageProps>(TAG_DIRECTORY_QUERY),
+      gqlClient
+        .request<{ tagsCategories: TagCategory[] }>(TAGS_CATEGORIES_QUERY)
+        .catch(() => null),
+    ]);
     return {
       props: {
         tags: res.tags,
         trendingTags: res.trendingTags,
         popularTags: res.popularTags,
+        tagsCategories: categories?.tagsCategories ?? [],
       },
       revalidate: 60,
     };
@@ -227,6 +255,7 @@ export async function getStaticProps(): Promise<
           tags: [],
           trendingTags: [],
           popularTags: [],
+          tagsCategories: [],
         },
         revalidate: 60,
       };

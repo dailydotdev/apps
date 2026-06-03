@@ -86,6 +86,19 @@ export const SEARCH_TAGS_QUERY = gql`
   }
 `;
 
+// Standalone fetch of the tag categories, independent of feed settings, so the
+// Explore lobby can group topics for logged-out visitors too.
+export const TAGS_CATEGORIES_QUERY = gql`
+  query TagsCategories {
+    tagsCategories {
+      id
+      title
+      tags
+      emoji
+    }
+  }
+`;
+
 export const FEED_SETTINGS_QUERY = gql`
   query FeedPreferences($feedId: ID) {
     tagsCategories {

@@ -19,6 +19,9 @@ import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
 import { OtherFeedPage } from '../../lib/query';
 import { useFeedLayout } from '../../hooks';
+import { useFeature } from '../GrowthBookProvider';
+import { featureExploreTopics } from '../../lib/featureManagement';
+import { webappUrl } from '../../lib/constants';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -82,6 +85,7 @@ export function FeedExploreHeader({
 }: FeedExploreHeaderProps): ReactElement {
   const isExtension = checkIsExtension();
   const router = useRouter();
+  const isExplore = useFeature(featureExploreTopics);
   const path = getFeedName(router.pathname);
   const currentPathname = (router.asPath || router.pathname).split('?')[0];
   const [period, setPeriod] = useQueryState({
@@ -135,6 +139,15 @@ export function FeedExploreHeader({
                 path={url}
               />
             ))}
+            {isExplore && (
+              <SquadDirectoryNavbarItem
+                buttonSize={ButtonSize.Small}
+                isActive={currentPathname === `${webappUrl}explore`}
+                label="Topics"
+                ariaLabel="Explore topics"
+                path={`${webappUrl}explore`}
+              />
+            )}
           </SquadDirectoryNavbar>
         )}
         {!isExtension && !directoryTabs && (
@@ -147,9 +160,20 @@ export function FeedExploreHeader({
             shouldMountInactive
             tabTag="a"
           >
-            {Object.entries(urlToTab).map(([url, label]) => (
-              <Tab key={label} label={label} url={url} />
-            ))}
+            {[
+              ...Object.entries(urlToTab).map(([url, label]) => (
+                <Tab key={label} label={label} url={url} />
+              )),
+              ...(isExplore
+                ? [
+                    <Tab
+                      key="topics"
+                      label="Topics"
+                      url={`${webappUrl}explore`}
+                    />,
+                  ]
+                : []),
+            ]}
           </TabContainer>
         )}
         {showDropdown && (

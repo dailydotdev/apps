@@ -14,6 +14,8 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
+import { useFeature } from '../GrowthBookProvider';
+import { featureExploreTopics } from '../../lib/featureManagement';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -47,6 +49,7 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
+  const isExplore = useFeature(featureExploreTopics);
 
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
@@ -132,12 +135,20 @@ function UnifiedMobileFeedNav(): ReactElement {
         href: `${webappUrl}discussed`,
         group: 'rest',
       },
-      {
-        id: 'tags',
-        label: 'Tags',
-        href: `${webappUrl}tags`,
-        group: 'rest',
-      },
+      isExplore
+        ? {
+            id: 'explore',
+            label: 'Explore',
+            href: `${webappUrl}explore`,
+            matchPaths: [`${webappUrl}explore`, `${webappUrl}tags`],
+            group: 'rest',
+          }
+        : {
+            id: 'tags',
+            label: 'Tags',
+            href: `${webappUrl}tags`,
+            group: 'rest',
+          },
       {
         id: 'sources',
         label: 'Sources',
@@ -192,6 +203,7 @@ function UnifiedMobileFeedNav(): ReactElement {
     sortedFeeds,
     defaultFeedId,
     shouldHideGameCenter,
+    isExplore,
   ]);
 
   const activeId = useMemo(

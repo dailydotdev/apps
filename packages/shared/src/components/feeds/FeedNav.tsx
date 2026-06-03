@@ -5,8 +5,10 @@ import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import UnifiedMobileFeedNav from './UnifiedMobileFeedNav';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useFeature } from '../GrowthBookProvider';
 import {
   FeedChipsVariant,
+  featureExploreTopics,
   featureFeedChips,
 } from '../../lib/featureManagement';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -43,6 +45,7 @@ enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
   Tags = 'Tags',
+  Explore = 'Explore',
   Sources = 'Sources',
   Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
@@ -82,6 +85,7 @@ function FeedNav(): ReactElement | null {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
+  const isExplore = useFeature(featureExploreTopics);
   const isForYouTab =
     router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
   const { plusEntryForYou } = usePlusEntry();
@@ -125,7 +129,9 @@ function FeedNav(): ReactElement | null {
       [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}posts`]: FeedNavTab.Popular,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
-      [`${webappUrl}tags`]: FeedNavTab.Tags,
+      ...(isExplore
+        ? { [`${webappUrl}explore`]: FeedNavTab.Explore }
+        : { [`${webappUrl}tags`]: FeedNavTab.Tags }),
       [`${webappUrl}sources`]: FeedNavTab.Sources,
       [`${webappUrl}users`]: FeedNavTab.Leaderboard,
     };
@@ -135,6 +141,7 @@ function FeedNav(): ReactElement | null {
     router.pathname,
     defaultFeedId,
     isCustomDefaultFeed,
+    isExplore,
   ]);
 
   const shouldRenderNav = home || (isMobile && bookmarks);

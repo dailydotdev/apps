@@ -22,6 +22,9 @@ interface TagChipProps {
   onFollow?: (tag: string) => void;
   size?: TagChipSize;
   className?: string;
+  // Override the destination (defaults to the /tags page). The Explore
+  // surfaces pass the /explore equivalent so chips stay on-brand.
+  link?: string;
 }
 
 const SizeMap: Record<
@@ -72,11 +75,13 @@ const SizeMap: Record<
 const TagLabel = ({
   tag,
   type,
+  link,
 }: {
   tag: string;
   type: TypographyType;
+  link?: string;
 }): ReactElement => (
-  <Link href={getTagPageLink(tag)} passHref prefetch={false}>
+  <Link href={link ?? getTagPageLink(tag)} passHref prefetch={false}>
     <Typography
       tag={TypographyTag.Link}
       type={type}
@@ -95,6 +100,7 @@ export const TagChip = ({
   onFollow,
   size = 'sm',
   className,
+  link,
 }: TagChipProps): ReactElement => {
   const cfg = SizeMap[size];
 
@@ -110,7 +116,7 @@ export const TagChip = ({
           className,
         )}
       >
-        <TagLabel tag={tag} type={cfg.typography} />
+        <TagLabel tag={tag} type={cfg.typography} link={link} />
       </span>
     );
   }
@@ -128,7 +134,7 @@ export const TagChip = ({
         className,
       )}
     >
-      <TagLabel tag={tag} type={cfg.typography} />
+      <TagLabel tag={tag} type={cfg.typography} link={link} />
       {showAction && (
         <>
           <span
