@@ -51,7 +51,6 @@ export const FunnelHeroLanding = withIsActiveGuard(
       imageMode,
       showOrbs,
       forceDarkTheme,
-      splitSignupStyle,
       oauthOrder,
     },
     onTransition,
@@ -180,7 +179,6 @@ export const FunnelHeroLanding = withIsActiveGuard(
       >
         <AuthOptions
           {...staticAuthProps}
-          splitSignupStyle={splitSignupStyle}
           preferGithub={preferGithub}
           defaultDisplay={
             isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay

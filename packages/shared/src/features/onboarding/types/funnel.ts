@@ -333,7 +333,6 @@ export interface FunnelStepHeroLanding
     imageMode?: FunnelSignupHeroImageMode;
     showOrbs?: boolean;
     oauthOrder?: FunnelSignupOauthOrder;
-    splitSignupStyle?: boolean;
     forceDarkTheme?: boolean;
   }> {
   type: FunnelStepType.HeroLanding;
