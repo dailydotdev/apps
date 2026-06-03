@@ -2,17 +2,17 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { ExploreTopicNav } from './ExploreTopicNav';
+import { ExploreHeader } from './ExploreHeader';
 
 const renderComponent = (props: Partial<{ activeTag: string }> = {}) =>
   render(
     <TestBootProvider client={new QueryClient()}>
-      <ExploreTopicNav recommendedTags={['vue', 'react']} {...props} />
+      <ExploreHeader recommendedTags={['vue', 'react']} {...props} />
     </TestBootProvider>,
   );
 
-describe('ExploreTopicNav', () => {
-  it('should link Explore back to the lobby', () => {
+describe('ExploreHeader', () => {
+  it('renders an Explore tab linking back to the lobby', () => {
     renderComponent();
 
     expect(screen.getByText('Explore').closest('a')).toHaveAttribute(
@@ -21,7 +21,7 @@ describe('ExploreTopicNav', () => {
     );
   });
 
-  it('should render recommended tags linking to their topic page', () => {
+  it('renders a tab per recommended topic', () => {
     renderComponent();
 
     expect(screen.getByText('#vue').closest('a')).toHaveAttribute(
@@ -30,10 +30,12 @@ describe('ExploreTopicNav', () => {
     );
   });
 
-  it('should mark the active tag as current and pin it first', () => {
+  it('marks the active topic tab as current', () => {
     renderComponent({ activeTag: 'react' });
 
-    const activeChip = screen.getByText('#react').closest('a');
-    expect(activeChip).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByText('#react').closest('a')).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 });

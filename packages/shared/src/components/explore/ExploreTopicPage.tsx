@@ -54,7 +54,7 @@ import { SponsoredTagHero } from '../brand/SponsoredTagHero';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
-import { ExploreTopicNav } from './ExploreTopicNav';
+import { ExploreHeader } from './ExploreHeader';
 import { TagSignupBanner } from './TagSignupBanner';
 import { largeNumberFormat } from '../../lib';
 import { webappUrl } from '../../lib/constants';
@@ -333,14 +333,13 @@ export const ExploreTopicPage = ({
           />
         </Head>
       )}
+      <ExploreHeader
+        activeTag={tag}
+        recommendedTags={recommendedTags
+          .map((relatedTag) => relatedTag.name)
+          .filter((name): name is string => !!name)}
+      />
       <div className="mx-auto flex w-full max-w-screen-laptopL flex-col px-4 py-6 tablet:px-6">
-        <ExploreTopicNav
-          activeTag={tag}
-          recommendedTags={recommendedTags
-            .map((relatedTag) => relatedTag.name)
-            .filter((name): name is string => !!name)}
-        />
-
         {/* Identity header — centered & readable; content below spans full width. */}
         <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
           <SponsoredTagHero tag={tag} />

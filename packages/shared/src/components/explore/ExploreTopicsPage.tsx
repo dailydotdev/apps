@@ -10,7 +10,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { ExploreCategorySection } from './ExploreCategorySection';
 import { ExploreTopicSearch } from './ExploreTopicSearch';
-import { ExploreTopicNav } from './ExploreTopicNav';
+import { ExploreHeader } from './ExploreHeader';
 import { ExploreTagListItem } from './ExploreTagListItem';
 import { useChipBarNavigation } from './useChipBarNavigation';
 import { ClickableText } from '../buttons/ClickableText';
@@ -188,176 +188,179 @@ export function ExploreTopicsPage({
     );
 
   return (
-    <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
-      {/* Explore + your tags + recommendations. */}
-      <ExploreTopicNav
+    <>
+      {/* Tabbed page header (same design as the Squad directory). */}
+      <ExploreHeader
         recommendedTags={popularTags?.map((tag) => tag.value) ?? []}
-        className="mb-8"
       />
 
-      {/* Hero */}
-      <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          color={TypographyColor.Primary}
-          bold
-        >
-          Explore topics
-        </Typography>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-          className="max-w-[34rem]"
-        >
-          Browse the topics millions of developers follow on daily.dev. Search
-          thousands of tags, jump to any letter, and follow the ones that matter
-          to you.
-        </Typography>
-        <ExploreTopicSearch
-          onQueryChange={setSearch}
-          recommendedTags={recommendedTags}
-          className="w-full"
-        />
-      </header>
-
-      {isSearching ? (
-        <section className="mt-10 w-full">
+      <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
+        {/* Hero */}
+        <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">
           <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Title3}
+            tag={TypographyTag.H1}
+            type={TypographyType.LargeTitle}
             color={TypographyColor.Primary}
             bold
-            className="mb-4"
           >
-            {searchResults.length > 0
-              ? `Results for “${search.trim()}”`
-              : `No topics match “${search.trim()}”`}
+            Explore topics
           </Typography>
-          {searchResults.length > 0 && (
-            <ul className={COLUMNS}>
-              {searchResults.map((tag) => (
-                <ExploreTagListItem
-                  key={tag.value}
-                  tag={tag.value}
-                  isFollowed={followedTags.has(tag.value)}
-                  onToggleFollow={onToggleFollow}
-                />
-              ))}
-            </ul>
-          )}
-        </section>
-      ) : (
-        <>
-          {/* A–Z filter — narrows the directory below to a single letter. */}
-          {availableLetters.length > 0 && (
-            <nav aria-label="Filter topics by letter" className="mt-8 w-full">
-              <div
-                ref={letterNavRef}
-                onKeyDown={onLetterNavKeyDown}
-                role="toolbar"
-                aria-orientation="horizontal"
-                className="flex flex-wrap items-center justify-center gap-1"
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveLetter(null)}
-                  aria-pressed={!activeLetter}
-                  className={letterButtonClass(!activeLetter, false)}
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+            className="max-w-[34rem]"
+          >
+            Browse the topics millions of developers follow on daily.dev. Search
+            thousands of tags, jump to any letter, and follow the ones that
+            matter to you.
+          </Typography>
+          <ExploreTopicSearch
+            onQueryChange={setSearch}
+            recommendedTags={recommendedTags}
+            className="w-full"
+          />
+        </header>
+
+        {isSearching ? (
+          <section className="mt-10 w-full">
+            <Typography
+              tag={TypographyTag.H2}
+              type={TypographyType.Title3}
+              color={TypographyColor.Primary}
+              bold
+              className="mb-4"
+            >
+              {searchResults.length > 0
+                ? `Results for “${search.trim()}”`
+                : `No topics match “${search.trim()}”`}
+            </Typography>
+            {searchResults.length > 0 && (
+              <ul className={COLUMNS}>
+                {searchResults.map((tag) => (
+                  <ExploreTagListItem
+                    key={tag.value}
+                    tag={tag.value}
+                    isFollowed={followedTags.has(tag.value)}
+                    onToggleFollow={onToggleFollow}
+                  />
+                ))}
+              </ul>
+            )}
+          </section>
+        ) : (
+          <>
+            {/* A–Z filter — narrows the directory below to a single letter. */}
+            {availableLetters.length > 0 && (
+              <nav aria-label="Filter topics by letter" className="mt-8 w-full">
+                <div
+                  ref={letterNavRef}
+                  onKeyDown={onLetterNavKeyDown}
+                  role="toolbar"
+                  aria-orientation="horizontal"
+                  className="flex flex-wrap items-center justify-center gap-1"
                 >
-                  All
-                </button>
-                {LETTERS.map((letter) => {
-                  const isDisabled = !tagsByLetter[letter]?.length;
-                  const isActive = activeLetter === letter;
-                  return (
-                    <button
-                      key={letter}
-                      type="button"
-                      disabled={isDisabled}
-                      aria-pressed={isActive}
-                      onClick={() => setActiveLetter(isActive ? null : letter)}
-                      className={letterButtonClass(isActive, isDisabled)}
-                    >
-                      {letter}
-                    </button>
-                  );
-                })}
-              </div>
-            </nav>
-          )}
+                  <button
+                    type="button"
+                    onClick={() => setActiveLetter(null)}
+                    aria-pressed={!activeLetter}
+                    className={letterButtonClass(!activeLetter, false)}
+                  >
+                    All
+                  </button>
+                  {LETTERS.map((letter) => {
+                    const isDisabled = !tagsByLetter[letter]?.length;
+                    const isActive = activeLetter === letter;
+                    return (
+                      <button
+                        key={letter}
+                        type="button"
+                        disabled={isDisabled}
+                        aria-pressed={isActive}
+                        onClick={() =>
+                          setActiveLetter(isActive ? null : letter)
+                        }
+                        className={letterButtonClass(isActive, isDisabled)}
+                      >
+                        {letter}
+                      </button>
+                    );
+                  })}
+                </div>
+              </nav>
+            )}
 
-          <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
+            <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
 
-          {/* Featured — trending / popular / recently added. Hidden once a
+            {/* Featured — trending / popular / recently added. Hidden once a
               letter is selected so the letter's tags sit under the A–Z filter. */}
-          {!activeLetter && featuredLists.length > 0 && (
-            <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
-              {featuredLists.map((list) => (
-                <ExploreCategorySection
-                  key={list.id}
-                  category={list}
-                  followedTags={followedTags}
-                  onToggleFollow={onToggleFollow}
-                />
-              ))}
+            {!activeLetter && featuredLists.length > 0 && (
+              <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
+                {featuredLists.map((list) => (
+                  <ExploreCategorySection
+                    key={list.id}
+                    category={list}
+                    followedTags={followedTags}
+                    onToggleFollow={onToggleFollow}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Directory — all tags grouped alphabetically. */}
+            <div className="flex w-full flex-col gap-10">
+              {visibleLetters.map((letter) => {
+                const group = tagsByLetter[letter] ?? [];
+                const isExpanded = expandedLetters.has(letter);
+                const shown = isExpanded ? group : group.slice(0, LETTER_LIMIT);
+                const hasMore = group.length > LETTER_LIMIT;
+
+                return (
+                  <section
+                    key={letter}
+                    id={`explore-letter-${letter}`}
+                    className="scroll-mt-24"
+                  >
+                    <div className="mb-4 flex items-center gap-3">
+                      <Typography
+                        tag={TypographyTag.H2}
+                        type={TypographyType.Title2}
+                        color={TypographyColor.Primary}
+                        bold
+                        className="uppercase"
+                      >
+                        {letter}
+                      </Typography>
+                      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+                    </div>
+                    <ul className={COLUMNS}>
+                      {shown.map((tag) => (
+                        <ExploreTagListItem
+                          key={tag.value}
+                          tag={tag.value}
+                          isFollowed={followedTags.has(tag.value)}
+                          onToggleFollow={onToggleFollow}
+                        />
+                      ))}
+                    </ul>
+                    {hasMore && (
+                      <ClickableText
+                        tag="button"
+                        type="button"
+                        onClick={() => toggleLetterExpanded(letter)}
+                        className="mt-3 w-fit"
+                      >
+                        {isExpanded
+                          ? 'Show less'
+                          : `Show all ${group.length} tags`}
+                      </ClickableText>
+                    )}
+                  </section>
+                );
+              })}
             </div>
-          )}
-
-          {/* Directory — all tags grouped alphabetically. */}
-          <div className="flex w-full flex-col gap-10">
-            {visibleLetters.map((letter) => {
-              const group = tagsByLetter[letter] ?? [];
-              const isExpanded = expandedLetters.has(letter);
-              const shown = isExpanded ? group : group.slice(0, LETTER_LIMIT);
-              const hasMore = group.length > LETTER_LIMIT;
-
-              return (
-                <section
-                  key={letter}
-                  id={`explore-letter-${letter}`}
-                  className="scroll-mt-24"
-                >
-                  <div className="mb-4 flex items-center gap-3">
-                    <Typography
-                      tag={TypographyTag.H2}
-                      type={TypographyType.Title2}
-                      color={TypographyColor.Primary}
-                      bold
-                      className="uppercase"
-                    >
-                      {letter}
-                    </Typography>
-                    <div className="h-px flex-1 bg-border-subtlest-tertiary" />
-                  </div>
-                  <ul className={COLUMNS}>
-                    {shown.map((tag) => (
-                      <ExploreTagListItem
-                        key={tag.value}
-                        tag={tag.value}
-                        isFollowed={followedTags.has(tag.value)}
-                        onToggleFollow={onToggleFollow}
-                      />
-                    ))}
-                  </ul>
-                  {hasMore && (
-                    <ClickableText
-                      tag="button"
-                      type="button"
-                      onClick={() => toggleLetterExpanded(letter)}
-                      className="mt-3 w-fit"
-                    >
-                      {isExpanded
-                        ? 'Show less'
-                        : `Show all ${group.length} tags`}
-                    </ClickableText>
-                  )}
-                </section>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   );
 }
