@@ -50,9 +50,8 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { TOP_CREATORS_BY_TAG_QUERY } from '../../graphql/users';
 import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
-import { RelatedEntities } from '../RelatedEntities';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import UserEntityCard from '../cards/entity/UserEntityCard';
+import { ExploreEntityCard } from './ExploreEntityCard';
 import { largeNumberFormat } from '../../lib';
 import { getExploreTagPageLink } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
@@ -156,6 +155,21 @@ const RelatedTagsBar = ({
   );
 };
 
+const ENTITY_GRID =
+  'grid grid-cols-1 gap-4 mobileL:grid-cols-2 laptop:grid-cols-3';
+
+const EntityGridSkeleton = (): ReactElement => (
+  <div className={ENTITY_GRID}>
+    {Array.from({ length: 3 }).map((_, index) => (
+      <ElementPlaceholder
+        // eslint-disable-next-line react/no-array-index-key
+        key={index}
+        className="h-40 w-full rounded-16"
+      />
+    ))}
+  </div>
+);
+
 const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
@@ -168,24 +182,35 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
     staleTime: StaleTime.OneHour,
   });
 
-  const sources = topSources?.sourcesByTag?.edges?.map((edge) => edge.node);
-  if (!sources || sources.length === 0) {
+  const sources =
+    topSources?.sourcesByTag?.edges?.map((edge) => edge.node) ?? [];
+  if (!isPending && sources.length === 0) {
     return null;
   }
 
   return (
-    <RelatedEntities
-      isLoading={isPending}
-      items={sources.map((source) => ({
-        id: source.id,
-        image: source.image,
-        imageAlt: `${source.name} logo`,
-        name: source.name,
-        permalink: source.permalink,
-      }))}
-      title="🔔 Top sources covering it"
-      className="mx-4"
-    />
+    <section className="mb-10">
+      <SectionHeading>Top sources covering it</SectionHeading>
+      {isPending ? (
+        <EntityGridSkeleton />
+      ) : (
+        <div className={ENTITY_GRID}>
+          {sources.map((source) => (
+            <ExploreEntityCard
+              key={source.id}
+              entityId={source.id ?? ''}
+              entityType={ContentPreferenceType.Source}
+              entityName={source.handle || source.name || ''}
+              name={source.name ?? ''}
+              image={source.image}
+              handle={source.handle}
+              bio={source.description}
+              permalink={source.permalink ?? ''}
+            />
+          ))}
+        </div>
+      )}
+    </section>
   );
 };
 
@@ -215,32 +240,27 @@ const WhoToFollow = ({
   }
 
   return (
-    <section className="mx-4 mb-10 flex flex-col gap-3">
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Title3}
-        color={TypographyColor.Primary}
-        bold
-      >
-        Who to follow
-      </Typography>
-      <div className="no-scrollbar flex gap-4 overflow-x-auto">
-        {isLoading
-          ? Array.from({ length: 3 }).map((_, index) => (
-              <ElementPlaceholder
-                // eslint-disable-next-line react/no-array-index-key
-                key={index}
-                className="h-40 w-80 shrink-0 rounded-16"
-              />
-            ))
-          : users.map((user) => (
-              <UserEntityCard
-                key={user.id}
-                user={user}
-                className={{ container: 'shrink-0' }}
-              />
-            ))}
-      </div>
+    <section className="mb-10">
+      <SectionHeading>Who to follow</SectionHeading>
+      {isLoading ? (
+        <EntityGridSkeleton />
+      ) : (
+        <div className={ENTITY_GRID}>
+          {users.map((user) => (
+            <ExploreEntityCard
+              key={user.id}
+              entityId={user.id}
+              entityType={ContentPreferenceType.User}
+              entityName={user.username || user.name || ''}
+              name={user.name ?? ''}
+              image={user.image}
+              handle={user.username}
+              bio={user.bio}
+              permalink={user.permalink ?? ''}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };
@@ -350,11 +370,11 @@ export const ExploreTopicPage = ({
           />
         </Head>
       )}
-      <div className="mx-auto flex w-full max-w-screen-laptop flex-col px-4 py-6">
+      <div className="flex w-full flex-col px-4 py-6">
         <RelatedTagsBar tag={tag} tags={recommendedTags} />
 
-        {/* Identity header — centered, editorial. */}
-        <header className="mx-auto flex w-full max-w-screen-tablet flex-col items-center gap-4 py-8 text-center">
+        {/* Identity header — centered & readable; content below spans full width. */}
+        <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
           <SponsoredTagHero tag={tag} />
           <Typography
             tag={TypographyTag.H1}
@@ -383,7 +403,7 @@ export const ExploreTopicPage = ({
               type={TypographyType.Body}
               color={TypographyColor.Secondary}
               center
-              className="max-w-[34rem]"
+              className="max-w-[44rem]"
             >
               {initialData.flags.description}
             </Typography>
