@@ -1,11 +1,15 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import classNames from 'classnames';
 import type { Keyword } from '../../graphql/keywords';
 import type { TagCategory } from '../../graphql/feedSettings';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { ExploreCategorySection } from './ExploreCategorySection';
 import { ExploreTopicSearch } from './ExploreTopicSearch';
 import { useChipBarNavigation } from './useChipBarNavigation';
+import { getExploreTagPageLink } from '../../lib/links';
+import { formatKeyword } from '../../lib/strings';
+import Link from '../utilities/Link';
 import {
   Typography,
   TypographyColor,
@@ -17,13 +21,17 @@ interface ExploreTopicsPageProps {
   tags: Keyword[];
   trendingTags: Keyword[];
   popularTags: Keyword[];
-  tagsCategories: TagCategory[];
+  // Kept for future category browsing; the directory is alphabetical for now.
+  tagsCategories?: TagCategory[];
 }
 
-const scrollToCategory = (id: string): void => {
-  document
-    .getElementById(`explore-category-${id}`)
-    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+const OTHER_LETTER = '#';
+const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
+const LETTERS = [...ALPHABET, OTHER_LETTER];
+
+const firstLetterOf = (value: string): string => {
+  const raw = value[0]?.toLowerCase() ?? OTHER_LETTER;
+  return /^[a-z]$/.test(raw) ? raw : OTHER_LETTER;
 };
 
 const toTagValues = (items?: Keyword[]): string[] =>
@@ -33,20 +41,39 @@ export function ExploreTopicsPage({
   tags,
   trendingTags,
   popularTags,
-  tagsCategories,
 }: ExploreTopicsPageProps): ReactElement {
   const { feedSettings } = useFeedSettings();
-  const { ref: categoryNavRef, onKeyDown: onCategoryNavKeyDown } =
+  const { ref: letterNavRef, onKeyDown: onLetterNavKeyDown } =
     useChipBarNavigation();
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
+
   const followedTags = useMemo(
     () => new Set(feedSettings?.includeTags ?? []),
     [feedSettings?.includeTags],
   );
 
-  const categories = useMemo(
-    () => tagsCategories?.filter((category) => category.tags?.length) ?? [],
-    [tagsCategories],
+  const tagsByLetter = useMemo<Record<string, Keyword[]>>(() => {
+    const grouped =
+      tags?.reduce<Record<string, Keyword[]>>((acc, tag) => {
+        const letter = firstLetterOf(tag.value);
+        (acc[letter] ||= []).push(tag);
+        return acc;
+      }, {}) ?? {};
+    Object.values(grouped).forEach((group) =>
+      group.sort((a, b) => a.value.localeCompare(b.value)),
+    );
+    return grouped;
+  }, [tags]);
+
+  const availableLetters = useMemo(
+    () => LETTERS.filter((letter) => tagsByLetter[letter]?.length),
+    [tagsByLetter],
   );
+
+  const visibleLetters =
+    activeLetter && tagsByLetter[activeLetter]?.length
+      ? [activeLetter]
+      : availableLetters;
 
   const recentlyAddedTags = useMemo(
     () =>
@@ -59,8 +86,8 @@ export function ExploreTopicsPage({
     [tags],
   );
 
-  // The trending / popular / recently-added lists, shaped like categories so
-  // they render with the same flat column treatment as the directory below.
+  // Trending / popular / recently-added, shaped like categories so they share
+  // the directory's flat column treatment.
   const featuredLists = useMemo<TagCategory[]>(() => {
     const lists: TagCategory[] = [];
     if (trendingTags?.length) {
@@ -95,6 +122,17 @@ export function ExploreTopicsPage({
     [popularTags],
   );
 
+  const letterButtonClass = (isActive: boolean, isDisabled: boolean): string =>
+    classNames(
+      'flex h-8 min-w-8 items-center justify-center rounded-10 border border-transparent px-2 font-bold uppercase transition-colors typo-footnote',
+      isDisabled && 'cursor-default text-text-disabled',
+      !isDisabled &&
+        !isActive &&
+        'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
+      isActive &&
+        'border-border-subtlest-tertiary bg-surface-float text-text-primary',
+    );
+
   return (
     <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
       {/* Hero */}
@@ -113,8 +151,8 @@ export function ExploreTopicsPage({
           className="max-w-[34rem]"
         >
           Browse the topics millions of developers follow on daily.dev. Search
-          thousands of tags, dive into a category, and follow the ones that
-          matter to you.
+          thousands of tags, jump to any letter, and follow the ones that matter
+          to you.
         </Typography>
         <ExploreTopicSearch
           followedTags={followedTags}
@@ -123,27 +161,40 @@ export function ExploreTopicsPage({
         />
       </header>
 
-      {/* Category quick-nav — jumps to a section in the directory below. */}
-      {categories.length > 0 && (
-        <nav aria-label="Topic categories" className="mt-8 w-full">
+      {/* A–Z filter — narrows the directory below to a single letter. */}
+      {availableLetters.length > 0 && (
+        <nav aria-label="Filter topics by letter" className="mt-8 w-full">
           <div
-            ref={categoryNavRef}
-            onKeyDown={onCategoryNavKeyDown}
+            ref={letterNavRef}
+            onKeyDown={onLetterNavKeyDown}
             role="toolbar"
             aria-orientation="horizontal"
-            className="flex flex-wrap items-center justify-center gap-2"
+            className="flex flex-wrap items-center justify-center gap-1"
           >
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => scrollToCategory(category.id)}
-                className="inline-flex h-8 shrink-0 items-center rounded-10 bg-background-subtle px-3 font-bold text-text-tertiary transition-colors typo-footnote hover:bg-surface-hover hover:text-text-primary"
-              >
-                {category.emoji ? `${category.emoji} ` : ''}
-                {category.title}
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={() => setActiveLetter(null)}
+              aria-pressed={!activeLetter}
+              className={letterButtonClass(!activeLetter, false)}
+            >
+              All
+            </button>
+            {LETTERS.map((letter) => {
+              const isDisabled = !tagsByLetter[letter]?.length;
+              const isActive = activeLetter === letter;
+              return (
+                <button
+                  key={letter}
+                  type="button"
+                  disabled={isDisabled}
+                  aria-pressed={isActive}
+                  onClick={() => setActiveLetter(isActive ? null : letter)}
+                  className={letterButtonClass(isActive, isDisabled)}
+                >
+                  {letter}
+                </button>
+              );
+            })}
           </div>
         </nav>
       )}
@@ -160,18 +211,53 @@ export function ExploreTopicsPage({
       )}
 
       {/* Border separating the featured lists from the full directory. */}
-      {featuredLists.length > 0 && categories.length > 0 && (
+      {featuredLists.length > 0 && visibleLetters.length > 0 && (
         <div className="mb-10 mt-2 h-px w-full bg-border-subtlest-tertiary" />
       )}
 
-      {/* Directory — categories as columns of topic links. */}
-      {categories.length > 0 && (
-        <div className="w-full columns-1 gap-x-10 tablet:columns-2 laptop:columns-3">
-          {categories.map((category) => (
-            <ExploreCategorySection key={category.id} category={category} />
-          ))}
-        </div>
-      )}
+      {/* Directory — all tags grouped alphabetically. */}
+      <div className="flex w-full flex-col gap-10">
+        {visibleLetters.map((letter) => (
+          <section
+            key={letter}
+            id={`explore-letter-${letter}`}
+            className="scroll-mt-24"
+          >
+            <div className="mb-4 flex items-center gap-3">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.Title2}
+                color={TypographyColor.Primary}
+                bold
+                className="uppercase"
+              >
+                {letter}
+              </Typography>
+              <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+            </div>
+            <ul className="columns-2 gap-x-10 tablet:columns-3 laptop:columns-4">
+              {tagsByLetter[letter]?.map((tag) => (
+                <li key={tag.value} className="break-inside-avoid">
+                  <Link
+                    href={getExploreTagPageLink(tag.value)}
+                    passHref
+                    prefetch={false}
+                  >
+                    <Typography
+                      tag={TypographyTag.Link}
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Secondary}
+                      className="block cursor-pointer py-1 no-underline transition-colors hover:text-text-primary"
+                    >
+                      {formatKeyword(tag.value)}
+                    </Typography>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

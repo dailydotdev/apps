@@ -1,7 +1,7 @@
 import type { KeyboardEvent, RefObject } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 
-const CHIP_SELECTOR = 'a[href], button';
+const CHIP_SELECTOR = 'a[href], button:not([disabled])';
 
 interface ChipBarNavigation<T extends HTMLElement> {
   ref: RefObject<T>;
