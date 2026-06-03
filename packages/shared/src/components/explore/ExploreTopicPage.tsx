@@ -340,21 +340,22 @@ export const ExploreTopicPage = ({
           .filter((name): name is string => !!name)}
       />
       <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
-        {/* Identity header — stretches to the full content width. */}
-        <header className="flex w-full flex-col gap-4 py-8">
+        {/* Hero cover — centered on the page; content below spans full width. */}
+        <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
           <SponsoredTagHero tag={tag} />
           <Typography
             tag={TypographyTag.H1}
             type={TypographyType.LargeTitle}
             color={TypographyColor.Primary}
             bold
+            center
           >
             {title}
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
-            className="flex flex-wrap items-center gap-x-2 gap-y-1"
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
           >
             <span>Tag</span>
             {statParts.map((part) => (
@@ -368,11 +369,13 @@ export const ExploreTopicPage = ({
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Secondary}
+              center
+              className="max-w-[44rem]"
             >
               {initialData.flags.description}
             </Typography>
           )}
-          <div className="mt-1 flex flex-row items-center gap-3">
+          <div className="mt-1 flex flex-row items-center justify-center gap-3">
             {tagStatus !== 'blocked' && (
               <Button
                 variant={ButtonVariant.Primary}
