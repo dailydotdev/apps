@@ -35,6 +35,7 @@ import { SOURCES_BY_TAG_QUERY } from '../../graphql/sources';
 import type { Connection } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import { ActiveFeedNameContext } from '../../contexts';
+import FeedContext from '../../contexts/FeedContext';
 import HorizontalFeed from '../feeds/HorizontalFeed';
 import { PostType } from '../../graphql/posts';
 import { useFeature } from '../GrowthBookProvider';
@@ -110,17 +111,38 @@ const RailWithFade = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-// Fixed-width entity cards (w-80) wrap into rows, matching the source/squad
-// pages — compact "cards you'd follow" rather than full-width blocks.
-const ENTITY_ROW = 'flex flex-wrap gap-4';
+// Render the user/source cards in the same grid the post feed uses (same
+// column count + card width) so every card on the page lines up identically.
+const ENTITY_CARD_CLASS = { container: '!w-full !max-w-[21.5rem] h-full' };
 
-const EntityRowSkeleton = (): ReactElement => (
-  <div className={ENTITY_ROW}>
+const EntityFeedGrid = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => {
+  const { numCards } = useContext(FeedContext);
+  const columns = numCards?.eco ?? 1;
+
+  return (
+    <div
+      className="grid gap-8"
+      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+const EntityGridSkeleton = (): ReactElement => (
+  <EntityFeedGrid>
     {Array.from({ length: 3 }).map((_, index) => (
-      // eslint-disable-next-line react/no-array-index-key
-      <EntityCardSkeleton key={index} />
+      <EntityCardSkeleton
+        // eslint-disable-next-line react/no-array-index-key
+        key={index}
+        className={ENTITY_CARD_CLASS}
+      />
     ))}
-  </div>
+  </EntityFeedGrid>
 );
 
 const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
@@ -145,13 +167,17 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
     <section className="mb-10">
       <SectionHeading>Top sources covering it</SectionHeading>
       {isPending ? (
-        <EntityRowSkeleton />
+        <EntityGridSkeleton />
       ) : (
-        <div className={ENTITY_ROW}>
+        <EntityFeedGrid>
           {sources.map((source) => (
-            <SourceEntityCard key={source.id} source={source} />
+            <SourceEntityCard
+              key={source.id}
+              source={source}
+              className={ENTITY_CARD_CLASS}
+            />
           ))}
-        </div>
+        </EntityFeedGrid>
       )}
     </section>
   );
@@ -186,13 +212,17 @@ const WhoToFollow = ({
     <section className="mb-10">
       <SectionHeading>Who to follow</SectionHeading>
       {isLoading ? (
-        <EntityRowSkeleton />
+        <EntityGridSkeleton />
       ) : (
-        <div className={ENTITY_ROW}>
+        <EntityFeedGrid>
           {users.map((user) => (
-            <UserEntityCard key={user.id} user={user} />
+            <UserEntityCard
+              key={user.id}
+              user={user}
+              className={ENTITY_CARD_CLASS}
+            />
           ))}
-        </div>
+        </EntityFeedGrid>
       )}
     </section>
   );
