@@ -28,8 +28,7 @@ import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 
-// The Explore experience is canonically served at /explore; dedupe this route.
-const tagsCanonical = `${getAppOrigin()}/explore`;
+const tagsCanonical = `${getAppOrigin()}/tags`;
 const seoTitles = getPageSeoTitles('Explore trending tags for developers');
 const seo: NextSeoProps = {
   title: seoTitles.title,

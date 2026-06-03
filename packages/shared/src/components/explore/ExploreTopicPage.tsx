@@ -96,6 +96,18 @@ const SectionHeading = ({
   </Typography>
 );
 
+// Wraps a horizontal post rail with a right-edge gradient so the last card
+// blends into the background instead of being hard-cut by the scroll overflow.
+const RailWithFade = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="relative mb-10">
+    {children}
+    <div
+      aria-hidden
+      className="pointer-events-none absolute bottom-0 right-0 top-11 w-12 bg-gradient-to-r from-transparent to-background-default"
+    />
+  </div>
+);
+
 const ENTITY_GRID =
   'grid grid-cols-1 gap-4 mobileL:grid-cols-2 laptop:grid-cols-3';
 
@@ -198,6 +210,7 @@ const WhoToFollow = ({
               handle={user.username}
               bio={user.bio}
               permalink={user.permalink ?? ''}
+              reputation={user.reputation}
             />
           ))}
         </div>
@@ -311,7 +324,7 @@ export const ExploreTopicPage = ({
           />
         </Head>
       )}
-      <div className="flex w-full flex-col px-4 py-6">
+      <div className="mx-auto flex w-full max-w-screen-laptopL flex-col px-4 py-6 tablet:px-6">
         <ExploreTopicNav
           activeTag={tag}
           recommendedTags={recommendedTags
@@ -466,23 +479,24 @@ export const ExploreTopicPage = ({
         <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
 
         {/* Recommended stories */}
-        <SectionHeading>Recommended stories</SectionHeading>
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.TagsTopPosts }}
         >
-          <HorizontalFeed
-            feedName={OtherFeedPage.TagsTopPosts}
-            feedQueryKey={[
-              'tagsTopPosts',
-              user?.id ?? 'anonymous',
-              Object.values(topPostsQueryVariables),
-            ]}
-            query={TAG_FEED_QUERY}
-            variables={topPostsQueryVariables}
-            title={{ copy: 'Top posts' }}
-            className="!mx-0"
-            emptyScreen={<></>}
-          />
+          <RailWithFade>
+            <HorizontalFeed
+              feedName={OtherFeedPage.TagsTopPosts}
+              feedQueryKey={[
+                'tagsTopPosts',
+                user?.id ?? 'anonymous',
+                Object.values(topPostsQueryVariables),
+              ]}
+              query={TAG_FEED_QUERY}
+              variables={topPostsQueryVariables}
+              title={{ copy: 'Recommended stories' }}
+              className="!mx-0 !mb-0"
+              emptyScreen={<></>}
+            />
+          </RailWithFade>
         </ActiveFeedNameContext.Provider>
 
         <WhoToFollow tag={tag} initialUsers={topContributors} />
@@ -491,42 +505,46 @@ export const ExploreTopicPage = ({
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
         >
-          <HorizontalFeed
-            feedName={OtherFeedPage.TagsMostUpvoted}
-            feedQueryKey={[
-              'tagsMostUpvoted',
-              user?.id ?? 'anonymous',
-              Object.values(mostUpvotedQueryVariables),
-            ]}
-            query={MOST_UPVOTED_FEED_QUERY}
-            variables={mostUpvotedQueryVariables}
-            title={{
-              copy: 'Most upvoted posts',
-              icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
-            }}
-            className="!mx-0"
-            emptyScreen={<></>}
-          />
+          <RailWithFade>
+            <HorizontalFeed
+              feedName={OtherFeedPage.TagsMostUpvoted}
+              feedQueryKey={[
+                'tagsMostUpvoted',
+                user?.id ?? 'anonymous',
+                Object.values(mostUpvotedQueryVariables),
+              ]}
+              query={MOST_UPVOTED_FEED_QUERY}
+              variables={mostUpvotedQueryVariables}
+              title={{
+                copy: 'Most upvoted posts',
+                icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
+              }}
+              className="!mx-0 !mb-0"
+              emptyScreen={<></>}
+            />
+          </RailWithFade>
         </ActiveFeedNameContext.Provider>
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
         >
-          <HorizontalFeed
-            feedName={OtherFeedPage.TagsBestDiscussed}
-            feedQueryKey={[
-              'tagsBestDiscussed',
-              user?.id ?? 'anonymous',
-              Object.values(bestDiscussedQueryVariables),
-            ]}
-            query={MOST_DISCUSSED_FEED_QUERY}
-            variables={bestDiscussedQueryVariables}
-            title={{
-              copy: 'Best discussed posts',
-              icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
-            }}
-            className="!mx-0"
-            emptyScreen={<></>}
-          />
+          <RailWithFade>
+            <HorizontalFeed
+              feedName={OtherFeedPage.TagsBestDiscussed}
+              feedQueryKey={[
+                'tagsBestDiscussed',
+                user?.id ?? 'anonymous',
+                Object.values(bestDiscussedQueryVariables),
+              ]}
+              query={MOST_DISCUSSED_FEED_QUERY}
+              variables={bestDiscussedQueryVariables}
+              title={{
+                copy: 'Best discussed posts',
+                icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
+              }}
+              className="!mx-0 !mb-0"
+              emptyScreen={<></>}
+            />
+          </RailWithFade>
         </ActiveFeedNameContext.Provider>
         <ArchiveEntryCard
           scopeType={ArchiveScopeType.Tag}

@@ -17,7 +17,7 @@ describe('ExploreTopicNav', () => {
 
     expect(screen.getByText('Explore').closest('a')).toHaveAttribute(
       'href',
-      expect.stringContaining('explore'),
+      expect.stringContaining('tags'),
     );
   });
 
@@ -26,7 +26,7 @@ describe('ExploreTopicNav', () => {
 
     expect(screen.getByText('#vue').closest('a')).toHaveAttribute(
       'href',
-      expect.stringContaining('explore/vue'),
+      expect.stringContaining('tags/vue'),
     );
   });
 

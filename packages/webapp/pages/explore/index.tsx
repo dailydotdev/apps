@@ -22,7 +22,7 @@ import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 
-const exploreCanonical = `${getAppOrigin()}/explore`;
+const exploreCanonical = `${getAppOrigin()}/tags`;
 const seoTitles = getPageSeoTitles('Explore topics for developers');
 const seo: NextSeoProps = {
   title: seoTitles.title,

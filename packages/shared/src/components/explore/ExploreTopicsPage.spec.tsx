@@ -67,7 +67,7 @@ describe('ExploreTopicsPage', () => {
 
     expect(
       within(getLetterSection('r')).getByText('React').closest('a'),
-    ).toHaveAttribute('href', expect.stringContaining('explore/react'));
+    ).toHaveAttribute('href', expect.stringContaining('tags/react'));
   });
 
   it('should filter the directory to a single letter', () => {

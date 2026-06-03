@@ -135,20 +135,13 @@ function UnifiedMobileFeedNav(): ReactElement {
         href: `${webappUrl}discussed`,
         group: 'rest',
       },
-      isExplore
-        ? {
-            id: 'explore',
-            label: 'Explore',
-            href: `${webappUrl}explore`,
-            matchPaths: [`${webappUrl}explore`, `${webappUrl}tags`],
-            group: 'rest',
-          }
-        : {
-            id: 'tags',
-            label: 'Tags',
-            href: `${webappUrl}tags`,
-            group: 'rest',
-          },
+      {
+        id: 'tags',
+        label: isExplore ? 'Explore' : 'Tags',
+        href: `${webappUrl}tags`,
+        matchPaths: [`${webappUrl}tags`, `${webappUrl}explore`],
+        group: 'rest',
+      },
       {
         id: 'sources',
         label: 'Sources',

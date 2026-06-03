@@ -129,9 +129,7 @@ function FeedNav(): ReactElement | null {
       [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}posts`]: FeedNavTab.Popular,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
-      ...(isExplore
-        ? { [`${webappUrl}explore`]: FeedNavTab.Explore }
-        : { [`${webappUrl}tags`]: FeedNavTab.Tags }),
+      [`${webappUrl}tags`]: isExplore ? FeedNavTab.Explore : FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
       [`${webappUrl}users`]: FeedNavTab.Leaderboard,
     };

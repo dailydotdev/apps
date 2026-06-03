@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import type { TagCategory } from '../../graphql/feedSettings';
-import { getExploreTagPageLink } from '../../lib/links';
+import { getTagPageLink } from '../../lib/links';
 import { formatKeyword } from '../../lib/strings';
 import Link from '../utilities/Link';
 import {
@@ -57,7 +57,7 @@ export function ExploreCategorySection({
       <ul className="flex flex-col gap-2.5">
         {visibleTags.map((tag) => (
           <li key={tag}>
-            <Link href={getExploreTagPageLink(tag)} passHref prefetch={false}>
+            <Link href={getTagPageLink(tag)} passHref prefetch={false}>
               <Typography
                 tag={TypographyTag.Link}
                 type={TypographyType.Callout}

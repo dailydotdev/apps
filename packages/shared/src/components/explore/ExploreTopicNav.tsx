@@ -6,7 +6,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { HashtagIcon } from '../icons';
 import { IconSize } from '../Icon';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { getExploreTagPageLink } from '../../lib/links';
+import { getTagPageLink } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
 import { useChipBarNavigation } from './useChipBarNavigation';
 
@@ -18,7 +18,9 @@ interface ExploreTopicNavProps {
   className?: string;
 }
 
-const exploreUrl = `${webappUrl}explore`;
+// The discovery surface is branded "Explore" but canonically lives at /tags
+// (the standalone /explore feed is a different page), so the lobby URL is /tags.
+const exploreUrl = `${webappUrl}tags`;
 
 // The shared top navigation for every Explore surface: an "Explore" entry that
 // returns to the lobby, followed by the user's selected tags and then
@@ -80,7 +82,7 @@ export function ExploreTopicNav({
           )}
           {tags.map((tag) => {
             const isActive = tag === activeTag;
-            const href = getExploreTagPageLink(tag);
+            const href = getTagPageLink(tag);
             return (
               <Link key={tag} href={href} legacyBehavior>
                 <Button

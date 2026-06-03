@@ -142,10 +142,10 @@ export function FeedExploreHeader({
             {isExplore && (
               <SquadDirectoryNavbarItem
                 buttonSize={ButtonSize.Small}
-                isActive={currentPathname === `${webappUrl}explore`}
+                isActive={currentPathname === `${webappUrl}tags`}
                 label="Topics"
                 ariaLabel="Explore topics"
-                path={`${webappUrl}explore`}
+                path={`${webappUrl}tags`}
               />
             )}
           </SquadDirectoryNavbar>
@@ -165,13 +165,7 @@ export function FeedExploreHeader({
                 <Tab key={label} label={label} url={url} />
               )),
               ...(isExplore
-                ? [
-                    <Tab
-                      key="topics"
-                      label="Topics"
-                      url={`${webappUrl}explore`}
-                    />,
-                  ]
+                ? [<Tab key="topics" label="Topics" url={`${webappUrl}tags`} />]
                 : []),
             ]}
           </TabContainer>

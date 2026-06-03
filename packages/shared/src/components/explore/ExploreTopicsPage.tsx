@@ -8,7 +8,7 @@ import { ExploreCategorySection } from './ExploreCategorySection';
 import { ExploreTopicSearch } from './ExploreTopicSearch';
 import { ExploreTopicNav } from './ExploreTopicNav';
 import { useChipBarNavigation } from './useChipBarNavigation';
-import { getExploreTagPageLink } from '../../lib/links';
+import { getTagPageLink } from '../../lib/links';
 import { formatKeyword } from '../../lib/strings';
 import Link from '../utilities/Link';
 import { ClickableText } from '../buttons/ClickableText';
@@ -266,7 +266,7 @@ export function ExploreTopicsPage({
                 {shown.map((tag) => (
                   <li key={tag.value} className="break-inside-avoid">
                     <Link
-                      href={getExploreTagPageLink(tag.value)}
+                      href={getTagPageLink(tag.value)}
                       passHref
                       prefetch={false}
                     >

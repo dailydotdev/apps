@@ -8,7 +8,7 @@ import { TagChip } from '../tags/TagChip';
 import { gqlClient } from '../../graphql/common';
 import { SEARCH_TAGS_QUERY } from '../../graphql/feedSettings';
 import { StaleTime } from '../../lib/query';
-import { getExploreTagPageLink } from '../../lib/links';
+import { getTagPageLink } from '../../lib/links';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import {
@@ -89,7 +89,7 @@ export function ExploreTopicSearch({
       const target = results[activeIndex] ?? results[0];
       if (target) {
         event.preventDefault();
-        router.push(getExploreTagPageLink(target));
+        router.push(getTagPageLink(target));
       }
     }
   };
@@ -125,7 +125,7 @@ export function ExploreTopicSearch({
               tag={tag}
               size="md"
               isFollowed={followedTags.has(tag)}
-              link={getExploreTagPageLink(tag)}
+              link={getTagPageLink(tag)}
               className={classNames(
                 index === activeIndex && 'ring-2 ring-border-subtlest-primary',
               )}
@@ -156,7 +156,7 @@ export function ExploreTopicSearch({
                   tag={tag}
                   size="md"
                   isFollowed={followedTags.has(tag)}
-                  link={getExploreTagPageLink(tag)}
+                  link={getTagPageLink(tag)}
                 />
               ))}
             </div>
@@ -173,7 +173,7 @@ export function ExploreTopicSearch({
             Recommended:
           </Typography>
           {recommendedTags.map((tag) => (
-            <Link key={tag} href={getExploreTagPageLink(tag)} passHref>
+            <Link key={tag} href={getTagPageLink(tag)} passHref>
               <Typography
                 tag={TypographyTag.Link}
                 type={TypographyType.Footnote}

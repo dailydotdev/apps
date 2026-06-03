@@ -45,7 +45,7 @@ const ExploreTagPage = ({
   }
 
   const jsonLd = initialData
-    ? getTopicPageJsonLd({ tag, initialData, topPosts, basePath: 'explore' })
+    ? getTopicPageJsonLd({ tag, initialData, topPosts, basePath: 'tags' })
     : null;
 
   return (

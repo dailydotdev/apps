@@ -9,6 +9,8 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import AuthContext from '../../contexts/AuthContext';
 import { ButtonVariant } from '../buttons/Button';
+import { ReputationUserBadge } from '../ReputationUserBadge';
+import { IconSize } from '../Icon';
 import {
   Typography,
   TypographyColor,
@@ -25,6 +27,8 @@ export interface ExploreEntityCardProps {
   handle?: string;
   bio?: string;
   permalink: string;
+  // Users only — surfaces the reputation badge like the profile tooltip.
+  reputation?: number;
 }
 
 // A single card shared by "Who to follow" (users) and "Top sources" (sources):
@@ -39,6 +43,7 @@ export function ExploreEntityCard({
   handle,
   bio,
   permalink,
+  reputation,
 }: ExploreEntityCardProps): ReactElement {
   const { user: loggedUser } = useContext(AuthContext);
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -83,6 +88,12 @@ export function ExploreEntityCard({
           </span>
         </a>
       </Link>
+      {isUser && typeof reputation === 'number' && (
+        <ReputationUserBadge
+          user={{ reputation }}
+          iconProps={{ size: IconSize.Size16 }}
+        />
+      )}
       {bio && (
         <Typography
           type={TypographyType.Footnote}

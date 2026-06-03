@@ -33,9 +33,9 @@ export const getTopicSeoData = (
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
 ): NextSeoProps => {
   const seoTitles = getPageSeoTitles(`${title} posts`);
-  // Both /tags/[tag] and /explore/[tag] render this surface; point the canonical
-  // at the Explore route so search engines don't see duplicate content.
-  const canonical = `${appOrigin}/explore/${encodeURIComponent(tag)}`;
+  // Both /tags/[tag] and /explore/[tag] render this surface; /tags is canonical
+  // (the standalone /explore feed is a separate page) so search engines dedupe.
+  const canonical = `${appOrigin}/tags/${encodeURIComponent(tag)}`;
 
   return {
     ...defaultSeo,
