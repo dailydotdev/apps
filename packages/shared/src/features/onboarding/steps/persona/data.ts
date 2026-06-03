@@ -179,8 +179,8 @@ export const PERSONAS: DeveloperPersona[] = [
 ];
 
 export const QUESTIONS: PersonaQuestion[] = [
-  { text: 'You ship the things users see and click on.', layer: 0 },
-  { text: 'Your work is mostly backend or infrastructure, not frontend or mobile.', layer: 0 },
+  { text: 'You ship the things users see and click on.', layer: 0, exclusiveGroup: 'primary-domain' },
+  { text: 'Your work is mostly backend or infrastructure, not frontend or mobile.', layer: 0, exclusiveGroup: 'primary-domain' },
   { text: 'You read more about the industry than you write code these days.', layer: 0 },
   { text: 'Your main output is a web app people open in a browser.', layer: 1 },
   { text: 'You\'re faster in a terminal than in any GUI.', layer: 1 },
