@@ -682,6 +682,7 @@ export enum NotificationPromptSource {
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
   StandupLobby = 'standup lobby',
+  AutoPrompt = 'auto prompt',
 }
 
 export enum ShortcutsSourceType {

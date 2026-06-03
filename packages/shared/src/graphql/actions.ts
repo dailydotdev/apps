@@ -70,6 +70,7 @@ export enum ActionType {
   SeenKeepItOverlay = 'seen_keep_it_overlay',
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
   ClickedNewStripCta = 'click_new_strip_cta',
+  AutoPushPrompt = 'auto_push_prompt',
 }
 
 export const cvActions = [

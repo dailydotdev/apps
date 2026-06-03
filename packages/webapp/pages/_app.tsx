@@ -42,6 +42,7 @@ import {
   useManualScrollRestoration,
 } from '@dailydotdev/shared/src/hooks';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
+import { useAutoPushPrompt } from '@dailydotdev/shared/src/hooks/notifications/useAutoPushPrompt';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
@@ -202,6 +203,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useCheckCoresRole();
   useCheckLocation();
+  useAutoPushPrompt();
 
   const activeModalType = modal?.type;
   const hotAndColdModalQuery = router.query[hotAndColdModalQueryKey];

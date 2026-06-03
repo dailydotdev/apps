@@ -223,3 +223,5 @@ export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
 );
+
+export const featureAutoPushPrompt = new Feature('auto_push_prompt', false);
