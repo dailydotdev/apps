@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { ClickableNavItem } from './ClickableNavItem';
 import type { AuthTriggersType } from '../../lib/auth';
 import type { SidebarMenuItem } from './common';
-import { ItemInner, NavItem } from './common';
+import { isSidebarItemActive, ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
 import { SimpleTooltip } from '../tooltips';
@@ -25,7 +25,8 @@ export const SidebarItem = ({
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   const { isV2 } = useLayoutVariant();
-  const isActive = item.active || item.path === activePage;
+  const isActive =
+    item.active || (!!item.path && isSidebarItemActive(activePage, item.path));
   const isCollapsed = !shouldShowLabel;
 
   const navItem = (

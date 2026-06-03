@@ -10,9 +10,13 @@ import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useLogContext } from '../../contexts/LogContext';
-import { walletUrl } from '../../lib/constants';
+import {
+  reputation as reputationDocsUrl,
+  walletUrl,
+} from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
+import { isSameDayInTimezone } from '../../lib/timezones';
 import { LogEvent } from '../../lib/log';
 import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -35,15 +39,22 @@ type StatSlotProps = {
   icon: ReactNode;
   value: string | number | null;
   href?: string;
+  target?: string;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   id?: string;
 };
 
+// Each slot is rendered inside a wrapper element that acts as the Tooltip
+// trigger (see usage below). Keeping the anchor/button as a plain child —
+// instead of making it the Radix `asChild` trigger directly — avoids the
+// double clone (Radix Slot + Next `legacyBehavior` Link) that swallowed the
+// link's click navigation.
 const StatSlot = ({
   ariaLabel,
   icon,
   value,
   href,
+  target,
   onClick,
   id,
 }: StatSlotProps): ReactElement => {
@@ -80,7 +91,12 @@ const StatSlot = ({
 
   return (
     <Link href={href} passHref>
-      <a className={slotClass} aria-label={ariaLabel}>
+      <a
+        className={slotClass}
+        aria-label={ariaLabel}
+        target={target}
+        rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+      >
         {inner}
       </a>
     </Link>
@@ -202,6 +218,9 @@ export const SidebarHeaderStats = (): ReactElement | null => {
   const showStreak = isStreaksEnabled;
   const preciseBalance = formatCurrency(balance, { minimumFractionDigits: 0 });
   const streakValue = streak?.current ?? 0;
+  const hasReadToday =
+    !!streak?.lastViewAt &&
+    isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
 
   const streakSlot = (
     <StatSlot
@@ -210,6 +229,7 @@ export const SidebarHeaderStats = (): ReactElement | null => {
       icon={
         <span className={iconBoxClass} aria-hidden>
           <ReadingStreakIcon
+            secondary={hasReadToday}
             size={IconSize.Size16}
             className="scale-75 text-accent-bacon-default"
           />
@@ -248,18 +268,22 @@ export const SidebarHeaderStats = (): ReactElement | null => {
         </>
       )}
       <Tooltip content="Reputation" side="bottom">
-        <StatSlot
-          ariaLabel={`Reputation: ${reputation}`}
-          icon={
-            <span className={iconBoxClass} aria-hidden>
-              <ReputationIcon
-                size={IconSize.Size16}
-                className="scale-125 text-accent-onion-default"
-              />
-            </span>
-          }
-          value={largeNumberFormat(reputation)}
-        />
+        <div className="flex flex-1 items-stretch">
+          <StatSlot
+            ariaLabel={`Reputation: ${reputation}`}
+            icon={
+              <span className={iconBoxClass} aria-hidden>
+                <ReputationIcon
+                  size={IconSize.Size16}
+                  className="scale-125 text-accent-onion-default"
+                />
+              </span>
+            }
+            value={largeNumberFormat(reputation)}
+            href={reputationDocsUrl}
+            target="_blank"
+          />
+        </div>
       </Tooltip>
       <span aria-hidden className={dividerClass} />
       <Tooltip
@@ -272,19 +296,21 @@ export const SidebarHeaderStats = (): ReactElement | null => {
         }
         side="bottom"
       >
-        <StatSlot
-          ariaLabel={`Cores wallet: ${preciseBalance}`}
-          icon={
-            <span className={iconBoxClass} aria-hidden>
-              <CoreIcon
-                size={IconSize.Size16}
-                className="text-accent-cheese-default"
-              />
-            </span>
-          }
-          value={largeNumberFormat(balance)}
-          href={walletUrl}
-        />
+        <div className="flex flex-1 items-stretch">
+          <StatSlot
+            ariaLabel={`Cores wallet: ${preciseBalance}`}
+            icon={
+              <span className={iconBoxClass} aria-hidden>
+                <CoreIcon
+                  size={IconSize.Size16}
+                  className="text-accent-cheese-default"
+                />
+              </span>
+            }
+            value={largeNumberFormat(balance)}
+            href={walletUrl}
+          />
+        </div>
       </Tooltip>
     </div>
   );

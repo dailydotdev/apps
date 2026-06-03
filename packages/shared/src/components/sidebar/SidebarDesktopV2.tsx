@@ -158,21 +158,20 @@ const profilePathFragments = [
 ];
 
 const getSidebarCategoryForPath = (activePage: string): SidebarCategoryId => {
-  // Settings sub-pages that "belong" to another category should keep
-  // that category's rail icon highlighted (matches the click model:
-  // user opened the panel for category X → clicked X's settings →
-  // X's rail icon stays active so the user can still see where they
-  // are in the app). The general /settings fallback comes last.
+  // Notification/gamification *settings* live under /settings and keep the
+  // Settings panel. Each category exposes its own settings shortcut under its
+  // own path instead (e.g. /notifications/settings, /game-center/settings),
+  // which keeps that category's panel. The general /settings fallback below
+  // catches the settings pages.
   if (
-    activePage.includes('/notifications') ||
-    activePage.includes('/settings/notifications')
+    activePage.includes('/notifications') &&
+    !activePage.includes('/settings/notifications')
   ) {
     return SidebarCategory.Notifications;
   }
   if (
     activePage.includes('/game-center') ||
-    activePage.includes('/daily-quests') ||
-    activePage.includes('/settings/customization/gamification')
+    activePage.includes('/daily-quests')
   ) {
     return SidebarCategory.GameCenter;
   }
