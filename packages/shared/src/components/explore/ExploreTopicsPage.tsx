@@ -3,7 +3,6 @@ import React, { useMemo } from 'react';
 import type { Keyword } from '../../graphql/keywords';
 import type { TagCategory } from '../../graphql/feedSettings';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { TagTopList } from '../cards/Leaderboard/TagTopList';
 import { ExploreCategorySection } from './ExploreCategorySection';
 import { ExploreTopicSearch } from './ExploreTopicSearch';
 import { useChipBarNavigation } from './useChipBarNavigation';
@@ -19,7 +18,6 @@ interface ExploreTopicsPageProps {
   trendingTags: Keyword[];
   popularTags: Keyword[];
   tagsCategories: TagCategory[];
-  isLoading?: boolean;
 }
 
 const scrollToCategory = (id: string): void => {
@@ -28,12 +26,14 @@ const scrollToCategory = (id: string): void => {
     ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
+const toTagValues = (items?: Keyword[]): string[] =>
+  items?.map((item) => item.value).filter(Boolean) ?? [];
+
 export function ExploreTopicsPage({
   tags,
   trendingTags,
   popularTags,
   tagsCategories,
-  isLoading = false,
 }: ExploreTopicsPageProps): ReactElement {
   const { feedSettings } = useFeedSettings();
   const { ref: categoryNavRef, onKeyDown: onCategoryNavKeyDown } =
@@ -58,6 +58,37 @@ export function ExploreTopicsPage({
         .slice(0, 10) ?? [],
     [tags],
   );
+
+  // The trending / popular / recently-added lists, shaped like categories so
+  // they render with the same flat column treatment as the directory below.
+  const featuredLists = useMemo<TagCategory[]>(() => {
+    const lists: TagCategory[] = [];
+    if (trendingTags?.length) {
+      lists.push({
+        id: 'trending-tags',
+        title: 'Trending tags',
+        emoji: '🔥',
+        tags: toTagValues(trendingTags),
+      });
+    }
+    if (popularTags?.length) {
+      lists.push({
+        id: 'popular-tags',
+        title: 'Popular tags',
+        emoji: '⭐',
+        tags: toTagValues(popularTags),
+      });
+    }
+    if (recentlyAddedTags?.length) {
+      lists.push({
+        id: 'recently-added-tags',
+        title: 'Recently added tags',
+        emoji: '🆕',
+        tags: toTagValues(recentlyAddedTags),
+      });
+    }
+    return lists;
+  }, [trendingTags, popularTags, recentlyAddedTags]);
 
   const recommendedTags = useMemo(
     () => popularTags?.slice(0, 5).map((tag) => tag.value) ?? [],
@@ -119,6 +150,20 @@ export function ExploreTopicsPage({
 
       <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
 
+      {/* Featured — trending / popular / recently added, flat link columns. */}
+      {featuredLists.length > 0 && (
+        <div className="grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
+          {featuredLists.map((list) => (
+            <ExploreCategorySection key={list.id} category={list} />
+          ))}
+        </div>
+      )}
+
+      {/* Border separating the featured lists from the full directory. */}
+      {featuredLists.length > 0 && categories.length > 0 && (
+        <div className="mb-10 mt-2 h-px w-full bg-border-subtlest-tertiary" />
+      )}
+
       {/* Directory — categories as columns of topic links. */}
       {categories.length > 0 && (
         <div className="w-full columns-1 gap-x-10 tablet:columns-2 laptop:columns-3">
@@ -127,39 +172,6 @@ export function ExploreTopicsPage({
           ))}
         </div>
       )}
-
-      {/* Featured leaderboards */}
-      <section className="mt-6 w-full">
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Title2}
-          color={TypographyColor.Primary}
-          bold
-          className="mb-6 text-center"
-        >
-          Trending on daily.dev
-        </Typography>
-        <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-          <TagTopList
-            containerProps={{ title: 'Trending tags' }}
-            items={trendingTags}
-            isLoading={isLoading}
-          />
-          <TagTopList
-            containerProps={{ title: 'Popular tags' }}
-            items={popularTags}
-            isLoading={isLoading}
-          />
-          <TagTopList
-            containerProps={{
-              title: 'Recently added tags',
-              className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
-            }}
-            items={recentlyAddedTags}
-            isLoading={isLoading}
-          />
-        </div>
-      </section>
     </div>
   );
 }
