@@ -74,6 +74,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
   const [isManual, setIsManual] = useState(false);
 
   const askedRef = useRef<Set<number>>(new Set());
+  const excludedGroupsRef = useRef<Set<string>>(new Set());
   const thinkingTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   const reveal = useCallback((index: number, nextBelief: number[]) => {
@@ -137,7 +138,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       const margin = top - (ranked[1]?.belief ?? 0);
       const reachedConfidence =
         top >= confidenceThreshold && shownSoFar >= minQuestions;
-      // Instant lock: when one persona overwhelmingly dominates, reveal early.
       const reachedInstantLock =
         top >= instantLockThreshold && margin >= instantLockMargin;
 
@@ -150,7 +150,12 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         return;
       }
 
-      const next = pickNextQuestion(nextBelief, askedRef.current, shownSoFar);
+      const next = pickNextQuestion(
+        nextBelief,
+        askedRef.current,
+        shownSoFar,
+        excludedGroupsRef.current,
+      );
       if (next < 0) {
         finish(nextBelief);
         return;
@@ -165,6 +170,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
 
   const start = useCallback(() => {
     askedRef.current = new Set();
+    excludedGroupsRef.current = new Set();
     const fresh = initialBelief();
     setBelief(fresh);
     setResultIndex(null);
@@ -187,11 +193,18 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       setBelief(nextBelief);
       setIsThinking(true);
 
+      // Once the user commits to a mutually-exclusive question (e.g. "main
+      // language is JS/TS"), close out the entire exclusive group so the
+      // engine stops asking contradictory follow-ups.
+      if (value === 1 && question.exclusiveGroup) {
+        excludedGroupsRef.current.add(question.exclusiveGroup);
+      }
+
       thinkingTimeout.current = setTimeout(() => {
         setIsThinking(false);
 
-        // Hard lock: when a self-identification question is answered yes,
-        // trust the user and reveal that persona regardless of belief.
+        // Hard lock: a yes to a self-identification question reveals that
+        // persona immediately, regardless of the current belief.
         if (value === 1 && question.lockPersonaId) {
           const lockIndex = PERSONAS.findIndex(
             (persona) => persona.id === question.lockPersonaId,
@@ -205,14 +218,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         advance(nextBelief, questionsShown);
       }, THINKING_DURATION_MS);
     },
-    [
-      advance,
-      belief,
-      currentQuestion,
-      isThinking,
-      questionsShown,
-      reveal,
-    ],
+    [advance, belief, currentQuestion, isThinking, questionsShown, reveal],
   );
 
   const chooseTiebreak = useCallback(
@@ -258,6 +264,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setResultIndex(null);
     setIsManual(false);
     askedRef.current = new Set();
+    excludedGroupsRef.current = new Set();
   }, []);
 
   const tiebreakPersonas = useMemo(() => {

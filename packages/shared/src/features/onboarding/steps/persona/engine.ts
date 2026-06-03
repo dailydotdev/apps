@@ -84,17 +84,26 @@ const allowedLayers = (questionsShown: number): Set<number> => {
   return new Set([0, 1, 2, 3]);
 };
 
-/** Returns the next best question index, or -1 when none remain. */
+/**
+ * Returns the next best question index, or -1 when none remain.
+ * Questions whose exclusiveGroup has been answered yes already are skipped:
+ * once the user picks their main language, asking about the other languages
+ * is contradictory and wastes a slot.
+ */
 export const pickNextQuestion = (
   belief: number[],
   asked: Set<number>,
   questionsShown: number,
+  excludedGroups: Set<string> = new Set(),
 ): number => {
   const layers = allowedLayers(questionsShown);
 
   return QUESTIONS.reduce(
     (best, question, q) => {
       if (asked.has(q) || !layers.has(question.layer)) {
+        return best;
+      }
+      if (question.exclusiveGroup && excludedGroups.has(question.exclusiveGroup)) {
         return best;
       }
       const gain = informationGain(belief, q);

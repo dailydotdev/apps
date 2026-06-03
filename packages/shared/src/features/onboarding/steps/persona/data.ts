@@ -24,6 +24,14 @@ export interface PersonaQuestion {
    * IS the persona (e.g. 'Security is your primary job').
    */
   lockPersonaId?: string;
+  /**
+   * When set, this question is mutually exclusive with every other
+   * question that shares the same group label. Once any of them is
+   * answered yes, the engine stops asking the rest. Used for the
+   * 'Your main language is X' questions where the user can only
+   * truthfully say yes once.
+   */
+  exclusiveGroup?: string;
 }
 
 export interface PersonaEngineConfig {
@@ -178,17 +186,17 @@ export const QUESTIONS: PersonaQuestion[] = [
   { text: 'You\'re faster in a terminal than in any GUI.', layer: 1 },
   { text: 'You build apps for iPhone or Android.', layer: 1, lockPersonaId: 'mobile-developer' },
   { text: 'Your day involves Jupyter notebooks, datasets, or training runs.', layer: 1 },
-  { text: 'Your main language is TypeScript or JavaScript.', layer: 2 },
-  { text: 'Your main language is Python.', layer: 2 },
-  { text: 'Your main language is Go, Rust, or C/C++.', layer: 2 },
+  { text: 'Your main language is TypeScript or JavaScript.', layer: 2, exclusiveGroup: 'main-language' },
+  { text: 'Your main language is Python.', layer: 2, exclusiveGroup: 'main-language' },
+  { text: 'Your main language is Go, Rust, or C/C++.', layer: 2, exclusiveGroup: 'main-language' },
   { text: 'AI tools are critical to your daily work, not just autocomplete.', layer: 2 },
   { text: 'You\'ve shipped code that calls OpenAI, Anthropic, or another LLM API.', layer: 2 },
   { text: 'You\'ve spent a weekend customizing your editor or dotfiles.', layer: 2 },
   { text: 'You\'ve fine-tuned an ML model in the last six months.', layer: 2 },
   { text: 'AI is what you build, not just what you use.', layer: 2, lockPersonaId: 'ai-specialist' },
   { text: 'You ship web apps with AI features built in.', layer: 2 },
-  { text: 'Your main language is PHP.', layer: 2, lockPersonaId: 'php-developer' },
-  { text: 'Your main stack is C# / .NET.', layer: 2, lockPersonaId: 'dotnet-developer' },
+  { text: 'Your main language is PHP.', layer: 2, lockPersonaId: 'php-developer', exclusiveGroup: 'main-language' },
+  { text: 'Your main stack is C# / .NET.', layer: 2, lockPersonaId: 'dotnet-developer', exclusiveGroup: 'main-language' },
   { text: 'You\'ve been the one paged at 3am when production went down.', layer: 3 },
   { text: 'You write more SQL than CSS.', layer: 3 },
   { text: 'You\'ve drawn boxes and arrows on a whiteboard this month.', layer: 3 },
