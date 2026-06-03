@@ -3,26 +3,34 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { HashtagIcon } from '../icons';
+import { IconSize } from '../Icon';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { getTagPageLink } from '../../lib/links';
+import { webappUrl } from '../../lib/constants';
 import { useChipBarNavigation } from './useChipBarNavigation';
 
 interface ExploreTopicNavProps {
-  // The tag currently being viewed.
+  // The tag currently being viewed (topic page) or undefined on the lobby.
   activeTag?: string;
   // Related / recommended tag names to surface after the followed ones.
   recommendedTags?: string[];
   className?: string;
 }
 
-// Secondary topic bar shown under the Explore hub header on a topic page: the
-// user's followed tags plus related tags, with the current tag pinned active.
-// (Returning to the lobby is handled by the hub header's "Topics" tab.)
+// The discovery surface is branded "Explore" but canonically lives at /tags
+// (the standalone /explore feed is a different page), so the lobby URL is /tags.
+const exploreUrl = `${webappUrl}tags`;
+
+// The shared top navigation for every Explore surface: an "Explore" entry that
+// returns to the lobby, followed by the user's selected tags and then
+// recommended tags — so the bar stays consistent across the lobby and each
+// topic page (Medium's topic-bar pattern, in our design system).
 export function ExploreTopicNav({
   activeTag,
   recommendedTags = [],
   className,
-}: ExploreTopicNavProps): ReactElement | null {
+}: ExploreTopicNavProps): ReactElement {
   const { feedSettings } = useFeedSettings();
   const { ref, onKeyDown } = useChipBarNavigation();
 
@@ -40,13 +48,11 @@ export function ExploreTopicNav({
     return Array.from(new Set([...ordered, ...rec]));
   }, [feedSettings?.includeTags, recommendedTags, activeTag]);
 
-  if (tags.length === 0) {
-    return null;
-  }
+  const isLobby = !activeTag;
 
   return (
     <div className={classNames('relative w-full', className)}>
-      <nav aria-label="Related topics">
+      <nav aria-label="Explore navigation">
         <div
           ref={ref}
           onKeyDown={onKeyDown}
@@ -54,6 +60,26 @@ export function ExploreTopicNav({
           aria-orientation="horizontal"
           className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
         >
+          <Link href={exploreUrl} legacyBehavior>
+            <Button
+              tag="a"
+              href={exploreUrl}
+              aria-current={isLobby ? 'page' : undefined}
+              pressed={isLobby}
+              size={ButtonSize.Small}
+              variant={isLobby ? ButtonVariant.Float : ButtonVariant.Tertiary}
+              icon={<HashtagIcon size={IconSize.Small} />}
+            >
+              Explore
+            </Button>
+          </Link>
+          {tags.length > 0 && (
+            <span
+              role="separator"
+              aria-hidden
+              className="mx-1 h-5 w-px shrink-0 bg-border-subtlest-tertiary"
+            />
+          )}
           {tags.map((tag) => {
             const isActive = tag === activeTag;
             const href = getTagPageLink(tag);

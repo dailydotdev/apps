@@ -12,6 +12,15 @@ const renderComponent = (props: Partial<{ activeTag: string }> = {}) =>
   );
 
 describe('ExploreTopicNav', () => {
+  it('should link Explore back to the lobby', () => {
+    renderComponent();
+
+    expect(screen.getByText('Explore').closest('a')).toHaveAttribute(
+      'href',
+      expect.stringContaining('tags'),
+    );
+  });
+
   it('should render recommended tags linking to their topic page', () => {
     renderComponent();
 

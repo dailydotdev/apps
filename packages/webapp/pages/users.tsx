@@ -16,9 +16,6 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
-import { ExploreHubHeader } from '@dailydotdev/shared/src/components/explore/ExploreHubHeader';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureExploreTopics } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -87,7 +84,6 @@ const LeaderboardPage = ({
   const { isFallback: isLoading } = useRouter();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-  const isExplore = useFeature(featureExploreTopics);
 
   if (isLoading) {
     return <></>;
@@ -97,7 +93,6 @@ const LeaderboardPage = ({
     <>
       {isV2Laptop && <PageHeader title="Leaderboard" />}
       <PageWrapperLayout>
-        {isExplore && <ExploreHubHeader className="mb-6" />}
         {!isV2Laptop && (
           <div className="mb-6 hidden justify-between laptop:flex">
             <BreadCrumbs>

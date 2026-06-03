@@ -19,9 +19,6 @@ import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
 import { OtherFeedPage } from '../../lib/query';
 import { useFeedLayout } from '../../hooks';
-import { useFeature } from '../GrowthBookProvider';
-import { featureExploreTopics } from '../../lib/featureManagement';
-import { ExploreHubHeader } from '../explore/ExploreHubHeader';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -85,7 +82,6 @@ export function FeedExploreHeader({
 }: FeedExploreHeaderProps): ReactElement {
   const isExtension = checkIsExtension();
   const router = useRouter();
-  const isExplore = useFeature(featureExploreTopics);
   const path = getFeedName(router.pathname);
   const currentPathname = (router.asPath || router.pathname).split('?')[0];
   const [period, setPeriod] = useQueryState({
@@ -99,8 +95,7 @@ export function FeedExploreHeader({
 
   return (
     <div className={classNames('flex w-full flex-col', className.container)}>
-      {isExplore && !isExtension && <ExploreHubHeader className="mb-3 px-2" />}
-      {showBreadcrumbs && !isExplore && (
+      {showBreadcrumbs && (
         <BreadCrumbs
           className={classNames(
             'px-2',

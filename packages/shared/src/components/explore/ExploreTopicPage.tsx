@@ -54,7 +54,6 @@ import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { ExploreTopicNav } from './ExploreTopicNav';
-import { ExploreHubHeader } from './ExploreHubHeader';
 import { TagSignupBanner } from './TagSignupBanner';
 import { largeNumberFormat } from '../../lib';
 import { webappUrl } from '../../lib/constants';
@@ -305,7 +304,6 @@ export const ExploreTopicPage = ({
         </Head>
       )}
       <div className="mx-auto flex w-full max-w-screen-laptopL flex-col px-4 py-6 tablet:px-6">
-        <ExploreHubHeader className="mb-4" />
         <ExploreTopicNav
           activeTag={tag}
           recommendedTags={recommendedTags
