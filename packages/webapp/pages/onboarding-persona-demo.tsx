@@ -31,6 +31,7 @@ const seo: NextSeoProps = {
 
 type CompletionDetails = {
   persona?: string;
+  modifiers?: string[];
   confidence?: number;
   questions: number;
 };
@@ -83,6 +84,13 @@ function PersonaQuizDemo(): ReactElement {
               {completion.confidence != null
                 ? `${Math.round(completion.confidence * 100)}%`
                 : 'n/a'}
+            </b>
+            <br />
+            modifiers:{' '}
+            <b>
+              {completion.modifiers && completion.modifiers.length > 0
+                ? completion.modifiers.join(', ')
+                : 'none'}
             </b>
             <br />
             questions: <b>{completion.questions}</b>

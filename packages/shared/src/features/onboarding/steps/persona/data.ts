@@ -27,11 +27,22 @@ export interface PersonaQuestion {
   /**
    * When set, this question is mutually exclusive with every other
    * question that shares the same group label. Once any of them is
-   * answered yes, the engine stops asking the rest. Used for the
-   * 'Your main language is X' questions where the user can only
-   * truthfully say yes once.
+   * answered yes, the engine stops asking the rest.
    */
   exclusiveGroup?: string;
+}
+
+/**
+ * A modifier is an orthogonal trait the user can opt into AFTER the
+ * persona reveal. Modifiers do not change the primary persona but
+ * boost feed content along that dimension (AI tooling content for
+ * AI Heavy, founder/startup content for Indie Hacker, etc.).
+ */
+export interface PersonaModifier {
+  id: string;
+  label: string;
+  emoji: string;
+  description: string;
 }
 
 export interface PersonaEngineConfig {
@@ -81,28 +92,12 @@ export const PERSONAS: DeveloperPersona[] = [
       "Deep in the framework wars. You sweat the details.",
   },
   {
-    id: 'ai-app-builder',
-    name: 'AI App Builder',
-    emoji: '🪄',
-    color: '#8b5cf6',
-    tagline:
-      "You wire LLMs into web apps. Cursor is your IDE.",
-  },
-  {
     id: 'ai-specialist',
     name: 'AI Specialist',
     emoji: '🤖',
     color: '#22c55e',
     tagline:
       "You live in Claude, agents, and RAG pipelines. AI is your work.",
-  },
-  {
-    id: 'engineering-leader',
-    name: 'Engineering Leader',
-    emoji: '📰',
-    color: '#eab308',
-    tagline:
-      "You read more about leadership and trends than your IDE.",
   },
   {
     id: 'backend-developer',
@@ -176,12 +171,20 @@ export const PERSONAS: DeveloperPersona[] = [
     tagline:
       "iOS, Android, Flutter. The app store is your stage.",
   },
+  {
+    id: 'tech-strategist',
+    name: 'Tech Strategist',
+    emoji: '💼',
+    color: '#64748b',
+    tagline:
+      "Product, design, strategy. You shape what gets built without writing the code.",
+  },
 ];
 
 export const QUESTIONS: PersonaQuestion[] = [
   { text: 'You ship the things users see and click on.', layer: 0, exclusiveGroup: 'primary-domain' },
   { text: 'Your work is mostly backend or infrastructure, not frontend or mobile.', layer: 0, exclusiveGroup: 'primary-domain' },
-  { text: 'You read more about the industry than you write code these days.', layer: 0 },
+  { text: 'You don\'t write code as part of your day-to-day job.', layer: 0, lockPersonaId: 'tech-strategist' },
   { text: 'Your main output is a web app people open in a browser.', layer: 1 },
   { text: 'You\'re faster in a terminal than in any GUI.', layer: 1 },
   { text: 'You build apps for iPhone or Android.', layer: 1, lockPersonaId: 'mobile-developer' },
@@ -189,50 +192,67 @@ export const QUESTIONS: PersonaQuestion[] = [
   { text: 'Your main language is TypeScript or JavaScript.', layer: 2, exclusiveGroup: 'main-language' },
   { text: 'Your main language is Python.', layer: 2, exclusiveGroup: 'main-language' },
   { text: 'Your main language is Go, Rust, or C/C++.', layer: 2, exclusiveGroup: 'main-language' },
-  { text: 'You use agentic AI tools (Claude Code, Cursor Agent) that run on tasks autonomously, not just chat or autocomplete.', layer: 2 },
-  { text: 'You\'ve shipped code that calls OpenAI, Anthropic, or another LLM API.', layer: 2 },
-  { text: 'You\'ve spent a weekend customizing your editor or dotfiles.', layer: 2 },
-  { text: 'You\'ve fine-tuned an ML model in the last six months.', layer: 2 },
   { text: 'AI is what you build, not just what you use.', layer: 2, lockPersonaId: 'ai-specialist' },
-  { text: 'You ship web apps with AI features built in.', layer: 2 },
   { text: 'Your main language is PHP.', layer: 2, lockPersonaId: 'php-developer', exclusiveGroup: 'main-language' },
   { text: 'Your main stack is C# / .NET.', layer: 2, lockPersonaId: 'dotnet-developer', exclusiveGroup: 'main-language' },
   { text: 'You\'ve been the one paged at 3am when production went down.', layer: 3 },
   { text: 'You write more SQL than CSS.', layer: 3 },
   { text: 'You\'ve drawn boxes and arrows on a whiteboard this month.', layer: 3 },
-  { text: 'You actively follow tech industry news (deals, hiring, leadership).', layer: 3 },
   { text: 'You specialize in one stack. You don\'t dabble across many.', layer: 2 },
   { text: 'You build games or interactive 3D experiences.', layer: 2, lockPersonaId: 'game-developer' },
   { text: 'Security is your primary job, not a side concern.', layer: 2, lockPersonaId: 'security-engineer' },
 ];
 
+export const MODIFIERS: PersonaModifier[] = [
+  {
+    id: 'ai-heavy',
+    label: 'AI Heavy',
+    emoji: '🤖',
+    description:
+      "You use AI tools (Cursor, Claude, agents) for meaningful chunks of your work.",
+  },
+  {
+    id: 'indie-hacker',
+    label: 'Indie Hacker',
+    emoji: '🚀',
+    description:
+      "You're building your own product, startup, or side business.",
+  },
+  {
+    id: 'engineering-leader',
+    label: 'Engineering Leader',
+    emoji: '📰',
+    description:
+      "You lead engineers or set technical direction more than you write code.",
+  },
+];
+
 /**
  * Likelihood matrix: P[persona][question] = probability a member of that
- * persona answers "yes". Computed from 90 days of engagement data on
- * 93,539 active daily.dev users. Rows align with PERSONAS, columns with
- * QUESTIONS.
+ * persona answers "yes". Rows align with PERSONAS, columns with QUESTIONS.
+ * Tech Strategist row and the 'don't write code' column are hand-crafted
+ * since that persona isn't yet visible in behavioural clustering.
  */
 export const PERSONA_QUESTION_LIKELIHOOD: number[][] = [
-  [0.189, 0.273, 0.006, 0.147, 0.414, 0.0, 0.028, 0.357, 0.157, 0.328, 0.617, 0.276, 0.285, 0.018, 0.003, 0.032, 0.002, 0.001, 0.185, 0.245, 0.203, 0.238, 0.034, 0.001, 0.003],
-  [1.0, 0.0, 0.0, 1.0, 0.155, 0.0, 0.01, 1.0, 0.081, 0.234, 0.274, 0.294, 0.099, 0.006, 0.0, 0.247, 0.008, 0.002, 0.083, 0.201, 0.115, 0.162, 0.001, 0.002, 0.0],
-  [1.0, 0.0, 0.0, 1.0, 0.033, 0.0, 0.004, 1.0, 0.041, 0.064, 0.112, 0.097, 0.02, 0.002, 0.0, 0.151, 0.012, 0.003, 0.011, 0.046, 0.026, 0.037, 0.84, 0.006, 0.006],
-  [0.889, 0.006, 0.0, 0.896, 0.051, 0.0, 0.004, 0.929, 0.078, 0.126, 0.886, 0.504, 0.055, 0.004, 0.026, 0.87, 0.002, 0.0, 0.055, 0.082, 0.086, 0.129, 0.007, 0.001, 0.0],
-  [0.058, 0.06, 0.069, 0.052, 0.08, 0.0, 0.019, 0.088, 0.131, 0.055, 1.0, 0.168, 0.056, 0.02, 0.885, 0.039, 0.007, 0.004, 0.041, 0.04, 0.063, 0.16, 0.564, 0.002, 0.006],
-  [0.064, 0.119, 0.484, 0.07, 0.074, 0.0, 0.046, 0.119, 0.196, 0.09, 0.661, 0.094, 0.045, 0.044, 0.027, 0.03, 0.006, 0.002, 0.034, 0.145, 0.107, 0.917, 0.04, 0.001, 0.004],
-  [0.09, 0.87, 0.007, 0.099, 0.084, 0.0, 0.015, 0.118, 0.09, 0.079, 0.086, 0.083, 0.036, 0.014, 0.001, 0.005, 0.006, 0.002, 0.036, 0.999, 0.137, 0.459, 0.157, 0.002, 0.001],
-  [0.05, 0.365, 0.192, 0.062, 0.06, 0.0, 0.011, 0.109, 0.086, 0.102, 0.181, 0.097, 0.017, 0.011, 0.0, 0.008, 0.005, 0.002, 0.066, 0.3, 0.909, 0.517, 0.048, 0.001, 0.001],
-  [0.099, 0.854, 0.001, 0.1, 0.948, 0.0, 0.028, 0.169, 0.127, 0.987, 0.182, 0.064, 0.109, 0.024, 0.002, 0.01, 0.005, 0.001, 0.119, 0.158, 0.149, 0.072, 0.065, 0.002, 0.002],
-  [0.069, 0.908, 0.0, 0.07, 0.938, 0.0, 0.021, 0.151, 0.111, 0.171, 0.216, 0.077, 0.104, 0.018, 0.004, 0.006, 0.004, 0.001, 0.943, 0.234, 0.191, 0.099, 0.118, 0.001, 0.008],
-  [0.989, 0.154, 0.0, 1.0, 0.119, 0.0, 0.006, 0.338, 0.062, 0.151, 0.268, 0.146, 0.084, 0.005, 0.001, 0.023, 0.879, 0.001, 0.093, 0.193, 0.075, 0.097, 0.136, 0.003, 0.004],
-  [0.409, 0.465, 0.021, 0.507, 0.162, 0.0, 0.021, 0.507, 0.12, 0.09, 0.139, 0.058, 0.088, 0.012, 0.003, 0.077, 0.009, 0.001, 0.045, 0.062, 0.032, 0.066, 0.135, 0.008, 0.683],
-  [0.097, 0.841, 0.0, 0.097, 0.169, 0.0, 0.006, 0.218, 0.045, 0.158, 0.252, 0.084, 0.131, 0.008, 0.0, 0.009, 0.003, 0.825, 0.073, 0.207, 0.218, 0.09, 0.141, 0.008, 0.004],
-  [0.946, 0.002, 0.001, 0.169, 0.169, 0.0, 0.028, 0.259, 0.132, 0.209, 0.263, 0.064, 0.074, 0.02, 0.0, 0.025, 0.006, 0.01, 0.033, 0.079, 0.05, 0.137, 0.128, 0.763, 0.002],
-  [0.914, 0.0, 0.003, 0.359, 0.119, 1.0, 0.005, 0.376, 0.072, 0.058, 0.231, 0.065, 0.07, 0.005, 0.016, 0.07, 0.015, 0.005, 0.025, 0.096, 0.115, 0.047, 0.142, 0.016, 0.004],
+  [0.189, 0.273, 0.03, 0.147, 0.414, 0.0, 0.028, 0.357, 0.157, 0.328, 0.003, 0.002, 0.001, 0.185, 0.245, 0.203, 0.034, 0.001, 0.003],
+  [1.0, 0.0, 0.02, 1.0, 0.155, 0.0, 0.01, 1.0, 0.081, 0.234, 0.0, 0.008, 0.002, 0.083, 0.201, 0.115, 0.001, 0.002, 0.0],
+  [1.0, 0.0, 0.02, 1.0, 0.033, 0.0, 0.004, 1.0, 0.041, 0.064, 0.0, 0.012, 0.003, 0.011, 0.046, 0.026, 0.84, 0.006, 0.006],
+  [0.058, 0.06, 0.03, 0.052, 0.08, 0.0, 0.019, 0.088, 0.131, 0.055, 0.885, 0.007, 0.004, 0.041, 0.04, 0.063, 0.564, 0.002, 0.006],
+  [0.09, 0.87, 0.02, 0.099, 0.084, 0.0, 0.015, 0.118, 0.09, 0.079, 0.001, 0.006, 0.002, 0.036, 0.999, 0.137, 0.157, 0.002, 0.001],
+  [0.05, 0.365, 0.08, 0.062, 0.06, 0.0, 0.011, 0.109, 0.086, 0.102, 0.0, 0.005, 0.002, 0.066, 0.3, 0.909, 0.048, 0.001, 0.001],
+  [0.099, 0.854, 0.02, 0.1, 0.948, 0.0, 0.028, 0.169, 0.127, 0.987, 0.002, 0.005, 0.001, 0.119, 0.158, 0.149, 0.065, 0.002, 0.002],
+  [0.069, 0.908, 0.05, 0.07, 0.938, 0.0, 0.021, 0.151, 0.111, 0.171, 0.004, 0.004, 0.001, 0.943, 0.234, 0.191, 0.118, 0.001, 0.008],
+  [0.989, 0.154, 0.02, 1.0, 0.119, 0.0, 0.006, 0.338, 0.062, 0.151, 0.001, 0.879, 0.001, 0.093, 0.193, 0.075, 0.136, 0.003, 0.004],
+  [0.409, 0.465, 0.05, 0.507, 0.162, 0.0, 0.021, 0.507, 0.12, 0.09, 0.003, 0.009, 0.001, 0.045, 0.062, 0.032, 0.135, 0.008, 0.683],
+  [0.097, 0.841, 0.02, 0.097, 0.169, 0.0, 0.006, 0.218, 0.045, 0.158, 0.0, 0.003, 0.825, 0.073, 0.207, 0.218, 0.141, 0.008, 0.004],
+  [0.946, 0.002, 0.02, 0.169, 0.169, 0.0, 0.028, 0.259, 0.132, 0.209, 0.0, 0.006, 0.01, 0.033, 0.079, 0.05, 0.128, 0.763, 0.002],
+  [0.914, 0.0, 0.02, 0.359, 0.119, 1.0, 0.005, 0.376, 0.072, 0.058, 0.016, 0.015, 0.005, 0.025, 0.096, 0.115, 0.142, 0.016, 0.004],
+  [0.2, 0.03, 0.95, 0.05, 0.02, 0.03, 0.05, 0.03, 0.05, 0.01, 0.03, 0.01, 0.01, 0.02, 0.05, 0.4, 0.25, 0.02, 0.03],
 ];
 
 /** Prior probability of each persona (log-shaped to balance large and niche personas). */
 export const PERSONA_PRIOR: number[] = [
-  0.2071, 0.1152, 0.0726, 0.0942, 0.0744, 0.0737, 0.0718, 0.0562, 0.0541, 0.0421, 0.0408, 0.025, 0.0237, 0.0176, 0.0317,
+  0.202, 0.2043, 0.0708, 0.0726, 0.07, 0.1267, 0.0528, 0.0411, 0.0398, 0.0244, 0.0231, 0.0172, 0.0309, 0.0244,
 ];
 
 export const PERSONA_ENGINE_CONFIG: PersonaEngineConfig = {
@@ -242,8 +262,8 @@ export const PERSONA_ENGINE_CONFIG: PersonaEngineConfig = {
   triplebreakFloor: 0.3,
   fallbackFloor: 0.12,
   fallbackPersonaId: 'generalist-developer',
-  maxQuestions: 12,
-  minQuestions: 6,
+  maxQuestions: 10,
+  minQuestions: 5,
   instantLockThreshold: 0.85,
   instantLockMargin: 0.5,
 };

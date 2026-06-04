@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { FunnelStepPersonaQuiz } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
@@ -42,9 +43,7 @@ const PersonaCard = ({
   >
     <span
       className={
-        size === 'small'
-          ? 'text-4xl leading-none'
-          : 'text-5xl leading-none'
+        size === 'small' ? 'text-4xl leading-none' : 'text-5xl leading-none'
       }
       style={{ color: persona.color }}
     >
@@ -75,6 +74,8 @@ function FunnelPersonaQuizComponent({
     isThinking,
     tiebreakPersonas,
     triplebreakPersonas,
+    modifiers,
+    selectedModifierIds,
     personas,
     result,
     isManual,
@@ -84,6 +85,8 @@ function FunnelPersonaQuizComponent({
     chooseTiebreak,
     pickManually,
     selectPersona,
+    toggleModifier,
+    confirmModifiers,
   } = usePersonaQuiz();
 
   const handleComplete = () => {
@@ -91,6 +94,7 @@ function FunnelPersonaQuizComponent({
       type: FunnelStepTransitionType.Complete,
       details: {
         persona: result?.persona.id,
+        modifiers: result?.modifiers ?? [],
         confidence: isManual ? undefined : result?.confidence,
         questions: questionsAnswered,
         manual: isManual,
@@ -250,8 +254,84 @@ function FunnelPersonaQuizComponent({
     );
   }
 
+  if (phase === 'modifiers' && result) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
+        <span className="text-6xl leading-none">{MASCOT_EMOJI}</span>
+        <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
+          One more thing.
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+          className="max-w-md"
+        >
+          Tick any of these that describe you. They tune your feed beyond
+          your persona.
+        </Typography>
+        <div className="flex w-full max-w-xl flex-col gap-3">
+          {modifiers.map((modifier) => {
+            const checked = selectedModifierIds.includes(modifier.id);
+            return (
+              <button
+                key={modifier.id}
+                type="button"
+                role="checkbox"
+                aria-checked={checked}
+                onClick={() => toggleModifier(modifier.id)}
+                className={classNames(
+                  'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left transition-colors',
+                  checked
+                    ? 'border-accent-cabbage-default bg-surface-float'
+                    : 'border-border-subtlest-tertiary bg-surface-float hover:border-text-quaternary',
+                )}
+              >
+                <span className="shrink-0 text-4xl leading-none">
+                  {modifier.emoji}
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <Typography type={TypographyType.Body} bold>
+                    {modifier.label}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Secondary}
+                  >
+                    {modifier.description}
+                  </Typography>
+                </span>
+                <span
+                  className={classNames(
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-6 border-2 text-sm font-bold',
+                    checked
+                      ? 'border-accent-cabbage-default bg-accent-cabbage-default text-text-primary'
+                      : 'border-border-subtlest-tertiary',
+                  )}
+                  aria-hidden
+                >
+                  {checked ? '✓' : ''}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.XLarge}
+          onClick={confirmModifiers}
+          type="button"
+        >
+          {selectedModifierIds.length === 0 ? 'None of these — continue' : 'Continue →'}
+        </Button>
+      </div>
+    );
+  }
+
   if (phase === 'reveal' && result) {
-    const { persona } = result;
+    const { persona, modifiers: selectedIds } = result;
+    const appliedModifiers = modifiers.filter((m) =>
+      selectedIds.includes(m.id),
+    );
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
         <span
@@ -278,6 +358,21 @@ function FunnelPersonaQuizComponent({
         >
           {persona.tagline}
         </Typography>
+        {appliedModifiers.length > 0 && (
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {appliedModifiers.map((modifier) => (
+              <span
+                key={modifier.id}
+                className="flex items-center gap-1 rounded-full border border-border-subtlest-tertiary bg-surface-float px-3 py-1 text-sm"
+              >
+                <span aria-hidden>{modifier.emoji}</span>
+                <Typography type={TypographyType.Footnote}>
+                  {modifier.label}
+                </Typography>
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mt-2 flex flex-col items-center gap-3">
           <Button
             variant={ButtonVariant.Primary}
