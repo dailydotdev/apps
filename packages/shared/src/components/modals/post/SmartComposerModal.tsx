@@ -28,6 +28,8 @@ import { Drawer, DrawerPosition } from '../../drawers/Drawer';
 import { labels } from '../../../lib/labels';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
+import type { WriteFormTab } from '../../fields/form/common';
 import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -62,6 +64,28 @@ import {
   type TextFormState,
 } from '../../post/composer/types';
 
+// `defaultWriteTab` is persisted as the WriteFormTab *key* (e.g. "Share"), not
+// the enum value ("Share a link") — see settings/composition.tsx which saves
+// `value: key`. Map by key to mirror how squads/create.tsx reads it.
+const writeFormTabKeyToKind: Record<keyof typeof WriteFormTab, ComposerKind> = {
+  NewPost: 'text',
+  Share: 'link',
+  Poll: 'poll',
+  Standup: 'standup',
+};
+
+const resolveDefaultKind = (
+  defaultWriteTab: WriteFormTab | undefined,
+  isStandupEnabled: boolean,
+): ComposerKind => {
+  const key = defaultWriteTab as unknown as keyof typeof WriteFormTab;
+  const defaultKind = key ? writeFormTabKeyToKind[key] : 'text';
+  if (defaultKind === 'standup' && !isStandupEnabled) {
+    return 'text';
+  }
+  return defaultKind ?? 'text';
+};
+
 export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialSquadHandle?: string;
@@ -85,13 +109,37 @@ export function SmartComposerModal({
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
   const isStandupEnabled = useStandupCreation();
+  const { flags, loadedSettings } = useSettingsContext();
   const isEditing = !!editPost;
   const [kind, setKind] = useState<ComposerKind>(() => {
     if (isEditing) {
       return 'text';
     }
-    return initialUrl ? 'link' : 'text';
+    if (initialUrl) {
+      return 'link';
+    }
+    return resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled);
   });
+  // Settings load async; if the modal opens before they're ready, apply the
+  // user's default post type once they arrive — unless the user already picked.
+  const hasUserChangedKind = useRef(false);
+  const hasAppliedDefaultKind = useRef(loadedSettings);
+  useEffect(() => {
+    if (!loadedSettings || hasAppliedDefaultKind.current) {
+      return;
+    }
+    hasAppliedDefaultKind.current = true;
+    if (isEditing || initialUrl || hasUserChangedKind.current) {
+      return;
+    }
+    setKind(resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled));
+  }, [
+    loadedSettings,
+    isEditing,
+    initialUrl,
+    flags?.defaultWriteTab,
+    isStandupEnabled,
+  ]);
   const [text, setText] = useState<TextFormState>(() =>
     editPost
       ? { title: editPost.title ?? '', body: editPost.content ?? '' }
@@ -185,6 +233,7 @@ export function SmartComposerModal({
 
   const onKindChange = useCallback(
     (next: ComposerKind) => {
+      hasUserChangedKind.current = true;
       setKind((prev) => {
         if (prev !== next) {
           logEvent({

@@ -168,6 +168,12 @@ const isValidAction = (
   return typeof action === 'string' && action in actionToAuthDisplay;
 };
 
+// login/signup are no-ops for an already-authenticated user: there is nothing
+// to authenticate, so we redirect to the app instead of rendering a blank
+// funnel. verify/recover/changePassword stay valid for a logged-in user.
+const isLoginOrSignupAction = (action?: string | string[]): boolean =>
+  action === OnboardingActions.Login || action === OnboardingActions.Signup;
+
 const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -279,6 +285,7 @@ const useOnboardingAuth = () => {
     isAuthenticating: auth.isAuthenticating,
     updateAuth,
     isLoggedIn,
+    shouldVerify: anonymous?.shouldVerify,
   };
 };
 
@@ -290,6 +297,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     authOptionProps,
     funnelState,
     isLoggedIn,
+    shouldVerify,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
@@ -335,10 +343,21 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
       query: { action },
     } = router;
 
+    if (!isAuthReady) {
+      return;
+    }
+
+    // A logged-in user (with no pending verification) can't act on a
+    // login/signup action, so redirect to the app instead of leaving them on a
+    // blank render. redirectToApp handles query cleanup and the afterAuth target.
+    if (isLoggedIn && !shouldVerify && isLoginOrSignupAction(action)) {
+      redirectToApp(router);
+      return;
+    }
+
     if (
       action ||
       isAuthenticating !== false || // also cover the case when auth is still undefined at load time
-      !isAuthReady ||
       isFunnelReady ||
       (isLoggedIn && !isOnboardingActionsReady)
     ) {
@@ -362,6 +381,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     isFunnelReady,
     isSwipeOnboardingPreviewForced,
     isLoggedIn,
+    shouldVerify,
     isOnboardingActionsReady,
     router,
   ]);
