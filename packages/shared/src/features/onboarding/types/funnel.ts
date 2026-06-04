@@ -390,6 +390,7 @@ export interface FunnelStepPersonaQuiz
     confidence?: number;
     questions: number;
     manual: boolean;
+    modifiers: string[];
   }>;
 }
 

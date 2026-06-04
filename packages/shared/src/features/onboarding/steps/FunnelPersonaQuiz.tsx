@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import type { FunnelStepPersonaQuiz } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -16,11 +16,45 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
+import ConfettiSvg from '../../../svg/ConfettiSvg';
 import { usePersonaQuiz } from './persona/usePersonaQuiz';
+import type { AnswerValue } from './persona/engine';
 import type { DeveloperPersona } from './persona/data';
+import styles from './FunnelPersonaQuiz.module.css';
 
 // Placeholder until the Patchy mascot creative is ready.
 const MASCOT_EMOJI = '🧞';
+
+const MASCOT_GLOW = 'drop-shadow(0 0 40px rgba(192,132,252,.45))';
+
+type MascotReaction = 'bounce' | 'wiggle' | 'tilt';
+
+const reactionForAnswer = (value: AnswerValue): MascotReaction => {
+  if (value === 1) {
+    return 'bounce';
+  }
+  if (value === 0) {
+    return 'wiggle';
+  }
+  return 'tilt';
+};
+
+const THINKING_DOT_DELAYS = [0, 0.16, 0.32];
+
+const ThinkingDots = (): ReactElement => (
+  <span className="flex items-center gap-1.5" aria-label="Patchy is thinking">
+    {THINKING_DOT_DELAYS.map((delay) => (
+      <span
+        key={delay}
+        className={classNames(
+          styles.dot,
+          'size-2 rounded-full bg-accent-cabbage-default',
+        )}
+        style={{ animationDelay: `${delay}s` }}
+      />
+    ))}
+  </span>
+);
 
 type PersonaCardSize = 'medium' | 'small';
 
@@ -70,6 +104,7 @@ function FunnelPersonaQuizComponent({
 }: FunnelStepPersonaQuiz): ReactElement {
   const {
     phase,
+    questionNumber,
     questionText,
     isThinking,
     tiebreakPersonas,
@@ -85,9 +120,27 @@ function FunnelPersonaQuizComponent({
     chooseTiebreak,
     pickManually,
     selectPersona,
+    confirmPersona,
     toggleModifier,
-    confirmModifiers,
   } = usePersonaQuiz();
+
+  // Drives the mascot reaction; reactionKey forces the animation to replay on
+  // every tap, even when the same reaction repeats.
+  const [reaction, setReaction] = useState<MascotReaction | null>(null);
+  const [reactionKey, setReactionKey] = useState(0);
+
+  useEffect(() => {
+    setReaction(null);
+  }, [questionText]);
+
+  const handleAnswer = (value: AnswerValue) => {
+    if (isThinking) {
+      return;
+    }
+    setReaction(reactionForAnswer(value));
+    setReactionKey((key) => key + 1);
+    answer(value);
+  };
 
   const handleComplete = () => {
     onTransition({
@@ -104,10 +157,13 @@ function FunnelPersonaQuizComponent({
 
   if (phase === 'intro') {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-10 text-center">
+      <div
+        key={phase}
+        className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-10 text-center"
+      >
         <span
-          className="text-[6rem] leading-none"
-          style={{ filter: 'drop-shadow(0 0 40px rgba(192,132,252,.45))' }}
+          className={classNames(styles.float, 'text-[6rem] leading-none')}
+          style={{ filter: MASCOT_GLOW }}
         >
           {MASCOT_EMOJI}
         </span>
@@ -151,7 +207,10 @@ function FunnelPersonaQuizComponent({
 
   if (phase === 'picker') {
     return (
-      <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10 text-center">
+      <div
+        key={phase}
+        className="flex flex-1 flex-col items-center gap-6 px-6 py-10 text-center"
+      >
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           Who are you, really?
         </Typography>
@@ -195,8 +254,16 @@ function FunnelPersonaQuizComponent({
 
   if (phase === 'tiebreak') {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
-        <span className="text-6xl leading-none">{MASCOT_EMOJI}</span>
+      <div
+        key={phase}
+        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+      >
+        <span
+          className={classNames(styles.float, 'text-6xl leading-none')}
+          style={{ filter: MASCOT_GLOW }}
+        >
+          {MASCOT_EMOJI}
+        </span>
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           I&apos;m torn between these two.
         </Typography>
@@ -221,8 +288,16 @@ function FunnelPersonaQuizComponent({
 
   if (phase === 'triplebreak') {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
-        <span className="text-6xl leading-none">{MASCOT_EMOJI}</span>
+      <div
+        key={phase}
+        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+      >
+        <span
+          className={classNames(styles.float, 'text-6xl leading-none')}
+          style={{ filter: MASCOT_GLOW }}
+        >
+          {MASCOT_EMOJI}
+        </span>
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           You&apos;re a tough one. Could be any of these three.
         </Typography>
@@ -256,8 +331,16 @@ function FunnelPersonaQuizComponent({
 
   if (phase === 'modifiers' && result) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
-        <span className="text-6xl leading-none">{MASCOT_EMOJI}</span>
+      <div
+        key={phase}
+        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+      >
+        <span
+          className={classNames(styles.float, 'text-6xl leading-none')}
+          style={{ filter: MASCOT_GLOW }}
+        >
+          {MASCOT_EMOJI}
+        </span>
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           One more thing.
         </Typography>
@@ -266,8 +349,8 @@ function FunnelPersonaQuizComponent({
           color={TypographyColor.Secondary}
           className="max-w-md"
         >
-          Tick any of these that describe you. They tune your feed beyond
-          your persona.
+          Tick any of these that describe you. They tune your feed beyond your
+          persona.
         </Typography>
         <div className="flex w-full max-w-xl flex-col gap-3">
           {modifiers.map((modifier) => {
@@ -318,35 +401,50 @@ function FunnelPersonaQuizComponent({
         <Button
           variant={ButtonVariant.Primary}
           size={ButtonSize.XLarge}
-          onClick={confirmModifiers}
+          onClick={handleComplete}
           type="button"
         >
-          {selectedModifierIds.length === 0 ? 'None of these — continue' : 'Continue →'}
+          {selectedModifierIds.length === 0
+            ? 'None of these — continue'
+            : 'Continue →'}
         </Button>
       </div>
     );
   }
 
   if (phase === 'reveal' && result) {
-    const { persona, modifiers: selectedIds } = result;
-    const appliedModifiers = modifiers.filter((m) =>
-      selectedIds.includes(m.id),
-    );
+    const { persona } = result;
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
-        <span
-          className="text-[6rem] leading-none"
-          style={{
-            color: persona.color,
-            filter: `drop-shadow(0 0 60px ${persona.color})`,
-          }}
-        >
-          {persona.emoji}
-        </span>
+      <div
+        key={phase}
+        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+      >
+        <div className="relative flex items-center justify-center">
+          <ConfettiSvg
+            aria-hidden
+            className="pointer-events-none absolute -top-10 h-44 w-72"
+          />
+          <span
+            className={classNames(
+              styles.revealEmoji,
+              'text-[6rem] leading-none',
+            )}
+            style={
+              {
+                color: persona.color,
+                filter: `drop-shadow(0 0 40px ${persona.color})`,
+                '--persona-glow': persona.color,
+              } as CSSProperties
+            }
+          >
+            {persona.emoji}
+          </span>
+        </div>
         <Typography
           tag={TypographyTag.H1}
           type={TypographyType.LargeTitle}
           bold
+          className={styles.revealName}
           style={{ color: persona.color }}
         >
           {persona.name}
@@ -354,30 +452,20 @@ function FunnelPersonaQuizComponent({
         <Typography
           type={TypographyType.Body}
           color={TypographyColor.Secondary}
-          className="max-w-md"
+          className={classNames(styles.revealTagline, 'max-w-md')}
         >
           {persona.tagline}
         </Typography>
-        {appliedModifiers.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {appliedModifiers.map((modifier) => (
-              <span
-                key={modifier.id}
-                className="flex items-center gap-1 rounded-full border border-border-subtlest-tertiary bg-surface-float px-3 py-1 text-sm"
-              >
-                <span aria-hidden>{modifier.emoji}</span>
-                <Typography type={TypographyType.Footnote}>
-                  {modifier.label}
-                </Typography>
-              </span>
-            ))}
-          </div>
-        )}
-        <div className="mt-2 flex flex-col items-center gap-3">
+        <div
+          className={classNames(
+            styles.revealActions,
+            'mt-2 flex flex-col items-center gap-3',
+          )}
+        >
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
-            onClick={handleComplete}
+            onClick={confirmPersona}
             type="button"
           >
             {cta || "Yes, that's me!"}
@@ -396,14 +484,27 @@ function FunnelPersonaQuizComponent({
   }
 
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center gap-10 px-6 py-10 text-center">
+    <div
+      key={phase}
+      className="relative flex flex-1 flex-col items-center justify-center gap-10 px-6 py-10 text-center"
+    >
       <span
-        className="pointer-events-none absolute left-6 top-1/2 hidden -translate-y-1/2 text-[12rem] leading-none laptop:block"
+        key={`mascot-${reactionKey}`}
+        className={classNames(
+          reaction ? styles[reaction] : styles.float,
+          'pointer-events-none absolute left-6 top-1/2 hidden -translate-y-1/2 text-[12rem] leading-none laptop:block',
+        )}
         style={{ filter: 'drop-shadow(0 0 50px rgba(192,132,252,.45))' }}
       >
         {MASCOT_EMOJI}
       </span>
-      <div className="flex w-full max-w-xl flex-col gap-8">
+      <div
+        key={`question-${questionNumber}`}
+        className={classNames(
+          styles.questionIn,
+          'flex w-full max-w-xl flex-col gap-8',
+        )}
+      >
         <Typography
           tag={TypographyTag.H2}
           type={TypographyType.LargeTitle}
@@ -411,39 +512,51 @@ function FunnelPersonaQuizComponent({
         >
           {questionText}
         </Typography>
-        <div className="mx-auto flex w-full max-w-xs flex-col gap-3">
-          <Button
-            className="w-full"
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Avocado}
-            size={ButtonSize.Large}
-            type="button"
-            disabled={isThinking}
-            onClick={() => answer(1)}
+        <div className="relative mx-auto w-full max-w-xs">
+          <div
+            className={classNames(
+              'flex flex-col gap-3 transition-opacity duration-200',
+              isThinking && 'pointer-events-none opacity-0',
+            )}
           >
-            Yes
-          </Button>
-          <Button
-            className="w-full"
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Large}
-            type="button"
-            disabled={isThinking}
-            onClick={() => answer(0.5)}
-          >
-            Not sure
-          </Button>
-          <Button
-            className="w-full"
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Ketchup}
-            size={ButtonSize.Large}
-            type="button"
-            disabled={isThinking}
-            onClick={() => answer(0)}
-          >
-            No
-          </Button>
+            <Button
+              className="w-full"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Avocado}
+              size={ButtonSize.Large}
+              type="button"
+              disabled={isThinking}
+              onClick={() => handleAnswer(1)}
+            >
+              Yes
+            </Button>
+            <Button
+              className="w-full"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Large}
+              type="button"
+              disabled={isThinking}
+              onClick={() => handleAnswer(0.5)}
+            >
+              Not sure
+            </Button>
+            <Button
+              className="w-full"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Ketchup}
+              size={ButtonSize.Large}
+              type="button"
+              disabled={isThinking}
+              onClick={() => handleAnswer(0)}
+            >
+              No
+            </Button>
+          </div>
+          {isThinking && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ThinkingDots />
+            </div>
+          )}
         </div>
       </div>
     </div>

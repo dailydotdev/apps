@@ -8,12 +8,7 @@ import {
   updateBelief,
 } from './engine';
 import type { DeveloperPersona, PersonaModifier } from './data';
-import {
-  MODIFIERS,
-  PERSONAS,
-  PERSONA_ENGINE_CONFIG,
-  QUESTIONS,
-} from './data';
+import { MODIFIERS, PERSONAS, PERSONA_ENGINE_CONFIG, QUESTIONS } from './data';
 
 export type PersonaQuizPhase =
   | 'intro'
@@ -26,6 +21,12 @@ export type PersonaQuizPhase =
 
 /** UI-only pause so the belief shift feels deliberate; not a game tunable. */
 const THINKING_DURATION_MS = 450;
+
+const ANSWER_LABELS: Record<AnswerValue, string> = {
+  0: 'no',
+  0.5: 'not sure',
+  1: 'yes',
+};
 
 const {
   confidenceThreshold,
@@ -69,8 +70,8 @@ export interface PersonaQuizState {
   chooseTiebreak: (personaId: string) => void;
   pickManually: () => void;
   selectPersona: (personaId: string) => void;
+  confirmPersona: () => void;
   toggleModifier: (modifierId: string) => void;
-  confirmModifiers: () => void;
   restart: () => void;
 }
 
@@ -84,28 +85,36 @@ export const usePersonaQuiz = (): PersonaQuizState => {
   const [resultIndex, setResultIndex] = useState<number | null>(null);
   const [isManual, setIsManual] = useState(false);
   const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([]);
-  /** True once the user has confirmed (or skipped) the modifier screen. */
-  const [modifiersConfirmed, setModifiersConfirmed] = useState(false);
 
   const askedRef = useRef<Set<number>>(new Set());
   const excludedGroupsRef = useRef<Set<string>>(new Set());
+  const answerLogRef = useRef<
+    Array<{ id: string; text: string; answer: string }>
+  >([]);
   const thinkingTimeout = useRef<ReturnType<typeof setTimeout>>();
 
-  const goToModifiers = useCallback(
-    (index: number, nextBelief: number[]) => {
-      setResultIndex(index);
-      setTiebreak(null);
-      setBelief(nextBelief);
-      setSelectedModifierIds([]);
-      setModifiersConfirmed(false);
-      setPhase('modifiers');
-    },
-    [],
-  );
-
-  /** Reveal the final persona (called after modifiers are confirmed). */
-  const reveal = useCallback(() => {
+  // Quiz paths land on the reveal first, so the user can approve Patchy's
+  // guess before the modifiers screen.
+  const revealGuess = useCallback((index: number, nextBelief: number[]) => {
+    setResultIndex(index);
+    setTiebreak(null);
+    setBelief(nextBelief);
+    setSelectedModifierIds([]);
     setPhase('reveal');
+  }, []);
+
+  // Manual selection skips straight to the modifiers screen.
+  const goToModifiers = useCallback((index: number, nextBelief: number[]) => {
+    setResultIndex(index);
+    setTiebreak(null);
+    setBelief(nextBelief);
+    setSelectedModifierIds([]);
+    setPhase('modifiers');
+  }, []);
+
+  // Approve Patchy's guess from the reveal screen.
+  const confirmPersona = useCallback(() => {
+    setPhase('modifiers');
   }, []);
 
   const finish = useCallback(
@@ -120,13 +129,13 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         top.belief >= tiebreakThreshold &&
         top.belief - runnerUp.belief >= tiebreakMargin
       ) {
-        goToModifiers(top.index, nextBelief);
+        revealGuess(top.index, nextBelief);
         return;
       }
 
       // 2. Belief is too diffuse: fall back to the generalist.
       if (top.belief < fallbackFloor) {
-        goToModifiers(FALLBACK_PERSONA_INDEX, nextBelief);
+        revealGuess(FALLBACK_PERSONA_INDEX, nextBelief);
         return;
       }
 
@@ -150,9 +159,9 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         return;
       }
 
-      goToModifiers(top.index, nextBelief);
+      revealGuess(top.index, nextBelief);
     },
-    [goToModifiers],
+    [revealGuess],
   );
 
   const advance = useCallback(
@@ -195,6 +204,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
   const start = useCallback(() => {
     askedRef.current = new Set();
     excludedGroupsRef.current = new Set();
+    answerLogRef.current = [];
     const fresh = initialBelief();
     setBelief(fresh);
     setResultIndex(null);
@@ -202,7 +212,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setIsThinking(false);
     setIsManual(false);
     setSelectedModifierIds([]);
-    setModifiersConfirmed(false);
     setQuestionsShown(0);
     setPhase('playing');
     advance(fresh, 0);
@@ -219,6 +228,15 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       setBelief(nextBelief);
       setIsThinking(true);
 
+      answerLogRef.current.push({
+        id: `q${currentQuestion}`,
+        text: question.text,
+        answer: ANSWER_LABELS[value],
+      });
+      // Debug aid: full answer history with question ids.
+      // eslint-disable-next-line no-console
+      console.log('[persona-quiz] answers', answerLogRef.current);
+
       if (value === 1 && question.exclusiveGroup) {
         excludedGroupsRef.current.add(question.exclusiveGroup);
       }
@@ -231,7 +249,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
             (persona) => persona.id === question.lockPersonaId,
           );
           if (lockIndex >= 0) {
-            goToModifiers(lockIndex, nextBelief);
+            revealGuess(lockIndex, nextBelief);
             return;
           }
         }
@@ -239,14 +257,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         advance(nextBelief, questionsShown);
       }, THINKING_DURATION_MS);
     },
-    [
-      advance,
-      belief,
-      currentQuestion,
-      goToModifiers,
-      isThinking,
-      questionsShown,
-    ],
+    [advance, belief, currentQuestion, revealGuess, isThinking, questionsShown],
   );
 
   const chooseTiebreak = useCallback(
@@ -255,9 +266,9 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       if (index < 0) {
         return;
       }
-      goToModifiers(index, belief);
+      revealGuess(index, belief);
     },
-    [belief, goToModifiers],
+    [belief, revealGuess],
   );
 
   const pickManually = useCallback(() => {
@@ -265,7 +276,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setTiebreak(null);
     setIsManual(false);
     setSelectedModifierIds([]);
-    setModifiersConfirmed(false);
     setPhase('picker');
   }, []);
 
@@ -290,11 +300,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     });
   }, []);
 
-  const confirmModifiers = useCallback(() => {
-    setModifiersConfirmed(true);
-    reveal();
-  }, [reveal]);
-
   const restart = useCallback(() => {
     if (thinkingTimeout.current) {
       clearTimeout(thinkingTimeout.current);
@@ -308,9 +313,9 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setResultIndex(null);
     setIsManual(false);
     setSelectedModifierIds([]);
-    setModifiersConfirmed(false);
     askedRef.current = new Set();
     excludedGroupsRef.current = new Set();
+    answerLogRef.current = [];
   }, []);
 
   const tiebreakPersonas = useMemo(() => {
@@ -334,9 +339,9 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     return {
       persona: PERSONAS[resultIndex],
       confidence: belief[resultIndex],
-      modifiers: modifiersConfirmed ? selectedModifierIds : [],
+      modifiers: selectedModifierIds,
     };
-  }, [belief, modifiersConfirmed, resultIndex, selectedModifierIds]);
+  }, [belief, resultIndex, selectedModifierIds]);
 
   return {
     phase,
@@ -359,8 +364,8 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     chooseTiebreak,
     pickManually,
     selectPersona,
+    confirmPersona,
     toggleModifier,
-    confirmModifiers,
     restart,
   };
 };
