@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
 import type { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
@@ -24,6 +25,8 @@ import { useAuthContext } from '../contexts/AuthContext';
 interface ShareBarProps {
   post: Post;
   visibleRows?: number;
+  title?: string;
+  className?: string;
 }
 
 const columns = 4;
@@ -32,6 +35,8 @@ const fixedOptions = 4;
 export default function ShareBar({
   post,
   visibleRows = 2,
+  title = 'Would you recommend this post?',
+  className,
 }: ShareBarProps): ReactElement {
   const [isExpanded, setIsExpanded] = useState(false);
   const maxVisibleOptions = visibleRows * columns;
@@ -98,10 +103,13 @@ export default function ShareBar({
   };
 
   return (
-    <WidgetContainer className="hidden flex-col !border-0 p-3 laptop:flex">
-      <h4 className="mb-4 font-bold text-text-primary typo-callout">
-        Would you recommend this post?
-      </h4>
+    <WidgetContainer
+      className={classNames(
+        'hidden flex-col !border-0 p-3 laptop:flex',
+        className,
+      )}
+    >
+      <h4 className="mb-4 font-bold text-text-primary typo-callout">{title}</h4>
       <div className="grid grid-cols-4 gap-2 gap-y-4">
         <SocialShareButton
           size={ButtonSize.Medium}

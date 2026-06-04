@@ -91,17 +91,11 @@ export const PostDiscoverySignupHero = ({
       <div className="bg-raw-pepper-90/55 pointer-events-none absolute inset-0" />
       <div className="via-raw-pepper-90/80 from-raw-pepper-90/60 pointer-events-none absolute inset-0 bg-gradient-to-b to-raw-pepper-90/40" />
       <div className="via-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-      <div className="dark relative z-1 mx-auto flex min-h-[20rem] w-full max-w-[48rem] flex-col items-center justify-center gap-5 px-6 py-10 text-center tablet:min-h-[24rem] tablet:px-10 tablet:py-12">
-        <div className="flex flex-col items-center">
-          <h2 className="max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
+      <div className="dark relative z-1 mx-auto flex min-h-[20rem] w-full max-w-[48rem] flex-col items-center justify-center px-6 py-10 text-center tablet:min-h-[24rem] tablet:px-10 tablet:py-12">
+        <div className="w-full max-w-[24rem] rounded-24 border border-border-subtlest-tertiary bg-white/[0.045] p-4 text-center backdrop-blur-md tablet:p-5">
+          <h2 className="mb-4 text-balance font-bold text-white typo-title3 tablet:typo-title2">
             Where developers make every tab count.
           </h2>
-          <p className="text-white/75 mt-3 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
-            Sign in to turn daily.dev into your personalized feed, reputation,
-            saves, and community in every new tab.
-          </p>
-        </div>
-        <div className="w-full max-w-[22rem] rounded-24 border border-border-subtlest-tertiary bg-white/[0.045] p-3 text-center backdrop-blur-md tablet:p-4">
           {isClient && (
             <AuthOptions
               compact

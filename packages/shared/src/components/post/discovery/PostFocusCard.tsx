@@ -210,7 +210,7 @@ export const PostFocusCard = ({
             />
           )}
 
-          <aside className="w-full max-w-80 laptopL:absolute laptopL:left-full laptopL:top-6 laptopL:ml-6 laptopL:w-44 laptopL:max-w-none">
+          <aside className="w-full max-w-80 laptopXL:absolute laptopXL:left-full laptopXL:top-6 laptopXL:ml-6 laptopXL:w-80 laptopXL:max-w-none">
             <PostSidebarAdWidget
               postId={post.id}
               className={{
