@@ -13,6 +13,19 @@ export interface PersonaQuestion {
   layer: number;
   lockPersonaId?: string;
   exclusiveGroup?: string;
+  /**
+   * Groups closed when this question is answered yes. Encodes
+   * implications across groups (e.g. Q2 "you're backend" = yes
+   * closes primary-platform, because backend rules out web/mobile
+   * as the main output).
+   */
+  closesOnYes?: string[];
+  /**
+   * Groups closed when this question is answered no. Symmetric to
+   * closesOnYes for negative implications (e.g. Q1 "you ship UI"
+   * = no also closes primary-platform).
+   */
+  closesOnNo?: string[];
 }
 
 export interface PersonaModifier {
@@ -143,11 +156,13 @@ export const QUESTIONS: PersonaQuestion[] = [
     text: 'You ship the things users see and click on.',
     layer: 0,
     exclusiveGroup: 'primary-domain',
+    closesOnNo: ['primary-platform'],
   },
   {
     text: 'Your work is mostly backend or infrastructure, not frontend or mobile.',
     layer: 0,
     exclusiveGroup: 'primary-domain',
+    closesOnYes: ['primary-platform'],
   },
   {
     text: "You don't write code as part of your day-to-day job.",
@@ -204,7 +219,7 @@ export const QUESTIONS: PersonaQuestion[] = [
     exclusiveGroup: 'main-language',
   },
   {
-    text: "You've been the one paged at 3am when production went down.",
+    text: 'DevOps, SRE, or platform engineering is your job, not just a side responsibility.',
     layer: 3,
   },
   { text: 'You write more SQL than CSS.', layer: 3 },

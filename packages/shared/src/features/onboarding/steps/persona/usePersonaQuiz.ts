@@ -240,6 +240,19 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       if (value === 1 && question.exclusiveGroup) {
         excludedGroupsRef.current.add(question.exclusiveGroup);
       }
+      // closesOnYes / closesOnNo: cross-group implications.
+      // Example: Q2 "you're backend" = yes also closes primary-platform,
+      // because that rules out web/mobile as the main output.
+      if (value === 1 && question.closesOnYes) {
+        for (const group of question.closesOnYes) {
+          excludedGroupsRef.current.add(group);
+        }
+      }
+      if (value === 0 && question.closesOnNo) {
+        for (const group of question.closesOnNo) {
+          excludedGroupsRef.current.add(group);
+        }
+      }
 
       thinkingTimeout.current = setTimeout(() => {
         setIsThinking(false);
