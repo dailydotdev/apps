@@ -6,6 +6,9 @@ import type { TagCategory } from '../../graphql/feedSettings';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
+import { AuthenticationBanner } from '../auth/AuthenticationBanner';
 import { AuthTriggers } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { ExploreCategorySection } from './ExploreCategorySection';
@@ -52,6 +55,8 @@ export function ExploreTopicsPage({
 }: ExploreTopicsPageProps): ReactElement {
   const { feedSettings } = useFeedSettings();
   const { user, showLogin } = useAuthContext();
+  const { shouldShowAuthBanner } = useOnboardingActions();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.TagsFilter,
   });
@@ -368,6 +373,9 @@ export function ExploreTopicsPage({
           </>
         )}
       </div>
+
+      {/* Signup banner pinned to the bottom for logged-out visitors. */}
+      {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
     </>
   );
 }
