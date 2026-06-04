@@ -21,6 +21,8 @@ import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
+import { useClaimableQuestCount } from '../../hooks/useQuestDashboard';
+import { Bubble } from '../tooltips/utils';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
@@ -385,13 +387,19 @@ export const SidebarDesktopV2 = ({
   additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
-    useSettingsContext();
+  const {
+    sidebarExpanded,
+    toggleSidebarExpanded,
+    loadedSettings,
+    optOutQuestSystem,
+  } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openNewSquad } = useSquadNavigation();
   const { isLoggedIn, user } = useAuthContext();
+  const claimableQuestCount = useClaimableQuestCount();
+  const showQuestBadge = !optOutQuestSystem && claimableQuestCount > 0;
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isUserProfileActive =
     !!user?.username && activePage.includes(`/${user.username}`);
@@ -739,10 +747,17 @@ export const SidebarDesktopV2 = ({
                     }}
                     className={classNames(
                       railButtonClass,
+                      'relative',
                       isSelected && 'bg-background-default !text-text-primary',
                     )}
                   >
                     {category.icon(isSelected)}
+                    {category.id === SidebarCategory.GameCenter &&
+                      showQuestBadge && (
+                        <Bubble className="-right-1 top-0 px-1">
+                          {claimableQuestCount}
+                        </Bubble>
+                      )}
                   </button>
                 </RailHoverCard>
               </React.Fragment>
