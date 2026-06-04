@@ -210,6 +210,16 @@ export const featureFeedChips = new Feature<FeedChipsVariant>(
   FeedChipsVariant.None,
 );
 
+export enum HijackingVariant {
+  Default = 'default',
+  CTA = 'cta',
+  Auth = 'auth',
+}
+export const featureHijackingVariants = new Feature<HijackingVariant>(
+  'hijacking_variants',
+  HijackingVariant.CTA,
+);
+
 export const featureLayoutV2 = new Feature('layout_v2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);

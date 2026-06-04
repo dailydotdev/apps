@@ -1080,6 +1080,57 @@ meter::-webkit-meter-bar {
     background: rgb(255 0 168 / 35%);
   }
 
+  .top-hero-aurora {
+    background:
+      radial-gradient(
+        80% 95% at 50% 122%,
+        color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 18%)
+          0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        64% 82% at 16% 128%,
+        color-mix(in srgb, var(--theme-accent-onion-default), transparent 32%) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        64% 82% at 84% 128%,
+        color-mix(in srgb, var(--theme-accent-onion-default), transparent 32%) 0%,
+        transparent 58%
+      );
+  }
+
+  .top-hero-stage {
+    background:
+      linear-gradient(
+        118deg,
+        transparent 0%,
+        rgb(255 255 255 / 5%) 42%,
+        transparent 58%
+      ),
+      radial-gradient(
+        78% 88% at 76% 112%,
+        color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 6%)
+          0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        70% 84% at 16% 112%,
+        color-mix(in srgb, var(--theme-accent-onion-default), transparent 20%) 0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        62% 72% at 92% 4%,
+        color-mix(in srgb, var(--theme-accent-bacon-default), transparent 54%) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        42% 48% at 26% 16%,
+        rgb(255 255 255 / 8%) 0%,
+        transparent 64%
+      );
+  }
+
   @keyframes enable-notification-bell-ring {
     0%,
     100% {
