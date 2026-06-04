@@ -86,9 +86,16 @@ const allowedLayers = (questionsShown: number): Set<number> => {
 
 /**
  * Returns the next best question index, or -1 when none remain.
- * Questions whose exclusiveGroup has been answered yes already are skipped:
- * once the user picks their main language, asking about the other languages
- * is contradictory and wastes a slot.
+ *
+ * Question selection is greedy on information gain, with two extra rules:
+ *   - exclusiveGroup: once a group is closed (a yes answer to one of its
+ *     members, or a closesOnYes/closesOnNo from elsewhere), the remaining
+ *     members are skipped.
+ *   - active-group preference: once any question in an open exclusiveGroup
+ *     has been asked, prefer the remaining members before moving on. Stops
+ *     the engine from bailing on a half-asked group when info gain on the
+ *     leftover questions looks low in expectation but huge conditional
+ *     on a yes (e.g. PHP and .NET locks inside the main-language group).
  */
 export const pickNextQuestion = (
   belief: number[],
@@ -98,22 +105,45 @@ export const pickNextQuestion = (
 ): number => {
   const layers = allowedLayers(questionsShown);
 
-  return QUESTIONS.reduce(
-    (best, question, q) => {
-      if (asked.has(q) || !layers.has(question.layer)) {
-        return best;
-      }
-      if (
-        question.exclusiveGroup &&
-        excludedGroups.has(question.exclusiveGroup)
-      ) {
-        return best;
-      }
-      const gain = informationGain(belief, q);
-      return gain > best.gain ? { index: q, gain } : best;
-    },
-    { index: -1, gain: -1 },
-  ).index;
+  // Groups that have been started but aren't closed yet.
+  const activeGroups = new Set<string>();
+  QUESTIONS.forEach((question, q) => {
+    if (
+      question.exclusiveGroup &&
+      asked.has(q) &&
+      !excludedGroups.has(question.exclusiveGroup)
+    ) {
+      activeGroups.add(question.exclusiveGroup);
+    }
+  });
+
+  let bestInActive = { index: -1, gain: -1 };
+  let bestOverall = { index: -1, gain: -1 };
+
+  QUESTIONS.forEach((question, q) => {
+    if (asked.has(q) || !layers.has(question.layer)) {
+      return;
+    }
+    if (
+      question.exclusiveGroup &&
+      excludedGroups.has(question.exclusiveGroup)
+    ) {
+      return;
+    }
+    const gain = informationGain(belief, q);
+    if (
+      question.exclusiveGroup &&
+      activeGroups.has(question.exclusiveGroup) &&
+      gain > bestInActive.gain
+    ) {
+      bestInActive = { index: q, gain };
+    }
+    if (gain > bestOverall.gain) {
+      bestOverall = { index: q, gain };
+    }
+  });
+
+  return bestInActive.index >= 0 ? bestInActive.index : bestOverall.index;
 };
 
 /** Bayesian update of the belief vector given an answer to a question. */
