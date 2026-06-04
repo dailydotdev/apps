@@ -9,7 +9,9 @@ interface QuestRailIconProps {
   active: boolean;
 }
 
-const SIZE = 20;
+// Matches IconSize.Small (w-6 h-6 = 24px) so the level ring lines up with the
+// other rail icons.
+const SIZE = 24;
 const STROKE = 2;
 const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -34,7 +36,7 @@ export const QuestRailIcon = ({ active }: QuestRailIconProps): ReactElement => {
 
   return (
     <span
-      className="relative inline-flex size-5 items-center justify-center"
+      className="relative inline-flex size-6 items-center justify-center"
       aria-hidden
     >
       <svg
