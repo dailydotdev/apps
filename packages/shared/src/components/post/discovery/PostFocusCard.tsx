@@ -93,7 +93,7 @@ export const PostFocusCard = ({
       data-testid="post-focus-card"
     >
       <PostContainer className="relative laptop:border-r-0">
-        <div className="mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
+        <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {post.source && (
               <SourceStrip
@@ -210,7 +210,15 @@ export const PostFocusCard = ({
             />
           )}
 
-          <PostSidebarAdWidget postId={post.id} />
+          <aside className="w-full max-w-80 laptopL:absolute laptopL:left-full laptopL:top-6 laptopL:ml-6 laptopL:w-44 laptopL:max-w-none">
+            <PostSidebarAdWidget
+              postId={post.id}
+              className={{
+                container:
+                  '!w-full !border-border-subtlest-tertiary !bg-transparent',
+              }}
+            />
+          </aside>
 
           {showCodeSnippets && (
             <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
