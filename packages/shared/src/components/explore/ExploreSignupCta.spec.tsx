@@ -35,7 +35,7 @@ describe('ExploreSignupCta', () => {
     render(<ExploreSignupCta tag="react" />);
 
     expect(
-      screen.getByRole('heading', { name: /Follow #react/ }),
+      screen.getByRole('heading', { name: /Stay on top of #react/ }),
     ).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
@@ -49,7 +49,7 @@ describe('ExploreSignupCta', () => {
     render(<ExploreSignupCta />);
 
     expect(
-      screen.getByRole('heading', { name: /Build your developer feed/ }),
+      screen.getByRole('heading', { name: /Your feed, your tags/ }),
     ).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,

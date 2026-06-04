@@ -487,7 +487,11 @@ export const ExploreTopicPage = ({
         <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
 
         {/* Compact, feed-native signup nudge for logged-out visitors. */}
-        <ExploreSignupCta tag={title} className="mb-10" />
+        <ExploreSignupCta
+          tag={title}
+          postsCount={occurrences}
+          className="mb-10"
+        />
 
         {/* Recommended stories */}
         <ActiveFeedNameContext.Provider
