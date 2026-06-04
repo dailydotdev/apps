@@ -36,7 +36,7 @@ import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import type { AuthOptionsProps } from './common';
-import { AuthDisplay, providers } from './common';
+import { AuthDisplay, providers, SocialProvider } from './common';
 import useLogin from '../../hooks/useLogin';
 import type { UpdateProfileParameters } from '../../hooks/useProfileForm';
 import useProfileForm from '../../hooks/useProfileForm';
@@ -172,6 +172,14 @@ function AuthOptionsInner({
     CHOSEN_PROVIDER_KEY,
     null,
   );
+  const [activeSocialProvider, setActiveSocialProvider] = useState<
+    string | null
+  >(null);
+  const userSocialProvider = user?.providers?.find((provider) =>
+    Object.values(SocialProvider).includes(provider as SocialProvider),
+  );
+  const socialRegistrationProvider =
+    activeSocialProvider || chosenProvider || userSocialProvider;
   const [isRegistration, setIsRegistration] = useState(false);
   const [isSocialAuthLoading, setIsSocialAuthLoading] = useState(false);
   const windowPopup = useRef<Window | null>(null);
@@ -261,7 +269,7 @@ function AuthOptionsInner({
     }
 
     if (data.user && setSignBack) {
-      const provider = chosenProvider || 'password';
+      const provider = socialRegistrationProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
     }
 
@@ -375,7 +383,12 @@ function AuthOptionsInner({
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
   };
 
-  const handleLoginMessage = async (e?: MessageEvent) => {
+  const handleLoginMessage = async (
+    e?: MessageEvent,
+    providerOverride?: string,
+  ) => {
+    const authProvider = providerOverride || chosenProvider;
+    setActiveSocialProvider(authProvider);
     authFlowCompletedRef.current = true;
     clearPopupCheck();
     const popup = windowPopup.current;
@@ -408,7 +421,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
-          provider: chosenProvider,
+          provider: authProvider,
           error: getBetterAuthErrorMessage(
             error,
             'Failed to refresh Better Auth social auth state',
@@ -430,7 +443,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
-          provider: chosenProvider,
+          provider: authProvider,
           error:
             callbackError ||
             'Could not find authenticated user after social authentication',
@@ -451,7 +464,7 @@ function AuthOptionsInner({
     // If user is confirmed we can proceed with logging them in
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
       setIsSocialAuthLoading(false);
-      await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
+      await onSignBackLogin(boot.user, authProvider as SignBackProvider);
       const isAlreadyOnboarded = await checkForOnboardedUser(boot.user);
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
@@ -467,7 +480,7 @@ function AuthOptionsInner({
     }
 
     setIsSocialAuthLoading(false);
-    await setChosenProvider(chosenProvider || 'password');
+    await setChosenProvider(authProvider || 'password');
     onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
     onSetActiveDisplay(AuthDisplay.SocialRegistration);
   };
@@ -490,6 +503,7 @@ function AuthOptionsInner({
     });
     socialErrorEventName.current = authErrorEventName;
     authFlowSucceededRef.current = false;
+    setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
     const additionalData = { timezone: getUserDefaultTimezone() };
@@ -520,7 +534,7 @@ function AuthOptionsInner({
         return;
       }
       await setChosenProvider(provider);
-      await handleLoginMessage();
+      await handleLoginMessage(undefined, provider);
       return;
     }
     const shouldUsePopup = shouldUseSocialAuthPopup();
@@ -552,6 +566,7 @@ function AuthOptionsInner({
       return;
     }
     if (!windowPopup.current) {
+      await setChosenProvider(provider);
       window.location.href = socialUrl;
       return;
     }
@@ -682,7 +697,7 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.SocialRegistration}>
           <SocialRegistrationForm
             formRef={formRef}
-            provider={chosenProvider}
+            provider={socialRegistrationProvider}
             onSignup={onSocialCompletion}
             hints={hint}
             isLoading={isProfileUpdateLoading}

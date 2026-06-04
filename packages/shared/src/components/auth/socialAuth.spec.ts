@@ -28,12 +28,18 @@ describe('socialAuth', () => {
   });
 
   describe('hasSocialAuthBootUser', () => {
-    it('requires a boot user with an email field', () => {
+    it('requires an authenticated boot user', () => {
       expect(hasSocialAuthBootUser({ id: 'anonymous' })).toBe(false);
       expect(
         hasSocialAuthBootUser({
           id: 'user',
           email: 'user@daily.dev',
+        }),
+      ).toBe(true);
+      expect(
+        hasSocialAuthBootUser({
+          id: 'user',
+          providers: ['apple'],
         }),
       ).toBe(true);
     });

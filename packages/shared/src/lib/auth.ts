@@ -125,6 +125,7 @@ export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 
 export interface SocialRegistrationParameters {
+  email?: string;
   name?: string;
   username?: string;
   file?: string;

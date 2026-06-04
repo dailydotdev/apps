@@ -18,7 +18,9 @@ const delay = (delayMs: number): Promise<void> =>
 export const hasSocialAuthBootUser = (
   user?: BootUser,
 ): user is NonNullable<BootUser> =>
-  !!user && typeof user === 'object' && 'email' in user;
+  !!user &&
+  typeof user === 'object' &&
+  ('email' in user || 'providers' in user);
 
 const refetchSocialAuthBootAttempt = async (
   refetchBoot: RefetchBoot,
