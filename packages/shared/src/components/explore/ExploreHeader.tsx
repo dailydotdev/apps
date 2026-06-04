@@ -20,6 +20,9 @@ interface ExploreHeaderProps {
 }
 
 const exploreUrl = `${webappUrl}tags`;
+// Keep the header short — show a handful of relevant tabs rather than a long
+// horizontally-scrolling list.
+const MAX_TAGS = 5;
 
 // The Explore page header, built with the same tabbed page-header strip as the
 // Squad directory (pageHeaderClassName + SquadDirectoryNavbar). An "Explore"
@@ -42,7 +45,7 @@ export function ExploreHeader({
     const rec = recommendedTags.filter(
       (tag) => tag && !followedSet.has(tag) && tag !== activeTag,
     );
-    return Array.from(new Set([...ordered, ...rec]));
+    return Array.from(new Set([...ordered, ...rec])).slice(0, MAX_TAGS);
   }, [feedSettings?.includeTags, recommendedTags, activeTag]);
 
   return (
