@@ -4,7 +4,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetType } from '../../lib/log';
-import { ExploreSignupCta } from './ExploreSignupCta';
+import { ExploreSignupCard } from './ExploreSignupCard';
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
@@ -29,14 +29,16 @@ beforeEach(() => {
   (useLogContext as jest.Mock).mockReturnValue({ logEvent });
 });
 
-describe('ExploreSignupCta', () => {
-  it('uses tag-scoped copy and logs a tag_page impression', () => {
+describe('ExploreSignupCard', () => {
+  it('makes the tag value explicit and logs a tag_page impression', () => {
     mockAuth();
-    render(<ExploreSignupCta tag="react" />);
+    render(<ExploreSignupCard tag="claude" postsCount={1200} />);
 
     expect(
-      screen.getByRole('heading', { name: /Stay on top of #react/ }),
+      screen.getByRole('heading', { name: /Keep up with #claude/ }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/New #claude posts/)).toBeInTheDocument();
+    expect(screen.getByText('1.2K posts')).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
       target_type: TargetType.SignupButton,
@@ -46,10 +48,10 @@ describe('ExploreSignupCta', () => {
 
   it('uses lobby copy and a tags_lobby target when no tag is given', () => {
     mockAuth();
-    render(<ExploreSignupCta />);
+    render(<ExploreSignupCard />);
 
     expect(
-      screen.getByRole('heading', { name: /Your feed, your tags/ }),
+      screen.getByRole('heading', { name: /Make daily.dev your feed/ }),
     ).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
@@ -60,7 +62,7 @@ describe('ExploreSignupCta', () => {
 
   it('opens registration on signup click', () => {
     mockAuth();
-    render(<ExploreSignupCta tag="react" />);
+    render(<ExploreSignupCard tag="claude" />);
 
     fireEvent.click(screen.getByRole('button', { name: /Sign up/ }));
     expect(showLogin).toHaveBeenCalledWith({
@@ -71,7 +73,7 @@ describe('ExploreSignupCta', () => {
 
   it('renders nothing for logged-in users', () => {
     mockAuth({ isLoggedIn: true });
-    const { container } = render(<ExploreSignupCta tag="react" />);
+    const { container } = render(<ExploreSignupCard tag="claude" />);
 
     expect(container).toBeEmptyDOMElement();
   });

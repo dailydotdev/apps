@@ -55,7 +55,7 @@ import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { ExploreHeader } from './ExploreHeader';
-import { ExploreSignupCta } from './ExploreSignupCta';
+import { ExploreSignupCard } from './ExploreSignupCard';
 import { largeNumberFormat } from '../../lib';
 import { webappUrl } from '../../lib/constants';
 import {
@@ -487,7 +487,7 @@ export const ExploreTopicPage = ({
         <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
 
         {/* Compact, feed-native signup nudge for logged-out visitors. */}
-        <ExploreSignupCta
+        <ExploreSignupCard
           tag={title}
           postsCount={occurrences}
           className="mb-10"
