@@ -205,7 +205,7 @@ export const PostFocusCard = ({
           {hasToc && (
             <PostToc
               collapsible
-              className="rounded-16 border border-border-subtlest-tertiary bg-surface-float"
+              className="rounded-16 border border-border-subtlest-tertiary bg-transparent"
               post={post}
             />
           )}
