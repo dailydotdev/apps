@@ -55,6 +55,54 @@ export enum GivebackCauseStatus {
   Archived = 'archived',
 }
 
+export enum GivebackActionCategory {
+  SocialMedia = 'social_media',
+  CreatorContent = 'creator_content',
+  Referrals = 'referrals',
+  ProductFeedback = 'product_feedback',
+  CommunityPosts = 'community_posts',
+  CommunityLove = 'community_love',
+}
+
+export enum GivebackActionPersona {
+  Creator = 'creator',
+  Student = 'student',
+  SeniorDeveloper = 'senior_developer',
+  PowerUser = 'power_user',
+  CommunityMember = 'community_member',
+  OpenSourceContributor = 'open_source_contributor',
+  TeamLead = 'team_lead',
+  DailyPlusSubscriber = 'daily_plus_subscriber',
+}
+
+// Real-world platform an action lives on, used to surface the platform's brand
+// logo so the catalog reads as a growth/social initiative (post on X, video on
+// YouTube, etc.).
+export enum GivebackActionPlatform {
+  X = 'x',
+  YouTube = 'youtube',
+  Hashnode = 'hashnode',
+  GitHub = 'github',
+  Reddit = 'reddit',
+  LinkedIn = 'linkedin',
+  AppStore = 'app_store',
+  ChromeWebStore = 'chrome_web_store',
+  DailyDev = 'daily_dev',
+}
+
+export type GivebackActionCategoryFilter = GivebackActionCategory | 'all';
+export type GivebackActionPersonaFilter = GivebackActionPersona | 'all';
+
+// Crowdfunding-style milestone: a community amount that, once reached, unlocks a
+// concrete outcome. Modeled as ascending thresholds so the UI can show a
+// LOCKED/UNLOCKED tracker and the distance to the next unlock.
+export interface GivebackStretchGoal {
+  id: string;
+  amount: number;
+  title: string;
+  description: string;
+}
+
 export interface GivebackCampaign {
   id: string;
   name: string;
@@ -66,9 +114,14 @@ export interface GivebackCampaign {
   approvedAmount: number;
   /** Donation amount awaiting validation. Shown honestly as pending, never as counted. */
   pendingAmount: number;
+  /** Number of developers who have contributed at least one action (social proof). */
+  backersCount: number;
+  /** Developers who contributed in the last 24h (momentum signal). */
+  backersLast24h: number;
+  /** Ordered community unlocks for the stretch-goal tracker. */
+  stretchGoals: GivebackStretchGoal[];
   heroCopy?: string;
   startAt?: string;
-  endAt?: string;
 }
 
 export interface GivebackReward {
@@ -108,8 +161,9 @@ export interface GivebackAction {
   id: string;
   title: string;
   description?: string;
-  category: string;
-  personaTags: string[];
+  category: GivebackActionCategory;
+  platform: GivebackActionPlatform;
+  personaTags: GivebackActionPersona[];
   donationAmount: number;
   currency: string;
   validationType: GivebackActionValidationType;
@@ -126,6 +180,54 @@ export interface GivebackAction {
   isLoveAction: boolean;
   externalUrl?: string;
   instructions?: string;
+}
+
+export interface GivebackUserAction {
+  actionId: string;
+  status: GivebackUserActionStatus;
+  unlockedDonationAmount: number;
+  pendingDonationAmount: number;
+  approvedDonationAmount: number;
+  rejectedDonationAmount: number;
+  evidenceLink?: string;
+  evidenceImage?: string;
+  note?: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
+  needsMoreInfoReason?: string;
+}
+
+export interface GivebackActionSubmissionInput {
+  actionId: string;
+  evidenceLink?: string;
+  evidenceImage?: string;
+  note?: string;
+}
+
+export interface GivebackDonationAccounting {
+  unlockedDonationAmount: number;
+  pendingDonationAmount: number;
+  approvedDonationAmount: number;
+  rejectedDonationAmount: number;
+}
+
+export interface GivebackCauseSuggestionInput {
+  name: string;
+  url: string;
+  note?: string;
+  category?: string;
+}
+
+export interface GivebackCommunityEvent {
+  id: string;
+  actorLabel: string;
+  actionLabel: string;
+  amount?: number;
+  currency: string;
+  causeName?: string;
+  createdAt: string;
+  isAnonymous: boolean;
 }
 
 export interface GivebackCause {

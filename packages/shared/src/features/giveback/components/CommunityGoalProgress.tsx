@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
@@ -10,6 +11,10 @@ import {
 import { ProgressBar } from '../../../components/fields/ProgressBar';
 import { useGivebackContext } from '../GivebackContext';
 import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
+import { GivebackSection } from './GivebackSection';
+import { GivebackMeterShine } from './GivebackMeterShine';
+
+const milestones = [25, 50, 75, 100];
 
 export const CommunityGoalProgress = (): ReactElement => {
   const { campaign } = useGivebackContext();
@@ -17,71 +22,137 @@ export const CommunityGoalProgress = (): ReactElement => {
     campaign.approvedAmount,
     campaign.goalAmount,
   );
+  const remaining = Math.max(campaign.goalAmount - campaign.approvedAmount, 0);
+
+  // The funding-stats triplet every backer scans: who's in, how much is still
+  // needed to hit the budget, and what's being validated right now.
+  const stats: [string, string][] = [
+    ['Backers', campaign.backersCount.toLocaleString('en-US')],
+    ['Still to raise', formatDonationAmount(remaining, campaign.currency)],
+    [
+      'In review',
+      formatDonationAmount(campaign.pendingAmount, campaign.currency),
+    ],
+  ];
 
   return (
-    <FlexCol className="w-full gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-6">
-      <FlexRow className="flex-wrap items-end justify-between gap-2">
-        <FlexCol className="gap-1">
+    <GivebackSection
+      id="giveback-goal"
+      title="We're funding this together"
+      headerActions={
+        <FlexCol className="text-right">
           <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Footnote}
+            type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            Community goal
+            Goal
           </Typography>
-          <Typography tag={TypographyTag.Span} type={TypographyType.Mega2} bold>
-            {formatDonationAmount(campaign.approvedAmount, campaign.currency)}
+          <Typography type={TypographyType.Title3} bold>
+            {formatDonationAmount(campaign.goalAmount, campaign.currency)}
           </Typography>
         </FlexCol>
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Title3}
-          color={TypographyColor.Tertiary}
-        >
-          of {formatDonationAmount(campaign.goalAmount, campaign.currency)}
-        </Typography>
-      </FlexRow>
-
-      <FlexCol className="gap-2">
-        <ProgressBar
-          percentage={percentage}
-          shouldShowBg
-          className={{
-            wrapper: 'h-3 rounded-12',
-            bar: 'h-full rounded-12',
-            barColor: 'bg-accent-avocado-default',
-          }}
-        />
-        <FlexRow className="items-center justify-between">
+      }
+    >
+      <FlexCol className="gap-3">
+        <FlexRow className="items-end gap-2">
+          <Typography tag={TypographyTag.Span} type={TypographyType.Mega1} bold>
+            {formatDonationAmount(campaign.approvedAmount, campaign.currency)}
+          </Typography>
           <Typography
             tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
+            type={TypographyType.Title4}
+            color={TypographyColor.Tertiary}
+            className="pb-1"
+          >
+            pledged of{' '}
+            {formatDonationAmount(campaign.goalAmount, campaign.currency)}
+          </Typography>
+        </FlexRow>
+
+        <div className="relative">
+          <ProgressBar
+            percentage={percentage}
+            shouldShowBg
+            className={{
+              wrapper: 'h-5 rounded-16',
+              bar: 'h-full rounded-16 transition-[width] duration-500',
+              barColor:
+                'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default',
+            }}
+          />
+          <GivebackMeterShine percentage={percentage} />
+          <FlexRow className="absolute left-0 right-0 top-0 h-5 items-center justify-between px-1">
+            {milestones.map((milestone) => (
+              <span
+                key={milestone}
+                className={classNames(
+                  'size-2 rounded-full ring-2 ring-background-default',
+                  percentage >= milestone
+                    ? 'bg-accent-cheese-default'
+                    : 'bg-accent-pepper-subtler',
+                )}
+              />
+            ))}
+          </FlexRow>
+        </div>
+
+        <FlexRow className="flex-wrap items-center justify-between gap-2">
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Callout}
             color={TypographyColor.StatusSuccess}
             bold
           >
-            {Math.round(percentage)}% unlocked
+            {Math.round(percentage)}% funded
           </Typography>
-          {campaign.pendingAmount > 0 && (
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              +{formatDonationAmount(campaign.pendingAmount, campaign.currency)}{' '}
-              pending validation
-            </Typography>
+          {campaign.backersLast24h > 0 && (
+            <FlexRow className="items-center gap-1.5">
+              <span className="relative flex size-2">
+                <span className="bg-accent-avocado-default/60 absolute inline-flex size-full rounded-full motion-safe:animate-glow-pulse" />
+                <span className="relative inline-flex size-2 rounded-full bg-accent-avocado-default" />
+              </span>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                {campaign.backersLast24h} developers backed in the last 24h
+              </Typography>
+            </FlexRow>
           )}
         </FlexRow>
       </FlexCol>
 
+      <div className="grid grid-cols-3 divide-x divide-border-subtlest-tertiary">
+        {stats.map(([label, value], index) => (
+          <FlexCol
+            key={label}
+            className={classNames(
+              'gap-0.5',
+              index === 1 && 'px-4 tablet:px-6',
+              index === 2 && 'pl-4 tablet:pl-6',
+            )}
+          >
+            <Typography type={TypographyType.Title3} bold>
+              {value}
+            </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {label}
+            </Typography>
+          </FlexCol>
+        ))}
+      </div>
+
       <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Footnote}
+        type={TypographyType.Caption1}
         color={TypographyColor.Tertiary}
       >
-        daily.dev funds the donation. Approved actions move the community closer
-        to the goal.
+        Funded by daily.dev, not you. Only approved actions count toward the
+        goal.
       </Typography>
-    </FlexCol>
+    </GivebackSection>
   );
 };

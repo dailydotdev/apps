@@ -18,3 +18,6 @@ export const getGoalProgressPercentage = (
 
   return Math.max(0, Math.min(100, (approvedAmount / goalAmount) * 100));
 };
+
+export const formatCompactNumber = (value: number): string =>
+  new Intl.NumberFormat('en-US', { notation: 'compact' }).format(value);
