@@ -103,6 +103,16 @@ export const PostFocusCard = ({
                 source={post.source as SourceTooltip}
               />
             )}
+            <PostHeaderActions
+              buttonSize={ButtonSize.Small}
+              className="ml-auto h-8 shrink-0 items-center"
+              contextMenuId="post-discovery-header-actions"
+              hideMenuOptions
+              hideSubscribeAction
+              onReadArticle={onReadArticle}
+              post={post}
+              readButtonVariant={ButtonVariant.Primary}
+            />
           </div>
 
           <div className="flex min-w-0 items-start gap-4">
@@ -148,17 +158,6 @@ export const PostFocusCard = ({
               {post.summary}
             </p>
           )}
-
-          <PostHeaderActions
-            buttonSize={ButtonSize.Small}
-            className="items-center"
-            contextMenuId="post-discovery-header-actions"
-            hideMenuOptions
-            hideSubscribeAction
-            onReadArticle={onReadArticle}
-            post={post}
-            readButtonVariant={ButtonVariant.Primary}
-          />
 
           <PostMetadata
             className="!typo-callout"

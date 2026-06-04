@@ -169,6 +169,15 @@ export const PostDiscussionPanel = ({
       aria-label="Discussion"
       className={classNames('flex min-h-0 min-w-0 flex-col gap-2', className)}
     >
+      <NewComment
+        post={post}
+        ref={commentRef as LegacyRef<NewCommentRef>}
+        shouldHandleCommentQuery
+        onComposerOpenChange={setIsComposerOpen}
+        size={ProfileImageSize.Medium}
+        CommentInputOrModal={CommentInputOrModal}
+        renderTrigger={renderComposerTrigger}
+      />
       {showSortHeader && (
         <span className="flex shrink-0 flex-row items-center px-1">
           <Typography
@@ -214,15 +223,6 @@ export const PostDiscussionPanel = ({
         />
       </div>
       <div className="flex shrink-0 flex-col gap-3 pt-3">
-        <NewComment
-          post={post}
-          ref={commentRef as LegacyRef<NewCommentRef>}
-          shouldHandleCommentQuery
-          onComposerOpenChange={setIsComposerOpen}
-          size={ProfileImageSize.Medium}
-          CommentInputOrModal={CommentInputOrModal}
-          renderTrigger={renderComposerTrigger}
-        />
         {showMetaBar && <DiscussionMetaBar post={post} />}
         <DiscussionShareRow post={post} />
       </div>
