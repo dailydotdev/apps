@@ -22,6 +22,7 @@ import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
+import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostDiscoveryActionBar } from './PostDiscoveryActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 
@@ -139,6 +140,32 @@ export const PostFocusCard = ({
             </p>
           )}
 
+          <PostMetadata
+            className="!typo-callout"
+            createdAt={post.createdAt}
+            domain={
+              !isVideoType &&
+              post.domain &&
+              post.domain.length > 0 && (
+                <TruncateText>
+                  From{' '}
+                  <ArticleLink
+                    className="hover:underline"
+                    href={post.permalink}
+                    onClick={onReadArticle}
+                    title={post.domain}
+                  >
+                    {post.domain}
+                  </ArticleLink>
+                </TruncateText>
+              )
+            }
+            isVideoType={isVideoType}
+            readTime={post.readTime}
+          />
+
+          <PostTagList post={post} />
+
           {isVideoType ? (
             <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
               <YoutubeVideo
@@ -174,32 +201,6 @@ export const PostFocusCard = ({
             </a>
           )}
 
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={post.createdAt}
-            domain={
-              !isVideoType &&
-              post.domain &&
-              post.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={post.permalink}
-                    onClick={onReadArticle}
-                    title={post.domain}
-                  >
-                    {post.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={post.readTime}
-          />
-
-          <PostTagList post={post} />
-
           {hasToc && (
             <PostToc
               collapsible
@@ -208,24 +209,24 @@ export const PostFocusCard = ({
             />
           )}
 
+          <PostSidebarAdWidget postId={post.id} />
+
           {showCodeSnippets && (
             <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
               <PostCodeSnippets post={post} />
             </div>
           )}
 
-          <div className="flex w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2">
-            <PostDiscussionPanel
-              className="p-4"
-              showMetaBar={false}
-              showSortHeader
-              onRegisterFocusComment={(fn) => {
-                focusCommentRef.current = fn;
-              }}
-              post={post}
-              origin={origin}
-            />
-          </div>
+          <PostDiscussionPanel
+            className="pt-2"
+            showMetaBar={false}
+            showSortHeader
+            onRegisterFocusComment={(fn) => {
+              focusCommentRef.current = fn;
+            }}
+            post={post}
+            origin={origin}
+          />
         </div>
       </PostContainer>
     </article>

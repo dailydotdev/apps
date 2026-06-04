@@ -75,26 +75,12 @@ export const PostClickbaitShield = ({
 
     const renderIcon = () => {
       if (isActive) {
-        return (
-          <ShieldCheckIcon
-            className="text-status-success"
-            size={IconSize.Large}
-          />
-        );
+        return <ShieldCheckIcon size={IconSize.Small} />;
       }
       if (isPlus) {
-        return <ShieldIcon size={IconSize.Large} />;
+        return <ShieldIcon size={IconSize.Small} />;
       }
-      return (
-        <ShieldWarningIcon
-          className={
-            hasUsedFreeTrial
-              ? 'text-accent-ketchup-default'
-              : 'text-accent-cheese-default'
-          }
-          size={IconSize.Large}
-        />
-      );
+      return <ShieldWarningIcon size={IconSize.Small} />;
     };
 
     return (
@@ -104,7 +90,7 @@ export const PostClickbaitShield = ({
           icon={renderIcon()}
           iconSecondaryOnHover
           onClick={handleIconClick}
-          size={ButtonSize.Medium}
+          size={ButtonSize.Small}
           type="button"
           variant={ButtonVariant.Tertiary}
         />

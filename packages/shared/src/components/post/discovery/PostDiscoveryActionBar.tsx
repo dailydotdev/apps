@@ -101,12 +101,12 @@ export const PostDiscoveryActionBar = ({
             icon={
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
-                size={IconSize.Medium}
+                size={IconSize.Small}
               />
             }
             onClick={onToggleUpvote}
             pressed={isUpvoteActive}
-            size={ButtonSize.Medium}
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
           >
             {upvotes > 0 ? largeNumberFormat(upvotes) : undefined}
@@ -122,12 +122,12 @@ export const PostDiscoveryActionBar = ({
             icon={
               <DownvoteIcon
                 secondary={isDownvoteActive}
-                size={IconSize.Medium}
+                size={IconSize.Small}
               />
             }
             onClick={onToggleDownvote}
             pressed={isDownvoteActive}
-            size={ButtonSize.Medium}
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
@@ -137,11 +137,11 @@ export const PostDiscoveryActionBar = ({
             aria-label="Comment"
             color={ButtonColor.BlueCheese}
             icon={
-              <CommentIcon secondary={post.commented} size={IconSize.Medium} />
+              <CommentIcon secondary={post.commented} size={IconSize.Small} />
             }
             onClick={onComment}
             pressed={post.commented}
-            size={ButtonSize.Medium}
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
           >
             {comments > 0 ? largeNumberFormat(comments) : undefined}
@@ -152,21 +152,21 @@ export const PostDiscoveryActionBar = ({
       <div className="flex items-center gap-2">
         <BookmarkButton
           post={post}
-          iconSize={IconSize.Medium}
+          iconSize={IconSize.Small}
           buttonProps={{
             id: 'bookmark-post-btn',
             pressed: post.bookmarked,
             onClick: onToggleBookmark,
-            size: ButtonSize.Medium,
+            size: ButtonSize.Small,
           }}
         />
         <Tooltip content="Copy link">
           <Button
             aria-label="Copy link"
             color={ButtonColor.Cabbage}
-            icon={<LinkIcon size={IconSize.Medium} />}
+            icon={<LinkIcon size={IconSize.Small} />}
             onClick={() => onCopyLinkClick?.(post)}
-            size={ButtonSize.Medium}
+            size={ButtonSize.Small}
             type="button"
             variant={ButtonVariant.Tertiary}
           />
@@ -183,8 +183,8 @@ export const PostDiscoveryActionBar = ({
             >
               <Button
                 aria-label="Analytics"
-                icon={<AnalyticsIcon size={IconSize.Medium} />}
-                size={ButtonSize.Medium}
+                icon={<AnalyticsIcon size={IconSize.Small} />}
+                size={ButtonSize.Small}
                 tag="a"
                 variant={ButtonVariant.Tertiary}
               />
@@ -194,7 +194,7 @@ export const PostDiscoveryActionBar = ({
         <PostMenuOptions
           post={post}
           origin={Origin.ArticleModal}
-          buttonSize={ButtonSize.Medium}
+          buttonSize={ButtonSize.Small}
         />
       </div>
     </div>

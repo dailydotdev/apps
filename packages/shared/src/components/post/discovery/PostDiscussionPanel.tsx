@@ -201,7 +201,7 @@ export const PostDiscussionPanel = ({
           </Button>
         </span>
       )}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+      <div className="min-w-0">
         <PostComments
           post={post}
           sortBy={sortBy}
