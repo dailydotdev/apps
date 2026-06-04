@@ -247,7 +247,9 @@ export function ShortcutLinksHub({
         // width balloon the layout / spill out of its `justify-center`
         // parent) so the inner tiles container has a bounded width to shrink
         // and clip against — that bound is what the overflow measurement reads.
-        'hidden w-full min-w-0 items-center mobileXL:flex',
+        // `justify-center` keeps the visible tiles + controls centered as a
+        // group (the parent's own centering can't act once we're full-width).
+        'hidden w-full min-w-0 items-center justify-center mobileXL:flex',
         appearance === 'tile' ? 'items-start gap-x-1' : 'gap-1',
         shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : 'mb-5',
         'rounded-12 transition-[box-shadow,background-color] duration-150 motion-reduce:transition-none',
