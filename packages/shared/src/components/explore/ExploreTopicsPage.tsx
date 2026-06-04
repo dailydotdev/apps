@@ -12,6 +12,7 @@ import { ExploreCategorySection } from './ExploreCategorySection';
 import { ExploreTopicSearch } from './ExploreTopicSearch';
 import { ExploreHeader } from './ExploreHeader';
 import { ExploreTagListItem } from './ExploreTagListItem';
+import { ExploreSignupCta } from './ExploreSignupCta';
 import { useChipBarNavigation } from './useChipBarNavigation';
 import { ClickableText } from '../buttons/ClickableText';
 import {
@@ -219,6 +220,9 @@ export function ExploreTopicsPage({
             className="w-full"
           />
         </header>
+
+        {/* Compact, feed-native signup nudge for logged-out visitors. */}
+        <ExploreSignupCta className="mt-8 w-full" />
 
         {isSearching ? (
           <section className="mt-10 w-full">

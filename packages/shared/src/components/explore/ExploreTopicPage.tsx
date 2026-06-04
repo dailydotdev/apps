@@ -55,7 +55,7 @@ import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { ExploreHeader } from './ExploreHeader';
-import { TagSignupHero } from './TagSignupHero';
+import { ExploreSignupCta } from './ExploreSignupCta';
 import { largeNumberFormat } from '../../lib';
 import { webappUrl } from '../../lib/constants';
 import {
@@ -340,9 +340,6 @@ export const ExploreTopicPage = ({
           .filter((name): name is string => !!name)}
       />
       <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
-        {/* Signup-first hero above everything for logged-out visitors. */}
-        <TagSignupHero tag={title} className="mb-8" />
-
         {/* Hero cover — centered on the page; content below spans full width. */}
         <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
           <SponsoredTagHero tag={tag} />
@@ -488,6 +485,9 @@ export const ExploreTopicPage = ({
         </header>
 
         <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
+
+        {/* Compact, feed-native signup nudge for logged-out visitors. */}
+        <ExploreSignupCta tag={title} className="mb-10" />
 
         {/* Recommended stories */}
         <ActiveFeedNameContext.Provider
