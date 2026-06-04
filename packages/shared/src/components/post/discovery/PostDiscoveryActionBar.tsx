@@ -101,7 +101,7 @@ export const PostDiscoveryActionBar = ({
             icon={
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
-                size={IconSize.Large}
+                size={IconSize.Medium}
               />
             }
             onClick={onToggleUpvote}
@@ -122,7 +122,7 @@ export const PostDiscoveryActionBar = ({
             icon={
               <DownvoteIcon
                 secondary={isDownvoteActive}
-                size={IconSize.Large}
+                size={IconSize.Medium}
               />
             }
             onClick={onToggleDownvote}
@@ -137,7 +137,7 @@ export const PostDiscoveryActionBar = ({
             aria-label="Comment"
             color={ButtonColor.BlueCheese}
             icon={
-              <CommentIcon secondary={post.commented} size={IconSize.Large} />
+              <CommentIcon secondary={post.commented} size={IconSize.Medium} />
             }
             onClick={onComment}
             pressed={post.commented}
@@ -152,7 +152,7 @@ export const PostDiscoveryActionBar = ({
       <div className="flex items-center gap-2">
         <BookmarkButton
           post={post}
-          iconSize={IconSize.Large}
+          iconSize={IconSize.Medium}
           buttonProps={{
             id: 'bookmark-post-btn',
             pressed: post.bookmarked,
@@ -164,7 +164,7 @@ export const PostDiscoveryActionBar = ({
           <Button
             aria-label="Copy link"
             color={ButtonColor.Cabbage}
-            icon={<LinkIcon size={IconSize.Large} />}
+            icon={<LinkIcon size={IconSize.Medium} />}
             onClick={() => onCopyLinkClick?.(post)}
             size={ButtonSize.Medium}
             type="button"
@@ -183,7 +183,7 @@ export const PostDiscoveryActionBar = ({
             >
               <Button
                 aria-label="Analytics"
-                icon={<AnalyticsIcon size={IconSize.Large} />}
+                icon={<AnalyticsIcon size={IconSize.Medium} />}
                 size={ButtonSize.Medium}
                 tag="a"
                 variant={ButtonVariant.Tertiary}

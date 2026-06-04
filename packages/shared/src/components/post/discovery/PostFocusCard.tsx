@@ -88,11 +88,11 @@ export const PostFocusCard = ({
 
   return (
     <article
-      className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default laptop:flex-row laptop:justify-center"
+      className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
-      <PostContainer className="relative laptop:shrink laptop:grow-0 laptop:basis-[832px] laptop:border-r-0">
-        <div className="flex min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px] laptop:py-6">
+      <PostContainer className="relative laptop:border-r-0">
+        <div className="mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {post.source && (
               <SourceStrip
@@ -156,7 +156,7 @@ export const PostFocusCard = ({
             </div>
           ) : (
             <a
-              className="block overflow-hidden rounded-16 bg-background-subtle"
+              className="block h-fit w-full max-w-sm overflow-hidden rounded-16 bg-background-subtle"
               href={readHref}
               onClick={handleImageClick}
               rel="noopener"
@@ -169,7 +169,7 @@ export const PostFocusCard = ({
                 fetchPriority="high"
                 imgAlt="Post cover image"
                 imgSrc={post.image}
-                ratio="48%"
+                ratio="52%"
               />
             </a>
           )}
@@ -213,23 +213,21 @@ export const PostFocusCard = ({
               <PostCodeSnippets post={post} />
             </div>
           )}
+
+          <div className="flex w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2">
+            <PostDiscussionPanel
+              className="p-4"
+              showMetaBar={false}
+              showSortHeader
+              onRegisterFocusComment={(fn) => {
+                focusCommentRef.current = fn;
+              }}
+              post={post}
+              origin={origin}
+            />
+          </div>
         </div>
       </PostContainer>
-
-      <aside className="flex min-h-0 min-w-0 shrink-0 flex-col border-t border-border-subtlest-tertiary bg-background-subtle laptop:sticky laptop:top-16 laptop:h-[calc(100vh-4rem)] laptop:max-h-[calc(100vh-4rem)] laptop:w-[400px] laptop:border-t-0 laptop:bg-background-default">
-        <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-default shadow-2 laptop:h-full">
-          <PostDiscussionPanel
-            className="h-full p-4"
-            showMetaBar={false}
-            showSortHeader
-            onRegisterFocusComment={(fn) => {
-              focusCommentRef.current = fn;
-            }}
-            post={post}
-            origin={origin}
-          />
-        </div>
-      </aside>
     </article>
   );
 };
