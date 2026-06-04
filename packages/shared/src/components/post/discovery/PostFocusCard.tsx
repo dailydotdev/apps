@@ -103,25 +103,34 @@ export const PostFocusCard = ({
                 source={post.source as SourceTooltip}
               />
             )}
-            <PostHeaderActions
-              buttonSize={ButtonSize.Small}
-              className="ml-auto h-8 shrink-0 items-center"
-              contextMenuId="post-discovery-header-actions"
-              hideMenuOptions
-              hideSubscribeAction
-              onReadArticle={onReadArticle}
-              post={post}
-              readButtonVariant={ButtonVariant.Primary}
-            />
           </div>
 
-          <div className="flex min-w-0 flex-col gap-3">
+          <div className="flex min-w-0 items-start gap-4">
             <h1
-              className="break-words py-2 font-bold text-text-primary typo-large-title"
+              className="min-w-0 flex-1 break-words py-2 font-bold text-text-primary typo-large-title"
               data-testid="post-modal-title"
             >
               {title}
             </h1>
+            {!isVideoType && post.image && (
+              <a
+                className="block h-fit w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                href={readHref}
+                onClick={handleImageClick}
+                rel="noopener"
+                target="_blank"
+                title="Go to post"
+              >
+                <LazyImage
+                  eager
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                  fetchPriority="high"
+                  imgAlt="Post cover image"
+                  imgSrc={post.image}
+                  ratio="52%"
+                />
+              </a>
+            )}
           </div>
 
           <PostDiscoveryActionBar
@@ -139,6 +148,17 @@ export const PostFocusCard = ({
               {post.summary}
             </p>
           )}
+
+          <PostHeaderActions
+            buttonSize={ButtonSize.Small}
+            className="items-center"
+            contextMenuId="post-discovery-header-actions"
+            hideMenuOptions
+            hideSubscribeAction
+            onReadArticle={onReadArticle}
+            post={post}
+            readButtonVariant={ButtonVariant.Primary}
+          />
 
           <PostMetadata
             className="!typo-callout"
@@ -166,7 +186,7 @@ export const PostFocusCard = ({
 
           <PostTagList post={post} />
 
-          {isVideoType ? (
+          {isVideoType && (
             <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
               <YoutubeVideo
                 placeholderProps={{ post, onWatchVideo: onReadArticle }}
@@ -181,24 +201,6 @@ export const PostFocusCard = ({
                 </p>
               )}
             </div>
-          ) : (
-            <a
-              className="block h-fit w-full max-w-sm overflow-hidden rounded-16 bg-background-subtle"
-              href={readHref}
-              onClick={handleImageClick}
-              rel="noopener"
-              target="_blank"
-              title="Go to post"
-            >
-              <LazyImage
-                eager
-                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                fetchPriority="high"
-                imgAlt="Post cover image"
-                imgSrc={post.image}
-                ratio="52%"
-              />
-            </a>
           )}
 
           {hasToc && (
