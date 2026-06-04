@@ -33,7 +33,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import ShareBar from '../../ShareBar';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
@@ -179,7 +178,7 @@ export const PostDiscussionPanel = ({
         CommentInputOrModal={CommentInputOrModal}
         renderTrigger={renderComposerTrigger}
       />
-      <ShareBar post={post} title="Share this post" className="!flex" />
+      <DiscussionShareRow post={post} withSquads />
       {showSortHeader && (
         <span className="flex shrink-0 flex-row items-center px-1">
           <Typography

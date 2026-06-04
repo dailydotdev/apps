@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import type { Squad } from '../../../graphql/sources';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -10,16 +11,28 @@ import { useCopyPostLink } from '../../../hooks/useCopyPostLink';
 import { useGetShortUrl } from '../../../hooks';
 import { getShareLink, ShareProvider } from '../../../lib/share';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { postLogEvent } from '../../../lib/feed';
 import { LogEvent, Origin } from '../../../lib/log';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { ReferralCampaignKey } from '../../../lib';
+import { getShareableSquads } from '../../squads/SquadsToShare';
+import SourceProfilePicture from '../../profile/SourceProfilePicture';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 interface DiscussionShareRowProps {
   post: Post;
   className?: string;
+  /**
+   * Surfaces the user's squads as inline avatar buttons for quick sharing.
+   * The trailing "more" action still opens the full share modal with every
+   * squad and option.
+   */
+  withSquads?: boolean;
 }
+
+const maxInlineSquads = 4;
 
 /**
  * Compact share row for the discussion panel. Surfaces the most-used quick
@@ -29,6 +42,7 @@ interface DiscussionShareRowProps {
 export const DiscussionShareRow = ({
   post,
   className,
+  withSquads = false,
 }: DiscussionShareRowProps): ReactElement => {
   const href = post.commentsPermalink;
   const cid = ReferralCampaignKey.SharePost;
@@ -36,6 +50,23 @@ export const DiscussionShareRow = ({
   const [copying, copyLink] = useCopyPostLink();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
+  const { squads } = useAuthContext();
+  const inlineSquads = withSquads
+    ? getShareableSquads(squads).slice(0, maxInlineSquads)
+    : [];
+
+  const onShareToSquad = (squad: Squad) => {
+    logEvent(postLogEvent(LogEvent.StartShareToSquad, post));
+    openModal({
+      type: LazyModal.CreateSharedPost,
+      props: {
+        squad,
+        preview: post,
+        onSharedSuccessfully: () =>
+          logEvent(postLogEvent(LogEvent.ShareToSquad, post)),
+      },
+    });
+  };
 
   const logShareEvent = (provider: ShareProvider) =>
     logEvent(
@@ -111,7 +142,24 @@ export const DiscussionShareRow = ({
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
-        <Tooltip content="More sharing options">
+        {inlineSquads.map((squad) => (
+          <Tooltip key={squad.id} content={`Share to @${squad.handle}`}>
+            <Button
+              aria-label={`Share to ${squad.name}`}
+              icon={
+                <SourceProfilePicture
+                  source={squad}
+                  size={ProfileImageSize.Small}
+                />
+              }
+              onClick={() => onShareToSquad(squad)}
+              size={ButtonSize.Small}
+              type="button"
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+        ))}
+        <Tooltip content="See all squads and sharing options">
           <Button
             aria-label="More sharing options"
             icon={<ShareIcon />}
