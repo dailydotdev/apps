@@ -32,13 +32,11 @@ beforeEach(() => {
 describe('ExploreSignupCard', () => {
   it('makes the tag value explicit and logs a tag_page impression', () => {
     mockAuth();
-    render(<ExploreSignupCard tag="claude" postsCount={1200} />);
+    render(<ExploreSignupCard tag="claude" />);
 
     expect(
-      screen.getByRole('heading', { name: /Keep up with #claude/ }),
+      screen.getByRole('heading', { name: /Get every new #claude post/ }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/New #claude posts/)).toBeInTheDocument();
-    expect(screen.getByText('1.2K posts')).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
       target_type: TargetType.SignupButton,
@@ -51,7 +49,7 @@ describe('ExploreSignupCard', () => {
     render(<ExploreSignupCard />);
 
     expect(
-      screen.getByRole('heading', { name: /Make daily.dev your feed/ }),
+      screen.getByRole('heading', { name: /Your personalized developer feed/ }),
     ).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
