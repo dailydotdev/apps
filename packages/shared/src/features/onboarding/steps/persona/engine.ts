@@ -103,7 +103,10 @@ export const pickNextQuestion = (
       if (asked.has(q) || !layers.has(question.layer)) {
         return best;
       }
-      if (question.exclusiveGroup && excludedGroups.has(question.exclusiveGroup)) {
+      if (
+        question.exclusiveGroup &&
+        excludedGroups.has(question.exclusiveGroup)
+      ) {
         return best;
       }
       const gain = informationGain(belief, q);
