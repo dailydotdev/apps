@@ -7,10 +7,10 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
-import { BuildYourFeedWidget } from '../BuildYourFeedWidget';
 import type { FocusCardLeftVariant } from './PostFocusCard';
 import { PostFocusCard } from './PostFocusCard';
 import { PostDiscoveryFeed } from './PostDiscoveryFeed';
+import { PostDiscoverySignupHero } from './PostDiscoverySignupHero';
 
 interface PostDiscoveryLayoutProps {
   post: Post;
@@ -84,9 +84,7 @@ export const PostDiscoveryLayout = ({
 
         {!user && (
           <div className="mx-auto w-full max-w-[64rem]">
-            <div className="shadow-1 overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-6">
-              <BuildYourFeedWidget />
-            </div>
+            <PostDiscoverySignupHero post={post} />
           </div>
         )}
       </div>
