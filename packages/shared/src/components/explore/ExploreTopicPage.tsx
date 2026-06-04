@@ -427,34 +427,6 @@ export const ExploreTopicPage = ({
               }}
             />
           </div>
-          {showRoadmap && initialData?.flags?.roadmap && (
-            <Link href={initialData.flags.roadmap} passHref prefetch={false}>
-              <a
-                target="_blank"
-                rel={anchorDefaultRel}
-                className="mt-2 flex w-full max-w-sm cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
-              >
-                <img
-                  src={cloudinarySourceRoadmap}
-                  alt="roadmap.sh logo"
-                  className="size-10 rounded-full"
-                />
-                <div className="mx-3 flex-1 text-left">
-                  <p className="font-bold typo-callout">
-                    Comprehensive roadmap for {title}
-                  </p>
-                  <p className="text-text-tertiary typo-footnote">
-                    By roadmap.sh
-                  </p>
-                </div>
-                <Button
-                  icon={<OpenLinkIcon />}
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                />
-              </a>
-            </Link>
-          )}
           {/* SEO crawl paths preserved from the legacy tag page. */}
           {topPosts.length > 0 && (
             <div className="sr-only">
@@ -482,12 +454,43 @@ export const ExploreTopicPage = ({
               ))}
             </div>
           )}
+          {/* Compact signup nudge, directly under the follow actions. */}
+          <ExploreSignupCard tag={title} className="mt-2 text-left" />
         </header>
 
         <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
 
-        {/* Compact, feed-native signup nudge for logged-out visitors. */}
-        <ExploreSignupCard tag={title} className="mb-10" />
+        {showRoadmap && initialData?.flags?.roadmap && (
+          <section className="mb-10">
+            <SectionHeading>Roadmaps</SectionHeading>
+            <Link href={initialData.flags.roadmap} passHref prefetch={false}>
+              <a
+                target="_blank"
+                rel={anchorDefaultRel}
+                className="flex w-full max-w-sm cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
+              >
+                <img
+                  src={cloudinarySourceRoadmap}
+                  alt="roadmap.sh logo"
+                  className="size-10 rounded-full"
+                />
+                <div className="mx-3 flex-1 text-left">
+                  <p className="font-bold typo-callout">
+                    Comprehensive roadmap for {title}
+                  </p>
+                  <p className="text-text-tertiary typo-footnote">
+                    By roadmap.sh
+                  </p>
+                </div>
+                <Button
+                  icon={<OpenLinkIcon />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                />
+              </a>
+            </Link>
+          </section>
+        )}
 
         {/* Recommended stories */}
         <ActiveFeedNameContext.Provider
