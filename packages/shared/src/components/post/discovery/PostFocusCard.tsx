@@ -2,7 +2,11 @@ import dynamic from 'next/dynamic';
 import type { ComponentProps, ReactElement } from 'react';
 import React, { useRef } from 'react';
 import type { Post } from '../../../graphql/posts';
-import { getReadArticleHref, isVideoPost } from '../../../graphql/posts';
+import {
+  getReadArticleHref,
+  isShareLikePost,
+  isVideoPost,
+} from '../../../graphql/posts';
 import type { SourceTooltip } from '../../../graphql/sources';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
@@ -22,6 +26,7 @@ import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
+import Link from '../../utilities/Link';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostDiscoveryActionBar } from './PostDiscoveryActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
@@ -71,15 +76,21 @@ export const PostFocusCard = ({
   origin,
   leftVariant,
 }: PostFocusCardProps): ReactElement => {
-  const isVideoType = isVideoPost(post);
-  const { title } = useSmartTitle(post);
+  // A shared post wraps an underlying article in a squad. Render the article
+  // itself so the card matches a default post, and surface where it was shared
+  // from via a small label below the source.
+  const isShared = isShareLikePost(post) && !!post.sharedPost;
+  const article = (isShared ? post.sharedPost : post) as Post;
+  const sharedFromSource = isShared ? post.source : undefined;
+  const isVideoType = isVideoPost(article);
+  const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const readHref = getReadArticleHref(post);
-  const hasToc = (post.toc?.length ?? 0) > 0;
+  const hasToc = (article.toc?.length ?? 0) > 0;
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -95,12 +106,12 @@ export const PostFocusCard = ({
       <PostContainer className="relative laptop:border-r-0">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
-            {post.source && (
+            {article.source && (
               <SourceStrip
                 compact
                 className="min-w-0 shrink"
                 followButtonVariant={ButtonVariant.Subtle}
-                source={post.source as SourceTooltip}
+                source={article.source as SourceTooltip}
               />
             )}
             <PostHeaderActions
@@ -115,6 +126,17 @@ export const PostFocusCard = ({
             />
           </div>
 
+          {sharedFromSource && (
+            <p className="-mt-2 text-text-tertiary typo-caption1">
+              This post was shared from{' '}
+              <Link href={sharedFromSource.permalink} passHref prefetch={false}>
+                <a className="font-bold text-text-link hover:underline">
+                  {sharedFromSource.name}
+                </a>
+              </Link>
+            </p>
+          )}
+
           <div className="flex min-w-0 items-start gap-4">
             <h1
               className="min-w-0 flex-1 break-words py-2 font-bold text-text-primary typo-large-title"
@@ -122,7 +144,7 @@ export const PostFocusCard = ({
             >
               {title}
             </h1>
-            {!isVideoType && post.image && (
+            {!isVideoType && article.image && (
               <a
                 className="block h-fit w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                 href={readHref}
@@ -136,7 +158,7 @@ export const PostFocusCard = ({
                   fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                   fetchPriority="high"
                   imgAlt="Post cover image"
-                  imgSrc={post.image}
+                  imgSrc={article.image}
                   ratio="52%"
                 />
               </a>
@@ -150,53 +172,56 @@ export const PostFocusCard = ({
             onCopyLinkClick={onCopyPostLink}
           />
 
-          {!isVideoType && post.summary && (
+          {!isVideoType && article.summary && (
             <p
               className="select-text break-words text-text-secondary typo-markdown"
               data-testid="tldr-container"
             >
-              {post.summary}
+              {article.summary}
             </p>
           )}
 
           <PostMetadata
             className="!typo-callout"
-            createdAt={post.createdAt}
+            createdAt={article.createdAt}
             domain={
               !isVideoType &&
-              post.domain &&
-              post.domain.length > 0 && (
+              article.domain &&
+              article.domain.length > 0 && (
                 <TruncateText>
                   From{' '}
                   <ArticleLink
                     className="hover:underline"
-                    href={post.permalink}
+                    href={article.permalink}
                     onClick={onReadArticle}
-                    title={post.domain}
+                    title={article.domain}
                   >
-                    {post.domain}
+                    {article.domain}
                   </ArticleLink>
                 </TruncateText>
               )
             }
             isVideoType={isVideoType}
-            readTime={post.readTime}
+            readTime={article.readTime}
           />
 
-          <PostTagList post={post} />
+          <PostTagList post={article} />
 
           {isVideoType && (
             <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
               <YoutubeVideo
-                placeholderProps={{ post, onWatchVideo: onReadArticle }}
-                videoId={post.videoId ?? ''}
+                placeholderProps={{
+                  post: article,
+                  onWatchVideo: onReadArticle,
+                }}
+                videoId={article.videoId ?? ''}
               />
-              {post.summary && (
+              {article.summary && (
                 <p
                   className="select-text break-words px-1 pb-1 text-text-secondary typo-markdown"
                   data-testid="tldr-container"
                 >
-                  {post.summary}
+                  {article.summary}
                 </p>
               )}
             </div>
@@ -206,7 +231,7 @@ export const PostFocusCard = ({
             <PostToc
               collapsible
               className="rounded-16 border border-border-subtlest-tertiary bg-transparent"
-              post={post}
+              post={article}
             />
           )}
 
@@ -222,7 +247,7 @@ export const PostFocusCard = ({
 
           {showCodeSnippets && (
             <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
-              <PostCodeSnippets post={post} />
+              <PostCodeSnippets post={article} />
             </div>
           )}
 
