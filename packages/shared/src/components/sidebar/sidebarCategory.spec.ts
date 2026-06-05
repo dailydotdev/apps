@@ -15,9 +15,9 @@ describe('getSidebarCategoryForPath', () => {
   });
 
   it('keeps the devcard customization page on the Profile category', () => {
-    expect(
-      getSidebarCategoryForPath('/settings/customization/devcard'),
-    ).toBe(SidebarCategory.Profile);
+    expect(getSidebarCategoryForPath('/settings/customization/devcard')).toBe(
+      SidebarCategory.Profile,
+    );
   });
 
   it('keeps the notifications inbox on the Notifications category', () => {
