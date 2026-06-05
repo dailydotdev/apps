@@ -10,7 +10,7 @@ import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, LockIcon, AtIcon } from '../icons';
 import AuthHeader from './AuthHeader';
 import type { AuthFormProps } from './common';
-import { providerMap } from './common';
+import { providerMap, SocialProvider } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { ProfileFormHint } from '../../hooks/useProfileForm';
 import { Checkbox } from '../fields/Checkbox';
@@ -56,15 +56,24 @@ export const SocialRegistrationForm = ({
 }: SocialRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
+  const isAppleRegistration = provider === SocialProvider.Apple;
+  const shouldShowAppleEmail = isAppleRegistration && !user?.email;
+  const shouldShowAppleName = isAppleRegistration && !user?.name;
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
   const [name, setName] = useState(user?.name);
+  const [email, setEmail] = useState(user?.email);
+  const currentName = name || user?.name;
+  const currentEmail = email || user?.email;
+  const usernameSeed = isAppleRegistration
+    ? currentName || currentEmail
+    : currentName;
   const {
     username,
     setUsername,
     isLoading: isLoadingUsername,
-  } = useGenerateUsername(name);
+  } = useGenerateUsername(usernameSeed);
   const { onUpdateSignBack } = useSignBack();
 
   useEffect(() => {
@@ -101,8 +110,15 @@ export const SocialRegistrationForm = ({
     const values = formToJson<SocialRegistrationFormValues>(
       formRef?.current ?? form,
     );
+    const submittedName = values.name || currentName;
+    const submittedEmail = values.email || currentEmail;
 
-    if (!values.name) {
+    if (!submittedEmail) {
+      logError('Email not provided');
+      return;
+    }
+
+    if (!submittedName) {
       logError('Name not provided');
       setNameHint('Please prove your name');
       return;
@@ -131,11 +147,16 @@ export const SocialRegistrationForm = ({
     });
 
     onUpdateSignBack(
-      { name: values.name, email: user.email, image: user.image },
+      { name: submittedName, email: submittedEmail, image: user.image },
       provider as SignBackProvider,
     );
     const { file, optOutMarketing, ...rest } = values;
-    onSignup({ ...rest, acceptedMarketing: !optOutMarketing });
+    onSignup({
+      ...rest,
+      email: submittedEmail,
+      name: submittedName,
+      acceptedMarketing: !optOutMarketing,
+    });
   };
 
   const emailFieldIcon = (providerI: string) => {
@@ -149,7 +170,7 @@ export const SocialRegistrationForm = ({
     return <MailIcon size={IconSize.Small} />;
   };
 
-  if (!user?.email) {
+  if (!user) {
     return <></>;
   }
 
@@ -166,44 +187,57 @@ export const SocialRegistrationForm = ({
         id="auth-form"
         data-testid="registration_form"
       >
-        <ImageInput
-          className={{ container: 'mb-4' }}
-          initialValue={user?.image}
-          size="medium"
-          viewOnly
-        />
-        <TextField
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          leftIcon={emailFieldIcon(provider)}
-          name="email"
-          inputId="email"
-          label="Email"
-          type="email"
-          value={user?.email}
-          readOnly
-          rightIcon={<LockIcon />}
-        />
-        <TextField
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          leftIcon={<UserIcon size={IconSize.Small} />}
-          name="name"
-          inputId="name"
-          label="Name"
-          value={name}
-          valid={!nameHint && !hints?.name}
-          hint={hints?.name || nameHint}
-          onBlur={(e) => setName(e.target.value)}
-          valueChanged={() => {
-            if (hints?.name) {
-              onUpdateHints?.({ ...hints, name: '' });
-            }
-            if (nameHint) {
-              setNameHint('');
-            }
-          }}
-        />
+        {isAppleRegistration && !shouldShowAppleName && (
+          <input name="name" type="hidden" value={currentName} readOnly />
+        )}
+        {isAppleRegistration && !shouldShowAppleEmail && (
+          <input name="email" type="hidden" value={currentEmail} readOnly />
+        )}
+        {!isAppleRegistration && (
+          <ImageInput
+            className={{ container: 'mb-4' }}
+            initialValue={user?.image}
+            size="medium"
+            viewOnly
+          />
+        )}
+        {(!isAppleRegistration || shouldShowAppleEmail) && (
+          <TextField
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            leftIcon={emailFieldIcon(provider)}
+            name="email"
+            inputId="email"
+            label="Email"
+            type="email"
+            value={currentEmail}
+            readOnly={!isAppleRegistration}
+            rightIcon={!isAppleRegistration ? <LockIcon /> : undefined}
+            onBlur={(e) => setEmail(e.target.value)}
+          />
+        )}
+        {(!isAppleRegistration || shouldShowAppleName) && (
+          <TextField
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            leftIcon={<UserIcon size={IconSize.Small} />}
+            name="name"
+            inputId="name"
+            label="Name"
+            value={currentName}
+            valid={!nameHint && !hints?.name}
+            hint={hints?.name || nameHint}
+            onBlur={(e) => setName(e.target.value)}
+            valueChanged={() => {
+              if (hints?.name) {
+                onUpdateHints?.({ ...hints, name: '' });
+              }
+              if (nameHint) {
+                setNameHint('');
+              }
+            }}
+          />
+        )}
         <TextField
           saveHintSpace
           className={{ container: 'w-full' }}

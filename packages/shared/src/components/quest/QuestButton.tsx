@@ -31,7 +31,10 @@ import {
   QUEST_UPDATE_SUBSCRIPTION,
 } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
-import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import {
+  getClaimableQuestCount,
+  useQuestDashboard,
+} from '../../hooks/useQuestDashboard';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -759,18 +762,7 @@ export const QuestButton = ({
   const level = data?.level?.level ?? 1;
   const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
   const showLevelSystem = !optOutLevelSystem;
-  const claimableCount = useMemo(() => {
-    if (!data) {
-      return 0;
-    }
-
-    return [
-      ...data.daily.regular,
-      ...data.daily.plus,
-      ...data.weekly.regular,
-      ...data.weekly.plus,
-    ].filter((quest) => quest.claimable).length;
-  }, [data]);
+  const claimableCount = useMemo(() => getClaimableQuestCount(data), [data]);
   const claimingQuestId = isClaimPending ? variables?.userQuestId : undefined;
   const [rewardFlightLayers, setRewardFlightLayers] = useState<
     QuestRewardFlightLayerState[]

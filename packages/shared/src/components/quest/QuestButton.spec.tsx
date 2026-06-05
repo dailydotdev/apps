@@ -31,6 +31,7 @@ type MockDropdownTriggerChildProps = {
 };
 
 jest.mock('../../hooks/useQuestDashboard', () => ({
+  ...jest.requireActual('../../hooks/useQuestDashboard'),
   useQuestDashboard: jest.fn(),
 }));
 

@@ -43,6 +43,7 @@ import {
   MAX_SHORTCUTS,
 } from '@dailydotdev/shared/src/features/shortcuts/types';
 import { useManualShortcutsRow } from '@dailydotdev/shared/src/features/shortcuts/hooks/useManualShortcutsRow';
+import { useSingleRowOverflow } from '@dailydotdev/shared/src/features/shortcuts/hooks/useSingleRowOverflow';
 import { ShortcutLinksHubAutoState } from './ShortcutLinksHubAutoState';
 import { ShortcutLinksHubMenu } from './ShortcutLinksHubMenu';
 
@@ -134,6 +135,13 @@ export function ShortcutLinksHub({
   );
   const visibleShortcuts = isAuto ? autoShortcuts : manualRow.shortcuts;
 
+  // Keep the hub on a single row — overflow tiles are hidden (still reachable
+  // via the overflow menu's "Manage shortcuts…") rather than wrapping.
+  const { containerRef, visibleCount } = useSingleRowOverflow(
+    visibleShortcuts.length,
+    appearance,
+  );
+
   const handleDragEnd = (event: DragEndEvent) => {
     armDragSuppression();
     if (isAuto) {
@@ -212,10 +220,14 @@ export function ShortcutLinksHub({
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Force the overflow trigger visible when the user would otherwise be
-  // trapped: menu open, auto-mode empty state, or row with no tiles at all.
+  // trapped: menu open, auto-mode empty state, a row with no tiles at all, or
+  // whenever tiles are being hidden to fit one row (the menu is the only way
+  // to reach them).
+  const hasHiddenShortcuts = visibleCount < visibleShortcuts.length;
   const forceShowMenuButton =
     menuOpen ||
     showAutoEmptyState ||
+    hasHiddenShortcuts ||
     (visibleShortcuts.length === 0 && (isAuto || !manualRow.canAdd));
 
   return (
@@ -229,10 +241,16 @@ export function ShortcutLinksHub({
       className={classNames(
         // `group/hub` powers the hover-reveal of the overflow button.
         'group/hub',
-        'hidden flex-wrap items-center mobileXL:flex',
-        appearance === 'tile' && 'items-start gap-x-1 gap-y-2',
-        appearance === 'icon' && 'gap-1',
-        appearance === 'chip' && 'gap-1',
+        // Single line only — overflow tiles are hidden (reachable via the
+        // overflow menu), never wrapped onto a second row. `w-full min-w-0`
+        // pins the row to the column width (rather than letting its content
+        // width balloon the layout / spill out of its `justify-center`
+        // parent) so the inner tiles container has a bounded width to shrink
+        // and clip against — that bound is what the overflow measurement reads.
+        // `justify-center` keeps the visible tiles + controls centered as a
+        // group (the parent's own centering can't act once we're full-width).
+        'hidden w-full min-w-0 items-center justify-center mobileXL:flex',
+        appearance === 'tile' ? 'items-start gap-x-1' : 'gap-1',
         shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : 'mb-5',
         'rounded-12 transition-[box-shadow,background-color] duration-150 motion-reduce:transition-none',
         !isAuto &&
@@ -240,38 +258,57 @@ export function ShortcutLinksHub({
           'bg-overlay-float-cabbage ring-2 ring-accent-cabbage-default ring-offset-4 ring-offset-background-default',
       )}
     >
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={armDragSuppression}
-        onDragCancel={armDragSuppression}
-        onDragEnd={handleDragEnd}
+      <div
+        ref={containerRef}
+        className={classNames(
+          'relative flex min-w-0 overflow-hidden',
+          appearance === 'tile' ? 'items-start gap-x-1' : 'items-center gap-1',
+        )}
       >
-        <SortableContext
-          items={visibleShortcuts.map((s) => s.url)}
-          strategy={horizontalListSortingStrategy}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={armDragSuppression}
+          onDragCancel={armDragSuppression}
+          onDragEnd={handleDragEnd}
         >
-          {visibleShortcuts.map((shortcut) => (
-            <ShortcutTile
-              key={shortcut.url}
-              shortcut={shortcut}
-              appearance={appearance}
-              onClick={onLinkClick}
-              draggable={!isAuto}
-              onEdit={isAuto ? undefined : manualRow.onEdit}
-              onRemove={isAuto ? onHideTopSite : manualRow.onRemove}
-              removeLabel={isAuto ? 'Hide' : 'Remove'}
-            />
-          ))}
-        </SortableContext>
-      </DndContext>
+          <SortableContext
+            items={visibleShortcuts.map((s) => s.url)}
+            strategy={horizontalListSortingStrategy}
+          >
+            {visibleShortcuts.map((shortcut, index) => (
+              <ShortcutTile
+                key={shortcut.url}
+                shortcut={shortcut}
+                appearance={appearance}
+                onClick={onLinkClick}
+                draggable={!isAuto}
+                onEdit={isAuto ? undefined : manualRow.onEdit}
+                onRemove={isAuto ? onHideTopSite : manualRow.onRemove}
+                removeLabel={isAuto ? 'Hide' : 'Remove'}
+                // Overflow tiles stay mounted (kept measurable so the count is
+                // stable) but are taken out of flow so they don't occupy width
+                // and shove the trailing controls to the far edge. `!absolute`
+                // overrides the tile root's own `relative` base class.
+                className={
+                  index >= visibleCount ? 'invisible !absolute' : undefined
+                }
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+      </div>
       {!isAuto && manualRow.canAdd && (
-        <AddShortcutTile
-          appearance={appearance}
-          onClick={manualRow.onAdd}
-          acceptsDroppedUrl={manualRow.canAdd}
-          isDropActive={manualRow.isDropTarget}
-        />
+        // `shrink-0` keeps the add tile at full size; the tiles container is
+        // the only flex item allowed to shrink (and clip its overflow).
+        <div className="shrink-0">
+          <AddShortcutTile
+            appearance={appearance}
+            onClick={manualRow.onAdd}
+            acceptsDroppedUrl={manualRow.canAdd}
+            isDropActive={manualRow.isDropTarget}
+          />
+        </div>
       )}
       <ShortcutLinksHubAutoState
         showPermissionCta={showAutoPermissionCta}
