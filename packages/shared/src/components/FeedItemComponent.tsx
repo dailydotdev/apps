@@ -103,7 +103,7 @@ export type FeedItemComponentProps = {
   /**
    * When set, render the post as a wide featured highlight card spanning
    * the given number of grid columns. Only used for article-like post
-   * types with an active `postHighlight`.
+   * types with an active `hero`.
    */
   wideColSpan?: FeaturedWideColSpan;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &

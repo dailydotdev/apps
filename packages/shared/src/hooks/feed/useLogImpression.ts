@@ -41,7 +41,7 @@ export default function useLogImpression(
     if (item.type === 'post') {
       const eventKey = generatePostLogEventKey(item.post.id);
       if (inView && !item.post.impressionStatus) {
-        const significance = item.post.postHighlight?.significance;
+        const significance = item.post.hero?.significance;
         logEventStart(
           eventKey,
           postLogEvent(LogEvent.Impression, item.post, {

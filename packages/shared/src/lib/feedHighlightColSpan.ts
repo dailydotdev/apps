@@ -1,13 +1,15 @@
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
 import { PostType } from '../graphql/posts';
-import type { PostHighlightSignificance } from '../graphql/posts';
+import type { PostHeroSignificance } from '../graphql/posts';
 
-const SIGNIFICANCE_COL_SPAN: Record<PostHighlightSignificance, number> = {
+const SIGNIFICANCE_COL_SPAN: Record<PostHeroSignificance, number> = {
   breaking: 4,
   major: 3,
   notable: 2,
   routine: 1,
+  breakout: 4,
+  evergreen: 3,
 };
 
 const WIDENABLE_POST_TYPES = new Set<PostType>([
@@ -27,7 +29,7 @@ const LARGE_CARD_DENSITY = { maxLarge: 1, perItems: 10 } as const;
  * Returns the column span a feed item is asking for, before any clamping
  * for column count or fit-to-row.
  *
- * Only Post items with an article-like type and an active `postHighlight`
+ * Only Post items with an article-like type and an active `hero`
  * request a wide colSpan. Ads, highlight strip items, placeholders,
  * marketing items and non-article post types always stay at 1.
  */
@@ -40,7 +42,7 @@ export const requestedColSpan = (item: FeedItem): number => {
     return 1;
   }
 
-  const significance = item.post.postHighlight?.significance;
+  const significance = item.post.hero?.significance;
   if (!significance) {
     return 1;
   }
