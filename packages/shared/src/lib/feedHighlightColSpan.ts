@@ -18,12 +18,12 @@ const WIDENABLE_POST_TYPES = new Set<PostType>([
 ]);
 
 /**
- * Rolling density cap for wide cards. By default, allow at most one wide
- * card per ten items, with unused capacity accumulating across the feed.
- * Matches the PR's packer default so visual rhythm stays consistent if we
- * ever migrate to the full packer.
+ * Minimum number of items between two wide cards. Anchored to the index of
+ * the last placed wide card, so a wide card requested within this distance
+ * shrinks to a regular 1-column card. Keeps visual rhythm consistent and
+ * avoids back-to-back wides at window boundaries.
  */
-const LARGE_CARD_DENSITY = { maxLarge: 1, perItems: 10 } as const;
+const LARGE_CARD_DENSITY = { minSpacing: 10 } as const;
 
 /**
  * Returns the column span a feed item is asking for, before any clamping
@@ -102,7 +102,7 @@ export const computePlacements = (
   const placements = new Array<FeedItemPlacement>(items.length);
   let row = 0;
   let col = 0;
-  let largeCardsPlaced = 0;
+  let lastLargeIndex = -Infinity;
 
   items.forEach((item, index) => {
     if (fullRowInsertionBeforeIndex?.has(index)) {
@@ -121,25 +121,18 @@ export const computePlacements = (
     let actual: number;
     if (requested === 1) {
       actual = 1;
+    } else if (index - lastLargeIndex < LARGE_CARD_DENSITY.minSpacing) {
+      actual = 1;
     } else {
-      // Rolling density cap: max one wide card per `perItems` items,
-      // cumulative.
-      const windowIndex = Math.floor(index / LARGE_CARD_DENSITY.perItems);
-      const expectedWindowLarge =
-        windowIndex * LARGE_CARD_DENSITY.maxLarge + LARGE_CARD_DENSITY.maxLarge;
-      if (largeCardsPlaced >= expectedWindowLarge) {
-        actual = 1;
-      } else {
-        const clampedToGrid = Math.min(requested, numCards);
-        const remainingInRow = numCards - col;
-        actual = Math.min(clampedToGrid, remainingInRow);
-      }
+      const clampedToGrid = Math.min(requested, numCards);
+      const remainingInRow = numCards - col;
+      actual = Math.min(clampedToGrid, remainingInRow);
     }
 
     placements[index] = { colSpan: actual, row, column: col };
 
     if (actual > 1) {
-      largeCardsPlaced += 1;
+      lastLargeIndex = index;
     }
 
     col += actual;
