@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 import type { AuthFormProps } from './common';
 import { providerMap } from './common';
 import OrDivider from './OrDivider';
 import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
-import { AuthEventNames } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { isIOSNative } from '../../lib/func';
@@ -36,6 +37,8 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
+  splitSignupStyle?: boolean;
+  preferGithub?: boolean;
 }
 
 export const isWebView = (): boolean => {
@@ -87,14 +90,17 @@ export const isWebView = (): boolean => {
   return isInAppBrowser || advancedInAppDetection();
 };
 
-const getSignupProviders = () => {
+const getSignupProviders = (preferGithub: boolean) => {
   if (isIOSNative()) {
     return [providerMap.google, providerMap.apple];
   }
   if (isWebView()) {
     return [providerMap.github];
   }
-  return [providerMap.google, providerMap.github];
+  // Developer-first audiences convert better when GitHub leads the OAuth list.
+  return preferGithub
+    ? [providerMap.github, providerMap.google]
+    : [providerMap.google, providerMap.github];
 };
 
 export const OnboardingRegistrationForm = ({
@@ -108,8 +114,14 @@ export const OnboardingRegistrationForm = ({
   onboardingSignupButton,
   hideLoginLink,
   compact,
+  splitSignupStyle = false,
+  preferGithub,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const isOnboardingTrigger = trigger === AuthTriggers.Onboarding;
+  const signupProviders = getSignupProviders(
+    preferGithub ?? isOnboardingTrigger,
+  );
 
   const trackOpenSignup = () => {
     logEvent({
@@ -130,13 +142,97 @@ export const OnboardingRegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const tertiarySignupButtonClass =
+    '!w-full !border !border-border-subtlest-tertiary !text-white';
+
+  const getEmailButtonClass = (): string => {
+    if (compact) {
+      return 'mb-4';
+    }
+    if (isOnboardingTrigger && !splitSignupStyle) {
+      return 'mb-3';
+    }
+    return 'mb-8';
+  };
+
+  const emailButtonLabel = splitSignupStyle
+    ? 'Create account'
+    : 'Continue with email';
+
+  const emailButton = (
+    <Button
+      aria-label={splitSignupStyle ? 'Create account' : 'Signup using email'}
+      className={classNames(
+        getEmailButtonClass(),
+        (isOnboardingTrigger || splitSignupStyle) && tertiarySignupButtonClass,
+      )}
+      data-funnel-track={FunnelTargetId.SignupProvider}
+      disabled={isSocialAuthLoading}
+      onClick={() => {
+        trackOpenSignup();
+        onContinueWithEmail?.();
+      }}
+      size={onboardingSignupButton?.size ?? ButtonSize.Large}
+      type="button"
+      variant={
+        isOnboardingTrigger || splitSignupStyle
+          ? ButtonVariant.Tertiary
+          : ButtonVariant.Float
+      }
+    >
+      {emailButtonLabel}
+    </Button>
+  );
+
+  const getMemberAlreadyContainerClass = (): string => {
+    if (isOnboardingTrigger) {
+      return 'mx-auto mt-5 text-center text-text-secondary typo-callout';
+    }
+    return 'mx-auto mt-6 text-center text-text-secondary typo-callout';
+  };
+
+  const memberAlready = !hideLoginLink && !splitSignupStyle && (
+    <MemberAlready
+      onLogin={() => onExistingEmail?.('')}
+      className={{
+        container: getMemberAlreadyContainerClass(),
+        login: '!text-inherit',
+      }}
+    />
+  );
+
+  const splitSignInSection = splitSignupStyle && !hideLoginLink && (
+    <div className="mt-2 flex w-full flex-col items-start gap-3">
+      <p className="text-left text-text-secondary typo-callout">
+        Already have an account?
+      </p>
+      <Button
+        aria-label="Sign in"
+        className={tertiarySignupButtonClass}
+        onClick={() => onExistingEmail?.('')}
+        size={onboardingSignupButton?.size ?? ButtonSize.Large}
+        type="button"
+        variant={ButtonVariant.Tertiary}
+      >
+        Sign in
+      </Button>
+    </div>
+  );
+  const disclaimer = (
+    <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
+  );
+
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
       <ul aria-label="Social login buttons" className="flex flex-col gap-4">
-        {getSignupProviders().map((provider) => (
+        {signupProviders.map((provider) => (
           <li key={provider.value}>
             <Button
-              aria-label={`Continue with ${provider.label}`}
+              aria-label={
+                splitSignupStyle
+                  ? `Sign up with ${provider.label}`
+                  : `Continue with ${provider.label}`
+              }
               className="w-full"
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
@@ -147,7 +243,9 @@ export const OnboardingRegistrationForm = ({
               type="button"
               variant={onboardingSignupButton?.variant ?? ButtonVariant.Primary}
             >
-              Continue with {provider.label}
+              {splitSignupStyle
+                ? `Sign up with ${provider.label}`
+                : `Continue with ${provider.label}`}
             </Button>
           </li>
         ))}
@@ -156,36 +254,26 @@ export const OnboardingRegistrationForm = ({
         className={{
           text: 'text-text-tertiary typo-footnote',
         }}
-        label="OR"
+        label={isOnboardingTrigger ? 'or' : 'OR'}
       />
-      <div className="flex flex-col-reverse text-center">
-        {!hideLoginLink && (
-          <MemberAlready
-            onLogin={() => onExistingEmail?.('')}
-            className={{
-              container:
-                'mx-auto mt-6 text-center text-text-secondary typo-callout',
-              login: '!text-inherit',
-            }}
-          />
-        )}
-        <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
-        <Button
-          aria-label="Signup using email"
-          className={compact ? 'mb-4' : 'mb-8'}
-          data-funnel-track={FunnelTargetId.SignupProvider}
-          disabled={isSocialAuthLoading}
-          onClick={() => {
-            trackOpenSignup();
-            onContinueWithEmail?.();
-          }}
-          size={onboardingSignupButton?.size ?? ButtonSize.Large}
-          type="button"
-          variant={ButtonVariant.Float}
+      {isOnboardingTrigger ? (
+        <div
+          className={classNames(
+            'flex flex-col',
+            splitSignupStyle ? 'items-start text-left' : 'text-center',
+          )}
         >
-          Continue with email
-        </Button>
-      </div>
+          {emailButton}
+          {splitSignInSection}
+          {memberAlready}
+        </div>
+      ) : (
+        <div className="flex flex-col-reverse text-center">
+          {memberAlready}
+          {disclaimer}
+          {emailButton}
+        </div>
+      )}
     </div>
   );
 };

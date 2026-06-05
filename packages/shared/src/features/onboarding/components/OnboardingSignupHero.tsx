@@ -1,0 +1,251 @@
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect } from 'react';
+import classNames from 'classnames';
+import Logo, { LogoPosition } from '../../../components/Logo';
+import { FooterLinks } from '../../../components/footer/FooterLinks';
+import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '../../../contexts/SettingsContext';
+import type {
+  FunnelSignupHeroBackground,
+  FunnelSignupHeroImageMode,
+} from '../types/funnel';
+import { HERO_STYLES } from './signupHero/heroStyles';
+import { HeroBackgroundLayer } from './signupHero/HeroBackgroundLayer';
+import { AuroraOrbs } from './signupHero/HeroDecorations';
+
+// =============================================================
+// Onboarding signup hero — a shell that composes individually
+// toggleable building blocks (background, orbs) driven by funnel
+// parameters. There is intentionally no runtime switcher: every
+// block is selected by the props passed in from the step.
+//
+// The halo/vignette is a legibility treatment intrinsic to the
+// backgrounds that need it (desk photo, split layout) rather than a
+// standalone toggle.
+// =============================================================
+
+type Props = {
+  children: ReactNode;
+  isFormExpanded?: boolean;
+  headline?: string | null;
+  background?: FunnelSignupHeroBackground;
+  imageMode?: FunnelSignupHeroImageMode;
+  showOrbs?: boolean;
+  forceDarkTheme?: boolean;
+};
+
+const DEFAULT_HEADLINE = 'The homepage every developer deserves.';
+const SIGNUP_CONTENT_MAX_W = 'max-w-[360px]';
+
+export const OnboardingSignupHero = ({
+  children,
+  isFormExpanded = false,
+  headline = DEFAULT_HEADLINE,
+  background = 'cards',
+  imageMode = 'image',
+  showOrbs = true,
+  forceDarkTheme = true,
+}: Props): ReactElement => {
+  const { applyThemeMode } = useSettingsContext();
+
+  useEffect(() => {
+    if (!forceDarkTheme) {
+      return undefined;
+    }
+    applyThemeMode(ThemeMode.Dark);
+    return () => {
+      applyThemeMode();
+    };
+  }, [applyThemeMode, forceDarkTheme]);
+
+  const isSplitLayout = background === 'split';
+  const isDeskVariant = background === 'desk';
+  const showOrbsLayer = showOrbs;
+
+  const splitSignupColumn = (
+    <>
+      <main className="relative flex flex-1 flex-col items-center justify-end px-5 pb-6 pt-12 tablet:pb-[5.5rem] laptop:items-stretch laptop:justify-center laptop:px-16 laptop:pb-0 laptop:pt-0">
+        <div
+          className={classNames(
+            'flex w-full flex-col gap-6 tablet:gap-7',
+            SIGNUP_CONTENT_MAX_W,
+            'laptop:items-start laptop:gap-8',
+          )}
+        >
+          <Logo
+            position={LogoPosition.Relative}
+            className="!left-0 !top-0 !mt-0 !translate-x-0 self-center laptop:!self-start"
+            logoClassName={{ container: 'h-7' }}
+          />
+
+          {!isFormExpanded && headline && (
+            <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title laptop:text-left">
+              {headline}
+            </h1>
+          )}
+
+          {children}
+        </div>
+      </main>
+
+      <div className="pointer-events-auto hidden w-full flex-col items-start gap-3 px-5 pb-5 laptop:flex laptop:px-16 laptop:pb-8">
+        <div className="w-full [&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+          <FooterLinks />
+        </div>
+        <SignupDisclaimer className="!w-full !text-left !text-text-tertiary typo-caption1" />
+      </div>
+    </>
+  );
+
+  return (
+    <div
+      className={classNames(
+        'relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-raw-pepper-90 text-text-primary',
+        isSplitLayout
+          ? 'onb-bg-split laptop:grid laptop:grid-cols-2'
+          : 'onb-bg',
+      )}
+    >
+      <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
+
+      {!isSplitLayout && (
+        <HeroBackgroundLayer background={background} imageMode={imageMode} />
+      )}
+
+      {isSplitLayout && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-1 select-none laptop:hidden"
+        >
+          <HeroBackgroundLayer background="split" imageMode={imageMode} />
+          <div className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]" />
+          <div className="onb-form-halo pointer-events-none absolute inset-0" />
+        </div>
+      )}
+
+      {isSplitLayout && (
+        <div className="relative hidden min-h-dvh overflow-hidden laptop:col-start-1 laptop:row-start-1 laptop:block">
+          <div
+            aria-hidden
+            className="onb-split-left-water-glow pointer-events-none absolute inset-0 -z-2"
+          />
+          <HeroBackgroundLayer background="split" imageMode={imageMode} />
+          <div
+            aria-hidden
+            className="onb-split-left-fade pointer-events-none absolute inset-0 -z-1"
+          />
+          {showOrbsLayer && <AuroraOrbs variant="split" />}
+        </div>
+      )}
+
+      {!isSplitLayout && showOrbsLayer && (
+        <div
+          aria-hidden
+          data-testid="hero-orbs"
+          className="pointer-events-none absolute inset-0 -z-1 select-none"
+        >
+          <AuroraOrbs variant="full" />
+        </div>
+      )}
+
+      {isDeskVariant && (
+        <>
+          <div
+            aria-hidden
+            className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]"
+          />
+          <div
+            aria-hidden
+            data-testid="hero-halo"
+            className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
+          />
+        </>
+      )}
+
+      <div
+        aria-hidden
+        className="onb-top-fade pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 laptop:hidden"
+      />
+      {isDeskVariant && (
+        <div
+          aria-hidden
+          className="onb-center-halo pointer-events-none absolute inset-0 -z-1"
+        />
+      )}
+
+      {isSplitLayout ? (
+        <div className="relative z-1 flex min-h-dvh flex-1 flex-col laptop:col-start-2 laptop:row-start-1 laptop:min-w-0">
+          <div
+            aria-hidden
+            className="onb-split-right-panel pointer-events-none absolute inset-0 -z-1 hidden laptop:block"
+          />
+          {splitSignupColumn}
+        </div>
+      ) : (
+        <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-end px-5 pb-6 pt-12 tablet:pb-[5.5rem] tablet:pt-14">
+          <div
+            className={classNames(
+              'flex w-full flex-col gap-6 tablet:gap-7',
+              SIGNUP_CONTENT_MAX_W,
+            )}
+          >
+            <Logo
+              position={LogoPosition.Relative}
+              className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
+              logoClassName={{ container: 'h-7' }}
+            />
+
+            {!isFormExpanded && headline && (
+              <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title">
+                {headline}
+              </h1>
+            )}
+
+            {children}
+          </div>
+        </main>
+      )}
+
+      {!isSplitLayout && (
+        <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 hidden items-end justify-between gap-6 px-6 pb-4 tablet:flex">
+          {isDeskVariant ? (
+            <>
+              <div className="max-w-sm text-left">
+                <SignupDisclaimer className="!text-left !text-text-tertiary typo-caption1" />
+              </div>
+              <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-end">
+                <FooterLinks />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+                <FooterLinks />
+              </div>
+              <div className="max-w-sm text-right">
+                <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      <div
+        className={classNames(
+          'pointer-events-auto relative z-1 flex w-full flex-col items-center gap-4 px-5',
+          isSplitLayout ? 'laptop:hidden' : 'tablet:hidden',
+        )}
+      >
+        <div className="[&_footer]:!pb-0 [&_ul]:!mb-0">
+          <FooterLinks />
+        </div>
+        <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+      </div>
+
+      <div className="h-3 w-full tablet:hidden" />
+    </div>
+  );
+};
