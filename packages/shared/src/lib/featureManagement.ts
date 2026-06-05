@@ -223,3 +223,5 @@ export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
 );
+
+export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);

@@ -239,6 +239,20 @@ export const betterAuthSignInWithIdToken = async ({
   );
 };
 
+export const betterAuthOneTapCallback = async ({
+  idToken,
+  timezone,
+}: {
+  idToken: string;
+  timezone?: string;
+}): Promise<BetterAuthResponse> =>
+  betterAuthPost(
+    'one-tap/callback',
+    { idToken },
+    'One Tap sign in failed',
+    timezone ? { 'x-timezone': timezone } : undefined,
+  );
+
 export const getBetterAuthLinkSocialUrl = (
   provider: string,
   callbackURL: string,
