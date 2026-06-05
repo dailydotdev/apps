@@ -37,6 +37,7 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
   HomepageTopBanners,
   useHomepageTopBannersVisibility,
@@ -119,6 +120,15 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   useNotificationParams();
+
+  // Settings pages render their navigation only inside the v2 context panel,
+  // so the sidebar force-expands there regardless of the stored preference.
+  // Mirror that here so the floating content keeps its expanded-width padding
+  // and never slides under the panel. Matches the `activePage` resolution the
+  // Sidebar receives below.
+  const forceSidebarExpanded =
+    isV2 &&
+    isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
 
   // The main content's left padding settles from the rail width to the
   // expanded-sidebar width once auth, settings, and the layout-variant flag
@@ -295,7 +305,7 @@ function MainLayoutComponent({
           className,
           isAuthReady &&
             showSidebar &&
-            sidebarExpanded &&
+            (sidebarExpanded || forceSidebarExpanded) &&
             (isV2
               ? 'laptop:!pl-[19rem]'
               : !isScreenCentered && 'laptop:!pl-60'),
