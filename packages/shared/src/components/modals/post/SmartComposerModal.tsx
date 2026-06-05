@@ -489,7 +489,7 @@ export function SmartComposerModal({
             onMarkdownModeChange={onMarkdownModeChange}
           />
           {!isMarkdownMode && notificationToggleNode && (
-            <div className="flex shrink-0 px-5 pb-5 pt-2">
+            <div className="-mt-2 flex shrink-0 px-5 pb-5">
               {notificationToggleNode}
             </div>
           )}
@@ -524,10 +524,12 @@ export function SmartComposerModal({
         </div>
       )}
       {((kind !== 'text' && kind !== 'standup') || isMarkdownMode) && (
-        <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4 tablet:flex-row tablet:items-center tablet:justify-between">
+        <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
+          <div className="flex items-center justify-between gap-3">
+            {kindPickerNode}
+            <span className="ml-auto">{postButtonNode}</span>
+          </div>
           {notificationToggleNode}
-          {kindPickerNode}
-          <span className="ml-auto">{postButtonNode}</span>
         </div>
       )}
     </form>
