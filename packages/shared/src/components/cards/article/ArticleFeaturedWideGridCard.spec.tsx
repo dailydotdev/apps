@@ -67,6 +67,8 @@ it.each<[PostHeroSignificance, string]>([
   ['breaking', 'Breaking'],
   ['major', 'Major'],
   ['notable', 'Notable'],
+  ['breakout', 'Breaking out'],
+  ['evergreen', 'Evergreen'],
 ])('renders the chip label for %s significance', (significance, label) => {
   renderComponent({ post: postWith(significance), wideColSpan: 2 });
   expect(screen.getByText(label)).toBeInTheDocument();

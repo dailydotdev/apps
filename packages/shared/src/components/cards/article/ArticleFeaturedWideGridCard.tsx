@@ -117,7 +117,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
-    const significance = post.hero?.significance ?? null;
+    const significance = post.hero?.significance;
     const isTweetPost =
       post.type === PostType.SocialTwitter ||
       post.sharedPost?.type === PostType.SocialTwitter;

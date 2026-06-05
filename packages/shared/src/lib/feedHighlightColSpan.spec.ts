@@ -54,6 +54,8 @@ describe('requestedColSpan', () => {
     ['major', 3],
     ['notable', 2],
     ['routine', 1],
+    ['breakout', 4],
+    ['evergreen', 3],
   ])('maps %s significance to span %i', (significance, expected) => {
     expect(requestedColSpan(makePostItem(makePost({ significance })))).toBe(
       expected,
