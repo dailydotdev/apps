@@ -12,7 +12,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { StarIcon, VolumeIcon, VolumeOffIcon } from '../../../components/icons';
+import { VolumeIcon, VolumeOffIcon } from '../../../components/icons';
 import { useGivebackContext } from '../GivebackContext';
 import { useGivebackNav } from '../GivebackNavContext';
 import { useGivebackSound } from '../useGivebackSound';
@@ -103,10 +103,6 @@ export const GivebackFundingBar = (): ReactElement => {
     topLevel.requiredApprovedAmount,
   );
 
-  const hasContributed = approved > 0;
-  const cta = hasContributed
-    ? 'Take your next action'
-    : 'Take your first action';
   const subline = nextLevel
     ? `${formatDonationAmount(amountToNext, campaign.currency)} to ${
         nextLevel.name
@@ -168,10 +164,9 @@ export const GivebackFundingBar = (): ReactElement => {
               type="button"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
-              icon={<StarIcon />}
               onClick={() => setActiveTab('actions')}
             >
-              {cta}
+              Take action
             </Button>
           </FlexRow>
         </FlexRow>

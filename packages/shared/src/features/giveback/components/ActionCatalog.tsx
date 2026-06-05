@@ -213,13 +213,7 @@ export const ActionCatalog = (): ReactElement => {
         )}
 
         {loveToRender.length > 0 && (
-          <FlexCol
-            className={classNames(
-              'gap-3',
-              donationToRender.length > 0 &&
-                'border-t border-border-subtlest-tertiary pt-6',
-            )}
-          >
+          <FlexCol className="gap-3">
             <FlexCol className="gap-0.5">
               <Typography
                 bold

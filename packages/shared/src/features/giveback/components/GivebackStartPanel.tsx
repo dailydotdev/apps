@@ -42,7 +42,7 @@ export const GivebackStartPanel = (): ReactElement => {
         type="button"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
-        icon={<MoveToIcon size={IconSize.Small} />}
+        icon={<MoveToIcon size={IconSize.Size16} />}
         iconPosition={ButtonIconPosition.Right}
         onClick={start}
         className="shadow-2-cabbage transition-transform duration-200 ease-out hover:scale-[1.02]"

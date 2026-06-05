@@ -9,12 +9,9 @@ import {
 } from '../../../components/typography/Typography';
 import {
   Button,
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { MoveToIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
 import { useGivebackNav } from '../GivebackNavContext';
 import { GivebackTrustPerks } from './GivebackTrustPerks';
 import { GivebackReveal } from './GivebackReveal';
@@ -92,8 +89,6 @@ export const GivebackClosingCta = (): ReactElement => {
               onClick={() => setActiveTab('actions')}
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
-              icon={<MoveToIcon size={IconSize.Small} />}
-              iconPosition={ButtonIconPosition.Right}
               className="shadow-2-cabbage transition-transform duration-200 hover:scale-[1.03] active:scale-100 motion-reduce:transform-none"
             >
               Take action

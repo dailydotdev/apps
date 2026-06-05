@@ -12,7 +12,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { StarIcon } from '../../../components/icons';
 import { useGivebackContext } from '../GivebackContext';
 import { useGivebackNav } from '../GivebackNavContext';
 import { formatDonationAmount } from '../utils';
@@ -74,11 +73,10 @@ export const GivebackParticipateStrip = (): ReactElement => {
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
-            icon={<StarIcon />}
             onClick={() => setActiveTab('actions')}
             className="shadow-2-cabbage transition-transform duration-200 hover:scale-[1.03] active:scale-100 motion-reduce:transform-none"
           >
-            Start contributing
+            Take action
           </Button>
           <Button
             type="button"
