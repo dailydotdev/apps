@@ -54,6 +54,7 @@ import {
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
+import { Origin } from '../../lib/log';
 import { labels } from '../../lib';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
@@ -601,14 +602,19 @@ function AuthOptionsInner({
     if (isSocialAuthLoading) {
       return;
     }
-    socialErrorEventName.current = AuthEventNames.LoginError;
+    const isLogin = isLoginFlow ?? true;
+    socialErrorEventName.current = isLogin
+      ? AuthEventNames.LoginError
+      : AuthEventNames.RegistrationError;
     authFlowSucceededRef.current = false;
     setIsSocialAuthLoading(true);
     logEvent({
       event_name: 'click',
-      target_type: AuthEventNames.LoginProvider,
+      target_type: isLogin
+        ? AuthEventNames.LoginProvider
+        : AuthEventNames.SignUpProvider,
       target_id: 'google',
-      extra: JSON.stringify({ trigger, origin: 'one tap' }),
+      extra: JSON.stringify({ trigger, origin: Origin.AuthOneTap }),
     });
 
     const result = await betterAuthOneTapCallback({
@@ -618,11 +624,11 @@ function AuthOptionsInner({
 
     if (result.error) {
       logEvent({
-        event_name: AuthEventNames.LoginError,
+        event_name: socialErrorEventName.current,
         extra: JSON.stringify({
           provider: 'google',
           error: result.error,
-          origin: 'betterauth one tap',
+          origin: Origin.AuthOneTap,
         }),
       });
       setIsSocialAuthLoading(false);
