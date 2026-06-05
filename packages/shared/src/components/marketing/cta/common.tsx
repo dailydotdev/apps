@@ -40,6 +40,7 @@ interface MarketingCtaTargets {
   webapp: boolean;
   extension: boolean;
   ios: boolean;
+  android: boolean;
 }
 
 export interface MarketingCta {
@@ -50,9 +51,16 @@ export interface MarketingCta {
   targets?: MarketingCtaTargets;
 }
 
-const platformToMarketingCtaTarget = (): keyof MarketingCtaTargets => {
+// Android has no runtime bridge like `isIOSNative()`; it's only known via boot
+// data (`?android` param), so callers must pass the flag in from boot context.
+const platformToMarketingCtaTarget = (
+  isAndroidApp = false,
+): keyof MarketingCtaTargets => {
   if (isIOSNative()) {
     return 'ios';
+  }
+  if (isAndroidApp) {
+    return 'android';
   }
   if (isExtension) {
     return 'extension';
@@ -60,9 +68,12 @@ const platformToMarketingCtaTarget = (): keyof MarketingCtaTargets => {
   return 'webapp';
 };
 
-export const isMarketingCtaTarget = (targets: MarketingCtaTargets): boolean =>
+export const isMarketingCtaTarget = (
+  targets: MarketingCtaTargets,
+  isAndroidApp = false,
+): boolean =>
   isNullOrUndefined(targets) ||
-  targets[platformToMarketingCtaTarget()] === true;
+  targets[platformToMarketingCtaTarget(isAndroidApp)] === true;
 
 type HeaderProps = Pick<MarketingCtaFlags, 'tagText' | 'tagColor'> & {
   onClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;

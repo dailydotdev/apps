@@ -54,7 +54,8 @@ export function useMarketingCtas(
   });
 
   const targetedCtas = (data ?? []).filter(
-    (cta) => !cta.targets || isMarketingCtaTarget(cta.targets),
+    (cta) =>
+      !cta.targets || isMarketingCtaTarget(cta.targets, bootData?.isAndroidApp),
   );
 
   const dismissMutation = useMutation({
