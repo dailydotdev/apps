@@ -696,11 +696,10 @@ export const FEED_POST_FRAGMENT = gql`
         name
       }
     }
-    postHighlight {
+    hero {
       id
-      significance
       headline
-      channel
+      significance
       highlightedAt
     }
   }

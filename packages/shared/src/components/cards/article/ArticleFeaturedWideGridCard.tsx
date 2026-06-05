@@ -8,7 +8,7 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { usePostFeedback } from '../../../hooks';
 import { isVideoPost, PostType } from '../../../graphql/posts';
-import type { PostHighlightSignificance } from '../../../graphql/posts';
+import type { PostHeroSignificance } from '../../../graphql/posts';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import {
   CardSpace,
@@ -45,17 +45,19 @@ const IMAGE_COL_SPAN: Record<FeaturedWideColSpan, string> = {
   4: 'col-span-3',
 };
 
-const CHIP_LABEL: Partial<Record<PostHighlightSignificance, string>> = {
+const CHIP_LABEL: Partial<Record<PostHeroSignificance, string>> = {
   breaking: 'Breaking',
   major: 'Major',
   notable: 'Notable',
+  breakout: 'Breaking out',
+  evergreen: 'Evergreen',
 };
 
 const HighlightChip = ({
   significance,
   className,
 }: {
-  significance: PostHighlightSignificance | null | undefined;
+  significance: PostHeroSignificance | null | undefined;
   className?: string;
 }): ReactElement | null => {
   if (!significance) {
@@ -115,7 +117,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
-    const significance = post.postHighlight?.significance ?? null;
+    const significance = post.hero?.significance;
     const isTweetPost =
       post.type === PostType.SocialTwitter ||
       post.sharedPost?.type === PostType.SocialTwitter;
@@ -278,6 +280,13 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                 IMAGE_COL_SPAN[wideColSpan],
               )}
             >
+              <Image
+                aria-hidden
+                alt=""
+                src={image}
+                type={ImageType.Post}
+                className="absolute inset-0 size-full scale-110 object-cover blur-xl"
+              />
               {overlay}
               {isVideoType && !overlay && (
                 <>
@@ -298,7 +307,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                 src={image}
                 type={ImageType.Post}
                 className={classNames(
-                  'size-full object-cover',
+                  'relative size-full object-contain',
                   !!overlay && 'opacity-16',
                 )}
                 {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}

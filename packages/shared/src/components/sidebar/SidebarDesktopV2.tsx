@@ -10,6 +10,8 @@ import React, {
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
+import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
+import type { SidebarCategoryId } from './sidebarCategory';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
@@ -21,6 +23,8 @@ import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
+import { useClaimableQuestCount } from '../../hooks/useQuestDashboard';
+import { Bubble } from '../tooltips/utils';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
@@ -65,22 +69,6 @@ import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
-
-// V2 sidebar category identifiers. Derived from URL for navigation and
-// stored in local state for click-driven overrides — intentionally NOT
-// persisted to SettingsContext / localStorage / IndexedDB.
-const SidebarCategory = {
-  Main: 'main',
-  Squads: 'squads',
-  Discover: 'discover',
-  Notifications: 'notifications',
-  Saved: 'saved',
-  GameCenter: 'gameCenter',
-  Profile: 'profile',
-  Settings: 'settings',
-} as const;
-
-type SidebarCategoryId = (typeof SidebarCategory)[keyof typeof SidebarCategory];
 
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
@@ -142,56 +130,6 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     ),
   },
 ];
-
-const discoverPathFragments = [
-  '/posts',
-  '/tags',
-  '/sources',
-  '/users',
-  '/discussed',
-];
-const profilePathFragments = [
-  '/analytics',
-  '/jobs',
-  '/settings/customization/devcard',
-  '/wallet',
-];
-
-const getSidebarCategoryForPath = (activePage: string): SidebarCategoryId => {
-  // Notification/gamification *settings* live under /settings and keep the
-  // Settings panel. Each category exposes its own settings shortcut under its
-  // own path instead (e.g. /notifications/settings, /game-center/settings),
-  // which keeps that category's panel. The general /settings fallback below
-  // catches the settings pages.
-  if (
-    activePage.includes('/notifications') &&
-    !activePage.includes('/settings/notifications')
-  ) {
-    return SidebarCategory.Notifications;
-  }
-  if (
-    activePage.includes('/game-center') ||
-    activePage.includes('/daily-quests')
-  ) {
-    return SidebarCategory.GameCenter;
-  }
-  if (activePage.includes('/bookmarks') || activePage.includes('/briefing')) {
-    return SidebarCategory.Saved;
-  }
-  if (activePage.includes('/squads')) {
-    return SidebarCategory.Squads;
-  }
-  if (profilePathFragments.some((path) => activePage.includes(path))) {
-    return SidebarCategory.Profile;
-  }
-  if (activePage.includes('/settings')) {
-    return SidebarCategory.Settings;
-  }
-  if (discoverPathFragments.some((path) => activePage.includes(path))) {
-    return SidebarCategory.Discover;
-  }
-  return SidebarCategory.Main;
-};
 
 const railButtonClass =
   'flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
@@ -385,13 +323,19 @@ export const SidebarDesktopV2 = ({
   additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
-    useSettingsContext();
+  const {
+    sidebarExpanded,
+    toggleSidebarExpanded,
+    loadedSettings,
+    optOutQuestSystem,
+  } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openNewSquad } = useSquadNavigation();
   const { isLoggedIn, user } = useAuthContext();
+  const claimableQuestCount = useClaimableQuestCount();
+  const showQuestBadge = !optOutQuestSystem && claimableQuestCount > 0;
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isUserProfileActive =
     !!user?.username && activePage.includes(`/${user.username}`);
@@ -609,12 +553,20 @@ export const SidebarDesktopV2 = ({
     return selectedLabel ?? '';
   })();
 
+  // Settings pages render their navigation only inside this context panel, so
+  // a collapsed sidebar would leave no way to move between settings sections.
+  // Force the panel open and hide the collapse toggle while on settings —
+  // without touching the user's stored `sidebarExpanded` preference, so the
+  // sidebar returns to its chosen state once they navigate away.
+  const forceExpanded = isSettingsSelected;
+  const isExpanded = sidebarExpanded || forceExpanded;
+
   return (
     <SidebarAside
       data-testid="sidebar-aside"
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0 laptop:bg-transparent',
-        sidebarExpanded ? 'laptop:w-[19rem]' : 'laptop:w-16',
+        isExpanded ? 'laptop:w-[19rem]' : 'laptop:w-16',
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
@@ -622,7 +574,7 @@ export const SidebarDesktopV2 = ({
         suppressTransition,
       )}
     >
-      {sidebarExpanded && (
+      {isExpanded && (
         <span
           aria-hidden
           className="pointer-events-none absolute inset-y-0 left-16 hidden border-r border-border-subtlest-quaternary laptop:block"
@@ -699,7 +651,7 @@ export const SidebarDesktopV2 = ({
                   <RailHoverCard
                     label="Notifications"
                     panel={<NotificationsRailPanel />}
-                    enabled={!sidebarExpanded}
+                    enabled={!isExpanded}
                   >
                     <div>
                       <NotificationsBell
@@ -715,7 +667,7 @@ export const SidebarDesktopV2 = ({
                 <RailHoverCard
                   label={category.label}
                   panel={renderCategorySection(category.id)}
-                  enabled={!sidebarExpanded}
+                  enabled={!isExpanded}
                   alignOffset={
                     category.id === SidebarCategory.Profile
                       ? RAIL_HOVER_PROFILE_ALIGN_OFFSET
@@ -739,10 +691,17 @@ export const SidebarDesktopV2 = ({
                     }}
                     className={classNames(
                       railButtonClass,
+                      'relative',
                       isSelected && 'bg-background-default !text-text-primary',
                     )}
                   >
                     {category.icon(isSelected)}
+                    {category.id === SidebarCategory.GameCenter &&
+                      showQuestBadge && (
+                        <Bubble className="-right-1 top-0 px-1">
+                          {claimableQuestCount}
+                        </Bubble>
+                      )}
                   </button>
                 </RailHoverCard>
               </React.Fragment>
@@ -778,7 +737,7 @@ export const SidebarDesktopV2 = ({
           <RailHoverCard
             label="Settings"
             panel={renderCategorySection(SidebarCategory.Settings)}
-            enabled={!sidebarExpanded}
+            enabled={!isExpanded}
           >
             <Link href={settingsDefaultPath} passHref>
               <a
@@ -815,44 +774,48 @@ export const SidebarDesktopV2 = ({
         - Open (panel right edge): ghost, no border/bg/shadow
         - Closed (rail/panel boundary): bordered chip with shadow
         Same SidebarArrowLeft glyph, rotated 180° when closed.
+        Hidden on settings pages, where the panel is force-expanded and
+        collapsing it would hide the only settings navigation.
       */}
-      <Tooltip
-        side="right"
-        content={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
-        collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-      >
-        <div
-          className={classNames(
-            'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
-            sidebarExpanded ? 'left-[16.5rem]' : 'left-[3.5rem]',
-            suppressTransition,
-          )}
+      {!forceExpanded && (
+        <Tooltip
+          side="right"
+          content={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
         >
-          <button
-            type="button"
-            onClick={onToggleExpanded}
-            aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
-            aria-expanded={sidebarExpanded}
+          <div
             className={classNames(
-              'focus-outline flex size-7 items-center justify-center rounded-10 border text-text-tertiary transition-[background-color,border-color,box-shadow,color] duration-300 ease-in-out',
-              sidebarExpanded
-                ? 'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
-                : 'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
+              'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
+              sidebarExpanded ? 'left-[16.5rem]' : 'left-[3.5rem]',
               suppressTransition,
             )}
           >
-            <SidebarArrowLeft
-              size={IconSize.XSmall}
-              aria-hidden
+            <button
+              type="button"
+              onClick={onToggleExpanded}
+              aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+              aria-expanded={sidebarExpanded}
               className={classNames(
-                'transition-transform duration-300 ease-in-out',
-                !sidebarExpanded && 'rotate-180',
+                'focus-outline flex size-7 items-center justify-center rounded-10 border text-text-tertiary transition-[background-color,border-color,box-shadow,color] duration-300 ease-in-out',
+                sidebarExpanded
+                  ? 'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
+                  : 'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
                 suppressTransition,
               )}
-            />
-          </button>
-        </div>
-      </Tooltip>
+            >
+              <SidebarArrowLeft
+                size={IconSize.XSmall}
+                aria-hidden
+                className={classNames(
+                  'transition-transform duration-300 ease-in-out',
+                  !sidebarExpanded && 'rotate-180',
+                  suppressTransition,
+                )}
+              />
+            </button>
+          </div>
+        </Tooltip>
+      )}
 
       <section
         id="sidebar-context-panel"
@@ -861,9 +824,7 @@ export const SidebarDesktopV2 = ({
         aria-label={`${selectedLabel ?? 'Settings'} navigation`}
         className={classNames(
           'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
-          sidebarExpanded
-            ? 'w-60 opacity-100'
-            : 'pointer-events-none w-0 opacity-0',
+          isExpanded ? 'w-60 opacity-100' : 'pointer-events-none w-0 opacity-0',
           suppressTransition,
         )}
       >
