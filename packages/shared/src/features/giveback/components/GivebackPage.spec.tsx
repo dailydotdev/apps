@@ -43,7 +43,7 @@ describe('GivebackPage', () => {
     // Continue moves on to the community Impact view.
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.getByText('You take action.')).toBeInTheDocument();
-    expect(screen.getByText(/You give back, we give back/)).toBeInTheDocument();
+    expect(screen.getByText(/we donate on your behalf/)).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: "You're a Helping hand" }),
     ).toBeInTheDocument();
@@ -153,7 +153,7 @@ describe('GivebackPage', () => {
     await userEvent.click(screen.getByRole('tab', { name: 'Impact' }));
 
     // Welcome gift is surfaced, and the ladder runs to 20 levels.
-    expect(screen.getByText('$10 to your causes — on us')).toBeInTheDocument();
+    expect(screen.getByText('$10 to your causes, on us')).toBeInTheDocument();
     expect(screen.getByText(/Level 3 of 20/)).toBeInTheDocument();
 
     // Far-off levels are hidden until the visitor expands the journey.

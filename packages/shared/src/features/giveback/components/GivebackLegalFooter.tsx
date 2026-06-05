@@ -45,7 +45,7 @@ export const GivebackLegalFooter = (): ReactElement => (
       color={TypographyColor.Quaternary}
       className="max-w-xl"
     >
-      Funded by daily.dev — participants never pay. Subject to the campaign
+      Funded by daily.dev. Participants never pay. Subject to the campaign
       rules. © {new Date().getFullYear()} Daily Dev Ltd.
     </Typography>
   </FlexCol>

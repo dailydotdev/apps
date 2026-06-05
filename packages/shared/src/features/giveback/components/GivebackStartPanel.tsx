@@ -35,7 +35,7 @@ export const GivebackStartPanel = (): ReactElement => {
         <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
           real donations
         </span>
-        . daily.dev funds every cent — you never pay.
+        . daily.dev funds every cent, so you never pay.
       </Typography>
 
       <Button

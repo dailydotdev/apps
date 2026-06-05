@@ -26,7 +26,7 @@ const updates: GivebackUpdate[] = [
     tag: 'Milestone',
     date: 'May 28, 2026',
     title: 'We just crossed 50% funded',
-    body: 'Halfway there. Every approved action this week pushed the meter past $5,000 — the first stretch goal is now within reach. Thank you for showing up.',
+    body: 'Halfway there. Every approved action this week pushed the meter past $5,000, so the first stretch goal is now within reach. Thank you for showing up.',
   },
   {
     id: 'update-grant',
@@ -40,14 +40,14 @@ const updates: GivebackUpdate[] = [
     tag: 'Community',
     date: 'May 12, 2026',
     title: '1,000 developers joined in the first week',
-    body: 'Giveback went from idea to a thousand backers in seven days. The most picked cause so far is open-source maintenance — your priorities are shaping where the money goes.',
+    body: 'Giveback went from idea to a thousand backers in seven days. The most picked cause so far is open-source maintenance, so your priorities are shaping where the money goes.',
   },
   {
     id: 'update-live',
     tag: 'Launch',
     date: 'May 5, 2026',
     title: 'Giveback is live',
-    body: 'We’re redirecting our growth budget to the causes developers care about. No cost to you — just small actions that unlock real donations. Here’s to giving back together.',
+    body: 'We’re redirecting our growth budget to the causes developers care about. There’s no cost to you, just small actions that unlock donations. Here’s to giving back together.',
   },
 ];
 

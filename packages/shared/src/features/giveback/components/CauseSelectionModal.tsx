@@ -70,7 +70,7 @@ export const CauseSelectionModal = ({
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Missing a cause you care about? Tell us — we review every suggestion
+            Missing a cause you care about? Tell us. We review every suggestion
             before it goes live.
           </Typography>
         </FlexCol>

@@ -51,8 +51,8 @@ export const CauseSelection = (): ReactElement => {
         color={TypographyColor.Secondary}
         className="max-w-2xl"
       >
-        Pick as many as you like — daily.dev funds every donation. Change them
-        anytime.
+        Pick as many as you like. daily.dev funds every donation, and you can
+        change them anytime.
       </Typography>
 
       <FlexCol id="giveback-causes" className="scroll-mt-16 gap-6">

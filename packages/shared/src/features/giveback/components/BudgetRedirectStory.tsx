@@ -23,9 +23,10 @@ export const BudgetRedirectStory = (): ReactElement => {
         color={TypographyColor.Secondary}
         className="max-w-2xl"
       >
-        {formatDonationAmount(campaign.goalAmount, campaign.currency)} going to
-        the causes you pick — scholarships, open source, and access to tech. Not
-        a marketing campaign. A community deciding what its work is worth.
+        {formatDonationAmount(campaign.goalAmount, campaign.currency)} goes
+        straight to the causes you pick: scholarships, open source, and access
+        to tech. We could have spent it on ads. We would rather let the
+        community decide what its work is worth.
       </Typography>
     </GivebackSection>
   );

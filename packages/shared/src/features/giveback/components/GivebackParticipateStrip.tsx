@@ -64,8 +64,8 @@ export const GivebackParticipateStrip = (): ReactElement => {
               ? `You've unlocked ${formatDonationAmount(
                   contribution,
                   campaign.currency,
-                )} in donations — keep the momentum going.`
-              : 'Start your first contribution — it costs you nothing. You give back, we give back.'}
+                )} in donations. Keep it going.`
+              : 'Take your first action. It costs you nothing, and we donate on your behalf.'}
           </Typography>
         </FlexCol>
 

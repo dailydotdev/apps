@@ -22,7 +22,7 @@ const faqs: FaqItem[] = [
     id: 'cost',
     question: 'Does this cost me anything?',
     answer:
-      'No. daily.dev funds every donation. You never pay a cent — you just take small actions and we turn them into real money for good causes.',
+      'No. daily.dev funds every donation. You never pay a cent. You just take small actions and we turn them into money for good causes.',
   },
   {
     id: 'how',
@@ -34,7 +34,7 @@ const faqs: FaqItem[] = [
     id: 'causes',
     question: 'Who chooses the causes?',
     answer:
-      'You do. Pick from vetted nonprofits, or suggest your own — we review every suggestion before it goes live.',
+      'You do. Pick from vetted nonprofits, or suggest your own. We review every suggestion before it goes live.',
   },
   {
     id: 'rejected',
@@ -52,13 +52,13 @@ const faqs: FaqItem[] = [
     id: 'why',
     question: 'Why is daily.dev doing this?',
     answer:
-      'We’d rather put our growth budget into causes the community cares about than burn it in ad auctions. You give back, we give back.',
+      'We’d rather put our growth budget into causes the community cares about than burn it in ad auctions.',
   },
   {
     id: 'geo',
     question: 'Is Giveback available in my country?',
     answer:
-      'We’re rolling it out gradually. If it isn’t live where you are yet, you’ll see a notice — and we’re working to reach everyone.',
+      'We’re rolling it out gradually. If it isn’t live where you are yet, you’ll see a notice, and we’re working to reach everyone.',
   },
 ];
 

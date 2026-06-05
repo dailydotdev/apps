@@ -97,7 +97,7 @@ export const GivebackSponsorModal = ({
             color={TypographyColor.Tertiary}
           >
             Top up the budget directly. Every dollar you add goes straight to
-            the causes — daily.dev covers the platform.
+            the causes. daily.dev covers the platform.
           </Typography>
         </FlexCol>
 
@@ -220,7 +220,7 @@ export const GivebackSponsorModal = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            Demo only — no payment is taken.
+            Demo only. No payment is taken.
           </Typography>
           <FlexRow className="items-center gap-2">
             <Button

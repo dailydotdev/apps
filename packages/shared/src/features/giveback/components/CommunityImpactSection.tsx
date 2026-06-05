@@ -55,10 +55,10 @@ export const CommunityImpactSection = (): ReactElement => {
       id="giveback-impact"
       eyebrow="In real terms"
       title="What your work turns into"
-      description={`The outcomes the ${formatDonationAmount(
+      description={`What the ${formatDonationAmount(
         campaign.goalAmount,
         campaign.currency,
-      )} goal can fund for the causes you pick — not abstract dollars, real people.`}
+      )} goal pays for once it reaches the causes you pick.`}
     >
       <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
         {impactOutcomes.map(({ value, label, cause, accent }) => (

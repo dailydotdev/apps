@@ -47,7 +47,7 @@ export const GivebackFundingBar = (): ReactElement => {
   const subline = nextLevel
     ? `${formatDonationAmount(amountToNext, campaign.currency)} to ${
         nextLevel.name
-      } — one action gets you closer.`
+      }. One action gets you closer.`
     : `Top level reached. You're a ${topLevel.name}.`;
 
   return (

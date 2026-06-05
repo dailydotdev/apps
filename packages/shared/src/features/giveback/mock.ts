@@ -562,7 +562,7 @@ const levelBlueprints: LevelBlueprint[] = [
       type: GivebackRewardType.Other,
       title: '$10 to your causes',
       description:
-        'On us — just for joining and picking the causes you care about.',
+        'On us, just for joining and picking the causes you care about.',
     },
   },
   {

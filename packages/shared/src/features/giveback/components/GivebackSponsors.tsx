@@ -191,7 +191,7 @@ export const GivebackSponsors = (): ReactElement => {
   return (
     <GivebackSection
       id="giveback-sponsors"
-      description="Companies and people top up the budget directly. Every sponsored dollar lands in the same pot the community is unlocking — and goes straight to the causes."
+      description="Companies and people top up the budget directly. Every sponsored dollar lands in the same pot the community is unlocking, then goes straight to the causes."
       headerActions={
         <Button
           type="button"

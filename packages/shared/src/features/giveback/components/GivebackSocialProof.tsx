@@ -21,7 +21,7 @@ interface GivebackReview {
 const reviews: GivebackReview[] = [
   {
     quote:
-      'Proud of where this is going — our budget funding real causes instead of ad auctions.',
+      'Proud of where this is going. Our budget is funding causes instead of ad auctions.',
     author: 'Ido Shamun',
     handle: '@idoshamun',
     image:

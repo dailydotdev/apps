@@ -139,8 +139,8 @@ export const ActionCatalog = (): ReactElement => {
           color={TypographyColor.Tertiary}
           className="max-w-md"
         >
-          Counts the moment you act — we trust you. If a submission is rejected,
-          we&apos;ll subtract it.
+          Counts the moment you act, because we trust you. If a submission is
+          rejected, we&apos;ll subtract it.
         </Typography>
       </FlexCol>
 
@@ -214,7 +214,7 @@ export const ActionCatalog = (): ReactElement => {
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                 >
-                  We can&apos;t pay for these — but we&apos;d genuinely
+                  We can&apos;t pay for these, but we&apos;d genuinely
                   appreciate them.
                 </Typography>
               </FlexCol>

@@ -105,7 +105,7 @@ export const ActionCard = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            We can&apos;t pay for this — but we&apos;d genuinely appreciate it.
+            We can&apos;t pay for this, but we&apos;d genuinely appreciate it.
           </Typography>
         ) : (
           showStatus && (

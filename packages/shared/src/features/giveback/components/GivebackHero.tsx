@@ -61,7 +61,7 @@ export const GivebackHero = (): ReactElement => {
             color={TypographyColor.Secondary}
             className="max-w-2xl"
           >
-            Ad giants don&apos;t need our money — the causes you care about do.
+            Ad giants don&apos;t need our money. The causes you care about do.
             We redirect our growth budget to them, and you never pay a cent.
           </Typography>
         </FlexCol>

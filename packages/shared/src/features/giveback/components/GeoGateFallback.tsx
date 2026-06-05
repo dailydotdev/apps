@@ -53,7 +53,7 @@ export const GeoGateFallback = (): ReactElement | null => {
           color={TypographyColor.Secondary}
         >
           Giveback turns part of our growth budget into donations for causes the
-          community picks — funded by daily.dev, at no cost to you.
+          community picks, funded by daily.dev, at no cost to you.
         </Typography>
 
         <Typography

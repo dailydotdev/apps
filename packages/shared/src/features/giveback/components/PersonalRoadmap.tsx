@@ -504,7 +504,7 @@ export const PersonalRoadmap = (): ReactElement => {
                       amountToNext,
                       currency,
                     )} to go and you're a ${nextLevel.name}.`
-                  : `Summit reached — you're a ${topLevel.name}.`}
+                  : `You've reached the top. You're a ${topLevel.name}.`}
               </Typography>
               <Typography
                 tag={TypographyTag.Span}
@@ -543,7 +543,7 @@ export const PersonalRoadmap = (): ReactElement => {
                 Welcome gift · unlocked
               </Typography>
               <Typography bold type={TypographyType.Callout}>
-                $10 to your causes — on us
+                $10 to your causes, on us
               </Typography>
               <Typography
                 type={TypographyType.Caption1}
