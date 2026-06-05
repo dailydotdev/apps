@@ -7,14 +7,13 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import { OnboardingRegistrationForm } from '@dailydotdev/shared/src/components/auth/OnboardingRegistrationForm';
 import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
-  AuthDisplay,
-  type AuthOptionsProps,
+  OnboardingActions,
   providerMap,
   type SocialProvider,
 } from '@dailydotdev/shared/src/components/auth/common';
@@ -47,12 +46,21 @@ const primaryCta =
 const glassCta =
   '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
 
-const onboardingHref = (() => {
+// The extension can't run social OAuth from its own origin (the API rejects it
+// with a 403). Instead we hand auth off to the webapp onboarding flow, which
+// runs on a trusted origin and auto-triggers the relevant auth screen.
+const buildOnboardingHref = (action?: OnboardingActions): string => {
   const base = new URL(onboardingUrl);
   base.searchParams.append('r', 'extension');
+  if (action) {
+    base.searchParams.append('action', action);
+  }
 
   return base.toString();
-})();
+};
+
+const onboardingHref = buildOnboardingHref();
+const loginHref = buildOnboardingHref(OnboardingActions.Login);
 
 function BrandLockup(): ReactElement {
   return (
@@ -76,20 +84,15 @@ function CatHeroImage(): ReactElement {
 }
 
 interface SigninHeroProps {
-  onSignupClick: () => void;
-  onLoginClick: () => void;
-  formRef: AuthOptionsProps['formRef'];
-  onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'];
+  onSignup: () => void;
+  onLogin: () => void;
 }
 
-type HeroActionButtonsProps = Pick<
-  SigninHeroProps,
-  'onSignupClick' | 'onLoginClick'
->;
+type HeroActionButtonsProps = SigninHeroProps;
 
 function HeroActionButtons({
-  onSignupClick,
-  onLoginClick,
+  onSignup,
+  onLogin,
 }: HeroActionButtonsProps): ReactElement {
   return (
     <div className="mt-8 flex w-full max-w-[23rem] flex-row gap-3 tablet:mx-0">
@@ -98,7 +101,7 @@ function HeroActionButtons({
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
         className={classNames('flex-1', primaryCta)}
-        onClick={onSignupClick}
+        onClick={onSignup}
       >
         Sign up
       </Button>
@@ -107,7 +110,7 @@ function HeroActionButtons({
         variant={ButtonVariant.Secondary}
         size={ButtonSize.Large}
         className={classNames('flex-1', glassCta)}
-        onClick={onLoginClick}
+        onClick={onLogin}
       >
         Log in
       </Button>
@@ -115,10 +118,7 @@ function HeroActionButtons({
   );
 }
 
-function CatStageHero({
-  onSignupClick,
-  onLoginClick,
-}: SigninHeroProps): ReactElement {
+function CatStageHero({ onSignup, onLogin }: SigninHeroProps): ReactElement {
   return (
     <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
       <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
@@ -141,10 +141,7 @@ function CatStageHero({
               Sign in and daily.dev will remember the topics, saves, upvotes,
               and discussions that matter to you.
             </p>
-            <HeroActionButtons
-              onSignupClick={onSignupClick}
-              onLoginClick={onLoginClick}
-            />
+            <HeroActionButtons onSignup={onSignup} onLogin={onLogin} />
           </div>
           <div className="flex justify-center tablet:justify-end">
             <CatHeroImage />
@@ -156,8 +153,8 @@ function CatStageHero({
 }
 
 function OnboardingSignupHero({
-  formRef,
-  onAuthStateUpdate,
+  onSignup,
+  onLogin,
 }: SigninHeroProps): ReactElement {
   return (
     <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
@@ -195,19 +192,16 @@ function OnboardingSignupHero({
             </p>
           </div>
           <div className="w-full max-w-[22rem] rounded-24 border border-border-subtlest-tertiary bg-white/[0.045] p-3 text-center backdrop-blur-md tablet:p-4">
-            <AuthOptions
-              ignoreMessages
+            <OnboardingRegistrationForm
+              isReady
               compact
-              formRef={formRef}
               trigger={AuthTriggers.Onboarding}
-              simplified
-              defaultDisplay={AuthDisplay.OnboardingSignup}
-              forceDefaultDisplay
+              onProviderClick={onSignup}
+              onContinueWithEmail={onSignup}
+              onExistingEmail={onLogin}
               className={{
-                container: 'mx-auto !max-w-none !overflow-visible',
                 onboardingSignup: '!gap-3',
               }}
-              onAuthStateUpdate={onAuthStateUpdate}
               onboardingSignupButton={{
                 variant: ButtonVariant.Primary,
                 size: ButtonSize.Large,
@@ -308,13 +302,10 @@ function HijackingHeroStrip({
 }: {
   variant: HijackingVariant.CTA | HijackingVariant.Auth;
 }): ReactElement {
-  const { showLogin, user } = useAuthContext();
+  const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { signBack, provider, isLoaded: isSignBackLoaded } = useSignBack();
   const hasLoggedImpression = useRef(false);
-  const authFormRef = useRef<HTMLFormElement>(
-    null,
-  ) as unknown as AuthOptionsProps['formRef'];
 
   const isLoggedOut = !user;
   const hasContinueAs = isLoggedOut && isSignBackLoaded && !!signBack?.name;
@@ -362,30 +353,14 @@ function HijackingHeroStrip({
     });
   }, [isReadyToLogImpression, variant, logEvent]);
 
-  const onSignupClick = (): void => {
+  const onSignup = (): void => {
     logClick(TargetType.SignupButton);
-    showLogin({
-      trigger: AuthTriggers.Onboarding,
-      options: { isLogin: false },
-    });
+    window.location.assign(onboardingHref);
   };
 
-  const onLoginClick = (): void => {
+  const onLogin = (): void => {
     logClick(TargetType.LoginButton);
-    showLogin({
-      trigger: AuthTriggers.Onboarding,
-      options: { isLogin: true },
-    });
-  };
-  const onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'] = (props) => {
-    showLogin({
-      trigger: AuthTriggers.Onboarding,
-      options: {
-        isLogin: !!props.isLoginFlow,
-        defaultDisplay: props.defaultDisplay,
-        formValues: props.email ? { email: props.email } : undefined,
-      },
-    });
+    window.location.assign(loginHref);
   };
   const SigninHero = SigninHeroMap[experimentVariant];
 
@@ -459,25 +434,19 @@ function HijackingHeroStrip({
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           className={classNames('mt-6 w-full max-w-80', primaryCta)}
-          onClick={onLoginClick}
+          onClick={onLogin}
         >
           Continue as {firstName}&nbsp;➔
         </Button>
         <div className="text-white/60 mt-5 flex items-center gap-1.5 typo-footnote">
           Not you?
-          <ClickableText
-            className="font-bold !text-white"
-            onClick={onLoginClick}
-          >
+          <ClickableText className="font-bold !text-white" onClick={onLogin}>
             Use another account
           </ClickableText>
         </div>
         <div className="text-white/60 mt-2 flex items-center gap-1.5 typo-footnote">
           New here?
-          <ClickableText
-            className="font-bold !text-white"
-            onClick={onSignupClick}
-          >
+          <ClickableText className="font-bold !text-white" onClick={onSignup}>
             Create an account
           </ClickableText>
         </div>
@@ -485,14 +454,7 @@ function HijackingHeroStrip({
     );
   }
 
-  return (
-    <SigninHero
-      onSignupClick={onSignupClick}
-      onLoginClick={onLoginClick}
-      formRef={authFormRef}
-      onAuthStateUpdate={onAuthStateUpdate}
-    />
-  );
+  return <SigninHero onSignup={onSignup} onLogin={onLogin} />;
 }
 
 export default function HijackingLoginStrip(): ReactElement | null {
