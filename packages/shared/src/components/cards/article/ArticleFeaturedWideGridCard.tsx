@@ -280,6 +280,13 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                 IMAGE_COL_SPAN[wideColSpan],
               )}
             >
+              <Image
+                aria-hidden
+                alt=""
+                src={image}
+                type={ImageType.Post}
+                className="absolute inset-0 size-full scale-110 object-cover blur-xl"
+              />
               {overlay}
               {isVideoType && !overlay && (
                 <>
@@ -300,7 +307,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                 src={image}
                 type={ImageType.Post}
                 className={classNames(
-                  'size-full object-cover',
+                  'relative size-full object-contain',
                   !!overlay && 'opacity-16',
                 )}
                 {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
