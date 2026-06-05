@@ -32,9 +32,12 @@ export const CommunityGoalProgress = (): ReactElement => {
     campaign.goalAmount,
   );
   // Bar (and milestone dots) grow from 0 the first time the meter scrolls in,
-  // so the money raised visibly "fills up". The numeric label stays exact.
+  // so the money raised visibly "fills up". The numeric label counts up to the
+  // exact amount, including when the pot grows after an action lands.
   const { ref: meterRef, inView } = useInView<HTMLDivElement>();
   const animatedPercentage = useCountUp(Math.round(percentage), inView);
+  const animatedAmount = useCountUp(campaign.approvedAmount, inView, 900);
+
   const remaining = Math.max(campaign.goalAmount - campaign.approvedAmount, 0);
   const sponsorGoalShare = campaign.goalAmount
     ? Math.round((campaign.sponsoredAmount / campaign.goalAmount) * 100)
@@ -71,8 +74,13 @@ export const CommunityGoalProgress = (): ReactElement => {
     >
       <FlexCol className="gap-3">
         <FlexRow className="items-end gap-2">
-          <Typography tag={TypographyTag.Span} type={TypographyType.Mega1} bold>
-            {formatDonationAmount(campaign.approvedAmount, campaign.currency)}
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Mega1}
+            bold
+            className="tabular-nums"
+          >
+            {formatDonationAmount(animatedAmount, campaign.currency)}
           </Typography>
           <Typography
             tag={TypographyTag.Span}

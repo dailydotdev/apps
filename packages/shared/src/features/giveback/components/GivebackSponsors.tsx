@@ -13,8 +13,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { MedalBadgeIcon, PlusIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
+import { PlusIcon } from '../../../components/icons';
 import { useGivebackContext } from '../GivebackContext';
 import type { GivebackSponsor } from '../types';
 import { GivebackSponsorTier, GivebackSponsorType } from '../types';
@@ -22,6 +21,7 @@ import { formatDonationAmount, getSponsorTier } from '../utils';
 import { GivebackSection } from './GivebackSection';
 import { GivebackSponsorModal } from './GivebackSponsorModal';
 import { SponsorBudgetBar } from './SponsorBudgetBar';
+import { SponsorLogo } from './SponsorLogo';
 
 const tierStyles: Record<GivebackSponsorTier, { tile: string; text: string }> =
   {
@@ -43,38 +43,7 @@ const tierStyles: Record<GivebackSponsorTier, { tile: string; text: string }> =
     },
   };
 
-// Podium for the three biggest sponsors. Distinct from the amount tier — this is
-// a 1/2/3 ranking by contribution, shown with a colored medal on the avatar.
-const rankStyles: Record<
-  number,
-  { label: string; tile: string; text: string }
-> = {
-  1: {
-    label: 'Gold',
-    tile: 'bg-accent-cheese-flat',
-    text: 'text-accent-cheese-default',
-  },
-  2: {
-    label: 'Silver',
-    tile: 'bg-accent-salt-flat',
-    text: 'text-accent-salt-default',
-  },
-  3: {
-    label: 'Bronze',
-    tile: 'bg-accent-bun-flat',
-    text: 'text-accent-bun-default',
-  },
-};
-
 const PODIUM_SIZE = 3;
-
-const getInitials = (name: string): string =>
-  name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('');
 
 const sortSponsors = (sponsors: GivebackSponsor[]): GivebackSponsor[] =>
   [...sponsors].sort((a, b) => {
@@ -90,53 +59,81 @@ const sortSponsors = (sponsors: GivebackSponsor[]): GivebackSponsor[] =>
 const SponsorCard = ({
   sponsor,
   rank,
+  featured = false,
+  wide = false,
 }: {
   sponsor: GivebackSponsor;
   rank?: number;
+  featured?: boolean;
+  wide?: boolean;
 }): ReactElement => {
   const tier = getSponsorTier(sponsor.amount);
-  const rankStyle = rank ? rankStyles[rank] : undefined;
-  const accent = rankStyle ?? tierStyles[tier];
+  const isPodium = featured && !!rank;
   const typeLabel =
     sponsor.type === GivebackSponsorType.Company ? 'Company' : 'Individual';
 
+  let avatarSize = 'size-12';
+  let initialsTypo = 'typo-callout';
+  let amountType = TypographyType.Callout;
+  if (wide) {
+    avatarSize = 'size-16';
+    initialsTypo = 'typo-title3';
+    amountType = TypographyType.Title2;
+  } else if (isPodium) {
+    avatarSize = 'size-14';
+    initialsTypo = 'typo-body';
+    amountType = TypographyType.Title3;
+  }
+  const nameType = isPodium ? TypographyType.Callout : TypographyType.Footnote;
+
+  // Podium stays monochrome: a neutral elevated card and a plain numbered badge
+  // so the ranking reads clean and classic instead of competing with the
+  // colored funding bar above. Only the leader gets a subtle shiny top edge.
+  const tileClassName = isPodium
+    ? 'bg-surface-float text-text-secondary'
+    : classNames(tierStyles[tier].tile, tierStyles[tier].text);
+
   return (
-    <FlexCol className="group gap-3 rounded-16 border border-border-subtlest-tertiary p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:shadow-2 motion-reduce:transform-none">
+    <FlexCol
+      className={classNames(
+        'group relative gap-3 overflow-hidden rounded-16 border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2 motion-reduce:transform-none',
+        isPodium ? 'p-5' : 'p-4',
+        isPodium
+          ? 'border-border-subtlest-secondary bg-gradient-to-b from-surface-float to-transparent'
+          : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+        wide && 'tablet:col-span-2',
+      )}
+    >
+      {wide && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
+        />
+      )}
       <FlexRow className="items-center gap-3">
         <div className="relative shrink-0">
-          <span
+          <SponsorLogo
+            name={sponsor.name}
+            logoUrl={sponsor.logoUrl}
             className={classNames(
-              'flex size-12 items-center justify-center rounded-16 font-bold transition-transform duration-200 typo-callout group-hover:scale-105',
-              accent.tile,
-              accent.text,
+              'rounded-16 transition-transform duration-200 group-hover:scale-105',
+              avatarSize,
             )}
-          >
-            {getInitials(sponsor.name)}
-          </span>
-          {rankStyle && (
+            tileClassName={tileClassName}
+            initialsClassName={initialsTypo}
+          />
+          {isPodium && (
             <span
-              title={`${rankStyle.label} sponsor`}
-              aria-label={`${rankStyle.label} sponsor`}
-              className={classNames(
-                'absolute -bottom-1.5 -right-1.5 flex size-6 items-center justify-center rounded-full ring-2 ring-background-default',
-                rankStyle.tile,
-              )}
+              aria-label={`Rank ${rank}`}
+              className="absolute -bottom-1.5 -right-1.5 flex size-6 items-center justify-center rounded-full bg-background-default font-bold text-text-secondary ring-1 ring-border-subtlest-secondary typo-caption2"
             >
-              <MedalBadgeIcon
-                className={rankStyle.text}
-                size={IconSize.Size16}
-              />
+              {rank}
             </span>
           )}
         </div>
         <FlexCol className="min-w-0 flex-1">
           <FlexRow className="items-center gap-2">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              bold
-              truncate
-            >
+            <Typography tag={TypographyTag.Span} type={nameType} bold truncate>
               {sponsor.name}
             </Typography>
             {sponsor.isFounding && (
@@ -150,14 +147,12 @@ const SponsorCard = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            {rankStyle
-              ? `${typeLabel} · ${rankStyle.label} sponsor`
-              : typeLabel}
+            {isPodium ? `#${rank} sponsor · ${typeLabel}` : typeLabel}
           </Typography>
         </FlexCol>
         <Typography
           tag={TypographyTag.Span}
-          type={TypographyType.Callout}
+          type={amountType}
           color={TypographyColor.StatusSuccess}
           bold
           className="shrink-0 tabular-nums"
@@ -223,7 +218,7 @@ export const GivebackSponsors = (): ReactElement => {
               tag={TypographyTag.Span}
               type={TypographyType.Mega1}
               bold
-              className="text-accent-bacon-default"
+              color={TypographyColor.StatusSuccess}
             >
               {formatDonationAmount(
                 campaign.sponsoredAmount,
@@ -252,13 +247,18 @@ export const GivebackSponsors = (): ReactElement => {
       </FlexCol>
 
       <div className="grid gap-4 tablet:grid-cols-2">
-        {sponsors.map((sponsor, index) => (
-          <SponsorCard
-            key={sponsor.id}
-            sponsor={sponsor}
-            rank={index < PODIUM_SIZE ? index + 1 : undefined}
-          />
-        ))}
+        {sponsors.map((sponsor, index) => {
+          const rank = index < PODIUM_SIZE ? index + 1 : undefined;
+          return (
+            <SponsorCard
+              key={sponsor.id}
+              sponsor={sponsor}
+              rank={rank}
+              featured={rank !== undefined}
+              wide={index === 0}
+            />
+          );
+        })}
 
         <button
           type="button"

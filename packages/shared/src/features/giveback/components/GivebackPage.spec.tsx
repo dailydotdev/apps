@@ -8,6 +8,7 @@ import { GivebackNavProvider } from '../GivebackNavContext';
 import { CommunityGoalProgress } from './CommunityGoalProgress';
 import { GivebackReviewToggle } from './GivebackReviewToggle';
 import { ActionCatalog } from './ActionCatalog';
+import { GivebackCelebration } from './GivebackCelebration';
 import { CauseSelection } from './CauseSelection';
 import { CommunityImpactSection } from './CommunityImpactSection';
 import { GivebackUpdates } from './GivebackUpdates';
@@ -248,6 +249,35 @@ describe('ActionCatalog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Done' }));
 
     expect(screen.getByText('$150')).toBeInTheDocument();
+  });
+
+  it('fires the win-moment celebration when an action is submitted', async () => {
+    render(
+      <GivebackProvider>
+        <ActionCatalog />
+        <GivebackCelebration />
+      </GivebackProvider>,
+    );
+
+    expect(screen.queryByText('added to the pot')).not.toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Submit proof for Refer a dev team' }),
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText(
+        'Add any context that helps us validate this.',
+      ),
+      'Introduced daily.dev to the platform team.',
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Submit for review' }),
+    );
+
+    expect(screen.getByText('added to the pot')).toBeInTheDocument();
+    expect(
+      screen.getByText('You unlocked $40 for your causes.'),
+    ).toBeInTheDocument();
   });
 });
 

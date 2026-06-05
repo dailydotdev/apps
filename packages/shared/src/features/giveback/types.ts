@@ -127,6 +127,8 @@ export interface GivebackSponsor {
   amount: number;
   currency: string;
   url?: string;
+  /** Square brand logo shown on the sponsor wall; falls back to initials. */
+  logoUrl?: string;
   message?: string;
   /** Sponsors who funded the pot before launch lead the wall. */
   isFounding?: boolean;

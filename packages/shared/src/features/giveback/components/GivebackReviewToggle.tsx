@@ -32,7 +32,9 @@ export const GivebackReviewToggle = (): ReactElement => {
   const [isOpen, setIsOpen] = useState(true);
   const {
     actions,
+    celebrate,
     celebrationState,
+    dismissCelebration,
     geoAvailability,
     goalPercentage,
     setCelebrationState,
@@ -206,7 +208,18 @@ export const GivebackReviewToggle = (): ReactElement => {
                       ? ButtonVariant.Primary
                       : ButtonVariant.Float
                   }
-                  onClick={() => setCelebrationState(value)}
+                  onClick={() => {
+                    setCelebrationState(value);
+                    if (value === 'none') {
+                      dismissCelebration();
+                      return;
+                    }
+                    celebrate({
+                      amount: 40,
+                      milestone: value === 'milestone' ? 50 : 100,
+                      complete: value === 'complete',
+                    });
+                  }}
                 >
                   {value}
                 </Button>

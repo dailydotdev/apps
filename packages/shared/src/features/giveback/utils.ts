@@ -24,6 +24,15 @@ export const getGoalProgressPercentage = (
 export const formatCompactNumber = (value: number): string =>
   new Intl.NumberFormat('en-US', { notation: 'compact' }).format(value);
 
+// Up to two uppercase initials for a sponsor avatar fallback.
+export const getSponsorInitials = (name: string): string =>
+  name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? '')
+    .join('');
+
 export const sponsorTierLabel: Record<GivebackSponsorTier, string> = {
   [GivebackSponsorTier.Platinum]: 'Platinum',
   [GivebackSponsorTier.Gold]: 'Gold',

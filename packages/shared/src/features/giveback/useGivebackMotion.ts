@@ -84,8 +84,10 @@ export const useInView = <T extends Element>(
   return { ref, inView };
 };
 
-// Counts up to `target` once `active` is true. Reduced motion or a falsy target
-// resolves immediately to the final value.
+// Counts to `target` once `active` is true, animating from the value it's
+// currently showing. The first reveal fills from 0; later target changes roll
+// from the previous number to the new one (so the meter visibly ticks up when an
+// action lands). Reduced motion or no rAF resolves immediately to the target.
 export const useCountUp = (
   target: number,
   active: boolean,
@@ -93,6 +95,7 @@ export const useCountUp = (
 ): number => {
   const reducedMotion = usePrefersReducedMotion();
   const [value, setValue] = useState(0);
+  const valueRef = useRef(0);
   const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -101,11 +104,17 @@ export const useCountUp = (
     }
     if (
       reducedMotion ||
-      target <= 0 ||
       typeof window === 'undefined' ||
       typeof window.requestAnimationFrame !== 'function'
     ) {
+      valueRef.current = target;
       setValue(target);
+      return undefined;
+    }
+
+    const from = valueRef.current;
+    const delta = target - from;
+    if (delta === 0) {
       return undefined;
     }
 
@@ -113,7 +122,9 @@ export const useCountUp = (
     const step = (now: number) => {
       const progress = Math.min(1, (now - start) / durationMs);
       const eased = 1 - (1 - progress) ** 3;
-      setValue(Math.round(target * eased));
+      const next = Math.round(from + delta * eased);
+      valueRef.current = next;
+      setValue(next);
       if (progress < 1) {
         frameRef.current = window.requestAnimationFrame(step);
       }

@@ -32,7 +32,7 @@ export const GivebackHero = (): ReactElement => {
 
       <FlexCol className="relative gap-10 py-2">
         <FlexCol className="gap-2">
-          <FlexRow className="w-fit items-center gap-2 rounded-10 bg-surface-float px-3 py-1.5">
+          <FlexRow className="w-fit items-center gap-2">
             <DailyIcon />
             <Typography
               tag={TypographyTag.Span}

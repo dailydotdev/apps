@@ -102,13 +102,12 @@ export const ActionCatalog = (): ReactElement => {
   );
 
   // Love actions live in the same catalog but are non-paid, so they render as a
-  // highlighted "just for love" group rather than alongside the paid missions.
+  // highlighted "just for love" group. This group sits outside the filters and
+  // is always visible below the paid actions, whatever category is selected.
   const isLoveCategory =
     selectedCategory === GivebackActionCategory.CommunityLove;
   const donationToRender = isLoveCategory ? [] : sortedActions;
-  const loveToRender =
-    selectedCategory === 'all' || isLoveCategory ? loveActions : [];
-  const hasResults = donationToRender.length > 0 || loveToRender.length > 0;
+  const loveToRender = loveActions;
 
   // One simple, trust-by-default number: everything you've earned counts the
   // moment you act. Rejected submissions are the only thing we subtract.
@@ -185,64 +184,70 @@ export const ActionCatalog = (): ReactElement => {
         </FlexRow>
       </FlexRow>
 
-      {hasResults ? (
-        <FlexCol className="gap-6">
-          {donationToRender.length > 0 && (
-            <div className="grid gap-3 tablet:grid-cols-2">
-              {donationToRender.map((action) => (
+      <FlexCol className="gap-6">
+        {donationToRender.length > 0 && (
+          <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
+            {donationToRender.map((action) => (
+              <ActionCard
+                key={action.id}
+                action={action}
+                userAction={userActionById.get(action.id)}
+                onSubmit={setSubmissionAction}
+              />
+            ))}
+          </div>
+        )}
+
+        {donationToRender.length === 0 && !isLoveCategory && (
+          <FlexCol className="items-center gap-1 py-10 text-center">
+            <Typography bold type={TypographyType.Callout}>
+              No actions match this filter
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Try another filter.
+            </Typography>
+          </FlexCol>
+        )}
+
+        {loveToRender.length > 0 && (
+          <FlexCol
+            className={classNames(
+              'gap-3',
+              donationToRender.length > 0 &&
+                'border-t border-border-subtlest-tertiary pt-6',
+            )}
+          >
+            <FlexCol className="gap-0.5">
+              <Typography
+                bold
+                type={TypographyType.Footnote}
+                className="text-accent-cabbage-default"
+              >
+                Just for love
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                We can&apos;t pay for these, but we&apos;d genuinely appreciate
+                them.
+              </Typography>
+            </FlexCol>
+            <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
+              {loveToRender.map((action) => (
                 <ActionCard
                   key={action.id}
                   action={action}
                   userAction={userActionById.get(action.id)}
-                  onSubmit={setSubmissionAction}
                 />
               ))}
             </div>
-          )}
-
-          {loveToRender.length > 0 && (
-            <FlexCol className="gap-3">
-              <FlexCol className="gap-0.5">
-                <Typography
-                  bold
-                  type={TypographyType.Footnote}
-                  className="text-accent-cabbage-default"
-                >
-                  Just for love
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  We can&apos;t pay for these, but we&apos;d genuinely
-                  appreciate them.
-                </Typography>
-              </FlexCol>
-              <div className="grid gap-3 tablet:grid-cols-2">
-                {loveToRender.map((action) => (
-                  <ActionCard
-                    key={action.id}
-                    action={action}
-                    userAction={userActionById.get(action.id)}
-                  />
-                ))}
-              </div>
-            </FlexCol>
-          )}
-        </FlexCol>
-      ) : (
-        <FlexCol className="items-center gap-1 py-10 text-center">
-          <Typography bold type={TypographyType.Callout}>
-            No actions match this filter
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            Try another filter.
-          </Typography>
-        </FlexCol>
-      )}
+          </FlexCol>
+        )}
+      </FlexCol>
 
       {submissionAction && (
         <GivebackSubmissionModal

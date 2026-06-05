@@ -10,7 +10,8 @@ import {
 } from '../../../components/typography/Typography';
 import { useGivebackNav } from '../GivebackNavContext';
 import type { GivebackSponsor } from '../types';
-import { formatDonationAmount } from '../utils';
+import { formatDonationAmount, getSponsorInitials } from '../utils';
+import { SponsorLogo } from './SponsorLogo';
 
 // iOS "storage bar" style: one bar split into proportional, color-coded
 // segments — one per top sponsor, with the long tail grouped into "Others".
@@ -59,16 +60,9 @@ interface Segment {
   seg: string;
   tile: string;
   initials: string;
+  logoUrl?: string;
   count?: number;
 }
-
-const getInitials = (name: string): string =>
-  name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('');
 
 interface SponsorBudgetBarProps {
   sponsors: GivebackSponsor[];
@@ -94,7 +88,8 @@ export const SponsorBudgetBar = ({
       share: (sponsor.amount / total) * 100,
       seg: SEGMENT_PALETTE[index % SEGMENT_PALETTE.length].seg,
       tile: SEGMENT_PALETTE[index % SEGMENT_PALETTE.length].tile,
-      initials: getInitials(sponsor.name),
+      initials: getSponsorInitials(sponsor.name),
+      logoUrl: sponsor.logoUrl,
     }));
 
     if (rest.length > 0) {
@@ -128,14 +123,14 @@ export const SponsorBudgetBar = ({
   return (
     <FlexCol className="gap-2.5">
       <FlexRow className="items-center gap-2.5">
-        <span
-          className={classNames(
-            'flex size-9 shrink-0 items-center justify-center rounded-12 font-bold transition-colors duration-200 typo-footnote',
-            active.tile,
-          )}
-        >
-          {active.initials}
-        </span>
+        <SponsorLogo
+          name={active.label}
+          logoUrl={active.logoUrl}
+          initials={active.initials}
+          className="size-9 rounded-12"
+          tileClassName={active.tile}
+          initialsClassName="typo-footnote"
+        />
         <FlexCol className="min-w-0">
           <FlexRow className="items-center gap-1.5">
             <Typography

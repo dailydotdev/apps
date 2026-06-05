@@ -1,5 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type {
   GivebackAction,
   GivebackActionCategoryFilter,
@@ -31,6 +37,31 @@ import {
   givebackUserActions,
 } from './mock';
 
+// Payload that drives the win-moment overlay. `id` changes on every trigger so
+// the same amount can celebrate twice in a row.
+export interface GivebackCelebration {
+  id: number;
+  amount: number;
+  currency: string;
+  milestone: number | null;
+  complete: boolean;
+}
+
+export interface GivebackCelebrationInput {
+  amount: number;
+  currency?: string;
+  milestone?: number | null;
+  complete?: boolean;
+}
+
+const GOAL_MILESTONES = [25, 50, 75, 100];
+
+// Highest milestone the pot crosses moving from `before` to `after` percent.
+const crossedMilestone = (before: number, after: number): number | null => {
+  const hit = GOAL_MILESTONES.filter((m) => before < m && after >= m);
+  return hit.length ? hit[hit.length - 1] : null;
+};
+
 export interface GivebackContextValue {
   campaign: GivebackCampaign;
   levels: GivebackLevel[];
@@ -57,6 +88,12 @@ export interface GivebackContextValue {
   setGeoAvailability: (value: 'available' | 'waitlist') => void;
   celebrationState: 'none' | 'milestone' | 'complete';
   setCelebrationState: (value: 'none' | 'milestone' | 'complete') => void;
+  // Session contribution unlocked by actions taken during this visit, used to
+  // tick the community pot up live as the user takes action.
+  sessionContribution: number;
+  celebration: GivebackCelebration | null;
+  celebrate: (input: GivebackCelebrationInput) => void;
+  dismissCelebration: () => void;
   selectedCategory: GivebackActionCategoryFilter;
   setSelectedCategory: (category: GivebackActionCategoryFilter) => void;
   // Dev review controls (Phase 1). The full QA panel lands in a later phase.
@@ -112,6 +149,29 @@ export const GivebackProvider = ({
   const [celebrationState, setCelebrationState] = useState<
     'none' | 'milestone' | 'complete'
   >('none');
+  const [sessionContribution, setSessionContribution] = useState(0);
+  const [celebration, setCelebration] = useState<GivebackCelebration | null>(
+    null,
+  );
+  const celebrationIdRef = useRef(0);
+
+  const celebrate = ({
+    amount,
+    currency = baseCampaign.currency,
+    milestone = null,
+    complete = false,
+  }: GivebackCelebrationInput): void => {
+    celebrationIdRef.current += 1;
+    setCelebration({
+      id: celebrationIdRef.current,
+      amount,
+      currency,
+      milestone,
+      complete,
+    });
+  };
+
+  const dismissCelebration = (): void => setCelebration(null);
 
   const submitAction = ({
     actionId,
@@ -133,6 +193,30 @@ export const GivebackProvider = ({
       action.validationType === GivebackActionValidationType.Automatic
         ? GivebackUserActionStatus.AutoValidating
         : GivebackUserActionStatus.PendingReview;
+
+    // Tick the community pot up by the unlocked amount and fire the win moment,
+    // flagging any goal milestone the contribution pushes the pot across.
+    const amount = action.donationAmount;
+    const sponsoredTotal = sponsors.reduce((sum, s) => sum + s.amount, 0);
+    const baseApproved = Math.round(
+      (baseCampaign.goalAmount * goalPercentage) / 100,
+    );
+    const approvedBefore =
+      baseApproved +
+      (sponsoredTotal - SEED_SPONSORED_AMOUNT) +
+      sessionContribution;
+    const beforePct = (approvedBefore / baseCampaign.goalAmount) * 100;
+    const afterPct =
+      ((approvedBefore + amount) / baseCampaign.goalAmount) * 100;
+    const milestone = crossedMilestone(beforePct, afterPct);
+
+    setSessionContribution((current) => current + amount);
+    celebrate({
+      amount,
+      currency: action.currency,
+      milestone,
+      complete: afterPct >= 100 && beforePct < 100,
+    });
 
     setUserActions((currentActions) => {
       const nextAction: GivebackUserAction = {
@@ -324,9 +408,12 @@ export const GivebackProvider = ({
     const baseApprovedAmount = Math.round(
       (baseCampaign.goalAmount * goalPercentage) / 100,
     );
-    // New sponsorships top the pot up on top of the baseline raised amount.
+    // New sponsorships and live session actions top the pot up on top of the
+    // baseline raised amount.
     const approvedAmount =
-      baseApprovedAmount + (sponsoredAmount - SEED_SPONSORED_AMOUNT);
+      baseApprovedAmount +
+      (sponsoredAmount - SEED_SPONSORED_AMOUNT) +
+      sessionContribution;
     const campaign: GivebackCampaign = {
       ...baseCampaign,
       approvedAmount,
@@ -378,6 +465,10 @@ export const GivebackProvider = ({
       setGeoAvailability,
       celebrationState,
       setCelebrationState,
+      sessionContribution,
+      celebration,
+      celebrate,
+      dismissCelebration,
       selectedCategory,
       setSelectedCategory,
       goalPercentage,
@@ -388,6 +479,8 @@ export const GivebackProvider = ({
   }, [
     goalPercentage,
     celebrationState,
+    sessionContribution,
+    celebration,
     geoAvailability,
     selectedCategory,
     selectedCauseIds,

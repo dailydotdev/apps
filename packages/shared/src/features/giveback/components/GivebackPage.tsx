@@ -32,6 +32,7 @@ import { GivebackSponsors } from './GivebackSponsors';
 import { GivebackClosingCta } from './GivebackClosingCta';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
 import { GivebackBackground } from './GivebackBackground';
+import { GivebackCelebration } from './GivebackCelebration';
 
 // The first run is guided: opt in from the hero, pick causes, then continue to
 // the Impact view (community money + your contribution). The rest are tabs the
@@ -214,7 +215,7 @@ const GivebackPageContent = (): ReactElement => {
               <FlexCol className="gap-10">
                 <div
                   ref={tabsRef}
-                  className="bg-background-default/95 sticky top-0 z-3 -mx-4 scroll-mt-4 border-b border-border-subtlest-tertiary px-4 backdrop-blur-sm"
+                  className="bg-background-default/80 sticky top-0 z-3 -mx-4 scroll-mt-4 border-b border-border-subtlest-tertiary px-4 backdrop-blur-xl"
                 >
                   <div
                     aria-hidden
@@ -237,7 +238,7 @@ const GivebackPageContent = (): ReactElement => {
                           aria-controls={`giveback-panel-${tab.id}`}
                           onClick={() => setActiveTab(tab.id)}
                           className={classNames(
-                            'relative shrink-0 whitespace-nowrap p-2 py-4 text-center font-bold transition-colors duration-200 typo-callout active:scale-95',
+                            'shrink-0 whitespace-nowrap p-2 py-4 text-center font-normal transition-colors duration-200 typo-callout active:scale-95',
                             selected
                               ? 'text-text-primary'
                               : 'text-text-tertiary hover:text-text-primary',
@@ -245,21 +246,14 @@ const GivebackPageContent = (): ReactElement => {
                         >
                           <span
                             className={classNames(
-                              'flex flex-row items-center gap-1 rounded-10 px-3 py-1.5 transition-colors duration-200',
+                              'flex flex-row items-center gap-1 rounded-10 border px-3 py-1.5 transition-colors duration-200',
                               selected
-                                ? 'bg-theme-active'
-                                : 'hover:bg-surface-float',
+                                ? 'border-border-subtlest-secondary'
+                                : 'border-transparent hover:border-border-subtlest-tertiary',
                             )}
                           >
                             {tab.label}
                           </span>
-                          <span
-                            aria-hidden
-                            className={classNames(
-                              'absolute bottom-0 left-1/2 h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-transform duration-300 ease-out motion-reduce:transition-none',
-                              selected ? 'scale-x-100' : 'scale-x-0',
-                            )}
-                          />
                         </button>
                       );
                     })}
@@ -295,6 +289,8 @@ const GivebackPageContent = (): ReactElement => {
 
         {hasStarted && <GivebackFundingBar />}
       </div>
+
+      <GivebackCelebration />
     </GivebackNavProvider>
   );
 };
