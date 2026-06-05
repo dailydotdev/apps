@@ -217,7 +217,7 @@ export enum HijackingVariant {
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
   'hijacking_variants',
-  HijackingVariant.CTA,
+  HijackingVariant.Default,
 );
 
 export const featureLayoutV2 = new Feature('layout_v2', false);
