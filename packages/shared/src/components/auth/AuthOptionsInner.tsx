@@ -31,7 +31,11 @@ import {
 } from './socialAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import { checkIsExtension, shouldUseSocialAuthPopup } from '../../lib/func';
+import {
+  checkIsExtension,
+  isIOSNative,
+  shouldUseSocialAuthPopup,
+} from '../../lib/func';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureAuthGoogleOneTap } from '../../lib/featureManagement';
 import { useGoogleOneTap } from '../../hooks/auth/useGoogleOneTap';
@@ -152,7 +156,7 @@ function AuthOptionsInner({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user, isFunnel } = useAuthContext();
+  const { refetchBoot, user, isFunnel, isAndroidApp } = useAuthContext();
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
@@ -641,7 +645,11 @@ function AuthOptionsInner({
   };
 
   const canUseOneTap =
-    !user && !checkIsExtension() && !isNativeAuthSupported('google');
+    !user &&
+    !checkIsExtension() &&
+    !isIOSNative() &&
+    !isAndroidApp &&
+    !isNativeAuthSupported('google');
   const { value: isOneTapEnabled } = useConditionalFeature({
     feature: featureAuthGoogleOneTap,
     shouldEvaluate: canUseOneTap,
