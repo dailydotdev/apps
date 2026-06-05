@@ -20,42 +20,25 @@ export const GivebackClosingCta = (): ReactElement => {
   const { setActiveTab } = useGivebackNav();
 
   return (
-    <section className="relative w-full overflow-hidden border-t border-border-subtlest-tertiary pt-8">
-      {/* Layered, slowly breathing glows give the finale depth and life. */}
+    <section className="relative w-full border-t border-border-subtlest-tertiary pt-8">
+      {/* Layered, slowly breathing glows give the finale depth and life. Clip
+          only the glows so hover effects on the CTAs aren't cut off. */}
       <div
         aria-hidden
-        className="bg-accent-cabbage-default/20 pointer-events-none absolute left-1/2 top-0 size-[26rem] -translate-x-1/2 rounded-full blur-3xl motion-safe:animate-glow-pulse"
-      />
-      <div
-        aria-hidden
-        className="bg-accent-avocado-default/10 pointer-events-none absolute -left-10 top-10 size-64 rounded-full blur-3xl motion-safe:animate-glow-pulse"
-        style={{ animationDelay: '1.5s' }}
-      />
-      <div
-        aria-hidden
-        className="bg-accent-cheese-default/10 pointer-events-none absolute -right-10 top-10 size-64 rounded-full blur-3xl motion-safe:animate-glow-pulse"
-        style={{ animationDelay: '0.75s' }}
-      />
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="bg-accent-cabbage-default/20 absolute left-1/2 top-0 size-[26rem] -translate-x-1/2 rounded-full blur-3xl motion-safe:animate-glow-pulse" />
+        <div
+          className="bg-accent-avocado-default/10 absolute -left-10 top-10 size-64 rounded-full blur-3xl motion-safe:animate-glow-pulse"
+          style={{ animationDelay: '1.5s' }}
+        />
+        <div
+          className="bg-accent-cheese-default/10 absolute -right-10 top-10 size-64 rounded-full blur-3xl motion-safe:animate-glow-pulse"
+          style={{ animationDelay: '0.75s' }}
+        />
+      </div>
 
       <FlexCol className="relative items-center gap-5 py-8 text-center">
-        <GivebackReveal>
-          <FlexRow className="items-center gap-2">
-            <span className="relative flex size-2">
-              <span className="bg-accent-cabbage-default/60 absolute inline-flex size-full rounded-full motion-safe:animate-glow-pulse" />
-              <span className="relative inline-flex size-2 rounded-full bg-accent-cabbage-default" />
-            </span>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              bold
-              className="uppercase tracking-wider"
-            >
-              Ready when you are
-            </Typography>
-          </FlexRow>
-        </GivebackReveal>
-
         <GivebackReveal delay={80}>
           <Typography
             tag={TypographyTag.H2}

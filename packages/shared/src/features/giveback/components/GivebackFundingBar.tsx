@@ -12,10 +12,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { VolumeIcon, VolumeOffIcon } from '../../../components/icons';
 import { useGivebackContext } from '../GivebackContext';
 import { useGivebackNav } from '../GivebackNavContext';
-import { useGivebackSound } from '../useGivebackSound';
 import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
 
 // Circular level meter that wraps the level number, filling toward the next
@@ -85,7 +83,6 @@ const LevelProgressRing = ({
 export const GivebackFundingBar = (): ReactElement => {
   const { campaign, levels, userProfile } = useGivebackContext();
   const { setActiveTab } = useGivebackNav();
-  const { enabled: soundEnabled, toggle: toggleSound } = useGivebackSound();
 
   const approved = userProfile.approvedContributionAmount;
   const currentLevel =
@@ -110,7 +107,7 @@ export const GivebackFundingBar = (): ReactElement => {
     : `Top level reached. You're a ${topLevel.name}.`;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-3">
+    <div className="pointer-events-none sticky bottom-0 z-3">
       <div className="bg-background-default/80 pointer-events-auto relative mx-auto w-full max-w-6xl border-t border-border-subtlest-secondary px-4 py-3 backdrop-blur-xl tablet:rounded-t-16 tablet:border-x">
         <FlexRow className="items-center justify-between gap-4">
           <FlexRow className="min-w-0 items-center gap-3">
@@ -146,29 +143,15 @@ export const GivebackFundingBar = (): ReactElement => {
             </FlexCol>
           </FlexRow>
 
-          <FlexRow className="shrink-0 items-center gap-2">
-            <Button
-              type="button"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Medium}
-              icon={soundEnabled ? <VolumeIcon /> : <VolumeOffIcon />}
-              onClick={toggleSound}
-              aria-pressed={soundEnabled}
-              aria-label={
-                soundEnabled
-                  ? 'Mute celebration sounds'
-                  : 'Unmute celebration sounds'
-              }
-            />
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              onClick={() => setActiveTab('actions')}
-            >
-              Take action
-            </Button>
-          </FlexRow>
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            onClick={() => setActiveTab('actions')}
+            className="shrink-0"
+          >
+            Take action
+          </Button>
         </FlexRow>
       </div>
     </div>

@@ -10,7 +10,6 @@ import {
 import { GiftIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useGivebackContext } from '../GivebackContext';
-import { useGivebackSound } from '../useGivebackSound';
 import { usePrefersReducedMotion } from '../useGivebackMotion';
 import { formatDonationAmount } from '../utils';
 
@@ -51,7 +50,6 @@ const buildParticles = (seed: number): Particle[] =>
 
 export const GivebackCelebration = (): ReactElement | null => {
   const { celebration, dismissCelebration } = useGivebackContext();
-  const { playWin, playMilestone } = useGivebackSound();
   const reducedMotion = usePrefersReducedMotion();
 
   const id = celebration?.id ?? 0;
@@ -64,12 +62,6 @@ export const GivebackCelebration = (): ReactElement | null => {
   useEffect(() => {
     if (!celebration) {
       return undefined;
-    }
-
-    if (isMilestone) {
-      playMilestone();
-    } else {
-      playWin();
     }
 
     const visibleFor = isMilestone ? 2600 : 1900;

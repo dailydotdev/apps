@@ -196,12 +196,7 @@ const GivebackPageContent = (): ReactElement => {
       <div className="relative min-h-page w-full">
         <GivebackBackground />
 
-        <FlexCol
-          className={classNames(
-            'relative mx-auto w-full max-w-6xl gap-14 px-4 py-8 tablet:py-14',
-            hasStarted && 'pb-40',
-          )}
-        >
+        <FlexCol className="relative mx-auto w-full max-w-6xl gap-14 px-4 py-8 tablet:py-14">
           <GivebackReveal>
             <GivebackHero />
           </GivebackReveal>
@@ -238,7 +233,7 @@ const GivebackPageContent = (): ReactElement => {
                           aria-controls={`giveback-panel-${tab.id}`}
                           onClick={() => setActiveTab(tab.id)}
                           className={classNames(
-                            'shrink-0 whitespace-nowrap p-2 py-4 text-center font-normal transition-colors duration-200 typo-callout active:scale-95',
+                            'relative shrink-0 whitespace-nowrap p-2 py-4 text-center font-normal transition-colors duration-200 typo-callout active:scale-95',
                             selected
                               ? 'text-text-primary'
                               : 'text-text-tertiary hover:text-text-primary',
@@ -254,6 +249,12 @@ const GivebackPageContent = (): ReactElement => {
                           >
                             {tab.label}
                           </span>
+                          {selected && (
+                            <span
+                              aria-hidden
+                              className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-4 bg-text-primary"
+                            />
+                          )}
                         </button>
                       );
                     })}
