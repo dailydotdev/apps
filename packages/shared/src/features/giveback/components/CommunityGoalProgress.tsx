@@ -20,6 +20,7 @@ import { useCountUp, useInView } from '../useGivebackMotion';
 import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
 import { GivebackSection } from './GivebackSection';
 import { GivebackMeterShine } from './GivebackMeterShine';
+import { SponsorBudgetBar } from './SponsorBudgetBar';
 
 const milestones = [25, 50, 75, 100];
 
@@ -187,15 +188,7 @@ export const CommunityGoalProgress = (): ReactElement => {
             </Typography>
           </FlexRow>
 
-          <ProgressBar
-            percentage={sponsorGoalShare}
-            shouldShowBg
-            className={{
-              wrapper: 'h-2.5 rounded-8',
-              bar: 'h-full rounded-8 transition-[width] duration-700 ease-out',
-              barColor: 'bg-accent-bacon-default',
-            }}
-          />
+          <SponsorBudgetBar sponsors={campaign.sponsors} />
 
           <FlexRow className="flex-wrap items-center justify-between gap-2">
             <Typography

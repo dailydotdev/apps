@@ -363,7 +363,7 @@ describe('CommunityImpactSection', () => {
     await userEvent.click(screen.getByRole('tab', { name: 'Sponsors' }));
 
     expect(screen.getByText('Sponsors top up the budget.')).toBeInTheDocument();
-    expect(screen.getByText('Vercel')).toBeInTheDocument();
+    expect(screen.getAllByText('Vercel').length).toBeGreaterThan(0);
 
     await userEvent.click(
       screen.getAllByRole('button', { name: 'Become a sponsor' })[0],
@@ -373,7 +373,7 @@ describe('CommunityImpactSection', () => {
     await userEvent.click(screen.getByRole('button', { name: '$5,000' }));
     await userEvent.click(screen.getByRole('button', { name: 'Add $5,000' }));
 
-    expect(screen.getByText('Globex Corp')).toBeInTheDocument();
+    expect(screen.getAllByText('Globex Corp').length).toBeGreaterThan(0);
   });
 });
 

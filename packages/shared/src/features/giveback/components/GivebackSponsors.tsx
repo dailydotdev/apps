@@ -13,17 +13,15 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { PlusIcon } from '../../../components/icons';
+import { MedalBadgeIcon, PlusIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { useGivebackContext } from '../GivebackContext';
 import type { GivebackSponsor } from '../types';
 import { GivebackSponsorTier, GivebackSponsorType } from '../types';
-import {
-  formatDonationAmount,
-  getSponsorTier,
-  sponsorTierLabel,
-} from '../utils';
+import { formatDonationAmount, getSponsorTier } from '../utils';
 import { GivebackSection } from './GivebackSection';
 import { GivebackSponsorModal } from './GivebackSponsorModal';
+import { SponsorBudgetBar } from './SponsorBudgetBar';
 
 const tierStyles: Record<GivebackSponsorTier, { tile: string; text: string }> =
   {
@@ -45,6 +43,31 @@ const tierStyles: Record<GivebackSponsorTier, { tile: string; text: string }> =
     },
   };
 
+// Podium for the three biggest sponsors. Distinct from the amount tier — this is
+// a 1/2/3 ranking by contribution, shown with a colored medal on the avatar.
+const rankStyles: Record<
+  number,
+  { label: string; tile: string; text: string }
+> = {
+  1: {
+    label: 'Gold',
+    tile: 'bg-accent-cheese-flat',
+    text: 'text-accent-cheese-default',
+  },
+  2: {
+    label: 'Silver',
+    tile: 'bg-accent-salt-flat',
+    text: 'text-accent-salt-default',
+  },
+  3: {
+    label: 'Bronze',
+    tile: 'bg-accent-bun-flat',
+    text: 'text-accent-bun-default',
+  },
+};
+
+const PODIUM_SIZE = 3;
+
 const getInitials = (name: string): string =>
   name
     .split(' ')
@@ -55,34 +78,57 @@ const getInitials = (name: string): string =>
 
 const sortSponsors = (sponsors: GivebackSponsor[]): GivebackSponsor[] =>
   [...sponsors].sort((a, b) => {
+    if (b.amount !== a.amount) {
+      return b.amount - a.amount;
+    }
     if (Boolean(a.isFounding) !== Boolean(b.isFounding)) {
       return a.isFounding ? -1 : 1;
     }
-    return b.amount - a.amount;
+    return 0;
   });
 
 const SponsorCard = ({
   sponsor,
+  rank,
 }: {
   sponsor: GivebackSponsor;
+  rank?: number;
 }): ReactElement => {
   const tier = getSponsorTier(sponsor.amount);
-  const accent = tierStyles[tier];
+  const rankStyle = rank ? rankStyles[rank] : undefined;
+  const accent = rankStyle ?? tierStyles[tier];
   const typeLabel =
     sponsor.type === GivebackSponsorType.Company ? 'Company' : 'Individual';
 
   return (
     <FlexCol className="group gap-3 rounded-16 border border-border-subtlest-tertiary p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:shadow-2 motion-reduce:transform-none">
       <FlexRow className="items-center gap-3">
-        <span
-          className={classNames(
-            'flex size-12 shrink-0 items-center justify-center rounded-16 font-bold transition-transform duration-200 typo-callout group-hover:scale-105',
-            accent.tile,
-            accent.text,
+        <div className="relative shrink-0">
+          <span
+            className={classNames(
+              'flex size-12 items-center justify-center rounded-16 font-bold transition-transform duration-200 typo-callout group-hover:scale-105',
+              accent.tile,
+              accent.text,
+            )}
+          >
+            {getInitials(sponsor.name)}
+          </span>
+          {rankStyle && (
+            <span
+              title={`${rankStyle.label} sponsor`}
+              aria-label={`${rankStyle.label} sponsor`}
+              className={classNames(
+                'absolute -bottom-1.5 -right-1.5 flex size-6 items-center justify-center rounded-full ring-2 ring-background-default',
+                rankStyle.tile,
+              )}
+            >
+              <MedalBadgeIcon
+                className={rankStyle.text}
+                size={IconSize.Size16}
+              />
+            </span>
           )}
-        >
-          {getInitials(sponsor.name)}
-        </span>
+        </div>
         <FlexCol className="min-w-0 flex-1">
           <FlexRow className="items-center gap-2">
             <Typography
@@ -104,14 +150,17 @@ const SponsorCard = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            {typeLabel} · {sponsorTierLabel[tier]} sponsor
+            {rankStyle
+              ? `${typeLabel} · ${rankStyle.label} sponsor`
+              : typeLabel}
           </Typography>
         </FlexCol>
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Callout}
+          color={TypographyColor.StatusSuccess}
           bold
-          className={classNames('shrink-0 tabular-nums', accent.text)}
+          className="shrink-0 tabular-nums"
         >
           {formatDonationAmount(sponsor.amount, sponsor.currency)}
         </Typography>
@@ -155,7 +204,7 @@ export const GivebackSponsors = (): ReactElement => {
         </Button>
       }
     >
-      <FlexRow className="flex-wrap items-center justify-between gap-4 rounded-16 border border-border-subtlest-tertiary p-5">
+      <FlexCol className="gap-4">
         <FlexCol className="gap-1">
           <FlexRow className="items-center gap-2">
             <span className="size-2.5 shrink-0 rounded-full bg-accent-bacon-default" />
@@ -198,11 +247,17 @@ export const GivebackSponsors = (): ReactElement => {
             {formatDonationAmount(campaign.goalAmount, campaign.currency)} goal
           </Typography>
         </FlexCol>
-      </FlexRow>
+
+        <SponsorBudgetBar sponsors={campaign.sponsors} />
+      </FlexCol>
 
       <div className="grid gap-4 tablet:grid-cols-2">
-        {sponsors.map((sponsor) => (
-          <SponsorCard key={sponsor.id} sponsor={sponsor} />
+        {sponsors.map((sponsor, index) => (
+          <SponsorCard
+            key={sponsor.id}
+            sponsor={sponsor}
+            rank={index < PODIUM_SIZE ? index + 1 : undefined}
+          />
         ))}
 
         <button
