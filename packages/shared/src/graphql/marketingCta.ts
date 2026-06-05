@@ -25,6 +25,7 @@ export const MARKETING_CTAS_BY_VARIANT_QUERY = gql`
         webapp
         extension
         ios
+        android
       }
     }
   }

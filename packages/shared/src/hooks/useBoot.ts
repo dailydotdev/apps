@@ -85,7 +85,12 @@ export const useBoot = (): UseBoot => {
       return null;
     }
 
-    if (isMarketingCtaTarget(bootData?.marketingCta?.targets) === false) {
+    if (
+      isMarketingCtaTarget(
+        bootData?.marketingCta?.targets,
+        bootData?.isAndroidApp,
+      ) === false
+    ) {
       return null;
     }
 

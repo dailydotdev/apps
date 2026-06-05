@@ -1,13 +1,15 @@
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
 import { PostType } from '../graphql/posts';
-import type { PostHighlightSignificance } from '../graphql/posts';
+import type { PostHeroSignificance } from '../graphql/posts';
 
-const SIGNIFICANCE_COL_SPAN: Record<PostHighlightSignificance, number> = {
+const SIGNIFICANCE_COL_SPAN: Record<PostHeroSignificance, number> = {
   breaking: 4,
   major: 3,
   notable: 2,
   routine: 1,
+  breakout: 4,
+  evergreen: 3,
 };
 
 const WIDENABLE_POST_TYPES = new Set<PostType>([
@@ -16,18 +18,18 @@ const WIDENABLE_POST_TYPES = new Set<PostType>([
 ]);
 
 /**
- * Rolling density cap for wide cards. By default, allow at most one wide
- * card per ten items, with unused capacity accumulating across the feed.
- * Matches the PR's packer default so visual rhythm stays consistent if we
- * ever migrate to the full packer.
+ * Minimum number of items between two wide cards. Anchored to the index of
+ * the last placed wide card, so a wide card requested within this distance
+ * shrinks to a regular 1-column card. Keeps visual rhythm consistent and
+ * avoids back-to-back wides at window boundaries.
  */
-const LARGE_CARD_DENSITY = { maxLarge: 1, perItems: 10 } as const;
+const LARGE_CARD_DENSITY = { minSpacing: 10 } as const;
 
 /**
  * Returns the column span a feed item is asking for, before any clamping
  * for column count or fit-to-row.
  *
- * Only Post items with an article-like type and an active `postHighlight`
+ * Only Post items with an article-like type and an active `hero`
  * request a wide colSpan. Ads, highlight strip items, placeholders,
  * marketing items and non-article post types always stay at 1.
  */
@@ -40,7 +42,7 @@ export const requestedColSpan = (item: FeedItem): number => {
     return 1;
   }
 
-  const significance = item.post.postHighlight?.significance;
+  const significance = item.post.hero?.significance;
   if (!significance) {
     return 1;
   }
@@ -100,7 +102,7 @@ export const computePlacements = (
   const placements = new Array<FeedItemPlacement>(items.length);
   let row = 0;
   let col = 0;
-  let largeCardsPlaced = 0;
+  let lastLargeIndex = -Infinity;
 
   items.forEach((item, index) => {
     if (fullRowInsertionBeforeIndex?.has(index)) {
@@ -119,25 +121,18 @@ export const computePlacements = (
     let actual: number;
     if (requested === 1) {
       actual = 1;
+    } else if (index - lastLargeIndex < LARGE_CARD_DENSITY.minSpacing) {
+      actual = 1;
     } else {
-      // Rolling density cap: max one wide card per `perItems` items,
-      // cumulative.
-      const windowIndex = Math.floor(index / LARGE_CARD_DENSITY.perItems);
-      const expectedWindowLarge =
-        windowIndex * LARGE_CARD_DENSITY.maxLarge + LARGE_CARD_DENSITY.maxLarge;
-      if (largeCardsPlaced >= expectedWindowLarge) {
-        actual = 1;
-      } else {
-        const clampedToGrid = Math.min(requested, numCards);
-        const remainingInRow = numCards - col;
-        actual = Math.min(clampedToGrid, remainingInRow);
-      }
+      const clampedToGrid = Math.min(requested, numCards);
+      const remainingInRow = numCards - col;
+      actual = Math.min(clampedToGrid, remainingInRow);
     }
 
     placements[index] = { colSpan: actual, row, column: col };
 
     if (actual > 1) {
-      largeCardsPlaced += 1;
+      lastLargeIndex = index;
     }
 
     col += actual;
