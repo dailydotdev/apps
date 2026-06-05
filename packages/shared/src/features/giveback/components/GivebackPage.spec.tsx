@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GivebackPage } from './GivebackPage';
 import { GivebackProvider } from '../GivebackContext';
 import { GivebackNavProvider } from '../GivebackNavContext';
@@ -9,6 +10,7 @@ import { GivebackReviewToggle } from './GivebackReviewToggle';
 import { ActionCatalog } from './ActionCatalog';
 import { CauseSelection } from './CauseSelection';
 import { CommunityImpactSection } from './CommunityImpactSection';
+import { GivebackUpdates } from './GivebackUpdates';
 import { GeoGateFallback } from './GeoGateFallback';
 
 describe('GivebackPage', () => {
@@ -32,25 +34,30 @@ describe('GivebackPage', () => {
 
     // Lands on the cause picker first.
     expect(
-      screen.getByText('Pick the causes you care about'),
+      screen.getByText('You pick causes you care about.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Continue' }),
     ).toBeInTheDocument();
 
     // Continue moves on to the community Impact view.
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(screen.getByText("We're funding this together")).toBeInTheDocument();
+    expect(screen.getByText('You take action.')).toBeInTheDocument();
     expect(screen.getByText(/You give back, we give back/)).toBeInTheDocument();
-    expect(screen.getByText('Your road to Legend')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: "You're a Helping hand" }),
+    ).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('tab', { name: 'Why' }));
     expect(
-      screen.getByText("We'd rather fund you than ads"),
+      screen.getByText('Big tech burns billions just to get noticed.'),
     ).toBeInTheDocument();
     expect(screen.getByText('What we unlock together')).toBeInTheDocument();
-    expect(screen.getByText('Community impact')).toBeInTheDocument();
+    expect(screen.getByText('What your work turns into')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('tab', { name: 'Take action' }));
     expect(
-      screen.getByRole('heading', { name: 'Take action' }),
+      screen.getByRole('heading', { name: /Take a small action/ }),
     ).toBeInTheDocument();
     expect(screen.getByText(/genuinely\s+appreciate them/)).toBeInTheDocument();
 
@@ -86,6 +93,44 @@ describe('GivebackPage', () => {
     expect(screen.getByText('You')).toBeInTheDocument();
   });
 
+  it('lets a visitor reply to a comment', async () => {
+    render(<GivebackPage />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Join the campaign' }),
+    );
+    await userEvent.click(screen.getByRole('tab', { name: 'Comments' }));
+
+    const [firstReply] = screen.getAllByRole('button', { name: 'Reply' });
+    await userEvent.click(firstReply);
+
+    await userEvent.type(
+      screen.getByLabelText('Reply to Priya N.'),
+      'Couldn’t agree more!',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Post reply' }));
+
+    expect(screen.getByText('Couldn’t agree more!')).toBeInTheDocument();
+  });
+
+  it('removes a comment from the more-options menu', async () => {
+    render(<GivebackPage />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Join the campaign' }),
+    );
+    await userEvent.click(screen.getByRole('tab', { name: 'Comments' }));
+
+    expect(screen.getByText(/Picked Girls Who Code/)).toBeInTheDocument();
+
+    const menus = screen.getAllByRole('button', { name: 'More options' });
+    // Priya (thread), her reply, then Marco — index 2 is Marco's comment.
+    await userEvent.click(menus[2]);
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Hide' }));
+
+    expect(screen.queryByText(/Picked Girls Who Code/)).not.toBeInTheDocument();
+  });
+
   it('shows the mocked goal progress at 50% after opting in', async () => {
     render(<GivebackPage />);
 
@@ -97,6 +142,26 @@ describe('GivebackPage', () => {
     expect(screen.getAllByText('$5,000')[0]).toBeInTheDocument();
     expect(screen.getAllByText('$10,000')[0]).toBeInTheDocument();
     expect(screen.getByText('50% funded')).toBeInTheDocument();
+  });
+
+  it('windows the level journey and reveals more on demand', async () => {
+    render(<GivebackPage />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Join the campaign' }),
+    );
+    await userEvent.click(screen.getByRole('tab', { name: 'Impact' }));
+
+    // Welcome gift is surfaced, and the ladder runs to 20 levels.
+    expect(screen.getByText('$10 to your causes — on us')).toBeInTheDocument();
+    expect(screen.getByText(/Level 3 of 20/)).toBeInTheDocument();
+
+    // Far-off levels are hidden until the visitor expands the journey.
+    expect(screen.queryByText(/Legend\s+·/)).not.toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: /Show \d+ more levels/ }),
+    );
+    expect(screen.getByText(/Legend\s+·/)).toBeInTheDocument();
   });
 });
 
@@ -260,18 +325,55 @@ describe('Love actions in the catalog', () => {
 });
 
 describe('CommunityImpactSection', () => {
-  it('renders anonymized community activity and transparency totals', () => {
+  it('renders the human-outcome impact grid', () => {
     render(
       <GivebackProvider>
         <CommunityImpactSection />
       </GivebackProvider>,
     );
 
-    expect(screen.getByText('Impact transparency')).toBeInTheDocument();
+    expect(screen.getByText('What your work turns into')).toBeInTheDocument();
+    expect(screen.getByText('3,200 students')).toBeInTheDocument();
+    expect(screen.getByText('Code.org')).toBeInTheDocument();
+  });
+
+  it('renders anonymized community activity in the updates feed', () => {
+    render(
+      <GivebackProvider>
+        <GivebackUpdates />
+      </GivebackProvider>,
+    );
+
     expect(
       screen.getByText(/shared the Giveback launch post/),
     ).toBeInTheDocument();
     expect(screen.getByText('anonymized by default')).toBeInTheDocument();
+  });
+
+  it('shows the sponsor wall and lets a visitor add a sponsorship', async () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <GivebackPage />
+      </QueryClientProvider>,
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Join the campaign' }),
+    );
+    await userEvent.click(screen.getByRole('tab', { name: 'Sponsors' }));
+
+    expect(screen.getByText('Sponsors top up the budget.')).toBeInTheDocument();
+    expect(screen.getByText('Vercel')).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Become a sponsor' })[0],
+    );
+
+    await userEvent.type(screen.getByLabelText('Company name'), 'Globex Corp');
+    await userEvent.click(screen.getByRole('button', { name: '$5,000' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add $5,000' }));
+
+    expect(screen.getByText('Globex Corp')).toBeInTheDocument();
   });
 });
 
@@ -279,7 +381,14 @@ describe('GivebackReviewToggle', () => {
   it('updates the community goal progress when a preset is selected', async () => {
     render(
       <GivebackProvider>
-        <CommunityGoalProgress />
+        <GivebackNavProvider
+          hasStarted
+          start={() => undefined}
+          activeTab="impact"
+          setActiveTab={() => undefined}
+        >
+          <CommunityGoalProgress />
+        </GivebackNavProvider>
         <GeoGateFallback />
         <CommunityImpactSection />
         <GivebackReviewToggle />
@@ -297,7 +406,7 @@ describe('GivebackReviewToggle', () => {
     render(
       <GivebackProvider>
         <GeoGateFallback />
-        <CommunityImpactSection />
+        <GivebackUpdates />
         <GivebackReviewToggle />
       </GivebackProvider>,
     );

@@ -12,66 +12,72 @@ import {
 interface GivebackSectionProps {
   id?: string;
   eyebrow?: string;
-  title: string;
+  /** Optional plain sub-heading. The big gradient title now lives once per tab. */
+  title?: string;
   description?: ReactNode;
   headerActions?: ReactNode;
-  /** First section skips the top hairline divider. */
-  isFirst?: boolean;
   className?: string;
   children: ReactNode;
 }
 
-// Open, editorial section shell. Intentionally has no border box, background, or
-// shadow — sections are separated by a single hairline and rhythmic spacing so
-// the page reads as one continuous story instead of a stack of cards.
+// Open, editorial section shell. No border box, background, or top divider —
+// sections within a tab are separated by spacing alone, and the single big
+// gradient title is rendered once per tab above the panel.
 export const GivebackSection = ({
   id,
   eyebrow,
   title,
   description,
   headerActions,
-  isFirst = false,
   className,
   children,
-}: GivebackSectionProps): ReactElement => (
-  <section
-    id={id}
-    className={classNames(
-      'relative w-full scroll-mt-16',
-      !isFirst && 'border-t border-border-subtlest-tertiary pt-8',
-      className,
-    )}
-  >
-    <FlexCol className="gap-6">
-      <FlexRow className="flex-wrap items-start justify-between gap-4">
-        <FlexCol className="max-w-2xl gap-1.5">
-          {eyebrow && (
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              bold
-              className="uppercase tracking-wider"
-            >
-              {eyebrow}
-            </Typography>
-          )}
-          <Typography tag={TypographyTag.H2} type={TypographyType.Title2} bold>
-            {title}
-          </Typography>
-          {description && (
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              {description}
-            </Typography>
-          )}
-        </FlexCol>
-        {headerActions}
-      </FlexRow>
-      {children}
-    </FlexCol>
-  </section>
-);
+}: GivebackSectionProps): ReactElement => {
+  const hasHeader = Boolean(eyebrow || title || description || headerActions);
+
+  return (
+    <section
+      id={id}
+      className={classNames('relative w-full scroll-mt-16', className)}
+    >
+      <FlexCol className="gap-6">
+        {hasHeader && (
+          <FlexRow className="flex-wrap items-start justify-between gap-4">
+            <FlexCol className="max-w-2xl gap-1.5">
+              {eyebrow && (
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  bold
+                  className="uppercase tracking-wider"
+                >
+                  {eyebrow}
+                </Typography>
+              )}
+              {title && (
+                <Typography
+                  tag={TypographyTag.H3}
+                  type={TypographyType.Title3}
+                  bold
+                >
+                  {title}
+                </Typography>
+              )}
+              {description && (
+                <Typography
+                  tag={TypographyTag.P}
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  {description}
+                </Typography>
+              )}
+            </FlexCol>
+            {headerActions}
+          </FlexRow>
+        )}
+        {children}
+      </FlexCol>
+    </section>
+  );
+};

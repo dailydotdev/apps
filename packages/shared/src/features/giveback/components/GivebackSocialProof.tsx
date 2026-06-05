@@ -92,7 +92,7 @@ export const GivebackSocialProof = (): ReactElement => (
       {reviews.map((review) => (
         <FlexCol
           key={review.handle}
-          className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4"
+          className="group gap-3 rounded-16 border border-border-subtlest-tertiary p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:shadow-2 motion-reduce:transform-none"
         >
           <FlexRow className="items-center gap-3">
             <img
@@ -100,7 +100,7 @@ export const GivebackSocialProof = (): ReactElement => (
               alt={review.author}
               loading="lazy"
               onError={onAvatarError}
-              className="size-10 shrink-0 rounded-full object-cover"
+              className="size-10 shrink-0 rounded-full object-cover transition-transform duration-200 group-hover:scale-105"
             />
             <FlexCol className="min-w-0">
               <Typography

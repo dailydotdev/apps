@@ -316,6 +316,10 @@ export default {
           '55%': { transform: 'scale(1.18)', opacity: '1' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
+        'gradient-pan': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -336,6 +340,7 @@ export default {
         'coin-stream': 'coin-stream 2.6s linear infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
         'reward-pop': 'reward-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'gradient-pan': 'gradient-pan 6s ease-in-out infinite',
       },
     },
     lineClamp: {

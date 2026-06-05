@@ -5,6 +5,7 @@ export type GivebackTabId =
   | 'causes'
   | 'impact'
   | 'why'
+  | 'sponsors'
   | 'actions'
   | 'updates'
   | 'comments'

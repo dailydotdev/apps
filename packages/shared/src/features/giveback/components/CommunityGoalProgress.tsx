@@ -9,7 +9,14 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { ProgressBar } from '../../../components/fields/ProgressBar';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 import { useGivebackContext } from '../GivebackContext';
+import { useGivebackNav } from '../GivebackNavContext';
+import { useCountUp, useInView } from '../useGivebackMotion';
 import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
 import { GivebackSection } from './GivebackSection';
 import { GivebackMeterShine } from './GivebackMeterShine';
@@ -18,11 +25,19 @@ const milestones = [25, 50, 75, 100];
 
 export const CommunityGoalProgress = (): ReactElement => {
   const { campaign } = useGivebackContext();
+  const { setActiveTab } = useGivebackNav();
   const percentage = getGoalProgressPercentage(
     campaign.approvedAmount,
     campaign.goalAmount,
   );
+  // Bar (and milestone dots) grow from 0 the first time the meter scrolls in,
+  // so the money raised visibly "fills up". The numeric label stays exact.
+  const { ref: meterRef, inView } = useInView<HTMLDivElement>();
+  const animatedPercentage = useCountUp(Math.round(percentage), inView);
   const remaining = Math.max(campaign.goalAmount - campaign.approvedAmount, 0);
+  const sponsorGoalShare = campaign.goalAmount
+    ? Math.round((campaign.sponsoredAmount / campaign.goalAmount) * 100)
+    : 0;
 
   // The funding-stats triplet every backer scans: who's in, how much is still
   // needed to hit the budget, and what's being validated right now.
@@ -38,7 +53,7 @@ export const CommunityGoalProgress = (): ReactElement => {
   return (
     <GivebackSection
       id="giveback-goal"
-      title="We're funding this together"
+      title="Funding progress"
       headerActions={
         <FlexCol className="text-right">
           <Typography
@@ -69,25 +84,25 @@ export const CommunityGoalProgress = (): ReactElement => {
           </Typography>
         </FlexRow>
 
-        <div className="relative">
+        <div className="relative" ref={meterRef}>
           <ProgressBar
-            percentage={percentage}
+            percentage={animatedPercentage}
             shouldShowBg
             className={{
               wrapper: 'h-5 rounded-16',
-              bar: 'h-full rounded-16 transition-[width] duration-500',
+              bar: 'h-full rounded-16 transition-[width] duration-700 ease-out',
               barColor:
                 'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default',
             }}
           />
-          <GivebackMeterShine percentage={percentage} />
+          <GivebackMeterShine percentage={animatedPercentage} />
           <FlexRow className="absolute left-0 right-0 top-0 h-5 items-center justify-between px-1">
             {milestones.map((milestone) => (
               <span
                 key={milestone}
                 className={classNames(
-                  'size-2 rounded-full ring-2 ring-background-default',
-                  percentage >= milestone
+                  'size-2 rounded-full ring-2 ring-background-default transition-colors duration-300',
+                  animatedPercentage >= milestone
                     ? 'bg-accent-cheese-default'
                     : 'bg-accent-pepper-subtler',
                 )}
@@ -145,6 +160,63 @@ export const CommunityGoalProgress = (): ReactElement => {
           </FlexCol>
         ))}
       </div>
+
+      {campaign.sponsoredAmount > 0 && (
+        <FlexCol className="gap-2 border-t border-border-subtlest-tertiary pt-4">
+          <FlexRow className="items-center justify-between gap-3">
+            <FlexRow className="items-center gap-2">
+              <span className="size-2.5 shrink-0 rounded-full bg-accent-bacon-default" />
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Callout}
+                bold
+              >
+                Sponsors topping up the pot
+              </Typography>
+            </FlexRow>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Title3}
+              bold
+              className="tabular-nums text-accent-bacon-default"
+            >
+              {formatDonationAmount(
+                campaign.sponsoredAmount,
+                campaign.currency,
+              )}
+            </Typography>
+          </FlexRow>
+
+          <ProgressBar
+            percentage={sponsorGoalShare}
+            shouldShowBg
+            className={{
+              wrapper: 'h-2.5 rounded-8',
+              bar: 'h-full rounded-8 transition-[width] duration-700 ease-out',
+              barColor: 'bg-accent-bacon-default',
+            }}
+          />
+
+          <FlexRow className="flex-wrap items-center justify-between gap-2">
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {sponsorGoalShare}% of the{' '}
+              {formatDonationAmount(campaign.goalAmount, campaign.currency)}{' '}
+              goal · {campaign.sponsors.length} sponsors
+            </Typography>
+            <Button
+              type="button"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Float}
+              onClick={() => setActiveTab('sponsors')}
+            >
+              Become a sponsor
+            </Button>
+          </FlexRow>
+        </FlexCol>
+      )}
 
       <Typography
         type={TypographyType.Caption1}

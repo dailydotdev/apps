@@ -1,3 +1,5 @@
+import { GivebackSponsorTier } from './types';
+
 export const formatDonationAmount = (
   amount: number,
   currency = 'USD',
@@ -21,3 +23,25 @@ export const getGoalProgressPercentage = (
 
 export const formatCompactNumber = (value: number): string =>
   new Intl.NumberFormat('en-US', { notation: 'compact' }).format(value);
+
+export const sponsorTierLabel: Record<GivebackSponsorTier, string> = {
+  [GivebackSponsorTier.Platinum]: 'Platinum',
+  [GivebackSponsorTier.Gold]: 'Gold',
+  [GivebackSponsorTier.Silver]: 'Silver',
+  [GivebackSponsorTier.Backer]: 'Backer',
+};
+
+// Sponsor tier is purely a function of how much was contributed, so the badge
+// can never drift from the amount.
+export const getSponsorTier = (amount: number): GivebackSponsorTier => {
+  if (amount >= 2500) {
+    return GivebackSponsorTier.Platinum;
+  }
+  if (amount >= 1000) {
+    return GivebackSponsorTier.Gold;
+  }
+  if (amount >= 250) {
+    return GivebackSponsorTier.Silver;
+  }
+  return GivebackSponsorTier.Backer;
+};

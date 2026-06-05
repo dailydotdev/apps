@@ -4,6 +4,7 @@ import type {
   GivebackCause,
   GivebackCommunityEvent,
   GivebackLevel,
+  GivebackSponsor,
   GivebackUserAction,
   GivebackUserProfile,
 } from './types';
@@ -16,6 +17,7 @@ import {
   GivebackCauseStatus,
   GivebackRewardStatus,
   GivebackRewardType,
+  GivebackSponsorType,
   GivebackUserActionStatus,
 } from './types';
 
@@ -538,74 +540,307 @@ export const givebackUserActions: GivebackUserAction[] = [
   },
 ];
 
-export const givebackLevels: GivebackLevel[] = [
+// A long, dynamic ladder (the journey UI only ever shows a window of it). Each
+// blueprint becomes a level + reward; the welcome gift at level 1 is free just
+// for showing up.
+interface LevelBlueprint {
+  name: string;
+  required: number;
+  reward: {
+    type: GivebackRewardType;
+    title: string;
+    description?: string;
+    isSecret?: boolean;
+  };
+}
+
+const levelBlueprints: LevelBlueprint[] = [
   {
-    id: 'level-1',
-    levelNumber: 1,
     name: 'First spark',
-    requiredApprovedAmount: 0,
+    required: 0,
+    reward: {
+      type: GivebackRewardType.Other,
+      title: '$10 to your causes',
+      description:
+        'On us — just for joining and picking the causes you care about.',
+    },
   },
   {
-    id: 'level-2',
-    levelNumber: 2,
-    name: 'Helping hand',
-    requiredApprovedAmount: 50,
+    name: 'Newcomer',
+    required: 25,
     reward: {
-      id: 'reward-cores-50',
+      type: GivebackRewardType.Cores,
+      title: '25 Cores',
+      description: 'A small boost for your first action.',
+    },
+  },
+  {
+    name: 'Helping hand',
+    required: 50,
+    reward: {
       type: GivebackRewardType.Cores,
       title: '50 Cores',
-      secretTitle: 'Mystery reward',
       description: 'A head start for showing up early.',
-      status: GivebackRewardStatus.Unlocked,
-      isSecret: false,
     },
   },
   {
-    id: 'level-3',
-    levelNumber: 3,
-    name: 'Changemaker',
-    requiredApprovedAmount: 150,
+    name: 'Regular',
+    required: 100,
     reward: {
-      id: 'reward-plus',
       type: GivebackRewardType.DailyPlus,
       title: '1 month of daily.dev Plus',
-      secretTitle: 'Mystery reward',
-      description: 'A little thank-you for moving the community forward.',
-      status: GivebackRewardStatus.Locked,
-      isSecret: false,
+      description: 'A thank-you for moving the community forward.',
     },
   },
   {
-    id: 'level-4',
-    levelNumber: 4,
-    name: 'Community pillar',
-    requiredApprovedAmount: 300,
+    name: 'Contributor',
+    required: 150,
     reward: {
-      id: 'reward-frame',
       type: GivebackRewardType.Badge,
-      title: 'Contributor profile frame',
-      secretTitle: 'Mystery reward',
-      description: 'Show the community you go all in.',
-      status: GivebackRewardStatus.Locked,
+      title: 'Contributor badge',
+      description: 'A mark of someone who keeps showing up.',
+    },
+  },
+  {
+    name: 'Supporter',
+    required: 225,
+    reward: { type: GivebackRewardType.Cores, title: '150 Cores' },
+  },
+  {
+    name: 'Changemaker',
+    required: 300,
+    reward: {
+      type: GivebackRewardType.Badge,
+      title: 'Changemaker flair',
       isSecret: true,
     },
   },
   {
-    id: 'level-5',
-    levelNumber: 5,
-    name: 'Legend',
-    requiredApprovedAmount: 500,
+    name: 'Advocate',
+    required: 400,
+    reward: { type: GivebackRewardType.Cores, title: '300 Cores' },
+  },
+  {
+    name: 'Trailblazer',
+    required: 525,
     reward: {
-      id: 'reward-legend',
+      type: GivebackRewardType.DailyPlus,
+      title: '3 months of Plus',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Community pillar',
+    required: 675,
+    reward: {
+      type: GivebackRewardType.Badge,
+      title: 'Community pillar frame',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Catalyst',
+    required: 850,
+    reward: { type: GivebackRewardType.Cores, title: '600 Cores' },
+  },
+  {
+    name: 'Champion',
+    required: 1050,
+    reward: { type: GivebackRewardType.SwagCoupon, title: 'Sticker pack' },
+  },
+  {
+    name: 'Luminary',
+    required: 1300,
+    reward: {
+      type: GivebackRewardType.Badge,
+      title: 'Luminary badge',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Patron',
+    required: 1600,
+    reward: {
+      type: GivebackRewardType.DailyPlus,
+      title: '6 months of Plus',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Vanguard',
+    required: 1950,
+    reward: {
+      type: GivebackRewardType.Cores,
+      title: '1,200 Cores',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Headliner',
+    required: 2350,
+    reward: { type: GivebackRewardType.SwagCoupon, title: 'T-shirt coupon' },
+  },
+  {
+    name: 'Mentor',
+    required: 2800,
+    reward: {
+      type: GivebackRewardType.Badge,
+      title: 'Mentor badge',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Icon',
+    required: 3350,
+    reward: {
+      type: GivebackRewardType.Badge,
+      title: 'Icon profile frame',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Mythic',
+    required: 4000,
+    reward: {
+      type: GivebackRewardType.Other,
+      title: 'Mystery drop',
+      isSecret: true,
+    },
+  },
+  {
+    name: 'Legend',
+    required: 5000,
+    reward: {
       type: GivebackRewardType.SwagCoupon,
-      title: 'daily.dev swag coupon',
-      secretTitle: 'Mystery reward',
+      title: 'Legend swag bundle',
       description: 'For the ones who go all in.',
-      status: GivebackRewardStatus.Locked,
       isSecret: true,
     },
   },
 ];
+
+export const givebackLevels: GivebackLevel[] = levelBlueprints.map(
+  (blueprint, index) => ({
+    id: `level-${index + 1}`,
+    levelNumber: index + 1,
+    name: blueprint.name,
+    requiredApprovedAmount: blueprint.required,
+    reward: {
+      id: `reward-${index + 1}`,
+      type: blueprint.reward.type,
+      title: blueprint.reward.title,
+      secretTitle: 'Mystery reward',
+      description: blueprint.reward.description,
+      status:
+        blueprint.required === 0
+          ? GivebackRewardStatus.Unlocked
+          : GivebackRewardStatus.Locked,
+      isSecret: blueprint.reward.isSecret ?? false,
+    },
+  }),
+);
+
+export const givebackSponsors: GivebackSponsor[] = [
+  {
+    id: 'sponsor-vercel',
+    name: 'Vercel',
+    type: GivebackSponsorType.Company,
+    amount: 5000,
+    currency: GIVEBACK_CURRENCY,
+    url: 'https://vercel.com',
+    message: 'Backing the tools and people developers rely on.',
+    isFounding: true,
+    createdAt: '2026-05-20T09:00:00.000Z',
+  },
+  {
+    id: 'sponsor-sentry',
+    name: 'Sentry',
+    type: GivebackSponsorType.Company,
+    amount: 3000,
+    currency: GIVEBACK_CURRENCY,
+    url: 'https://sentry.io',
+    message: 'Open source moves the world. Happy to chip in.',
+    isFounding: true,
+    createdAt: '2026-05-21T11:30:00.000Z',
+  },
+  {
+    id: 'sponsor-supabase',
+    name: 'Supabase',
+    type: GivebackSponsorType.Company,
+    amount: 2000,
+    currency: GIVEBACK_CURRENCY,
+    url: 'https://supabase.com',
+    message: 'For the community that builds in public.',
+    createdAt: '2026-05-23T14:10:00.000Z',
+  },
+  {
+    id: 'sponsor-postman',
+    name: 'Postman',
+    type: GivebackSponsorType.Company,
+    amount: 1500,
+    currency: GIVEBACK_CURRENCY,
+    url: 'https://postman.com',
+    createdAt: '2026-05-24T08:45:00.000Z',
+  },
+  {
+    id: 'sponsor-raycast',
+    name: 'Raycast',
+    type: GivebackSponsorType.Company,
+    amount: 1000,
+    currency: GIVEBACK_CURRENCY,
+    url: 'https://raycast.com',
+    createdAt: '2026-05-25T16:20:00.000Z',
+  },
+  {
+    id: 'sponsor-ido',
+    name: 'Ido Shamun',
+    type: GivebackSponsorType.Individual,
+    amount: 500,
+    currency: GIVEBACK_CURRENCY,
+    message: 'Proud to kick this off with the community.',
+    isFounding: true,
+    createdAt: '2026-05-19T07:00:00.000Z',
+  },
+  {
+    id: 'sponsor-acme-studio',
+    name: 'Northwind Labs',
+    type: GivebackSponsorType.Company,
+    amount: 750,
+    currency: GIVEBACK_CURRENCY,
+    createdAt: '2026-05-27T10:05:00.000Z',
+  },
+  {
+    id: 'sponsor-maya',
+    name: 'Maya Rodriguez',
+    type: GivebackSponsorType.Individual,
+    amount: 250,
+    currency: GIVEBACK_CURRENCY,
+    message: 'Giving back to the tools that taught me to code.',
+    createdAt: '2026-05-28T19:40:00.000Z',
+  },
+  {
+    id: 'sponsor-jonas',
+    name: 'Jonas Keller',
+    type: GivebackSponsorType.Individual,
+    amount: 100,
+    currency: GIVEBACK_CURRENCY,
+    createdAt: '2026-05-29T12:15:00.000Z',
+  },
+  {
+    id: 'sponsor-priya',
+    name: 'Priya Nair',
+    type: GivebackSponsorType.Individual,
+    amount: 50,
+    currency: GIVEBACK_CURRENCY,
+    message: 'Every bit counts.',
+    createdAt: '2026-05-30T15:55:00.000Z',
+  },
+];
+
+const givebackSponsoredTotal = givebackSponsors.reduce(
+  (sum, sponsor) => sum + sponsor.amount,
+  0,
+);
 
 export const createMockCampaign = (
   overrides: Partial<GivebackCampaign> = {},
@@ -618,6 +853,7 @@ export const createMockCampaign = (
   currency: GIVEBACK_CURRENCY,
   approvedAmount: 5000,
   pendingAmount: 450,
+  sponsoredAmount: givebackSponsoredTotal,
   backersCount: 12480,
   backersLast24h: 214,
   stretchGoals: [
@@ -652,6 +888,7 @@ export const createMockCampaign = (
       description: 'daily.dev matches the next $5k, dollar for dollar.',
     },
   ],
+  sponsors: givebackSponsors,
   heroCopy: 'Daily Dev funds the donation. You help unlock it.',
   ...overrides,
 });
@@ -659,7 +896,7 @@ export const createMockCampaign = (
 export const createMockUserProfile = (
   overrides: Partial<GivebackUserProfile> = {},
 ): GivebackUserProfile => ({
-  currentLevel: 2,
+  currentLevel: 3,
   approvedContributionAmount: 85,
   pendingContributionAmount: 25,
   actionsCompletedCount: 4,

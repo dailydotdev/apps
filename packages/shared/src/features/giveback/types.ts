@@ -103,6 +103,43 @@ export interface GivebackStretchGoal {
   description: string;
 }
 
+// Companies and people can top up the campaign budget directly. Sponsorships go
+// straight into the pot, so a sponsor's amount counts toward the same goal the
+// community is unlocking through actions.
+export enum GivebackSponsorType {
+  Company = 'company',
+  Individual = 'individual',
+}
+
+// Tier is derived from the sponsored amount (see getSponsorTier) so the data
+// stays lean and a pledge never disagrees with its badge.
+export enum GivebackSponsorTier {
+  Platinum = 'platinum',
+  Gold = 'gold',
+  Silver = 'silver',
+  Backer = 'backer',
+}
+
+export interface GivebackSponsor {
+  id: string;
+  name: string;
+  type: GivebackSponsorType;
+  amount: number;
+  currency: string;
+  url?: string;
+  message?: string;
+  /** Sponsors who funded the pot before launch lead the wall. */
+  isFounding?: boolean;
+  createdAt: string;
+}
+
+export interface GivebackSponsorInput {
+  name: string;
+  type: GivebackSponsorType;
+  amount: number;
+  message?: string;
+}
+
 export interface GivebackCampaign {
   id: string;
   name: string;
@@ -114,12 +151,16 @@ export interface GivebackCampaign {
   approvedAmount: number;
   /** Donation amount awaiting validation. Shown honestly as pending, never as counted. */
   pendingAmount: number;
+  /** Portion of the raised pot contributed by sponsors (companies + people). */
+  sponsoredAmount: number;
   /** Number of developers who have contributed at least one action (social proof). */
   backersCount: number;
   /** Developers who contributed in the last 24h (momentum signal). */
   backersLast24h: number;
   /** Ordered community unlocks for the stretch-goal tracker. */
   stretchGoals: GivebackStretchGoal[];
+  /** Companies and people topping up the budget. */
+  sponsors: GivebackSponsor[];
   heroCopy?: string;
   startAt?: string;
 }

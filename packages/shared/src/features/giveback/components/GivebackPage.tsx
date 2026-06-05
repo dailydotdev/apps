@@ -2,6 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol } from '../../../components/utilities';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../../../components/typography/Typography';
 import { isDevelopment } from '../../../lib/constants';
 import { GivebackProvider, useGivebackContext } from '../GivebackContext';
 import { GivebackNavProvider } from '../GivebackNavContext';
@@ -23,7 +28,10 @@ import { GivebackUpdates } from './GivebackUpdates';
 import { GivebackComments } from './GivebackComments';
 import { GivebackReveal } from './GivebackReveal';
 import { GivebackSocialProof } from './GivebackSocialProof';
+import { GivebackSponsors } from './GivebackSponsors';
 import { GivebackClosingCta } from './GivebackClosingCta';
+import { GivebackLegalFooter } from './GivebackLegalFooter';
+import { GivebackBackground } from './GivebackBackground';
 
 // The first run is guided: opt in from the hero, pick causes, then continue to
 // the Impact view (community money + your contribution). The rest are tabs the
@@ -31,12 +39,69 @@ import { GivebackClosingCta } from './GivebackClosingCta';
 const tabs: { id: GivebackTabId; label: string }[] = [
   { id: 'causes', label: 'Causes' },
   { id: 'impact', label: 'Impact' },
-  { id: 'why', label: 'Why' },
   { id: 'actions', label: 'Take action' },
+  { id: 'why', label: 'Why' },
+  { id: 'sponsors', label: 'Sponsors' },
   { id: 'updates', label: 'Updates' },
   { id: 'comments', label: 'Comments' },
   { id: 'faq', label: 'FAQ' },
 ];
+
+// One big two-part headline per tab: a white line plus a gradient payoff,
+// matching the hero. Sections beneath only carry small plain sub-titles.
+const tabHeaders: Record<GivebackTabId, { title: string; highlight: string }> =
+  {
+    causes: {
+      title: 'We fund developers, not ads.',
+      highlight: 'You pick causes you care about.',
+    },
+    impact: {
+      title: 'You take action.',
+      highlight: 'We fund the causes.',
+    },
+    why: {
+      title: 'Big tech burns billions just to get noticed.',
+      highlight: 'We send ours where it actually changes lives.',
+    },
+    sponsors: {
+      title: 'Sponsors top up the budget.',
+      highlight: 'Together we fund more good.',
+    },
+    actions: {
+      title: 'Take a small action.',
+      highlight: 'We turn it into a donation.',
+    },
+    updates: {
+      title: 'Follow the journey.',
+      highlight: "See what's moving.",
+    },
+    comments: {
+      title: 'Join the conversation.',
+      highlight: 'Tell us what you think.',
+    },
+    faq: {
+      title: 'Got questions?',
+      highlight: "We've got answers.",
+    },
+  };
+
+const GivebackTabHeader = ({ tab }: { tab: GivebackTabId }): ReactElement => {
+  const { title, highlight } = tabHeaders[tab];
+
+  return (
+    <Typography
+      tag={TypographyTag.H2}
+      type={TypographyType.LargeTitle}
+      bold
+      className="max-w-3xl"
+    >
+      {title}
+      <span className="block bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+        {highlight}
+      </span>
+    </Typography>
+  );
+};
 
 const renderActivePanel = (tab: GivebackTabId): ReactElement => {
   switch (tab) {
@@ -52,6 +117,8 @@ const renderActivePanel = (tab: GivebackTabId): ReactElement => {
           <CommunityImpactSection />
         </FlexCol>
       );
+    case 'sponsors':
+      return <GivebackSponsors />;
     case 'updates':
       return <GivebackUpdates />;
     case 'comments':
@@ -126,19 +193,12 @@ const GivebackPageContent = (): ReactElement => {
       setActiveTab={setActiveTab}
     >
       <div className="relative min-h-page w-full">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 overflow-hidden"
-        >
-          <div className="bg-accent-cabbage-default/10 absolute left-1/2 top-0 size-[38rem] -translate-x-1/2 rounded-full blur-3xl" />
-          <div className="bg-accent-onion-default/10 absolute -right-40 top-[34rem] size-[30rem] rounded-full blur-3xl" />
-          <div className="bg-accent-cheese-default/10 absolute -left-32 top-[58rem] size-[26rem] rounded-full blur-3xl" />
-        </div>
+        <GivebackBackground />
 
         <FlexCol
           className={classNames(
             'relative mx-auto w-full max-w-6xl gap-14 px-4 py-8 tablet:py-14',
-            hasStarted && 'pb-28',
+            hasStarted && 'pb-40',
           )}
         >
           <GivebackReveal>
@@ -154,8 +214,12 @@ const GivebackPageContent = (): ReactElement => {
               <FlexCol className="gap-10">
                 <div
                   ref={tabsRef}
-                  className="sticky top-0 z-3 -mx-4 scroll-mt-4 border-b border-border-subtlest-tertiary bg-background-default px-4"
+                  className="bg-background-default/95 sticky top-0 z-3 -mx-4 scroll-mt-4 border-b border-border-subtlest-tertiary px-4 backdrop-blur-sm"
                 >
+                  <div
+                    aria-hidden
+                    className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
+                  />
                   <div
                     role="tablist"
                     aria-label="Giveback sections"
@@ -173,7 +237,7 @@ const GivebackPageContent = (): ReactElement => {
                           aria-controls={`giveback-panel-${tab.id}`}
                           onClick={() => setActiveTab(tab.id)}
                           className={classNames(
-                            'relative shrink-0 whitespace-nowrap p-2 py-4 text-center font-bold transition-colors typo-callout',
+                            'relative shrink-0 whitespace-nowrap p-2 py-4 text-center font-bold transition-colors duration-200 typo-callout active:scale-95',
                             selected
                               ? 'text-text-primary'
                               : 'text-text-tertiary hover:text-text-primary',
@@ -181,18 +245,21 @@ const GivebackPageContent = (): ReactElement => {
                         >
                           <span
                             className={classNames(
-                              'flex flex-row items-center gap-1 rounded-10 px-3 py-1.5',
-                              selected && 'bg-theme-active',
+                              'flex flex-row items-center gap-1 rounded-10 px-3 py-1.5 transition-colors duration-200',
+                              selected
+                                ? 'bg-theme-active'
+                                : 'hover:bg-surface-float',
                             )}
                           >
                             {tab.label}
                           </span>
-                          {selected && (
-                            <span
-                              aria-hidden
-                              className="absolute bottom-0 left-1/2 h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary"
-                            />
-                          )}
+                          <span
+                            aria-hidden
+                            className={classNames(
+                              'absolute bottom-0 left-1/2 h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-transform duration-300 ease-out motion-reduce:transition-none',
+                              selected ? 'scale-x-100' : 'scale-x-0',
+                            )}
+                          />
                         </button>
                       );
                     })}
@@ -204,9 +271,13 @@ const GivebackPageContent = (): ReactElement => {
                   role="tabpanel"
                   id={`giveback-panel-${activeTab}`}
                   aria-labelledby={`giveback-tab-${activeTab}`}
+                  className="relative"
                 >
                   <GivebackReveal>
-                    {renderActivePanel(activeTab)}
+                    <FlexCol className="gap-8">
+                      <GivebackTabHeader tab={activeTab} />
+                      {renderActivePanel(activeTab)}
+                    </FlexCol>
                   </GivebackReveal>
                 </div>
               </FlexCol>
@@ -216,6 +287,10 @@ const GivebackPageContent = (): ReactElement => {
               </GivebackReveal>
             </>
           )}
+
+          <GivebackReveal>
+            <GivebackLegalFooter />
+          </GivebackReveal>
         </FlexCol>
 
         {hasStarted && <GivebackFundingBar />}

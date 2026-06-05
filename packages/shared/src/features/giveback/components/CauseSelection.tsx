@@ -23,7 +23,6 @@ import { IconSize } from '../../../components/Icon';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { useGivebackContext } from '../GivebackContext';
 import { useGivebackNav } from '../GivebackNavContext';
-import { GivebackSection } from './GivebackSection';
 import { CauseSelectionModal } from './CauseSelectionModal';
 
 // Brand-tinted emblems so each cause card reads as its own tile, Lemonade-style.
@@ -45,34 +44,18 @@ export const CauseSelection = (): ReactElement => {
   ).length;
 
   return (
-    <FlexCol className="gap-8">
-      <FlexCol className="gap-2">
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          bold
-          className="uppercase tracking-wider"
-        >
-          Why we&apos;re doing this
-        </Typography>
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Title1}
-          bold
-          className="max-w-2xl"
-        >
-          We fund developers, not ads.{' '}
-          <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-            You pick where it goes.
-          </span>
-        </Typography>
-      </FlexCol>
-
-      <GivebackSection
-        id="giveback-causes"
-        title="Pick the causes you care about"
+    <FlexCol className="gap-6">
+      <Typography
+        tag={TypographyTag.P}
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+        className="max-w-2xl"
       >
+        Pick as many as you like — daily.dev funds every donation. Change them
+        anytime.
+      </Typography>
+
+      <FlexCol id="giveback-causes" className="scroll-mt-16 gap-6">
         <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
           {causes.map((cause, index) => {
             const isSelected = userProfile.selectedCauseIds.includes(cause.id);
@@ -84,7 +67,7 @@ export const CauseSelection = (): ReactElement => {
                 aria-pressed={isSelected}
                 onClick={() => toggleCause(cause.id)}
                 className={classNames(
-                  'group relative flex h-full flex-col gap-3 rounded-16 border p-4 text-left transition-colors',
+                  'group relative flex h-full flex-col gap-3 rounded-16 border p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none',
                   isSelected
                     ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
                     : 'border-border-subtlest-tertiary hover:bg-surface-hover',
@@ -93,7 +76,7 @@ export const CauseSelection = (): ReactElement => {
                 <FlexRow className="items-start justify-between gap-2">
                   <span
                     className={classNames(
-                      'flex size-11 shrink-0 items-center justify-center rounded-16',
+                      'flex size-11 shrink-0 items-center justify-center rounded-16 transition-transform duration-200 group-hover:scale-105',
                       emblemAccents[index % emblemAccents.length],
                     )}
                   >
@@ -107,7 +90,13 @@ export const CauseSelection = (): ReactElement => {
                         : 'border border-border-subtlest-secondary',
                     )}
                   >
-                    {isSelected && <VIcon secondary size={IconSize.XXSmall} />}
+                    {isSelected && (
+                      <VIcon
+                        secondary
+                        size={IconSize.XXSmall}
+                        className="motion-safe:animate-reward-pop"
+                      />
+                    )}
                   </span>
                 </FlexRow>
 
@@ -198,7 +187,7 @@ export const CauseSelection = (): ReactElement => {
         {isSuggestOpen && (
           <CauseSelectionModal onClose={() => setIsSuggestOpen(false)} />
         )}
-      </GivebackSection>
+      </FlexCol>
     </FlexCol>
   );
 };

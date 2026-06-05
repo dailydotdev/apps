@@ -7,6 +7,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
+import { useGivebackContext } from '../GivebackContext';
+import { formatDonationAmount } from '../utils';
 
 interface GivebackUpdate {
   id: string;
@@ -49,63 +51,122 @@ const updates: GivebackUpdate[] = [
   },
 ];
 
-export const GivebackUpdates = (): ReactElement => (
-  <FlexCol className="w-full gap-2">
-    <FlexCol className="gap-1">
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-        bold
-        className="uppercase tracking-wider"
-      >
-        Campaign updates
-      </Typography>
-      <Typography tag={TypographyTag.H2} type={TypographyType.Title2} bold>
-        What&apos;s new
-      </Typography>
-      <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        Follow the journey — milestones, donations sent, and what&apos;s next.
-      </Typography>
-    </FlexCol>
+export const GivebackUpdates = (): ReactElement => {
+  const { communityEvents, showCommunityFeed } = useGivebackContext();
 
-    <FlexCol className="divide-y divide-border-subtlest-tertiary">
-      {updates.map((update) => (
-        <FlexCol key={update.id} className="gap-2 py-5 first:pt-3">
-          <FlexRow className="items-center gap-2">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption2}
-              bold
-              className="rounded-8 bg-accent-cabbage-flat px-2 py-0.5 uppercase tracking-wider text-accent-cabbage-default"
+  return (
+    <FlexCol className="w-full gap-10">
+      <FlexCol className="gap-2">
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          Milestones, donations sent, and what&apos;s next.
+        </Typography>
+
+        <FlexCol className="divide-y divide-border-subtlest-tertiary">
+          {updates.map((update) => (
+            <FlexCol
+              key={update.id}
+              className="gap-2 py-5 transition-transform duration-200 first:pt-3 hover:translate-x-1 motion-reduce:transform-none"
             >
-              {update.tag}
-            </Typography>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              {update.date}
-            </Typography>
-          </FlexRow>
-          <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
-            {update.title}
+              <FlexRow className="items-center gap-2">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption2}
+                  bold
+                  className="rounded-8 bg-accent-cabbage-flat px-2 py-0.5 uppercase tracking-wider text-accent-cabbage-default"
+                >
+                  {update.tag}
+                </Typography>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  {update.date}
+                </Typography>
+              </FlexRow>
+              <Typography
+                tag={TypographyTag.H3}
+                type={TypographyType.Title3}
+                bold
+              >
+                {update.title}
+              </Typography>
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+                className="max-w-2xl"
+              >
+                {update.body}
+              </Typography>
+            </FlexCol>
+          ))}
+        </FlexCol>
+      </FlexCol>
+
+      <FlexCol className="gap-3">
+        <FlexRow className="items-center justify-between gap-3">
+          <Typography bold tag={TypographyTag.H3} type={TypographyType.Title3}>
+            Live community activity
           </Typography>
           <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="max-w-2xl"
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
           >
-            {update.body}
+            anonymized by default
           </Typography>
-        </FlexCol>
-      ))}
+        </FlexRow>
+
+        {showCommunityFeed && communityEvents.length ? (
+          <FlexCol className="divide-y divide-border-subtlest-tertiary">
+            {communityEvents.map((event) => (
+              <FlexRow
+                key={event.id}
+                className="items-start justify-between gap-3 py-3"
+              >
+                <FlexCol className="gap-0.5">
+                  <Typography bold type={TypographyType.Footnote}>
+                    {event.actorLabel} {event.actionLabel}
+                  </Typography>
+                  {event.causeName && (
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                    >
+                      Supporting {event.causeName}
+                    </Typography>
+                  )}
+                </FlexCol>
+                <Typography
+                  bold
+                  type={TypographyType.Footnote}
+                  className="text-status-success"
+                >
+                  {event.amount
+                    ? formatDonationAmount(event.amount, event.currency)
+                    : 'Love'}
+                </Typography>
+              </FlexRow>
+            ))}
+          </FlexCol>
+        ) : (
+          <FlexCol className="items-center gap-1 py-10 text-center">
+            <Typography bold type={TypographyType.Callout}>
+              Community feed hidden
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Use the QA panel to show or hide anonymized community activity.
+            </Typography>
+          </FlexCol>
+        )}
+      </FlexCol>
     </FlexCol>
-  </FlexCol>
-);
+  );
+};

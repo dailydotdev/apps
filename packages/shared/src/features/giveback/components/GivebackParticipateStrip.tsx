@@ -27,7 +27,7 @@ export const GivebackParticipateStrip = (): ReactElement => {
   const hasContributed = contribution > 0;
 
   return (
-    <section className="w-full rounded-16 bg-accent-cabbage-flat p-4 tablet:p-5">
+    <section className="w-full rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-5">
       <div className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
         <FlexCol className="gap-1">
           <FlexRow className="items-baseline gap-2">
@@ -76,6 +76,7 @@ export const GivebackParticipateStrip = (): ReactElement => {
             size={ButtonSize.Medium}
             icon={<StarIcon />}
             onClick={() => setActiveTab('actions')}
+            className="shadow-2-cabbage transition-transform duration-200 hover:scale-[1.03] active:scale-100 motion-reduce:transform-none"
           >
             Start contributing
           </Button>

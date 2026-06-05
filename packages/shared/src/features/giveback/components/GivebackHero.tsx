@@ -17,11 +17,17 @@ export const GivebackHero = (): ReactElement => {
     <section className="relative w-full overflow-hidden">
       <div
         aria-hidden
-        className="bg-accent-cabbage-default/20 pointer-events-none absolute -left-24 -top-24 size-80 rounded-full blur-3xl"
+        className="bg-accent-cabbage-default/25 pointer-events-none absolute -left-24 -top-24 size-80 rounded-full blur-3xl motion-safe:animate-glow-pulse"
       />
       <div
         aria-hidden
-        className="bg-accent-onion-default/15 pointer-events-none absolute -right-10 top-10 size-72 rounded-full blur-3xl"
+        className="bg-accent-onion-default/20 pointer-events-none absolute -right-10 top-10 size-72 rounded-full blur-3xl motion-safe:animate-glow-pulse"
+        style={{ animationDelay: '1s' }}
+      />
+      <div
+        aria-hidden
+        className="bg-accent-cheese-default/15 pointer-events-none absolute -bottom-16 left-1/3 size-64 rounded-full blur-3xl motion-safe:animate-glow-pulse"
+        style={{ animationDelay: '2s' }}
       />
 
       <FlexCol className="relative gap-10 py-2">
@@ -65,7 +71,7 @@ export const GivebackHero = (): ReactElement => {
 
           <FlexCol className="gap-5">
             <GivebackFundingSummary />
-            <div className="border-t border-border-subtlest-tertiary" />
+            <div className="via-accent-cabbage-default/30 h-px w-full bg-gradient-to-r from-transparent to-transparent" />
             <GivebackStartPanel />
           </FlexCol>
         </div>

@@ -10,6 +10,8 @@ import type {
   GivebackCommunityEvent,
   GivebackDonationAccounting,
   GivebackLevel,
+  GivebackSponsor,
+  GivebackSponsorInput,
   GivebackUserAction,
   GivebackUserProfile,
 } from './types';
@@ -25,6 +27,7 @@ import {
   givebackCauses,
   givebackCommunityEvents,
   givebackLevels,
+  givebackSponsors,
   givebackUserActions,
 } from './mock';
 
@@ -43,6 +46,7 @@ export interface GivebackContextValue {
   submitAction: (input: GivebackActionSubmissionInput) => void;
   toggleCause: (causeId: string) => void;
   suggestCause: (input: GivebackCauseSuggestionInput) => void;
+  sponsorCampaign: (input: GivebackSponsorInput) => void;
   setUserActionStatus: (
     actionId: string,
     status: GivebackUserActionStatus,
@@ -76,6 +80,13 @@ const DEFAULT_GOAL_PERCENTAGE = Math.round(
   (baseCampaign.approvedAmount / baseCampaign.goalAmount) * 100,
 );
 
+// Sponsorships seeded into the mock are already reflected in the baseline raised
+// amount, so only sponsorships added during the session top the pot up further.
+const SEED_SPONSORED_AMOUNT = givebackSponsors.reduce(
+  (sum, sponsor) => sum + sponsor.amount,
+  0,
+);
+
 interface GivebackProviderProps {
   children: ReactNode;
 }
@@ -93,6 +104,7 @@ export const GivebackProvider = ({
     baseProfile.selectedCauseIds,
   );
   const [suggestedCauses, setSuggestedCauses] = useState<GivebackCause[]>([]);
+  const [sponsors, setSponsors] = useState<GivebackSponsor[]>(givebackSponsors);
   const [showCommunityFeed, setShowCommunityFeed] = useState(true);
   const [geoAvailability, setGeoAvailability] = useState<
     'available' | 'waitlist'
@@ -182,6 +194,32 @@ export const GivebackProvider = ({
         category: category?.trim() || 'Community suggestion',
         status: GivebackCauseStatus.PendingReview,
         sortOrder: ACTIVE_CAUSES.length + current.length + 1,
+      },
+      ...current,
+    ]);
+  };
+
+  const sponsorCampaign = ({
+    name,
+    type,
+    amount,
+    message,
+  }: GivebackSponsorInput): void => {
+    const trimmedName = name.trim();
+
+    if (!trimmedName || amount <= 0) {
+      return;
+    }
+
+    setSponsors((current) => [
+      {
+        id: `sponsor-${Date.now().toString()}`,
+        name: trimmedName,
+        type,
+        amount,
+        currency: baseCampaign.currency,
+        message: message?.trim() || undefined,
+        createdAt: new Date().toISOString(),
       },
       ...current,
     ]);
@@ -279,12 +317,21 @@ export const GivebackProvider = ({
         rejectedDonationAmount: 0,
       },
     );
-    const approvedAmount = Math.round(
+    const sponsoredAmount = sponsors.reduce(
+      (sum, sponsor) => sum + sponsor.amount,
+      0,
+    );
+    const baseApprovedAmount = Math.round(
       (baseCampaign.goalAmount * goalPercentage) / 100,
     );
+    // New sponsorships top the pot up on top of the baseline raised amount.
+    const approvedAmount =
+      baseApprovedAmount + (sponsoredAmount - SEED_SPONSORED_AMOUNT);
     const campaign: GivebackCampaign = {
       ...baseCampaign,
       approvedAmount,
+      sponsoredAmount,
+      sponsors,
     };
 
     const activeLevel =
@@ -323,6 +370,7 @@ export const GivebackProvider = ({
       submitAction,
       toggleCause,
       suggestCause,
+      sponsorCampaign,
       setUserActionStatus,
       showCommunityFeed,
       setShowCommunityFeed,
@@ -344,6 +392,7 @@ export const GivebackProvider = ({
     selectedCategory,
     selectedCauseIds,
     showCommunityFeed,
+    sponsors,
     suggestedCauses,
     userActions,
     userLevel,

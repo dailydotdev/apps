@@ -117,7 +117,7 @@ export const ActionCatalog = (): ReactElement => {
     donationAccounting.rejectedDonationAmount;
 
   return (
-    <GivebackSection id="giveback-actions" title="Take action">
+    <GivebackSection id="giveback-actions">
       <FlexCol className="gap-1">
         <Typography
           type={TypographyType.Caption1}

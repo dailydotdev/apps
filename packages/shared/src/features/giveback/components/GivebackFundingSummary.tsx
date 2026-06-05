@@ -9,6 +9,7 @@ import {
 } from '../../../components/typography/Typography';
 import { ProgressBar } from '../../../components/fields/ProgressBar';
 import { useGivebackContext } from '../GivebackContext';
+import { useCountUp, useInView } from '../useGivebackMotion';
 import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
 import { GivebackMeterShine } from './GivebackMeterShine';
 
@@ -20,6 +21,8 @@ export const GivebackFundingSummary = (): ReactElement => {
     campaign.approvedAmount,
     campaign.goalAmount,
   );
+  const { ref: meterRef, inView } = useInView<HTMLDivElement>();
+  const animatedPercentage = useCountUp(Math.round(percentage), inView);
   return (
     <FlexCol className="gap-3">
       <FlexRow className="items-end gap-2">
@@ -37,19 +40,19 @@ export const GivebackFundingSummary = (): ReactElement => {
         </Typography>
       </FlexRow>
 
-      <div className="relative">
+      <div className="relative" ref={meterRef}>
         <ProgressBar
-          percentage={percentage}
+          percentage={animatedPercentage}
           shouldShowBg
           className={{
             wrapper: 'h-3 rounded-12',
-            bar: 'h-full rounded-12 transition-[width] duration-500',
+            bar: 'h-full rounded-12 transition-[width] duration-700 ease-out',
             barColor:
               'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default',
           }}
         />
         <GivebackMeterShine
-          percentage={percentage}
+          percentage={animatedPercentage}
           radiusClassName="rounded-12"
         />
       </div>

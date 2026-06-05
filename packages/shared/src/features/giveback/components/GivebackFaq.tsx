@@ -66,7 +66,7 @@ export const GivebackFaq = (): ReactElement => {
   const [openId, setOpenId] = useState<string | null>(faqs[0].id);
 
   return (
-    <GivebackSection id="giveback-faq" title="Frequently asked questions">
+    <GivebackSection id="giveback-faq">
       <div className="divide-y divide-border-subtlest-tertiary">
         {faqs.map((faq) => {
           const isOpen = openId === faq.id;
@@ -77,33 +77,46 @@ export const GivebackFaq = (): ReactElement => {
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => setOpenId(isOpen ? null : faq.id)}
-                className="flex w-full items-center justify-between gap-4 py-4 text-left"
+                className="group flex w-full items-center justify-between gap-4 py-4 text-left"
               >
                 <Typography
                   tag={TypographyTag.Span}
                   bold
                   type={TypographyType.Callout}
+                  className={classNames(
+                    'transition-colors',
+                    !isOpen && 'group-hover:text-text-secondary',
+                  )}
                 >
                   {faq.question}
                 </Typography>
                 <ArrowIcon
                   size={IconSize.Small}
                   className={classNames(
-                    'shrink-0 text-text-tertiary transition-transform',
-                    isOpen ? 'rotate-0' : 'rotate-180',
+                    'shrink-0 transition-transform duration-300 ease-out',
+                    isOpen
+                      ? 'rotate-0 text-accent-cabbage-default'
+                      : 'rotate-180 text-text-tertiary group-hover:text-text-primary',
                   )}
                 />
               </button>
-              {isOpen && (
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                  className="max-w-2xl pb-4"
-                >
-                  {faq.answer}
-                </Typography>
-              )}
+              <div
+                className={classNames(
+                  'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
+                  isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                )}
+              >
+                <div className="overflow-hidden">
+                  <Typography
+                    tag={TypographyTag.P}
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Secondary}
+                    className="max-w-2xl pb-4"
+                  >
+                    {faq.answer}
+                  </Typography>
+                </div>
+              </div>
             </div>
           );
         })}

@@ -52,7 +52,7 @@ export const ActionCard = ({
     <>
       <FlexRow className="items-start justify-between gap-3">
         <FlexRow className="min-w-0 items-center gap-2.5">
-          <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-14 bg-white">
+          <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-14 bg-white transition-transform duration-200 group-hover:scale-105">
             <Icon secondary size={IconSize.Large} />
           </span>
           <Typography
@@ -123,9 +123,12 @@ export const ActionCard = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
             bold
-            className="ml-auto transition-colors group-hover:text-text-primary"
+            className="ml-auto inline-flex items-center gap-0.5 transition-colors group-hover:text-text-primary"
           >
-            Submit proof ›
+            Submit proof
+            <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">
+              ›
+            </span>
           </Typography>
         )}
       </FlexRow>
@@ -138,7 +141,7 @@ export const ActionCard = ({
         type="button"
         aria-label={`Submit proof for ${action.title}`}
         onClick={() => onSubmit?.(action)}
-        className="group flex h-full w-full flex-col gap-3 rounded-16 bg-surface-float p-4 text-left transition-colors hover:bg-surface-hover"
+        className="group flex h-full w-full flex-col gap-3 rounded-16 bg-surface-float p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-hover hover:shadow-2 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none"
       >
         {content}
       </button>
