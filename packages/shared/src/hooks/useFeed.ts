@@ -29,6 +29,7 @@ import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
+import { getAdSlotIndex } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
@@ -268,6 +269,13 @@ export default function useFeed<T>(
   );
 
   const { fetchAd } = useFetchAd();
+  // Per-mount random seed for ad jitter. Stable across re-renders/pagination
+  // (so ads don't visibly jump as new pages load) but varies across mounts and
+  // sessions, so the same user doesn't see ads in the same spots every visit.
+  const adJitterSeedRef = useRef<string>();
+  if (!adJitterSeedRef.current) {
+    adJitterSeedRef.current = Math.random().toString(36).slice(2);
+  }
   const adsQuery = useInfiniteQuery<
     Ad,
     ClientError,
@@ -318,20 +326,19 @@ export default function useFeed<T>(
         adTemplate?.adStart ??
         featureFeedAdTemplate.defaultValue.default.adStart;
       const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
+      const adJitter = adTemplate?.adJitter ?? 0;
 
-      const adIndex = index - adStart; // 0-based index from adStart
+      const adPage = getAdSlotIndex({
+        index,
+        adStart,
+        adRepeat,
+        adJitter,
+        seed: adJitterSeedRef.current ?? '',
+      });
 
-      // if adIndex is negative, it means we are not supposed to show ads yet based on adStart
-      if (adIndex < 0) {
+      if (adPage === undefined) {
         return undefined;
       }
-      const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
-
-      if (!adMatch) {
-        return undefined;
-      }
-
-      const adPage = adIndex / adRepeat; // page number for ad
 
       if (isLoading) {
         return createPlaceholderItem(adPage);
@@ -365,6 +372,7 @@ export default function useFeed<T>(
       isLoading,
       adTemplate?.adStart,
       adTemplate?.adRepeat,
+      adTemplate?.adJitter,
       adsUpdatedAt,
       pageSize,
     ],
