@@ -22,7 +22,6 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DownvoteIcon, UpvoteIcon } from '../../../components/icons';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { usePersonaQuiz } from './persona/usePersonaQuiz';
 import type { AnswerValue } from './persona/engine';
 import type { DeveloperPersona } from './persona/data';
@@ -38,14 +37,19 @@ type MascotSize = 'sm' | 'md' | 'lg';
 const MASCOT_VIDEO_SIZE: Record<MascotSize, string> = {
   sm: 'h-32 w-32',
   md: 'h-48 w-48',
-  lg: 'h-96 w-96',
+  // Patchy stays compact on mobile so the bubble and answers keep room, then
+  // grows to full size beside the content on laptop.
+  lg: 'h-32 w-32 tablet:h-40 tablet:w-40 laptop:h-96 laptop:w-96',
 };
 
 const MASCOT_EMOJI_SIZE: Record<MascotSize, string> = {
   sm: 'text-6xl',
   md: 'text-[6rem]',
-  lg: 'text-[12rem]',
+  lg: 'text-7xl tablet:text-8xl laptop:text-[12rem]',
 };
+
+// Patchy sits above the bubble on mobile and to its right on laptop.
+const MASCOT_STAGE_CLASS = 'order-first shrink-0 laptop:order-none';
 
 type MascotState =
   | 'thinking'
@@ -298,7 +302,12 @@ const SpeechBubble = ({
     )}
   >
     {children}
-    {/* Tail points at Patchy, who only sits beside the bubble on laptop. */}
+    {/* On mobile Patchy sits above the bubble, so the tail points up. */}
+    <span
+      aria-hidden
+      className="absolute left-1/2 top-0 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rotate-45 border-l-2 border-t-2 border-border-subtlest-tertiary bg-background-default laptop:hidden"
+    />
+    {/* On laptop Patchy sits to the right, so the tail points right. */}
     <span
       aria-hidden
       className="absolute right-0 top-1/2 hidden h-8 w-8 -translate-y-1/2 translate-x-1/2 rotate-45 border-r-2 border-t-2 border-border-subtlest-tertiary bg-background-default laptop:block"
@@ -315,13 +324,15 @@ interface QuizStageProps {
 }
 
 // Shared skeleton for the intro, question and reveal screens: a top progress
-// header (reserved on every screen) above a centered bubble + Patchy row.
+// header (reserved on every screen) above the bubble + Patchy. On mobile Patchy
+// stacks on top with actions anchored to the bottom thumb zone; on laptop they
+// sit side by side as a centered row.
 const QuizStage = ({
   progress,
   mascot,
   children,
 }: QuizStageProps): ReactElement => (
-  <div className="flex flex-1 flex-col px-6 py-10">
+  <div className="flex flex-1 flex-col px-4 py-6 tablet:px-6 laptop:py-10">
     <div
       aria-hidden={!progress}
       className={classNames(
@@ -350,11 +361,9 @@ const QuizStage = ({
         />
       </div>
     </div>
-    <div className="flex flex-1 items-center justify-center">
-      <div className="flex w-full max-w-screen-laptop items-center justify-center gap-6">
-        {children}
-        {mascot}
-      </div>
+    <div className="mx-auto mt-8 flex w-full max-w-screen-laptop flex-1 flex-col items-center gap-4 laptop:mt-0 laptop:flex-row laptop:items-center laptop:justify-center laptop:gap-6">
+      {children}
+      {mascot}
     </div>
   </div>
 );
@@ -428,9 +437,6 @@ function FunnelPersonaQuizComponent({
     toggleModifier,
   } = usePersonaQuiz();
 
-  // Patchy only shows beside the content on laptop, mirroring the question
-  // layout; on smaller screens there is no mascot to wait for.
-  const isLaptop = useViewSize(ViewSize.Laptop);
   // Which clip plays during the thinking beat, chosen per answer.
   const [thinkingClip, setThinkingClip] = useState<MascotState>('thinking');
   // On the reveal we hold the answer back until Patchy finishes his animation.
@@ -441,14 +447,16 @@ function FunnelPersonaQuizComponent({
       return undefined;
     }
     setRevealReady(false);
-    if (!mascotVideoBaseUrl || !isLaptop) {
+    // Patchy now plays the reveal on every breakpoint, so wait for his
+    // animation whenever there is a video to wait for.
+    if (!mascotVideoBaseUrl) {
       setRevealReady(true);
       return undefined;
     }
     // Fallback in case the video never reports progress (e.g. blocked autoplay).
     const timeout = setTimeout(() => setRevealReady(true), 2500);
     return () => clearTimeout(timeout);
-  }, [phase, mascotVideoBaseUrl, isLaptop]);
+  }, [phase, mascotVideoBaseUrl]);
 
   const handleAnswer = (value: AnswerValue) => {
     if (isThinking) {
@@ -483,11 +491,11 @@ function FunnelPersonaQuizComponent({
             clips={['onpath']}
             idleClips={IDLE_CLIPS}
             size="lg"
-            className="hidden shrink-0 laptop:block"
+            className={MASCOT_STAGE_CLASS}
           />
         }
       >
-        <div className="flex w-full max-w-xl flex-col items-center gap-8">
+        <div className="flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none">
           <SpeechBubble>
             <div className="flex flex-col gap-4">
               <Typography
@@ -506,8 +514,9 @@ function FunnelPersonaQuizComponent({
               </Typography>
             </div>
           </SpeechBubble>
-          <div className="flex flex-col items-center gap-3">
+          <div className="mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto">
             <Button
+              className="w-full laptop:w-auto"
               variant={ButtonVariant.Primary}
               size={ButtonSize.XLarge}
               onClick={start}
@@ -586,11 +595,11 @@ function FunnelPersonaQuizComponent({
             clips={['unsure']}
             idleClips={IDLE_CLIPS}
             size="lg"
-            className="hidden shrink-0 laptop:block"
+            className={MASCOT_STAGE_CLASS}
           />
         }
       >
-        <div className="flex w-full flex-col items-center gap-8">
+        <div className="flex w-full flex-1 flex-col items-center gap-8 laptop:flex-none">
           <SpeechBubble className="max-w-xl">
             <div className="flex flex-col gap-4">
               <Typography
@@ -632,11 +641,11 @@ function FunnelPersonaQuizComponent({
             clips={['unsure']}
             idleClips={IDLE_CLIPS}
             size="lg"
-            className="hidden shrink-0 laptop:block"
+            className={MASCOT_STAGE_CLASS}
           />
         }
       >
-        <div className="flex w-full flex-col items-center gap-8">
+        <div className="flex w-full flex-1 flex-col items-center gap-8 laptop:flex-none">
           <SpeechBubble className="max-w-xl">
             <div className="flex flex-col gap-4">
               <Typography
@@ -665,6 +674,7 @@ function FunnelPersonaQuizComponent({
             ))}
           </div>
           <Button
+            className="mt-auto laptop:mt-0"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
             onClick={pickManually}
@@ -687,11 +697,11 @@ function FunnelPersonaQuizComponent({
             clips={['onpath']}
             idleClips={IDLE_CLIPS}
             size="lg"
-            className="hidden shrink-0 laptop:block"
+            className={MASCOT_STAGE_CLASS}
           />
         }
       >
-        <div className="flex w-full max-w-xl flex-col items-center gap-8">
+        <div className="flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none">
           <SpeechBubble>
             <div className="flex flex-col gap-4">
               <Typography
@@ -757,6 +767,7 @@ function FunnelPersonaQuizComponent({
             })}
           </div>
           <Button
+            className="mt-auto w-full laptop:mt-0 laptop:w-auto"
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
             onClick={handleComplete}
@@ -783,11 +794,11 @@ function FunnelPersonaQuizComponent({
             idleClips={IDLE_CLIPS}
             size="lg"
             onHalfway={() => setRevealReady(true)}
-            className="hidden shrink-0 laptop:block"
+            className={MASCOT_STAGE_CLASS}
           />
         }
       >
-        <div className="flex w-full max-w-xl flex-col items-center gap-8">
+        <div className="flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none">
           {revealReady && (
             <>
               <SpeechBubble>
@@ -813,10 +824,11 @@ function FunnelPersonaQuizComponent({
               <div
                 className={classNames(
                   styles.revealActions,
-                  'flex flex-col items-center gap-3',
+                  'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto',
                 )}
               >
                 <Button
+                  className="w-full laptop:w-auto"
                   variant={ButtonVariant.Primary}
                   size={ButtonSize.XLarge}
                   onClick={confirmPersona}
@@ -853,7 +865,7 @@ function FunnelPersonaQuizComponent({
           size="lg"
           playing={isThinking}
           playbackRate={thinkingClip === 'thinking' ? 1.8 : 1}
-          className="hidden shrink-0 laptop:block"
+          className={MASCOT_STAGE_CLASS}
         />
       }
     >
@@ -861,7 +873,7 @@ function FunnelPersonaQuizComponent({
         key={`question-${questionNumber}`}
         className={classNames(
           styles.questionIn,
-          'flex w-full max-w-xl flex-col items-center gap-8',
+          'flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none',
         )}
       >
         <SpeechBubble>
@@ -873,7 +885,7 @@ function FunnelPersonaQuizComponent({
             {questionText}
           </Typography>
         </SpeechBubble>
-        <div className="relative mx-auto w-full max-w-md">
+        <div className="relative mx-auto mt-auto w-full max-w-md laptop:mt-0">
           <div
             className={classNames(
               'flex flex-col gap-3 transition-opacity duration-200',
