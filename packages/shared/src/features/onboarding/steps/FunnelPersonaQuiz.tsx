@@ -873,10 +873,15 @@ function FunnelPersonaQuizComponent({
         key={`question-${questionNumber}`}
         className={classNames(
           styles.questionIn,
-          'flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none',
+          'relative flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none',
         )}
       >
-        <SpeechBubble>
+        <SpeechBubble
+          className={classNames(
+            'transition-opacity duration-200',
+            isThinking && 'opacity-0',
+          )}
+        >
           <Typography
             tag={TypographyTag.H2}
             type={TypographyType.LargeTitle}
@@ -885,7 +890,7 @@ function FunnelPersonaQuizComponent({
             {questionText}
           </Typography>
         </SpeechBubble>
-        <div className="relative mx-auto mt-auto w-full max-w-md laptop:mt-0">
+        <div className="mx-auto mt-auto w-full max-w-md laptop:mt-0">
           <div
             className={classNames(
               'flex flex-col gap-3 transition-opacity duration-200',
@@ -927,12 +932,12 @@ function FunnelPersonaQuizComponent({
               Not sure
             </Button>
           </div>
-          {isThinking && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <ThinkingDots />
-            </div>
-          )}
         </div>
+        {isThinking && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ThinkingDots />
+          </div>
+        )}
       </div>
     </QuizStage>
   );

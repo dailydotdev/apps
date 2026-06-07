@@ -3,11 +3,9 @@
 @keyframes question-in {
   from {
     opacity: 0;
-    transform: translateY(16px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -36,7 +34,7 @@
 }
 
 .questionIn {
-  animation: question-in 0.35s ease both;
+  animation: question-in 0.2s ease both;
 }
 
 .dot {
