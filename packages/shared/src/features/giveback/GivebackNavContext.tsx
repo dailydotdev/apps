@@ -1,15 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { createContext, useContext } from 'react';
 
-export type GivebackTabId =
-  | 'causes'
-  | 'impact'
-  | 'why'
-  | 'sponsors'
-  | 'actions'
-  | 'updates'
-  | 'comments'
-  | 'faq';
+export type GivebackTabId = 'impact' | 'why' | 'actions';
 
 interface GivebackNavContextValue {
   // Whether the visitor has opted in from the hero gateway. Until then the

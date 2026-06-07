@@ -22,15 +22,15 @@ const impactOutcomes: {
   accent: string;
 }[] = [
   {
-    value: '3,200 students',
-    label: 'introduced to computer science',
-    cause: 'Code.org',
+    value: '3,200 learners',
+    label: 'start coding for free',
+    cause: 'freeCodeCamp',
     accent: 'text-accent-cabbage-default',
   },
   {
-    value: '750 girls',
-    label: 'join their first coding club',
-    cause: 'Girls Who Code',
+    value: '40 maintainers',
+    label: 'funded to keep critical tools alive',
+    cause: 'Python Software Foundation',
     accent: 'text-accent-cheese-default',
   },
   {
@@ -40,9 +40,9 @@ const impactOutcomes: {
     accent: 'text-accent-avocado-default',
   },
   {
-    value: '1,100 people',
-    label: 'with their digital rights defended',
-    cause: 'EFF',
+    value: '250 people',
+    label: 'keep browsing the web with a screen reader',
+    cause: 'NV Access',
     accent: 'text-accent-onion-default',
   },
 ];

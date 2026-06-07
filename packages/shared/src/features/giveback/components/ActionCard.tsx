@@ -11,12 +11,10 @@ import { FlexCol, FlexRow } from '../../../components/utilities';
 import { IconSize } from '../../../components/Icon';
 import type { GivebackAction, GivebackUserAction } from '../types';
 import { GivebackUserActionStatus } from '../types';
-import { formatDonationAmount } from '../utils';
-import {
-  getUserActionStatusClassName,
-  getUserActionStatusLabel,
-} from '../statusLabels';
+import { formatCompactNumber, formatDonationAmount } from '../utils';
 import { actionPlatformVisual } from '../actionPlatform';
+import { StarIcon, TimerIcon, VIcon } from '../../../components/icons';
+import { GivebackContributorFaces } from './GivebackContributorFaces';
 
 interface ActionCardProps {
   action: GivebackAction;
@@ -27,45 +25,89 @@ interface ActionCardProps {
 const getStatus = (userAction?: GivebackUserAction): GivebackUserActionStatus =>
   userAction?.status ?? GivebackUserActionStatus.NotStarted;
 
+// One sharp, explicit title carries the ask — no competing subtitle. The
+// supporting details (payout, social proof, "Popular") sit in a calm top/bottom
+// frame around it so the card stays easy to scan at a glance.
 export const ActionCard = ({
   action,
   userAction,
   onSubmit,
 }: ActionCardProps): ReactElement => {
   const status = getStatus(userAction);
-  const isUnavailable =
-    status === GivebackUserActionStatus.Expired ||
-    status === GivebackUserActionStatus.Rejected;
-  const canSubmit =
-    !action.isLoveAction &&
-    action.donationEligible &&
-    [
-      GivebackUserActionStatus.NotStarted,
-      GivebackUserActionStatus.Started,
-      GivebackUserActionStatus.NeedsMoreInfo,
-    ].includes(status);
-  const isInteractive = canSubmit && !!onSubmit;
-  const showStatus = status !== GivebackUserActionStatus.NotStarted;
+  const isCompleted =
+    status === GivebackUserActionStatus.Approved ||
+    status === GivebackUserActionStatus.CountedTowardGoal;
+  const isInReview =
+    status === GivebackUserActionStatus.Submitted ||
+    status === GivebackUserActionStatus.PendingReview ||
+    status === GivebackUserActionStatus.AutoValidating;
+  // "Done" = you've already acted on it, so it locks into a flat, dimmed claimed
+  // state. Everything else (including expired/rejected) stays clickable to retry.
+  const isDone = isCompleted || isInReview;
+  // Every actionable (not-yet-done) card is clickable — including "just for
+  // love" ones, which open a compliant appreciation view instead of the proof
+  // flow (they carry no reward/donation).
+  const isInteractive = !isDone && !!onSubmit;
   const { Icon, name: platformName } = actionPlatformVisual[action.platform];
+
+  const doneMeta = isCompleted
+    ? { label: 'Done', Icon: VIcon }
+    : { label: 'In review', Icon: TimerIcon };
+
+  const contributorsCount = action.contributorsCount ?? 0;
+  const contributorsLast24h = action.contributorsLast24h ?? 0;
 
   const content: ReactNode = (
     <>
       <FlexRow className="items-start justify-between gap-3">
         <FlexRow className="min-w-0 items-center gap-2.5">
-          <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-14 bg-white transition-transform duration-200 group-hover:scale-105">
+          <span
+            className={classNames(
+              'flex size-[2.375rem] shrink-0 items-center justify-center overflow-hidden rounded-12 transition-transform duration-200',
+              isDone
+                ? 'bg-surface-float opacity-40 grayscale'
+                : 'bg-white shadow-1 group-hover:scale-105',
+            )}
+          >
             <Icon secondary size={IconSize.Large} />
           </span>
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            bold
-            className="truncate uppercase tracking-wider"
-          >
-            {platformName}
-          </Typography>
+          <FlexCol className="min-w-0 gap-1">
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              bold
+              className="truncate uppercase tracking-wider"
+            >
+              {platformName}
+            </Typography>
+            {action.isTrending && (
+              <FlexRow className="w-fit items-center gap-1 rounded-full bg-accent-cabbage-flat px-2 py-0.5 text-accent-cabbage-default">
+                <StarIcon secondary size={IconSize.XXSmall} />
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption2}
+                  bold
+                  className="uppercase tracking-wide"
+                >
+                  Popular
+                </Typography>
+              </FlexRow>
+            )}
+          </FlexCol>
         </FlexRow>
-        {action.isLoveAction ? (
+        {isDone ? (
+          <FlexRow className="shrink-0 items-center gap-1 text-text-quaternary">
+            <doneMeta.Icon size={IconSize.XSmall} />
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              className="uppercase tracking-wide"
+            >
+              {doneMeta.label}
+            </Typography>
+          </FlexRow>
+        ) : action.isLoveAction ? (
           <Typography
             bold
             type={TypographyType.Caption1}
@@ -77,61 +119,42 @@ export const ActionCard = ({
           <Typography
             bold
             type={TypographyType.Title4}
-            className="shrink-0 tabular-nums text-status-success"
+            className="shrink-0 origin-right tabular-nums text-status-success transition-transform duration-200 group-hover:scale-110 motion-reduce:transform-none"
           >
             +{formatDonationAmount(action.donationAmount, action.currency)}
           </Typography>
         )}
       </FlexRow>
 
-      <FlexCol className="flex-1 gap-1">
-        <Typography bold tag={TypographyTag.H3} type={TypographyType.Callout}>
-          {action.title}
-        </Typography>
-        {action.description && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            className="line-clamp-2"
-          >
-            {action.description}
-          </Typography>
-        )}
-      </FlexCol>
+      <Typography
+        bold
+        tag={TypographyTag.H3}
+        type={TypographyType.Callout}
+        color={isDone ? TypographyColor.Quaternary : undefined}
+        className={classNames('line-clamp-2', isDone && 'line-through')}
+      >
+        {action.title}
+      </Typography>
 
-      <FlexRow className="items-center justify-between gap-2">
-        {action.isLoveAction ? (
+      {contributorsCount > 0 && (
+        <FlexRow className="mt-auto min-w-0 items-center gap-2">
+          <GivebackContributorFaces
+            avatars={action.contributorAvatars ?? []}
+            totalCount={contributorsCount}
+            sizeClassName="size-5"
+          />
           <Typography
+            tag={TypographyTag.Span}
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
+            className="min-w-0 truncate"
           >
-            We can&apos;t pay for this, but we&apos;d genuinely appreciate it.
+            {formatCompactNumber(contributorsCount)} contributed
+            {contributorsLast24h > 0 &&
+              ` · ${formatCompactNumber(contributorsLast24h)} today`}
           </Typography>
-        ) : (
-          showStatus && (
-            <Typography
-              bold
-              type={TypographyType.Caption1}
-              className={getUserActionStatusClassName(status)}
-            >
-              {getUserActionStatusLabel(status)}
-            </Typography>
-          )
-        )}
-        {isInteractive && (
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            bold
-            className="ml-auto inline-flex items-center gap-0.5 transition-colors group-hover:text-text-primary"
-          >
-            Submit proof
-            <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">
-              ›
-            </span>
-          </Typography>
-        )}
-      </FlexRow>
+        </FlexRow>
+      )}
     </>
   );
 
@@ -139,12 +162,40 @@ export const ActionCard = ({
     return (
       <button
         type="button"
-        aria-label={`Submit proof for ${action.title}`}
+        aria-label={
+          action.isLoveAction
+            ? `Show some love: ${action.title}`
+            : `Submit proof for ${action.title}`
+        }
         onClick={() => onSubmit?.(action)}
-        className="group flex h-full w-full flex-col gap-3 rounded-16 bg-surface-float p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-hover hover:shadow-2 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none"
+        className={classNames(
+          'group relative flex h-full w-full flex-col gap-3 overflow-hidden rounded-16 p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none',
+          action.isLoveAction
+            ? 'bg-accent-cabbage-flat'
+            : 'bg-surface-float hover:bg-surface-hover',
+        )}
       >
+        {/* Glossy sheen that sweeps across on hover — a small reward flourish. */}
+        <span
+          aria-hidden
+          className="via-white/10 pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full motion-reduce:hidden"
+        />
         {content}
       </button>
+    );
+  }
+
+  // Already acted on: a flat "claimed" state. No solid fill — just a dashed
+  // outline, a grayscale icon, a struck-through title and a vivid status pill —
+  // so it's unmistakably distinct from the actionable, tappable cards.
+  if (isDone) {
+    return (
+      <div
+        aria-label={`${action.title} — ${doneMeta.label}`}
+        className="flex h-full w-full flex-col gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary bg-transparent p-4"
+      >
+        {content}
+      </div>
     );
   }
 
@@ -153,7 +204,6 @@ export const ActionCard = ({
       className={classNames(
         'flex h-full w-full flex-col gap-3 rounded-16 p-4',
         action.isLoveAction ? 'bg-accent-cabbage-flat' : 'bg-surface-float',
-        isUnavailable && 'opacity-70',
       )}
     >
       {content}

@@ -32,7 +32,7 @@ export const GivebackCampaignVideo = (): ReactElement => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
-    <FlexCol className="gap-2">
+    <FlexCol className="w-full gap-2">
       <div className="group relative aspect-video w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float">
         {isPlaying ? (
           <iframe

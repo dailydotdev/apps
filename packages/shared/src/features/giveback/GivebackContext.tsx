@@ -14,10 +14,13 @@ import type {
   GivebackCause,
   GivebackCauseSuggestionInput,
   GivebackCommunityEvent,
+  GivebackCommunityRally,
   GivebackDonationAccounting,
+  GivebackLeaderboardEntry,
   GivebackLevel,
   GivebackSponsor,
   GivebackSponsorInput,
+  GivebackTopContributor,
   GivebackUserAction,
   GivebackUserProfile,
 } from './types';
@@ -32,8 +35,11 @@ import {
   givebackActions,
   givebackCauses,
   givebackCommunityEvents,
+  givebackCommunityRally,
+  givebackLeaderboard,
   givebackLevels,
   givebackSponsors,
+  givebackTopContributors,
   givebackUserActions,
 } from './mock';
 
@@ -73,6 +79,9 @@ export interface GivebackContextValue {
   causes: GivebackCause[];
   suggestedCauses: GivebackCause[];
   communityEvents: GivebackCommunityEvent[];
+  topContributors: GivebackTopContributor[];
+  leaderboard: GivebackLeaderboardEntry[];
+  communityRally: GivebackCommunityRally;
   donationAccounting: GivebackDonationAccounting;
   submitAction: (input: GivebackActionSubmissionInput) => void;
   toggleCause: (causeId: string) => void;
@@ -453,6 +462,9 @@ export const GivebackProvider = ({
       causes: ACTIVE_CAUSES,
       suggestedCauses,
       communityEvents: showCommunityFeed ? givebackCommunityEvents : [],
+      topContributors: givebackTopContributors,
+      leaderboard: givebackLeaderboard,
+      communityRally: givebackCommunityRally,
       donationAccounting,
       submitAction,
       toggleCause,

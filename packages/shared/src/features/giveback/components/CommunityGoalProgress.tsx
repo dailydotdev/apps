@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
@@ -15,18 +15,18 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { useGivebackContext } from '../GivebackContext';
-import { useGivebackNav } from '../GivebackNavContext';
 import { useCountUp, useInView } from '../useGivebackMotion';
 import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
 import { GivebackSection } from './GivebackSection';
 import { GivebackMeterShine } from './GivebackMeterShine';
 import { SponsorBudgetBar } from './SponsorBudgetBar';
+import { GivebackSponsorModal } from './GivebackSponsorModal';
 
 const milestones = [25, 50, 75, 100];
 
 export const CommunityGoalProgress = (): ReactElement => {
   const { campaign } = useGivebackContext();
-  const { setActiveTab } = useGivebackNav();
+  const [isSponsorModalOpen, setIsSponsorModalOpen] = useState(false);
   const percentage = getGoalProgressPercentage(
     campaign.approvedAmount,
     campaign.goalAmount,
@@ -38,194 +38,172 @@ export const CommunityGoalProgress = (): ReactElement => {
   const animatedPercentage = useCountUp(Math.round(percentage), inView);
   const animatedAmount = useCountUp(campaign.approvedAmount, inView, 900);
 
-  const remaining = Math.max(campaign.goalAmount - campaign.approvedAmount, 0);
   const sponsorGoalShare = campaign.goalAmount
     ? Math.round((campaign.sponsoredAmount / campaign.goalAmount) * 100)
     : 0;
-
-  // The funding-stats triplet every backer scans: who's in, how much is still
-  // needed to hit the budget, and what's being validated right now.
-  const stats: [string, string][] = [
-    ['Backers', campaign.backersCount.toLocaleString('en-US')],
-    ['Still to raise', formatDonationAmount(remaining, campaign.currency)],
-    [
-      'In review',
-      formatDonationAmount(campaign.pendingAmount, campaign.currency),
-    ],
-  ];
+  const hasSponsors = campaign.sponsoredAmount > 0;
 
   return (
-    <GivebackSection
-      id="giveback-goal"
-      title="Funding progress"
-      headerActions={
-        <FlexCol className="text-right">
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            Goal
-          </Typography>
-          <Typography type={TypographyType.Title3} bold>
-            {formatDonationAmount(campaign.goalAmount, campaign.currency)}
-          </Typography>
-        </FlexCol>
-      }
-    >
-      <FlexCol className="gap-3">
-        <FlexRow className="items-end gap-2">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Mega1}
-            bold
-            className="tabular-nums"
-          >
-            {formatDonationAmount(animatedAmount, campaign.currency)}
-          </Typography>
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Title4}
-            color={TypographyColor.Tertiary}
-            className="pb-1"
-          >
-            pledged of{' '}
-            {formatDonationAmount(campaign.goalAmount, campaign.currency)}
-          </Typography>
-        </FlexRow>
-
-        <div className="relative" ref={meterRef}>
-          <ProgressBar
-            percentage={animatedPercentage}
-            shouldShowBg
-            className={{
-              wrapper: 'h-5 rounded-16',
-              bar: 'h-full rounded-16 transition-[width] duration-700 ease-out',
-              barColor:
-                'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default',
-            }}
-          />
-          <GivebackMeterShine percentage={animatedPercentage} />
-          <FlexRow className="absolute left-0 right-0 top-0 h-5 items-center justify-between px-1">
-            {milestones.map((milestone) => (
-              <span
-                key={milestone}
-                className={classNames(
-                  'size-2 rounded-full ring-2 ring-background-default transition-colors duration-300',
-                  animatedPercentage >= milestone
-                    ? 'bg-accent-cheese-default'
-                    : 'bg-accent-pepper-subtler',
-                )}
-              />
-            ))}
-          </FlexRow>
-        </div>
-
-        <FlexRow className="flex-wrap items-center justify-between gap-2">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Callout}
-            color={TypographyColor.StatusSuccess}
-            bold
-          >
-            {Math.round(percentage)}% funded
-          </Typography>
-          {campaign.backersLast24h > 0 && (
-            <FlexRow className="items-center gap-1.5">
-              <span className="relative flex size-2">
-                <span className="bg-accent-avocado-default/60 absolute inline-flex size-full rounded-full motion-safe:animate-glow-pulse" />
-                <span className="relative inline-flex size-2 rounded-full bg-accent-avocado-default" />
-              </span>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                {campaign.backersLast24h} developers backed in the last 24h
-              </Typography>
-            </FlexRow>
+    <GivebackSection id="giveback-goal" title="Funding progress">
+      <FlexCol className="gap-2">
+        <div
+          className={classNames(
+            'grid items-start gap-8',
+            hasSponsors && 'laptop:grid-cols-2 laptop:gap-12',
           )}
-        </FlexRow>
-      </FlexCol>
+        >
+          <FlexCol className="gap-6">
+            <FlexCol className="gap-3">
+              <FlexRow className="items-end gap-2">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Mega1}
+                  bold
+                  className="tabular-nums"
+                >
+                  {formatDonationAmount(animatedAmount, campaign.currency)}
+                </Typography>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Title4}
+                  color={TypographyColor.Tertiary}
+                  className="pb-1"
+                >
+                  pledged of{' '}
+                  {formatDonationAmount(campaign.goalAmount, campaign.currency)}
+                </Typography>
+              </FlexRow>
 
-      <div className="grid grid-cols-3 divide-x divide-border-subtlest-tertiary">
-        {stats.map(([label, value], index) => (
-          <FlexCol
-            key={label}
-            className={classNames(
-              'gap-0.5',
-              index === 1 && 'px-4 tablet:px-6',
-              index === 2 && 'pl-4 tablet:pl-6',
-            )}
-          >
-            <Typography type={TypographyType.Title3} bold>
-              {value}
-            </Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              {label}
-            </Typography>
-          </FlexCol>
-        ))}
-      </div>
+              <div className="relative" ref={meterRef}>
+                <ProgressBar
+                  percentage={animatedPercentage}
+                  shouldShowBg
+                  className={{
+                    wrapper: 'h-5 rounded-16',
+                    bar: 'h-full rounded-16 transition-[width] duration-700 ease-out',
+                    barColor:
+                      'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default',
+                  }}
+                />
+                <GivebackMeterShine percentage={animatedPercentage} />
+                <FlexRow className="absolute left-0 right-0 top-0 h-5 items-center justify-between px-1">
+                  {milestones.map((milestone) => (
+                    <span
+                      key={milestone}
+                      className={classNames(
+                        'size-2 rounded-full ring-2 ring-background-default transition-colors duration-300',
+                        animatedPercentage >= milestone
+                          ? 'bg-accent-cheese-default'
+                          : 'bg-accent-pepper-subtler',
+                      )}
+                    />
+                  ))}
+                </FlexRow>
+              </div>
 
-      {campaign.sponsoredAmount > 0 && (
-        <FlexCol className="gap-2 border-t border-border-subtlest-tertiary pt-4">
-          <FlexRow className="items-center justify-between gap-3">
-            <FlexRow className="items-center gap-2">
-              <span className="size-2.5 shrink-0 rounded-full bg-accent-bacon-default" />
+              <FlexRow className="flex-wrap items-center justify-between gap-2">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Callout}
+                  color={TypographyColor.StatusSuccess}
+                  bold
+                >
+                  {Math.round(percentage)}% funded
+                </Typography>
+                {campaign.backersLast24h > 0 && (
+                  <FlexRow className="items-center gap-1.5">
+                    <span className="relative flex size-2">
+                      <span className="bg-accent-avocado-default/60 absolute inline-flex size-full rounded-full motion-safe:animate-glow-pulse" />
+                      <span className="relative inline-flex size-2 rounded-full bg-accent-avocado-default" />
+                    </span>
+                    <Typography
+                      tag={TypographyTag.Span}
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {campaign.backersLast24h} developers backed in the last
+                      24h
+                    </Typography>
+                  </FlexRow>
+                )}
+              </FlexRow>
+
               <Typography
                 tag={TypographyTag.Span}
                 type={TypographyType.Callout}
-                bold
+                color={TypographyColor.Tertiary}
               >
-                Sponsors topping up the pot
+                <span className="font-bold text-text-primary">
+                  {campaign.backersCount.toLocaleString('en-US')}
+                </span>{' '}
+                total backers
               </Typography>
-            </FlexRow>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Title3}
-              bold
-              className="tabular-nums text-accent-bacon-default"
-            >
-              {formatDonationAmount(
-                campaign.sponsoredAmount,
-                campaign.currency,
-              )}
-            </Typography>
-          </FlexRow>
+            </FlexCol>
+          </FlexCol>
 
-          <SponsorBudgetBar sponsors={campaign.sponsors} />
+          {hasSponsors && (
+            <FlexCol className="gap-2 border-t border-border-subtlest-tertiary pt-4 laptop:border-t-0 laptop:pt-0">
+              <FlexRow className="items-center justify-between gap-3">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Callout}
+                  bold
+                >
+                  Sponsors topping up the pot
+                </Typography>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Title3}
+                  bold
+                  className="tabular-nums text-status-success"
+                >
+                  {formatDonationAmount(
+                    campaign.sponsoredAmount,
+                    campaign.currency,
+                  )}
+                </Typography>
+              </FlexRow>
 
-          <FlexRow className="flex-wrap items-center justify-between gap-2">
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              {sponsorGoalShare}% of the{' '}
-              {formatDonationAmount(campaign.goalAmount, campaign.currency)}{' '}
-              goal · {campaign.sponsors.length} sponsors
-            </Typography>
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Float}
-              onClick={() => setActiveTab('sponsors')}
-            >
-              Become a sponsor
-            </Button>
-          </FlexRow>
-        </FlexCol>
+              <SponsorBudgetBar
+                sponsors={campaign.sponsors}
+                onSelect={() => setIsSponsorModalOpen(true)}
+              />
+
+              <FlexCol className="items-start gap-2">
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  {sponsorGoalShare}% of the{' '}
+                  {formatDonationAmount(campaign.goalAmount, campaign.currency)}{' '}
+                  goal · {campaign.sponsors.length} sponsors
+                </Typography>
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Float}
+                  onClick={() => setIsSponsorModalOpen(true)}
+                  className="mt-2"
+                >
+                  Become a sponsor
+                </Button>
+              </FlexCol>
+            </FlexCol>
+          )}
+        </div>
+
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+        >
+          Funded by daily.dev, not you. Only approved actions count toward the
+          goal.
+        </Typography>
+      </FlexCol>
+
+      {isSponsorModalOpen && (
+        <GivebackSponsorModal onClose={() => setIsSponsorModalOpen(false)} />
       )}
-
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-      >
-        Funded by daily.dev, not you. Only approved actions count toward the
-        goal.
-      </Typography>
     </GivebackSection>
   );
 };

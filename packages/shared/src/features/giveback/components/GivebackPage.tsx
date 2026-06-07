@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
   TypographyTag,
@@ -16,122 +16,98 @@ import { CommunityGoalProgress } from './CommunityGoalProgress';
 import { PersonalRoadmap } from './PersonalRoadmap';
 import { GivebackReviewToggle } from './GivebackReviewToggle';
 import { ActionCatalog } from './ActionCatalog';
+import { GivebackLeaderboard } from './GivebackLeaderboard';
 import { CauseSelection } from './CauseSelection';
-import { CommunityImpactSection } from './CommunityImpactSection';
 import { GeoGateFallback } from './GeoGateFallback';
 import { BudgetRedirectStory } from './BudgetRedirectStory';
-import { GivebackParticipateStrip } from './GivebackParticipateStrip';
-import { GivebackStretchGoals } from './GivebackStretchGoals';
 import { GivebackFundingBar } from './GivebackFundingBar';
+import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackFaq } from './GivebackFaq';
-import { GivebackUpdates } from './GivebackUpdates';
-import { GivebackComments } from './GivebackComments';
+import { GivebackCommunityActivity } from './GivebackCommunityActivity';
 import { GivebackReveal } from './GivebackReveal';
-import { GivebackSocialProof } from './GivebackSocialProof';
-import { GivebackSponsors } from './GivebackSponsors';
-import { GivebackClosingCta } from './GivebackClosingCta';
+import { GivebackSponsorTiers } from './GivebackSponsorTiers';
+import { GivebackSelectedCauses } from './GivebackSelectedCauses';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
 import { GivebackBackground } from './GivebackBackground';
 import { GivebackCelebration } from './GivebackCelebration';
 
-// The first run is guided: opt in from the hero, pick causes, then continue to
-// the Impact view (community money + your contribution). The rest are tabs the
-// visitor can jump between freely.
+// The first run is guided: opt in from the hero, pick causes (onboarding, no
+// tabs yet), then the tabs appear. After onboarding, the picked causes are
+// recapped on the Why tab, where they can be suggested or edited (portal).
 const tabs: { id: GivebackTabId; label: string }[] = [
-  { id: 'causes', label: 'Causes' },
-  { id: 'impact', label: 'Impact' },
   { id: 'actions', label: 'Take action' },
-  { id: 'why', label: 'Why' },
-  { id: 'sponsors', label: 'Sponsors' },
-  { id: 'updates', label: 'Updates' },
-  { id: 'comments', label: 'Comments' },
-  { id: 'faq', label: 'FAQ' },
+  { id: 'impact', label: 'Impact' },
+  { id: 'why', label: 'Campaign' },
 ];
+
+const ONBOARDING_HEADER = {
+  title: 'We fund developers, not ads.',
+  highlight: 'You pick causes you care about.',
+};
 
 // One big two-part headline per tab: a white line plus a gradient payoff,
 // matching the hero. Sections beneath only carry small plain sub-titles.
 const tabHeaders: Record<GivebackTabId, { title: string; highlight: string }> =
   {
-    causes: {
-      title: 'We fund developers, not ads.',
-      highlight: 'You pick causes you care about.',
-    },
     impact: {
-      title: 'You take action.',
-      highlight: 'We fund the causes.',
+      title: 'See the impact we build together.',
+      highlight: 'And where you rank.',
     },
     why: {
       title: 'Big tech burns billions just to get noticed.',
       highlight: 'We send ours where it actually changes lives.',
     },
-    sponsors: {
-      title: 'Sponsors top up the budget.',
-      highlight: 'Together we fund more good.',
-    },
     actions: {
       title: 'Take a small action.',
       highlight: 'We turn it into a donation.',
     },
-    updates: {
-      title: 'Follow the journey.',
-      highlight: "See what's moving.",
-    },
-    comments: {
-      title: 'Join the conversation.',
-      highlight: 'Tell us what you think.',
-    },
-    faq: {
-      title: 'Got questions?',
-      highlight: "We've got answers.",
-    },
   };
 
-const GivebackTabHeader = ({ tab }: { tab: GivebackTabId }): ReactElement => {
-  const { title, highlight } = tabHeaders[tab];
+const GivebackHeadline = ({
+  title,
+  highlight,
+}: {
+  title: string;
+  highlight: string;
+}): ReactElement => (
+  <Typography
+    tag={TypographyTag.H2}
+    type={TypographyType.LargeTitle}
+    bold
+    className="max-w-3xl"
+  >
+    {title}
+    <span className="block bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+      {highlight}
+    </span>
+  </Typography>
+);
 
-  return (
-    <Typography
-      tag={TypographyTag.H2}
-      type={TypographyType.LargeTitle}
-      bold
-      className="max-w-3xl"
-    >
-      {title}
-      <span className="block bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-        {highlight}
-      </span>
-    </Typography>
-  );
-};
+const GivebackTabHeader = ({ tab }: { tab: GivebackTabId }): ReactElement => (
+  <GivebackHeadline {...tabHeaders[tab]} />
+);
 
 const renderActivePanel = (tab: GivebackTabId): ReactElement => {
   switch (tab) {
     case 'actions':
       return <ActionCatalog />;
-    case 'causes':
-      return <CauseSelection />;
     case 'why':
       return (
         <FlexCol className="gap-12">
           <BudgetRedirectStory />
-          <GivebackStretchGoals />
-          <CommunityImpactSection />
+          <GivebackSelectedCauses />
+          <GivebackFaq />
         </FlexCol>
       );
-    case 'sponsors':
-      return <GivebackSponsors />;
-    case 'updates':
-      return <GivebackUpdates />;
-    case 'comments':
-      return <GivebackComments />;
-    case 'faq':
-      return <GivebackFaq />;
     case 'impact':
     default:
       return (
         <FlexCol className="gap-12">
           <CommunityGoalProgress />
-          <GivebackParticipateStrip />
+          <div className="grid items-start gap-10 border-t border-border-subtlest-tertiary pt-12 laptop:grid-cols-2 laptop:gap-14">
+            <GivebackLeaderboard />
+            <GivebackCommunityActivity />
+          </div>
           <PersonalRoadmap />
         </FlexCol>
       );
@@ -141,7 +117,9 @@ const renderActivePanel = (tab: GivebackTabId): ReactElement => {
 const GivebackPageContent = (): ReactElement => {
   const { geoAvailability } = useGivebackContext();
   const [hasStarted, setHasStarted] = useState(false);
-  const [activeTab, setActiveTabState] = useState<GivebackTabId>('causes');
+  // Picking causes is onboarding: until it's confirmed the tabs stay hidden.
+  const [hasOnboarded, setHasOnboarded] = useState(false);
+  const [activeTab, setActiveTabState] = useState<GivebackTabId>('actions');
   const tabsRef = useRef<HTMLDivElement>(null);
 
   const scrollToTabs = useCallback(() => {
@@ -167,19 +145,24 @@ const GivebackPageContent = (): ReactElement => {
     [scrollToTabs],
   );
 
-  // Opting in drops the visitor on the cause picker first — pick what you care
-  // about, then continue to the community Impact view.
+  // Opting in drops the visitor on the cause picker first (onboarding, no tabs).
   const start = useCallback(() => {
     setHasStarted(true);
-    setActiveTabState('causes');
   }, []);
 
-  // Scroll to the freshly revealed tabs once they mount.
+  // Confirming causes finishes onboarding and reveals the tabs on "Take action".
+  const completeOnboarding = useCallback(() => {
+    setHasOnboarded(true);
+    setActiveTabState('actions');
+    scrollToTabs();
+  }, [scrollToTabs]);
+
+  // Scroll to the freshly revealed content (onboarding, then tabs) as it mounts.
   useEffect(() => {
     if (hasStarted) {
       scrollToTabs();
     }
-  }, [hasStarted, scrollToTabs]);
+  }, [hasStarted, hasOnboarded, scrollToTabs]);
 
   // Geo-blocked: replace the whole experience with a single explicit gate.
   if (geoAvailability !== 'available') {
@@ -202,20 +185,34 @@ const GivebackPageContent = (): ReactElement => {
           </GivebackReveal>
 
           <GivebackReveal>
-            <GivebackSocialProof />
+            <GivebackSponsorTiers />
           </GivebackReveal>
 
-          {hasStarted && (
-            <>
-              <FlexCol className="gap-10">
-                <div
-                  ref={tabsRef}
-                  className="bg-background-default/80 sticky top-0 z-3 -mx-4 scroll-mt-4 border-b border-border-subtlest-tertiary px-4 backdrop-blur-xl"
-                >
-                  <div
-                    aria-hidden
-                    className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
+          {hasStarted && !hasOnboarded && (
+            <div ref={tabsRef} className="scroll-mt-16">
+              <GivebackReveal>
+                <FlexCol className="gap-8">
+                  <GivebackHeadline {...ONBOARDING_HEADER} />
+                  <CauseSelection
+                    onContinue={completeOnboarding}
+                    stickyContinue
                   />
+                </FlexCol>
+              </GivebackReveal>
+            </div>
+          )}
+
+          {hasOnboarded && (
+            <FlexCol className="gap-10">
+              <div
+                ref={tabsRef}
+                className="bg-background-default/80 sticky top-0 z-3 -mx-4 scroll-mt-16 border-b border-border-subtlest-tertiary px-4 backdrop-blur-xl"
+              >
+                <div
+                  aria-hidden
+                  className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
+                />
+                <FlexRow className="items-center justify-between gap-2">
                   <div
                     role="tablist"
                     aria-label="Giveback sections"
@@ -259,28 +256,24 @@ const GivebackPageContent = (): ReactElement => {
                       );
                     })}
                   </div>
-                </div>
+                </FlexRow>
+              </div>
 
-                <div
-                  key={activeTab}
-                  role="tabpanel"
-                  id={`giveback-panel-${activeTab}`}
-                  aria-labelledby={`giveback-tab-${activeTab}`}
-                  className="relative"
-                >
-                  <GivebackReveal>
-                    <FlexCol className="gap-8">
-                      <GivebackTabHeader tab={activeTab} />
-                      {renderActivePanel(activeTab)}
-                    </FlexCol>
-                  </GivebackReveal>
-                </div>
-              </FlexCol>
-
-              <GivebackReveal>
-                <GivebackClosingCta />
-              </GivebackReveal>
-            </>
+              <div
+                key={activeTab}
+                role="tabpanel"
+                id={`giveback-panel-${activeTab}`}
+                aria-labelledby={`giveback-tab-${activeTab}`}
+                className="relative"
+              >
+                <GivebackReveal>
+                  <FlexCol className="gap-8">
+                    <GivebackTabHeader tab={activeTab} />
+                    {renderActivePanel(activeTab)}
+                  </FlexCol>
+                </GivebackReveal>
+              </div>
+            </FlexCol>
           )}
 
           <GivebackReveal>
@@ -288,7 +281,11 @@ const GivebackPageContent = (): ReactElement => {
           </GivebackReveal>
         </FlexCol>
 
-        {hasStarted && <GivebackFundingBar />}
+        {hasStarted && !hasOnboarded && (
+          <GivebackOnboardingBar onContinue={completeOnboarding} />
+        )}
+
+        {hasOnboarded && <GivebackFundingBar />}
       </div>
 
       <GivebackCelebration />

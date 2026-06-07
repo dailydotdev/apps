@@ -8,10 +8,11 @@ import { GivebackNavProvider } from '../GivebackNavContext';
 import { CommunityGoalProgress } from './CommunityGoalProgress';
 import { GivebackReviewToggle } from './GivebackReviewToggle';
 import { ActionCatalog } from './ActionCatalog';
+import { GivebackLeaderboard } from './GivebackLeaderboard';
 import { GivebackCelebration } from './GivebackCelebration';
 import { CauseSelection } from './CauseSelection';
 import { CommunityImpactSection } from './CommunityImpactSection';
-import { GivebackUpdates } from './GivebackUpdates';
+import { GivebackCommunityActivity } from './GivebackCommunityActivity';
 import { GeoGateFallback } from './GeoGateFallback';
 
 describe('GivebackPage', () => {
@@ -33,103 +34,123 @@ describe('GivebackPage', () => {
       screen.getByRole('button', { name: 'Join the campaign' }),
     );
 
-    // Lands on the cause picker first.
+    // Onboarding: pick causes first, with no tabs revealed yet.
     expect(
       screen.getByText('You pick causes you care about.'),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Continue' }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('tab', { name: 'Take action' }),
+    ).not.toBeInTheDocument();
 
-    // Continue moves on to the community Impact view.
+    // Confirming causes reveals the tabs, starting on "Take action".
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(screen.getByText('You take action.')).toBeInTheDocument();
-    expect(screen.getByText(/we donate on your behalf/)).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: "You're a Helping hand" }),
-    ).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole('tab', { name: 'Why' }));
-    expect(
-      screen.getByText('Big tech burns billions just to get noticed.'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('What we unlock together')).toBeInTheDocument();
-    expect(screen.getByText('What your work turns into')).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole('tab', { name: 'Take action' }));
     expect(
       screen.getByRole('heading', { name: /Take a small action/ }),
     ).toBeInTheDocument();
     expect(screen.getByText(/genuinely\s+appreciate them/)).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('tab', { name: 'Updates' }));
-    expect(screen.getByText('We just crossed 50% funded')).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole('tab', { name: 'Comments' }));
+    // Causes is no longer a tab or a gear button — the picked causes are
+    // recapped on the Why tab, where they can be suggested or edited.
     expect(
-      screen.getByRole('button', { name: 'Post comment' }),
+      screen.queryByRole('tab', { name: 'Causes' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Causes' }),
+    ).not.toBeInTheDocument();
+
+    // Leaderboard is no longer its own tab — it lives inside Impact alongside
+    // community progress, live activity, and the personal journey.
+    expect(
+      screen.queryByRole('tab', { name: 'Leaderboard' }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Impact' }));
+    expect(
+      screen.getByText('See the impact we build together.'),
+    ).toBeInTheDocument();
+    // The leaderboard (weekly board + your rank) now renders inside Impact.
+    expect(screen.getByText('Weekly leaderboard')).toBeInTheDocument();
+    expect(screen.getByText('Your rank')).toBeInTheDocument();
+    // The personal journey reads against the community on the same tab.
+    expect(
+      screen.getByText(/on the community board this week/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: "You're a Helping hand" }),
     ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('tab', { name: 'FAQ' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Campaign' }));
+    expect(
+      screen.getByText('Big tech burns billions just to get noticed.'),
+    ).toBeInTheDocument();
+    // The picked causes are recapped here, with suggest/edit actions.
+    expect(
+      screen.getByText('Where your actions send the money'),
+    ).toBeInTheDocument();
+    // The FAQ now lives at the bottom of the Campaign tab (no separate tab).
+    expect(
+      screen.getByText('Frequently asked questions'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Does this cost me anything?')).toBeInTheDocument();
+    expect(screen.getByText('Still have a question?')).toBeInTheDocument();
+
+    // Updates, Comments and FAQ tabs were removed — live activity moved to
+    // Impact and the FAQ is folded into the Campaign tab.
+    expect(
+      screen.queryByRole('tab', { name: 'Updates' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('tab', { name: 'Comments' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'FAQ' })).not.toBeInTheDocument();
   });
 
-  it('lets a visitor post a comment', async () => {
+  it('recaps selected causes on the Campaign tab and edits them in a portal', async () => {
     render(<GivebackPage />);
 
     await userEvent.click(
       screen.getByRole('button', { name: 'Join the campaign' }),
     );
-    await userEvent.click(screen.getByRole('tab', { name: 'Comments' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
-    await userEvent.type(
-      screen.getByLabelText('Add a comment'),
-      'Backing this for open source!',
-    );
-    await userEvent.click(screen.getByRole('button', { name: 'Post comment' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Campaign' }));
 
     expect(
-      screen.getByText('Backing this for open source!'),
+      screen.getByText('Where your actions send the money'),
     ).toBeInTheDocument();
-    expect(screen.getByText('You')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    expect(screen.getByText('Customize your causes')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Python Software Foundation/ }),
+    ).toBeInTheDocument();
   });
 
-  it('lets a visitor reply to a comment', async () => {
+  it('lets a visitor send a question from the FAQ on the Campaign tab', async () => {
     render(<GivebackPage />);
 
     await userEvent.click(
       screen.getByRole('button', { name: 'Join the campaign' }),
     );
-    await userEvent.click(screen.getByRole('tab', { name: 'Comments' }));
-
-    const [firstReply] = screen.getAllByRole('button', { name: 'Reply' });
-    await userEvent.click(firstReply);
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Campaign' }));
 
     await userEvent.type(
-      screen.getByLabelText('Reply to Priya N.'),
-      'Couldn’t agree more!',
+      screen.getByLabelText('Your question'),
+      'When do donations get sent?',
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Post reply' }));
-
-    expect(screen.getByText('Couldn’t agree more!')).toBeInTheDocument();
-  });
-
-  it('removes a comment from the more-options menu', async () => {
-    render(<GivebackPage />);
-
     await userEvent.click(
-      screen.getByRole('button', { name: 'Join the campaign' }),
+      screen.getByRole('button', { name: 'Send question' }),
     );
-    await userEvent.click(screen.getByRole('tab', { name: 'Comments' }));
 
-    expect(screen.getByText(/Picked Girls Who Code/)).toBeInTheDocument();
-
-    const menus = screen.getAllByRole('button', { name: 'More options' });
-    // Priya (thread), her reply, then Marco — index 2 is Marco's comment.
-    await userEvent.click(menus[2]);
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Hide' }));
-
-    expect(screen.queryByText(/Picked Girls Who Code/)).not.toBeInTheDocument();
+    expect(screen.getByText(/we'll get back to you soon/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Send question' }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the mocked goal progress at 50% after opting in', async () => {
@@ -138,10 +159,13 @@ describe('GivebackPage', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'Join the campaign' }),
     );
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
     await userEvent.click(screen.getByRole('tab', { name: 'Impact' }));
 
     expect(screen.getAllByText('$5,000')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('$10,000')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/pledged of\s+\$10,000/).length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getByText('50% funded')).toBeInTheDocument();
   });
 
@@ -151,6 +175,7 @@ describe('GivebackPage', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'Join the campaign' }),
     );
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
     await userEvent.click(screen.getByRole('tab', { name: 'Impact' }));
 
     // Welcome gift is surfaced, and the ladder runs to 20 levels.
@@ -166,28 +191,123 @@ describe('GivebackPage', () => {
   });
 });
 
-describe('ActionCatalog', () => {
-  it('renders action statuses', () => {
+describe('GivebackLeaderboard', () => {
+  const renderLeaderboard = (setActiveTab = jest.fn()) => {
     render(
       <GivebackProvider>
-        <ActionCatalog />
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="impact"
+          setActiveTab={setActiveTab}
+        >
+          <GivebackLeaderboard />
+        </GivebackNavProvider>
+      </GivebackProvider>,
+    );
+  };
+
+  it('ranks contributors and shows the viewer row', () => {
+    renderLeaderboard();
+
+    expect(screen.getByText('Weekly leaderboard')).toBeInTheDocument();
+    expect(screen.getByText('Ana Pereira')).toBeInTheDocument();
+    expect(screen.getByText('Your rank')).toBeInTheDocument();
+    expect(screen.getByText(/more to pass/)).toBeInTheDocument();
+    expect(screen.getAllByText('Yuki Tanaka').length).toBeGreaterThan(0);
+  });
+
+  it('sends the viewer to the actions tab from the climb CTA', async () => {
+    const setActiveTab = jest.fn();
+    renderLeaderboard(setActiveTab);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Take an action to climb' }),
+    );
+
+    expect(setActiveTab).toHaveBeenCalledWith('actions');
+  });
+});
+
+describe('ActionCatalog', () => {
+  it('renders actions without per-user status text', () => {
+    render(
+      <GivebackProvider>
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={jest.fn()}
+        >
+          <ActionCatalog />
+        </GivebackNavProvider>
       </GivebackProvider>,
     );
 
     expect(
       screen.getByText('Share the Giveback launch post'),
     ).toBeInTheDocument();
-    expect(screen.getByText('Counted toward goal')).toBeInTheDocument();
+    // Per-user status copy was removed in favor of community engagement.
+    expect(screen.queryByText(/Counted toward goal/)).not.toBeInTheDocument();
+  });
+
+  it('promotes the leaderboard and surfaces per-card details', async () => {
+    const setActiveTab = jest.fn();
+    render(
+      <GivebackProvider>
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={setActiveTab}
+        >
+          <ActionCatalog />
+        </GivebackNavProvider>
+      </GivebackProvider>,
+    );
+
+    // The top-contributor spotlight is replaced by a promo that drives people
+    // to the leaderboard (which now lives on the Impact tab).
+    expect(
+      screen.getByText(/developers contributed this week/),
+    ).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: /See leaderboard/ }),
+    );
+    expect(setActiveTab).toHaveBeenCalledWith('impact');
+
+    // The card keeps a single explicit title plus the supporting details:
+    // social proof and the "Popular" badge.
+    expect(
+      screen.getByText('Share the Giveback launch post'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/contributed/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Popular').length).toBeGreaterThan(0);
   });
 
   it('filters actions by category', async () => {
     render(
       <GivebackProvider>
-        <ActionCatalog />
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={jest.fn()}
+        >
+          <ActionCatalog />
+        </GivebackNavProvider>
       </GivebackProvider>,
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'Referrals' }));
+
+    // Expand so the assertion covers every referral action, not just page one.
+    const showMore = screen.queryByRole('button', {
+      name: /Show more actions/,
+    });
+    if (showMore) {
+      await userEvent.click(showMore);
+    }
 
     expect(screen.getByText('Invite a developer friend')).toBeInTheDocument();
     expect(screen.getByText('Refer a dev team')).toBeInTheDocument();
@@ -199,7 +319,14 @@ describe('ActionCatalog', () => {
   it('sorts actions with the sort control', async () => {
     render(
       <GivebackProvider>
-        <ActionCatalog />
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={jest.fn()}
+        >
+          <ActionCatalog />
+        </GivebackNavProvider>
       </GivebackProvider>,
     );
 
@@ -208,19 +335,35 @@ describe('ActionCatalog', () => {
       'value-desc',
     );
 
+    // Expand the grid so the assertion isn't limited to the first page.
+    await userEvent.click(
+      screen.getByRole('button', { name: /Show more actions/ }),
+    );
+
     expect(screen.getByText('Refer a dev team')).toBeInTheDocument();
   });
 
   it('submits eligible action proof as pending validation', async () => {
     render(
       <GivebackProvider>
-        <ActionCatalog />
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={jest.fn()}
+        >
+          <ActionCatalog />
+        </GivebackNavProvider>
       </GivebackProvider>,
     );
 
     expect(screen.getByText('Your contribution')).toBeInTheDocument();
     expect(screen.getByText('$110')).toBeInTheDocument();
 
+    // The catalog opens to a short list; expand it to reach this action.
+    await userEvent.click(
+      screen.getByRole('button', { name: /Show more actions/ }),
+    );
     await userEvent.click(
       screen.getByRole('button', { name: 'Submit proof for Refer a dev team' }),
     );
@@ -254,13 +397,23 @@ describe('ActionCatalog', () => {
   it('fires the win-moment celebration when an action is submitted', async () => {
     render(
       <GivebackProvider>
-        <ActionCatalog />
-        <GivebackCelebration />
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={jest.fn()}
+        >
+          <ActionCatalog />
+          <GivebackCelebration />
+        </GivebackNavProvider>
       </GivebackProvider>,
     );
 
     expect(screen.queryByText('added to the pot')).not.toBeInTheDocument();
 
+    await userEvent.click(
+      screen.getByRole('button', { name: /Show more actions/ }),
+    );
     await userEvent.click(
       screen.getByRole('button', { name: 'Submit proof for Refer a dev team' }),
     );
@@ -285,32 +438,22 @@ describe('CauseSelection', () => {
   const renderCauseSelection = () =>
     render(
       <GivebackProvider>
-        <GivebackNavProvider
-          hasStarted
-          start={() => {}}
-          activeTab="causes"
-          setActiveTab={() => {}}
-        >
-          <CauseSelection />
-        </GivebackNavProvider>
+        <CauseSelection onContinue={() => {}} />
       </GivebackProvider>,
     );
 
   it('selects causes from the grid and suggests new ones', async () => {
     renderCauseSelection();
 
-    // Code.org is selected by default in the card grid.
-    expect(screen.getByRole('button', { name: /Code.org/ })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-
-    // Toggle another cause directly from the grid.
-    await userEvent.click(
-      screen.getByRole('button', { name: /Internet Archive/ }),
-    );
+    // Python Software Foundation is selected by default in the card grid.
     expect(
-      screen.getByRole('button', { name: /Internet Archive/ }),
+      screen.getByRole('button', { name: /Python Software Foundation/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
+
+    // Toggle another recommended cause directly from the grid.
+    await userEvent.click(screen.getByRole('button', { name: /freeCodeCamp/ }));
+    expect(
+      screen.getByRole('button', { name: /freeCodeCamp/ }),
     ).toHaveAttribute('aria-pressed', 'true');
 
     // Suggesting a cause happens in a focused modal.
@@ -332,13 +475,42 @@ describe('CauseSelection', () => {
     expect(screen.getByText('OpenJS Foundation')).toBeInTheDocument();
     expect(screen.getByText('pending review')).toBeInTheDocument();
   });
+
+  it('filters causes by category', async () => {
+    renderCauseSelection();
+
+    // The "Recommended" filter is active by default, so non-recommended causes
+    // (e.g. Internet Archive) stay hidden.
+    expect(
+      screen.getByRole('button', { name: 'Recommended' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      screen.queryByRole('button', { name: /Internet Archive/ }),
+    ).not.toBeInTheDocument();
+
+    // Switching to its category reveals it.
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Digital preservation' }),
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Internet Archive/ }),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('Love actions in the catalog', () => {
   it('shows love actions with appreciation messaging and no submission CTA', () => {
     render(
       <GivebackProvider>
-        <ActionCatalog />
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={jest.fn()}
+        >
+          <ActionCatalog />
+        </GivebackNavProvider>
       </GivebackProvider>,
     );
 
@@ -352,6 +524,38 @@ describe('Love actions in the catalog', () => {
       }),
     ).not.toBeInTheDocument();
   });
+
+  it('opens a compliant appreciation view when a love action is clicked', async () => {
+    render(
+      <GivebackProvider>
+        <GivebackNavProvider
+          hasStarted
+          start={jest.fn()}
+          activeTab="actions"
+          setActiveTab={jest.fn()}
+        >
+          <ActionCatalog />
+        </GivebackNavProvider>
+      </GivebackProvider>,
+    );
+
+    // Love cards are clickable, but route to an appreciation view with no
+    // reward/proof flow (they can't be incentivized).
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: 'Show some love: Leave an honest mobile app review',
+      }),
+    );
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('Show some love')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Submit for review' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Got it' }),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('CommunityImpactSection', () => {
@@ -363,24 +567,24 @@ describe('CommunityImpactSection', () => {
     );
 
     expect(screen.getByText('What your work turns into')).toBeInTheDocument();
-    expect(screen.getByText('3,200 students')).toBeInTheDocument();
-    expect(screen.getByText('Code.org')).toBeInTheDocument();
+    expect(screen.getByText('3,200 learners')).toBeInTheDocument();
+    expect(screen.getByText('freeCodeCamp')).toBeInTheDocument();
   });
 
-  it('renders anonymized community activity in the updates feed', () => {
+  it('renders anonymized live community activity', () => {
     render(
       <GivebackProvider>
-        <GivebackUpdates />
+        <GivebackCommunityActivity />
       </GivebackProvider>,
     );
 
     expect(
       screen.getByText(/shared the Giveback launch post/),
     ).toBeInTheDocument();
-    expect(screen.getByText('anonymized by default')).toBeInTheDocument();
+    expect(screen.getByText('Live community activity')).toBeInTheDocument();
   });
 
-  it('shows the sponsor wall and lets a visitor add a sponsorship', async () => {
+  it('lets a visitor add a sponsorship from the funding progress', async () => {
     render(
       <QueryClientProvider client={new QueryClient()}>
         <GivebackPage />
@@ -390,20 +594,27 @@ describe('CommunityImpactSection', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'Join the campaign' }),
     );
-    await userEvent.click(screen.getByRole('tab', { name: 'Sponsors' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Impact' }));
 
-    expect(screen.getByText('Sponsors top up the budget.')).toBeInTheDocument();
-    expect(screen.getAllByText('Vercel').length).toBeGreaterThan(0);
+    // Sponsors live on the funding meter now — there is no separate tab.
+    expect(
+      screen.queryByRole('tab', { name: 'Sponsors' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('Sponsors topping up the pot')).toBeInTheDocument();
+    expect(screen.getByText(/10 sponsors/)).toBeInTheDocument();
 
     await userEvent.click(
-      screen.getAllByRole('button', { name: 'Become a sponsor' })[0],
+      screen.getByRole('button', { name: 'Become a sponsor' }),
     );
 
     await userEvent.type(screen.getByLabelText('Company name'), 'Globex Corp');
     await userEvent.click(screen.getByRole('button', { name: '$5,000' }));
     await userEvent.click(screen.getByRole('button', { name: 'Add $5,000' }));
 
-    expect(screen.getAllByText('Globex Corp').length).toBeGreaterThan(0);
+    // The modal closes and the new sponsorship lands in the count.
+    expect(screen.queryByLabelText('Company name')).not.toBeInTheDocument();
+    expect(screen.getByText(/11 sponsors/)).toBeInTheDocument();
   });
 });
 
@@ -436,7 +647,7 @@ describe('GivebackReviewToggle', () => {
     render(
       <GivebackProvider>
         <GeoGateFallback />
-        <GivebackUpdates />
+        <GivebackCommunityActivity />
         <GivebackReviewToggle />
       </GivebackProvider>,
     );

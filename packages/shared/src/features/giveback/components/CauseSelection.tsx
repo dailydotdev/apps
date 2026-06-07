@@ -15,33 +15,64 @@ import {
 } from '../../../components/typography/Typography';
 import {
   ArrowIcon,
+  OpenLinkIcon,
   PlusIcon,
-  SparkleIcon,
   VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { useGivebackContext } from '../GivebackContext';
-import { useGivebackNav } from '../GivebackNavContext';
+import type { GivebackCause } from '../types';
 import { CauseSelectionModal } from './CauseSelectionModal';
+import { CauseEmblem } from './CauseEmblem';
+import { GivebackFilterChip } from './GivebackFilterChip';
 
-// Brand-tinted emblems so each cause card reads as its own tile, Lemonade-style.
-const emblemAccents = [
-  'bg-accent-cabbage-flat text-accent-cabbage-default',
-  'bg-accent-avocado-flat text-accent-avocado-default',
-  'bg-accent-onion-flat text-accent-onion-default',
-  'bg-accent-bacon-flat text-accent-bacon-default',
-];
+// Synthetic first filter that shows our hand-picked developer causes.
+const RECOMMENDED_FILTER = 'recommended';
 
-export const CauseSelection = (): ReactElement => {
+interface CauseSelectionProps {
+  /** Called when the visitor confirms their causes (onboarding or settings). */
+  onContinue: () => void;
+  /** Label for the confirm button. Defaults to "Continue" for onboarding. */
+  continueLabel?: string;
+  /**
+   * Pin the confirm CTA to a sticky bottom bar (like the level bar) so it stays
+   * one tap away while scrolling the cause list. Used for the onboarding step.
+   */
+  stickyContinue?: boolean;
+}
+
+export const CauseSelection = ({
+  onContinue,
+  continueLabel = 'Continue',
+  stickyContinue = false,
+}: CauseSelectionProps): ReactElement => {
   const { causes, suggestedCauses, toggleCause, userProfile } =
     useGivebackContext();
-  const { setActiveTab } = useGivebackNav();
   const [isSuggestOpen, setIsSuggestOpen] = useState(false);
 
-  const selectedCount = causes.filter((cause) =>
-    userProfile.selectedCauseIds.includes(cause.id),
-  ).length;
+  const isSelected = (cause: GivebackCause): boolean =>
+    userProfile.selectedCauseIds.includes(cause.id);
+
+  const selectedCount = causes.filter(isSelected).length;
+
+  // Lead with a "Recommended" filter (our hand-picked developer causes), then
+  // one chip per cause category so people can browse by what they care about.
+  const categoryOptions = Array.from(
+    new Set(
+      causes
+        .map((cause) => cause.category)
+        .filter((category): category is string => Boolean(category)),
+    ),
+  );
+  const [activeFilter, setActiveFilter] = useState<string>(RECOMMENDED_FILTER);
+
+  const indexedCauses = causes.map((cause, index) => ({ cause, index }));
+  const visibleCauses = indexedCauses.filter(({ cause }) =>
+    activeFilter === RECOMMENDED_FILTER
+      ? cause.recommended
+      : cause.category === activeFilter,
+  );
 
   return (
     <FlexCol className="gap-6">
@@ -56,75 +87,113 @@ export const CauseSelection = (): ReactElement => {
       </Typography>
 
       <FlexCol id="giveback-causes" className="scroll-mt-16 gap-6">
-        <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
-          {causes.map((cause, index) => {
-            const isSelected = userProfile.selectedCauseIds.includes(cause.id);
+        <FlexCol className="gap-4">
+          <FlexRow className="flex-wrap gap-2">
+            <GivebackFilterChip
+              isSelected={activeFilter === RECOMMENDED_FILTER}
+              label="Recommended"
+              onClick={() => setActiveFilter(RECOMMENDED_FILTER)}
+            />
+            {categoryOptions.map((category) => (
+              <GivebackFilterChip
+                key={category}
+                isSelected={activeFilter === category}
+                label={category}
+                onClick={() => setActiveFilter(category)}
+              />
+            ))}
+          </FlexRow>
 
-            return (
-              <button
-                key={cause.id}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => toggleCause(cause.id)}
-                className={classNames(
-                  'group relative flex h-full flex-col gap-3 rounded-16 border p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none',
-                  isSelected
-                    ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
-                    : 'border-border-subtlest-tertiary hover:bg-surface-hover',
-                )}
-              >
-                <FlexRow className="items-start justify-between gap-2">
-                  <span
-                    className={classNames(
-                      'flex size-11 shrink-0 items-center justify-center rounded-16 transition-transform duration-200 group-hover:scale-105',
-                      emblemAccents[index % emblemAccents.length],
-                    )}
-                  >
-                    <SparkleIcon size={IconSize.Medium} />
-                  </span>
-                  <span
-                    className={classNames(
-                      'flex size-5 shrink-0 items-center justify-center rounded-full transition-colors',
-                      isSelected
-                        ? 'bg-accent-cabbage-default text-white'
-                        : 'border border-border-subtlest-secondary',
-                    )}
-                  >
-                    {isSelected && (
-                      <VIcon
-                        secondary
-                        size={IconSize.XXSmall}
-                        className="motion-safe:animate-reward-pop"
-                      />
-                    )}
-                  </span>
-                </FlexRow>
+          <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
+            {visibleCauses.map(({ cause, index }) => {
+              const selected = isSelected(cause);
 
-                <FlexCol className="min-w-0 flex-1 gap-1">
-                  <Typography bold type={TypographyType.Callout}>
-                    {cause.name}
-                  </Typography>
-                  {cause.category && (
+              return (
+                <div
+                  key={cause.id}
+                  className={classNames(
+                    'group relative flex flex-col gap-3 rounded-16 border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none',
+                    selected
+                      ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
+                      : 'border-border-subtlest-tertiary hover:bg-surface-hover',
+                  )}
+                >
+                  {/* Full-card overlay handles the toggle so the "Learn more"
+                      link can live inside the box without nesting interactives. */}
+                  <button
+                    type="button"
+                    aria-pressed={selected}
+                    aria-label={`${selected ? 'Deselect' : 'Select'} ${
+                      cause.name
+                    }`}
+                    onClick={() => toggleCause(cause.id)}
+                    className="absolute inset-0 z-0 rounded-16"
+                  />
+
+                  <FlexRow className="pointer-events-none relative z-1 items-start justify-between gap-2">
+                    <CauseEmblem
+                      cause={cause}
+                      index={index}
+                      className="transition-transform duration-200 group-hover:scale-105"
+                    />
+                    <span
+                      className={classNames(
+                        'flex size-5 shrink-0 items-center justify-center rounded-full transition-colors',
+                        selected
+                          ? 'bg-accent-cabbage-default text-white'
+                          : 'border border-border-subtlest-secondary',
+                      )}
+                    >
+                      {selected && (
+                        <VIcon
+                          secondary
+                          size={IconSize.XXSmall}
+                          className="motion-safe:animate-reward-pop"
+                        />
+                      )}
+                    </span>
+                  </FlexRow>
+
+                  <FlexCol className="pointer-events-none relative z-1 min-w-0 flex-1 gap-1">
+                    <Typography bold type={TypographyType.Callout}>
+                      {cause.name}
+                    </Typography>
+                    {cause.category && (
+                      <Typography
+                        tag={TypographyTag.Span}
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {cause.category}
+                      </Typography>
+                    )}
                     <Typography
-                      tag={TypographyTag.Span}
                       type={TypographyType.Caption1}
                       color={TypographyColor.Tertiary}
+                      className="line-clamp-2 pt-1"
                     >
-                      {cause.category}
+                      {cause.description}
                     </Typography>
-                  )}
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                    className="line-clamp-2 pt-1"
+                  </FlexCol>
+
+                  <a
+                    href={cause.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(event) => event.stopPropagation()}
+                    className="group/learn relative z-1 inline-flex w-fit items-center gap-1 font-bold text-text-link underline-offset-2 typo-footnote hover:underline focus-visible:underline"
                   >
-                    {cause.description}
-                  </Typography>
-                </FlexCol>
-              </button>
-            );
-          })}
-        </div>
+                    Learn more
+                    <OpenLinkIcon
+                      size={IconSize.XSmall}
+                      className="transition-transform duration-200 group-hover/learn:-translate-y-0.5 group-hover/learn:translate-x-0.5"
+                    />
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        </FlexCol>
 
         {suggestedCauses.length > 0 && (
           <FlexRow className="flex-wrap items-center gap-2">
@@ -154,12 +223,14 @@ export const CauseSelection = (): ReactElement => {
         )}
 
         <FlexRow className="flex-wrap items-center justify-between gap-3">
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {selectedCount} selected
-          </Typography>
+          {!stickyContinue && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {selectedCount} selected
+            </Typography>
+          )}
           <Button
             type="button"
             size={ButtonSize.Small}
@@ -171,18 +242,20 @@ export const CauseSelection = (): ReactElement => {
           </Button>
         </FlexRow>
 
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
-          icon={<ArrowIcon className="rotate-90" />}
-          iconPosition={ButtonIconPosition.Right}
-          disabled={selectedCount === 0}
-          onClick={() => setActiveTab('impact')}
-          className="w-full tablet:w-fit"
-        >
-          Continue
-        </Button>
+        {!stickyContinue && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
+            icon={<ArrowIcon className="rotate-90" />}
+            iconPosition={ButtonIconPosition.Right}
+            disabled={selectedCount === 0}
+            onClick={onContinue}
+            className="w-full tablet:w-fit"
+          >
+            {continueLabel}
+          </Button>
+        )}
 
         {isSuggestOpen && (
           <CauseSelectionModal onClose={() => setIsSuggestOpen(false)} />

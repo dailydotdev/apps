@@ -1,0 +1,242 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../../components/typography/Typography';
+import { FlexCol, FlexRow } from '../../../components/utilities';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { useGivebackContext } from '../GivebackContext';
+import { useGivebackNav } from '../GivebackNavContext';
+import type { GivebackLeaderboardEntry } from '../types';
+import { formatDonationAmount } from '../utils';
+import { GivebackAvatar } from './GivebackContributorFaces';
+
+// Medal styling per podium place: gold / silver / bronze in food-palette tokens.
+const medalClassName: Record<number, string> = {
+  1: 'bg-accent-cheese-default text-black',
+  2: 'bg-surface-secondary text-text-primary',
+  3: 'bg-accent-bacon-default text-white',
+};
+
+// Flat, compact ranked row: a small medal-tinted rank chip for the podium
+// places, the avatar, the name, and the amount earned. No card chrome — rows
+// are separated by spacing and the viewer's row gets a brand tint.
+const LeaderboardRow = ({
+  entry,
+}: {
+  entry: GivebackLeaderboardEntry;
+}): ReactElement => (
+  <FlexRow
+    className={classNames(
+      'items-center gap-3 rounded-12 px-2.5 py-2 transition-colors',
+      entry.isCurrentUser && 'bg-accent-cabbage-flat',
+    )}
+  >
+    <span
+      className={classNames(
+        'flex size-6 shrink-0 items-center justify-center rounded-full font-bold tabular-nums typo-caption1',
+        medalClassName[entry.rank] ?? 'text-text-tertiary',
+        entry.rank === 1 && 'shadow-[0_0_10px_rgba(255,199,0,0.45)]',
+      )}
+    >
+      {entry.rank}
+    </span>
+    <GivebackAvatar src={entry.avatar} sizeClassName="size-7" />
+    <Typography
+      tag={TypographyTag.Span}
+      type={TypographyType.Footnote}
+      bold
+      className={classNames(
+        'min-w-0 flex-1 truncate',
+        entry.isCurrentUser && 'text-accent-cabbage-default',
+      )}
+    >
+      {entry.name}
+    </Typography>
+    <Typography
+      bold
+      type={TypographyType.Footnote}
+      className="shrink-0 tabular-nums text-status-success"
+    >
+      {formatDonationAmount(entry.contributionAmount, entry.currency)}
+    </Typography>
+  </FlexRow>
+);
+
+export const GivebackLeaderboard = (): ReactElement => {
+  const { leaderboard } = useGivebackContext();
+  const { setActiveTab } = useGivebackNav();
+
+  const currentUser = leaderboard.find((entry) => entry.isCurrentUser);
+  const aboveUser = currentUser
+    ? leaderboard.find((entry) => entry.rank === currentUser.rank - 1)
+    : undefined;
+  const gapToNext =
+    aboveUser && currentUser
+      ? aboveUser.contributionAmount - currentUser.contributionAmount
+      : 0;
+
+  // How close the viewer is to overtaking the person directly above — the
+  // "you're almost there" tension that keeps people taking one more action.
+  const overtakeProgress =
+    aboveUser && currentUser && aboveUser.contributionAmount > 0
+      ? Math.min(
+          99,
+          Math.round(
+            (currentUser.contributionAmount / aboveUser.contributionAmount) *
+              100,
+          ),
+        )
+      : 0;
+
+  return (
+    <FlexCol className="w-full gap-5">
+      <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
+        Weekly leaderboard
+      </Typography>
+
+      <FlexCol className="gap-0.5">
+        {leaderboard.map((entry) => (
+          <LeaderboardRow key={entry.id} entry={entry} />
+        ))}
+      </FlexCol>
+
+      {currentUser && (
+        <FlexCol className="gap-3 border-t border-border-subtlest-tertiary pt-4">
+          {/* Where you stand right now. */}
+          <FlexRow className="items-center gap-3">
+            <GivebackAvatar src={currentUser.avatar} sizeClassName="size-9" />
+            <FlexCol className="min-w-0">
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                bold
+                className="uppercase tracking-wider"
+              >
+                Your rank
+              </Typography>
+              <FlexRow className="items-baseline gap-1.5">
+                <Typography
+                  tag={TypographyTag.Span}
+                  bold
+                  type={TypographyType.Title3}
+                  className="text-accent-cabbage-default"
+                >
+                  #{currentUser.rank}
+                </Typography>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  ·{' '}
+                  {formatDonationAmount(
+                    currentUser.contributionAmount,
+                    currentUser.currency,
+                  )}{' '}
+                  unlocked
+                </Typography>
+              </FlexRow>
+            </FlexCol>
+          </FlexRow>
+
+          {/* The climb: one explicit goal — how much closes the gap to the next
+              rank. Flat, no card: show who you're chasing, the exact amount
+              that overtakes them, and a labeled bar so it reads at a glance. */}
+          {aboveUser ? (
+            <FlexCol className="gap-2">
+              {/* One plain-language goal: who you're chasing and the exact gap. */}
+              <FlexRow className="items-center gap-2">
+                <GivebackAvatar
+                  src={aboveUser.avatar}
+                  sizeClassName="size-7"
+                />
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                  className="min-w-0"
+                >
+                  <span className="font-bold text-accent-cabbage-default">
+                    {formatDonationAmount(gapToNext, currentUser.currency)}
+                  </span>{' '}
+                  more to pass{' '}
+                  <span className="font-bold text-text-primary">
+                    {aboveUser.name}
+                  </span>{' '}
+                  for{' '}
+                  <span className="font-bold text-text-primary">
+                    #{aboveUser.rank}
+                  </span>
+                </Typography>
+              </FlexRow>
+
+              {/* The bar is anchored by both standings below, so it reads as a
+                  "you vs. them" race rather than a floating glow. */}
+              <div
+                className="h-2 w-full overflow-hidden rounded-full bg-surface-float"
+                role="progressbar"
+                aria-label={`Progress to reach rank ${aboveUser.rank}`}
+                aria-valuenow={overtakeProgress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <div
+                  className="h-full min-w-[0.5rem] rounded-full bg-accent-cabbage-default transition-[width] duration-700 ease-out"
+                  style={{ width: `${overtakeProgress}%` }}
+                />
+              </div>
+
+              <FlexRow className="items-center justify-between gap-2 tabular-nums">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  You ·{' '}
+                  {formatDonationAmount(
+                    currentUser.contributionAmount,
+                    currentUser.currency,
+                  )}
+                </Typography>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  #{aboveUser.rank} ·{' '}
+                  {formatDonationAmount(
+                    aboveUser.contributionAmount,
+                    aboveUser.currency,
+                  )}
+                </Typography>
+              </FlexRow>
+            </FlexCol>
+          ) : (
+            <Typography bold type={TypographyType.Footnote}>
+              You&apos;re #1 — hold the crown.
+            </Typography>
+          )}
+
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            onClick={() => setActiveTab('actions')}
+          >
+            Take an action to climb
+          </Button>
+        </FlexCol>
+      )}
+    </FlexCol>
+  );
+};

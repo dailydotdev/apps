@@ -45,7 +45,11 @@ export const GivebackBackground = (): ReactElement => (
     aria-hidden
     className="pointer-events-none absolute inset-0 overflow-hidden"
   >
-    <div className="absolute inset-0" style={brandSweep} />
+    {/* The brand glow is a fixed-height hero band anchored to the top. Sizing it
+        in px (not inset-0) keeps it a consistent design — otherwise its mask
+        scales with the page height and the glow spreads down to mid-screen on
+        long tabs like "Take action". */}
+    <div className="absolute inset-x-0 top-0 h-[42rem]" style={brandSweep} />
     <div className="absolute inset-0" style={horizonGlow} />
     <div className="absolute inset-0 opacity-[0.04]" style={grain} />
     <div className="absolute inset-0" style={vignette} />

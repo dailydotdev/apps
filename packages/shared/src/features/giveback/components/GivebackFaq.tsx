@@ -1,13 +1,19 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { ArrowIcon } from '../../../components/icons';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { ArrowIcon, VIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { GivebackSection } from './GivebackSection';
 
@@ -62,11 +68,88 @@ const faqs: FaqItem[] = [
   },
 ];
 
+// If the FAQ didn't answer it, let the visitor write to us. This is a single
+// question composer (no public thread) that sits at the bottom of the section.
+const FaqQuestionComposer = (): ReactElement => {
+  const [draft, setDraft] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const submit = () => {
+    if (!draft.trim()) {
+      return;
+    }
+    setSubmitted(true);
+    setDraft('');
+  };
+
+  return (
+    <FlexCol className="gap-4 border-t border-border-subtlest-tertiary pt-8">
+      <FlexCol className="gap-1.5">
+        <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
+          Still have a question?
+        </Typography>
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+        >
+          If you didn&apos;t find your answer above, ask the team anything and
+          we&apos;ll get back to you.
+        </Typography>
+      </FlexCol>
+
+      {submitted ? (
+        <FlexRow className="items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 py-3 text-status-success">
+          <VIcon size={IconSize.Small} secondary />
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Callout}
+            color={TypographyColor.StatusSuccess}
+            bold
+          >
+            Thanks for reaching out — we&apos;ll get back to you soon.
+          </Typography>
+        </FlexRow>
+      ) : (
+        <FlexCol className="gap-2">
+          <label htmlFor="giveback-question" className="flex flex-col gap-2">
+            <Typography
+              tag={TypographyTag.Span}
+              bold
+              type={TypographyType.Footnote}
+            >
+              Your question
+            </Typography>
+            <textarea
+              id="giveback-question"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="What would you like to ask the team?"
+              className="min-h-20 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-primary typo-callout"
+            />
+          </label>
+          <FlexRow className="justify-end">
+            <Button
+              type="button"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              disabled={!draft.trim()}
+              onClick={submit}
+            >
+              Send question
+            </Button>
+          </FlexRow>
+        </FlexCol>
+      )}
+    </FlexCol>
+  );
+};
+
 export const GivebackFaq = (): ReactElement => {
   const [openId, setOpenId] = useState<string | null>(faqs[0].id);
 
   return (
-    <GivebackSection id="giveback-faq">
+    <GivebackSection id="giveback-faq" title="Frequently asked questions">
       <div className="divide-y divide-border-subtlest-tertiary">
         {faqs.map((faq) => {
           const isOpen = openId === faq.id;
@@ -121,6 +204,8 @@ export const GivebackFaq = (): ReactElement => {
           );
         })}
       </div>
+
+      <FaqQuestionComposer />
     </GivebackSection>
   );
 };

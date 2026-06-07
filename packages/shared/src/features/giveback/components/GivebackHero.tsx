@@ -75,10 +75,10 @@ export const GivebackHero = (): ReactElement => {
           </Typography>
         </FlexCol>
 
-        <div className="grid items-center gap-6 laptop:grid-cols-[1.7fr_1fr] laptop:gap-10">
+        <div className="grid items-stretch gap-6 laptop:grid-cols-[1.45fr_1fr] laptop:gap-8">
           <GivebackCampaignVideo />
 
-          <FlexCol className="gap-5">
+          <FlexCol className="h-full justify-center gap-5">
             <GivebackFundingSummary />
             <div className="via-accent-cabbage-default/30 h-px w-full bg-gradient-to-r from-transparent to-transparent" />
             <GivebackStartPanel />

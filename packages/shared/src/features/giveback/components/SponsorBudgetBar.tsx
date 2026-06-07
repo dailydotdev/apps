@@ -8,7 +8,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { useGivebackNav } from '../GivebackNavContext';
 import type { GivebackSponsor } from '../types';
 import { formatDonationAmount, getSponsorInitials } from '../utils';
 import { SponsorLogo } from './SponsorLogo';
@@ -66,12 +65,14 @@ interface Segment {
 
 interface SponsorBudgetBarProps {
   sponsors: GivebackSponsor[];
+  /** Invoked when a sponsor segment is clicked (e.g. to open the sponsor flow). */
+  onSelect?: () => void;
 }
 
 export const SponsorBudgetBar = ({
   sponsors,
+  onSelect,
 }: SponsorBudgetBarProps): ReactElement | null => {
-  const { setActiveTab } = useGivebackNav();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const segments = useMemo<Segment[]>(() => {
@@ -176,7 +177,7 @@ export const SponsorBudgetBar = ({
             onMouseLeave={() => setHoveredId(null)}
             onFocus={() => setHoveredId(segment.id)}
             onBlur={() => setHoveredId(null)}
-            onClick={() => setActiveTab('sponsors')}
+            onClick={onSelect}
             style={{ width: `${segment.share}%` }}
             className={classNames(
               'box-border h-full border-r-2 border-background-default transition-opacity duration-200 last:border-r-0',

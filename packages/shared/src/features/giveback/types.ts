@@ -88,6 +88,32 @@ export enum GivebackActionPlatform {
   AppStore = 'app_store',
   ChromeWebStore = 'chrome_web_store',
   DailyDev = 'daily_dev',
+  // Extended surfaces from the community-led growth action library.
+  EdgeAddons = 'edge_addons',
+  FirefoxAddons = 'firefox_addons',
+  GooglePlay = 'google_play',
+  Trustpilot = 'trustpilot',
+  G2 = 'g2',
+  Capterra = 'capterra',
+  ProductHunt = 'product_hunt',
+  Directory = 'directory',
+  Medium = 'medium',
+  Dev = 'dev',
+  Blog = 'blog',
+  Newsletter = 'newsletter',
+  Notion = 'notion',
+  Website = 'website',
+  HackerNews = 'hacker_news',
+  StackOverflow = 'stack_overflow',
+  Discord = 'discord',
+  Slack = 'slack',
+  Telegram = 'telegram',
+  IndieHackers = 'indie_hackers',
+  Forum = 'forum',
+  Twitch = 'twitch',
+  Podcast = 'podcast',
+  Event = 'event',
+  Wiki = 'wiki',
 }
 
 export type GivebackActionCategoryFilter = GivebackActionCategory | 'all';
@@ -223,6 +249,59 @@ export interface GivebackAction {
   isLoveAction: boolean;
   externalUrl?: string;
   instructions?: string;
+  /** Total developers who have completed this action (community proof). */
+  contributorsCount?: number;
+  /** Developers who completed it in the last 24h (real-time momentum). */
+  contributorsLast24h?: number;
+  /** A few contributor avatar URLs, shown as overlapping faces on the card. */
+  contributorAvatars?: string[];
+  /** Popular action; surfaced first under the "Recommended" sort with a badge. */
+  isTrending?: boolean;
+}
+
+// Developer leading the community contribution board, spotlighted on the
+// "Take action" tab to put community engagement front and center.
+export interface GivebackTopContributor {
+  id: string;
+  name: string;
+  handle: string;
+  avatar: string;
+  /** Total donation value this person has unlocked through actions. */
+  contributionAmount: number;
+  currency: string;
+  actionsCount: number;
+}
+
+// A single row on the gamified contribution leaderboard. Carries the playful
+// signals (streak, rank movement, title, medal) that turn contributing into a
+// game and nudge people to keep climbing together.
+export interface GivebackLeaderboardEntry {
+  id: string;
+  rank: number;
+  name: string;
+  handle: string;
+  avatar: string;
+  contributionAmount: number;
+  currency: string;
+  actionsCount: number;
+  /** Consecutive days the person has taken at least one action. */
+  streakDays: number;
+  /** Net rank change since yesterday; positive means they climbed. */
+  rankChange: number;
+  /** Playful earned title shown as a badge (e.g. "Streak master"). */
+  title?: string;
+  /** Marks the viewer's own row so it can be highlighted and nudged. */
+  isCurrentUser?: boolean;
+}
+
+// The collective "we're a team" signal: how much the community has unlocked
+// today against a shared daily target, so every individual action visibly
+// fills one shared bar.
+export interface GivebackCommunityRally {
+  unlockedToday: number;
+  targetToday: number;
+  currency: string;
+  contributorsToday: number;
 }
 
 export interface GivebackUserAction {
@@ -265,6 +344,8 @@ export interface GivebackCauseSuggestionInput {
 export interface GivebackCommunityEvent {
   id: string;
   actorLabel: string;
+  actorName: string;
+  actorAvatar: string;
   actionLabel: string;
   amount?: number;
   currency: string;
@@ -282,4 +363,6 @@ export interface GivebackCause {
   category?: string;
   status: GivebackCauseStatus;
   sortOrder: number;
+  /** Top picks surfaced first in the catalog; the rest live behind "Show more". */
+  recommended?: boolean;
 }

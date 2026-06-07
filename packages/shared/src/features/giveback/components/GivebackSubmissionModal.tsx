@@ -49,6 +49,10 @@ export const GivebackSubmissionModal = ({
     note,
   ]);
 
+  // "Just for love" actions carry no reward or donation by design, so they skip
+  // the proof flow entirely and show a compliant appreciation view instead.
+  const isLove = action.isLoveAction;
+
   const onSubmit = () => {
     if (!canSubmit) {
       return;
@@ -87,19 +91,58 @@ export const GivebackSubmissionModal = ({
               tag={TypographyTag.H2}
               type={TypographyType.Title3}
             >
-              {isSubmitted ? 'Proof submitted' : 'Submit proof'}
+              {isLove
+                ? 'Show some love'
+                : isSubmitted
+                ? 'Proof submitted'
+                : 'Submit proof'}
             </Typography>
             <Typography
               type={TypographyType.Callout}
               className="text-text-tertiary"
             >
-              {isSubmitted
+              {!isLove && isSubmitted
                 ? "Added to your contribution. We'll only subtract it if validation fails."
                 : action.title}
             </Typography>
           </FlexCol>
 
-          {isSubmitted ? (
+          {isLove ? (
+            <FlexCol className="gap-4">
+              <FlexCol className="gap-3 rounded-18 border border-accent-cabbage-default bg-accent-cabbage-flat p-5">
+                <Typography
+                  bold
+                  type={TypographyType.Title4}
+                  className="text-accent-cabbage-default"
+                >
+                  Just for love
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  className="text-text-tertiary"
+                >
+                  This one&apos;s a voluntary thank-you — no reward or donation
+                  is attached. We just genuinely appreciate it.
+                </Typography>
+              </FlexCol>
+              {action.description && (
+                <Typography
+                  type={TypographyType.Footnote}
+                  className="text-text-tertiary"
+                >
+                  {action.description}
+                </Typography>
+              )}
+              {action.instructions && (
+                <Typography
+                  type={TypographyType.Footnote}
+                  className="text-text-tertiary"
+                >
+                  {action.instructions}
+                </Typography>
+              )}
+            </FlexCol>
+          ) : isSubmitted ? (
             <FlexCol className="relative gap-4 overflow-hidden rounded-18 border border-accent-cabbage-default bg-accent-cabbage-flat p-5 shadow-2-cabbage">
               <div
                 aria-hidden
@@ -231,24 +274,37 @@ export const GivebackSubmissionModal = ({
           )}
 
           <FlexRow className="justify-end gap-2">
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              onClick={onClose}
-            >
-              {isSubmitted ? 'Done' : 'Cancel'}
-            </Button>
-            {!isSubmitted && (
+            {isLove ? (
               <Button
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
-                disabled={!canSubmit}
-                onClick={onSubmit}
+                onClick={onClose}
               >
-                Submit for review
+                Got it
               </Button>
+            ) : (
+              <>
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  onClick={onClose}
+                >
+                  {isSubmitted ? 'Done' : 'Cancel'}
+                </Button>
+                {!isSubmitted && (
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Primary}
+                    disabled={!canSubmit}
+                    onClick={onSubmit}
+                  >
+                    Submit for review
+                  </Button>
+                )}
+              </>
             )}
           </FlexRow>
         </FlexCol>
