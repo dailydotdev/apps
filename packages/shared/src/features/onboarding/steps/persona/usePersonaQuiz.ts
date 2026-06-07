@@ -43,6 +43,11 @@ const {
 
 const FALLBACK_PERSONA_INDEX = personaIndexById(fallbackPersonaId);
 
+// The prior already favors one persona, so the top belief starts well above 0.
+// We rescale progress from this baseline up to the confidence threshold so the
+// bar starts near-empty and uses its full range for the actual narrowing-down.
+const BASELINE_TOP = Math.max(...initialBelief());
+
 interface PersonaResult {
   persona: DeveloperPersona;
   confidence: number;
@@ -85,6 +90,9 @@ export const usePersonaQuiz = (): PersonaQuizState => {
   const [resultIndex, setResultIndex] = useState<number | null>(null);
   const [isManual, setIsManual] = useState(false);
   const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([]);
+  // How close Patchy is to a confident guess (0..1), clamped so it never
+  // visibly moves backwards even if belief dips after a surprising answer.
+  const [progress, setProgress] = useState(0);
 
   const askedRef = useRef<Set<number>>(new Set());
   const excludedGroupsRef = useRef<Set<string>>(new Set());
@@ -197,6 +205,15 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       askedRef.current.add(next);
       setCurrentQuestion(next);
       setQuestionsShown(shownSoFar + 1);
+
+      // Confidence rescaled from the prior baseline → full bar range is spent
+      // on real narrowing, not the baseline. A per-question floor guarantees
+      // the bar visibly moves on every answer.
+      const confComponent =
+        (top - BASELINE_TOP) / (confidenceThreshold - BASELINE_TOP);
+      const countComponent = (shownSoFar + 1) / maxQuestions;
+      const closeness = Math.min(1, Math.max(0, confComponent, countComponent));
+      setProgress((prev) => Math.max(prev, closeness));
     },
     [finish],
   );
@@ -212,6 +229,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setIsThinking(false);
     setIsManual(false);
     setSelectedModifierIds([]);
+    setProgress(0);
     setQuestionsShown(0);
     setPhase('playing');
     advance(fresh, 0);
@@ -244,14 +262,14 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       // Example: Q2 "you're backend" = yes also closes primary-platform,
       // because that rules out web/mobile as the main output.
       if (value === 1 && question.closesOnYes) {
-        for (const group of question.closesOnYes) {
-          excludedGroupsRef.current.add(group);
-        }
+        question.closesOnYes.forEach((group) =>
+          excludedGroupsRef.current.add(group),
+        );
       }
       if (value === 0 && question.closesOnNo) {
-        for (const group of question.closesOnNo) {
-          excludedGroupsRef.current.add(group);
-        }
+        question.closesOnNo.forEach((group) =>
+          excludedGroupsRef.current.add(group),
+        );
       }
 
       thinkingTimeout.current = setTimeout(() => {
@@ -326,6 +344,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setResultIndex(null);
     setIsManual(false);
     setSelectedModifierIds([]);
+    setProgress(0);
     askedRef.current = new Set();
     excludedGroupsRef.current = new Set();
     answerLogRef.current = [];
@@ -362,7 +381,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     questionNumber: questionsShown,
     questionText:
       currentQuestion !== null ? QUESTIONS[currentQuestion].text : null,
-    progress: Math.min(questionsShown / maxQuestions, 1),
+    progress,
     isThinking,
     tiebreakPersonas,
     triplebreakPersonas,

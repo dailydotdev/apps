@@ -383,6 +383,7 @@ export interface FunnelStepPersonaQuiz
     headline?: string;
     explainer?: string;
     cta?: string;
+    mascotVideoUrl?: string;
   }> {
   type: FunnelStepType.PersonaQuiz;
   onTransition: FunnelStepTransitionCallback<{

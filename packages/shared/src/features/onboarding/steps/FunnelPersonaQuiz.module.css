@@ -10,50 +10,6 @@
   }
 }
 
-@keyframes patchy-bounce {
-  0% {
-    transform: translateY(0) scale(1);
-  }
-  35% {
-    transform: translateY(-14px) scale(1.16);
-  }
-  60% {
-    transform: translateY(0) scale(0.96);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes patchy-wiggle {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  20% {
-    transform: rotate(-11deg);
-  }
-  40% {
-    transform: rotate(9deg);
-  }
-  60% {
-    transform: rotate(-6deg);
-  }
-  80% {
-    transform: rotate(4deg);
-  }
-}
-
-@keyframes patchy-tilt {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(-15deg) translateY(-4px);
-  }
-}
-
 @keyframes question-in {
   from {
     opacity: 0;
@@ -117,18 +73,6 @@
   animation: patchy-float 3s ease-in-out infinite;
 }
 
-.bounce {
-  animation: patchy-bounce 0.5s ease;
-}
-
-.wiggle {
-  animation: patchy-wiggle 0.5s ease;
-}
-
-.tilt {
-  animation: patchy-tilt 0.5s ease;
-}
-
 .questionIn {
   animation: question-in 0.35s ease both;
 }
@@ -156,9 +100,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .float,
-  .bounce,
-  .wiggle,
-  .tilt,
   .questionIn,
   .dot,
   .revealEmoji,
