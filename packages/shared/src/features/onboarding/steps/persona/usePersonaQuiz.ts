@@ -22,12 +22,6 @@ export type PersonaQuizPhase =
 /** UI-only pause so the belief shift feels deliberate; not a game tunable. */
 const THINKING_DURATION_MS = 450;
 
-const ANSWER_LABELS: Record<AnswerValue, string> = {
-  0: 'no',
-  0.5: 'not sure',
-  1: 'yes',
-};
-
 const {
   confidenceThreshold,
   tiebreakThreshold,
@@ -96,9 +90,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
 
   const askedRef = useRef<Set<number>>(new Set());
   const excludedGroupsRef = useRef<Set<string>>(new Set());
-  const answerLogRef = useRef<
-    Array<{ id: string; text: string; answer: string }>
-  >([]);
   const thinkingTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   // Quiz paths land on the reveal first, so the user can approve Patchy's
@@ -221,7 +212,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
   const start = useCallback(() => {
     askedRef.current = new Set();
     excludedGroupsRef.current = new Set();
-    answerLogRef.current = [];
     const fresh = initialBelief();
     setBelief(fresh);
     setResultIndex(null);
@@ -245,15 +235,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       const nextBelief = updateBelief(belief, currentQuestion, value);
       setBelief(nextBelief);
       setIsThinking(true);
-
-      answerLogRef.current.push({
-        id: `q${currentQuestion}`,
-        text: question.text,
-        answer: ANSWER_LABELS[value],
-      });
-      // Debug aid: full answer history with question ids.
-      // eslint-disable-next-line no-console
-      console.log('[persona-quiz] answers', answerLogRef.current);
 
       if (value === 1 && question.exclusiveGroup) {
         excludedGroupsRef.current.add(question.exclusiveGroup);
@@ -347,7 +328,6 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setProgress(0);
     askedRef.current = new Set();
     excludedGroupsRef.current = new Set();
-    answerLogRef.current = [];
   }, []);
 
   const tiebreakPersonas = useMemo(() => {

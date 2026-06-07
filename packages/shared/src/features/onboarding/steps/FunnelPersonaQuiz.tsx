@@ -1,5 +1,11 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import type { FunnelStepPersonaQuiz } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -41,17 +47,37 @@ const MASCOT_EMOJI_SIZE: Record<MascotSize, string> = {
   lg: 'text-[12rem]',
 };
 
-type MascotState = 'thinking' | 'reveal' | 'unsure' | 'onpath';
+type MascotState =
+  | 'thinking'
+  | 'reveal'
+  | 'unsure'
+  | 'onpath'
+  | 'idle1'
+  | 'idle2';
+
+// How long Patchy rests before a random idle clip plays, and between idles.
+const IDLE_MIN_DELAY_MS = 2600;
+const IDLE_MAX_DELAY_MS = 6500;
+
+const randomBetween = (min: number, max: number): number =>
+  min + Math.random() * (max - min);
+
+const prefersReducedMotion = (): boolean =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 interface MascotProps {
   /** Base path; each clip resolves to `${baseUrl}-${state}.webm` (+ .mov). */
   baseUrl?: string;
   /** All clips to mount and preload, so switching never re-decodes/flashes. */
   clips?: MascotState[];
-  /** The clip currently shown; the others stay preloaded but transparent. */
+  /** The clip Patchy rests on; also the one replayed on the `playing` beat. */
   activeClip?: MascotState;
+  /** Idle fillers played at random while Patchy is otherwise at rest. */
+  idleClips?: MascotState[];
   size?: MascotSize;
-  /** Plays the active clip while true; otherwise rests on the first frame. */
+  /** Replays the active clip whenever it flips true (e.g. the thinking beat). */
   playing?: boolean;
   /** Playback speed; the thinking clip runs faster, the rest at natural speed. */
   playbackRate?: number;
@@ -64,6 +90,7 @@ const Mascot = ({
   baseUrl,
   clips = ['thinking'],
   activeClip = clips[0],
+  idleClips,
   size = 'md',
   playing = false,
   playbackRate = 1,
@@ -71,18 +98,85 @@ const Mascot = ({
   className,
 }: MascotProps): ReactElement => {
   const videoRefs = useRef<Partial<Record<MascotState, HTMLVideoElement>>>({});
+  // The clip currently animating, or null when Patchy rests. Idle scheduling
+  // keys off this being null.
+  const [playingClip, setPlayingClip] = useState<MascotState | null>(null);
+  // What's actually painted. It only advances once a clip is truly rendering
+  // (its `playing` event), so a swap never reveals a blank/seeking frame —
+  // which, with alpha clips, shows through as a flicker.
+  const [shownClip, setShownClip] = useState<MascotState>(activeClip);
 
+  // Mount every primary and idle clip so swaps never re-decode or flash black.
+  const mountedClips = useMemo(
+    () => Array.from(new Set([...clips, ...(idleClips ?? [])])),
+    [clips, idleClips],
+  );
+
+  const play = useCallback(
+    (clip: MascotState) => {
+      const video = videoRefs.current[clip];
+      if (!video) {
+        return;
+      }
+      // Only one clip animates at a time; pausing the rest also stops their
+      // `ended` from later clobbering the active clip's state.
+      Object.entries(videoRefs.current).forEach(([key, other]) => {
+        if (key !== clip && other && !other.paused) {
+          other.pause();
+        }
+      });
+      video.currentTime = 0;
+      video.playbackRate = clip === activeClip ? playbackRate : 1;
+      setPlayingClip(clip);
+      video.play().catch(() => undefined);
+    },
+    [activeClip, playbackRate],
+  );
+
+  // Entry animation: play the active clip once when Patchy first appears.
   useEffect(() => {
-    const video = videoRefs.current[activeClip];
-    // Play the active (already-decoded) clip when `playing` flips true; the
-    // other clips stay mounted and preloaded so the swap never goes black.
-    if (!video || !playing) {
+    if (!baseUrl) {
       return;
     }
-    video.currentTime = 0;
-    video.playbackRate = playbackRate;
-    video.play().catch(() => undefined);
-  }, [playing, playbackRate, activeClip]);
+    play(activeClip);
+    // Mount-only; later replays go through the `playing` effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseUrl]);
+
+  // Replay the active clip whenever `playing` re-arms (e.g. each answer).
+  useEffect(() => {
+    if (!baseUrl || !playing) {
+      return;
+    }
+    play(activeClip);
+  }, [baseUrl, playing, activeClip, play]);
+
+  // While Patchy rests, occasionally play a random idle clip.
+  useEffect(() => {
+    if (
+      !baseUrl ||
+      playingClip !== null ||
+      !idleClips?.length ||
+      prefersReducedMotion()
+    ) {
+      return undefined;
+    }
+    const timeout = setTimeout(
+      () => play(idleClips[Math.floor(Math.random() * idleClips.length)]),
+      randomBetween(IDLE_MIN_DELAY_MS, IDLE_MAX_DELAY_MS),
+    );
+    return () => clearTimeout(timeout);
+  }, [baseUrl, playingClip, idleClips, play]);
+
+  // Swap the visible clip only once it has begun rendering frames.
+  const handlePlaying = (clip: MascotState): void => {
+    setShownClip(clip);
+  };
+
+  const handleEnded = (clip: MascotState): void => {
+    // Keep the ended clip's last frame on screen until the next one renders.
+    setPlayingClip((current) => (current === clip ? null : current));
+  };
 
   const handleTimeUpdate = (
     event: React.SyntheticEvent<HTMLVideoElement>,
@@ -114,7 +208,7 @@ const Mascot = ({
 
   return (
     <div className={classNames('relative', MASCOT_VIDEO_SIZE[size], className)}>
-      {clips.map((clip) => (
+      {mountedClips.map((clip) => (
         <video
           key={clip}
           ref={(el) => {
@@ -125,10 +219,12 @@ const Mascot = ({
           muted
           playsInline
           preload="auto"
+          onPlaying={() => handlePlaying(clip)}
+          onEnded={() => handleEnded(clip)}
           onTimeUpdate={clip === activeClip ? handleTimeUpdate : undefined}
           className={classNames(
             'absolute inset-0 h-full w-full object-contain transition-opacity duration-150',
-            clip === activeClip ? 'opacity-100' : 'opacity-0',
+            clip === shownClip ? 'opacity-100' : 'opacity-0',
           )}
         >
           <source src={`${baseUrl}-${clip}.webm`} type="video/webm" />
@@ -144,6 +240,9 @@ const Mascot = ({
 
 // Clips the in-quiz mascot can swap between; all preloaded to avoid flashes.
 const QUIZ_CLIPS: MascotState[] = ['thinking', 'onpath', 'unsure'];
+
+// Random idle fillers played whenever Patchy is waiting on the user.
+const IDLE_CLIPS: MascotState[] = ['idle1', 'idle2'];
 
 const THINKING_DOT_DELAYS = [0, 0.16, 0.32];
 
@@ -174,6 +273,91 @@ const warmthLabelFor = (value: number): string => {
   }
   return 'just getting started';
 };
+
+// Phrases the result as something Patchy says, e.g. "You're a Backend
+// Developer". Personas already prefixed with "The" keep their article.
+const personaRevealPhrase = (name: string): string => {
+  if (name.startsWith('The ')) {
+    return `You're the ${name.slice(4)}`;
+  }
+  const article = /^[aeiou]/i.test(name) ? 'an' : 'a';
+  return `You're ${article} ${name}`;
+};
+
+const SpeechBubble = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'relative w-full rounded-16 border-2 border-border-subtlest-tertiary p-6 text-center tablet:p-8',
+      className,
+    )}
+  >
+    {children}
+    {/* Tail points at Patchy, who only sits beside the bubble on laptop. */}
+    <span
+      aria-hidden
+      className="absolute right-0 top-1/2 hidden h-8 w-8 -translate-y-1/2 translate-x-1/2 rotate-45 border-r-2 border-t-2 border-border-subtlest-tertiary bg-background-default laptop:block"
+    />
+  </div>
+);
+
+interface QuizStageProps {
+  /** When set, the progress header is shown; otherwise it stays in the DOM but
+   * invisible so the intro/reveal screens don't shift relative to questions. */
+  progress?: { questionNumber: number; value: number };
+  mascot: ReactNode;
+  children: ReactNode;
+}
+
+// Shared skeleton for the intro, question and reveal screens: a top progress
+// header (reserved on every screen) above a centered bubble + Patchy row.
+const QuizStage = ({
+  progress,
+  mascot,
+  children,
+}: QuizStageProps): ReactElement => (
+  <div className="flex flex-1 flex-col px-6 py-10">
+    <div
+      aria-hidden={!progress}
+      className={classNames(
+        'mx-auto flex w-full max-w-screen-laptop flex-col gap-2',
+        !progress && 'invisible',
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Question {progress?.questionNumber ?? 1}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {warmthLabelFor(progress?.value ?? 0)}
+        </Typography>
+      </div>
+      <div className="h-1.5 w-full overflow-hidden rounded-10 bg-surface-float">
+        <div
+          className="h-full rounded-10 bg-accent-cabbage-default transition-[width] duration-500"
+          style={{ width: `${(progress?.value ?? 0) * 100}%` }}
+        />
+      </div>
+    </div>
+    <div className="flex flex-1 items-center justify-center">
+      <div className="flex w-full max-w-screen-laptop items-center justify-center gap-6">
+        {children}
+        {mascot}
+      </div>
+    </div>
+  </div>
+);
 
 type PersonaCardSize = 'medium' | 'small';
 
@@ -291,51 +475,57 @@ function FunnelPersonaQuizComponent({
 
   if (phase === 'intro') {
     return (
-      <div
+      <QuizStage
         key={phase}
-        className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-10 text-center"
+        mascot={
+          <Mascot
+            baseUrl={mascotVideoBaseUrl}
+            clips={['onpath']}
+            idleClips={IDLE_CLIPS}
+            size="lg"
+            className="hidden shrink-0 laptop:block"
+          />
+        }
       >
-        <Mascot
-          baseUrl={mascotVideoBaseUrl}
-          clips={['thinking']}
-          size="md"
-          className={styles.float}
-        />
-        <div className="flex max-w-3xl flex-col gap-4">
-          <Typography
-            tag={TypographyTag.H1}
-            type={TypographyType.LargeTitle}
-            bold
-          >
-            {headline || "Let's play a game"}
-          </Typography>
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Secondary}
-          >
-            {explainer ||
-              'A few quick yes/no questions are enough for Patchy to know what kind of dev you are.'}
-          </Typography>
+        <div className="flex w-full max-w-xl flex-col items-center gap-8">
+          <SpeechBubble>
+            <div className="flex flex-col gap-4">
+              <Typography
+                tag={TypographyTag.H1}
+                type={TypographyType.LargeTitle}
+                bold
+              >
+                {headline || "Let's play a game"}
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+              >
+                {explainer ||
+                  'A few quick yes/no questions are enough for me to know what kind of dev you are.'}
+              </Typography>
+            </div>
+          </SpeechBubble>
+          <div className="flex flex-col items-center gap-3">
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.XLarge}
+              onClick={start}
+              type="button"
+            >
+              {cta || "I'm ready!"}
+            </Button>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Medium}
+              onClick={pickManually}
+              type="button"
+            >
+              Nah, I&apos;ll pick myself
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col items-center gap-3">
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.XLarge}
-            onClick={start}
-            type="button"
-          >
-            {cta || "I'm ready!"}
-          </Button>
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Medium}
-            onClick={pickManually}
-            type="button"
-          >
-            Nah, I&apos;ll pick myself
-          </Button>
-        </div>
-      </div>
+      </QuizStage>
     );
   }
 
@@ -388,334 +578,351 @@ function FunnelPersonaQuizComponent({
 
   if (phase === 'tiebreak') {
     return (
-      <div
+      <QuizStage
         key={phase}
-        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+        mascot={
+          <Mascot
+            baseUrl={mascotVideoBaseUrl}
+            clips={['unsure']}
+            idleClips={IDLE_CLIPS}
+            size="lg"
+            className="hidden shrink-0 laptop:block"
+          />
+        }
       >
-        <Mascot
-          baseUrl={mascotVideoBaseUrl}
-          clips={['unsure']}
-          size="sm"
-          playing
-          className={styles.float}
-        />
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
-          I&apos;m torn between these two.
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-        >
-          Which one feels more like you?
-        </Typography>
-        <div className="grid w-full max-w-2xl grid-cols-1 gap-4 tablet:grid-cols-2">
-          {tiebreakPersonas.map((persona) => (
-            <PersonaCard
-              key={persona.id}
-              persona={persona}
-              onSelect={chooseTiebreak}
-            />
-          ))}
+        <div className="flex w-full flex-col items-center gap-8">
+          <SpeechBubble className="max-w-xl">
+            <div className="flex flex-col gap-4">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.LargeTitle}
+                bold
+              >
+                I&apos;m torn between these two.
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+              >
+                Which one feels more like you?
+              </Typography>
+            </div>
+          </SpeechBubble>
+          <div className="grid w-full max-w-2xl grid-cols-1 gap-4 tablet:grid-cols-2">
+            {tiebreakPersonas.map((persona) => (
+              <PersonaCard
+                key={persona.id}
+                persona={persona}
+                onSelect={chooseTiebreak}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      </QuizStage>
     );
   }
 
   if (phase === 'triplebreak') {
     return (
-      <div
+      <QuizStage
         key={phase}
-        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+        mascot={
+          <Mascot
+            baseUrl={mascotVideoBaseUrl}
+            clips={['unsure']}
+            idleClips={IDLE_CLIPS}
+            size="lg"
+            className="hidden shrink-0 laptop:block"
+          />
+        }
       >
-        <Mascot
-          baseUrl={mascotVideoBaseUrl}
-          clips={['unsure']}
-          size="sm"
-          playing
-          className={styles.float}
-        />
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
-          You&apos;re a tough one. Could be any of these three.
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-        >
-          Pick the one that fits best.
-        </Typography>
-        <div className="grid w-full max-w-3xl grid-cols-1 gap-4 tablet:grid-cols-3">
-          {triplebreakPersonas.map((persona) => (
-            <PersonaCard
-              key={persona.id}
-              persona={persona}
-              onSelect={chooseTiebreak}
-              size="small"
-            />
-          ))}
+        <div className="flex w-full flex-col items-center gap-8">
+          <SpeechBubble className="max-w-xl">
+            <div className="flex flex-col gap-4">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.LargeTitle}
+                bold
+              >
+                You&apos;re a tough one. Could be any of these three.
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+              >
+                Pick the one that fits best.
+              </Typography>
+            </div>
+          </SpeechBubble>
+          <div className="grid w-full max-w-3xl grid-cols-1 gap-4 tablet:grid-cols-3">
+            {triplebreakPersonas.map((persona) => (
+              <PersonaCard
+                key={persona.id}
+                persona={persona}
+                onSelect={chooseTiebreak}
+                size="small"
+              />
+            ))}
+          </div>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Medium}
+            onClick={pickManually}
+            type="button"
+          >
+            None of these. Let me pick.
+          </Button>
         </div>
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Medium}
-          onClick={pickManually}
-          type="button"
-        >
-          None of these. Let me pick.
-        </Button>
-      </div>
+      </QuizStage>
     );
   }
 
   if (phase === 'modifiers' && result) {
     return (
-      <div
+      <QuizStage
         key={phase}
-        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+        mascot={
+          <Mascot
+            baseUrl={mascotVideoBaseUrl}
+            clips={['onpath']}
+            idleClips={IDLE_CLIPS}
+            size="lg"
+            className="hidden shrink-0 laptop:block"
+          />
+        }
       >
-        <Mascot
-          baseUrl={mascotVideoBaseUrl}
-          clips={['onpath']}
-          size="sm"
-          playing
-          className={styles.float}
-        />
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
-          One more thing.
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-          className="max-w-md"
-        >
-          Tick any of these that describe you. They tune your feed beyond your
-          persona.
-        </Typography>
-        <div className="flex w-full max-w-xl flex-col gap-3">
-          {modifiers.map((modifier) => {
-            const checked = selectedModifierIds.includes(modifier.id);
-            return (
-              <button
-                key={modifier.id}
-                type="button"
-                role="checkbox"
-                aria-checked={checked}
-                onClick={() => toggleModifier(modifier.id)}
-                className={classNames(
-                  'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left transition-colors',
-                  checked
-                    ? 'border-accent-cabbage-default bg-surface-float'
-                    : 'border-border-subtlest-tertiary bg-surface-float hover:border-text-quaternary',
-                )}
+        <div className="flex w-full max-w-xl flex-col items-center gap-8">
+          <SpeechBubble>
+            <div className="flex flex-col gap-4">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.LargeTitle}
+                bold
               >
-                <span className="shrink-0 text-4xl leading-none">
-                  {modifier.emoji}
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <Typography type={TypographyType.Body} bold>
-                    {modifier.label}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Secondary}
-                  >
-                    {modifier.description}
-                  </Typography>
-                </span>
-                <span
+                One more thing.
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+              >
+                Tick any of these that describe you. They tune your feed beyond
+                your persona.
+              </Typography>
+            </div>
+          </SpeechBubble>
+          <div className="flex w-full flex-col gap-3">
+            {modifiers.map((modifier) => {
+              const checked = selectedModifierIds.includes(modifier.id);
+              return (
+                <button
+                  key={modifier.id}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={checked}
+                  onClick={() => toggleModifier(modifier.id)}
                   className={classNames(
-                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-6 border-2 text-sm font-bold',
+                    'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left transition-colors',
                     checked
-                      ? 'border-accent-cabbage-default bg-accent-cabbage-default text-text-primary'
-                      : 'border-border-subtlest-tertiary',
+                      ? 'border-accent-cabbage-default bg-surface-float'
+                      : 'border-border-subtlest-tertiary bg-surface-float hover:border-text-quaternary',
                   )}
-                  aria-hidden
                 >
-                  {checked ? '✓' : ''}
-                </span>
-              </button>
-            );
-          })}
+                  <span className="shrink-0 text-4xl leading-none">
+                    {modifier.emoji}
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <Typography type={TypographyType.Body} bold>
+                      {modifier.label}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Secondary}
+                    >
+                      {modifier.description}
+                    </Typography>
+                  </span>
+                  <span
+                    className={classNames(
+                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-6 border-2 text-sm font-bold',
+                      checked
+                        ? 'border-accent-cabbage-default bg-accent-cabbage-default text-text-primary'
+                        : 'border-border-subtlest-tertiary',
+                    )}
+                    aria-hidden
+                  >
+                    {checked ? '✓' : ''}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.XLarge}
+            onClick={handleComplete}
+            type="button"
+          >
+            {selectedModifierIds.length === 0
+              ? 'None of these — continue'
+              : 'Continue →'}
+          </Button>
         </div>
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.XLarge}
-          onClick={handleComplete}
-          type="button"
-        >
-          {selectedModifierIds.length === 0
-            ? 'None of these — continue'
-            : 'Continue →'}
-        </Button>
-      </div>
+      </QuizStage>
     );
   }
 
   if (phase === 'reveal' && result) {
     const { persona } = result;
     return (
-      <div
+      <QuizStage
         key={phase}
-        className="flex flex-1 flex-col items-center justify-center px-6 py-10"
-      >
-        <div className="flex w-full max-w-screen-laptop items-center justify-center gap-6">
-          <div className="flex w-full max-w-xl flex-col items-center gap-6 text-center">
-            {revealReady && (
-              <>
-                <Typography
-                  tag={TypographyTag.H1}
-                  type={TypographyType.LargeTitle}
-                  bold
-                  className={styles.revealName}
-                  style={{ color: persona.color }}
-                >
-                  {persona.emoji} {persona.name}
-                </Typography>
-                <Typography
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
-                  className={classNames(styles.revealTagline, 'max-w-md')}
-                >
-                  {persona.tagline}
-                </Typography>
-                <div
-                  className={classNames(
-                    styles.revealActions,
-                    'mt-2 flex flex-col items-center gap-3',
-                  )}
-                >
-                  <Button
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.XLarge}
-                    onClick={confirmPersona}
-                    type="button"
-                  >
-                    {cta || "Yes, that's me!"}
-                  </Button>
-                  <Button
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Medium}
-                    onClick={pickManually}
-                    type="button"
-                  >
-                    Nah, I&apos;ll pick myself
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
+        mascot={
           <Mascot
             baseUrl={mascotVideoBaseUrl}
             clips={['reveal']}
+            idleClips={IDLE_CLIPS}
             size="lg"
-            playing
             onHalfway={() => setRevealReady(true)}
             className="hidden shrink-0 laptop:block"
           />
+        }
+      >
+        <div className="flex w-full max-w-xl flex-col items-center gap-8">
+          {revealReady && (
+            <>
+              <SpeechBubble>
+                <div className="flex flex-col gap-4">
+                  <Typography
+                    tag={TypographyTag.H1}
+                    type={TypographyType.LargeTitle}
+                    bold
+                    className={styles.revealName}
+                    style={{ color: persona.color }}
+                  >
+                    {personaRevealPhrase(persona.name)} {persona.emoji}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Body}
+                    color={TypographyColor.Secondary}
+                    className={styles.revealTagline}
+                  >
+                    {persona.tagline}
+                  </Typography>
+                </div>
+              </SpeechBubble>
+              <div
+                className={classNames(
+                  styles.revealActions,
+                  'flex flex-col items-center gap-3',
+                )}
+              >
+                <Button
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.XLarge}
+                  onClick={confirmPersona}
+                  type="button"
+                >
+                  {cta || "Yes, that's me!"}
+                </Button>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Medium}
+                  onClick={pickManually}
+                  type="button"
+                >
+                  Nah, I&apos;ll pick myself
+                </Button>
+              </div>
+            </>
+          )}
         </div>
-      </div>
+      </QuizStage>
     );
   }
 
   return (
-    <div key={phase} className="flex flex-1 flex-col px-6 py-10">
-      <div className="mx-auto flex w-full max-w-screen-laptop flex-col gap-2">
-        <div className="flex items-center justify-between">
+    <QuizStage
+      key={phase}
+      progress={{ questionNumber, value: progress }}
+      mascot={
+        <Mascot
+          baseUrl={mascotVideoBaseUrl}
+          clips={QUIZ_CLIPS}
+          activeClip={thinkingClip}
+          idleClips={IDLE_CLIPS}
+          size="lg"
+          playing={isThinking}
+          playbackRate={thinkingClip === 'thinking' ? 1.8 : 1}
+          className="hidden shrink-0 laptop:block"
+        />
+      }
+    >
+      <div
+        key={`question-${questionNumber}`}
+        className={classNames(
+          styles.questionIn,
+          'flex w-full max-w-xl flex-col items-center gap-8',
+        )}
+      >
+        <SpeechBubble>
           <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
+            tag={TypographyTag.H2}
+            type={TypographyType.LargeTitle}
+            bold
           >
-            Question {questionNumber}
+            {questionText}
           </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {warmthLabelFor(progress)}
-          </Typography>
-        </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-10 bg-surface-float">
+        </SpeechBubble>
+        <div className="relative mx-auto w-full max-w-md">
           <div
-            className="h-full rounded-10 bg-accent-cabbage-default transition-[width] duration-500"
-            style={{ width: `${progress * 100}%` }}
-          />
-        </div>
-      </div>
-      <div className="flex flex-1 items-center justify-center">
-        <div className="flex w-full max-w-screen-laptop items-center justify-center gap-6">
-          <div
-            key={`question-${questionNumber}`}
             className={classNames(
-              styles.questionIn,
-              'flex w-full max-w-xl flex-col gap-8 text-center',
+              'flex flex-col gap-3 transition-opacity duration-200',
+              isThinking && 'pointer-events-none opacity-0',
             )}
           >
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.LargeTitle}
-              bold
-            >
-              {questionText}
-            </Typography>
-            <div className="relative mx-auto w-full max-w-md">
-              <div
-                className={classNames(
-                  'flex flex-col gap-3 transition-opacity duration-200',
-                  isThinking && 'pointer-events-none opacity-0',
-                )}
+            <div className="flex w-full gap-3">
+              <Button
+                className="flex-1"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Large}
+                type="button"
+                icon={<UpvoteIcon />}
+                disabled={isThinking}
+                onClick={() => handleAnswer(1)}
               >
-                <div className="flex w-full gap-3">
-                  <Button
-                    className="flex-1"
-                    variant={ButtonVariant.Secondary}
-                    size={ButtonSize.Large}
-                    type="button"
-                    icon={<UpvoteIcon />}
-                    disabled={isThinking}
-                    onClick={() => handleAnswer(1)}
-                  >
-                    Yes
-                  </Button>
-                  <Button
-                    className="flex-1"
-                    variant={ButtonVariant.Secondary}
-                    size={ButtonSize.Large}
-                    type="button"
-                    icon={<DownvoteIcon />}
-                    disabled={isThinking}
-                    onClick={() => handleAnswer(0)}
-                  >
-                    No
-                  </Button>
-                </div>
-                <Button
-                  className="self-center"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Medium}
-                  type="button"
-                  disabled={isThinking}
-                  onClick={() => handleAnswer(0.5)}
-                >
-                  Not sure
-                </Button>
-              </div>
-              {isThinking && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <ThinkingDots />
-                </div>
-              )}
+                Yes
+              </Button>
+              <Button
+                className="flex-1"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Large}
+                type="button"
+                icon={<DownvoteIcon />}
+                disabled={isThinking}
+                onClick={() => handleAnswer(0)}
+              >
+                No
+              </Button>
             </div>
+            <Button
+              className="self-center"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Medium}
+              type="button"
+              disabled={isThinking}
+              onClick={() => handleAnswer(0.5)}
+            >
+              Not sure
+            </Button>
           </div>
-          <Mascot
-            baseUrl={mascotVideoBaseUrl}
-            clips={QUIZ_CLIPS}
-            activeClip={thinkingClip}
-            size="lg"
-            playing={isThinking}
-            playbackRate={thinkingClip === 'thinking' ? 1.8 : 1}
-            className="hidden shrink-0 laptop:block"
-          />
+          {isThinking && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ThinkingDots />
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </QuizStage>
   );
 }
 

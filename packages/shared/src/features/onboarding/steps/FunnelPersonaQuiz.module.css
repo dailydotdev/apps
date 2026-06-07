@@ -1,15 +1,5 @@
 /* Micro-interactions for the Patchy persona quiz. Scoped via CSS modules. */
 
-@keyframes patchy-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
 @keyframes question-in {
   from {
     opacity: 0;
@@ -45,10 +35,6 @@
   }
 }
 
-.float {
-  animation: patchy-float 3s ease-in-out infinite;
-}
-
 .questionIn {
   animation: question-in 0.35s ease both;
 }
@@ -70,7 +56,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .float,
   .questionIn,
   .dot,
   .revealName,
