@@ -52,7 +52,7 @@ export const PERSONAS: DeveloperPersona[] = [
   {
     id: 'generalist-developer',
     name: 'Generalist Developer',
-    emoji: '🦊',
+    emoji: '🐙',
     color: '#f59e0b',
     tagline:
       "Your curiosity is too broad to pin down. We'll give you a wide-angle feed.",
@@ -123,7 +123,7 @@ export const PERSONAS: DeveloperPersona[] = [
   {
     id: 'dotnet-developer',
     name: '.NET Developer',
-    emoji: '🟦',
+    emoji: '🪟',
     color: '#512bd4',
     tagline: 'C#, ASP.NET, Blazor. The Microsoft stack done right.',
   },
@@ -146,8 +146,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'The Operator',
     emoji: '💼',
     color: '#64748b',
-    tagline:
-      'Product, design, strategy. You ship outcomes.',
+    tagline: 'Product, design, strategy. You ship outcomes.',
   },
 ];
 
@@ -258,8 +257,8 @@ export const MODIFIERS: PersonaModifier[] = [
       'You use AI tools (Cursor, Claude, agents) for meaningful chunks of your work.',
   },
   {
-    id: 'indie-hacker',
-    label: 'Indie Hacker',
+    id: 'founder',
+    label: 'Founder',
     emoji: '🚀',
     description: "You're building your own product, startup, or side business.",
   },

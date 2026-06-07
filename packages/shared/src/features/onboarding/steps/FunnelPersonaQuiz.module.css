@@ -34,30 +34,6 @@
   }
 }
 
-@keyframes reveal-spring {
-  0% {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes reveal-glow {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 28px var(--persona-glow));
-  }
-  50% {
-    filter: drop-shadow(0 0 64px var(--persona-glow));
-  }
-}
-
 @keyframes reveal-rise {
   from {
     opacity: 0;
@@ -81,11 +57,6 @@
   animation: dot-blink 1.2s ease-in-out infinite;
 }
 
-.revealEmoji {
-  animation: reveal-spring 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-    reveal-glow 2.4s ease-in-out 0.6s infinite;
-}
-
 .revealName {
   animation: reveal-rise 0.5s ease 0.15s both;
 }
@@ -102,7 +73,6 @@
   .float,
   .questionIn,
   .dot,
-  .revealEmoji,
   .revealName,
   .revealTagline,
   .revealActions {

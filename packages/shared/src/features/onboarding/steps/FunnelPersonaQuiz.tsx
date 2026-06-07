@@ -1,5 +1,5 @@
-import type { CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { FunnelStepPersonaQuiz } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -16,8 +16,9 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DownvoteIcon, UpvoteIcon } from '../../../components/icons';
-import ConfettiSvg from '../../../svg/ConfettiSvg';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { usePersonaQuiz } from './persona/usePersonaQuiz';
+import type { AnswerValue } from './persona/engine';
 import type { DeveloperPersona } from './persona/data';
 import styles from './FunnelPersonaQuiz.module.css';
 
@@ -40,35 +41,63 @@ const MASCOT_EMOJI_SIZE: Record<MascotSize, string> = {
   lg: 'text-[12rem]',
 };
 
+type MascotState = 'thinking' | 'reveal' | 'unsure' | 'onpath';
+
 interface MascotProps {
-  videoUrl?: string;
+  /** Base path; each clip resolves to `${baseUrl}-${state}.webm` (+ .mov). */
+  baseUrl?: string;
+  /** All clips to mount and preload, so switching never re-decodes/flashes. */
+  clips?: MascotState[];
+  /** The clip currently shown; the others stay preloaded but transparent. */
+  activeClip?: MascotState;
   size?: MascotSize;
-  /** Plays the thinking animation while true; otherwise rests on the first frame. */
+  /** Plays the active clip while true; otherwise rests on the first frame. */
   playing?: boolean;
+  /** Playback speed; the thinking clip runs faster, the rest at natural speed. */
+  playbackRate?: number;
+  /** Fires once the active clip passes its halfway point. */
+  onHalfway?: () => void;
   className?: string;
 }
 
 const Mascot = ({
-  videoUrl,
+  baseUrl,
+  clips = ['thinking'],
+  activeClip = clips[0],
   size = 'md',
   playing = false,
+  playbackRate = 1,
+  onHalfway,
   className,
 }: MascotProps): ReactElement => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRefs = useRef<Partial<Record<MascotState, HTMLVideoElement>>>({});
 
   useEffect(() => {
-    const video = videoRef.current;
-    // Start the thinking animation on each answer and let it play through;
-    // it is never stopped or reset once it begins.
+    const video = videoRefs.current[activeClip];
+    // Play the active (already-decoded) clip when `playing` flips true; the
+    // other clips stay mounted and preloaded so the swap never goes black.
     if (!video || !playing) {
       return;
     }
     video.currentTime = 0;
-    video.playbackRate = 1.8;
+    video.playbackRate = playbackRate;
     video.play().catch(() => undefined);
-  }, [playing]);
+  }, [playing, playbackRate, activeClip]);
 
-  if (!videoUrl) {
+  const handleTimeUpdate = (
+    event: React.SyntheticEvent<HTMLVideoElement>,
+  ): void => {
+    const video = event.currentTarget;
+    if (
+      onHalfway &&
+      video.duration &&
+      video.currentTime >= video.duration / 2
+    ) {
+      onHalfway();
+    }
+  };
+
+  if (!baseUrl) {
     return (
       <span
         className={classNames(
@@ -83,30 +112,38 @@ const Mascot = ({
     );
   }
 
-  // Convention: an alpha WebM (Chrome/Firefox) colocated with an HEVC .mov
-  // sibling carrying alpha for Safari.
-  const isWebm = videoUrl.endsWith('.webm');
-  const hevcUrl = isWebm ? videoUrl.replace(/\.webm$/, '.mov') : undefined;
-
   return (
-    <video
-      ref={videoRef}
-      muted
-      playsInline
-      preload="auto"
-      className={classNames(
-        MASCOT_VIDEO_SIZE[size],
-        'object-contain',
-        className,
-      )}
-    >
-      <source src={videoUrl} type={isWebm ? 'video/webm' : undefined} />
-      {hevcUrl && (
-        <source src={hevcUrl} type='video/quicktime; codecs="hvc1"' />
-      )}
-    </video>
+    <div className={classNames('relative', MASCOT_VIDEO_SIZE[size], className)}>
+      {clips.map((clip) => (
+        <video
+          key={clip}
+          ref={(el) => {
+            if (el) {
+              videoRefs.current[clip] = el;
+            }
+          }}
+          muted
+          playsInline
+          preload="auto"
+          onTimeUpdate={clip === activeClip ? handleTimeUpdate : undefined}
+          className={classNames(
+            'absolute inset-0 h-full w-full object-contain transition-opacity duration-150',
+            clip === activeClip ? 'opacity-100' : 'opacity-0',
+          )}
+        >
+          <source src={`${baseUrl}-${clip}.webm`} type="video/webm" />
+          <source
+            src={`${baseUrl}-${clip}.mov`}
+            type='video/quicktime; codecs="hvc1"'
+          />
+        </video>
+      ))}
+    </div>
   );
 };
+
+// Clips the in-quiz mascot can swap between; all preloaded to avoid flashes.
+const QUIZ_CLIPS: MascotState[] = ['thinking', 'onpath', 'unsure'];
 
 const THINKING_DOT_DELAYS = [0, 0.16, 0.32];
 
@@ -181,7 +218,7 @@ const PersonaCard = ({
 );
 
 function FunnelPersonaQuizComponent({
-  parameters: { headline, explainer, cta, mascotVideoUrl },
+  parameters: { headline, explainer, cta, mascotVideoBaseUrl },
   onTransition,
 }: FunnelStepPersonaQuiz): ReactElement {
   const {
@@ -207,6 +244,38 @@ function FunnelPersonaQuizComponent({
     toggleModifier,
   } = usePersonaQuiz();
 
+  // Patchy only shows beside the content on laptop, mirroring the question
+  // layout; on smaller screens there is no mascot to wait for.
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  // Which clip plays during the thinking beat, chosen per answer.
+  const [thinkingClip, setThinkingClip] = useState<MascotState>('thinking');
+  // On the reveal we hold the answer back until Patchy finishes his animation.
+  const [revealReady, setRevealReady] = useState(false);
+
+  useEffect(() => {
+    if (phase !== 'reveal') {
+      return undefined;
+    }
+    setRevealReady(false);
+    if (!mascotVideoBaseUrl || !isLaptop) {
+      setRevealReady(true);
+      return undefined;
+    }
+    // Fallback in case the video never reports progress (e.g. blocked autoplay).
+    const timeout = setTimeout(() => setRevealReady(true), 2500);
+    return () => clearTimeout(timeout);
+  }, [phase, mascotVideoBaseUrl, isLaptop]);
+
+  const handleAnswer = (value: AnswerValue) => {
+    if (isThinking) {
+      return;
+    }
+    const options: MascotState[] =
+      value === 1 ? ['thinking', 'onpath'] : ['thinking', 'unsure'];
+    setThinkingClip(options[Math.floor(Math.random() * options.length)]);
+    answer(value);
+  };
+
   const handleComplete = () => {
     onTransition({
       type: FunnelStepTransitionType.Complete,
@@ -226,21 +295,26 @@ function FunnelPersonaQuizComponent({
         key={phase}
         className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-10 text-center"
       >
-        <Mascot videoUrl={mascotVideoUrl} size="md" className={styles.float} />
+        <Mascot
+          baseUrl={mascotVideoBaseUrl}
+          clips={['thinking']}
+          size="md"
+          className={styles.float}
+        />
         <div className="flex max-w-3xl flex-col gap-4">
           <Typography
             tag={TypographyTag.H1}
             type={TypographyType.LargeTitle}
             bold
           >
-            {headline || 'Let Patchy guess what kind of dev you are'}
+            {headline || "Let's play a game"}
           </Typography>
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Secondary}
           >
             {explainer ||
-              'A few quick yes/no questions. Patchy handles the rest.'}
+              'A few quick yes/no questions are enough for Patchy to know what kind of dev you are.'}
           </Typography>
         </div>
         <div className="flex flex-col items-center gap-3">
@@ -250,7 +324,7 @@ function FunnelPersonaQuizComponent({
             onClick={start}
             type="button"
           >
-            {cta || 'Game on!'}
+            {cta || "I'm ready!"}
           </Button>
           <Button
             variant={ButtonVariant.Tertiary}
@@ -318,7 +392,13 @@ function FunnelPersonaQuizComponent({
         key={phase}
         className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
       >
-        <Mascot videoUrl={mascotVideoUrl} size="sm" className={styles.float} />
+        <Mascot
+          baseUrl={mascotVideoBaseUrl}
+          clips={['unsure']}
+          size="sm"
+          playing
+          className={styles.float}
+        />
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           I&apos;m torn between these two.
         </Typography>
@@ -347,7 +427,13 @@ function FunnelPersonaQuizComponent({
         key={phase}
         className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
       >
-        <Mascot videoUrl={mascotVideoUrl} size="sm" className={styles.float} />
+        <Mascot
+          baseUrl={mascotVideoBaseUrl}
+          clips={['unsure']}
+          size="sm"
+          playing
+          className={styles.float}
+        />
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           You&apos;re a tough one. Could be any of these three.
         </Typography>
@@ -385,7 +471,13 @@ function FunnelPersonaQuizComponent({
         key={phase}
         className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
       >
-        <Mascot videoUrl={mascotVideoUrl} size="sm" className={styles.float} />
+        <Mascot
+          baseUrl={mascotVideoBaseUrl}
+          clips={['onpath']}
+          size="sm"
+          playing
+          className={styles.float}
+        />
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           One more thing.
         </Typography>
@@ -462,67 +554,62 @@ function FunnelPersonaQuizComponent({
     return (
       <div
         key={phase}
-        className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center"
+        className="flex flex-1 flex-col items-center justify-center px-6 py-10"
       >
-        <div className="relative flex items-center justify-center">
-          <ConfettiSvg
-            aria-hidden
-            className="pointer-events-none absolute -top-10 h-44 w-72"
-          />
-          <span
-            className={classNames(
-              styles.revealEmoji,
-              'text-[6rem] leading-none',
+        <div className="flex w-full max-w-screen-laptop items-center justify-center gap-6">
+          <div className="flex w-full max-w-xl flex-col items-center gap-6 text-center">
+            {revealReady && (
+              <>
+                <Typography
+                  tag={TypographyTag.H1}
+                  type={TypographyType.LargeTitle}
+                  bold
+                  className={styles.revealName}
+                  style={{ color: persona.color }}
+                >
+                  {persona.emoji} {persona.name}
+                </Typography>
+                <Typography
+                  type={TypographyType.Body}
+                  color={TypographyColor.Secondary}
+                  className={classNames(styles.revealTagline, 'max-w-md')}
+                >
+                  {persona.tagline}
+                </Typography>
+                <div
+                  className={classNames(
+                    styles.revealActions,
+                    'mt-2 flex flex-col items-center gap-3',
+                  )}
+                >
+                  <Button
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.XLarge}
+                    onClick={confirmPersona}
+                    type="button"
+                  >
+                    {cta || "Yes, that's me!"}
+                  </Button>
+                  <Button
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Medium}
+                    onClick={pickManually}
+                    type="button"
+                  >
+                    Nah, I&apos;ll pick myself
+                  </Button>
+                </div>
+              </>
             )}
-            style={
-              {
-                color: persona.color,
-                filter: `drop-shadow(0 0 40px ${persona.color})`,
-                '--persona-glow': persona.color,
-              } as CSSProperties
-            }
-          >
-            {persona.emoji}
-          </span>
-        </div>
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          bold
-          className={styles.revealName}
-          style={{ color: persona.color }}
-        >
-          {persona.name}
-        </Typography>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-          className={classNames(styles.revealTagline, 'max-w-md')}
-        >
-          {persona.tagline}
-        </Typography>
-        <div
-          className={classNames(
-            styles.revealActions,
-            'mt-2 flex flex-col items-center gap-3',
-          )}
-        >
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.XLarge}
-            onClick={confirmPersona}
-            type="button"
-          >
-            {cta || "Yes, that's me!"}
-          </Button>
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Medium}
-            onClick={pickManually}
-            type="button"
-          >
-            Nah, I&apos;ll pick myself
-          </Button>
+          </div>
+          <Mascot
+            baseUrl={mascotVideoBaseUrl}
+            clips={['reveal']}
+            size="lg"
+            playing
+            onHalfway={() => setRevealReady(true)}
+            className="hidden shrink-0 laptop:block"
+          />
         </div>
       </div>
     );
@@ -568,44 +655,46 @@ function FunnelPersonaQuizComponent({
             >
               {questionText}
             </Typography>
-            <div className="relative mx-auto w-full max-w-lg">
+            <div className="relative mx-auto w-full max-w-md">
               <div
                 className={classNames(
-                  'flex flex-row gap-3 transition-opacity duration-200',
+                  'flex flex-col gap-3 transition-opacity duration-200',
                   isThinking && 'pointer-events-none opacity-0',
                 )}
               >
+                <div className="flex w-full gap-3">
+                  <Button
+                    className="flex-1"
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Large}
+                    type="button"
+                    icon={<UpvoteIcon />}
+                    disabled={isThinking}
+                    onClick={() => handleAnswer(1)}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Large}
+                    type="button"
+                    icon={<DownvoteIcon />}
+                    disabled={isThinking}
+                    onClick={() => handleAnswer(0)}
+                  >
+                    No
+                  </Button>
+                </div>
                 <Button
-                  className="flex-1"
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Large}
-                  type="button"
-                  icon={<UpvoteIcon />}
-                  disabled={isThinking}
-                  onClick={() => answer(1)}
-                >
-                  Yes
-                </Button>
-                <Button
-                  className="flex-1"
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Large}
+                  className="self-center"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Medium}
                   type="button"
                   disabled={isThinking}
-                  onClick={() => answer(0.5)}
+                  onClick={() => handleAnswer(0.5)}
                 >
                   Not sure
-                </Button>
-                <Button
-                  className="flex-1"
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Large}
-                  type="button"
-                  icon={<DownvoteIcon />}
-                  disabled={isThinking}
-                  onClick={() => answer(0)}
-                >
-                  No
                 </Button>
               </div>
               {isThinking && (
@@ -616,9 +705,12 @@ function FunnelPersonaQuizComponent({
             </div>
           </div>
           <Mascot
-            videoUrl={mascotVideoUrl}
+            baseUrl={mascotVideoBaseUrl}
+            clips={QUIZ_CLIPS}
+            activeClip={thinkingClip}
             size="lg"
             playing={isThinking}
+            playbackRate={thinkingClip === 'thinking' ? 1.8 : 1}
             className="hidden shrink-0 laptop:block"
           />
         </div>

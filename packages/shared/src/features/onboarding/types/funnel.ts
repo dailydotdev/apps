@@ -383,7 +383,12 @@ export interface FunnelStepPersonaQuiz
     headline?: string;
     explainer?: string;
     cta?: string;
-    mascotVideoUrl?: string;
+    /**
+     * Base path for the mascot clips. The component appends the per-state
+     * suffix, e.g. `${base}-thinking.webm`, `${base}-reveal.webm`. An alpha
+     * WebM is expected, with an HEVC `.mov` sibling for Safari.
+     */
+    mascotVideoBaseUrl?: string;
   }> {
   type: FunnelStepType.PersonaQuiz;
   onTransition: FunnelStepTransitionCallback<{

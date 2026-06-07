@@ -52,7 +52,7 @@ function PersonaQuizDemo(): ReactElement {
     isActive: true,
     parameters: {
       backgroundType: FunnelBackgroundVariant.Default,
-      mascotVideoUrl: '/onboarding/patchy.webm',
+      mascotVideoBaseUrl: '/onboarding/patchy',
     },
     transitions: [],
     onTransition,
