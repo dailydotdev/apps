@@ -142,12 +142,12 @@ export const PERSONAS: DeveloperPersona[] = [
     tagline: 'iOS, Android, Flutter. The app store is your stage.',
   },
   {
-    id: 'tech-strategist',
-    name: 'Tech Strategist',
+    id: 'operator',
+    name: 'The Operator',
     emoji: '💼',
     color: '#64748b',
     tagline:
-      'Product, design, strategy. You shape what gets built without writing the code.',
+      'Product, design, strategy. You ship outcomes.',
   },
 ];
 
@@ -167,7 +167,7 @@ export const QUESTIONS: PersonaQuestion[] = [
   {
     text: "You don't write code as part of your day-to-day job.",
     layer: 0,
-    lockPersonaId: 'tech-strategist',
+    lockPersonaId: 'operator',
   },
   {
     text: 'Your main output is a web app people open in a browser.',
@@ -176,7 +176,7 @@ export const QUESTIONS: PersonaQuestion[] = [
   },
   { text: "You're faster in a terminal than in any GUI.", layer: 1 },
   {
-    text: 'You build apps for iPhone or Android.',
+    text: 'Your daily IDE is Xcode or Android Studio.',
     layer: 1,
     lockPersonaId: 'mobile-developer',
     exclusiveGroup: 'primary-platform',
@@ -224,7 +224,7 @@ export const QUESTIONS: PersonaQuestion[] = [
     exclusiveGroup: 'main-language',
   },
   {
-    text: 'DevOps, SRE, or platform engineering is your job, not just a side responsibility.',
+    text: 'Kubernetes, CI/CD, and observability are what you ship.',
     layer: 3,
     lockPersonaId: 'devops-engineer',
   },
@@ -243,7 +243,7 @@ export const QUESTIONS: PersonaQuestion[] = [
     lockPersonaId: 'game-developer',
   },
   {
-    text: 'Security is your primary job, not a side concern.',
+    text: 'Your week is threat modeling, pen tests, and vulnerability triage.',
     layer: 2,
     lockPersonaId: 'security-engineer',
   },
@@ -276,7 +276,7 @@ export const MODIFIERS: PersonaModifier[] = [
  * Likelihood matrix: P[persona][question] = probability a member of that
  * persona answers yes. Computed from 90d engagement data on 93,345 active
  * daily.dev users. 13 engineer-persona rows are data-grounded via K-means.
- * Tech Strategist row and the 'don't write code' column are hand-crafted
+ * The Operator row and the 'don't write code' column are hand-crafted
  * (non-engineers do not appear in the engagement clustering).
  */
 export const PERSONA_QUESTION_LIKELIHOOD: number[][] = [
