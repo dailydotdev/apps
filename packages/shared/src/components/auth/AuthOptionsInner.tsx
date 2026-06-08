@@ -158,7 +158,8 @@ function AuthOptionsInner({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user, isFunnel, isAndroidApp } = useAuthContext();
+  const { refetchBoot, user, isFunnel, isAndroidApp, isAuthReady } =
+    useAuthContext();
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
@@ -647,6 +648,7 @@ function AuthOptionsInner({
   };
 
   const canUseOneTap =
+    isAuthReady &&
     !user &&
     !checkIsExtension() &&
     !isIOSNative() &&
