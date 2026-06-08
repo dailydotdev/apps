@@ -201,6 +201,10 @@ function MainLayoutComponent({
     !user &&
     isPageReady &&
     isPageApplicableForOnboarding &&
+    // Install referrals (`?ref=install`) are routed by the permission-primer
+    // flow in `_app` (to `/activate` or `/onboarding`). Redirecting here too
+    // would race that and bounce the user off `/activate`.
+    router?.query?.ref !== 'install' &&
     !isTesting;
 
   useEffect(() => {

@@ -1,14 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
 import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { getPageSeoTitles } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -20,28 +16,15 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-function ActivatePage(): ReactElement | null {
+// Whether install referrals reach this page is decided upstream in `_app`
+// via the permission primer flag. Once here, the primer stays put until the
+// user acts on it — no per-user re-evaluation, so it never bounces out.
+function ActivatePage(): ReactElement {
   const router = useRouter();
-  const { logEvent } = useLogContext();
-  const { value: isPrimerEnabled, isLoading } = useConditionalFeature({
-    feature: featureOnboardingPermissionPrimer,
-  });
-
-  useEffect(() => {
-    if (isLoading || isPrimerEnabled) {
-      return;
-    }
-    logEvent({ event_name: LogEvent.ExtensionPrimerSkipped });
-    router.replace('/onboarding');
-  }, [isLoading, isPrimerEnabled, logEvent, router]);
 
   const handleComplete = useCallback((): void => {
     router.replace('/onboarding');
   }, [router]);
-
-  if (isLoading || !isPrimerEnabled) {
-    return null;
-  }
 
   return (
     <ErrorBoundary feature="onboarding">
