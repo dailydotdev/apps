@@ -21,7 +21,6 @@ import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostHeaderActions } from '../PostHeaderActions';
 import { PostContainer } from '../common';
 import { PostTagList } from '../tags/PostTagList';
-import PostToc from '../../widgets/PostToc';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
@@ -92,7 +91,6 @@ export const PostFocusCard = ({
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const readHref = getReadArticleHref(post);
-  const hasToc = (article.toc?.length ?? 0) > 0;
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -231,14 +229,6 @@ export const PostFocusCard = ({
           />
 
           <PostTagList post={article} />
-
-          {hasToc && (
-            <PostToc
-              collapsible
-              className="rounded-16 border border-border-subtlest-tertiary bg-transparent"
-              post={article}
-            />
-          )}
 
           <aside className="w-full max-w-80 laptopXL:absolute laptopXL:left-full laptopXL:top-6 laptopXL:ml-6 laptopXL:w-80 laptopXL:max-w-none">
             <PostSidebarAdWidget
