@@ -6,6 +6,7 @@ import {
   getReadArticleHref,
   isShareLikePost,
   isVideoPost,
+  PostType,
 } from '../../../graphql/posts';
 import type { SourceTooltip } from '../../../graphql/sources';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
@@ -76,12 +77,13 @@ export const PostFocusCard = ({
   origin,
   leftVariant,
 }: PostFocusCardProps): ReactElement => {
-  // A shared post wraps an underlying article in a squad. Render the article
-  // itself so the card matches a default post, and surface where it was shared
-  // from via a small label below the source.
+  // A shared post wraps an underlying post (article, video, collection…) in a
+  // squad. Render that underlying post so every type uses the same card, and
+  // surface the type/origin via a small eyebrow label above the title.
   const isShared = isShareLikePost(post) && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
-  const sharedFromSource = isShared ? post.source : undefined;
+  const sharedVia = isShared ? post.source : undefined;
+  const isCollection = article.type === PostType.Collection;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
@@ -126,24 +128,35 @@ export const PostFocusCard = ({
             />
           </div>
 
-          {sharedFromSource && (
-            <p className="-mt-2 text-text-tertiary typo-caption1">
-              This post was shared from{' '}
-              <Link href={sharedFromSource.permalink} passHref prefetch={false}>
-                <a className="font-bold text-text-link hover:underline">
-                  {sharedFromSource.name}
-                </a>
-              </Link>
-            </p>
-          )}
-
           <div className="flex min-w-0 items-start gap-4">
-            <h1
-              className="min-w-0 flex-1 break-words py-2 font-bold text-text-primary typo-large-title"
-              data-testid="post-modal-title"
-            >
-              {title}
-            </h1>
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              {(sharedVia || isCollection) && (
+                <p className="text-text-tertiary typo-footnote">
+                  {sharedVia ? (
+                    <>
+                      Shared via{' '}
+                      <Link
+                        href={sharedVia.permalink}
+                        passHref
+                        prefetch={false}
+                      >
+                        <a className="font-bold text-text-link hover:underline">
+                          {sharedVia.name}
+                        </a>
+                      </Link>
+                    </>
+                  ) : (
+                    'Collection'
+                  )}
+                </p>
+              )}
+              <h1
+                className="min-w-0 break-words py-1 font-bold text-text-primary typo-large-title"
+                data-testid="post-modal-title"
+              >
+                {title}
+              </h1>
+            </div>
             {!isVideoType && article.image && (
               <a
                 className="block h-fit w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
@@ -172,7 +185,19 @@ export const PostFocusCard = ({
             onCopyLinkClick={onCopyPostLink}
           />
 
-          {!isVideoType && article.summary && (
+          {isVideoType && (
+            <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
+              <YoutubeVideo
+                placeholderProps={{
+                  post: article,
+                  onWatchVideo: onReadArticle,
+                }}
+                videoId={article.videoId ?? ''}
+              />
+            </div>
+          )}
+
+          {article.summary && (
             <p
               className="select-text break-words text-text-secondary typo-markdown"
               data-testid="tldr-container"
@@ -206,26 +231,6 @@ export const PostFocusCard = ({
           />
 
           <PostTagList post={article} />
-
-          {isVideoType && (
-            <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
-              <YoutubeVideo
-                placeholderProps={{
-                  post: article,
-                  onWatchVideo: onReadArticle,
-                }}
-                videoId={article.videoId ?? ''}
-              />
-              {article.summary && (
-                <p
-                  className="select-text break-words px-1 pb-1 text-text-secondary typo-markdown"
-                  data-testid="tldr-container"
-                >
-                  {article.summary}
-                </p>
-              )}
-            </div>
-          )}
 
           {hasToc && (
             <PostToc
