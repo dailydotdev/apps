@@ -45,7 +45,7 @@ export const DiscussionMetaBar = ({
   return (
     <div
       className={classNames(
-        'flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout',
+        'flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-secondary typo-callout',
         className,
       )}
     >
@@ -67,7 +67,7 @@ export const DiscussionMetaBar = ({
             <ClickableText
               tag="a"
               className="gap-1"
-              textClassName="text-text-tertiary"
+              textClassName="text-text-secondary"
             >
               <AnalyticsIcon />
               Analytics
@@ -93,7 +93,7 @@ export const DiscussionMetaBar = ({
           }
           aria-label={sortLabel}
           title={sortLabel}
-          className="!text-text-tertiary"
+          className="!text-text-secondary"
         />
       </div>
       {rightSlot && (
