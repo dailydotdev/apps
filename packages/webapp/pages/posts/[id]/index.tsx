@@ -33,6 +33,7 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
+import { isPostDiscoveryEligible } from '@dailydotdev/shared/src/hooks/post/usePostDiscoveryExperience';
 import { featurePostDiscoveryExperience } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostDiscoveryLayout } from '@dailydotdev/shared/src/components/post/discovery/PostDiscoveryLayout';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
@@ -206,10 +207,7 @@ export const PostPage = ({
     },
   });
   const featureTheme = useFeatureTheme();
-  const isDiscoveryEligible = [
-    PostType.Article,
-    PostType.VideoYouTube,
-  ].includes(post?.type);
+  const isDiscoveryEligible = isPostDiscoveryEligible(post);
   const { value: isDiscoveryFlagOn } = useConditionalFeature({
     feature: featurePostDiscoveryExperience,
     shouldEvaluate: isDiscoveryEligible,

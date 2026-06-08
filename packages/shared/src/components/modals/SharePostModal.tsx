@@ -11,6 +11,8 @@ import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { SquadPostContent } from '../post/SquadPostContent';
 import { isSourceUserSource } from '../../graphql/sources';
+import { usePostDiscoveryExperience } from '../../hooks/post/usePostDiscoveryExperience';
+import { PostFocusCard } from '../post/discovery/PostFocusCard';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -31,6 +33,7 @@ export default function PostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
+  const { showDiscovery } = usePostDiscoveryExperience(post);
 
   return (
     <BasePostModal
@@ -46,29 +49,38 @@ export default function PostModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      <EnableNotification
-        source={NotificationPromptSource.SquadPostModal}
-        label={
-          isSourceUserSource(post?.source)
-            ? post?.author?.username
-            : post?.source?.handle
-        }
-      />
-      <SquadPostContent
-        position={position}
-        post={post}
-        onPreviousPost={onPreviousPost}
-        onNextPost={onNextPost}
-        postPosition={postPosition}
-        inlineActions
-        onClose={onRequestClose}
-        origin={Origin.ArticleModal}
-        className={{
-          fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
-          navigation: { actions: 'ml-auto tablet:hidden' },
-          onboarding: 'mb-0 mt-8',
-        }}
-      />
+      {showDiscovery ? (
+        <PostFocusCard post={post} origin={Origin.ArticleModal} />
+      ) : (
+        <>
+          <EnableNotification
+            source={NotificationPromptSource.SquadPostModal}
+            label={
+              isSourceUserSource(post?.source)
+                ? post?.author?.username
+                : post?.source?.handle
+            }
+          />
+          <SquadPostContent
+            position={position}
+            post={post}
+            onPreviousPost={onPreviousPost}
+            onNextPost={onNextPost}
+            postPosition={postPosition}
+            inlineActions
+            onClose={onRequestClose}
+            origin={Origin.ArticleModal}
+            className={{
+              fixedNavigation: {
+                container: '!w-[inherit]',
+                actions: 'ml-auto',
+              },
+              navigation: { actions: 'ml-auto tablet:hidden' },
+              onboarding: 'mb-0 mt-8',
+            }}
+          />
+        </>
+      )}
     </BasePostModal>
   );
 }

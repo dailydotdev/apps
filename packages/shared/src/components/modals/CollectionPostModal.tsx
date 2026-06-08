@@ -9,6 +9,8 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
+import { usePostDiscoveryExperience } from '../../hooks/post/usePostDiscoveryExperience';
+import { PostFocusCard } from '../post/discovery/PostFocusCard';
 
 interface CollectionPostModalProps
   extends ModalProps,
@@ -31,6 +33,7 @@ export default function CollectionPostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
+  const { showDiscovery } = usePostDiscoveryExperience(post);
 
   return (
     <BasePostModal
@@ -45,24 +48,28 @@ export default function CollectionPostModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      <CollectionPostContent
-        position={position}
-        post={post}
-        postPosition={postPosition}
-        onPreviousPost={onPreviousPost}
-        onNextPost={onNextPost}
-        inlineActions
-        className={{
-          onboarding: 'mt-8',
-          navigation: { actions: 'ml-auto laptop:hidden' },
-          fixedNavigation: {
-            container: modalSizeToClassName[Modal.Size.XLarge],
-            actions: 'ml-auto',
-          },
-        }}
-        onClose={onRequestClose}
-        origin={Origin.CollectionModal}
-      />
+      {showDiscovery ? (
+        <PostFocusCard post={post} origin={Origin.CollectionModal} />
+      ) : (
+        <CollectionPostContent
+          position={position}
+          post={post}
+          postPosition={postPosition}
+          onPreviousPost={onPreviousPost}
+          onNextPost={onNextPost}
+          inlineActions
+          className={{
+            onboarding: 'mt-8',
+            navigation: { actions: 'ml-auto laptop:hidden' },
+            fixedNavigation: {
+              container: modalSizeToClassName[Modal.Size.XLarge],
+              actions: 'ml-auto',
+            },
+          }}
+          onClose={onRequestClose}
+          origin={Origin.CollectionModal}
+        />
+      )}
     </BasePostModal>
   );
 }

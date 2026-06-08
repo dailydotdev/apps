@@ -9,6 +9,8 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { Origin } from '../../lib/log';
+import { usePostDiscoveryExperience } from '../../hooks/post/usePostDiscoveryExperience';
+import { PostFocusCard } from '../post/discovery/PostFocusCard';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -29,6 +31,7 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
+  const { showDiscovery } = usePostDiscoveryExperience(post);
 
   return (
     <BasePostModal
@@ -43,24 +46,28 @@ export default function ArticlePostModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      <PostContent
-        position={position}
-        post={post}
-        postPosition={postPosition}
-        onPreviousPost={onPreviousPost}
-        onNextPost={onNextPost}
-        inlineActions
-        className={{
-          onboarding: 'mt-8',
-          navigation: { actions: 'ml-auto tablet:hidden' },
-          fixedNavigation: {
-            container: modalSizeToClassName[Modal.Size.XLarge],
-            actions: 'ml-auto',
-          },
-        }}
-        onClose={onRequestClose}
-        origin={Origin.ArticleModal}
-      />
+      {showDiscovery ? (
+        <PostFocusCard post={post} origin={Origin.ArticleModal} />
+      ) : (
+        <PostContent
+          position={position}
+          post={post}
+          postPosition={postPosition}
+          onPreviousPost={onPreviousPost}
+          onNextPost={onNextPost}
+          inlineActions
+          className={{
+            onboarding: 'mt-8',
+            navigation: { actions: 'ml-auto tablet:hidden' },
+            fixedNavigation: {
+              container: modalSizeToClassName[Modal.Size.XLarge],
+              actions: 'ml-auto',
+            },
+          }}
+          onClose={onRequestClose}
+          origin={Origin.ArticleModal}
+        />
+      )}
     </BasePostModal>
   );
 }
