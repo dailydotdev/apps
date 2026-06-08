@@ -30,6 +30,9 @@ import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
 import HoverCard from '../../cards/common/HoverCard';
 import SourceEntityCard from '../../cards/entity/SourceEntityCard';
+import { UserShortInfo } from '../../profile/UserShortInfo';
+import { ProfileImageSize } from '../../ProfilePicture';
+import type { UserShortProfile } from '../../../lib/user';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostDiscoveryActionBar } from './PostDiscoveryActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
@@ -86,6 +89,9 @@ export const PostFocusCard = ({
   const article = (isShared ? post.sharedPost : post) as Post;
   const sharedVia = isShared ? post.source : undefined;
   const isCollection = article.type === PostType.Collection;
+  // Shared posts lead with the person who shared it; the squad/source is
+  // surfaced via the "Shared via" eyebrow below the author.
+  const sharedByAuthor = isShared ? post.author : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
@@ -109,13 +115,24 @@ export const PostFocusCard = ({
       <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
-            {article.source && (
-              <SourceStrip
-                compact
-                className="min-w-0 shrink"
-                followButtonVariant={ButtonVariant.Subtle}
-                source={article.source as SourceTooltip}
+            {sharedByAuthor ? (
+              <UserShortInfo
+                user={sharedByAuthor as unknown as UserShortProfile}
+                imageSize={ProfileImageSize.Medium}
+                className={{
+                  container: 'min-w-0 !p-0 hover:bg-transparent',
+                  textWrapper: 'min-w-0',
+                }}
               />
+            ) : (
+              article.source && (
+                <SourceStrip
+                  compact
+                  className="min-w-0 shrink"
+                  followButtonVariant={ButtonVariant.Subtle}
+                  source={article.source as SourceTooltip}
+                />
+              )
             )}
             <PostHeaderActions
               buttonSize={ButtonSize.Small}
@@ -129,63 +146,72 @@ export const PostFocusCard = ({
             />
           </div>
 
-          <div className="flex min-w-0 items-start gap-4">
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              {sharedVia && (
-                <p className="text-text-tertiary typo-footnote">
-                  Shared via{' '}
-                  <HoverCard
-                    appendTo={globalThis?.document?.body}
-                    side="top"
-                    align="start"
-                    sideOffset={8}
-                    trigger={
-                      <span>
-                        <Link
-                          href={sharedVia.permalink}
-                          passHref
-                          prefetch={false}
-                        >
-                          <a className="font-bold text-text-link hover:underline">
-                            {sharedVia.name}
-                          </a>
-                        </Link>
-                      </span>
-                    }
-                  >
-                    <SourceEntityCard source={sharedVia as SourceTooltip} />
-                  </HoverCard>
-                </p>
-              )}
-              {!sharedVia && isCollection && (
-                <p className="text-text-tertiary typo-footnote">Collection</p>
-              )}
+          <div className="flex min-w-0 flex-col gap-3">
+            {sharedVia && (
+              <p className="text-text-tertiary typo-footnote">
+                Shared via{' '}
+                <HoverCard
+                  appendTo={globalThis?.document?.body}
+                  side="top"
+                  align="start"
+                  sideOffset={8}
+                  trigger={
+                    <span>
+                      <Link
+                        href={sharedVia.permalink}
+                        passHref
+                        prefetch={false}
+                      >
+                        <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
+                          {sharedVia.image && (
+                            <img
+                              src={sharedVia.image}
+                              alt=""
+                              aria-hidden
+                              className="size-4 rounded-full object-cover"
+                              loading="lazy"
+                            />
+                          )}
+                          {sharedVia.name}
+                        </a>
+                      </Link>
+                    </span>
+                  }
+                >
+                  <SourceEntityCard source={sharedVia as SourceTooltip} />
+                </HoverCard>
+              </p>
+            )}
+            {!sharedVia && isCollection && (
+              <p className="text-text-tertiary typo-footnote">Collection</p>
+            )}
+            <div className="flex min-w-0 items-start gap-4">
               <h1
-                className="min-w-0 break-words py-1 font-bold text-text-primary typo-large-title"
+                className="min-w-0 flex-1 break-words font-bold text-text-primary typo-large-title"
                 data-testid="post-modal-title"
               >
                 {title}
               </h1>
+              {!isVideoType && article.image && (
+                <a
+                  className="block h-fit w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  href={readHref}
+                  onClick={handleImageClick}
+                  rel="noopener"
+                  target="_blank"
+                  title="Go to post"
+                >
+                  <LazyImage
+                    eager
+                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                    fetchPriority="high"
+                    imgAlt="Post cover image"
+                    imgSrc={article.image}
+                    ratio="52%"
+                  />
+                </a>
+              )}
             </div>
-            {!isVideoType && article.image && (
-              <a
-                className="block h-fit w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                href={readHref}
-                onClick={handleImageClick}
-                rel="noopener"
-                target="_blank"
-                title="Go to post"
-              >
-                <LazyImage
-                  eager
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  fetchPriority="high"
-                  imgAlt="Post cover image"
-                  imgSrc={article.image}
-                  ratio="52%"
-                />
-              </a>
-            )}
           </div>
 
           <PostDiscoveryActionBar
