@@ -36,6 +36,7 @@ import type { UserShortProfile } from '../../../lib/user';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostDiscoveryActionBar } from './PostDiscoveryActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
+import { CollectionSources } from './CollectionSources';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -277,6 +278,8 @@ export const PostFocusCard = ({
           />
 
           <PostTagList post={article} />
+
+          {isCollection && <CollectionSources post={article} />}
 
           <aside className="w-full max-w-80 laptopXL:absolute laptopXL:left-full laptopXL:top-6 laptopXL:ml-6 laptopXL:w-80 laptopXL:max-w-none">
             <PostSidebarAdWidget
