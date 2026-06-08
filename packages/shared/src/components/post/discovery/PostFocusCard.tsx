@@ -15,6 +15,8 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
+import Markdown from '../../Markdown';
+import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -195,13 +197,20 @@ export const PostFocusCard = ({
             </div>
           )}
 
-          {article.summary && (
-            <p
-              className="select-text break-words text-text-secondary typo-markdown"
-              data-testid="tldr-container"
-            >
-              {article.summary}
-            </p>
+          {article.contentHtml ? (
+            <>
+              <Markdown content={article.contentHtml} className="break-words" />
+              <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
+            </>
+          ) : (
+            article.summary && (
+              <p
+                className="select-text break-words text-text-secondary typo-markdown"
+                data-testid="tldr-container"
+              >
+                {article.summary}
+              </p>
+            )
           )}
 
           <PostMetadata
