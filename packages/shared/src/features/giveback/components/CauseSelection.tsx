@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -66,6 +66,23 @@ export const CauseSelection = ({
     ),
   );
   const [activeFilter, setActiveFilter] = useState<string>(RECOMMENDED_FILTER);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const didMountRef = useRef(false);
+
+  // Re-anchor the viewport to the filter row when the category changes: a
+  // filter that shrinks the grid collapses the page height, and without this
+  // the browser strands the scroll position in empty space below the results
+  // (the "jump to the bottom" layout shift).
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    const node = filtersRef.current;
+    if (node && typeof node.scrollIntoView === 'function') {
+      node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [activeFilter]);
 
   const indexedCauses = causes.map((cause, index) => ({ cause, index }));
   const visibleCauses = indexedCauses.filter(({ cause }) =>
@@ -88,7 +105,7 @@ export const CauseSelection = ({
 
       <FlexCol id="giveback-causes" className="scroll-mt-16 gap-6">
         <FlexCol className="gap-4">
-          <FlexRow className="flex-wrap gap-2">
+          <FlexRow ref={filtersRef} className="scroll-mt-20 flex-wrap gap-2">
             <GivebackFilterChip
               isSelected={activeFilter === RECOMMENDED_FILTER}
               label="Recommended"

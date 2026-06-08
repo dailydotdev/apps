@@ -67,13 +67,13 @@ export const GivebackContributorFaces = ({
             key={`${avatar}-${index}`}
             src={avatar}
             sizeClassName={sizeClassName}
-            className="border-2 border-surface-float bg-surface-float"
+            className="border-2 border-background-default bg-surface-float"
           />
         ))}
         {overflow > 0 && (
           <span
             className={classNames(
-              'flex items-center justify-center rounded-full border-2 border-surface-float bg-surface-secondary font-bold text-text-tertiary typo-caption2',
+              'flex items-center justify-center rounded-full border-2 border-background-default bg-surface-secondary font-bold text-text-primary typo-caption2',
               sizeClassName,
             )}
           >

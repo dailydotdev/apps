@@ -1,11 +1,6 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useState } from 'react';
-import { FlexCol, FlexRow } from '../../../components/utilities';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../../../components/typography/Typography';
+import { FlexCol } from '../../../components/utilities';
 import { PlayIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { GIVEBACK_CHARM_IMAGE } from './GivebackMascot';
@@ -68,18 +63,6 @@ export const GivebackCampaignVideo = (): ReactElement => {
                 className="relative max-h-[80%] w-auto select-none object-contain mix-blend-screen transition-transform duration-500 motion-safe:group-hover:scale-105"
               />
             </span>
-
-            <FlexRow className="bg-background-default/80 absolute left-3 top-3 items-center gap-1.5 rounded-8 px-2 py-1 backdrop-blur">
-              <span className="size-1.5 rounded-full bg-accent-cabbage-default motion-safe:animate-glow-pulse" />
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption2}
-                bold
-                className="uppercase tracking-wider"
-              >
-                Campaign video
-              </Typography>
-            </FlexRow>
 
             <span className="absolute inset-0 flex items-center justify-center">
               {/* Dark halo so the button keeps strong contrast even over the

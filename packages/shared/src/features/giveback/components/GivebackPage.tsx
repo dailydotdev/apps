@@ -181,11 +181,12 @@ const GivebackPageContent = (): ReactElement => {
           )}
 
           {hasOnboarded && (
-            <FlexCol className="gap-10">
-              <div
-                ref={tabsRef}
-                className="bg-background-default/80 sticky top-0 z-3 mx-[calc(50%-50vw)] w-screen scroll-mt-16 border-b border-border-subtlest-tertiary backdrop-blur-xl"
-              >
+            // The ref sits on this (non-sticky) wrapper rather than the sticky
+            // strip below: scrolling a pinned sticky element into view is a
+            // no-op, so anchoring here reliably brings the tab strip to the top
+            // of the viewport (where it then pins) on every tab switch.
+            <FlexCol ref={tabsRef} className="gap-10">
+              <div className="bg-background-default/80 sticky top-0 z-3 mx-[calc(50%-50vw)] w-screen border-b border-border-subtlest-tertiary backdrop-blur-xl">
                 <div
                   aria-hidden
                   className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"

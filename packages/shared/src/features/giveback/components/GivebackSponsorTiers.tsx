@@ -78,39 +78,48 @@ const sponsors: SponsorWallLogo[] = [
 interface TierGroupConfig {
   key: 'gold' | 'silver' | 'regular';
   label: string | null;
-  lineClass: string;
-  labelClass: string;
+  /** Filled medal chip styling, mirroring the leaderboard podium palette. */
+  markerClass: string;
+  /** Logo height per tier (kept at ~30% steps). */
   imgClass: string;
+  /** Brightness step so a higher tier's logos visibly out-shout a lower one. */
+  logoToneClass: string;
 }
 
-// Gold is brightest and largest, silver a notch down, bronze smallest and
-// dimmer. Every tier carries a marker (a short rounded bar + label) so the
-// hierarchy reads at a glance.
+// Three reinforcing signals separate the tiers without adding any height:
+// (1) a filled medal chip in the podium palette (gold cheese / silver neutral /
+// bronze bacon, same as the leaderboard), (2) a ~30% logo-size step
+// (56 → 40 → 28px on tablet), and (3) a brightness step so gold logos read at
+// full strength while silver and bronze recede. Hovering any logo brightens it
+// back to full.
 const tierConfigs: TierGroupConfig[] = [
   {
     key: 'gold',
     label: 'Gold',
-    lineClass: 'bg-accent-cheese-default',
-    labelClass: 'text-accent-cheese-default',
-    imgClass: 'h-8 tablet:h-10',
+    markerClass:
+      'bg-accent-cheese-default text-black shadow-[0_0_12px_rgba(255,199,0,0.45)]',
+    imgClass: 'h-12 tablet:h-14',
+    logoToneClass: '',
   },
   {
     key: 'silver',
     label: 'Silver',
-    lineClass: 'bg-text-tertiary',
-    labelClass: 'text-text-secondary',
-    imgClass: 'h-5 tablet:h-6',
+    markerClass: 'bg-surface-secondary text-text-primary',
+    imgClass: 'h-8 tablet:h-10',
+    logoToneClass: 'opacity-75',
   },
   {
     key: 'regular',
     label: 'Bronze',
-    lineClass: 'bg-accent-burger-default',
-    labelClass: 'text-accent-burger-default',
-    imgClass: 'h-4 opacity-90 tablet:h-5',
+    markerClass: 'bg-accent-bacon-default text-white',
+    imgClass: 'h-6 tablet:h-7',
+    logoToneClass: 'opacity-50',
   },
 ];
 
-const tierGroups = tierConfigs
+type TierGroup = TierGroupConfig & { items: SponsorWallLogo[] };
+
+const tierGroups: TierGroup[] = tierConfigs
   .map((config) => ({
     ...config,
     items: sponsors.filter(
@@ -118,6 +127,51 @@ const tierGroups = tierConfigs
     ),
   }))
   .filter((group) => group.items.length > 0);
+
+// Gold is the headline tier, so it gets its own row above; silver and bronze
+// share a second row beneath it.
+const goldGroup = tierGroups.find((group) => group.key === 'gold');
+const lowerGroups = tierGroups.filter((group) => group.key !== 'gold');
+
+const SponsorTierGroup = ({ group }: { group: TierGroup }): ReactElement => (
+  <FlexRow className="flex-wrap items-center gap-x-6 gap-y-2">
+    {group.label && (
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption2}
+        bold
+        className={classNames(
+          'shrink-0 rounded-8 px-2 py-0.5 uppercase tracking-wider',
+          group.markerClass,
+        )}
+      >
+        {group.label}
+      </Typography>
+    )}
+    {group.items.map((sponsor) => (
+      <a
+        key={sponsor.name}
+        href={sponsor.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={sponsor.name}
+        className="group flex shrink-0 items-center justify-center transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none"
+      >
+        <img
+          src={sponsor.logoUrl}
+          alt={`${sponsor.name} logo`}
+          loading="lazy"
+          style={{ filter: 'brightness(0) invert(1)' }}
+          className={classNames(
+            'w-auto max-w-[120px] object-contain transition-opacity duration-200 group-hover:opacity-100',
+            group.imgClass,
+            group.logoToneClass,
+          )}
+        />
+      </a>
+    ))}
+  </FlexRow>
+);
 
 export const GivebackSponsorTiers = (): ReactElement => (
   <FlexCol className="w-full gap-5">
@@ -131,57 +185,15 @@ export const GivebackSponsorTiers = (): ReactElement => (
       Sponsored by
     </Typography>
 
-    <div className="flex w-full flex-wrap items-stretch gap-x-9 gap-y-4">
-      {tierGroups.map((group) => (
-        <FlexRow
-          key={group.key}
-          className="flex-wrap items-center gap-x-6 gap-y-2"
-        >
-          {group.label && (
-            <FlexRow className="shrink-0 items-center gap-2 self-stretch">
-              <span
-                aria-hidden
-                className={classNames(
-                  'w-0.5 self-stretch rounded-sm',
-                  group.lineClass,
-                )}
-              />
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption2}
-                bold
-                className={classNames(
-                  'uppercase tracking-wider',
-                  group.labelClass,
-                )}
-              >
-                {group.label}
-              </Typography>
-            </FlexRow>
-          )}
-          {group.items.map((sponsor) => (
-            <a
-              key={sponsor.name}
-              href={sponsor.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={sponsor.name}
-              className="group flex shrink-0 items-center justify-center transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none"
-            >
-              <img
-                src={sponsor.logoUrl}
-                alt={`${sponsor.name} logo`}
-                loading="lazy"
-                style={{ filter: 'brightness(0) invert(1)' }}
-                className={classNames(
-                  'w-auto max-w-[120px] object-contain transition-opacity duration-200 group-hover:opacity-100',
-                  group.imgClass,
-                )}
-              />
-            </a>
+    <FlexCol className="w-full gap-8">
+      {goldGroup && <SponsorTierGroup group={goldGroup} />}
+      {lowerGroups.length > 0 && (
+        <div className="flex w-full flex-wrap items-stretch gap-x-9 gap-y-4">
+          {lowerGroups.map((group) => (
+            <SponsorTierGroup key={group.key} group={group} />
           ))}
-        </FlexRow>
-      ))}
-    </div>
+        </div>
+      )}
+    </FlexCol>
   </FlexCol>
 );

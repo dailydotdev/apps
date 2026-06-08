@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render as renderWithProviders, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GivebackPage } from './GivebackPage';
@@ -14,6 +14,16 @@ import { CauseSelection } from './CauseSelection';
 import { CommunityImpactSection } from './CommunityImpactSection';
 import { GivebackCommunityActivity } from './GivebackCommunityActivity';
 import { GeoGateFallback } from './GeoGateFallback';
+
+// The giveback page always renders under a QueryClientProvider in the app, and
+// the modals portal through RootPortal (which reads the request protocol from
+// the query client). Wrap every render so that dependency is always satisfied.
+const render = (
+  ui: React.ReactElement,
+): ReturnType<typeof renderWithProviders> =>
+  renderWithProviders(
+    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
+  );
 
 describe('GivebackPage', () => {
   it('reveals the tabbed experience after opting in from the hero gateway', async () => {
@@ -85,9 +95,7 @@ describe('GivebackPage', () => {
       screen.getByText('Where your actions send the money'),
     ).toBeInTheDocument();
     // The FAQ now lives at the bottom of the Campaign tab (no separate tab).
-    expect(
-      screen.getByText('Frequently asked questions'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Frequently asked questions')).toBeInTheDocument();
     expect(screen.getByText('Does this cost me anything?')).toBeInTheDocument();
     expect(screen.getByText('Still have a question?')).toBeInTheDocument();
 
@@ -215,9 +223,7 @@ describe('GivebackLeaderboard', () => {
     const setActiveTab = jest.fn();
     renderLeaderboard(setActiveTab);
 
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Take action' }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: 'Take action' }));
 
     expect(setActiveTab).toHaveBeenCalledWith('actions');
   });
@@ -475,9 +481,10 @@ describe('CauseSelection', () => {
 
     // The "Recommended" filter is active by default, so non-recommended causes
     // (e.g. Internet Archive) stay hidden.
-    expect(
-      screen.getByRole('button', { name: 'Recommended' }),
-    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Recommended' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     expect(
       screen.queryByRole('button', { name: /Internet Archive/ }),
     ).not.toBeInTheDocument();
@@ -546,9 +553,7 @@ describe('Love actions in the catalog', () => {
     expect(
       screen.queryByRole('button', { name: 'Submit for review' }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Got it' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Got it' })).toBeInTheDocument();
   });
 });
 
@@ -579,11 +584,7 @@ describe('CommunityImpactSection', () => {
   });
 
   it('lets a visitor add a sponsorship from the funding progress', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <GivebackPage />
-      </QueryClientProvider>,
-    );
+    render(<GivebackPage />);
 
     await userEvent.click(
       screen.getByRole('button', { name: 'Join the campaign' }),

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -34,7 +34,12 @@ import {
 import { GivebackSubmissionModal } from './GivebackSubmissionModal';
 import { GivebackSection } from './GivebackSection';
 import { GivebackLiveTicker } from './GivebackLiveTicker';
-import { formatCompactNumber, formatDonationAmount } from '../utils';
+import { formatDonationAmount } from '../utils';
+import {
+  useCountUp,
+  useInView,
+  usePrefersReducedMotion,
+} from '../useGivebackMotion';
 
 type SortKey = 'recommended' | 'value-desc' | 'value-asc' | 'newest';
 
@@ -94,11 +99,24 @@ export const ActionCatalog = (): ReactElement => {
     useState<GivebackAction | null>(null);
   const [sort, setSort] = useState<SortKey>('recommended');
   const [showAllActions, setShowAllActions] = useState(false);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const didMountRef = useRef(false);
 
   // Re-collapse the grid whenever the filter or sort changes so a new view
-  // always opens to the short, scannable list.
+  // always opens to the short, scannable list. Also re-anchor the viewport to
+  // the filter row: when a filter shrinks the list the page height collapses,
+  // and without this the browser strands the scroll position in empty space
+  // below the results (the "jump to the bottom" layout shift).
   useEffect(() => {
     setShowAllActions(false);
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    const node = filtersRef.current;
+    if (node && typeof node.scrollIntoView === 'function') {
+      node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }, [selectedCategory, sort]);
 
   const categories = useMemo(
@@ -157,6 +175,33 @@ export const ActionCatalog = (): ReactElement => {
       )
     : 0;
 
+  // Live "developers contributed this week" counter. It starts at the real
+  // total and trickles upward on a steady cadence so the hub feels like it's
+  // moving in real time — each tick stands in for a fresh community action. The
+  // number rolls up with a count-up animation; reduced-motion users just see the
+  // static full total.
+  const reducedMotion = usePrefersReducedMotion();
+  const { ref: backersRef, inView: backersInView } =
+    useInView<HTMLSpanElement>();
+  const [liveBackers, setLiveBackers] = useState(campaign.backersCount);
+
+  useEffect(() => {
+    setLiveBackers(campaign.backersCount);
+  }, [campaign.backersCount]);
+
+  useEffect(() => {
+    if (reducedMotion || typeof window === 'undefined') {
+      return undefined;
+    }
+    const timer = window.setInterval(
+      () => setLiveBackers((current) => current + 1),
+      3600,
+    );
+    return () => window.clearInterval(timer);
+  }, [reducedMotion]);
+
+  const animatedBackers = useCountUp(liveBackers, backersInView);
+
   return (
     <GivebackSection id="giveback-actions">
       <FlexCol className="mb-4 gap-3 border-b border-border-subtlest-tertiary pb-8 pt-4">
@@ -179,8 +224,11 @@ export const ActionCatalog = (): ReactElement => {
                 color={TypographyColor.Tertiary}
                 className="truncate"
               >
-                <span className="font-bold text-text-primary">
-                  {formatCompactNumber(campaign.backersCount)}
+                <span
+                  ref={backersRef}
+                  className="font-bold tabular-nums text-text-primary"
+                >
+                  {animatedBackers.toLocaleString('en-US')}
                 </span>{' '}
                 developers contributed this week
               </Typography>
@@ -310,7 +358,10 @@ export const ActionCatalog = (): ReactElement => {
         )}
       </FlexRow>
 
-      <FlexRow className="flex-wrap items-center justify-between gap-3">
+      <FlexRow
+        ref={filtersRef}
+        className="scroll-mt-20 flex-wrap items-center justify-between gap-3"
+      >
         <FlexRow className="flex-wrap gap-2">
           <GivebackFilterChip
             isSelected={selectedCategory === 'all'}
