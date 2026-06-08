@@ -245,6 +245,30 @@ export const PostFocusCard = ({
             onCopyLinkClick={onCopyPostLink}
           />
 
+          <PostMetadata
+            className="!typo-callout"
+            createdAt={article.createdAt}
+            domain={
+              !isVideoType &&
+              article.domain &&
+              article.domain.length > 0 && (
+                <TruncateText>
+                  From{' '}
+                  <ArticleLink
+                    className="hover:underline"
+                    href={article.permalink}
+                    onClick={onReadArticle}
+                    title={article.domain}
+                  >
+                    {article.domain}
+                  </ArticleLink>
+                </TruncateText>
+              )
+            }
+            isVideoType={isVideoType}
+            readTime={article.readTime}
+          />
+
           {isVideoType && (
             <div className="shadow-1 flex min-w-0 flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
               <YoutubeVideo
@@ -272,30 +296,6 @@ export const PostFocusCard = ({
               </p>
             )
           )}
-
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
-                  >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
-          />
 
           <PostTagList post={article} />
 
