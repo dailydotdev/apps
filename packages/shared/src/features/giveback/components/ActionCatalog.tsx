@@ -275,13 +275,6 @@ export const ActionCatalog = (): ReactElement => {
                 type={TypographyType.Caption1}
                 color={TypographyColor.Tertiary}
               >
-                · {currentUser.streakDays}-day streak
-              </Typography>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
                 · {userProfile.actionsCompletedCount} actions taken
               </Typography>
             </FlexRow>

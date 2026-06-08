@@ -86,14 +86,10 @@ export const GivebackCampaignVideo = (): ReactElement => {
                   bright parts of the charm. */}
               <span
                 aria-hidden
-                className="bg-overlay-primary-pepper absolute size-32 rounded-full blur-2xl"
+                className="bg-overlay-primary-pepper absolute size-24 rounded-full blur-2xl"
               />
-              <span className="relative flex size-20 items-center justify-center rounded-full bg-white shadow-2 ring-4 ring-white/40 transition-transform duration-200 group-hover:ring-white/60 motion-safe:group-hover:scale-110">
-                <PlayIcon
-                  secondary
-                  size={IconSize.XXLarge}
-                  className="ml-1 text-accent-cabbage-default"
-                />
+              <span className="relative flex size-14 items-center justify-center rounded-full bg-white shadow-2 ring-4 ring-white/40 transition-transform duration-200 group-hover:ring-white/60 motion-safe:group-hover:scale-110">
+                <PlayIcon secondary size={IconSize.Size48} className="ml-0.5" />
               </span>
             </span>
           </button>
