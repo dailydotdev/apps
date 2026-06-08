@@ -27,7 +27,6 @@ import {
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import Link from '../../utilities/Link';
-import { largeNumberFormat } from '../../../lib';
 import { canViewPostAnalytics } from '../../../lib/user';
 import { webappUrl } from '../../../lib/constants';
 import { PostMenuOptions } from '../PostMenuOptions';
@@ -61,8 +60,6 @@ export const PostDiscoveryActionBar = ({
 
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
-  const upvotes = post.numUpvotes || 0;
-  const comments = post.numComments || 0;
   const canSeeAnalytics = canViewPostAnalytics({ user, post });
 
   const onToggleUpvote = async () => {
@@ -108,9 +105,7 @@ export const PostDiscoveryActionBar = ({
             pressed={isUpvoteActive}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
-          >
-            {upvotes > 0 ? largeNumberFormat(upvotes) : undefined}
-          </QuaternaryButton>
+          />
         </Tooltip>
         <Tooltip
           content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
@@ -143,9 +138,7 @@ export const PostDiscoveryActionBar = ({
             pressed={post.commented}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
-          >
-            {comments > 0 ? largeNumberFormat(comments) : undefined}
-          </QuaternaryButton>
+          />
         </Tooltip>
       </div>
 
