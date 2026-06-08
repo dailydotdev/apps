@@ -49,6 +49,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
       headline,
       background,
       imageMode,
+      imageMobile,
       showOrbs,
       forceDarkTheme,
       oauthOrder,
@@ -174,6 +175,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
         headline={headline}
         background={background}
         imageMode={imageMode}
+        imageMobile={imageMobile}
         showOrbs={showOrbs}
         forceDarkTheme={forceDarkTheme}
       >

@@ -170,27 +170,30 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
   const openedHotAndColdFromQueryRef = useRef(false);
+  const installReferralRoutedRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const {
     user,
     trackingId,
+    isAuthReady,
     isFunnel,
     shouldShowLogin,
     closeLogin,
     loginState,
   } = useAuthContext();
   // Users arriving from the extension install link land on `/?ref=install`.
-  // Only evaluate the permission primer experiment for them while onboarding
-  // is still pending, so we can route them to the activation step.
+  // Evaluate the permission primer experiment as soon as auth is ready (so
+  // GrowthBook attributes are set) — gating on onboarding actions would stall
+  // logged-out users forever, since the actions query only runs for a user.
   const isComingFromInstall = router.query.ref === 'install';
   const {
     value: isPermissionPrimerEnabled,
     isLoading: isPermissionPrimerLoading,
   } = useConditionalFeature({
     feature: featureOnboardingPermissionPrimer,
-    shouldEvaluate: isComingFromInstall && isOnboardingActionsReady,
+    shouldEvaluate: isComingFromInstall && isAuthReady,
   });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
@@ -252,22 +255,44 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
+    // Don't act on the query until it's parsed; `ref=install` is read below and
+    // is undefined on the first render of a hard load.
+    if (!router.isReady) {
+      return;
+    }
+
     // Never redirect away from onboarding-related surfaces (prevents loops).
     if (isOnboardingExcludedPath(router.pathname)) {
       return;
     }
 
-    // Wait for the permission primer experiment to resolve before redirecting
-    // install referrals, so we don't race them to `/onboarding`.
+    // Once an install referral has been routed, stop here. The redirect drops
+    // the `ref` query, so a later run on the still-pending `/` flips
+    // `isComingFromInstall` to false and would race a second redirect on top.
+    if (installReferralRoutedRef.current) {
+      return;
+    }
+
+    // Wait for the permission primer experiment to resolve before routing
+    // install referrals.
     if (isComingFromInstall && isPermissionPrimerLoading) {
       return;
     }
 
-    // The activation primer takes priority over onboarding: enrolled install
-    // referrals go to `/activate` regardless of onboarding completion or the
-    // other onboarding gates below.
+    // `MainLayout` defers `?ref=install` referrals to this effect, so route
+    // them here exclusively. Enrolled users get the activation primer (which
+    // takes priority over onboarding completion). Logged-out users who aren't
+    // enrolled still need onboarding — the gate below never fires for them
+    // since their onboarding actions never load while logged out.
     if (isComingFromInstall && isPermissionPrimerEnabled) {
+      installReferralRoutedRef.current = true;
       router.replace('/activate');
+      return;
+    }
+
+    if (isComingFromInstall && !user) {
+      installReferralRoutedRef.current = true;
+      router.replace('/onboarding');
       return;
     }
 
@@ -292,12 +317,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     isOnboardingActionsReady,
     router,
     router.pathname,
+    router.isReady,
     isOnboardingComplete,
     shouldShowLogin,
     isSwipeOnboardingPreviewForced,
     isComingFromInstall,
     isPermissionPrimerEnabled,
     isPermissionPrimerLoading,
+    user,
   ]);
 
   useEffect(() => {

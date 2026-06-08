@@ -4,10 +4,18 @@ import classNames from 'classnames';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
+import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
+import { wrapperMaxWidth } from '../../../components/onboarding/common';
 import {
   ThemeMode,
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
+import { useViewSize, ViewSize } from '../../../hooks';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../components/typography/Typography';
 import type {
   FunnelSignupHeroBackground,
   FunnelSignupHeroImageMode,
@@ -15,6 +23,8 @@ import type {
 import { HERO_STYLES } from './signupHero/heroStyles';
 import { HeroBackgroundLayer } from './signupHero/HeroBackgroundLayer';
 import { AuroraOrbs } from './signupHero/HeroDecorations';
+import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
+import { sanitizeMessage } from '../lib/utils';
 
 // =============================================================
 // Onboarding signup hero — a shell that composes individually
@@ -33,6 +43,7 @@ type Props = {
   headline?: string | null;
   background?: FunnelSignupHeroBackground;
   imageMode?: FunnelSignupHeroImageMode;
+  imageMobile?: string;
   showOrbs?: boolean;
   forceDarkTheme?: boolean;
 };
@@ -46,10 +57,12 @@ export const OnboardingSignupHero = ({
   headline = DEFAULT_HEADLINE,
   background = 'cards',
   imageMode = 'image',
+  imageMobile = cloudinaryOnboardingLoginBackground,
   showOrbs = true,
   forceDarkTheme = true,
 }: Props): ReactElement => {
   const { applyThemeMode } = useSettingsContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   useEffect(() => {
     if (!forceDarkTheme) {
@@ -64,6 +77,54 @@ export const OnboardingSignupHero = ({
   const isSplitLayout = background === 'split';
   const isDeskVariant = background === 'desk';
   const showOrbsLayer = showOrbs;
+
+  if (isMobile) {
+    return (
+      <div className="relative z-3 flex min-h-dvh w-full flex-col justify-end overflow-x-hidden bg-background-default pt-40 text-text-primary">
+        <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
+        <OnboardingHeader
+          isLanding
+          className="!-my-8 !justify-center bg-gradient-to-t from-background-default to-transparent py-8"
+        />
+        <div className="relative z-1 after:absolute after:inset-0 after:top-8 after:-z-1 after:bg-background-default">
+          <div
+            className={classNames(
+              'flex w-full flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
+              wrapperMaxWidth,
+            )}
+          >
+            <div className="mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow">
+              {!isFormExpanded && headline && (
+                <div className="mb-8 flex flex-col gap-4">
+                  <Typography
+                    className="text-balance text-center"
+                    color={TypographyColor.Primary}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeMessage(headline),
+                    }}
+                    type={TypographyType.Title2}
+                  />
+                </div>
+              )}
+              {children}
+            </div>
+            <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
+          </div>
+        </div>
+        <img
+          alt="Onboarding background"
+          aria-hidden
+          className={classNames(
+            'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
+            { 'opacity-[.24]': isFormExpanded },
+          )}
+          loading="eager"
+          role="presentation"
+          src={imageMobile}
+        />
+      </div>
+    );
+  }
 
   const splitSignupColumn = (
     <>
@@ -235,7 +296,7 @@ export const OnboardingSignupHero = ({
 
       <div
         className={classNames(
-          'pointer-events-auto relative z-1 flex w-full flex-col items-center gap-4 px-5',
+          'pointer-events-auto relative z-1 flex w-full flex-col items-center gap-3 px-5',
           isSplitLayout ? 'laptop:hidden' : 'tablet:hidden',
         )}
       >
