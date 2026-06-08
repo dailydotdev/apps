@@ -34,7 +34,8 @@ export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
-  false,
+  // TODO: revert to false — temporarily on to preview the anonymous experience.
+  true,
 );
 
 // @ts-expect-error stale feature without default
@@ -174,6 +175,13 @@ export const featureOnboardingPersonas = new Feature(
 );
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+
+// Anonymous post-page "build your feed" conversion experience. When enabled,
+// it replaces the simple signup widget with a personalized feed-building
+// surface and consolidates the redundant auth banners into a single timed
+// prompt.
+// TODO: revert to false — temporarily on to preview the anonymous experience.
+export const featurePostBuildFeed = new Feature('post_build_feed', true);
 
 export const featureReaderModal = new Feature('reader_modal_v2', false);
 

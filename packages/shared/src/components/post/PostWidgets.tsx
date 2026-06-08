@@ -16,8 +16,10 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
-import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { PostSignupWidget } from './PostSignupWidget';
+import { useAnonPostOnboarding } from '../../features/postPageOnboarding/useAnonPostOnboarding';
+import { BuildFeedConversionCard } from '../../features/postPageOnboarding/BuildFeedConversionCard';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -53,9 +55,26 @@ export function PostWidgets({
   origin,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
+  const { isEnabled: isAnonExperience } = useAnonPostOnboarding();
   const { source } = post;
 
   const cardClasses = 'w-full bg-transparent';
+
+  // Anonymous "build your feed" experience: the whole right column becomes a
+  // single cohesive conversion card, with the promo demoted to the last slot.
+  if (isAnonExperience) {
+    // Right rail for anonymous readers: a single calm, sticky invite. No ads
+    // or promos competing for a first-time reader's trust; "Happening Now" is
+    // reserved for signed-in users.
+    return (
+      <PageWidgets className={className}>
+        <div className="sticky top-16">
+          <BuildFeedConversionCard post={post} />
+        </div>
+        <FooterLinks />
+      </PageWidgets>
+    );
+  }
 
   const creator = post.author || post.scout;
   let sourceCard = null;

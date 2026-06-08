@@ -28,6 +28,8 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
+import { useAnonPostOnboarding } from '../../features/postPageOnboarding/useAnonPostOnboarding';
+import { AnonSourceStrip } from '../../features/postPageOnboarding/AnonSourceStrip';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -98,6 +100,10 @@ export function PostContentRaw({
         : undefined,
     },
   );
+  // Anonymous "build your feed" experience — only on the full post page.
+  const { isEnabled: isAnonExperience } = useAnonPostOnboarding();
+  const anonExperienceActive = isAnonExperience && !!isPostPage;
+
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -170,15 +176,24 @@ export function PostContentRaw({
         post={post}
       >
         <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
-          <div className="mb-3 flex items-center">
-            <PostSourceInfo
-              className="min-w-0 flex-1"
+          {anonExperienceActive ? (
+            <AnonSourceStrip
+              className="mb-3"
               post={post}
-              onClose={onClose}
+              onClose={onClose as () => void}
               onReadArticle={onReadArticle}
-              hideSubscribeAction={hideSubscribeAction}
             />
-          </div>
+          ) : (
+            <div className="mb-3 flex items-center">
+              <PostSourceInfo
+                className="min-w-0 flex-1"
+                post={post}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                hideSubscribeAction={hideSubscribeAction}
+              />
+            </div>
+          )}
           <h1
             className="break-words font-bold typo-large-title"
             data-testid="post-modal-title"
@@ -187,7 +202,9 @@ export function PostContentRaw({
               {title}
             </ArticleLink>
           </h1>
-          {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
+          {post.clickbaitTitleDetected && !anonExperienceActive && (
+            <PostClickbaitShield post={post} />
+          )}
         </div>
         {isVideoType && (
           <YoutubeVideo
@@ -284,29 +301,31 @@ export function PostContentRaw({
   );
 
   return (
-    <PostContentContainer
-      hasNavigation={hasNavigation}
-      className={containerClass}
-      aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
-      navigationProps={
-        position === 'fixed'
-          ? {
-              ...navigationProps,
-              isBannerVisible: !!isBannerVisible,
-              className: {
-                ...className?.fixedNavigation,
-                container: classNames(
-                  className?.fixedNavigation?.container,
-                  isPostPage && 'tablet:max-w-[calc(100%-4rem)]',
-                ),
-              },
-            }
-          : undefined
-      }
-    >
-      {postMainColumn}
-      {postWidgetsColumn}
-    </PostContentContainer>
+    <>
+      <PostContentContainer
+        hasNavigation={hasNavigation}
+        className={containerClass}
+        aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
+        navigationProps={
+          position === 'fixed'
+            ? {
+                ...navigationProps,
+                isBannerVisible: !!isBannerVisible,
+                className: {
+                  ...className?.fixedNavigation,
+                  container: classNames(
+                    className?.fixedNavigation?.container,
+                    isPostPage && 'tablet:max-w-[calc(100%-4rem)]',
+                  ),
+                },
+              }
+            : undefined
+        }
+      >
+        {postMainColumn}
+        {postWidgetsColumn}
+      </PostContentContainer>
+    </>
   );
 }
 
