@@ -137,6 +137,9 @@ export const cloudinaryOnboardingFullBackgroundMobile =
 export const cloudinaryOnboardingFullBackgroundDesktop =
   'https://media.daily.dev/image/upload/s--r2ffZPB4--/f_auto/v1716969841/dailydev_where_developers_suffer_together_sfvfog';
 
+export const cloudinaryOnboardingLoginBackground =
+  'https://media.daily.dev/image/upload/s--r4MiKjLD--/f_auto/v1743601527/public/login%20background';
+
 export const cloudinaryGenericNotFoundLight =
   'https://media.daily.dev/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu';
 

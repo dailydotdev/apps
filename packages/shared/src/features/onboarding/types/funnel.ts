@@ -331,6 +331,7 @@ export interface FunnelStepHeroLanding
     headline?: string;
     background?: FunnelSignupHeroBackground;
     imageMode?: FunnelSignupHeroImageMode;
+    imageMobile?: string;
     showOrbs?: boolean;
     oauthOrder?: FunnelSignupOauthOrder;
     forceDarkTheme?: boolean;
