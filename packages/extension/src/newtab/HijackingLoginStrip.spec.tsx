@@ -6,7 +6,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { SocialProvider } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AuthDisplay,
+  SocialProvider,
+} from '@dailydotdev/shared/src/components/auth/common';
 import { HijackingVariant } from '@dailydotdev/shared/src/lib/featureManagement';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -27,6 +30,36 @@ jest.mock('@dailydotdev/shared/src/hooks', () => ({
 jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
 }));
+
+jest.mock('@dailydotdev/shared/src/components/auth/AuthOptions', () => {
+  const { AuthDisplay: MockAuthDisplay } = jest.requireActual(
+    '@dailydotdev/shared/src/components/auth/common',
+  );
+
+  return {
+    __esModule: true,
+    default: ({
+      onAuthStateUpdate,
+    }: {
+      onAuthStateUpdate?: (props: { defaultDisplay?: string }) => void;
+    }) => (
+      <div>
+        <button type="button">Continue with Google</button>
+        <button type="button">Continue with GitHub</button>
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({
+              defaultDisplay: MockAuthDisplay.Registration,
+            })
+          }
+        >
+          Continue with email
+        </button>
+      </div>
+    ),
+  };
+});
 
 const signupHref = (() => {
   const url = new URL(onboardingUrl);
@@ -255,7 +288,7 @@ describe('HijackingLoginStrip', () => {
       setVariant(HijackingVariant.Auth);
     });
 
-    it('redirects social and email sign-up options to the webapp onboarding', () => {
+    it('renders the inline auth options inside the signup card', () => {
       renderComponent();
 
       expect(
@@ -264,33 +297,50 @@ describe('HijackingLoginStrip', () => {
         }),
       ).toBeVisible();
 
-      fireEvent.click(
+      expect(
+        screen.getByRole('button', { name: 'Continue with Google' }),
+      ).toBeVisible();
+      expect(
         screen.getByRole('button', { name: 'Continue with GitHub' }),
-      );
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.SignupButton,
-        target_id: 'hijacking',
-      });
-      expect(assignMock).toHaveBeenCalledWith(signupHref);
+      ).toBeVisible();
+      expect(
+        screen.getByRole('link', { name: 'Terms of Service' }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole('link', { name: 'Privacy Policy' }),
+      ).toBeVisible();
 
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Signup using email' }),
-      );
-      expect(assignMock).toHaveBeenCalledWith(signupHref);
+      expect(assignMock).not.toHaveBeenCalled();
     });
 
-    it('redirects the log in link to the webapp onboarding login flow', () => {
+    it('opens inline registration when continuing with email', () => {
+      renderComponent();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Continue with email' }),
+      );
+
+      expect(showLogin).toHaveBeenCalledWith({
+        trigger: AuthTriggers.Onboarding,
+        options: {
+          isLogin: false,
+          defaultDisplay: AuthDisplay.Registration,
+          formValues: undefined,
+        },
+      });
+      expect(assignMock).not.toHaveBeenCalled();
+    });
+
+    it('opens the login flow from the members link', () => {
       renderComponent();
 
       fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.LoginButton,
-        target_id: 'hijacking',
+      expect(showLogin).toHaveBeenCalledWith({
+        trigger: AuthTriggers.Onboarding,
+        options: { isLogin: true },
       });
-      expect(assignMock).toHaveBeenCalledWith(loginHref);
+      expect(assignMock).not.toHaveBeenCalled();
     });
 
     it('logs a signup impression for new visitors', () => {
@@ -347,7 +397,7 @@ describe('HijackingLoginStrip', () => {
       });
     });
 
-    it('offers a welcome-back "Continue as" that redirects to the login flow', () => {
+    it('offers a welcome-back "Continue as" that opens the login flow', () => {
       mockUseSignBack.mockReturnValue({
         isLoaded: true,
         signBack: {
@@ -375,7 +425,10 @@ describe('HijackingLoginStrip', () => {
         target_type: TargetType.LoginButton,
         target_id: 'hijacking',
       });
-      expect(assignMock).toHaveBeenCalledWith(loginHref);
+      expect(showLogin).toHaveBeenCalledWith({
+        trigger: AuthTriggers.Onboarding,
+        options: { isLogin: true },
+      });
     });
 
     it('lets remembered users create a different account', () => {
@@ -396,7 +449,10 @@ describe('HijackingLoginStrip', () => {
         screen.getByRole('button', { name: 'Create an account' }),
       );
 
-      expect(assignMock).toHaveBeenCalledWith(signupHref);
+      expect(showLogin).toHaveBeenCalledWith({
+        trigger: AuthTriggers.Onboarding,
+        options: { isLogin: false },
+      });
     });
 
     it('shows an onboarding CTA for logged in users who still need onboarding', () => {
