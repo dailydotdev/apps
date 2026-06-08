@@ -50,7 +50,7 @@ export function SourceStrip({
     <div
       className={classNames(
         'flex min-w-0 items-center',
-        compact ? 'gap-1.5' : 'gap-2',
+        compact ? 'gap-3' : 'gap-2',
         className,
       )}
     >
