@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { OnboardingSignupHero } from './OnboardingSignupHero';
+import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
+import { useViewSize } from '../../../hooks';
 
 jest.mock('../../../contexts/SettingsContext', () => ({
   ThemeMode: { Dark: 'dark' },
@@ -20,6 +22,11 @@ jest.mock('../../../components/footer/FooterLinks', () => ({
 jest.mock('../../../components/auth/SignupDisclaimer', () => ({
   __esModule: true,
   default: () => <div data-testid="disclaimer" />,
+}));
+
+jest.mock('../../../hooks', () => ({
+  ViewSize: { MobileL: 'mobileL' },
+  useViewSize: jest.fn(() => false),
 }));
 
 // Isolate the shell from the (gql/context-heavy) background blocks.
@@ -49,11 +56,51 @@ const renderHero = (
   );
 
 describe('OnboardingSignupHero', () => {
+  const mockUseViewSize = useViewSize as jest.MockedFunction<
+    typeof useViewSize
+  >;
+  const getMobileImage = (container: HTMLElement): HTMLImageElement => {
+    const image = container.querySelector('img[alt="Onboarding background"]');
+
+    if (!(image instanceof HTMLImageElement)) {
+      throw new Error('Expected hero mobile image to render');
+    }
+
+    return image;
+  };
+
+  beforeEach(() => {
+    mockUseViewSize.mockReturnValue(false);
+  });
+
   it('passes background and image mode to the background layer', () => {
     renderHero({ background: 'desk', imageMode: 'colors' });
     const layer = screen.getByTestId('bg-layer');
     expect(layer).toHaveAttribute('data-background', 'desk');
     expect(layer).toHaveAttribute('data-image-mode', 'colors');
+  });
+
+  it('renders the default mobile image background', () => {
+    mockUseViewSize.mockReturnValue(true);
+    const { container } = renderHero();
+    expect(getMobileImage(container)).toHaveAttribute(
+      'src',
+      cloudinaryOnboardingLoginBackground,
+    );
+  });
+
+  it('supports a custom mobile image background', () => {
+    mockUseViewSize.mockReturnValue(true);
+    const imageMobile = 'https://media.daily.dev/custom-mobile-background';
+    const { container } = renderHero({ imageMobile });
+    expect(getMobileImage(container)).toHaveAttribute('src', imageMobile);
+  });
+
+  it('uses the organic signup mobile headline treatment', () => {
+    mockUseViewSize.mockReturnValue(true);
+    renderHero({ headline: 'Hello devs' });
+    expect(screen.getByText('Hello devs')).toHaveClass('typo-title2');
+    expect(screen.getByText('Hello devs')).not.toHaveClass('onb-headline');
   });
 
   it('renders aurora orbs by default', () => {
