@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -9,11 +9,17 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { IconSize } from '../../../components/Icon';
+import type { IconProps } from '../../../components/Icon';
 import type { GivebackAction, GivebackUserAction } from '../types';
 import { GivebackUserActionStatus } from '../types';
 import { formatCompactNumber, formatDonationAmount } from '../utils';
 import { actionPlatformVisual } from '../actionPlatform';
-import { LinkIcon, StarIcon, TimerIcon, VIcon } from '../../../components/icons';
+import {
+  LinkIcon,
+  StarIcon,
+  TimerIcon,
+  VIcon,
+} from '../../../components/icons';
 import { GivebackContributorFaces } from './GivebackContributorFaces';
 
 interface ActionCardProps {
@@ -24,6 +30,47 @@ interface ActionCardProps {
 
 const getStatus = (userAction?: GivebackUserAction): GivebackUserActionStatus =>
   userAction?.status ?? GivebackUserActionStatus.NotStarted;
+
+interface PlatformLogoProps {
+  logoUrl?: string;
+  Icon: ComponentType<IconProps>;
+  forceDark?: boolean;
+  isDone: boolean;
+}
+
+// Prefers the real brand logo (an SVG from the logo CDN) and falls back to the
+// internal glyph if there is no logo for the surface or the remote one fails to
+// load — so a tile is never broken or blank. The parent tile already pins the
+// background and applies the dimmed/grayscale "done" treatment.
+const PlatformLogo = ({
+  logoUrl,
+  Icon,
+  forceDark,
+  isDone,
+}: PlatformLogoProps): ReactElement => {
+  const [failed, setFailed] = useState(false);
+
+  if (logoUrl && !failed) {
+    return (
+      <img
+        src={logoUrl}
+        alt=""
+        aria-hidden
+        loading="lazy"
+        onError={() => setFailed(true)}
+        className="size-6 object-contain"
+      />
+    );
+  }
+
+  return (
+    <Icon
+      secondary
+      size={IconSize.Small}
+      className={classNames(!isDone && forceDark && 'brightness-0')}
+    />
+  );
+};
 
 // One sharp, explicit title carries the ask — no competing subtitle. The
 // supporting details (payout, social proof, "Popular") sit in a calm top/bottom
@@ -54,6 +101,7 @@ export const ActionCard = ({
     Icon,
     name: platformName,
     forceDark,
+    logoUrl,
   } = actionPlatformVisual[action.platform] ?? {
     Icon: LinkIcon,
     name: 'Link',
@@ -66,26 +114,68 @@ export const ActionCard = ({
   const contributorsCount = action.contributorsCount ?? 0;
   const contributorsLast24h = action.contributorsLast24h ?? 0;
 
+  // The top-right slot shows one of three mutually exclusive states: a status
+  // pill once acted on, a soft "love" tag for no-reward actions, or the payout.
+  const renderTopRightMeta = (): ReactNode => {
+    if (isDone) {
+      return (
+        <FlexRow className="shrink-0 items-center gap-1 text-text-quaternary">
+          <doneMeta.Icon size={IconSize.XSmall} />
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            className="uppercase tracking-wide"
+          >
+            {doneMeta.label}
+          </Typography>
+        </FlexRow>
+      );
+    }
+
+    if (action.isLoveAction) {
+      return (
+        <Typography
+          bold
+          type={TypographyType.Caption1}
+          className="shrink-0 text-accent-cabbage-default"
+        >
+          Just for love
+        </Typography>
+      );
+    }
+
+    return (
+      <Typography
+        bold
+        type={TypographyType.Title4}
+        className="shrink-0 origin-right tabular-nums text-status-success transition-transform duration-200 group-hover:scale-110 motion-reduce:transform-none"
+      >
+        +{formatDonationAmount(action.donationAmount, action.currency)}
+      </Typography>
+    );
+  };
+
   const content: ReactNode = (
     <>
       <FlexRow className="items-start justify-between gap-3">
         <FlexRow className="min-w-0 items-center gap-2.5">
           <span
             className={classNames(
-              'flex size-[2.375rem] shrink-0 items-center justify-center overflow-hidden rounded-12 transition-transform duration-200',
+              'flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-12 transition-transform duration-200',
               // The tile is always light, so pin the icon ink dark: colored brand
               // logos keep their baked-in colors, while monochrome/semantic
               // glyphs (which follow currentColor) stay visible instead of
               // disappearing as white-on-white in dark mode.
               isDone
                 ? 'bg-surface-float text-text-quaternary opacity-40 grayscale'
-                : 'bg-white text-black shadow-1 group-hover:scale-105',
+                : 'shadow-1 bg-white text-black group-hover:scale-105',
             )}
           >
-            <Icon
-              secondary
-              size={IconSize.Large}
-              className={classNames(!isDone && forceDark && 'brightness-0')}
+            <PlatformLogo
+              logoUrl={logoUrl}
+              Icon={Icon}
+              forceDark={forceDark}
+              isDone={isDone}
             />
           </span>
           <FlexCol className="min-w-0 gap-1">
@@ -113,34 +203,7 @@ export const ActionCard = ({
             )}
           </FlexCol>
         </FlexRow>
-        {isDone ? (
-          <FlexRow className="shrink-0 items-center gap-1 text-text-quaternary">
-            <doneMeta.Icon size={IconSize.XSmall} />
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              className="uppercase tracking-wide"
-            >
-              {doneMeta.label}
-            </Typography>
-          </FlexRow>
-        ) : action.isLoveAction ? (
-          <Typography
-            bold
-            type={TypographyType.Caption1}
-            className="shrink-0 text-accent-cabbage-default"
-          >
-            Just for love
-          </Typography>
-        ) : (
-          <Typography
-            bold
-            type={TypographyType.Title4}
-            className="shrink-0 origin-right tabular-nums text-status-success transition-transform duration-200 group-hover:scale-110 motion-reduce:transform-none"
-          >
-            +{formatDonationAmount(action.donationAmount, action.currency)}
-          </Typography>
-        )}
+        {renderTopRightMeta()}
       </FlexRow>
 
       <Typography

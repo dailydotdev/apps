@@ -184,57 +184,62 @@ const GivebackPageContent = (): ReactElement => {
             <FlexCol className="gap-10">
               <div
                 ref={tabsRef}
-                className="bg-background-default/80 sticky top-0 z-3 -mx-4 scroll-mt-16 border-b border-border-subtlest-tertiary px-4 backdrop-blur-xl"
+                className="bg-background-default/80 sticky top-0 z-3 mx-[calc(50%-50vw)] w-screen scroll-mt-16 border-b border-border-subtlest-tertiary backdrop-blur-xl"
               >
                 <div
                   aria-hidden
                   className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
                 />
-                <FlexRow className="items-center justify-between gap-2">
-                  <div
-                    role="tablist"
-                    aria-label="Giveback sections"
-                    className="flex overflow-x-auto"
-                  >
-                    {tabs.map((tab) => {
-                      const selected = activeTab === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          role="tab"
-                          id={`giveback-tab-${tab.id}`}
-                          aria-selected={selected}
-                          aria-controls={`giveback-panel-${tab.id}`}
-                          onClick={() => setActiveTab(tab.id)}
-                          className={classNames(
-                            'relative shrink-0 whitespace-nowrap p-2 py-4 text-center font-normal transition-colors duration-200 typo-callout active:scale-95',
-                            selected
-                              ? 'text-text-primary'
-                              : 'text-text-tertiary hover:text-text-primary',
-                          )}
-                        >
-                          <span
+                {/* Inner wrapper re-centers the tabs to the page content width so
+                    they line up with the panels below, while the strip's blur and
+                    bottom border above bleed the full viewport width. */}
+                <div className="mx-auto w-full max-w-6xl px-4">
+                  <FlexRow className="items-center justify-between gap-2">
+                    <div
+                      role="tablist"
+                      aria-label="Giveback sections"
+                      className="flex overflow-x-auto"
+                    >
+                      {tabs.map((tab) => {
+                        const selected = activeTab === tab.id;
+                        return (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            role="tab"
+                            id={`giveback-tab-${tab.id}`}
+                            aria-selected={selected}
+                            aria-controls={`giveback-panel-${tab.id}`}
+                            onClick={() => setActiveTab(tab.id)}
                             className={classNames(
-                              'flex flex-row items-center gap-1 rounded-10 border px-3 py-1.5 transition-colors duration-200',
+                              'relative shrink-0 whitespace-nowrap p-2 py-4 text-center font-normal transition-colors duration-200 typo-callout active:scale-95',
                               selected
-                                ? 'border-border-subtlest-secondary'
-                                : 'border-transparent hover:border-border-subtlest-tertiary',
+                                ? 'text-text-primary'
+                                : 'text-text-tertiary hover:text-text-primary',
                             )}
                           >
-                            {tab.label}
-                          </span>
-                          {selected && (
                             <span
-                              aria-hidden
-                              className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-4 bg-text-primary"
-                            />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </FlexRow>
+                              className={classNames(
+                                'flex flex-row items-center gap-1 rounded-10 border px-3 py-1.5 transition-colors duration-200',
+                                selected
+                                  ? 'border-border-subtlest-secondary'
+                                  : 'border-transparent hover:border-border-subtlest-tertiary',
+                              )}
+                            >
+                              {tab.label}
+                            </span>
+                            {selected && (
+                              <span
+                                aria-hidden
+                                className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-4 bg-text-primary"
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </FlexRow>
+                </div>
               </div>
 
               <div

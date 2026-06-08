@@ -9,11 +9,15 @@ export enum GivebackMascotMood {
   Thoughtful = 'thoughtful',
 }
 
+// Single source of truth for the charm artwork so other surfaces (e.g. the
+// campaign video poster) can reuse the exact same image without duplicating it.
+export const GIVEBACK_CHARM_IMAGE = {
+  src: 'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)',
+  alt: 'daily.dev charm celebrating community impact for the Giveback campaign',
+};
+
 const moodToAsset: Record<GivebackMascotMood, { src: string; alt: string }> = {
-  [GivebackMascotMood.Thoughtful]: {
-    src: 'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)',
-    alt: 'daily.dev charm celebrating community impact for the Giveback campaign',
-  },
+  [GivebackMascotMood.Thoughtful]: GIVEBACK_CHARM_IMAGE,
 };
 
 interface GivebackMascotProps {

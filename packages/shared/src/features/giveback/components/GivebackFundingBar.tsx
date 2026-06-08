@@ -77,68 +77,124 @@ const LevelProgressRing = ({
   );
 };
 
-// Persistent personal-progress bar. Keeps your level, contribution and the
-// primary "take action" CTA one tap away while you read the rest of the page
-// (thumb zone on mobile).
+// Persistent personal-progress bar. Deliberately spare: your level, the exact
+// amount you've unlocked (the same earned total the board and "Your
+// contribution" card show), one explicit next step, and the CTA — nothing else
+// competing for attention in the thumb zone.
 export const GivebackFundingBar = (): ReactElement => {
-  const { campaign, levels, userProfile } = useGivebackContext();
+  const { campaign, levels, userProfile, leaderboard, donationAccounting } =
+    useGivebackContext();
   const { setActiveTab } = useGivebackNav();
 
+  // Money unlocked = the same earned total (unlocked minus rejected) shown
+  // everywhere else, so the bar never disagrees with the page.
+  const earned =
+    donationAccounting.unlockedDonationAmount -
+    donationAccounting.rejectedDonationAmount;
+
+  // Level fills are gated by the validated (approved) amount, matching the
+  // journey logic elsewhere.
   const approved = userProfile.approvedContributionAmount;
   const currentLevel =
     levels.find((level) => level.levelNumber === userProfile.currentLevel) ??
     levels[0];
-  const topLevel = levels[levels.length - 1];
   const nextLevel = levels.find(
     (level) => level.requiredApprovedAmount > approved,
   );
-  const amountToNext = nextLevel
+  const levelFloor = currentLevel.requiredApprovedAmount;
+  const levelPercentage = nextLevel
+    ? getGoalProgressPercentage(
+        approved - levelFloor,
+        nextLevel.requiredApprovedAmount - levelFloor,
+      )
+    : 100;
+  const amountToNextLevel = nextLevel
     ? Math.max(0, nextLevel.requiredApprovedAmount - approved)
     : 0;
-  const percentage = getGoalProgressPercentage(
-    approved,
-    topLevel.requiredApprovedAmount,
-  );
 
-  const subline = nextLevel
-    ? `${formatDonationAmount(amountToNext, campaign.currency)} to ${
-        nextLevel.name
-      }. One action gets you closer.`
-    : `Top level reached. You're a ${topLevel.name}.`;
+  // The single explicit next step: the exact amount that overtakes the next
+  // person on the board (the closest, most motivating goal).
+  const currentUser = leaderboard.find((entry) => entry.isCurrentUser);
+  const aboveUser = currentUser
+    ? leaderboard.find((entry) => entry.rank === currentUser.rank - 1)
+    : undefined;
+  const gapToNext =
+    aboveUser && currentUser
+      ? aboveUser.contributionAmount - currentUser.contributionAmount
+      : 0;
+
+  const renderNextStep = (): ReactElement => {
+    if (aboveUser && currentUser) {
+      return (
+        <>
+          <span className="font-bold text-accent-avocado-default">
+            {formatDonationAmount(gapToNext, currentUser.currency)}
+          </span>{' '}
+          to pass{' '}
+          <span className="font-bold text-text-primary">{aboveUser.name}</span>{' '}
+          and reach #{aboveUser.rank}
+        </>
+      );
+    }
+
+    if (nextLevel) {
+      return (
+        <>
+          <span className="font-bold text-accent-avocado-default">
+            {formatDonationAmount(amountToNextLevel, campaign.currency)}
+          </span>{' '}
+          to reach {nextLevel.name}
+        </>
+      );
+    }
+
+    return <>You&apos;re #1. Hold the crown.</>;
+  };
 
   return (
     <div className="pointer-events-none sticky bottom-0 z-3">
       <div className="bg-background-default/80 pointer-events-auto relative mx-auto w-full max-w-6xl border-t border-border-subtlest-secondary px-4 py-3 backdrop-blur-xl tablet:rounded-t-16 tablet:border-x">
+        {/* Brand hairline along the top edge, matching the sticky tabs bar. */}
+        <div
+          aria-hidden
+          className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
+        />
+
         <FlexRow className="items-center justify-between gap-4">
-          <FlexRow className="min-w-0 items-center gap-3">
+          <FlexRow className="min-w-0 flex-1 items-center gap-3">
             <LevelProgressRing
               level={currentLevel.levelNumber}
-              percentage={percentage}
+              percentage={levelPercentage}
             />
+
             <FlexCol className="min-w-0 gap-0.5">
-              <FlexRow className="items-center gap-2">
+              <FlexRow className="min-w-0 items-baseline gap-1.5">
                 <Typography
                   tag={TypographyTag.Span}
                   type={TypographyType.Callout}
                   bold
+                  className="shrink-0 tabular-nums text-status-success"
                 >
-                  {formatDonationAmount(approved, campaign.currency)}
+                  {formatDonationAmount(earned, campaign.currency)}
                 </Typography>
                 <Typography
                   tag={TypographyTag.Span}
                   type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
+                  className="truncate"
                 >
                   unlocked
+                  <span className="hidden tablet:inline"> for your causes</span>
                 </Typography>
               </FlexRow>
+
               <Typography
                 tag={TypographyTag.Span}
                 type={TypographyType.Caption1}
                 color={TypographyColor.Tertiary}
                 className="truncate"
               >
-                {subline}
+                {renderNextStep()}
               </Typography>
             </FlexCol>
           </FlexRow>
