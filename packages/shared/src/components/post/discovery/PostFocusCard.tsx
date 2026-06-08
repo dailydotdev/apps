@@ -21,7 +21,6 @@ import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostHeaderActions } from '../PostHeaderActions';
-import { PostContainer } from '../common';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
@@ -104,10 +103,10 @@ export const PostFocusCard = ({
 
   return (
     <article
-      className="flex w-full flex-col overflow-hidden rounded-24 bg-background-default"
+      className="flex w-full flex-col rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
-      <PostContainer className="relative laptop:border-r-0">
+      <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {article.source && (
@@ -277,7 +276,7 @@ export const PostFocusCard = ({
             origin={origin}
           />
         </div>
-      </PostContainer>
+      </div>
     </article>
   );
 };
