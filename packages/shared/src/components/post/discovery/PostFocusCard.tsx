@@ -119,6 +119,7 @@ export const PostFocusCard = ({
               <UserShortInfo
                 user={sharedByAuthor as unknown as UserShortProfile}
                 imageSize={ProfileImageSize.Medium}
+                showDescription={false}
                 className={{
                   container: 'min-w-0 !p-0 hover:bg-transparent',
                   textWrapper: 'min-w-0',
@@ -148,15 +149,15 @@ export const PostFocusCard = ({
 
           <div className="flex min-w-0 flex-col gap-3">
             {sharedVia && (
-              <p className="text-text-tertiary typo-footnote">
-                Shared via{' '}
+              <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
+                <span>Shared via</span>
                 <HoverCard
                   appendTo={globalThis?.document?.body}
                   side="top"
                   align="start"
                   sideOffset={8}
                   trigger={
-                    <span>
+                    <span className="inline-flex items-center">
                       <Link
                         href={sharedVia.permalink}
                         passHref
