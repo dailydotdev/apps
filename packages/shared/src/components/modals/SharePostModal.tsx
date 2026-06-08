@@ -40,7 +40,7 @@ export default function PostModal({
       {...props}
       post={post}
       onAfterOpen={onLoad}
-      size={Modal.Size.XLarge}
+      size={showDiscovery ? Modal.Size.Large : Modal.Size.XLarge}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
       source={post.source}

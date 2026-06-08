@@ -29,6 +29,8 @@ import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
+import HoverCard from '../../cards/common/HoverCard';
+import SourceEntityCard from '../../cards/entity/SourceEntityCard';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostDiscoveryActionBar } from './PostDiscoveryActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
@@ -130,25 +132,34 @@ export const PostFocusCard = ({
 
           <div className="flex min-w-0 items-start gap-4">
             <div className="flex min-w-0 flex-1 flex-col gap-1">
-              {(sharedVia || isCollection) && (
+              {sharedVia && (
                 <p className="text-text-tertiary typo-footnote">
-                  {sharedVia ? (
-                    <>
-                      Shared via{' '}
-                      <Link
-                        href={sharedVia.permalink}
-                        passHref
-                        prefetch={false}
-                      >
-                        <a className="font-bold text-text-link hover:underline">
-                          {sharedVia.name}
-                        </a>
-                      </Link>
-                    </>
-                  ) : (
-                    'Collection'
-                  )}
+                  Shared via{' '}
+                  <HoverCard
+                    appendTo={globalThis?.document?.body}
+                    side="top"
+                    align="start"
+                    sideOffset={8}
+                    trigger={
+                      <span>
+                        <Link
+                          href={sharedVia.permalink}
+                          passHref
+                          prefetch={false}
+                        >
+                          <a className="font-bold text-text-link hover:underline">
+                            {sharedVia.name}
+                          </a>
+                        </Link>
+                      </span>
+                    }
+                  >
+                    <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  </HoverCard>
                 </p>
+              )}
+              {!sharedVia && isCollection && (
+                <p className="text-text-tertiary typo-footnote">Collection</p>
               )}
               <h1
                 className="min-w-0 break-words py-1 font-bold text-text-primary typo-large-title"

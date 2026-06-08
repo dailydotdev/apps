@@ -40,6 +40,7 @@ export default function CollectionPostModal({
       {...props}
       post={post}
       onAfterOpen={onLoad}
+      size={showDiscovery ? Modal.Size.Large : Modal.Size.XLarge}
       onRequestClose={onRequestClose}
       postType={PostType.Collection}
       source={post.source}

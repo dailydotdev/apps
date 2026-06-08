@@ -38,6 +38,7 @@ export default function ArticlePostModal({
       {...props}
       post={post}
       onAfterOpen={onLoad}
+      size={showDiscovery ? Modal.Size.Large : Modal.Size.XLarge}
       onRequestClose={onRequestClose}
       postType={PostType.Article}
       source={post.source}
