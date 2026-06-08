@@ -33,6 +33,8 @@ import SourceEntityCard from '../../cards/entity/SourceEntityCard';
 import { UserShortInfo } from '../../profile/UserShortInfo';
 import { ProfileImageSize } from '../../ProfilePicture';
 import type { UserShortProfile } from '../../../lib/user';
+import { FollowButton } from '../../contentPreference/FollowButton';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostDiscoveryActionBar } from './PostDiscoveryActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
@@ -117,17 +119,27 @@ export const PostFocusCard = ({
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {sharedByAuthor ? (
-              <UserShortInfo
-                user={sharedByAuthor as unknown as UserShortProfile}
-                imageSize={ProfileImageSize.Medium}
-                showDescription={false}
-                showFollow
-                showSubscribe={false}
-                className={{
-                  container: 'min-w-0 !p-0 hover:bg-transparent',
-                  textWrapper: 'min-w-0',
-                }}
-              />
+              <div className="flex min-w-0 items-center gap-3">
+                <UserShortInfo
+                  user={sharedByAuthor as unknown as UserShortProfile}
+                  imageSize={ProfileImageSize.Medium}
+                  showDescription={false}
+                  className={{
+                    container: 'min-w-0 !p-0 hover:bg-transparent',
+                    textWrapper: 'min-w-0',
+                  }}
+                />
+                <FollowButton
+                  className="shrink-0"
+                  entityId={sharedByAuthor.id}
+                  entityName={`@${sharedByAuthor.username}`}
+                  type={ContentPreferenceType.User}
+                  status={sharedByAuthor.contentPreference?.status}
+                  variant={ButtonVariant.Subtle}
+                  showSubscribe={false}
+                  buttonClassName="!h-7 !px-2"
+                />
+              </div>
             ) : (
               article.source && (
                 <SourceStrip
