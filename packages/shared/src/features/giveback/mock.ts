@@ -2135,7 +2135,7 @@ export const givebackLeaderboard: GivebackLeaderboardEntry[] = [
     name: 'Tomas Novak',
     handle: '@tomasdev',
     avatar: communityAvatars[5],
-    contributionAmount: 110,
+    contributionAmount: 125,
     currency: GIVEBACK_CURRENCY,
     actionsCount: 6,
     streakDays: 4,
@@ -2147,7 +2147,7 @@ export const givebackLeaderboard: GivebackLeaderboardEntry[] = [
     name: 'Yuki Tanaka',
     handle: '@yukibuilds',
     avatar: communityAvatars[2],
-    contributionAmount: 95,
+    contributionAmount: 115,
     currency: GIVEBACK_CURRENCY,
     actionsCount: 5,
     streakDays: 8,
@@ -2156,10 +2156,13 @@ export const givebackLeaderboard: GivebackLeaderboardEntry[] = [
   {
     id: 'lb-you',
     rank: 8,
+    // Synced at runtime to the live earned total from your action records (see
+    // GivebackContext), so the board and the "Your contribution" card never
+    // disagree. This static value is just the matching default.
     name: 'You',
     handle: '@you',
     avatar: communityAvatars[0],
-    contributionAmount: 90,
+    contributionAmount: 110,
     currency: GIVEBACK_CURRENCY,
     actionsCount: 5,
     streakDays: 3,

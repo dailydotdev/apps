@@ -26,7 +26,7 @@ import {
 import ConfettiSvg from '../../../svg/ConfettiSvg';
 import { useGivebackContext } from '../GivebackContext';
 import { useGivebackNav } from '../GivebackNavContext';
-import { formatCompactNumber, formatDonationAmount } from '../utils';
+import { formatDonationAmount } from '../utils';
 import type { GivebackLevel } from '../types';
 import { GivebackRewardType } from '../types';
 import { GivebackMeterShine } from './GivebackMeterShine';
@@ -242,7 +242,8 @@ const NodeRow = ({
         <FlexCol
           className={classNames(
             'gap-2',
-            isNext && 'rounded-16 border border-border-subtlest-tertiary p-4',
+            isNext &&
+              'rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
           )}
         >
           <FlexRow className="items-start justify-between gap-3">
@@ -355,7 +356,7 @@ const NodeRow = ({
 };
 
 export const PersonalRoadmap = (): ReactElement => {
-  const { levels, userProfile, campaign, leaderboard } = useGivebackContext();
+  const { levels, userProfile, campaign } = useGivebackContext();
   const { setActiveTab } = useGivebackNav();
   const approved = userProfile.approvedContributionAmount;
   const { currency } = campaign;
@@ -363,7 +364,7 @@ export const PersonalRoadmap = (): ReactElement => {
   const [claimedRewardIds, setClaimedRewardIds] = useState<Set<string>>(
     new Set(),
   );
-  const [showCompleted, setShowCompleted] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(true);
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
 
   const currentLevel =
@@ -390,16 +391,6 @@ export const PersonalRoadmap = (): ReactElement => {
       !!level.reward &&
       !claimedRewardIds.has(level.reward.id),
   ).length;
-
-  // Frame the personal journey against the wider community: pull the viewer's
-  // standing from the same board shown just above, so the journey reads as
-  // "here's where you are vs. everyone else".
-  const myStanding = leaderboard.find((entry) => entry.isCurrentUser);
-  const communitySize = campaign.backersCount;
-  const aheadPercent =
-    myStanding && communitySize > 0
-      ? Math.max(1, Math.min(99, Math.round((1 - myStanding.rank / communitySize) * 100)))
-      : 0;
 
   // Progress within the current segment (last reached → next level).
   const previousAmount =
@@ -537,27 +528,6 @@ export const PersonalRoadmap = (): ReactElement => {
             )}
           </FlexRow>
         </FlexCol>
-
-        {myStanding && (
-          <FlexRow className="items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-12 bg-accent-cheese-flat text-accent-cheese-default [&_svg]:size-6">
-              <MedalBadgeIcon />
-            </span>
-            <FlexCol className="min-w-0 flex-1 gap-0.5">
-              <Typography bold type={TypographyType.Callout}>
-                You&apos;re #{myStanding.rank} on the community board this week
-              </Typography>
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Secondary}
-              >
-                Ahead of {aheadPercent}% of{' '}
-                {formatCompactNumber(communitySize)} contributors. Take another
-                action to climb the board above.
-              </Typography>
-            </FlexCol>
-          </FlexRow>
-        )}
 
         {welcomeReward && (
           <FlexRow className="group items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4 transition-shadow duration-200 hover:shadow-2">

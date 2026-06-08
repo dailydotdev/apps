@@ -37,13 +37,12 @@ export const GivebackSelectedCauses = (): ReactElement => {
   return (
     <GivebackSection
       id="giveback-your-causes"
-      eyebrow="Your causes"
-      title="Where your actions send the money"
-      description="Only the causes you picked. Change them anytime."
+      title="Your causes"
+      description="Where your actions send the money"
     >
       {selectedCauses.length > 0 ? (
         <FlexCol className="gap-4">
-          <div className="grid gap-3 tablet:grid-cols-2">
+          <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
             {selectedCauses.map(({ cause, index }) => (
               <FlexRow
                 key={cause.id}

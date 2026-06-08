@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
   TypographyColor,
@@ -10,32 +10,41 @@ import {
 import { useGivebackContext } from '../GivebackContext';
 import { formatDonationAmount } from '../utils';
 import { GivebackSection } from './GivebackSection';
+import { GivebackHeadline } from './GivebackHeadline';
 import { GivebackMascot, GivebackMascotMood } from './GivebackMascot';
 
-// "Why we do it" — kept short and emotional. The community contribution speaks
-// for itself; this is just the one-line reason behind it. The charm sits beside
-// the reason as the "genie" who grants the community's wishes.
-export const BudgetRedirectStory = (): ReactElement => {
+interface BudgetRedirectStoryProps {
+  headline: { title: string; highlight: string };
+}
+
+// "Why we do it" — kept short and emotional. The headline + reason stack in a
+// left column with the charm beside both as the "genie" who grants the
+// community's wishes, so the row stays tight with no empty space top/bottom.
+export const BudgetRedirectStory = ({
+  headline,
+}: BudgetRedirectStoryProps): ReactElement => {
   const { campaign } = useGivebackContext();
 
   return (
     <GivebackSection id="giveback-why">
-      <FlexRow className="flex-col-reverse items-center gap-6 tablet:flex-row tablet:items-center tablet:gap-10">
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Title3}
-          color={TypographyColor.Secondary}
-          className="max-w-2xl tablet:flex-1"
-        >
-          {formatDonationAmount(campaign.goalAmount, campaign.currency)} goes
-          straight to the causes you pick: scholarships, open source, and access
-          to tech. We could have spent it on ads. We would rather let the
-          community decide what its work is worth.
-        </Typography>
+      <FlexRow className="flex-col-reverse items-center gap-6 tablet:flex-row tablet:items-start tablet:gap-10">
+        <FlexCol className="gap-4 tablet:flex-1">
+          <GivebackHeadline {...headline} />
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Title3}
+            color={TypographyColor.Secondary}
+            className="max-w-md"
+          >
+            {formatDonationAmount(campaign.goalAmount, campaign.currency)} goes
+            straight to the causes you pick: scholarships, open source, and
+            access to tech. We could have spent it on ads. We would rather let
+            the community decide what its work is worth.
+          </Typography>
+        </FlexCol>
         <GivebackMascot
           mood={GivebackMascotMood.Thoughtful}
-          speech="Pick a cause. We grant the rest."
-          className="shrink-0"
+          className="shrink-0 tablet:ml-auto tablet:items-end"
         />
       </FlexRow>
     </GivebackSection>

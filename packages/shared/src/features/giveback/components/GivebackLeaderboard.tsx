@@ -13,6 +13,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
+import { ArrowIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { useGivebackContext } from '../GivebackContext';
 import { useGivebackNav } from '../GivebackNavContext';
 import type { GivebackLeaderboardEntry } from '../types';
@@ -84,19 +86,6 @@ export const GivebackLeaderboard = (): ReactElement => {
       ? aboveUser.contributionAmount - currentUser.contributionAmount
       : 0;
 
-  // How close the viewer is to overtaking the person directly above — the
-  // "you're almost there" tension that keeps people taking one more action.
-  const overtakeProgress =
-    aboveUser && currentUser && aboveUser.contributionAmount > 0
-      ? Math.min(
-          99,
-          Math.round(
-            (currentUser.contributionAmount / aboveUser.contributionAmount) *
-              100,
-          ),
-        )
-      : 0;
-
   return (
     <FlexCol className="w-full gap-5">
       <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
@@ -111,10 +100,10 @@ export const GivebackLeaderboard = (): ReactElement => {
 
       {currentUser && (
         <FlexCol className="gap-3 border-t border-border-subtlest-tertiary pt-4">
-          {/* Where you stand right now. */}
+          {/* Where you stand right now, with the climb CTA on the right. */}
           <FlexRow className="items-center gap-3">
             <GivebackAvatar src={currentUser.avatar} sizeClassName="size-9" />
-            <FlexCol className="min-w-0">
+            <FlexCol className="min-w-0 flex-1">
               <Typography
                 tag={TypographyTag.Span}
                 type={TypographyType.Caption1}
@@ -147,94 +136,52 @@ export const GivebackLeaderboard = (): ReactElement => {
                 </Typography>
               </FlexRow>
             </FlexCol>
+            <Button
+              type="button"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              onClick={() => setActiveTab('actions')}
+              className="shrink-0"
+            >
+              Take action
+            </Button>
           </FlexRow>
 
           {/* The climb: one explicit goal — how much closes the gap to the next
               rank. Flat, no card: show who you're chasing, the exact amount
               that overtakes them, and a labeled bar so it reads at a glance. */}
           {aboveUser ? (
-            <FlexCol className="gap-2">
-              {/* One plain-language goal: who you're chasing and the exact gap. */}
-              <FlexRow className="items-center gap-2">
-                <GivebackAvatar
-                  src={aboveUser.avatar}
-                  sizeClassName="size-7"
-                />
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Secondary}
-                  className="min-w-0"
-                >
-                  <span className="font-bold text-accent-cabbage-default">
-                    {formatDonationAmount(gapToNext, currentUser.currency)}
-                  </span>{' '}
-                  more to pass{' '}
-                  <span className="font-bold text-text-primary">
-                    {aboveUser.name}
-                  </span>{' '}
-                  for{' '}
-                  <span className="font-bold text-text-primary">
-                    #{aboveUser.rank}
-                  </span>
-                </Typography>
-              </FlexRow>
-
-              {/* The bar is anchored by both standings below, so it reads as a
-                  "you vs. them" race rather than a floating glow. */}
-              <div
-                className="h-2 w-full overflow-hidden rounded-full bg-surface-float"
-                role="progressbar"
-                aria-label={`Progress to reach rank ${aboveUser.rank}`}
-                aria-valuenow={overtakeProgress}
-                aria-valuemin={0}
-                aria-valuemax={100}
+            // One clean, scannable line: the exact gap to the next rank, with a
+            // climb cue. No bar — it read as a decorative glow and confused the
+            // meaning.
+            <FlexRow className="items-center gap-2">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-flat text-accent-avocado-default">
+                <ArrowIcon size={IconSize.XSmall} />
+              </span>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                className="min-w-0"
               >
-                <div
-                  className="h-full min-w-[0.5rem] rounded-full bg-accent-cabbage-default transition-[width] duration-700 ease-out"
-                  style={{ width: `${overtakeProgress}%` }}
-                />
-              </div>
-
-              <FlexRow className="items-center justify-between gap-2 tabular-nums">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  You ·{' '}
-                  {formatDonationAmount(
-                    currentUser.contributionAmount,
-                    currentUser.currency,
-                  )}
-                </Typography>
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  #{aboveUser.rank} ·{' '}
-                  {formatDonationAmount(
-                    aboveUser.contributionAmount,
-                    aboveUser.currency,
-                  )}
-                </Typography>
-              </FlexRow>
-            </FlexCol>
+                <span className="font-bold text-accent-avocado-default">
+                  {formatDonationAmount(gapToNext, currentUser.currency)}
+                </span>{' '}
+                more to pass{' '}
+                <span className="font-bold text-text-primary">
+                  {aboveUser.name}
+                </span>{' '}
+                and reach{' '}
+                <span className="font-bold text-text-primary">
+                  #{aboveUser.rank}
+                </span>
+              </Typography>
+            </FlexRow>
           ) : (
             <Typography bold type={TypographyType.Footnote}>
               You&apos;re #1 — hold the crown.
             </Typography>
           )}
-
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            onClick={() => setActiveTab('actions')}
-          >
-            Take an action to climb
-          </Button>
         </FlexCol>
       )}
     </FlexCol>

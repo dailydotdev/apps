@@ -12,7 +12,12 @@ import { useGivebackNav } from '../GivebackNavContext';
 import type { GivebackAction, GivebackActionCategoryFilter } from '../types';
 import { GivebackActionCategory } from '../types';
 import { actionCategoryLabels } from '../statusLabels';
-import { ArrowIcon, InfoIcon } from '../../../components/icons';
+import {
+  ArrowIcon,
+  GiftIcon,
+  InfoIcon,
+  MedalBadgeIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
   Button,
@@ -22,7 +27,10 @@ import {
 import { ButtonIconPosition } from '../../../components/buttons/common';
 import { ActionCard } from './ActionCard';
 import { GivebackFilterChip } from './GivebackFilterChip';
-import { GivebackContributorFaces } from './GivebackContributorFaces';
+import {
+  GivebackAvatar,
+  GivebackContributorFaces,
+} from './GivebackContributorFaces';
 import { GivebackSubmissionModal } from './GivebackSubmissionModal';
 import { GivebackSection } from './GivebackSection';
 import { GivebackLiveTicker } from './GivebackLiveTicker';
@@ -72,9 +80,12 @@ export const ActionCatalog = (): ReactElement => {
     campaign,
     donationAccounting,
     filteredActions,
+    leaderboard,
+    levels,
     loveActions,
     topContributors,
     userActions,
+    userProfile,
     selectedCategory,
     setSelectedCategory,
   } = useGivebackContext();
@@ -130,6 +141,22 @@ export const ActionCatalog = (): ReactElement => {
 
   const leaderAvatars = topContributors.map((person) => person.avatar);
 
+  // Personal standing for the "Your contribution" card: pull the viewer's row
+  // from the same board shown on Impact, plus the next reward they're working
+  // toward, so the card answers "where am I, what have I earned, what's next".
+  const currentUser = leaderboard.find((entry) => entry.isCurrentUser);
+  const nextLevel = levels.find(
+    (level) =>
+      level.requiredApprovedAmount > userProfile.approvedContributionAmount,
+  );
+  const amountToNextReward = nextLevel
+    ? Math.max(
+        0,
+        nextLevel.requiredApprovedAmount -
+          userProfile.approvedContributionAmount,
+      )
+    : 0;
+
   return (
     <GivebackSection id="giveback-actions">
       <FlexCol className="mb-4 gap-3 border-b border-border-subtlest-tertiary pb-8 pt-4">
@@ -174,8 +201,21 @@ export const ActionCatalog = (): ReactElement => {
         <GivebackLiveTicker />
       </FlexCol>
 
-      <FlexRow className="justify-start">
-        <FlexCol className="items-start gap-0.5">
+      <FlexRow className="flex-wrap items-center gap-x-5 gap-y-4">
+        {currentUser && (
+          <div className="relative shrink-0">
+            <GivebackAvatar
+              src={currentUser.avatar}
+              sizeClassName="size-14"
+              className="ring-2 ring-accent-cabbage-default"
+            />
+            <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent-cabbage-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-background-default typo-caption2">
+              Lvl {userProfile.currentLevel}
+            </span>
+          </div>
+        )}
+
+        <FlexCol className="min-w-0 flex-1 gap-1">
           <FlexRow className="items-center gap-1">
             <Typography
               type={TypographyType.Caption1}
@@ -208,14 +248,73 @@ export const ActionCatalog = (): ReactElement => {
               </span>
             </span>
           </FlexRow>
-          <Typography
-            bold
-            type={TypographyType.Title2}
-            className="tabular-nums text-status-success"
-          >
-            {formatDonationAmount(earnedContribution, 'USD')}
-          </Typography>
+          <FlexRow className="items-baseline gap-1.5">
+            <Typography
+              bold
+              type={TypographyType.Title2}
+              className="tabular-nums text-status-success"
+            >
+              {formatDonationAmount(earnedContribution, 'USD')}
+            </Typography>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              unlocked for your causes
+            </Typography>
+          </FlexRow>
+          {currentUser && (
+            <FlexRow className="flex-wrap items-center gap-x-3 gap-y-1">
+              <FlexRow className="items-center gap-1 font-bold text-accent-cabbage-default typo-caption1 [&_svg]:size-4">
+                <MedalBadgeIcon />
+                Rank #{currentUser.rank}
+              </FlexRow>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                · {currentUser.streakDays}-day streak
+              </Typography>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                · {userProfile.actionsCompletedCount} actions taken
+              </Typography>
+            </FlexRow>
+          )}
         </FlexCol>
+
+        {nextLevel?.reward && (
+          <FlexCol className="shrink-0 items-end gap-0.5">
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+              bold
+              className="uppercase tracking-wider"
+            >
+              Next reward
+            </Typography>
+            <FlexRow className="items-center gap-1.5 text-accent-cheese-default [&_svg]:size-4">
+              <GiftIcon />
+              <Typography bold type={TypographyType.Footnote}>
+                {nextLevel.reward.title}
+              </Typography>
+            </FlexRow>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              bold
+              className="tabular-nums text-accent-cabbage-default"
+            >
+              {formatDonationAmount(amountToNextReward, 'USD')} to go
+            </Typography>
+          </FlexCol>
+        )}
       </FlexRow>
 
       <FlexRow className="flex-wrap items-center justify-between gap-3">
@@ -271,11 +370,11 @@ export const ActionCatalog = (): ReactElement => {
               ))}
             </div>
             {donationToRender.length > INITIAL_VISIBLE_ACTIONS && (
-              <FlexRow className="justify-center">
+              <FlexRow className="mt-3 justify-center">
                 <Button
                   type="button"
                   size={ButtonSize.Medium}
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Secondary}
                   icon={
                     <ArrowIcon
                       className={showAllActions ? undefined : 'rotate-180'}

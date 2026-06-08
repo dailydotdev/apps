@@ -2,11 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../../../components/typography/Typography';
 import { isDevelopment } from '../../../lib/constants';
 import { GivebackProvider, useGivebackContext } from '../GivebackContext';
 import { GivebackNavProvider } from '../GivebackNavContext';
@@ -20,6 +15,7 @@ import { GivebackLeaderboard } from './GivebackLeaderboard';
 import { CauseSelection } from './CauseSelection';
 import { GeoGateFallback } from './GeoGateFallback';
 import { BudgetRedirectStory } from './BudgetRedirectStory';
+import { GivebackHeadline } from './GivebackHeadline';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackFaq } from './GivebackFaq';
@@ -54,34 +50,14 @@ const tabHeaders: Record<GivebackTabId, { title: string; highlight: string }> =
       highlight: 'And where you rank.',
     },
     why: {
-      title: 'Big tech burns billions just to get noticed.',
-      highlight: 'We send ours where it actually changes lives.',
+      title: 'Big tech buys ads.',
+      highlight: 'We fund developers.',
     },
     actions: {
       title: 'Take a small action.',
       highlight: 'We turn it into a donation.',
     },
   };
-
-const GivebackHeadline = ({
-  title,
-  highlight,
-}: {
-  title: string;
-  highlight: string;
-}): ReactElement => (
-  <Typography
-    tag={TypographyTag.H2}
-    type={TypographyType.LargeTitle}
-    bold
-    className="max-w-3xl"
-  >
-    {title}
-    <span className="block bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-      {highlight}
-    </span>
-  </Typography>
-);
 
 const GivebackTabHeader = ({ tab }: { tab: GivebackTabId }): ReactElement => (
   <GivebackHeadline {...tabHeaders[tab]} />
@@ -92,9 +68,11 @@ const renderActivePanel = (tab: GivebackTabId): ReactElement => {
     case 'actions':
       return <ActionCatalog />;
     case 'why':
+      // The headline rides inside the story so the charm sits beside both the
+      // title and the subtitle (the generic tab header is skipped for this tab).
       return (
-        <FlexCol className="gap-12">
-          <BudgetRedirectStory />
+        <FlexCol className="gap-8">
+          <BudgetRedirectStory headline={tabHeaders.why} />
           <GivebackSelectedCauses />
           <GivebackFaq />
         </FlexCol>
@@ -268,7 +246,9 @@ const GivebackPageContent = (): ReactElement => {
               >
                 <GivebackReveal>
                   <FlexCol className="gap-8">
-                    <GivebackTabHeader tab={activeTab} />
+                    {activeTab !== 'why' && (
+                      <GivebackTabHeader tab={activeTab} />
+                    )}
                     {renderActivePanel(activeTab)}
                   </FlexCol>
                 </GivebackReveal>

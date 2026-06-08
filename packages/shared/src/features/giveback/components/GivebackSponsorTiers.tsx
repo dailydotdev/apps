@@ -13,26 +13,20 @@ type SponsorCoverTier = 'gold' | 'silver';
 
 interface SponsorWallLogo {
   name: string;
-  /**
-   * Brand logo SVG (open logo library). We prefer the brand's dark-mode
-   * variant (white wordmark) or a colorful logo that already reads on a dark
-   * cover. Only truly monochrome-dark marks set `invertToWhite`.
-   */
+  /** Brand logo SVG (open logo library). */
   logoUrl: string;
   url: string;
   /** Higher tiers get a larger size; untiered sponsors fall back to bronze. */
   tier?: SponsorCoverTier;
-  /** Flip a logo that reads dark on the cover to a clean white silhouette. */
-  invertToWhite?: boolean;
 }
 
 // Example sponsor logos for the campaign cover. They sit directly on the dark
-// cover (no chip). Each uses the brand's dark-mode logo variant — a white
-// wordmark or a colorful mark with enough contrast — so they stay legible.
-// Brands that only ship a dark/black mark are flipped to white. Tiers add a
-// small marker + size bump so gold/silver read as more prominent than regular
-// sponsors. These mirror the dev brands daily.dev partners with (see
-// business.daily.dev). Swap for the confirmed sponsor list at launch.
+// cover (no chip). Every logo is rendered as a clean white silhouette (see the
+// inline filter on the <img> below) so it stays legible regardless of the
+// brand's source colors. Tiers add a small marker + size bump so gold/silver
+// read as more prominent than regular sponsors. These mirror the dev brands
+// daily.dev partners with (see business.daily.dev). Swap for the confirmed
+// sponsor list at launch.
 const sponsors: SponsorWallLogo[] = [
   {
     name: 'Vercel',
@@ -63,25 +57,21 @@ const sponsors: SponsorWallLogo[] = [
     logoUrl: 'https://svgl.app/library/sentry.svg',
     url: 'https://sentry.io',
     tier: 'silver',
-    invertToWhite: true,
   },
   {
     name: 'Datadog',
     logoUrl: 'https://svgl.app/library/datadog.svg',
     url: 'https://datadoghq.com',
-    invertToWhite: true,
   },
   {
     name: 'Algolia',
     logoUrl: 'https://svgl.app/library/algolia.svg',
     url: 'https://algolia.com',
-    invertToWhite: true,
   },
   {
     name: 'Prisma',
     logoUrl: 'https://svgl.app/library/prisma.svg',
     url: 'https://prisma.io',
-    invertToWhite: true,
   },
 ];
 
@@ -131,18 +121,15 @@ const tierGroups = tierConfigs
 
 export const GivebackSponsorTiers = (): ReactElement => (
   <FlexCol className="w-full gap-5">
-    <FlexRow className="items-center gap-2">
-      <span className="size-2 rounded-full bg-accent-bacon-default motion-safe:animate-glow-pulse" />
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-        bold
-        className="uppercase tracking-wider"
-      >
-        Proudly sponsored by
-      </Typography>
-    </FlexRow>
+    <Typography
+      tag={TypographyTag.Span}
+      type={TypographyType.Caption1}
+      color={TypographyColor.Tertiary}
+      bold
+      className="uppercase tracking-wider"
+    >
+      Sponsored by
+    </Typography>
 
     <div className="flex w-full flex-wrap items-stretch gap-x-9 gap-y-4">
       {tierGroups.map((group) => (
@@ -185,9 +172,9 @@ export const GivebackSponsorTiers = (): ReactElement => (
                 src={sponsor.logoUrl}
                 alt={`${sponsor.name} logo`}
                 loading="lazy"
+                style={{ filter: 'brightness(0) invert(1)' }}
                 className={classNames(
                   'w-auto max-w-[120px] object-contain transition-opacity duration-200 group-hover:opacity-100',
-                  sponsor.invertToWhite && 'invert brightness-0',
                   group.imgClass,
                 )}
               />

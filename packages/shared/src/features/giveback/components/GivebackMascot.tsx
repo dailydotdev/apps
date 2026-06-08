@@ -1,12 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../../../components/typography/Typography';
 
 // The daily.dev charm, themed as a "wish-granting genie" for Giveback: you make
 // a wish (pick a cause / take an action) and daily.dev grants it. Each section
@@ -17,22 +11,19 @@ export enum GivebackMascotMood {
 
 const moodToAsset: Record<GivebackMascotMood, { src: string; alt: string }> = {
   [GivebackMascotMood.Thoughtful]: {
-    src: '/assets/giveback-genie.png',
-    alt: 'daily.dev genie charm pondering a wish',
+    src: 'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)',
+    alt: 'daily.dev charm celebrating community impact for the Giveback campaign',
   },
 };
 
 interface GivebackMascotProps {
   mood?: GivebackMascotMood;
-  /** Optional one-liner shown in a small speech bubble under the charm. */
-  speech?: string;
   className?: string;
   imageClassName?: string;
 }
 
 export const GivebackMascot = ({
   mood = GivebackMascotMood.Thoughtful,
-  speech,
   className,
   imageClassName,
 }: GivebackMascotProps): ReactElement => {
@@ -51,30 +42,18 @@ export const GivebackMascot = ({
           aria-hidden
           className="bg-accent-cabbage-default/20 absolute inset-0 m-auto size-3/4 rounded-full blur-3xl motion-safe:animate-glow-pulse"
         />
-        {/* The shared render sits on solid black; `mix-blend-screen` drops the
-            black so the charm reads as floating on the dark page until we have a
-            transparent cutout hosted on the CDN. */}
+        {/* The render sits on solid black; `mix-blend-screen` drops the black so
+            the charm reads as floating on the dark page. */}
         <img
           src={asset.src}
           alt={asset.alt}
           loading="lazy"
           className={classNames(
-            'relative h-44 w-auto select-none object-contain mix-blend-screen motion-safe:animate-mascot-bob',
+            'relative h-44 w-auto select-none object-contain mix-blend-screen motion-safe:animate-mascot-bob tablet:h-56',
             imageClassName,
           )}
         />
       </div>
-      {speech && (
-        <div className="max-w-[15rem] rounded-16 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-center">
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Secondary}
-          >
-            {speech}
-          </Typography>
-        </div>
-      )}
     </div>
   );
 };

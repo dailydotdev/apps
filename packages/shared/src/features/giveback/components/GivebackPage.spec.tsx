@@ -74,18 +74,12 @@ describe('GivebackPage', () => {
     // The leaderboard (weekly board + your rank) now renders inside Impact.
     expect(screen.getByText('Weekly leaderboard')).toBeInTheDocument();
     expect(screen.getByText('Your rank')).toBeInTheDocument();
-    // The personal journey reads against the community on the same tab.
-    expect(
-      screen.getByText(/on the community board this week/),
-    ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: "You're a Helping hand" }),
     ).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('tab', { name: 'Campaign' }));
-    expect(
-      screen.getByText('Big tech burns billions just to get noticed.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Big tech buys ads.')).toBeInTheDocument();
     // The picked causes are recapped here, with suggest/edit actions.
     expect(
       screen.getByText('Where your actions send the money'),
@@ -222,7 +216,7 @@ describe('GivebackLeaderboard', () => {
     renderLeaderboard(setActiveTab);
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Take an action to climb' }),
+      screen.getByRole('button', { name: 'Take action' }),
     );
 
     expect(setActiveTab).toHaveBeenCalledWith('actions');

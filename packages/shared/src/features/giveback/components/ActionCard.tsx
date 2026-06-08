@@ -13,7 +13,7 @@ import type { GivebackAction, GivebackUserAction } from '../types';
 import { GivebackUserActionStatus } from '../types';
 import { formatCompactNumber, formatDonationAmount } from '../utils';
 import { actionPlatformVisual } from '../actionPlatform';
-import { StarIcon, TimerIcon, VIcon } from '../../../components/icons';
+import { LinkIcon, StarIcon, TimerIcon, VIcon } from '../../../components/icons';
 import { GivebackContributorFaces } from './GivebackContributorFaces';
 
 interface ActionCardProps {
@@ -48,7 +48,16 @@ export const ActionCard = ({
   // love" ones, which open a compliant appreciation view instead of the proof
   // flow (they carry no reward/donation).
   const isInteractive = !isDone && !!onSubmit;
-  const { Icon, name: platformName } = actionPlatformVisual[action.platform];
+  // Every platform is mapped, but fall back to a neutral link glyph so a card
+  // can never render a blank tile if a new platform slips through unmapped.
+  const {
+    Icon,
+    name: platformName,
+    forceDark,
+  } = actionPlatformVisual[action.platform] ?? {
+    Icon: LinkIcon,
+    name: 'Link',
+  };
 
   const doneMeta = isCompleted
     ? { label: 'Done', Icon: VIcon }
@@ -64,12 +73,20 @@ export const ActionCard = ({
           <span
             className={classNames(
               'flex size-[2.375rem] shrink-0 items-center justify-center overflow-hidden rounded-12 transition-transform duration-200',
+              // The tile is always light, so pin the icon ink dark: colored brand
+              // logos keep their baked-in colors, while monochrome/semantic
+              // glyphs (which follow currentColor) stay visible instead of
+              // disappearing as white-on-white in dark mode.
               isDone
-                ? 'bg-surface-float opacity-40 grayscale'
-                : 'bg-white shadow-1 group-hover:scale-105',
+                ? 'bg-surface-float text-text-quaternary opacity-40 grayscale'
+                : 'bg-white text-black shadow-1 group-hover:scale-105',
             )}
           >
-            <Icon secondary size={IconSize.Large} />
+            <Icon
+              secondary
+              size={IconSize.Large}
+              className={classNames(!isDone && forceDark && 'brightness-0')}
+            />
           </span>
           <FlexCol className="min-w-0 gap-1">
             <Typography
@@ -82,7 +99,7 @@ export const ActionCard = ({
               {platformName}
             </Typography>
             {action.isTrending && (
-              <FlexRow className="w-fit items-center gap-1 rounded-full bg-accent-cabbage-flat px-2 py-0.5 text-accent-cabbage-default">
+              <FlexRow className="w-fit items-center gap-1 text-accent-cabbage-default">
                 <StarIcon secondary size={IconSize.XXSmall} />
                 <Typography
                   tag={TypographyTag.Span}

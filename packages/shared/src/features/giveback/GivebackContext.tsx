@@ -441,6 +441,18 @@ export const GivebackProvider = ({
       selectedCauseIds,
     };
 
+    // The board's "You" row mirrors the same earned total the "Your
+    // contribution" card shows (unlocked minus anything rejected), so the two
+    // surfaces can never drift apart.
+    const earnedContribution =
+      donationAccounting.unlockedDonationAmount -
+      donationAccounting.rejectedDonationAmount;
+    const leaderboard = givebackLeaderboard.map((entry) =>
+      entry.isCurrentUser
+        ? { ...entry, contributionAmount: earnedContribution }
+        : entry,
+    );
+
     const donationActions = givebackActions.filter(
       (action) => !action.isLoveAction,
     );
@@ -463,7 +475,7 @@ export const GivebackProvider = ({
       suggestedCauses,
       communityEvents: showCommunityFeed ? givebackCommunityEvents : [],
       topContributors: givebackTopContributors,
-      leaderboard: givebackLeaderboard,
+      leaderboard,
       communityRally: givebackCommunityRally,
       donationAccounting,
       submitAction,

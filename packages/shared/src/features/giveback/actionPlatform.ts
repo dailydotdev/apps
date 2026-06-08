@@ -38,29 +38,48 @@ import { GivebackActionPlatform } from './types';
 interface ActionPlatformVisual {
   Icon: ComponentType<IconProps>;
   name: string;
+  /**
+   * Some brand glyphs in our library ship only a hardcoded-white SVG (no color
+   * or `currentColor` variant), which is invisible on the light tile. Flag
+   * those so the card can force them to a dark silhouette.
+   */
+  forceDark?: boolean;
 }
 
 // Real platform logos so each action reads as a growth move on a known surface
-// (post on X, video on YouTube, ship on GitHub...). Rendered with the colored
-// `secondary` variant on a light tile, app-store style. Surfaces without a
-// dedicated brand glyph reuse the closest semantic icon (reviews → star,
-// blogs → globe, events → calendar...).
+// (post on X, video on YouTube, ship on GitHub...). Rendered on a light tile,
+// app-store style: colored brand glyphs keep their colors, monochrome ones are
+// pinned to dark ink by the card. Surfaces without a dedicated brand glyph
+// reuse the closest semantic icon (reviews → star, blogs → globe,
+// events → calendar...).
 export const actionPlatformVisual: Record<
   GivebackActionPlatform,
   ActionPlatformVisual
 > = {
   [GivebackActionPlatform.X]: { Icon: TwitterIcon, name: 'X' },
   [GivebackActionPlatform.YouTube]: { Icon: YoutubeIcon, name: 'YouTube' },
-  [GivebackActionPlatform.Hashnode]: { Icon: HashnodeIcon, name: 'Hashnode' },
+  [GivebackActionPlatform.Hashnode]: {
+    Icon: HashnodeIcon,
+    name: 'Hashnode',
+    forceDark: true,
+  },
   [GivebackActionPlatform.GitHub]: { Icon: GitHubIcon, name: 'GitHub' },
   [GivebackActionPlatform.Reddit]: { Icon: RedditIcon, name: 'Reddit' },
   [GivebackActionPlatform.LinkedIn]: { Icon: LinkedInIcon, name: 'LinkedIn' },
-  [GivebackActionPlatform.AppStore]: { Icon: AppleIcon, name: 'App Store' },
+  [GivebackActionPlatform.AppStore]: {
+    Icon: AppleIcon,
+    name: 'App Store',
+    forceDark: true,
+  },
   [GivebackActionPlatform.ChromeWebStore]: {
     Icon: ChromeIcon,
     name: 'Chrome Web Store',
   },
-  [GivebackActionPlatform.DailyDev]: { Icon: DailyIcon, name: 'daily.dev' },
+  [GivebackActionPlatform.DailyDev]: {
+    Icon: DailyIcon,
+    name: 'daily.dev',
+    forceDark: true,
+  },
   [GivebackActionPlatform.EdgeAddons]: { Icon: EdgeIcon, name: 'Edge Add-ons' },
   [GivebackActionPlatform.FirefoxAddons]: {
     Icon: BrowserGroupIcon,
