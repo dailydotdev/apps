@@ -26,6 +26,7 @@ import { useSignBack } from '../../hooks/auth/useSignBack';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { Loader } from '../Loader';
 import { labels } from '../../lib';
+import { generateNameFromEmail } from '../../lib/strings';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -58,7 +59,6 @@ export const SocialRegistrationForm = ({
   const { user } = useContext(AuthContext);
   const isAppleRegistration = provider === SocialProvider.Apple;
   const shouldShowAppleEmail = isAppleRegistration && !user?.email;
-  const shouldShowAppleName = isAppleRegistration && !user?.name;
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
@@ -110,8 +110,13 @@ export const SocialRegistrationForm = ({
     const values = formToJson<SocialRegistrationFormValues>(
       formRef?.current ?? form,
     );
-    const submittedName = values.name || currentName;
     const submittedEmail = values.email || currentEmail;
+    const submittedName =
+      values.name ||
+      currentName ||
+      (isAppleRegistration && submittedEmail
+        ? generateNameFromEmail(submittedEmail, 'User')
+        : undefined);
 
     if (!submittedEmail) {
       logError('Email not provided');
@@ -187,7 +192,7 @@ export const SocialRegistrationForm = ({
         id="auth-form"
         data-testid="registration_form"
       >
-        {isAppleRegistration && !shouldShowAppleName && (
+        {isAppleRegistration && currentName && (
           <input name="name" type="hidden" value={currentName} readOnly />
         )}
         {isAppleRegistration && !shouldShowAppleEmail && (
@@ -216,7 +221,7 @@ export const SocialRegistrationForm = ({
             onBlur={(e) => setEmail(e.target.value)}
           />
         )}
-        {(!isAppleRegistration || shouldShowAppleName) && (
+        {!isAppleRegistration && (
           <TextField
             saveHintSpace
             className={{ container: 'w-full' }}

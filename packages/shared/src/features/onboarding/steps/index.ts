@@ -8,6 +8,7 @@ export { FunnelContentTypes } from './FunnelContentTypes';
 export { FunnelReadingReminder } from './FunnelReadingReminder';
 export { FunnelInstallPwa } from './FunnelInstallPwa';
 export { FunnelOrganicSignup } from './FunnelOrganicSignup';
+export { FunnelHeroLanding } from './FunnelHeroLanding';
 export { FunnelPlusCards } from './FunnelPlusCards';
 export { FunnelOrganicCheckout } from './FunnelOrganicCheckout';
 export { FunnelBrowserExtension } from './FunnelBrowserExtension';

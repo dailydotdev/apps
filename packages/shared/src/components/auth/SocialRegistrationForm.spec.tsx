@@ -111,7 +111,35 @@ describe('SocialRegistrationForm', () => {
     );
   });
 
-  it('shows Apple identity fields when the provider did not return them', () => {
+  it('generates an Apple profile name when the provider only returned email', () => {
+    const onSignup = jest.fn();
+    renderForm(
+      <SocialRegistrationForm
+        provider={SocialProvider.Apple}
+        hints={{}}
+        onSignup={onSignup}
+      />,
+      {
+        ...user,
+        name: undefined,
+      } as unknown as LoggedUser,
+    );
+
+    expect(screen.queryByText('Email')).not.toBeInTheDocument();
+    expect(screen.queryByText('Name')).not.toBeInTheDocument();
+
+    fireEvent.submit(screen.getByTestId('registration_form'));
+
+    expect(onSignup).toHaveBeenCalledWith({
+      email: 'apple@example.com',
+      name: 'Apple',
+      username: 'daily_apple',
+      experienceLevel: 'LESS_THAN_1_YEAR',
+      acceptedMarketing: true,
+    });
+  });
+
+  it('shows Apple email when missing and generates the profile name from it', () => {
     const onSignup = jest.fn();
     renderForm(
       <SocialRegistrationForm
@@ -127,21 +155,17 @@ describe('SocialRegistrationForm', () => {
     );
 
     const emailInput = screen.getByPlaceholderText('Email');
-    const nameInput = screen.getByPlaceholderText('Name');
 
+    expect(screen.queryByText('Name')).not.toBeInTheDocument();
     fireEvent.input(emailInput, {
       target: { value: 'missing@example.com' },
     });
-    fireEvent.input(nameInput, {
-      target: { value: 'Missing User' },
-    });
     fireEvent.blur(emailInput);
-    fireEvent.blur(nameInput);
     fireEvent.submit(screen.getByTestId('registration_form'));
 
     expect(onSignup).toHaveBeenCalledWith({
       email: 'missing@example.com',
-      name: 'Missing User',
+      name: 'Missing',
       username: 'daily_apple',
       experienceLevel: 'LESS_THAN_1_YEAR',
       acceptedMarketing: true,
