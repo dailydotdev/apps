@@ -140,6 +140,17 @@ export const cloudinaryOnboardingFullBackgroundDesktop =
 export const cloudinaryOnboardingLoginBackground =
   'https://media.daily.dev/image/upload/s--r4MiKjLD--/f_auto/v1743601527/public/login%20background';
 
+export const cloudinaryOnboardingHeroDesk = {
+  default:
+    'https://media.daily.dev/image/upload/s--h3RZdBFS--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk',
+  '1280':
+    'https://media.daily.dev/image/upload/s--RlKNSbe2--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk-1280',
+  '1920':
+    'https://media.daily.dev/image/upload/s--ts3hGn3Z--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk-1920',
+  '2560':
+    'https://media.daily.dev/image/upload/s--opbsGDUn--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk-2560',
+};
+
 export const cloudinaryGenericNotFoundLight =
   'https://media.daily.dev/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu';
 
