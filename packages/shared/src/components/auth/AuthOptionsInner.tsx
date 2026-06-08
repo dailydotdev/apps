@@ -17,6 +17,7 @@ import {
 import {
   getBetterAuthErrorMessage,
   betterAuthSignInWithIdToken,
+  betterAuthOneTapCallback,
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
   getBetterAuthSocialRedirectData,
@@ -30,7 +31,14 @@ import {
 } from './socialAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import { shouldUseSocialAuthPopup } from '../../lib/func';
+import {
+  checkIsExtension,
+  isIOSNative,
+  shouldUseSocialAuthPopup,
+} from '../../lib/func';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureAuthGoogleOneTap } from '../../lib/featureManagement';
+import { useGoogleOneTap } from '../../hooks/auth/useGoogleOneTap';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -50,6 +58,7 @@ import {
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
+import { Origin } from '../../lib/log';
 import { labels } from '../../lib';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
@@ -149,7 +158,8 @@ function AuthOptionsInner({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user, isFunnel } = useAuthContext();
+  const { refetchBoot, user, isFunnel, isAndroidApp, isAuthReady } =
+    useAuthContext();
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
@@ -594,6 +604,64 @@ function AuthOptionsInner({
       handleLoginMessage();
     }, 500);
   };
+
+  const handleOneTapCredential = async (idToken: string) => {
+    if (isSocialAuthLoading) {
+      return;
+    }
+    const isLogin = isLoginFlow ?? true;
+    socialErrorEventName.current = isLogin
+      ? AuthEventNames.LoginError
+      : AuthEventNames.RegistrationError;
+    authFlowSucceededRef.current = false;
+    setIsSocialAuthLoading(true);
+    logEvent({
+      event_name: 'click',
+      target_type: isLogin
+        ? AuthEventNames.LoginProvider
+        : AuthEventNames.SignUpProvider,
+      target_id: 'google',
+      extra: JSON.stringify({ trigger, origin: Origin.AuthOneTap }),
+    });
+
+    const result = await betterAuthOneTapCallback({
+      idToken,
+      timezone: getUserDefaultTimezone(),
+    });
+
+    if (result.error) {
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          provider: 'google',
+          error: result.error,
+          origin: Origin.AuthOneTap,
+        }),
+      });
+      setIsSocialAuthLoading(false);
+      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      return;
+    }
+
+    await setChosenProvider('google');
+    await handleLoginMessage();
+  };
+
+  const canUseOneTap =
+    isAuthReady &&
+    !user &&
+    !checkIsExtension() &&
+    !isIOSNative() &&
+    !isAndroidApp &&
+    !isNativeAuthSupported('google');
+  const { value: isOneTapEnabled } = useConditionalFeature({
+    feature: featureAuthGoogleOneTap,
+    shouldEvaluate: canUseOneTap,
+  });
+  useGoogleOneTap({
+    enabled: canUseOneTap && isOneTapEnabled,
+    onCredential: handleOneTapCredential,
+  });
 
   const onProviderClickRef = useRef(onProviderClick);
   onProviderClickRef.current = onProviderClick;

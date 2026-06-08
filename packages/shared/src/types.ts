@@ -44,3 +44,6 @@ export type ErrorBoundaryFeature =
   | 'extension-feed'
   | 'onboarding'
   | '404-page';
+
+export const GSI_SRC = 'https://accounts.google.com/gsi/client';
+export const GSI_SCRIPT_ID = 'google-gsi-client';
