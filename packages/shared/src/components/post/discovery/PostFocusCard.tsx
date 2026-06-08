@@ -120,6 +120,8 @@ export const PostFocusCard = ({
                 user={sharedByAuthor as unknown as UserShortProfile}
                 imageSize={ProfileImageSize.Medium}
                 showDescription={false}
+                showFollow
+                showSubscribe={false}
                 className={{
                   container: 'min-w-0 !p-0 hover:bg-transparent',
                   textWrapper: 'min-w-0',
