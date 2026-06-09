@@ -12,13 +12,16 @@ import { GivebackReveal } from './GivebackReveal';
 import { GivebackHero } from './GivebackHero';
 import { GivebackSponsorTiers } from './GivebackSponsorTiers';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
+import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
+import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
 export const GivebackPage = (): ReactElement => {
   // Picking causes is the onboarding step: it only appears once an
   // authenticated visitor opts in from the hero.
   const [hasStarted, setHasStarted] = useState(false);
   const causesRef = useRef<HTMLDivElement>(null);
+  const selection = useGivebackCauseSelection(hasStarted);
 
   const handleJoin = useCallback(() => setHasStarted(true), []);
 
@@ -66,7 +69,12 @@ export const GivebackPage = (): ReactElement => {
                     not ads.
                   </Typography>
                 </FlexCol>
-                <GivebackCauseSelection />
+                <GivebackCauseSelection
+                  causes={selection.causes}
+                  isLoading={selection.isLoading}
+                  selectedIds={selection.selectedIds}
+                  onToggle={selection.toggleCause}
+                />
               </FlexCol>
             </GivebackReveal>
           </div>
@@ -76,6 +84,14 @@ export const GivebackPage = (): ReactElement => {
           <GivebackLegalFooter />
         </GivebackReveal>
       </FlexCol>
+
+      {hasStarted && (
+        <GivebackOnboardingBar
+          selectedCount={selection.selectedCount}
+          isSaving={selection.isSaving}
+          onContinue={selection.save}
+        />
+      )}
     </div>
   );
 };

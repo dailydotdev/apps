@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
@@ -8,52 +8,28 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { ArrowIcon, OpenLinkIcon, VIcon } from '../../../components/icons';
+import { OpenLinkIcon, VIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-import { useToastNotification } from '../../../hooks/useToastNotification';
-import { useContributionCauses } from '../hooks/useContributionCauses';
-import { useContributionCausePreferences } from '../hooks/useContributionCausePreferences';
-import { useUpdateContributionCausePreferences } from '../hooks/useUpdateContributionCausePreferences';
 import { CauseEmblem } from './CauseEmblem';
 import { GivebackFilterChip } from './GivebackFilterChip';
+import type { ContributionCause } from '../types';
 
 const ALL_FILTER = 'all';
 
 interface GivebackCauseSelectionProps {
-  // Called after the visitor's picks are saved, to advance the join flow.
-  onComplete?: () => void;
+  causes: ContributionCause[];
+  isLoading: boolean;
+  selectedIds: Set<string>;
+  onToggle: (id: string) => void;
 }
 
 export const GivebackCauseSelection = ({
-  onComplete,
+  causes,
+  isLoading,
+  selectedIds,
+  onToggle,
 }: GivebackCauseSelectionProps): ReactElement => {
-  const { displayToast } = useToastNotification();
-  const { causes, isPending: isLoadingCauses } = useContributionCauses(true);
-  const { selectedCauseIds, isPending: isLoadingPreferences } =
-    useContributionCausePreferences(true);
-  const { saveCausePreferences, isPending: isSaving } =
-    useUpdateContributionCausePreferences();
-
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeFilter, setActiveFilter] = useState<string>(ALL_FILTER);
-
-  // Seed the picker from the saved preferences once they arrive, so editing
-  // starts from the visitor's current selection. Only runs the first time the
-  // preferences resolve, never stomping later in-picker toggles.
-  const didSeedRef = useRef(false);
-  useEffect(() => {
-    if (didSeedRef.current || isLoadingPreferences) {
-      return;
-    }
-    didSeedRef.current = true;
-    setSelectedIds(new Set(selectedCauseIds));
-  }, [isLoadingPreferences, selectedCauseIds]);
 
   const categories = useMemo(
     () =>
@@ -77,25 +53,7 @@ export const GivebackCauseSelection = ({
     [causes, activeFilter],
   );
 
-  const toggleCause = (id: string) => {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
-
-  const handleContinue = async () => {
-    await saveCausePreferences([...selectedIds]);
-    displayToast('Your causes are saved');
-    onComplete?.();
-  };
-
-  if (isLoadingCauses) {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -119,8 +77,6 @@ export const GivebackCauseSelection = ({
       </Typography>
     );
   }
-
-  const selectedCount = selectedIds.size;
 
   return (
     <FlexCol className="gap-6">
@@ -174,7 +130,7 @@ export const GivebackCauseSelection = ({
                 aria-label={`${selected ? 'Deselect' : 'Select'} ${
                   cause.title
                 }`}
-                onClick={() => toggleCause(cause.id)}
+                onClick={() => onToggle(cause.id)}
                 className="absolute inset-0 z-0 rounded-16"
               />
 
@@ -239,28 +195,6 @@ export const GivebackCauseSelection = ({
           );
         })}
       </div>
-
-      <FlexRow className="flex-wrap items-center justify-between gap-3">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          {selectedCount} selected
-        </Typography>
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
-          icon={<ArrowIcon className="rotate-90" />}
-          iconPosition={ButtonIconPosition.Right}
-          disabled={selectedCount === 0 || isSaving}
-          loading={isSaving}
-          onClick={handleContinue}
-          className="w-full tablet:w-fit"
-        >
-          Continue
-        </Button>
-      </FlexRow>
     </FlexCol>
   );
 };
