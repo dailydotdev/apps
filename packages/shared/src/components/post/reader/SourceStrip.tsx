@@ -63,7 +63,7 @@ export function SourceStrip({
           <div
             className={classNames(
               'group flex min-w-0 flex-1 items-center rounded-10',
-              compact ? 'gap-2 px-0 py-0' : 'gap-3 px-1 py-0.5',
+              compact ? 'gap-3 px-0 py-0' : 'gap-3 px-1 py-0.5',
             )}
           >
             <Link passHref href={source.permalink} prefetch={false}>
@@ -77,7 +77,7 @@ export function SourceStrip({
                   alt=""
                   className={classNames(
                     'rounded-full',
-                    compact ? 'size-7' : 'size-8',
+                    compact ? 'size-10' : 'size-8',
                   )}
                   loading="lazy"
                   aria-hidden
@@ -89,7 +89,7 @@ export function SourceStrip({
                 <Typography
                   tag={TypographyTag.Link}
                   type={
-                    compact ? TypographyType.Footnote : TypographyType.Subhead
+                    compact ? TypographyType.Callout : TypographyType.Subhead
                   }
                   color={TypographyColor.Primary}
                   className="truncate group-hover:underline group-focus-visible:underline"
