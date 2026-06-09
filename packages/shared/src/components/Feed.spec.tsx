@@ -74,7 +74,7 @@ import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import { featurePostHighlightCards } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
-import type { PostHero } from '../graphql/types';
+import type { PostHero, PostHeroSignificance } from '../graphql/types';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -1711,11 +1711,18 @@ const buildPost = (id: string, hero?: PostHero | null): Post =>
     hero: hero ?? null,
   } as Post);
 
+const SIGNIFICANCE_BY_SIZE: Record<number, PostHeroSignificance> = {
+  4: 'breaking',
+  3: 'major',
+  2: 'notable',
+  1: 'routine',
+};
+
 const buildWidePost = (id: string, size: number): Post =>
   buildPost(id, {
     id: `hero-${id}`,
     headline: 'wide',
-    significance: size === 4 ? 'breaking' : size === 3 ? 'major' : 'notable',
+    significance: SIGNIFICANCE_BY_SIZE[size] ?? 'notable',
     size,
     highlightedAt: '2026-05-25T00:00:00.000Z',
   });
