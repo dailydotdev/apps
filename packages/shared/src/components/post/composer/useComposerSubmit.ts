@@ -11,6 +11,8 @@ import type {
 } from '../../../graphql/posts';
 import type { Squad } from '../../../graphql/sources';
 import { moderationRequired } from '../../squads/utils';
+import { webappUrl } from '../../../lib/constants';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   POLL_OPTIONS_MIN,
   STANDUP_TOPIC_MAX_LENGTH,
@@ -98,6 +100,7 @@ export const useComposerSubmit = ({
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
   const router = useRouter();
+  const { user } = useAuthContext();
   const { submit: submitStandupMutation, isPending: isCreatingStandup } =
     useSubmitStandup();
   const [standupErrors, setStandupErrors] = useState<StandupFieldErrors>({});
@@ -114,10 +117,27 @@ export const useComposerSubmit = ({
     initialPreview,
     onComplete,
     displayMutationErrors: true,
+    onPostSuccess: (post) => {
+      if (editPostId) {
+        return;
+      }
+      router.push(
+        post.commentsPermalink ?? `${webappUrl}posts/${post.slug ?? post.id}`,
+      );
+    },
   });
   const { onCreate: createMulti, isPending: isMultiPending } =
     useMultipleSourcePost({
-      onSuccess: onComplete,
+      onSuccess: (result) => {
+        onComplete();
+        const isEveryItemPending = result.every(
+          (item) => item.type === 'moderationItem',
+        );
+        if (isEveryItemPending || !user?.username) {
+          return;
+        }
+        router.push(`${webappUrl}${user.username}/posts/`);
+      },
       onError: (error) =>
         displayToast(error.response?.errors?.[0]?.message ?? 'Failed to post'),
     });
