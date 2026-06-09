@@ -104,17 +104,19 @@ export function PostSidebarAdWidget({
 
   if (variant === 'inline') {
     const tagLine = ad.tagLine?.trim();
-    // Always surface a title on the icon line: the company if present,
-    // otherwise the ad's tagline. The tagline only repeats in the body when
-    // the company is the title.
-    const inlineTitle = company || tagLine;
+    const description = ad.description?.trim();
+    // Always surface a title on the icon line: the company, else the
+    // tagline, else the description. Whatever is left over renders in the
+    // body — so a description-only ad has no extra body row.
+    const inlineTitle = company || tagLine || description;
     const inlineBodyTagLine = company ? tagLine : undefined;
-    const inlineHasBody = !!ad.description || !!inlineBodyTagLine;
+    const inlineBodyDescription = company || tagLine ? description : undefined;
+    const inlineHasBody = !!inlineBodyTagLine || !!inlineBodyDescription;
 
     return (
       <div
         className={classNames(
-          'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4',
+          'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3',
           className?.container,
         )}
       >
@@ -137,7 +139,7 @@ export function PostSidebarAdWidget({
               tag={TypographyTag.P}
               type={TypographyType.Body}
               color={TypographyColor.Primary}
-              className="min-w-0 flex-1 truncate"
+              className="line-clamp-2 min-w-0 flex-1"
               bold
             >
               {inlineTitle}
@@ -171,8 +173,8 @@ export function PostSidebarAdWidget({
             className="relative z-1 whitespace-pre-line"
           >
             {inlineBodyTagLine && <strong>{inlineBodyTagLine}</strong>}
-            {inlineBodyTagLine && ad.description ? ' ' : ''}
-            {ad.description}
+            {inlineBodyTagLine && inlineBodyDescription ? ' ' : ''}
+            {inlineBodyDescription}
           </Typography>
         )}
         <AdPixel pixel={ad.pixel} />
