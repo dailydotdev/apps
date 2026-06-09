@@ -12,6 +12,7 @@ import { webappUrl } from '../../lib/constants';
 interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   videoId: string;
   className?: string;
+  autoplay?: boolean;
   placeholderProps: Pick<
     YoutubeVideoWithoutConsentProps,
     'post' | 'onWatchVideo'
@@ -21,6 +22,7 @@ interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
 const YoutubeVideo = ({
   videoId,
   className,
+  autoplay = false,
   placeholderProps,
   ...props
 }: YoutubeVideoProps): ReactElement => {
@@ -47,11 +49,12 @@ const YoutubeVideo = ({
     );
   }
 
+  const autoplayParam = autoplay ? '?autoplay=1' : '';
   // Extension pages don't send Referer header, causing YouTube Error 153
   // Use webapp as intermediate page which sends proper Referer
   const embedSrc = isExtension
-    ? `${webappUrl}embed/youtube/${videoId}`
-    : `https://www.youtube-nocookie.com/embed/${videoId}`;
+    ? `${webappUrl}embed/youtube/${videoId}${autoplayParam}`
+    : `https://www.youtube-nocookie.com/embed/${videoId}${autoplayParam}`;
 
   return (
     <YoutubeVideoContainer className={className}>
