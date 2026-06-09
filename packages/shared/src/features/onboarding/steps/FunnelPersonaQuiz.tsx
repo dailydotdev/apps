@@ -924,16 +924,6 @@ function FunnelPersonaQuizComponent({
         <div className="flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 laptop:flex-none">
           <PersonaEmblem persona={persona} />
           <Typography
-            type={TypographyType.Caption1}
-            bold
-            className={classNames(
-              styles.revealEyebrow,
-              'uppercase tracking-[0.2em] text-accent-cabbage-default',
-            )}
-          >
-            ✦ The genie has spoken ✦
-          </Typography>
-          <Typography
             tag={TypographyTag.H1}
             type={TypographyType.Title1}
             bold

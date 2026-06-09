@@ -41,20 +41,16 @@
   animation: dot-blink 1.2s ease-in-out infinite;
 }
 
-.revealEyebrow {
+.revealName {
   animation: reveal-rise 0.5s ease 0.5s both;
 }
 
-.revealName {
-  animation: reveal-rise 0.5s ease 0.62s both;
-}
-
 .revealTagline {
-  animation: reveal-rise 0.5s ease 0.76s both;
+  animation: reveal-rise 0.5s ease 0.64s both;
 }
 
 .revealActions {
-  animation: reveal-rise 0.5s ease 0.9s both;
+  animation: reveal-rise 0.5s ease 0.78s both;
 }
 
 /* ─── Reveal celebration ──────────────────────────────────────────────────
@@ -552,7 +548,6 @@
 @media (prefers-reduced-motion: reduce) {
   .questionIn,
   .dot,
-  .revealEyebrow,
   .revealName,
   .revealTagline,
   .revealActions,
