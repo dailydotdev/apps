@@ -82,19 +82,10 @@ const ActionButtonsV1 = ({
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
   const { getUpvoteAnimation } = useBrandSponsorship();
+  // The experiment only reorders the comment action and swaps its icon/label;
+  // click behavior stays identical to the control so the only variable is order.
   const isCommentFirst = useFeature(featureCommentFirstAction);
   const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
-  const useCommentLink = isCommentFirst || config.useCommentLink;
-  const commentHref = isCommentFirst
-    ? `${post.commentsPermalink}${
-        post.commentsPermalink.includes('?') ? '&' : '?'
-      }comment=true`
-    : post.commentsPermalink;
-  // Skip the feed-level callback so the desktop post modal doesn't open
-  // alongside the link navigation when the comment-first link is used.
-  const handleCommentClick = isCommentFirst
-    ? undefined
-    : () => onCommentClick?.(post);
 
   const {
     isUpvoteActive,
@@ -148,15 +139,18 @@ const ActionButtonsV1 = ({
   );
   const counterLabelClassName = variant === 'grid' ? '!pl-[1px]' : '!pl-0';
 
-  const commentButton = useCommentLink ? (
-    <LinkWithTooltip tooltip={{ content: 'Reply' }} href={commentHref}>
+  const commentButton = config.useCommentLink ? (
+    <LinkWithTooltip
+      tooltip={{ content: isCommentFirst ? 'Reply' : 'Comment' }}
+      href={post.commentsPermalink}
+    >
       <QuaternaryButton
         labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
         className="btn-tertiary-blueCheese pointer-events-auto"
         color={ButtonColor.BlueCheese}
         tag="a"
-        href={commentHref}
+        href={post.commentsPermalink}
         pressed={post.commented}
         variant={ButtonVariant.Tertiary}
         size={config.buttonSize}
@@ -166,7 +160,7 @@ const ActionButtonsV1 = ({
             size={config.iconSize}
           />
         }
-        onClick={handleCommentClick}
+        onClick={() => onCommentClick?.(post)}
       >
         {commentCount > 0 && (
           <InteractionCounter
@@ -177,7 +171,7 @@ const ActionButtonsV1 = ({
       </QuaternaryButton>
     </LinkWithTooltip>
   ) : (
-    <Tooltip content="Reply" side="bottom">
+    <Tooltip content={isCommentFirst ? 'Reply' : 'Comments'} side="bottom">
       <QuaternaryButton
         labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}

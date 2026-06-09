@@ -117,22 +117,21 @@ function NewCommentComponent(
   }, [isComposerOpen, onComposerOpenChange]);
 
   useEffect(() => {
-    if (!shouldHandleCommentQuery || !hasCommentQuery) {
+    if (
+      !shouldHandleCommentQuery ||
+      !hasCommentQuery ||
+      (post.type !== PostType.Welcome && post.type !== PostType.Poll)
+    ) {
       return;
     }
 
     const { comment, ...query } = router.query;
-    const getOrigin = () => {
-      if (post.type === PostType.Poll) {
-        return Origin.PollCommentButton;
-      }
-      if (post.type === PostType.Welcome) {
-        return Origin.SquadChecklist;
-      }
-      return Origin.PostCommentButton;
-    };
+    const origin =
+      post.type === PostType.Poll
+        ? Origin.PollCommentButton
+        : Origin.SquadChecklist;
 
-    onShowComment(getOrigin(), comment as string);
+    onShowComment(origin, comment as string);
 
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,

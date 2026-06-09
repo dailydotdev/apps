@@ -56,15 +56,16 @@ function ReaderRailActionBarV1({
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
 
+  const commentLabel = isCommentFirst ? 'Reply' : 'Comment';
   const commentButton = (
-    <Tooltip content="Reply">
+    <Tooltip content={commentLabel}>
       <Button
         id="reader-comment-btn"
         type="button"
         pressed={post.commented}
         onClick={onCommentClick}
         icon={<CommentIconComponent secondary={post.commented} />}
-        aria-label="Comment"
+        aria-label={commentLabel}
         variant={ButtonVariant.Tertiary}
         color={ButtonColor.BlueCheese}
       />

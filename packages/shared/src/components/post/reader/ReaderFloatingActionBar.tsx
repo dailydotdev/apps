@@ -53,8 +53,9 @@ function ReaderFloatingActionBarV1({
   const upvotes = largeNumberFormat(post.numUpvotes ?? 0) ?? '0';
   const comments = largeNumberFormat(post.numComments ?? 0) ?? '0';
 
+  const commentLabel = isCommentFirst ? 'Reply' : 'Comment';
   const commentButton = (
-    <Tooltip content="Reply">
+    <Tooltip content={commentLabel}>
       <Button
         type="button"
         pressed={post.commented}
@@ -65,7 +66,7 @@ function ReaderFloatingActionBarV1({
             size={FLOATING_ICON_SIZE}
           />
         }
-        aria-label="Comment"
+        aria-label={commentLabel}
         variant={ButtonVariant.Tertiary}
         className={classNames(
           countActionButtonClasses,

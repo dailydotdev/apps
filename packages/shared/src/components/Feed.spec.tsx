@@ -1267,7 +1267,7 @@ describe('Feed logged in', () => {
 
     renderComponent();
     await waitForNock();
-    const [first] = await screen.findAllByLabelText('Reply');
+    const [first] = await screen.findAllByLabelText('Comments');
     fireEvent.click(first);
     await screen.findByRole('dialog');
   });
@@ -1373,7 +1373,7 @@ describe('Feed logged in', () => {
     await waitForNock();
 
     mockGraphQL(createPostMock({ id: firstPost.node.id }));
-    const [first] = await screen.findAllByLabelText('Reply');
+    const [first] = await screen.findAllByLabelText('Comments');
     fireEvent.click(first);
 
     await screen.findByRole('dialog');
