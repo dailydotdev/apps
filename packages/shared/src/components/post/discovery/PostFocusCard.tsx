@@ -152,6 +152,7 @@ export const PostFocusCard = ({
                   user={author as unknown as UserShortProfile}
                   imageSize={ProfileImageSize.Large}
                   showDescription={false}
+                  transformUsername={() => null}
                   className={{
                     container: 'min-w-0 !p-0 hover:bg-transparent',
                     textWrapper: 'min-w-0',

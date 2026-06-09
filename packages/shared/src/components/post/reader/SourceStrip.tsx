@@ -99,12 +99,10 @@ export function SourceStrip({
                   {source.name}
                 </Typography>
               </Link>
-              {sourceHandle && (
+              {!compact && sourceHandle && (
                 <Typography
                   tag={TypographyTag.Span}
-                  type={
-                    compact ? TypographyType.Caption2 : TypographyType.Caption1
-                  }
+                  type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
                   className="truncate"
                 >
