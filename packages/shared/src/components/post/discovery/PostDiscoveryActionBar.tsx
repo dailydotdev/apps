@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
@@ -74,6 +74,23 @@ export const PostDiscoveryActionBar = ({
     receivingUser: post.author as LoggedUser | undefined,
   });
 
+  // Detect when the sticky bar is pinned to the top so the X close button
+  // (modal only) appears just for the stuck state.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [isStuck, setIsStuck] = useState(false);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsStuck(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
@@ -125,140 +142,145 @@ export const PostDiscoveryActionBar = ({
   };
 
   return (
-    <div
-      className={classNames(
-        'sticky top-0 z-3 my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary bg-background-default px-1 py-3',
-        className,
-      )}
-    >
-      <div className="flex items-center gap-2">
-        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'More like this'}>
-          <QuaternaryButton
-            id="upvote-post-btn"
-            aria-label="Upvote"
-            color={ButtonColor.Avocado}
-            icon={
-              <UpvoteButtonIcon
-                secondary={isUpvoteActive}
-                size={IconSize.Small}
-              />
-            }
-            onClick={onToggleUpvote}
-            pressed={isUpvoteActive}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          >
-            {upvotes > 0 ? largeNumberFormat(upvotes) : undefined}
-          </QuaternaryButton>
-        </Tooltip>
-        <Tooltip
-          content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-        >
-          <QuaternaryButton
-            id="downvote-post-btn"
-            aria-label="Downvote"
-            color={ButtonColor.Ketchup}
-            icon={
-              <DownvoteIcon
-                secondary={isDownvoteActive}
-                size={IconSize.Small}
-              />
-            }
-            onClick={onToggleDownvote}
-            pressed={isDownvoteActive}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          />
-        </Tooltip>
-        <Tooltip content="Comment">
-          <QuaternaryButton
-            id="comment-post-btn"
-            aria-label="Comment"
-            color={ButtonColor.BlueCheese}
-            icon={
-              <CommentIcon secondary={post.commented} size={IconSize.Small} />
-            }
-            onClick={onComment}
-            pressed={post.commented}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          >
-            {comments > 0 ? largeNumberFormat(comments) : undefined}
-          </QuaternaryButton>
-        </Tooltip>
-        {canAward && (
+    <>
+      <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
+      <div
+        className={classNames(
+          'sticky top-0 z-3 my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary bg-background-default px-1 py-3',
+          className,
+        )}
+      >
+        <div className="flex items-center gap-2">
           <Tooltip
-            content={isAwarded ? 'You already awarded this post!' : 'Award'}
+            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           >
             <QuaternaryButton
-              id="award-post-btn"
-              aria-label="Award"
-              color={ButtonColor.Cabbage}
+              id="upvote-post-btn"
+              aria-label="Upvote"
+              color={ButtonColor.Avocado}
               icon={
-                <MedalBadgeIcon secondary={isAwarded} size={IconSize.Small} />
+                <UpvoteButtonIcon
+                  secondary={isUpvoteActive}
+                  size={IconSize.Small}
+                />
               }
-              onClick={onGiveAward}
-              pressed={isAwarded}
+              onClick={onToggleUpvote}
+              pressed={isUpvoteActive}
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
             >
-              {awards > 0 ? largeNumberFormat(awards) : undefined}
+              {upvotes > 0 ? largeNumberFormat(upvotes) : undefined}
             </QuaternaryButton>
           </Tooltip>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <BookmarkButton
-          post={post}
-          iconSize={IconSize.Small}
-          buttonProps={{
-            id: 'bookmark-post-btn',
-            pressed: post.bookmarked,
-            onClick: onToggleBookmark,
-            size: ButtonSize.Small,
-          }}
-        />
-        <Tooltip content="Copy link">
-          <Button
-            aria-label="Copy link"
-            color={ButtonColor.Cabbage}
-            icon={<LinkIcon size={IconSize.Small} />}
-            onClick={() => onCopyLinkClick?.(post)}
-            size={ButtonSize.Small}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-          />
-        </Tooltip>
-        {post.clickbaitTitleDetected && (
-          <PostClickbaitShield post={post} iconOnly />
-        )}
-        {canSeeAnalytics && (
-          <Tooltip content="Analytics">
-            <Link
-              href={`${webappUrl}posts/${post.id}/analytics`}
-              passHref
-              prefetch={false}
-            >
-              <Button
-                aria-label="Analytics"
-                icon={<AnalyticsIcon size={IconSize.Small} />}
-                size={ButtonSize.Small}
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-              />
-            </Link>
+          <Tooltip
+            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+          >
+            <QuaternaryButton
+              id="downvote-post-btn"
+              aria-label="Downvote"
+              color={ButtonColor.Ketchup}
+              icon={
+                <DownvoteIcon
+                  secondary={isDownvoteActive}
+                  size={IconSize.Small}
+                />
+              }
+              onClick={onToggleDownvote}
+              pressed={isDownvoteActive}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+            />
           </Tooltip>
-        )}
-        <PostMenuOptions
-          post={post}
-          origin={Origin.ArticleModal}
-          buttonSize={ButtonSize.Small}
-        />
-        {onClose && (
-          <CloseButton size={ButtonSize.Small} onClick={() => onClose()} />
-        )}
+          <Tooltip content="Comment">
+            <QuaternaryButton
+              id="comment-post-btn"
+              aria-label="Comment"
+              color={ButtonColor.BlueCheese}
+              icon={
+                <CommentIcon secondary={post.commented} size={IconSize.Small} />
+              }
+              onClick={onComment}
+              pressed={post.commented}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+            >
+              {comments > 0 ? largeNumberFormat(comments) : undefined}
+            </QuaternaryButton>
+          </Tooltip>
+          {canAward && (
+            <Tooltip
+              content={isAwarded ? 'You already awarded this post!' : 'Award'}
+            >
+              <QuaternaryButton
+                id="award-post-btn"
+                aria-label="Award"
+                color={ButtonColor.Cabbage}
+                icon={
+                  <MedalBadgeIcon secondary={isAwarded} size={IconSize.Small} />
+                }
+                onClick={onGiveAward}
+                pressed={isAwarded}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+              >
+                {awards > 0 ? largeNumberFormat(awards) : undefined}
+              </QuaternaryButton>
+            </Tooltip>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <BookmarkButton
+            post={post}
+            iconSize={IconSize.Small}
+            buttonProps={{
+              id: 'bookmark-post-btn',
+              pressed: post.bookmarked,
+              onClick: onToggleBookmark,
+              size: ButtonSize.Small,
+            }}
+          />
+          <Tooltip content="Copy link">
+            <Button
+              aria-label="Copy link"
+              color={ButtonColor.Cabbage}
+              icon={<LinkIcon size={IconSize.Small} />}
+              onClick={() => onCopyLinkClick?.(post)}
+              size={ButtonSize.Small}
+              type="button"
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+          {post.clickbaitTitleDetected && (
+            <PostClickbaitShield post={post} iconOnly />
+          )}
+          {canSeeAnalytics && (
+            <Tooltip content="Analytics">
+              <Link
+                href={`${webappUrl}posts/${post.id}/analytics`}
+                passHref
+                prefetch={false}
+              >
+                <Button
+                  aria-label="Analytics"
+                  icon={<AnalyticsIcon size={IconSize.Small} />}
+                  size={ButtonSize.Small}
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                />
+              </Link>
+            </Tooltip>
+          )}
+          <PostMenuOptions
+            post={post}
+            origin={Origin.ArticleModal}
+            buttonSize={ButtonSize.Small}
+          />
+          {isStuck && onClose && (
+            <CloseButton size={ButtonSize.Small} onClick={() => onClose()} />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

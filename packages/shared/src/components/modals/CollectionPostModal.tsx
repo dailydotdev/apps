@@ -41,6 +41,7 @@ export default function CollectionPostModal({
       post={post}
       onAfterOpen={onLoad}
       size={showDiscovery ? Modal.Size.Large : Modal.Size.XLarge}
+      className={showDiscovery ? 'laptop:!overflow-visible' : undefined}
       onRequestClose={onRequestClose}
       postType={PostType.Collection}
       source={post.source}

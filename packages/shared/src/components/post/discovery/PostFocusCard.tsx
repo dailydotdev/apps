@@ -113,12 +113,22 @@ export const PostFocusCard = ({
     useReaderInstallPromptGate(post);
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
+  const discussionRef = useRef<HTMLDivElement>(null);
   const readHref = getReadArticleHref(post);
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
     }
     onReadArticle();
+  };
+  const scrollToDiscussion = () =>
+    discussionRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  const scrollToComment = () => {
+    scrollToDiscussion();
+    focusCommentRef.current();
   };
 
   return (
@@ -247,7 +257,7 @@ export const PostFocusCard = ({
           <PostDiscoveryActionBar
             post={post}
             origin={origin}
-            onComment={() => focusCommentRef.current()}
+            onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
             onClose={onClose}
           />
@@ -309,6 +319,7 @@ export const PostFocusCard = ({
           <PostUpvotesCommentsCount
             post={post}
             onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
+            onCommentsClick={scrollToComment}
           />
 
           {isCollection && <CollectionSources post={article} />}
@@ -321,16 +332,18 @@ export const PostFocusCard = ({
 
           <PostSidebarAdWidget postId={post.id} variant="inline" />
 
-          <PostDiscussionPanel
-            className="pt-2"
-            showMetaBar={false}
-            showSortHeader
-            onRegisterFocusComment={(fn) => {
-              focusCommentRef.current = fn;
-            }}
-            post={post}
-            origin={origin}
-          />
+          <div ref={discussionRef} className="scroll-mt-16">
+            <PostDiscussionPanel
+              className="pt-2"
+              showMetaBar={false}
+              showSortHeader
+              onRegisterFocusComment={(fn) => {
+                focusCommentRef.current = fn;
+              }}
+              post={post}
+              origin={origin}
+            />
+          </div>
         </div>
       </div>
     </article>

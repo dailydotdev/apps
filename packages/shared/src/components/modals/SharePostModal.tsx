@@ -41,6 +41,7 @@ export default function PostModal({
       post={post}
       onAfterOpen={onLoad}
       size={showDiscovery ? Modal.Size.Large : Modal.Size.XLarge}
+      className={showDiscovery ? 'laptop:!overflow-visible' : undefined}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
       source={post.source}
