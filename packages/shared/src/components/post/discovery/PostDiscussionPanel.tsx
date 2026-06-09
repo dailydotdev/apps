@@ -178,7 +178,7 @@ export const PostDiscussionPanel = ({
       </div>
       <DiscussionShareRow post={post} withSquads />
       {showSortHeader && (
-        <span className="flex shrink-0 flex-row items-center px-1">
+        <span className="flex shrink-0 flex-row items-center">
           <Typography
             color={TypographyColor.Tertiary}
             type={TypographyType.Footnote}
