@@ -447,68 +447,51 @@
   animation: shine-sweep 0.8s ease-out;
 }
 
-/* Yes / No answer tiles. Big, glassy and prominent by default; on hover they
- * flood with their verdict colour (avocado for yes, ketchup for no), the icon
- * badge fills, and the whole tile lifts with a colour-matched glow. */
+/* Yes / No answers. Flat — no tile background or border. Just a colour-filled
+ * circle (the icon) beside a plain label; the two circles sit close together in
+ * the middle with the labels flanking the outer edges. On hover the circle
+ * fills solid, glows and lifts. */
 .answer {
-  position: relative;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--theme-surface-float) 55%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid
-    color-mix(in srgb, var(--theme-text-primary) 14%, transparent);
-  box-shadow: inset 0 1px 0 0
-    color-mix(in srgb, var(--theme-text-primary) 8%, transparent);
-  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease,
-    background-color 0.2s ease;
+  background: transparent;
+  border: none;
+  transition: transform 0.18s ease;
 }
 
-/* Icon badge: a tinted disc that brightens to a solid fill on hover. */
+/* Icon circle: a colour-tinted disc that brightens to a solid fill on hover. */
 .answerBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  transition: transform 0.18s ease, background-color 0.2s ease, color 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .answerYes .answerBadge {
-  background: color-mix(in srgb, var(--theme-accent-avocado-default) 20%, transparent);
+  background: color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent);
   color: var(--theme-accent-avocado-default);
 }
 
 .answerNo .answerBadge {
-  background: color-mix(in srgb, var(--theme-accent-ketchup-default) 20%, transparent);
+  background: color-mix(in srgb, var(--theme-accent-ketchup-default) 22%, transparent);
   color: var(--theme-accent-ketchup-default);
 }
 
-.answerYes:hover {
-  border-color: var(--theme-accent-avocado-default);
-  background: color-mix(in srgb, var(--theme-accent-avocado-default) 16%, transparent);
-  box-shadow: 0 12px 30px -12px
-    color-mix(in srgb, var(--theme-accent-avocado-default) 80%, transparent);
-}
-
-.answerNo:hover {
-  border-color: var(--theme-accent-ketchup-default);
-  background: color-mix(in srgb, var(--theme-accent-ketchup-default) 16%, transparent);
-  box-shadow: 0 12px 30px -12px
-    color-mix(in srgb, var(--theme-accent-ketchup-default) 80%, transparent);
-}
-
-/* Solid badge on hover. Scaling the badge (not the svg) keeps the downvote's
- * `rotate-180` intact. */
+/* Scaling the badge (not the svg) keeps the downvote's `rotate-180` intact. */
 .answerYes:hover .answerBadge {
   background: var(--theme-accent-avocado-default);
   color: var(--theme-surface-invert);
   transform: scale(1.08);
+  box-shadow: 0 0 28px -4px
+    color-mix(in srgb, var(--theme-accent-avocado-default) 75%, transparent);
 }
 
 .answerNo:hover .answerBadge {
   background: var(--theme-accent-ketchup-default);
   color: var(--theme-surface-invert);
   transform: scale(1.08);
+  box-shadow: 0 0 28px -4px
+    color-mix(in srgb, var(--theme-accent-ketchup-default) 75%, transparent);
 }
 
 /* "Not sure": a clearly secondary ghost pill — visible, but lighter than the

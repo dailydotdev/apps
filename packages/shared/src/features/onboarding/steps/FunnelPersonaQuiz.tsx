@@ -1029,7 +1029,7 @@ function FunnelPersonaQuizComponent({
               isThinking && 'pointer-events-none opacity-0',
             )}
           >
-            <div className="flex w-full gap-3">
+            <div className="flex w-full items-center justify-center gap-5">
               <button
                 type="button"
                 disabled={isThinking}
@@ -1037,15 +1037,15 @@ function FunnelPersonaQuizComponent({
                 className={classNames(
                   styles.answer,
                   styles.answerYes,
-                  'flex flex-1 items-center justify-center gap-3 rounded-16 px-4 py-5 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
+                  'flex items-center gap-3 p-2 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.95]',
                 )}
               >
-                <span className={classNames(styles.answerBadge, 'h-9 w-9')}>
-                  <UpvoteIcon size={IconSize.Small} />
-                </span>
                 <Typography type={TypographyType.Title3} bold>
                   Yes
                 </Typography>
+                <span className={classNames(styles.answerBadge, 'h-14 w-14')}>
+                  <UpvoteIcon size={IconSize.Large} />
+                </span>
               </button>
               <button
                 type="button"
@@ -1054,11 +1054,11 @@ function FunnelPersonaQuizComponent({
                 className={classNames(
                   styles.answer,
                   styles.answerNo,
-                  'flex flex-1 items-center justify-center gap-3 rounded-16 px-4 py-5 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
+                  'flex items-center gap-3 p-2 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.95]',
                 )}
               >
-                <span className={classNames(styles.answerBadge, 'h-9 w-9')}>
-                  <DownvoteIcon size={IconSize.Small} />
+                <span className={classNames(styles.answerBadge, 'h-14 w-14')}>
+                  <DownvoteIcon size={IconSize.Large} />
                 </span>
                 <Typography type={TypographyType.Title3} bold>
                   No
