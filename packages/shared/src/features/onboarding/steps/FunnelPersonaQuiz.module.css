@@ -41,16 +41,161 @@
   animation: dot-blink 1.2s ease-in-out infinite;
 }
 
+.revealEyebrow {
+  animation: reveal-rise 0.5s ease 0.5s both;
+}
+
 .revealName {
-  animation: reveal-rise 0.5s ease 0.15s both;
+  animation: reveal-rise 0.5s ease 0.62s both;
 }
 
 .revealTagline {
-  animation: reveal-rise 0.5s ease 0.3s both;
+  animation: reveal-rise 0.5s ease 0.76s both;
 }
 
 .revealActions {
-  animation: reveal-rise 0.5s ease 0.45s both;
+  animation: reveal-rise 0.5s ease 0.9s both;
+}
+
+/* ─── Reveal celebration ──────────────────────────────────────────────────
+ * The genie's verdict lands as an event: a glowing persona "amulet" springs
+ * in, a shockwave ring snaps out, spokes of light spin behind it, and a burst
+ * of brand-coloured confetti scatters. `--persona` (the persona's brand colour)
+ * is set inline on the .emblem and inherited by every layer. */
+.emblem {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  height: 9rem;
+}
+
+@keyframes emblem-pop {
+  0% {
+    transform: scale(0) rotate(-28deg);
+    opacity: 0;
+  }
+  62% {
+    transform: scale(1.14) rotate(6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes emblem-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px
+        color-mix(in srgb, var(--persona) 55%, transparent),
+      0 14px 44px -10px color-mix(in srgb, var(--persona) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--persona) 85%, transparent),
+      0 18px 64px -8px color-mix(in srgb, var(--persona) 85%, transparent);
+  }
+}
+
+.emblemCoin {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 9999px;
+  background: radial-gradient(
+      circle at 36% 28%,
+      color-mix(in srgb, var(--persona) 10%, white) 0%,
+      transparent 46%
+    ),
+    color-mix(in srgb, var(--persona) 32%, var(--theme-surface-float));
+  border: 1px solid color-mix(in srgb, var(--persona) 65%, transparent);
+  animation: emblem-pop 0.6s cubic-bezier(0.18, 0.9, 0.32, 1.4) both,
+    emblem-glow 2.6s ease-in-out 0.65s infinite;
+}
+
+.emblemEmoji {
+  font-size: 3.25rem;
+  line-height: 1;
+  filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.4));
+}
+
+@keyframes emblem-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.emblemRays {
+  position: absolute;
+  inset: -55%;
+  z-index: 0;
+  background: repeating-conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--persona) 24%, transparent) 0deg 6deg,
+    transparent 6deg 22deg
+  );
+  mask: radial-gradient(closest-side, transparent 34%, #000 46%, transparent 78%);
+  -webkit-mask: radial-gradient(
+    closest-side,
+    transparent 34%,
+    #000 46%,
+    transparent 78%
+  );
+  animation: emblem-spin 18s linear infinite, reveal-rise 0.6s ease both;
+  opacity: 0.8;
+}
+
+@keyframes shockwave {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.7);
+    opacity: 0;
+  }
+}
+
+.emblemFlash {
+  position: absolute;
+  z-index: 1;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 9999px;
+  border: 2px solid color-mix(in srgb, var(--persona) 70%, transparent);
+  animation: shockwave 0.85s ease-out 0.1s both;
+}
+
+@keyframes confetti-fly {
+  0% {
+    transform: translate(-50%, -50%) rotate(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--cx)), calc(-50% + var(--cy)))
+      rotate(var(--cr));
+    opacity: 0;
+  }
+}
+
+.confettiPiece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: var(--cw, 8px);
+  height: var(--ch, 8px);
+  border-radius: 1px;
+  background: var(--cc);
+  animation: confetti-fly var(--cd, 1.1s) cubic-bezier(0.1, 0.6, 0.3, 1)
+    var(--cdelay, 0s) both;
 }
 
 /* ─── Casino / arcade micro-interactions ──────────────────────────────────
@@ -447,6 +592,7 @@
 @media (prefers-reduced-motion: reduce) {
   .questionIn,
   .dot,
+  .revealEyebrow,
   .revealName,
   .revealTagline,
   .revealActions,
@@ -456,11 +602,16 @@
   .stageBackdrop::before,
   .stageBackdrop::after,
   .auroraAlt,
-  .magicParticle {
+  .magicParticle,
+  .emblemCoin,
+  .emblemRays,
+  .emblemFlash {
     animation: none;
   }
 
-  .magicParticle {
+  .magicParticle,
+  .emblemFlash,
+  .confettiPiece {
     display: none;
   }
 

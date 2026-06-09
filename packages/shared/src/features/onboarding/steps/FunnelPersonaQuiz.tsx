@@ -350,6 +350,34 @@ const MAGIC_PARTICLES = [
   { left: '93%', size: 5, delay: '1.7s', duration: '11.5s' },
 ];
 
+// Brand-coloured confetti for the reveal burst, generated once (deterministic,
+// no randomness) so it's SSR-stable. Each piece flies from the emblem centre
+// out to (cx, cy) while spinning.
+const CONFETTI_COLORS = [
+  'var(--theme-accent-cabbage-default)',
+  'var(--theme-accent-cheese-default)',
+  'var(--theme-accent-bacon-default)',
+  'var(--theme-accent-avocado-default)',
+  'var(--theme-accent-water-default)',
+  'var(--theme-accent-bun-default)',
+];
+
+const REVEAL_CONFETTI = Array.from({ length: 20 }, (_, index) => {
+  const angle = (index / 20) * Math.PI * 2;
+  const distance = 130 + (index % 3) * 48;
+  return {
+    id: index,
+    cx: `${Math.round(Math.cos(angle) * distance)}px`,
+    cy: `${Math.round(Math.sin(angle) * distance)}px`,
+    cr: `${(index % 2 ? 1 : -1) * (200 + (index % 4) * 80)}deg`,
+    cw: `${6 + (index % 3) * 2}px`,
+    ch: `${8 + (index % 2) * 4}px`,
+    cc: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+    cd: `${1.05 + (index % 4) * 0.14}s`,
+    cdelay: `${(index % 5) * 0.04}s`,
+  };
+});
+
 // Decorative spotlight-stage layer: a colour-shifting aurora plus floating
 // "magic dust" rising from the lamp. Purely presentational, behind content.
 const StageBackdrop = (): ReactElement => (
@@ -466,6 +494,45 @@ const PersonaCard = ({
       {persona.tagline}
     </Typography>
   </button>
+);
+
+// The celebratory persona "amulet" for the reveal: a glowing coin in the
+// persona's brand colour, ringed by spinning light spokes and a shockwave, with
+// a one-shot confetti burst. `--persona` cascades to every layer.
+const PersonaEmblem = ({
+  persona,
+}: {
+  persona: DeveloperPersona;
+}): ReactElement => (
+  <div
+    className={styles.emblem}
+    style={{ '--persona': persona.color } as React.CSSProperties}
+  >
+    <span aria-hidden className={styles.emblemRays} />
+    <span aria-hidden className={styles.emblemFlash} />
+    <span className={styles.emblemCoin}>
+      <span className={styles.emblemEmoji}>{persona.emoji}</span>
+    </span>
+    {REVEAL_CONFETTI.map((piece) => (
+      <span
+        key={piece.id}
+        aria-hidden
+        className={styles.confettiPiece}
+        style={
+          {
+            '--cx': piece.cx,
+            '--cy': piece.cy,
+            '--cr': piece.cr,
+            '--cw': piece.cw,
+            '--ch': piece.ch,
+            '--cc': piece.cc,
+            '--cd': piece.cd,
+            '--cdelay': piece.cdelay,
+          } as React.CSSProperties
+        }
+      />
+    ))}
+  </div>
 );
 
 function FunnelPersonaQuizComponent({
@@ -876,33 +943,43 @@ function FunnelPersonaQuizComponent({
           />
         }
       >
-        <div className="flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none">
+        <div className="flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 laptop:flex-none">
           {revealReady && (
             <>
-              <SpeechBubble>
-                <div className="flex flex-col gap-4">
-                  <Typography
-                    tag={TypographyTag.H1}
-                    type={TypographyType.LargeTitle}
-                    bold
-                    className={styles.revealName}
-                    style={{ color: persona.color }}
-                  >
-                    {personaRevealPhrase(persona.name)} {persona.emoji}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Body}
-                    color={TypographyColor.Secondary}
-                    className={styles.revealTagline}
-                  >
-                    {persona.tagline}
-                  </Typography>
-                </div>
-              </SpeechBubble>
+              <PersonaEmblem persona={persona} />
+              <Typography
+                type={TypographyType.Caption1}
+                bold
+                color={TypographyColor.Tertiary}
+                className={classNames(
+                  styles.revealEyebrow,
+                  'uppercase tracking-[0.2em]',
+                )}
+              >
+                ✦ The genie has spoken ✦
+              </Typography>
+              <Typography
+                tag={TypographyTag.H1}
+                type={TypographyType.Title1}
+                bold
+                className={styles.revealName}
+                style={{
+                  color: `color-mix(in srgb, ${persona.color} 60%, white)`,
+                }}
+              >
+                {personaRevealPhrase(persona.name)}
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+                className={classNames(styles.revealTagline, 'max-w-md')}
+              >
+                {persona.tagline}
+              </Typography>
               <div
                 className={classNames(
                   styles.revealActions,
-                  'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto',
+                  'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-2 laptop:w-auto',
                 )}
               >
                 <ButtonV2
