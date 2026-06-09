@@ -136,11 +136,18 @@ const ActionButtonsV1 = ({
 
   const commentCount = post.numComments ?? 0;
   const upvoteCount = post.numUpvotes ?? 0;
+  // Keep every count in the action row on the same typography as the upvote
+  // counter so the numbers match in size/style across variants.
+  const counterClassName = classNames(
+    'tabular-nums',
+    variant === 'grid' && 'typo-footnote',
+  );
+  const counterLabelClassName = variant === 'grid' ? '!pl-[1px]' : '!pl-0';
 
   const commentButton = useCommentLink ? (
     <LinkWithTooltip tooltip={{ content: 'Reply' }} href={commentHref}>
       <QuaternaryButton
-        labelClassName="!pl-0"
+        labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
         className="btn-tertiary-blueCheese pointer-events-auto"
         color={ButtonColor.BlueCheese}
@@ -159,7 +166,7 @@ const ActionButtonsV1 = ({
       >
         {commentCount > 0 && (
           <InteractionCounter
-            className={classNames('tabular-nums', !commentCount && 'invisible')}
+            className={counterClassName}
             value={commentCount}
           />
         )}
@@ -168,7 +175,7 @@ const ActionButtonsV1 = ({
   ) : (
     <Tooltip content="Reply" side="bottom">
       <QuaternaryButton
-        labelClassName="!pl-[1px]"
+        labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
         icon={
           <CommentIconComponent
@@ -183,10 +190,7 @@ const ActionButtonsV1 = ({
       >
         {commentCount > 0 && (
           <InteractionCounter
-            className={classNames(
-              'tabular-nums !typo-footnote',
-              !commentCount && 'invisible',
-            )}
+            className={counterClassName}
             value={commentCount}
           />
         )}
@@ -201,7 +205,7 @@ const ActionButtonsV1 = ({
         side={variant === 'grid' ? 'bottom' : undefined}
       >
         <QuaternaryButton
-          labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
+          labelClassName={counterLabelClassName}
           className="btn-tertiary-avocado pointer-events-auto"
           id={`post-${post.id}-upvote-btn`}
           color={ButtonColor.Avocado}
@@ -219,10 +223,7 @@ const ActionButtonsV1 = ({
         >
           {upvoteCount > 0 && (
             <InteractionCounter
-              className={classNames(
-                'tabular-nums',
-                variant === 'grid' && 'typo-footnote',
-              )}
+              className={counterClassName}
               value={upvoteCount}
             />
           )}
