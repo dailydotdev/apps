@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { CollectionPillSources } from '../../post/collection';
+import { CollectionPillSources } from '../../post/collection/CollectionPillSources';
+import { getCollectionPillLabel } from '../../post/collection/common';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,
@@ -37,8 +38,9 @@ export const CollectionCardHeader = ({
             highlightBookmarkedPost && headerHiddenClassName,
           ),
         }}
-        sources={sources}
-        totalSources={totalSources}
+        sources={sources ?? []}
+        totalSources={totalSources ?? 0}
+        label={getCollectionPillLabel(post)}
       >
         <div className="flex-1" />
         <PostOptionButton

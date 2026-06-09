@@ -25,6 +25,8 @@ import { PostTagList } from '../tags/PostTagList';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { isPostUpdated, type Post } from '../../../graphql/posts';
 import { pluralize } from '../../../lib/strings';
+import { TRENDS_SOURCE_ID } from '../../../lib/utils';
+import { getCollectionPillLabel, isTrendsPost } from './common';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -59,6 +61,7 @@ const CollectionPostContentRaw = ({
   const wasUpdated = isPostUpdated(post);
   const dateToShow = wasUpdated ? updatedAt : createdAt;
   const hasSources = !!numCollectionSources && numCollectionSources > 0;
+  const sourceId = isTrendsPost(post) ? TRENDS_SOURCE_ID : 'collections';
   const { onCopyPostLink, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -136,10 +139,10 @@ const CollectionPostContentRaw = ({
           <div className="mb-6 flex flex-col gap-6">
             <CollectionsIntro className="mt-6 laptop:hidden" />
             <div className="flex flex-row items-center gap-2 pt-6">
-              <Link href={`${webappUrl}sources/collections`} passHref>
+              <Link href={`${webappUrl}sources/${sourceId}`} passHref>
                 <Pill
                   tag="a"
-                  label="Collection"
+                  label={getCollectionPillLabel(post)}
                   className="bg-theme-overlay-float-cabbage text-brand-default"
                 />
               </Link>

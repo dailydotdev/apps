@@ -2,6 +2,7 @@ import { largeNumberFormat } from './numberFormat';
 import type { TLocation } from '../graphql/autocomplete';
 
 export const UNKNOWN_SOURCE_ID = 'unknown';
+export const TRENDS_SOURCE_ID = 'trends';
 
 export const stringToBoolean = (value: string): boolean => {
   if (typeof value !== 'string') {
