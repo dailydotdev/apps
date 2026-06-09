@@ -22,6 +22,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DownvoteIcon, UpvoteIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { usePersonaQuiz } from './persona/usePersonaQuiz';
 import type { AnswerValue } from './persona/engine';
 import type { DeveloperPersona } from './persona/data';
@@ -303,6 +304,24 @@ const SpeechBubble = ({
     )}
   >
     {children}
+    {/* Thought-cloud trailing toward Patchy: up on mobile (he sits above),
+     * out to the right on laptop (he sits beside). */}
+    <span
+      aria-hidden
+      className="absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 flex-col-reverse items-center gap-1.5 laptop:hidden"
+    >
+      <span className={classNames(styles.bubbleDot, 'h-4 w-4')} />
+      <span className={classNames(styles.bubbleDot, 'h-2.5 w-2.5')} />
+      <span className={classNames(styles.bubbleDot, 'h-1.5 w-1.5')} />
+    </span>
+    <span
+      aria-hidden
+      className="absolute left-full top-1/2 ml-3 hidden -translate-y-1/2 items-center gap-2 laptop:flex"
+    >
+      <span className={classNames(styles.bubbleDot, 'h-5 w-5')} />
+      <span className={classNames(styles.bubbleDot, 'h-3 w-3')} />
+      <span className={classNames(styles.bubbleDot, 'h-2 w-2')} />
+    </span>
   </div>
 );
 
@@ -314,9 +333,44 @@ interface QuizStageProps {
   children: ReactNode;
 }
 
-// Decorative casino-table glow behind the stage. Purely presentational.
+// Fixed configs (left column / size / timing) so the floating dust is stable
+// across SSR and re-renders instead of jumping on every paint.
+const MAGIC_PARTICLES = [
+  { left: '10%', size: 3, delay: '0s', duration: '7.5s' },
+  { left: '22%', size: 5, delay: '2.4s', duration: '9s' },
+  { left: '34%', size: 3, delay: '4.1s', duration: '8s' },
+  { left: '44%', size: 4, delay: '1.2s', duration: '10s' },
+  { left: '52%', size: 6, delay: '5.6s', duration: '11s' },
+  { left: '61%', size: 3, delay: '3s', duration: '8.5s' },
+  { left: '70%', size: 5, delay: '0.8s', duration: '9.5s' },
+  { left: '79%', size: 4, delay: '4.8s', duration: '7s' },
+  { left: '88%', size: 3, delay: '2s', duration: '10.5s' },
+  { left: '16%', size: 4, delay: '6.2s', duration: '9s' },
+  { left: '66%', size: 3, delay: '6.9s', duration: '8s' },
+  { left: '93%', size: 5, delay: '1.7s', duration: '11.5s' },
+];
+
+// Decorative spotlight-stage layer: a colour-shifting aurora plus floating
+// "magic dust" rising from the lamp. Purely presentational, behind content.
 const StageBackdrop = (): ReactElement => (
-  <div aria-hidden className={styles.stageBackdrop} />
+  <div aria-hidden className={styles.stageBackdrop}>
+    <span className={styles.auroraAlt} />
+    {MAGIC_PARTICLES.map((particle) => (
+      <span
+        key={particle.left + particle.delay}
+        className={styles.magicParticle}
+        style={
+          {
+            left: particle.left,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            '--particle-delay': particle.delay,
+            '--particle-duration': particle.duration,
+          } as React.CSSProperties
+        }
+      />
+    ))}
+  </div>
 );
 
 // Shared skeleton for the intro, question and reveal screens: a top progress
@@ -926,47 +980,54 @@ function FunnelPersonaQuizComponent({
             )}
           >
             <div className="flex w-full gap-3">
-              <ButtonV2
-                className={classNames(
-                  styles.chip,
-                  styles.chipYes,
-                  'flex-1 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
-                )}
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Large}
+              <button
                 type="button"
-                icon={<UpvoteIcon />}
                 disabled={isThinking}
                 onClick={() => handleAnswer(1)}
-              >
-                Yes
-              </ButtonV2>
-              <ButtonV2
                 className={classNames(
-                  styles.chip,
-                  styles.chipNo,
-                  'flex-1 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
+                  styles.answer,
+                  styles.answerYes,
+                  'flex flex-1 items-center justify-center gap-3 rounded-16 px-4 py-5 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
                 )}
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Large}
+              >
+                <span className={classNames(styles.answerBadge, 'h-9 w-9')}>
+                  <UpvoteIcon size={IconSize.Small} />
+                </span>
+                <Typography type={TypographyType.Title3} bold>
+                  Yes
+                </Typography>
+              </button>
+              <button
                 type="button"
-                icon={<DownvoteIcon />}
                 disabled={isThinking}
                 onClick={() => handleAnswer(0)}
+                className={classNames(
+                  styles.answer,
+                  styles.answerNo,
+                  'flex flex-1 items-center justify-center gap-3 rounded-16 px-4 py-5 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
+                )}
               >
-                No
-              </ButtonV2>
+                <span className={classNames(styles.answerBadge, 'h-9 w-9')}>
+                  <DownvoteIcon size={IconSize.Small} />
+                </span>
+                <Typography type={TypographyType.Title3} bold>
+                  No
+                </Typography>
+              </button>
             </div>
-            <ButtonV2
-              className="self-center text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Medium}
+            <button
               type="button"
               disabled={isThinking}
               onClick={() => handleAnswer(0.5)}
+              className={classNames(
+                styles.notSure,
+                'mx-auto mt-1 flex items-center gap-2 px-5 py-2 transition-transform duration-150 ease-out hover:scale-105 active:scale-95',
+              )}
             >
-              Not sure
-            </ButtonV2>
+              <Typography type={TypographyType.Footnote} bold>
+                Not sure
+              </Typography>
+            </button>
           </div>
         </div>
         {isThinking && (

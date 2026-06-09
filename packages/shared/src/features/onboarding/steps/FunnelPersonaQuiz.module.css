@@ -208,6 +208,79 @@
   mask-image: radial-gradient(75% 70% at 50% 35%, #000, transparent 80%);
 }
 
+/* Second aurora in a cooler hue. It drifts the opposite way and breathes its
+ * opacity out of phase with the cabbage one, so the spotlight slowly shifts
+ * colour — purple → blue → purple — like magic settling over the stage. */
+@keyframes aurora-shift {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translate(-38%, 4%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-58%, -4%) scale(1.12);
+  }
+}
+
+.auroraAlt {
+  position: absolute;
+  left: 50%;
+  top: -22%;
+  width: 80vw;
+  height: 68vh;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 26%, transparent),
+    transparent
+  );
+  filter: blur(54px);
+  animation: aurora-shift 13s ease-in-out infinite;
+}
+
+/* Floating "magic dust": specks that rise from the lamp and fade, each given a
+ * random column/size/delay inline. Pure decoration, behind the content. */
+@keyframes particle-rise {
+  0% {
+    transform: translateY(28px) scale(0.5);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-150px) scale(1);
+    opacity: 0;
+  }
+}
+
+.magicParticle {
+  position: absolute;
+  bottom: 18%;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--theme-accent-cheese-default) 85%, white);
+  box-shadow: 0 0 8px 1px
+    color-mix(in srgb, var(--theme-accent-cheese-default) 60%, transparent);
+  animation: particle-rise var(--particle-duration, 7s) ease-in-out infinite;
+  animation-delay: var(--particle-delay, 0s);
+}
+
+/* Thought-cloud connector: glassy circles that trail from the panel toward
+ * Patchy, so the message reads as coming from the avatar. */
+.bubbleDot {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--theme-surface-float) 50%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  border: 1px solid
+    color-mix(in srgb, var(--theme-text-primary) 12%, transparent);
+}
+
 /* Frosted-glass panel for Patchy's lines: translucent, blurred, with a glass
  * top-edge highlight. Replaces the flat bordered speech bubble. */
 .panel {
@@ -252,40 +325,86 @@
   animation: shine-sweep 0.8s ease-out;
 }
 
-/* Yes / No answer chips. The compound selector keeps the colored glow ahead of
- * the shared `.btn:hover` lift shadow regardless of stylesheet order. */
-.chip {
-  transition: transform 0.18s ease, box-shadow 0.18s ease,
-    border-color 0.18s ease;
+/* Yes / No answer tiles. Big, glassy and prominent by default; on hover they
+ * flood with their verdict colour (avocado for yes, ketchup for no), the icon
+ * badge fills, and the whole tile lifts with a colour-matched glow. */
+.answer {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--theme-surface-float) 55%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid
+    color-mix(in srgb, var(--theme-text-primary) 14%, transparent);
+  box-shadow: inset 0 1px 0 0
+    color-mix(in srgb, var(--theme-text-primary) 8%, transparent);
+  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.chip svg {
-  transition: transform 0.18s ease, color 0.18s ease;
+/* Icon badge: a tinted disc that brightens to a solid fill on hover. */
+.answerBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: transform 0.18s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
-.chip.chipYes:hover {
-  border-color: var(--theme-accent-avocado-default);
-  box-shadow: 0 0 24px -4px
-    color-mix(in srgb, var(--theme-accent-avocado-default) 70%, transparent);
-}
-
-.chip.chipYes:hover svg {
+.answerYes .answerBadge {
+  background: color-mix(in srgb, var(--theme-accent-avocado-default) 20%, transparent);
   color: var(--theme-accent-avocado-default);
-  transform: scale(1.12);
 }
 
-.chip.chipNo:hover {
-  border-color: var(--theme-accent-ketchup-default);
-  box-shadow: 0 0 24px -4px
-    color-mix(in srgb, var(--theme-accent-ketchup-default) 70%, transparent);
-}
-
-/* DownvoteIcon is UpvoteIcon + `rotate-180`, so the hover transform must
- * re-apply that rotation — a bare scale() would clobber it and flip the arrow
- * back to pointing up. */
-.chip.chipNo:hover svg {
+.answerNo .answerBadge {
+  background: color-mix(in srgb, var(--theme-accent-ketchup-default) 20%, transparent);
   color: var(--theme-accent-ketchup-default);
-  transform: rotate(0.5turn) scale(1.12);
+}
+
+.answerYes:hover {
+  border-color: var(--theme-accent-avocado-default);
+  background: color-mix(in srgb, var(--theme-accent-avocado-default) 16%, transparent);
+  box-shadow: 0 12px 30px -12px
+    color-mix(in srgb, var(--theme-accent-avocado-default) 80%, transparent);
+}
+
+.answerNo:hover {
+  border-color: var(--theme-accent-ketchup-default);
+  background: color-mix(in srgb, var(--theme-accent-ketchup-default) 16%, transparent);
+  box-shadow: 0 12px 30px -12px
+    color-mix(in srgb, var(--theme-accent-ketchup-default) 80%, transparent);
+}
+
+/* Solid badge on hover. Scaling the badge (not the svg) keeps the downvote's
+ * `rotate-180` intact. */
+.answerYes:hover .answerBadge {
+  background: var(--theme-accent-avocado-default);
+  color: var(--theme-surface-invert);
+  transform: scale(1.08);
+}
+
+.answerNo:hover .answerBadge {
+  background: var(--theme-accent-ketchup-default);
+  color: var(--theme-surface-invert);
+  transform: scale(1.08);
+}
+
+/* "Not sure": a clearly secondary ghost pill — visible, but lighter than the
+ * answer tiles. Dashed hairline + muted label that warms on hover. */
+.notSure {
+  border-radius: 9999px;
+  border: 1px dashed
+    color-mix(in srgb, var(--theme-text-primary) 22%, transparent);
+  background: color-mix(in srgb, var(--theme-surface-float) 30%, transparent);
+  color: var(--theme-text-secondary);
+  transition: transform 0.16s ease, color 0.18s ease, border-color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.notSure:hover {
+  color: var(--theme-text-primary);
+  border-color: color-mix(in srgb, var(--theme-text-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--theme-surface-float) 55%, transparent);
 }
 
 /* Persona / option cards: reach-for-it glow + emoji wink. */
@@ -335,8 +454,14 @@
   .progressFill,
   .tick,
   .stageBackdrop::before,
-  .stageBackdrop::after {
+  .stageBackdrop::after,
+  .auroraAlt,
+  .magicParticle {
     animation: none;
+  }
+
+  .magicParticle {
+    display: none;
   }
 
   .cta::after {
