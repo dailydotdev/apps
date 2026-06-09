@@ -1,7 +1,6 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React, { useMemo, useState, useEffect } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useCustomizeNewTab } from '../features/customizeNewTab/CustomizeNewTabContext';
@@ -9,6 +8,9 @@ import { useCustomizeNewTab } from '../features/customizeNewTab/CustomizeNewTabC
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import type { FeedAdTemplate } from '../lib/feed';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
+import { useMedia } from '../hooks/useMedia';
 
 // Sidebar animation duration in ms (matches CSS transition in MainLayout)
 const SIDEBAR_TRANSITION_DURATION = 300;

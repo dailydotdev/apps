@@ -13,6 +13,7 @@ import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
 import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
 import type { PostHighlight } from '../graphql/highlights';
 import AuthContext from '../contexts/AuthContext';
+import FeedContext from '../contexts/FeedContext';
 import useSubscription from './useSubscription';
 import {
   findIndexOfPostInData,
@@ -29,7 +30,19 @@ import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
-import { featureFeedAdTemplate } from '../lib/featureManagement';
+import {
+  featureFeedAdTemplate,
+  featurePostHighlightCards,
+} from '../lib/featureManagement';
+import { useConditionalFeature } from './useConditionalFeature';
+import {
+  createPlacementBuilder,
+  isHeroEligiblePost,
+} from '../lib/feedHighlightColSpan';
+import type { PostHighlightCardsConfig } from '../types';
+import { useViewSize, ViewSize } from './useViewSize';
+import { useFeedLayout } from './useFeedLayout';
+import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { AdPlacement } from '../lib/ads';
@@ -110,6 +123,7 @@ export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
 export type FeedReturnType = {
   items: FeedItem[];
+  postHighlightCardsConfig: PostHighlightCardsConfig;
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
@@ -160,9 +174,22 @@ export default function useFeed<T>(
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
+  const { numCards: numCardsBySpaciness } = useContext(FeedContext);
+  const numCards = numCardsBySpaciness?.eco ?? 1;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
+  const isTabletViewport = useViewSize(ViewSize.Tablet);
+  const isMobileViewport = !isTabletViewport;
+  const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const useList = isListMode && numCards > 1;
+  const isListContext = useList || shouldUseListFeedLayout;
+  const virtualizedNumCards = useList ? 1 : numCards;
+  const canRenderHighlightCards =
+    !isMobileViewport && !isListContext && virtualizedNumCards > 1;
+  const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
+    'highlightCardsOptOut',
+  );
   // Track if we're currently resetting due to stale cursor to prevent infinite loops
   const isResettingRef = useRef(false);
   const { fetchTranslations } = useTranslation({
@@ -266,6 +293,29 @@ export default function useFeed<T>(
         (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
       !settings?.disableAds,
   );
+
+  const shouldEvaluateHighlightCards = useMemo(() => {
+    if (!canRenderHighlightCards || isHighlightCardsOptedOut) {
+      return false;
+    }
+
+    return (
+      feedQuery.data?.pages.some(({ page }) =>
+        page.edges.some(
+          ({ node }) =>
+            node.itemType !== 'highlight' && isHeroEligiblePost(node.post),
+        ),
+      ) ?? false
+    );
+  }, [
+    canRenderHighlightCards,
+    isHighlightCardsOptedOut,
+    feedQuery.data?.pages,
+  ]);
+  const { value: postHighlightCardsConfig } = useConditionalFeature({
+    feature: featurePostHighlightCards,
+    shouldEvaluate: shouldEvaluateHighlightCards,
+  });
 
   const { fetchAd } = useFetchAd();
   const adsQuery = useInfiniteQuery<
@@ -371,7 +421,7 @@ export default function useFeed<T>(
   );
 
   const items = useMemo(() => {
-    let newItems: FeedItem[] = [];
+    const newItems: FeedItem[] = [];
 
     // Check if marketing CTA should be shown as first card
     const marketingCta = settings?.marketingCta;
@@ -381,82 +431,93 @@ export default function useFeed<T>(
     const showAcquisitionForm = settings?.showAcquisitionForm ?? false;
 
     if (feedQuery.data) {
+      // Track visual cells (not logical items) for ad cadence so wide
+      // cards consume their full visual width against the ad schedule.
+      // The builder returns colSpan=1 when the layout is disabled
+      // (mobile/list/single-col), so we never need to special-case those.
       const seenPostIds = new Set<string>();
-      newItems = feedQuery.data.pages.reduce<FeedItem[]>(
-        (acc, { page }, pageIndex) => {
-          page.edges.forEach(({ node }, index: number) => {
-            const adIndex = acc.length;
-            const adItem = getAd({ index: adIndex });
+      let visualCellsSoFar = 0;
 
-            if (adItem) {
-              const withFirstIndex = (condition: boolean) =>
-                pageIndex === 0 && adItem.index === 0 && condition;
+      const placementBuilder = createPlacementBuilder({
+        numCards: virtualizedNumCards,
+        isMobile: isMobileViewport,
+        isList: isListContext,
+        isEnabled: postHighlightCardsConfig.enabled,
+        minSpacing: postHighlightCardsConfig.minSpacing,
+        startIndex: postHighlightCardsConfig.startIndex,
+      });
 
-              // Skip ad slot if marketing CTA is shown as first card
-              const shouldSkipAdForMarketingCta = withFirstIndex(
-                (marketingCtaAsFirstCard ?? false) ||
-                  (plusEntryAsFirstCard ?? false),
-              );
+      const pushAndAdvance = (item: FeedItem): void => {
+        newItems.push(item);
+        visualCellsSoFar += placementBuilder.next(item).colSpan;
+      };
 
-              if (shouldSkipAdForMarketingCta) {
-                // Don't push anything - marketing CTA is already at the top
-              } else if (plusEntry && withFirstIndex(true)) {
-                acc.push({
-                  type: FeedItemType.PlusEntry,
-                  plusEntry,
-                  dataUpdatedAt: feedQuery.dataUpdatedAt,
-                });
-              } else if (marketingCta && withFirstIndex(true)) {
-                acc.push({
-                  type: FeedItemType.MarketingCta,
-                  marketingCta,
-                  dataUpdatedAt: feedQuery.dataUpdatedAt,
-                });
-              } else if (withFirstIndex(showAcquisitionForm)) {
-                acc.push({
-                  type: FeedItemType.UserAcquisition,
-                  dataUpdatedAt: feedQuery.dataUpdatedAt,
-                });
-              } else {
-                acc.push(adItem);
-              }
-            }
+      feedQuery.data.pages.forEach(({ page }, pageIndex) => {
+        page.edges.forEach(({ node }, index: number) => {
+          const adItem = getAd({ index: visualCellsSoFar });
 
-            if (node.itemType === 'highlight') {
-              if (!node.highlights.length) {
-                return;
-              }
+          if (adItem) {
+            const withFirstIndex = (condition: boolean) =>
+              pageIndex === 0 && adItem.index === 0 && condition;
 
-              acc.push({
-                type: FeedItemType.Highlight,
-                highlights: node.highlights,
-                feedMeta: node.feedMeta ?? null,
+            // Skip ad slot if marketing CTA is shown as first card
+            const shouldSkipAdForMarketingCta = withFirstIndex(
+              (marketingCtaAsFirstCard ?? false) ||
+                (plusEntryAsFirstCard ?? false),
+            );
+
+            if (shouldSkipAdForMarketingCta) {
+              // Don't push anything - marketing CTA is already at the top
+            } else if (plusEntry && withFirstIndex(true)) {
+              pushAndAdvance({
+                type: FeedItemType.PlusEntry,
+                plusEntry,
                 dataUpdatedAt: feedQuery.dataUpdatedAt,
               });
+            } else if (marketingCta && withFirstIndex(true)) {
+              pushAndAdvance({
+                type: FeedItemType.MarketingCta,
+                marketingCta,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+            } else if (withFirstIndex(showAcquisitionForm)) {
+              pushAndAdvance({
+                type: FeedItemType.UserAcquisition,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+            } else {
+              pushAndAdvance(adItem);
+            }
+          }
 
+          if (node.itemType === 'highlight') {
+            if (!node.highlights.length) {
               return;
             }
-
-            const { post } = node;
-
-            if (seenPostIds.has(post.id)) {
-              return;
-            }
-            seenPostIds.add(post.id);
-
-            acc.push({
-              type: FeedItemType.Post,
-              post,
-              page: pageIndex,
-              index,
+            pushAndAdvance({
+              type: FeedItemType.Highlight,
+              highlights: node.highlights,
+              feedMeta: node.feedMeta ?? null,
               dataUpdatedAt: feedQuery.dataUpdatedAt,
             });
-          });
+            return;
+          }
 
-          return acc;
-        },
-        [],
-      );
+          const { post } = node;
+          if (seenPostIds.has(post.id)) {
+            return;
+          }
+          seenPostIds.add(post.id);
+
+          pushAndAdvance({
+            type: FeedItemType.Post,
+            post,
+            page: pageIndex,
+            index,
+            dataUpdatedAt: feedQuery.dataUpdatedAt,
+          });
+        });
+      });
 
       // Prepend marketing CTA as first card if configured
       if (plusEntryAsFirstCard && plusEntry) {
@@ -503,6 +564,12 @@ export default function useFeed<T>(
     getAd,
     settings?.plusEntry,
     settings?.staticAd,
+    postHighlightCardsConfig.enabled,
+    postHighlightCardsConfig.minSpacing,
+    postHighlightCardsConfig.startIndex,
+    virtualizedNumCards,
+    isMobileViewport,
+    isListContext,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
@@ -545,6 +612,7 @@ export default function useFeed<T>(
 
   return {
     items,
+    postHighlightCardsConfig,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },

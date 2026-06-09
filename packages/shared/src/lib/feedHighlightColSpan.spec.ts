@@ -1,8 +1,22 @@
-import type { Ad, Post, PostHeroSignificance } from '../graphql/posts';
+import type { Ad, Post } from '../graphql/posts';
+import type { PostHeroSignificance } from '../graphql/types';
 import { PostType } from '../graphql/posts';
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
-import { computePlacements, requestedColSpan } from './feedHighlightColSpan';
+import {
+  computePlacements,
+  createPlacementBuilder,
+  requestedColSpan,
+} from './feedHighlightColSpan';
+
+const SIZE_BY_SIGNIFICANCE: Record<PostHeroSignificance, number> = {
+  breaking: 4,
+  major: 3,
+  notable: 2,
+  routine: 1,
+  breakout: 3,
+  evergreen: 2,
+};
 
 const makePost = (
   overrides: Partial<Post> & {
@@ -22,6 +36,7 @@ const makePost = (
             highlightedAt: '2026-05-25T00:00:00.000Z',
             headline: 'h',
             significance,
+            size: SIZE_BY_SIGNIFICANCE[significance],
           }
         : null,
     }),
@@ -54,8 +69,8 @@ describe('requestedColSpan', () => {
     ['major', 3],
     ['notable', 2],
     ['routine', 1],
-    ['breakout', 4],
-    ['evergreen', 3],
+    ['breakout', 3],
+    ['evergreen', 2],
   ])('maps %s significance to span %i', (significance, expected) => {
     expect(requestedColSpan(makePostItem(makePost({ significance })))).toBe(
       expected,
@@ -87,12 +102,95 @@ describe('requestedColSpan', () => {
   });
 });
 
+describe('createPlacementBuilder', () => {
+  const opts = {
+    numCards: 4,
+    isMobile: false,
+    isList: false,
+    isEnabled: true,
+    minSpacing: 10,
+    startIndex: 0,
+  };
+
+  it('returns colSpan 1 with naive row/col when layout is disabled', () => {
+    const builder = createPlacementBuilder({ ...opts, isEnabled: false });
+    const items = Array.from({ length: 5 }, () =>
+      makePostItem(makePost({ significance: 'breaking' })),
+    );
+    expect(items.map((item) => builder.next(item))).toEqual([
+      { colSpan: 1, row: 0, column: 0 },
+      { colSpan: 1, row: 0, column: 1 },
+      { colSpan: 1, row: 0, column: 2 },
+      { colSpan: 1, row: 0, column: 3 },
+      { colSpan: 1, row: 1, column: 0 },
+    ]);
+  });
+
+  it('returns colSpan 1 on mobile regardless of significance', () => {
+    const builder = createPlacementBuilder({ ...opts, isMobile: true });
+    const item = makePostItem(makePost({ significance: 'breaking' }));
+    expect(builder.next(item).colSpan).toBe(1);
+  });
+
+  it('produces identical placements to computePlacements for a sample sequence', () => {
+    const items = [
+      makePostItem(makePost({ significance: 'major' })),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost({ significance: 'breaking' })),
+    ];
+    const builder = createPlacementBuilder(opts);
+    const builderPlacements = items.map((item) => builder.next(item));
+    expect(builderPlacements).toEqual(computePlacements(items, opts));
+  });
+
+  it('counts shrunk wide cards as 1 cell for ad-cadence math', () => {
+    // First "breaking" fits at col 0 of row 0 (colSpan 4). The second
+    // "breaking" loses to the density cap (minSpacing 10) and shrinks to 1.
+    // Visual cell total: 4 + 1 + 1 + 1 + 1 = 8 — not 4 + 1 + 1 + 1 + 4 = 11.
+    const builder = createPlacementBuilder(opts);
+    const items = [
+      makePostItem(makePost({ significance: 'breaking' })),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost({ significance: 'breaking' })),
+    ];
+    const total = items.reduce(
+      (sum, item) => sum + builder.next(item).colSpan,
+      0,
+    );
+    expect(total).toBe(8);
+  });
+
+  it('honors fullRowBefore by skipping the partial-row tail and banner row', () => {
+    const builder = createPlacementBuilder(opts);
+    const items = [
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+      makePostItem(makePost()),
+    ];
+    expect([
+      builder.next(items[0]),
+      builder.next(items[1]),
+      builder.next(items[2], { fullRowBefore: true }),
+    ]).toEqual([
+      { colSpan: 1, row: 0, column: 0 },
+      { colSpan: 1, row: 0, column: 1 },
+      { colSpan: 1, row: 2, column: 0 },
+    ]);
+  });
+});
+
 describe('computePlacements', () => {
   const opts = {
     numCards: 4,
     isMobile: false,
     isList: false,
     isEnabled: true,
+    minSpacing: 10,
+    startIndex: 0,
   };
 
   const colSpans = (items: FeedItem[], o = opts) =>
@@ -172,6 +270,19 @@ describe('computePlacements', () => {
     expect(colSpans(items, opts)).toEqual([1]);
   });
 
+  it('forces colSpan 1 for items before startIndex', () => {
+    const items = [
+      makePostItem(makePost({ significance: 'breaking' })),
+      makePostItem(makePost({ significance: 'breaking' })),
+      makePostItem(makePost({ significance: 'breaking' })),
+      makePostItem(makePost({ significance: 'breaking' })),
+      makePostItem(makePost({ significance: 'breaking' })),
+    ];
+    expect(colSpans(items, { ...opts, startIndex: 4 })).toEqual([
+      1, 1, 1, 1, 4,
+    ]);
+  });
+
   it('caps wide cards to one per ten items', () => {
     const items = [
       makePostItem(makePost({ significance: 'notable' })),
@@ -236,13 +347,15 @@ describe('computePlacements', () => {
     it('tracks placement after a wide card that lands mid-row', () => {
       const items = [
         makePostItem(makePost()),
-        makePostItem(makePost({ significance: 'major' })),
+        makePostItem(makePost({ significance: 'notable' })),
+        makePostItem(makePost()),
         makePostItem(makePost()),
       ];
-      // 1x1 at col 0, major(3) at col 1 fills cols 1-3, next 1x1 at row 1.
+      // 1x1 at (0,0); notable spans 2 at (0,1); next 1x1 fills (0,3); next 1x1 starts (1,0).
       expect(computePlacements(items, opts)).toEqual([
         { colSpan: 1, row: 0, column: 0 },
-        { colSpan: 3, row: 0, column: 1 },
+        { colSpan: 2, row: 0, column: 1 },
+        { colSpan: 1, row: 0, column: 3 },
         { colSpan: 1, row: 1, column: 0 },
       ]);
     });
@@ -268,7 +381,6 @@ describe('computePlacements', () => {
       expect(placements[1]).toEqual({ colSpan: 1, row: 0, column: 2 });
       expect(placements[2]).toEqual({ colSpan: 1, row: 0, column: 3 });
       expect(placements[3]).toEqual({ colSpan: 1, row: 1, column: 0 });
-      expect(placements[11]).toEqual({ colSpan: 1, row: 3, column: 0 });
     });
 
     it('skips the partial-row tail and banner row at a full-row insertion', () => {
@@ -277,11 +389,14 @@ describe('computePlacements', () => {
         makePostItem(makePost()),
         makePostItem(makePost()),
       ];
-      // Banner inserted before index 2: row 0 cols 2-3 stay empty,
-      // banner takes row 1, item 2 starts at row 2 col 0.
-      const fullRowInsertionBeforeIndex = new Set<number>([2]);
+      // Banner inserts before index 2: items 0,1 fill cols 0,1 of row 0;
+      // row 0 tail (cols 2,3) is empty; banner consumes row 1; item 2 lands
+      // at (2,0).
       expect(
-        computePlacements(items, { ...opts, fullRowInsertionBeforeIndex }),
+        computePlacements(items, {
+          ...opts,
+          fullRowInsertionBeforeIndex: new Set([2]),
+        }),
       ).toEqual([
         { colSpan: 1, row: 0, column: 0 },
         { colSpan: 1, row: 0, column: 1 },
@@ -297,11 +412,13 @@ describe('computePlacements', () => {
         makePostItem(makePost()),
         makePostItem(makePost()),
       ];
-      // Banner before index 4: row 0 fills 0-3 exactly, no tail; banner
-      // takes row 1, item 4 starts at row 2.
-      const fullRowInsertionBeforeIndex = new Set<number>([4]);
+      // Items 0..3 fill row 0 at cols 0..3; banner before index 4 lands at
+      // (1,0); item 4 lands at (2,0).
       expect(
-        computePlacements(items, { ...opts, fullRowInsertionBeforeIndex }),
+        computePlacements(items, {
+          ...opts,
+          fullRowInsertionBeforeIndex: new Set([4]),
+        }),
       ).toEqual([
         { colSpan: 1, row: 0, column: 0 },
         { colSpan: 1, row: 0, column: 1 },

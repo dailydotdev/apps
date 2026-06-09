@@ -1,6 +1,6 @@
 import { useViewSize, ViewSize } from '../useViewSize';
 import { SharedFeedPage } from '../../components/utilities';
-import { useActiveFeedNameContext } from '../../contexts';
+import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 
 interface SearchResultsLayout {
   isSearchPageLaptop: boolean;

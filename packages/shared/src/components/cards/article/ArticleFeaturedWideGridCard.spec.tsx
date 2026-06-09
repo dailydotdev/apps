@@ -6,11 +6,8 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
-import type {
-  Post,
-  PostHero,
-  PostHeroSignificance,
-} from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
+import type { PostHero, PostHeroSignificance } from '../../../graphql/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleFeaturedWideGridCard } from './ArticleFeaturedWideGridCard';
 
@@ -39,6 +36,15 @@ const defaultProps: PostCardProps = {
   onReadArticleClick: jest.fn(),
 };
 
+const SIZE_BY_SIGNIFICANCE: Record<PostHeroSignificance, number> = {
+  breaking: 4,
+  major: 3,
+  notable: 2,
+  routine: 1,
+  breakout: 3,
+  evergreen: 2,
+};
+
 const makeHero = (significance: PostHeroSignificance | null): PostHero | null =>
   significance
     ? {
@@ -46,6 +52,7 @@ const makeHero = (significance: PostHeroSignificance | null): PostHero | null =>
         highlightedAt: '2026-05-25T00:00:00.000Z',
         headline: 'A breaking event',
         significance,
+        size: SIZE_BY_SIGNIFICANCE[significance],
       }
     : null;
 

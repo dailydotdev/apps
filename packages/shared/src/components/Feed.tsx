@@ -24,11 +24,7 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import {
-  computePlacements,
-  requestedColSpan,
-} from '../lib/feedHighlightColSpan';
-import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
+import { computePlacements } from '../lib/feedHighlightColSpan';
 import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
@@ -43,17 +39,14 @@ import {
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
-import { ActiveFeedContext } from '../contexts';
-import {
-  useActions,
-  useBoot,
-  useConditionalFeature,
-  useFeedLayout,
-  useFeedVotePost,
-  useMutationSubscription,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
+import { useActions } from '../hooks/useActions';
+import { useBoot } from '../hooks/useBoot';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
+import { useFeedLayout } from '../hooks/useFeedLayout';
+import { useFeedVotePost } from '../hooks/vote/useFeedVotePost';
+import { useMutationSubscription } from '../hooks/mutationSubscription/useMutationSubscription';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
@@ -73,7 +66,6 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
-  featurePostHighlightCards,
 } from '../lib/featureManagement';
 import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
@@ -274,6 +266,7 @@ export default function Feed<T>({
   });
   const {
     items,
+    postHighlightCardsConfig,
     updatePost,
     removePost,
     fetchPage,
@@ -380,26 +373,6 @@ export default function Feed<T>({
 
   const isMobileViewport = !isTabletViewport;
   const isListContext = useList || shouldUseListFeedLayout;
-  const canRenderHighlightCards =
-    !isMobileViewport && !isListContext && virtualizedNumCards > 1;
-  const hasEligibleHighlightItem = useMemo(() => {
-    if (!canRenderHighlightCards) {
-      return false;
-    }
-
-    return items.some((item) => requestedColSpan(item) > 1);
-  }, [canRenderHighlightCards, items]);
-  const { value: isPostHighlightCardsEnabled } = useConditionalFeature({
-    feature: featurePostHighlightCards,
-    shouldEvaluate: hasEligibleHighlightItem,
-  });
-  const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
-    'highlightCardsOptOut',
-  );
-  const isHighlightCardLayoutEnabled =
-    canRenderHighlightCards &&
-    isPostHighlightCardsEnabled &&
-    !isHighlightCardsOptedOut;
   const currentPageSize = pageSize ?? currentSettings.pageSize;
   const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
@@ -430,7 +403,9 @@ export default function Feed<T>({
         numCards: virtualizedNumCards,
         isMobile: isMobileViewport,
         isList: isListContext,
-        isEnabled: isHighlightCardLayoutEnabled,
+        isEnabled: postHighlightCardsConfig.enabled,
+        minSpacing: postHighlightCardsConfig.minSpacing,
+        startIndex: postHighlightCardsConfig.startIndex,
         fullRowInsertionBeforeIndex,
       }),
     [
@@ -438,7 +413,9 @@ export default function Feed<T>({
       virtualizedNumCards,
       isMobileViewport,
       isListContext,
-      isHighlightCardLayoutEnabled,
+      postHighlightCardsConfig.enabled,
+      postHighlightCardsConfig.minSpacing,
+      postHighlightCardsConfig.startIndex,
       fullRowInsertionBeforeIndex,
     ],
   );

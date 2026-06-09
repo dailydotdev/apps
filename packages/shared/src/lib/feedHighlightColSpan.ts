@@ -1,16 +1,6 @@
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
 import { PostType } from '../graphql/posts';
-import type { PostHeroSignificance } from '../graphql/posts';
-
-const SIGNIFICANCE_COL_SPAN: Record<PostHeroSignificance, number> = {
-  breaking: 4,
-  major: 3,
-  notable: 2,
-  routine: 1,
-  breakout: 4,
-  evergreen: 3,
-};
 
 const WIDENABLE_POST_TYPES = new Set<PostType>([
   PostType.Article,
@@ -18,12 +8,15 @@ const WIDENABLE_POST_TYPES = new Set<PostType>([
 ]);
 
 /**
- * Minimum number of items between two wide cards. Anchored to the index of
- * the last placed wide card, so a wide card requested within this distance
- * shrinks to a regular 1-column card. Keeps visual rhythm consistent and
- * avoids back-to-back wides at window boundaries.
+ * Structural eligibility check — does this post qualify for a wide hero
+ * card layout? Used by gating logic to decide whether to evaluate the
+ * post-highlight-cards feature flag.
  */
-const LARGE_CARD_DENSITY = { minSpacing: 10 } as const;
+export const isHeroEligiblePost = (post: {
+  type: PostType;
+  hero?: { size?: number | null } | null;
+}): boolean =>
+  WIDENABLE_POST_TYPES.has(post.type) && (post.hero?.size ?? 1) > 1;
 
 /**
  * Returns the column span a feed item is asking for, before any clamping
@@ -42,12 +35,7 @@ export const requestedColSpan = (item: FeedItem): number => {
     return 1;
   }
 
-  const significance = item.post.hero?.significance;
-  if (!significance) {
-    return 1;
-  }
-
-  return SIGNIFICANCE_COL_SPAN[significance] ?? 1;
+  return item.post.hero?.size ?? 1;
 };
 
 export interface FeedItemPlacement {
@@ -56,11 +44,26 @@ export interface FeedItemPlacement {
   column: number;
 }
 
-export interface ComputePlacementsOptions {
+export interface PlacementBuilderOptions {
   numCards: number;
   isMobile: boolean;
   isList: boolean;
   isEnabled: boolean;
+  /**
+   * Minimum number of items between two wide cards. Anchored to the index
+   * of the last placed wide card; a wide card requested within this
+   * distance shrinks to a regular 1-column card.
+   */
+  minSpacing: number;
+  /**
+   * Items at indices `[0, startIndex)` are forced to colSpan 1. Used to
+   * preserve the position of early ad slots that wide cards would
+   * otherwise displace.
+   */
+  startIndex: number;
+}
+
+export interface ComputePlacementsOptions extends PlacementBuilderOptions {
   /**
    * Indices that have a full-row insertion (brief banner, hero, promo)
    * rendered BEFORE the item at that index. The current row tail is left
@@ -70,6 +73,91 @@ export interface ComputePlacementsOptions {
    */
   fullRowInsertionBeforeIndex?: ReadonlySet<number>;
 }
+
+export interface PlacementBuilder {
+  next(item: FeedItem, opts?: { fullRowBefore?: boolean }): FeedItemPlacement;
+}
+
+/**
+ * Stateful walker over feed items. Encapsulates the placement rule
+ * (wide-card density cap, startIndex gate, fit-to-row clamp,
+ * banner-aware row tracking) so both `useFeed` (visual-cell-based ad
+ * cadence) and `computePlacements` (final rendering with banner
+ * awareness) share one implementation.
+ */
+export const createPlacementBuilder = ({
+  numCards,
+  isMobile,
+  isList,
+  isEnabled,
+  minSpacing,
+  startIndex,
+}: PlacementBuilderOptions): PlacementBuilder => {
+  const layoutEnabled = isEnabled && !isMobile && !isList && numCards > 1;
+  const safeNumCards = Math.max(numCards, 1);
+
+  let row = 0;
+  let col = 0;
+  let lastLargeIndex = -Infinity;
+  let itemIdx = 0;
+
+  return {
+    next(item, { fullRowBefore = false } = {}): FeedItemPlacement {
+      if (!layoutEnabled) {
+        const placement: FeedItemPlacement = {
+          colSpan: 1,
+          row: Math.floor(itemIdx / safeNumCards),
+          column: itemIdx % safeNumCards,
+        };
+        itemIdx += 1;
+        return placement;
+      }
+
+      if (fullRowBefore) {
+        if (col !== 0) {
+          row += 1;
+        }
+        row += 1;
+        col = 0;
+      }
+
+      const requested = requestedColSpan(item);
+      const actual = ((): number => {
+        if (requested === 1) {
+          return 1;
+        }
+        if (itemIdx < startIndex) {
+          return 1;
+        }
+        if (itemIdx - lastLargeIndex < minSpacing) {
+          return 1;
+        }
+        const clampedToGrid = Math.min(requested, numCards);
+        const remainingInRow = numCards - col;
+        return Math.min(clampedToGrid, remainingInRow);
+      })();
+
+      const placement: FeedItemPlacement = {
+        colSpan: actual,
+        row,
+        column: col,
+      };
+
+      if (actual > 1) {
+        lastLargeIndex = itemIdx;
+      }
+
+      col += actual;
+      if (col >= numCards) {
+        row += 1;
+        col = 0;
+      }
+      itemIdx += 1;
+
+      return placement;
+    },
+  };
+};
 
 /**
  * Walks feed items in order and assigns each one a placement
@@ -83,64 +171,13 @@ export interface ComputePlacementsOptions {
  */
 export const computePlacements = (
   items: FeedItem[],
-  {
-    numCards,
-    isMobile,
-    isList,
-    isEnabled,
-    fullRowInsertionBeforeIndex,
-  }: ComputePlacementsOptions,
+  options: ComputePlacementsOptions,
 ): FeedItemPlacement[] => {
-  if (!isEnabled || isMobile || isList || numCards <= 1) {
-    return items.map((_, index) => ({
-      colSpan: 1,
-      row: Math.floor(index / Math.max(numCards, 1)),
-      column: index % Math.max(numCards, 1),
-    }));
-  }
-
-  const placements = new Array<FeedItemPlacement>(items.length);
-  let row = 0;
-  let col = 0;
-  let lastLargeIndex = -Infinity;
-
-  items.forEach((item, index) => {
-    if (fullRowInsertionBeforeIndex?.has(index)) {
-      // Browser auto-flow does not backtrack: an unfinished row left of the
-      // full-row banner stays empty, and the banner occupies the next row
-      // by itself.
-      if (col !== 0) {
-        row += 1;
-      }
-      row += 1;
-      col = 0;
-    }
-
-    const requested = requestedColSpan(item);
-
-    let actual: number;
-    if (requested === 1) {
-      actual = 1;
-    } else if (index - lastLargeIndex < LARGE_CARD_DENSITY.minSpacing) {
-      actual = 1;
-    } else {
-      const clampedToGrid = Math.min(requested, numCards);
-      const remainingInRow = numCards - col;
-      actual = Math.min(clampedToGrid, remainingInRow);
-    }
-
-    placements[index] = { colSpan: actual, row, column: col };
-
-    if (actual > 1) {
-      lastLargeIndex = index;
-    }
-
-    col += actual;
-    if (col >= numCards) {
-      row += 1;
-      col = 0;
-    }
-  });
-
-  return placements;
+  const { fullRowInsertionBeforeIndex } = options;
+  const builder = createPlacementBuilder(options);
+  return items.map((item, index) =>
+    builder.next(item, {
+      fullRowBefore: fullRowInsertionBeforeIndex?.has(index) ?? false,
+    }),
+  );
 };
