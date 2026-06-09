@@ -20,18 +20,9 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent } from '../../../lib/log';
 
-interface GivebackStartPanelProps {
-  // Entry point into the (post-login) join flow, owned by the page. Only called
-  // once the visitor is authenticated.
-  onJoin: () => void;
-}
-
 // Hero gateway: one clear decision above the fold — "do you want to join?".
-// Logged-out visitors get the login prompt first; authenticated visitors move
-// straight into the join flow.
-export const GivebackStartPanel = ({
-  onJoin,
-}: GivebackStartPanelProps): ReactElement => {
+// Logged-out visitors get the login prompt first; authenticated visitors opt in.
+export const GivebackStartPanel = (): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
 
@@ -41,10 +32,8 @@ export const GivebackStartPanel = ({
       return;
     }
 
-    // Only logged-in visitors actually enter the join flow; a logged-out click
-    // opens login instead, so the join event fires here only.
+    // A logged-out click opens login instead, so the join event fires here only.
     logEvent({ event_name: LogEvent.ClickJoinGiveback });
-    onJoin();
   };
 
   return (

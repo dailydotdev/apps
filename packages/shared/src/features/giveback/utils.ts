@@ -1,6 +1,6 @@
 import { ContributionSponsorTier } from './types';
 
-export const GIVEBACK_CURRENCY = 'USD';
+const GIVEBACK_CURRENCY = 'USD';
 
 export const formatDonationAmount = (
   amount: number,
@@ -22,15 +22,6 @@ export const getGoalProgressPercentage = (
 
   return Math.max(0, Math.min(100, (raised / goal) * 100));
 };
-
-// Up to two uppercase initials for a sponsor avatar fallback.
-export const getSponsorInitials = (name: string): string =>
-  name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('');
 
 export const sponsorTierLabel: Record<ContributionSponsorTier, string> = {
   [ContributionSponsorTier.Gold]: 'Gold',

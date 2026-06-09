@@ -305,10 +305,6 @@ export default {
           '0%, 100%': { opacity: '0.35', transform: 'scale(1)' },
           '50%': { opacity: '0.7', transform: 'scale(1.08)' },
         },
-        'mascot-bob': {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-6px)' },
-        },
       },
       animation: {
         'scale-down-pulse':
@@ -327,7 +323,6 @@ export default {
         'nudge-shake': 'nudge-shake 600ms ease-in-out',
         'meter-shine': 'meter-shine 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
-        'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
     lineClamp: {
