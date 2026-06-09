@@ -116,16 +116,39 @@ it('should render advertise link on grid ad', () => {
   );
 });
 
-it('should render promoted attribution outside of list title clamp', async () => {
-  const promotedMatcher = (_: string, element?: Element | null): boolean => {
-    const text = getNormalizedText(element);
-    return text === 'Promoted' || text.startsWith('Promoted by ');
-  };
+const promotedMatcher = (_: string, element?: Element | null): boolean =>
+  getNormalizedText(element) === 'Promoted';
 
+it('should render promoted attribution outside of list title clamp', async () => {
   renderListComponent();
 
   const title = screen.getByRole('heading', { level: 3 });
   expect(getNormalizedText(title)).not.toContain('Promoted');
+  expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
+});
+
+it('should render plain Promoted attribution without source link', async () => {
+  renderListComponent({
+    ad: {
+      ...ad,
+      referralLink: 'https://example.com/referral',
+      source: 'Carbon',
+    },
+  });
+
+  const attribution = await screen.findByText(promotedMatcher);
+  expect(attribution.tagName).not.toBe('A');
+  expect(screen.queryByText(/Promoted by/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Carbon/)).not.toBeInTheDocument();
+});
+
+it('should render Promoted attribution in grid variant', async () => {
+  renderGridComponent();
+  expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
+});
+
+it('should render Promoted attribution in signal variant', async () => {
+  renderSignalListComponent();
   expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
 });
 
