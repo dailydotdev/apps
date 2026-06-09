@@ -4,6 +4,7 @@ import { useContributionCauses } from './useContributionCauses';
 import { useContributionCausePreferences } from './useContributionCausePreferences';
 import { useUpdateContributionCausePreferences } from './useUpdateContributionCausePreferences';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { labels } from '../../../lib/labels';
 
 jest.mock('./useContributionCauses');
 jest.mock('./useContributionCausePreferences');
@@ -100,4 +101,15 @@ it('saves the current selection and toasts', async () => {
     expect(saveCausePreferences).toHaveBeenCalledWith(['c1']),
   );
   expect(displayToast).toHaveBeenCalledWith('Your causes are saved');
+});
+
+it('toasts a generic error when saving fails', async () => {
+  saveCausePreferences.mockRejectedValueOnce(new Error('network'));
+  const { result } = renderHook(() => useGivebackCauseSelection(true));
+
+  await act(async () => {
+    await result.current.save();
+  });
+
+  expect(displayToast).toHaveBeenCalledWith(labels.error.generic);
 });

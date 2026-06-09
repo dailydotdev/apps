@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { labels } from '../../../lib/labels';
 import { useContributionCauses } from './useContributionCauses';
 import { useContributionCausePreferences } from './useContributionCausePreferences';
 import { useUpdateContributionCausePreferences } from './useUpdateContributionCausePreferences';
@@ -56,8 +57,12 @@ export const useGivebackCauseSelection = (
   }, []);
 
   const save = useCallback(async () => {
-    await saveCausePreferences([...selectedIds]);
-    displayToast('Your causes are saved');
+    try {
+      await saveCausePreferences([...selectedIds]);
+      displayToast('Your causes are saved');
+    } catch {
+      displayToast(labels.error.generic);
+    }
   }, [saveCausePreferences, selectedIds, displayToast]);
 
   return {
