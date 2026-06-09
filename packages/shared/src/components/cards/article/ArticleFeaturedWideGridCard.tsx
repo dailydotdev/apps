@@ -58,7 +58,7 @@ const HighlightChip = ({
     feature: featurePostHighlightCards,
     shouldEvaluate: !!significance,
   });
-  if (!significance) {
+  if (!significance || !postHighlightCardsConfig.enabled) {
     return null;
   }
   const label = postHighlightCardsConfig.chipLabels[significance];
