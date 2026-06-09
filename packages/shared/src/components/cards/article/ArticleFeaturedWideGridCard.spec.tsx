@@ -2,6 +2,7 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
@@ -10,6 +11,7 @@ import type { Post } from '../../../graphql/posts';
 import type { PostHero, PostHeroSignificance } from '../../../graphql/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleFeaturedWideGridCard } from './ArticleFeaturedWideGridCard';
+import { featurePostHighlightCards } from '../../../lib/featureManagement';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -58,12 +60,24 @@ const makeHero = (significance: PostHeroSignificance | null): PostHero | null =>
 
 const renderComponent = (
   props: Partial<PostCardProps & { wideColSpan?: 2 | 3 | 4 }> = {},
-): RenderResult =>
-  render(
-    <TestBootProvider client={new QueryClient()}>
+): RenderResult => {
+  // HighlightChip short-circuits when the experiment flag is off; the
+  // chip-label tests need it on, so override the GrowthBook value here.
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featurePostHighlightCards.id]: {
+      defaultValue: {
+        ...featurePostHighlightCards.defaultValue,
+        enabled: true,
+      },
+    },
+  });
+  return render(
+    <TestBootProvider client={new QueryClient()} gb={gb}>
       <ArticleFeaturedWideGridCard {...defaultProps} {...props} />
     </TestBootProvider>,
   );
+};
 
 const postWith = (significance: PostHeroSignificance | null): Post => ({
   ...post,
