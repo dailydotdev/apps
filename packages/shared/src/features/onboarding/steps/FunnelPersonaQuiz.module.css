@@ -53,12 +53,173 @@
   animation: reveal-rise 0.5s ease 0.45s both;
 }
 
+/* ─── Casino / arcade micro-interactions ──────────────────────────────────
+ * Patchy is a genie, so the whole step leans into a "make a wish" slot-machine
+ * feel: the primary CTA breathes a neon halo and flashes a shine sweep on
+ * hover, the yes/no answers behave like tactile chips with a color-coded glow,
+ * and the option cards light up as you reach for them. Everything is paired
+ * with cheap transform/opacity work and fully disabled under reduced motion. */
+
+@keyframes cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 6px 20px -10px
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 80%, transparent);
+  }
+  50% {
+    box-shadow: 0 8px 26px -6px
+        color-mix(in srgb, var(--theme-accent-cabbage-default) 95%, transparent),
+      0 0 26px -2px
+        color-mix(in srgb, var(--theme-accent-bacon-default) 75%, transparent);
+  }
+}
+
+@keyframes shine-sweep {
+  from {
+    transform: translateX(-180%) skewX(-16deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-16deg);
+  }
+}
+
+@keyframes bar-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes tick-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Primary "play" button: a living halo plus a shine that sweeps across on
+ * hover. overflow-hidden clips the shine; the pseudo-element never eats
+ * pointer events so the click target is unchanged. */
+.cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  animation: cta-pulse 2.6s ease-in-out infinite;
+}
+
+.cta::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 36%;
+  transform: translateX(-180%) skewX(-16deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 45%),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.cta:hover::after {
+  animation: shine-sweep 0.8s ease-out;
+}
+
+/* Yes / No answer chips. The compound selector keeps the colored glow ahead of
+ * the shared `.btn:hover` lift shadow regardless of stylesheet order. */
+.chip {
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.chip svg {
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.chip.chipYes:hover {
+  border-color: var(--theme-accent-avocado-default);
+  box-shadow: 0 0 24px -4px
+    color-mix(in srgb, var(--theme-accent-avocado-default) 70%, transparent);
+}
+
+.chip.chipYes:hover svg {
+  color: var(--theme-accent-avocado-default);
+  transform: scale(1.12);
+}
+
+.chip.chipNo:hover {
+  border-color: var(--theme-accent-ketchup-default);
+  box-shadow: 0 0 24px -4px
+    color-mix(in srgb, var(--theme-accent-ketchup-default) 70%, transparent);
+}
+
+/* DownvoteIcon is UpvoteIcon + `rotate-180`, so the hover transform must
+ * re-apply that rotation — a bare scale() would clobber it and flip the arrow
+ * back to pointing up. */
+.chip.chipNo:hover svg {
+  color: var(--theme-accent-ketchup-default);
+  transform: rotate(0.5turn) scale(1.12);
+}
+
+/* Persona / option cards: reach-for-it glow + emoji wink. */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 14px 34px -16px
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 90%, transparent);
+}
+
+.cardEmoji {
+  transition: transform 0.2s ease;
+}
+
+.card:hover .cardEmoji {
+  transform: scale(1.16) rotate(-6deg);
+}
+
+/* Selected modifier tick. */
+.tick {
+  animation: tick-pop 0.28s ease both;
+}
+
+/* Progress fill: a slow gold→grape shimmer so the bar feels alive while it
+ * fills, not a static block. */
+.progressFill {
+  background-image: linear-gradient(
+    90deg,
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-bacon-default),
+    var(--theme-accent-cheese-default),
+    var(--theme-accent-cabbage-default)
+  );
+  background-size: 200% 100%;
+  animation: bar-shimmer 3s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .questionIn,
   .dot,
   .revealName,
   .revealTagline,
-  .revealActions {
+  .revealActions,
+  .cta,
+  .progressFill,
+  .tick {
     animation: none;
+  }
+
+  .cta::after {
+    display: none;
   }
 }

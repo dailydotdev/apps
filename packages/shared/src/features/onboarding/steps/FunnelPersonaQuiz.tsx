@@ -356,7 +356,10 @@ const QuizStage = ({
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-10 bg-surface-float">
         <div
-          className="h-full rounded-10 bg-accent-cabbage-default transition-[width] duration-500"
+          className={classNames(
+            styles.progressFill,
+            'h-full rounded-10 transition-[width] duration-500',
+          )}
           style={{ width: `${(progress?.value ?? 0) * 100}%` }}
         />
       </div>
@@ -385,12 +388,16 @@ const PersonaCard = ({
     key={persona.id}
     type="button"
     onClick={() => onSelect(persona.id)}
-    className="flex flex-col items-center gap-2 rounded-16 border-2 border-border-subtlest-tertiary bg-surface-float p-6 text-center transition-all hover:-translate-y-1 hover:border-accent-cabbage-default tablet:p-8"
+    className={classNames(
+      styles.card,
+      'flex flex-col items-center gap-2 rounded-16 border-2 border-border-subtlest-tertiary bg-surface-float p-6 text-center hover:-translate-y-1 hover:border-accent-cabbage-default active:translate-y-0 active:scale-[0.98] tablet:p-8',
+    )}
   >
     <span
-      className={
-        size === 'small' ? 'text-4xl leading-none' : 'text-5xl leading-none'
-      }
+      className={classNames(
+        styles.cardEmoji,
+        size === 'small' ? 'text-4xl leading-none' : 'text-5xl leading-none',
+      )}
       style={{ color: persona.color }}
     >
       {persona.emoji}
@@ -516,7 +523,10 @@ function FunnelPersonaQuizComponent({
           </SpeechBubble>
           <div className="mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto">
             <Button
-              className="w-full laptop:w-auto"
+              className={classNames(
+                styles.cta,
+                'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
+              )}
               variant={ButtonVariant.Primary}
               size={ButtonSize.XLarge}
               onClick={start}
@@ -525,6 +535,7 @@ function FunnelPersonaQuizComponent({
               {cta || "I'm ready!"}
             </Button>
             <Button
+              className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Medium}
               onClick={pickManually}
@@ -559,10 +570,16 @@ function FunnelPersonaQuizComponent({
               key={persona.id}
               type="button"
               onClick={() => selectPersona(persona.id)}
-              className="flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-colors hover:border-accent-cabbage-default"
+              className={classNames(
+                styles.card,
+                'flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left hover:translate-x-1 hover:border-accent-cabbage-default active:scale-[0.99]',
+              )}
             >
               <span
-                className="shrink-0 text-4xl leading-none"
+                className={classNames(
+                  styles.cardEmoji,
+                  'shrink-0 text-4xl leading-none',
+                )}
                 style={{ color: persona.color }}
               >
                 {persona.emoji}
@@ -674,7 +691,7 @@ function FunnelPersonaQuizComponent({
             ))}
           </div>
           <Button
-            className="mt-auto laptop:mt-0"
+            className="mt-auto text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95 laptop:mt-0"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
             onClick={pickManually}
@@ -731,13 +748,19 @@ function FunnelPersonaQuizComponent({
                   aria-checked={checked}
                   onClick={() => toggleModifier(modifier.id)}
                   className={classNames(
-                    'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left transition-colors',
+                    styles.card,
+                    'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left active:scale-[0.99]',
                     checked
                       ? 'border-accent-cabbage-default bg-surface-float'
-                      : 'border-border-subtlest-tertiary bg-surface-float hover:border-text-quaternary',
+                      : 'border-border-subtlest-tertiary bg-surface-float hover:translate-x-1 hover:border-accent-cabbage-default',
                   )}
                 >
-                  <span className="shrink-0 text-4xl leading-none">
+                  <span
+                    className={classNames(
+                      styles.cardEmoji,
+                      'shrink-0 text-4xl leading-none',
+                    )}
+                  >
                     {modifier.emoji}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -753,21 +776,24 @@ function FunnelPersonaQuizComponent({
                   </span>
                   <span
                     className={classNames(
-                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-6 border-2 text-sm font-bold',
+                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-6 border-2 text-sm font-bold transition-colors',
                       checked
                         ? 'border-accent-cabbage-default bg-accent-cabbage-default text-text-primary'
                         : 'border-border-subtlest-tertiary',
                     )}
                     aria-hidden
                   >
-                    {checked ? '✓' : ''}
+                    {checked && <span className={styles.tick}>✓</span>}
                   </span>
                 </button>
               );
             })}
           </div>
           <Button
-            className="mt-auto w-full laptop:mt-0 laptop:w-auto"
+            className={classNames(
+              styles.cta,
+              'mt-auto w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:mt-0 laptop:w-auto',
+            )}
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
             onClick={handleComplete}
@@ -828,7 +854,10 @@ function FunnelPersonaQuizComponent({
                 )}
               >
                 <Button
-                  className="w-full laptop:w-auto"
+                  className={classNames(
+                    styles.cta,
+                    'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
+                  )}
                   variant={ButtonVariant.Primary}
                   size={ButtonSize.XLarge}
                   onClick={confirmPersona}
@@ -837,6 +866,7 @@ function FunnelPersonaQuizComponent({
                   {cta || "Yes, that's me!"}
                 </Button>
                 <Button
+                  className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Medium}
                   onClick={pickManually}
@@ -899,7 +929,11 @@ function FunnelPersonaQuizComponent({
           >
             <div className="flex w-full gap-3">
               <Button
-                className="flex-1"
+                className={classNames(
+                  styles.chip,
+                  styles.chipYes,
+                  'flex-1 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
+                )}
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Large}
                 type="button"
@@ -910,7 +944,11 @@ function FunnelPersonaQuizComponent({
                 Yes
               </Button>
               <Button
-                className="flex-1"
+                className={classNames(
+                  styles.chip,
+                  styles.chipNo,
+                  'flex-1 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]',
+                )}
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Large}
                 type="button"
@@ -922,7 +960,7 @@ function FunnelPersonaQuizComponent({
               </Button>
             </div>
             <Button
-              className="self-center"
+              className="self-center text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Medium}
               type="button"
