@@ -286,7 +286,7 @@
     ),
     radial-gradient(
       46% 36% at 50% 104%,
-      color-mix(in srgb, var(--theme-accent-bun-default) 14%, transparent),
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent),
       transparent 72%
     ),
     radial-gradient(
@@ -408,9 +408,9 @@
   width: 4px;
   height: 4px;
   border-radius: 9999px;
-  background: color-mix(in srgb, var(--theme-accent-cheese-default) 85%, white);
+  background: color-mix(in srgb, var(--theme-accent-cabbage-default) 75%, white);
   box-shadow: 0 0 8px 1px
-    color-mix(in srgb, var(--theme-accent-cheese-default) 60%, transparent);
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent);
   animation: particle-rise var(--particle-duration, 7s) ease-in-out infinite;
   animation-delay: var(--particle-delay, 0s);
 }

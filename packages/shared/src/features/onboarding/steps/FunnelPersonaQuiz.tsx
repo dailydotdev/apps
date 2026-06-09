@@ -1049,10 +1049,10 @@ function FunnelPersonaQuizComponent({
             {questionText}
           </Typography>
         </SpeechBubble>
-        <div className="mx-auto mt-auto w-full max-w-md laptop:mt-0">
+        <div className="mx-auto mt-auto w-full max-w-sm laptop:mt-0">
           <div
             className={classNames(
-              'flex flex-col gap-3 transition-opacity duration-200',
+              'flex flex-col gap-7 transition-opacity duration-200',
               isThinking && 'pointer-events-none opacity-0',
             )}
           >
@@ -1098,7 +1098,7 @@ function FunnelPersonaQuizComponent({
               onClick={() => handleAnswer(0.5)}
               className={classNames(
                 styles.notSure,
-                'mx-auto mt-1 flex items-center gap-2 px-5 py-2 transition-transform duration-150 ease-out hover:scale-105 active:scale-95',
+                'mx-auto flex items-center gap-2 px-5 py-2 transition-transform duration-150 ease-out hover:scale-105 active:scale-95',
               )}
             >
               <Typography type={TypographyType.Footnote} bold>
