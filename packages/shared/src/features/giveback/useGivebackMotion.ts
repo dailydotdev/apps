@@ -42,11 +42,6 @@ export const useInView = <T extends Element>(
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element) {
-      return undefined;
-    }
-
     if (
       typeof IntersectionObserver === 'undefined' ||
       typeof window === 'undefined'
@@ -55,28 +50,60 @@ export const useInView = <T extends Element>(
       return undefined;
     }
 
-    const reveal = () => setInView(true);
+    let revealed = false;
+    let rafId: number | undefined;
+    let observer: IntersectionObserver | undefined;
 
-    const rect = element.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom > 0) {
-      reveal();
-    }
+    const reveal = () => {
+      if (revealed) {
+        return;
+      }
+      revealed = true;
+      setInView(true);
+    };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          reveal();
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '0px 0px -10% 0px', threshold: 0.15 },
-    );
-    observer.observe(element);
+    // The observed element can mount after this effect first runs (e.g. it sits
+    // behind a loading skeleton until data lands), so poll for it across frames
+    // instead of bailing once when `ref.current` is still null.
+    const observe = () => {
+      if (revealed) {
+        return;
+      }
+      const element = ref.current;
+      if (!element) {
+        rafId = window.requestAnimationFrame(observe);
+        return;
+      }
 
+      const rect = element.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        reveal();
+        return;
+      }
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            reveal();
+            observer?.disconnect();
+          }
+        },
+        { rootMargin: '0px 0px -10% 0px', threshold: 0.15 },
+      );
+      observer.observe(element);
+    };
+
+    observe();
+
+    // Safety net so content is never left hidden where observer callbacks are
+    // throttled or the element never intersects.
     const fallback = window.setTimeout(reveal, fallbackMs);
 
     return () => {
-      observer.disconnect();
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+      observer?.disconnect();
       window.clearTimeout(fallback);
     };
   }, [fallbackMs]);
