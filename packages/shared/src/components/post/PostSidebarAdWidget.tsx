@@ -26,9 +26,16 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
+import { Image } from '../image/Image';
 
 interface PostSidebarAdWidgetProps {
   postId: string;
+  /**
+   * `card` (default) is the boxed sidebar widget. `inline` is a flat,
+   * borderless-background layout for in-content placements: the company name
+   * sits on the favicon line, with "Promoted" + the advertise link below it.
+   */
+  variant?: 'card' | 'inline';
   className?: {
     container?: string;
   };
@@ -36,6 +43,7 @@ interface PostSidebarAdWidgetProps {
 
 export function PostSidebarAdWidget({
   postId,
+  variant = 'card',
   className,
 }: PostSidebarAdWidgetProps): ReactElement | null {
   const { user } = useAuthContext();
@@ -93,6 +101,76 @@ export function PostSidebarAdWidget({
     adImprovementsV3,
     size: 24,
   });
+
+  if (variant === 'inline') {
+    return (
+      <div
+        className={classNames(
+          'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4',
+          className?.container,
+        )}
+      >
+        <a
+          href={ad.link}
+          target="_blank"
+          rel="noopener"
+          title={ad.description}
+          className="absolute inset-0 z-0"
+          {...combinedClicks(() => onAdAction(AdActions.Click))}
+        />
+        <div className="flex w-full items-center gap-3">
+          <Image
+            src={imageLink}
+            alt={ad.source}
+            className="size-10 shrink-0 rounded-full object-cover"
+          />
+          {company && (
+            <Typography
+              tag={TypographyTag.P}
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              className="min-w-0 flex-1 truncate"
+              bold
+            >
+              {company}
+            </Typography>
+          )}
+          <Button
+            tag="a"
+            href={ad.link}
+            target="_blank"
+            rel="noopener"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            className="relative z-1 ml-auto shrink-0"
+            onClick={() => onAdAction(AdActions.Click)}
+          >
+            Visit
+          </Button>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
+          <AdvertiseLink
+            targetId={TargetId.AdSidebar}
+            className="relative z-1 whitespace-nowrap hover:underline"
+          />
+        </div>
+        {hasDescription && (
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            className="relative z-1 whitespace-pre-line"
+          >
+            {ad.tagLine && <strong>{ad.tagLine}</strong>}
+            {ad.tagLine && ad.description ? ' ' : ''}
+            {ad.description}
+          </Typography>
+        )}
+        <AdPixel pixel={ad.pixel} />
+      </div>
+    );
+  }
 
   return (
     <EntityCard

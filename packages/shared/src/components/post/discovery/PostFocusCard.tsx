@@ -319,12 +319,7 @@ export const PostFocusCard = ({
             </div>
           )}
 
-          <PostSidebarAdWidget
-            postId={post.id}
-            className={{
-              container: '!w-full !border-border-subtlest-tertiary',
-            }}
-          />
+          <PostSidebarAdWidget postId={post.id} variant="inline" />
 
           <PostDiscussionPanel
             className="pt-2"
