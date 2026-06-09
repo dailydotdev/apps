@@ -9,7 +9,6 @@ import {
 import {
   BookmarkIcon,
   DiscussIcon as CommentIcon,
-  DiscussIconV2 as CommentIconV2,
   DownvoteIcon,
   EyeIcon,
   FeedbackIcon,
@@ -18,8 +17,6 @@ import {
   ShareIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureCommentFirstAction } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import Modal from 'react-modal';
 import { feedback, isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -95,8 +92,6 @@ export default function CompanionMenu({
   const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
-  const isCommentFirst = useFeature(featureCommentFirstAction);
-  const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
   const [reportModal, setReportModal] = useState<boolean>();
   const { displayToast } = useToastNotification();
   const dragStartRef = useRef({ y: 0, initialY: 0 });
@@ -339,32 +334,6 @@ export default function CompanionMenu({
   useEventListener(isDragging ? window : null, 'mousemove', handleMouseMove);
   useEventListener(isDragging ? window : null, 'mouseup', handleMouseUp);
 
-  const commentButton = (
-    <Tooltip
-      side="left"
-      content="Add comment"
-      className={tooltipContainerClassName}
-    >
-      <Button
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.BlueCheese}
-        pressed={post?.commented}
-        icon={<CommentIconComponent />}
-        onClick={() => {
-          setCompanionState(true);
-
-          const commentBox = getCompanionWrapper()?.querySelector<HTMLElement>(
-            '.companion-new-comment-button',
-          );
-
-          if (commentBox) {
-            commentBox.click();
-          }
-        }}
-      />
-    </Tooltip>
-  );
-
   return (
     <>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
@@ -387,7 +356,6 @@ export default function CompanionMenu({
           tooltipContainerClassName={tooltipContainerClassName}
           onToggleCompanion={toggleCompanion}
         />
-        {isCommentFirst && commentButton}
         <Tooltip
           side="left"
           content={
@@ -405,7 +373,30 @@ export default function CompanionMenu({
             color={ButtonColor.Avocado}
           />
         </Tooltip>
-        {!isCommentFirst && commentButton}
+        <Tooltip
+          side="left"
+          content="Add comment"
+          className={tooltipContainerClassName}
+        >
+          <Button
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.BlueCheese}
+            pressed={post?.commented}
+            icon={<CommentIcon />}
+            onClick={() => {
+              setCompanionState(true);
+
+              const commentBox =
+                getCompanionWrapper()?.querySelector<HTMLElement>(
+                  '.companion-new-comment-button',
+                );
+
+              if (commentBox) {
+                commentBox.click();
+              }
+            }}
+          />
+        </Tooltip>
         <Tooltip
           side="left"
           content={`${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`}

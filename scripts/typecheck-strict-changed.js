@@ -137,11 +137,6 @@ const strictSkipList = new Set([
   // ReactElement vs null return, Button props union) live on unrelated
   // lines and should be addressed in a dedicated cleanup PR.
   'packages/shared/src/components/streak/ReadingStreakButton.tsx',
-  // Comment-first action experiment — companion menu was reordered behind
-  // a feature flag, but the file has long-standing strict violations
-  // (implicit any in props/callbacks, modal duplicate `isOpen`,
-  // non-null parent selector return) unrelated to this experiment.
-  'packages/extension/src/companion/CompanionMenu.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

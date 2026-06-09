@@ -82,8 +82,9 @@ const ActionButtonsV1 = ({
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
   const { getUpvoteAnimation } = useBrandSponsorship();
-  // The experiment only reorders the comment action and swaps its icon/label;
-  // click behavior stays identical to the control so the only variable is order.
+  // The experiment only reorders the comment action and swaps its icon;
+  // copy and click behavior stay identical to the control so the only
+  // variable is order.
   const isCommentFirst = useFeature(featureCommentFirstAction);
   const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
 
@@ -141,7 +142,7 @@ const ActionButtonsV1 = ({
 
   const commentButton = config.useCommentLink ? (
     <LinkWithTooltip
-      tooltip={{ content: isCommentFirst ? 'Reply' : 'Comment' }}
+      tooltip={{ content: 'Comment' }}
       href={post.commentsPermalink}
     >
       <QuaternaryButton
@@ -171,7 +172,7 @@ const ActionButtonsV1 = ({
       </QuaternaryButton>
     </LinkWithTooltip>
   ) : (
-    <Tooltip content={isCommentFirst ? 'Reply' : 'Comments'} side="bottom">
+    <Tooltip content="Comments" side="bottom">
       <QuaternaryButton
         labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
