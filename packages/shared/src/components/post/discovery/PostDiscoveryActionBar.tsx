@@ -13,13 +13,9 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import { Origin } from '../../../lib/log';
 import { AuthTriggers } from '../../../lib/auth';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
-import { QuaternaryButton } from '../../buttons/QuaternaryButton';
+import { ButtonSize } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/ButtonV2';
+import { CardAction } from '../../buttons/CardAction';
 import { BookmarkButton } from '../../buttons/BookmarkButton';
 import CloseButton from '../../CloseButton';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
@@ -32,8 +28,6 @@ import {
   MedalBadgeIcon,
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
-import Link from '../../utilities/Link';
-import { largeNumberFormat } from '../../../lib';
 import type { LoggedUser } from '../../../lib/user';
 import { canViewPostAnalytics } from '../../../lib/user';
 import { webappUrl } from '../../../lib/constants';
@@ -51,10 +45,10 @@ interface PostDiscoveryActionBarProps {
 }
 
 /**
- * Compact, border-framed engagement bar for the discovery focus card. Each
- * action keeps its count inline in the same button, so clicking the icon or
- * the number performs the action (vote/comment/award) — the dedicated popups
- * live in the stats strip below the tags. Sticks to the top while scrolling.
+ * Engagement bar for the discovery focus card, built on the CardAction
+ * primitives (PR #6064 guideline): each action's count lives inside the click
+ * target so the icon or number performs the action. Sticks to the top while
+ * scrolling; the modal X appears only once the bar is pinned.
  */
 export const PostDiscoveryActionBar = ({
   post,
@@ -146,90 +140,69 @@ export const PostDiscoveryActionBar = ({
       <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
       <div
         className={classNames(
-          'sticky top-0 z-3 my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary bg-background-default px-1 py-3',
+          'sticky top-0 z-3 my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary bg-background-default px-1 py-2',
           className,
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Tooltip
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           >
-            <QuaternaryButton
+            <CardAction
               id="upvote-post-btn"
-              aria-label="Upvote"
+              label="Upvote"
               color={ButtonColor.Avocado}
-              icon={
-                <UpvoteButtonIcon
-                  secondary={isUpvoteActive}
-                  size={IconSize.Small}
-                />
-              }
-              onClick={onToggleUpvote}
+              icon={<UpvoteButtonIcon />}
+              iconPressed={<UpvoteButtonIcon secondary />}
+              count={upvotes}
               pressed={isUpvoteActive}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-            >
-              {upvotes > 0 ? largeNumberFormat(upvotes) : undefined}
-            </QuaternaryButton>
+              onClick={onToggleUpvote}
+            />
           </Tooltip>
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
           >
-            <QuaternaryButton
+            <CardAction
               id="downvote-post-btn"
-              aria-label="Downvote"
+              label="Downvote"
               color={ButtonColor.Ketchup}
-              icon={
-                <DownvoteIcon
-                  secondary={isDownvoteActive}
-                  size={IconSize.Small}
-                />
-              }
-              onClick={onToggleDownvote}
+              icon={<DownvoteIcon />}
+              iconPressed={<DownvoteIcon secondary />}
               pressed={isDownvoteActive}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
+              onClick={onToggleDownvote}
             />
           </Tooltip>
           <Tooltip content="Comment">
-            <QuaternaryButton
+            <CardAction
               id="comment-post-btn"
-              aria-label="Comment"
+              label="Comment"
               color={ButtonColor.BlueCheese}
-              icon={
-                <CommentIcon secondary={post.commented} size={IconSize.Small} />
-              }
-              onClick={onComment}
+              icon={<CommentIcon />}
+              iconPressed={<CommentIcon secondary />}
+              count={comments}
               pressed={post.commented}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-            >
-              {comments > 0 ? largeNumberFormat(comments) : undefined}
-            </QuaternaryButton>
+              onClick={onComment}
+            />
           </Tooltip>
           {canAward && (
             <Tooltip
               content={isAwarded ? 'You already awarded this post!' : 'Award'}
             >
-              <QuaternaryButton
+              <CardAction
                 id="award-post-btn"
-                aria-label="Award"
+                label="Award"
                 color={ButtonColor.Cabbage}
-                icon={
-                  <MedalBadgeIcon secondary={isAwarded} size={IconSize.Small} />
-                }
-                onClick={onGiveAward}
+                icon={<MedalBadgeIcon />}
+                iconPressed={<MedalBadgeIcon secondary />}
+                count={awards}
                 pressed={isAwarded}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-              >
-                {awards > 0 ? largeNumberFormat(awards) : undefined}
-              </QuaternaryButton>
+                onClick={onGiveAward}
+              />
             </Tooltip>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <BookmarkButton
             post={post}
             iconSize={IconSize.Small}
@@ -237,18 +210,15 @@ export const PostDiscoveryActionBar = ({
               id: 'bookmark-post-btn',
               pressed: post.bookmarked,
               onClick: onToggleBookmark,
-              size: ButtonSize.Small,
+              size: ButtonSize.Medium,
             }}
           />
           <Tooltip content="Copy link">
-            <Button
-              aria-label="Copy link"
+            <CardAction
+              label="Copy link"
               color={ButtonColor.Cabbage}
-              icon={<LinkIcon size={IconSize.Small} />}
+              icon={<LinkIcon />}
               onClick={() => onCopyLinkClick?.(post)}
-              size={ButtonSize.Small}
-              type="button"
-              variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
           {post.clickbaitTitleDetected && (
@@ -256,28 +226,20 @@ export const PostDiscoveryActionBar = ({
           )}
           {canSeeAnalytics && (
             <Tooltip content="Analytics">
-              <Link
+              <CardAction
+                label="Analytics"
+                icon={<AnalyticsIcon />}
                 href={`${webappUrl}posts/${post.id}/analytics`}
-                passHref
-                prefetch={false}
-              >
-                <Button
-                  aria-label="Analytics"
-                  icon={<AnalyticsIcon size={IconSize.Small} />}
-                  size={ButtonSize.Small}
-                  tag="a"
-                  variant={ButtonVariant.Tertiary}
-                />
-              </Link>
+              />
             </Tooltip>
           )}
           <PostMenuOptions
             post={post}
             origin={Origin.ArticleModal}
-            buttonSize={ButtonSize.Small}
+            buttonSize={ButtonSize.Medium}
           />
           {isStuck && onClose && (
-            <CloseButton size={ButtonSize.Small} onClick={() => onClose()} />
+            <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
           )}
         </div>
       </div>
