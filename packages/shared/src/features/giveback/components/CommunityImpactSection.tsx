@@ -34,9 +34,9 @@ const impactOutcomes: {
     accent: 'text-accent-cheese-default',
   },
   {
-    value: '40,000 pages',
-    label: 'kept free and online for everyone',
-    cause: 'Internet Archive',
+    value: '15M lbs',
+    label: 'of e-waste kept out of landfills',
+    cause: 'Human-I-T',
     accent: 'text-accent-avocado-default',
   },
   {

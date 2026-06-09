@@ -480,22 +480,20 @@ describe('CauseSelection', () => {
     renderCauseSelection();
 
     // The "Recommended" filter is active by default, so non-recommended causes
-    // (e.g. Internet Archive) stay hidden.
+    // (e.g. GiveWell Top Charities Fund) stay hidden.
     expect(screen.getByRole('button', { name: 'Recommended' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
     expect(
-      screen.queryByRole('button', { name: /Internet Archive/ }),
+      screen.queryByRole('button', { name: /GiveWell Top Charities Fund/ }),
     ).not.toBeInTheDocument();
 
     // Switching to its category reveals it.
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Digital preservation' }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: 'Global good' }));
 
     expect(
-      screen.getByRole('button', { name: /Internet Archive/ }),
+      screen.getByRole('button', { name: /GiveWell Top Charities Fund/ }),
     ).toBeInTheDocument();
   });
 });
