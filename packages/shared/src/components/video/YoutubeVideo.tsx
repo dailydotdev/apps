@@ -49,7 +49,10 @@ const YoutubeVideo = ({
     );
   }
 
-  const autoplayParam = autoplay ? '?autoplay=1' : '';
+  // Cross-origin iframes block UNMUTED autoplay even with a parent click
+  // gesture, so YouTube would fall back to its play button (a second press).
+  // Muted autoplay is reliably permitted; YouTube shows its native unmute.
+  const autoplayParam = autoplay ? '?autoplay=1&mute=1' : '';
   // Extension pages don't send Referer header, causing YouTube Error 153
   // Use webapp as intermediate page which sends proper Referer
   const embedSrc = isExtension
