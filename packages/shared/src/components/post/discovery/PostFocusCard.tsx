@@ -102,9 +102,15 @@ export const PostFocusCard = ({
       ? post.source
       : undefined;
   const isCollection = article.type === PostType.Collection;
-  // Shared posts lead with the person who shared it; the squad/source is
-  // surfaced via the "Shared via" eyebrow below the author.
-  const sharedByAuthor = isShared ? post.author : undefined;
+  // Posts authored by a user (shared, freeform, welcome) lead with that
+  // user, shown exactly like a comment author. Publication-sourced posts
+  // (article/video/collection) keep their source strip.
+  const author =
+    post.type === PostType.Share ||
+    post.type === PostType.Freeform ||
+    post.type === PostType.Welcome
+      ? post.author
+      : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
@@ -139,11 +145,11 @@ export const PostFocusCard = ({
       <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
-            {sharedByAuthor ? (
+            {author ? (
               <div className="flex min-w-0 items-center gap-3">
                 <UserShortInfo
-                  user={sharedByAuthor as unknown as UserShortProfile}
-                  imageSize={ProfileImageSize.Medium}
+                  user={author as unknown as UserShortProfile}
+                  imageSize={ProfileImageSize.Large}
                   showDescription={false}
                   className={{
                     container: 'min-w-0 !p-0 hover:bg-transparent',
@@ -152,10 +158,10 @@ export const PostFocusCard = ({
                 />
                 <FollowButton
                   className="shrink-0"
-                  entityId={sharedByAuthor.id}
-                  entityName={`@${sharedByAuthor.username}`}
+                  entityId={author.id}
+                  entityName={`@${author.username}`}
                   type={ContentPreferenceType.User}
-                  status={sharedByAuthor.contentPreference?.status}
+                  status={author.contentPreference?.status}
                   variant={ButtonVariant.Subtle}
                   showSubscribe={false}
                   buttonClassName="!h-7 !px-2"
