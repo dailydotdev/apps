@@ -134,16 +134,28 @@ export function PostSidebarAdWidget({
             alt={ad.source}
             className="size-10 shrink-0 rounded-full object-cover"
           />
-          {inlineTitle && (
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Callout}
-              color={TypographyColor.Primary}
-              className="line-clamp-2 min-w-0 flex-1 font-medium"
-            >
-              {inlineTitle}
-            </Typography>
-          )}
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            {inlineTitle && (
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                className="line-clamp-2 font-medium"
+              >
+                {inlineTitle}
+              </Typography>
+            )}
+            <div className="flex items-center gap-1.5">
+              <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
+              <span aria-hidden className="text-text-quaternary typo-footnote">
+                ·
+              </span>
+              <AdvertiseLink
+                targetId={TargetId.AdSidebar}
+                className="relative z-1 whitespace-nowrap hover:underline"
+              />
+            </div>
+          </div>
           <Button
             tag="a"
             href={ad.link}
@@ -156,16 +168,6 @@ export function PostSidebarAdWidget({
           >
             Visit
           </Button>
-        </div>
-        <div className="flex items-center gap-1.5 pl-[3.25rem]">
-          <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
-          <span aria-hidden className="text-text-quaternary typo-footnote">
-            ·
-          </span>
-          <AdvertiseLink
-            targetId={TargetId.AdSidebar}
-            className="relative z-1 whitespace-nowrap hover:underline"
-          />
         </div>
         {inlineHasBody && (
           <Typography
