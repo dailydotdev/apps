@@ -16,7 +16,7 @@ export default function AdAttribution({
   className,
 }: AdAttributionProps): ReactElement {
   const elementClass = classNames(
-    'text-text-quaternary no-underline',
+    'text-text-quaternary',
     className?.typo ?? 'typo-footnote',
     className?.main,
   );
