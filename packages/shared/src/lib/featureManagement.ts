@@ -179,6 +179,8 @@ export const featureNewTabCustomizer = new Feature(
   false,
 );
 
+export const featureGiveback = new Feature('giveback', isDevelopment);
+
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,

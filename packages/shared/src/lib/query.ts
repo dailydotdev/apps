@@ -274,6 +274,8 @@ export enum RequestKey {
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
   LiveRooms = 'live_rooms',
+  ContributionStatus = 'contribution_status',
+  ContributionSponsors = 'contribution_sponsors',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

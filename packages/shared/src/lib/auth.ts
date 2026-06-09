@@ -78,6 +78,7 @@ export enum AuthTriggers {
   AddToStack = 'add to stack',
   PostPage = 'post page',
   Hackathon = 'hackathon',
+  Giveback = 'giveback',
 }
 
 export type AuthTriggersType =
