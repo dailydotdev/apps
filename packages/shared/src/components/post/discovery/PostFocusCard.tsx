@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadArticleHref,
+  getReadPostButtonText,
   isVideoPost,
   PostType,
 } from '../../../graphql/posts';
@@ -20,7 +21,7 @@ import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
-import { ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostHeaderActions } from '../PostHeaderActions';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
@@ -177,16 +178,33 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            <PostHeaderActions
-              buttonSize={ButtonSize.Small}
-              className="ml-auto h-8 shrink-0 items-center"
-              contextMenuId="post-discovery-header-actions"
-              hideMenuOptions
-              hideSubscribeAction
-              onReadArticle={onReadArticle}
-              post={post}
-              readButtonVariant={ButtonVariant.Primary}
-            />
+            {isShared ? (
+              readHref && (
+                <Button
+                  tag="a"
+                  href={readHref}
+                  target="_blank"
+                  rel="noopener"
+                  onClick={onReadArticle}
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Small}
+                  className="ml-auto shrink-0"
+                >
+                  {getReadPostButtonText(post)}
+                </Button>
+              )
+            ) : (
+              <PostHeaderActions
+                buttonSize={ButtonSize.Small}
+                className="ml-auto h-8 shrink-0 items-center"
+                contextMenuId="post-discovery-header-actions"
+                hideMenuOptions
+                hideSubscribeAction
+                onReadArticle={onReadArticle}
+                post={post}
+                readButtonVariant={ButtonVariant.Primary}
+              />
+            )}
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
