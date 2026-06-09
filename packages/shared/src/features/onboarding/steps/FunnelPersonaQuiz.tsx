@@ -947,10 +947,9 @@ function FunnelPersonaQuizComponent({
               <Typography
                 type={TypographyType.Caption1}
                 bold
-                color={TypographyColor.Tertiary}
                 className={classNames(
                   styles.revealEyebrow,
-                  'uppercase tracking-[0.2em]',
+                  'uppercase tracking-[0.2em] text-accent-cabbage-default',
                 )}
               >
                 ✦ The genie has spoken ✦
