@@ -165,15 +165,17 @@ export const PostDiscussionPanel = ({
       aria-label="Discussion"
       className={classNames('flex min-h-0 min-w-0 flex-col gap-2', className)}
     >
-      <NewComment
-        post={post}
-        ref={commentRef as LegacyRef<NewCommentRef>}
-        shouldHandleCommentQuery
-        onComposerOpenChange={setIsComposerOpen}
-        size={ProfileImageSize.Medium}
-        CommentInputOrModal={CommentInputOrModal}
-        renderTrigger={renderComposerTrigger}
-      />
+      <div className={classNames(isComposerOpen && 'animate-composer-in')}>
+        <NewComment
+          post={post}
+          ref={commentRef as LegacyRef<NewCommentRef>}
+          shouldHandleCommentQuery
+          onComposerOpenChange={setIsComposerOpen}
+          size={ProfileImageSize.Medium}
+          CommentInputOrModal={CommentInputOrModal}
+          renderTrigger={renderComposerTrigger}
+        />
+      </div>
       <DiscussionShareRow post={post} withSquads />
       {showSortHeader && (
         <span className="flex shrink-0 flex-row items-center px-1">
