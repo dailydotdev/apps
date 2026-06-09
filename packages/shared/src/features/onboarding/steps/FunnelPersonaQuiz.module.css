@@ -103,6 +103,46 @@
   }
 }
 
+/* Casino "stage" backdrop: layered radial glows that sit behind the whole
+ * step — a purple spotlight up top, warm gold/pink felt in the lower corners —
+ * so the page reads like a lit game table rather than a flat funnel screen.
+ * Lives behind the content via a negative z-index inside an isolated parent. */
+.stageBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+      62% 48% at 50% -6%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 36%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 44% at 90% 110%,
+      color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      44% 40% at 6% 106%,
+      color-mix(in srgb, var(--theme-accent-cheese-default) 20%, transparent),
+      transparent 72%
+    );
+}
+
+/* Faint dotted "felt" texture layered over the glows for tactile depth. */
+.stageBackdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--theme-text-primary) 10%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+  opacity: 0.55;
+  mask-image: radial-gradient(85% 85% at 50% 25%, #000, transparent 78%);
+}
+
 /* Primary "play" button: a living halo plus a shine that sweeps across on
  * hover. overflow-hidden clips the shine; the pseudo-element never eats
  * pointer events so the click target is unchanged. */

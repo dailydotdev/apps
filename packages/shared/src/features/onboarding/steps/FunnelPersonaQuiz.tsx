@@ -11,10 +11,11 @@ import type { FunnelStepPersonaQuiz } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import {
-  Button,
+  ButtonColor,
   ButtonSize,
+  ButtonV2,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -323,6 +324,11 @@ interface QuizStageProps {
   children: ReactNode;
 }
 
+// Decorative casino-table glow behind the stage. Purely presentational.
+const StageBackdrop = (): ReactElement => (
+  <div aria-hidden className={styles.stageBackdrop} />
+);
+
 // Shared skeleton for the intro, question and reveal screens: a top progress
 // header (reserved on every screen) above the bubble + Patchy. On mobile Patchy
 // stacks on top with actions anchored to the bottom thumb zone; on laptop they
@@ -332,7 +338,8 @@ const QuizStage = ({
   mascot,
   children,
 }: QuizStageProps): ReactElement => (
-  <div className="flex flex-1 flex-col px-4 py-6 tablet:px-6 laptop:py-10">
+  <div className="relative isolate flex flex-1 flex-col px-4 py-6 tablet:px-6 laptop:py-10">
+    <StageBackdrop />
     <div
       aria-hidden={!progress}
       className={classNames(
@@ -522,19 +529,20 @@ function FunnelPersonaQuizComponent({
             </div>
           </SpeechBubble>
           <div className="mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto">
-            <Button
+            <ButtonV2
               className={classNames(
                 styles.cta,
                 'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
               )}
               variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
               size={ButtonSize.XLarge}
               onClick={start}
               type="button"
             >
               {cta || "I'm ready!"}
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Medium}
@@ -542,7 +550,7 @@ function FunnelPersonaQuizComponent({
               type="button"
             >
               Nah, I&apos;ll pick myself
-            </Button>
+            </ButtonV2>
           </div>
         </div>
       </QuizStage>
@@ -553,8 +561,9 @@ function FunnelPersonaQuizComponent({
     return (
       <div
         key={phase}
-        className="flex flex-1 flex-col items-center gap-6 px-6 py-10 text-center"
+        className="relative isolate flex flex-1 flex-col items-center gap-6 px-6 py-10 text-center"
       >
+        <StageBackdrop />
         <Typography tag={TypographyTag.H2} type={TypographyType.Title1} bold>
           Who are you, really?
         </Typography>
@@ -690,7 +699,7 @@ function FunnelPersonaQuizComponent({
               />
             ))}
           </div>
-          <Button
+          <ButtonV2
             className="mt-auto text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95 laptop:mt-0"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
@@ -698,7 +707,7 @@ function FunnelPersonaQuizComponent({
             type="button"
           >
             None of these. Let me pick.
-          </Button>
+          </ButtonV2>
         </div>
       </QuizStage>
     );
@@ -789,12 +798,13 @@ function FunnelPersonaQuizComponent({
               );
             })}
           </div>
-          <Button
+          <ButtonV2
             className={classNames(
               styles.cta,
               'mt-auto w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:mt-0 laptop:w-auto',
             )}
             variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             size={ButtonSize.XLarge}
             onClick={handleComplete}
             type="button"
@@ -802,7 +812,7 @@ function FunnelPersonaQuizComponent({
             {selectedModifierIds.length === 0
               ? 'None of these — continue'
               : 'Continue →'}
-          </Button>
+          </ButtonV2>
         </div>
       </QuizStage>
     );
@@ -853,19 +863,20 @@ function FunnelPersonaQuizComponent({
                   'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto',
                 )}
               >
-                <Button
+                <ButtonV2
                   className={classNames(
                     styles.cta,
                     'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
                   )}
                   variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
                   size={ButtonSize.XLarge}
                   onClick={confirmPersona}
                   type="button"
                 >
                   {cta || "Yes, that's me!"}
-                </Button>
-                <Button
+                </ButtonV2>
+                <ButtonV2
                   className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Medium}
@@ -873,7 +884,7 @@ function FunnelPersonaQuizComponent({
                   type="button"
                 >
                   Nah, I&apos;ll pick myself
-                </Button>
+                </ButtonV2>
               </div>
             </>
           )}
@@ -928,7 +939,7 @@ function FunnelPersonaQuizComponent({
             )}
           >
             <div className="flex w-full gap-3">
-              <Button
+              <ButtonV2
                 className={classNames(
                   styles.chip,
                   styles.chipYes,
@@ -942,8 +953,8 @@ function FunnelPersonaQuizComponent({
                 onClick={() => handleAnswer(1)}
               >
                 Yes
-              </Button>
-              <Button
+              </ButtonV2>
+              <ButtonV2
                 className={classNames(
                   styles.chip,
                   styles.chipNo,
@@ -957,9 +968,9 @@ function FunnelPersonaQuizComponent({
                 onClick={() => handleAnswer(0)}
               >
                 No
-              </Button>
+              </ButtonV2>
             </div>
-            <Button
+            <ButtonV2
               className="self-center text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Medium}
@@ -968,7 +979,7 @@ function FunnelPersonaQuizComponent({
               onClick={() => handleAnswer(0.5)}
             >
               Not sure
-            </Button>
+            </ButtonV2>
           </div>
         </div>
         {isThinking && (
