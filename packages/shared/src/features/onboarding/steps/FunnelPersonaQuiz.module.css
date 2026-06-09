@@ -144,76 +144,39 @@
   animation: shockwave 0.85s ease-out 0.1s both;
 }
 
-/* Full-screen party overlay: a flash "pop" the instant the genie exposes you,
- * then a confetti cannon that bursts from the emblem and rains down across the
- * whole viewport. Fixed + pointer-events:none so it sits over everything
- * without blocking the CTAs. */
-.celebration {
-  position: fixed;
-  inset: 0;
-  z-index: 4;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-@keyframes reveal-flash {
+/* Firework burst: glowing dots (same family as the floating dust) explode
+ * outward from the emblem centre, decelerate, sag a touch with gravity, then
+ * fade — like a firework going off where the icon is. */
+@keyframes firework {
   0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  16% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.7);
-  }
-}
-
-.revealFlash {
-  position: absolute;
-  inset: 0;
-  transform-origin: 50% 42%;
-  background: radial-gradient(
-    circle at 50% 42%,
-    color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, white) 0%,
-    color-mix(in srgb, var(--theme-accent-cabbage-default) 22%, transparent) 26%,
-    transparent 52%
-  );
-  animation: reveal-flash 0.75s ease-out both;
-}
-
-/* Burst out to (--bx,--by), then arc down to (--fx,--fy) while spinning. */
-@keyframes confetti-burst {
-  0% {
-    transform: translate(-50%, -50%) rotate(0);
+    transform: translate(-50%, -50%) scale(0.3);
     opacity: 0;
   }
-  6% {
+  12% {
     opacity: 1;
   }
-  34% {
-    transform: translate(calc(-50% + var(--bx)), calc(-50% + var(--by)))
-      rotate(var(--r1));
+  70% {
     opacity: 1;
   }
   100% {
-    transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy)))
-      rotate(var(--r2));
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+      scale(0.6);
     opacity: 0;
   }
 }
 
-.confettiPiece {
+.fireworkSpark {
   position: absolute;
   left: 50%;
-  top: 42%;
-  width: var(--cw, 8px);
-  height: var(--ch, 8px);
-  border-radius: 1px;
-  background: var(--cc);
-  animation: confetti-burst var(--cd, 2.2s) cubic-bezier(0.2, 0.7, 0.35, 1)
-    var(--cdelay, 0s) both;
+  top: 50%;
+  z-index: 0;
+  width: var(--sw, 5px);
+  height: var(--sw, 5px);
+  border-radius: 9999px;
+  background: var(--sc);
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--sc) 65%, transparent);
+  animation: firework var(--sd, 1.3s) cubic-bezier(0.12, 0.75, 0.25, 1)
+    var(--sdelay, 0s) both;
 }
 
 /* ─── Casino / arcade micro-interactions ──────────────────────────────────
@@ -624,8 +587,7 @@
 
   .magicParticle,
   .emblemFlash,
-  .confettiPiece,
-  .revealFlash {
+  .fireworkSpark {
     display: none;
   }
 

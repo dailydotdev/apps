@@ -350,10 +350,10 @@ const MAGIC_PARTICLES = [
   { left: '93%', size: 5, delay: '2s', duration: '7s' },
 ];
 
-// Brand-coloured confetti for the reveal party, generated once (deterministic,
-// no randomness) so it's SSR-stable. Each piece bursts from the emblem out to
-// (bx, by), then arcs down and off-screen to (fx, fy) while tumbling.
-const CONFETTI_COLORS = [
+// Reveal firework: glowing dots (same family as the floating dust) explode
+// radially from the emblem centre. Generated once (deterministic, no
+// randomness) so it's SSR-stable.
+const FIREWORK_COLORS = [
   'var(--theme-accent-cabbage-default)',
   'var(--theme-accent-cheese-default)',
   'var(--theme-accent-bacon-default)',
@@ -362,26 +362,19 @@ const CONFETTI_COLORS = [
   'var(--theme-accent-bun-default)',
 ];
 
-const REVEAL_CONFETTI = Array.from({ length: 48 }, (_, index) => {
-  const spread = (index / 47) * 2 - 1; // -1 → 1 fanned across the width
-  const burstX = Math.round(spread * (300 + (index % 5) * 70));
-  const burstY = -(140 + (index % 6) * 55); // up and out first
-  const isStreamer = index % 3 === 0;
+const REVEAL_FIREWORK = Array.from({ length: 30 }, (_, index) => {
+  // Even radial spread + slight per-spoke jitter so it reads organic.
+  const angle = (index / 30) * Math.PI * 2 + (index % 2 ? 0.12 : -0.12);
+  const distance = 95 + (index % 4) * 48; // 95 → 239px rings
+  const gravity = 24 + (index % 3) * 16; // gentle downward sag
   return {
     id: index,
-    bx: `${burstX}px`,
-    by: `${burstY}px`,
-    fx: `${Math.round(
-      burstX * 1.18 + (index % 2 ? 1 : -1) * (index % 7) * 9,
-    )}px`,
-    fy: `${460 + (index % 8) * 70}px`, // then rain down past the fold
-    r1: `${(index % 2 ? 1 : -1) * (160 + (index % 5) * 70)}deg`,
-    r2: `${(index % 2 ? 1 : -1) * (420 + (index % 6) * 110)}deg`,
-    cw: `${isStreamer ? 4 : 7 + (index % 3) * 2}px`,
-    ch: `${isStreamer ? 14 + (index % 3) * 4 : 7 + (index % 2) * 3}px`,
-    cc: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
-    cd: `${1.9 + (index % 5) * 0.18}s`,
-    cdelay: `${(index % 6) * 0.05}s`,
+    dx: `${Math.round(Math.cos(angle) * distance)}px`,
+    dy: `${Math.round(Math.sin(angle) * distance + gravity)}px`,
+    sw: `${4 + (index % 3) * 2}px`,
+    sc: FIREWORK_COLORS[index % FIREWORK_COLORS.length],
+    sd: `${1.1 + (index % 4) * 0.2}s`,
+    sdelay: `${(index % 3) * 0.05}s`,
   };
 });
 
@@ -504,8 +497,8 @@ const PersonaCard = ({
 );
 
 // The celebratory persona "amulet" for the reveal: a glowing coin in the
-// persona's brand colour, ringed by spinning light spokes and a shockwave, with
-// a one-shot confetti burst. `--persona` cascades to every layer.
+// persona's brand colour with a shockwave ring, and a firework of glowing dots
+// that explodes outward from the icon. `--persona` cascades to every layer.
 const PersonaEmblem = ({
   persona,
 }: {
@@ -516,39 +509,26 @@ const PersonaEmblem = ({
     style={{ '--persona': persona.color } as React.CSSProperties}
   >
     <span aria-hidden className={styles.emblemFlash} />
-    <span className={styles.emblemCoin}>
-      <span className={styles.emblemEmoji}>{persona.emoji}</span>
-    </span>
-  </div>
-);
-
-// Full-screen "aha" party: a flash pop the instant the persona is exposed,
-// then a confetti cannon raining across the whole viewport. Decorative and
-// click-through (pointer-events: none).
-const RevealCelebration = (): ReactElement => (
-  <div aria-hidden className={styles.celebration}>
-    <span className={styles.revealFlash} />
-    {REVEAL_CONFETTI.map((piece) => (
+    {REVEAL_FIREWORK.map((spark) => (
       <span
-        key={piece.id}
-        className={styles.confettiPiece}
+        key={spark.id}
+        aria-hidden
+        className={styles.fireworkSpark}
         style={
           {
-            '--bx': piece.bx,
-            '--by': piece.by,
-            '--fx': piece.fx,
-            '--fy': piece.fy,
-            '--r1': piece.r1,
-            '--r2': piece.r2,
-            '--cw': piece.cw,
-            '--ch': piece.ch,
-            '--cc': piece.cc,
-            '--cd': piece.cd,
-            '--cdelay': piece.cdelay,
+            '--dx': spark.dx,
+            '--dy': spark.dy,
+            '--sw': spark.sw,
+            '--sc': spark.sc,
+            '--sd': spark.sd,
+            '--sdelay': spark.sdelay,
           } as React.CSSProperties
         }
       />
     ))}
+    <span className={styles.emblemCoin}>
+      <span className={styles.emblemEmoji}>{persona.emoji}</span>
+    </span>
   </div>
 );
 
@@ -963,7 +943,6 @@ function FunnelPersonaQuizComponent({
         <div className="flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 laptop:flex-none">
           {revealReady && (
             <>
-              <RevealCelebration />
               <PersonaEmblem persona={persona} />
               <Typography
                 type={TypographyType.Caption1}
