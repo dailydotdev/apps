@@ -137,9 +137,11 @@ const ActionButtonsV1 = ({
   const commentCount = post.numComments ?? 0;
   const upvoteCount = post.numUpvotes ?? 0;
   // Keep every count in the action row on the same typography as the upvote
-  // counter so the numbers match in size/style across variants.
+  // counter so the numbers match in size/style across variants. `leading-5`
+  // makes the footnote line fill the counter's h-5 box so the digits sit
+  // optically centered against the icons instead of riding ~2px high.
   const counterClassName = classNames(
-    'tabular-nums',
+    'tabular-nums leading-5',
     variant === 'grid' && 'typo-footnote',
   );
   const counterLabelClassName = variant === 'grid' ? '!pl-[1px]' : '!pl-0';
