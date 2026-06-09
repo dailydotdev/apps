@@ -26,7 +26,7 @@ function PersonaQuizDemo(): ReactElement {
     type: FunnelStepType.PersonaQuiz,
     isActive: true,
     parameters: {
-      backgroundType: FunnelBackgroundVariant.Default,
+      backgroundType: FunnelBackgroundVariant.Blank,
       mascotVideoBaseUrl: '/onboarding/patchy',
     },
     transitions: [],

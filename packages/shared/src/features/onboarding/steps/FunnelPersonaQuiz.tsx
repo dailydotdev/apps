@@ -11,7 +11,6 @@ import type { FunnelStepPersonaQuiz } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import {
-  ButtonColor,
   ButtonSize,
   ButtonV2,
   ButtonVariant,
@@ -298,21 +297,12 @@ const SpeechBubble = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'relative w-full rounded-16 border-2 border-border-subtlest-tertiary p-6 text-center tablet:p-8',
+      styles.panel,
+      'relative w-full p-6 text-center tablet:p-8',
       className,
     )}
   >
     {children}
-    {/* On mobile Patchy sits above the bubble, so the tail points up. */}
-    <span
-      aria-hidden
-      className="absolute left-1/2 top-0 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rotate-45 border-l-2 border-t-2 border-border-subtlest-tertiary bg-background-default laptop:hidden"
-    />
-    {/* On laptop Patchy sits to the right, so the tail points right. */}
-    <span
-      aria-hidden
-      className="absolute right-0 top-1/2 hidden h-8 w-8 -translate-y-1/2 translate-x-1/2 rotate-45 border-r-2 border-t-2 border-border-subtlest-tertiary bg-background-default laptop:block"
-    />
   </div>
 );
 
@@ -535,7 +525,6 @@ function FunnelPersonaQuizComponent({
                 'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
               )}
               variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
               size={ButtonSize.XLarge}
               onClick={start}
               type="button"
@@ -804,7 +793,6 @@ function FunnelPersonaQuizComponent({
               'mt-auto w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:mt-0 laptop:w-auto',
             )}
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
             size={ButtonSize.XLarge}
             onClick={handleComplete}
             type="button"
@@ -869,7 +857,6 @@ function FunnelPersonaQuizComponent({
                     'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
                   )}
                   variant={ButtonVariant.Primary}
-                  color={ButtonColor.Cabbage}
                   size={ButtonSize.XLarge}
                   onClick={confirmPersona}
                   type="button"

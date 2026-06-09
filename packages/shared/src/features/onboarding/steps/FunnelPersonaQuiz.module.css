@@ -60,17 +60,18 @@
  * and the option cards light up as you reach for them. Everything is paired
  * with cheap transform/opacity work and fully disabled under reduced motion. */
 
+/* White CTA sitting in a spotlight: a soft luminous halo that breathes, so the
+ * button reads as the lit object on the stage. Neutral white light with the
+ * faintest cabbage rim — never tints the white fill. */
 @keyframes cta-pulse {
   0%,
   100% {
-    box-shadow: 0 6px 20px -10px
-      color-mix(in srgb, var(--theme-accent-cabbage-default) 80%, transparent);
+    box-shadow: 0 10px 34px -16px rgb(255 255 255 / 35%);
   }
   50% {
-    box-shadow: 0 8px 26px -6px
-        color-mix(in srgb, var(--theme-accent-cabbage-default) 95%, transparent),
-      0 0 26px -2px
-        color-mix(in srgb, var(--theme-accent-bacon-default) 75%, transparent);
+    box-shadow: 0 12px 42px -14px rgb(255 255 255 / 55%),
+      0 0 24px -6px
+        color-mix(in srgb, var(--theme-accent-cabbage-default) 45%, transparent);
   }
 }
 
@@ -103,44 +104,121 @@
   }
 }
 
-/* Casino "stage" backdrop: layered radial glows that sit behind the whole
- * step — a purple spotlight up top, warm gold/pink felt in the lower corners —
- * so the page reads like a lit game table rather than a flat funnel screen.
- * Lives behind the content via a negative z-index inside an isolated parent. */
+@keyframes aurora-drift {
+  from {
+    transform: translate(-58%, -3%) scale(1);
+  }
+  to {
+    transform: translate(-42%, 5%) scale(1.08);
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Spotlight "stage" backdrop. Full-bleed via `fixed` so it never gets clipped
+ * by the content column, and sits behind the content through a negative
+ * z-index inside the isolated stage. A single soft cabbage spotlight from the
+ * top, a faint warm pool of lamp-light at the base, and a vignette that pulls
+ * focus to the centre — deep and premium rather than a flat funnel gradient. */
 .stageBackdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  overflow: hidden;
   background: radial-gradient(
-      62% 48% at 50% -6%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default) 36%, transparent),
-      transparent 70%
+      120% 95% at 50% 32%,
+      transparent 52%,
+      rgb(0 0 0 / 55%) 100%
     ),
     radial-gradient(
-      50% 44% at 90% 110%,
-      color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent),
+      46% 36% at 50% 104%,
+      color-mix(in srgb, var(--theme-accent-bun-default) 14%, transparent),
       transparent 72%
     ),
     radial-gradient(
-      44% 40% at 6% 106%,
-      color-mix(in srgb, var(--theme-accent-cheese-default) 20%, transparent),
-      transparent 72%
+      72% 58% at 50% -12%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 20%, transparent),
+      transparent 66%
     );
 }
 
-/* Faint dotted "felt" texture layered over the glows for tactile depth. */
+/* Slow-drifting aurora blob — gives the spotlight life without motion noise. */
+.stageBackdrop::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -18%;
+  width: 90vw;
+  height: 70vh;
+  transform: translate(-50%, 0);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 24%, transparent),
+    transparent
+  );
+  filter: blur(48px);
+  animation: aurora-drift 16s ease-in-out infinite alternate;
+}
+
+/* Sparse "magic dust" starfield — subtle, masked to the stage centre. */
 .stageBackdrop::after {
   content: '';
   position: absolute;
   inset: 0;
   background-image: radial-gradient(
-    color-mix(in srgb, var(--theme-text-primary) 10%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 24px 24px;
-  opacity: 0.55;
-  mask-image: radial-gradient(85% 85% at 50% 25%, #000, transparent 78%);
+      1.5px 1.5px at 18% 24%,
+      color-mix(in srgb, var(--theme-text-primary) 55%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 72% 16%,
+      color-mix(in srgb, var(--theme-text-primary) 45%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 84% 60%,
+      color-mix(in srgb, var(--theme-text-primary) 45%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 30% 72%,
+      color-mix(in srgb, var(--theme-text-primary) 40%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 58% 84%,
+      color-mix(in srgb, var(--theme-text-primary) 40%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 8% 54%,
+      color-mix(in srgb, var(--theme-text-primary) 40%, transparent),
+      transparent
+    );
+  animation: star-twinkle 5s ease-in-out infinite;
+  mask-image: radial-gradient(75% 70% at 50% 35%, #000, transparent 80%);
+}
+
+/* Frosted-glass panel for Patchy's lines: translucent, blurred, with a glass
+ * top-edge highlight. Replaces the flat bordered speech bubble. */
+.panel {
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--theme-surface-float) 50%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  border: 1px solid
+    color-mix(in srgb, var(--theme-text-primary) 12%, transparent);
+  box-shadow: 0 28px 64px -34px rgb(0 0 0 / 65%),
+    inset 0 1px 0 0 color-mix(in srgb, var(--theme-text-primary) 10%, transparent);
 }
 
 /* Primary "play" button: a living halo plus a shine that sweeps across on
@@ -255,7 +333,9 @@
   .revealActions,
   .cta,
   .progressFill,
-  .tick {
+  .tick,
+  .stageBackdrop::before,
+  .stageBackdrop::after {
     animation: none;
   }
 
