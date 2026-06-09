@@ -30,15 +30,18 @@ export const useGivebackCauseSelection = (
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Seed from saved preferences once they resolve, so editing starts from the
-  // visitor's current selection without stomping later in-picker toggles.
+  // visitor's current selection without stomping later in-picker toggles. Wait
+  // for `enabled`: while the query is gated off it reports not-loading with an
+  // empty list, which would otherwise seed (and lock) an empty selection before
+  // the real fetch runs.
   const didSeedRef = useRef(false);
   useEffect(() => {
-    if (didSeedRef.current || isLoadingPreferences) {
+    if (didSeedRef.current || !enabled || isLoadingPreferences) {
       return;
     }
     didSeedRef.current = true;
     setSelectedIds(new Set(selectedCauseIds));
-  }, [isLoadingPreferences, selectedCauseIds]);
+  }, [enabled, isLoadingPreferences, selectedCauseIds]);
 
   const toggleCause = useCallback((id: string) => {
     setSelectedIds((current) => {

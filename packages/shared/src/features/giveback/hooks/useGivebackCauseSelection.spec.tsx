@@ -53,6 +53,31 @@ it('seeds the selection from saved preferences', () => {
   expect(result.current.selectedIds.has('c1')).toBe(true);
 });
 
+it('does not seed an empty selection while disabled, then seeds once enabled', () => {
+  // Gated off: the preferences query reports not-loading with no data.
+  mockUsePreferences.mockReturnValue({
+    selectedCauseIds: [],
+    isPending: false,
+  });
+
+  const { result, rerender } = renderHook(
+    ({ enabled }) => useGivebackCauseSelection(enabled),
+    { initialProps: { enabled: false } },
+  );
+
+  expect(result.current.selectedCount).toBe(0);
+
+  // Visitor opts in: the real preferences resolve and must seed the picker.
+  mockUsePreferences.mockReturnValue({
+    selectedCauseIds: ['c1', 'c2'],
+    isPending: false,
+  });
+  rerender({ enabled: true });
+
+  expect(result.current.selectedCount).toBe(2);
+  expect(result.current.selectedIds.has('c1')).toBe(true);
+});
+
 it('toggles a cause on and off', () => {
   const { result } = renderHook(() => useGivebackCauseSelection(true));
 
