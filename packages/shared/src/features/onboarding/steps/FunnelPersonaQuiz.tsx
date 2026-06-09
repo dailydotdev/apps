@@ -350,9 +350,9 @@ const MAGIC_PARTICLES = [
   { left: '93%', size: 5, delay: '1.7s', duration: '11.5s' },
 ];
 
-// Brand-coloured confetti for the reveal burst, generated once (deterministic,
-// no randomness) so it's SSR-stable. Each piece flies from the emblem centre
-// out to (cx, cy) while spinning.
+// Brand-coloured confetti for the reveal party, generated once (deterministic,
+// no randomness) so it's SSR-stable. Each piece bursts from the emblem out to
+// (bx, by), then arcs down and off-screen to (fx, fy) while tumbling.
 const CONFETTI_COLORS = [
   'var(--theme-accent-cabbage-default)',
   'var(--theme-accent-cheese-default)',
@@ -362,19 +362,26 @@ const CONFETTI_COLORS = [
   'var(--theme-accent-bun-default)',
 ];
 
-const REVEAL_CONFETTI = Array.from({ length: 20 }, (_, index) => {
-  const angle = (index / 20) * Math.PI * 2;
-  const distance = 130 + (index % 3) * 48;
+const REVEAL_CONFETTI = Array.from({ length: 48 }, (_, index) => {
+  const spread = (index / 47) * 2 - 1; // -1 → 1 fanned across the width
+  const burstX = Math.round(spread * (300 + (index % 5) * 70));
+  const burstY = -(140 + (index % 6) * 55); // up and out first
+  const isStreamer = index % 3 === 0;
   return {
     id: index,
-    cx: `${Math.round(Math.cos(angle) * distance)}px`,
-    cy: `${Math.round(Math.sin(angle) * distance)}px`,
-    cr: `${(index % 2 ? 1 : -1) * (200 + (index % 4) * 80)}deg`,
-    cw: `${6 + (index % 3) * 2}px`,
-    ch: `${8 + (index % 2) * 4}px`,
+    bx: `${burstX}px`,
+    by: `${burstY}px`,
+    fx: `${Math.round(
+      burstX * 1.18 + (index % 2 ? 1 : -1) * (index % 7) * 9,
+    )}px`,
+    fy: `${460 + (index % 8) * 70}px`, // then rain down past the fold
+    r1: `${(index % 2 ? 1 : -1) * (160 + (index % 5) * 70)}deg`,
+    r2: `${(index % 2 ? 1 : -1) * (420 + (index % 6) * 110)}deg`,
+    cw: `${isStreamer ? 4 : 7 + (index % 3) * 2}px`,
+    ch: `${isStreamer ? 14 + (index % 3) * 4 : 7 + (index % 2) * 3}px`,
     cc: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
-    cd: `${1.05 + (index % 4) * 0.14}s`,
-    cdelay: `${(index % 5) * 0.04}s`,
+    cd: `${1.9 + (index % 5) * 0.18}s`,
+    cdelay: `${(index % 6) * 0.05}s`,
   };
 });
 
@@ -513,16 +520,27 @@ const PersonaEmblem = ({
     <span className={styles.emblemCoin}>
       <span className={styles.emblemEmoji}>{persona.emoji}</span>
     </span>
+  </div>
+);
+
+// Full-screen "aha" party: a flash pop the instant the persona is exposed,
+// then a confetti cannon raining across the whole viewport. Decorative and
+// click-through (pointer-events: none).
+const RevealCelebration = (): ReactElement => (
+  <div aria-hidden className={styles.celebration}>
+    <span className={styles.revealFlash} />
     {REVEAL_CONFETTI.map((piece) => (
       <span
         key={piece.id}
-        aria-hidden
         className={styles.confettiPiece}
         style={
           {
-            '--cx': piece.cx,
-            '--cy': piece.cy,
-            '--cr': piece.cr,
+            '--bx': piece.bx,
+            '--by': piece.by,
+            '--fx': piece.fx,
+            '--fy': piece.fy,
+            '--r1': piece.r1,
+            '--r2': piece.r2,
             '--cw': piece.cw,
             '--ch': piece.ch,
             '--cc': piece.cc,
@@ -946,6 +964,7 @@ function FunnelPersonaQuizComponent({
         <div className="flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 laptop:flex-none">
           {revealReady && (
             <>
+              <RevealCelebration />
               <PersonaEmblem persona={persona} />
               <Typography
                 type={TypographyType.Caption1}
