@@ -4,7 +4,6 @@ import React, { useRef } from 'react';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadArticleHref,
-  isShareLikePost,
   isVideoPost,
   PostType,
 } from '../../../graphql/posts';
@@ -85,10 +84,10 @@ export const PostFocusCard = ({
   origin,
   leftVariant,
 }: PostFocusCardProps): ReactElement => {
-  // A shared post wraps an underlying post (article, video, collection…) in a
-  // squad. Render that underlying post so every type uses the same card, and
-  // surface the type/origin via a small eyebrow label above the title.
-  const isShared = isShareLikePost(post) && !!post.sharedPost;
+  // A shared post (someone reposting a post into a squad or onto their profile)
+  // wraps an underlying post. Only true Share-type posts get the "Shared via"
+  // treatment — auto-written articles/freeform posts render their own source.
+  const isShared = post.type === PostType.Share && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
   const sharedVia = isShared ? post.source : undefined;
   const isCollection = article.type === PostType.Collection;
