@@ -19,6 +19,7 @@ const mockUseLogContext = useLogContext as jest.MockedFunction<
 
 const showLogin = jest.fn();
 const logEvent = jest.fn();
+const onJoin = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -33,20 +34,21 @@ const renderPanel = (user: LoggedUser | null) => {
     showLogin,
   } as unknown as ReturnType<typeof useAuthContext>);
 
-  return render(<GivebackStartPanel />);
+  return render(<GivebackStartPanel onJoin={onJoin} />);
 };
 
-it('prompts login for logged-out visitors without logging the join event', () => {
+it('prompts login for logged-out visitors without joining or logging', () => {
   renderPanel(null);
 
   fireEvent.click(screen.getByRole('button', { name: 'Join the campaign' }));
 
   expect(showLogin).toHaveBeenCalledWith({ trigger: AuthTriggers.Giveback });
-  // The join event must not fire when the click only opens login.
+  // Neither the join event nor the reveal should fire when login opens instead.
   expect(logEvent).not.toHaveBeenCalled();
+  expect(onJoin).not.toHaveBeenCalled();
 });
 
-it('logs the join event for authenticated visitors', () => {
+it('logs the join event and reveals causes for authenticated visitors', () => {
   renderPanel({ id: 'u1' } as LoggedUser);
 
   fireEvent.click(screen.getByRole('button', { name: 'Join the campaign' }));
@@ -55,4 +57,5 @@ it('logs the join event for authenticated visitors', () => {
   expect(logEvent).toHaveBeenCalledWith({
     event_name: LogEvent.ClickJoinGiveback,
   });
+  expect(onJoin).toHaveBeenCalled();
 });

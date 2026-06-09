@@ -12,7 +12,12 @@ import { GivebackStartPanel } from './GivebackStartPanel';
 import { GivebackCampaignVideo } from './GivebackCampaignVideo';
 import { GivebackFundingSummary } from './GivebackFundingSummary';
 
-export const GivebackHero = (): ReactElement => {
+interface GivebackHeroProps {
+  // Reveals the cause picker when an authenticated visitor joins.
+  onJoin: () => void;
+}
+
+export const GivebackHero = ({ onJoin }: GivebackHeroProps): ReactElement => {
   return (
     <section className="relative w-full">
       {/* Clip only the decorative glows, not the content, so hover effects on
@@ -81,7 +86,7 @@ export const GivebackHero = (): ReactElement => {
           <FlexCol className="h-full justify-center gap-5">
             <GivebackFundingSummary />
             <div className="via-accent-cabbage-default/30 h-px w-full bg-gradient-to-r from-transparent to-transparent" />
-            <GivebackStartPanel />
+            <GivebackStartPanel onJoin={onJoin} />
           </FlexCol>
         </div>
       </FlexCol>
