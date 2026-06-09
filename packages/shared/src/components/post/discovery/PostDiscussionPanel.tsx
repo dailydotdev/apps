@@ -125,41 +125,37 @@ export const PostDiscussionPanel = ({
       type="button"
       aria-label="Add a comment"
       onClick={() => onCommentClick(Origin.StartDiscussion)}
-      className="group flex min-h-24 w-full flex-col justify-between gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
+      className="group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
     >
-      <div className="flex min-w-0 items-start gap-3">
-        {triggerUser ? (
-          <ProfilePicture
-            className="shrink-0"
-            nativeLazyLoading
-            size={ProfileImageSize.Medium}
-            user={triggerUser}
-          />
-        ) : (
-          <Image
-            alt="Placeholder image for anonymous user"
-            aria-hidden
-            className={classNames(
-              'shrink-0',
-              getProfilePictureClasses(ProfileImageSize.Medium),
-            )}
-            fetchPriority="low"
-            height={32}
-            loading="lazy"
-            role="presentation"
-            src={fallbackImages.avatar}
-            width={32}
-          />
-        )}
-        <span className="min-w-0 flex-1 text-text-tertiary typo-callout">
-          Share your thoughts — what stood out, or what would you add?
-        </span>
-      </div>
-      <div className="flex items-center justify-end pl-11">
-        <span className="flex items-center rounded-10 bg-background-default px-3 py-1.5 text-text-secondary transition-colors typo-footnote group-hover:text-text-primary">
-          Comment
-        </span>
-      </div>
+      {triggerUser ? (
+        <ProfilePicture
+          className="shrink-0"
+          nativeLazyLoading
+          size={ProfileImageSize.Medium}
+          user={triggerUser}
+        />
+      ) : (
+        <Image
+          alt="Placeholder image for anonymous user"
+          aria-hidden
+          className={classNames(
+            'shrink-0',
+            getProfilePictureClasses(ProfileImageSize.Medium),
+          )}
+          fetchPriority="low"
+          height={32}
+          loading="lazy"
+          role="presentation"
+          src={fallbackImages.avatar}
+          width={32}
+        />
+      )}
+      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-callout">
+        Share your thoughts…
+      </span>
+      <span className="shrink-0 rounded-10 bg-background-default px-3 py-1.5 text-text-secondary transition-colors typo-footnote group-hover:text-text-primary">
+        Comment
+      </span>
     </button>
   );
 

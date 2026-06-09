@@ -359,7 +359,6 @@ export const PostFocusCard = ({
 
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel
-              className="pt-2"
               showMetaBar={false}
               showSortHeader
               onRegisterFocusComment={(fn) => {
