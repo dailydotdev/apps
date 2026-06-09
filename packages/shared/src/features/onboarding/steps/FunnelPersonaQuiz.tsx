@@ -355,11 +355,11 @@ const MAGIC_PARTICLES = [
 // randomness) so it's SSR-stable.
 const FIREWORK_COLORS = [
   'var(--theme-accent-cabbage-default)',
-  'var(--theme-accent-cheese-default)',
-  'var(--theme-accent-bacon-default)',
-  'var(--theme-accent-avocado-default)',
-  'var(--theme-accent-water-default)',
-  'var(--theme-accent-bun-default)',
+  'var(--theme-accent-cabbage-bolder)',
+  'var(--theme-accent-cabbage-subtler)',
+  'var(--theme-accent-onion-default)',
+  'var(--theme-accent-onion-bolder)',
+  'var(--theme-accent-onion-subtler)',
 ];
 
 const REVEAL_FIREWORK = Array.from({ length: 30 }, (_, index) => {
