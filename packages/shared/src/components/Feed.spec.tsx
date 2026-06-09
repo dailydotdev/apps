@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
+import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import type { FeedData, Post, PostData, PostsEngaged } from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
@@ -68,6 +69,12 @@ import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
+import FeedContext from '../contexts/FeedContext';
+import type { FeedContextData } from '../contexts/FeedContext';
+import { FeaturesReadyContext } from './GrowthBookProvider';
+import { featurePostHighlightCards } from '../lib/featureManagement';
+import type { Connection } from '../graphql/common';
+import type { PostHero } from '../graphql/types';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -1678,5 +1685,264 @@ describe('Feed annonymous', () => {
     await waitFor(() =>
       expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
     );
+  });
+});
+
+const sourceFixture = defaultFeedPage.edges[0].node.source;
+
+const buildPost = (id: string, hero?: PostHero | null): Post =>
+  ({
+    id,
+    title: `Post ${id}`,
+    createdAt: '2026-05-25T00:00:00.000Z',
+    image: 'https://daily.dev/img.png',
+    readTime: 1,
+    source: sourceFixture,
+    tags: [],
+    permalink: `http://localhost:4000/r/${id}`,
+    numComments: 0,
+    numUpvotes: 0,
+    commentsPermalink: `http://localhost:5002/posts/${id}`,
+    read: false,
+    upvoted: false,
+    commented: false,
+    type: PostType.Article,
+    domain: 'example.com',
+    hero: hero ?? null,
+  } as Post);
+
+const buildWidePost = (id: string, size: number): Post =>
+  buildPost(id, {
+    id: `hero-${id}`,
+    headline: 'wide',
+    significance: size === 4 ? 'breaking' : size === 3 ? 'major' : 'notable',
+    size,
+    highlightedAt: '2026-05-25T00:00:00.000Z',
+  });
+
+const buildFeedPage = (posts: Post[]): Connection<Post> => ({
+  pageInfo: { hasNextPage: false, endCursor: '' },
+  edges: posts.map((node) => ({ node })),
+});
+
+interface HighlightLayoutRenderParams {
+  posts: Post[];
+  highlightEnabled: boolean;
+  numCards?: number;
+  pageSize?: number;
+  adStart?: number;
+  adRepeat?: number;
+  minSpacing?: number;
+  startIndex?: number;
+}
+
+const renderWithHighlightLayout = ({
+  posts,
+  highlightEnabled,
+  numCards = 4,
+  pageSize = 25,
+  adStart = 4,
+  adRepeat = 8,
+  minSpacing = 5,
+  startIndex = 0,
+}: HighlightLayoutRenderParams): RenderResult => {
+  variables = { ...defaultVariables, first: pageSize };
+  mockGraphQL(createFeedMock(buildFeedPage(posts)));
+  // First ad page uses active=false, subsequent pages use active=true. Mock
+  // both up to a handful of refills so multi-ad scenarios don't run dry.
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=true')
+    .times(10)
+    .reply(200, [ad]);
+
+  const feedContextValue: FeedContextData = {
+    pageSize,
+    numCards: {
+      eco: numCards,
+      roomy: numCards,
+      cozy: numCards,
+    } as FeedContextData['numCards'],
+    adTemplate: { adStart, adRepeat },
+  };
+
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featurePostHighlightCards.id]: {
+      defaultValue: {
+        enabled: highlightEnabled,
+        minSpacing,
+        startIndex,
+        chipLabels: {},
+      },
+    },
+  });
+
+  const settingsContext: SettingsContextData = {
+    ...baseSettingsContext,
+    setTheme: jest.fn(),
+    setSpaciness: jest.fn(),
+    toggleOpenNewTab: jest.fn(),
+    toggleInsaneMode: jest.fn(),
+    toggleShowTopSites: jest.fn(),
+    toggleSortingEnabled: jest.fn(),
+    toggleOptOutReadingStreak: jest.fn(),
+    toggleAutoDismissNotifications: jest.fn(),
+    updateCustomLinks: jest.fn(),
+    toggleSidebarExpanded: jest.fn(),
+  };
+
+  // Use a fresh QueryClient per render — the suite-level singleton can
+  // carry over errored ad-query state from earlier tests (retry: false
+  // means failures stick), which causes ads to never re-fetch here.
+  const isolatedClient = new QueryClient(defaultQueryClientTestingConfig);
+
+  return render(
+    <QueryClientProvider client={isolatedClient}>
+      <AuthContext.Provider
+        value={{
+          user: defaultUser,
+          isLoggedIn: true,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: defaultUser.id,
+          loginState: undefined,
+          isAuthReady: true,
+        }}
+      >
+        <GrowthBookProvider growthbook={gb}>
+          <FeaturesReadyContext.Provider
+            value={{
+              ready: true,
+              getFeatureValue: (feature) =>
+                gb.getFeatureValue(feature.id, feature.defaultValue),
+            }}
+          >
+            <SettingsContext.Provider value={settingsContext}>
+              <FeedContext.Provider value={feedContextValue}>
+                <Feed
+                  feedQueryKey={['feed']}
+                  feedName={SharedFeedPage.MyFeed}
+                  query={ANONYMOUS_FEED_QUERY}
+                  variables={variables}
+                />
+              </FeedContext.Provider>
+            </SettingsContext.Provider>
+          </FeaturesReadyContext.Provider>
+        </GrowthBookProvider>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
+  );
+};
+
+const getFeedItemTestIds = async (expectedAdCount = 1): Promise<string[]> => {
+  await waitFor(
+    () => {
+      const ads = screen.queryAllByTestId('adItem');
+      expect(ads.length).toBeGreaterThanOrEqual(expectedAdCount);
+    },
+    { timeout: 5000 },
+  );
+  const nodes = document.querySelectorAll(
+    '[data-testid="postItem"], [data-testid="adItem"]',
+  );
+  return Array.from(nodes).map(
+    (node) => node.getAttribute('data-testid') ?? '',
+  );
+};
+
+describe('Feed ad cadence with highlight cards', () => {
+  // beforeEach in the outer describe calls jest.restoreAllMocks(), which
+  // wipes the desktop viewport spy from the suite's beforeAll. Re-apply it
+  // here so canRenderHighlightCards isn't gated off by a mobile viewport.
+  // Also reset useRouter: earlier describes (e.g. acquisition form card)
+  // call mockImplementation on it, and that impl survives clearAllMocks /
+  // restoreAllMocks — leaving us with a polluted query/pathname.
+  beforeEach(() => {
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {},
+        } as unknown as NextRouter),
+    );
+  });
+
+  // Setup: numCards=4, adStart=4, adRepeat=8. With 1 normal post per cell,
+  // first ad lands at visual cell 4 (after 4 normal posts). With a 4-cell
+  // wide post at index 0, vcs jumps to 4 after one item — so the ad lands
+  // at array index 1 instead of index 4.
+  it('places ad on correct spot when a wide card precedes it', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: true });
+
+    const order = await getFeedItemTestIds();
+    expect(order[0]).toBe('postItem');
+    expect(order[1]).toBe('adItem');
+    expect(order.slice(2).every((t) => t === 'postItem')).toBe(true);
+  });
+
+  // Same fixture, flag off: layout disabled → wide card collapses to 1 cell
+  // (every item contributes 1 to visualCellsSoFar). Ad falls at the original
+  // 4th position.
+  it('places ad on correct spot when feature flag is disabled', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: false });
+
+    const order = await getFeedItemTestIds();
+    expect(order.slice(0, 4).every((t) => t === 'postItem')).toBe(true);
+    expect(order[4]).toBe('adItem');
+  });
+
+  // Two wide cards spaced beyond minSpacing each push the cadence forward,
+  // so two ads land in a single page that would only contain one without
+  // the layout enabled.
+  it('places ad on correct spot across multiple wide cards', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildPost('p8'),
+      buildWidePost('w9', 4),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: true });
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    expect(adIndices).toEqual([1, 9]);
   });
 });
