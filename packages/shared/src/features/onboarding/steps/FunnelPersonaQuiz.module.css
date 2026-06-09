@@ -123,32 +123,6 @@
   filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.4));
 }
 
-@keyframes emblem-spin {
-  to {
-    transform: rotate(1turn);
-  }
-}
-
-.emblemRays {
-  position: absolute;
-  inset: -55%;
-  z-index: 0;
-  background: repeating-conic-gradient(
-    from 0deg,
-    color-mix(in srgb, var(--persona) 24%, transparent) 0deg 6deg,
-    transparent 6deg 22deg
-  );
-  mask: radial-gradient(closest-side, transparent 34%, #000 46%, transparent 78%);
-  -webkit-mask: radial-gradient(
-    closest-side,
-    transparent 34%,
-    #000 46%,
-    transparent 78%
-  );
-  animation: emblem-spin 18s linear infinite, reveal-rise 0.6s ease both;
-  opacity: 0.8;
-}
-
 @keyframes shockwave {
   0% {
     transform: scale(0.55);
@@ -312,11 +286,10 @@
   }
 }
 
-/* Spotlight "stage" backdrop. Full-bleed via `fixed` so it never gets clipped
- * by the content column, and sits behind the content through a negative
- * z-index inside the isolated stage. A single soft cabbage spotlight from the
- * top, a faint warm pool of lamp-light at the base, and a vignette that pulls
- * focus to the centre — deep and premium rather than a flat funnel gradient. */
+/* "Stage" backdrop. Full-bleed via `fixed` so it never gets clipped by the
+ * content column, and sits behind the content through a negative z-index inside
+ * the isolated stage. A faint pool of lamp-light glows up from the base and a
+ * vignette pulls focus to the centre — the top stays clean and dark. */
 .stageBackdrop {
   position: fixed;
   inset: 0;
@@ -332,22 +305,18 @@
       46% 36% at 50% 104%,
       color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent),
       transparent 72%
-    ),
-    radial-gradient(
-      72% 58% at 50% -12%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default) 20%, transparent),
-      transparent 66%
     );
 }
 
-/* Slow-drifting aurora blob — gives the spotlight life without motion noise. */
+/* Slow-drifting aurora blob rising from the base — gives the lamp-light life
+ * and a colour shift without lighting up the top of the screen. */
 .stageBackdrop::before {
   content: '';
   position: absolute;
   left: 50%;
-  top: -18%;
+  bottom: -28%;
   width: 90vw;
-  height: 70vh;
+  height: 60vh;
   transform: translate(-50%, 0);
   background: radial-gradient(
     closest-side,
@@ -415,9 +384,9 @@
 .auroraAlt {
   position: absolute;
   left: 50%;
-  top: -22%;
+  bottom: -30%;
   width: 80vw;
-  height: 68vh;
+  height: 58vh;
   background: radial-gradient(
     closest-side,
     color-mix(in srgb, var(--theme-accent-blueCheese-default) 26%, transparent),
@@ -427,35 +396,36 @@
   animation: aurora-shift 13s ease-in-out infinite;
 }
 
-/* Floating "magic dust": specks that rise from the lamp and fade, each given a
- * random column/size/delay inline. Pure decoration, behind the content. */
+/* Floating "magic dust": specks that lift off the bottom edge, drift steadily
+ * up, and fade out by the time they reach ~25% of the screen height. Linear
+ * timing keeps them continuously moving (never parked mid-screen). */
 @keyframes particle-rise {
   0% {
-    transform: translateY(28px) scale(0.5);
+    transform: translateY(0) scale(0.5);
     opacity: 0;
   }
-  18% {
+  12% {
     opacity: 1;
   }
-  82% {
-    opacity: 1;
+  70% {
+    opacity: 0.9;
   }
   100% {
-    transform: translateY(-150px) scale(1);
+    transform: translateY(-26vh) scale(1);
     opacity: 0;
   }
 }
 
 .magicParticle {
   position: absolute;
-  bottom: 18%;
+  bottom: 0;
   width: 4px;
   height: 4px;
   border-radius: 9999px;
   background: color-mix(in srgb, var(--theme-accent-cabbage-default) 75%, white);
   box-shadow: 0 0 8px 1px
     color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent);
-  animation: particle-rise var(--particle-duration, 7s) ease-in-out infinite;
+  animation: particle-rise var(--particle-duration, 6s) linear infinite;
   animation-delay: var(--particle-delay, 0s);
 }
 
@@ -648,7 +618,6 @@
   .auroraAlt,
   .magicParticle,
   .emblemCoin,
-  .emblemRays,
   .emblemFlash {
     animation: none;
   }

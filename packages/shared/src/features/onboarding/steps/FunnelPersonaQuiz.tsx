@@ -336,18 +336,18 @@ interface QuizStageProps {
 // Fixed configs (left column / size / timing) so the floating dust is stable
 // across SSR and re-renders instead of jumping on every paint.
 const MAGIC_PARTICLES = [
-  { left: '10%', size: 3, delay: '0s', duration: '7.5s' },
-  { left: '22%', size: 5, delay: '2.4s', duration: '9s' },
-  { left: '34%', size: 3, delay: '4.1s', duration: '8s' },
-  { left: '44%', size: 4, delay: '1.2s', duration: '10s' },
-  { left: '52%', size: 6, delay: '5.6s', duration: '11s' },
-  { left: '61%', size: 3, delay: '3s', duration: '8.5s' },
-  { left: '70%', size: 5, delay: '0.8s', duration: '9.5s' },
-  { left: '79%', size: 4, delay: '4.8s', duration: '7s' },
-  { left: '88%', size: 3, delay: '2s', duration: '10.5s' },
-  { left: '16%', size: 4, delay: '6.2s', duration: '9s' },
-  { left: '66%', size: 3, delay: '6.9s', duration: '8s' },
-  { left: '93%', size: 5, delay: '1.7s', duration: '11.5s' },
+  { left: '10%', size: 3, delay: '0s', duration: '5s' },
+  { left: '22%', size: 5, delay: '1.6s', duration: '6.2s' },
+  { left: '34%', size: 3, delay: '3.2s', duration: '4.6s' },
+  { left: '44%', size: 4, delay: '0.8s', duration: '5.6s' },
+  { left: '52%', size: 6, delay: '2.4s', duration: '6.8s' },
+  { left: '61%', size: 3, delay: '4s', duration: '5.2s' },
+  { left: '70%', size: 5, delay: '0.4s', duration: '6s' },
+  { left: '79%', size: 4, delay: '3s', duration: '4.4s' },
+  { left: '88%', size: 3, delay: '1.2s', duration: '6.4s' },
+  { left: '16%', size: 4, delay: '3.8s', duration: '5.4s' },
+  { left: '66%', size: 3, delay: '4.6s', duration: '4.8s' },
+  { left: '93%', size: 5, delay: '2s', duration: '7s' },
 ];
 
 // Brand-coloured confetti for the reveal party, generated once (deterministic,
@@ -515,7 +515,6 @@ const PersonaEmblem = ({
     className={styles.emblem}
     style={{ '--persona': persona.color } as React.CSSProperties}
   >
-    <span aria-hidden className={styles.emblemRays} />
     <span aria-hidden className={styles.emblemFlash} />
     <span className={styles.emblemCoin}>
       <span className={styles.emblemEmoji}>{persona.emoji}</span>
