@@ -20,17 +20,17 @@ interface SponsorWallLogo {
   tier?: SponsorCoverTier;
 }
 
-// Example sponsor logos for the campaign cover. They sit directly on the dark
-// cover (no chip). Every logo is rendered as a clean white silhouette (see the
-// inline filter on the <img> below) so it stays legible regardless of the
-// brand's source colors. Tiers add a small marker + size bump so gold/silver
-// read as more prominent than regular sponsors. These mirror the dev brands
-// daily.dev partners with (see business.daily.dev). Swap for the confirmed
-// sponsor list at launch.
+// Example sponsor logos for the campaign cover. Each logo keeps its real brand
+// colors and sits on a white "medal card" so it stays legible on the dark
+// cover regardless of its source colors. Tiers are framed in their medal color
+// (gold / silver / bronze) and stepped in size, so the hierarchy is obvious and
+// the wall is colorful. URLs use each brand's light-background wordmark/logo so
+// the colors render correctly. These mirror the dev brands daily.dev partners
+// with (see business.daily.dev). Swap for the confirmed sponsor list at launch.
 const sponsors: SponsorWallLogo[] = [
   {
     name: 'Vercel',
-    logoUrl: 'https://svgl.app/library/vercel_wordmark_dark.svg',
+    logoUrl: 'https://svgl.app/library/vercel_wordmark.svg',
     url: 'https://vercel.com',
     tier: 'gold',
   },
@@ -42,13 +42,13 @@ const sponsors: SponsorWallLogo[] = [
   },
   {
     name: 'GitHub',
-    logoUrl: 'https://svgl.app/library/github_wordmark_dark.svg',
+    logoUrl: 'https://svgl.app/library/github_wordmark_light.svg',
     url: 'https://github.com',
     tier: 'silver',
   },
   {
     name: 'Supabase',
-    logoUrl: 'https://svgl.app/library/supabase_wordmark_dark.svg',
+    logoUrl: 'https://svgl.app/library/supabase_wordmark_light.svg',
     url: 'https://supabase.com',
     tier: 'silver',
   },
@@ -75,125 +75,175 @@ const sponsors: SponsorWallLogo[] = [
   },
 ];
 
-interface TierGroupConfig {
-  key: 'gold' | 'silver' | 'regular';
-  label: string | null;
-  /** Filled medal chip styling, mirroring the leaderboard podium palette. */
-  markerClass: string;
-  /** Logo height per tier (kept at ~30% steps). */
+// An airy, editorial "sponsor wall" that matches the page's soft, pastel tone:
+// brand-colored logos rest on gently floating white chips, tiers are introduced
+// with eyebrow-style labels and parted by soft gradient hairlines (no boxes,
+// rings, or accent bars). Gold sits first, largest, and inside a warm glow, so
+// the gold > silver > bronze ranking is obvious without any harsh chrome.
+const goldSponsors = sponsors.filter((sponsor) => sponsor.tier === 'gold');
+const silverSponsors = sponsors.filter((sponsor) => sponsor.tier === 'silver');
+const bronzeSponsors = sponsors.filter((sponsor) => !sponsor.tier);
+
+interface SponsorTier {
+  key: string;
+  name: string;
+  /** Tier marker dot + label color (soft, on-brand accent tints). */
+  dotClass: string;
+  labelClass: string;
+  /** Chip padding + logo height, stepping down gold → silver → bronze. */
+  chipClass: string;
   imgClass: string;
-  /** Brightness step so a higher tier's logos visibly out-shout a lower one. */
-  logoToneClass: string;
+  sponsors: SponsorWallLogo[];
 }
 
-// Three reinforcing signals separate the tiers without adding any height:
-// (1) a filled medal chip in the podium palette (gold cheese / silver neutral /
-// bronze bacon, same as the leaderboard), (2) a ~30% logo-size step
-// (56 → 40 → 28px on tablet), and (3) a brightness step so gold logos read at
-// full strength while silver and bronze recede. Hovering any logo brightens it
-// back to full.
-const tierConfigs: TierGroupConfig[] = [
+const sponsorTiers: SponsorTier[] = [
   {
     key: 'gold',
-    label: 'Gold',
-    markerClass:
-      'bg-accent-cheese-default text-black shadow-[0_0_12px_rgba(255,199,0,0.45)]',
-    imgClass: 'h-12 tablet:h-14',
-    logoToneClass: '',
+    name: 'Gold',
+    dotClass: 'bg-accent-cheese-default',
+    labelClass: 'text-accent-cheese-default',
+    chipClass: 'px-4 py-2.5',
+    imgClass: 'h-8 tablet:h-9',
+    sponsors: goldSponsors,
   },
   {
     key: 'silver',
-    label: 'Silver',
-    markerClass: 'bg-surface-secondary text-text-primary',
-    imgClass: 'h-8 tablet:h-10',
-    logoToneClass: 'opacity-75',
+    name: 'Silver',
+    dotClass: 'bg-text-quaternary',
+    labelClass: 'text-text-secondary',
+    chipClass: 'px-3.5 py-2',
+    imgClass: 'h-6 tablet:h-7',
+    sponsors: silverSponsors,
   },
   {
-    key: 'regular',
-    label: 'Bronze',
-    markerClass: 'bg-accent-bacon-default text-white',
-    imgClass: 'h-6 tablet:h-7',
-    logoToneClass: 'opacity-50',
+    key: 'bronze',
+    name: 'Bronze',
+    dotClass: 'bg-accent-bacon-default',
+    labelClass: 'text-accent-bacon-default',
+    chipClass: 'px-3 py-1.5',
+    imgClass: 'h-5 tablet:h-6',
+    sponsors: bronzeSponsors,
   },
 ];
 
-type TierGroup = TierGroupConfig & { items: SponsorWallLogo[] };
+const SponsorChip = ({
+  sponsor,
+  chipClass,
+  imgClass,
+}: {
+  sponsor: SponsorWallLogo;
+  chipClass: string;
+  imgClass: string;
+}): ReactElement => (
+  <a
+    href={sponsor.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={sponsor.name}
+    className={classNames(
+      'flex shrink-0 items-center rounded-12 bg-white shadow-[0_10px_28px_-12px_rgba(0,0,0,0.6)] transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none',
+      chipClass,
+    )}
+  >
+    <img
+      src={sponsor.logoUrl}
+      alt={`${sponsor.name} logo`}
+      loading="lazy"
+      className={classNames('w-auto max-w-[130px] object-contain', imgClass)}
+    />
+  </a>
+);
 
-const tierGroups: TierGroup[] = tierConfigs
-  .map((config) => ({
-    ...config,
-    items: sponsors.filter(
-      (sponsor) => (sponsor.tier ?? 'regular') === config.key,
-    ),
-  }))
-  .filter((group) => group.items.length > 0);
-
-// Gold is the headline tier, so it gets its own row above; silver and bronze
-// share a second row beneath it.
-const goldGroup = tierGroups.find((group) => group.key === 'gold');
-const lowerGroups = tierGroups.filter((group) => group.key !== 'gold');
-
-const SponsorTierGroup = ({ group }: { group: TierGroup }): ReactElement => (
-  <FlexRow className="flex-wrap items-center gap-x-6 gap-y-2">
-    {group.label && (
+// A tier is shown inline: its dot + name label, then its logo chips. Gold gets
+// its own row; silver and bronze share the row beneath it, left-aligned.
+const SponsorTierGroup = ({ tier }: { tier: SponsorTier }): ReactElement => (
+  <FlexRow className="flex-wrap items-center gap-x-4 gap-y-3">
+    <FlexRow className="shrink-0 items-center gap-2">
+      <span className={classNames('size-2 rounded-full', tier.dotClass)} />
       <Typography
         tag={TypographyTag.Span}
-        type={TypographyType.Caption2}
+        type={TypographyType.Caption1}
         bold
-        className={classNames(
-          'shrink-0 rounded-8 px-2 py-0.5 uppercase tracking-wider',
-          group.markerClass,
-        )}
+        className={classNames('uppercase tracking-wider', tier.labelClass)}
       >
-        {group.label}
+        {tier.name}
       </Typography>
-    )}
-    {group.items.map((sponsor) => (
-      <a
+    </FlexRow>
+    {tier.sponsors.map((sponsor) => (
+      <SponsorChip
         key={sponsor.name}
-        href={sponsor.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={sponsor.name}
-        className="group flex shrink-0 items-center justify-center transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none"
-      >
-        <img
-          src={sponsor.logoUrl}
-          alt={`${sponsor.name} logo`}
-          loading="lazy"
-          style={{ filter: 'brightness(0) invert(1)' }}
-          className={classNames(
-            'w-auto max-w-[120px] object-contain transition-opacity duration-200 group-hover:opacity-100',
-            group.imgClass,
-            group.logoToneClass,
-          )}
-        />
-      </a>
+        sponsor={sponsor}
+        chipClass={tier.chipClass}
+        imgClass={tier.imgClass}
+      />
     ))}
   </FlexRow>
 );
 
-export const GivebackSponsorTiers = (): ReactElement => (
-  <FlexCol className="w-full gap-5">
-    <Typography
-      tag={TypographyTag.Span}
-      type={TypographyType.Caption1}
-      color={TypographyColor.Tertiary}
-      bold
-      className="uppercase tracking-wider"
-    >
-      Sponsored by
-    </Typography>
+export const GivebackSponsorTiers = (): ReactElement => {
+  const goldTier = sponsorTiers.find(
+    (tier) => tier.key === 'gold' && tier.sponsors.length > 0,
+  );
+  const lowerTiers = sponsorTiers.filter(
+    (tier) => tier.key !== 'gold' && tier.sponsors.length > 0,
+  );
 
-    <FlexCol className="w-full gap-8">
-      {goldGroup && <SponsorTierGroup group={goldGroup} />}
-      {lowerGroups.length > 0 && (
-        <div className="flex w-full flex-wrap items-stretch gap-x-9 gap-y-4">
-          {lowerGroups.map((group) => (
-            <SponsorTierGroup key={group.key} group={group} />
-          ))}
-        </div>
-      )}
-    </FlexCol>
-  </FlexCol>
-);
+  return (
+    <section className="relative w-full">
+      {/* Soft brand glows, echoing the hero, so the wall feels native to the
+          page rather than a hard panel dropped on top of it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="bg-accent-cheese-default/15 absolute -left-16 -top-10 size-56 rounded-full blur-3xl motion-safe:animate-glow-pulse" />
+        <div
+          className="bg-accent-cabbage-default/12 absolute -right-12 bottom-0 size-52 rounded-full blur-3xl motion-safe:animate-glow-pulse"
+          style={{ animationDelay: '1.4s' }}
+        />
+      </div>
+
+      <FlexCol className="relative gap-6">
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          bold
+          className="uppercase tracking-wider"
+        >
+          Sponsored by
+        </Typography>
+
+        <FlexCol className="gap-6">
+          {goldTier && (
+            <div className="relative">
+              {/* Warm halo so the headline tier glows softly above the rest. */}
+              <div aria-hidden className="pointer-events-none absolute inset-0">
+                <div className="bg-accent-cheese-default/12 absolute -left-6 -top-4 h-28 w-72 rounded-full blur-3xl" />
+              </div>
+              <div className="relative">
+                <SponsorTierGroup tier={goldTier} />
+              </div>
+            </div>
+          )}
+
+          {lowerTiers.length > 0 && (
+            <>
+              {goldTier && (
+                <div
+                  aria-hidden
+                  className="h-px w-full bg-gradient-to-r from-transparent via-border-subtlest-tertiary to-transparent"
+                />
+              )}
+              <FlexRow className="flex-wrap items-center gap-x-10 gap-y-4">
+                {lowerTiers.map((tier) => (
+                  <SponsorTierGroup key={tier.key} tier={tier} />
+                ))}
+              </FlexRow>
+            </>
+          )}
+        </FlexCol>
+      </FlexCol>
+    </section>
+  );
+};
