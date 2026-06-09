@@ -50,7 +50,7 @@ import {
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
+import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
@@ -120,7 +120,7 @@ export const SearchControlHeader = ({
     isActionsFetched &&
     canInstallExtension &&
     !hasDismissedInstallExtension;
-  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
+  const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateInstallExtensionPrompt,
   });
 
@@ -151,7 +151,7 @@ export const SearchControlHeader = ({
   };
 
   const shouldShowInstallExtensionPrompt =
-    shouldEvaluateInstallExtensionPrompt && !isNewD1Experience;
+    shouldEvaluateInstallExtensionPrompt && !hasIntroQuests;
   const installExtensionButton = shouldShowInstallExtensionPrompt && (
     <React.Fragment key="install-extension">
       <Button

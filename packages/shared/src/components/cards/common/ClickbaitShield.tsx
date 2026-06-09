@@ -17,7 +17,7 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { useNewD1ExperienceFeature } from '../../../hooks/useNewD1ExperienceFeature';
+import { useHasIntroQuests } from '../../../hooks/useHasIntroQuests';
 
 export const ClickbaitShield = ({
   post,
@@ -32,12 +32,10 @@ export const ClickbaitShield = ({
   const router = useRouter();
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
-  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
-    shouldEvaluate: !isPlus,
-  });
+  const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
 
   if (!isPlus) {
-    if (isNewD1Experience) {
+    if (hasIntroQuests) {
       return null;
     }
     return (
