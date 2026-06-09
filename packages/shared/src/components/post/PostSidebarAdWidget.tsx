@@ -103,6 +103,14 @@ export function PostSidebarAdWidget({
   });
 
   if (variant === 'inline') {
+    const tagLine = ad.tagLine?.trim();
+    // Always surface a title on the icon line: the company if present,
+    // otherwise the ad's tagline. The tagline only repeats in the body when
+    // the company is the title.
+    const inlineTitle = company || tagLine;
+    const inlineBodyTagLine = company ? tagLine : undefined;
+    const inlineHasBody = !!ad.description || !!inlineBodyTagLine;
+
     return (
       <div
         className={classNames(
@@ -124,7 +132,7 @@ export function PostSidebarAdWidget({
             alt={ad.source}
             className="size-10 shrink-0 rounded-full object-cover"
           />
-          {company && (
+          {inlineTitle && (
             <Typography
               tag={TypographyTag.P}
               type={TypographyType.Body}
@@ -132,7 +140,7 @@ export function PostSidebarAdWidget({
               className="min-w-0 flex-1 truncate"
               bold
             >
-              {company}
+              {inlineTitle}
             </Typography>
           )}
           <Button
@@ -155,15 +163,15 @@ export function PostSidebarAdWidget({
             className="relative z-1 whitespace-nowrap hover:underline"
           />
         </div>
-        {hasDescription && (
+        {inlineHasBody && (
           <Typography
             tag={TypographyTag.P}
             type={TypographyType.Callout}
             color={TypographyColor.Primary}
             className="relative z-1 whitespace-pre-line"
           >
-            {ad.tagLine && <strong>{ad.tagLine}</strong>}
-            {ad.tagLine && ad.description ? ' ' : ''}
+            {inlineBodyTagLine && <strong>{inlineBodyTagLine}</strong>}
+            {inlineBodyTagLine && ad.description ? ' ' : ''}
             {ad.description}
           </Typography>
         )}
