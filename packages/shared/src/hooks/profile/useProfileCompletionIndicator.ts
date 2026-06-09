@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
-import { useNewD1ExperienceFeature } from '../useNewD1ExperienceFeature';
+import { useHasIntroQuests } from '../useHasIntroQuests';
 
 interface UseProfileCompletionIndicator {
   showIndicator: boolean;
@@ -28,11 +28,11 @@ export const useProfileCompletionIndicator =
     const shouldEvaluate =
       isActionsFetched && !isDismissed && profileCompletionPercentage < 100;
 
-    const { value: isNewD1Experience } = useNewD1ExperienceFeature({
+    const { value: hasIntroQuests } = useHasIntroQuests({
       shouldEvaluate,
     });
 
-    const showIndicator = shouldEvaluate && !isNewD1Experience;
+    const showIndicator = shouldEvaluate && !hasIntroQuests;
 
     return {
       showIndicator,

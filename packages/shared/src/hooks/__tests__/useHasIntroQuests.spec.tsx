@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useNewD1ExperienceFeature } from '../useNewD1ExperienceFeature';
-import { useConditionalFeature } from '../useConditionalFeature';
+import { useHasIntroQuests } from '../useHasIntroQuests';
 import { useQuestDashboard } from '../useQuestDashboard';
 import {
   QuestRewardType,
@@ -8,17 +7,11 @@ import {
   QuestType,
   type UserQuest,
 } from '../../graphql/quests';
-import { featureNewD1Experience } from '../../lib/featureManagement';
-
-jest.mock('../useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
-}));
 
 jest.mock('../useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
 }));
 
-const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 
 const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
@@ -42,30 +35,23 @@ const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
   ...overrides,
 });
 
-describe('useNewD1ExperienceFeature', () => {
+describe('useHasIntroQuests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
   });
 
-  it('returns false when intro quests are empty even if GrowthBook resolves true', () => {
+  it('returns false when intro quests are empty', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: { intro: [] },
       isLoading: false,
     });
 
     const { result } = renderHook(() =>
-      useNewD1ExperienceFeature({ shouldEvaluate: true }),
+      useHasIntroQuests({ shouldEvaluate: true }),
     );
 
     expect(result.current.value).toBe(false);
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith({
-      feature: featureNewD1Experience,
-      shouldEvaluate: false,
-    });
+    expect(mockUseQuestDashboard).toHaveBeenCalledWith({ enabled: true });
   });
 
   it('returns false while quest dashboard data is unavailable', () => {
@@ -75,45 +61,24 @@ describe('useNewD1ExperienceFeature', () => {
     });
 
     const { result } = renderHook(() =>
-      useNewD1ExperienceFeature({ shouldEvaluate: true }),
+      useHasIntroQuests({ shouldEvaluate: true }),
     );
 
     expect(result.current.value).toBe(false);
     expect(result.current.isLoading).toBe(true);
   });
 
-  it('delegates to GrowthBook value when intro quests exist', () => {
+  it('returns true when intro quests exist', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: { intro: [buildIntroQuest()] },
       isLoading: false,
     });
 
     const { result } = renderHook(() =>
-      useNewD1ExperienceFeature({ shouldEvaluate: true }),
+      useHasIntroQuests({ shouldEvaluate: true }),
     );
 
     expect(result.current.value).toBe(true);
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith({
-      feature: featureNewD1Experience,
-      shouldEvaluate: true,
-    });
-  });
-
-  it('returns false when GrowthBook value is false even with intro quests', () => {
-    mockUseConditionalFeature.mockReturnValue({
-      value: false,
-      isLoading: false,
-    });
-    mockUseQuestDashboard.mockReturnValue({
-      data: { intro: [buildIntroQuest()] },
-      isLoading: false,
-    });
-
-    const { result } = renderHook(() =>
-      useNewD1ExperienceFeature({ shouldEvaluate: true }),
-    );
-
-    expect(result.current.value).toBe(false);
   });
 
   it('returns false without evaluating when shouldEvaluate is false', () => {
@@ -123,14 +88,11 @@ describe('useNewD1ExperienceFeature', () => {
     });
 
     const { result } = renderHook(() =>
-      useNewD1ExperienceFeature({ shouldEvaluate: false }),
+      useHasIntroQuests({ shouldEvaluate: false }),
     );
 
     expect(result.current.value).toBe(false);
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith({
-      feature: featureNewD1Experience,
-      shouldEvaluate: false,
-    });
+    expect(mockUseQuestDashboard).toHaveBeenCalledWith({ enabled: false });
   });
 
   it('treats missing shouldEvaluate as true', () => {
@@ -139,12 +101,9 @@ describe('useNewD1ExperienceFeature', () => {
       isLoading: false,
     });
 
-    const { result } = renderHook(() => useNewD1ExperienceFeature());
+    const { result } = renderHook(() => useHasIntroQuests());
 
     expect(result.current.value).toBe(true);
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith({
-      feature: featureNewD1Experience,
-      shouldEvaluate: true,
-    });
+    expect(mockUseQuestDashboard).toHaveBeenCalledWith({ enabled: true });
   });
 });

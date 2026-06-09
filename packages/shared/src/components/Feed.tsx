@@ -75,7 +75,7 @@ import {
   featureFeedAdTemplate,
   featurePostHighlightCards,
 } from '../lib/featureManagement';
-import { useNewD1ExperienceFeature } from '../hooks/useNewD1ExperienceFeature';
+import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
@@ -259,11 +259,11 @@ export default function Feed<T>({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,
   });
-  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
+  const { value: hasIntroQuests } = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBriefCard,
   });
   const showBriefCard =
-    shouldEvaluateBriefCard && briefCardFeatureValue && !isNewD1Experience;
+    shouldEvaluateBriefCard && briefCardFeatureValue && !hasIntroQuests;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };

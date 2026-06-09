@@ -6,7 +6,6 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
-import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { IntroQuestButton } from './IntroQuestButton';
 import { LazyModal } from '../modals/common/types';
@@ -37,10 +36,6 @@ jest.mock('../../hooks', () => ({
   useViewSize: jest.fn(),
 }));
 
-jest.mock('../../hooks/useNewD1ExperienceFeature', () => ({
-  useNewD1ExperienceFeature: jest.fn(),
-}));
-
 jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
 }));
@@ -60,7 +55,6 @@ const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseLazyModal = useLazyModal as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
-const mockUseNewD1ExperienceFeature = useNewD1ExperienceFeature as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const openModal = jest.fn();
 
@@ -102,7 +96,6 @@ describe('IntroQuestButton', () => {
       checkHasCompleted: jest.fn(() => false),
     });
     mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
-    mockUseNewD1ExperienceFeature.mockReturnValue({ value: true });
     mockUseQuestDashboard.mockReturnValue({
       data: {
         intro: [
@@ -268,16 +261,6 @@ describe('IntroQuestButton', () => {
       isAuthReady: false,
       isLoggedIn: true,
     });
-
-    render(<IntroQuestButton />);
-
-    expect(
-      screen.queryByRole('button', { name: /Open introduction quests/ }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('does not render when new D1 experience flag is off', () => {
-    mockUseNewD1ExperienceFeature.mockReturnValue({ value: false });
 
     render(<IntroQuestButton />);
 

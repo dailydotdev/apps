@@ -30,7 +30,7 @@ import {
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
-import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
+import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 export interface FeedContainerProps {
@@ -199,10 +199,10 @@ export const FeedContainer = ({
   });
   const shouldEvaluateBanner =
     !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
-  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
+  const { value: hasIntroQuests } = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBanner,
   });
-  const shouldShowBanner = shouldEvaluateBanner && !isNewD1Experience;
+  const shouldShowBanner = shouldEvaluateBanner && !hasIntroQuests;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;

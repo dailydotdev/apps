@@ -23,7 +23,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
-import { useNewD1ExperienceFeature } from '../../hooks/useNewD1ExperienceFeature';
+import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 export const ToggleClickbaitShield = ({
@@ -47,7 +47,7 @@ export const ToggleClickbaitShield = ({
   const { user, showLogin } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
-  const { value: isNewD1Experience } = useNewD1ExperienceFeature({
+  const { value: hasIntroQuests } = useHasIntroQuests({
     shouldEvaluate: !isPlus,
   });
   // v2 dual-sidebar laptop renders this button inside the page-header
@@ -67,7 +67,7 @@ export const ToggleClickbaitShield = ({
       : React.cloneElement(icon, { className });
 
   if (!isPlus) {
-    if (isNewD1Experience) {
+    if (hasIntroQuests) {
       return null;
     }
     return (
