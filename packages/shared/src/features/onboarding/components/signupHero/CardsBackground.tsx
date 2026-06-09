@@ -86,7 +86,7 @@ export const CardsBackground = ({
           className={classNames(
             'grid auto-rows-min gap-8 px-10 pb-5 pt-10 tablet:px-14 tablet:pb-7 tablet:pt-14',
             splitMode
-              ? 'grid-cols-2 laptop:grid-cols-2 laptopL:grid-cols-3'
+              ? 'grid-cols-2'
               : 'grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6',
           )}
         >
