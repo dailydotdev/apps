@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import type { ComponentProps, ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import {
@@ -25,6 +25,7 @@ import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ClickableText } from '../../buttons/ClickableText';
 import { PostHeaderActions } from '../PostHeaderActions';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
@@ -85,6 +86,61 @@ const ArticleLink = ({
     >
       {children}
     </a>
+  );
+};
+
+/**
+ * Video TL;DR capped to four lines. When the text overflows, a blue "Show
+ * more" link sits at the end of the last visible line (with a fade so it
+ * blends into the clamped text) and expands the summary to full length.
+ */
+const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) {
+      return undefined;
+    }
+    const measure = () => setIsClamped(el.scrollHeight - el.clientHeight > 1);
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [summary]);
+
+  return (
+    <div className="relative">
+      <p
+        ref={ref}
+        className={classNames(
+          'select-text break-words text-text-secondary typo-markdown',
+          !isExpanded && 'line-clamp-4',
+        )}
+        data-testid="tldr-container"
+      >
+        {summary}
+      </p>
+      {isClamped && !isExpanded && (
+        <span className="absolute bottom-0 right-0 flex items-center bg-background-default pl-1">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-full top-0 h-full w-8 bg-gradient-to-l from-background-default to-transparent"
+          />
+          <ClickableText
+            className="!text-text-link"
+            onClick={() => setIsExpanded(true)}
+          >
+            Show more
+          </ClickableText>
+        </span>
+      )}
+    </div>
   );
 };
 
@@ -361,14 +417,17 @@ export const PostFocusCard = ({
               <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
             </>
           ) : (
-            article.summary && (
+            article.summary &&
+            (isVideoType ? (
+              <VideoSummary summary={article.summary} />
+            ) : (
               <p
                 className="select-text break-words text-text-secondary typo-markdown"
                 data-testid="tldr-container"
               >
                 {article.summary}
               </p>
-            )
+            ))
           )}
 
           <PostTagList post={article} />
