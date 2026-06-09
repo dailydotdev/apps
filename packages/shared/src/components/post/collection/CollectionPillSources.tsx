@@ -18,6 +18,7 @@ interface CollectionPillSourcesProps {
   size?: ProfileImageSize;
   children?: ReactNode;
   limit?: number;
+  label?: string;
 }
 export const CollectionPillSources = ({
   className,
@@ -27,6 +28,7 @@ export const CollectionPillSources = ({
   size = ProfileImageSize.Medium,
   children,
   limit,
+  label = 'Collection',
 }: CollectionPillSourcesProps): ReactElement => {
   const hasSources = !!sources?.length;
 
@@ -61,7 +63,7 @@ export const CollectionPillSources = ({
       )}
       {(!hasSources || !alwaysShowSources) && (
         <Pill
-          label="Collection"
+          label={label}
           className={classNames(
             'inline-flex bg-theme-overlay-float-cabbage text-brand-default',
             hasSources && 'group-hover:hidden',
