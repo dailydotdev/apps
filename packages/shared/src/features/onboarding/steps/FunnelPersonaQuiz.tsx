@@ -561,24 +561,6 @@ function FunnelPersonaQuizComponent({
 
   // Which clip plays during the thinking beat, chosen per answer.
   const [thinkingClip, setThinkingClip] = useState<MascotState>('thinking');
-  // On the reveal we hold the answer back until Patchy finishes his animation.
-  const [revealReady, setRevealReady] = useState(false);
-
-  useEffect(() => {
-    if (phase !== 'reveal') {
-      return undefined;
-    }
-    setRevealReady(false);
-    // Patchy now plays the reveal on every breakpoint, so wait for his
-    // animation whenever there is a video to wait for.
-    if (!mascotVideoBaseUrl) {
-      setRevealReady(true);
-      return undefined;
-    }
-    // Fallback in case the video never reports progress (e.g. blocked autoplay).
-    const timeout = setTimeout(() => setRevealReady(true), 2500);
-    return () => clearTimeout(timeout);
-  }, [phase, mascotVideoBaseUrl]);
 
   const handleAnswer = (value: AnswerValue) => {
     if (isThinking) {
@@ -935,73 +917,68 @@ function FunnelPersonaQuizComponent({
             clips={['reveal']}
             idleClips={IDLE_CLIPS}
             size="lg"
-            onHalfway={() => setRevealReady(true)}
             className={MASCOT_STAGE_CLASS}
           />
         }
       >
         <div className="flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 laptop:flex-none">
-          {revealReady && (
-            <>
-              <PersonaEmblem persona={persona} />
-              <Typography
-                type={TypographyType.Caption1}
-                bold
-                className={classNames(
-                  styles.revealEyebrow,
-                  'uppercase tracking-[0.2em] text-accent-cabbage-default',
-                )}
-              >
-                ✦ The genie has spoken ✦
-              </Typography>
-              <Typography
-                tag={TypographyTag.H1}
-                type={TypographyType.Title1}
-                bold
-                className={styles.revealName}
-                style={{
-                  color: `color-mix(in srgb, ${persona.color} 60%, white)`,
-                }}
-              >
-                {personaRevealPhrase(persona.name)}
-              </Typography>
-              <Typography
-                type={TypographyType.Body}
-                color={TypographyColor.Secondary}
-                className={classNames(styles.revealTagline, 'max-w-md')}
-              >
-                {persona.tagline}
-              </Typography>
-              <div
-                className={classNames(
-                  styles.revealActions,
-                  'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-2 laptop:w-auto',
-                )}
-              >
-                <ButtonV2
-                  className={classNames(
-                    styles.cta,
-                    'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
-                  )}
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.XLarge}
-                  onClick={confirmPersona}
-                  type="button"
-                >
-                  {cta || "Yes, that's me!"}
-                </ButtonV2>
-                <ButtonV2
-                  className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Medium}
-                  onClick={pickManually}
-                  type="button"
-                >
-                  Nah, I&apos;ll pick myself
-                </ButtonV2>
-              </div>
-            </>
-          )}
+          <PersonaEmblem persona={persona} />
+          <Typography
+            type={TypographyType.Caption1}
+            bold
+            className={classNames(
+              styles.revealEyebrow,
+              'uppercase tracking-[0.2em] text-accent-cabbage-default',
+            )}
+          >
+            ✦ The genie has spoken ✦
+          </Typography>
+          <Typography
+            tag={TypographyTag.H1}
+            type={TypographyType.Title1}
+            bold
+            className={styles.revealName}
+            style={{
+              color: `color-mix(in srgb, ${persona.color} 60%, white)`,
+            }}
+          >
+            {personaRevealPhrase(persona.name)}
+          </Typography>
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+            className={classNames(styles.revealTagline, 'max-w-md')}
+          >
+            {persona.tagline}
+          </Typography>
+          <div
+            className={classNames(
+              styles.revealActions,
+              'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-2 laptop:w-auto',
+            )}
+          >
+            <ButtonV2
+              className={classNames(
+                styles.cta,
+                'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
+              )}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.XLarge}
+              onClick={confirmPersona}
+              type="button"
+            >
+              {cta || "Yes, that's me!"}
+            </ButtonV2>
+            <ButtonV2
+              className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Medium}
+              onClick={pickManually}
+              type="button"
+            >
+              Nah, I&apos;ll pick myself
+            </ButtonV2>
+          </div>
         </div>
       </QuizStage>
     );
