@@ -2,11 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import { POST_REPOSTS_BY_ID_QUERY, UserVote } from '../../../graphql/posts';
+import { UserVote } from '../../../graphql/posts';
 import { useVotePost } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
@@ -20,10 +19,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { ClickableText } from '../../buttons/ClickableText';
+import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import { BookmarkButton } from '../../buttons/BookmarkButton';
+import CloseButton from '../../CloseButton';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
-import { Image } from '../../image/Image';
 import { IconSize } from '../../Icon';
 import {
   AnalyticsIcon,
@@ -31,7 +30,6 @@ import {
   DownvoteIcon,
   LinkIcon,
   MedalBadgeIcon,
-  UserShareIcon,
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import Link from '../../utilities/Link';
@@ -47,29 +45,29 @@ interface PostDiscoveryActionBarProps {
   origin?: PostOrigin;
   onComment?: () => void;
   onCopyLinkClick?: (post?: Post) => void;
+  /** When provided (post modal), renders an X close button next to the menu. */
+  onClose?: () => void;
   className?: string;
 }
 
-const countClassName = '!text-text-secondary typo-footnote';
-
 /**
  * Compact, border-framed engagement bar for the discovery focus card. Each
- * action keeps its count inline: the icon performs the action (vote, comment,
- * give award) while the number is separately clickable to open the matching
- * popup (who upvoted, awards, reposts). Right side keeps icon-only utilities.
+ * action keeps its count inline in the same button, so clicking the icon or
+ * the number performs the action (vote/comment/award) — the dedicated popups
+ * live in the stats strip below the tags. Sticks to the top while scrolling.
  */
 export const PostDiscoveryActionBar = ({
   post,
   origin = Origin.ArticlePage,
   onComment,
   onCopyLinkClick,
+  onClose,
   className,
 }: PostDiscoveryActionBarProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const { toggleBookmark } = useBookmarkPost();
-  const { onShowPanel, onClose } = useBlockPostPanel(post);
-  const { onShowUpvoted } = useUpvoteQuery();
+  const { onShowPanel, onClose: onCloseBlockPanel } = useBlockPostPanel(post);
   const { openModal } = useLazyModal();
   const canAward = useCanAwardUser({
     sendingUser: user,
@@ -82,13 +80,11 @@ export const PostDiscoveryActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  const reposts = post.numReposts || 0;
   const canSeeAnalytics = canViewPostAnalytics({ user, post });
-  const showAward = canAward || awards > 0;
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
-      onClose(true);
+      onCloseBlockPanel(true);
     }
     await toggleUpvote({ payload: post, origin });
   };
@@ -97,7 +93,7 @@ export const PostDiscoveryActionBar = ({
     if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
-      onClose(true);
+      onCloseBlockPanel(true);
     }
     await toggleDownvote({ payload: post, origin });
   };
@@ -106,62 +102,38 @@ export const PostDiscoveryActionBar = ({
     await toggleBookmark({ post, origin });
   };
 
-  const onShowAwards = () =>
-    openModal({
-      type: LazyModal.ListAwards,
-      props: { queryProps: { id: post.id, type: 'POST' } },
-    });
-
-  const onAwardIconClick = () => {
-    if (canAward && !isAwarded) {
-      if (!user) {
-        showLogin({ trigger: AuthTriggers.GiveAward });
-        return;
-      }
-      if (!post.author) {
-        return;
-      }
-      openModal({
-        type: LazyModal.GiveAward,
-        props: {
-          type: 'POST',
-          entity: {
-            id: post.id,
-            receiver: post.author,
-            numAwards: post.numAwards,
-          },
-          post,
-        },
-      });
+  const onGiveAward = () => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.GiveAward });
       return;
     }
-    if (awards > 0) {
-      onShowAwards();
+    if (!post.author || isAwarded) {
+      return;
     }
-  };
-
-  const onShowReposts = () =>
     openModal({
-      type: LazyModal.RepostsPopup,
+      type: LazyModal.GiveAward,
       props: {
-        requestQuery: {
-          queryKey: ['postReposts', post.id],
-          query: POST_REPOSTS_BY_ID_QUERY,
-          params: { id: post.id, first: 20, supportedTypes: ['share'] },
+        type: 'POST',
+        entity: {
+          id: post.id,
+          receiver: post.author,
+          numAwards: post.numAwards,
         },
+        post,
       },
     });
+  };
 
   return (
     <div
       className={classNames(
-        'my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary px-1 py-3',
+        'sticky top-0 z-3 my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary bg-background-default px-1 py-3',
         className,
       )}
     >
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'More like this'}>
-          <Button
+          <QuaternaryButton
             id="upvote-post-btn"
             aria-label="Upvote"
             color={ButtonColor.Avocado}
@@ -174,24 +146,15 @@ export const PostDiscoveryActionBar = ({
             onClick={onToggleUpvote}
             pressed={isUpvoteActive}
             size={ButtonSize.Small}
-            type="button"
             variant={ButtonVariant.Tertiary}
-          />
+          >
+            {upvotes > 0 ? largeNumberFormat(upvotes) : undefined}
+          </QuaternaryButton>
         </Tooltip>
-        {upvotes > 0 && (
-          <Tooltip content="See who upvoted">
-            <ClickableText
-              className={classNames('mr-1', countClassName)}
-              onClick={() => onShowUpvoted(post.id, upvotes)}
-            >
-              {largeNumberFormat(upvotes)}
-            </ClickableText>
-          </Tooltip>
-        )}
         <Tooltip
           content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
         >
-          <Button
+          <QuaternaryButton
             id="downvote-post-btn"
             aria-label="Downvote"
             color={ButtonColor.Ketchup}
@@ -204,12 +167,11 @@ export const PostDiscoveryActionBar = ({
             onClick={onToggleDownvote}
             pressed={isDownvoteActive}
             size={ButtonSize.Small}
-            type="button"
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
         <Tooltip content="Comment">
-          <Button
+          <QuaternaryButton
             id="comment-post-btn"
             aria-label="Comment"
             color={ButtonColor.BlueCheese}
@@ -219,71 +181,29 @@ export const PostDiscoveryActionBar = ({
             onClick={onComment}
             pressed={post.commented}
             size={ButtonSize.Small}
-            type="button"
             variant={ButtonVariant.Tertiary}
-          />
+          >
+            {comments > 0 ? largeNumberFormat(comments) : undefined}
+          </QuaternaryButton>
         </Tooltip>
-        {comments > 0 && (
-          <span className={classNames('mr-1', countClassName)}>
-            {largeNumberFormat(comments)}
-          </span>
-        )}
-        {showAward && (
-          <>
-            <Tooltip
-              content={isAwarded ? 'You already awarded this post!' : 'Award'}
+        {canAward && (
+          <Tooltip
+            content={isAwarded ? 'You already awarded this post!' : 'Award'}
+          >
+            <QuaternaryButton
+              id="award-post-btn"
+              aria-label="Award"
+              color={ButtonColor.Cabbage}
+              icon={
+                <MedalBadgeIcon secondary={!isAwarded} size={IconSize.Small} />
+              }
+              onClick={onGiveAward}
+              pressed={isAwarded}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
             >
-              <Button
-                id="award-post-btn"
-                aria-label="Award"
-                color={ButtonColor.Cabbage}
-                icon={
-                  <MedalBadgeIcon
-                    secondary={!isAwarded}
-                    size={IconSize.Small}
-                  />
-                }
-                onClick={onAwardIconClick}
-                pressed={isAwarded}
-                size={ButtonSize.Small}
-                type="button"
-                variant={ButtonVariant.Tertiary}
-              />
-            </Tooltip>
-            {awards > 0 && (
-              <Tooltip content="See awards">
-                <ClickableText
-                  className={classNames(
-                    'mr-1 flex items-center gap-1',
-                    countClassName,
-                  )}
-                  onClick={onShowAwards}
-                >
-                  {post.featuredAward?.award?.image && (
-                    <Image
-                      src={post.featuredAward.award.image}
-                      alt={post.featuredAward.award.name ?? 'Award'}
-                      className="size-4"
-                    />
-                  )}
-                  {largeNumberFormat(awards)}
-                </ClickableText>
-              </Tooltip>
-            )}
-          </>
-        )}
-        {reposts > 0 && (
-          <Tooltip content="See who reposted">
-            <ClickableText
-              className={classNames(
-                'ml-1 flex items-center gap-1',
-                countClassName,
-              )}
-              onClick={onShowReposts}
-            >
-              <UserShareIcon size={IconSize.Small} />
-              {largeNumberFormat(reposts)}
-            </ClickableText>
+              {awards > 0 ? largeNumberFormat(awards) : undefined}
+            </QuaternaryButton>
           </Tooltip>
         )}
       </div>
@@ -335,6 +255,9 @@ export const PostDiscoveryActionBar = ({
           origin={Origin.ArticleModal}
           buttonSize={ButtonSize.Small}
         />
+        {onClose && (
+          <CloseButton size={ButtonSize.Small} onClick={() => onClose()} />
+        )}
       </div>
     </div>
   );

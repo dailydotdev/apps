@@ -47,7 +47,7 @@ export const CollectionSources = ({
       >
         {count} {pluralize('source', count)}
       </Typography>
-      <div className="flex gap-3 overflow-x-auto pb-1">
+      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
         {edges.map(({ node }) => (
           <a
             key={node.id}
@@ -55,7 +55,7 @@ export const CollectionSources = ({
             rel="noopener"
             target="_blank"
             title={node.title}
-            className="flex w-64 shrink-0 flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
+            className="flex w-64 shrink-0 flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-primary"
           >
             <div className="flex min-w-0 items-center gap-2">
               <SourceAvatar

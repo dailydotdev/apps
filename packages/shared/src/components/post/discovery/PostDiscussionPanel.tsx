@@ -88,7 +88,6 @@ export const PostDiscussionPanel = ({
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
-  const hasComments = (post.numComments ?? 0) > 0;
   const commentRef = useRef<NewCommentRef | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -224,10 +223,9 @@ export const PostDiscussionPanel = ({
           removeTopSpacing
         />
       </div>
-      {(showMetaBar || hasComments) && (
+      {showMetaBar && (
         <div className="flex shrink-0 flex-col gap-3 pt-3">
-          {showMetaBar && <DiscussionMetaBar post={post} />}
-          {hasComments && <DiscussionShareRow post={post} withSquads />}
+          <DiscussionMetaBar post={post} />
         </div>
       )}
     </section>

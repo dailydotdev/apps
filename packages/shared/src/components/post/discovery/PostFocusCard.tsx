@@ -8,9 +8,11 @@ import {
   PostType,
 } from '../../../graphql/posts';
 import type { SourceTooltip } from '../../../graphql/sources';
+import { SourceType } from '../../../graphql/sources';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
@@ -20,6 +22,7 @@ import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostHeaderActions } from '../PostHeaderActions';
+import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
@@ -51,6 +54,8 @@ interface PostFocusCardProps {
   post: Post;
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
+  /** When opened in the post modal, lets the sticky action bar close it. */
+  onClose?: () => void;
 }
 
 const ArticleLink = ({
@@ -83,13 +88,19 @@ export const PostFocusCard = ({
   post,
   origin,
   leftVariant,
+  onClose,
 }: PostFocusCardProps): ReactElement => {
   // A shared post (someone reposting a post into a squad or onto their profile)
   // wraps an underlying post. Only true Share-type posts get the "Shared via"
   // treatment — auto-written articles/freeform posts render their own source.
   const isShared = post.type === PostType.Share && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
-  const sharedVia = isShared ? post.source : undefined;
+  // Shared into a squad → "Shared via {squad}"; shared to a profile → just
+  // "Shared post" (we don't repeat the author's name).
+  const sharedVia =
+    isShared && post.source?.type === SourceType.Squad
+      ? post.source
+      : undefined;
   const isCollection = article.type === PostType.Collection;
   // Shared posts lead with the person who shared it; the squad/source is
   // surfaced via the "Shared via" eyebrow below the author.
@@ -97,6 +108,7 @@ export const PostFocusCard = ({
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
+  const { onShowUpvoted } = useUpvoteQuery();
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
@@ -197,7 +209,10 @@ export const PostFocusCard = ({
                 </HoverCard>
               </p>
             )}
-            {!sharedVia && isCollection && (
+            {isShared && !sharedVia && (
+              <p className="text-text-tertiary typo-footnote">Shared post</p>
+            )}
+            {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
             <div className="flex min-w-0 items-start gap-4">
@@ -234,6 +249,7 @@ export const PostFocusCard = ({
             origin={origin}
             onComment={() => focusCommentRef.current()}
             onCopyLinkClick={onCopyPostLink}
+            onClose={onClose}
           />
 
           <PostMetadata
@@ -290,23 +306,25 @@ export const PostFocusCard = ({
 
           <PostTagList post={article} />
 
-          {isCollection && <CollectionSources post={article} />}
+          <PostUpvotesCommentsCount
+            post={post}
+            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
+          />
 
-          <aside className="w-full max-w-80 laptopXL:absolute laptopXL:left-full laptopXL:top-6 laptopXL:ml-6 laptopXL:w-80 laptopXL:max-w-none">
-            <PostSidebarAdWidget
-              postId={post.id}
-              className={{
-                container:
-                  '!w-full !border-border-subtlest-tertiary !bg-transparent',
-              }}
-            />
-          </aside>
+          {isCollection && <CollectionSources post={article} />}
 
           {showCodeSnippets && (
             <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
               <PostCodeSnippets post={article} />
             </div>
           )}
+
+          <PostSidebarAdWidget
+            postId={post.id}
+            className={{
+              container: '!w-full !border-border-subtlest-tertiary',
+            }}
+          />
 
           <PostDiscussionPanel
             className="pt-2"

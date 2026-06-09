@@ -50,7 +50,11 @@ export default function CollectionPostModal({
       onNextPost={onNextPost}
     >
       {showDiscovery ? (
-        <PostFocusCard post={post} origin={Origin.CollectionModal} />
+        <PostFocusCard
+          post={post}
+          origin={Origin.CollectionModal}
+          onClose={() => onRequestClose?.(undefined as never)}
+        />
       ) : (
         <CollectionPostContent
           position={position}

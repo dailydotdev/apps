@@ -50,7 +50,11 @@ export default function PostModal({
       onNextPost={onNextPost}
     >
       {showDiscovery ? (
-        <PostFocusCard post={post} origin={Origin.ArticleModal} />
+        <PostFocusCard
+          post={post}
+          origin={Origin.ArticleModal}
+          onClose={() => onRequestClose?.(undefined as never)}
+        />
       ) : (
         <>
           <EnableNotification

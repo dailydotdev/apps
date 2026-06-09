@@ -48,7 +48,11 @@ export default function ArticlePostModal({
       onNextPost={onNextPost}
     >
       {showDiscovery ? (
-        <PostFocusCard post={post} origin={Origin.ArticleModal} />
+        <PostFocusCard
+          post={post}
+          origin={Origin.ArticleModal}
+          onClose={() => onRequestClose?.(undefined as never)}
+        />
       ) : (
         <PostContent
           position={position}
