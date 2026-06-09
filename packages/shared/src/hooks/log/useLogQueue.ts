@@ -54,7 +54,12 @@ export default function useLogQueue({
     if (enabledRef.current && queueRef.current.length) {
       const queue = queueRef.current;
       queueRef.current = [];
-      sendEvents(queue);
+      // Analytics is fire-and-forget: a failed or blocked log request (e.g. the
+      // endpoint is unreachable in local dev, or an ad blocker drops it) must
+      // never bubble up as an unhandled promise rejection — that surfaces the
+      // Next.js dev error overlay on every interaction. The mutation already
+      // retries; swallow the final failure.
+      sendEvents(queue).catch(() => undefined);
     }
   }, 500);
 
