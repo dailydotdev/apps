@@ -137,10 +137,9 @@ export function PostSidebarAdWidget({
           {inlineTitle && (
             <Typography
               tag={TypographyTag.P}
-              type={TypographyType.Body}
+              type={TypographyType.Callout}
               color={TypographyColor.Primary}
-              className="line-clamp-2 min-w-0 flex-1"
-              bold
+              className="line-clamp-2 min-w-0 flex-1 font-medium"
             >
               {inlineTitle}
             </Typography>
