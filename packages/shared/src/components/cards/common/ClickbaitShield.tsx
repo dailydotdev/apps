@@ -32,9 +32,7 @@ export const ClickbaitShield = ({
   const router = useRouter();
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
-  const { value: hasIntroQuests } = useHasIntroQuests({
-    shouldEvaluate: !isPlus,
-  });
+  const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
 
   if (!isPlus) {
     if (hasIntroQuests) {

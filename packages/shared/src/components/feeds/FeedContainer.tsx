@@ -199,7 +199,7 @@ export const FeedContainer = ({
   });
   const shouldEvaluateBanner =
     !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
-  const { value: hasIntroQuests } = useHasIntroQuests({
+  const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBanner,
   });
   const shouldShowBanner = shouldEvaluateBanner && !hasIntroQuests;

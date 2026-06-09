@@ -47,9 +47,7 @@ export const ToggleClickbaitShield = ({
   const { user, showLogin } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
-  const { value: hasIntroQuests } = useHasIntroQuests({
-    shouldEvaluate: !isPlus,
-  });
+  const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
   // v2 dual-sidebar laptop renders this button inside the page-header
   // strip alongside MyFeedHeading; use the consistent Medium + Tertiary
   // sizing so the whole strip reads as one button family.

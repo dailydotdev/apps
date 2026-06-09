@@ -1,22 +1,11 @@
 import { useQuestDashboard } from './useQuestDashboard';
 
-interface UseHasIntroQuests {
-  value: boolean;
-  isLoading: boolean;
-}
-
 export const useHasIntroQuests = ({
   shouldEvaluate = true,
 }: {
   shouldEvaluate?: boolean;
-} = {}): UseHasIntroQuests => {
-  const { data, isLoading } = useQuestDashboard({
-    enabled: shouldEvaluate,
-  });
-  const hasIntroQuests = (data?.intro?.length ?? 0) > 0;
+} = {}): boolean => {
+  const { data } = useQuestDashboard({ enabled: shouldEvaluate });
 
-  return {
-    value: shouldEvaluate && hasIntroQuests,
-    isLoading,
-  };
+  return shouldEvaluate && (data?.intro?.length ?? 0) > 0;
 };

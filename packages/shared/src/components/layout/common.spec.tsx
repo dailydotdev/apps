@@ -101,7 +101,7 @@ jest.mock('../tooltip/Tooltip', () => ({
 }));
 
 jest.mock('../../hooks/useHasIntroQuests', () => ({
-  useHasIntroQuests: jest.fn().mockReturnValue({ value: false }),
+  useHasIntroQuests: jest.fn().mockReturnValue(false),
 }));
 
 const mockUseAuthContext = useAuthContext as jest.Mock;

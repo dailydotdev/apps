@@ -41,69 +41,59 @@ describe('useHasIntroQuests', () => {
   });
 
   it('returns false when intro quests are empty', () => {
-    mockUseQuestDashboard.mockReturnValue({
-      data: { intro: [] },
-      isLoading: false,
-    });
+    mockUseQuestDashboard.mockReturnValue({ data: { intro: [] } });
 
     const { result } = renderHook(() =>
       useHasIntroQuests({ shouldEvaluate: true }),
     );
 
-    expect(result.current.value).toBe(false);
+    expect(result.current).toBe(false);
     expect(mockUseQuestDashboard).toHaveBeenCalledWith({ enabled: true });
   });
 
   it('returns false while quest dashboard data is unavailable', () => {
-    mockUseQuestDashboard.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-    });
+    mockUseQuestDashboard.mockReturnValue({ data: undefined });
 
     const { result } = renderHook(() =>
       useHasIntroQuests({ shouldEvaluate: true }),
     );
 
-    expect(result.current.value).toBe(false);
-    expect(result.current.isLoading).toBe(true);
+    expect(result.current).toBe(false);
   });
 
   it('returns true when intro quests exist', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: { intro: [buildIntroQuest()] },
-      isLoading: false,
     });
 
     const { result } = renderHook(() =>
       useHasIntroQuests({ shouldEvaluate: true }),
     );
 
-    expect(result.current.value).toBe(true);
+    expect(result.current).toBe(true);
   });
 
   it('returns false without evaluating when shouldEvaluate is false', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: { intro: [buildIntroQuest()] },
-      isLoading: false,
     });
 
     const { result } = renderHook(() =>
       useHasIntroQuests({ shouldEvaluate: false }),
     );
 
-    expect(result.current.value).toBe(false);
+    expect(result.current).toBe(false);
     expect(mockUseQuestDashboard).toHaveBeenCalledWith({ enabled: false });
   });
 
   it('treats missing shouldEvaluate as true', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: { intro: [buildIntroQuest()] },
-      isLoading: false,
     });
 
     const { result } = renderHook(() => useHasIntroQuests());
 
-    expect(result.current.value).toBe(true);
+    expect(result.current).toBe(true);
     expect(mockUseQuestDashboard).toHaveBeenCalledWith({ enabled: true });
   });
 });

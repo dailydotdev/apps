@@ -28,9 +28,7 @@ export const useProfileCompletionIndicator =
     const shouldEvaluate =
       isActionsFetched && !isDismissed && profileCompletionPercentage < 100;
 
-    const { value: hasIntroQuests } = useHasIntroQuests({
-      shouldEvaluate,
-    });
+    const hasIntroQuests = useHasIntroQuests({ shouldEvaluate });
 
     const showIndicator = shouldEvaluate && !hasIntroQuests;
 

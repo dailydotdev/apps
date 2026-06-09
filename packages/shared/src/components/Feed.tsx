@@ -259,7 +259,7 @@ export default function Feed<T>({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,
   });
-  const { value: hasIntroQuests } = useHasIntroQuests({
+  const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBriefCard,
   });
   const showBriefCard =

@@ -120,7 +120,7 @@ export const SearchControlHeader = ({
     isActionsFetched &&
     canInstallExtension &&
     !hasDismissedInstallExtension;
-  const { value: hasIntroQuests } = useHasIntroQuests({
+  const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateInstallExtensionPrompt,
   });
 
