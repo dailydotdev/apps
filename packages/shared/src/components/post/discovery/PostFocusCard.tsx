@@ -12,7 +12,6 @@ import type { SourceTooltip } from '../../../graphql/sources';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
@@ -22,7 +21,6 @@ import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostHeaderActions } from '../PostHeaderActions';
-import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
@@ -100,7 +98,6 @@ export const PostFocusCard = ({
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
-  const { onShowUpvoted } = useUpvoteQuery();
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
@@ -232,11 +229,6 @@ export const PostFocusCard = ({
               )}
             </div>
           </div>
-
-          <PostUpvotesCommentsCount
-            post={post}
-            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
-          />
 
           <PostDiscoveryActionBar
             post={post}
