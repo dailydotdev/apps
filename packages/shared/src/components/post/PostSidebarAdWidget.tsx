@@ -137,7 +137,7 @@ export function PostSidebarAdWidget({
             {company}
           </Typography>
         )}
-        <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
+        <AdAttribution className={{ main: 'relative z-1' }} />
         {hasDescription && (
           <Typography
             tag={TypographyTag.P}

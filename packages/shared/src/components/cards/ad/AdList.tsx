@@ -76,10 +76,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
           {adImprovementsV3 && matchingTags.length > 0 ? (
             <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
           ) : null}
-          <AdAttribution
-            ad={ad}
-            className={{ main: 'mt-2 block font-normal' }}
-          />
+          <AdAttribution className={{ main: 'mt-2 block font-normal' }} />
         </CardTextContainer>
         <AdImage ad={ad} ImageComponent={CardImage} />
       </CardContent>
