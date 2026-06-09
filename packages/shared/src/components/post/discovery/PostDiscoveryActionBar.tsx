@@ -238,7 +238,10 @@ export const PostDiscoveryActionBar = ({
                 aria-label="Award"
                 color={ButtonColor.Cabbage}
                 icon={
-                  <MedalBadgeIcon secondary={isAwarded} size={IconSize.Small} />
+                  <MedalBadgeIcon
+                    secondary={!isAwarded}
+                    size={IconSize.Small}
+                  />
                 }
                 onClick={onAwardIconClick}
                 pressed={isAwarded}
