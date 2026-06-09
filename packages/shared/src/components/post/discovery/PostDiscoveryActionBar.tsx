@@ -92,6 +92,10 @@ export const PostDiscoveryActionBar = ({
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
   const canSeeAnalytics = canViewPostAnalytics({ user, post });
+  // In the modal there is no app header, so pin to the very top; on the post
+  // page the bar must sit below the fixed laptop header (4rem). `onClose` is
+  // only provided by the post modal, so it doubles as the surface flag.
+  const stickyTopClassName = onClose ? 'top-0' : 'top-0 laptop:top-16';
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
@@ -140,7 +144,8 @@ export const PostDiscoveryActionBar = ({
       <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
       <div
         className={classNames(
-          'sticky top-0 z-3 my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary bg-background-default px-1 py-2',
+          'sticky z-3 my-2 flex items-center justify-between gap-4 border-y border-border-subtlest-tertiary bg-background-default px-1 py-2',
+          stickyTopClassName,
           className,
         )}
       >
