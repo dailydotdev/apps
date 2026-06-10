@@ -111,7 +111,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const { data } = useBlockPostPanel(post);
     const onPostCardClick = () => onPostClick?.(post);
     const onPostCardAuxClick = () => onPostAuxClick?.(post);
-    const { pinnedAt, trending } = post;
+    const { pinnedAt } = post;
     const { showFeedback } = usePostFeedback({ post });
     const { title } = useSmartTitle(post);
     const isVideoType = isVideoPost(post);
@@ -159,7 +159,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             className: getPostClassNames(post, className ?? '', 'min-h-card'),
           }}
           ref={ref}
-          flagProps={{ pinnedAt, trending }}
+          flagProps={{ pinnedAt }}
           bookmarked={post.bookmarked}
         >
           {hiddenPanel}
@@ -189,7 +189,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           ),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending }}
+        flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked && !showFeedback}
       >
         <CardOverlay
