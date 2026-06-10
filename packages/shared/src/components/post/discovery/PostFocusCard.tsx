@@ -89,22 +89,74 @@ const ArticleLink = ({
   );
 };
 
+const SHOW_MORE_SUFFIX = '… Show more';
+
 /**
- * Video TL;DR capped to four lines. When the text overflows, a blue "Show
- * more" link sits at the end of the last visible line (with a fade so it
- * blends into the clamped text) and expands the summary to full length.
+ * Video TL;DR capped to four lines. When the text overflows we truncate it at a
+ * word boundary and append an inline "… Show more" in the same font as the body
+ * (only the link is recoloured) — a real ellipsis cut rather than a fade
+ * overlay. The fitting prefix is measured with an off-screen clone so the
+ * suffix always lands on the last visible line.
  */
 const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
   const ref = useRef<HTMLParagraphElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isClamped, setIsClamped] = useState(false);
+  // `null` => not measured yet or text fits; a string => the truncated prefix.
+  const [truncated, setTruncated] = useState<string | null>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) {
+    if (!el || isExpanded) {
+      setTruncated(null);
       return undefined;
     }
-    const measure = () => setIsClamped(el.scrollHeight - el.clientHeight > 1);
+
+    const measure = () => {
+      const clone = el.cloneNode(false) as HTMLElement;
+      clone.classList.remove('line-clamp-4');
+      Object.assign(clone.style, {
+        position: 'absolute',
+        visibility: 'hidden',
+        pointerEvents: 'none',
+        width: `${el.clientWidth}px`,
+        height: 'auto',
+        maxHeight: 'none',
+      });
+      el.parentElement?.appendChild(clone);
+
+      clone.textContent = 'Mg';
+      const maxHeight = clone.scrollHeight * 4 + 1;
+
+      clone.textContent = summary;
+      if (clone.scrollHeight <= maxHeight) {
+        clone.remove();
+        setTruncated(null);
+        return;
+      }
+
+      let lo = 0;
+      let hi = summary.length;
+      let best = 0;
+      while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        clone.textContent = `${summary
+          .slice(0, mid)
+          .trimEnd()}${SHOW_MORE_SUFFIX}`;
+        if (clone.scrollHeight <= maxHeight) {
+          best = mid;
+          lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
+      }
+      clone.remove();
+
+      // Snap back to the previous word boundary so we never cut mid-word.
+      const prefix = summary.slice(0, best).trimEnd();
+      const lastSpace = prefix.lastIndexOf(' ');
+      setTruncated(lastSpace > 0 ? prefix.slice(0, lastSpace) : prefix);
+    };
+
     measure();
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
@@ -112,42 +164,37 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [summary]);
+  }, [summary, isExpanded]);
+
+  const isTruncated = !isExpanded && truncated !== null;
 
   return (
-    <div className="relative">
-      <p
-        ref={ref}
-        className={classNames(
-          'select-text break-words text-text-secondary typo-markdown',
-          !isExpanded && 'line-clamp-4',
-        )}
-        data-testid="tldr-container"
-      >
-        {summary}
-      </p>
-      {isClamped && !isExpanded && (
-        // Sits on the last clamped line: typo-markdown matches the paragraph's
-        // font size and line height, so the button (and its background/fade)
-        // are exactly one line tall and align to the text it continues. We
-        // render an ellipsis before the link so the cut-off reads naturally.
-        <button
-          type="button"
-          aria-label="Show more"
-          onClick={() => setIsExpanded(true)}
-          className="absolute bottom-0 right-0 flex items-center bg-background-default text-text-secondary typo-markdown"
-        >
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-full top-0 h-full w-8 bg-gradient-to-l from-background-default to-transparent"
-          />
-          <span aria-hidden>…&nbsp;</span>
-          <span className="font-bold text-text-link hover:underline">
-            Show more
-          </span>
-        </button>
+    <p
+      ref={ref}
+      className={classNames(
+        'select-text break-words text-text-secondary typo-markdown',
+        // Fallback clamp until the prefix is measured (and on SSR) so the full
+        // text never flashes.
+        truncated === null && !isExpanded && 'line-clamp-4',
       )}
-    </div>
+      data-testid="tldr-container"
+    >
+      {isTruncated ? (
+        <>
+          {truncated}
+          {'… '}
+          <button
+            type="button"
+            onClick={() => setIsExpanded(true)}
+            className="text-text-link hover:underline"
+          >
+            Show more
+          </button>
+        </>
+      ) : (
+        summary
+      )}
+    </p>
   );
 };
 
