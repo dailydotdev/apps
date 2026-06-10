@@ -2,9 +2,10 @@ import type { MouseEvent, ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { Squad } from '../../graphql/sources';
-import { StarIcon } from '../icons';
+import { PinIcon, StarIcon } from '../icons';
 import type { IconSize } from '../Icon';
 import { useSquadFavorite } from '../../hooks/squads/useSquadFavorite';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 interface SquadFavoriteButtonProps {
   squad: Squad;
@@ -18,7 +19,11 @@ export const SquadFavoriteButton = ({
   iconSize,
 }: SquadFavoriteButtonProps): ReactElement => {
   const { toggleFavorite, isPending } = useSquadFavorite();
+  const { isV2 } = useLayoutVariant();
   const isFavorited = !!squad.favoritedAt;
+  // v2 reframes "favorite" as "pin" (placed in the Home → Pinned section).
+  const Icon = isV2 ? PinIcon : StarIcon;
+  const verb = isV2 ? 'pin' : 'favorite';
 
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -32,7 +37,7 @@ export const SquadFavoriteButton = ({
   return (
     <button
       type="button"
-      aria-label={isFavorited ? 'Unfavorite squad' : 'Favorite squad'}
+      aria-label={`${isFavorited ? 'Un' : ''}${verb} squad`}
       aria-pressed={isFavorited}
       disabled={isPending}
       onClick={onClick}
@@ -43,7 +48,7 @@ export const SquadFavoriteButton = ({
         className,
       )}
     >
-      <StarIcon secondary={isFavorited} size={iconSize} />
+      <Icon secondary={isFavorited} size={iconSize} />
     </button>
   );
 };

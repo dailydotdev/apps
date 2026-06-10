@@ -46,12 +46,14 @@ export type SettingsFlags = {
   // v2 desktop rail: hide the text labels under each icon and narrow the
   // rail back to its icon-only width.
   sidebarCompact?: boolean;
+  sidebarPinnedExpanded?: boolean;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
+  PinnedExpanded = 'sidebarPinnedExpanded',
   CustomFeedsExpanded = 'sidebarCustomFeedsExpanded',
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',

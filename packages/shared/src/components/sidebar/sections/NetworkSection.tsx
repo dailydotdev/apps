@@ -15,12 +15,14 @@ import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
 import { SquadFavoriteButton } from '../../squads/SquadFavoriteButton';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 export const NetworkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
+  const { isV2 } = useLayoutVariant();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
     status: [SourcePostModerationStatus.Pending],
@@ -31,8 +33,19 @@ export const NetworkSection = ({
   }, [openNewSquad]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
+    // v2 pins live in the Home → Pinned section, so the Squads list no longer
+    // floats favorited squads to the top — show them in plain alphabetical
+    // order instead of the boot-applied favorite-first sort.
+    const orderedSquads =
+      isV2 && squads
+        ? [...squads].sort((a, b) =>
+            a.name
+              .toLocaleLowerCase()
+              .localeCompare(b.name.toLocaleLowerCase()),
+          )
+        : squads;
     const squadItems =
-      squads?.map((squad) => {
+      orderedSquads?.map((squad) => {
         const { name, image, handle } = squad;
         return {
           icon: () =>
@@ -77,7 +90,7 @@ export const NetworkSection = ({
       },
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];
-  }, [squads, isModeratorInAnySquad, count]);
+  }, [squads, isV2, isModeratorInAnySquad, count]);
 
   return (
     <Section
