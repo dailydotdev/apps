@@ -7,6 +7,12 @@ import InteractionCounter from '../../InteractionCounter';
 import { UpvoteIcon, DiscussIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 
+// In the glass variant the cover image goes full-bleed: edge-to-edge width
+// (drop the side padding), flush to the card's bottom (drop the bottom margin),
+// taller so it dominates the card, and bottom corners rounded to the card.
+export const glassCoverImageClassName =
+  '!h-48 !rounded-t-none !rounded-b-16 !px-0 !mb-0';
+
 // iOS/macOS-style "liquid glass" bar: a consistently dark translucent tint
 // (so it reads in both themes over any cover image) plus a heavy backdrop blur.
 const glassSurface = classNames(

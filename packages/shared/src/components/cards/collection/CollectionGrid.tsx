@@ -12,7 +12,10 @@ import {
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
+import {
+  FeedCardGlassActions,
+  glassCoverImageClassName,
+} from '../common/FeedCardGlassActions';
 import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
@@ -118,6 +121,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           contentHtml={post.contentHtml}
           post={post}
           onShare={onShare}
+          imageClassName={useGlass ? glassCoverImageClassName : undefined}
         />
         {useGlass ? (
           <FeedCardGlassActions
