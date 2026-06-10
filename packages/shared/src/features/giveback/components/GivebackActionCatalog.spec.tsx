@@ -50,6 +50,7 @@ const mockReturn = (actions: ContributionAction[], isPending = false) =>
     actions,
     categories,
     rewardTiers: [],
+    claimedRewardIds: [],
     isPending,
   });
 
@@ -60,6 +61,7 @@ it('renders a skeleton while loading', () => {
     actions: [],
     categories: [],
     rewardTiers: [],
+    claimedRewardIds: [],
     isPending: true,
   });
   render(<GivebackActionCatalog />);
