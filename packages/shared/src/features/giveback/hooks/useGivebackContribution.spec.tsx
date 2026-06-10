@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { useGivebackContribution } from './useGivebackContribution';
 import { useContributionStatus } from './useContributionStatus';
 import { useContributionRewards } from './useContributionRewards';
+import { ContributionRewardType } from '../types';
 import type { ContributionStatus } from '../types';
 
 jest.mock('./useContributionStatus');
@@ -17,7 +18,9 @@ const mockUseRewards = useContributionRewards as jest.MockedFunction<
 const tier = (id: string, thresholdPoints: number) => ({
   id,
   title: `Reward ${id}`,
+  description: null,
   thresholdPoints,
+  rewardType: ContributionRewardType.Custom,
 });
 
 const setStatus = (userPoints: number | null, isPending = false) =>

@@ -51,12 +51,24 @@ export interface ContributionActionCategory {
   title: string;
 }
 
+// The kind of perk a reward tier grants, used to pick the roadmap node's icon.
+export enum ContributionRewardType {
+  Cores = 'cores',
+  PlusDays = 'plus_days',
+  Call = 'call',
+  Privilege = 'privilege',
+  Custom = 'custom',
+}
+
 // A milestone reward unlocked once a contributor's points cross its threshold.
-// Drives the "next reward" cue in the contribution summary and floating bar.
+// Drives the "next reward" cue in the contribution summary and floating bar, and
+// the reward-ladder roadmap on the Impact tab.
 export interface ContributionRewardTier {
   id: string;
   title: string;
+  description: string | null;
   thresholdPoints: number;
+  rewardType: ContributionRewardType;
 }
 
 // Review outcome for a submitted action. A fresh submission lands `flagged`

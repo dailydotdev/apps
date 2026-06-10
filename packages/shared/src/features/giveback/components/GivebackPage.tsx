@@ -16,6 +16,7 @@ import { GivebackLegalFooter } from './GivebackLegalFooter';
 import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
 import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
+import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -167,12 +168,16 @@ export const GivebackPage = (): ReactElement => {
               aria-label={activeLabel}
               className={`${column} pt-8`}
             >
-              {activeTab === 'actions' ? (
+              {activeTab === 'actions' && (
                 <FlexCol className="gap-6">
                   <GivebackContributionSummary />
                   <GivebackActionCatalog />
                 </FlexCol>
-              ) : (
+              )}
+              {activeTab === 'impact' && (
+                <GivebackImpactPanel onTakeAction={goToActions} />
+              )}
+              {activeTab === 'why' && (
                 <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
                   <Typography
                     tag={TypographyTag.H2}

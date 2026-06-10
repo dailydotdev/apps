@@ -104,8 +104,29 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
         node {
           id
           title
+          description
           thresholdPoints
+          rewardType
         }
+      }
+    }
+    userContributionRewards(first: $first) {
+      edges {
+        node {
+          tier {
+            id
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const CLAIM_CONTRIBUTION_REWARD_MUTATION = `
+  mutation ClaimContributionReward($tierId: ID!) {
+    claimContributionReward(tierId: $tierId) {
+      tier {
+        id
       }
     }
   }
