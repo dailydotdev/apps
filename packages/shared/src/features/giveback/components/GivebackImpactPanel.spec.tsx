@@ -1,124 +1,132 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
-import { useContributionImpact } from '../hooks/useContributionImpact';
+import { useContributionStatus } from '../hooks/useContributionStatus';
+import { useContributionSponsors } from '../hooks/useContributionSponsors';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
-import {
-  UserContributionRewardStatus,
-  type ContributionCauseStat,
-  type UserContributionReward,
-} from '../types';
+import { useContributionRewards } from '../hooks/useContributionRewards';
+import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
+import { useClaimContributionReward } from '../hooks/useClaimContributionReward';
+import { ContributionRewardType, type ContributionRewardTier } from '../types';
 
-jest.mock('../hooks/useContributionImpact');
+jest.mock('../hooks/useContributionStatus');
+jest.mock('../hooks/useContributionSponsors');
 jest.mock('../hooks/useGivebackContribution');
+jest.mock('../hooks/useContributionRewards');
+jest.mock('../hooks/useContributionUserRewards');
+jest.mock('../hooks/useClaimContributionReward');
 
-const mockImpact = useContributionImpact as jest.MockedFunction<
-  typeof useContributionImpact
+// Resolve the reveal/count-up animations synchronously so assertions read final
+// values, not mid-animation frames.
+jest.mock('../useGivebackMotion', () => ({
+  useInView: () => ({ ref: { current: null }, inView: true }),
+  useCountUp: (target: number) => target,
+}));
+
+const mockStatus = useContributionStatus as jest.MockedFunction<
+  typeof useContributionStatus
+>;
+const mockSponsors = useContributionSponsors as jest.MockedFunction<
+  typeof useContributionSponsors
 >;
 const mockContribution = useGivebackContribution as jest.MockedFunction<
   typeof useGivebackContribution
 >;
+const mockRewards = useContributionRewards as jest.MockedFunction<
+  typeof useContributionRewards
+>;
+const mockUserRewards = useContributionUserRewards as jest.MockedFunction<
+  typeof useContributionUserRewards
+>;
+const mockClaim = useClaimContributionReward as jest.MockedFunction<
+  typeof useClaimContributionReward
+>;
 
-const causeStat = (
-  overrides: Partial<ContributionCauseStat> = {},
-): ContributionCauseStat => ({
-  cause: {
-    id: 'c1',
-    title: 'Open Source Fund',
-    url: 'https://example.com',
-    description: null,
-    category: null,
-    logoUrl: null,
+const tiers: ContributionRewardTier[] = [
+  {
+    id: 't1',
+    title: 'Sticker pack',
+    description: 'A pack of daily.dev stickers',
+    thresholdPoints: 25,
+    rewardType: ContributionRewardType.Custom,
   },
-  points: 45,
-  amountCents: 4500,
-  ...overrides,
-});
+  {
+    id: 't2',
+    title: 'One month of Plus',
+    description: null,
+    thresholdPoints: 100,
+    rewardType: ContributionRewardType.PlusDays,
+  },
+  {
+    id: 't3',
+    title: 'Hoodie',
+    description: null,
+    thresholdPoints: 250,
+    rewardType: ContributionRewardType.Custom,
+  },
+];
 
-const reward = (
-  overrides: Partial<UserContributionReward> = {},
-): UserContributionReward => ({
-  tier: { id: 't1', title: 'Plus for a month', thresholdPoints: 25 },
-  status: UserContributionRewardStatus.Claimed,
-  claimedAt: '2026-01-01T00:00:00.000Z',
-  fulfilledAt: null,
-  ...overrides,
-});
-
-const setContribution = (earnedPoints = 40) =>
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockStatus.mockReturnValue({
+    status: {
+      enabled: true,
+      eligible: true,
+      currentCyclePoints: 4000,
+      currentCycleTargetPoints: 10000,
+      lifetimePoints: 0,
+      lifetimeAmountCents: 0,
+      contributorsCount: 128,
+      userPoints: 40,
+    },
+    isPending: false,
+  });
+  mockSponsors.mockReturnValue({ sponsors: [], isPending: false });
   mockContribution.mockReturnValue({
-    earnedPoints,
-    nextReward: null,
-    pointsToNext: 0,
-    progressPercentage: 100,
+    earnedPoints: 40,
+    nextReward: tiers[1],
+    pointsToNext: 60,
+    progressPercentage: 20,
     currentLevel: 2,
     hasRewards: true,
     isPending: false,
   });
-
-beforeEach(() => {
-  jest.clearAllMocks();
-  setContribution();
+  mockRewards.mockReturnValue({ rewardTiers: tiers, isPending: false });
+  mockUserRewards.mockReturnValue({ rewards: [], isPending: false });
+  mockClaim.mockReturnValue({ claim: jest.fn(), isPending: false });
 });
 
-it('renders a skeleton while loading', () => {
-  mockImpact.mockReturnValue({
-    causeStats: [],
-    rewards: [],
-    isPending: true,
-  });
-  render(<GivebackImpactPanel />);
+it('renders the funding progress section with live totals', () => {
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
-  expect(
-    screen.getByRole('status', { name: 'Loading impact' }),
-  ).toBeInTheDocument();
+  expect(screen.getByText('Funding progress')).toBeInTheDocument();
+  expect(screen.getByText('$4,000')).toBeInTheDocument();
+  expect(screen.getByText('128')).toBeInTheDocument();
 });
 
-it('shows empty states when there is no impact yet', () => {
-  mockImpact.mockReturnValue({
-    causeStats: [],
-    rewards: [],
-    isPending: false,
-  });
-  render(<GivebackImpactPanel />);
+it('renders the reward-ladder journey with the current level', () => {
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
-  expect(
-    screen.getByText('Your funded causes will show up here'),
-  ).toBeInTheDocument();
-  expect(screen.getByText(/No rewards yet/)).toBeInTheDocument();
-});
-
-it('renders funded causes with the amount and an outbound link', () => {
-  mockImpact.mockReturnValue({
-    causeStats: [causeStat()],
-    rewards: [],
-    isPending: false,
-  });
-  render(<GivebackImpactPanel />);
-
-  expect(screen.getByText('Open Source Fund')).toBeInTheDocument();
-  expect(screen.getByText('$45')).toBeInTheDocument();
-  expect(
-    screen.getByRole('link', { name: /Open Source Fund/ }),
-  ).toHaveAttribute('href', 'https://example.com');
-});
-
-it('renders earned rewards with their status', () => {
-  mockImpact.mockReturnValue({
-    causeStats: [],
-    rewards: [
-      reward(),
-      reward({
-        tier: { id: 't2', title: 'Sticker pack', thresholdPoints: 100 },
-        status: UserContributionRewardStatus.Fulfilled,
-      }),
-    ],
-    isPending: false,
-  });
-  render(<GivebackImpactPanel />);
-
-  expect(screen.getByText('Plus for a month')).toBeInTheDocument();
-  expect(screen.getByText('Claimed')).toBeInTheDocument();
+  expect(screen.getByText('Your journey')).toBeInTheDocument();
   expect(screen.getByText('Sticker pack')).toBeInTheDocument();
-  expect(screen.getByText('Delivered')).toBeInTheDocument();
+  expect(screen.getByText('One month of Plus')).toBeInTheDocument();
+  expect(screen.getByText('Hoodie')).toBeInTheDocument();
+  // $40 earned: the next milestone is the $100 tier.
+  expect(screen.getByText('Next up: One month of Plus')).toBeInTheDocument();
+  expect(screen.getByText('$60 to go')).toBeInTheDocument();
+});
+
+it('offers a claim for an unlocked, unclaimed tier', () => {
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
+
+  // The $25 tier is reached at $40 and not yet claimed.
+  expect(screen.getByRole('button', { name: 'Claim' })).toBeInTheDocument();
+  expect(screen.getByText(/ready to claim/)).toBeInTheDocument();
+});
+
+it('shows an empty journey when no reward tiers exist', () => {
+  mockRewards.mockReturnValue({ rewardTiers: [], isPending: false });
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
+
+  expect(screen.getByText('Your journey starts soon')).toBeInTheDocument();
 });

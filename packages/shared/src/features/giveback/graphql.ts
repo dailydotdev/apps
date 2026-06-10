@@ -104,47 +104,44 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
         node {
           id
           title
+          description
           thresholdPoints
+          rewardType
         }
       }
     }
   }
 `;
 
-// The Impact tab's personal recap in one request: where the visitor's funding
-// landed (per-cause, finalized payments only) and the rewards they've claimed.
-// Both are user-scoped and backend-gated, so this only fires once onboarded.
-export const CONTRIBUTION_IMPACT_QUERY = `
-  query ContributionImpact($first: Int) {
-    userContributionCauseStats(first: $first) {
-      edges {
-        node {
-          cause {
-            id
-            title
-            url
-            description
-            category
-            logoUrl
-          }
-          points
-          amountCents
-        }
-      }
-    }
+// The visitor's claimed rewards, powering the "claimed" state on the Impact
+// tab's reward roadmap. Backend-gated to onboarded, eligible visitors.
+export const CONTRIBUTION_USER_REWARDS_QUERY = `
+  query UserContributionRewards($first: Int) {
     userContributionRewards(first: $first) {
       edges {
         node {
           tier {
             id
             title
+            description
             thresholdPoints
+            rewardType
           }
           status
           claimedAt
           fulfilledAt
         }
       }
+    }
+  }
+`;
+
+export const CLAIM_CONTRIBUTION_REWARD_MUTATION = `
+  mutation ClaimContributionReward($tierId: ID!) {
+    claimContributionReward(tierId: $tierId) {
+      status
+      claimedAt
+      fulfilledAt
     }
   }
 `;

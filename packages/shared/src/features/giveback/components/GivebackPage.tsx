@@ -174,7 +174,9 @@ export const GivebackPage = (): ReactElement => {
                   <GivebackActionCatalog />
                 </FlexCol>
               )}
-              {activeTab === 'impact' && <GivebackImpactPanel />}
+              {activeTab === 'impact' && (
+                <GivebackImpactPanel onTakeAction={goToActions} />
+              )}
               {activeTab === 'why' && (
                 <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
                   <Typography

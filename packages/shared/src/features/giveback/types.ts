@@ -51,12 +51,37 @@ export interface ContributionActionCategory {
   title: string;
 }
 
+// The kind of perk a reward tier grants, used to pick the roadmap node's icon.
+export enum ContributionRewardType {
+  Cores = 'cores',
+  PlusDays = 'plus_days',
+  Call = 'call',
+  Privilege = 'privilege',
+  Custom = 'custom',
+}
+
 // A milestone reward unlocked once a contributor's points cross its threshold.
-// Drives the "next reward" cue in the contribution summary and floating bar.
+// Drives the "next reward" cue in the contribution summary and floating bar, and
+// the reward-ladder roadmap on the Impact tab.
 export interface ContributionRewardTier {
   id: string;
   title: string;
+  description: string | null;
   thresholdPoints: number;
+  rewardType: ContributionRewardType;
+}
+
+// A reward the visitor has claimed. `fulfilled` once it's been delivered.
+export enum UserContributionRewardStatus {
+  Claimed = 'claimed',
+  Fulfilled = 'fulfilled',
+}
+
+export interface UserContributionReward {
+  tier: ContributionRewardTier;
+  status: UserContributionRewardStatus;
+  claimedAt: string | null;
+  fulfilledAt: string | null;
 }
 
 // Review outcome for a submitted action. A fresh submission lands `flagged`
@@ -75,28 +100,6 @@ export interface ContributionSubmission {
   awardedPoints: number;
   createdAt: string;
   reviewedAt: string | null;
-}
-
-// The visitor's own funding broken down per cause. Reflects only finalized
-// payments, so it stays empty until a contribution has been processed.
-export interface ContributionCauseStat {
-  cause: ContributionCause;
-  points: number;
-  amountCents: number;
-}
-
-// A reward the visitor has unlocked and claimed. `fulfilled` once it's been
-// delivered; `claimedAt`/`fulfilledAt` timestamp each step.
-export enum UserContributionRewardStatus {
-  Claimed = 'claimed',
-  Fulfilled = 'fulfilled',
-}
-
-export interface UserContributionReward {
-  tier: ContributionRewardTier;
-  status: UserContributionRewardStatus;
-  claimedAt: string | null;
-  fulfilledAt: string | null;
 }
 
 // What the action reads as on the catalog (which surface it lives on) plus the
