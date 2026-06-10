@@ -492,6 +492,9 @@ export enum LogEvent {
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
+  // Giveback
+  ClickJoinGiveback = 'click join giveback',
+  ClickGivebackSponsor = 'click giveback sponsor',
 }
 
 export enum TargetType {
@@ -563,7 +566,6 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
-  CustomizeNewTab = 'customize new tab',
 }
 
 export enum TargetId {
