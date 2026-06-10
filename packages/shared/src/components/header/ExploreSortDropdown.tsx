@@ -35,7 +35,9 @@ export function ExploreSortDropdown(): ReactElement {
         <Dropdown
           iconOnly
           shouldIndicateSelected
-          icon={<CalendarIcon size={IconSize.Medium} />}
+          icon={<CalendarIcon size={IconSize.Small} />}
+          buttonSize={ButtonSize.Small}
+          buttonVariant={ButtonVariant.Float}
           selectedIndex={period}
           options={periodTexts}
           onChange={(_, index) => setPeriod(index)}
