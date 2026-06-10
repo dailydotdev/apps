@@ -20,11 +20,14 @@ function NotificationsBell({
   compact,
   rail,
   noTooltip,
+  railHideLabel,
   active,
 }: {
   compact?: boolean;
   rail?: boolean;
   noTooltip?: boolean;
+  // v2 rail compact mode: hide the "Alerts" label under the bell.
+  railHideLabel?: boolean;
   // Optional override — the v2 sidebar wants the bell highlighted on
   // any page that owns the Notifications category (incl. its settings
   // sub-page), which extends past the bell's own internal check.
@@ -80,7 +83,9 @@ function NotificationsBell({
                 </Bubble>
               )}
             </span>
-            <span className={railTabLabelClass}>Alerts</span>
+            {!railHideLabel && (
+              <span className={railTabLabelClass}>Alerts</span>
+            )}
           </a>
         </Link>
       </div>

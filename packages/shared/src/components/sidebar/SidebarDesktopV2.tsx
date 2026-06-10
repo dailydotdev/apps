@@ -41,6 +41,7 @@ import {
   FeedbackIcon,
   HomeIcon,
   HotIcon,
+  MenuIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
@@ -52,6 +53,7 @@ import {
 } from '../icons';
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
 import { useSquadNavigation } from '../../hooks';
+import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -138,7 +140,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
 ];
 
 const railButtonClass =
-  'flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
+  'flex h-10 w-full items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -340,6 +342,17 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight } = useSpotlight();
   const { openNewSquad } = useSquadNavigation();
   const { isLoggedIn, user } = useAuthContext();
+  const { value: isCompact, toggle: toggleCompact } =
+    useSettingsBooleanFlag('sidebarCompact');
+  // Compact mode reverts to the original icon-only widths (pre-label rail).
+  // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
+  // padding so the content never overlaps the rail.
+  const railCollapsedWidth = isCompact ? 'laptop:w-16' : 'laptop:w-20';
+  const railExpandedWidth = isCompact ? 'laptop:w-[19rem]' : 'laptop:w-[20rem]';
+  const railNavWidth = isCompact ? 'w-16' : 'w-20';
+  const railSeparatorLeft = isCompact ? 'left-16' : 'left-20';
+  const railToggleClosedLeft = isCompact ? 'left-[3.5rem]' : 'left-[4.5rem]';
+  const railToggleOpenLeft = isCompact ? 'left-[16.5rem]' : 'left-[17.5rem]';
   const claimableQuestCount = useClaimableQuestCount();
   const showQuestBadge = !optOutQuestSystem && claimableQuestCount > 0;
   const activePage = activePageProp || router.asPath || router.pathname || '';
@@ -573,7 +586,7 @@ export const SidebarDesktopV2 = ({
       data-testid="sidebar-aside"
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0 laptop:bg-transparent',
-        isExpanded ? 'laptop:w-[20rem]' : 'laptop:w-20',
+        isExpanded ? railExpandedWidth : railCollapsedWidth,
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
@@ -584,12 +597,18 @@ export const SidebarDesktopV2 = ({
       {isExpanded && (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-20 hidden border-r border-border-subtlest-quaternary laptop:block"
+          className={classNames(
+            'pointer-events-none absolute inset-y-0 hidden border-r border-border-subtlest-quaternary laptop:block',
+            railSeparatorLeft,
+          )}
         />
       )}
       <nav
         aria-label="Primary navigation"
-        className="flex h-dvh min-h-dvh w-20 shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-6"
+        className={classNames(
+          'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-6',
+          railNavWidth,
+        )}
       >
         <Tooltip
           side="right"
@@ -624,16 +643,18 @@ export const SidebarDesktopV2 = ({
             <SearchIcon size={IconSize.Small} aria-hidden />
           </button>
         </Tooltip>
-        <div
-          aria-hidden
-          className="-mt-1 flex items-center gap-0.5 text-text-quaternary typo-caption2"
-        >
-          {shortcutKeys.map((key) => (
-            <kbd key={key} className="font-sans">
-              {key}
-            </kbd>
-          ))}
-        </div>
+        {!isCompact && (
+          <div
+            aria-hidden
+            className="-mt-1 flex items-center gap-0.5 text-text-quaternary typo-caption2"
+          >
+            {shortcutKeys.map((key) => (
+              <kbd key={key} className="font-sans">
+                {key}
+              </kbd>
+            ))}
+          </div>
+        )}
 
         <div
           aria-hidden
@@ -661,10 +682,11 @@ export const SidebarDesktopV2 = ({
                     panel={<NotificationsRailPanel />}
                     enabled={!isExpanded}
                   >
-                    <div>
+                    <div className="w-full">
                       <NotificationsBell
                         rail
                         noTooltip
+                        railHideLabel={isCompact}
                         active={
                           selectedCategory === SidebarCategory.Notifications
                         }
@@ -706,7 +728,11 @@ export const SidebarDesktopV2 = ({
                           </Bubble>
                         )}
                     </span>
-                    <span className={railTabLabelClass}>{category.label}</span>
+                    {!isCompact && (
+                      <span className={railTabLabelClass}>
+                        {category.label}
+                      </span>
+                    )}
                   </button>
                 </RailHoverCard>
               </React.Fragment>
@@ -740,6 +766,22 @@ export const SidebarDesktopV2 = ({
             <SidebarThemeButton />
             <SidebarSupportButton />
 
+            <Tooltip
+              side="right"
+              content={isCompact ? 'Show labels' : 'Hide labels'}
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <button
+                type="button"
+                aria-label={isCompact ? 'Show labels' : 'Hide labels'}
+                aria-pressed={isCompact}
+                onClick={() => toggleCompact()}
+                className={railButtonClass}
+              >
+                <MenuIcon size={IconSize.Small} aria-hidden />
+              </button>
+            </Tooltip>
+
             <RailHoverCard
               label="Settings"
               panel={renderCategorySection(SidebarCategory.Settings)}
@@ -772,42 +814,39 @@ export const SidebarDesktopV2 = ({
                 </a>
               </Link>
             </RailHoverCard>
-
-            {isLoggedIn && user && (
-              <RailHoverCard
-                label="Profile"
-                panel={renderCategorySection(SidebarCategory.Profile)}
-                enabled={!isExpanded}
-                alignOffset={RAIL_HOVER_PROFILE_ALIGN_OFFSET}
-              >
-                <button
-                  type="button"
-                  role="tab"
-                  id={`sidebar-category-${SidebarCategory.Profile}`}
-                  aria-controls="sidebar-context-panel"
-                  aria-label="Profile"
-                  aria-selected={isProfileSelected}
-                  onClick={() => onSelectCategory(SidebarCategory.Profile)}
-                  onMouseEnter={() =>
-                    onPrefetchCategory(SidebarCategory.Profile)
-                  }
-                  onFocus={() => onPrefetchCategory(SidebarCategory.Profile)}
-                  className={classNames(
-                    railButtonClass,
-                    isProfileSelected &&
-                      'bg-background-default !text-text-primary',
-                  )}
-                >
-                  <ProfilePicture
-                    user={user}
-                    size={ProfileImageSize.Medium}
-                    nativeLazyLoading
-                  />
-                </button>
-              </RailHoverCard>
-            )}
           </div>
           {isLoggedIn && <SidebarRailStats />}
+          {isLoggedIn && user && (
+            <RailHoverCard
+              label="Profile"
+              panel={renderCategorySection(SidebarCategory.Profile)}
+              enabled={!isExpanded}
+              alignOffset={RAIL_HOVER_PROFILE_ALIGN_OFFSET}
+            >
+              <button
+                type="button"
+                role="tab"
+                id={`sidebar-category-${SidebarCategory.Profile}`}
+                aria-controls="sidebar-context-panel"
+                aria-label="Profile"
+                aria-selected={isProfileSelected}
+                onClick={() => onSelectCategory(SidebarCategory.Profile)}
+                onMouseEnter={() => onPrefetchCategory(SidebarCategory.Profile)}
+                onFocus={() => onPrefetchCategory(SidebarCategory.Profile)}
+                className={classNames(
+                  railButtonClass,
+                  isProfileSelected &&
+                    'bg-background-default !text-text-primary',
+                )}
+              >
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.Medium}
+                  nativeLazyLoading
+                />
+              </button>
+            </RailHoverCard>
+          )}
         </div>
       </nav>
 
@@ -828,7 +867,7 @@ export const SidebarDesktopV2 = ({
           <div
             className={classNames(
               'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
-              sidebarExpanded ? 'left-[17.5rem]' : 'left-[4.5rem]',
+              sidebarExpanded ? railToggleOpenLeft : railToggleClosedLeft,
               suppressTransition,
             )}
           >

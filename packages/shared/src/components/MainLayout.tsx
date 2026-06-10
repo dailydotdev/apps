@@ -104,8 +104,15 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
+  const { sidebarExpanded, autoDismissNotifications, loadedSettings, flags } =
     useContext(SettingsContext);
+  const isSidebarCompact = !!flags?.sidebarCompact;
+  const v2CollapsedPadding = isSidebarCompact
+    ? 'tablet:pl-16 laptop:pl-16'
+    : 'tablet:pl-16 laptop:pl-20';
+  const v2ExpandedPadding = isSidebarCompact
+    ? 'laptop:!pl-[19rem]'
+    : 'laptop:!pl-[20rem]';
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
@@ -305,14 +312,12 @@ function MainLayoutComponent({
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
-            (isV2 ? 'tablet:pl-16 laptop:pl-20' : 'tablet:pl-16 laptop:pl-11'),
+            (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
-            (isV2
-              ? 'laptop:!pl-[20rem]'
-              : !isScreenCentered && 'laptop:!pl-60'),
+            (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
         )}
       >
