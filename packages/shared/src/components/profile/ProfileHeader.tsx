@@ -22,6 +22,7 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
+import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -60,8 +61,10 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
+
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
+      <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
       <div className="h-36">
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
       </div>
