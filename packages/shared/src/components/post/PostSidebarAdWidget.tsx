@@ -116,7 +116,7 @@ export function PostSidebarAdWidget({
     return (
       <div
         className={classNames(
-          'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover',
+          'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:bg-surface-hover',
           className?.container,
         )}
       >
