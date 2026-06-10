@@ -58,18 +58,17 @@ const outerExpandClasses = `laptop:mouse:group-hover:[grid-template-columns:1fr_
 // `min-w-fit` keeps the pill floored at its visible content while the outer
 // track animates. The glass surface uses the theme-aware `blur-bg` token
 // (pepper glass in dark mode, white glass in light mode — both at 64%).
-// The `[&_.btn]`/`[&_.btn-quaternary]` descendant pins outrank the
-// `btn-tertiary-*` classes that re-declare the color vars per button, keeping
-// icons AND counters on text-primary at rest and on hover for maximum
-// contrast — only the pressed/active state shows a brand tint.
+// Only the REST color is pinned to text-primary (`--button-default-color`) for
+// max contrast on the glass; the hover/pressed colors are left to each
+// `btn-tertiary-*` class so the icon AND its counter turn the action's brand
+// tint on hover (avocado for upvote, blueCheese for comment, etc.), matching
+// the standard ActionButtons.
 const pillClasses = classNames(
   'pointer-events-auto flex h-10 min-w-fit items-center justify-between overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
-  '[&_.btn-quaternary]:[--button-hover-color:var(--theme-text-primary)]',
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
-  '[&_.btn]:[--button-hover-color:var(--theme-text-primary)]',
 );
 
 // One collapsible track per secondary action. Width animates 0fr ↔ 1fr while
