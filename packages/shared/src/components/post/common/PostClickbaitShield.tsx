@@ -19,6 +19,7 @@ import type { Post } from '../../../graphql/posts';
 import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { AuthTriggers } from '../../../lib/auth';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
@@ -37,7 +38,7 @@ export const PostClickbaitShield = ({
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
 
   if (iconOnly) {
@@ -54,9 +55,8 @@ export const PostClickbaitShield = ({
       }
 
       if (!user) {
-        throw new Error(
-          'PostClickbaitShield requires an authenticated user to edit feed settings',
-        );
+        showLogin({ trigger: AuthTriggers.Filter });
+        return;
       }
 
       router.push(

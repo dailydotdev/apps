@@ -154,7 +154,10 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
       // Snap back to the previous word boundary so we never cut mid-word.
       const prefix = summary.slice(0, best).trimEnd();
       const lastSpace = prefix.lastIndexOf(' ');
-      setTruncated(lastSpace > 0 ? prefix.slice(0, lastSpace) : prefix);
+      const snapped = lastSpace > 0 ? prefix.slice(0, lastSpace) : prefix;
+      // Never render a bare "… Show more" with no preview; fall back to the
+      // CSS line-clamp instead.
+      setTruncated(snapped || null);
     };
 
     measure();

@@ -50,6 +50,16 @@ export default function PostModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
+      {/* The squad notification prompt is shown for share posts regardless of
+          which layout renders below it. */}
+      <EnableNotification
+        source={NotificationPromptSource.SquadPostModal}
+        label={
+          isSourceUserSource(post?.source)
+            ? post?.author?.username
+            : post?.source?.handle
+        }
+      />
       {showDiscovery ? (
         <PostFocusCard
           post={post}
@@ -57,34 +67,24 @@ export default function PostModal({
           onClose={() => onRequestClose?.(undefined as never)}
         />
       ) : (
-        <>
-          <EnableNotification
-            source={NotificationPromptSource.SquadPostModal}
-            label={
-              isSourceUserSource(post?.source)
-                ? post?.author?.username
-                : post?.source?.handle
-            }
-          />
-          <SquadPostContent
-            position={position}
-            post={post}
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            postPosition={postPosition}
-            inlineActions
-            onClose={onRequestClose}
-            origin={Origin.ArticleModal}
-            className={{
-              fixedNavigation: {
-                container: '!w-[inherit]',
-                actions: 'ml-auto',
-              },
-              navigation: { actions: 'ml-auto tablet:hidden' },
-              onboarding: 'mb-0 mt-8',
-            }}
-          />
-        </>
+        <SquadPostContent
+          position={position}
+          post={post}
+          onPreviousPost={onPreviousPost}
+          onNextPost={onNextPost}
+          postPosition={postPosition}
+          inlineActions
+          onClose={onRequestClose}
+          origin={Origin.ArticleModal}
+          className={{
+            fixedNavigation: {
+              container: '!w-[inherit]',
+              actions: 'ml-auto',
+            },
+            navigation: { actions: 'ml-auto tablet:hidden' },
+            onboarding: 'mb-0 mt-8',
+          }}
+        />
       )}
     </BasePostModal>
   );

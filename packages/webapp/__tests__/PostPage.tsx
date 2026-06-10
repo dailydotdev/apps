@@ -1128,4 +1128,12 @@ describe('post discovery experience', () => {
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
   });
+
+  it('should keep the classic layout for author onboarding even when the flag is on', async () => {
+    mockDiscoveryOn = true;
+    mockRouterQuery({ author: 'true' });
+    renderPost();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
 });

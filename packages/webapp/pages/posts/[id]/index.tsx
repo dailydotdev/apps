@@ -212,9 +212,13 @@ export const PostPage = ({
     router.query.discovery === '1' || router.query.discovery === 'true';
   const forceClassic =
     router.query.discovery === '0' || router.query.discovery === 'false';
+  // Entry-specific flows the focus card doesn't render (author onboarding via
+  // `?author`, back-to-squad via `?squad`) stay on the classic layout.
+  const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showDiscovery =
     isDiscoveryEligible &&
     !forceClassic &&
+    !requiresClassicLayout &&
     (isDiscoveryFlagOn || forceDiscovery);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
