@@ -1,0 +1,64 @@
+/* Micro-interactions for the Patchy persona quiz. Scoped via CSS modules. */
+
+@keyframes question-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dot-blink {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.questionIn {
+  animation: question-in 0.2s ease both;
+}
+
+.dot {
+  animation: dot-blink 1.2s ease-in-out infinite;
+}
+
+.revealName {
+  animation: reveal-rise 0.5s ease 0.15s both;
+}
+
+.revealTagline {
+  animation: reveal-rise 0.5s ease 0.3s both;
+}
+
+.revealActions {
+  animation: reveal-rise 0.5s ease 0.45s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .questionIn,
+  .dot,
+  .revealName,
+  .revealTagline,
+  .revealActions {
+    animation: none;
+  }
+}
