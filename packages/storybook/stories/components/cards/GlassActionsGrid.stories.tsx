@@ -150,12 +150,12 @@ const freeformPost = make({
 
 const freeformTextPost = make({
   id: 'glass-freeform-text',
-  title: 'A text-only post keeps the inline bar',
+  title: 'A text-only markdown post',
   source: mockSquadSource,
   type: PostType.Freeform,
   image: undefined,
   contentHtml:
-    '<p>This freeform post has no cover image, so the action bar stays inline below the text instead of floating.</p>',
+    '<p>This freeform post has no cover image, so the glass bar floats over the bottom of the text — which blurs through the glass.</p>',
 });
 
 const pollPost = make({
@@ -222,10 +222,11 @@ const GlassActionsGrid = () => (
         Other post types
       </h3>
       <p className="mb-6 max-w-2xl text-sm text-text-tertiary">
-        Shared-to-squad, collection and image freeform cards float the bar over
-        their cover image too. The text-only freeform and the poll keep the
-        inline bar — there&apos;s no image to float over, and the bar must not
-        cover the text or vote options. (Storybook force-enables the separate
+        Every post type gets the floating bar. Shared-to-squad, collection and
+        image freeform cards float it over their cover image; the text-only
+        markdown post floats it over the bottom of the content (which blurs
+        through the glass); the poll reserves a little space at the bottom so it
+        never covers the vote options. (Storybook force-enables the separate
         shared-post-preview experiment, so the share card here shows its preview
         layout with the inline bar; with that experiment off — the default — a
         shared-to-squad post uses the cover image and gets the glass bar.)
