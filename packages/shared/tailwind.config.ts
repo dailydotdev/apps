@@ -22,6 +22,7 @@ import text from './tailwind/colors/text';
 import blur from './tailwind/colors/blur';
 import shadow from './tailwind/colors/shadow';
 import overlay from './tailwind/overlay';
+import { withAlpha } from './tailwind/colors/withAlpha';
 
 export default {
   content: [],
@@ -31,20 +32,20 @@ export default {
         /* Raw colors should not be used directly for styling */
         ...colors,
       },
-      accent,
-      background,
-      blur,
-      brand,
-      surface,
-      action,
+      accent: withAlpha(accent),
+      background: withAlpha(background),
+      blur: withAlpha(blur),
+      brand: withAlpha(brand),
+      surface: withAlpha(surface),
+      action: withAlpha(action),
       overlay: {
         // Temporary fix to allow the old overlay colors to work
         ...overlay,
         ...overlayColors,
       },
-      border,
-      status,
-      text,
+      border: withAlpha(border),
+      status: withAlpha(status),
+      text: withAlpha(text),
       shadow,
       black: '#000000',
       white: '#ffffff',

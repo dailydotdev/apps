@@ -121,7 +121,7 @@ export function EngagementRail({
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const sortLabel = isNewestFirst ? 'Sort: Newest first' : 'Sort: Oldest first';
   const railHeaderGroupClasses =
-    'flex h-9 items-center gap-px rounded-12 border border-border-subtlest-tertiary bg-background-default/70 p-px shadow-3 backdrop-blur-md backdrop-saturate-150';
+    'flex h-9 items-center gap-px rounded-12 border border-border-subtlest-tertiary bg-blur-bg p-px shadow-3 backdrop-blur-md backdrop-saturate-150';
   const iconButtonClassName = '!h-8 !w-8 !min-w-8 !rounded-10 !p-0';
 
   return (
@@ -134,7 +134,7 @@ export function EngagementRail({
       aria-label="Discussion and related"
     >
       {!inlineHeaderMenu && (
-        <div className="bg-background-default/85 sticky top-0 z-[60] flex h-14 items-center justify-between gap-2 px-3 backdrop-blur">
+        <div className="sticky top-0 z-[60] flex h-14 items-center justify-between gap-2 bg-blur-baseline px-3 backdrop-blur">
           <div className="flex items-center gap-2">
             {showNavigation && (
               <div
