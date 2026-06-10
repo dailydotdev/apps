@@ -45,13 +45,15 @@ const outerClasses = classNames(
 );
 
 // `min-w-fit` keeps the pill floored at its visible content while the outer
-// track animates; both `--button-*-color` pins keep icons white at rest and on
-// hover so only the pressed/active state shows a brand tint.
+// track animates. The glass surface uses the theme-aware `blur-bg` token
+// (pepper glass in dark mode, white glass in light mode — both at 64%), and
+// both `--button-*-color` pins keep icons on text-primary at rest and on hover
+// so only the pressed/active state shows a brand tint.
 const pillClasses = classNames(
   'pointer-events-auto flex h-10 min-w-fit items-center justify-between overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
-  'bg-overlay-primary-pepper text-white backdrop-blur-2xl',
-  '[--button-default-color:theme(colors.white)] [--button-hover-color:theme(colors.white)]',
+  'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
+  '[--button-default-color:var(--theme-text-primary)] [--button-hover-color:var(--theme-text-primary)]',
 );
 
 // One collapsible track per secondary action. Width animates 0fr ↔ 1fr while
