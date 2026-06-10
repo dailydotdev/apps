@@ -81,16 +81,17 @@ it('jumps onboarded visitors to the action tab without re-joining', () => {
   expect(logEvent).not.toHaveBeenCalled();
 });
 
-it('holds the CTA while resolving so its copy cannot flip mid-click', () => {
+it('renders an empty CTA while resolving so its copy cannot flip mid-click', () => {
   renderPanel({ id: 'u1' } as LoggedUser, {
     hasSelectedCauses: true,
     isResolving: true,
   });
 
-  // The button is busy (loading) and acting on it does nothing yet.
-  const button = screen.getByRole('button', { name: 'Take action' });
-  expect(button).toHaveAttribute('aria-busy', 'true');
+  // No copy is shown until the onboarding state resolves, and acting on the
+  // empty button does nothing yet.
+  expect(screen.queryByText('Take action')).not.toBeInTheDocument();
+  expect(screen.queryByText('Join the campaign')).not.toBeInTheDocument();
 
-  fireEvent.click(button);
+  fireEvent.click(screen.getByRole('button'));
   expect(onTakeAction).not.toHaveBeenCalled();
 });
