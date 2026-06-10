@@ -18,17 +18,11 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 
-// In the glass variant the cover image goes full-bleed: edge-to-edge width
-// (drop the side padding), flush to the card's bottom (drop the bottom margin),
-// taller so it dominates the card, and bottom corners rounded to the card.
-export const glassCoverImageClassName =
-  '!h-48 !rounded-t-none !rounded-b-16 !px-0 !mb-0';
-
 // iOS-26 "Liquid Glass" morph: there is ONE pill containing the real action
 // buttons at all times. Anchored actions (upvote always; comment when it has a
-// count) never move or swap, and every other action sits in its own grid track
-// that animates 0fr ↔ 1fr, so the pill hugs the visible buttons and stretches
-// open on hover. Nothing cross-fades over the glass — the surface is
+// count) sit first and never move or swap; every other action sits in its own
+// grid track that animates 0fr ↔ 1fr, so the pill hugs the visible buttons and
+// stretches open on hover. Nothing cross-fades over the glass — the surface is
 // continuous and the icons materialize inside it.
 const morphEase = 'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]';
 
@@ -46,14 +40,19 @@ const outerClasses = classNames(
 
 // `min-w-fit` keeps the pill floored at its visible content while the outer
 // track animates. The glass surface uses the theme-aware `blur-bg` token
-// (pepper glass in dark mode, white glass in light mode — both at 64%), and
-// both `--button-*-color` pins keep icons on text-primary at rest and on hover
-// so only the pressed/active state shows a brand tint.
+// (pepper glass in dark mode, white glass in light mode — both at 64%).
+// The `[&_.btn]`/`[&_.btn-quaternary]` descendant pins outrank the
+// `btn-tertiary-*` classes that re-declare the color vars per button, keeping
+// icons AND counters on text-primary at rest and on hover for maximum
+// contrast — only the pressed/active state shows a brand tint.
 const pillClasses = classNames(
   'pointer-events-auto flex h-10 min-w-fit items-center justify-between overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
-  '[--button-default-color:var(--theme-text-primary)] [--button-hover-color:var(--theme-text-primary)]',
+  '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
+  '[&_.btn-quaternary]:[--button-hover-color:var(--theme-text-primary)]',
+  '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
+  '[&_.btn]:[--button-hover-color:var(--theme-text-primary)]',
 );
 
 // One collapsible track per secondary action. Width animates 0fr ↔ 1fr while
@@ -165,6 +164,7 @@ export function FeedCardGlassActions({
             )}
           </QuaternaryButton>
         </Tooltip>
+        {commentCount > 0 ? commentButton : <Segment>{commentButton}</Segment>}
         {showDownvoteAction && (
           <Segment>
             <Tooltip
@@ -189,7 +189,6 @@ export function FeedCardGlassActions({
             </Tooltip>
           </Segment>
         )}
-        {commentCount > 0 ? commentButton : <Segment>{commentButton}</Segment>}
         {showAwardAction && (
           <Segment>
             <PostAwardAction post={post} iconSize={IconSize.XSmall} />
