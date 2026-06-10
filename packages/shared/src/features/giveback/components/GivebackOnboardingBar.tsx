@@ -22,8 +22,7 @@ interface GivebackOnboardingBarProps {
 }
 
 // Sticky bottom bar that keeps the confirm CTA one tap away while scrolling the
-// cause list. Rendered at the page root (outside the animated reveal wrapper)
-// so it pins to the viewport rather than to a transformed ancestor.
+// cause list. Rendered at the page root so it pins to the viewport bottom.
 export const GivebackOnboardingBar = ({
   selectedCount,
   isSaving,

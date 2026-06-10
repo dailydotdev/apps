@@ -61,7 +61,7 @@ export interface TabContainerProps<T extends string = string> {
   swipeable?: boolean;
   tabListProps?: Pick<
     TabListProps,
-    'className' | 'autoScrollActive' | 'dragScroll'
+    'className' | 'autoScrollActive' | 'dragScroll' | 'variant'
   >;
   tabTag?: AllowedTabTags;
   extraHeaderContent?: ReactNode;
@@ -240,6 +240,7 @@ export function TabContainer<T extends string = string>({
           className={tabListProps?.className}
           autoScrollActive={tabListProps?.autoScrollActive}
           dragScroll={tabListProps?.dragScroll}
+          variant={tabListProps?.variant}
           tag={tabTag}
         />
         {extraHeaderContent}

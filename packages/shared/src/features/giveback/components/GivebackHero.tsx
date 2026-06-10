@@ -13,11 +13,22 @@ import { GivebackCampaignVideo } from './GivebackCampaignVideo';
 import { GivebackFundingSummary } from './GivebackFundingSummary';
 
 interface GivebackHeroProps {
+  // Holds the CTA empty until the onboarding status is known.
+  isResolving: boolean;
+  // True once the visitor has confirmed causes: the CTA becomes "Take action".
+  hasSelectedCauses: boolean;
   // Reveals the cause picker when an authenticated visitor joins.
   onJoin: () => void;
+  // Jumps an already-onboarded visitor to the action tab.
+  onTakeAction: () => void;
 }
 
-export const GivebackHero = ({ onJoin }: GivebackHeroProps): ReactElement => {
+export const GivebackHero = ({
+  isResolving,
+  hasSelectedCauses,
+  onJoin,
+  onTakeAction,
+}: GivebackHeroProps): ReactElement => {
   return (
     <section className="relative w-full">
       {/* Clip only the decorative glows, not the content, so hover effects on
@@ -86,7 +97,12 @@ export const GivebackHero = ({ onJoin }: GivebackHeroProps): ReactElement => {
           <FlexCol className="h-full justify-center gap-5">
             <GivebackFundingSummary />
             <div className="via-accent-cabbage-default/30 h-px w-full bg-gradient-to-r from-transparent to-transparent" />
-            <GivebackStartPanel onJoin={onJoin} />
+            <GivebackStartPanel
+              isResolving={isResolving}
+              hasSelectedCauses={hasSelectedCauses}
+              onJoin={onJoin}
+              onTakeAction={onTakeAction}
+            />
           </FlexCol>
         </div>
       </FlexCol>
