@@ -19,6 +19,13 @@ import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useIsScrolling } from '../../../hooks/useIsScrolling';
 
+// Full-bleed cover for the glass variant: drop the side padding and bottom
+// margin so the image meets the card's left/right/bottom edges, and round the
+// bottom corners to the card. Height and object-cover are untouched — same
+// crop and aspect, just edge-to-edge instead of inset.
+export const glassCoverImageClassName =
+  '!px-0 !mb-0 !rounded-t-none !rounded-b-16';
+
 // iOS-26 "Liquid Glass" morph: there is ONE pill containing the real action
 // buttons at all times. Anchored actions (upvote always; comment when it has a
 // count) sit first and never move or swap; every other action sits in its own
