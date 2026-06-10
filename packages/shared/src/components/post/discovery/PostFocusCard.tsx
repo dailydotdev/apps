@@ -357,9 +357,9 @@ export const PostFocusCard = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            <div className="flex min-w-0 flex-col gap-4 tablet:flex-row tablet:items-start">
+            <div className="flex min-w-0 flex-row items-start gap-4">
               <h1
-                className="min-w-0 break-words font-bold text-text-primary typo-title2 tablet:flex-1 tablet:typo-large-title"
+                className="min-w-0 flex-1 break-words font-bold text-text-primary typo-title3 tablet:typo-title1"
                 data-testid="post-modal-title"
               >
                 {title}
