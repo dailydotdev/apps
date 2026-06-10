@@ -35,25 +35,21 @@ export const glassCoverImageClassName =
 const morphEase =
   'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none';
 
-// Hover-intent delay: the grid only starts expanding after the cursor has
-// rested ~180ms, so a quick pass (or a card sliding under a stationary cursor
-// while scrolling) never triggers it. Applied only to the expand direction —
-// collapse stays immediate.
-const expandDelay = 'laptop:mouse:group-hover:delay-[180ms]';
-
 // Full-width positioning grid: the first track holds the pill, the second is
 // an empty spacer. Animating the fr split is what lets the pill go from
 // content-hugging (spacer absorbs the rest) to spanning the full card —
 // `width: fit-content → 100%` is not animatable, but fr tracks are. The
 // `group-hover` expansion is appended by the component only when the feed
-// isn't scrolling (see `expandOnHover`), so cards never expand mid-scroll.
+// isn't scrolling (see `expandOnHover`), so cards expand on a resting hover but
+// never mid-scroll — no hover-intent delay, the expand is immediate.
 const outerBaseClasses = classNames(
   'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid',
   `transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr_0fr]',
   'laptop:mouse:[grid-template-columns:0fr_1fr]',
 );
-const outerExpandClasses = `laptop:mouse:group-hover:[grid-template-columns:1fr_0fr] ${expandDelay}`;
+const outerExpandClasses =
+  'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]';
 
 // `min-w-fit` keeps the pill floored at its visible content while the outer
 // track animates. The glass surface uses the theme-aware `blur-bg` token
@@ -72,14 +68,15 @@ const pillClasses = classNames(
 );
 
 // One collapsible track per secondary action. Width animates 0fr ↔ 1fr while
-// the content fades in slightly delayed, so the pill's growth leads and the
-// icon settles into place (and focus is removed while hidden via visibility).
+// the content fades in, so the pill's growth leads and the icon settles into
+// place (and focus is removed while hidden via visibility).
 const segmentBaseClasses = classNames(
   `grid transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr]',
   'laptop:mouse:[grid-template-columns:0fr]',
 );
-const segmentExpandClasses = `laptop:mouse:group-hover:[grid-template-columns:1fr] ${expandDelay}`;
+const segmentExpandClasses =
+  'laptop:mouse:group-hover:[grid-template-columns:1fr]';
 
 const segmentContentBaseClasses = classNames(
   'flex min-w-0 items-center justify-center overflow-hidden',
@@ -88,7 +85,7 @@ const segmentContentBaseClasses = classNames(
   'laptop:mouse:invisible laptop:mouse:opacity-0',
 );
 const segmentContentExpandClasses =
-  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100 laptop:mouse:group-hover:delay-[240ms]';
+  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100';
 
 interface SegmentProps {
   children: ReactNode;
