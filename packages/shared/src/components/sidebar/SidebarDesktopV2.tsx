@@ -41,7 +41,6 @@ import {
   FeedbackIcon,
   HomeIcon,
   HotIcon,
-  MenuIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
@@ -342,8 +341,7 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight } = useSpotlight();
   const { openNewSquad } = useSquadNavigation();
   const { isLoggedIn, user } = useAuthContext();
-  const { value: isCompact, toggle: toggleCompact } =
-    useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
   // padding so the content never overlaps the rail.
@@ -766,22 +764,6 @@ export const SidebarDesktopV2 = ({
             <SidebarThemeButton />
             <SidebarSupportButton />
 
-            <Tooltip
-              side="right"
-              content={isCompact ? 'Show labels' : 'Hide labels'}
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              <button
-                type="button"
-                aria-label={isCompact ? 'Show labels' : 'Hide labels'}
-                aria-pressed={isCompact}
-                onClick={() => toggleCompact()}
-                className={railButtonClass}
-              >
-                <MenuIcon size={IconSize.Small} aria-hidden />
-              </button>
-            </Tooltip>
-
             <RailHoverCard
               label="Settings"
               panel={renderCategorySection(SidebarCategory.Settings)}
@@ -909,48 +891,25 @@ export const SidebarDesktopV2 = ({
           suppressTransition,
         )}
       >
-        {isHomePanel ? (
-          <div className="pb-2 pt-6">
-            {isLoggedIn && user ? (
-              <section aria-label="Quick actions" className="flex flex-col">
-                <div className="px-3">
-                  <CreatePostButton
-                    compact={false}
-                    showIcon
-                    size={ButtonSize.Small}
-                    className="w-full justify-center !border !border-border-subtlest-quaternary"
-                  />
-                </div>
-              </section>
-            ) : (
-              <div className="flex h-10 items-center px-4">
-                <Typography bold type={TypographyType.Callout}>
-                  daily.dev
-                </Typography>
-              </div>
+        <div className="pl-4 pr-3 pt-6">
+          <div className="flex h-10 items-center justify-between gap-1">
+            <Typography bold type={TypographyType.Callout}>
+              {utilityPanelTitle}
+            </Typography>
+            {isSquadsPanel && (
+              <Tooltip side="bottom" content="New Squad">
+                <button
+                  type="button"
+                  onClick={() => openNewSquad({ origin: Origin.Sidebar })}
+                  aria-label="New Squad"
+                  className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                >
+                  <PlusIcon size={IconSize.XSmall} aria-hidden />
+                </button>
+              </Tooltip>
             )}
           </div>
-        ) : (
-          <div className="pl-4 pr-3 pt-6">
-            <div className="flex h-10 items-center justify-between gap-1">
-              <Typography bold type={TypographyType.Callout}>
-                {utilityPanelTitle}
-              </Typography>
-              {isSquadsPanel && (
-                <Tooltip side="bottom" content="New Squad">
-                  <button
-                    type="button"
-                    onClick={() => openNewSquad({ origin: Origin.Sidebar })}
-                    aria-label="New Squad"
-                    className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                  >
-                    <PlusIcon size={IconSize.XSmall} aria-hidden />
-                  </button>
-                </Tooltip>
-              )}
-            </div>
-          </div>
-        )}
+        </div>
 
         {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
           <div className="mt-2 flex items-center gap-1 px-3">
