@@ -48,6 +48,8 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
+import { PostPageFeed } from '@dailydotdev/shared/src/components/post/PostPageFeed';
+import { usePostPageFeed } from '@dailydotdev/shared/src/hooks/post/usePostPageFeed';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -194,6 +196,7 @@ export const PostPage = ({
       retry: false,
     },
   });
+  const { isEligible: showPostPageFeed } = usePostPageFeed(post);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -290,6 +293,7 @@ export const PostPage = ({
           />
           {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
           <CompanionDemoWidget />
+          {showPostPageFeed && <PostPageFeed />}
         </FooterNavBarLayout>
       </LogExtraContextProvider>
     </ActivePostContextProvider>

@@ -5,6 +5,7 @@ import {
   fireEvent,
   queryByText,
   render,
+  renderHook,
   screen,
   waitFor,
 } from '@testing-library/react';
@@ -49,6 +50,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import { usePostPageFeed } from '@dailydotdev/shared/src/hooks/post/usePostPageFeed';
 import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
@@ -245,6 +247,23 @@ const mockCompleteActionMutation = (action: ActionType): void => {
     .reply(200, { data: { _: true } });
 };
 
+// The post page "For you" feed (PostPageFeed) fires FeedV2/AnonymousFeed with
+// layout-dependent variables, so match on the operation name rather than exact
+// variables. Persisted to also cover any pagination/retries.
+const mockPostPageFeedQuery = (): void => {
+  nock('http://localhost:3000')
+    .persist()
+    .post('/graphql', (body: { query?: string }) =>
+      Boolean(
+        body.query?.includes('query FeedV2(') ||
+          body.query?.includes('query AnonymousFeed('),
+      ),
+    )
+    .reply(200, {
+      data: { page: { pageInfo: { hasNextPage: false }, edges: [] } },
+    });
+};
+
 let client: QueryClient;
 const logEvent = jest.fn();
 
@@ -273,6 +292,7 @@ function renderPost(
   ];
 
   defaultMocks.forEach(mockGraphQL);
+  mockPostPageFeedQuery();
   return render(
     <TestBootProvider
       client={client}
@@ -1020,11 +1040,37 @@ describe('article', () => {
   it('should log page view on initial load', async () => {
     renderPost();
     await screen.findAllByText('Towards Data Science');
-    expect(logEvent).toBeCalledTimes(1);
-    expect(logEvent).toBeCalledWith(
-      expect.objectContaining({
-        event_name: 'article page view',
-      }),
+    const pageViewCalls = logEvent.mock.calls.filter(
+      ([event]) => event?.event_name === 'article page view',
     );
+    expect(pageViewCalls).toHaveLength(1);
+  });
+});
+
+describe('post page feed', () => {
+  it('should render the For you feed below an eligible article', async () => {
+    renderPost();
+    expect(
+      await screen.findByRole('heading', { name: 'For you' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should render the For you feed for anonymous users', async () => {
+    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
+    expect(
+      await screen.findByRole('heading', { name: 'For you' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should be eligible for standard reading post types', () => {
+    const { result } = renderHook(() => usePostPageFeed(defaultPost as Post));
+    expect(result.current.isEligible).toBe(true);
+  });
+
+  it('should not be eligible for specialized post types', () => {
+    const { result } = renderHook(() =>
+      usePostPageFeed({ ...(defaultPost as Post), type: PostType.Brief }),
+    );
+    expect(result.current.isEligible).toBe(false);
   });
 });

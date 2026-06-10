@@ -36,6 +36,8 @@ export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,
 );
+// TODO: flip default to `false` after author review of the post-page "For you" feed.
+export const featurePostPageFeed = new Feature('post_page_feed', true);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
