@@ -71,6 +71,7 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
   OtherFeedPage.AgentsVibes,
+  OtherFeedPage.PostPageFeed,
 ]);
 
 export const UserProfileFeedPages = new Set([
