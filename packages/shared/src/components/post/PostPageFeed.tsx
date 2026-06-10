@@ -6,14 +6,14 @@ import { FeedLayoutProvider } from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import { ANONYMOUS_FEED_QUERY, FEED_V2_QUERY } from '../../graphql/feed';
-import { generateQueryKey } from '../../lib/query';
-import { SharedFeedPage } from '../utilities/common';
+import { generateQueryKey, OtherFeedPage } from '../../lib/query';
 
 /**
  * The post page route forces list layout (feedName === OtherFeedPage.Post in
- * useFeedLayout). Overriding the feed name to a grid-capable page, disabling
- * insaneMode, and supplying the feed sizing provider keeps this nested feed on
- * the grid-card path on laptop while still collapsing to a list on mobile.
+ * useFeedLayout). Overriding the feed name to PostPageFeed (registered in
+ * FeedLayoutMobileFeedPages), disabling insaneMode, and supplying the feed
+ * sizing provider keeps this nested feed on the grid-card path on laptop while
+ * still collapsing to a list on mobile.
  */
 const FeedGridScope = ({ children }: { children: ReactNode }): ReactElement => {
   const settings = useContext(SettingsContext);
@@ -24,7 +24,7 @@ const FeedGridScope = ({ children }: { children: ReactNode }): ReactElement => {
 
   return (
     <ActiveFeedNameContext.Provider
-      value={{ feedName: SharedFeedPage.Popular }}
+      value={{ feedName: OtherFeedPage.PostPageFeed }}
     >
       <SettingsContext.Provider value={settingsValue}>
         <FeedLayoutProvider>{children}</FeedLayoutProvider>
@@ -36,11 +36,7 @@ const FeedGridScope = ({ children }: { children: ReactNode }): ReactElement => {
 export const PostPageFeed = (): ReactElement => {
   const { user } = useAuthContext();
   const query = user ? FEED_V2_QUERY : ANONYMOUS_FEED_QUERY;
-  const feedQueryKey = generateQueryKey(
-    SharedFeedPage.Popular,
-    user,
-    'post-page-feed',
-  );
+  const feedQueryKey = generateQueryKey(OtherFeedPage.PostPageFeed, user);
 
   return (
     <section className="flex w-full flex-col gap-10 border-t border-border-subtlest-tertiary px-4 py-10 laptop:px-10">
@@ -52,7 +48,7 @@ export const PostPageFeed = (): ReactElement => {
       </header>
       <FeedGridScope>
         <Feed
-          feedName={SharedFeedPage.Popular}
+          feedName={OtherFeedPage.PostPageFeed}
           feedQueryKey={feedQueryKey}
           query={query}
           variables={{}}

@@ -71,6 +71,7 @@ export enum OtherFeedPage {
   Discussed = 'discussed',
   Following = 'following',
   Post = 'posts[id]',
+  PostPageFeed = 'post-page-feed',
   AgentsVibes = 'agents-vibes',
   ExploreTag = 'explore[tag]',
 }
