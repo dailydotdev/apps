@@ -2,21 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { ActionButtonsProps } from './ActionButtons';
-import { UpvoteButtonIcon } from './UpvoteButtonIcon';
+import ActionButtons from './ActionButtons';
 import InteractionCounter from '../../InteractionCounter';
-import { QuaternaryButton } from '../../buttons/QuaternaryButton';
-import { BookmarkButton } from '../../buttons/BookmarkButton';
-import PostAwardAction from '../../post/PostAwardAction';
-import {
-  DiscussIcon as CommentIcon,
-  DownvoteIcon,
-  LinkIcon,
-} from '../../icons';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { UpvoteIcon, DiscussIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { Tooltip } from '../../tooltip/Tooltip';
-import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
-import { useCardActions } from '../../../hooks/cards/useCardActions';
 
 // In the glass variant the cover image goes full-bleed: edge-to-edge width
 // (drop the side padding), flush to the card's bottom (drop the bottom margin),
@@ -24,164 +13,58 @@ import { useCardActions } from '../../../hooks/cards/useCardActions';
 export const glassCoverImageClassName =
   '!h-48 !rounded-t-none !rounded-b-16 !px-0 !mb-0';
 
-// iOS/macOS-style "liquid glass" pill: a consistently dark translucent tint (so
-// it reads in both themes over any cover image or content) plus a heavy blur.
-// `--button-default-color` recolors the resting action icons to white; their
-// pressed/hover brand tints stay bright against the dark glass.
-const containerClasses = classNames(
-  'pointer-events-auto absolute bottom-2 left-2 z-1 flex items-center overflow-hidden',
-  'rounded-12 border border-border-subtlest-tertiary px-0.5',
+// iOS/macOS-style "liquid glass" surface: a consistently dark translucent tint
+// (so it reads in both themes over any cover image or content) plus a heavy blur.
+const glassSurface = classNames(
+  'rounded-12 border border-border-subtlest-tertiary',
   'bg-overlay-primary-pepper text-white shadow-3 backdrop-blur-2xl',
+);
+
+// Collapsed "peek": a small left-aligned pill with just the upvote + comment
+// counts, so it barely covers the artwork. Non-interactive — clicks fall
+// through to the card link. Shown by default on mouse/laptop and hidden while
+// hovering; on touch devices it's hidden in favor of the full bar.
+const peekClasses = classNames(
+  glassSurface,
+  'pointer-events-none absolute bottom-2 left-2 z-1 flex items-center gap-3',
+  'h-10 px-3.5 tabular-nums typo-footnote',
+  'opacity-0 transition-opacity duration-200',
+  'laptop:mouse:opacity-100 laptop:mouse:group-hover:opacity-0',
+);
+
+// Full bar: spans the full width of the card and spreads every action
+// (justify-between, original order) via the shared ActionButtons. `--button-
+// default-color` recolors the resting icons to white. On mouse/laptop it's
+// clipped to nothing at rest and wipes open from the left on card hover, so the
+// peek appears to grow into the full-width bar; on touch it's always shown.
+const fullBarClasses = classNames(
+  glassSurface,
+  'absolute inset-x-2 bottom-2 z-1 flex h-10 items-center px-2.5',
   '[--button-default-color:theme(colors.white)]',
+  'transition-[clip-path,opacity] duration-300 ease-out',
+  'pointer-events-auto opacity-100 [clip-path:inset(0_0_0_0_round_0.75rem)]',
+  'laptop:mouse:pointer-events-none laptop:mouse:opacity-0 laptop:mouse:[clip-path:inset(0_100%_0_0_round_0.75rem)]',
+  'laptop:mouse:group-hover:pointer-events-auto laptop:mouse:group-hover:opacity-100 laptop:mouse:group-hover:[clip-path:inset(0_0_0_0_round_0.75rem)]',
 );
 
-// The secondary actions live in a single grid column that animates its width
-// from 0 → content. Because the pill is shrink-to-fit, collapsing this column
-// shrinks the whole pill to just the upvote + comment summary; expanding it
-// grows the same pill rightward — one component morphing, not a cross-fade.
-// Collapsed by default on mouse/laptop and revealed on card hover; on touch
-// devices (no hover) it stays open.
-const secondaryGroupClasses = classNames(
-  'grid transition-[grid-template-columns,opacity] duration-300 ease-out',
-  'opacity-100 [grid-template-columns:1fr]',
-  'laptop:mouse:opacity-0 laptop:mouse:[grid-template-columns:0fr]',
-  'laptop:mouse:group-hover:opacity-100 laptop:mouse:group-hover:[grid-template-columns:1fr]',
-);
-
-export function FeedCardGlassActions({
-  post,
-  onUpvoteClick,
-  onCommentClick,
-  onBookmarkClick,
-  onCopyLinkClick,
-  onDownvoteClick,
-  showDownvoteAction = true,
-  showAwardAction = true,
-}: ActionButtonsProps): ReactElement | null {
-  const isFeedPreview = useFeedPreviewMode();
-  const {
-    isUpvoteActive,
-    isDownvoteActive,
-    onToggleUpvote,
-    onToggleDownvote,
-    onToggleBookmark,
-    onCopyLink,
-  } = useCardActions({
-    post,
-    onUpvoteClick,
-    onDownvoteClick,
-    onBookmarkClick,
-    onCopyLinkClick,
-  });
-
-  if (isFeedPreview) {
-    return null;
-  }
-
-  const upvoteCount = post.numUpvotes ?? 0;
-  const commentCount = post.numComments ?? 0;
+export function FeedCardGlassActions(props: ActionButtonsProps): ReactElement {
+  const { post } = props;
 
   return (
-    <div className={containerClasses}>
-      <Tooltip
-        content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-        side="bottom"
-      >
-        <QuaternaryButton
-          labelClassName="!pl-[1px]"
-          className="btn-tertiary-avocado pointer-events-auto"
-          id={`post-${post.id}-upvote-btn`}
-          color={ButtonColor.Avocado}
-          pressed={isUpvoteActive}
-          onClick={onToggleUpvote}
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={
-            <UpvoteButtonIcon
-              secondary={isUpvoteActive}
-              size={IconSize.XSmall}
-            />
-          }
-        >
-          {upvoteCount > 0 && (
-            <InteractionCounter
-              className="tabular-nums typo-footnote"
-              value={upvoteCount}
-            />
-          )}
-        </QuaternaryButton>
-      </Tooltip>
-      <Tooltip content="Comments" side="bottom">
-        <QuaternaryButton
-          labelClassName="!pl-[1px]"
-          id={`post-${post.id}-comment-btn`}
-          icon={
-            <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
-          }
-          pressed={post.commented}
-          onClick={() => onCommentClick?.(post)}
-          size={ButtonSize.Small}
-          className="btn-tertiary-blueCheese pointer-events-auto"
-        >
-          {commentCount > 0 && (
-            <InteractionCounter
-              className="tabular-nums !typo-footnote"
-              value={commentCount}
-            />
-          )}
-        </QuaternaryButton>
-      </Tooltip>
-      <div className={secondaryGroupClasses}>
-        <div className="flex min-w-0 items-center overflow-hidden">
-          {showDownvoteAction && (
-            <Tooltip
-              content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-              side="bottom"
-            >
-              <QuaternaryButton
-                className="pointer-events-auto"
-                id={`post-${post.id}-downvote-btn`}
-                color={ButtonColor.Ketchup}
-                icon={
-                  <DownvoteIcon
-                    secondary={isDownvoteActive}
-                    size={IconSize.XSmall}
-                  />
-                }
-                pressed={isDownvoteActive}
-                onClick={onToggleDownvote}
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-              />
-            </Tooltip>
-          )}
-          {showAwardAction && (
-            <PostAwardAction post={post} iconSize={IconSize.XSmall} />
-          )}
-          <BookmarkButton
-            tooltipSide="bottom"
-            post={post}
-            buttonProps={{
-              id: `post-${post.id}-bookmark-btn`,
-              onClick: onToggleBookmark,
-              size: ButtonSize.Small,
-              className: 'btn-tertiary-bun pointer-events-auto',
-            }}
-            iconSize={IconSize.XSmall}
-          />
-          <Tooltip content="Copy link" side="bottom">
-            <QuaternaryButton
-              id="copy-post-btn"
-              size={ButtonSize.Small}
-              icon={<LinkIcon size={IconSize.XSmall} />}
-              onClick={onCopyLink}
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Cabbage}
-              className="pointer-events-auto"
-            />
-          </Tooltip>
-        </div>
+    <>
+      <div className={peekClasses} aria-hidden>
+        <span className="flex items-center gap-1">
+          <UpvoteIcon size={IconSize.XSmall} />
+          <InteractionCounter value={post.numUpvotes ?? 0} />
+        </span>
+        <span className="flex items-center gap-1">
+          <DiscussIcon size={IconSize.XSmall} />
+          <InteractionCounter value={post.numComments ?? 0} />
+        </span>
       </div>
-    </div>
+      <div className={fullBarClasses}>
+        <ActionButtons {...props} className="w-full !px-1 !pb-0" />
+      </div>
+    </>
   );
 }
