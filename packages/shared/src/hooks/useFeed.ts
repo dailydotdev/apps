@@ -596,7 +596,24 @@ export default function useFeed<T>(
         startIndex: postHighlightCardsConfig.startIndex,
       });
 
+      const staticAd = settings?.staticAd;
+      let staticAdInserted = !staticAd;
+
       const pushAndAdvance = (item: FeedItem): void => {
+        if (
+          staticAd &&
+          !staticAdInserted &&
+          newItems.length === staticAd.index
+        ) {
+          staticAdInserted = true;
+          pushAndAdvance({
+            type: FeedItemType.Ad,
+            ad: staticAd.ad,
+            index: 0,
+            updatedAt: Date.now(),
+            dataUpdatedAt: Date.now(),
+          } as AdItem);
+        }
         newItems.push(item);
         const idx = newItems.length - 1;
         const fullRowBefore = fullRowInsertionBeforeIndex.has(idx);
@@ -612,6 +629,20 @@ export default function useFeed<T>(
         });
         visualCellsSoFar += placement.colSpan;
       };
+
+      if (plusEntryAsFirstCard && plusEntry) {
+        pushAndAdvance({
+          type: FeedItemType.PlusEntry,
+          plusEntry,
+          dataUpdatedAt: feedQuery.dataUpdatedAt,
+        });
+      } else if (marketingCtaAsFirstCard && marketingCta) {
+        pushAndAdvance({
+          type: FeedItemType.MarketingCta,
+          marketingCta,
+          dataUpdatedAt: feedQuery.dataUpdatedAt,
+        });
+      }
 
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
@@ -680,19 +711,14 @@ export default function useFeed<T>(
         });
       });
 
-      // Prepend marketing CTA as first card if configured
-      if (plusEntryAsFirstCard && plusEntry) {
-        newItems.unshift({
-          type: FeedItemType.PlusEntry,
-          plusEntry,
-          dataUpdatedAt: feedQuery.dataUpdatedAt,
-        });
-      } else if (marketingCtaAsFirstCard && marketingCta) {
-        newItems.unshift({
-          type: FeedItemType.MarketingCta,
-          marketingCta,
-          dataUpdatedAt: feedQuery.dataUpdatedAt,
-        });
+      if (staticAd && !staticAdInserted && newItems.length > 0) {
+        newItems.push({
+          type: FeedItemType.Ad,
+          ad: staticAd.ad,
+          index: 0,
+          updatedAt: Date.now(),
+          dataUpdatedAt: Date.now(),
+        } as AdItem);
       }
     }
     if (feedQuery.isFetching) {
@@ -701,17 +727,6 @@ export default function useFeed<T>(
           createPlaceholderItem(),
         ),
       );
-    }
-
-    if (settings?.staticAd && feedQuery.data && newItems.length > 0) {
-      const insertAt = Math.min(settings.staticAd.index, newItems.length);
-      newItems.splice(insertAt, 0, {
-        type: FeedItemType.Ad,
-        ad: settings.staticAd.ad,
-        index: 0,
-        updatedAt: Date.now(),
-        dataUpdatedAt: Date.now(),
-      } as AdItem);
     }
 
     return newItems;

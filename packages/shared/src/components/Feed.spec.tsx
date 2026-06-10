@@ -14,7 +14,13 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
-import type { FeedData, Post, PostData, PostsEngaged } from '../graphql/posts';
+import type {
+  Ad,
+  FeedData,
+  Post,
+  PostData,
+  PostsEngaged,
+} from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
   HIDE_POST_MUTATION,
@@ -79,6 +85,9 @@ import {
 import type { Connection } from '../graphql/common';
 import type { PostHero, PostHeroSignificance } from '../graphql/types';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useBoot } from '../hooks/useBoot';
+import { MarketingCtaVariant } from './marketing/cta/common';
+import type { MarketingCta } from './marketing/cta/common';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -148,6 +157,17 @@ jest.mock('../hooks/notifications/useReadingReminderFeedHero', () => ({
     subtitle: '',
     onEnableHero: jest.fn(),
     onDismissHero: jest.fn(),
+  }),
+}));
+
+jest.mock('../hooks/useBoot', () => ({
+  useBoot: jest.fn().mockReturnValue({
+    addSquad: jest.fn(),
+    deleteSquad: jest.fn(),
+    updateSquad: jest.fn(),
+    getMarketingCta: jest.fn().mockReturnValue(null),
+    clearMarketingCta: jest.fn(),
+    getPlusEntryData: jest.fn().mockReturnValue(null),
   }),
 }));
 
@@ -1760,12 +1780,8 @@ interface HighlightLayoutRenderParams {
   adRepeat?: number;
   minSpacing?: number;
   startIndex?: number;
-  /**
-   * Page index for the brief banner placement (1 = end of page 1). When
-   * set, useFeed picks up the banner and threads its index through the
-   * placement builder + bannerInsertions return.
-   */
   briefBannerPage?: number;
+  staticAd?: { ad: Ad; index: number };
 }
 
 const renderWithHighlightLayout = ({
@@ -1778,6 +1794,7 @@ const renderWithHighlightLayout = ({
   minSpacing = 5,
   startIndex = 0,
   briefBannerPage,
+  staticAd,
 }: HighlightLayoutRenderParams): RenderResult => {
   variables = { ...defaultVariables, first: pageSize };
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
@@ -1870,6 +1887,7 @@ const renderWithHighlightLayout = ({
                   feedName={SharedFeedPage.MyFeed}
                   query={ANONYMOUS_FEED_QUERY}
                   variables={variables}
+                  staticAd={staticAd}
                 />
               </FeedContext.Provider>
             </SettingsContext.Provider>
@@ -2084,5 +2102,90 @@ describe('Feed ad cadence with highlight cards', () => {
 
     expect(await screen.findByText(heroSubtitle)).toBeInTheDocument();
     expect(screen.queryByText(heroTitle)).toBeInTheDocument();
+  });
+
+  it('inserts staticAd at the requested index via the cadence walk', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+    ];
+    const staticAdFixture: Ad = {
+      ...ad,
+      link: 'https://daily.dev/static-ad-marker',
+    };
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      staticAd: { ad: staticAdFixture, index: 2 },
+    });
+
+    const order = await getFeedItemTestIds(1);
+    expect(order[2]).toBe('adItem');
+    expect(order[0]).toBe('postItem');
+    expect(order[1]).toBe('postItem');
+  });
+
+  it('places a marketing CTA at index 0 when asFirstCard is set', async () => {
+    const marketingCtaTitle = 'Marketing CTA title';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-test',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+        asFirstCard: true,
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildPost('p8'),
+    ];
+
+    // adStart=2, adRepeat=4 → 3 slots at vcs 2, 6, 10. CTA pushed first
+    // shifts vcs by 1. Slot 0 (vcs=2) is skipped by asFirstCard; slots
+    // 1 and 2 (vcs=6, 10) fire. CTA itself has no postItem/adItem testid,
+    // so it's filtered out of the helper output — ads land at testid'd
+    // indices 5 and 9.
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      adStart: 2,
+      adRepeat: 4,
+    });
+
+    expect(
+      await screen.findByText(marketingCtaTitle, undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    expect(adIndices).toEqual([5, 9]);
+    expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
   });
 });

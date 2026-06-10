@@ -100,6 +100,23 @@ describe('requestedColSpan', () => {
       ),
     ).toBe(3);
   });
+
+  it('caps hero.size at 4 even when the server sends a larger value', () => {
+    const post = {
+      id: 'p',
+      type: PostType.Article,
+      image: '',
+      commentsPermalink: '',
+      hero: {
+        id: 'h',
+        size: 7,
+        headline: 'h',
+        significance: 'breaking',
+        highlightedAt: '2026-05-25T00:00:00.000Z',
+      },
+    } as Post;
+    expect(requestedColSpan(makePostItem(post))).toBe(4);
+  });
 });
 
 describe('createPlacementBuilder', () => {

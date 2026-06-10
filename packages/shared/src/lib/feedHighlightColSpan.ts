@@ -26,6 +26,8 @@ export const isHeroEligiblePost = (post: {
  * request a wide colSpan. Ads, highlight strip items, placeholders,
  * marketing items and non-article post types always stay at 1.
  */
+const MAX_HERO_COL_SPAN = 4;
+
 export const requestedColSpan = (item: FeedItem): number => {
   if (!item || item.type !== FeedItemType.Post) {
     return 1;
@@ -35,7 +37,10 @@ export const requestedColSpan = (item: FeedItem): number => {
     return 1;
   }
 
-  return item.post.hero?.size ?? 1;
+  // Cap to MAX_HERO_COL_SPAN: `ArticleFeaturedWideGridCard` only has
+  // designs for colSpan 2/3/4. If larger designes are needed support needs to
+  // be added frontend first
+  return Math.min(item.post.hero?.size ?? 1, MAX_HERO_COL_SPAN);
 };
 
 export interface FeedItemPlacement {
