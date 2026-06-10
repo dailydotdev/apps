@@ -23,7 +23,10 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
+import {
+  FeedCardGlassActions,
+  glassCoverImageClassName,
+} from '../common/FeedCardGlassActions';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
@@ -159,7 +162,11 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             post={post}
             onShare={onShare}
             className={{
-              image: classNames('px-1', showFeedback && 'mb-0'),
+              image: classNames(
+                'px-1',
+                showFeedback && 'mb-0',
+                glassActions && !showFeedback && glassCoverImageClassName,
+              ),
             }}
             eagerLoadImage={eagerLoadImage}
           />

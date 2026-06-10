@@ -17,7 +17,10 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
+import {
+  FeedCardGlassActions,
+  glassCoverImageClassName,
+} from '../common/FeedCardGlassActions';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
@@ -136,7 +139,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         openNewTab={openNewTab ?? false}
         post={footerPost}
         className={{
-          image: 'px-1',
+          image: useGlass ? `px-1 ${glassCoverImageClassName}` : 'px-1',
         }}
       />
     );
@@ -148,6 +151,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
     openNewTab,
     post,
     sharedPost,
+    useGlass,
   ]);
 
   if (isHidden) {

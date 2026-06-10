@@ -16,7 +16,10 @@ import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
+import {
+  FeedCardGlassActions,
+  glassCoverImageClassName,
+} from '../common/FeedCardGlassActions';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
@@ -129,6 +132,9 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           image={image}
           contentHtml={post.contentHtml}
           post={post}
+          imageClassName={
+            useGlass && image ? glassCoverImageClassName : undefined
+          }
         />
         {useGlass ? (
           <FeedCardGlassActions

@@ -12,6 +12,7 @@ interface WelcomePostCardFooterProps {
   image?: string;
   contentHtml?: string;
   onShare?: (post: Post) => void;
+  imageClassName?: string;
 }
 
 export const WelcomePostCardFooter = ({
@@ -19,6 +20,7 @@ export const WelcomePostCardFooter = ({
   image,
   onShare,
   contentHtml,
+  imageClassName,
 }: WelcomePostCardFooterProps): ReactElement | null => {
   const { overlay } = useCardCover({
     post,
@@ -49,7 +51,7 @@ export const WelcomePostCardFooter = ({
           post={post}
           imageProps={{
             src: image,
-            className: 'mt-2 mb-1 w-full px-1',
+            className: classNames('mb-1 mt-2 w-full px-1', imageClassName),
             alt: 'Post Cover image',
           }}
         />
