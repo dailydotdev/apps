@@ -130,18 +130,22 @@ const RailToggle = ({
     </div>
     <div
       className={classNames(
-        'flex min-w-0 flex-1 items-center',
+        'flex min-w-0 flex-1 flex-col',
         connectorBelow ? 'pb-8' : 'pb-1',
       )}
     >
-      <Typography
-        type={TypographyType.Footnote}
-        bold
-        color={TypographyColor.Tertiary}
-        className="transition-colors group-hover:text-text-primary"
-      >
-        {label}
-      </Typography>
+      {/* Match the icon's height so the label centers against the node, not the
+          full icon + connector run. */}
+      <div className="flex h-10 items-center">
+        <Typography
+          type={TypographyType.Footnote}
+          bold
+          color={TypographyColor.Tertiary}
+          className="transition-colors group-hover:text-text-primary"
+        >
+          {label}
+        </Typography>
+      </div>
     </div>
   </button>
 );
