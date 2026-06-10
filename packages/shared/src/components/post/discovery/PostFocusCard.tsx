@@ -6,6 +6,7 @@ import type { Post } from '../../../graphql/posts';
 import {
   getReadArticleHref,
   getReadPostButtonText,
+  isInternalReadType,
   isVideoPost,
   PostType,
 } from '../../../graphql/posts';
@@ -26,7 +27,7 @@ import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ClickableText } from '../../buttons/ClickableText';
-import { PostHeaderActions } from '../PostHeaderActions';
+import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
@@ -239,32 +240,20 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            {isShared ? (
-              readHref && (
-                <Button
-                  tag="a"
-                  href={readHref}
-                  target="_blank"
-                  rel="noopener"
-                  onClick={onReadArticle}
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                  className="ml-auto shrink-0"
-                >
-                  {getReadPostButtonText(post)}
-                </Button>
-              )
-            ) : (
-              <PostHeaderActions
-                buttonSize={ButtonSize.Small}
-                className="ml-auto h-8 shrink-0 items-center"
-                contextMenuId="post-discovery-header-actions"
-                hideMenuOptions
-                hideSubscribeAction
-                onReadArticle={onReadArticle}
-                post={post}
-                readButtonVariant={ButtonVariant.Primary}
-              />
+            {readHref && !isInternalReadType(post) && (
+              <Button
+                tag="a"
+                href={readHref}
+                target="_blank"
+                rel="noopener"
+                icon={getReadPostButtonIcon(post)}
+                onClick={onReadArticle}
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+                className="ml-auto shrink-0"
+              >
+                {getReadPostButtonText(post)}
+              </Button>
             )}
           </div>
 
@@ -312,14 +301,14 @@ export const PostFocusCard = ({
             )}
             <div className="flex min-w-0 items-start gap-4">
               <h1
-                className="min-w-0 flex-1 break-words font-bold text-text-primary typo-large-title"
+                className="min-w-0 flex-1 break-words font-bold text-text-primary typo-title2 tablet:typo-large-title"
                 data-testid="post-modal-title"
               >
                 {title}
               </h1>
               {!isVideoType && article.image && (
                 <a
-                  className="block h-fit w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  className="block h-fit w-20 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                   href={readHref}
                   onClick={handleImageClick}
                   rel="noopener"
