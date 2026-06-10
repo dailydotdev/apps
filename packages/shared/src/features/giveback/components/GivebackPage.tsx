@@ -8,7 +8,6 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { GivebackBackground } from './GivebackBackground';
-import { GivebackReveal } from './GivebackReveal';
 import { GivebackHero } from './GivebackHero';
 import { GivebackSponsorTiers } from './GivebackSponsorTiers';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
@@ -92,51 +91,45 @@ export const GivebackPage = (): ReactElement => {
 
       <FlexCol className="relative gap-14 py-8 tablet:py-14">
         <div className={column}>
-          <GivebackReveal>
-            <GivebackHero
-              isResolving={isCtaResolving}
-              hasSelectedCauses={showTabs}
-              onJoin={() => setStartedPicker(true)}
-              onTakeAction={goToActions}
-            />
-          </GivebackReveal>
+          <GivebackHero
+            isResolving={isCtaResolving}
+            hasSelectedCauses={showTabs}
+            onJoin={() => setStartedPicker(true)}
+            onTakeAction={goToActions}
+          />
         </div>
 
         <div className={column}>
-          <GivebackReveal>
-            <GivebackSponsorTiers />
-          </GivebackReveal>
+          <GivebackSponsorTiers />
         </div>
 
         {showPicker && (
           <div ref={causesRef} className={`${column} scroll-mt-16`}>
-            <GivebackReveal>
-              <FlexCol className="gap-6">
-                <FlexCol className="gap-2">
-                  <Typography
-                    tag={TypographyTag.H2}
-                    type={TypographyType.Title2}
-                    bold
-                  >
-                    Pick the causes you care about
-                  </Typography>
-                  <Typography
-                    tag={TypographyTag.P}
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Secondary}
-                  >
-                    Your actions fund the causes you choose. We fund developers,
-                    not ads.
-                  </Typography>
-                </FlexCol>
-                <GivebackCauseSelection
-                  causes={selection.causes}
-                  isLoading={selection.isLoading}
-                  selectedIds={selection.selectedIds}
-                  onToggle={selection.toggleCause}
-                />
+            <FlexCol className="gap-6">
+              <FlexCol className="gap-2">
+                <Typography
+                  tag={TypographyTag.H2}
+                  type={TypographyType.Title2}
+                  bold
+                >
+                  Pick the causes you care about
+                </Typography>
+                <Typography
+                  tag={TypographyTag.P}
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  Your actions fund the causes you choose. We fund developers,
+                  not ads.
+                </Typography>
               </FlexCol>
-            </GivebackReveal>
+              <GivebackCauseSelection
+                causes={selection.causes}
+                isLoading={selection.isLoading}
+                selectedIds={selection.selectedIds}
+                onToggle={selection.toggleCause}
+              />
+            </FlexCol>
           </div>
         )}
 
@@ -150,31 +143,27 @@ export const GivebackPage = (): ReactElement => {
               aria-label={activeLabel}
               className={`${column} pt-8`}
             >
-              <GivebackReveal>
-                <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
-                  <Typography
-                    tag={TypographyTag.H2}
-                    type={TypographyType.Title3}
-                    bold
-                  >
-                    {activeLabel}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Tertiary}
-                  >
-                    Coming soon
-                  </Typography>
-                </FlexCol>
-              </GivebackReveal>
+              <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
+                <Typography
+                  tag={TypographyTag.H2}
+                  type={TypographyType.Title3}
+                  bold
+                >
+                  {activeLabel}
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  Coming soon
+                </Typography>
+              </FlexCol>
             </div>
           </div>
         )}
 
         <div className={column}>
-          <GivebackReveal>
-            <GivebackLegalFooter />
-          </GivebackReveal>
+          <GivebackLegalFooter />
         </div>
       </FlexCol>
 
