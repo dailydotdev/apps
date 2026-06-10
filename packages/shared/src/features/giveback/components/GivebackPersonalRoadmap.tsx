@@ -80,7 +80,6 @@ type ConnectorFill =
 
 interface RoadmapNode {
   level: RoadmapLevel;
-  index: number;
   isLast: boolean;
   isReached: boolean;
   isCurrent: boolean;
@@ -378,7 +377,7 @@ export const GivebackPersonalRoadmap = ({
   const { earnedPoints, currentLevel, isPending } =
     useGivebackContribution(true);
   const { rewardTiers } = useContributionRewards(true);
-  const { rewards: claimedRewards } = useContributionUserRewards(true);
+  const { claimedRewardIds } = useContributionUserRewards(true);
   const { claim, isPending: isClaiming } = useClaimContributionReward();
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(true);
@@ -403,8 +402,8 @@ export const GivebackPersonalRoadmap = ({
   );
 
   const claimedIds = useMemo(
-    () => new Set(claimedRewards.map((reward) => reward.tier.id)),
-    [claimedRewards],
+    () => new Set(claimedRewardIds),
+    [claimedRewardIds],
   );
 
   if (isPending) {
@@ -505,7 +504,6 @@ export const GivebackPersonalRoadmap = ({
       const index = level.levelNumber - 1;
       return {
         level,
-        index,
         isLast: index === total - 1,
         isReached: approved >= level.requiredApprovedAmount,
         isCurrent: level.levelNumber === focusIndex + 1,

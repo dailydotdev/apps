@@ -110,26 +110,12 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
         }
       }
     }
-  }
-`;
-
-// The visitor's claimed rewards, powering the "claimed" state on the Impact
-// tab's reward roadmap. Backend-gated to onboarded, eligible visitors.
-export const CONTRIBUTION_USER_REWARDS_QUERY = `
-  query UserContributionRewards($first: Int) {
     userContributionRewards(first: $first) {
       edges {
         node {
           tier {
             id
-            title
-            description
-            thresholdPoints
-            rewardType
           }
-          status
-          claimedAt
-          fulfilledAt
         }
       }
     }
@@ -139,9 +125,9 @@ export const CONTRIBUTION_USER_REWARDS_QUERY = `
 export const CLAIM_CONTRIBUTION_REWARD_MUTATION = `
   mutation ClaimContributionReward($tierId: ID!) {
     claimContributionReward(tierId: $tierId) {
-      status
-      claimedAt
-      fulfilledAt
+      tier {
+        id
+      }
     }
   }
 `;

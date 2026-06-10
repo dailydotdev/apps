@@ -92,7 +92,7 @@ beforeEach(() => {
     isPending: false,
   });
   mockRewards.mockReturnValue({ rewardTiers: tiers, isPending: false });
-  mockUserRewards.mockReturnValue({ rewards: [], isPending: false });
+  mockUserRewards.mockReturnValue({ claimedRewardIds: [], isPending: false });
   mockClaim.mockReturnValue({ claim: jest.fn(), isPending: false });
 });
 

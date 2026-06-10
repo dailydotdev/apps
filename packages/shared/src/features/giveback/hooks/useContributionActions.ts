@@ -15,6 +15,8 @@ interface UseContributionActions {
   actions: ContributionAction[];
   categories: ContributionActionCategory[];
   rewardTiers: ContributionRewardTier[];
+  // Tier ids the visitor has already claimed, for the roadmap's claimed state.
+  claimedRewardIds: string[];
   isPending: boolean;
 }
 
@@ -38,6 +40,7 @@ export const useContributionActions = (
         contributionActions: Connection<ContributionAction>;
         contributionActionCategories: Connection<ContributionActionCategory>;
         contributionRewardTiers: Connection<ContributionRewardTier>;
+        userContributionRewards: Connection<{ tier: { id: string } }>;
       }>(CONTRIBUTION_ACTIONS_QUERY, { first: MAX_ACTIONS });
 
       return {
@@ -46,6 +49,9 @@ export const useContributionActions = (
           (edge) => edge.node,
         ),
         rewardTiers: res.contributionRewardTiers.edges.map((edge) => edge.node),
+        claimedRewardIds: res.userContributionRewards.edges.map(
+          (edge) => edge.node.tier.id,
+        ),
       };
     },
     enabled: shouldFetch,
@@ -57,6 +63,7 @@ export const useContributionActions = (
     actions: data?.actions ?? [],
     categories: data?.categories ?? [],
     rewardTiers: data?.rewardTiers ?? [],
+    claimedRewardIds: data?.claimedRewardIds ?? [],
     isPending: shouldFetch && isPending,
   };
 };

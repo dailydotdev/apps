@@ -71,19 +71,6 @@ export interface ContributionRewardTier {
   rewardType: ContributionRewardType;
 }
 
-// A reward the visitor has claimed. `fulfilled` once it's been delivered.
-export enum UserContributionRewardStatus {
-  Claimed = 'claimed',
-  Fulfilled = 'fulfilled',
-}
-
-export interface UserContributionReward {
-  tier: ContributionRewardTier;
-  status: UserContributionRewardStatus;
-  claimedAt: string | null;
-  fulfilledAt: string | null;
-}
-
 // Review outcome for a submitted action. A fresh submission lands `flagged`
 // (awaiting review); `approved` counts toward the cause; `rejected` lets the
 // contributor try again.

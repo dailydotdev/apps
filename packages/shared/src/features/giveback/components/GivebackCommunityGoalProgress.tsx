@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
@@ -13,12 +13,26 @@ import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useContributionSponsors } from '../hooks/useContributionSponsors';
 import { useCountUp, useInView } from '../useGivebackMotion';
 import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
-import { GivebackSection } from './GivebackSection';
 import { GivebackMeterShine } from './GivebackMeterShine';
 import { GivebackSponsorBudgetBar } from './GivebackSponsorBudgetBar';
 import type { BudgetSponsor } from './GivebackSponsorBudgetBar';
 
 const milestones = [25, 50, 75, 100];
+
+const FundingSection = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => (
+  <section id="giveback-goal" className="relative w-full scroll-mt-16">
+    <FlexCol className="gap-6">
+      <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
+        Funding progress
+      </Typography>
+      {children}
+    </FlexCol>
+  </section>
+);
 
 // Campaign funding for the Impact tab: how much the community has unlocked of
 // the goal, plus the sponsors topping up the pot. All numbers are live from the
@@ -61,18 +75,18 @@ export const GivebackCommunityGoalProgress = (): ReactElement => {
 
   if (!status || goalAmount === 0) {
     return (
-      <GivebackSection id="giveback-goal" title="Funding progress">
+      <FundingSection>
         <FlexCol className="gap-3">
           <div className="h-10 w-48 animate-pulse rounded-8 bg-surface-float" />
           <div className="h-5 w-full animate-pulse rounded-16 bg-surface-float" />
           <div className="h-4 w-40 animate-pulse rounded-8 bg-surface-float" />
         </FlexCol>
-      </GivebackSection>
+      </FundingSection>
     );
   }
 
   return (
-    <GivebackSection id="giveback-goal" title="Funding progress">
+    <FundingSection>
       <FlexCol className="gap-2">
         <div
           className={classNames(
@@ -128,16 +142,14 @@ export const GivebackCommunityGoalProgress = (): ReactElement => {
                 </FlexRow>
               </div>
 
-              <FlexRow className="flex-wrap items-center justify-between gap-2">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Callout}
-                  color={TypographyColor.StatusSuccess}
-                  bold
-                >
-                  {Math.round(percentage)}% funded
-                </Typography>
-              </FlexRow>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Callout}
+                color={TypographyColor.StatusSuccess}
+                bold
+              >
+                {Math.round(percentage)}% funded
+              </Typography>
 
               <Typography
                 tag={TypographyTag.Span}
@@ -194,6 +206,6 @@ export const GivebackCommunityGoalProgress = (): ReactElement => {
           goal.
         </Typography>
       </FlexCol>
-    </GivebackSection>
+    </FundingSection>
   );
 };

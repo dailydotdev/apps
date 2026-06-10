@@ -277,7 +277,6 @@ export enum RequestKey {
   ContributionOverview = 'contribution_overview',
   ContributionCausePicker = 'contribution_cause_picker',
   ContributionActions = 'contribution_actions',
-  ContributionUserRewards = 'contribution_user_rewards',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

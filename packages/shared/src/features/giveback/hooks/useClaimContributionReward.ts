@@ -3,10 +3,9 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { gqlClient } from '../../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { CLAIM_CONTRIBUTION_REWARD_MUTATION } from '../graphql';
-import type { UserContributionReward } from '../types';
 
 interface UseClaimContributionReward {
-  claim: (tierId: string) => Promise<UserContributionReward>;
+  claim: (tierId: string) => Promise<void>;
   isPending: boolean;
 }
 
@@ -16,15 +15,13 @@ export const useClaimContributionReward = (): UseClaimContributionReward => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (tierId: string) => {
-      const res = await gqlClient.request<{
-        claimContributionReward: UserContributionReward;
-      }>(CLAIM_CONTRIBUTION_REWARD_MUTATION, { tierId });
-
-      return res.claimContributionReward;
+      await gqlClient.request(CLAIM_CONTRIBUTION_REWARD_MUTATION, { tierId });
     },
     onSuccess: () => {
+      // Claimed state lives in the shared catalog query (see
+      // `useContributionActions`), so refresh that to mark the node claimed.
       queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.ContributionUserRewards, user),
+        queryKey: generateQueryKey(RequestKey.ContributionActions, user),
       });
     },
   });
