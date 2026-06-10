@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -45,10 +45,47 @@ interface PostDiscoveryActionBarProps {
 }
 
 /**
+ * One control in the morphing engagement bar. `pinned` slots are always
+ * visible; the rest collapse to zero width on pointer devices and morph open
+ * (width + opacity) when the bar is hovered or focused. Touch devices, which
+ * have no hover, reveal everything by default.
+ *
+ * The width morph uses the grid `0fr -> 1fr` track trick (the inner element is
+ * `min-w-0 overflow-hidden`) so each control animates to its natural content
+ * width — the Liquid Glass "concentrate, then expand on intent" behavior from
+ * the iOS 26 toolbar, where the source control stays anchored as siblings grow
+ * in around it.
+ */
+const MorphSlot = ({
+  pinned = false,
+  children,
+}: {
+  pinned?: boolean;
+  children: ReactNode;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'grid transition-[grid-template-columns,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+      pinned
+        ? 'grid-cols-[1fr] opacity-100'
+        : 'grid-cols-[1fr] opacity-100 mouse:grid-cols-[0fr] mouse:opacity-0 mouse:group-focus-within/bar:grid-cols-[1fr] mouse:group-focus-within/bar:opacity-100 mouse:group-hover/bar:grid-cols-[1fr] mouse:group-hover/bar:opacity-100',
+    )}
+  >
+    <div className={classNames('min-w-0', pinned ? '' : 'overflow-hidden')}>
+      {children}
+    </div>
+  </div>
+);
+
+/**
  * Engagement bar for the discovery focus card, built on the CardAction
  * primitives (PR #6064 guideline): each action's count lives inside the click
  * target so the icon or number performs the action. Sticks to the top while
  * scrolling; the modal X appears only once the bar is pinned.
+ *
+ * Concentrated by default to the upvote (always) plus any action that has a
+ * metric, it morphs open to the full action set on hover/focus — see
+ * {@link MorphSlot}.
  */
 export const PostDiscoveryActionBar = ({
   post,
@@ -144,110 +181,133 @@ export const PostDiscoveryActionBar = ({
       <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
       <div
         className={classNames(
-          'sticky z-3 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-1 py-2',
-          // Drop the top border once pinned so it doesn't double up with the
-          // header border above it.
-          !isStuck && 'border-t',
+          'group/bar bg-background-default/80 sticky z-3 flex items-center justify-between border-b border-t border-b-border-subtlest-tertiary border-t-transparent px-1 py-2 backdrop-blur-xl transition-colors duration-300',
+          // Keep the top border present always and toggle its color (visible
+          // only before the bar pins) so the bar height — and the content
+          // below it — never shifts when it sticks.
+          !isStuck && '!border-t-border-subtlest-tertiary',
           stickyTopClassName,
           className,
         )}
       >
-        <div className="flex items-center gap-1">
-          <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-          >
-            <CardAction
-              id="upvote-post-btn"
-              label="Upvote"
-              color={ButtonColor.Avocado}
-              icon={<UpvoteButtonIcon />}
-              iconPressed={<UpvoteButtonIcon secondary />}
-              count={upvotes}
-              pressed={isUpvoteActive}
-              onClick={onToggleUpvote}
-            />
-          </Tooltip>
-          <Tooltip
-            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-          >
-            <CardAction
-              id="downvote-post-btn"
-              label="Downvote"
-              color={ButtonColor.Ketchup}
-              icon={<DownvoteIcon />}
-              iconPressed={<DownvoteIcon secondary />}
-              pressed={isDownvoteActive}
-              onClick={onToggleDownvote}
-            />
-          </Tooltip>
-          <Tooltip content="Comment">
-            <CardAction
-              id="comment-post-btn"
-              label="Comment"
-              color={ButtonColor.BlueCheese}
-              icon={<CommentIcon />}
-              iconPressed={<CommentIcon secondary />}
-              count={comments}
-              pressed={post.commented}
-              onClick={onComment}
-            />
-          </Tooltip>
-          {canAward && (
+        <div className="flex min-w-0 items-center">
+          <MorphSlot pinned>
             <Tooltip
-              content={isAwarded ? 'You already awarded this post!' : 'Award'}
+              content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
             >
               <CardAction
-                id="award-post-btn"
-                label="Award"
-                color={ButtonColor.Cabbage}
-                icon={<MedalBadgeIcon secondary />}
-                iconPressed={<MedalBadgeIcon />}
-                count={awards}
-                pressed={isAwarded}
-                onClick={onGiveAward}
+                id="upvote-post-btn"
+                label="Upvote"
+                color={ButtonColor.Avocado}
+                icon={<UpvoteButtonIcon />}
+                iconPressed={<UpvoteButtonIcon secondary />}
+                count={upvotes}
+                pressed={isUpvoteActive}
+                onClick={onToggleUpvote}
               />
             </Tooltip>
+          </MorphSlot>
+          <MorphSlot>
+            <Tooltip
+              content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+            >
+              <CardAction
+                id="downvote-post-btn"
+                label="Downvote"
+                color={ButtonColor.Ketchup}
+                icon={<DownvoteIcon />}
+                iconPressed={<DownvoteIcon secondary />}
+                pressed={isDownvoteActive}
+                onClick={onToggleDownvote}
+              />
+            </Tooltip>
+          </MorphSlot>
+          <MorphSlot pinned={comments > 0}>
+            <Tooltip content="Comment">
+              <CardAction
+                id="comment-post-btn"
+                label="Comment"
+                color={ButtonColor.BlueCheese}
+                icon={<CommentIcon />}
+                iconPressed={<CommentIcon secondary />}
+                count={comments}
+                pressed={post.commented}
+                onClick={onComment}
+              />
+            </Tooltip>
+          </MorphSlot>
+          {canAward && (
+            <MorphSlot pinned={awards > 0}>
+              <Tooltip
+                content={isAwarded ? 'You already awarded this post!' : 'Award'}
+              >
+                <CardAction
+                  id="award-post-btn"
+                  label="Award"
+                  color={ButtonColor.Cabbage}
+                  icon={<MedalBadgeIcon secondary />}
+                  iconPressed={<MedalBadgeIcon />}
+                  count={awards}
+                  pressed={isAwarded}
+                  onClick={onGiveAward}
+                />
+              </Tooltip>
+            </MorphSlot>
           )}
         </div>
 
-        <div className="flex items-center gap-1">
-          <BookmarkButton
-            post={post}
-            iconSize={IconSize.Small}
-            buttonProps={{
-              id: 'bookmark-post-btn',
-              pressed: post.bookmarked,
-              onClick: onToggleBookmark,
-              size: ButtonSize.Medium,
-            }}
-          />
-          <Tooltip content="Copy link">
-            <CardAction
-              label="Copy link"
-              color={ButtonColor.Cabbage}
-              icon={<LinkIcon />}
-              onClick={() => onCopyLinkClick?.(post)}
+        <div className="flex items-center">
+          <MorphSlot>
+            <BookmarkButton
+              post={post}
+              iconSize={IconSize.Small}
+              buttonProps={{
+                id: 'bookmark-post-btn',
+                pressed: post.bookmarked,
+                onClick: onToggleBookmark,
+                size: ButtonSize.Medium,
+              }}
             />
-          </Tooltip>
-          {post.clickbaitTitleDetected && (
-            <PostClickbaitShield post={post} iconOnly />
-          )}
-          {canSeeAnalytics && (
-            <Tooltip content="Analytics">
+          </MorphSlot>
+          <MorphSlot>
+            <Tooltip content="Copy link">
               <CardAction
-                label="Analytics"
-                icon={<AnalyticsIcon />}
-                href={`${webappUrl}posts/${post.id}/analytics`}
+                label="Copy link"
+                color={ButtonColor.Cabbage}
+                icon={<LinkIcon />}
+                onClick={() => onCopyLinkClick?.(post)}
               />
             </Tooltip>
+          </MorphSlot>
+          {post.clickbaitTitleDetected && (
+            <MorphSlot>
+              <PostClickbaitShield post={post} iconOnly />
+            </MorphSlot>
           )}
-          <PostMenuOptions
-            post={post}
-            origin={Origin.ArticleModal}
-            buttonSize={ButtonSize.Medium}
-          />
+          {canSeeAnalytics && (
+            <MorphSlot>
+              <Tooltip content="Analytics">
+                <CardAction
+                  label="Analytics"
+                  icon={<AnalyticsIcon />}
+                  href={`${webappUrl}posts/${post.id}/analytics`}
+                />
+              </Tooltip>
+            </MorphSlot>
+          )}
+          <MorphSlot>
+            <PostMenuOptions
+              post={post}
+              origin={Origin.ArticleModal}
+              buttonSize={ButtonSize.Medium}
+            />
+          </MorphSlot>
           {isStuck && onClose && (
-            <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
+            <CloseButton
+              className="ml-0.5"
+              size={ButtonSize.Medium}
+              onClick={() => onClose()}
+            />
           )}
         </div>
       </div>
