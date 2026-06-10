@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { FlexRow } from '../../../components/utilities';
 
 export type GivebackTabId = 'actions' | 'impact' | 'why';
 
@@ -30,10 +29,14 @@ export const GivebackTabNav = ({
   onSelect,
 }: GivebackTabNavProps): ReactElement => (
   <div className="sticky top-0 z-3 -mx-4 border-b border-border-subtlest-tertiary bg-background-default px-4">
-    <FlexRow
+    <div
+      aria-hidden
+      className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
+    />
+    <div
       role="tablist"
       aria-label="Giveback sections"
-      className="gap-1 overflow-x-auto"
+      className="flex overflow-x-auto"
     >
       {givebackTabs.map((tab) => {
         const selected = activeTab === tab.id;
@@ -48,22 +51,31 @@ export const GivebackTabNav = ({
             aria-controls={`giveback-panel-${tab.id}`}
             onClick={() => onSelect(tab.id)}
             className={classNames(
-              'relative shrink-0 whitespace-nowrap px-3 py-4 font-medium transition-colors typo-callout',
+              'relative shrink-0 whitespace-nowrap p-2 py-4 text-center font-normal transition-colors duration-200 typo-callout active:scale-95',
               selected
                 ? 'text-text-primary'
                 : 'text-text-tertiary hover:text-text-primary',
             )}
           >
-            {tab.label}
+            <span
+              className={classNames(
+                'flex flex-row items-center gap-1 rounded-10 border px-3 py-1.5 transition-colors duration-200',
+                selected
+                  ? 'border-border-subtlest-secondary'
+                  : 'border-transparent hover:border-border-subtlest-tertiary',
+              )}
+            >
+              {tab.label}
+            </span>
             {selected && (
               <span
                 aria-hidden
-                className="absolute inset-x-3 bottom-0 h-0.5 rounded-4 bg-text-primary"
+                className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-4 bg-text-primary"
               />
             )}
           </button>
         );
       })}
-    </FlexRow>
+    </div>
   </div>
 );
