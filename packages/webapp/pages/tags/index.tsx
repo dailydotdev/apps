@@ -126,7 +126,9 @@ const TagsPage = ({
 
   return (
     <>
-      {isV2Laptop && <PageHeader title={<ExploreSectionTabs />} />}
+      {isV2Laptop && (
+        <PageHeader title={<ExploreSectionTabs />} className="!py-0" />
+      )}
       <PageWrapperLayout className="flex flex-col gap-4">
         <Head>
           <script

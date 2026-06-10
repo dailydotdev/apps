@@ -92,7 +92,9 @@ const LeaderboardPage = ({
 
   return (
     <>
-      {isV2Laptop && <PageHeader title={<ExploreSectionTabs />} />}
+      {isV2Laptop && (
+        <PageHeader title={<ExploreSectionTabs />} className="!py-0" />
+      )}
       <PageWrapperLayout>
         {!isV2Laptop && (
           <div className="mb-6 hidden justify-between laptop:flex">

@@ -123,7 +123,7 @@ const SourcesPage = ({
   return (
     <>
       {isV2Laptop && (
-        <PageHeader title={<ExploreSectionTabs />}>
+        <PageHeader title={<ExploreSectionTabs />} className="!py-0">
           {suggestSourceButton}
         </PageHeader>
       )}
