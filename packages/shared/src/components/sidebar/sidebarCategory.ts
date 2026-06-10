@@ -4,7 +4,6 @@
 export const SidebarCategory = {
   Main: 'main',
   Squads: 'squads',
-  Discover: 'discover',
   Notifications: 'notifications',
   Saved: 'saved',
   GameCenter: 'gameCenter',
@@ -15,13 +14,6 @@ export const SidebarCategory = {
 export type SidebarCategoryId =
   (typeof SidebarCategory)[keyof typeof SidebarCategory];
 
-const discoverPathFragments = [
-  '/posts',
-  '/tags',
-  '/sources',
-  '/users',
-  '/discussed',
-];
 const profilePathFragments = [
   '/analytics',
   '/jobs',
@@ -61,9 +53,8 @@ export const getSidebarCategoryForPath = (
   if (activePage.includes('/settings')) {
     return SidebarCategory.Settings;
   }
-  if (discoverPathFragments.some((path) => activePage.includes(path))) {
-    return SidebarCategory.Discover;
-  }
+  // Explore and its sub-pages (/posts, /tags, /sources, /users, /discussed)
+  // now live under Home, so they fall through to the Main category.
   return SidebarCategory.Main;
 };
 

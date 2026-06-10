@@ -23,7 +23,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
 import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
-import { DiscoverSection } from './sections/DiscoverSection';
 import { ProfileSection } from './sections/ProfileSection';
 import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
@@ -40,7 +39,6 @@ import {
   BookmarkIcon,
   FeedbackIcon,
   HomeIcon,
-  HotIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
@@ -99,16 +97,6 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
       <SourceIcon secondary={active} size={IconSize.Small} aria-hidden />
-    ),
-  },
-  {
-    id: SidebarCategory.Discover,
-    label: 'Discover',
-    // Discover's first sub-page is the Explore feed (`/posts`); clicking
-    // the rail icon should land you on that page, matching the submenu.
-    defaultPath: `${webappUrl}posts`,
-    icon: (active) => (
-      <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
   {
@@ -487,15 +475,6 @@ export const SidebarDesktopV2 = ({
     if (category === SidebarCategory.Saved) {
       return (
         <BookmarkSection {...defaultRenderSectionProps} isItemsButton={false} />
-      );
-    }
-    if (category === SidebarCategory.Discover) {
-      return (
-        <DiscoverSection
-          {...defaultRenderSectionProps}
-          onNavTabClick={onNavTabClick}
-          isItemsButton={isNavButtons ?? false}
-        />
       );
     }
     if (category === SidebarCategory.Settings) {
