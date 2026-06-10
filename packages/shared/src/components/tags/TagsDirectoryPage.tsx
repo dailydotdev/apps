@@ -12,6 +12,7 @@ import { TagCategorySection } from './TagCategorySection';
 import { TagDirectorySearch } from './TagDirectorySearch';
 import { TagPageNavbar } from './TagPageNavbar';
 import { TagDirectoryListItem } from './TagDirectoryListItem';
+import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { useChipBarNavigation } from './useChipBarNavigation';
 import { ClickableText } from '../buttons/ClickableText';
 import {
@@ -362,6 +363,7 @@ export function TagsDirectoryPage({
           </>
         )}
       </div>
+      <PublicPageSignupBanner />
     </>
   );
 }

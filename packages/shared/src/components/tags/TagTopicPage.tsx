@@ -55,6 +55,7 @@ import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { TagPageNavbar } from './TagPageNavbar';
+import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
 import {
@@ -582,6 +583,7 @@ export const TagTopicPage = ({
             className="!mx-0 !w-auto"
           />
         </div>
+        <PublicPageSignupBanner />
       </FeedPageLayoutComponent>
     </>
   );

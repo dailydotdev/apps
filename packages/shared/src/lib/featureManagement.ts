@@ -239,3 +239,8 @@ export const featureOnboardingPermissionPrimer = new Feature(
 );
 
 export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
+
+export const featurePublicSignupBanner = new Feature(
+  'public_signup_banner',
+  false,
+);
