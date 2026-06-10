@@ -183,6 +183,33 @@ export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
     [PostType.SocialTwitter]: SocialTwitterPostModal,
   };
 
+const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
+  SharedFeedPage.MyFeed,
+  SharedFeedPage.Popular,
+  SharedFeedPage.Upvoted,
+  SharedFeedPage.Custom,
+  OtherFeedPage.Following,
+  OtherFeedPage.Discussed,
+  OtherFeedPage.Explore,
+  OtherFeedPage.ExploreLatest,
+  OtherFeedPage.ExploreDiscussed,
+  OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.ExploreTag,
+  OtherFeedPage.Tag,
+  OtherFeedPage.Tags,
+  OtherFeedPage.TagPage,
+  OtherFeedPage.TagsTopPosts,
+  OtherFeedPage.TagsMostUpvoted,
+  OtherFeedPage.TagsBestDiscussed,
+  OtherFeedPage.TagArchive,
+  OtherFeedPage.Source,
+  OtherFeedPage.Sources,
+  OtherFeedPage.SourcePage,
+  OtherFeedPage.SourceMostUpvoted,
+  OtherFeedPage.SourceBestDiscussed,
+  OtherFeedPage.SourceArchive,
+]);
+
 export default function Feed<T>({
   feedName,
   feedQueryKey,
@@ -381,7 +408,10 @@ export default function Feed<T>({
   const isMobileViewport = !isTabletViewport;
   const isListContext = useList || shouldUseListFeedLayout;
   const canRenderHighlightCards =
-    !isMobileViewport && !isListContext && virtualizedNumCards > 1;
+    !isMobileViewport &&
+    !isListContext &&
+    virtualizedNumCards > 1 &&
+    HERO_ELIGIBLE_FEEDS.has(feedName);
   const hasEligibleHighlightItem = useMemo(() => {
     if (!canRenderHighlightCards) {
       return false;

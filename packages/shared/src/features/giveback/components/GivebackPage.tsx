@@ -14,7 +14,12 @@ import { GivebackCauseSelection } from './GivebackCauseSelection';
 import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
 import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
+import { GivebackActionCatalog } from './GivebackActionCatalog';
+import { GivebackContributionSummary } from './GivebackContributionSummary';
+import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
@@ -30,6 +35,7 @@ const scrollIntoView = (node: HTMLElement | null): void => {
 };
 
 export const GivebackPage = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const { status } = useContributionStatus();
   // Eligibility gates the cause picker query (backend-gated), so only eligible
   // visitors load their picks — which also tells us whether to show the tabs.
@@ -68,13 +74,31 @@ export const GivebackPage = (): ReactElement => {
     scrollToTabs();
   }, [scrollToTabs]);
 
+  const handleSelectTab = useCallback(
+    (tab: GivebackTabId) => {
+      logEvent({
+        event_name: LogEvent.ClickGivebackTab,
+        extra: JSON.stringify({ tab }),
+      });
+      setActiveTab(tab);
+    },
+    [logEvent],
+  );
+
   const handleContinue = useCallback(async () => {
     const saved = await selection.save();
     if (saved) {
+      logEvent({
+        event_name: LogEvent.SaveGivebackCauses,
+        extra: JSON.stringify({
+          cause_count: selection.selectedIds.size,
+          cause_ids: [...selection.selectedIds],
+        }),
+      });
       setCompletedOnboarding(true);
       goToActions();
     }
-  }, [selection, goToActions]);
+  }, [selection, goToActions, logEvent]);
 
   // Reveal the picker, then bring it into view as it mounts.
   useEffect(() => {
@@ -135,7 +159,7 @@ export const GivebackPage = (): ReactElement => {
 
         {showTabs && (
           <div ref={tabsRef} className="scroll-mt-16">
-            <GivebackTabNav activeTab={activeTab} onSelect={setActiveTab} />
+            <GivebackTabNav activeTab={activeTab} onSelect={handleSelectTab} />
 
             <div
               key={activeTab}
@@ -143,21 +167,28 @@ export const GivebackPage = (): ReactElement => {
               aria-label={activeLabel}
               className={`${column} pt-8`}
             >
-              <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
-                <Typography
-                  tag={TypographyTag.H2}
-                  type={TypographyType.Title3}
-                  bold
-                >
-                  {activeLabel}
-                </Typography>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Tertiary}
-                >
-                  Coming soon
-                </Typography>
-              </FlexCol>
+              {activeTab === 'actions' ? (
+                <FlexCol className="gap-6">
+                  <GivebackContributionSummary />
+                  <GivebackActionCatalog />
+                </FlexCol>
+              ) : (
+                <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
+                  <Typography
+                    tag={TypographyTag.H2}
+                    type={TypographyType.Title3}
+                    bold
+                  >
+                    {activeLabel}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Coming soon
+                  </Typography>
+                </FlexCol>
+              )}
             </div>
           </div>
         )}
@@ -174,6 +205,8 @@ export const GivebackPage = (): ReactElement => {
           onContinue={handleContinue}
         />
       )}
+
+      {showTabs && <GivebackFundingBar onTakeAction={goToActions} />}
     </div>
   );
 };

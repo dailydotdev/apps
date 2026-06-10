@@ -276,6 +276,7 @@ export enum RequestKey {
   LiveRooms = 'live_rooms',
   ContributionOverview = 'contribution_overview',
   ContributionCausePicker = 'contribution_cause_picker',
+  ContributionActions = 'contribution_actions',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
