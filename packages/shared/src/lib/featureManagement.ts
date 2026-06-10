@@ -37,6 +37,8 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 
+export const featureTagPageRedesign = new Feature('tag_page_redesign', true);
+
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
