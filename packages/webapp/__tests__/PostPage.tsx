@@ -90,6 +90,9 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'reader_modal') {
       return { value: false, isLoading: false };
     }
+    if (args?.feature?.id === 'post_discovery_experience') {
+      return { value: false, isLoading: false };
+    }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
 }));

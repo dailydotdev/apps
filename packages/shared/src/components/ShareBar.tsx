@@ -23,16 +23,24 @@ import { useAuthContext } from '../contexts/AuthContext';
 
 interface ShareBarProps {
   post: Post;
+  visibleRows?: number;
 }
 
-const visibleRows = 2;
 const columns = 4;
 const fixedOptions = 4;
-const maxVisibleOptions = visibleRows * columns;
-const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
 
-export default function ShareBar({ post }: ShareBarProps): ReactElement {
+export default function ShareBar({
+  post,
+  visibleRows = 2,
+}: ShareBarProps): ReactElement {
   const [isExpanded, setIsExpanded] = useState(false);
+  const maxVisibleOptions = visibleRows * columns;
+  const maxVisibleSquadsWhenCollapsed = Math.max(
+    maxVisibleOptions - fixedOptions,
+    0,
+  );
+  const shouldShowSquadOptions =
+    isExpanded || maxVisibleSquadsWhenCollapsed > 0;
   const href = post.commentsPermalink;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
@@ -130,12 +138,14 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           onClick={() => onClick(ShareProvider.Twitter)}
           label="X"
         />
-        <SquadsToShare
-          size={ButtonSize.Medium}
-          squadAvatarSize={ProfileImageSize.Large}
-          maxItems={isExpanded ? undefined : maxVisibleSquadsWhenCollapsed}
-          onClick={(_, squad) => onShareToSquad(squad)}
-        />
+        {shouldShowSquadOptions && (
+          <SquadsToShare
+            size={ButtonSize.Medium}
+            squadAvatarSize={ProfileImageSize.Large}
+            maxItems={isExpanded ? undefined : maxVisibleSquadsWhenCollapsed}
+            onClick={(_, squad) => onShareToSquad(squad)}
+          />
+        )}
       </div>
       {shouldShowToggle && (
         <Button

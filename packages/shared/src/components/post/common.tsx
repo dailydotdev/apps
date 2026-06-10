@@ -12,7 +12,7 @@ import type {
   UsePostContent,
   UsePostContentProps,
 } from '../../hooks/usePostContent';
-import type { ButtonSize } from '../buttons/common';
+import type { ButtonSize, ButtonVariant } from '../buttons/common';
 
 export interface PostContentClassName {
   container?: string;
@@ -69,6 +69,10 @@ export interface PostHeaderActionsProps {
   isFixedNavigation?: boolean;
   buttonSize?: ButtonSize;
   hideSubscribeAction?: boolean;
+  /** Hides the trailing "..." menu (e.g. when it is surfaced elsewhere). */
+  hideMenuOptions?: boolean;
+  /** Overrides the read button variant on desktop (defaults to Secondary). */
+  readButtonVariant?: ButtonVariant;
 }
 
 export interface PostContentProps

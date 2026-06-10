@@ -40,6 +40,10 @@ export const featureAnonymousPostExperience = new Feature(
   'anonymous_post_experience',
   true,
 );
+export const featurePostDiscoveryExperience = new Feature(
+  'post_discovery_experience',
+  true,
+);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
