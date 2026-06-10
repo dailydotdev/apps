@@ -114,7 +114,7 @@ export function FeedCardGlassActions({
   const commentButton = (
     <Tooltip content="Comments" side="bottom">
       <QuaternaryButton
-        labelClassName="!pl-[1px]"
+        labelClassName="!pl-[1px] pr-1.5"
         id={`post-${post.id}-comment-btn`}
         icon={<CommentIcon secondary={post.commented} size={IconSize.XSmall} />}
         pressed={post.commented}
@@ -140,7 +140,7 @@ export function FeedCardGlassActions({
           side="bottom"
         >
           <QuaternaryButton
-            labelClassName="!pl-[1px]"
+            labelClassName="!pl-[1px] pr-1.5"
             className="btn-tertiary-avocado pointer-events-auto"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
