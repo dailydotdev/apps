@@ -139,7 +139,7 @@ export function Section({
             : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        <div className="flex min-h-0 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-col gap-px overflow-hidden">
           {items.map((item) => (
             <SidebarItem
               key={`${item.title}-${item.path}`}
