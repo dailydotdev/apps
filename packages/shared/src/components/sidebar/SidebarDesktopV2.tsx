@@ -683,7 +683,10 @@ export const SidebarDesktopV2 = ({
           <span className="relative flex items-center justify-center">
             {category.icon(isSelected)}
             {category.id === SidebarCategory.GameCenter && showQuestBadge && (
-              <Bubble className="-right-1 -top-1 px-1">
+              // The quest level ring fills the full icon box, so straddle the
+              // badge over the top-right corner to keep the ring + level
+              // number visible underneath.
+              <Bubble className="right-0 top-0 -translate-y-1/2 translate-x-1/2 px-1">
                 {claimableQuestCount}
               </Bubble>
             )}
@@ -873,7 +876,7 @@ export const SidebarDesktopV2 = ({
                   compact
                   showIcon
                   size={ButtonSize.Small}
-                  className="!size-10 !rounded-12"
+                  className="!size-9 !rounded-12"
                 />
               </div>
             </Tooltip>
