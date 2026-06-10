@@ -72,9 +72,13 @@ import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstac
 import FeedContext from '../contexts/FeedContext';
 import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
-import { featurePostHighlightCards } from '../lib/featureManagement';
+import {
+  briefFeedEntrypointPage,
+  featurePostHighlightCards,
+} from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
 import type { PostHero, PostHeroSignificance } from '../graphql/types';
+import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -130,6 +134,21 @@ jest.mock('../hooks/useSubscription', () => ({
         }
       },
     ),
+}));
+
+// Default implementation returns the "hero hidden" state so existing tests
+// are unaffected. Individual tests override via mockReturnValueOnce when
+// they need to exercise an in-feed hero render path.
+jest.mock('../hooks/notifications/useReadingReminderFeedHero', () => ({
+  useReadingReminderFeedHero: jest.fn().mockReturnValue({
+    adjustedHeroInsertIndex: 0,
+    shouldShowTopHero: false,
+    shouldShowInFeedHero: false,
+    title: '',
+    subtitle: '',
+    onEnableHero: jest.fn(),
+    onDismissHero: jest.fn(),
+  }),
 }));
 
 let variables: Record<string, unknown>;
@@ -1741,6 +1760,12 @@ interface HighlightLayoutRenderParams {
   adRepeat?: number;
   minSpacing?: number;
   startIndex?: number;
+  /**
+   * Page index for the brief banner placement (1 = end of page 1). When
+   * set, useFeed picks up the banner and threads its index through the
+   * placement builder + bannerInsertions return.
+   */
+  briefBannerPage?: number;
 }
 
 const renderWithHighlightLayout = ({
@@ -1752,6 +1777,7 @@ const renderWithHighlightLayout = ({
   adRepeat = 8,
   minSpacing = 5,
   startIndex = 0,
+  briefBannerPage,
 }: HighlightLayoutRenderParams): RenderResult => {
   variables = { ...defaultVariables, first: pageSize };
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
@@ -1783,6 +1809,13 @@ const renderWithHighlightLayout = ({
         chipLabels: {},
       },
     },
+    ...(briefBannerPage
+      ? {
+          [briefFeedEntrypointPage.id]: {
+            defaultValue: briefBannerPage,
+          },
+        }
+      : {}),
   });
 
   const settingsContext: SettingsContextData = {
@@ -1951,5 +1984,105 @@ describe('Feed ad cadence with highlight cards', () => {
       .map((t, i) => (t === 'adItem' ? i : -1))
       .filter((i) => i >= 0);
     expect(adIndices).toEqual([1, 9]);
+  });
+
+  // Straddle scenario: a wide card placed where its full requested span
+  // would jump past a scheduled ad slot. The fit-to-ad-slot clamp shrinks
+  // the wide card so vcs lands exactly on the slot and the ad fires —
+  // preserving the impression that the old "mod === 0" check dropped.
+  it('does not drop an ad when a wide card straddles the next slot', async () => {
+    // adStart=3, adRepeat=8. First slot at vcs=3, second at vcs=11.
+    // First post is a size-4 wide. Without the clamp it'd jump vcs 0→4,
+    // skipping vcs=3 entirely; the clamp shrinks it to span 3 so vcs=3
+    // lands on the slot and the ad fires next iteration.
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      numCards: 4,
+      adStart: 3,
+      adRepeat: 8,
+    });
+
+    const order = await getFeedItemTestIds(1);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    // Exactly one ad rendered (no drop), and it lands after the wide
+    // card (which landed at index 0).
+    expect(adIndices.length).toBe(1);
+    expect(adIndices[0]).toBe(1);
+  });
+
+  // Verifies the brief-banner integration end-to-end: useFeed exposes the
+  // banner via `bannerInsertions` (computed from the feature flag), Feed
+  // renders the banner element, and the placement builder accounts for
+  // the banner-induced col reset so ad cadence stays aligned with what
+  // is actually rendered.
+  it('renders brief banner from useFeed and keeps ads flowing', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      // pageSize=8, numCards=4 → banner at index 8 (end of page 1).
+      pageSize: 8,
+      briefBannerPage: 1,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('brief-banner-feed')).toBeInTheDocument();
+    });
+    // Ads still render alongside the banner (no regression in cadence).
+    expect(await screen.findByTestId('adItem')).toBeInTheDocument();
+  });
+
+  // Verifies the in-feed reading-reminder hero wires through useFeed's
+  // bannerInsertions.hero into Feed's JSX. Mocks the hero hook directly
+  // because its real show-gate depends on scroll + variation + auth state
+  // that aren't worth reproducing here — the hook itself is tested in
+  // useReadingReminderFeedHero.spec.tsx.
+  it('renders the in-feed reading-reminder hero from useFeed', async () => {
+    const heroTitle = 'Hero test title';
+    const heroSubtitle = 'Hero test subtitle';
+    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
+      adjustedHeroInsertIndex: 2,
+      shouldShowTopHero: false,
+      shouldShowInFeedHero: true,
+      title: heroTitle,
+      subtitle: heroSubtitle,
+      onEnableHero: jest.fn(),
+      onDismissHero: jest.fn(),
+    });
+
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: false });
+
+    expect(await screen.findByText(heroSubtitle)).toBeInTheDocument();
+    expect(screen.queryByText(heroTitle)).toBeInTheDocument();
   });
 });

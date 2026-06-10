@@ -181,6 +181,58 @@ describe('createPlacementBuilder', () => {
       { colSpan: 1, row: 2, column: 0 },
     ]);
   });
+
+  it('lets a wide card take its full requested span on the fresh row after fullRowBefore', () => {
+    const builder = createPlacementBuilder(opts);
+    // Without fullRowBefore, the wide card at col=2 would clamp to 2.
+    // With fullRowBefore the col resets to 0 so the full span 4 lands.
+    builder.next(makePostItem(makePost()));
+    builder.next(makePostItem(makePost()));
+    const placement = builder.next(
+      makePostItem(makePost({ significance: 'breaking' })),
+      { fullRowBefore: true },
+    );
+    expect(placement).toEqual({ colSpan: 4, row: 2, column: 0 });
+  });
+
+  it('clamps colSpan via maxColSpan option', () => {
+    const builder = createPlacementBuilder(opts);
+    const placement = builder.next(
+      makePostItem(makePost({ significance: 'breaking' })),
+      { maxColSpan: 2 },
+    );
+    expect(placement.colSpan).toBe(2);
+  });
+
+  it('stacks maxColSpan with the end-of-row clamp', () => {
+    const builder = createPlacementBuilder(opts);
+    // Fill cols 0 & 1 so remainingInRow = 2.
+    builder.next(makePostItem(makePost()));
+    builder.next(makePostItem(makePost()));
+    const placement = builder.next(
+      makePostItem(makePost({ significance: 'breaking' })),
+      { maxColSpan: 1 },
+    );
+    // min(requested=4, numCards=4, remainingInRow=2, maxColSpan=1) = 1.
+    expect(placement.colSpan).toBe(1);
+  });
+
+  it('never collapses colSpan below 1 even when maxColSpan is 0', () => {
+    const builder = createPlacementBuilder(opts);
+    const placement = builder.next(
+      makePostItem(makePost({ significance: 'breaking' })),
+      { maxColSpan: 0 },
+    );
+    expect(placement.colSpan).toBe(1);
+  });
+
+  it('does not apply maxColSpan to 1-cell items (no-op floor)', () => {
+    const builder = createPlacementBuilder(opts);
+    const placement = builder.next(makePostItem(makePost()), {
+      maxColSpan: 0,
+    });
+    expect(placement.colSpan).toBe(1);
+  });
 });
 
 describe('computePlacements', () => {
@@ -426,6 +478,115 @@ describe('computePlacements', () => {
         { colSpan: 1, row: 0, column: 3 },
         { colSpan: 1, row: 2, column: 0 },
       ]);
+    });
+  });
+
+  describe('ad-cadence aware clamp', () => {
+    it('shrinks a wide card that would straddle the next ad slot', () => {
+      // adStart=4, adRepeat=8 → slots at vcs 4, 12, 20...
+      // First 3 normals fill vcs 0-3. The size-4 "breaking" would jump
+      // vcs from 3 to 7 (skipping slot at vcs=4). Clamped to 1 so vcs
+      // lands at 4 exactly.
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost({ significance: 'breaking' })),
+      ];
+      const placements = computePlacements(items, {
+        ...opts,
+        adStart: 4,
+        adRepeat: 8,
+      });
+      expect(placements[3].colSpan).toBe(1);
+    });
+
+    it('lets a wide card take full span after an ad slot has fired', () => {
+      // First two normals fill cols 0-1 (vcs=2). Ad item at index 2
+      // takes col 2 (vcs=3). Next wide (size 4) at col 3 still clamps
+      // to 1 by row-fit, but the next ad slot has shifted to vcs=12 so
+      // ad-clamp is non-restrictive (12-3=9 > 4).
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makeAdItem(),
+        makePostItem(makePost({ significance: 'breaking' })),
+      ];
+      const placements = computePlacements(items, {
+        ...opts,
+        adStart: 2,
+        adRepeat: 10,
+      });
+      // Wide card at col=3 — row-fit clamps to 1, not ad-clamp.
+      expect(placements[3]).toEqual({ colSpan: 1, row: 0, column: 3 });
+    });
+
+    it('treats ad-page placeholders as filled slots (same as real ads)', () => {
+      // Placeholder with `index` (ad loading) advances adsFired exactly
+      // like a real ad. Wide card after still sees the next slot vcs.
+      const placeholderAd = {
+        type: FeedItemType.Placeholder,
+        index: 0,
+      } as FeedItem;
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        placeholderAd,
+        makePostItem(makePost({ significance: 'breaking' })),
+        makePostItem(makePost()),
+      ];
+      const placements = computePlacements(items, {
+        ...opts,
+        adStart: 2,
+        adRepeat: 10,
+      });
+      // After placeholder ad, adsFired=1 → nextAdVcs=12. wide is at
+      // col=3, vcs=3, allowed up to min(grid=4, row=1, ad=9) = 1.
+      expect(placements[3]).toEqual({ colSpan: 1, row: 0, column: 3 });
+    });
+
+    it('skips ad-clamp logic when adStart/adRepeat are omitted', () => {
+      // Same straddle setup as the first test, but with no cadence info
+      // → builder behaves as before (no clamp), wide card lands at its
+      // requested span (clamped only by row-fit).
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost({ significance: 'breaking' })),
+      ];
+      const placements = computePlacements(items, opts);
+      // col=3 at that point → row-fit clamps to 1 (numCards=4 - col=3).
+      expect(placements[3].colSpan).toBe(1);
+    });
+
+    it('lets wide card span fully when first ad has not yet fired and it fits', () => {
+      // adStart=10, adRepeat=10 → first slot at vcs=10. A size-4 at col=0
+      // fits comfortably (vcs goes 0→4, well shy of 10).
+      const items = [makePostItem(makePost({ significance: 'breaking' }))];
+      const placements = computePlacements(items, {
+        ...opts,
+        adStart: 10,
+        adRepeat: 10,
+      });
+      expect(placements[0].colSpan).toBe(4);
+    });
+
+    it('clamps wide card right before the very first ad slot', () => {
+      // adStart=3, adRepeat=8. Two normals fill vcs 0-1. Wide at vcs=2
+      // requested 4 would jump to vcs=6, skipping slot at vcs=3.
+      // Clamped to 1 so vcs lands at 3.
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost({ significance: 'breaking' })),
+      ];
+      const placements = computePlacements(items, {
+        ...opts,
+        adStart: 3,
+        adRepeat: 8,
+      });
+      expect(placements[2].colSpan).toBe(1);
     });
   });
 });

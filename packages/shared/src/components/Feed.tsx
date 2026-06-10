@@ -24,7 +24,6 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import { computePlacements } from '../lib/feedHighlightColSpan';
 import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
@@ -46,7 +45,6 @@ import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { useFeedLayout } from '../hooks/useFeedLayout';
 import { useFeedVotePost } from '../hooks/vote/useFeedVotePost';
 import { useMutationSubscription } from '../hooks/mutationSubscription/useMutationSubscription';
-import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
@@ -64,7 +62,6 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
-  briefFeedEntrypointPage,
   featureFeedAdTemplate,
 } from '../lib/featureManagement';
 import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
@@ -74,7 +71,6 @@ import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
-import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
@@ -260,13 +256,12 @@ export default function Feed<T>({
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
-  const { value: briefBannerPage } = useConditionalFeature({
-    feature: briefFeedEntrypointPage,
-    shouldEvaluate: !user?.isPlus && isMyFeed,
-  });
+  const { isV2 } = useLayoutVariant();
+  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
   const {
     items,
-    postHighlightCardsConfig,
+    placements: itemPlacements,
+    bannerInsertions,
     updatePost,
     removePost,
     fetchPage,
@@ -291,6 +286,9 @@ export default function Feed<T>({
       query,
       variables,
       options,
+      isBriefBannerEligible: !user?.isPlus && isMyFeed,
+      firstSlotOffset: Number(showFirstSlotCard),
+      disableTopHero: isV2,
       settings: {
         disableAds,
         staticAd,
@@ -309,7 +307,6 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
   const {
     onOpenModal,
     onCloseModal,
@@ -331,7 +328,6 @@ export default function Feed<T>({
     isReaderFeatureLoading,
   } = useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const isTabletViewport = useViewSize(ViewSize.Tablet);
   // Viewport gating lives in useReaderModalEligibility (isReaderEligible is
   // already tablet-or-larger), so no separate isTabletViewport check here.
   const isReaderModalOn =
@@ -353,72 +349,19 @@ export default function Feed<T>({
       readerEligiblePostTypes.has(post.type),
     [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
   );
-  const { isV2 } = useLayoutVariant();
   const {
-    adjustedHeroInsertIndex,
-    shouldShowTopHero,
-    shouldShowInFeedHero,
-    title: readingReminderTitle,
-    subtitle: readingReminderSubtitle,
-    onEnableHero,
-    onDismissHero,
-  } = useReadingReminderFeedHero({
-    itemCount: items.length,
-    itemsPerRow: virtualizedNumCards,
-    firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
-    // Layout v2 hoists the top hero into MainLayout above the floating
-    // feed card, so the feed must not render or measure it here.
-    disableTopHero: isV2,
-  });
-
-  const isMobileViewport = !isTabletViewport;
-  const isListContext = useList || shouldUseListFeedLayout;
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner = !!briefBannerPage;
-  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
-  const indexWhenShowingPromoBanner =
-    currentPageSize * Number(briefBannerPage) - // number of items at that page
-    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showFirstSlotCard);
-
-  const fullRowInsertionBeforeIndex = useMemo(() => {
-    const set = new Set<number>();
-    if (showPromoBanner) {
-      set.add(indexWhenShowingPromoBanner);
-    }
-    if (shouldShowInFeedHero) {
-      set.add(adjustedHeroInsertIndex);
-    }
-    return set;
-  }, [
     showPromoBanner,
     indexWhenShowingPromoBanner,
-    shouldShowInFeedHero,
-    adjustedHeroInsertIndex,
-  ]);
-
-  const itemPlacements = useMemo(
-    () =>
-      computePlacements(items, {
-        numCards: virtualizedNumCards,
-        isMobile: isMobileViewport,
-        isList: isListContext,
-        isEnabled: postHighlightCardsConfig.enabled,
-        minSpacing: postHighlightCardsConfig.minSpacing,
-        startIndex: postHighlightCardsConfig.startIndex,
-        fullRowInsertionBeforeIndex,
-      }),
-    [
-      items,
-      virtualizedNumCards,
-      isMobileViewport,
-      isListContext,
-      postHighlightCardsConfig.enabled,
-      postHighlightCardsConfig.minSpacing,
-      postHighlightCardsConfig.startIndex,
-      fullRowInsertionBeforeIndex,
-    ],
-  );
+    hero: {
+      shouldShowTopHero,
+      shouldShowInFeedHero,
+      adjustedHeroInsertIndex,
+      title: readingReminderTitle,
+      subtitle: readingReminderSubtitle,
+      onEnable: onEnableHero,
+      onDismiss: onDismissHero,
+    },
+  } = bannerInsertions;
 
   useMutationSubscription({
     matcher: ({ mutation }) => {

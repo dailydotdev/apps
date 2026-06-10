@@ -72,10 +72,30 @@ export interface ComputePlacementsOptions extends PlacementBuilderOptions {
    * row at column 0.
    */
   fullRowInsertionBeforeIndex?: ReadonlySet<number>;
+  /**
+   * Ad cadence parameters. When provided, wide cards are clamped so
+   * their right edge does not cross the next scheduled ad slot
+   * (visualCellsSoFar === adStart + n*adRepeat). Without this, a wide
+   * card straddling a slot would silently drop that ad.
+   */
+  adStart?: number;
+  adRepeat?: number;
 }
 
 export interface PlacementBuilder {
-  next(item: FeedItem, opts?: { fullRowBefore?: boolean }): FeedItemPlacement;
+  next(
+    item: FeedItem,
+    opts?: {
+      fullRowBefore?: boolean;
+      /**
+       * Upper bound for `colSpan` on this item. Used by callers to enforce
+       * an external constraint (e.g. "don't let this wide card straddle
+       * the next ad slot"). Combined via Math.min with the in-built fit
+       * limits (numCards, remaining-in-row).
+       */
+      maxColSpan?: number;
+    },
+  ): FeedItemPlacement;
 }
 
 /**
@@ -102,7 +122,10 @@ export const createPlacementBuilder = ({
   let itemIdx = 0;
 
   return {
-    next(item, { fullRowBefore = false } = {}): FeedItemPlacement {
+    next(
+      item,
+      { fullRowBefore = false, maxColSpan = Infinity } = {},
+    ): FeedItemPlacement {
       if (!layoutEnabled) {
         const placement: FeedItemPlacement = {
           colSpan: 1,
@@ -134,7 +157,7 @@ export const createPlacementBuilder = ({
         }
         const clampedToGrid = Math.min(requested, numCards);
         const remainingInRow = numCards - col;
-        return Math.min(clampedToGrid, remainingInRow);
+        return Math.max(1, Math.min(clampedToGrid, remainingInRow, maxColSpan));
       })();
 
       const placement: FeedItemPlacement = {
@@ -173,11 +196,32 @@ export const computePlacements = (
   items: FeedItem[],
   options: ComputePlacementsOptions,
 ): FeedItemPlacement[] => {
-  const { fullRowInsertionBeforeIndex } = options;
+  const { fullRowInsertionBeforeIndex, adStart, adRepeat } = options;
   const builder = createPlacementBuilder(options);
-  return items.map((item, index) =>
-    builder.next(item, {
-      fullRowBefore: fullRowInsertionBeforeIndex?.has(index) ?? false,
-    }),
-  );
+  const hasAdCadence =
+    typeof adStart === 'number' && typeof adRepeat === 'number' && adRepeat > 0;
+  let vcs = 0;
+  // Ads + ad placeholders both occupy ad slots; count them as we walk so
+  // the next-ad target advances in lockstep with how `useFeed` placed
+  // them. Generic loading placeholders (no `index` field) are NOT ad
+  // slots — they appear only while feedQuery is fetching.
+  let adsFired = 0;
+
+  return items.map((item, index) => {
+    const fullRowBefore = fullRowInsertionBeforeIndex?.has(index) ?? false;
+    let maxColSpan: number | undefined;
+    if (hasAdCadence) {
+      const nextAdVcs = adStart + adsFired * adRepeat;
+      maxColSpan = Math.max(1, nextAdVcs - vcs);
+    }
+    const placement = builder.next(item, { fullRowBefore, maxColSpan });
+    vcs += placement.colSpan;
+    if (
+      item.type === FeedItemType.Ad ||
+      (item.type === FeedItemType.Placeholder && typeof item.index === 'number')
+    ) {
+      adsFired += 1;
+    }
+    return placement;
+  });
 };

@@ -27,18 +27,23 @@ import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
+import type { NotificationCtaPlacement } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
 import {
+  briefFeedEntrypointPage,
   featureFeedAdTemplate,
   featurePostHighlightCards,
 } from '../lib/featureManagement';
 import { useConditionalFeature } from './useConditionalFeature';
+import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
 import {
+  computePlacements,
   createPlacementBuilder,
   isHeroEligiblePost,
 } from '../lib/feedHighlightColSpan';
+import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
 import type { PostHighlightCardsConfig } from '../types';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useFeedLayout } from './useFeedLayout';
@@ -121,9 +126,46 @@ export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
+export type FeedBannerInsertions = {
+  /**
+   * Indices where a full-row banner is rendered BEFORE the item at that
+   * index. Used both by the placement builder inside `useFeed` to compute
+   * banner-aware visual cells (correct ad cadence) and by the renderer to
+   * place the actual banner element in DOM order.
+   */
+  fullRowInsertionBeforeIndex: ReadonlySet<number>;
+  briefBannerPage: number;
+  showPromoBanner: boolean;
+  indexWhenShowingPromoBanner: number;
+  hero: {
+    shouldShowTopHero: boolean;
+    shouldShowInFeedHero: boolean;
+    adjustedHeroInsertIndex: number;
+    title: string;
+    subtitle: string;
+    onEnable: (
+      placement:
+        | NotificationCtaPlacement.TopHero
+        | NotificationCtaPlacement.InFeedHero,
+    ) => Promise<void>;
+    onDismiss: (
+      placement:
+        | NotificationCtaPlacement.TopHero
+        | NotificationCtaPlacement.InFeedHero,
+    ) => Promise<void>;
+  };
+};
+
 export type FeedReturnType = {
   items: FeedItem[];
+  /**
+   * One placement per `items` entry — colSpan + visual row/column —
+   * computed banner-aware and ad-cadence-aware so callers can render and
+   * log analytics from a single source of truth.
+   */
+  placements: FeedItemPlacement[];
   postHighlightCardsConfig: PostHighlightCardsConfig;
+  bannerInsertions: FeedBannerInsertions;
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
@@ -162,6 +204,23 @@ export interface UseFeedOptionalParams<T> {
   >;
   settings?: UseFeedSettingParams;
   onEmptyFeed?: () => void;
+  /**
+   * Eligibility for the brief banner promo (true when the user is not Plus
+   * AND on My Feed). Gates the evaluation of the `briefFeedEntrypointPage`
+   * feature flag.
+   */
+  isBriefBannerEligible?: boolean;
+  /**
+   * Number of fixed "first slot" cards (e.g. profile completion / brief
+   * card) rendered ABOVE the feed grid. Used to shift banner indices so
+   * they land at visually predictable positions.
+   */
+  firstSlotOffset?: number;
+  /**
+   * Suppress the top-hero placement entirely (including its impression
+   * event). Used when a parent layout owns the top hero.
+   */
+  disableTopHero?: boolean;
 }
 
 export default function useFeed<T>(
@@ -173,7 +232,16 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { query, variables, options = {}, settings, onEmptyFeed } = params;
+  const {
+    query,
+    variables,
+    options = {},
+    settings,
+    onEmptyFeed,
+    isBriefBannerEligible = false,
+    firstSlotOffset = 0,
+    disableTopHero = false,
+  } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness?.eco ?? 1;
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -317,6 +385,48 @@ export default function useFeed<T>(
     shouldEvaluate: shouldEvaluateHighlightCards,
   });
 
+  const { value: briefBannerPage } = useConditionalFeature({
+    feature: briefFeedEntrypointPage,
+    shouldEvaluate: isBriefBannerEligible,
+  });
+
+  const rawEdgeCount = useMemo(
+    () =>
+      feedQuery.data?.pages.reduce((acc, p) => acc + p.page.edges.length, 0) ??
+      0,
+    [feedQuery.data?.pages],
+  );
+
+  const heroFeedHero = useReadingReminderFeedHero({
+    itemCount: rawEdgeCount,
+    itemsPerRow: virtualizedNumCards,
+    firstSlotOffset,
+    disableTopHero,
+  });
+
+  const showPromoBanner = !!briefBannerPage;
+  const columnsDiffWithPage = pageSize % virtualizedNumCards;
+  const indexWhenShowingPromoBanner =
+    pageSize * Number(briefBannerPage) -
+    columnsDiffWithPage * Number(briefBannerPage) -
+    firstSlotOffset;
+
+  const fullRowInsertionBeforeIndex = useMemo(() => {
+    const set = new Set<number>();
+    if (showPromoBanner) {
+      set.add(indexWhenShowingPromoBanner);
+    }
+    if (heroFeedHero.shouldShowInFeedHero) {
+      set.add(heroFeedHero.adjustedHeroInsertIndex);
+    }
+    return set;
+  }, [
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
+    heroFeedHero.shouldShowInFeedHero,
+    heroFeedHero.adjustedHeroInsertIndex,
+  ]);
+
   const { fetchAd } = useFetchAd();
   const adsQuery = useInfiniteQuery<
     Ad,
@@ -437,6 +547,14 @@ export default function useFeed<T>(
       // (mobile/list/single-col), so we never need to special-case those.
       const seenPostIds = new Set<string>();
       let visualCellsSoFar = 0;
+      // Wide cards shrink to fit BEFORE the next ad slot so they can't
+      // straddle a cadence point and silently drop an impression — same
+      // pattern as the end-of-row clamp.
+      const adStart =
+        adTemplate?.adStart ??
+        featureFeedAdTemplate.defaultValue.default.adStart;
+      const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
+      let adsFired = 0;
 
       const placementBuilder = createPlacementBuilder({
         numCards: virtualizedNumCards,
@@ -449,7 +567,22 @@ export default function useFeed<T>(
 
       const pushAndAdvance = (item: FeedItem): void => {
         newItems.push(item);
-        visualCellsSoFar += placementBuilder.next(item).colSpan;
+        const idx = newItems.length - 1;
+        const fullRowBefore = fullRowInsertionBeforeIndex.has(idx);
+        const nextAdVcs = adStart + adsFired * adRepeat;
+        const maxColSpan = Math.max(1, nextAdVcs - visualCellsSoFar);
+        const placement = placementBuilder.next(item, {
+          fullRowBefore,
+          maxColSpan,
+        });
+        visualCellsSoFar += placement.colSpan;
+        if (
+          item.type === FeedItemType.Ad ||
+          (item.type === FeedItemType.Placeholder &&
+            typeof item.index === 'number')
+        ) {
+          adsFired += 1;
+        }
       };
 
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
@@ -568,6 +701,37 @@ export default function useFeed<T>(
     virtualizedNumCards,
     isMobileViewport,
     isListContext,
+    fullRowInsertionBeforeIndex,
+    adTemplate?.adStart,
+    adTemplate?.adRepeat,
+    pageSize,
+  ]);
+
+  const placements = useMemo(() => {
+    const adStartForPlacements =
+      adTemplate?.adStart ?? featureFeedAdTemplate.defaultValue.default.adStart;
+    const adRepeatForPlacements = adTemplate?.adRepeat ?? pageSize + 1;
+    return computePlacements(items, {
+      numCards: virtualizedNumCards,
+      isMobile: isMobileViewport,
+      isList: isListContext,
+      isEnabled: postHighlightCardsConfig.enabled,
+      minSpacing: postHighlightCardsConfig.minSpacing,
+      startIndex: postHighlightCardsConfig.startIndex,
+      fullRowInsertionBeforeIndex,
+      adStart: adStartForPlacements,
+      adRepeat: adRepeatForPlacements,
+    });
+  }, [
+    items,
+    virtualizedNumCards,
+    isMobileViewport,
+    isListContext,
+    postHighlightCardsConfig,
+    fullRowInsertionBeforeIndex,
+    adTemplate?.adStart,
+    adTemplate?.adRepeat,
+    pageSize,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
@@ -608,9 +772,27 @@ export default function useFeed<T>(
 
   const didJustCreateFeed = router.query?.created === '1';
 
+  const bannerInsertions: FeedBannerInsertions = {
+    fullRowInsertionBeforeIndex,
+    briefBannerPage: Number(briefBannerPage),
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
+    hero: {
+      shouldShowTopHero: heroFeedHero.shouldShowTopHero,
+      shouldShowInFeedHero: heroFeedHero.shouldShowInFeedHero,
+      adjustedHeroInsertIndex: heroFeedHero.adjustedHeroInsertIndex,
+      title: heroFeedHero.title,
+      subtitle: heroFeedHero.subtitle,
+      onEnable: heroFeedHero.onEnableHero,
+      onDismiss: heroFeedHero.onDismissHero,
+    },
+  };
+
   return {
     items,
+    placements,
     postHighlightCardsConfig,
+    bannerInsertions,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },
