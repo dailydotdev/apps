@@ -26,7 +26,7 @@ const dividerClass = 'h-px w-full bg-border-subtlest-quaternary';
 type RailSlotProps = {
   ariaLabel: string;
   icon: ReactNode;
-  value: string | number;
+  value: string | number | null;
   href?: string;
   target?: string;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
