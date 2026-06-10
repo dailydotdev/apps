@@ -299,16 +299,16 @@ export const PostFocusCard = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            <div className="flex min-w-0 items-start gap-4">
+            <div className="flex min-w-0 flex-col gap-4 tablet:flex-row tablet:items-start">
               <h1
-                className="min-w-0 flex-1 break-words font-bold text-text-primary typo-title2 tablet:typo-large-title"
+                className="min-w-0 break-words font-bold text-text-primary typo-title2 tablet:flex-1 tablet:typo-large-title"
                 data-testid="post-modal-title"
               >
                 {title}
               </h1>
               {!isVideoType && article.image && (
                 <a
-                  className="block h-fit w-20 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  className="block size-32 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:size-40"
                   href={readHref}
                   onClick={handleImageClick}
                   rel="noopener"
@@ -321,7 +321,7 @@ export const PostFocusCard = ({
                     fetchPriority="high"
                     imgAlt="Post cover image"
                     imgSrc={article.image}
-                    ratio="52%"
+                    ratio="100%"
                   />
                 </a>
               )}
