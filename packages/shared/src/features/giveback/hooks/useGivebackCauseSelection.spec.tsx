@@ -1,23 +1,17 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useGivebackCauseSelection } from './useGivebackCauseSelection';
-import { useContributionCauses } from './useContributionCauses';
-import { useContributionCausePreferences } from './useContributionCausePreferences';
+import { useContributionCausePicker } from './useContributionCausePicker';
 import { useUpdateContributionCausePreferences } from './useUpdateContributionCausePreferences';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
 
-jest.mock('./useContributionCauses');
-jest.mock('./useContributionCausePreferences');
+jest.mock('./useContributionCausePicker');
 jest.mock('./useUpdateContributionCausePreferences');
 jest.mock('../../../hooks/useToastNotification');
 
-const mockUseCauses = useContributionCauses as jest.MockedFunction<
-  typeof useContributionCauses
+const mockUsePicker = useContributionCausePicker as jest.MockedFunction<
+  typeof useContributionCausePicker
 >;
-const mockUsePreferences =
-  useContributionCausePreferences as jest.MockedFunction<
-    typeof useContributionCausePreferences
-  >;
 const mockUseUpdate =
   useUpdateContributionCausePreferences as jest.MockedFunction<
     typeof useUpdateContributionCausePreferences
@@ -31,19 +25,20 @@ const displayToast = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockUseCauses.mockReturnValue({ causes: [], isPending: false });
   mockUseUpdate.mockReturnValue({ saveCausePreferences, isPending: false });
   mockUseToast.mockReturnValue({ displayToast } as unknown as ReturnType<
     typeof useToastNotification
   >);
-  mockUsePreferences.mockReturnValue({
+  mockUsePicker.mockReturnValue({
+    causes: [],
     selectedCauseIds: [],
     isPending: false,
   });
 });
 
 it('seeds the selection from saved preferences', () => {
-  mockUsePreferences.mockReturnValue({
+  mockUsePicker.mockReturnValue({
+    causes: [],
     selectedCauseIds: ['c1', 'c2'],
     isPending: false,
   });
@@ -55,8 +50,9 @@ it('seeds the selection from saved preferences', () => {
 });
 
 it('does not seed an empty selection while disabled, then seeds once enabled', () => {
-  // Gated off: the preferences query reports not-loading with no data.
-  mockUsePreferences.mockReturnValue({
+  // Gated off: the picker query reports not-loading with no data.
+  mockUsePicker.mockReturnValue({
+    causes: [],
     selectedCauseIds: [],
     isPending: false,
   });
@@ -69,7 +65,8 @@ it('does not seed an empty selection while disabled, then seeds once enabled', (
   expect(result.current.selectedCount).toBe(0);
 
   // Visitor opts in: the real preferences resolve and must seed the picker.
-  mockUsePreferences.mockReturnValue({
+  mockUsePicker.mockReturnValue({
+    causes: [],
     selectedCauseIds: ['c1', 'c2'],
     isPending: false,
   });

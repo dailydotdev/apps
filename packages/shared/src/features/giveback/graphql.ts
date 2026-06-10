@@ -1,5 +1,7 @@
-export const CONTRIBUTION_STATUS_QUERY = `
-  query ContributionStatus {
+// Public campaign data shown on load: the funding status and the sponsor wall
+// come back in a single request so the hero renders from one round trip.
+export const CONTRIBUTION_OVERVIEW_QUERY = `
+  query ContributionOverview($first: Int) {
     contributionStatus {
       enabled
       eligible
@@ -10,12 +12,7 @@ export const CONTRIBUTION_STATUS_QUERY = `
       contributorsCount
       userPoints
     }
-  }
-`;
-
-export const CONTRIBUTION_SPONSORS_QUERY = `
-  query ContributionSponsors($first: Int, $after: String) {
-    contributionSponsors(first: $first, after: $after) {
+    contributionSponsors(first: $first) {
       edges {
         node {
           id
@@ -30,9 +27,11 @@ export const CONTRIBUTION_SPONSORS_QUERY = `
   }
 `;
 
-export const CONTRIBUTION_CAUSES_QUERY = `
-  query ContributionCauses($first: Int, $after: String) {
-    contributionCauses(first: $first, after: $after) {
+// The cause picker needs the catalog and the visitor's saved picks together, so
+// they share one request fired when the visitor opts in.
+export const CONTRIBUTION_CAUSE_PICKER_QUERY = `
+  query ContributionCausePicker($first: Int) {
+    contributionCauses(first: $first) {
       edges {
         node {
           id
@@ -44,12 +43,7 @@ export const CONTRIBUTION_CAUSES_QUERY = `
         }
       }
     }
-  }
-`;
-
-export const CONTRIBUTION_CAUSE_PREFERENCES_QUERY = `
-  query ContributionCausePreferences($first: Int, $after: String) {
-    contributionCausePreferences(first: $first, after: $after) {
+    contributionCausePreferences(first: $first) {
       edges {
         node {
           id

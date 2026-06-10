@@ -23,10 +23,7 @@ export const useUpdateContributionCausePreferences =
       },
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: generateQueryKey(
-            RequestKey.ContributionCausePreferences,
-            user,
-          ),
+          queryKey: generateQueryKey(RequestKey.ContributionCausePicker, user),
         });
       },
     });

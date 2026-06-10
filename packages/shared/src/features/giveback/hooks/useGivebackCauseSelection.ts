@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
-import { useContributionCauses } from './useContributionCauses';
-import { useContributionCausePreferences } from './useContributionCausePreferences';
+import { useContributionCausePicker } from './useContributionCausePicker';
 import { useUpdateContributionCausePreferences } from './useUpdateContributionCausePreferences';
 import type { ContributionCause } from '../types';
 
@@ -22,9 +21,8 @@ export const useGivebackCauseSelection = (
   enabled: boolean,
 ): UseGivebackCauseSelection => {
   const { displayToast } = useToastNotification();
-  const { causes, isPending: isLoading } = useContributionCauses(enabled);
-  const { selectedCauseIds, isPending: isLoadingPreferences } =
-    useContributionCausePreferences(enabled);
+  const { causes, selectedCauseIds, isPending } =
+    useContributionCausePicker(enabled);
   const { saveCausePreferences, isPending: isSaving } =
     useUpdateContributionCausePreferences();
 
@@ -37,12 +35,12 @@ export const useGivebackCauseSelection = (
   // the real fetch runs.
   const didSeedRef = useRef(false);
   useEffect(() => {
-    if (didSeedRef.current || !enabled || isLoadingPreferences) {
+    if (didSeedRef.current || !enabled || isPending) {
       return;
     }
     didSeedRef.current = true;
     setSelectedIds(new Set(selectedCauseIds));
-  }, [enabled, isLoadingPreferences, selectedCauseIds]);
+  }, [enabled, isPending, selectedCauseIds]);
 
   const toggleCause = useCallback((id: string) => {
     setSelectedIds((current) => {
@@ -67,7 +65,7 @@ export const useGivebackCauseSelection = (
 
   return {
     causes,
-    isLoading,
+    isLoading: isPending,
     selectedIds,
     toggleCause,
     selectedCount: selectedIds.size,
