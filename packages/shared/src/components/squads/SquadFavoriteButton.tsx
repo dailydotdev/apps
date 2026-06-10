@@ -49,7 +49,10 @@ export const SquadFavoriteButton = ({
       onClick={onClick}
       className={classNames(
         'relative z-1 flex items-center justify-center disabled:opacity-50',
-        !isFavorited &&
+        // In pin mode the "Pinned" section header already signals the state,
+        // so keep the pin icon hover-only (even when pinned) to avoid a busy
+        // column. v1 favorites stay visible once favorited.
+        (asPin || !isFavorited) &&
           'laptop:opacity-0 laptop:transition-opacity laptop:group-focus-within/squad-row:opacity-100 laptop:group-hover/squad-row:opacity-100',
         className,
       )}

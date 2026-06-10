@@ -43,10 +43,8 @@ export const PinnedSection = ({
     [pinnedSquads],
   );
 
-  if (!pinnedSquads.length) {
-    return null;
-  }
-
+  // Always show the "Pinned" header (even when empty) so users discover the
+  // feature and understand what the rows below represent.
   return (
     <Section
       {...defaultRenderSectionProps}
