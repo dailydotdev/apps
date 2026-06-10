@@ -12,6 +12,41 @@ import type { TabProps } from './TabContainer';
 
 export type AllowedTabTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
 
+export enum TabListVariant {
+  // Solid fill behind the active tab (the long-standing look).
+  Filled = 'filled',
+  // Outlined pill around the active tab with a slimmer indicator.
+  Bordered = 'bordered',
+}
+
+interface TabListVariantStyle {
+  item: string;
+  inactiveItem: string;
+  pill: string;
+  activePill: string;
+  inactivePill: string;
+  indicator: string;
+}
+
+const variantStyles: Record<TabListVariant, TabListVariantStyle> = {
+  [TabListVariant.Filled]: {
+    item: 'font-bold',
+    inactiveItem: 'text-text-tertiary',
+    pill: 'rounded-10 px-3 py-1.5',
+    activePill: 'bg-theme-active',
+    inactivePill: '',
+    indicator: 'w-12',
+  },
+  [TabListVariant.Bordered]: {
+    item: 'font-normal',
+    inactiveItem: 'text-text-tertiary hover:text-text-primary',
+    pill: 'rounded-10 border px-3 py-1.5 transition-colors duration-200',
+    activePill: 'border-border-subtlest-secondary',
+    inactivePill: 'border-transparent hover:border-border-subtlest-tertiary',
+    indicator: 'w-6',
+  },
+};
+
 interface ClassName {
   indicator?: string;
   item?: string;
@@ -41,6 +76,7 @@ export interface TabListProps<T extends string = string> {
   dragScroll?: boolean;
   renderTab?: RenderTab;
   tag?: AllowedTabTags;
+  variant?: TabListVariant;
 }
 
 function TabList<T extends string = string>({
@@ -52,7 +88,9 @@ function TabList<T extends string = string>({
   dragScroll = false,
   renderTab,
   tag: Tag = 'button',
+  variant = TabListVariant.Filled,
 }: TabListProps<T>): ReactElement {
+  const styles = variantStyles[variant];
   const labels = items.map((item) => item.label);
   const hasActive = labels.includes(active);
   const currentActiveTab = useRef<HTMLElement | null>(null);
@@ -235,8 +273,9 @@ function TabList<T extends string = string>({
         const renderedTab = renderTab?.({ label, isActive }) ?? (
           <span
             className={classNames(
-              'flex flex-row items-center gap-1 rounded-10 px-3 py-1.5',
-              isActive && 'bg-theme-active',
+              'flex flex-row items-center gap-1',
+              styles.pill,
+              isActive ? styles.activePill : styles.inactivePill,
             )}
           >
             {label?.length > 25 ? `${label.slice(0, 25)}...` : label}
@@ -256,8 +295,9 @@ function TabList<T extends string = string>({
             }}
             className={classNames(
               className.item,
-              'relative p-2 py-4 text-center font-bold typo-callout',
-              isActive ? '' : 'text-text-tertiary',
+              'relative p-2 py-4 text-center typo-callout',
+              styles.item,
+              isActive ? '' : styles.inactiveItem,
               isAnchor && 'cursor-pointer',
             )}
             onClick={(event) => {
@@ -295,7 +335,8 @@ function TabList<T extends string = string>({
       {!!indicatorOffset && hasActive && (
         <div
           className={classNames(
-            'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
+            'absolute bottom-0 mx-auto h-0.5 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
+            styles.indicator,
             className?.indicator,
           )}
           style={{ left: indicatorOffset }}
