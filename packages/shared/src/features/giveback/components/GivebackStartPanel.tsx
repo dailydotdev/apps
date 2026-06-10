@@ -45,10 +45,6 @@ export const GivebackStartPanel = ({
   const { logEvent } = useLogContext();
 
   const handleClick = () => {
-    if (isResolving) {
-      return;
-    }
-
     if (hasSelectedCauses) {
       onTakeAction();
       return;
@@ -65,14 +61,8 @@ export const GivebackStartPanel = ({
   };
 
   const ctaLabel = hasSelectedCauses ? 'Take action' : 'Join the campaign';
-  // Drop the icon while resolving so the button is fully empty until the copy
-  // lands (and to satisfy the icon/iconPosition pairing on Button).
-  const iconProps = isResolving
-    ? {}
-    : {
-        icon: <MoveToIcon size={IconSize.Size16} />,
-        iconPosition: ButtonIconPosition.Right,
-      };
+  const buttonClassName =
+    'shadow-2-cabbage transition-transform duration-200 ease-out hover:scale-[1.02]';
 
   return (
     <FlexCol className="gap-4">
@@ -89,18 +79,29 @@ export const GivebackStartPanel = ({
         . daily.dev funds every cent, so you never pay.
       </Typography>
 
-      {/* While resolving, render an empty button (no spinner): it keeps its
-          fixed height and full width, so the copy fades in without any shift. */}
-      <Button
-        type="button"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Large}
-        {...iconProps}
-        onClick={handleClick}
-        className="shadow-2-cabbage transition-transform duration-200 ease-out hover:scale-[1.02]"
-      >
-        {isResolving ? null : ctaLabel}
-      </Button>
+      {/* While resolving, render an empty button (no icon, no spinner): it keeps
+          its fixed height and full width, so the copy fades in without a shift. */}
+      {isResolving ? (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          aria-label={ctaLabel}
+          className={buttonClassName}
+        />
+      ) : (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          icon={<MoveToIcon size={IconSize.Size16} />}
+          iconPosition={ButtonIconPosition.Right}
+          onClick={handleClick}
+          className={buttonClassName}
+        >
+          {ctaLabel}
+        </Button>
+      )}
     </FlexCol>
   );
 };
