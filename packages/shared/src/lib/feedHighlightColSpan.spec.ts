@@ -522,8 +522,8 @@ describe('computePlacements', () => {
     });
 
     it('treats ad-page placeholders as filled slots (same as real ads)', () => {
-      // Placeholder with `index` (ad loading) advances adsFired exactly
-      // like a real ad. Wide card after still sees the next slot vcs.
+      // Placeholder with `index` (ad loading) consumes 1 visual cell just
+      // like a real ad. Wide card after still lands past the slot.
       const placeholderAd = {
         type: FeedItemType.Placeholder,
         index: 0,
@@ -540,8 +540,8 @@ describe('computePlacements', () => {
         adStart: 2,
         adRepeat: 10,
       });
-      // After placeholder ad, adsFired=1 → nextAdVcs=12. wide is at
-      // col=3, vcs=3, allowed up to min(grid=4, row=1, ad=9) = 1.
+      // After placeholder ad, vcs=3 → nextAdVcs=12. wide is at col=3,
+      // allowed up to min(grid=4, row=1, ad=9) = 1 due to row-fit clamp.
       expect(placements[3]).toEqual({ colSpan: 1, row: 0, column: 3 });
     });
 
@@ -587,6 +587,30 @@ describe('computePlacements', () => {
         adRepeat: 8,
       });
       expect(placements[2].colSpan).toBe(1);
+    });
+
+    it('does not suppress wide cards when the first ad slot is missing from items', () => {
+      // adStart=4, adRepeat=8. First slot is "skipped" — no ad item lives
+      // at vcs=4 in the items array (this mirrors useFeed swapping the
+      // first ad for a marketing CTA / plus entry). vcs walks past slot 0
+      // via post items alone. A wide card at vcs=4 must still get its
+      // full span: the next slot is at vcs=12, so allowance is 8.
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost({ significance: 'breaking' })),
+      ];
+      const placements = computePlacements(items, {
+        ...opts,
+        adStart: 4,
+        adRepeat: 8,
+      });
+      // Pre-fix: would clamp to 1 (nextAdVcs stuck at adStart=4 with
+      // adsFired=0 and vcs=4). Post-fix: formula derives slotsPassed=1
+      // from vcs, nextAdVcs=12, full span allowed.
+      expect(placements[4].colSpan).toBe(4);
     });
   });
 });

@@ -201,27 +201,24 @@ export const computePlacements = (
   const hasAdCadence =
     typeof adStart === 'number' && typeof adRepeat === 'number' && adRepeat > 0;
   let vcs = 0;
-  // Ads + ad placeholders both occupy ad slots; count them as we walk so
-  // the next-ad target advances in lockstep with how `useFeed` placed
-  // them. Generic loading placeholders (no `index` field) are NOT ad
-  // slots — they appear only while feedQuery is fetching.
-  let adsFired = 0;
 
   return items.map((item, index) => {
     const fullRowBefore = fullRowInsertionBeforeIndex?.has(index) ?? false;
     let maxColSpan: number | undefined;
     if (hasAdCadence) {
-      const nextAdVcs = adStart + adsFired * adRepeat;
+      // Derive the next ad slot from vcs directly. Robust to ad slots
+      // being absent from `items` (e.g. when useFeed swapped the slot for
+      // a marketing CTA) — vcs alone tells us how many slot positions
+      // we have passed.
+      const slotsPassed = Math.max(
+        0,
+        Math.floor((vcs - adStart + adRepeat) / adRepeat),
+      );
+      const nextAdVcs = adStart + slotsPassed * adRepeat;
       maxColSpan = Math.max(1, nextAdVcs - vcs);
     }
     const placement = builder.next(item, { fullRowBefore, maxColSpan });
     vcs += placement.colSpan;
-    if (
-      item.type === FeedItemType.Ad ||
-      (item.type === FeedItemType.Placeholder && typeof item.index === 'number')
-    ) {
-      adsFired += 1;
-    }
     return placement;
   });
 };

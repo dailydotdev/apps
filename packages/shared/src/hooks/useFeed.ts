@@ -586,7 +586,6 @@ export default function useFeed<T>(
         adTemplate?.adStart ??
         featureFeedAdTemplate.defaultValue.default.adStart;
       const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
-      let adsFired = 0;
 
       const placementBuilder = createPlacementBuilder({
         numCards: virtualizedNumCards,
@@ -601,20 +600,17 @@ export default function useFeed<T>(
         newItems.push(item);
         const idx = newItems.length - 1;
         const fullRowBefore = fullRowInsertionBeforeIndex.has(idx);
-        const nextAdVcs = adStart + adsFired * adRepeat;
+        const slotsPassed = Math.max(
+          0,
+          Math.floor((visualCellsSoFar - adStart + adRepeat) / adRepeat),
+        );
+        const nextAdVcs = adStart + slotsPassed * adRepeat;
         const maxColSpan = Math.max(1, nextAdVcs - visualCellsSoFar);
         const placement = placementBuilder.next(item, {
           fullRowBefore,
           maxColSpan,
         });
         visualCellsSoFar += placement.colSpan;
-        if (
-          item.type === FeedItemType.Ad ||
-          (item.type === FeedItemType.Placeholder &&
-            typeof item.index === 'number')
-        ) {
-          adsFired += 1;
-        }
       };
 
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
