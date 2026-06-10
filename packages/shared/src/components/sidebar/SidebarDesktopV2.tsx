@@ -100,14 +100,6 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     ),
   },
   {
-    id: SidebarCategory.Saved,
-    label: 'Saved',
-    defaultPath: `${webappUrl}bookmarks`,
-    icon: (active) => (
-      <BookmarkIcon secondary={active} size={IconSize.Small} aria-hidden />
-    ),
-  },
-  {
     id: SidebarCategory.GameCenter,
     label: 'Quests',
     // First sub-page in the Game Center category is the Daily quests
@@ -116,6 +108,14 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     // via the hover panel.
     defaultPath: `${webappUrl}daily-quests`,
     icon: (active) => <QuestRailIcon active={active} />,
+  },
+  {
+    id: SidebarCategory.Saved,
+    label: 'Saved',
+    defaultPath: `${webappUrl}bookmarks`,
+    icon: (active) => (
+      <BookmarkIcon secondary={active} size={IconSize.Small} aria-hidden />
+    ),
   },
   {
     id: SidebarCategory.Profile,
@@ -653,7 +653,7 @@ export const SidebarDesktopV2 = ({
 
             return (
               <React.Fragment key={category.id}>
-                {category.id === SidebarCategory.Saved && isLoggedIn && (
+                {category.id === SidebarCategory.GameCenter && isLoggedIn && (
                   <RailHoverCard
                     label="Notifications"
                     panel={<NotificationsRailPanel />}
@@ -732,6 +732,44 @@ export const SidebarDesktopV2 = ({
               </div>
             </Tooltip>
           )}
+
+          <RailHoverCard
+            label="Settings"
+            panel={renderCategorySection(SidebarCategory.Settings)}
+            enabled={!isExpanded}
+          >
+            <Link href={settingsDefaultPath} passHref>
+              <a
+                href={settingsDefaultPath}
+                role="tab"
+                id={`sidebar-category-${SidebarCategory.Settings}`}
+                aria-controls="sidebar-context-panel"
+                aria-selected={isSettingsSelected}
+                aria-label="Settings"
+                className={classNames(
+                  railTabClass,
+                  isSettingsSelected &&
+                    'bg-background-default !text-text-primary',
+                )}
+                onClick={() => onSelectCategory(SidebarCategory.Settings)}
+                onMouseEnter={() =>
+                  onPrefetchCategory(SidebarCategory.Settings)
+                }
+                onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
+              >
+                <span className="relative flex items-center justify-center">
+                  <SettingsIcon
+                    secondary={isSettingsSelected}
+                    size={IconSize.Small}
+                    aria-hidden
+                  />
+                </span>
+                {!isCompact && (
+                  <span className={railTabLabelClass}>Settings</span>
+                )}
+              </a>
+            </Link>
+          </RailHoverCard>
         </div>
 
         <div className="mt-auto flex w-full flex-col items-center gap-2">
@@ -742,71 +780,51 @@ export const SidebarDesktopV2 = ({
           >
             <SidebarThemeButton />
             <SidebarSupportButton />
-
-            <RailHoverCard
-              label="Settings"
-              panel={renderCategorySection(SidebarCategory.Settings)}
-              enabled={!isExpanded}
-            >
-              <Link href={settingsDefaultPath} passHref>
-                <a
-                  href={settingsDefaultPath}
-                  role="tab"
-                  id={`sidebar-category-${SidebarCategory.Settings}`}
-                  aria-controls="sidebar-context-panel"
-                  aria-selected={isSettingsSelected}
-                  aria-label="Settings"
-                  className={classNames(
-                    railButtonClass,
-                    isSettingsSelected &&
-                      'bg-background-default !text-text-primary',
-                  )}
-                  onClick={() => onSelectCategory(SidebarCategory.Settings)}
-                  onMouseEnter={() =>
-                    onPrefetchCategory(SidebarCategory.Settings)
-                  }
-                  onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
-                >
-                  <SettingsIcon
-                    secondary={isSettingsSelected}
-                    size={IconSize.Small}
-                    aria-hidden
-                  />
-                </a>
-              </Link>
-            </RailHoverCard>
           </div>
-          {isLoggedIn && <SidebarRailStats />}
-          {isLoggedIn && user && (
-            <RailHoverCard
-              label="Profile"
-              panel={renderCategorySection(SidebarCategory.Profile)}
-              enabled={!isExpanded}
-              alignOffset={RAIL_HOVER_PROFILE_ALIGN_OFFSET}
-            >
-              <button
-                type="button"
-                role="tab"
-                id={`sidebar-category-${SidebarCategory.Profile}`}
-                aria-controls="sidebar-context-panel"
-                aria-label="Profile"
-                aria-selected={isProfileSelected}
-                onClick={() => onSelectCategory(SidebarCategory.Profile)}
-                onMouseEnter={() => onPrefetchCategory(SidebarCategory.Profile)}
-                onFocus={() => onPrefetchCategory(SidebarCategory.Profile)}
-                className={classNames(
-                  railButtonClass,
-                  isProfileSelected &&
-                    'bg-background-default !text-text-primary',
-                )}
-              >
-                <ProfilePicture
-                  user={user}
-                  size={ProfileImageSize.Medium}
-                  nativeLazyLoading
-                />
-              </button>
-            </RailHoverCard>
+          {isLoggedIn && (
+            <div className="flex w-full flex-col items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+              <SidebarRailStats />
+              {user && (
+                <>
+                  <span
+                    aria-hidden
+                    className="h-px w-full bg-border-subtlest-quaternary"
+                  />
+                  <RailHoverCard
+                    label="Profile"
+                    panel={renderCategorySection(SidebarCategory.Profile)}
+                    enabled={!isExpanded}
+                    alignOffset={RAIL_HOVER_PROFILE_ALIGN_OFFSET}
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      id={`sidebar-category-${SidebarCategory.Profile}`}
+                      aria-controls="sidebar-context-panel"
+                      aria-label="Profile"
+                      aria-selected={isProfileSelected}
+                      onClick={() => onSelectCategory(SidebarCategory.Profile)}
+                      onMouseEnter={() =>
+                        onPrefetchCategory(SidebarCategory.Profile)
+                      }
+                      onFocus={() =>
+                        onPrefetchCategory(SidebarCategory.Profile)
+                      }
+                      className={classNames(
+                        'focus-outline flex w-full items-center justify-center py-2.5 transition-colors hover:bg-surface-hover',
+                        isProfileSelected && 'bg-surface-hover',
+                      )}
+                    >
+                      <ProfilePicture
+                        user={user}
+                        size={ProfileImageSize.Medium}
+                        nativeLazyLoading
+                      />
+                    </button>
+                  </RailHoverCard>
+                </>
+              )}
+            </div>
           )}
         </div>
       </nav>

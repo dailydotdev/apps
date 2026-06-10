@@ -19,8 +19,8 @@ import { Typography, TypographyType } from '../typography/Typography';
 import { StreakPopover } from './StreakPopover';
 
 const slotClass =
-  'focus-outline flex w-full items-center justify-center gap-1 py-1.5 text-text-primary transition-colors hover:bg-surface-hover';
-const iconBoxClass = 'flex size-4 shrink-0 items-center justify-center';
+  'focus-outline flex w-full items-center justify-center gap-1.5 py-2.5 text-text-primary transition-colors hover:bg-surface-hover';
+const iconBoxClass = 'flex size-5 shrink-0 items-center justify-center';
 const dividerClass = 'h-px w-full bg-border-subtlest-quaternary';
 
 type RailSlotProps = {
@@ -43,7 +43,7 @@ const RailSlot = ({
   const inner = (
     <>
       {icon}
-      <Typography bold type={TypographyType.Caption1} className="tabular-nums">
+      <Typography bold type={TypographyType.Footnote} className="tabular-nums">
         {value}
       </Typography>
     </>
@@ -124,7 +124,7 @@ export const SidebarRailStats = (): ReactElement | null => {
         <span className={iconBoxClass} aria-hidden>
           <ReadingStreakIcon
             secondary={hasReadToday}
-            size={IconSize.Size16}
+            size={IconSize.XSmall}
             className="scale-75 text-accent-bacon-default"
           />
         </span>
@@ -135,7 +135,7 @@ export const SidebarRailStats = (): ReactElement | null => {
   );
 
   return (
-    <div className="flex w-full flex-col items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+    <div className="flex w-full flex-col items-stretch">
       {isStreaksEnabled && (
         <>
           <div ref={streakSlotRef} className="flex w-full">
@@ -165,7 +165,7 @@ export const SidebarRailStats = (): ReactElement | null => {
             icon={
               <span className={iconBoxClass} aria-hidden>
                 <ReputationIcon
-                  size={IconSize.Size16}
+                  size={IconSize.XSmall}
                   className="scale-125 text-accent-onion-default"
                 />
               </span>
@@ -193,7 +193,7 @@ export const SidebarRailStats = (): ReactElement | null => {
             icon={
               <span className={iconBoxClass} aria-hidden>
                 <CoreIcon
-                  size={IconSize.Size16}
+                  size={IconSize.XSmall}
                   className="text-accent-cheese-default"
                 />
               </span>
