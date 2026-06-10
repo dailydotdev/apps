@@ -6,11 +6,14 @@ import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
   DiscussIcon as CommentIcon,
+  DiscussIconV2 as CommentIconV2,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureCommentFirstAction } from '../../../lib/featureManagement';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -79,6 +82,11 @@ const ActionButtonsV1 = ({
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
   const { getUpvoteAnimation } = useBrandSponsorship();
+  // The experiment only reorders the comment action and swaps its icon;
+  // copy and click behavior stay identical to the control so the only
+  // variable is order.
+  const isCommentFirst = useFeature(featureCommentFirstAction);
+  const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
 
   const {
     isUpvoteActive,
@@ -120,6 +128,17 @@ const ActionButtonsV1 = ({
 
   const commentCount = post.numComments ?? 0;
   const upvoteCount = post.numUpvotes ?? 0;
+  // Keep every count in the action row on the same typography as the upvote
+  // counter so the numbers match in size/style across variants. `!leading-5`
+  // forces the footnote line to fill the counter's h-5 box (it must beat
+  // typo-footnote's own line-height, which is emitted later in the same
+  // utilities layer) so the digits center against the icons instead of
+  // riding high.
+  const counterClassName = classNames(
+    'tabular-nums !leading-5',
+    variant === 'grid' && 'typo-footnote',
+  );
+  const counterLabelClassName = variant === 'grid' ? '!pl-[1px]' : '!pl-0';
 
   const commentButton = config.useCommentLink ? (
     <LinkWithTooltip
@@ -127,7 +146,7 @@ const ActionButtonsV1 = ({
       href={post.commentsPermalink}
     >
       <QuaternaryButton
-        labelClassName="!pl-0"
+        labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
         className="btn-tertiary-blueCheese pointer-events-auto"
         color={ButtonColor.BlueCheese}
@@ -136,12 +155,17 @@ const ActionButtonsV1 = ({
         pressed={post.commented}
         variant={ButtonVariant.Tertiary}
         size={config.buttonSize}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        icon={
+          <CommentIconComponent
+            secondary={post.commented}
+            size={config.iconSize}
+          />
+        }
         onClick={() => onCommentClick?.(post)}
       >
         {commentCount > 0 && (
           <InteractionCounter
-            className={classNames('tabular-nums', !commentCount && 'invisible')}
+            className={counterClassName}
             value={commentCount}
           />
         )}
@@ -150,9 +174,14 @@ const ActionButtonsV1 = ({
   ) : (
     <Tooltip content="Comments" side="bottom">
       <QuaternaryButton
-        labelClassName="!pl-[1px]"
+        labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        icon={
+          <CommentIconComponent
+            secondary={post.commented}
+            size={config.iconSize}
+          />
+        }
         pressed={post.commented}
         onClick={() => onCommentClick?.(post)}
         size={config.buttonSize}
@@ -160,15 +189,68 @@ const ActionButtonsV1 = ({
       >
         {commentCount > 0 && (
           <InteractionCounter
-            className={classNames(
-              'tabular-nums !typo-footnote',
-              !commentCount && 'invisible',
-            )}
+            className={counterClassName}
             value={commentCount}
           />
         )}
       </QuaternaryButton>
     </Tooltip>
+  );
+
+  const voteButtons = (
+    <>
+      <Tooltip
+        content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+        side={variant === 'grid' ? 'bottom' : undefined}
+      >
+        <QuaternaryButton
+          labelClassName={counterLabelClassName}
+          className="btn-tertiary-avocado pointer-events-auto"
+          id={`post-${post.id}-upvote-btn`}
+          color={ButtonColor.Avocado}
+          pressed={isUpvoteActive}
+          onClick={onToggleUpvote}
+          variant={ButtonVariant.Tertiary}
+          size={config.buttonSize}
+          icon={
+            <UpvoteButtonIcon
+              secondary={isUpvoteActive}
+              size={config.iconSize}
+              brandAnimation={brandAnimation}
+            />
+          }
+        >
+          {upvoteCount > 0 && (
+            <InteractionCounter
+              className={counterClassName}
+              value={upvoteCount}
+            />
+          )}
+        </QuaternaryButton>
+      </Tooltip>
+      {showDownvoteAction && (
+        <Tooltip
+          content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+          side={variant === 'grid' ? 'bottom' : undefined}
+        >
+          <QuaternaryButton
+            className="pointer-events-auto"
+            id={`post-${post.id}-downvote-btn`}
+            color={ButtonColor.Ketchup}
+            icon={
+              <DownvoteIcon
+                secondary={isDownvoteActive}
+                size={config.iconSize}
+              />
+            }
+            pressed={isDownvoteActive}
+            onClick={onToggleDownvote}
+            variant={ButtonVariant.Tertiary}
+            size={config.buttonSize}
+          />
+        </Tooltip>
+      )}
+    </>
   );
 
   const buttons = (
@@ -180,61 +262,17 @@ const ActionButtonsV1 = ({
       )}
     >
       <div className="flex flex-1 items-center justify-between">
-        <Tooltip
-          content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-          side={variant === 'grid' ? 'bottom' : undefined}
-        >
-          <QuaternaryButton
-            labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
-            className="btn-tertiary-avocado pointer-events-auto"
-            id={`post-${post.id}-upvote-btn`}
-            color={ButtonColor.Avocado}
-            pressed={isUpvoteActive}
-            onClick={onToggleUpvote}
-            variant={ButtonVariant.Tertiary}
-            size={config.buttonSize}
-            icon={
-              <UpvoteButtonIcon
-                secondary={isUpvoteActive}
-                size={config.iconSize}
-                brandAnimation={brandAnimation}
-              />
-            }
-          >
-            {upvoteCount > 0 && (
-              <InteractionCounter
-                className={classNames(
-                  'tabular-nums',
-                  variant === 'grid' && 'typo-footnote',
-                )}
-                value={upvoteCount}
-              />
-            )}
-          </QuaternaryButton>
-        </Tooltip>
-        {showDownvoteAction && (
-          <Tooltip
-            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-            side={variant === 'grid' ? 'bottom' : undefined}
-          >
-            <QuaternaryButton
-              className="pointer-events-auto"
-              id={`post-${post.id}-downvote-btn`}
-              color={ButtonColor.Ketchup}
-              icon={
-                <DownvoteIcon
-                  secondary={isDownvoteActive}
-                  size={config.iconSize}
-                />
-              }
-              pressed={isDownvoteActive}
-              onClick={onToggleDownvote}
-              variant={ButtonVariant.Tertiary}
-              size={config.buttonSize}
-            />
-          </Tooltip>
+        {isCommentFirst ? (
+          <>
+            {commentButton}
+            {voteButtons}
+          </>
+        ) : (
+          <>
+            {voteButtons}
+            {commentButton}
+          </>
         )}
-        {commentButton}
         {showAwardAction && (
           <PostAwardAction post={post} iconSize={config.iconSize} />
         )}
