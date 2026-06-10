@@ -365,7 +365,7 @@ export const PostFocusCard = ({
                 sits right under it regardless of the image height; from tablet
                 (656px) up the button moves to the top row and this one hides. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                 <h1
                   className="line-clamp-3 break-words font-bold text-text-primary typo-title3 tablet:typo-title1"
                   data-testid="post-modal-title"
