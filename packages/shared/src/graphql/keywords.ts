@@ -15,6 +15,10 @@ export interface Keyword {
   status: KeywordStatus;
   flags?: KeywordFlags;
   createdAt?: Date;
+  // Backend dependency: not yet exposed by the API. The Explore topic header
+  // renders the followers stat only when this is present, so it lights up
+  // automatically once the field is added to KEYWORD_QUERY.
+  followers?: number;
 }
 
 export interface Tag {

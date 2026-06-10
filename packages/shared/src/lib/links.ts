@@ -22,6 +22,9 @@ export const urlParseSchema = z.preprocess(
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
 
+export const getExploreTagPageLink = (tag: string): string =>
+  `${process.env.NEXT_PUBLIC_WEBAPP_URL}explore/${encodeURIComponent(tag)}`;
+
 export function isValidHttpUrl(link: string): boolean {
   try {
     const url = new URL(link);
