@@ -21,19 +21,35 @@ import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent } from '../../../lib/log';
 
 interface GivebackStartPanelProps {
+  // While we're still loading whether the visitor has causes, the CTA renders
+  // empty so its copy doesn't flip after the data lands.
+  isResolving: boolean;
+  // True once the visitor has confirmed causes: the CTA becomes "Take action".
+  hasSelectedCauses: boolean;
   // Fires once an authenticated visitor opts in, to reveal the cause picker.
   onJoin: () => void;
+  // Fires for an already-onboarded visitor, to jump to the action tab.
+  onTakeAction: () => void;
 }
 
-// Hero gateway: one clear decision above the fold — "do you want to join?".
-// Logged-out visitors get the login prompt first; authenticated visitors opt in.
+// Hero gateway: one clear decision above the fold. New visitors opt in (logged
+// out get the login prompt first); returning visitors who already picked causes
+// jump straight to taking action.
 export const GivebackStartPanel = ({
+  isResolving,
+  hasSelectedCauses,
   onJoin,
+  onTakeAction,
 }: GivebackStartPanelProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
 
-  const handleJoin = () => {
+  const handleClick = () => {
+    if (hasSelectedCauses) {
+      onTakeAction();
+      return;
+    }
+
     if (!user) {
       showLogin({ trigger: AuthTriggers.Giveback });
       return;
@@ -43,6 +59,10 @@ export const GivebackStartPanel = ({
     logEvent({ event_name: LogEvent.ClickJoinGiveback });
     onJoin();
   };
+
+  const ctaLabel = hasSelectedCauses ? 'Take action' : 'Join the campaign';
+  const buttonClassName =
+    'shadow-2-cabbage transition-transform duration-200 ease-out hover:scale-[1.02]';
 
   return (
     <FlexCol className="gap-4">
@@ -59,17 +79,29 @@ export const GivebackStartPanel = ({
         . daily.dev funds every cent, so you never pay.
       </Typography>
 
-      <Button
-        type="button"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Large}
-        icon={<MoveToIcon size={IconSize.Size16} />}
-        iconPosition={ButtonIconPosition.Right}
-        onClick={handleJoin}
-        className="shadow-2-cabbage transition-transform duration-200 ease-out hover:scale-[1.02]"
-      >
-        Join the campaign
-      </Button>
+      {/* While resolving, render an empty button (no icon, no spinner): it keeps
+          its fixed height and full width, so the copy fades in without a shift. */}
+      {isResolving ? (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          aria-label={ctaLabel}
+          className={buttonClassName}
+        />
+      ) : (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          icon={<MoveToIcon size={IconSize.Size16} />}
+          iconPosition={ButtonIconPosition.Right}
+          onClick={handleClick}
+          className={buttonClassName}
+        >
+          {ctaLabel}
+        </Button>
+      )}
     </FlexCol>
   );
 };
