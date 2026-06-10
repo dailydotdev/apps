@@ -19,6 +19,10 @@ import type { GivebackTabId } from './GivebackTabNav';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
+// Centers a section to the page column. The tab nav lives outside this so its
+// glass background can span the full content width.
+const column = 'mx-auto w-full max-w-6xl px-4';
+
 const scrollIntoView = (node: HTMLElement | null): void => {
   if (!node || typeof node.scrollIntoView !== 'function') {
     return;
@@ -80,21 +84,25 @@ export const GivebackPage = (): ReactElement => {
     <div className="relative min-h-page w-full">
       <GivebackBackground />
 
-      <FlexCol className="relative mx-auto w-full max-w-6xl gap-14 px-4 py-8 tablet:py-14">
-        <GivebackReveal>
-          <GivebackHero
-            hasSelectedCauses={showTabs}
-            onJoin={() => setStartedPicker(true)}
-            onTakeAction={goToActions}
-          />
-        </GivebackReveal>
+      <FlexCol className="relative gap-14 py-8 tablet:py-14">
+        <div className={column}>
+          <GivebackReveal>
+            <GivebackHero
+              hasSelectedCauses={showTabs}
+              onJoin={() => setStartedPicker(true)}
+              onTakeAction={goToActions}
+            />
+          </GivebackReveal>
+        </div>
 
-        <GivebackReveal>
-          <GivebackSponsorTiers />
-        </GivebackReveal>
+        <div className={column}>
+          <GivebackReveal>
+            <GivebackSponsorTiers />
+          </GivebackReveal>
+        </div>
 
         {showPicker && (
-          <div ref={causesRef} className="scroll-mt-16">
+          <div ref={causesRef} className={`${column} scroll-mt-16`}>
             <GivebackReveal>
               <FlexCol className="gap-6">
                 <FlexCol className="gap-2">
@@ -126,14 +134,14 @@ export const GivebackPage = (): ReactElement => {
         )}
 
         {showTabs && (
-          <FlexCol ref={tabsRef} className="scroll-mt-16 gap-8">
+          <div ref={tabsRef} className="scroll-mt-16">
             <GivebackTabNav activeTab={activeTab} onSelect={setActiveTab} />
 
             <div
               key={activeTab}
-              role="tabpanel"
-              id={`giveback-panel-${activeTab}`}
-              aria-labelledby={`giveback-tab-${activeTab}`}
+              role="region"
+              aria-label={activeLabel}
+              className={`${column} pt-8`}
             >
               <GivebackReveal>
                 <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
@@ -153,12 +161,14 @@ export const GivebackPage = (): ReactElement => {
                 </FlexCol>
               </GivebackReveal>
             </div>
-          </FlexCol>
+          </div>
         )}
 
-        <GivebackReveal>
-          <GivebackLegalFooter />
-        </GivebackReveal>
+        <div className={column}>
+          <GivebackReveal>
+            <GivebackLegalFooter />
+          </GivebackReveal>
+        </div>
       </FlexCol>
 
       {showPicker && (
