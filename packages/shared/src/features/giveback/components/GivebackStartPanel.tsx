@@ -46,6 +46,10 @@ export const GivebackStartPanel = ({
 
   const handleClick = () => {
     if (hasSelectedCauses) {
+      logEvent({
+        event_name: LogEvent.ClickGivebackTakeAction,
+        extra: JSON.stringify({ origin: 'hero' }),
+      });
       onTakeAction();
       return;
     }
