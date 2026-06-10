@@ -90,11 +90,14 @@ const posts: Post[] = [
     title: 'Why everyone is talking about edge rendering in 2024',
     read: true,
     numUpvotes: 7,
+    numComments: 0,
   }),
   make({
     id: 'glass-5',
     title: 'Building resilient systems with queues and idempotency keys',
     trending: 25,
+    numUpvotes: 0,
+    numComments: 0,
   }),
   make({
     id: 'glass-6',
@@ -196,14 +199,15 @@ const GlassActionsGrid = () => (
         Feed cards — glass floating actions
       </h2>
       <p className="mb-6 max-w-2xl text-sm text-text-tertiary">
-        The engagement bar floats over the bottom of the cover image with an
-        iOS-style dark glass (translucent + blur) treatment, and each card is
-        shorter because the bar no longer takes its own row. By default it shows
-        a compact left-aligned peek (upvotes + comments only) so it barely
-        covers the artwork; <strong>hover a card</strong> to expand it into the
-        full action bar. On touch devices the full bar is always shown. Gated by
-        the <code>feed_card_glass_actions</code> GrowthBook flag (on by default
-        in this mock-up). Toggle Storybook&apos;s light/dark theme to see both.
+        One iOS-26-style liquid-glass pill holds the real action buttons at all
+        times. At rest it hugs only the actions with engagement — upvote is
+        always shown (even at zero) as the affordance, comments only when there
+        are any; <strong>hover a card</strong> and the same pill stretches to
+        full width while the remaining actions materialize inside it (no
+        cross-fade, the anchored icons never move). On touch devices the full
+        bar is always shown. Gated by the <code>feed_card_glass_actions</code>{' '}
+        GrowthBook flag (on by default in this mock-up). Toggle Storybook&apos;s
+        light/dark theme to see both.
       </p>
       <div
         className="mx-auto grid grid-cols-3 gap-8"
