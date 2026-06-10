@@ -116,7 +116,7 @@ export function PostSidebarAdWidget({
     return (
       <div
         className={classNames(
-          'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary px-3 pb-2 pt-3',
+          'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3',
           className?.container,
         )}
       >
@@ -181,7 +181,9 @@ export function PostSidebarAdWidget({
             {inlineBodyDescription}
           </Typography>
         )}
-        <AdPixel pixel={ad.pixel} />
+        <span className="absolute bottom-0 left-0">
+          <AdPixel pixel={ad.pixel} />
+        </span>
       </div>
     );
   }
