@@ -12,6 +12,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ExploreSectionTabs } from '@dailydotdev/shared/src/components/header/ExploreSectionTabs';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
@@ -125,7 +126,7 @@ const TagsPage = ({
 
   return (
     <>
-      {isV2Laptop && <PageHeader title="Tags" />}
+      {isV2Laptop && <PageHeader title={<ExploreSectionTabs />} />}
       <PageWrapperLayout className="flex flex-col gap-4">
         <Head>
           <script

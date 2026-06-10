@@ -88,6 +88,7 @@ import { useReadingReminderHero } from '../hooks/notifications/useReadingReminde
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { ExploreSectionTabs } from './header/ExploreSectionTabs';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -764,7 +765,13 @@ export default function MainFeedLayout({
   return (
     <>
       {showExploreV2PageHeader && (
-        <header className={classNames(pageHeaderClassName, '!py-0')}>
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            '!h-auto !flex-col !items-stretch !gap-0 !py-0',
+          )}
+        >
+          <ExploreSectionTabs />
           <FeedExploreHeader
             directoryTabs
             tab={tab}

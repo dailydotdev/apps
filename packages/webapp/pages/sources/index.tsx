@@ -22,6 +22,7 @@ import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ExploreSectionTabs } from '@dailydotdev/shared/src/components/header/ExploreSectionTabs';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -122,7 +123,9 @@ const SourcesPage = ({
   return (
     <>
       {isV2Laptop && (
-        <PageHeader title="Sources">{suggestSourceButton}</PageHeader>
+        <PageHeader title={<ExploreSectionTabs />}>
+          {suggestSourceButton}
+        </PageHeader>
       )}
       <PageWrapperLayout className="py-6">
         <Head>
