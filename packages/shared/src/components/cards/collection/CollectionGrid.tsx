@@ -48,9 +48,10 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const glassActions = useFeedCardGlassActions();
-  // Glass bar floats over the cover image; image-less collections keep the
-  // inline bar so it doesn't overlap the title/contentHtml.
-  const useGlass = glassActions && !!image;
+  // The floating glass bar applies to every collection. When there's a cover
+  // image it floats over it full-bleed; otherwise it floats over the bottom of
+  // the content (which blurs through the glass).
+  const useGlass = glassActions;
 
   if (isHidden) {
     return (
@@ -115,13 +116,15 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         numSources={post.numCollectionSources}
         className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
       />
-      <Container className={useGlass ? 'flex-none' : undefined}>
+      <Container className={useGlass && image ? 'flex-none' : undefined}>
         <WelcomePostCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}
           onShare={onShare}
-          imageClassName={useGlass ? glassCoverImageClassName : undefined}
+          imageClassName={
+            useGlass && image ? glassCoverImageClassName : undefined
+          }
         />
         {useGlass ? (
           <FeedCardGlassActions
