@@ -243,7 +243,7 @@ export default function useFeed<T>(
     disableTopHero = false,
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
-  const numCards = numCardsBySpaciness?.eco ?? 1;
+  const numCards = numCardsBySpaciness.eco;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
