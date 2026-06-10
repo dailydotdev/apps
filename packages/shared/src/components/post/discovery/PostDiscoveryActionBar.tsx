@@ -144,7 +144,9 @@ export const PostDiscoveryActionBar = ({
       <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
       <div
         className={classNames(
-          'sticky z-3 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-1 py-2',
+          // Static on mobile (no sticky), sticky from tablet up so the bar
+          // never overlaps the small-screen reading flow.
+          'relative z-3 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-1 py-2 tablet:sticky',
           // Drop the top border once pinned so it doesn't double up with the
           // header border above it.
           !isStuck && 'border-t',
@@ -221,25 +223,34 @@ export const PostDiscoveryActionBar = ({
               size: ButtonSize.Medium,
             }}
           />
-          <Tooltip content="Copy link">
-            <CardAction
-              label="Copy link"
-              color={ButtonColor.Cabbage}
-              icon={<LinkIcon />}
-              onClick={() => onCopyLinkClick?.(post)}
-            />
-          </Tooltip>
+          {/* As the viewport narrows we fold the lowest-priority utilities into
+              the "…" menu (which already offers Share and Post analytics),
+              closest-to-the-menu first: analytics below laptop, then share/copy
+              below tablet. Bookmark stays — it is the primary save action and
+              is not in the menu. */}
+          <div className="hidden tablet:flex">
+            <Tooltip content="Copy link">
+              <CardAction
+                label="Copy link"
+                color={ButtonColor.Cabbage}
+                icon={<LinkIcon />}
+                onClick={() => onCopyLinkClick?.(post)}
+              />
+            </Tooltip>
+          </div>
           {post.clickbaitTitleDetected && (
             <PostClickbaitShield post={post} iconOnly />
           )}
           {canSeeAnalytics && (
-            <Tooltip content="Analytics">
-              <CardAction
-                label="Analytics"
-                icon={<AnalyticsIcon />}
-                href={`${webappUrl}posts/${post.id}/analytics`}
-              />
-            </Tooltip>
+            <div className="hidden laptop:flex">
+              <Tooltip content="Analytics">
+                <CardAction
+                  label="Analytics"
+                  icon={<AnalyticsIcon />}
+                  href={`${webappUrl}posts/${post.id}/analytics`}
+                />
+              </Tooltip>
+            </div>
           )}
           <PostMenuOptions
             post={post}
