@@ -1,11 +1,22 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { ActionButtonsProps } from './ActionButtons';
-import ActionButtons from './ActionButtons';
+import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import InteractionCounter from '../../InteractionCounter';
-import { UpvoteIcon, DiscussIcon } from '../../icons';
+import { QuaternaryButton } from '../../buttons/QuaternaryButton';
+import { BookmarkButton } from '../../buttons/BookmarkButton';
+import PostAwardAction from '../../post/PostAwardAction';
+import {
+  DiscussIcon as CommentIcon,
+  DownvoteIcon,
+  LinkIcon,
+} from '../../icons';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { IconSize } from '../../Icon';
+import { Tooltip } from '../../tooltip/Tooltip';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
+import { useCardActions } from '../../../hooks/cards/useCardActions';
 
 // In the glass variant the cover image goes full-bleed: edge-to-edge width
 // (drop the side padding), flush to the card's bottom (drop the bottom margin),
@@ -13,64 +24,203 @@ import { IconSize } from '../../Icon';
 export const glassCoverImageClassName =
   '!h-48 !rounded-t-none !rounded-b-16 !px-0 !mb-0';
 
-// One iOS-style "liquid glass" pill that breathes: a single element whose
-// max-width animates from a compact cap to 100% on card hover. The border,
-// tint and blur belong to this one element, so nothing cross-fades or shifts —
-// the pill itself grows. `w-full` + animated `max-width` is the trick: you
-// can't transition `width: fit-content → 100%`, but length ↔ percentage
-// max-width interpolates smoothly.
-// On touch devices (no hover) the pill is always fully expanded.
+// iOS-26 "Liquid Glass" morph: there is ONE pill containing the real action
+// buttons at all times. Anchored actions (upvote always; comment when it has a
+// count) never move or swap, and every other action sits in its own grid track
+// that animates 0fr ↔ 1fr, so the pill hugs the visible buttons and stretches
+// open on hover. Nothing cross-fades over the glass — the surface is
+// continuous and the icons materialize inside it.
+const morphEase = 'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]';
+
+// Full-width positioning grid: the first track holds the pill, the second is
+// an empty spacer. Animating the fr split is what lets the pill go from
+// content-hugging (spacer absorbs the rest) to spanning the full card —
+// `width: fit-content → 100%` is not animatable, but fr tracks are.
+const outerClasses = classNames(
+  'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid',
+  `transition-[grid-template-columns] ${morphEase}`,
+  '[grid-template-columns:1fr_0fr]',
+  'laptop:mouse:[grid-template-columns:0fr_1fr]',
+  'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]',
+);
+
+// `min-w-fit` keeps the pill floored at its visible content while the outer
+// track animates; both `--button-*-color` pins keep icons white at rest and on
+// hover so only the pressed/active state shows a brand tint.
 const pillClasses = classNames(
-  'relative flex h-10 w-full items-center overflow-hidden',
+  'pointer-events-auto flex h-10 min-w-fit items-center justify-between overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'bg-overlay-primary-pepper text-white backdrop-blur-2xl',
   '[--button-default-color:theme(colors.white)] [--button-hover-color:theme(colors.white)]',
-  'transition-[max-width] duration-300 ease-out',
-  'pointer-events-auto max-w-full',
-  'laptop:mouse:pointer-events-none laptop:mouse:max-w-[8.5rem]',
-  'laptop:mouse:group-hover:pointer-events-auto laptop:mouse:group-hover:max-w-full',
 );
 
-// Collapsed content: upvote + comment counts, absolutely layered inside the
-// pill so it never affects geometry. Fades out quickly as the pill grows.
-const peekLayerClasses = classNames(
-  'absolute inset-y-0 left-0 z-1 flex items-center gap-2.5 px-2.5',
-  'tabular-nums typo-footnote',
-  'opacity-0 transition-opacity duration-150 ease-out',
-  'laptop:mouse:opacity-100 laptop:mouse:group-hover:opacity-0',
+// One collapsible track per secondary action. Width animates 0fr ↔ 1fr while
+// the content fades in slightly delayed, so the pill's growth leads and the
+// icon settles into place (and focus is removed while hidden via visibility).
+const segmentClasses = classNames(
+  `grid transition-[grid-template-columns] ${morphEase}`,
+  '[grid-template-columns:1fr]',
+  'laptop:mouse:[grid-template-columns:0fr]',
+  'laptop:mouse:group-hover:[grid-template-columns:1fr]',
 );
 
-// Expanded content: the standard full-width action row. Its width tracks the
-// pill every frame, so justify-between redistributes the icons continuously
-// while the pill grows — the "breathing" motion. Fades in slightly delayed so
-// the growth leads and the icons settle into place.
-const actionsLayerClasses = classNames(
-  'flex w-full items-center px-1.5',
-  'transition-opacity duration-200 ease-out',
-  'opacity-100',
-  'laptop:mouse:opacity-0 laptop:mouse:group-hover:opacity-100 laptop:mouse:group-hover:delay-75',
+const segmentContentClasses = classNames(
+  'flex min-w-0 items-center justify-center overflow-hidden',
+  'transition-[opacity,visibility] duration-200 ease-out',
+  'visible opacity-100',
+  'laptop:mouse:invisible laptop:mouse:opacity-0',
+  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100 laptop:mouse:group-hover:delay-75',
 );
 
-export function FeedCardGlassActions(props: ActionButtonsProps): ReactElement {
-  const { post } = props;
+const Segment = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className={segmentClasses}>
+    <div className={segmentContentClasses}>{children}</div>
+  </div>
+);
+
+export function FeedCardGlassActions({
+  post,
+  onUpvoteClick,
+  onCommentClick,
+  onBookmarkClick,
+  onCopyLinkClick,
+  onDownvoteClick,
+  showDownvoteAction = true,
+  showAwardAction = true,
+}: ActionButtonsProps): ReactElement | null {
+  const isFeedPreview = useFeedPreviewMode();
+  const {
+    isUpvoteActive,
+    isDownvoteActive,
+    onToggleUpvote,
+    onToggleDownvote,
+    onToggleBookmark,
+    onCopyLink,
+  } = useCardActions({
+    post,
+    onUpvoteClick,
+    onDownvoteClick,
+    onBookmarkClick,
+    onCopyLinkClick,
+  });
+
+  if (isFeedPreview) {
+    return null;
+  }
+
+  const upvoteCount = post.numUpvotes ?? 0;
+  const commentCount = post.numComments ?? 0;
+
+  const commentButton = (
+    <Tooltip content="Comments" side="bottom">
+      <QuaternaryButton
+        labelClassName="!pl-[1px]"
+        id={`post-${post.id}-comment-btn`}
+        icon={<CommentIcon secondary={post.commented} size={IconSize.XSmall} />}
+        pressed={post.commented}
+        onClick={() => onCommentClick?.(post)}
+        size={ButtonSize.Small}
+        className="btn-tertiary-blueCheese pointer-events-auto"
+      >
+        {commentCount > 0 && (
+          <InteractionCounter
+            className="tabular-nums !typo-footnote"
+            value={commentCount}
+          />
+        )}
+      </QuaternaryButton>
+    </Tooltip>
+  );
 
   return (
-    <div className="pointer-events-none absolute inset-x-2 bottom-2 z-1 flex">
+    <div className={outerClasses}>
       <div className={pillClasses}>
-        <div className={peekLayerClasses} aria-hidden>
-          <span className="flex items-center gap-1">
-            <UpvoteIcon size={IconSize.XSmall} />
-            <InteractionCounter value={post.numUpvotes ?? 0} />
-          </span>
-          <span className="flex items-center gap-1">
-            <DiscussIcon size={IconSize.XSmall} />
-            <InteractionCounter value={post.numComments ?? 0} />
-          </span>
-        </div>
-        <div className={actionsLayerClasses}>
-          <ActionButtons {...props} className="w-full !px-0 !pb-0" />
-        </div>
+        <Tooltip
+          content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+          side="bottom"
+        >
+          <QuaternaryButton
+            labelClassName="!pl-[1px]"
+            className="btn-tertiary-avocado pointer-events-auto"
+            id={`post-${post.id}-upvote-btn`}
+            color={ButtonColor.Avocado}
+            pressed={isUpvoteActive}
+            onClick={onToggleUpvote}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={IconSize.XSmall}
+              />
+            }
+          >
+            {upvoteCount > 0 && (
+              <InteractionCounter
+                className="tabular-nums typo-footnote"
+                value={upvoteCount}
+              />
+            )}
+          </QuaternaryButton>
+        </Tooltip>
+        {showDownvoteAction && (
+          <Segment>
+            <Tooltip
+              content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+              side="bottom"
+            >
+              <QuaternaryButton
+                className="pointer-events-auto"
+                id={`post-${post.id}-downvote-btn`}
+                color={ButtonColor.Ketchup}
+                icon={
+                  <DownvoteIcon
+                    secondary={isDownvoteActive}
+                    size={IconSize.XSmall}
+                  />
+                }
+                pressed={isDownvoteActive}
+                onClick={onToggleDownvote}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              />
+            </Tooltip>
+          </Segment>
+        )}
+        {commentCount > 0 ? commentButton : <Segment>{commentButton}</Segment>}
+        {showAwardAction && (
+          <Segment>
+            <PostAwardAction post={post} iconSize={IconSize.XSmall} />
+          </Segment>
+        )}
+        <Segment>
+          <BookmarkButton
+            tooltipSide="bottom"
+            post={post}
+            buttonProps={{
+              id: `post-${post.id}-bookmark-btn`,
+              onClick: onToggleBookmark,
+              size: ButtonSize.Small,
+              className: 'btn-tertiary-bun pointer-events-auto',
+            }}
+            iconSize={IconSize.XSmall}
+          />
+        </Segment>
+        <Segment>
+          <Tooltip content="Copy link" side="bottom">
+            <QuaternaryButton
+              id="copy-post-btn"
+              size={ButtonSize.Small}
+              icon={<LinkIcon size={IconSize.XSmall} />}
+              onClick={onCopyLink}
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cabbage}
+              className="pointer-events-auto"
+            />
+          </Tooltip>
+        </Segment>
       </div>
+      <div aria-hidden />
     </div>
   );
 }
