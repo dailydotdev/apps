@@ -17,6 +17,7 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { useIsScrolling } from '../../../hooks/useIsScrolling';
 
 // iOS-26 "Liquid Glass" morph: there is ONE pill containing the real action
 // buttons at all times. Anchored actions (upvote always; comment when it has a
@@ -24,19 +25,28 @@ import { useCardActions } from '../../../hooks/cards/useCardActions';
 // grid track that animates 0fr ↔ 1fr, so the pill hugs the visible buttons and
 // stretches open on hover. Nothing cross-fades over the glass — the surface is
 // continuous and the icons materialize inside it.
-const morphEase = 'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]';
+const morphEase =
+  'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none';
+
+// Hover-intent delay: the grid only starts expanding after the cursor has
+// rested ~180ms, so a quick pass (or a card sliding under a stationary cursor
+// while scrolling) never triggers it. Applied only to the expand direction —
+// collapse stays immediate.
+const expandDelay = 'laptop:mouse:group-hover:delay-[180ms]';
 
 // Full-width positioning grid: the first track holds the pill, the second is
 // an empty spacer. Animating the fr split is what lets the pill go from
 // content-hugging (spacer absorbs the rest) to spanning the full card —
-// `width: fit-content → 100%` is not animatable, but fr tracks are.
-const outerClasses = classNames(
+// `width: fit-content → 100%` is not animatable, but fr tracks are. The
+// `group-hover` expansion is appended by the component only when the feed
+// isn't scrolling (see `expandOnHover`), so cards never expand mid-scroll.
+const outerBaseClasses = classNames(
   'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid',
   `transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr_0fr]',
   'laptop:mouse:[grid-template-columns:0fr_1fr]',
-  'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]',
 );
+const outerExpandClasses = `laptop:mouse:group-hover:[grid-template-columns:1fr_0fr] ${expandDelay}`;
 
 // `min-w-fit` keeps the pill floored at its visible content while the outer
 // track animates. The glass surface uses the theme-aware `blur-bg` token
@@ -58,24 +68,35 @@ const pillClasses = classNames(
 // One collapsible track per secondary action. Width animates 0fr ↔ 1fr while
 // the content fades in slightly delayed, so the pill's growth leads and the
 // icon settles into place (and focus is removed while hidden via visibility).
-const segmentClasses = classNames(
+const segmentBaseClasses = classNames(
   `grid transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr]',
   'laptop:mouse:[grid-template-columns:0fr]',
-  'laptop:mouse:group-hover:[grid-template-columns:1fr]',
 );
+const segmentExpandClasses = `laptop:mouse:group-hover:[grid-template-columns:1fr] ${expandDelay}`;
 
-const segmentContentClasses = classNames(
+const segmentContentBaseClasses = classNames(
   'flex min-w-0 items-center justify-center overflow-hidden',
-  'transition-[opacity,visibility] duration-200 ease-out',
+  'transition-[opacity,visibility] duration-200 ease-out motion-reduce:transition-none',
   'visible opacity-100',
   'laptop:mouse:invisible laptop:mouse:opacity-0',
-  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100 laptop:mouse:group-hover:delay-75',
 );
+const segmentContentExpandClasses =
+  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100 laptop:mouse:group-hover:delay-[240ms]';
 
-const Segment = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className={segmentClasses}>
-    <div className={segmentContentClasses}>{children}</div>
+interface SegmentProps {
+  children: ReactNode;
+  wrapperClassName: string;
+  contentClassName: string;
+}
+
+const Segment = ({
+  children,
+  wrapperClassName,
+  contentClassName,
+}: SegmentProps): ReactElement => (
+  <div className={wrapperClassName}>
+    <div className={contentClassName}>{children}</div>
   </div>
 );
 
@@ -90,6 +111,7 @@ export function FeedCardGlassActions({
   showAwardAction = true,
 }: ActionButtonsProps): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
+  const isScrolling = useIsScrolling();
   const {
     isUpvoteActive,
     isDownvoteActive,
@@ -111,6 +133,28 @@ export function FeedCardGlassActions({
 
   const upvoteCount = post.numUpvotes ?? 0;
   const commentCount = post.numComments ?? 0;
+
+  // Only attach the hover-expand utilities when the feed isn't scrolling, so a
+  // card passing under the cursor mid-scroll can't fire the expand animation —
+  // the grid simply stays collapsed regardless of hover. When scrolling stops,
+  // a genuinely hovered card expands (after the intent delay).
+  const expandOnHover = !isScrolling;
+  const outerClasses = classNames(
+    outerBaseClasses,
+    expandOnHover && outerExpandClasses,
+  );
+  const segmentClasses = classNames(
+    segmentBaseClasses,
+    expandOnHover && segmentExpandClasses,
+  );
+  const segmentContentClasses = classNames(
+    segmentContentBaseClasses,
+    expandOnHover && segmentContentExpandClasses,
+  );
+  const segmentProps = {
+    wrapperClassName: segmentClasses,
+    contentClassName: segmentContentClasses,
+  };
 
   const commentButton = (
     <Tooltip content="Comments" side="bottom">
@@ -164,9 +208,13 @@ export function FeedCardGlassActions({
             )}
           </QuaternaryButton>
         </Tooltip>
-        {commentCount > 0 ? commentButton : <Segment>{commentButton}</Segment>}
+        {commentCount > 0 ? (
+          commentButton
+        ) : (
+          <Segment {...segmentProps}>{commentButton}</Segment>
+        )}
         {showDownvoteAction && (
-          <Segment>
+          <Segment {...segmentProps}>
             <Tooltip
               content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
               side="bottom"
@@ -190,11 +238,11 @@ export function FeedCardGlassActions({
           </Segment>
         )}
         {showAwardAction && (
-          <Segment>
+          <Segment {...segmentProps}>
             <PostAwardAction post={post} iconSize={IconSize.XSmall} />
           </Segment>
         )}
-        <Segment>
+        <Segment {...segmentProps}>
           <BookmarkButton
             tooltipSide="bottom"
             post={post}
@@ -207,7 +255,7 @@ export function FeedCardGlassActions({
             iconSize={IconSize.XSmall}
           />
         </Segment>
-        <Segment>
+        <Segment {...segmentProps}>
           <Tooltip content="Copy link" side="bottom">
             <QuaternaryButton
               id="copy-post-btn"

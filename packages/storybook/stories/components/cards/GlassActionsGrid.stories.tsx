@@ -204,8 +204,11 @@ const GlassActionsGrid = () => (
         always shown (even at zero) as the affordance, comments only when there
         are any; <strong>hover a card</strong> and the same pill stretches to
         full width while the remaining actions materialize inside it (no
-        cross-fade, the anchored icons never move). On touch devices the full
-        bar is always shown. Gated by the <code>feed_card_glass_actions</code>{' '}
+        cross-fade, the anchored icons never move). Expansion is suppressed
+        while the feed is scrolling and gated behind a short hover-intent delay,
+        so cards passing under the cursor never fire a cascade of animations. On
+        touch devices the full bar is always shown. Gated by the{' '}
+        <code>feed_card_glass_actions</code>{' '}
         GrowthBook flag (on by default in this mock-up). Toggle Storybook&apos;s
         light/dark theme to see both.
       </p>
