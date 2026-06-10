@@ -36,9 +36,11 @@ import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
+  BellIcon,
   BookmarkIcon,
   FeedbackIcon,
   HomeIcon,
+  MenuIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
@@ -341,6 +343,48 @@ export const SidebarDesktopV2 = ({
   const railToggleOpenLeft = isCompact ? 'left-[16.5rem]' : 'left-[17.5rem]';
   const claimableQuestCount = useClaimableQuestCount();
   const showQuestBadge = !optOutQuestSystem && claimableQuestCount > 0;
+
+  // --- Vertical "More" overflow -------------------------------------------
+  // When the rail is too short to fit every nav item, the lowest-priority
+  // items fold into the Settings button, which becomes a 3-dots "More"
+  // dropdown. Fold order: Saved, then Quests, then Alerts. Home, Squads and
+  // New post always stay. Measured against the nav list's height so it tracks
+  // the viewport like Slack's sidebar.
+  const navListRef = useRef<HTMLDivElement>(null);
+  const [maxNavSlots, setMaxNavSlots] = useState(Number.POSITIVE_INFINITY);
+  useEffect(() => {
+    const list = navListRef.current;
+    if (!list || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const GAP = 4;
+    const itemHeight = isCompact ? 44 : 56;
+    const measure = () => {
+      const slots = Math.floor((list.clientHeight + GAP) / (itemHeight + GAP));
+      setMaxNavSlots(Math.max(0, slots));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [isCompact]);
+
+  const overflowOrder = useMemo(
+    () =>
+      [
+        isLoggedIn ? SidebarCategory.Notifications : null,
+        SidebarCategory.GameCenter,
+        SidebarCategory.Saved,
+      ].filter(Boolean) as SidebarCategoryId[],
+    [isLoggedIn],
+  );
+  // Home, Squads, the Settings/More anchor and (logged-in) New post never fold.
+  const fixedNavSlots = 3 + (isLoggedIn ? 1 : 0);
+  const isNavOverflowing = maxNavSlots < fixedNavSlots + overflowOrder.length;
+  const visibleOverflowCount = isNavOverflowing
+    ? Math.max(0, Math.min(overflowOrder.length, maxNavSlots - fixedNavSlots))
+    : overflowOrder.length;
+  const foldedNavIds = overflowOrder.slice(visibleOverflowCount);
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isUserProfileActive =
     !!user?.username && activePage.includes(`/${user.username}`);
@@ -527,13 +571,111 @@ export const SidebarDesktopV2 = ({
     );
   };
 
+  // Settings pages render their navigation only inside this context panel, so
+  // a collapsed sidebar would leave no way to move between settings sections.
+  // Force the panel open and hide the collapse toggle while on settings —
+  // without touching the user's stored `sidebarExpanded` preference, so the
+  // sidebar returns to its chosen state once they navigate away.
+  const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
+  const forceExpanded = isSettingsSelected;
+  const isExpanded = sidebarExpanded || forceExpanded;
+
+  const renderCategoryTab = (
+    categoryId: SidebarCategoryId,
+  ): ReactElement | null => {
+    const category = sidebarCategories.find((entry) => entry.id === categoryId);
+    if (!category) {
+      return null;
+    }
+    const isSelected = selectedCategory === category.id;
+    return (
+      <RailHoverCard
+        label={category.label}
+        panel={renderCategorySection(category.id)}
+        enabled={!isExpanded}
+      >
+        <button
+          type="button"
+          role="tab"
+          id={`sidebar-category-${category.id}`}
+          aria-controls="sidebar-context-panel"
+          aria-label={category.label}
+          aria-selected={isSelected}
+          onClick={() => onSelectCategory(category.id)}
+          onMouseEnter={() => onPrefetchCategory(category.id)}
+          onFocus={() => onPrefetchCategory(category.id)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              setPendingCategory(SidebarCategory.Main);
+            }
+          }}
+          className={classNames(
+            railTabClass,
+            isSelected && 'bg-background-default !text-text-primary',
+          )}
+        >
+          <span className="relative flex items-center justify-center">
+            {category.icon(isSelected)}
+            {category.id === SidebarCategory.GameCenter && showQuestBadge && (
+              <Bubble className="-right-1 -top-1 px-1">
+                {claimableQuestCount}
+              </Bubble>
+            )}
+          </span>
+          {!isCompact && (
+            <span className={railTabLabelClass}>{category.label}</span>
+          )}
+        </button>
+      </RailHoverCard>
+    );
+  };
+
+  const renderMorePanel = (): ReactElement => {
+    const rows = foldedNavIds.map((id) => {
+      if (id === SidebarCategory.Notifications) {
+        return {
+          key: id as string,
+          label: 'Notifications',
+          href: `${webappUrl}notifications`,
+          icon: <BellIcon size={IconSize.Small} aria-hidden />,
+        };
+      }
+      const category = sidebarCategories.find((entry) => entry.id === id);
+      return {
+        key: id as string,
+        label: category?.label ?? '',
+        href: category?.defaultPath ?? webappUrl,
+        icon: category?.icon(false) ?? null,
+      };
+    });
+    rows.push({
+      key: SidebarCategory.Settings,
+      label: 'Settings',
+      href: settingsDefaultPath,
+      icon: <SettingsIcon size={IconSize.Small} aria-hidden />,
+    });
+    return (
+      <div className="flex flex-col gap-0.5 p-2">
+        {rows.map((row) => (
+          <Link key={row.key} href={row.href} passHref>
+            <a className="focus-outline flex items-center gap-3 rounded-10 px-3 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary">
+              <span className="flex size-5 items-center justify-center">
+                {row.icon}
+              </span>
+              <Typography type={TypographyType.Callout}>{row.label}</Typography>
+            </a>
+          </Link>
+        ))}
+      </div>
+    );
+  };
+
   const renderSelectedSection = (): ReactElement =>
     renderCategorySection(selectedCategory);
 
   const selectedLabel = sidebarCategories.find(
     (category) => category.id === selectedCategory,
   )?.label;
-  const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
   const isProfileSelected = selectedCategory === SidebarCategory.Profile;
   const isNotificationsSelected =
     selectedCategory === SidebarCategory.Notifications;
@@ -549,14 +691,6 @@ export const SidebarDesktopV2 = ({
     }
     return selectedLabel ?? '';
   })();
-
-  // Settings pages render their navigation only inside this context panel, so
-  // a collapsed sidebar would leave no way to move between settings sections.
-  // Force the panel open and hide the collapse toggle while on settings —
-  // without touching the user's stored `sidebarExpanded` preference, so the
-  // sidebar returns to its chosen state once they navigate away.
-  const forceExpanded = isSettingsSelected;
-  const isExpanded = sidebarExpanded || forceExpanded;
 
   return (
     <SidebarAside
@@ -639,82 +773,35 @@ export const SidebarDesktopV2 = ({
         />
 
         <div
+          ref={navListRef}
           role="tablist"
           aria-label="Sidebar categories"
-          className="flex w-full flex-col items-center gap-1"
+          className="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-hidden"
         >
-          {sidebarCategories.map((category) => {
-            // Profile lives at the bottom of the rail as the avatar button.
-            if (category.id === SidebarCategory.Profile) {
-              return null;
-            }
+          {renderCategoryTab(SidebarCategory.Main)}
+          {renderCategoryTab(SidebarCategory.Squads)}
 
-            const isSelected = selectedCategory === category.id;
-
-            return (
-              <React.Fragment key={category.id}>
-                {category.id === SidebarCategory.GameCenter && isLoggedIn && (
-                  <RailHoverCard
-                    label="Notifications"
-                    panel={<NotificationsRailPanel />}
-                    enabled={!isExpanded}
-                  >
-                    <div className="w-full">
-                      <NotificationsBell
-                        rail
-                        noTooltip
-                        railHideLabel={isCompact}
-                        active={
-                          selectedCategory === SidebarCategory.Notifications
-                        }
-                      />
-                    </div>
-                  </RailHoverCard>
-                )}
-                <RailHoverCard
-                  label={category.label}
-                  panel={renderCategorySection(category.id)}
-                  enabled={!isExpanded}
-                >
-                  <button
-                    type="button"
-                    role="tab"
-                    id={`sidebar-category-${category.id}`}
-                    aria-controls="sidebar-context-panel"
-                    aria-label={category.label}
-                    aria-selected={isSelected}
-                    onClick={() => onSelectCategory(category.id)}
-                    onMouseEnter={() => onPrefetchCategory(category.id)}
-                    onFocus={() => onPrefetchCategory(category.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Escape') {
-                        setPendingCategory(SidebarCategory.Main);
-                      }
-                    }}
-                    className={classNames(
-                      railTabClass,
-                      isSelected && 'bg-background-default !text-text-primary',
-                    )}
-                  >
-                    <span className="relative flex items-center justify-center">
-                      {category.icon(isSelected)}
-                      {category.id === SidebarCategory.GameCenter &&
-                        showQuestBadge && (
-                          <Bubble className="-right-1 -top-1 px-1">
-                            {claimableQuestCount}
-                          </Bubble>
-                        )}
-                    </span>
-                    {!isCompact && (
-                      <span className={railTabLabelClass}>
-                        {category.label}
-                      </span>
-                    )}
-                  </button>
-                </RailHoverCard>
-              </React.Fragment>
-            );
-          })}
+          {overflowOrder.slice(0, visibleOverflowCount).map((id) =>
+            id === SidebarCategory.Notifications ? (
+              <RailHoverCard
+                key={id}
+                label="Notifications"
+                panel={<NotificationsRailPanel />}
+                enabled={!isExpanded}
+              >
+                <div className="w-full">
+                  <NotificationsBell
+                    rail
+                    noTooltip
+                    railHideLabel={isCompact}
+                    active={selectedCategory === SidebarCategory.Notifications}
+                  />
+                </div>
+              </RailHoverCard>
+            ) : (
+              <React.Fragment key={id}>{renderCategoryTab(id)}</React.Fragment>
+            ),
+          )}
 
           {isLoggedIn && (
             <Tooltip
@@ -733,43 +820,59 @@ export const SidebarDesktopV2 = ({
             </Tooltip>
           )}
 
-          <RailHoverCard
-            label="Settings"
-            panel={renderCategorySection(SidebarCategory.Settings)}
-            enabled={!isExpanded}
-          >
-            <Link href={settingsDefaultPath} passHref>
-              <a
-                href={settingsDefaultPath}
-                role="tab"
-                id={`sidebar-category-${SidebarCategory.Settings}`}
-                aria-controls="sidebar-context-panel"
-                aria-selected={isSettingsSelected}
-                aria-label="Settings"
-                className={classNames(
-                  railTabClass,
-                  isSettingsSelected &&
-                    'bg-background-default !text-text-primary',
-                )}
-                onClick={() => onSelectCategory(SidebarCategory.Settings)}
-                onMouseEnter={() =>
-                  onPrefetchCategory(SidebarCategory.Settings)
-                }
-                onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
+          {isNavOverflowing ? (
+            <RailHoverCard label="More" panel={renderMorePanel()}>
+              <button
+                type="button"
+                aria-label="More"
+                aria-haspopup="menu"
+                className={railTabClass}
               >
                 <span className="relative flex items-center justify-center">
-                  <SettingsIcon
-                    secondary={isSettingsSelected}
-                    size={IconSize.Small}
-                    aria-hidden
-                  />
+                  <MenuIcon size={IconSize.Small} aria-hidden />
                 </span>
-                {!isCompact && (
-                  <span className={railTabLabelClass}>Settings</span>
-                )}
-              </a>
-            </Link>
-          </RailHoverCard>
+                {!isCompact && <span className={railTabLabelClass}>More</span>}
+              </button>
+            </RailHoverCard>
+          ) : (
+            <RailHoverCard
+              label="Settings"
+              panel={renderCategorySection(SidebarCategory.Settings)}
+              enabled={!isExpanded}
+            >
+              <Link href={settingsDefaultPath} passHref>
+                <a
+                  href={settingsDefaultPath}
+                  role="tab"
+                  id={`sidebar-category-${SidebarCategory.Settings}`}
+                  aria-controls="sidebar-context-panel"
+                  aria-selected={isSettingsSelected}
+                  aria-label="Settings"
+                  className={classNames(
+                    railTabClass,
+                    isSettingsSelected &&
+                      'bg-background-default !text-text-primary',
+                  )}
+                  onClick={() => onSelectCategory(SidebarCategory.Settings)}
+                  onMouseEnter={() =>
+                    onPrefetchCategory(SidebarCategory.Settings)
+                  }
+                  onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
+                >
+                  <span className="relative flex items-center justify-center">
+                    <SettingsIcon
+                      secondary={isSettingsSelected}
+                      size={IconSize.Small}
+                      aria-hidden
+                    />
+                  </span>
+                  {!isCompact && (
+                    <span className={railTabLabelClass}>Settings</span>
+                  )}
+                </a>
+              </Link>
+            </RailHoverCard>
+          )}
         </div>
 
         <div className="mt-auto flex w-full flex-col items-center gap-2">
