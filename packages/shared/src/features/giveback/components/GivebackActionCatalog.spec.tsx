@@ -46,7 +46,12 @@ const categories = [
 ];
 
 const mockReturn = (actions: ContributionAction[], isPending = false) =>
-  mockUseActions.mockReturnValue({ actions, categories, isPending });
+  mockUseActions.mockReturnValue({
+    actions,
+    categories,
+    rewardTiers: [],
+    isPending,
+  });
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -54,6 +59,7 @@ it('renders a skeleton while loading', () => {
   mockUseActions.mockReturnValue({
     actions: [],
     categories: [],
+    rewardTiers: [],
     isPending: true,
   });
   render(<GivebackActionCatalog />);

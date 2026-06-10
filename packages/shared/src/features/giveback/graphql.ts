@@ -53,10 +53,12 @@ export const CONTRIBUTION_CAUSE_PICKER_QUERY = `
   }
 `;
 
-// The action catalog and its filter categories in one request: the catalog tab
-// renders the grid and the filter chips from a single round trip. Each action
-// carries the visitor's own state (completions, cooldown, latest submission) so
-// the card knows whether it's actionable, in review or done.
+// Everything the onboarded experience needs in one request: the action catalog,
+// its filter categories, and the reward ladder. The catalog renders the grid and
+// chips; the contribution summary and floating bar read the reward tiers — all
+// from a single round trip. Each action carries the visitor's own state
+// (completions, cooldown, latest submission) so the card knows whether it's
+// actionable, in review or done.
 export const CONTRIBUTION_ACTIONS_QUERY = `
   query ContributionActions($first: Int) {
     contributionActions(first: $first) {
@@ -97,13 +99,6 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
         }
       }
     }
-  }
-`;
-
-// The reward ladder, used to show a contributor their next milestone. Auth +
-// eligibility gated like the rest of the onboarded experience.
-export const CONTRIBUTION_REWARD_TIERS_QUERY = `
-  query ContributionRewardTiers($first: Int) {
     contributionRewardTiers(first: $first) {
       edges {
         node {

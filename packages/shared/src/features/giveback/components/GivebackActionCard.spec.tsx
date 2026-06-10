@@ -133,6 +133,17 @@ it('shows the remaining runs for a repeatable action and stays actionable', () =
   ).toBeInTheDocument();
 });
 
+it('hides the runs-left counter until the visitor has completed one', () => {
+  render(
+    <GivebackActionCard
+      action={makeAction({ maxPerUser: 3, userCompletions: 0 })}
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.queryByText(/\d+ left/)).not.toBeInTheDocument();
+});
+
 it('locks a cooling-down action with an availability label', () => {
   render(
     <GivebackActionCard

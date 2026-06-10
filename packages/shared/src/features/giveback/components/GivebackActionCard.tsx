@@ -10,7 +10,7 @@ import {
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { IconSize } from '../../../components/Icon';
 import type { IconProps } from '../../../components/Icon';
-import { TimerIcon, VIcon } from '../../../components/icons';
+import { RefreshIcon, TimerIcon, VIcon } from '../../../components/icons';
 import type { ContributionAction } from '../types';
 import { ContributionSubmissionStatus } from '../types';
 import { formatDonationAmount } from '../utils';
@@ -106,12 +106,17 @@ export const GivebackActionCard = ({
     !!action.userCooldownEndsAt &&
     new Date(action.userCooldownEndsAt).getTime() > Date.now();
 
-  // Repeatable actions surface how many runs are left until they cap out.
+  // Repeatable actions surface how many runs are left, but only once the
+  // visitor has started: a fresh card reads as a normal action, not a tracker.
   const { maxPerUser } = action;
   const remaining =
     maxPerUser != null ? Math.max(0, maxPerUser - action.userCompletions) : 0;
   const showRemaining =
-    maxPerUser != null && maxPerUser > 1 && !isDone && remaining > 0;
+    maxPerUser != null &&
+    maxPerUser > 1 &&
+    action.userCompletions > 0 &&
+    !isDone &&
+    remaining > 0;
 
   // Any non-actionable state shares the same dimmed, non-interactive treatment.
   const isDimmed = isDone || isInReview || onCooldown;
@@ -208,22 +213,15 @@ export const GivebackActionCard = ({
               isDimmed={isDimmed}
             />
           </span>
-          <FlexRow className="min-w-0 items-center gap-1.5">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              bold
-              className="min-w-0 truncate uppercase tracking-wider"
-            >
-              {platformName}
-            </Typography>
-            {showRemaining && (
-              <span className="shrink-0 rounded-6 border border-border-subtlest-tertiary px-1.5 py-0.5 font-bold uppercase tracking-wide text-text-tertiary typo-caption2">
-                {remaining} left
-              </span>
-            )}
-          </FlexRow>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            bold
+            className="min-w-0 truncate uppercase tracking-wider"
+          >
+            {platformName}
+          </Typography>
         </FlexRow>
         {renderTopRightMeta()}
       </FlexRow>
@@ -238,14 +236,31 @@ export const GivebackActionCard = ({
         {action.title}
       </Typography>
 
-      {action.description && (
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="mt-auto line-clamp-2"
-        >
-          {action.description}
-        </Typography>
+      {(action.description || showRemaining) && (
+        <FlexCol className="mt-auto gap-1.5">
+          {action.description && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="line-clamp-2"
+            >
+              {action.description}
+            </Typography>
+          )}
+          {showRemaining && (
+            <FlexRow className="items-center gap-1 text-text-tertiary [&_svg]:size-3.5">
+              <RefreshIcon />
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption2}
+                bold
+                className="uppercase tracking-wide"
+              >
+                {remaining} left
+              </Typography>
+            </FlexRow>
+          )}
+        </FlexCol>
       )}
     </>
   );
