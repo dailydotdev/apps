@@ -4,6 +4,7 @@ import { PostType } from '../graphql/posts';
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
 import {
+  computeAdClamp,
   computePlacements,
   createPlacementBuilder,
   deriveAdCadence,
@@ -639,6 +640,47 @@ describe('computePlacements', () => {
       // from vcs, nextAdVcs=12, full span allowed.
       expect(placements[4].colSpan).toBe(4);
     });
+
+    it('bails to no-clamp when a bad config sends adRepeat <= 0', () => {
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost({ significance: 'breaking' })),
+      ];
+      const placements = computePlacements(items, {
+        ...opts,
+        cadence: { adStart: 4, adRepeat: 0 },
+      });
+      expect(placements.every((p) => Number.isFinite(p.colSpan))).toBe(true);
+      expect(placements[3].colSpan).toBe(1);
+    });
+  });
+});
+
+describe('computeAdClamp', () => {
+  it('returns Infinity when cadence is undefined', () => {
+    expect(computeAdClamp(5)).toBe(Infinity);
+  });
+
+  it('returns Infinity when adRepeat is zero', () => {
+    expect(computeAdClamp(5, { adStart: 4, adRepeat: 0 })).toBe(Infinity);
+  });
+
+  it('returns Infinity when adRepeat is negative', () => {
+    expect(computeAdClamp(5, { adStart: 4, adRepeat: -3 })).toBe(Infinity);
+  });
+
+  it('returns the distance to the next slot when vcs is between slots', () => {
+    expect(computeAdClamp(5, { adStart: 2, adRepeat: 8 })).toBe(5);
+  });
+
+  it('returns adRepeat when vcs lands exactly on a slot', () => {
+    expect(computeAdClamp(2, { adStart: 2, adRepeat: 8 })).toBe(8);
+  });
+
+  it('floors the clamp at 1 (never collapses below a single cell)', () => {
+    expect(computeAdClamp(9, { adStart: 2, adRepeat: 8 })).toBe(1);
   });
 });
 

@@ -90,7 +90,7 @@ export const computeAdClamp = (
   visualCellsSoFar: number,
   cadence?: AdCadence,
 ): number => {
-  if (!cadence) {
+  if (!cadence || cadence.adRepeat <= 0) {
     return Infinity;
   }
   const { adStart, adRepeat } = cadence;
