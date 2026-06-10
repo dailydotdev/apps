@@ -198,9 +198,12 @@ const GlassActionsGrid = () => (
       <p className="mb-6 max-w-2xl text-sm text-text-tertiary">
         The engagement bar floats over the bottom of the cover image with an
         iOS-style dark glass (translucent + blur) treatment, and each card is
-        shorter because the bar no longer takes its own row. Gated by the{' '}
-        <code>feed_card_glass_actions</code> GrowthBook flag (on by default in
-        this mock-up). Toggle Storybook&apos;s light/dark theme to see both.
+        shorter because the bar no longer takes its own row. By default it shows
+        a compact left-aligned peek (upvotes + comments only) so it barely
+        covers the artwork; <strong>hover a card</strong> to expand it into the
+        full action bar. On touch devices the full bar is always shown. Gated by
+        the <code>feed_card_glass_actions</code> GrowthBook flag (on by default
+        in this mock-up). Toggle Storybook&apos;s light/dark theme to see both.
       </p>
       <div
         className="mx-auto grid grid-cols-3 gap-8"
