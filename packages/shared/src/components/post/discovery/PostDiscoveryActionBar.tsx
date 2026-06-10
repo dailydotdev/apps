@@ -9,6 +9,7 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import { Origin } from '../../../lib/log';
@@ -59,6 +60,7 @@ export const PostDiscoveryActionBar = ({
   className,
 }: PostDiscoveryActionBarProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
+  const { isV2 } = useLayoutVariant();
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const { toggleBookmark } = useBookmarkPost();
   const { onShowPanel, onClose: onCloseBlockPanel } = useBlockPostPanel(post);
@@ -92,10 +94,14 @@ export const PostDiscoveryActionBar = ({
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
   const canSeeAnalytics = canViewPostAnalytics({ user, post });
-  // In the modal there is no app header, so pin to the very top; on the post
-  // page the bar must sit below the fixed laptop header (4rem). `onClose` is
-  // only provided by the post modal, so it doubles as the surface flag.
-  const stickyTopClassName = onClose ? 'top-0' : 'top-0 laptop:top-16';
+  // Sticky offset depends on the top chrome. The modal has no app header (pin
+  // to the very top). On the post page, the v2 rail layout hides the global
+  // header on laptop for logged-in users, so the bar sticks to the very top
+  // like the feed nav; the legacy/logged-out layout keeps a fixed 4rem header
+  // the bar must clear. `onClose` is only provided by the modal.
+  const railOwnsHeader = isV2 && !!user;
+  const stickyTopClassName =
+    onClose || railOwnsHeader ? 'top-0' : 'top-0 laptop:top-16';
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {

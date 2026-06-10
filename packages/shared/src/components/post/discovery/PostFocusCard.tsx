@@ -26,7 +26,6 @@ import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ClickableText } from '../../buttons/ClickableText';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
@@ -128,18 +127,25 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
         {summary}
       </p>
       {isClamped && !isExpanded && (
-        <span className="absolute bottom-0 right-0 flex items-center bg-background-default pl-1">
+        // Sits on the last clamped line: typo-markdown matches the paragraph's
+        // font size and line height, so the button (and its background/fade)
+        // are exactly one line tall and align to the text it continues. We
+        // render an ellipsis before the link so the cut-off reads naturally.
+        <button
+          type="button"
+          aria-label="Show more"
+          onClick={() => setIsExpanded(true)}
+          className="absolute bottom-0 right-0 flex items-center bg-background-default text-text-secondary typo-markdown"
+        >
           <span
             aria-hidden
             className="pointer-events-none absolute right-full top-0 h-full w-8 bg-gradient-to-l from-background-default to-transparent"
           />
-          <ClickableText
-            className="!text-text-link"
-            onClick={() => setIsExpanded(true)}
-          >
+          <span aria-hidden>…&nbsp;</span>
+          <span className="font-bold text-text-link hover:underline">
             Show more
-          </ClickableText>
-        </span>
+          </span>
+        </button>
       )}
     </div>
   );
