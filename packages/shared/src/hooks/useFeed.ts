@@ -18,11 +18,13 @@ import useSubscription from './useSubscription';
 import {
   findIndexOfPostInData,
   getNextPageParam,
+  OtherFeedPage,
   removeCachedPagePost,
   RequestKey,
   StaleTime,
   updateCachedPagePost,
 } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
 import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
@@ -107,6 +109,33 @@ const createPlaceholderItem = (index?: number): PlaceholderItem => ({
   dataUpdatedAt: Date.now(),
   ...(typeof index === 'number' ? { index } : {}),
 });
+
+export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
+  SharedFeedPage.MyFeed,
+  SharedFeedPage.Popular,
+  SharedFeedPage.Upvoted,
+  SharedFeedPage.Custom,
+  OtherFeedPage.Following,
+  OtherFeedPage.Discussed,
+  OtherFeedPage.Explore,
+  OtherFeedPage.ExploreLatest,
+  OtherFeedPage.ExploreDiscussed,
+  OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.ExploreTag,
+  OtherFeedPage.Tag,
+  OtherFeedPage.Tags,
+  OtherFeedPage.TagPage,
+  OtherFeedPage.TagsTopPosts,
+  OtherFeedPage.TagsMostUpvoted,
+  OtherFeedPage.TagsBestDiscussed,
+  OtherFeedPage.TagArchive,
+  OtherFeedPage.Source,
+  OtherFeedPage.Sources,
+  OtherFeedPage.SourcePage,
+  OtherFeedPage.SourceMostUpvoted,
+  OtherFeedPage.SourceBestDiscussed,
+  OtherFeedPage.SourceArchive,
+]);
 
 export type FeedItem =
   | PostItem
@@ -254,7 +283,10 @@ export default function useFeed<T>(
   const isListContext = useList || shouldUseListFeedLayout;
   const virtualizedNumCards = useList ? 1 : numCards;
   const canRenderHighlightCards =
-    !isMobileViewport && !isListContext && virtualizedNumCards > 1;
+    !isMobileViewport &&
+    !isListContext &&
+    virtualizedNumCards > 1 &&
+    HERO_ELIGIBLE_FEEDS.has(settings?.feedName as AllFeedPages);
   const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
     'highlightCardsOptOut',
   );
