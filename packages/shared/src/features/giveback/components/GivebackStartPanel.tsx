@@ -21,19 +21,31 @@ import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent } from '../../../lib/log';
 
 interface GivebackStartPanelProps {
+  // True once the visitor has confirmed causes: the CTA becomes "Take action".
+  hasSelectedCauses: boolean;
   // Fires once an authenticated visitor opts in, to reveal the cause picker.
   onJoin: () => void;
+  // Fires for an already-onboarded visitor, to jump to the action tab.
+  onTakeAction: () => void;
 }
 
-// Hero gateway: one clear decision above the fold — "do you want to join?".
-// Logged-out visitors get the login prompt first; authenticated visitors opt in.
+// Hero gateway: one clear decision above the fold. New visitors opt in (logged
+// out get the login prompt first); returning visitors who already picked causes
+// jump straight to taking action.
 export const GivebackStartPanel = ({
+  hasSelectedCauses,
   onJoin,
+  onTakeAction,
 }: GivebackStartPanelProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
 
-  const handleJoin = () => {
+  const handleClick = () => {
+    if (hasSelectedCauses) {
+      onTakeAction();
+      return;
+    }
+
     if (!user) {
       showLogin({ trigger: AuthTriggers.Giveback });
       return;
@@ -65,10 +77,10 @@ export const GivebackStartPanel = ({
         size={ButtonSize.Large}
         icon={<MoveToIcon size={IconSize.Size16} />}
         iconPosition={ButtonIconPosition.Right}
-        onClick={handleJoin}
+        onClick={handleClick}
         className="shadow-2-cabbage transition-transform duration-200 ease-out hover:scale-[1.02]"
       >
-        Join the campaign
+        {hasSelectedCauses ? 'Take action' : 'Join the campaign'}
       </Button>
     </FlexCol>
   );

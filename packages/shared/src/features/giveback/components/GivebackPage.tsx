@@ -14,26 +14,67 @@ import { GivebackSponsorTiers } from './GivebackSponsorTiers';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
 import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
+import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
+import type { GivebackTabId } from './GivebackTabNav';
+import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
+const scrollIntoView = (node: HTMLElement | null): void => {
+  if (!node || typeof node.scrollIntoView !== 'function') {
+    return;
+  }
+  node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 export const GivebackPage = (): ReactElement => {
-  // Picking causes is the onboarding step: it only appears once an
-  // authenticated visitor opts in from the hero.
-  const [hasStarted, setHasStarted] = useState(false);
+  const { status } = useContributionStatus();
+  // Eligibility gates the cause picker query (backend-gated), so only eligible
+  // visitors load their picks — which also tells us whether to show the tabs.
+  const isEligible = status?.eligible === true;
+  const selection = useGivebackCauseSelection(isEligible);
+
+  // First-timers open the picker from the hero; once they confirm (or arrive
+  // already onboarded) the tabbed experience takes over.
+  const [startedPicker, setStartedPicker] = useState(false);
+  const [completedOnboarding, setCompletedOnboarding] = useState(false);
+  const [activeTab, setActiveTab] = useState<GivebackTabId>('actions');
+
+  const showTabs = selection.hasSavedCauses || completedOnboarding;
+  const showPicker = startedPicker && !showTabs;
+
   const causesRef = useRef<HTMLDivElement>(null);
-  const selection = useGivebackCauseSelection(hasStarted);
+  const tabsRef = useRef<HTMLDivElement>(null);
 
-  const handleJoin = useCallback(() => setHasStarted(true), []);
-
-  useEffect(() => {
-    if (!hasStarted) {
+  // The tab section can mount in the same tick we ask to scroll (right after
+  // confirming causes), so defer to the next frame to let it commit first.
+  const scrollToTabs = useCallback(() => {
+    if (typeof window === 'undefined') {
       return;
     }
-    const node = causesRef.current;
-    if (node && typeof node.scrollIntoView === 'function') {
-      node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.requestAnimationFrame(() => scrollIntoView(tabsRef.current));
+  }, []);
+
+  const goToActions = useCallback(() => {
+    setActiveTab('actions');
+    scrollToTabs();
+  }, [scrollToTabs]);
+
+  const handleContinue = useCallback(async () => {
+    const saved = await selection.save();
+    if (saved) {
+      setCompletedOnboarding(true);
+      goToActions();
     }
-  }, [hasStarted]);
+  }, [selection, goToActions]);
+
+  // Reveal the picker, then bring it into view as it mounts.
+  useEffect(() => {
+    if (showPicker) {
+      scrollIntoView(causesRef.current);
+    }
+  }, [showPicker]);
+
+  const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
   return (
     <div className="relative min-h-page w-full">
@@ -41,14 +82,18 @@ export const GivebackPage = (): ReactElement => {
 
       <FlexCol className="relative mx-auto w-full max-w-6xl gap-14 px-4 py-8 tablet:py-14">
         <GivebackReveal>
-          <GivebackHero onJoin={handleJoin} />
+          <GivebackHero
+            hasSelectedCauses={showTabs}
+            onJoin={() => setStartedPicker(true)}
+            onTakeAction={goToActions}
+          />
         </GivebackReveal>
 
         <GivebackReveal>
           <GivebackSponsorTiers />
         </GivebackReveal>
 
-        {hasStarted && (
+        {showPicker && (
           <div ref={causesRef} className="scroll-mt-16">
             <GivebackReveal>
               <FlexCol className="gap-6">
@@ -80,16 +125,47 @@ export const GivebackPage = (): ReactElement => {
           </div>
         )}
 
+        {showTabs && (
+          <FlexCol ref={tabsRef} className="scroll-mt-16 gap-8">
+            <GivebackTabNav activeTab={activeTab} onSelect={setActiveTab} />
+
+            <div
+              key={activeTab}
+              role="tabpanel"
+              id={`giveback-panel-${activeTab}`}
+              aria-labelledby={`giveback-tab-${activeTab}`}
+            >
+              <GivebackReveal>
+                <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
+                  <Typography
+                    tag={TypographyTag.H2}
+                    type={TypographyType.Title3}
+                    bold
+                  >
+                    {activeLabel}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Coming soon
+                  </Typography>
+                </FlexCol>
+              </GivebackReveal>
+            </div>
+          </FlexCol>
+        )}
+
         <GivebackReveal>
           <GivebackLegalFooter />
         </GivebackReveal>
       </FlexCol>
 
-      {hasStarted && (
+      {showPicker && (
         <GivebackOnboardingBar
           selectedCount={selection.selectedCount}
           isSaving={selection.isSaving}
-          onContinue={selection.save}
+          onContinue={handleContinue}
         />
       )}
     </div>

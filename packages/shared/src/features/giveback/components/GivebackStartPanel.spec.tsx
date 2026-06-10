@@ -20,6 +20,7 @@ const mockUseLogContext = useLogContext as jest.MockedFunction<
 const showLogin = jest.fn();
 const logEvent = jest.fn();
 const onJoin = jest.fn();
+const onTakeAction = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -28,13 +29,19 @@ beforeEach(() => {
   >);
 });
 
-const renderPanel = (user: LoggedUser | null) => {
+const renderPanel = (user: LoggedUser | null, hasSelectedCauses = false) => {
   mockUseAuthContext.mockReturnValue({
     user,
     showLogin,
   } as unknown as ReturnType<typeof useAuthContext>);
 
-  return render(<GivebackStartPanel onJoin={onJoin} />);
+  return render(
+    <GivebackStartPanel
+      hasSelectedCauses={hasSelectedCauses}
+      onJoin={onJoin}
+      onTakeAction={onTakeAction}
+    />,
+  );
 };
 
 it('prompts login for logged-out visitors without joining or logging', () => {
@@ -58,4 +65,14 @@ it('logs the join event and reveals causes for authenticated visitors', () => {
     event_name: LogEvent.ClickJoinGiveback,
   });
   expect(onJoin).toHaveBeenCalled();
+});
+
+it('jumps onboarded visitors to the action tab without re-joining', () => {
+  renderPanel({ id: 'u1' } as LoggedUser, true);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Take action' }));
+
+  expect(onTakeAction).toHaveBeenCalled();
+  expect(onJoin).not.toHaveBeenCalled();
+  expect(logEvent).not.toHaveBeenCalled();
 });

@@ -47,6 +47,13 @@ it('seeds the selection from saved preferences', () => {
 
   expect(result.current.selectedCount).toBe(2);
   expect(result.current.selectedIds.has('c1')).toBe(true);
+  expect(result.current.hasSavedCauses).toBe(true);
+});
+
+it('reports no saved causes when the visitor has none', () => {
+  const { result } = renderHook(() => useGivebackCauseSelection(true));
+
+  expect(result.current.hasSavedCauses).toBe(false);
 });
 
 it('does not seed an empty selection while disabled, then seeds once enabled', () => {
@@ -90,23 +97,27 @@ it('saves the current selection and toasts', async () => {
   const { result } = renderHook(() => useGivebackCauseSelection(true));
 
   act(() => result.current.toggleCause('c1'));
+  let saved: boolean | undefined;
   await act(async () => {
-    await result.current.save();
+    saved = await result.current.save();
   });
 
   await waitFor(() =>
     expect(saveCausePreferences).toHaveBeenCalledWith(['c1']),
   );
   expect(displayToast).toHaveBeenCalledWith('Your causes are saved');
+  expect(saved).toBe(true);
 });
 
-it('toasts a generic error when saving fails', async () => {
+it('toasts a generic error and reports failure when saving fails', async () => {
   saveCausePreferences.mockRejectedValueOnce(new Error('network'));
   const { result } = renderHook(() => useGivebackCauseSelection(true));
 
+  let saved: boolean | undefined;
   await act(async () => {
-    await result.current.save();
+    saved = await result.current.save();
   });
 
   expect(displayToast).toHaveBeenCalledWith(labels.error.generic);
+  expect(saved).toBe(false);
 });

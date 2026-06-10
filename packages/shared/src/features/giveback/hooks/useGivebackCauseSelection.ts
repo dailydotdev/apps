@@ -11,7 +11,10 @@ interface UseGivebackCauseSelection {
   selectedIds: Set<string>;
   toggleCause: (id: string) => void;
   selectedCount: number;
-  save: () => Promise<void>;
+  // Whether the visitor has confirmed causes before (drives the onboarded view).
+  hasSavedCauses: boolean;
+  // Resolves true when the picks persisted, false when the save failed.
+  save: () => Promise<boolean>;
   isSaving: boolean;
 }
 
@@ -58,8 +61,10 @@ export const useGivebackCauseSelection = (
     try {
       await saveCausePreferences([...selectedIds]);
       displayToast('Your causes are saved');
+      return true;
     } catch {
       displayToast(labels.error.generic);
+      return false;
     }
   }, [saveCausePreferences, selectedIds, displayToast]);
 
@@ -69,6 +74,7 @@ export const useGivebackCauseSelection = (
     selectedIds,
     toggleCause,
     selectedCount: selectedIds.size,
+    hasSavedCauses: selectedCauseIds.length > 0,
     save,
     isSaving,
   };
