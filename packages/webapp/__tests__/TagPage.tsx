@@ -173,6 +173,10 @@ const renderComponent = (
     optOutReadingStreak: false,
     optOutLevelSystem: false,
     optOutQuestSystem: false,
+    optOutAchievements: false,
+    isGamificationEnabled: true,
+    toggleOptOutAchievements: jest.fn().mockResolvedValue(undefined),
+    toggleAllGamification: jest.fn().mockResolvedValue(undefined),
     optOutCompanion: false,
     autoDismissNotifications: true,
     sortCommentsBy: SortCommentsBy.OldestFirst,
@@ -307,10 +311,10 @@ it('should show login popup when logged-out on follow click', async () => {
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should render top contributors section from static props', async () => {
+it('should render who to follow section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
+  expect(await screen.findByText('Who to follow')).toBeInTheDocument();
   expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
     'href',
     '/idoshamun',
