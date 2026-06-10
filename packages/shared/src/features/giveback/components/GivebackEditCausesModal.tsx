@@ -94,7 +94,7 @@ export const GivebackEditCausesModal = ({
             </Typography>
           </FlexCol>
 
-          <div className="overflow-y-auto p-5 tablet:p-6">
+          <div className="min-h-0 flex-1 overflow-y-auto p-5 tablet:p-6">
             <GivebackCauseSelection
               causes={causes}
               isLoading={isLoading}
