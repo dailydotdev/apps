@@ -566,7 +566,6 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
-  CustomizeNewTab = 'customize new tab',
 }
 
 export enum TargetId {

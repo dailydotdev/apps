@@ -14,24 +14,11 @@ import { LazyModal } from '../../modals/common/types';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import type { ProfileSectionItemProps } from '../ProfileSectionItem';
 
-type AccountSectionProps = {
-  /**
-   * Optional item rendered at the top of the section, above "Settings".
-   * Used by ProfileMenu to surface the "Customize new tab" entry inline
-   * so it sits inside the same visual block as Settings instead of in a
-   * separate section.
-   */
-  prepended?: ProfileSectionItemProps | null;
-};
-
-export const AccountSection = ({
-  prepended,
-}: AccountSectionProps = {}): ReactElement => {
+export const AccountSection = (): ReactElement => {
   const { openModal } = useLazyModal();
   const canBuy = useCanPurchaseCores();
 
   const items: ProfileSectionItemProps[] = [
-    ...(prepended ? [prepended] : []),
     {
       title: 'Settings',
       href: `${settingsUrl}/profile`,

@@ -4,7 +4,6 @@ import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import { useCustomizeNewTab } from '../features/customizeNewTab/CustomizeNewTabContext';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
@@ -118,10 +117,6 @@ export function FeedLayoutProvider({
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
-  // Customize sidebar (right side) — when open we need to push the
-  // breakpoint up by the same width so a laptop-width feed doesn't try
-  // to keep its 3-column grid in the now-narrower content area.
-  const { panelWidth: customizerPanelWidth } = useCustomizeNewTab();
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
     shouldEvaluate: !isPlus,
@@ -180,21 +175,15 @@ export function FeedLayoutProvider({
         ? sidebarOpenWidth
         : sidebarRenderedWidth;
     }
-    const totalOffset = leftSidebarOffset + customizerPanelWidth;
 
-    if (totalOffset === 0) {
+    if (leftSidebarOffset === 0) {
       return breakpoints;
     }
 
     return breakpoints.map((breakpoint) =>
-      replaceDigitsWithIncrement(breakpoint, totalOffset),
+      replaceDigitsWithIncrement(breakpoint, leftSidebarOffset),
     );
-  }, [
-    feedSettings,
-    debouncedSidebarExpanded,
-    sidebarRendered,
-    customizerPanelWidth,
-  ]);
+  }, [feedSettings, debouncedSidebarExpanded, sidebarRendered]);
 
   const currentSettings = useMedia(
     feedBreakpoints,
