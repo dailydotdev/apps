@@ -9,7 +9,13 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
-import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
+import {
+  Nav,
+  railTabClass,
+  railTabLabelClass,
+  SidebarAside,
+  SidebarScrollWrapper,
+} from './common';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
@@ -56,6 +62,7 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { SidebarHeaderStats } from './SidebarHeaderStats';
+import { SidebarRailStats } from './SidebarRailStats';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { isAppleDevice } from '../../lib/func';
@@ -114,7 +121,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   },
   {
     id: SidebarCategory.GameCenter,
-    label: 'Game Center',
+    label: 'Quests',
     // First sub-page in the Game Center category is the Daily quests
     // page (the panel that used to live in the sidebar). Clicking the
     // rail icon lands you there; Game Center proper is one click away
@@ -566,7 +573,7 @@ export const SidebarDesktopV2 = ({
       data-testid="sidebar-aside"
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0 laptop:bg-transparent',
-        isExpanded ? 'laptop:w-[19rem]' : 'laptop:w-16',
+        isExpanded ? 'laptop:w-[20rem]' : 'laptop:w-20',
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
@@ -577,12 +584,12 @@ export const SidebarDesktopV2 = ({
       {isExpanded && (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-16 hidden border-r border-border-subtlest-quaternary laptop:block"
+          className="pointer-events-none absolute inset-y-0 left-20 hidden border-r border-border-subtlest-quaternary laptop:block"
         />
       )}
       <nav
         aria-label="Primary navigation"
-        className="flex h-dvh min-h-dvh w-16 shrink-0 flex-col items-center gap-1 px-3 pb-3 pt-6"
+        className="flex h-dvh min-h-dvh w-20 shrink-0 flex-col items-center gap-1 px-2 pb-3 pt-6"
       >
         <Tooltip
           side="right"
@@ -636,7 +643,7 @@ export const SidebarDesktopV2 = ({
         <div
           role="tablist"
           aria-label="Sidebar categories"
-          className="flex flex-col items-center gap-1"
+          className="flex w-full flex-col items-center gap-1"
         >
           {sidebarCategories.map((category) => {
             if (category.id === SidebarCategory.Profile && !isLoggedIn) {
@@ -690,18 +697,20 @@ export const SidebarDesktopV2 = ({
                       }
                     }}
                     className={classNames(
-                      railButtonClass,
-                      'relative',
+                      railTabClass,
                       isSelected && 'bg-background-default !text-text-primary',
                     )}
                   >
-                    {category.icon(isSelected)}
-                    {category.id === SidebarCategory.GameCenter &&
-                      showQuestBadge && (
-                        <Bubble className="-right-1 top-0 px-1">
-                          {claimableQuestCount}
-                        </Bubble>
-                      )}
+                    <span className="relative flex items-center justify-center">
+                      {category.icon(isSelected)}
+                      {category.id === SidebarCategory.GameCenter &&
+                        showQuestBadge && (
+                          <Bubble className="-right-1 -top-1 px-1">
+                            {claimableQuestCount}
+                          </Bubble>
+                        )}
+                    </span>
+                    <span className={railTabLabelClass}>{category.label}</span>
                   </button>
                 </RailHoverCard>
               </React.Fragment>
@@ -726,46 +735,49 @@ export const SidebarDesktopV2 = ({
           )}
         </div>
 
-        <div
-          role="tablist"
-          aria-label="Sidebar utilities"
-          className="mt-auto flex flex-col items-center gap-1"
-        >
-          <SidebarThemeButton />
-          <SidebarSupportButton />
-
-          <RailHoverCard
-            label="Settings"
-            panel={renderCategorySection(SidebarCategory.Settings)}
-            enabled={!isExpanded}
+        <div className="mt-auto flex w-full flex-col items-center gap-2">
+          {isLoggedIn && <SidebarRailStats />}
+          <div
+            role="tablist"
+            aria-label="Sidebar utilities"
+            className="flex w-full flex-col items-center gap-1"
           >
-            <Link href={settingsDefaultPath} passHref>
-              <a
-                href={settingsDefaultPath}
-                role="tab"
-                id={`sidebar-category-${SidebarCategory.Settings}`}
-                aria-controls="sidebar-context-panel"
-                aria-selected={isSettingsSelected}
-                aria-label="Settings"
-                className={classNames(
-                  railButtonClass,
-                  isSettingsSelected &&
-                    'bg-background-default !text-text-primary',
-                )}
-                onClick={() => onSelectCategory(SidebarCategory.Settings)}
-                onMouseEnter={() =>
-                  onPrefetchCategory(SidebarCategory.Settings)
-                }
-                onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
-              >
-                <SettingsIcon
-                  secondary={isSettingsSelected}
-                  size={IconSize.Small}
-                  aria-hidden
-                />
-              </a>
-            </Link>
-          </RailHoverCard>
+            <SidebarThemeButton />
+            <SidebarSupportButton />
+
+            <RailHoverCard
+              label="Settings"
+              panel={renderCategorySection(SidebarCategory.Settings)}
+              enabled={!isExpanded}
+            >
+              <Link href={settingsDefaultPath} passHref>
+                <a
+                  href={settingsDefaultPath}
+                  role="tab"
+                  id={`sidebar-category-${SidebarCategory.Settings}`}
+                  aria-controls="sidebar-context-panel"
+                  aria-selected={isSettingsSelected}
+                  aria-label="Settings"
+                  className={classNames(
+                    railButtonClass,
+                    isSettingsSelected &&
+                      'bg-background-default !text-text-primary',
+                  )}
+                  onClick={() => onSelectCategory(SidebarCategory.Settings)}
+                  onMouseEnter={() =>
+                    onPrefetchCategory(SidebarCategory.Settings)
+                  }
+                  onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
+                >
+                  <SettingsIcon
+                    secondary={isSettingsSelected}
+                    size={IconSize.Small}
+                    aria-hidden
+                  />
+                </a>
+              </Link>
+            </RailHoverCard>
+          </div>
         </div>
       </nav>
 
@@ -786,7 +798,7 @@ export const SidebarDesktopV2 = ({
           <div
             className={classNames(
               'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
-              sidebarExpanded ? 'left-[16.5rem]' : 'left-[3.5rem]',
+              sidebarExpanded ? 'left-[17.5rem]' : 'left-[4.5rem]',
               suppressTransition,
             )}
           >

@@ -109,21 +109,27 @@ type StreakPopoverProps = {
   streak: UserStreak;
   triggerRef: React.RefObject<HTMLElement>;
   onClose: () => void;
+  // 'bottom' drops below the trigger (panel/header usage). 'right' opens
+  // beside the trigger and anchors to its bottom edge so it grows upward —
+  // used by the rail cluster, which sits near the viewport bottom.
+  placement?: 'bottom' | 'right';
 };
 
 // Manually positioned portal popover: read the trigger's bounding rect
-// and render the panel directly below it via a body-level portal. This
-// keeps the popover stable (no Tippy auto-flip surprises inside the
-// sidebar's transform / overflow context) and ensures it always drops
-// down from the streak button as expected.
-const StreakPopover = ({
+// and render the panel via a body-level portal. This keeps the popover
+// stable (no Tippy auto-flip surprises inside the sidebar's transform /
+// overflow context) and ensures it always drops from the streak button as
+// expected.
+export const StreakPopover = ({
   streak,
   triggerRef,
   onClose,
+  placement = 'bottom',
 }: StreakPopoverProps): ReactElement | null => {
   const [position, setPosition] = useState<{
-    top: number;
+    top?: number;
     left: number;
+    bottom?: number;
   } | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -133,8 +139,15 @@ const StreakPopover = ({
       return;
     }
     const rect = trigger.getBoundingClientRect();
+    if (placement === 'right') {
+      setPosition({
+        left: rect.right + 8,
+        bottom: window.innerHeight - rect.bottom,
+      });
+      return;
+    }
     setPosition({ top: rect.bottom + 8, left: rect.left });
-  }, [triggerRef]);
+  }, [placement, triggerRef]);
 
   useLayoutEffect(() => {
     updatePosition();
@@ -175,7 +188,11 @@ const StreakPopover = ({
         role="dialog"
         aria-label="Reading streak"
         className="fixed z-tooltip overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-primary shadow-3 typo-callout"
-        style={{ top: position.top, left: position.left }}
+        style={{
+          top: position.top,
+          left: position.left,
+          bottom: position.bottom,
+        }}
       >
         <ReadingStreakPopup streak={streak} />
       </div>

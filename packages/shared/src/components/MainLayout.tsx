@@ -305,13 +305,13 @@ function MainLayoutComponent({
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
-            (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
+            (isV2 ? 'tablet:pl-16 laptop:pl-20' : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2
-              ? 'laptop:!pl-[19rem]'
+              ? 'laptop:!pl-[20rem]'
               : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
         )}
