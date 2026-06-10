@@ -18,6 +18,8 @@ import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
@@ -33,6 +35,7 @@ const scrollIntoView = (node: HTMLElement | null): void => {
 };
 
 export const GivebackPage = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const { status } = useContributionStatus();
   // Eligibility gates the cause picker query (backend-gated), so only eligible
   // visitors load their picks — which also tells us whether to show the tabs.
@@ -71,13 +74,31 @@ export const GivebackPage = (): ReactElement => {
     scrollToTabs();
   }, [scrollToTabs]);
 
+  const handleSelectTab = useCallback(
+    (tab: GivebackTabId) => {
+      logEvent({
+        event_name: LogEvent.ClickGivebackTab,
+        extra: JSON.stringify({ tab }),
+      });
+      setActiveTab(tab);
+    },
+    [logEvent],
+  );
+
   const handleContinue = useCallback(async () => {
     const saved = await selection.save();
     if (saved) {
+      logEvent({
+        event_name: LogEvent.SaveGivebackCauses,
+        extra: JSON.stringify({
+          cause_count: selection.selectedIds.size,
+          cause_ids: [...selection.selectedIds],
+        }),
+      });
       setCompletedOnboarding(true);
       goToActions();
     }
-  }, [selection, goToActions]);
+  }, [selection, goToActions, logEvent]);
 
   // Reveal the picker, then bring it into view as it mounts.
   useEffect(() => {
@@ -138,7 +159,7 @@ export const GivebackPage = (): ReactElement => {
 
         {showTabs && (
           <div ref={tabsRef} className="scroll-mt-16">
-            <GivebackTabNav activeTab={activeTab} onSelect={setActiveTab} />
+            <GivebackTabNav activeTab={activeTab} onSelect={handleSelectTab} />
 
             <div
               key={activeTab}

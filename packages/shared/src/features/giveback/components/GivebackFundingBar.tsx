@@ -13,6 +13,8 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import ProgressCircle from '../../../components/ProgressCircle';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { formatDonationAmount } from '../utils';
 
@@ -26,6 +28,7 @@ interface GivebackFundingBarProps {
 export const GivebackFundingBar = ({
   onTakeAction,
 }: GivebackFundingBarProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const {
     earnedPoints,
     nextReward,
@@ -34,6 +37,14 @@ export const GivebackFundingBar = ({
     hasRewards,
     isPending,
   } = useGivebackContribution(true);
+
+  const handleTakeAction = () => {
+    logEvent({
+      event_name: LogEvent.ClickGivebackTakeAction,
+      extra: JSON.stringify({ origin: 'funding_bar' }),
+    });
+    onTakeAction();
+  };
 
   const renderNextStep = (): ReactNode => {
     if (isPending) {
@@ -118,7 +129,7 @@ export const GivebackFundingBar = ({
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
-            onClick={onTakeAction}
+            onClick={handleTakeAction}
             className="shrink-0"
           >
             Take action

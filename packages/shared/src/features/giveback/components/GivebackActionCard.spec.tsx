@@ -119,6 +119,46 @@ it('keeps a rejected action submittable for a retry', () => {
   ).toBeInTheDocument();
 });
 
+it('shows the remaining runs for a repeatable action and stays actionable', () => {
+  render(
+    <GivebackActionCard
+      action={makeAction({ maxPerUser: 3, userCompletions: 1 })}
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.getByText('2 left')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Submit proof for Post about us on X' }),
+  ).toBeInTheDocument();
+});
+
+it('locks a cooling-down action with an availability label', () => {
+  render(
+    <GivebackActionCard
+      action={makeAction({ userCooldownEndsAt: '2999-01-01T00:00:00.000Z' })}
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.getByText(/Available in/)).toBeInTheDocument();
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+});
+
+it('ignores an elapsed cooldown and stays actionable', () => {
+  render(
+    <GivebackActionCard
+      action={makeAction({ userCooldownEndsAt: '2000-01-01T00:00:00.000Z' })}
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.queryByText(/Available in/)).not.toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Submit proof for Post about us on X' }),
+  ).toBeInTheDocument();
+});
+
 it('renders a love action with its appreciation tag instead of a payout', () => {
   render(
     <GivebackActionCard

@@ -13,6 +13,8 @@ import {
 } from '../../../components/buttons/Button';
 import { ButtonIconPosition } from '../../../components/buttons/common';
 import { ArrowIcon } from '../../../components/icons';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import type { ContributionAction } from '../types';
 import { useContributionActions } from '../hooks/useContributionActions';
 import { GivebackActionCard } from './GivebackActionCard';
@@ -40,6 +42,7 @@ const ActionGrid = ({
 );
 
 export const GivebackActionCatalog = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const { actions, categories, isPending } = useContributionActions(true);
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL_FILTER);
   const [showAll, setShowAll] = useState(false);
@@ -50,6 +53,36 @@ export const GivebackActionCatalog = (): ReactElement => {
   useEffect(() => {
     setShowAll(false);
   }, [selectedCategory]);
+
+  const openAction = (action: ContributionAction) => {
+    logEvent({
+      event_name: LogEvent.OpenGivebackAction,
+      target_id: action.id,
+      extra: JSON.stringify({
+        platform: action.metadata.platform,
+        points: action.points,
+        is_love: action.metadata.isLoveAction,
+      }),
+    });
+    setSubmissionAction(action);
+  };
+
+  const selectCategory = (categoryId: string) => {
+    logEvent({
+      event_name: LogEvent.FilterGivebackActions,
+      extra: JSON.stringify({ category_id: categoryId }),
+    });
+    setSelectedCategory(categoryId);
+  };
+
+  const toggleShowAll = () => {
+    setShowAll((value) => {
+      if (!value) {
+        logEvent({ event_name: LogEvent.ClickGivebackShowMoreActions });
+      }
+      return !value;
+    });
+  };
 
   const { paidActions, loveActions } = useMemo(() => {
     const paid: ContributionAction[] = [];
@@ -110,21 +143,21 @@ export const GivebackActionCatalog = (): ReactElement => {
         <GivebackFilterChip
           isSelected={selectedCategory === ALL_FILTER}
           label="All"
-          onClick={() => setSelectedCategory(ALL_FILTER)}
+          onClick={() => selectCategory(ALL_FILTER)}
         />
         {categories.map((category) => (
           <GivebackFilterChip
             key={category.id}
             isSelected={selectedCategory === category.id}
             label={category.title}
-            onClick={() => setSelectedCategory(category.id)}
+            onClick={() => selectCategory(category.id)}
           />
         ))}
       </FlexRow>
 
       {filteredPaid.length > 0 ? (
         <FlexCol className="gap-4">
-          <ActionGrid actions={visiblePaid} onSubmit={setSubmissionAction} />
+          <ActionGrid actions={visiblePaid} onSubmit={openAction} />
           {hiddenCount > 0 && (
             <FlexRow className="justify-center">
               <Button
@@ -135,7 +168,7 @@ export const GivebackActionCatalog = (): ReactElement => {
                   <ArrowIcon className={showAll ? undefined : 'rotate-180'} />
                 }
                 iconPosition={ButtonIconPosition.Right}
-                onClick={() => setShowAll((value) => !value)}
+                onClick={toggleShowAll}
               >
                 {showAll ? 'Show fewer' : `Show more actions (${hiddenCount})`}
               </Button>

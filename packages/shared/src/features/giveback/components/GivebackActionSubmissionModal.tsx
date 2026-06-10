@@ -14,6 +14,8 @@ import { FlexCol, FlexRow } from '../../../components/utilities';
 import { RootPortal } from '../../../components/tooltips/Portal';
 import { uploadContentImage } from '../../../graphql/posts';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { labels } from '../../../lib/labels';
 import type { ContributionAction } from '../types';
 import { formatDonationAmount } from '../utils';
@@ -40,6 +42,7 @@ export const GivebackActionSubmissionModal = ({
   onClose,
 }: GivebackActionSubmissionModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const { submit, isPending } = useSubmitContributionAction();
   const linkInputId = `giveback-proof-link-${action.id}`;
   const noteInputId = `giveback-proof-note-${action.id}`;
@@ -113,10 +116,34 @@ export const GivebackActionSubmissionModal = ({
           note: note.trim() || undefined,
         },
       });
+      logEvent({
+        event_name: LogEvent.SubmitGivebackAction,
+        target_id: action.id,
+        extra: JSON.stringify({
+          platform: metadata.platform,
+          points: action.points,
+          has_url: !!link.trim(),
+          has_screenshot: !!screenshotUrl,
+          has_note: !!note.trim(),
+        }),
+      });
       setIsSubmitted(true);
     } catch {
+      logEvent({
+        event_name: LogEvent.SubmitGivebackActionError,
+        target_id: action.id,
+      });
       displayToast(labels.error.generic);
     }
+  };
+
+  const onLoveAcknowledge = () => {
+    logEvent({
+      event_name: LogEvent.ClickGivebackLoveAction,
+      target_id: action.id,
+      extra: JSON.stringify({ platform: metadata.platform }),
+    });
+    onClose();
   };
 
   return (
@@ -291,7 +318,7 @@ export const GivebackActionSubmissionModal = ({
                   type="button"
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Primary}
-                  onClick={onClose}
+                  onClick={onLoveAcknowledge}
                 >
                   Got it
                 </Button>
