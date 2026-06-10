@@ -14,6 +14,9 @@ import { GivebackCauseSelection } from './GivebackCauseSelection';
 import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
 import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
+import { GivebackActionCatalog } from './GivebackActionCatalog';
+import { GivebackContributionSummary } from './GivebackContributionSummary';
+import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
@@ -143,21 +146,28 @@ export const GivebackPage = (): ReactElement => {
               aria-label={activeLabel}
               className={`${column} pt-8`}
             >
-              <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
-                <Typography
-                  tag={TypographyTag.H2}
-                  type={TypographyType.Title3}
-                  bold
-                >
-                  {activeLabel}
-                </Typography>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Tertiary}
-                >
-                  Coming soon
-                </Typography>
-              </FlexCol>
+              {activeTab === 'actions' ? (
+                <FlexCol className="gap-6">
+                  <GivebackContributionSummary />
+                  <GivebackActionCatalog />
+                </FlexCol>
+              ) : (
+                <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
+                  <Typography
+                    tag={TypographyTag.H2}
+                    type={TypographyType.Title3}
+                    bold
+                  >
+                    {activeLabel}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Coming soon
+                  </Typography>
+                </FlexCol>
+              )}
             </div>
           </div>
         )}
@@ -174,6 +184,8 @@ export const GivebackPage = (): ReactElement => {
           onContinue={handleContinue}
         />
       )}
+
+      {showTabs && <GivebackFundingBar onTakeAction={goToActions} />}
     </div>
   );
 };

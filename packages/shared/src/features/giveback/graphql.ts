@@ -53,6 +53,82 @@ export const CONTRIBUTION_CAUSE_PICKER_QUERY = `
   }
 `;
 
+// The action catalog and its filter categories in one request: the catalog tab
+// renders the grid and the filter chips from a single round trip. Each action
+// carries the visitor's own state (completions, cooldown, latest submission) so
+// the card knows whether it's actionable, in review or done.
+export const CONTRIBUTION_ACTIONS_QUERY = `
+  query ContributionActions($first: Int) {
+    contributionActions(first: $first) {
+      edges {
+        node {
+          id
+          categoryId
+          title
+          description
+          points
+          evidence
+          metadata {
+            platform
+            instructions
+            externalUrl
+            isLoveAction
+          }
+          cooldownSeconds
+          maxPerUser
+          userCooldownEndsAt
+          userCompletions
+          latestUserSubmission {
+            id
+            actionId
+            status
+            awardedPoints
+            createdAt
+            reviewedAt
+          }
+        }
+      }
+    }
+    contributionActionCategories(first: $first) {
+      edges {
+        node {
+          id
+          title
+        }
+      }
+    }
+  }
+`;
+
+// The reward ladder, used to show a contributor their next milestone. Auth +
+// eligibility gated like the rest of the onboarded experience.
+export const CONTRIBUTION_REWARD_TIERS_QUERY = `
+  query ContributionRewardTiers($first: Int) {
+    contributionRewardTiers(first: $first) {
+      edges {
+        node {
+          id
+          title
+          thresholdPoints
+        }
+      }
+    }
+  }
+`;
+
+export const SUBMIT_CONTRIBUTION_ACTION_MUTATION = `
+  mutation SubmitContributionAction($input: SubmitContributionActionInput!) {
+    submitContributionAction(input: $input) {
+      id
+      actionId
+      status
+      awardedPoints
+      createdAt
+      reviewedAt
+    }
+  }
+`;
+
 export const UPDATE_CONTRIBUTION_CAUSE_PREFERENCES_MUTATION = `
   mutation UpdateContributionCausePreferences($causeIds: [ID!]!) {
     updateContributionCausePreferences(causeIds: $causeIds) {
