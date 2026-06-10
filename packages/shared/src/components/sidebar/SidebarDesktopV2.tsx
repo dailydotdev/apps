@@ -23,6 +23,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
 import { MainSection } from './sections/MainSection';
 import { PinnedSection } from './sections/PinnedSection';
+import { RecentSection } from './sections/RecentSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { ProfileSection } from './sections/ProfileSection';
 import { SidebarProfileCompletion } from './SidebarProfileCompletion';
@@ -563,6 +564,7 @@ export const SidebarDesktopV2 = ({
           isItemsButton={isNavButtons ?? false}
         />
         <PinnedSection {...defaultRenderSectionProps} isItemsButton={false} />
+        <RecentSection {...defaultRenderSectionProps} isItemsButton={false} />
         <CustomFeedSection
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}

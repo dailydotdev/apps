@@ -47,6 +47,7 @@ export type SettingsFlags = {
   // rail back to its icon-only width.
   sidebarCompact?: boolean;
   sidebarPinnedExpanded?: boolean;
+  sidebarRecentExpanded?: boolean;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
@@ -54,6 +55,7 @@ export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
   PinnedExpanded = 'sidebarPinnedExpanded',
+  RecentExpanded = 'sidebarRecentExpanded',
   CustomFeedsExpanded = 'sidebarCustomFeedsExpanded',
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',
