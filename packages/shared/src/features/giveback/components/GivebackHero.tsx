@@ -13,6 +13,8 @@ import { GivebackCampaignVideo } from './GivebackCampaignVideo';
 import { GivebackFundingSummary } from './GivebackFundingSummary';
 
 interface GivebackHeroProps {
+  // Holds the CTA in a loading state until the onboarding status is known.
+  isResolving: boolean;
   // True once the visitor has confirmed causes: the CTA becomes "Take action".
   hasSelectedCauses: boolean;
   // Reveals the cause picker when an authenticated visitor joins.
@@ -22,6 +24,7 @@ interface GivebackHeroProps {
 }
 
 export const GivebackHero = ({
+  isResolving,
   hasSelectedCauses,
   onJoin,
   onTakeAction,
@@ -95,6 +98,7 @@ export const GivebackHero = ({
             <GivebackFundingSummary />
             <div className="via-accent-cabbage-default/30 h-px w-full bg-gradient-to-r from-transparent to-transparent" />
             <GivebackStartPanel
+              isResolving={isResolving}
               hasSelectedCauses={hasSelectedCauses}
               onJoin={onJoin}
               onTakeAction={onTakeAction}

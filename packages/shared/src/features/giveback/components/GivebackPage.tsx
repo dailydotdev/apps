@@ -46,6 +46,12 @@ export const GivebackPage = (): ReactElement => {
   const showTabs = selection.hasSavedCauses || completedOnboarding;
   const showPicker = startedPicker && !showTabs;
 
+  // Hold the hero CTA until we know the onboarding state, so its copy doesn't
+  // flip from "Join the campaign" to "Take action" after the data lands. Settled
+  // once the campaign status loads and (for eligible visitors) the picks do too.
+  const isCtaResolving =
+    !status || (isEligible && selection.isLoading && !completedOnboarding);
+
   const causesRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +94,7 @@ export const GivebackPage = (): ReactElement => {
         <div className={column}>
           <GivebackReveal>
             <GivebackHero
+              isResolving={isCtaResolving}
               hasSelectedCauses={showTabs}
               onJoin={() => setStartedPicker(true)}
               onTakeAction={goToActions}

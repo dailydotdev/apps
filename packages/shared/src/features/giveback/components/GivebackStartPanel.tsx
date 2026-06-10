@@ -21,6 +21,9 @@ import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent } from '../../../lib/log';
 
 interface GivebackStartPanelProps {
+  // While we're still loading whether the visitor has causes, the CTA stays in
+  // a loading state so its copy doesn't flip after the data lands.
+  isResolving: boolean;
   // True once the visitor has confirmed causes: the CTA becomes "Take action".
   hasSelectedCauses: boolean;
   // Fires once an authenticated visitor opts in, to reveal the cause picker.
@@ -33,6 +36,7 @@ interface GivebackStartPanelProps {
 // out get the login prompt first); returning visitors who already picked causes
 // jump straight to taking action.
 export const GivebackStartPanel = ({
+  isResolving,
   hasSelectedCauses,
   onJoin,
   onTakeAction,
@@ -41,6 +45,10 @@ export const GivebackStartPanel = ({
   const { logEvent } = useLogContext();
 
   const handleClick = () => {
+    if (isResolving) {
+      return;
+    }
+
     if (hasSelectedCauses) {
       onTakeAction();
       return;
@@ -77,6 +85,7 @@ export const GivebackStartPanel = ({
         size={ButtonSize.Large}
         icon={<MoveToIcon size={IconSize.Size16} />}
         iconPosition={ButtonIconPosition.Right}
+        loading={isResolving}
         onClick={handleClick}
         className="shadow-2-cabbage transition-transform duration-200 ease-out hover:scale-[1.02]"
       >

@@ -29,7 +29,10 @@ beforeEach(() => {
   >);
 });
 
-const renderPanel = (user: LoggedUser | null, hasSelectedCauses = false) => {
+const renderPanel = (
+  user: LoggedUser | null,
+  { hasSelectedCauses = false, isResolving = false } = {},
+) => {
   mockUseAuthContext.mockReturnValue({
     user,
     showLogin,
@@ -37,6 +40,7 @@ const renderPanel = (user: LoggedUser | null, hasSelectedCauses = false) => {
 
   return render(
     <GivebackStartPanel
+      isResolving={isResolving}
       hasSelectedCauses={hasSelectedCauses}
       onJoin={onJoin}
       onTakeAction={onTakeAction}
@@ -68,11 +72,25 @@ it('logs the join event and reveals causes for authenticated visitors', () => {
 });
 
 it('jumps onboarded visitors to the action tab without re-joining', () => {
-  renderPanel({ id: 'u1' } as LoggedUser, true);
+  renderPanel({ id: 'u1' } as LoggedUser, { hasSelectedCauses: true });
 
   fireEvent.click(screen.getByRole('button', { name: 'Take action' }));
 
   expect(onTakeAction).toHaveBeenCalled();
   expect(onJoin).not.toHaveBeenCalled();
   expect(logEvent).not.toHaveBeenCalled();
+});
+
+it('holds the CTA while resolving so its copy cannot flip mid-click', () => {
+  renderPanel({ id: 'u1' } as LoggedUser, {
+    hasSelectedCauses: true,
+    isResolving: true,
+  });
+
+  // The button is busy (loading) and acting on it does nothing yet.
+  const button = screen.getByRole('button', { name: 'Take action' });
+  expect(button).toHaveAttribute('aria-busy', 'true');
+
+  fireEvent.click(button);
+  expect(onTakeAction).not.toHaveBeenCalled();
 });
