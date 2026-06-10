@@ -622,7 +622,9 @@ export default function useFeed<T>(
           Math.floor((visualCellsSoFar - adStart + adRepeat) / adRepeat),
         );
         const nextAdVcs = adStart + slotsPassed * adRepeat;
-        const maxColSpan = Math.max(1, nextAdVcs - visualCellsSoFar);
+        const maxColSpan = isAdsQueryEnabled
+          ? Math.max(1, nextAdVcs - visualCellsSoFar)
+          : Infinity;
         const placement = placementBuilder.next(item, {
           fullRowBefore,
           maxColSpan,
@@ -748,12 +750,17 @@ export default function useFeed<T>(
     adTemplate?.adStart,
     adTemplate?.adRepeat,
     pageSize,
+    isAdsQueryEnabled,
   ]);
 
   const placements = useMemo(() => {
-    const adStartForPlacements =
-      adTemplate?.adStart ?? featureFeedAdTemplate.defaultValue.default.adStart;
-    const adRepeatForPlacements = adTemplate?.adRepeat ?? pageSize + 1;
+    const adStartForPlacements = isAdsQueryEnabled
+      ? adTemplate?.adStart ??
+        featureFeedAdTemplate.defaultValue.default.adStart
+      : undefined;
+    const adRepeatForPlacements = isAdsQueryEnabled
+      ? adTemplate?.adRepeat ?? pageSize + 1
+      : undefined;
     return computePlacements(items, {
       numCards: virtualizedNumCards,
       isMobile: isMobileViewport,
@@ -775,6 +782,7 @@ export default function useFeed<T>(
     adTemplate?.adStart,
     adTemplate?.adRepeat,
     pageSize,
+    isAdsQueryEnabled,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

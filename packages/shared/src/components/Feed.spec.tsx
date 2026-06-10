@@ -1782,6 +1782,8 @@ interface HighlightLayoutRenderParams {
   startIndex?: number;
   briefBannerPage?: number;
   staticAd?: { ad: Ad; index: number };
+  disableAds?: boolean;
+  user?: LoggedUser;
 }
 
 const renderWithHighlightLayout = ({
@@ -1795,6 +1797,8 @@ const renderWithHighlightLayout = ({
   startIndex = 0,
   briefBannerPage,
   staticAd,
+  disableAds,
+  user = defaultUser,
 }: HighlightLayoutRenderParams): RenderResult => {
   variables = { ...defaultVariables, first: pageSize };
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
@@ -1858,7 +1862,7 @@ const renderWithHighlightLayout = ({
     <QueryClientProvider client={isolatedClient}>
       <AuthContext.Provider
         value={{
-          user: defaultUser,
+          user,
           isLoggedIn: true,
           shouldShowLogin: false,
           showLogin,
@@ -1867,7 +1871,7 @@ const renderWithHighlightLayout = ({
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
-          trackingId: defaultUser.id,
+          trackingId: user.id,
           loginState: undefined,
           isAuthReady: true,
         }}
@@ -1888,6 +1892,7 @@ const renderWithHighlightLayout = ({
                   query={ANONYMOUS_FEED_QUERY}
                   variables={variables}
                   staticAd={staticAd}
+                  disableAds={disableAds}
                 />
               </FeedContext.Provider>
             </SettingsContext.Provider>
@@ -1930,6 +1935,23 @@ describe('Feed ad cadence with highlight cards', () => {
           query: {},
         } as unknown as NextRouter),
     );
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn().mockReturnValue(null),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
+      adjustedHeroInsertIndex: 0,
+      shouldShowTopHero: false,
+      shouldShowInFeedHero: false,
+      title: '',
+      subtitle: '',
+      onEnableHero: jest.fn(),
+      onDismissHero: jest.fn(),
+    });
   });
 
   // Setup: numCards=4, adStart=4, adRepeat=8. With 1 normal post per cell,
@@ -2187,5 +2209,58 @@ describe('Feed ad cadence with highlight cards', () => {
       .filter((i) => i >= 0);
     expect(adIndices).toEqual([5, 9]);
     expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
+  });
+
+  it('renders highlight cards for Plus users without rendering ads', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildWidePost('w4', 3),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      adStart: 4,
+      adRepeat: 8,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryAllByTestId('adItem').length).toBe(0);
+  });
+
+  it('skips the ad-cadence clamp on wide cards for Plus users', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildWidePost('w8', 4),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      adStart: 2,
+      adRepeat: 8,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    const wrappers = await screen.findAllByTestId('feedItemColSpanWrapper');
+    const styles = wrappers.map((el) => el.getAttribute('style') ?? '');
+    expect(styles.some((s) => s.includes('span 4'))).toBe(true);
+    expect(screen.queryAllByTestId('adItem').length).toBe(0);
   });
 });

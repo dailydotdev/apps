@@ -577,6 +577,22 @@ describe('computePlacements', () => {
       expect(placements[3].colSpan).toBe(1);
     });
 
+    it('does not clamp wide cards at phantom slots when ad cadence is disabled', () => {
+      const items = [
+        makePostItem(makePost()),
+        makePostItem(makePost()),
+        makePostItem(makePost({ significance: 'breaking' })),
+      ];
+      const withCadence = computePlacements(items, {
+        ...opts,
+        adStart: 3,
+        adRepeat: 8,
+      });
+      const withoutCadence = computePlacements(items, opts);
+      expect(withCadence[2].colSpan).toBe(1);
+      expect(withoutCadence[2].colSpan).toBe(2);
+    });
+
     it('lets wide card span fully when first ad has not yet fired and it fits', () => {
       // adStart=10, adRepeat=10 → first slot at vcs=10. A size-4 at col=0
       // fits comfortably (vcs goes 0→4, well shy of 10).

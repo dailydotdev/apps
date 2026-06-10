@@ -209,19 +209,15 @@ export const computePlacements = (
 
   return items.map((item, index) => {
     const fullRowBefore = fullRowInsertionBeforeIndex?.has(index) ?? false;
-    let maxColSpan: number | undefined;
-    if (hasAdCadence) {
-      // Derive the next ad slot from vcs directly. Robust to ad slots
-      // being absent from `items` (e.g. when useFeed swapped the slot for
-      // a marketing CTA) — vcs alone tells us how many slot positions
-      // we have passed.
-      const slotsPassed = Math.max(
-        0,
-        Math.floor((vcs - adStart + adRepeat) / adRepeat),
-      );
-      const nextAdVcs = adStart + slotsPassed * adRepeat;
-      maxColSpan = Math.max(1, nextAdVcs - vcs);
-    }
+    // Derive the next ad slot from vcs directly. Robust to ad slots being
+    // absent from `items` (e.g. when useFeed swapped the slot for a
+    // marketing CTA) — vcs alone tells us how many slot positions we
+    // have passed.
+    const slotsPassed = hasAdCadence
+      ? Math.max(0, Math.floor((vcs - adStart + adRepeat) / adRepeat))
+      : 0;
+    const nextAdVcs = hasAdCadence ? adStart + slotsPassed * adRepeat : 0;
+    const maxColSpan = hasAdCadence ? Math.max(1, nextAdVcs - vcs) : Infinity;
     const placement = builder.next(item, { fullRowBefore, maxColSpan });
     vcs += placement.colSpan;
     return placement;
