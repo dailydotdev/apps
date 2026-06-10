@@ -6,6 +6,7 @@ import { FeedItemType } from '../components/cards/common/common';
 import {
   computePlacements,
   createPlacementBuilder,
+  deriveAdCadence,
   requestedColSpan,
 } from './feedHighlightColSpan';
 
@@ -512,8 +513,7 @@ describe('computePlacements', () => {
       ];
       const placements = computePlacements(items, {
         ...opts,
-        adStart: 4,
-        adRepeat: 8,
+        cadence: { adStart: 4, adRepeat: 8 },
       });
       expect(placements[3].colSpan).toBe(1);
     });
@@ -531,8 +531,7 @@ describe('computePlacements', () => {
       ];
       const placements = computePlacements(items, {
         ...opts,
-        adStart: 2,
-        adRepeat: 10,
+        cadence: { adStart: 2, adRepeat: 10 },
       });
       // Wide card at col=3 — row-fit clamps to 1, not ad-clamp.
       expect(placements[3]).toEqual({ colSpan: 1, row: 0, column: 3 });
@@ -554,15 +553,14 @@ describe('computePlacements', () => {
       ];
       const placements = computePlacements(items, {
         ...opts,
-        adStart: 2,
-        adRepeat: 10,
+        cadence: { adStart: 2, adRepeat: 10 },
       });
       // After placeholder ad, vcs=3 → nextAdVcs=12. wide is at col=3,
       // allowed up to min(grid=4, row=1, ad=9) = 1 due to row-fit clamp.
       expect(placements[3]).toEqual({ colSpan: 1, row: 0, column: 3 });
     });
 
-    it('skips ad-clamp logic when adStart/adRepeat are omitted', () => {
+    it('skips ad-clamp logic when cadence is omitted', () => {
       // Same straddle setup as the first test, but with no cadence info
       // → builder behaves as before (no clamp), wide card lands at its
       // requested span (clamped only by row-fit).
@@ -585,8 +583,7 @@ describe('computePlacements', () => {
       ];
       const withCadence = computePlacements(items, {
         ...opts,
-        adStart: 3,
-        adRepeat: 8,
+        cadence: { adStart: 3, adRepeat: 8 },
       });
       const withoutCadence = computePlacements(items, opts);
       expect(withCadence[2].colSpan).toBe(1);
@@ -599,8 +596,7 @@ describe('computePlacements', () => {
       const items = [makePostItem(makePost({ significance: 'breaking' }))];
       const placements = computePlacements(items, {
         ...opts,
-        adStart: 10,
-        adRepeat: 10,
+        cadence: { adStart: 10, adRepeat: 10 },
       });
       expect(placements[0].colSpan).toBe(4);
     });
@@ -616,8 +612,7 @@ describe('computePlacements', () => {
       ];
       const placements = computePlacements(items, {
         ...opts,
-        adStart: 3,
-        adRepeat: 8,
+        cadence: { adStart: 3, adRepeat: 8 },
       });
       expect(placements[2].colSpan).toBe(1);
     });
@@ -637,13 +632,40 @@ describe('computePlacements', () => {
       ];
       const placements = computePlacements(items, {
         ...opts,
-        adStart: 4,
-        adRepeat: 8,
+        cadence: { adStart: 4, adRepeat: 8 },
       });
       // Pre-fix: would clamp to 1 (nextAdVcs stuck at adStart=4 with
       // adsFired=0 and vcs=4). Post-fix: formula derives slotsPassed=1
       // from vcs, nextAdVcs=12, full span allowed.
       expect(placements[4].colSpan).toBe(4);
     });
+  });
+});
+
+describe('deriveAdCadence', () => {
+  const baseArgs = {
+    isPlus: false,
+    isFeedPreview: false,
+    disableAds: false,
+    adStart: 4,
+    adRepeat: 8,
+  };
+
+  it('returns the cadence pair when ads are structurally enabled', () => {
+    expect(deriveAdCadence(baseArgs)).toEqual({ adStart: 4, adRepeat: 8 });
+  });
+
+  it('returns undefined for Plus users', () => {
+    expect(deriveAdCadence({ ...baseArgs, isPlus: true })).toBeUndefined();
+  });
+
+  it('returns undefined when feed preview is active', () => {
+    expect(
+      deriveAdCadence({ ...baseArgs, isFeedPreview: true }),
+    ).toBeUndefined();
+  });
+
+  it('returns undefined when disableAds is set', () => {
+    expect(deriveAdCadence({ ...baseArgs, disableAds: true })).toBeUndefined();
   });
 });

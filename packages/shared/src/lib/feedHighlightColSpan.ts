@@ -68,6 +68,68 @@ export interface PlacementBuilderOptions {
   startIndex: number;
 }
 
+/**
+ * Ad cadence pair. When supplied to a placement walk, wide cards are
+ * clamped so their right edge does not cross the next scheduled slot
+ * (`visualCellsSoFar === adStart + n*adRepeat`). Omit it (Plus user,
+ * feed preview, `disableAds`) to skip the clamp — no ad will fire, so
+ * the wide card can take its full requested span.
+ */
+export interface AdCadence {
+  adStart: number;
+  adRepeat: number;
+}
+
+/**
+ * Upper bound on `colSpan` so a wide card does not straddle the next ad
+ * slot. Returns `Infinity` when no cadence is in effect (clamp is a
+ * no-op). Both `useFeed`'s incremental walk and the post-hoc
+ * `computePlacements` rebuild share this single source of truth.
+ */
+export const computeAdClamp = (
+  visualCellsSoFar: number,
+  cadence?: AdCadence,
+): number => {
+  if (!cadence) {
+    return Infinity;
+  }
+  const { adStart, adRepeat } = cadence;
+  const slotsPassed = Math.max(
+    0,
+    Math.floor((visualCellsSoFar - adStart + adRepeat) / adRepeat),
+  );
+  const nextAdVcs = adStart + slotsPassed * adRepeat;
+  return Math.max(1, nextAdVcs - visualCellsSoFar);
+};
+
+export interface DeriveAdCadenceArgs extends AdCadence {
+  isPlus: boolean;
+  isFeedPreview: boolean;
+  disableAds?: boolean;
+}
+
+/**
+ * Returns the cadence pair when ads are STRUCTURALLY on (non-Plus, not
+ * a feed preview, `disableAds` off), or `undefined` when no ad will
+ * ever fire this session so wide cards can take their full requested
+ * span. Transient gates (e.g. `adPostLength` keeping the query
+ * disabled while the feed is still short) are deliberately ignored —
+ * wide cards placed now must leave room for the slots that fire once
+ * the threshold is crossed, otherwise the layout reflows mid-session.
+ */
+export const deriveAdCadence = ({
+  isPlus,
+  isFeedPreview,
+  disableAds,
+  adStart,
+  adRepeat,
+}: DeriveAdCadenceArgs): AdCadence | undefined => {
+  if (isPlus || isFeedPreview || disableAds) {
+    return undefined;
+  }
+  return { adStart, adRepeat };
+};
+
 export interface ComputePlacementsOptions extends PlacementBuilderOptions {
   /**
    * Indices that have a full-row insertion (brief banner, hero, promo)
@@ -77,14 +139,7 @@ export interface ComputePlacementsOptions extends PlacementBuilderOptions {
    * row at column 0.
    */
   fullRowInsertionBeforeIndex?: ReadonlySet<number>;
-  /**
-   * Ad cadence parameters. When provided, wide cards are clamped so
-   * their right edge does not cross the next scheduled ad slot
-   * (visualCellsSoFar === adStart + n*adRepeat). Without this, a wide
-   * card straddling a slot would silently drop that ad.
-   */
-  adStart?: number;
-  adRepeat?: number;
+  cadence?: AdCadence;
 }
 
 export interface PlacementBuilder {
@@ -201,24 +256,16 @@ export const computePlacements = (
   items: FeedItem[],
   options: ComputePlacementsOptions,
 ): FeedItemPlacement[] => {
-  const { fullRowInsertionBeforeIndex, adStart, adRepeat } = options;
+  const { fullRowInsertionBeforeIndex, cadence } = options;
   const builder = createPlacementBuilder(options);
-  const hasAdCadence =
-    typeof adStart === 'number' && typeof adRepeat === 'number' && adRepeat > 0;
   let vcs = 0;
 
   return items.map((item, index) => {
     const fullRowBefore = fullRowInsertionBeforeIndex?.has(index) ?? false;
-    // Derive the next ad slot from vcs directly. Robust to ad slots being
-    // absent from `items` (e.g. when useFeed swapped the slot for a
-    // marketing CTA) — vcs alone tells us how many slot positions we
-    // have passed.
-    const slotsPassed = hasAdCadence
-      ? Math.max(0, Math.floor((vcs - adStart + adRepeat) / adRepeat))
-      : 0;
-    const nextAdVcs = hasAdCadence ? adStart + slotsPassed * adRepeat : 0;
-    const maxColSpan = hasAdCadence ? Math.max(1, nextAdVcs - vcs) : Infinity;
-    const placement = builder.next(item, { fullRowBefore, maxColSpan });
+    const placement = builder.next(item, {
+      fullRowBefore,
+      maxColSpan: computeAdClamp(vcs, cadence),
+    });
     vcs += placement.colSpan;
     return placement;
   });

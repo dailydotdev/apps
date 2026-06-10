@@ -41,8 +41,10 @@ import {
 import { useConditionalFeature } from './useConditionalFeature';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
 import {
+  computeAdClamp,
   computePlacements,
   createPlacementBuilder,
+  deriveAdCadence,
   isHeroEligiblePost,
 } from '../lib/feedHighlightColSpan';
 import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
@@ -562,6 +564,27 @@ export default function useFeed<T>(
     ],
   );
 
+  const cadence = useMemo(
+    () =>
+      deriveAdCadence({
+        isPlus,
+        isFeedPreview,
+        disableAds: settings?.disableAds,
+        adStart:
+          adTemplate?.adStart ??
+          featureFeedAdTemplate.defaultValue.default.adStart,
+        adRepeat: adTemplate?.adRepeat ?? pageSize + 1,
+      }),
+    [
+      isPlus,
+      isFeedPreview,
+      settings?.disableAds,
+      adTemplate?.adStart,
+      adTemplate?.adRepeat,
+      pageSize,
+    ],
+  );
+
   const items = useMemo(() => {
     const newItems: FeedItem[] = [];
 
@@ -579,13 +602,6 @@ export default function useFeed<T>(
       // (mobile/list/single-col), so we never need to special-case those.
       const seenPostIds = new Set<string>();
       let visualCellsSoFar = 0;
-      // Wide cards shrink to fit BEFORE the next ad slot so they can't
-      // straddle a cadence point and silently drop an impression — same
-      // pattern as the end-of-row clamp.
-      const adStart =
-        adTemplate?.adStart ??
-        featureFeedAdTemplate.defaultValue.default.adStart;
-      const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
 
       const placementBuilder = createPlacementBuilder({
         numCards: virtualizedNumCards,
@@ -617,17 +633,9 @@ export default function useFeed<T>(
         newItems.push(item);
         const idx = newItems.length - 1;
         const fullRowBefore = fullRowInsertionBeforeIndex.has(idx);
-        const slotsPassed = Math.max(
-          0,
-          Math.floor((visualCellsSoFar - adStart + adRepeat) / adRepeat),
-        );
-        const nextAdVcs = adStart + slotsPassed * adRepeat;
-        const maxColSpan = isAdsQueryEnabled
-          ? Math.max(1, nextAdVcs - visualCellsSoFar)
-          : Infinity;
         const placement = placementBuilder.next(item, {
           fullRowBefore,
-          maxColSpan,
+          maxColSpan: computeAdClamp(visualCellsSoFar, cadence),
         });
         visualCellsSoFar += placement.colSpan;
       };
@@ -747,43 +755,31 @@ export default function useFeed<T>(
     isMobileViewport,
     isListContext,
     fullRowInsertionBeforeIndex,
-    adTemplate?.adStart,
-    adTemplate?.adRepeat,
-    pageSize,
-    isAdsQueryEnabled,
+    cadence,
   ]);
 
-  const placements = useMemo(() => {
-    const adStartForPlacements = isAdsQueryEnabled
-      ? adTemplate?.adStart ??
-        featureFeedAdTemplate.defaultValue.default.adStart
-      : undefined;
-    const adRepeatForPlacements = isAdsQueryEnabled
-      ? adTemplate?.adRepeat ?? pageSize + 1
-      : undefined;
-    return computePlacements(items, {
-      numCards: virtualizedNumCards,
-      isMobile: isMobileViewport,
-      isList: isListContext,
-      isEnabled: postHighlightCardsConfig.enabled,
-      minSpacing: postHighlightCardsConfig.minSpacing,
-      startIndex: postHighlightCardsConfig.startIndex,
+  const placements = useMemo(
+    () =>
+      computePlacements(items, {
+        numCards: virtualizedNumCards,
+        isMobile: isMobileViewport,
+        isList: isListContext,
+        isEnabled: postHighlightCardsConfig.enabled,
+        minSpacing: postHighlightCardsConfig.minSpacing,
+        startIndex: postHighlightCardsConfig.startIndex,
+        fullRowInsertionBeforeIndex,
+        cadence,
+      }),
+    [
+      items,
+      virtualizedNumCards,
+      isMobileViewport,
+      isListContext,
+      postHighlightCardsConfig,
       fullRowInsertionBeforeIndex,
-      adStart: adStartForPlacements,
-      adRepeat: adRepeatForPlacements,
-    });
-  }, [
-    items,
-    virtualizedNumCards,
-    isMobileViewport,
-    isListContext,
-    postHighlightCardsConfig,
-    fullRowInsertionBeforeIndex,
-    adTemplate?.adStart,
-    adTemplate?.adRepeat,
-    pageSize,
-    isAdsQueryEnabled,
-  ]);
+      cadence,
+    ],
+  );
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
 
