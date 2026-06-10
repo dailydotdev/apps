@@ -357,36 +357,41 @@ export const PostFocusCard = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            <div className="flex min-w-0 flex-row items-start gap-4">
-              <h1
-                className="min-w-0 flex-1 break-words font-bold text-text-primary typo-title3 tablet:typo-title1"
-                data-testid="post-modal-title"
-              >
-                {title}
-              </h1>
-              {!isVideoType && article.image && (
-                <a
-                  className="block h-fit w-32 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  href={readHref}
-                  onClick={handleImageClick}
-                  rel="noopener"
-                  target="_blank"
-                  title="Go to post"
+            {/* Below the 656px (tablet) breakpoint we keep the read button
+                directly under the title with a tight gap; from tablet up the
+                read button moves to the top row and this one is hidden. */}
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <div className="flex min-w-0 flex-row items-start gap-4">
+                <h1
+                  className="min-w-0 flex-1 break-words font-bold text-text-primary typo-title3 tablet:typo-title1"
+                  data-testid="post-modal-title"
                 >
-                  <LazyImage
-                    eager
-                    // Square crop on mobile/tablet; laptop+ keeps the
-                    // original wide cover ratio (52% => 25/13).
-                    className="aspect-square w-full laptop:aspect-[25/13]"
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    fetchPriority="high"
-                    imgAlt="Post cover image"
-                    imgSrc={article.image}
-                  />
-                </a>
-              )}
+                  {title}
+                </h1>
+                {!isVideoType && article.image && (
+                  <a
+                    className="block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                    href={readHref}
+                    onClick={handleImageClick}
+                    rel="noopener"
+                    target="_blank"
+                    title="Go to post"
+                  >
+                    <LazyImage
+                      eager
+                      // Small square thumbnail below tablet; from tablet (656px)
+                      // up it uses the original wide cover ratio (52% => 25/13).
+                      className="aspect-square w-full tablet:aspect-[25/13]"
+                      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                      fetchPriority="high"
+                      imgAlt="Post cover image"
+                      imgSrc={article.image}
+                    />
+                  </a>
+                )}
+              </div>
+              {renderReadButton('w-fit tablet:hidden')}
             </div>
-            {renderReadButton('w-fit tablet:hidden')}
           </div>
 
           <PostDiscoveryActionBar
