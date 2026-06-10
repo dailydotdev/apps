@@ -37,6 +37,10 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostPageFeed = new Feature('post_page_feed', false);
+export const featurePostDiscoveryExperience = new Feature(
+  'post_discovery_experience',
+  false,
+);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{

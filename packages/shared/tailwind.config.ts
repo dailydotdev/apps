@@ -310,6 +310,7 @@ export default {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
+        'composer-in': 'fade-slide-up 0.2s ease-out both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
         'reaction-burst':
           'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',

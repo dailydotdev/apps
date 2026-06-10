@@ -50,6 +50,10 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostPageFeed } from '@dailydotdev/shared/src/components/post/PostPageFeed';
 import { usePostPageFeed } from '@dailydotdev/shared/src/hooks/post/usePostPageFeed';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { isPostDiscoveryEligible } from '@dailydotdev/shared/src/hooks/post/usePostDiscoveryExperience';
+import { featurePostDiscoveryExperience } from '@dailydotdev/shared/src/lib/featureManagement';
+import { PostFocusCard } from '@dailydotdev/shared/src/components/post/discovery/PostFocusCard';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -197,6 +201,21 @@ export const PostPage = ({
     },
   });
   const { isEligible: showPostPageFeed } = usePostPageFeed(post);
+  const isDiscoveryEligible = isPostDiscoveryEligible(post);
+  const { value: isDiscoveryFlagOn } = useConditionalFeature({
+    feature: featurePostDiscoveryExperience,
+    shouldEvaluate: isDiscoveryEligible,
+  });
+  // `?discovery=1`/`0` lets us preview/force the redesign for review while the
+  // flag default stays off; absent, it follows the flag.
+  const forceDiscovery =
+    router.query.discovery === '1' || router.query.discovery === 'true';
+  const forceClassic =
+    router.query.discovery === '0' || router.query.discovery === 'false';
+  const showDiscovery =
+    isDiscoveryEligible &&
+    !forceClassic &&
+    (isDiscoveryFlagOn || forceDiscovery);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -273,25 +292,33 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           <PostSEOSchema post={post} topComments={topComments} />
-          <Content
-            position={position}
-            isPostPage
-            post={post}
-            isFallback={isFallback}
-            backToSquad={!!router?.query?.squad}
-            shouldOnboardAuthor={!!router.query?.author}
-            origin={Origin.ArticlePage}
-            isBannerVisible={shouldShowAuthBanner && !isLaptop}
-            className={{
-              container: containerClass,
-              fixedNavigation: { container: 'flex laptop:hidden' },
-              navigation: {
-                container: 'flex tablet:hidden',
-                actions: 'flex-1 justify-between',
-              },
-            }}
-          />
-          {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+          {showDiscovery ? (
+            <div className="mx-auto w-full max-w-[63.75rem]">
+              <PostFocusCard post={post} origin={Origin.ArticlePage} />
+            </div>
+          ) : (
+            <Content
+              position={position}
+              isPostPage
+              post={post}
+              isFallback={isFallback}
+              backToSquad={!!router?.query?.squad}
+              shouldOnboardAuthor={!!router.query?.author}
+              origin={Origin.ArticlePage}
+              isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              className={{
+                container: containerClass,
+                fixedNavigation: { container: 'flex laptop:hidden' },
+                navigation: {
+                  container: 'flex tablet:hidden',
+                  actions: 'flex-1 justify-between',
+                },
+              }}
+            />
+          )}
+          {!showDiscovery && shouldShowAuthBanner && isLaptop && (
+            <PostAuthBanner />
+          )}
           <CompanionDemoWidget />
           {showPostPageFeed && <PostPageFeed />}
         </FooterNavBarLayout>

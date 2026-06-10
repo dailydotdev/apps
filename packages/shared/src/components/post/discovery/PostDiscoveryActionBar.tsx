@@ -1,0 +1,256 @@
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+import type { Post } from '../../../graphql/posts';
+import { UserVote } from '../../../graphql/posts';
+import { useVotePost } from '../../../hooks';
+import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useCanAwardUser } from '../../../hooks/useCoresFeature';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import type { PostOrigin } from '../../../hooks/log/useLogContextData';
+import { Origin } from '../../../lib/log';
+import { AuthTriggers } from '../../../lib/auth';
+import { ButtonSize } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/ButtonV2';
+import { CardAction } from '../../buttons/CardAction';
+import { BookmarkButton } from '../../buttons/BookmarkButton';
+import CloseButton from '../../CloseButton';
+import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
+import { IconSize } from '../../Icon';
+import {
+  AnalyticsIcon,
+  DiscussIcon as CommentIcon,
+  DownvoteIcon,
+  LinkIcon,
+  MedalBadgeIcon,
+} from '../../icons';
+import { Tooltip } from '../../tooltip/Tooltip';
+import type { LoggedUser } from '../../../lib/user';
+import { canViewPostAnalytics } from '../../../lib/user';
+import { webappUrl } from '../../../lib/constants';
+import { PostMenuOptions } from '../PostMenuOptions';
+import { PostClickbaitShield } from '../common/PostClickbaitShield';
+
+interface PostDiscoveryActionBarProps {
+  post: Post;
+  origin?: PostOrigin;
+  onComment?: () => void;
+  onCopyLinkClick?: (post?: Post) => void;
+  /** When provided (post modal), renders an X close button next to the menu. */
+  onClose?: () => void;
+  className?: string;
+}
+
+/**
+ * Engagement bar for the discovery focus card, built on the CardAction
+ * primitives (PR #6064 guideline): each action's count lives inside the click
+ * target so the icon or number performs the action. Sticks to the top while
+ * scrolling; the modal X appears only once the bar is pinned.
+ */
+export const PostDiscoveryActionBar = ({
+  post,
+  origin = Origin.ArticlePage,
+  onComment,
+  onCopyLinkClick,
+  onClose,
+  className,
+}: PostDiscoveryActionBarProps): ReactElement => {
+  const { user, showLogin } = useAuthContext();
+  const { toggleUpvote, toggleDownvote } = useVotePost();
+  const { toggleBookmark } = useBookmarkPost();
+  const { onShowPanel, onClose: onCloseBlockPanel } = useBlockPostPanel(post);
+  const { openModal } = useLazyModal();
+  const canAward = useCanAwardUser({
+    sendingUser: user,
+    receivingUser: post.author as LoggedUser | undefined,
+  });
+
+  // Detect when the sticky bar is pinned to the top so the X close button
+  // (modal only) appears just for the stuck state.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [isStuck, setIsStuck] = useState(false);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsStuck(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
+  const isDownvoteActive = post?.userState?.vote === UserVote.Down;
+  const isAwarded = !!post?.userState?.awarded;
+  const upvotes = post.numUpvotes || 0;
+  const comments = post.numComments || 0;
+  const awards = post.numAwards || 0;
+  const canSeeAnalytics = canViewPostAnalytics({ user, post });
+  // In the modal there is no app header, so pin to the very top; on the post
+  // page the bar must sit below the fixed laptop header (4rem). `onClose` is
+  // only provided by the post modal, so it doubles as the surface flag.
+  const stickyTopClassName = onClose ? 'top-0' : 'top-0 laptop:top-16';
+
+  const onToggleUpvote = async () => {
+    if (post?.userState?.vote === UserVote.None) {
+      onCloseBlockPanel(true);
+    }
+    await toggleUpvote({ payload: post, origin });
+  };
+
+  const onToggleDownvote = async () => {
+    if (post.userState?.vote !== UserVote.Down) {
+      onShowPanel();
+    } else {
+      onCloseBlockPanel(true);
+    }
+    await toggleDownvote({ payload: post, origin });
+  };
+
+  const onToggleBookmark = async () => {
+    await toggleBookmark({ post, origin });
+  };
+
+  const onGiveAward = () => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.GiveAward });
+      return;
+    }
+    if (!post.author || isAwarded) {
+      return;
+    }
+    openModal({
+      type: LazyModal.GiveAward,
+      props: {
+        type: 'POST',
+        entity: {
+          id: post.id,
+          receiver: post.author,
+          numAwards: post.numAwards,
+        },
+        post,
+      },
+    });
+  };
+
+  return (
+    <>
+      <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
+      <div
+        className={classNames(
+          'sticky z-3 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-1 py-2',
+          // Drop the top border once pinned so it doesn't double up with the
+          // header border above it.
+          !isStuck && 'border-t',
+          stickyTopClassName,
+          className,
+        )}
+      >
+        <div className="flex items-center gap-1">
+          <Tooltip
+            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+          >
+            <CardAction
+              id="upvote-post-btn"
+              label="Upvote"
+              color={ButtonColor.Avocado}
+              icon={<UpvoteButtonIcon />}
+              iconPressed={<UpvoteButtonIcon secondary />}
+              count={upvotes}
+              pressed={isUpvoteActive}
+              onClick={onToggleUpvote}
+            />
+          </Tooltip>
+          <Tooltip
+            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+          >
+            <CardAction
+              id="downvote-post-btn"
+              label="Downvote"
+              color={ButtonColor.Ketchup}
+              icon={<DownvoteIcon />}
+              iconPressed={<DownvoteIcon secondary />}
+              pressed={isDownvoteActive}
+              onClick={onToggleDownvote}
+            />
+          </Tooltip>
+          <Tooltip content="Comment">
+            <CardAction
+              id="comment-post-btn"
+              label="Comment"
+              color={ButtonColor.BlueCheese}
+              icon={<CommentIcon />}
+              iconPressed={<CommentIcon secondary />}
+              count={comments}
+              pressed={post.commented}
+              onClick={onComment}
+            />
+          </Tooltip>
+          {canAward && (
+            <Tooltip
+              content={isAwarded ? 'You already awarded this post!' : 'Award'}
+            >
+              <CardAction
+                id="award-post-btn"
+                label="Award"
+                color={ButtonColor.Cabbage}
+                icon={<MedalBadgeIcon secondary />}
+                iconPressed={<MedalBadgeIcon />}
+                count={awards}
+                pressed={isAwarded}
+                onClick={onGiveAward}
+              />
+            </Tooltip>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1">
+          <BookmarkButton
+            post={post}
+            iconSize={IconSize.Small}
+            buttonProps={{
+              id: 'bookmark-post-btn',
+              pressed: post.bookmarked,
+              onClick: onToggleBookmark,
+              size: ButtonSize.Medium,
+            }}
+          />
+          <Tooltip content="Copy link">
+            <CardAction
+              label="Copy link"
+              color={ButtonColor.Cabbage}
+              icon={<LinkIcon />}
+              onClick={() => onCopyLinkClick?.(post)}
+            />
+          </Tooltip>
+          {post.clickbaitTitleDetected && (
+            <PostClickbaitShield post={post} iconOnly />
+          )}
+          {canSeeAnalytics && (
+            <Tooltip content="Analytics">
+              <CardAction
+                label="Analytics"
+                icon={<AnalyticsIcon />}
+                href={`${webappUrl}posts/${post.id}/analytics`}
+              />
+            </Tooltip>
+          )}
+          <PostMenuOptions
+            post={post}
+            origin={Origin.ArticleModal}
+            buttonSize={ButtonSize.Medium}
+          />
+          {isStuck && onClose && (
+            <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
