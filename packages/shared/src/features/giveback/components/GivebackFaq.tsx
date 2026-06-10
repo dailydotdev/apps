@@ -9,6 +9,8 @@ import {
 } from '../../../components/typography/Typography';
 import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { GivebackSection } from './GivebackSection';
 
 interface FaqItem {
@@ -63,7 +65,15 @@ const faqs: FaqItem[] = [
 ];
 
 export const GivebackFaq = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const [openId, setOpenId] = useState<string | null>(faqs[0].id);
+
+  const toggle = (id: string, isOpen: boolean) => {
+    if (!isOpen) {
+      logEvent({ event_name: LogEvent.ClickGivebackFaq, target_id: id });
+    }
+    setOpenId(isOpen ? null : id);
+  };
 
   return (
     <GivebackSection id="giveback-faq" title="Frequently asked questions">
@@ -76,7 +86,7 @@ export const GivebackFaq = (): ReactElement => {
               <button
                 type="button"
                 aria-expanded={isOpen}
-                onClick={() => setOpenId(isOpen ? null : faq.id)}
+                onClick={() => toggle(faq.id, isOpen)}
                 className="group flex w-full items-center justify-between gap-4 py-4 text-left"
               >
                 <Typography

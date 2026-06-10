@@ -3,10 +3,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { GivebackCampaignPanel } from './GivebackCampaignPanel';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import type { ContributionCause } from '../types';
 
 jest.mock('../hooks/useContributionStatus');
 jest.mock('../hooks/useContributionCausePicker');
+jest.mock('../../../contexts/LogContext');
 jest.mock('./GivebackEditCausesModal', () => ({
   GivebackEditCausesModal: (): JSX.Element => (
     <div role="dialog">Edit your causes</div>
@@ -19,6 +22,8 @@ const mockStatus = useContributionStatus as jest.MockedFunction<
 const mockPicker = useContributionCausePicker as jest.MockedFunction<
   typeof useContributionCausePicker
 >;
+const mockLog = useLogContext as jest.MockedFunction<typeof useLogContext>;
+const logEvent = jest.fn();
 
 const cause = (id: string, title: string): ContributionCause => ({
   id,
@@ -31,6 +36,9 @@ const cause = (id: string, title: string): ContributionCause => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockLog.mockReturnValue({ logEvent } as unknown as ReturnType<
+    typeof useLogContext
+  >);
   mockStatus.mockReturnValue({
     status: {
       enabled: true,
@@ -66,13 +74,17 @@ it('lists only the picked causes', () => {
   expect(screen.queryByText('Code Scholarships')).not.toBeInTheDocument();
 });
 
-it('opens the edit modal from the causes section', () => {
+it('opens the edit modal and logs it', () => {
   render(<GivebackCampaignPanel />);
 
   fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   expect(screen.getByRole('dialog')).toBeInTheDocument();
   expect(screen.getByText('Edit your causes')).toBeInTheDocument();
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.ClickGivebackEditCauses,
+    extra: JSON.stringify({ has_causes: true }),
+  });
 });
 
 it('expands an FAQ answer on click', () => {
@@ -87,6 +99,10 @@ it('expands an FAQ answer on click', () => {
   fireEvent.click(question);
 
   expect(question).toHaveAttribute('aria-expanded', 'true');
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.ClickGivebackFaq,
+    target_id: 'causes',
+  });
 });
 
 it('prompts to pick causes when none are selected', () => {

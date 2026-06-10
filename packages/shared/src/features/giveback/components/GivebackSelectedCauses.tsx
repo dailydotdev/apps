@@ -15,6 +15,8 @@ import { EditIcon, OpenLinkIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
 import { GivebackSection } from './GivebackSection';
 import { CauseEmblem } from './CauseEmblem';
@@ -24,6 +26,7 @@ import { GivebackEditCausesModal } from './GivebackEditCausesModal';
 // picked, with a quick action to open the picker and edit. Editing lives here
 // now instead of a gear button in the tab bar.
 export const GivebackSelectedCauses = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const { causes, selectedCauseIds } = useContributionCausePicker(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -32,6 +35,17 @@ export const GivebackSelectedCauses = (): ReactElement => {
   const selectedCauses = causes
     .map((cause, index) => ({ cause, index }))
     .filter(({ cause }) => selectedCauseIds.includes(cause.id));
+
+  const openEdit = () => {
+    logEvent({
+      event_name: LogEvent.ClickGivebackEditCauses,
+      extra: JSON.stringify({ has_causes: selectedCauses.length > 0 }),
+    });
+    setIsEditOpen(true);
+  };
+
+  const onCauseClick = (causeId: string) =>
+    logEvent({ event_name: LogEvent.ClickGivebackCause, target_id: causeId });
 
   return (
     <GivebackSection
@@ -73,6 +87,7 @@ export const GivebackSelectedCauses = (): ReactElement => {
                     target="_blank"
                     rel={anchorDefaultRel}
                     aria-label={`Learn more about ${cause.title}`}
+                    onClick={() => onCauseClick(cause.id)}
                     className="flex size-8 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                   >
                     <OpenLinkIcon size={IconSize.Small} />
@@ -87,7 +102,7 @@ export const GivebackSelectedCauses = (): ReactElement => {
               size={ButtonSize.Small}
               variant={ButtonVariant.Float}
               icon={<EditIcon />}
-              onClick={() => setIsEditOpen(true)}
+              onClick={openEdit}
             >
               Edit
             </Button>
@@ -107,7 +122,7 @@ export const GivebackSelectedCauses = (): ReactElement => {
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
             icon={<EditIcon />}
-            onClick={() => setIsEditOpen(true)}
+            onClick={openEdit}
           >
             Pick your causes
           </Button>
