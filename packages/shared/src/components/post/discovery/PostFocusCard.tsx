@@ -203,7 +203,7 @@ export const PostFocusCard = ({
       className="flex w-full flex-col rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
-      <div className="flex flex-col px-2 tablet:px-6 laptop:px-8">
+      <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
