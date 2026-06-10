@@ -17,6 +17,7 @@ import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
 import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
+import { GivebackCampaignPanel } from './GivebackCampaignPanel';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -177,23 +178,7 @@ export const GivebackPage = (): ReactElement => {
               {activeTab === 'impact' && (
                 <GivebackImpactPanel onTakeAction={goToActions} />
               )}
-              {activeTab === 'why' && (
-                <FlexCol className="min-h-[40vh] items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary p-10 text-center">
-                  <Typography
-                    tag={TypographyTag.H2}
-                    type={TypographyType.Title3}
-                    bold
-                  >
-                    {activeLabel}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Tertiary}
-                  >
-                    Coming soon
-                  </Typography>
-                </FlexCol>
-              )}
+              {activeTab === 'why' && <GivebackCampaignPanel />}
             </div>
           </div>
         )}

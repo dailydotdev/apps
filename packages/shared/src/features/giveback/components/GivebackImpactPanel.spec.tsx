@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useContributionSponsors } from '../hooks/useContributionSponsors';
@@ -7,6 +7,8 @@ import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
 import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
 import { useClaimContributionReward } from '../hooks/useClaimContributionReward';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { ContributionRewardType, type ContributionRewardTier } from '../types';
 
 jest.mock('../hooks/useContributionStatus');
@@ -15,6 +17,7 @@ jest.mock('../hooks/useGivebackContribution');
 jest.mock('../hooks/useContributionRewards');
 jest.mock('../hooks/useContributionUserRewards');
 jest.mock('../hooks/useClaimContributionReward');
+jest.mock('../../../contexts/LogContext');
 
 // Resolve the reveal/count-up animations synchronously so assertions read final
 // values, not mid-animation frames.
@@ -41,6 +44,8 @@ const mockUserRewards = useContributionUserRewards as jest.MockedFunction<
 const mockClaim = useClaimContributionReward as jest.MockedFunction<
   typeof useClaimContributionReward
 >;
+const mockLog = useLogContext as jest.MockedFunction<typeof useLogContext>;
+const logEvent = jest.fn();
 
 const tiers: ContributionRewardTier[] = [
   {
@@ -93,7 +98,13 @@ beforeEach(() => {
   });
   mockRewards.mockReturnValue({ rewardTiers: tiers, isPending: false });
   mockUserRewards.mockReturnValue({ claimedRewardIds: [], isPending: false });
-  mockClaim.mockReturnValue({ claim: jest.fn(), isPending: false });
+  mockClaim.mockReturnValue({
+    claim: jest.fn().mockResolvedValue(undefined),
+    isPending: false,
+  });
+  mockLog.mockReturnValue({ logEvent } as unknown as ReturnType<
+    typeof useLogContext
+  >);
 });
 
 it('renders the funding progress section with live totals', () => {
@@ -116,12 +127,26 @@ it('renders the reward-ladder journey with the current level', () => {
   expect(screen.getByText('$60 to go')).toBeInTheDocument();
 });
 
-it('offers a claim for an unlocked, unclaimed tier', () => {
+it('offers a claim for an unlocked, unclaimed tier and logs it', async () => {
   render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   // The $25 tier is reached at $40 and not yet claimed.
-  expect(screen.getByRole('button', { name: 'Claim' })).toBeInTheDocument();
+  const claimButton = screen.getByRole('button', { name: 'Claim' });
+  expect(claimButton).toBeInTheDocument();
   expect(screen.getByText(/ready to claim/)).toBeInTheDocument();
+
+  await act(async () => {
+    fireEvent.click(claimButton);
+  });
+
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.ClaimGivebackReward,
+    target_id: 't1',
+    extra: JSON.stringify({
+      reward_type: ContributionRewardType.Custom,
+      threshold: 25,
+    }),
+  });
 });
 
 it('shows an empty journey when no reward tiers exist', () => {
