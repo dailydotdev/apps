@@ -23,6 +23,7 @@ import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/card
 import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import type { PopularHotTakes } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
 import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -186,6 +187,7 @@ const LeaderboardPage = ({
           />
         </div>
       </PageWrapperLayout>
+      <PublicPageSignupBanner />
     </>
   );
 };
