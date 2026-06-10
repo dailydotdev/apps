@@ -173,6 +173,10 @@ export const SOURCES_BY_TAG_QUERY = gql`
       edges {
         node {
           ...SourceDirectoryInfo
+          membersCount
+          flags {
+            totalUpvotes
+          }
         }
       }
     }
