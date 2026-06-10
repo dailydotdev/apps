@@ -92,6 +92,10 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'reader_modal') {
       return { value: false, isLoading: false };
     }
+    // Exercise the post-page feed with the flag enabled; its default is off.
+    if (args?.feature?.id === 'post_page_feed') {
+      return { value: true, isLoading: false };
+    }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
 }));
