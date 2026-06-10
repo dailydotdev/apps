@@ -19,9 +19,8 @@ import { Typography, TypographyType } from '../typography/Typography';
 import { StreakPopover } from './StreakPopover';
 
 const slotClass =
-  'focus-outline flex w-full items-center justify-center gap-1.5 py-2.5 text-text-primary transition-colors hover:bg-surface-hover';
+  'focus-outline flex w-full flex-col items-center justify-center gap-0.5 rounded-12 py-2 text-text-primary transition-colors hover:bg-surface-hover';
 const iconBoxClass = 'flex size-5 shrink-0 items-center justify-center';
-const dividerClass = 'h-px w-full bg-border-subtlest-quaternary';
 
 type RailSlotProps = {
   ariaLabel: string;
@@ -155,7 +154,6 @@ export const SidebarRailStats = (): ReactElement | null => {
               placement="right"
             />
           )}
-          <span aria-hidden className={dividerClass} />
         </>
       )}
       <Tooltip side="right" content="Reputation">
@@ -176,7 +174,6 @@ export const SidebarRailStats = (): ReactElement | null => {
           />
         </div>
       </Tooltip>
-      <span aria-hidden className={dividerClass} />
       <Tooltip
         side="right"
         content={

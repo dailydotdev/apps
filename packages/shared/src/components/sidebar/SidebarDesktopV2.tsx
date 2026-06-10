@@ -885,14 +885,10 @@ export const SidebarDesktopV2 = ({
             <SidebarSupportButton />
           </div>
           {isLoggedIn && (
-            <div className="flex w-full flex-col items-stretch overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+            <div className="flex w-full flex-col items-stretch gap-1">
               <SidebarRailStats />
               {user && (
                 <>
-                  <span
-                    aria-hidden
-                    className="h-px w-full bg-border-subtlest-quaternary"
-                  />
                   <RailHoverCard
                     label="Profile"
                     panel={renderCategorySection(SidebarCategory.Profile)}
@@ -914,7 +910,7 @@ export const SidebarDesktopV2 = ({
                         onPrefetchCategory(SidebarCategory.Profile)
                       }
                       className={classNames(
-                        'focus-outline flex w-full items-center justify-center py-2.5 transition-colors hover:bg-surface-hover',
+                        'focus-outline flex w-full items-center justify-center rounded-12 py-2 transition-colors hover:bg-surface-hover',
                         isProfileSelected && 'bg-surface-hover',
                       )}
                     >
