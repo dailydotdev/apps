@@ -126,6 +126,7 @@ const LeaderboardDetailPage = ({
               isLoading={isLoading}
               concatScore={concatScore}
               showLevel={isLevelLeaderboard}
+              leaderboardType={leaderboardType}
             />
           )}
         </div>
