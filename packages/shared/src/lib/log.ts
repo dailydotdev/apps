@@ -504,6 +504,7 @@ export enum LogEvent {
   SubmitGivebackAction = 'submit giveback action',
   SubmitGivebackActionError = 'submit giveback action error',
   ClickGivebackLoveAction = 'click giveback love action',
+  ClickGivebackImpactCause = 'click giveback impact cause',
 }
 
 export enum TargetType {

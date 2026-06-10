@@ -111,6 +111,44 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
   }
 `;
 
+// The Impact tab's personal recap in one request: where the visitor's funding
+// landed (per-cause, finalized payments only) and the rewards they've claimed.
+// Both are user-scoped and backend-gated, so this only fires once onboarded.
+export const CONTRIBUTION_IMPACT_QUERY = `
+  query ContributionImpact($first: Int) {
+    userContributionCauseStats(first: $first) {
+      edges {
+        node {
+          cause {
+            id
+            title
+            url
+            description
+            category
+            logoUrl
+          }
+          points
+          amountCents
+        }
+      }
+    }
+    userContributionRewards(first: $first) {
+      edges {
+        node {
+          tier {
+            id
+            title
+            thresholdPoints
+          }
+          status
+          claimedAt
+          fulfilledAt
+        }
+      }
+    }
+  }
+`;
+
 export const SUBMIT_CONTRIBUTION_ACTION_MUTATION = `
   mutation SubmitContributionAction($input: SubmitContributionActionInput!) {
     submitContributionAction(input: $input) {

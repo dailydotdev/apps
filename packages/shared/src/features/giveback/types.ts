@@ -77,6 +77,28 @@ export interface ContributionSubmission {
   reviewedAt: string | null;
 }
 
+// The visitor's own funding broken down per cause. Reflects only finalized
+// payments, so it stays empty until a contribution has been processed.
+export interface ContributionCauseStat {
+  cause: ContributionCause;
+  points: number;
+  amountCents: number;
+}
+
+// A reward the visitor has unlocked and claimed. `fulfilled` once it's been
+// delivered; `claimedAt`/`fulfilledAt` timestamp each step.
+export enum UserContributionRewardStatus {
+  Claimed = 'claimed',
+  Fulfilled = 'fulfilled',
+}
+
+export interface UserContributionReward {
+  tier: ContributionRewardTier;
+  status: UserContributionRewardStatus;
+  claimedAt: string | null;
+  fulfilledAt: string | null;
+}
+
 // What the action reads as on the catalog (which surface it lives on) plus the
 // optional how-to and outbound link. `isLoveAction` marks a voluntary
 // thank-you that carries no points and skips the proof flow.

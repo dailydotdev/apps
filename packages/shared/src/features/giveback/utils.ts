@@ -12,6 +12,18 @@ export const formatDonationAmount = (
     maximumFractionDigits: 0,
   }).format(amount);
 
+// Finalized funding figures come back in cents. Keep the cents only when the
+// amount isn't whole dollars, so "$12" stays clean but "$12.50" reads exactly.
+export const formatDonationAmountCents = (
+  amountCents: number,
+  currency = GIVEBACK_CURRENCY,
+): string =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
+  }).format(amountCents / 100);
+
 export const getGoalProgressPercentage = (
   raised: number,
   goal: number,
