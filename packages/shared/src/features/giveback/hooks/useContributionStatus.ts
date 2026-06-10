@@ -1,9 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { gqlClient } from '../../../graphql/common';
-import { disabledRefetch } from '../../../lib/func';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { CONTRIBUTION_STATUS_QUERY } from '../graphql';
+import { useContributionOverview } from './useContributionOverview';
 import type { ContributionStatus } from '../types';
 
 interface UseContributionStatus {
@@ -11,25 +6,11 @@ interface UseContributionStatus {
   isPending: boolean;
 }
 
-// Public query: campaign-wide numbers come back for everyone, while the
-// user-specific fields (`eligible`, `userPoints`) are null until the visitor
-// signs in. Keyed by user so signing in/out refetches their own progress.
+// Campaign-wide numbers come back for everyone, while the user-specific fields
+// (`eligible`, `userPoints`) are null until the visitor signs in. Backed by the
+// shared overview query (see `useContributionOverview`).
 export const useContributionStatus = (): UseContributionStatus => {
-  const { user, isAuthReady } = useAuthContext();
+  const { data, isPending } = useContributionOverview();
 
-  const { data, isPending } = useQuery({
-    queryKey: generateQueryKey(RequestKey.ContributionStatus, user),
-    queryFn: async () => {
-      const res = await gqlClient.request<{
-        contributionStatus: ContributionStatus;
-      }>(CONTRIBUTION_STATUS_QUERY);
-
-      return res.contributionStatus;
-    },
-    enabled: isAuthReady,
-    staleTime: StaleTime.Default,
-    ...disabledRefetch,
-  });
-
-  return { status: data, isPending };
+  return { status: data?.contributionStatus, isPending };
 };

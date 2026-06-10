@@ -33,3 +33,14 @@ export interface ContributionSponsor {
   logoUrl: string | null;
   tier: ContributionSponsorTier;
 }
+
+// A nonprofit a contributor can direct their actions toward. Picked during the
+// join flow and editable later.
+export interface ContributionCause {
+  id: string;
+  title: string;
+  url: string | null;
+  description: string | null;
+  category: string | null;
+  logoUrl: string | null;
+}
