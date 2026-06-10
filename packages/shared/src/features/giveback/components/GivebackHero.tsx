@@ -13,7 +13,7 @@ import { GivebackCampaignVideo } from './GivebackCampaignVideo';
 import { GivebackFundingSummary } from './GivebackFundingSummary';
 
 interface GivebackHeroProps {
-  // Holds the CTA in a loading state until the onboarding status is known.
+  // Holds the CTA empty until the onboarding status is known.
   isResolving: boolean;
   // True once the visitor has confirmed causes: the CTA becomes "Take action".
   hasSelectedCauses: boolean;

@@ -21,8 +21,8 @@ import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent } from '../../../lib/log';
 
 interface GivebackStartPanelProps {
-  // While we're still loading whether the visitor has causes, the CTA stays in
-  // a loading state so its copy doesn't flip after the data lands.
+  // While we're still loading whether the visitor has causes, the CTA renders
+  // empty so its copy doesn't flip after the data lands.
   isResolving: boolean;
   // True once the visitor has confirmed causes: the CTA becomes "Take action".
   hasSelectedCauses: boolean;

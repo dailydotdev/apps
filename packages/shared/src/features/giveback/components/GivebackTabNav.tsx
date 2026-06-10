@@ -22,10 +22,8 @@ interface GivebackTabNavProps {
 
 // Sticky section nav for the onboarded experience. Spans the full content width
 // with a glass background, then re-centers the shared bordered TabList to the
-// page column. Rendered full-bleed (`w-full` of the content area, not
-// `w-screen`) so it never overflows or misaligns next to the app sidebar, and
-// outside any animated reveal wrapper so `sticky` pins to the viewport rather
-// than a transformed ancestor.
+// page column. Full-bleed via `w-full` of the content area (not `w-screen`) so
+// it never overflows or misaligns next to the app sidebar.
 export const GivebackTabNav = ({
   activeTab,
   onSelect,

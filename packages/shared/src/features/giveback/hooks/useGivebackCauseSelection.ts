@@ -18,8 +18,8 @@ interface UseGivebackCauseSelection {
   isSaving: boolean;
 }
 
-// Owns the cause-picker selection so the grid and the sticky continue bar (which
-// lives at the page root, outside the grid's animated wrapper) share one state.
+// Owns the cause-picker selection so the grid and the sticky continue bar
+// (rendered at the page root for its sticky-bottom positioning) share one state.
 export const useGivebackCauseSelection = (
   enabled: boolean,
 ): UseGivebackCauseSelection => {
