@@ -5,25 +5,31 @@ import type { Squad } from '../../graphql/sources';
 import { PinIcon, StarIcon } from '../icons';
 import type { IconSize } from '../Icon';
 import { useSquadFavorite } from '../../hooks/squads/useSquadFavorite';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 interface SquadFavoriteButtonProps {
   squad: Squad;
   className?: string;
   iconSize?: IconSize;
+  // v2 reframes "favorite" as "pin" (placed in the Home → Pinned section).
+  // Passed by the v2 callers so this shared button stays context-free.
+  asPin?: boolean;
 }
 
 export const SquadFavoriteButton = ({
   squad,
   className,
   iconSize,
+  asPin = false,
 }: SquadFavoriteButtonProps): ReactElement => {
   const { toggleFavorite, isPending } = useSquadFavorite();
-  const { isV2 } = useLayoutVariant();
   const isFavorited = !!squad.favoritedAt;
-  // v2 reframes "favorite" as "pin" (placed in the Home → Pinned section).
-  const Icon = isV2 ? PinIcon : StarIcon;
-  const verb = isV2 ? 'pin' : 'favorite';
+  const Icon = asPin ? PinIcon : StarIcon;
+  const label = (() => {
+    if (asPin) {
+      return isFavorited ? 'Unpin squad' : 'Pin squad';
+    }
+    return isFavorited ? 'Unfavorite squad' : 'Favorite squad';
+  })();
 
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -37,7 +43,7 @@ export const SquadFavoriteButton = ({
   return (
     <button
       type="button"
-      aria-label={`${isFavorited ? 'Un' : ''}${verb} squad`}
+      aria-label={label}
       aria-pressed={isFavorited}
       disabled={isPending}
       onClick={onClick}

@@ -37,7 +37,7 @@ export const PinnedSection = ({
           title: name,
           path: `${webappUrl}squads/${handle}`,
           itemClassName: 'group/squad-row',
-          rightIcon: () => <SquadFavoriteButton squad={squad} />,
+          rightIcon: () => <SquadFavoriteButton squad={squad} asPin />,
         };
       }),
     [pinnedSquads],
