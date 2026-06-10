@@ -73,7 +73,9 @@ export const PostDiscoveryLayout = ({
 
   return (
     <div className="flex w-full flex-col bg-background-default">
-      <div className="mx-auto flex w-full max-w-[82rem] flex-col gap-8 px-4 pb-6 pt-2 tablet:px-6 laptop:px-8 laptop:pb-8 laptopXL:max-w-[100rem]">
+      <div className="mx-auto flex w-full max-w-[82rem] flex-col gap-8 pb-6 pt-2 laptop:pb-8 laptopXL:max-w-[100rem]">
+        {/* The focus card owns its own horizontal padding (shared with the
+            post modal), so this wrapper must not add more or it doubles up. */}
         <div className="mx-auto w-full max-w-[82rem] laptopXL:max-w-[100rem]">
           <PostFocusCard
             leftVariant={leftVariant}
@@ -83,7 +85,7 @@ export const PostDiscoveryLayout = ({
         </div>
 
         {!user && (
-          <div className="w-full">
+          <div className="w-full px-4 tablet:px-6 laptop:px-8">
             <PostDiscoverySignupHero post={post} />
           </div>
         )}
