@@ -21,6 +21,7 @@ import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -170,6 +171,7 @@ export default function ProfileLayout({
           )}
         </aside>
       </div>
+      <PublicPageSignupBanner />
     </div>
   );
 }
