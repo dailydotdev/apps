@@ -16,7 +16,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReadingStreakIcon, ReputationIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
-import { StreakPopover } from './SidebarHeaderStats';
+import { StreakPopover } from './StreakPopover';
 
 const slotClass =
   'focus-outline flex w-full items-center justify-center gap-1 py-1.5 text-text-primary transition-colors hover:bg-surface-hover';
@@ -84,10 +84,10 @@ const RailSlot = ({
   );
 };
 
-// Compact streak / reputation / cores cluster pinned to the always-visible
-// desktop rail (vertical sibling of the panel's `SidebarHeaderStats`). Keeps
-// the loved gamification signals at a glance regardless of whether the
-// context panel is collapsed or which category is selected.
+// Compact streak / reputation / cores cluster pinned to the bottom of the
+// always-visible desktop rail. Keeps the loved gamification signals at a
+// glance regardless of whether the context panel is collapsed or which
+// category is selected.
 export const SidebarRailStats = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();

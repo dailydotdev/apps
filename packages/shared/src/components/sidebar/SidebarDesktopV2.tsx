@@ -61,7 +61,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { SidebarHeaderStats } from './SidebarHeaderStats';
 import { SidebarRailStats } from './SidebarRailStats';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
@@ -545,6 +544,7 @@ export const SidebarDesktopV2 = ({
     (category) => category.id === selectedCategory,
   )?.label;
   const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
+  const isProfileSelected = selectedCategory === SidebarCategory.Profile;
   const isNotificationsSelected =
     selectedCategory === SidebarCategory.Notifications;
   const isHomePanel = selectedCategory === SidebarCategory.Main;
@@ -589,7 +589,7 @@ export const SidebarDesktopV2 = ({
       )}
       <nav
         aria-label="Primary navigation"
-        className="flex h-dvh min-h-dvh w-20 shrink-0 flex-col items-center gap-1 px-2 pb-3 pt-6"
+        className="flex h-dvh min-h-dvh w-20 shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-6"
       >
         <Tooltip
           side="right"
@@ -646,7 +646,8 @@ export const SidebarDesktopV2 = ({
           className="flex w-full flex-col items-center gap-1"
         >
           {sidebarCategories.map((category) => {
-            if (category.id === SidebarCategory.Profile && !isLoggedIn) {
+            // Profile lives at the bottom of the rail as the avatar button.
+            if (category.id === SidebarCategory.Profile) {
               return null;
             }
 
@@ -675,11 +676,6 @@ export const SidebarDesktopV2 = ({
                   label={category.label}
                   panel={renderCategorySection(category.id)}
                   enabled={!isExpanded}
-                  alignOffset={
-                    category.id === SidebarCategory.Profile
-                      ? RAIL_HOVER_PROFILE_ALIGN_OFFSET
-                      : undefined
-                  }
                 >
                   <button
                     type="button"
@@ -736,7 +732,6 @@ export const SidebarDesktopV2 = ({
         </div>
 
         <div className="mt-auto flex w-full flex-col items-center gap-2">
-          {isLoggedIn && <SidebarRailStats />}
           <div
             role="tablist"
             aria-label="Sidebar utilities"
@@ -777,7 +772,42 @@ export const SidebarDesktopV2 = ({
                 </a>
               </Link>
             </RailHoverCard>
+
+            {isLoggedIn && user && (
+              <RailHoverCard
+                label="Profile"
+                panel={renderCategorySection(SidebarCategory.Profile)}
+                enabled={!isExpanded}
+                alignOffset={RAIL_HOVER_PROFILE_ALIGN_OFFSET}
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  id={`sidebar-category-${SidebarCategory.Profile}`}
+                  aria-controls="sidebar-context-panel"
+                  aria-label="Profile"
+                  aria-selected={isProfileSelected}
+                  onClick={() => onSelectCategory(SidebarCategory.Profile)}
+                  onMouseEnter={() =>
+                    onPrefetchCategory(SidebarCategory.Profile)
+                  }
+                  onFocus={() => onPrefetchCategory(SidebarCategory.Profile)}
+                  className={classNames(
+                    railButtonClass,
+                    isProfileSelected &&
+                      'bg-background-default !text-text-primary',
+                  )}
+                >
+                  <ProfilePicture
+                    user={user}
+                    size={ProfileImageSize.Medium}
+                    nativeLazyLoading
+                  />
+                </button>
+              </RailHoverCard>
+            )}
           </div>
+          {isLoggedIn && <SidebarRailStats />}
         </div>
       </nav>
 
@@ -841,45 +871,10 @@ export const SidebarDesktopV2 = ({
         )}
       >
         {isHomePanel ? (
-          <div
-            className={classNames('pb-2', isLoggedIn && user ? 'pt-7' : 'pt-6')}
-          >
+          <div className="pb-2 pt-6">
             {isLoggedIn && user ? (
-              <section aria-label="Your profile" className="flex flex-col">
+              <section aria-label="Quick actions" className="flex flex-col">
                 <div className="px-3">
-                  <Link href={`${webappUrl}${user.username}`} passHref>
-                    <a className="focus-outline inline-flex w-fit max-w-full items-center gap-3 text-text-primary">
-                      <ProfilePicture
-                        user={user}
-                        size={ProfileImageSize.Medium}
-                        nativeLazyLoading
-                      />
-                      <span className="flex min-w-0 flex-col">
-                        <Typography
-                          bold
-                          truncate
-                          type={TypographyType.Subhead}
-                          className="min-w-0 leading-none hover:underline"
-                        >
-                          {user.name ?? user.username}
-                        </Typography>
-                        {user.username && (
-                          <Typography
-                            truncate
-                            type={TypographyType.Caption1}
-                            className="mt-0.5 min-w-0 leading-none text-text-tertiary"
-                          >
-                            @{user.username}
-                          </Typography>
-                        )}
-                      </span>
-                    </a>
-                  </Link>
-                </div>
-                <div className="mt-4 px-3">
-                  <SidebarHeaderStats />
-                </div>
-                <div className="mt-3 px-3">
                   <CreatePostButton
                     compact={false}
                     showIcon
