@@ -38,10 +38,13 @@ import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
+  AnalyticsIcon,
   BellIcon,
   BookmarkIcon,
+  DevCardIcon,
   FeedbackIcon,
   HomeIcon,
+  JobIcon,
   MenuIcon,
   MoonIcon,
   PlusIcon,
@@ -75,6 +78,8 @@ import InteractivePopup, {
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
 import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
+import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
+import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -138,7 +143,6 @@ const settingsDefaultPath = `${settingsUrl}/profile`;
 const RAIL_HOVER_OPEN_DELAY = 300;
 const RAIL_HOVER_CLOSE_DELAY = 120;
 const RAIL_HOVER_SIDE_OFFSET = 12;
-const RAIL_HOVER_PROFILE_ALIGN_OFFSET = -304;
 // The shared Tooltip primitive bakes in `collisionPadding={{ top: 75 }}` —
 // a leftover from the global-header layout. With the dual-sidebar there's
 // no top chrome to clip against, so a snug override re-centers tooltips
@@ -299,6 +303,65 @@ const SidebarSupportButton = (): ReactElement => {
   );
 };
 
+// Slack-style profile menu anchored to the bottom rail avatar. Replaces the
+// old Profile sidebar panel. Cores wallet is intentionally omitted — the
+// rail stats cluster already links there.
+const SidebarProfileButton = (): ReactElement | null => {
+  const { user } = useAuthContext();
+  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
+
+  if (!user) {
+    return null;
+  }
+
+  const items: ProfileSectionItemProps[] = [
+    {
+      title: 'Your profile',
+      href: `${webappUrl}${user.username}`,
+      icon: UserIcon,
+    },
+    { title: 'Analytics', href: `${webappUrl}analytics`, icon: AnalyticsIcon },
+    { title: 'Jobs', href: `${webappUrl}jobs`, icon: JobIcon },
+    { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
+    {
+      title: 'DevCard',
+      href: `${settingsUrl}/customization/devcard`,
+      icon: DevCardIcon,
+    },
+  ];
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Open profile menu"
+        aria-expanded={isOpen}
+        onClick={wrapHandler(() => onUpdate(!isOpen))}
+        className={classNames(
+          'focus-outline flex w-full items-center justify-center rounded-12 py-2 transition-colors hover:bg-surface-hover',
+          isOpen && 'bg-surface-hover',
+        )}
+      >
+        <ProfilePicture
+          user={user}
+          size={ProfileImageSize.Medium}
+          nativeLazyLoading
+        />
+      </button>
+      {isOpen && (
+        <InteractivePopup
+          closeOutsideClick
+          onClose={() => onUpdate(false)}
+          position={InteractivePopupPosition.SidebarProfileMenu}
+          className="flex w-60 flex-col !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-2"
+        >
+          <ProfileMenuSection items={items} />
+        </InteractivePopup>
+      )}
+    </>
+  );
+};
+
 type SidebarDesktopV2Props = {
   activePage?: string;
   featureTheme?: {
@@ -380,27 +443,26 @@ export const SidebarDesktopV2 = ({
       ].filter(Boolean) as SidebarCategoryId[],
     [isLoggedIn],
   );
-  // Home, Squads, the Settings/More anchor and (logged-in) New post never fold.
-  const fixedNavSlots = 3 + (isLoggedIn ? 1 : 0);
+  // Home, Squads and (logged-in) New post never fold. The 3-dots "More"
+  // button only appears when something overflows, so it costs a slot then.
+  const fixedNavSlots = 2 + (isLoggedIn ? 1 : 0);
   const isNavOverflowing = maxNavSlots < fixedNavSlots + overflowOrder.length;
   const visibleOverflowCount = isNavOverflowing
-    ? Math.max(0, Math.min(overflowOrder.length, maxNavSlots - fixedNavSlots))
+    ? Math.max(
+        0,
+        Math.min(overflowOrder.length, maxNavSlots - fixedNavSlots - 1),
+      )
     : overflowOrder.length;
   const foldedNavIds = overflowOrder.slice(visibleOverflowCount);
   const activePage = activePageProp || router.asPath || router.pathname || '';
-  const isUserProfileActive =
-    !!user?.username && activePage.includes(`/${user.username}`);
   const isFeedPage = activePage.includes('/feeds/');
 
   const resolvedCategory = useMemo((): SidebarCategoryId => {
     if (isFeedPage) {
       return SidebarCategory.Main;
     }
-    if (isUserProfileActive) {
-      return SidebarCategory.Profile;
-    }
     return getSidebarCategoryForPath(activePage);
-  }, [activePage, isFeedPage, isUserProfileActive]);
+  }, [activePage, isFeedPage]);
 
   // Optimistic override so a rail click feels instant even when
   // router.push is async. Cleared once the URL catches up.
@@ -652,12 +714,6 @@ export const SidebarDesktopV2 = ({
         icon: category?.icon(false) ?? null,
       };
     });
-    rows.push({
-      key: SidebarCategory.Settings,
-      label: 'Settings',
-      href: settingsDefaultPath,
-      icon: <SettingsIcon size={IconSize.Small} aria-hidden />,
-    });
     return (
       <div className="flex flex-col gap-0.5 p-2">
         {rows.map((row) => (
@@ -680,7 +736,6 @@ export const SidebarDesktopV2 = ({
   const selectedLabel = sidebarCategories.find(
     (category) => category.id === selectedCategory,
   )?.label;
-  const isProfileSelected = selectedCategory === SidebarCategory.Profile;
   const isNotificationsSelected =
     selectedCategory === SidebarCategory.Notifications;
   const isHomePanel = selectedCategory === SidebarCategory.Main;
@@ -824,7 +879,7 @@ export const SidebarDesktopV2 = ({
             </Tooltip>
           )}
 
-          {isNavOverflowing ? (
+          {isNavOverflowing && (
             <RailHoverCard label="More" panel={renderMorePanel()}>
               <button
                 type="button"
@@ -837,44 +892,6 @@ export const SidebarDesktopV2 = ({
                 </span>
                 {!isCompact && <span className={railTabLabelClass}>More</span>}
               </button>
-            </RailHoverCard>
-          ) : (
-            <RailHoverCard
-              label="Settings"
-              panel={renderCategorySection(SidebarCategory.Settings)}
-              enabled={!isExpanded}
-            >
-              <Link href={settingsDefaultPath} passHref>
-                <a
-                  href={settingsDefaultPath}
-                  role="tab"
-                  id={`sidebar-category-${SidebarCategory.Settings}`}
-                  aria-controls="sidebar-context-panel"
-                  aria-selected={isSettingsSelected}
-                  aria-label="Settings"
-                  className={classNames(
-                    railTabClass,
-                    isSettingsSelected &&
-                      'bg-background-default !text-text-primary',
-                  )}
-                  onClick={() => onSelectCategory(SidebarCategory.Settings)}
-                  onMouseEnter={() =>
-                    onPrefetchCategory(SidebarCategory.Settings)
-                  }
-                  onFocus={() => onPrefetchCategory(SidebarCategory.Settings)}
-                >
-                  <span className="relative flex items-center justify-center">
-                    <SettingsIcon
-                      secondary={isSettingsSelected}
-                      size={IconSize.Small}
-                      aria-hidden
-                    />
-                  </span>
-                  {!isCompact && (
-                    <span className={railTabLabelClass}>Settings</span>
-                  )}
-                </a>
-              </Link>
             </RailHoverCard>
           )}
         </div>
@@ -891,42 +908,7 @@ export const SidebarDesktopV2 = ({
           {isLoggedIn && (
             <div className="flex w-full flex-col items-stretch gap-1">
               <SidebarRailStats />
-              {user && (
-                <>
-                  <RailHoverCard
-                    label="Profile"
-                    panel={renderCategorySection(SidebarCategory.Profile)}
-                    enabled={!isExpanded}
-                    alignOffset={RAIL_HOVER_PROFILE_ALIGN_OFFSET}
-                  >
-                    <button
-                      type="button"
-                      role="tab"
-                      id={`sidebar-category-${SidebarCategory.Profile}`}
-                      aria-controls="sidebar-context-panel"
-                      aria-label="Profile"
-                      aria-selected={isProfileSelected}
-                      onClick={() => onSelectCategory(SidebarCategory.Profile)}
-                      onMouseEnter={() =>
-                        onPrefetchCategory(SidebarCategory.Profile)
-                      }
-                      onFocus={() =>
-                        onPrefetchCategory(SidebarCategory.Profile)
-                      }
-                      className={classNames(
-                        'focus-outline flex w-full items-center justify-center rounded-12 py-2 transition-colors hover:bg-surface-hover',
-                        isProfileSelected && 'bg-surface-hover',
-                      )}
-                    >
-                      <ProfilePicture
-                        user={user}
-                        size={ProfileImageSize.Medium}
-                        nativeLazyLoading
-                      />
-                    </button>
-                  </RailHoverCard>
-                </>
-              )}
+              <SidebarProfileButton />
             </div>
           )}
         </div>

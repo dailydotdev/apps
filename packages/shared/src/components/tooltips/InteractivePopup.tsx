@@ -25,6 +25,7 @@ export enum InteractivePopupPosition {
   ProfileMenu = 'profileMenu',
   Screen = 'screen',
   SidebarSupportMenu = 'sidebarSupportMenu',
+  SidebarProfileMenu = 'sidebarProfileMenu',
 }
 
 type CloseButtonProps = {
@@ -64,6 +65,7 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   profileMenu: classNames(profileMenuRightClass, 'top-14'),
   screen: 'inset-0 w-screen h-screen',
   sidebarSupportMenu: 'left-20 bottom-3 ml-2',
+  sidebarProfileMenu: 'left-20 bottom-3 ml-2',
 };
 
 const leftPositions = [
@@ -145,6 +147,7 @@ function InteractivePopup({
         >
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&
             finalPosition !== InteractivePopupPosition.SidebarSupportMenu &&
+            finalPosition !== InteractivePopupPosition.SidebarProfileMenu &&
             onClose && (
               <Button
                 size={buttonSize}

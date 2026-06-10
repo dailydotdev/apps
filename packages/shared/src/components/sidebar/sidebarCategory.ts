@@ -14,13 +14,6 @@ export const SidebarCategory = {
 export type SidebarCategoryId =
   (typeof SidebarCategory)[keyof typeof SidebarCategory];
 
-const profilePathFragments = [
-  '/analytics',
-  '/jobs',
-  '/settings/customization/devcard',
-  '/wallet',
-];
-
 export const getSidebarCategoryForPath = (
   activePage: string,
 ): SidebarCategoryId => {
@@ -46,9 +39,6 @@ export const getSidebarCategoryForPath = (
   }
   if (activePage.includes('/squads')) {
     return SidebarCategory.Squads;
-  }
-  if (profilePathFragments.some((path) => activePage.includes(path))) {
-    return SidebarCategory.Profile;
   }
   if (activePage.includes('/settings')) {
     return SidebarCategory.Settings;
