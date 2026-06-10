@@ -73,6 +73,9 @@ export const PostDiscoveryActionBar = ({
   // Detect when the sticky bar is pinned to the top so the X close button
   // (modal only) appears just for the stuck state.
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const copyLinkRef = useRef<HTMLDivElement>(null);
+  const analyticsRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
   useEffect(() => {
     const el = sentinelRef.current;
@@ -102,6 +105,52 @@ export const PostDiscoveryActionBar = ({
   const railOwnsHeader = isV2 && !!user;
   const stickyTopClassName =
     onClose || railOwnsHeader ? 'top-0' : 'top-0 laptop:top-16';
+
+  // Dynamically fold the lowest-priority utilities into the "…" menu (which
+  // already lists Share and Post analytics) whenever the bar would overflow,
+  // and bring them back inline when there is room again. Measured against the
+  // real available width — not breakpoints — so it reacts to page/modal
+  // resizing. Priority (first to fold): analytics, then copy/share.
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) {
+      return undefined;
+    }
+    const fit = () => {
+      const copyLink = copyLinkRef.current;
+      const analytics = analyticsRef.current;
+      // Show both first (inline display overrides the SSR fallback classes),
+      // then hide in priority order until the row stops overflowing.
+      if (copyLink) {
+        copyLink.style.display = 'flex';
+      }
+      if (analytics) {
+        analytics.style.display = 'flex';
+      }
+      const overflows = () => bar.scrollWidth > bar.clientWidth;
+      if (analytics && overflows()) {
+        analytics.style.display = 'none';
+      }
+      if (copyLink && overflows()) {
+        copyLink.style.display = 'none';
+      }
+    };
+    fit();
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new ResizeObserver(fit);
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, [
+    canSeeAnalytics,
+    upvotes,
+    comments,
+    awards,
+    canAward,
+    post.clickbaitTitleDetected,
+    post.bookmarked,
+  ]);
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
@@ -149,6 +198,7 @@ export const PostDiscoveryActionBar = ({
     <>
       <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
       <div
+        ref={barRef}
         className={classNames(
           // Static on mobile (no sticky), sticky from tablet up so the bar
           // never overlaps the small-screen reading flow.
@@ -229,12 +279,12 @@ export const PostDiscoveryActionBar = ({
               size: ButtonSize.Medium,
             }}
           />
-          {/* As the viewport narrows we fold the lowest-priority utilities into
-              the "…" menu (which already offers Share and Post analytics),
-              closest-to-the-menu first: analytics below laptop, then share/copy
-              below tablet. Bookmark stays — it is the primary save action and
-              is not in the menu. */}
-          <div className="hidden tablet:flex">
+          {/* Bookmark stays — it is the primary save action and is not in the
+              menu. Copy/share and analytics fold into the "…" menu when space
+              is tight (see the overflow effect); the `hidden tablet:flex` /
+              `hidden laptop:flex` classes are only the pre-measurement (SSR)
+              fallback — the effect overrides display once it measures. */}
+          <div ref={copyLinkRef} className="hidden tablet:flex">
             <Tooltip content="Copy link">
               <CardAction
                 label="Copy link"
@@ -248,7 +298,7 @@ export const PostDiscoveryActionBar = ({
             <PostClickbaitShield post={post} iconOnly />
           )}
           {canSeeAnalytics && (
-            <div className="hidden laptop:flex">
+            <div ref={analyticsRef} className="hidden laptop:flex">
               <Tooltip content="Analytics">
                 <CardAction
                   label="Analytics"
