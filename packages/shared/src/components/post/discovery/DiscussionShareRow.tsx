@@ -33,6 +33,7 @@ interface DiscussionShareRowProps {
 }
 
 const maxInlineSquads = 4;
+const mobileInlineSquads = 2;
 
 /**
  * Compact share row for the discussion panel. Surfaces the most-used quick
@@ -142,10 +143,15 @@ export const DiscussionShareRow = ({
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
-        {inlineSquads.map((squad) => (
+        {inlineSquads.map((squad, index) => (
           <Tooltip key={squad.id} content={`Share to @${squad.handle}`}>
             <Button
               aria-label={`Share to ${squad.name}`}
+              // Keep the row compact on mobile: only the first two squads
+              // show; the rest appear from tablet up.
+              className={
+                index >= mobileInlineSquads ? 'hidden tablet:flex' : undefined
+              }
               icon={
                 <SourceProfilePicture
                   source={squad}

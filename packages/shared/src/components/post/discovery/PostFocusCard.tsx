@@ -199,6 +199,25 @@ export const PostFocusCard = ({
     focusCommentRef.current();
   };
 
+  // Rendered in the header on tablet+ (next to Follow) but moved below the
+  // title on mobile, where the header row is too tight to hold both.
+  const renderReadButton = (className: string): ReactElement | null =>
+    readHref && !isInternalReadType(post) ? (
+      <Button
+        tag="a"
+        href={readHref}
+        target="_blank"
+        rel="noopener"
+        icon={getReadPostButtonIcon(post)}
+        onClick={onReadArticle}
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+        className={className}
+      >
+        {getReadPostButtonText(post)}
+      </Button>
+    ) : null;
+
   return (
     <article
       className="flex w-full flex-col rounded-24 bg-background-default"
@@ -240,21 +259,7 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            {readHref && !isInternalReadType(post) && (
-              <Button
-                tag="a"
-                href={readHref}
-                target="_blank"
-                rel="noopener"
-                icon={getReadPostButtonIcon(post)}
-                onClick={onReadArticle}
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                className="ml-auto shrink-0"
-              >
-                {getReadPostButtonText(post)}
-              </Button>
-            )}
+            {renderReadButton('ml-auto hidden shrink-0 tablet:flex')}
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
@@ -328,6 +333,7 @@ export const PostFocusCard = ({
                 </a>
               )}
             </div>
+            {renderReadButton('w-fit tablet:hidden')}
           </div>
 
           <PostDiscoveryActionBar
