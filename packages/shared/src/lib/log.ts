@@ -495,6 +495,15 @@ export enum LogEvent {
   // Giveback
   ClickJoinGiveback = 'click join giveback',
   ClickGivebackSponsor = 'click giveback sponsor',
+  SaveGivebackCauses = 'save giveback causes',
+  ClickGivebackTab = 'click giveback tab',
+  ClickGivebackTakeAction = 'click giveback take action',
+  FilterGivebackActions = 'filter giveback actions',
+  ClickGivebackShowMoreActions = 'click giveback show more actions',
+  OpenGivebackAction = 'open giveback action',
+  SubmitGivebackAction = 'submit giveback action',
+  SubmitGivebackActionError = 'submit giveback action error',
+  ClickGivebackLoveAction = 'click giveback love action',
 }
 
 export enum TargetType {

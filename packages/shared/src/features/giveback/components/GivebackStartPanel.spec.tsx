@@ -78,7 +78,10 @@ it('jumps onboarded visitors to the action tab without re-joining', () => {
 
   expect(onTakeAction).toHaveBeenCalled();
   expect(onJoin).not.toHaveBeenCalled();
-  expect(logEvent).not.toHaveBeenCalled();
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.ClickGivebackTakeAction,
+    extra: JSON.stringify({ origin: 'hero' }),
+  });
 });
 
 it('renders an empty CTA while resolving so its copy cannot flip mid-click', () => {
