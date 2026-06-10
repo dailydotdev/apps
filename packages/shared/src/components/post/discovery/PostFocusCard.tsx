@@ -308,7 +308,7 @@ export const PostFocusCard = ({
               </h1>
               {!isVideoType && article.image && (
                 <a
-                  className="block size-32 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:size-40"
+                  className="block h-fit w-32 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                   href={readHref}
                   onClick={handleImageClick}
                   rel="noopener"
@@ -317,11 +317,13 @@ export const PostFocusCard = ({
                 >
                   <LazyImage
                     eager
+                    // Square crop on mobile/tablet; laptop+ keeps the
+                    // original wide cover ratio (52% => 25/13).
+                    className="aspect-square w-full laptop:aspect-[25/13]"
                     fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                     fetchPriority="high"
                     imgAlt="Post cover image"
                     imgSrc={article.image}
-                    ratio="100%"
                   />
                 </a>
               )}
