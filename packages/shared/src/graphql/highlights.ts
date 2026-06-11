@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { Connection } from './common';
+import type { PostHighlightSignificance } from './types';
 import { ONE_MINUTE } from '../lib/time';
 
 export interface PostHighlight {
@@ -142,12 +143,6 @@ export const POST_HIGHLIGHTS_FEED_QUERY = gql`
   }
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
-
-export type PostHighlightSignificance =
-  | 'breaking'
-  | 'major'
-  | 'notable'
-  | 'routine';
 
 interface PostHighlightsFeedPageData {
   postHighlightsFeed: Connection<PostHighlightFeed>;

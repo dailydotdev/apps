@@ -22,6 +22,7 @@ import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
 import type { LiveRoomPost } from './liveRooms';
+import type { PostHero } from './types';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -236,17 +237,6 @@ export interface PostUserState {
   pollOption?: { id: string };
 }
 
-export type PostHighlightSignificance =
-  | 'breaking'
-  | 'major'
-  | 'notable'
-  | 'routine';
-
-export type PostHeroSignificance =
-  | PostHighlightSignificance
-  | 'breakout'
-  | 'evergreen';
-
 export interface Post {
   __typename?: string;
   id: string;
@@ -312,13 +302,6 @@ export interface Post {
   liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
   hero?: PostHero | null;
-}
-
-export interface PostHero {
-  id: string;
-  headline: string;
-  significance: PostHeroSignificance;
-  highlightedAt: string;
 }
 
 export type RelatedPost = Pick<

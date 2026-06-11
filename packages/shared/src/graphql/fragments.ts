@@ -700,6 +700,7 @@ export const FEED_POST_FRAGMENT = gql`
       id
       headline
       significance
+      size
       highlightedAt
     }
   }

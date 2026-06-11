@@ -17,8 +17,6 @@ import {
 } from '../../lib';
 import { ProfileSettingsMenuMobile } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
-import { GoBackButton } from '../post/GoBackHeaderMobile';
-import { useViewSize, ViewSize } from '../../hooks';
 import { FollowButton } from '../contentPreference/FollowButton';
 import {
   ContentPreferenceStatus,
@@ -46,6 +44,7 @@ import {
 } from '../../hooks/useCoresFeature';
 import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
+import { ProfileMobileBackButton } from './ProfileBackButton';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -69,7 +68,6 @@ export function Header({
     TargetId.ProfilePage,
   );
   const { openModal } = useLazyModal();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { follow, unfollow } = useContentPreference();
   const router = useRouter();
@@ -152,12 +150,7 @@ export function Header({
       style={style}
     >
       <>
-        {isMobile && (
-          <GoBackButton
-            showLogo={false}
-            className={!sticky ? 'mr-3' : undefined}
-          />
-        )}
+        <ProfileMobileBackButton className={!sticky ? 'mr-3' : undefined} />
         {sticky ? (
           <>
             <ProfilePicture

@@ -14,9 +14,9 @@ import type {
 } from '../graphql/posts';
 import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
-import { useViewSize, ViewSize } from '../hooks';
 import { FormWrapper } from '../components/fields/form';
 import type { SourcePostModeration } from '../graphql/squads';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 export interface WriteForm {
   title: string;

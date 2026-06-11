@@ -29,7 +29,7 @@ export const GoBackButton = ({
   showLogo = true,
 }: WithClassNameProps & {
   showLogo?: boolean;
-}): JSX.Element => {
+}): JSX.Element | null => {
   const router = useRouter();
   const goHome = useCallback(() => router.push('/'), [router]);
   const featureTheme = useFeatureTheme();
@@ -53,6 +53,8 @@ export const GoBackButton = ({
       variant={ButtonVariant.Tertiary}
       onClick={router.back}
       className={className}
+      type="button"
+      aria-label="Go back"
     />
   ) : (
     logoButton
@@ -62,7 +64,7 @@ export const GoBackButton = ({
 export function GoBackHeaderMobile({
   children,
   className,
-}: PropsWithChildren<WithClassNameProps>): ReactElement {
+}: PropsWithChildren<WithClassNameProps>): ReactElement | null {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const featureTheme = useFeatureTheme();
