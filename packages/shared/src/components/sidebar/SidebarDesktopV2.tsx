@@ -876,7 +876,7 @@ export const SidebarDesktopV2 = ({
                   compact
                   showIcon
                   size={ButtonSize.Small}
-                  className="!size-9 !rounded-12"
+                  className="!size-9 !rounded-12 [&_svg]:!size-5"
                 />
               </div>
             </Tooltip>
