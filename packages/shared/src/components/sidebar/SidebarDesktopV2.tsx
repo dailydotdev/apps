@@ -661,17 +661,16 @@ export const SidebarDesktopV2 = ({
         >
           <span className="relative flex items-center justify-center">
             {category.icon(isSelected)}
-            {category.id === SidebarCategory.GameCenter && showQuestBadge && (
-              // The quest level ring fills the full icon box, so straddle the
-              // badge over the top-right corner to keep the ring + level
-              // number visible underneath.
-              <Bubble className="right-0 top-0 -translate-y-1/2 translate-x-1/2 px-1">
-                {claimableQuestCount}
-              </Bubble>
-            )}
           </span>
           {!isCompact && (
             <span className={railTabLabelClass}>{category.label}</span>
+          )}
+          {category.id === SidebarCategory.GameCenter && showQuestBadge && (
+            // Pin the badge to the button's top-right corner (not the icon's)
+            // so the quest level ring + number stay fully visible.
+            <Bubble className="right-1 top-1 px-1">
+              {claimableQuestCount}
+            </Bubble>
           )}
         </button>
       </RailHoverCard>
