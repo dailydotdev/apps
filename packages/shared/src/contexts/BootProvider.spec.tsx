@@ -17,11 +17,13 @@ import SettingsContext, {
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import AlertContext from './AlertContext';
+import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
 import { UPDATE_ALERTS } from '../graphql/alerts';
 import type { RemoteSettings, Spaciness } from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
+import { BOOT_LOCAL_KEY } from './common';
 import type { Boot, BootCacheData } from '../lib/boot';
 import { BootApp, getBootData } from '../lib/boot';
 import type { AuthTriggersType } from '../lib/auth';
@@ -411,6 +413,51 @@ it('should trigger update alerts callback', async () => {
   await expectToHaveTestValue(alertsEl, JSON.stringify(defaultAlerts));
   fireEvent.click(alertsEl);
   await expectToHaveTestValue(alertsEl, JSON.stringify(alerts));
+});
+
+interface NotificationsMockProps {
+  incrementBy?: number;
+}
+
+const NotificationsMock = ({ incrementBy = 1 }: NotificationsMockProps) => {
+  const { unreadCount, clearUnreadCount, incrementUnreadCount } =
+    useContext(NotificationsContext);
+
+  return (
+    <>
+      <button
+        onClick={clearUnreadCount}
+        type="button"
+        data-test-value={unreadCount}
+      >
+        Clear notifications
+      </button>
+      <button onClick={() => incrementUnreadCount(incrementBy)} type="button">
+        Increment notifications
+      </button>
+    </>
+  );
+};
+
+const getStoredBootData = (): BootCacheData =>
+  JSON.parse(localStorage.getItem(BOOT_LOCAL_KEY) as string);
+
+it('should persist notification count updates to local boot data', async () => {
+  renderComponent(<NotificationsMock incrementBy={2} />, {
+    ...defaultBootData,
+    notifications: { unreadNotificationsCount: 4 },
+  });
+
+  const clearNotifications = await screen.findByText('Clear notifications');
+  await expectToHaveTestValue(clearNotifications, '4');
+
+  fireEvent.click(clearNotifications);
+  await expectToHaveTestValue(clearNotifications, '0');
+  expect(getStoredBootData().notifications.unreadNotificationsCount).toEqual(0);
+
+  fireEvent.click(screen.getByText('Increment notifications'));
+  await expectToHaveTestValue(clearNotifications, '2');
+  expect(getStoredBootData().notifications.unreadNotificationsCount).toEqual(2);
 });
 
 interface AuthMockProps {
