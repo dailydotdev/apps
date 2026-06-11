@@ -75,6 +75,7 @@ let client: QueryClient;
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [fetchNotificationsMock()],
   unreadCount = 0,
+  onUpdateUnreadCount = jest.fn(),
 ) => {
   client = new QueryClient();
 
@@ -96,7 +97,10 @@ const renderComponent = (
           isAuthReady: true,
         }}
       >
-        <NotificationsContextProvider unreadCount={unreadCount}>
+        <NotificationsContextProvider
+          unreadCount={unreadCount}
+          onUpdateUnreadCount={onUpdateUnreadCount}
+        >
           <NotificationsPage />
         </NotificationsContextProvider>
       </AuthContext.Provider>
@@ -138,6 +142,7 @@ it('should get all notifications', async () => {
 it('should get all notifications and send a mutation to read all unread notifications', async () => {
   let mutationCalled = false;
   const unreadCount = 2;
+  const onUpdateUnreadCount = jest.fn();
   const testData: NotificationsData = { ...sampleNotificationData };
   testData.notifications.edges[0].node.readAt = undefined;
   renderComponent(
@@ -152,9 +157,11 @@ it('should get all notifications and send a mutation to read all unread notifica
       },
     ],
     unreadCount,
+    onUpdateUnreadCount,
   );
 
   await screen.findByText(sampleNotification.title);
   await waitForNock();
   expect(mutationCalled).toBeTruthy();
+  expect(onUpdateUnreadCount).toHaveBeenCalledWith(0);
 });
