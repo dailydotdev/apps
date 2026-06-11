@@ -982,12 +982,11 @@ export const SidebarDesktopV2 = ({
 
         <SidebarScrollWrapper
           className={classNames(
-            'min-h-0 flex-1',
-            isUtilityPanelSelected ? 'mt-1' : 'mt-2',
+            'mt-1 min-h-0 flex-1',
             showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
           )}
         >
-          <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : undefined}>
+          <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0'}>
             {renderSelectedSection()}
           </Nav>
         </SidebarScrollWrapper>
