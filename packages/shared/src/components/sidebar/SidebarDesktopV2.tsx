@@ -40,6 +40,7 @@ import {
   BellIcon,
   BookmarkIcon,
   DevCardIcon,
+  DevPlusIcon,
   FeedbackIcon,
   HomeIcon,
   JobIcon,
@@ -55,6 +56,7 @@ import {
 } from '../icons';
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
 import { useSquadNavigation } from '../../hooks';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
@@ -301,6 +303,7 @@ const SidebarSupportButton = (): ReactElement => {
 // rail stats cluster already links there.
 const SidebarProfileButton = (): ReactElement | null => {
   const { user } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
 
   if (!user) {
@@ -335,11 +338,22 @@ const SidebarProfileButton = (): ReactElement | null => {
           isOpen && 'bg-surface-hover',
         )}
       >
-        <ProfilePicture
-          user={user}
-          size={ProfileImageSize.Medium}
-          nativeLazyLoading
-        />
+        <span className="relative">
+          <ProfilePicture
+            user={user}
+            size={ProfileImageSize.Medium}
+            nativeLazyLoading
+          />
+          {isPlus && (
+            <span className="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-background-default">
+              <DevPlusIcon
+                secondary
+                size={IconSize.Size16}
+                className="text-action-plus-default"
+              />
+            </span>
+          )}
+        </span>
       </button>
       {isOpen && (
         <InteractivePopup
