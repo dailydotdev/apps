@@ -66,6 +66,7 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { SidebarRailStats } from './SidebarRailStats';
+import { SidebarProfileStats } from './SidebarProfileStats';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { isAppleDevice } from '../../lib/func';
@@ -77,6 +78,7 @@ import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
 import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
 import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
+import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
@@ -344,8 +346,15 @@ const SidebarProfileButton = (): ReactElement | null => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarProfileMenu}
-          className="flex w-60 flex-col !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-2"
+          className="flex w-60 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-2"
         >
+          <ProfileMenuHeader
+            shouldOpenProfile
+            profileImageSize={ProfileImageSize.Medium}
+            className="rounded-10 px-1 py-1 hover:bg-surface-hover"
+          />
+          <SidebarProfileStats />
+          <HorizontalSeparator />
           <ProfileMenuSection items={items} />
         </InteractivePopup>
       )}
