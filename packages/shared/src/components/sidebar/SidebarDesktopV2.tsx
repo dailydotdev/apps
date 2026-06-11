@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import {
   Nav,
@@ -36,29 +37,25 @@ import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
-  AnalyticsIcon,
   BellIcon,
   BookmarkIcon,
-  DevCardIcon,
   DevPlusIcon,
+  ExitIcon,
   FeedbackIcon,
   HomeIcon,
-  JobIcon,
   MenuIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
-  SettingsIcon,
   SidebarArrowLeft,
   SourceIcon,
   SunIcon,
-  UserIcon,
 } from '../icons';
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
 import { useSquadNavigation } from '../../hooks';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
-import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetId, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -71,20 +68,31 @@ import { SidebarRailStats } from './SidebarRailStats';
 import { SidebarProfileStats } from './SidebarProfileStats';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
-import { isAppleDevice } from '../../lib/func';
+import { checkIsExtension, isAppleDevice } from '../../lib/func';
 import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
+import { MainSection as ProfileMainSection } from '../ProfileMenu/sections/MainSection';
+import { ThemeSection } from '../ProfileMenu/sections/ThemeSection';
+import { AccountSection } from '../ProfileMenu/sections/AccountSection';
+import { FeedbackButtonSection } from '../ProfileMenu/sections/FeedbackButtonSection';
 import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
 import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
-import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
+import { UpgradeToPlus } from '../UpgradeToPlus';
+import { LogoutReason } from '../../lib/user';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
+
+const ExtensionSection = dynamic(() =>
+  import(
+    /* webpackChunkName: "extensionSection" */ '../ProfileMenu/sections/ExtensionSection'
+  ).then((mod) => mod.ExtensionSection),
+);
 
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
@@ -298,33 +306,17 @@ const SidebarSupportButton = (): ReactElement => {
   );
 };
 
-// Slack-style profile menu anchored to the bottom rail avatar. Replaces the
-// old Profile sidebar panel. Cores wallet is intentionally omitted — the
-// rail stats cluster already links there.
+// Profile menu anchored to the bottom rail avatar. Mirrors the production
+// ProfileMenu (shared section components, same ordering) so the design and
+// behavior match, with the rail-specific reputation/cores stats card on top.
 const SidebarProfileButton = (): ReactElement | null => {
-  const { user } = useAuthContext();
+  const { user, logout } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
 
   if (!user) {
     return null;
   }
-
-  const items: ProfileSectionItemProps[] = [
-    {
-      title: 'Your profile',
-      href: `${webappUrl}${user.username}`,
-      icon: UserIcon,
-    },
-    { title: 'Analytics', href: `${webappUrl}analytics`, icon: AnalyticsIcon },
-    { title: 'Jobs', href: `${webappUrl}jobs`, icon: JobIcon },
-    { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
-    {
-      title: 'DevCard',
-      href: `${settingsUrl}/customization/devcard`,
-      icon: DevCardIcon,
-    },
-  ];
 
   return (
     <>
@@ -360,7 +352,7 @@ const SidebarProfileButton = (): ReactElement | null => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarProfileMenu}
-          className="flex w-60 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-2"
+          className="flex max-h-[calc(100dvh-4rem)] w-72 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <ProfileMenuHeader
             shouldOpenProfile
@@ -368,7 +360,47 @@ const SidebarProfileButton = (): ReactElement | null => {
             className="rounded-10 px-1 py-1 hover:bg-surface-hover"
           />
           <SidebarProfileStats />
-          <ProfileMenuSection items={items} />
+
+          <UpgradeToPlus
+            target={TargetId.ProfileDropdown}
+            size={ButtonSize.Small}
+            className="flex-initial"
+          />
+
+          <HorizontalSeparator />
+
+          <nav className="flex flex-col gap-2">
+            <ProfileMainSection />
+
+            <HorizontalSeparator />
+
+            <ThemeSection className="px-1" />
+
+            <HorizontalSeparator />
+
+            <AccountSection />
+
+            {checkIsExtension() && <ExtensionSection />}
+
+            <HorizontalSeparator />
+
+            <ResourceSection />
+            <FeedbackButtonSection className="px-1" />
+
+            <HorizontalSeparator />
+
+            <ProfileMenuSection
+              items={[
+                {
+                  title: 'Log out',
+                  icon: ExitIcon,
+                  onClick: () => logout(LogoutReason.ManualLogout),
+                },
+              ]}
+            />
+          </nav>
+
+          <ProfileMenuFooter />
         </InteractivePopup>
       )}
     </>
