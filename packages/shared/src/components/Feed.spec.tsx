@@ -13,7 +13,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
-import type { FeedData, Post, PostData, PostsEngaged } from '../graphql/posts';
+import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
+import type {
+  Ad,
+  FeedData,
+  Post,
+  PostData,
+  PostsEngaged,
+} from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
   HIDE_POST_MUTATION,
@@ -68,6 +75,19 @@ import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
+import FeedContext from '../contexts/FeedContext';
+import type { FeedContextData } from '../contexts/FeedContext';
+import { FeaturesReadyContext } from './GrowthBookProvider';
+import {
+  briefFeedEntrypointPage,
+  featureHeroCards,
+} from '../lib/featureManagement';
+import type { Connection } from '../graphql/common';
+import type { PostHero, PostHeroSignificance } from '../graphql/types';
+import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useBoot } from '../hooks/useBoot';
+import { MarketingCtaVariant } from './marketing/cta/common';
+import type { MarketingCta } from './marketing/cta/common';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -123,6 +143,32 @@ jest.mock('../hooks/useSubscription', () => ({
         }
       },
     ),
+}));
+
+// Default implementation returns the "hero hidden" state so existing tests
+// are unaffected. Individual tests override via mockReturnValueOnce when
+// they need to exercise an in-feed hero render path.
+jest.mock('../hooks/notifications/useReadingReminderFeedHero', () => ({
+  useReadingReminderFeedHero: jest.fn().mockReturnValue({
+    adjustedHeroInsertIndex: 0,
+    shouldShowTopHero: false,
+    shouldShowInFeedHero: false,
+    title: '',
+    subtitle: '',
+    onEnableHero: jest.fn(),
+    onDismissHero: jest.fn(),
+  }),
+}));
+
+jest.mock('../hooks/useBoot', () => ({
+  useBoot: jest.fn().mockReturnValue({
+    addSquad: jest.fn(),
+    deleteSquad: jest.fn(),
+    updateSquad: jest.fn(),
+    getMarketingCta: jest.fn().mockReturnValue(null),
+    clearMarketingCta: jest.fn(),
+    getPlusEntryData: jest.fn().mockReturnValue(null),
+  }),
 }));
 
 let variables: Record<string, unknown>;
@@ -1678,5 +1724,543 @@ describe('Feed annonymous', () => {
     await waitFor(() =>
       expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
     );
+  });
+});
+
+const sourceFixture = defaultFeedPage.edges[0].node.source;
+
+const buildPost = (id: string, hero?: PostHero | null): Post =>
+  ({
+    id,
+    title: `Post ${id}`,
+    createdAt: '2026-05-25T00:00:00.000Z',
+    image: 'https://daily.dev/img.png',
+    readTime: 1,
+    source: sourceFixture,
+    tags: [],
+    permalink: `http://localhost:4000/r/${id}`,
+    numComments: 0,
+    numUpvotes: 0,
+    commentsPermalink: `http://localhost:5002/posts/${id}`,
+    read: false,
+    upvoted: false,
+    commented: false,
+    type: PostType.Article,
+    domain: 'example.com',
+    hero: hero ?? null,
+  } as Post);
+
+const SIGNIFICANCE_BY_SIZE: Record<number, PostHeroSignificance> = {
+  4: 'breaking',
+  3: 'major',
+  2: 'notable',
+  1: 'routine',
+};
+
+const buildWidePost = (id: string, size: number): Post =>
+  buildPost(id, {
+    id: `hero-${id}`,
+    headline: 'wide',
+    significance: SIGNIFICANCE_BY_SIZE[size] ?? 'notable',
+    size,
+    highlightedAt: '2026-05-25T00:00:00.000Z',
+  });
+
+const buildFeedPage = (posts: Post[]): Connection<Post> => ({
+  pageInfo: { hasNextPage: false, endCursor: '' },
+  edges: posts.map((node) => ({ node })),
+});
+
+interface HighlightLayoutRenderParams {
+  posts: Post[];
+  highlightEnabled: boolean;
+  numCards?: number;
+  pageSize?: number;
+  adStart?: number;
+  adRepeat?: number;
+  minSpacing?: number;
+  startIndex?: number;
+  briefBannerPage?: number;
+  staticAd?: { ad: Ad; index: number };
+  disableAds?: boolean;
+  user?: LoggedUser;
+}
+
+const renderWithHighlightLayout = ({
+  posts,
+  highlightEnabled,
+  numCards = 4,
+  pageSize = 25,
+  adStart = 4,
+  adRepeat = 8,
+  minSpacing = 5,
+  startIndex = 0,
+  briefBannerPage,
+  staticAd,
+  disableAds,
+  user = defaultUser,
+}: HighlightLayoutRenderParams): RenderResult => {
+  variables = { ...defaultVariables, first: pageSize };
+  mockGraphQL(createFeedMock(buildFeedPage(posts)));
+  // First ad page uses active=false, subsequent pages use active=true. Mock
+  // both up to a handful of refills so multi-ad scenarios don't run dry.
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=true')
+    .times(10)
+    .reply(200, [ad]);
+
+  const feedContextValue: FeedContextData = {
+    pageSize,
+    numCards: {
+      eco: numCards,
+      roomy: numCards,
+      cozy: numCards,
+    } as FeedContextData['numCards'],
+    adTemplate: { adStart, adRepeat },
+  };
+
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureHeroCards.id]: {
+      defaultValue: {
+        enabled: highlightEnabled,
+        minSpacing,
+        startIndex,
+        chipLabels: {},
+      },
+    },
+    ...(briefBannerPage
+      ? {
+          [briefFeedEntrypointPage.id]: {
+            defaultValue: briefBannerPage,
+          },
+        }
+      : {}),
+  });
+
+  const settingsContext: SettingsContextData = {
+    ...baseSettingsContext,
+    setTheme: jest.fn(),
+    setSpaciness: jest.fn(),
+    toggleOpenNewTab: jest.fn(),
+    toggleInsaneMode: jest.fn(),
+    toggleShowTopSites: jest.fn(),
+    toggleSortingEnabled: jest.fn(),
+    toggleOptOutReadingStreak: jest.fn(),
+    toggleAutoDismissNotifications: jest.fn(),
+    updateCustomLinks: jest.fn(),
+    toggleSidebarExpanded: jest.fn(),
+  };
+
+  // Use a fresh QueryClient per render — the suite-level singleton can
+  // carry over errored ad-query state from earlier tests (retry: false
+  // means failures stick), which causes ads to never re-fetch here.
+  const isolatedClient = new QueryClient(defaultQueryClientTestingConfig);
+
+  return render(
+    <QueryClientProvider client={isolatedClient}>
+      <AuthContext.Provider
+        value={{
+          user,
+          isLoggedIn: true,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: user.id,
+          loginState: undefined,
+          isAuthReady: true,
+        }}
+      >
+        <GrowthBookProvider growthbook={gb}>
+          <FeaturesReadyContext.Provider
+            value={{
+              ready: true,
+              getFeatureValue: (feature) =>
+                gb.getFeatureValue(feature.id, feature.defaultValue),
+            }}
+          >
+            <SettingsContext.Provider value={settingsContext}>
+              <FeedContext.Provider value={feedContextValue}>
+                <Feed
+                  feedQueryKey={['feed']}
+                  feedName={SharedFeedPage.MyFeed}
+                  query={ANONYMOUS_FEED_QUERY}
+                  variables={variables}
+                  staticAd={staticAd}
+                  disableAds={disableAds}
+                />
+              </FeedContext.Provider>
+            </SettingsContext.Provider>
+          </FeaturesReadyContext.Provider>
+        </GrowthBookProvider>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
+  );
+};
+
+const getFeedItemTestIds = async (expectedAdCount = 1): Promise<string[]> => {
+  await waitFor(
+    () => {
+      const ads = screen.queryAllByTestId('adItem');
+      expect(ads.length).toBeGreaterThanOrEqual(expectedAdCount);
+    },
+    { timeout: 5000 },
+  );
+  const nodes = document.querySelectorAll(
+    '[data-testid="postItem"], [data-testid="adItem"]',
+  );
+  return Array.from(nodes).map(
+    (node) => node.getAttribute('data-testid') ?? '',
+  );
+};
+
+describe('Feed ad cadence with highlight cards', () => {
+  // beforeEach in the outer describe calls jest.restoreAllMocks(), which
+  // wipes the desktop viewport spy from the suite's beforeAll. Re-apply it
+  // here so canRenderHighlightCards isn't gated off by a mobile viewport.
+  // Also reset useRouter: earlier describes (e.g. acquisition form card)
+  // call mockImplementation on it, and that impl survives clearAllMocks /
+  // restoreAllMocks — leaving us with a polluted query/pathname.
+  beforeEach(() => {
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {},
+        } as unknown as NextRouter),
+    );
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn().mockReturnValue(null),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
+      adjustedHeroInsertIndex: 0,
+      shouldShowTopHero: false,
+      shouldShowInFeedHero: false,
+      title: '',
+      subtitle: '',
+      onEnableHero: jest.fn(),
+      onDismissHero: jest.fn(),
+    });
+  });
+
+  // Setup: numCards=4, adStart=4, adRepeat=8. With 1 normal post per cell,
+  // first ad lands at visual cell 4 (after 4 normal posts). With a 4-cell
+  // wide post at index 0, vcs jumps to 4 after one item — so the ad lands
+  // at array index 1 instead of index 4.
+  it('places ad on correct spot when a wide card precedes it', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: true });
+
+    const order = await getFeedItemTestIds();
+    expect(order[0]).toBe('postItem');
+    expect(order[1]).toBe('adItem');
+    expect(order.slice(2).every((t) => t === 'postItem')).toBe(true);
+  });
+
+  // Same fixture, flag off: layout disabled → wide card collapses to 1 cell
+  // (every item contributes 1 to visualCellsSoFar). Ad falls at the original
+  // 4th position.
+  it('places ad on correct spot when feature flag is disabled', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: false });
+
+    const order = await getFeedItemTestIds();
+    expect(order.slice(0, 4).every((t) => t === 'postItem')).toBe(true);
+    expect(order[4]).toBe('adItem');
+  });
+
+  // Two wide cards spaced beyond minSpacing each push the cadence forward,
+  // so two ads land in a single page that would only contain one without
+  // the layout enabled.
+  it('places ad on correct spot across multiple wide cards', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildPost('p8'),
+      buildWidePost('w9', 4),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: true });
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    expect(adIndices).toEqual([1, 9]);
+  });
+
+  // Straddle scenario: a wide card placed where its full requested span
+  // would jump past a scheduled ad slot. The fit-to-ad-slot clamp shrinks
+  // the wide card so vcs lands exactly on the slot and the ad fires —
+  // preserving the impression that the old "mod === 0" check dropped.
+  it('does not drop an ad when a wide card straddles the next slot', async () => {
+    // adStart=3, adRepeat=8. First slot at vcs=3, second at vcs=11.
+    // First post is a size-4 wide. Without the clamp it'd jump vcs 0→4,
+    // skipping vcs=3 entirely; the clamp shrinks it to span 3 so vcs=3
+    // lands on the slot and the ad fires next iteration.
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      numCards: 4,
+      adStart: 3,
+      adRepeat: 8,
+    });
+
+    const order = await getFeedItemTestIds(1);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    // Exactly one ad rendered (no drop), and it lands after the wide
+    // card (which landed at index 0).
+    expect(adIndices.length).toBe(1);
+    expect(adIndices[0]).toBe(1);
+  });
+
+  // Verifies the brief-banner integration end-to-end: useFeed exposes the
+  // banner via `bannerInsertions` (computed from the feature flag), Feed
+  // renders the banner element, and the placement builder accounts for
+  // the banner-induced col reset so ad cadence stays aligned with what
+  // is actually rendered.
+  it('renders brief banner from useFeed and keeps ads flowing', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      // pageSize=8, numCards=4 → banner at index 8 (end of page 1).
+      pageSize: 8,
+      briefBannerPage: 1,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('brief-banner-feed')).toBeInTheDocument();
+    });
+    // Ads still render alongside the banner (no regression in cadence).
+    expect(await screen.findByTestId('adItem')).toBeInTheDocument();
+  });
+
+  // Verifies the in-feed reading-reminder hero wires through useFeed's
+  // bannerInsertions.hero into Feed's JSX. Mocks the hero hook directly
+  // because its real show-gate depends on scroll + variation + auth state
+  // that aren't worth reproducing here — the hook itself is tested in
+  // useReadingReminderFeedHero.spec.tsx.
+  it('renders the in-feed reading-reminder hero from useFeed', async () => {
+    const heroTitle = 'Hero test title';
+    const heroSubtitle = 'Hero test subtitle';
+    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
+      adjustedHeroInsertIndex: 2,
+      shouldShowTopHero: false,
+      shouldShowInFeedHero: true,
+      title: heroTitle,
+      subtitle: heroSubtitle,
+      onEnableHero: jest.fn(),
+      onDismissHero: jest.fn(),
+    });
+
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: false });
+
+    expect(await screen.findByText(heroSubtitle)).toBeInTheDocument();
+    expect(screen.queryByText(heroTitle)).toBeInTheDocument();
+  });
+
+  it('inserts staticAd at the requested index via the cadence walk', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+    ];
+    const staticAdFixture: Ad = {
+      ...ad,
+      link: 'https://daily.dev/static-ad-marker',
+    };
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      staticAd: { ad: staticAdFixture, index: 2 },
+    });
+
+    const order = await getFeedItemTestIds(1);
+    expect(order[2]).toBe('adItem');
+    expect(order[0]).toBe('postItem');
+    expect(order[1]).toBe('postItem');
+  });
+
+  it('places a marketing CTA at index 0 when asFirstCard is set', async () => {
+    const marketingCtaTitle = 'Marketing CTA title';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-test',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+        asFirstCard: true,
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildPost('p8'),
+    ];
+
+    // adStart=2, adRepeat=4 → 3 slots at vcs 2, 6, 10. CTA pushed first
+    // shifts vcs by 1. Slot 0 (vcs=2) is skipped by asFirstCard; slots
+    // 1 and 2 (vcs=6, 10) fire. CTA itself has no postItem/adItem testid,
+    // so it's filtered out of the helper output — ads land at testid'd
+    // indices 5 and 9.
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      adStart: 2,
+      adRepeat: 4,
+    });
+
+    expect(
+      await screen.findByText(marketingCtaTitle, undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    expect(adIndices).toEqual([5, 9]);
+    expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
+  });
+
+  it('renders highlight cards for Plus users without rendering ads', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildWidePost('w4', 3),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      adStart: 4,
+      adRepeat: 8,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryAllByTestId('adItem').length).toBe(0);
+  });
+
+  it('skips the ad-cadence clamp on wide cards for Plus users', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildWidePost('w8', 4),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      adStart: 2,
+      adRepeat: 8,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    const wrappers = await screen.findAllByTestId('feedItemColSpanWrapper');
+    const styles = wrappers.map((el) => el.getAttribute('style') ?? '');
+    expect(styles.some((s) => s.includes('span 4'))).toBe(true);
+    expect(screen.queryAllByTestId('adItem').length).toBe(0);
   });
 });
