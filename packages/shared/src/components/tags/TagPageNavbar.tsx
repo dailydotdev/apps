@@ -7,7 +7,6 @@ import {
   SquadDirectoryNavbar,
   SquadDirectoryNavbarItem,
 } from '../squads/layout/SquadDirectoryNavbar';
-import useFeedSettings from '../../hooks/useFeedSettings';
 import { getTagPageLink } from '../../lib/links';
 import { formatKeyword } from '../../lib/strings';
 import { webappUrl } from '../../lib/constants';
@@ -15,7 +14,7 @@ import { webappUrl } from '../../lib/constants';
 interface TagPageNavbarProps {
   // The tag currently being viewed; rendered as the active tab.
   activeTag?: string;
-  // Related / recommended tag names surfaced after the followed ones.
+  // Tags related to the active one, surfaced as relevant per-page links.
   recommendedTags?: string[];
   className?: string;
 }
@@ -26,27 +25,19 @@ const tagsUrl = `${webappUrl}tags`;
 const MAX_TAGS = 5;
 
 // Tabbed strip above the tag page, built with the same page-header navbar as the
-// Squad directory. A leading tab returns to the tags directory, followed by the
-// user's followed tags and recommendations, with the current tag active.
+// Squad directory. A leading tab returns to the tags directory, then the current
+// tag (active) followed by tags recommended for it — keeping the strip relevant
+// to the page being viewed (and its links crawlable for SEO).
 export function TagPageNavbar({
   activeTag,
   recommendedTags = [],
   className,
 }: TagPageNavbarProps): ReactElement {
-  const { feedSettings } = useFeedSettings();
-
   const tags = useMemo(() => {
-    const followed = feedSettings?.includeTags ?? [];
-    const followedSet = new Set(followed);
-    const ordered =
-      activeTag && !followedSet.has(activeTag)
-        ? [activeTag, ...followed]
-        : followed;
-    const rec = recommendedTags.filter(
-      (tag) => tag && !followedSet.has(tag) && tag !== activeTag,
-    );
-    return Array.from(new Set([...ordered, ...rec])).slice(0, MAX_TAGS);
-  }, [feedSettings?.includeTags, recommendedTags, activeTag]);
+    const rec = recommendedTags.filter((tag) => tag && tag !== activeTag);
+    const ordered = activeTag ? [activeTag, ...rec] : rec;
+    return Array.from(new Set(ordered)).slice(0, MAX_TAGS);
+  }, [recommendedTags, activeTag]);
 
   return (
     <header
