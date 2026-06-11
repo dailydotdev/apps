@@ -1,0 +1,3725 @@
+[
+  {
+    "id": "qp1",
+    "axis": "product_language_default",
+    "prompt": "Reaching for TypeScript is a reflex; plain JavaScript feels under-dressed to you.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "typescript": 2,
+          "frontend": 1
+        },
+        "next": "qp2"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "javascript": 2,
+          "frontend": 1
+        },
+        "next": "qp2"
+      }
+    ]
+  },
+  {
+    "id": "qp2",
+    "axis": "product_surface",
+    "prompt": "Most of your day is spent on screens people actually look at.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "frontend": 2,
+          "ui": 1
+        },
+        "next": "qp3"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "backend": 1,
+          "mobile": 1
+        },
+        "next": "qp13"
+      }
+    ]
+  },
+  {
+    "id": "qp3",
+    "axis": "product_ui_framework",
+    "prompt": "Starting a new screen, you open a component framework like React first.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "react": 2,
+          "typescript": 1,
+          "frontend": 1
+        },
+        "next": "qp4"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "svelte": 1,
+          "vue": 1,
+          "web-components": 1
+        },
+        "next": "qp4"
+      }
+    ]
+  },
+  {
+    "id": "qp4",
+    "axis": "product_craft_split",
+    "prompt": "You could happily spend a whole day getting one screen’s structure and spacing exactly right.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "design-systems": 1,
+          "ui": 1,
+          "css": 1
+        },
+        "next": "qp5"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "performance": 1,
+          "lighthouse": 1
+        },
+        "next": "qp9"
+      }
+    ]
+  },
+  {
+    "id": "qp5",
+    "axis": "product_design_tooling",
+    "prompt": "You build components in isolation, with a workshop like Storybook always open.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "storybook": 2,
+          "design-systems": 1
+        },
+        "next": "qp6"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "frontend": 1,
+          "ui": 1
+        },
+        "next": "qp6"
+      }
+    ]
+  },
+  {
+    "id": "qp6",
+    "axis": "product_design_focus",
+    "prompt": "You think in reusable systems — one component should serve a hundred screens.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "design-systems": 2,
+          "web-components": 1
+        },
+        "next": "qp7"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "accessibility": 2,
+          "ui-ux": 1
+        },
+        "next": "qp8"
+      }
+    ]
+  },
+  {
+    "id": "qp7",
+    "axis": "product_design_systems_terminal",
+    "prompt": "A component without documented props and design tokens does not feel finished to you.",
+    "cols": 2,
+    "archetypeId": "design_systems_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "design-systems": 2,
+          "storybook": 1,
+          "web-components": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "css": 1,
+          "ui": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qp8",
+    "axis": "product_accessibility_terminal",
+    "prompt": "You will open a screen reader to check a feature, not just the browser.",
+    "cols": 2,
+    "archetypeId": "accessibility_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "accessibility": 2,
+          "ui-ux": 1,
+          "user-testing": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "css": 1,
+          "ui": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qp9",
+    "axis": "product_perf_measurement",
+    "prompt": "Profiling a real page with real data is a normal part of your week.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "performance": 2,
+          "lighthouse": 1
+        },
+        "next": "qp10"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "frontend": 1,
+          "web-development": 1
+        },
+        "next": "qp10"
+      }
+    ]
+  },
+  {
+    "id": "qp10",
+    "axis": "product_perf_focus",
+    "prompt": "The performance problems that nag you happen while the page is running in the browser.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "performance": 1,
+          "lighthouse": 1,
+          "nextjs": 1
+        },
+        "next": "qp11"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "webpack": 1,
+          "vite": 1,
+          "bun": 1
+        },
+        "next": "qp12"
+      }
+    ]
+  },
+  {
+    "id": "qp11",
+    "axis": "product_rendering_perf_terminal",
+    "prompt": "You can explain why an avoidable re-render can cost more than the request that triggered it.",
+    "cols": 2,
+    "archetypeId": "rendering_performance_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "performance": 2,
+          "react": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "javascript": 1,
+          "web-development": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qp12",
+    "axis": "product_build_perf_terminal",
+    "prompt": "A two-minute CI build feels like a bug with your name on it.",
+    "cols": 2,
+    "archetypeId": "build_performance_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "performance": 2,
+          "cicd": 1,
+          "devtools": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "javascript": 1,
+          "web-development": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qp13",
+    "axis": "product_systems_ownership",
+    "prompt": "The API and the database behind your screens are usually yours to change too.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "backend": 2,
+          "nodejs": 1
+        },
+        "next": "qp14"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "frontend": 1,
+          "web-development": 1
+        },
+        "next": "qp14"
+      }
+    ]
+  },
+  {
+    "id": "qp14",
+    "axis": "product_systems_split",
+    "prompt": "Your client code is built to land in an app store.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "mobile": 1,
+          "mobile-dev": 1,
+          "ios": 1
+        },
+        "next": "qp15"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "nodejs": 1,
+          "backend": 1,
+          "nextjs": 1
+        },
+        "next": "qp19"
+      }
+    ]
+  },
+  {
+    "id": "qp15",
+    "axis": "product_mobile_constraints",
+    "prompt": "App-store review cycles and OS updates shape how you plan a release.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "mobile": 2,
+          "mobile-dev": 1
+        },
+        "next": "qp16"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "mobile": 1,
+          "app-store": 1
+        },
+        "next": "qp16"
+      }
+    ]
+  },
+  {
+    "id": "qp16",
+    "axis": "product_mobile_approach",
+    "prompt": "You’d happily write a feature twice to use each platform’s native language.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "swift": 1,
+          "kotlin": 1,
+          "swiftui": 1,
+          "jetpack-compose": 1
+        },
+        "next": "qp17"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "react-native": 1,
+          "flutter": 1
+        },
+        "next": "qp18"
+      }
+    ]
+  },
+  {
+    "id": "qp17",
+    "axis": "product_native_mobile_terminal",
+    "prompt": "Push notifications, biometrics, deep links — a platform’s own APIs are your bread and butter.",
+    "cols": 2,
+    "archetypeId": "native_mobile_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "ios": 2,
+          "android": 1,
+          "swift": 1,
+          "kotlin": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "mobile": 1,
+          "mobile-dev": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qp18",
+    "axis": "product_cross_platform_terminal",
+    "prompt": "Shipping one codebase to both app stores is the trade-off you happily make.",
+    "cols": 2,
+    "archetypeId": "cross_platform_mobile_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "react-native": 2,
+          "flutter": 1,
+          "expo": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "mobile": 1,
+          "mobile-dev": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qp19",
+    "axis": "product_fullstack_typednetwork",
+    "prompt": "You wire up a typed client between frontend and backend before writing much else.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "typescript": 2,
+          "graphql": 1
+        },
+        "next": "qp20"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "nodejs": 1,
+          "rest-api": 1
+        },
+        "next": "qp20"
+      }
+    ]
+  },
+  {
+    "id": "qp20",
+    "axis": "product_fullstack_focus",
+    "prompt": "Shipping a whole feature end to end is what makes the work satisfying for you.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "nextjs": 1,
+          "react": 1,
+          "vercel": 1
+        },
+        "next": "qp21"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "graphql": 1,
+          "postgresql": 1,
+          "prisma": 1
+        },
+        "next": "qp22"
+      }
+    ]
+  },
+  {
+    "id": "qp21",
+    "axis": "product_fullstack_terminal",
+    "prompt": "Owning a feature from the form on screen to the row in the database is your idea of a good week.",
+    "cols": 2,
+    "archetypeId": "product_fullstack_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "nextjs": 2,
+          "react": 1,
+          "vercel": 1,
+          "serverless": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "nodejs": 1,
+          "backend": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qp22",
+    "axis": "product_api_layer_terminal",
+    "prompt": "You sweat the shape of a payload the way others sweat a layout.",
+    "cols": 2,
+    "archetypeId": "api_fullstack_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "graphql": 2,
+          "rest-api": 1,
+          "openapi": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "backend": 1,
+          "api": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi1",
+    "axis": "infra_iac_default",
+    "prompt": "Infrastructure as code is simply how your team runs everything.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "iac": 2,
+          "devops": 1
+        },
+        "next": "qi2"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "infrastructure": 2,
+          "cloud": 1
+        },
+        "next": "qi2"
+      }
+    ]
+  },
+  {
+    "id": "qi2",
+    "axis": "infra_toil",
+    "prompt": "Automating away repetitive toil is a goal you actively chase.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "devops": 1,
+          "productivity": 1
+        },
+        "next": "qi3"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "infrastructure": 1,
+          "cloud": 1
+        },
+        "next": "qi3"
+      }
+    ]
+  },
+  {
+    "id": "qi3",
+    "axis": "infra_domain_split",
+    "prompt": "Your job is keeping the platform itself running and scaling.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "infrastructure": 2,
+          "cloud": 1
+        },
+        "next": "qi4"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devtools": 1,
+          "security": 1
+        },
+        "next": "qi26"
+      }
+    ]
+  },
+  {
+    "id": "qi4",
+    "axis": "infra_platform_scale",
+    "prompt": "The systems you run are large enough that a manual change is something you actively forbid.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "infrastructure": 2,
+          "cloud-native": 1
+        },
+        "next": "qi5"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devops": 1,
+          "cloud": 1
+        },
+        "next": "qi5"
+      }
+    ]
+  },
+  {
+    "id": "qi5",
+    "axis": "infra_platform_split",
+    "prompt": "Building and running the platform is your home turf; observability and on-call are the next layer up.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "terraform": 1,
+          "kubernetes": 1,
+          "cloud": 1
+        },
+        "next": "qi6"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "observability": 1,
+          "sre": 1
+        },
+        "next": "qi16"
+      }
+    ]
+  },
+  {
+    "id": "qi6",
+    "axis": "infra_cloud_golden_path",
+    "prompt": "Giving teams a paved road to ship on is a goal you actively design for.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "platform-engineering": 2,
+          "iac": 1
+        },
+        "next": "qi7"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "cloud": 1,
+          "devops": 1
+        },
+        "next": "qi7"
+      }
+    ]
+  },
+  {
+    "id": "qi7",
+    "axis": "infra_cloud_approach",
+    "prompt": "You’re happiest deep in provider-level infrastructure and IaC.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "terraform": 1,
+          "aws": 1,
+          "pulumi": 1,
+          "multi-cloud": 1
+        },
+        "next": "qi8"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "kubernetes": 1,
+          "helm": 1,
+          "platform-engineering": 1
+        },
+        "next": "qi12"
+      }
+    ]
+  },
+  {
+    "id": "qi8",
+    "axis": "infra_cloud_provisioning_span",
+    "prompt": "Availability zones and traffic patterns weigh equally with the tooling you reach for.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "multi-cloud": 2,
+          "infrastructure": 1
+        },
+        "next": "qi9"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devops": 2,
+          "iac": 1
+        },
+        "next": "qi9"
+      }
+    ]
+  },
+  {
+    "id": "qi9",
+    "axis": "infra_cloud_layer",
+    "prompt": "When you pick up an infrastructure task, are you writing IaC or designing network topology?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "terraform": 1,
+          "pulumi": 1,
+          "aws": 1
+        },
+        "next": "qi10"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "kubernetes": 1,
+          "architecture": 1,
+          "distributed-systems": 1
+        },
+        "next": "qi11"
+      }
+    ]
+  },
+  {
+    "id": "qi10",
+    "axis": "cloud_provisioning_engineer_terminal",
+    "prompt": "You can explain why a Terraform workspace structure matters for scaling.",
+    "cols": 2,
+    "archetypeId": "cloud_provisioning_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "terraform": 2,
+          "iac": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "cloud": 1,
+          "devops": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi11",
+    "axis": "infrastructure_network_engineer_terminal",
+    "prompt": "A zone going dark does not concern you; your architecture absorbs it.",
+    "cols": 2,
+    "archetypeId": "infrastructure_network_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "architecture": 2,
+          "distributed-systems": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "cloud": 1,
+          "infrastructure": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi12",
+    "axis": "infra_platform_abstraction",
+    "prompt": "Whether you are managing the cluster itself or what developers build on it, your work is fundamentally about platforms.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "platform-engineering": 2,
+          "iac": 1
+        },
+        "next": "qi13"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "infrastructure": 2,
+          "devops": 1
+        },
+        "next": "qi13"
+      }
+    ]
+  },
+  {
+    "id": "qi13",
+    "axis": "infra_k8s_level",
+    "prompt": "Does your focus land on keeping the cluster running or on what developers build on top of it?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "kubernetes": 1,
+          "helm": 1,
+          "docker": 1
+        },
+        "next": "qi14"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "platform-engineering": 1,
+          "productivity": 1,
+          "devtools": 1
+        },
+        "next": "qi15"
+      }
+    ]
+  },
+  {
+    "id": "qi14",
+    "axis": "kubernetes_cluster_engineer_terminal",
+    "prompt": "You know your cluster's resource limits the way a DBA knows their indices.",
+    "cols": 2,
+    "archetypeId": "kubernetes_cluster_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "kubernetes": 2,
+          "infrastructure": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "docker": 1,
+          "devops": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi15",
+    "axis": "idp_platform_engineer_terminal",
+    "prompt": "Developers deploy to production from the CLI without naming a single Kubernetes concept.",
+    "cols": 2,
+    "archetypeId": "idp_platform_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "platform-engineering": 2,
+          "productivity": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "infrastructure": 1,
+          "devops": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi16",
+    "axis": "infra_reliability_slo",
+    "prompt": "Error budgets and SLOs are tools you actually use, not slides you have seen.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "sre": 2,
+          "observability": 1
+        },
+        "next": "qi17"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "monitoring": 1,
+          "cloud": 1
+        },
+        "next": "qi17"
+      }
+    ]
+  },
+  {
+    "id": "qi17",
+    "axis": "infra_reliability_focus",
+    "prompt": "Instrumentation and dashboards are where your day goes, not the pager.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "observability": 1,
+          "grafana": 1,
+          "apm": 1
+        },
+        "next": "qi18"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sre": 1,
+          "dora": 1
+        },
+        "next": "qi22"
+      }
+    ]
+  },
+  {
+    "id": "qi18",
+    "axis": "infra_observability_span",
+    "prompt": "Real-time dashboards and deep historical forensics are both part of how you think about systems.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "observability": 2,
+          "monitoring": 1
+        },
+        "next": "qi19"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sre": 1,
+          "distributed-systems": 1
+        },
+        "next": "qi19"
+      }
+    ]
+  },
+  {
+    "id": "qi19",
+    "axis": "infra_signal_type",
+    "prompt": "Are metrics and traces your natural habitat, or do logs and events tell the stories you care about?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "prometheus": 1,
+          "opentelemetry": 1,
+          "apm": 1
+        },
+        "next": "qi20"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "logging": 1,
+          "data-analysis": 1,
+          "distributed-systems": 1
+        },
+        "next": "qi21"
+      }
+    ]
+  },
+  {
+    "id": "qi20",
+    "axis": "metrics_tracing_engineer_terminal",
+    "prompt": "Five minutes and a query are enough to find where a service is losing time.",
+    "cols": 2,
+    "archetypeId": "metrics_tracing_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "observability": 2,
+          "prometheus": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "monitoring": 1,
+          "logging": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi21",
+    "axis": "logs_events_engineer_terminal",
+    "prompt": "Your logs tell the incident story more truthfully than any dashboard ever could.",
+    "cols": 2,
+    "archetypeId": "logs_events_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "logging": 2,
+          "data-analysis": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "observability": 1,
+          "monitoring": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi22",
+    "axis": "infra_reliability_balance",
+    "prompt": "Preventing incidents and learning from them when they happen are both central to your role.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "sre": 2,
+          "monitoring": 1
+        },
+        "next": "qi23"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "observability": 1,
+          "cloud": 1
+        },
+        "next": "qi23"
+      }
+    ]
+  },
+  {
+    "id": "qi23",
+    "axis": "infra_reliability_direction",
+    "prompt": "Would you rather design systems that fail gracefully or lead the team through crisis when they do not?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "distributed-systems": 1,
+          "architecture": 1,
+          "cloud-native": 1
+        },
+        "next": "qi24"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "dora": 1,
+          "devops": 1,
+          "cicd": 1
+        },
+        "next": "qi25"
+      }
+    ]
+  },
+  {
+    "id": "qi24",
+    "axis": "resilience_engineer_terminal",
+    "prompt": "Before scaling a service, you have already written its retry and timeout strategies.",
+    "cols": 2,
+    "archetypeId": "resilience_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "architecture": 2,
+          "distributed-systems": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sre": 1,
+          "monitoring": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi25",
+    "axis": "incident_commander_engineer_terminal",
+    "prompt": "A retro you ran left the team aligned on what actually failed and what to change.",
+    "cols": 2,
+    "archetypeId": "incident_commander_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "dora": 2,
+          "leadership": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sre": 1,
+          "monitoring": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi26",
+    "axis": "infra_developer_audience",
+    "prompt": "Other engineers are the people who actually use what you ship.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "devtools": 2,
+          "open-source": 1
+        },
+        "next": "qi27"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "security": 1,
+          "devops": 1
+        },
+        "next": "qi27"
+      }
+    ]
+  },
+  {
+    "id": "qi27",
+    "axis": "infra_devtools_security_split",
+    "prompt": "Keeping attackers out is part of your daily work.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "security": 1,
+          "appsec": 1,
+          "devsecops": 1
+        },
+        "next": "qi28"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devtools": 1,
+          "productivity": 1
+        },
+        "next": "qi38"
+      }
+    ]
+  },
+  {
+    "id": "qi28",
+    "axis": "infra_security_shiftleft",
+    "prompt": "A finding caught in the IDE or a pull request beats one caught in production every time.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "devsecops": 2,
+          "appsec": 1
+        },
+        "next": "qi29"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "security": 1,
+          "vulnerability": 1
+        },
+        "next": "qi29"
+      }
+    ]
+  },
+  {
+    "id": "qi29",
+    "axis": "infra_security_focus",
+    "prompt": "When you look for risk, you read the application’s own code first.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "appsec": 1,
+          "code-security": 1,
+          "cryptography": 1
+        },
+        "next": "qi30"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devsecops": 1,
+          "sbom": 1,
+          "secrets-management": 1
+        },
+        "next": "qi34"
+      }
+    ]
+  },
+  {
+    "id": "qi30",
+    "axis": "infra_security_stance",
+    "prompt": "Your security mindset blends prevention and discovery, defense and offense, as partners.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "appsec": 2,
+          "security": 1
+        },
+        "next": "qi31"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devsecops": 1,
+          "vulnerability": 1
+        },
+        "next": "qi31"
+      }
+    ]
+  },
+  {
+    "id": "qi31",
+    "axis": "infra_security_timing",
+    "prompt": "When you find a vulnerability, did you stop it in the code or uncover it in the live system?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "code-security": 1,
+          "authentication": 1,
+          "cryptography": 1
+        },
+        "next": "qi32"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "pentesting": 1,
+          "vulnerability": 1,
+          "web-security": 1
+        },
+        "next": "qi33"
+      }
+    ]
+  },
+  {
+    "id": "qi32",
+    "axis": "defensive_appsec_engineer_terminal",
+    "prompt": "You threat-model a feature sketch before you open an IDE.",
+    "cols": 2,
+    "archetypeId": "defensive_appsec_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "appsec": 2,
+          "code-security": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "security": 1,
+          "vulnerability": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi33",
+    "axis": "offensive_security_engineer_terminal",
+    "prompt": "You find the edge case that breaks the threat model.",
+    "cols": 2,
+    "archetypeId": "offensive_security_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "pentesting": 2,
+          "vulnerability": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "appsec": 1,
+          "security": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi34",
+    "axis": "infra_security_scope",
+    "prompt": "From artifact signing to key rotation, your security posture is built end to end.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "devsecops": 2,
+          "security": 1
+        },
+        "next": "qi35"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "compliance": 1,
+          "infrastructure": 1
+        },
+        "next": "qi35"
+      }
+    ]
+  },
+  {
+    "id": "qi35",
+    "axis": "infra_security_layer",
+    "prompt": "Does hardening the build pipeline claim more of your focus than locking down access and secrets?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "sbom": 1,
+          "cicd": 1,
+          "devsecops": 1
+        },
+        "next": "qi36"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "secrets-management": 1,
+          "compliance": 1,
+          "vulnerability": 1
+        },
+        "next": "qi37"
+      }
+    ]
+  },
+  {
+    "id": "qi36",
+    "axis": "supply_chain_security_engineer_terminal",
+    "prompt": "Every binary in production can be traced back to its source commit and build logs.",
+    "cols": 2,
+    "archetypeId": "supply_chain_security_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "sbom": 2,
+          "devsecops": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "security": 1,
+          "compliance": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi37",
+    "axis": "secrets_compliance_engineer_terminal",
+    "prompt": "Your team rotates every secret without a ticket or a Slack conversation.",
+    "cols": 2,
+    "archetypeId": "secrets_compliance_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "secrets-management": 2,
+          "compliance": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "security": 1,
+          "devsecops": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi38",
+    "axis": "infra_devtools_distribution",
+    "prompt": "Open source is your natural way to get the tools you build into people’s hands.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "open-source": 2,
+          "devtools": 1
+        },
+        "next": "qi39"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "cli": 1,
+          "git": 1
+        },
+        "next": "qi39"
+      }
+    ]
+  },
+  {
+    "id": "qi39",
+    "axis": "infra_devtools_focus",
+    "prompt": "You measure your impact in the daily friction you remove for other engineers.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "productivity": 1,
+          "git": 1,
+          "vs-code": 1
+        },
+        "next": "qi40"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "rust": 1,
+          "go": 1,
+          "bun": 1
+        },
+        "next": "qi44"
+      }
+    ]
+  },
+  {
+    "id": "qi40",
+    "axis": "infra_dx_metrics",
+    "prompt": "Whether you save time in the developer's loop or automate it away in the pipeline, friction reduction is your north star.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "devtools": 2,
+          "productivity": 1
+        },
+        "next": "qi41"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "cicd": 1,
+          "git": 1
+        },
+        "next": "qi41"
+      }
+    ]
+  },
+  {
+    "id": "qi41",
+    "axis": "infra_dx_layer",
+    "prompt": "Does your work optimise how developers work or how the build pipeline runs at scale?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "productivity": 1,
+          "vs-code": 1,
+          "git": 1
+        },
+        "next": "qi42"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "cicd": 1,
+          "devops": 1,
+          "testing": 1
+        },
+        "next": "qi43"
+      }
+    ]
+  },
+  {
+    "id": "qi42",
+    "axis": "developer_workflow_engineer_terminal",
+    "prompt": "Your tool turns a five-step manual dance into a single, memorable command.",
+    "cols": 2,
+    "archetypeId": "developer_workflow_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "productivity": 2,
+          "git": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devtools": 1,
+          "cli": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi43",
+    "axis": "cicd_automation_engineer_terminal",
+    "prompt": "A developer merges; everything else happens without a human decision.",
+    "cols": 2,
+    "archetypeId": "cicd_automation_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "cicd": 2,
+          "devops": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devtools": 1,
+          "productivity": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi44",
+    "axis": "infra_build_scope",
+    "prompt": "The entire chain from language runtime to developer command line is where your expertise flows.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "devtools": 2,
+          "cli": 1
+        },
+        "next": "qi45"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "open-source": 1,
+          "commandline": 1
+        },
+        "next": "qi45"
+      }
+    ]
+  },
+  {
+    "id": "qi45",
+    "axis": "infra_build_depth",
+    "prompt": "Do you spend more time in compilers and runtimes or shipping CLIs that developers rely on?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "rust": 1,
+          "go": 1,
+          "bun": 1
+        },
+        "next": "qi46"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "commandline": 1,
+          "open-source": 1,
+          "cicd": 1
+        },
+        "next": "qi47"
+      }
+    ]
+  },
+  {
+    "id": "qi46",
+    "axis": "compiler_runtime_engineer_terminal",
+    "prompt": "You understand the performance cost of the code your compiler generates.",
+    "cols": 2,
+    "archetypeId": "compiler_runtime_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "rust": 2,
+          "architecture": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devtools": 1,
+          "cli": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qi47",
+    "axis": "build_tooling_engineer_terminal",
+    "prompt": "Your build tool's help text is the only guide anyone needs.",
+    "cols": 2,
+    "archetypeId": "build_tooling_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "commandline": 2,
+          "devtools": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "cli": 1,
+          "open-source": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd1",
+    "axis": "data_python_default",
+    "prompt": "Python is where you live for most of your work.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "python": 2
+        },
+        "next": "qd2"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sql": 2
+        },
+        "next": "qd2"
+      }
+    ]
+  },
+  {
+    "id": "qd2",
+    "axis": "data_reproducibility",
+    "prompt": "A result you can’t reproduce isn’t finished, as far as you’re concerned.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-engineering": 1,
+          "data-quality": 1
+        },
+        "next": "qd3"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-science": 1,
+          "python": 1
+        },
+        "next": "qd3"
+      }
+    ]
+  },
+  {
+    "id": "qd3",
+    "axis": "data_domain_split",
+    "prompt": "Your day is closer to models and AI than to data pipelines and analytics.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "machine-learning": 2,
+          "ai": 1
+        },
+        "next": "qd4"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-engineering": 1,
+          "data-analysis": 1
+        },
+        "next": "qd26"
+      }
+    ]
+  },
+  {
+    "id": "qd4",
+    "axis": "data_ai_experiments",
+    "prompt": "Your work runs on experiments, and you expect plenty of them to fail.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "machine-learning": 1,
+          "ai": 1
+        },
+        "next": "qd5"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "ai": 1,
+          "python": 1
+        },
+        "next": "qd5"
+      }
+    ]
+  },
+  {
+    "id": "qd5",
+    "axis": "data_ai_split",
+    "prompt": "You’d rather train and run your own models than build on a hosted one.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "machine-learning": 1,
+          "pytorch": 1,
+          "mlops": 1
+        },
+        "next": "qd6"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "llm": 1,
+          "genai": 1
+        },
+        "next": "qd16"
+      }
+    ]
+  },
+  {
+    "id": "qd6",
+    "axis": "data_ml_tooling",
+    "prompt": "A framework like PyTorch or TensorFlow is installed and in use on your machine.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "pytorch": 2,
+          "tensorflow": 1
+        },
+        "next": "qd7"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "machine-learning": 1,
+          "python": 1
+        },
+        "next": "qd7"
+      }
+    ]
+  },
+  {
+    "id": "qd7",
+    "axis": "data_ml_focus",
+    "prompt": "You love digging into a model’s internals — its layers, attention, and gradients.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "deep-learning": 1,
+          "pytorch": 1,
+          "cuda": 1
+        },
+        "next": "qd8"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "mlops": 1,
+          "huggingface": 1
+        },
+        "next": "qd12"
+      }
+    ]
+  },
+  {
+    "id": "qd8",
+    "axis": "data_ml_research_flavour",
+    "prompt": "Reading academic papers is how you keep sharp in your domain.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "deep-learning": 2,
+          "transformers": 1
+        },
+        "next": "qd9"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "machine-learning": 1,
+          "python": 1
+        },
+        "next": "qd9"
+      }
+    ]
+  },
+  {
+    "id": "qd9",
+    "axis": "data_ml_research_applied",
+    "prompt": "Exploring novel architectures matters more to you than proving they work at scale.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "deep-learning": 1,
+          "transformers": 1
+        },
+        "next": "qd10"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "pytorch": 1,
+          "cuda": 1
+        },
+        "next": "qd11"
+      }
+    ]
+  },
+  {
+    "id": "qd10",
+    "axis": "ml_research_engineer_terminal",
+    "prompt": "You measure your impact by papers written or techniques contributed, not by models in production.",
+    "cols": 2,
+    "archetypeId": "ml_research_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "deep-learning": 2,
+          "transformers": 1,
+          "neural-networks": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "machine-learning": 1,
+          "python": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd11",
+    "axis": "ml_training_engineer_terminal",
+    "prompt": "A new architecture paper can pull you in as fast as a new benchmark score.",
+    "cols": 2,
+    "archetypeId": "ml_training_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "deep-learning": 2,
+          "neural-networks": 1,
+          "transformers": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "machine-learning": 1,
+          "python": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd12",
+    "axis": "data_mlops_holistic",
+    "prompt": "Model cards, deployment logs, and monitoring dashboards are equally important to you.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "mlops": 2,
+          "llmops": 1
+        },
+        "next": "qd13"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "machine-learning": 1,
+          "python": 1
+        },
+        "next": "qd13"
+      }
+    ]
+  },
+  {
+    "id": "qd13",
+    "axis": "data_mlops_evaluation_serving",
+    "prompt": "Evaluating whether a model is production-ready fascinates you more than operating the serving layer.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "deep-learning": 1,
+          "cicd": 1
+        },
+        "next": "qd14"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "mlops": 1,
+          "huggingface": 1
+        },
+        "next": "qd15"
+      }
+    ]
+  },
+  {
+    "id": "qd14",
+    "axis": "mlops_evaluation_engineer_terminal",
+    "prompt": "You've built an evaluation framework that catches regressions the way a test suite catches bugs.",
+    "cols": 2,
+    "archetypeId": "mlops_evaluation_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "mlops": 2,
+          "deep-learning": 1,
+          "data-science": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "machine-learning": 1,
+          "python": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd15",
+    "axis": "mlops_engineer_terminal",
+    "prompt": "A model is only interesting to you once it is serving traffic without falling over.",
+    "cols": 2,
+    "archetypeId": "mlops_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "mlops": 2,
+          "llmops": 1,
+          "cicd": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "machine-learning": 1,
+          "python": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd16",
+    "axis": "data_llm_shipping",
+    "prompt": "Shipping an AI feature, you wire up context and tools and leave the model weights alone.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "genai": 2,
+          "llm": 1
+        },
+        "next": "qd17"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "ai": 1,
+          "machine-learning": 1
+        },
+        "next": "qd17"
+      }
+    ]
+  },
+  {
+    "id": "qd17",
+    "axis": "data_llm_focus",
+    "prompt": "The product layer — prompts, tools, and agent behaviour — is where you spend your time.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "llm": 1,
+          "prompt-engineering": 1,
+          "langchain": 1
+        },
+        "next": "qd18"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "rag": 1,
+          "vector-search": 1,
+          "embeddings": 1
+        },
+        "next": "qd22"
+      }
+    ]
+  },
+  {
+    "id": "qd18",
+    "axis": "data_llm_agentic_wonder",
+    "prompt": "Watching an LLM solve multi-step problems through tool use still feels like magic.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "llm": 2,
+          "prompt-engineering": 1
+        },
+        "next": "qd19"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "genai": 1,
+          "ai": 1
+        },
+        "next": "qd19"
+      }
+    ]
+  },
+  {
+    "id": "qd19",
+    "axis": "data_llm_agents_prompts",
+    "prompt": "Designing tool chains and agent flows excites you more than perfecting prompt wording.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "langchain": 1,
+          "semantic-kernel": 1
+        },
+        "next": "qd20"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "prompt-engineering": 1,
+          "openai": 1
+        },
+        "next": "qd21"
+      }
+    ]
+  },
+  {
+    "id": "qd20",
+    "axis": "llm_agentic_engineer_terminal",
+    "prompt": "Designing an agent that sequences tools correctly without explicit prompts feels like genuine progress.",
+    "cols": 2,
+    "archetypeId": "llm_agentic_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "llm": 2,
+          "langchain": 1,
+          "semantic-kernel": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "genai": 1,
+          "ai": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd21",
+    "axis": "llm_prompt_engineer_terminal",
+    "prompt": "Fine-tuning a prompt until a model consistently outputs your exact format feels like mastery.",
+    "cols": 2,
+    "archetypeId": "llm_prompt_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "llm": 2,
+          "prompt-engineering": 1,
+          "openai": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "genai": 1,
+          "ai": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd22",
+    "axis": "data_rag_embedding_discussion",
+    "prompt": "Embedding model trade-offs are conversations you have as often as most engineers discuss latency.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "rag": 2,
+          "vector-search": 1
+        },
+        "next": "qd23"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "llm": 1,
+          "genai": 1
+        },
+        "next": "qd23"
+      }
+    ]
+  },
+  {
+    "id": "qd23",
+    "axis": "data_rag_pipeline_index",
+    "prompt": "Optimizing how documents flow into the index interests you more than what lives in it.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "embeddings": 1,
+          "data-engineering": 1
+        },
+        "next": "qd24"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "vector-search": 1,
+          "llm": 1
+        },
+        "next": "qd25"
+      }
+    ]
+  },
+  {
+    "id": "qd24",
+    "axis": "rag_ingestion_engineer_terminal",
+    "prompt": "You spend more effort on document chunking and refresh strategies than on tuning LLM prompts.",
+    "cols": 2,
+    "archetypeId": "rag_ingestion_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "rag": 2,
+          "embeddings": 1,
+          "data-engineering": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "llm": 1,
+          "genai": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd25",
+    "axis": "rag_vector_engineer_terminal",
+    "prompt": "Improving retrieval accuracy through smarter indexing and ranking is where you find satisfaction.",
+    "cols": 2,
+    "archetypeId": "rag_vector_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "vector-search": 2,
+          "embeddings": 1,
+          "rag": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "llm": 1,
+          "genai": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd26",
+    "axis": "data_consumer",
+    "prompt": "Your work is consumed by other systems as often as by people.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-engineering": 1,
+          "big-data": 1
+        },
+        "next": "qd27"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-analysis": 1,
+          "sql": 1
+        },
+        "next": "qd27"
+      }
+    ]
+  },
+  {
+    "id": "qd27",
+    "axis": "data_pipeline_split",
+    "prompt": "You take pride in building the pipelines that move data.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-engineering": 1,
+          "apache-kafka": 1,
+          "etl": 1
+        },
+        "next": "qd28"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sql": 1,
+          "bi": 1,
+          "data-analysis": 1
+        },
+        "next": "qd38"
+      }
+    ]
+  },
+  {
+    "id": "qd28",
+    "axis": "data_eng_reliability",
+    "prompt": "You carry a pager for your pipelines, just like a backend engineer does for services.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-engineering": 2,
+          "data-quality": 1
+        },
+        "next": "qd29"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "etl": 1,
+          "big-data": 1
+        },
+        "next": "qd29"
+      }
+    ]
+  },
+  {
+    "id": "qd29",
+    "axis": "data_eng_focus",
+    "prompt": "Events stream into your systems and you process them the moment they land.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-streaming": 1,
+          "apache-kafka": 1,
+          "change-data-capture": 1
+        },
+        "next": "qd30"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "apache-spark": 1,
+          "apache-airflow": 1,
+          "apache-iceberg": 1
+        },
+        "next": "qd34"
+      }
+    ]
+  },
+  {
+    "id": "qd30",
+    "axis": "data_streaming_freshness",
+    "prompt": "Real-time data freshness is baked into your system design from day one.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-streaming": 2,
+          "apache-kafka": 1
+        },
+        "next": "qd31"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-engineering": 1,
+          "etl": 1
+        },
+        "next": "qd31"
+      }
+    ]
+  },
+  {
+    "id": "qd31",
+    "axis": "data_streaming_ingestion_compute",
+    "prompt": "Reliably capturing changes from source systems fascinates you more than processing those events.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "change-data-capture": 1,
+          "apache-kafka": 1
+        },
+        "next": "qd32"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "apache-flink": 1,
+          "real-time-analytics": 1
+        },
+        "next": "qd33"
+      }
+    ]
+  },
+  {
+    "id": "qd32",
+    "axis": "streaming_ingestion_engineer_terminal",
+    "prompt": "A connector that catches every source change without data loss or double-counting is your achievement.",
+    "cols": 2,
+    "archetypeId": "streaming_ingestion_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "change-data-capture": 2,
+          "apache-kafka": 1,
+          "data-streaming": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-engineering": 1,
+          "etl": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd33",
+    "axis": "streaming_processor_engineer_terminal",
+    "prompt": "A correctly windowed join across a distributed stream that handles late events gracefully is elegant.",
+    "cols": 2,
+    "archetypeId": "streaming_processor_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-streaming": 2,
+          "apache-flink": 1,
+          "real-time-analytics": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-engineering": 1,
+          "etl": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd34",
+    "axis": "data_batch_schema_philosophy",
+    "prompt": "Your schema design philosophy shapes how you approach every transformation and pipeline.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-warehouse": 2,
+          "apache-spark": 1
+        },
+        "next": "qd35"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-engineering": 1,
+          "etl": 1
+        },
+        "next": "qd35"
+      }
+    ]
+  },
+  {
+    "id": "qd35",
+    "axis": "data_batch_lakehouse_warehouse",
+    "prompt": "Open table formats and schema-on-read appeal to you more than managed warehouse appliances.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "apache-iceberg": 1,
+          "apache-spark": 1
+        },
+        "next": "qd36"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "snowflake": 1,
+          "databricks": 1
+        },
+        "next": "qd37"
+      }
+    ]
+  },
+  {
+    "id": "qd36",
+    "axis": "lakehouse_engineer_terminal",
+    "prompt": "You chose Iceberg for schema evolution and time-travel because they align with your governance philosophy.",
+    "cols": 2,
+    "archetypeId": "lakehouse_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "apache-iceberg": 2,
+          "apache-spark": 1,
+          "data-warehouse": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-engineering": 1,
+          "etl": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd37",
+    "axis": "warehouse_modeler_engineer_terminal",
+    "prompt": "A normalized dimensional model with clear lineage and documentation is an artifact you're proud of.",
+    "cols": 2,
+    "archetypeId": "warehouse_modeler_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "snowflake": 2,
+          "databricks": 1,
+          "data-warehouse": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-engineering": 1,
+          "etl": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd38",
+    "axis": "data_analytics_sql",
+    "prompt": "SQL is your home base; Python is the tool you grab when you need it.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "sql": 2,
+          "analytics-platforms": 1
+        },
+        "next": "qd39"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-analysis": 1,
+          "data-science": 1
+        },
+        "next": "qd39"
+      }
+    ]
+  },
+  {
+    "id": "qd39",
+    "axis": "data_analytics_focus",
+    "prompt": "You’d reach for a BI tool and a clean data model before a notebook of statistics.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "bi": 1,
+          "data-visualization": 1,
+          "duckdb": 1
+        },
+        "next": "qd40"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "statistical-analysis": 1,
+          "exploratory-data-analysis": 1,
+          "jupyter": 1
+        },
+        "next": "qd44"
+      }
+    ]
+  },
+  {
+    "id": "qd40",
+    "axis": "data_analytics_performance",
+    "prompt": "You consider data freshness and query performance as part of your craft.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "analytics-platforms": 2,
+          "bi": 1
+        },
+        "next": "qd41"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sql": 1,
+          "data-analysis": 1
+        },
+        "next": "qd41"
+      }
+    ]
+  },
+  {
+    "id": "qd41",
+    "axis": "data_analytics_metrics_dashboards",
+    "prompt": "Building a governed metric layer matters more to you than crafting individual dashboards.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "duckdb": 1,
+          "sql": 1
+        },
+        "next": "qd42"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-visualization": 1,
+          "analytics-platforms": 1
+        },
+        "next": "qd43"
+      }
+    ]
+  },
+  {
+    "id": "qd42",
+    "axis": "metrics_platform_engineer_terminal",
+    "prompt": "When everyone stops arguing about which metric to use because there's one source of truth, you've won.",
+    "cols": 2,
+    "archetypeId": "metrics_platform_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "analytics-platforms": 2,
+          "duckdb": 1,
+          "sql": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-analysis": 1,
+          "data-visualization": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd43",
+    "axis": "bi_visualization_engineer_terminal",
+    "prompt": "Watching someone understand a complex data story through your dashboard is genuinely fulfilling.",
+    "cols": 2,
+    "archetypeId": "bi_visualization_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-visualization": 2,
+          "analytics-platforms": 1,
+          "bi": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sql": 1,
+          "data-analysis": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd44",
+    "axis": "data_science_hypothesis",
+    "prompt": "Hypothesis testing and experimental design are woven into how you think.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "data-science": 2,
+          "statistical-analysis": 1
+        },
+        "next": "qd45"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sql": 1,
+          "data-analysis": 1
+        },
+        "next": "qd45"
+      }
+    ]
+  },
+  {
+    "id": "qd45",
+    "axis": "data_science_prediction_exploration",
+    "prompt": "Building models that predict the future excites you more than understanding what happened.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "predictive-analytics": 1,
+          "scikit": 1
+        },
+        "next": "qd46"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "exploratory-data-analysis": 1,
+          "jupyter": 1
+        },
+        "next": "qd47"
+      }
+    ]
+  },
+  {
+    "id": "qd46",
+    "axis": "predictive_modeler_terminal",
+    "prompt": "A model with strong cross-validation and lower error than the baseline is a win worth celebrating.",
+    "cols": 2,
+    "archetypeId": "predictive_modeler",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "predictive-analytics": 2,
+          "scikit": 1,
+          "data-science": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "sql": 1,
+          "data-analysis": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qd47",
+    "axis": "analytical_statistician_terminal",
+    "prompt": "Proving with statistical rigor that a treatment worked is more satisfying than any model prediction.",
+    "cols": 2,
+    "archetypeId": "analytical_statistician",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "statistical-analysis": 2,
+          "exploratory-data-analysis": 1,
+          "data-analysis": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "data-science": 1,
+          "sql": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs1",
+    "axis": "specialty_surface",
+    "prompt": "Your work targets a device, a game, or a team — rarely a typical web service.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "game-development": 1,
+          "embedded": 1
+        },
+        "next": "qs2"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "leadership": 1,
+          "startup": 1
+        },
+        "next": "qs2"
+      }
+    ]
+  },
+  {
+    "id": "qs2",
+    "axis": "specialty_domain_split",
+    "prompt": "You still write more code than you review, delegate or pitch.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "game-development": 1,
+          "embedded": 1
+        },
+        "next": "qs3"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "leadership": 1,
+          "startup": 1
+        },
+        "next": "qs13"
+      }
+    ]
+  },
+  {
+    "id": "qs3",
+    "axis": "specialty_builder_toolchain",
+    "prompt": "Your daily toolchain is built around native SDKs, game engines or embedded runtimes.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "game-development": 1,
+          "embedded": 1
+        },
+        "next": "qs4"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "c++": 1,
+          "hardware": 1
+        },
+        "next": "qs4"
+      }
+    ]
+  },
+  {
+    "id": "qs4",
+    "axis": "specialty_builder_split",
+    "prompt": "What you build runs on a screen and is meant to be played.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "game-development": 1,
+          "gamedev": 1,
+          "unity": 1
+        },
+        "next": "qs5"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "embedded": 1,
+          "firmware": 1,
+          "hardware": 1
+        },
+        "next": "qs9"
+      }
+    ]
+  },
+  {
+    "id": "qs5",
+    "axis": "specialty_game_shipping",
+    "prompt": "You have shipped at least one game to a public store or platform.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "game-development": 2,
+          "steam": 1
+        },
+        "next": "qs6"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "gamedev": 1,
+          "gaming": 1
+        },
+        "next": "qs6"
+      }
+    ]
+  },
+  {
+    "id": "qs6",
+    "axis": "specialty_game_focus",
+    "prompt": "You judge your work by one question: is it fun to play?",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "game-design": 1,
+          "unity": 1,
+          "unreal-engine": 1
+        },
+        "next": "qs7"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "graphics-programming": 1,
+          "vulkan": 1,
+          "3d": 1
+        },
+        "next": "qs8"
+      }
+    ]
+  },
+  {
+    "id": "qs7",
+    "axis": "specialty_gameplay_terminal",
+    "prompt": "Playtesting a build with real players teaches you more than any design doc.",
+    "cols": 2,
+    "archetypeId": "gameplay_developer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "game-design": 2,
+          "unity": 1,
+          "godot": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "game-development": 1,
+          "gamedev": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs8",
+    "axis": "specialty_graphics_terminal",
+    "prompt": "You benchmark a shader the way other engineers benchmark an API.",
+    "cols": 2,
+    "archetypeId": "graphics_programmer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "graphics-programming": 2,
+          "webgpu": 1,
+          "vulkan": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "game-development": 1,
+          "3d": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs9",
+    "axis": "specialty_embedded_constraints",
+    "prompt": "Memory footprint and interrupt timing are numbers you watch as closely as throughput.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "embedded": 2,
+          "firmware": 1
+        },
+        "next": "qs10"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "hardware": 1,
+          "raspberry-pi": 1
+        },
+        "next": "qs10"
+      }
+    ]
+  },
+  {
+    "id": "qs10",
+    "axis": "specialty_embedded_focus",
+    "prompt": "You enjoy wringing every last cycle out of a single chip.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "firmware": 1,
+          "c": 1,
+          "rust": 1
+        },
+        "next": "qs11"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "iot": 1,
+          "robotics": 1,
+          "sensors": 1
+        },
+        "next": "qs12"
+      }
+    ]
+  },
+  {
+    "id": "qs11",
+    "axis": "specialty_firmware_terminal",
+    "prompt": "Bare metal is where you are comfortable; an operating system is a luxury you design around.",
+    "cols": 2,
+    "archetypeId": "firmware_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "firmware": 2,
+          "c": 1,
+          "arm": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "embedded": 1,
+          "hardware": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs12",
+    "axis": "specialty_iot_terminal",
+    "prompt": "Your code reads sensors and drives motors as often as it talks to a server.",
+    "cols": 2,
+    "archetypeId": "iot_robotics_engineer",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "robotics": 2,
+          "sensors": 1,
+          "mqtt": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "iot": 1,
+          "embedded": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs13",
+    "axis": "specialty_people_accountability",
+    "prompt": "You answer to people — a team or a market — first, and to a block of code second.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "leadership": 1,
+          "company-culture": 1
+        },
+        "next": "qs14"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "startup": 1,
+          "business": 1
+        },
+        "next": "qs14"
+      }
+    ]
+  },
+  {
+    "id": "qs14",
+    "axis": "specialty_people_split",
+    "prompt": "You’re growing a team inside a company someone else started.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "leadership": 1,
+          "company-culture": 1
+        },
+        "next": "qs15"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "startup": 1,
+          "entrepreneurship": 1
+        },
+        "next": "qs19"
+      }
+    ]
+  },
+  {
+    "id": "qs15",
+    "axis": "specialty_leadership_rhythm",
+    "prompt": "Your calendar is mostly one-on-ones and team rituals, with little design or architecture time.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "leadership": 2,
+          "remote-work": 1
+        },
+        "next": "qs16"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "agile": 1,
+          "project-management": 1
+        },
+        "next": "qs16"
+      }
+    ]
+  },
+  {
+    "id": "qs16",
+    "axis": "specialty_leadership_focus",
+    "prompt": "Your instinct is to invest in people before you invest in the architecture.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "leadership": 1,
+          "company-culture": 1,
+          "scrum": 1
+        },
+        "next": "qs17"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "architecture": 1,
+          "design-patterns": 1,
+          "technical-debt": 1
+        },
+        "next": "qs18"
+      }
+    ]
+  },
+  {
+    "id": "qs17",
+    "axis": "specialty_eng_manager_terminal",
+    "prompt": "Your team shipping well without you in the room is the clearest sign of your best work.",
+    "cols": 2,
+    "archetypeId": "engineering_manager",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "leadership": 2,
+          "company-culture": 1,
+          "project-management": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "career": 1,
+          "agile": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs18",
+    "axis": "specialty_tech_lead_terminal",
+    "prompt": "Setting the technical direction the team can run with is squarely your responsibility.",
+    "cols": 2,
+    "archetypeId": "technical_lead_architect",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "architecture": 2,
+          "design-patterns": 1,
+          "technical-debt": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "leadership": 1,
+          "continuous-improvement": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs19",
+    "axis": "specialty_founder_calendar",
+    "prompt": "Fundraising, customer calls and runway math are recurring items on your calendar.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "startup": 2,
+          "entrepreneurship": 1
+        },
+        "next": "qs20"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "business": 1,
+          "business-development": 1
+        },
+        "next": "qs20"
+      }
+    ]
+  },
+  {
+    "id": "qs20",
+    "axis": "specialty_founder_focus",
+    "prompt": "Building the company and its product is what you’re really chasing.",
+    "cols": 2,
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "startup": 1,
+          "product-management": 1,
+          "revenue": 1
+        },
+        "next": "qs21"
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "devrel": 1,
+          "open-source": 1
+        },
+        "next": "qs22"
+      }
+    ]
+  },
+  {
+    "id": "qs21",
+    "axis": "specialty_founder_terminal",
+    "prompt": "Debugging production at 2am and pitching investors at 9am can happen on the same day for you.",
+    "cols": 2,
+    "archetypeId": "startup_founder",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "startup": 2,
+          "venture-capital": 1,
+          "revenue": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "entrepreneurship": 1,
+          "business": 1
+        },
+        "next": null
+      }
+    ]
+  },
+  {
+    "id": "qs22",
+    "axis": "specialty_devrel_terminal",
+    "prompt": "Turning hard technology into something developers love to use is the work you gravitate to.",
+    "cols": 2,
+    "archetypeId": "developer_advocate",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes",
+        "tagWeights": {
+          "devrel": 2,
+          "open-source": 1,
+          "business-development": 1
+        },
+        "next": null
+      },
+      {
+        "id": "no",
+        "label": "No",
+        "tagWeights": {
+          "career": 1,
+          "productivity": 1
+        },
+        "next": null
+      }
+    ]
+  }
+]

@@ -32,6 +32,7 @@ export enum FunnelStepType {
   HeroLanding = 'heroLanding',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
+  PersonaQuiz = 'personaQuiz',
 }
 
 export enum FunnelBackgroundVariant {
@@ -401,6 +402,80 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface PersonaQuizOption {
+  id: string;
+  label: string;
+  emoji?: string;
+  tagWeights?: Record<string, number>;
+  next?: string | null;
+}
+
+export interface PersonaQuizQuestion {
+  id: string;
+  axis: string;
+  prompt: string;
+  imageUrl?: string;
+  cols?: number;
+  options: PersonaQuizOption[];
+  /**
+   * Set on terminal nodes (last question of a specialty subtree). When the
+   * user answers a question with this set, the orchestration looks up the
+   * matching archetype and transitions to the reveal phase.
+   */
+  archetypeId?: string;
+}
+
+export interface PersonaArchetype {
+  id: string;
+  name: string;
+  headline: string;
+  description: string;
+  keyTags: string[];
+}
+
+export interface FunnelStepPersonaQuizParameters {
+  headline?: string;
+  explainer?: string;
+  questions: PersonaQuizQuestion[];
+  entryQuestionId?: string;
+  selection: {
+    maxQuestions: number;
+    targetTotalTags: number;
+    tagConfidenceFloor: number;
+    /** Generic backfill used when no domain-specific list applies. */
+    fallbackTags?: string[];
+    /**
+     * Domain-specific backfill keyed by the Q1 (opener) option id. Preferred
+     * over `fallbackTags` so a sparse result is topped up with tags relevant
+     * to the user's chosen domain rather than generic ones.
+     */
+    fallbackTagsByDomain?: Record<string, string[]>;
+  };
+  /**
+   * Finite set of persona archetypes the quiz can resolve to. The user's path
+   * through the DAG terminates on a question carrying an `archetypeId`, which
+   * is matched against this list. Tag accumulation continues independently
+   * and provides the per-user "flavour" within an archetype.
+   */
+  archetypes: PersonaArchetype[];
+  reveal: {
+    eyebrow?: string;
+    cta?: string;
+    feedbackCta?: string;
+    feedbackPlaceholder?: string;
+    addTagCta?: string;
+  };
+}
+
+export interface FunnelStepPersonaQuiz
+  extends FunnelStepCommon<FunnelStepPersonaQuizParameters> {
+  type: FunnelStepType.PersonaQuiz;
+  onTransition: FunnelStepTransitionCallback<{
+    tags: string[];
+    quizAnswers: Array<{ questionId: string; optionId: string }>;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -422,7 +497,8 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepPersonaQuiz;
 
 export type FunnelPosition = {
   chapter: number;
@@ -472,4 +548,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
+  FunnelStepType.PersonaQuiz,
 ];

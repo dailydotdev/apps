@@ -323,6 +323,12 @@ export enum LogEvent {
   StartAiFluencyQuiz = 'start ai fluency quiz',
   CompleteAiFluencyQuiz = 'complete ai fluency quiz',
   ShareAiFluencyQuiz = 'share ai fluency quiz',
+  // Persona quiz (onboarding funnel step)
+  StartPersonaQuiz = 'start persona quiz',
+  AnswerPersonaQuestion = 'answer persona question',
+  CompletePersonaQuiz = 'complete persona quiz',
+  PersonaQuizFeedback = 'persona quiz feedback',
+  PersonaQuizTagEdit = 'persona quiz tag edit',
   // Plus subscription
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',

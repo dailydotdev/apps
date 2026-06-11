@@ -137,6 +137,13 @@ const strictSkipList = new Set([
   // ReactElement vs null return, Button props union) live on unrelated
   // lines and should be addressed in a dedicated cleanup PR.
   'packages/shared/src/components/streak/ReadingStreakButton.tsx',
+  // Persona-quiz branch — only touched to register the new PersonaQuiz
+  // step in stepComponentMap (+1 import, +1 map entry). Pre-existing strict
+  // violations on lines 86/128/228/260/281 (Partial<Record> map indexing,
+  // scrollend event typing, null returns, Partial<FunnelBannerMessageParameters>
+  // spread, PaddleEventData handler shape) come from other authors months
+  // ago and should be addressed in a dedicated cleanup PR.
+  'packages/shared/src/features/onboarding/shared/FunnelStepper.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
