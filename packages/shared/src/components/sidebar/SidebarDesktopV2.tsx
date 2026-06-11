@@ -354,7 +354,6 @@ const SidebarProfileButton = (): ReactElement | null => {
             className="rounded-10 px-1 py-1 hover:bg-surface-hover"
           />
           <SidebarProfileStats />
-          <HorizontalSeparator />
           <ProfileMenuSection items={items} />
         </InteractivePopup>
       )}
@@ -780,10 +779,12 @@ export const SidebarDesktopV2 = ({
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
-        // While peeking, tint + lift the sidebar so the expanded panel paints
-        // cleanly over the feed instead of letting it bleed through.
+        // While peeking, make the sidebar opaque so the expanded panel paints
+        // over the feed instead of letting it bleed through. `background-default`
+        // is the exact page color the pinned sidebar shows through, so the
+        // overlay looks identical to the docked sidebar — no shadow, no tint.
         isHoverExpanded
-          ? 'laptop:bg-background-default laptop:shadow-3'
+          ? 'laptop:bg-background-default'
           : 'laptop:bg-transparent',
         // Collapsed sidebar reads as a resize handle: click the empty surface
         // to pin it open.

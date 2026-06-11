@@ -16,12 +16,13 @@ import {
   TypographyType,
 } from '../typography/Typography';
 
-const tileClass =
-  'focus-outline flex flex-1 flex-col items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-transparent px-2 py-3 transition-colors hover:bg-surface-hover';
+const cellClass =
+  'focus-outline flex flex-1 items-center justify-center gap-2 px-3 py-2.5 transition-colors hover:bg-surface-hover';
 
 // Reputation + Cores wallet shown at the top of the rail-bottom profile
-// dropdown. Streak is intentionally omitted here — it lives on the rail
-// itself (see SidebarRailStats).
+// dropdown, styled like production: a single dark, bordered card holding both
+// stats side by side with a divider between them. Streak is intentionally
+// omitted here — it lives on the rail (see SidebarRailStats).
 export const SidebarProfileStats = (): ReactElement | null => {
   const { user } = useAuthContext();
 
@@ -34,56 +35,60 @@ export const SidebarProfileStats = (): ReactElement | null => {
   const preciseBalance = formatCurrency(balance, { minimumFractionDigits: 0 });
 
   return (
-    <div className="flex items-stretch gap-2">
+    <div className="flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
       <Link href={reputationDocsUrl} passHref>
         <a
-          className={tileClass}
+          className={cellClass}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Reputation: ${reputation}`}
         >
-          <span className="flex items-center gap-1">
-            <ReputationIcon
-              size={IconSize.Size16}
-              className="text-accent-onion-default"
-            />
+          <ReputationIcon
+            size={IconSize.Small}
+            className="text-accent-onion-default"
+          />
+          <div className="flex flex-col">
             <Typography
               bold
-              type={TypographyType.Callout}
+              type={TypographyType.Footnote}
               className="tabular-nums"
             >
               {largeNumberFormat(reputation)}
             </Typography>
-          </span>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            Reputation
-          </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              Reputation
+            </Typography>
+          </div>
         </a>
       </Link>
+      <span
+        aria-hidden
+        className="w-px self-stretch bg-border-subtlest-tertiary"
+      />
       <Link href={walletUrl} passHref>
-        <a className={tileClass} aria-label={`Cores wallet: ${preciseBalance}`}>
-          <span className="flex items-center gap-1">
-            <CoreIcon
-              size={IconSize.Size16}
-              className="text-accent-cheese-default"
-            />
+        <a className={cellClass} aria-label={`Cores wallet: ${preciseBalance}`}>
+          <CoreIcon
+            size={IconSize.Small}
+            className="text-accent-cheese-default"
+          />
+          <div className="flex flex-col">
             <Typography
               bold
-              type={TypographyType.Callout}
+              type={TypographyType.Footnote}
               className="tabular-nums"
             >
               {largeNumberFormat(balance)}
             </Typography>
-          </span>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            Cores
-          </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              Cores
+            </Typography>
+          </div>
         </a>
       </Link>
     </div>

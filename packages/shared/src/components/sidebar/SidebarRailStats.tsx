@@ -13,7 +13,7 @@ import { StreakPopover } from './StreakPopover';
 
 const slotClass =
   'focus-outline flex w-full flex-col items-center justify-center gap-0.5 rounded-12 py-2 text-text-primary transition-colors hover:bg-surface-hover';
-const iconBoxClass = 'flex size-5 shrink-0 items-center justify-center';
+const iconBoxClass = 'flex size-8 shrink-0 items-center justify-center';
 
 type RailSlotProps = {
   ariaLabel: string;
@@ -93,8 +93,8 @@ export const SidebarRailStats = (): ReactElement | null => {
         <span className={iconBoxClass} aria-hidden>
           <ReadingStreakIcon
             secondary={hasReadToday}
-            size={IconSize.XSmall}
-            className="scale-75 text-accent-bacon-default"
+            size={IconSize.Large}
+            className="text-accent-bacon-default"
           />
         </span>
       }
