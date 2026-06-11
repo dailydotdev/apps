@@ -34,6 +34,7 @@ type PostUpvotesCommentsCountPost = Pick<
 interface PostUpvotesCommentsCountProps {
   post: PostUpvotesCommentsCountPost;
   onUpvotesClick?: (upvotes: number) => unknown;
+  onCommentsClick?: () => unknown;
   className?: string;
   compact?: boolean;
   passive?: boolean;
@@ -48,6 +49,7 @@ type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
 const PostUpvotesCommentsCountContent = ({
   post,
   onUpvotesClick,
+  onCommentsClick,
   onRepostsClick,
   onAwardsClick,
   showPostAnalytics = false,
@@ -104,12 +106,12 @@ const PostUpvotesCommentsCountContent = ({
           onClick: () => onUpvotesClick?.(upvotes),
           children: getText({ count: upvotes, label: 'Upvote' }),
         })}
-      {comments > 0 && (
-        <span>
-          {largeNumberFormat(comments)}
-          {` Comment${comments === 1 ? '' : 's'}`}
-        </span>
-      )}
+      {comments > 0 &&
+        renderText({
+          key: 'comments',
+          onClick: onCommentsClick,
+          children: getText({ count: comments, label: 'Comment' }),
+        })}
       {reposts > 0 &&
         renderText({
           key: 'reposts',
@@ -153,6 +155,7 @@ const PostUpvotesCommentsCountContent = ({
 const InteractivePostUpvotesCommentsCount = ({
   post,
   onUpvotesClick,
+  onCommentsClick,
   className,
   compact,
 }: PostUpvotesCommentsCountProps): ReactElement => {
@@ -165,6 +168,7 @@ const InteractivePostUpvotesCommentsCount = ({
       <PostUpvotesCommentsCountContent
         post={post}
         onUpvotesClick={onUpvotesClick}
+        onCommentsClick={onCommentsClick}
         className={className}
         compact={compact}
       />
@@ -192,6 +196,7 @@ const InteractivePostUpvotesCommentsCount = ({
     <PostUpvotesCommentsCountContent
       post={post}
       onUpvotesClick={onUpvotesClick}
+      onCommentsClick={onCommentsClick}
       onRepostsClick={onRepostsClick}
       onAwardsClick={
         hasAccessToCores && awards > 0

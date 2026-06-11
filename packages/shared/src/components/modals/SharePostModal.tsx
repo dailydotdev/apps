@@ -11,6 +11,8 @@ import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { SquadPostContent } from '../post/SquadPostContent';
 import { isSourceUserSource } from '../../graphql/sources';
+import { usePostRedesign } from '../../hooks/post/usePostRedesign';
+import { PostFocusCard } from '../post/focus/PostFocusCard';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -31,13 +33,15 @@ export default function PostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
+  const { showRedesign } = usePostRedesign(post);
 
   return (
     <BasePostModal
       {...props}
       post={post}
       onAfterOpen={onLoad}
-      size={Modal.Size.XLarge}
+      size={showRedesign ? Modal.Size.Large : Modal.Size.XLarge}
+      className={showRedesign ? 'laptop:!overflow-visible' : undefined}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
       source={post.source}
@@ -46,6 +50,8 @@ export default function PostModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
+      {/* The squad notification prompt is shown for share posts regardless of
+          which layout renders below it. */}
       <EnableNotification
         source={NotificationPromptSource.SquadPostModal}
         label={
@@ -54,21 +60,32 @@ export default function PostModal({
             : post?.source?.handle
         }
       />
-      <SquadPostContent
-        position={position}
-        post={post}
-        onPreviousPost={onPreviousPost}
-        onNextPost={onNextPost}
-        postPosition={postPosition}
-        inlineActions
-        onClose={onRequestClose}
-        origin={Origin.ArticleModal}
-        className={{
-          fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
-          navigation: { actions: 'ml-auto tablet:hidden' },
-          onboarding: 'mb-0 mt-8',
-        }}
-      />
+      {showRedesign ? (
+        <PostFocusCard
+          post={post}
+          origin={Origin.ArticleModal}
+          onClose={() => onRequestClose?.(undefined as never)}
+        />
+      ) : (
+        <SquadPostContent
+          position={position}
+          post={post}
+          onPreviousPost={onPreviousPost}
+          onNextPost={onNextPost}
+          postPosition={postPosition}
+          inlineActions
+          onClose={onRequestClose}
+          origin={Origin.ArticleModal}
+          className={{
+            fixedNavigation: {
+              container: '!w-[inherit]',
+              actions: 'ml-auto',
+            },
+            navigation: { actions: 'ml-auto tablet:hidden' },
+            onboarding: 'mb-0 mt-8',
+          }}
+        />
+      )}
     </BasePostModal>
   );
 }
