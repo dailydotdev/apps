@@ -534,6 +534,10 @@ export const SidebarDesktopV2 = ({
   // snaps into its final state on first paint and only genuine user
   // toggles animate afterwards.
   const [isRailHovered, setIsRailHovered] = useState(false);
+  // After a click-to-collapse the cursor is still over the sidebar. Suppress
+  // the hover-peek until it actually leaves and re-enters, so the first click
+  // collapses instead of instantly re-expanding under the cursor.
+  const peekSuppressedRef = useRef(false);
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
     if (loadedSettings) {
@@ -616,8 +620,24 @@ export const SidebarDesktopV2 = ({
     logEvent({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
     });
+    if (sidebarExpanded) {
+      peekSuppressedRef.current = true;
+      setIsRailHovered(false);
+    }
     toggleSidebarExpanded();
   }, [logEvent, sidebarExpanded, toggleSidebarExpanded]);
+
+  const handleRailMouseEnter = useCallback(() => {
+    if (peekSuppressedRef.current) {
+      return;
+    }
+    setIsRailHovered(true);
+  }, []);
+
+  const handleRailMouseLeave = useCallback(() => {
+    peekSuppressedRef.current = false;
+    setIsRailHovered(false);
+  }, []);
 
   const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
     if (category === SidebarCategory.Squads) {
@@ -816,8 +836,8 @@ export const SidebarDesktopV2 = ({
   return (
     <SidebarAside
       data-testid="sidebar-aside"
-      onMouseEnter={() => setIsRailHovered(true)}
-      onMouseLeave={() => setIsRailHovered(false)}
+      onMouseEnter={handleRailMouseEnter}
+      onMouseLeave={handleRailMouseLeave}
       onClick={pinFromEmptyClick}
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
