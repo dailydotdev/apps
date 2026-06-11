@@ -43,6 +43,9 @@ export const DiscoverSection = ({
           <ListIcon Icon={() => <HotIcon secondary={active} />} />
         ),
         title: 'Explore',
+        // Bare path (not webappUrl) so it active-matches the in-place Explore
+        // feed on the extension new tab; `onNavTabClick` switches the feed
+        // client-side, so this must render as a button, not a link.
         path: '/posts',
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
@@ -52,6 +55,7 @@ export const DiscoverSection = ({
         ),
         title: 'Tags',
         path: `${webappUrl}tags`,
+        isForcedLink: true,
       },
       {
         icon: (active: boolean) => (
@@ -59,6 +63,7 @@ export const DiscoverSection = ({
         ),
         title: 'Sources',
         path: `${webappUrl}sources`,
+        isForcedLink: true,
       },
       {
         icon: (active: boolean) => (
@@ -66,6 +71,7 @@ export const DiscoverSection = ({
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,
+        isForcedLink: true,
       },
       {
         icon: (active: boolean) => (
@@ -73,6 +79,7 @@ export const DiscoverSection = ({
         ),
         title: 'Discussions',
         path: `${webappUrl}discussed`,
+        isForcedLink: true,
         action: () => {
           if (user) {
             completeAction(ActionType.CommentFeed);
@@ -86,6 +93,7 @@ export const DiscoverSection = ({
         title: 'Hot Takes',
         requiresLogin: true,
         path: `${webappUrl}?openModal=hottakes`,
+        isForcedLink: true,
         action: () => {
           logEvent({ event_name: LogEvent.OpenHotAndCold });
         },
@@ -97,7 +105,7 @@ export const DiscoverSection = ({
     <Section
       {...defaultRenderSectionProps}
       items={menuItems}
-      isItemsButton={false}
+      isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.OtherExpanded}
     />
   );
