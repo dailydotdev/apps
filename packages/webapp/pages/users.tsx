@@ -120,6 +120,7 @@ const LeaderboardPage = ({
             }}
             items={highestReputation}
             isLoading={isLoading}
+            leaderboardType={LeaderboardType.HighestReputation}
           />
           <UserTopList
             containerProps={{
@@ -129,6 +130,7 @@ const LeaderboardPage = ({
             items={longestStreak}
             isLoading={isLoading}
             concatScore={false}
+            leaderboardType={LeaderboardType.LongestStreak}
           />
           <UserTopList
             containerProps={{
@@ -161,6 +163,7 @@ const LeaderboardPage = ({
             }}
             items={mostReadingDays}
             isLoading={isLoading}
+            leaderboardType={LeaderboardType.MostReadingDays}
           />
           <UserTopList
             containerProps={{
