@@ -24,6 +24,8 @@ import {
   VIcon,
 } from '../../../components/icons';
 import ConfettiSvg from '../../../svg/ConfettiSvg';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
 import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
@@ -374,6 +376,7 @@ interface GivebackPersonalRoadmapProps {
 export const GivebackPersonalRoadmap = ({
   onTakeAction,
 }: GivebackPersonalRoadmapProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const { earnedPoints, currentLevel, isPending } =
     useGivebackContribution(true);
   const { rewardTiers } = useContributionRewards(true);
@@ -481,12 +484,29 @@ export const GivebackPersonalRoadmap = ({
   };
 
   const onClaim = async (tierId: string) => {
+    const level = levels.find((item) => item.id === tierId);
+    logEvent({
+      event_name: LogEvent.ClaimGivebackReward,
+      target_id: tierId,
+      extra: JSON.stringify({
+        reward_type: level?.reward.type,
+        threshold: level?.requiredApprovedAmount,
+      }),
+    });
     setClaimingId(tierId);
     try {
       await claim(tierId);
     } finally {
       setClaimingId(null);
     }
+  };
+
+  const handleTakeAction = () => {
+    logEvent({
+      event_name: LogEvent.ClickGivebackTakeAction,
+      extra: JSON.stringify({ origin: 'roadmap' }),
+    });
+    onTakeAction();
   };
 
   // Window: current level + the next few. "Show more" extends it; "Show
@@ -615,7 +635,7 @@ export const GivebackPersonalRoadmap = ({
               segmentProgress={segmentProgress}
               isClaiming={isClaiming && claimingId === node.level.id}
               onClaim={onClaim}
-              onTakeAction={onTakeAction}
+              onTakeAction={handleTakeAction}
             />
           ))}
 

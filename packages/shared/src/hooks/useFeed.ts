@@ -13,23 +13,45 @@ import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
 import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
 import type { PostHighlight } from '../graphql/highlights';
 import AuthContext from '../contexts/AuthContext';
+import FeedContext from '../contexts/FeedContext';
 import useSubscription from './useSubscription';
 import {
   findIndexOfPostInData,
   getNextPageParam,
+  OtherFeedPage,
   removeCachedPagePost,
   RequestKey,
   StaleTime,
   updateCachedPagePost,
 } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
 import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
+import type { NotificationCtaPlacement } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
-import { featureFeedAdTemplate } from '../lib/featureManagement';
+import {
+  briefFeedEntrypointPage,
+  featureFeedAdTemplate,
+  featureHeroCards,
+} from '../lib/featureManagement';
+import { useConditionalFeature } from './useConditionalFeature';
+import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
+import {
+  computeAdClamp,
+  computePlacements,
+  createPlacementBuilder,
+  deriveAdCadence,
+  isHeroEligiblePost,
+} from '../lib/feedHighlightColSpan';
+import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
+import type { HeroCardsConfig } from '../types';
+import { useViewSize, ViewSize } from './useViewSize';
+import { useFeedLayout } from './useFeedLayout';
+import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { AdPlacement } from '../lib/ads';
@@ -90,6 +112,33 @@ const createPlaceholderItem = (index?: number): PlaceholderItem => ({
   ...(typeof index === 'number' ? { index } : {}),
 });
 
+export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
+  SharedFeedPage.MyFeed,
+  SharedFeedPage.Popular,
+  SharedFeedPage.Upvoted,
+  SharedFeedPage.Custom,
+  OtherFeedPage.Following,
+  OtherFeedPage.Discussed,
+  OtherFeedPage.Explore,
+  OtherFeedPage.ExploreLatest,
+  OtherFeedPage.ExploreDiscussed,
+  OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.ExploreTag,
+  OtherFeedPage.Tag,
+  OtherFeedPage.Tags,
+  OtherFeedPage.TagPage,
+  OtherFeedPage.TagsTopPosts,
+  OtherFeedPage.TagsMostUpvoted,
+  OtherFeedPage.TagsBestDiscussed,
+  OtherFeedPage.TagArchive,
+  OtherFeedPage.Source,
+  OtherFeedPage.Sources,
+  OtherFeedPage.SourcePage,
+  OtherFeedPage.SourceMostUpvoted,
+  OtherFeedPage.SourceBestDiscussed,
+  OtherFeedPage.SourceArchive,
+]);
+
 export type FeedItem =
   | PostItem
   | HighlightItem
@@ -108,8 +157,46 @@ export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
+export type FeedBannerInsertions = {
+  /**
+   * Indices where a full-row banner is rendered BEFORE the item at that
+   * index. Used both by the placement builder inside `useFeed` to compute
+   * banner-aware visual cells (correct ad cadence) and by the renderer to
+   * place the actual banner element in DOM order.
+   */
+  fullRowInsertionBeforeIndex: ReadonlySet<number>;
+  briefBannerPage: number;
+  showPromoBanner: boolean;
+  indexWhenShowingPromoBanner: number;
+  hero: {
+    shouldShowTopHero: boolean;
+    shouldShowInFeedHero: boolean;
+    adjustedHeroInsertIndex: number;
+    title: string;
+    subtitle: string;
+    onEnable: (
+      placement:
+        | NotificationCtaPlacement.TopHero
+        | NotificationCtaPlacement.InFeedHero,
+    ) => Promise<void>;
+    onDismiss: (
+      placement:
+        | NotificationCtaPlacement.TopHero
+        | NotificationCtaPlacement.InFeedHero,
+    ) => Promise<void>;
+  };
+};
+
 export type FeedReturnType = {
   items: FeedItem[];
+  /**
+   * One placement per `items` entry — colSpan + visual row/column —
+   * computed banner-aware and ad-cadence-aware so callers can render and
+   * log analytics from a single source of truth.
+   */
+  placements: FeedItemPlacement[];
+  heroCardsConfig: HeroCardsConfig;
+  bannerInsertions: FeedBannerInsertions;
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
@@ -148,6 +235,23 @@ export interface UseFeedOptionalParams<T> {
   >;
   settings?: UseFeedSettingParams;
   onEmptyFeed?: () => void;
+  /**
+   * Eligibility for the brief banner promo (true when the user is not Plus
+   * AND on My Feed). Gates the evaluation of the `briefFeedEntrypointPage`
+   * feature flag.
+   */
+  isBriefBannerEligible?: boolean;
+  /**
+   * Number of fixed "first slot" cards (e.g. profile completion / brief
+   * card) rendered ABOVE the feed grid. Used to shift banner indices so
+   * they land at visually predictable positions.
+   */
+  firstSlotOffset?: number;
+  /**
+   * Suppress the top-hero placement entirely (including its impression
+   * event). Used when a parent layout owns the top hero.
+   */
+  disableTopHero?: boolean;
 }
 
 export default function useFeed<T>(
@@ -159,10 +263,35 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { query, variables, options = {}, settings, onEmptyFeed } = params;
+  const {
+    query,
+    variables,
+    options = {},
+    settings,
+    onEmptyFeed,
+    isBriefBannerEligible = false,
+    firstSlotOffset = 0,
+    disableTopHero = false,
+  } = params;
+  const { numCards: numCardsBySpaciness } = useContext(FeedContext);
+  const numCards = numCardsBySpaciness.eco;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
+  const isTabletViewport = useViewSize(ViewSize.Tablet);
+  const isMobileViewport = !isTabletViewport;
+  const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const useList = isListMode && numCards > 1;
+  const isListContext = useList || shouldUseListFeedLayout;
+  const virtualizedNumCards = useList ? 1 : numCards;
+  const canRenderHighlightCards =
+    !isMobileViewport &&
+    !isListContext &&
+    virtualizedNumCards > 1 &&
+    HERO_ELIGIBLE_FEEDS.has(settings?.feedName as AllFeedPages);
+  const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
+    'highlightCardsOptOut',
+  );
   // Track if we're currently resetting due to stale cursor to prevent infinite loops
   const isResettingRef = useRef(false);
   const { fetchTranslations } = useTranslation({
@@ -267,6 +396,71 @@ export default function useFeed<T>(
       !settings?.disableAds,
   );
 
+  const shouldEvaluateHighlightCards = useMemo(() => {
+    if (!canRenderHighlightCards || isHighlightCardsOptedOut) {
+      return false;
+    }
+
+    return (
+      feedQuery.data?.pages.some(({ page }) =>
+        page.edges.some(
+          ({ node }) =>
+            node.itemType !== 'highlight' && isHeroEligiblePost(node.post),
+        ),
+      ) ?? false
+    );
+  }, [
+    canRenderHighlightCards,
+    isHighlightCardsOptedOut,
+    feedQuery.data?.pages,
+  ]);
+  const { value: heroCardsConfig } = useConditionalFeature({
+    feature: featureHeroCards,
+    shouldEvaluate: shouldEvaluateHighlightCards,
+  });
+
+  const { value: briefBannerPage } = useConditionalFeature({
+    feature: briefFeedEntrypointPage,
+    shouldEvaluate: isBriefBannerEligible,
+  });
+
+  const rawEdgeCount = useMemo(
+    () =>
+      feedQuery.data?.pages.reduce((acc, p) => acc + p.page.edges.length, 0) ??
+      0,
+    [feedQuery.data?.pages],
+  );
+
+  const heroFeedHero = useReadingReminderFeedHero({
+    itemCount: rawEdgeCount,
+    itemsPerRow: virtualizedNumCards,
+    firstSlotOffset,
+    disableTopHero,
+  });
+
+  const showPromoBanner = !!briefBannerPage;
+  const columnsDiffWithPage = pageSize % virtualizedNumCards;
+  const indexWhenShowingPromoBanner =
+    pageSize * Number(briefBannerPage) -
+    columnsDiffWithPage * Number(briefBannerPage) -
+    firstSlotOffset;
+
+  const fullRowInsertionBeforeIndex = useMemo(() => {
+    const set = new Set<number>();
+    if (showPromoBanner) {
+      set.add(indexWhenShowingPromoBanner);
+    }
+    if (heroFeedHero.shouldShowInFeedHero) {
+      set.add(heroFeedHero.adjustedHeroInsertIndex);
+    }
+    return set;
+  }, [
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
+    heroFeedHero.shouldShowInFeedHero,
+    heroFeedHero.adjustedHeroInsertIndex,
+  ]);
+
   const { fetchAd } = useFetchAd();
   const adsQuery = useInfiniteQuery<
     Ad,
@@ -370,8 +564,29 @@ export default function useFeed<T>(
     ],
   );
 
+  const cadence = useMemo(
+    () =>
+      deriveAdCadence({
+        isPlus,
+        isFeedPreview,
+        disableAds: settings?.disableAds,
+        adStart:
+          adTemplate?.adStart ??
+          featureFeedAdTemplate.defaultValue.default.adStart,
+        adRepeat: adTemplate?.adRepeat ?? pageSize + 1,
+      }),
+    [
+      isPlus,
+      isFeedPreview,
+      settings?.disableAds,
+      adTemplate?.adStart,
+      adTemplate?.adRepeat,
+      pageSize,
+    ],
+  );
+
   const items = useMemo(() => {
-    let newItems: FeedItem[] = [];
+    const newItems: FeedItem[] = [];
 
     // Check if marketing CTA should be shown as first card
     const marketingCta = settings?.marketingCta;
@@ -381,96 +596,139 @@ export default function useFeed<T>(
     const showAcquisitionForm = settings?.showAcquisitionForm ?? false;
 
     if (feedQuery.data) {
+      // Track visual cells (not logical items) for ad cadence so wide
+      // cards consume their full visual width against the ad schedule.
+      // The builder returns colSpan=1 when the layout is disabled
+      // (mobile/list/single-col), so we never need to special-case those.
       const seenPostIds = new Set<string>();
-      newItems = feedQuery.data.pages.reduce<FeedItem[]>(
-        (acc, { page }, pageIndex) => {
-          page.edges.forEach(({ node }, index: number) => {
-            const adIndex = acc.length;
-            const adItem = getAd({ index: adIndex });
+      let visualCellsSoFar = 0;
 
-            if (adItem) {
-              const withFirstIndex = (condition: boolean) =>
-                pageIndex === 0 && adItem.index === 0 && condition;
+      const placementBuilder = createPlacementBuilder({
+        numCards: virtualizedNumCards,
+        isMobile: isMobileViewport,
+        isList: isListContext,
+        isEnabled: heroCardsConfig.enabled,
+        minSpacing: heroCardsConfig.minSpacing,
+        startIndex: heroCardsConfig.startIndex,
+      });
 
-              // Skip ad slot if marketing CTA is shown as first card
-              const shouldSkipAdForMarketingCta = withFirstIndex(
-                (marketingCtaAsFirstCard ?? false) ||
-                  (plusEntryAsFirstCard ?? false),
-              );
+      const staticAd = settings?.staticAd;
+      let staticAdInserted = !staticAd;
 
-              if (shouldSkipAdForMarketingCta) {
-                // Don't push anything - marketing CTA is already at the top
-              } else if (plusEntry && withFirstIndex(true)) {
-                acc.push({
-                  type: FeedItemType.PlusEntry,
-                  plusEntry,
-                  dataUpdatedAt: feedQuery.dataUpdatedAt,
-                });
-              } else if (marketingCta && withFirstIndex(true)) {
-                acc.push({
-                  type: FeedItemType.MarketingCta,
-                  marketingCta,
-                  dataUpdatedAt: feedQuery.dataUpdatedAt,
-                });
-              } else if (withFirstIndex(showAcquisitionForm)) {
-                acc.push({
-                  type: FeedItemType.UserAcquisition,
-                  dataUpdatedAt: feedQuery.dataUpdatedAt,
-                });
-              } else {
-                acc.push(adItem);
-              }
-            }
+      const pushAndAdvance = (item: FeedItem): void => {
+        if (
+          staticAd &&
+          !staticAdInserted &&
+          newItems.length === staticAd.index
+        ) {
+          staticAdInserted = true;
+          pushAndAdvance({
+            type: FeedItemType.Ad,
+            ad: staticAd.ad,
+            index: 0,
+            updatedAt: Date.now(),
+            dataUpdatedAt: Date.now(),
+          } as AdItem);
+        }
+        newItems.push(item);
+        const idx = newItems.length - 1;
+        const fullRowBefore = fullRowInsertionBeforeIndex.has(idx);
+        const placement = placementBuilder.next(item, {
+          fullRowBefore,
+          maxColSpan: computeAdClamp(visualCellsSoFar, cadence),
+        });
+        visualCellsSoFar += placement.colSpan;
+      };
 
-            if (node.itemType === 'highlight') {
-              if (!node.highlights.length) {
-                return;
-              }
-
-              acc.push({
-                type: FeedItemType.Highlight,
-                highlights: node.highlights,
-                feedMeta: node.feedMeta ?? null,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-
-              return;
-            }
-
-            const { post } = node;
-
-            if (seenPostIds.has(post.id)) {
-              return;
-            }
-            seenPostIds.add(post.id);
-
-            acc.push({
-              type: FeedItemType.Post,
-              post,
-              page: pageIndex,
-              index,
-              dataUpdatedAt: feedQuery.dataUpdatedAt,
-            });
-          });
-
-          return acc;
-        },
-        [],
-      );
-
-      // Prepend marketing CTA as first card if configured
       if (plusEntryAsFirstCard && plusEntry) {
-        newItems.unshift({
+        pushAndAdvance({
           type: FeedItemType.PlusEntry,
           plusEntry,
           dataUpdatedAt: feedQuery.dataUpdatedAt,
         });
       } else if (marketingCtaAsFirstCard && marketingCta) {
-        newItems.unshift({
+        pushAndAdvance({
           type: FeedItemType.MarketingCta,
           marketingCta,
           dataUpdatedAt: feedQuery.dataUpdatedAt,
         });
+      }
+
+      feedQuery.data.pages.forEach(({ page }, pageIndex) => {
+        page.edges.forEach(({ node }, index: number) => {
+          const adItem = getAd({ index: visualCellsSoFar });
+
+          if (adItem) {
+            const withFirstIndex = (condition: boolean) =>
+              pageIndex === 0 && adItem.index === 0 && condition;
+
+            // Skip ad slot if marketing CTA is shown as first card
+            const shouldSkipAdForMarketingCta = withFirstIndex(
+              (marketingCtaAsFirstCard ?? false) ||
+                (plusEntryAsFirstCard ?? false),
+            );
+
+            if (shouldSkipAdForMarketingCta) {
+              // Don't push anything - marketing CTA is already at the top
+            } else if (plusEntry && withFirstIndex(true)) {
+              pushAndAdvance({
+                type: FeedItemType.PlusEntry,
+                plusEntry,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+            } else if (marketingCta && withFirstIndex(true)) {
+              pushAndAdvance({
+                type: FeedItemType.MarketingCta,
+                marketingCta,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+            } else if (withFirstIndex(showAcquisitionForm)) {
+              pushAndAdvance({
+                type: FeedItemType.UserAcquisition,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+            } else {
+              pushAndAdvance(adItem);
+            }
+          }
+
+          if (node.itemType === 'highlight') {
+            if (!node.highlights.length) {
+              return;
+            }
+            pushAndAdvance({
+              type: FeedItemType.Highlight,
+              highlights: node.highlights,
+              feedMeta: node.feedMeta ?? null,
+              dataUpdatedAt: feedQuery.dataUpdatedAt,
+            });
+            return;
+          }
+
+          const { post } = node;
+          if (seenPostIds.has(post.id)) {
+            return;
+          }
+          seenPostIds.add(post.id);
+
+          pushAndAdvance({
+            type: FeedItemType.Post,
+            post,
+            page: pageIndex,
+            index,
+            dataUpdatedAt: feedQuery.dataUpdatedAt,
+          });
+        });
+      });
+
+      if (staticAd && !staticAdInserted && newItems.length > 0) {
+        newItems.push({
+          type: FeedItemType.Ad,
+          ad: staticAd.ad,
+          index: 0,
+          updatedAt: Date.now(),
+          dataUpdatedAt: Date.now(),
+        } as AdItem);
       }
     }
     if (feedQuery.isFetching) {
@@ -479,17 +737,6 @@ export default function useFeed<T>(
           createPlaceholderItem(),
         ),
       );
-    }
-
-    if (settings?.staticAd && feedQuery.data && newItems.length > 0) {
-      const insertAt = Math.min(settings.staticAd.index, newItems.length);
-      newItems.splice(insertAt, 0, {
-        type: FeedItemType.Ad,
-        ad: settings.staticAd.ad,
-        index: 0,
-        updatedAt: Date.now(),
-        dataUpdatedAt: Date.now(),
-      } as AdItem);
     }
 
     return newItems;
@@ -503,7 +750,36 @@ export default function useFeed<T>(
     getAd,
     settings?.plusEntry,
     settings?.staticAd,
+    heroCardsConfig,
+    virtualizedNumCards,
+    isMobileViewport,
+    isListContext,
+    fullRowInsertionBeforeIndex,
+    cadence,
   ]);
+
+  const placements = useMemo(
+    () =>
+      computePlacements(items, {
+        numCards: virtualizedNumCards,
+        isMobile: isMobileViewport,
+        isList: isListContext,
+        isEnabled: heroCardsConfig.enabled,
+        minSpacing: heroCardsConfig.minSpacing,
+        startIndex: heroCardsConfig.startIndex,
+        fullRowInsertionBeforeIndex,
+        cadence,
+      }),
+    [
+      items,
+      virtualizedNumCards,
+      isMobileViewport,
+      isListContext,
+      heroCardsConfig,
+      fullRowInsertionBeforeIndex,
+      cadence,
+    ],
+  );
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
 
@@ -543,8 +819,27 @@ export default function useFeed<T>(
 
   const didJustCreateFeed = router.query?.created === '1';
 
+  const bannerInsertions: FeedBannerInsertions = {
+    fullRowInsertionBeforeIndex,
+    briefBannerPage: Number(briefBannerPage),
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
+    hero: {
+      shouldShowTopHero: heroFeedHero.shouldShowTopHero,
+      shouldShowInFeedHero: heroFeedHero.shouldShowInFeedHero,
+      adjustedHeroInsertIndex: heroFeedHero.adjustedHeroInsertIndex,
+      title: heroFeedHero.title,
+      subtitle: heroFeedHero.subtitle,
+      onEnable: heroFeedHero.onEnableHero,
+      onDismiss: heroFeedHero.onDismissHero,
+    },
+  };
+
   return {
     items,
+    placements,
+    heroCardsConfig,
+    bannerInsertions,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },

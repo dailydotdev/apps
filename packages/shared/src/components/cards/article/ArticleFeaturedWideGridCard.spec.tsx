@@ -2,17 +2,16 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
-import type {
-  Post,
-  PostHero,
-  PostHeroSignificance,
-} from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
+import type { PostHero, PostHeroSignificance } from '../../../graphql/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleFeaturedWideGridCard } from './ArticleFeaturedWideGridCard';
+import { featureHeroCards } from '../../../lib/featureManagement';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -39,6 +38,15 @@ const defaultProps: PostCardProps = {
   onReadArticleClick: jest.fn(),
 };
 
+const SIZE_BY_SIGNIFICANCE: Record<PostHeroSignificance, number> = {
+  breaking: 4,
+  major: 3,
+  notable: 2,
+  routine: 1,
+  breakout: 3,
+  evergreen: 2,
+};
+
 const makeHero = (significance: PostHeroSignificance | null): PostHero | null =>
   significance
     ? {
@@ -46,17 +54,30 @@ const makeHero = (significance: PostHeroSignificance | null): PostHero | null =>
         highlightedAt: '2026-05-25T00:00:00.000Z',
         headline: 'A breaking event',
         significance,
+        size: SIZE_BY_SIGNIFICANCE[significance],
       }
     : null;
 
 const renderComponent = (
   props: Partial<PostCardProps & { wideColSpan?: 2 | 3 | 4 }> = {},
-): RenderResult =>
-  render(
-    <TestBootProvider client={new QueryClient()}>
+): RenderResult => {
+  // HighlightChip short-circuits when the experiment flag is off; the
+  // chip-label tests need it on, so override the GrowthBook value here.
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureHeroCards.id]: {
+      defaultValue: {
+        ...featureHeroCards.defaultValue,
+        enabled: true,
+      },
+    },
+  });
+  return render(
+    <TestBootProvider client={new QueryClient()} gb={gb}>
       <ArticleFeaturedWideGridCard {...defaultProps} {...props} />
     </TestBootProvider>,
   );
+};
 
 const postWith = (significance: PostHeroSignificance | null): Post => ({
   ...post,
