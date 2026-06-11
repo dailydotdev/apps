@@ -488,6 +488,7 @@ export const SidebarDesktopV2 = ({
   // in. Keep transitions off until settings have loaded so the sidebar
   // snaps into its final state on first paint and only genuine user
   // toggles animate afterwards.
+  const [isRailHovered, setIsRailHovered] = useState(false);
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
     if (loadedSettings) {
@@ -632,7 +633,14 @@ export const SidebarDesktopV2 = ({
   // sidebar returns to its chosen state once they navigate away.
   const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
   const forceExpanded = isSettingsSelected;
-  const isExpanded = sidebarExpanded || forceExpanded;
+  // Reddit-style peek: when the sidebar is collapsed (not pinned open),
+  // hovering anywhere over the rail expands the full sidebar as an overlay on
+  // top of the content. The content keeps its rail-width offset (MainLayout
+  // pads from `sidebarExpanded`, which the hover never touches), so nothing
+  // behind the sidebar shifts — it just paints over the feed.
+  const isCollapsedHoverMode = !sidebarExpanded && !forceExpanded;
+  const isHoverExpanded = isCollapsedHoverMode && isRailHovered;
+  const isExpanded = sidebarExpanded || forceExpanded || isHoverExpanded;
 
   const renderCategoryTab = (
     categoryId: SidebarCategoryId,
@@ -744,13 +752,20 @@ export const SidebarDesktopV2 = ({
   return (
     <SidebarAside
       data-testid="sidebar-aside"
+      onMouseEnter={() => setIsRailHovered(true)}
+      onMouseLeave={() => setIsRailHovered(false)}
       className={classNames(
-        'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0 laptop:bg-transparent',
+        'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
         isExpanded ? railExpandedWidth : railCollapsedWidth,
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
-        featureTheme && 'bg-transparent',
+        // While peeking, tint + lift the sidebar so the expanded panel paints
+        // cleanly over the feed instead of letting it bleed through.
+        isHoverExpanded
+          ? 'laptop:bg-background-default laptop:shadow-3'
+          : 'laptop:bg-transparent',
+        featureTheme && !isHoverExpanded && 'bg-transparent',
         suppressTransition,
       )}
     >
@@ -905,10 +920,12 @@ export const SidebarDesktopV2 = ({
       </nav>
 
       {/*
-        Slide-between-anchors toggle button. Two positions:
-        - Open (panel right edge): ghost, no border/bg/shadow
-        - Closed (rail/panel boundary): bordered chip with shadow
-        Same SidebarArrowLeft glyph, rotated 180° when closed.
+        Slide-between-anchors toggle button. It tracks the *visible* right edge
+        (`isExpanded`) so it follows the panel when peeking and never collides
+        with the panel title. Its glyph/label reflect the *pinned* state
+        (`sidebarExpanded`) — i.e. what a click does: pin open vs collapse.
+        - Pinned open: ghost chip, arrow points left ("Close sidebar").
+        - Collapsed: bordered chip, arrow points right ("Open sidebar").
         Hidden on settings pages, where the panel is force-expanded and
         collapsing it would hide the only settings navigation.
       */}
@@ -921,7 +938,7 @@ export const SidebarDesktopV2 = ({
           <div
             className={classNames(
               'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
-              sidebarExpanded ? railToggleOpenLeft : railToggleClosedLeft,
+              isExpanded ? railToggleOpenLeft : railToggleClosedLeft,
               suppressTransition,
             )}
           >
