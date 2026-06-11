@@ -4,7 +4,7 @@ import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
-import type { PostHighlightCardsConfig } from '../types';
+import type { HeroCardsConfig } from '../types';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -217,21 +217,18 @@ export const featureLayoutV2 = new Feature('layout_v2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
-export const featurePostHighlightCards = new Feature<PostHighlightCardsConfig>(
-  'post_highlight_cards_v3',
-  {
-    enabled: false,
-    minSpacing: 10,
-    startIndex: 4,
-    chipLabels: {
-      breaking: 'Breaking',
-      major: 'Major',
-      notable: 'Notable',
-      breakout: 'Breaking out',
-      evergreen: 'Evergreen',
-    },
+export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
+  enabled: false,
+  minSpacing: 10,
+  startIndex: 4,
+  chipLabels: {
+    breaking: 'Breaking',
+    major: 'Major',
+    notable: 'Notable',
+    breakout: 'Breaking out',
+    evergreen: 'Evergreen',
   },
-);
+});
 
 export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',

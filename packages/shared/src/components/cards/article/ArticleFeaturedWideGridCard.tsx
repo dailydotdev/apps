@@ -31,7 +31,7 @@ import { PlayIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { stripHtmlTags } from '../../../lib/strings';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featurePostHighlightCards } from '../../../lib/featureManagement';
+import { featureHeroCards } from '../../../lib/featureManagement';
 
 export type FeaturedWideColSpan = 2 | 3 | 4;
 
@@ -54,14 +54,14 @@ const HighlightChip = ({
   significance: PostHeroSignificance | null | undefined;
   className?: string;
 }): ReactElement | null => {
-  const { value: postHighlightCardsConfig } = useConditionalFeature({
-    feature: featurePostHighlightCards,
+  const { value: heroCardsConfig } = useConditionalFeature({
+    feature: featureHeroCards,
     shouldEvaluate: !!significance,
   });
-  if (!significance || !postHighlightCardsConfig.enabled) {
+  if (!significance || !heroCardsConfig.enabled) {
     return null;
   }
-  const label = postHighlightCardsConfig.chipLabels[significance];
+  const label = heroCardsConfig.chipLabels[significance];
   if (!label) {
     return null;
   }

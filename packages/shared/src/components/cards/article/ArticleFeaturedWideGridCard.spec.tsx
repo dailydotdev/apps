@@ -11,7 +11,7 @@ import type { Post } from '../../../graphql/posts';
 import type { PostHero, PostHeroSignificance } from '../../../graphql/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleFeaturedWideGridCard } from './ArticleFeaturedWideGridCard';
-import { featurePostHighlightCards } from '../../../lib/featureManagement';
+import { featureHeroCards } from '../../../lib/featureManagement';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -65,9 +65,9 @@ const renderComponent = (
   // chip-label tests need it on, so override the GrowthBook value here.
   const gb = new GrowthBook();
   gb.setFeatures({
-    [featurePostHighlightCards.id]: {
+    [featureHeroCards.id]: {
       defaultValue: {
-        ...featurePostHighlightCards.defaultValue,
+        ...featureHeroCards.defaultValue,
         enabled: true,
       },
     },

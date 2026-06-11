@@ -49,7 +49,7 @@ export type ErrorBoundaryFeature =
 export const GSI_SRC = 'https://accounts.google.com/gsi/client';
 export const GSI_SCRIPT_ID = 'google-gsi-client';
 
-export type PostHighlightCardsConfig = {
+export type HeroCardsConfig = {
   enabled: boolean;
   minSpacing: number;
   /**

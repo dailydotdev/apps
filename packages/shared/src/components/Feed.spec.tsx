@@ -80,7 +80,7 @@ import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
   briefFeedEntrypointPage,
-  featurePostHighlightCards,
+  featureHeroCards,
 } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
 import type { PostHero, PostHeroSignificance } from '../graphql/types';
@@ -1822,7 +1822,7 @@ const renderWithHighlightLayout = ({
 
   const gb = new GrowthBook();
   gb.setFeatures({
-    [featurePostHighlightCards.id]: {
+    [featureHeroCards.id]: {
       defaultValue: {
         enabled: highlightEnabled,
         minSpacing,

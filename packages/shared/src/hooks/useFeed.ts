@@ -36,7 +36,7 @@ import type { FeedAdTemplate } from '../lib/feed';
 import {
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
-  featurePostHighlightCards,
+  featureHeroCards,
 } from '../lib/featureManagement';
 import { useConditionalFeature } from './useConditionalFeature';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
@@ -48,7 +48,7 @@ import {
   isHeroEligiblePost,
 } from '../lib/feedHighlightColSpan';
 import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
-import type { PostHighlightCardsConfig } from '../types';
+import type { HeroCardsConfig } from '../types';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useFeedLayout } from './useFeedLayout';
 import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
@@ -195,7 +195,7 @@ export type FeedReturnType = {
    * log analytics from a single source of truth.
    */
   placements: FeedItemPlacement[];
-  postHighlightCardsConfig: PostHighlightCardsConfig;
+  heroCardsConfig: HeroCardsConfig;
   bannerInsertions: FeedBannerInsertions;
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
@@ -414,8 +414,8 @@ export default function useFeed<T>(
     isHighlightCardsOptedOut,
     feedQuery.data?.pages,
   ]);
-  const { value: postHighlightCardsConfig } = useConditionalFeature({
-    feature: featurePostHighlightCards,
+  const { value: heroCardsConfig } = useConditionalFeature({
+    feature: featureHeroCards,
     shouldEvaluate: shouldEvaluateHighlightCards,
   });
 
@@ -607,9 +607,9 @@ export default function useFeed<T>(
         numCards: virtualizedNumCards,
         isMobile: isMobileViewport,
         isList: isListContext,
-        isEnabled: postHighlightCardsConfig.enabled,
-        minSpacing: postHighlightCardsConfig.minSpacing,
-        startIndex: postHighlightCardsConfig.startIndex,
+        isEnabled: heroCardsConfig.enabled,
+        minSpacing: heroCardsConfig.minSpacing,
+        startIndex: heroCardsConfig.startIndex,
       });
 
       const staticAd = settings?.staticAd;
@@ -750,7 +750,7 @@ export default function useFeed<T>(
     getAd,
     settings?.plusEntry,
     settings?.staticAd,
-    postHighlightCardsConfig,
+    heroCardsConfig,
     virtualizedNumCards,
     isMobileViewport,
     isListContext,
@@ -764,9 +764,9 @@ export default function useFeed<T>(
         numCards: virtualizedNumCards,
         isMobile: isMobileViewport,
         isList: isListContext,
-        isEnabled: postHighlightCardsConfig.enabled,
-        minSpacing: postHighlightCardsConfig.minSpacing,
-        startIndex: postHighlightCardsConfig.startIndex,
+        isEnabled: heroCardsConfig.enabled,
+        minSpacing: heroCardsConfig.minSpacing,
+        startIndex: heroCardsConfig.startIndex,
         fullRowInsertionBeforeIndex,
         cadence,
       }),
@@ -775,7 +775,7 @@ export default function useFeed<T>(
       virtualizedNumCards,
       isMobileViewport,
       isListContext,
-      postHighlightCardsConfig,
+      heroCardsConfig,
       fullRowInsertionBeforeIndex,
       cadence,
     ],
@@ -838,7 +838,7 @@ export default function useFeed<T>(
   return {
     items,
     placements,
-    postHighlightCardsConfig,
+    heroCardsConfig,
     bannerInsertions,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
