@@ -642,6 +642,25 @@ export const SidebarDesktopV2 = ({
   const isHoverExpanded = isCollapsedHoverMode && isRailHovered;
   const isExpanded = sidebarExpanded || forceExpanded || isHoverExpanded;
 
+  // ChatGPT-style affordance: while collapsed, the whole sidebar reads as a
+  // resize handle (ew cursor). Clicking the empty surface pins it open — same
+  // as the toggle — while clicks on nav items / avatar / toggle keep their own
+  // behavior.
+  const pinFromEmptyClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (!isCollapsedHoverMode) {
+      return;
+    }
+    const target = event.target as HTMLElement;
+    if (
+      target.closest(
+        'a, button, input, select, textarea, [role="tab"], [role="button"], [role="menuitem"]',
+      )
+    ) {
+      return;
+    }
+    onToggleExpanded();
+  };
+
   const renderCategoryTab = (
     categoryId: SidebarCategoryId,
   ): ReactElement | null => {
@@ -754,6 +773,7 @@ export const SidebarDesktopV2 = ({
       data-testid="sidebar-aside"
       onMouseEnter={() => setIsRailHovered(true)}
       onMouseLeave={() => setIsRailHovered(false)}
+      onClick={pinFromEmptyClick}
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
         isExpanded ? railExpandedWidth : railCollapsedWidth,
@@ -765,6 +785,9 @@ export const SidebarDesktopV2 = ({
         isHoverExpanded
           ? 'laptop:bg-background-default laptop:shadow-3'
           : 'laptop:bg-transparent',
+        // Collapsed sidebar reads as a resize handle: click the empty surface
+        // to pin it open.
+        isCollapsedHoverMode && 'laptop:cursor-ew-resize',
         featureTheme && !isHoverExpanded && 'bg-transparent',
         suppressTransition,
       )}
