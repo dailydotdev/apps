@@ -7,7 +7,6 @@ export const SidebarCategory = {
   Notifications: 'notifications',
   Saved: 'saved',
   GameCenter: 'gameCenter',
-  Profile: 'profile',
   Settings: 'settings',
 } as const;
 

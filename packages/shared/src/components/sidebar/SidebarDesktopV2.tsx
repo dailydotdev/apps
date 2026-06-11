@@ -25,8 +25,6 @@ import { MainSection } from './sections/MainSection';
 import { PinnedSection } from './sections/PinnedSection';
 import { RecentSection } from './sections/RecentSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
-import { ProfileSection } from './sections/ProfileSection';
-import { SidebarProfileCompletion } from './SidebarProfileCompletion';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import { CreatePostButton } from '../post/write';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
@@ -124,13 +122,6 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     defaultPath: `${webappUrl}bookmarks`,
     icon: (active) => (
       <BookmarkIcon secondary={active} size={IconSize.Small} aria-hidden />
-    ),
-  },
-  {
-    id: SidebarCategory.Profile,
-    label: 'Profile',
-    icon: (active) => (
-      <UserIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
 ];
@@ -395,7 +386,7 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openNewSquad } = useSquadNavigation();
-  const { isLoggedIn, user } = useAuthContext();
+  const { isLoggedIn } = useAuthContext();
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
@@ -425,6 +416,11 @@ export const SidebarDesktopV2 = ({
     const GAP = 4;
     const itemHeight = isCompact ? 44 : 56;
     const measure = () => {
+      // Ignore zero-height measurements (e.g. a hidden/not-yet-laid-out mount)
+      // so we don't briefly fold every item into the "More" menu.
+      if (list.clientHeight <= 0) {
+        return;
+      }
       const slots = Math.floor((list.clientHeight + GAP) / (itemHeight + GAP));
       setMaxNavSlots(Math.max(0, slots));
     };
@@ -516,9 +512,6 @@ export const SidebarDesktopV2 = ({
 
   const getCategoryDefaultPath = useCallback(
     (category: SidebarCategoryId): string | null => {
-      if (category === SidebarCategory.Profile) {
-        return user?.username ? `${webappUrl}${user.username}` : null;
-      }
       if (category === SidebarCategory.Settings) {
         return settingsDefaultPath;
       }
@@ -527,7 +520,7 @@ export const SidebarDesktopV2 = ({
         null
       );
     },
-    [user?.username],
+    [],
   );
 
   const onSelectCategory = useCallback(
@@ -604,20 +597,6 @@ export const SidebarDesktopV2 = ({
         />
       );
     }
-    if (category === SidebarCategory.Profile) {
-      return (
-        <>
-          <div className="px-3 pb-2">
-            <SidebarProfileCompletion />
-          </div>
-          <ProfileSection
-            {...defaultRenderSectionProps}
-            isItemsButton={false}
-          />
-        </>
-      );
-    }
-
     return (
       <>
         <MainSection

@@ -14,8 +14,7 @@ import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { ExploreSectionTabs } from '@dailydotdev/shared/src/components/header/ExploreSectionTabs';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -92,9 +91,7 @@ const LeaderboardPage = ({
 
   return (
     <>
-      {isV2Laptop && (
-        <PageHeader title={<ExploreSectionTabs />} className="!py-0" />
-      )}
+      {isV2Laptop && <ExploreHubHeader />}
       <PageWrapperLayout>
         {!isV2Laptop && (
           <div className="mb-6 hidden justify-between laptop:flex">

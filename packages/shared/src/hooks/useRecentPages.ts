@@ -29,12 +29,16 @@ export const useRecordRecentPages = (enabled: boolean): void => {
       return undefined;
     }
 
+    let timeoutId: number | undefined;
     const capture = (url: string) => {
       if (router.pathname === '/posts/[id]') {
         return;
       }
       const path = url.split('?')[0].split('#')[0];
-      window.setTimeout(() => {
+      // Only the latest navigation matters — drop any pending capture so
+      // rapid navigation doesn't stack timers or record stale titles.
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
         const title = cleanTitle(document.title);
         if (title) {
           recordRecentPage({ path, title });
@@ -45,6 +49,7 @@ export const useRecordRecentPages = (enabled: boolean): void => {
     capture(router.asPath);
     router.events.on('routeChangeComplete', capture);
     return () => {
+      window.clearTimeout(timeoutId);
       router.events.off('routeChangeComplete', capture);
     };
   }, [enabled, router]);

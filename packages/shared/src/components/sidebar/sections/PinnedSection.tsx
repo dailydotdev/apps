@@ -1,14 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
-import { DefaultSquadIcon } from '../../icons';
 import { Section } from '../Section';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { SquadImage } from '../../squads/SquadImage';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { webappUrl } from '../../../lib/constants';
 import type { SidebarSectionProps } from './common';
-import { SquadFavoriteButton } from '../../squads/SquadFavoriteButton';
+import { createSquadMenuItem } from './squadMenuItem';
 
 // v2 Home panel: the squads the user has pinned (reuses the favorite state).
 // Renders nothing when there's nothing pinned so the Home panel stays clean.
@@ -24,22 +21,7 @@ export const PinnedSection = ({
   );
 
   const menuItems: SidebarMenuItem[] = useMemo(
-    () =>
-      pinnedSquads.map((squad) => {
-        const { name, image, handle } = squad;
-        return {
-          icon: () =>
-            image ? (
-              <SquadImage className="h-5 w-5" {...squad} />
-            ) : (
-              <DefaultSquadIcon />
-            ),
-          title: name,
-          path: `${webappUrl}squads/${handle}`,
-          itemClassName: 'group/squad-row',
-          rightIcon: () => <SquadFavoriteButton squad={squad} asPin />,
-        };
-      }),
+    () => pinnedSquads.map((squad) => createSquadMenuItem(squad, true)),
     [pinnedSquads],
   );
 
