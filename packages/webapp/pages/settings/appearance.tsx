@@ -158,7 +158,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             checked={!isHighlightCardsOptedOut}
             onToggle={toggleHighlightCards}
           >
-            Show featured cards for highlighted news
+            Show hero cards for highlighted news
           </SettingsSwitch>
         </FlexCol>
 
