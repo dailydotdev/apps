@@ -545,11 +545,11 @@ const SidebarProfileButton = (): ReactElement | null => {
 
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={billingItems} />
+            <ProfileMenuSection items={settingsItems} />
 
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={settingsItems} />
+            <ProfileMenuSection items={billingItems} />
 
             <HorizontalSeparator />
 
