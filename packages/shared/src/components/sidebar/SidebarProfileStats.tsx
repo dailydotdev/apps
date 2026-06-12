@@ -10,19 +10,14 @@ import { formatCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReputationIcon } from '../icons';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 
 const cellClass =
-  'focus-outline flex flex-1 items-center justify-center gap-2 px-3 py-2.5 transition-colors hover:bg-surface-hover';
+  'focus-outline flex flex-1 items-center justify-center gap-1.5 px-3 py-2 transition-colors hover:bg-surface-hover';
 
 // Reputation + Cores wallet shown at the top of the rail-bottom profile
-// dropdown, styled like production: a single dark, bordered card holding both
-// stats side by side with a divider between them. Streak is intentionally
-// omitted here — it lives on the rail (see SidebarRailStats).
+// dropdown as one compact strip (icon + number, no labels). Streak is
+// intentionally omitted here — it lives on the rail (see SidebarRailStats).
 export const SidebarProfileStats = (): ReactElement | null => {
   const { user } = useAuthContext();
 
@@ -47,21 +42,13 @@ export const SidebarProfileStats = (): ReactElement | null => {
             size={IconSize.Small}
             className="text-accent-onion-default"
           />
-          <div className="flex flex-col">
-            <Typography
-              bold
-              type={TypographyType.Footnote}
-              className="tabular-nums"
-            >
-              {largeNumberFormat(reputation)}
-            </Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              Reputation
-            </Typography>
-          </div>
+          <Typography
+            bold
+            type={TypographyType.Footnote}
+            className="tabular-nums"
+          >
+            {largeNumberFormat(reputation)}
+          </Typography>
         </a>
       </Link>
       <span
@@ -74,21 +61,13 @@ export const SidebarProfileStats = (): ReactElement | null => {
             size={IconSize.Small}
             className="text-accent-cheese-default"
           />
-          <div className="flex flex-col">
-            <Typography
-              bold
-              type={TypographyType.Footnote}
-              className="tabular-nums"
-            >
-              {largeNumberFormat(balance)}
-            </Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              Cores
-            </Typography>
-          </div>
+          <Typography
+            bold
+            type={TypographyType.Footnote}
+            className="tabular-nums"
+          >
+            {largeNumberFormat(balance)}
+          </Typography>
         </a>
       </Link>
     </div>

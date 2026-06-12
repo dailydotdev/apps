@@ -41,24 +41,30 @@ import {
   AppIcon,
   BellIcon,
   BookmarkIcon,
+  BrowserGroupIcon,
   CreditCardIcon,
   DevCardIcon,
   DevPlusIcon,
+  DocsIcon,
   ExitIcon,
   EyeIcon,
   FeedbackIcon,
+  FlagIcon,
   HomeIcon,
   InviteIcon,
   MedalBadgeIcon,
   MegaphoneIcon,
   MenuIcon,
   MoonIcon,
+  PhoneIcon,
   PlusIcon,
+  PrivacyIcon,
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
   SourceIcon,
   SunIcon,
+  TerminalIcon,
   TrendingIcon,
 } from '../icons';
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
@@ -78,8 +84,14 @@ import { SidebarRailStats } from './SidebarRailStats';
 import { SidebarProfileStats } from './SidebarProfileStats';
 import Link from '../utilities/Link';
 import {
+  appsUrl,
   businessWebsiteUrl,
+  docs,
+  downloadBrowserExtension,
+  feedback,
+  privacyPolicy,
   settingsUrl,
+  termsOfService,
   webappUrl,
 } from '../../lib/constants';
 import { checkIsExtension, isAppleDevice } from '../../lib/func';
@@ -88,8 +100,6 @@ import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
-import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
-import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
 import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
 import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
@@ -284,6 +294,43 @@ const SidebarThemeButton = (): ReactElement => {
   );
 };
 
+const supportItems: ProfileSectionItemProps[] = [
+  {
+    title: 'Changelog',
+    href: `${webappUrl}sources/daily_updates`,
+    icon: TerminalIcon,
+  },
+  { title: 'Docs', href: docs, icon: DocsIcon, external: true },
+  {
+    title: 'Get the browser extension',
+    href: downloadBrowserExtension,
+    icon: BrowserGroupIcon,
+    external: true,
+  },
+  {
+    title: 'Get the mobile app',
+    href: appsUrl,
+    icon: PhoneIcon,
+    external: true,
+  },
+  { title: 'Report a bug', href: feedback, icon: FlagIcon, external: true },
+];
+
+const legalItems: ProfileSectionItemProps[] = [
+  {
+    title: 'Privacy policy',
+    href: privacyPolicy,
+    icon: PrivacyIcon,
+    external: true,
+  },
+  {
+    title: 'Terms of service',
+    href: termsOfService,
+    icon: DocsIcon,
+    external: true,
+  },
+];
+
 const SidebarSupportButton = (): ReactElement => {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
 
@@ -311,9 +358,9 @@ const SidebarSupportButton = (): ReactElement => {
           className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <FeedbackWidget placement="support" />
-          <ResourceSection />
+          <ProfileMenuSection items={supportItems} />
           <HorizontalSeparator />
-          <ProfileMenuFooter />
+          <ProfileMenuSection items={legalItems} />
         </InteractivePopup>
       )}
     </>
@@ -427,11 +474,11 @@ const SidebarProfileButton = (): ReactElement | null => {
           position={InteractivePopupPosition.SidebarProfileMenu}
           className="flex max-h-[calc(100dvh-4rem)] w-72 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
-          <ProfileMenuHeader
-            shouldOpenProfile
-            profileImageSize={ProfileImageSize.Medium}
-            className="rounded-10 px-1 py-1 hover:bg-surface-hover"
-          />
+          <Link href={`${webappUrl}${user.username}`} passHref>
+            <a className="rounded-10 px-1 py-1 hover:bg-surface-hover">
+              <ProfileMenuHeader profileImageSize={ProfileImageSize.Medium} />
+            </a>
+          </Link>
           <SidebarProfileStats />
 
           <UpgradeToPlus
