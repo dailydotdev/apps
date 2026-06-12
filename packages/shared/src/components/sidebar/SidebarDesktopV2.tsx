@@ -845,17 +845,16 @@ export const SidebarDesktopV2 = ({
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
-        // While peeking, make the sidebar opaque so the expanded panel paints
-        // over the feed instead of letting it bleed through. `background-default`
-        // is the exact page color the pinned sidebar shows through, so the
-        // overlay looks identical to the docked sidebar — no shadow, no tint.
-        isHoverExpanded
-          ? 'laptop:bg-background-default'
-          : 'laptop:bg-transparent',
+        // Keep the rail + panel the exact same solid color in every state
+        // (collapsed, peeking overlay, pinned) so hovering never shifts the
+        // color. The base SidebarAside background already provides the opaque
+        // `background-default`; the peek overlay needs it opaque anyway so the
+        // expanded panel paints over the feed instead of letting it bleed
+        // through.
         // Collapsed sidebar reads as a resize handle: click the empty surface
         // to pin it open.
         isCollapsedHoverMode && 'laptop:cursor-ew-resize',
-        featureTheme && !isHoverExpanded && 'bg-transparent',
+        featureTheme && 'bg-transparent',
         suppressTransition,
       )}
     >
