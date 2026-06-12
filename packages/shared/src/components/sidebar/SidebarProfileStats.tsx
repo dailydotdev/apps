@@ -13,7 +13,7 @@ import { CoreIcon, ReputationIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
 
 const cellClass =
-  'focus-outline flex flex-1 items-center justify-center gap-1.5 px-3 py-2 transition-colors hover:bg-surface-hover';
+  'focus-outline flex flex-1 items-center justify-center gap-1.5 px-3 py-1.5 transition-colors hover:bg-surface-hover';
 
 // Reputation + Cores wallet shown at the top of the rail-bottom profile
 // dropdown as one compact strip (icon + number, no labels). Streak is

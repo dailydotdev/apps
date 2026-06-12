@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import {
   Nav,
@@ -52,7 +51,7 @@ import {
   FlagIcon,
   HomeIcon,
   InviteIcon,
-  MedalBadgeIcon,
+  JobIcon,
   MegaphoneIcon,
   MenuIcon,
   MoonIcon,
@@ -94,7 +93,7 @@ import {
   termsOfService,
   webappUrl,
 } from '../../lib/constants';
-import { checkIsExtension, isAppleDevice } from '../../lib/func';
+import { isAppleDevice } from '../../lib/func';
 import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -111,12 +110,6 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
-
-const ExtensionSection = dynamic(() =>
-  import(
-    /* webpackChunkName: "extensionSection" */ '../ProfileMenu/sections/ExtensionSection'
-  ).then((mod) => mod.ExtensionSection),
-);
 
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
@@ -296,11 +289,11 @@ const SidebarThemeButton = (): ReactElement => {
 
 const supportItems: ProfileSectionItemProps[] = [
   {
-    title: 'Changelog',
-    href: `${webappUrl}sources/daily_updates`,
-    icon: TerminalIcon,
+    title: 'Get the mobile app',
+    href: appsUrl,
+    icon: PhoneIcon,
+    external: true,
   },
-  { title: 'Docs', href: docs, icon: DocsIcon, external: true },
   {
     title: 'Get the browser extension',
     href: downloadBrowserExtension,
@@ -308,11 +301,11 @@ const supportItems: ProfileSectionItemProps[] = [
     external: true,
   },
   {
-    title: 'Get the mobile app',
-    href: appsUrl,
-    icon: PhoneIcon,
-    external: true,
+    title: 'Changelog',
+    href: `${webappUrl}sources/daily_updates`,
+    icon: TerminalIcon,
   },
+  { title: 'Docs', href: docs, icon: DocsIcon, external: true },
   { title: 'Report a bug', href: feedback, icon: FlagIcon, external: true },
 ];
 
@@ -381,37 +374,26 @@ const SidebarProfileButton = (): ReactElement | null => {
     return null;
   }
 
-  const profileItems: ProfileSectionItemProps[] = [
-    {
-      title: 'Achievements',
-      href: `${webappUrl}${user.username}/achievements`,
-      icon: MedalBadgeIcon,
-    },
+  const mainItems: ProfileSectionItemProps[] = [
+    { title: 'Analytics', href: `${webappUrl}analytics`, icon: AnalyticsIcon },
+    { title: 'Jobs', href: `${webappUrl}jobs`, icon: JobIcon },
     {
       title: 'DevCard',
       href: `${settingsUrl}/customization/devcard`,
       icon: DevCardIcon,
     },
-    { title: 'Analytics', href: `${webappUrl}analytics`, icon: AnalyticsIcon },
-  ];
-
-  const settingsItems: ProfileSectionItemProps[] = [
-    { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
-    { title: 'Appearance', href: `${settingsUrl}/appearance`, icon: EyeIcon },
-    {
-      title: 'Feed settings',
-      href: `${settingsUrl}/feed/general`,
-      icon: AppIcon,
-    },
-    {
-      title: 'Subscriptions',
-      href: `${settingsUrl}/subscription`,
-      icon: CreditCardIcon,
-    },
     {
       title: 'Invite friends',
       href: `${settingsUrl}/invite`,
       icon: InviteIcon,
+    },
+  ];
+
+  const billingItems: ProfileSectionItemProps[] = [
+    {
+      title: 'Subscriptions',
+      href: `${settingsUrl}/subscription`,
+      icon: CreditCardIcon,
     },
     ...(canPurchaseCores
       ? [
@@ -422,15 +404,25 @@ const SidebarProfileButton = (): ReactElement | null => {
           } satisfies ProfileSectionItemProps,
         ]
       : []),
-  ];
-
-  const bottomItems: ProfileSectionItemProps[] = [
     {
       title: 'Advertise',
       href: businessWebsiteUrl,
       icon: MegaphoneIcon,
       external: true,
     },
+  ];
+
+  const settingsItems: ProfileSectionItemProps[] = [
+    { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
+    { title: 'Appearance', href: `${settingsUrl}/appearance`, icon: EyeIcon },
+    {
+      title: 'Feed settings',
+      href: `${settingsUrl}/feed/general`,
+      icon: AppIcon,
+    },
+  ];
+
+  const logoutItems: ProfileSectionItemProps[] = [
     {
       title: 'Log out',
       icon: ExitIcon,
@@ -487,20 +479,20 @@ const SidebarProfileButton = (): ReactElement | null => {
             className="flex-initial"
           />
 
-          <HorizontalSeparator />
-
           <nav className="flex flex-col gap-2">
-            <ProfileMenuSection items={profileItems} />
+            <ProfileMenuSection items={mainItems} />
+
+            <HorizontalSeparator />
+
+            <ProfileMenuSection items={billingItems} />
 
             <HorizontalSeparator />
 
             <ProfileMenuSection items={settingsItems} />
 
-            {checkIsExtension() && <ExtensionSection />}
-
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={bottomItems} />
+            <ProfileMenuSection items={logoutItems} />
           </nav>
         </InteractivePopup>
       )}
