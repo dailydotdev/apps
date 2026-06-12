@@ -37,19 +37,29 @@ import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
+  AnalyticsIcon,
+  AppIcon,
   BellIcon,
   BookmarkIcon,
+  CreditCardIcon,
+  DevCardIcon,
   DevPlusIcon,
   ExitIcon,
+  EyeIcon,
   FeedbackIcon,
   HomeIcon,
+  InviteIcon,
+  MedalBadgeIcon,
+  MegaphoneIcon,
   MenuIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
+  SettingsIcon,
   SidebarArrowLeft,
   SourceIcon,
   SunIcon,
+  TrendingIcon,
 } from '../icons';
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
 import { useSquadNavigation } from '../../hooks';
@@ -67,7 +77,11 @@ import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { SidebarRailStats } from './SidebarRailStats';
 import { SidebarProfileStats } from './SidebarProfileStats';
 import Link from '../utilities/Link';
-import { settingsUrl, webappUrl } from '../../lib/constants';
+import {
+  businessWebsiteUrl,
+  settingsUrl,
+  webappUrl,
+} from '../../lib/constants';
 import { checkIsExtension, isAppleDevice } from '../../lib/func';
 import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
@@ -75,15 +89,15 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
-import { MainSection as ProfileMainSection } from '../ProfileMenu/sections/MainSection';
-import { ThemeSection } from '../ProfileMenu/sections/ThemeSection';
-import { AccountSection } from '../ProfileMenu/sections/AccountSection';
-import { FeedbackButtonSection } from '../ProfileMenu/sections/FeedbackButtonSection';
 import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
 import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
+import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { LogoutReason } from '../../lib/user';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -306,17 +320,76 @@ const SidebarSupportButton = (): ReactElement => {
   );
 };
 
-// Profile menu anchored to the bottom rail avatar. Mirrors the production
-// ProfileMenu (shared section components, same ordering) so the design and
-// behavior match, with the rail-specific reputation/cores stats card on top.
+// Profile menu anchored to the bottom rail avatar. A curated, lean subset of
+// the production ProfileMenu (built from the shared ProfileSection item rows)
+// plus the rail-specific reputation/cores stats card.
 const SidebarProfileButton = (): ReactElement | null => {
   const { user, logout } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
+  const { openModal } = useLazyModal();
+  const canPurchaseCores = useCanPurchaseCores();
 
   if (!user) {
     return null;
   }
+
+  const profileItems: ProfileSectionItemProps[] = [
+    {
+      title: 'Achievements',
+      href: `${webappUrl}${user.username}/achievements`,
+      icon: MedalBadgeIcon,
+    },
+    {
+      title: 'DevCard',
+      href: `${settingsUrl}/customization/devcard`,
+      icon: DevCardIcon,
+    },
+    { title: 'Analytics', href: `${webappUrl}analytics`, icon: AnalyticsIcon },
+  ];
+
+  const settingsItems: ProfileSectionItemProps[] = [
+    { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
+    { title: 'Appearance', href: `${settingsUrl}/appearance`, icon: EyeIcon },
+    {
+      title: 'Feed settings',
+      href: `${settingsUrl}/feed/general`,
+      icon: AppIcon,
+    },
+    {
+      title: 'Subscriptions',
+      href: `${settingsUrl}/subscription`,
+      icon: CreditCardIcon,
+    },
+    {
+      title: 'Invite friends',
+      href: `${settingsUrl}/invite`,
+      icon: InviteIcon,
+    },
+    ...(canPurchaseCores
+      ? [
+          {
+            title: 'Ads dashboard',
+            icon: TrendingIcon,
+            onClick: () => openModal({ type: LazyModal.AdsDashboard }),
+          } satisfies ProfileSectionItemProps,
+        ]
+      : []),
+  ];
+
+  const bottomItems: ProfileSectionItemProps[] = [
+    {
+      title: 'Advertise',
+      href: businessWebsiteUrl,
+      icon: MegaphoneIcon,
+      external: true,
+    },
+    {
+      title: 'Log out',
+      icon: ExitIcon,
+      onClick: () => logout(LogoutReason.ManualLogout),
+    },
+  ];
 
   return (
     <>
@@ -370,37 +443,18 @@ const SidebarProfileButton = (): ReactElement | null => {
           <HorizontalSeparator />
 
           <nav className="flex flex-col gap-2">
-            <ProfileMainSection />
+            <ProfileMenuSection items={profileItems} />
 
             <HorizontalSeparator />
 
-            <ThemeSection className="px-1" />
-
-            <HorizontalSeparator />
-
-            <AccountSection />
+            <ProfileMenuSection items={settingsItems} />
 
             {checkIsExtension() && <ExtensionSection />}
 
             <HorizontalSeparator />
 
-            <ResourceSection />
-            <FeedbackButtonSection className="px-1" />
-
-            <HorizontalSeparator />
-
-            <ProfileMenuSection
-              items={[
-                {
-                  title: 'Log out',
-                  icon: ExitIcon,
-                  onClick: () => logout(LogoutReason.ManualLogout),
-                },
-              ]}
-            />
+            <ProfileMenuSection items={bottomItems} />
           </nav>
-
-          <ProfileMenuFooter />
         </InteractivePopup>
       )}
     </>
