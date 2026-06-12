@@ -44,6 +44,12 @@ interface PostCommentsProps {
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
   className?: CommentClassName;
   onCommented?: MainCommentProps['onCommented'];
+  /**
+   * Drop the list's top margin. Use when comments are the first element in
+   * their container (e.g. the redesign discussion panel) so they don't get an
+   * extra gap above the first item.
+   */
+  removeTopSpacing?: boolean;
 }
 
 const noopShare = (): void => {};
@@ -61,6 +67,7 @@ export function PostComments({
   joinNotificationCommentId,
   className = {},
   onCommented,
+  removeTopSpacing = false,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
@@ -119,9 +126,12 @@ export function PostComments({
         isModalThread
           ? classNames(
               'mb-12 flex flex-col gap-4',
-              isComposerOpen ? 'mt-2' : 'mt-5',
+              !removeTopSpacing && (isComposerOpen ? 'mt-2' : 'mt-5'),
             )
-          : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0'
+          : classNames(
+              '-mx-4 mb-12 flex flex-col gap-4 mobileL:mx-0',
+              !removeTopSpacing && 'mt-6',
+            )
       }
       ref={container}
     >
