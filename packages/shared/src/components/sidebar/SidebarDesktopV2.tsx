@@ -520,6 +520,13 @@ export const SidebarDesktopV2 = ({
     useState<SidebarCategoryId | null>(null);
   const selectedCategory = pendingCategory ?? resolvedCategory;
 
+  // Hovering a rail tab previews that category's panel without committing to
+  // it; the panel falls back to the selected/pinned category. Cleared when the
+  // cursor leaves the sidebar (see handleRailMouseLeave).
+  const [hoveredCategory, setHoveredCategory] =
+    useState<SidebarCategoryId | null>(null);
+  const activeCategory = hoveredCategory ?? selectedCategory;
+
   useEffect(() => {
     if (pendingCategory !== null && pendingCategory === resolvedCategory) {
       setPendingCategory(null);
@@ -637,6 +644,7 @@ export const SidebarDesktopV2 = ({
   const handleRailMouseLeave = useCallback(() => {
     peekSuppressedRef.current = false;
     setIsRailHovered(false);
+    setHoveredCategory(null);
   }, []);
 
   const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
@@ -733,7 +741,7 @@ export const SidebarDesktopV2 = ({
     if (!category) {
       return null;
     }
-    const isSelected = selectedCategory === category.id;
+    const isSelected = activeCategory === category.id;
     return (
       <RailHoverCard
         label={category.label}
@@ -748,7 +756,10 @@ export const SidebarDesktopV2 = ({
           aria-label={category.label}
           aria-selected={isSelected}
           onClick={() => onSelectCategory(category.id)}
-          onMouseEnter={() => onPrefetchCategory(category.id)}
+          onMouseEnter={() => {
+            onPrefetchCategory(category.id);
+            setHoveredCategory(category.id);
+          }}
           onFocus={() => onPrefetchCategory(category.id)}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
@@ -812,25 +823,27 @@ export const SidebarDesktopV2 = ({
     );
   };
 
+  // The panel always reflects the active category (hovered preview, else the
+  // selected/pinned one).
   const renderSelectedSection = (): ReactElement =>
-    renderCategorySection(selectedCategory);
+    renderCategorySection(activeCategory);
 
-  const selectedLabel = sidebarCategories.find(
-    (category) => category.id === selectedCategory,
+  const activeLabel = sidebarCategories.find(
+    (category) => category.id === activeCategory,
   )?.label;
   const isNotificationsSelected =
-    selectedCategory === SidebarCategory.Notifications;
-  const isHomePanel = selectedCategory === SidebarCategory.Main;
-  const isSquadsPanel = selectedCategory === SidebarCategory.Squads;
+    activeCategory === SidebarCategory.Notifications;
+  const isHomePanel = activeCategory === SidebarCategory.Main;
+  const isSquadsPanel = activeCategory === SidebarCategory.Squads;
   const isUtilityPanelSelected = !isHomePanel;
   const utilityPanelTitle = (() => {
-    if (isSettingsSelected) {
+    if (activeCategory === SidebarCategory.Settings) {
       return 'Settings';
     }
     if (isNotificationsSelected) {
       return 'Notifications';
     }
-    return selectedLabel ?? '';
+    return activeLabel ?? '';
   })();
 
   return (
@@ -942,12 +955,17 @@ export const SidebarDesktopV2 = ({
                 panel={<NotificationsRailPanel />}
                 enabled={!isExpanded}
               >
-                <div className="w-full">
+                <div
+                  className="w-full"
+                  onMouseEnter={() =>
+                    setHoveredCategory(SidebarCategory.Notifications)
+                  }
+                >
                   <NotificationsBell
                     rail
                     noTooltip
                     railHideLabel={isCompact}
-                    active={selectedCategory === SidebarCategory.Notifications}
+                    active={isNotificationsSelected}
                   />
                 </div>
               </RailHoverCard>
@@ -1061,8 +1079,8 @@ export const SidebarDesktopV2 = ({
       <section
         id="sidebar-context-panel"
         role="tabpanel"
-        aria-labelledby={`sidebar-category-${selectedCategory}`}
-        aria-label={`${selectedLabel ?? 'Settings'} navigation`}
+        aria-labelledby={`sidebar-category-${activeCategory}`}
+        aria-label={`${activeLabel ?? 'Settings'} navigation`}
         className={classNames(
           'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
           isExpanded ? 'w-60 opacity-100' : 'pointer-events-none w-0 opacity-0',
