@@ -11,7 +11,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { pluralize } from '../../../lib/strings';
+import { anchorDefaultRel, pluralize } from '../../../lib/strings';
 
 interface CollectionSourcesProps {
   post: Post;
@@ -52,7 +52,7 @@ export const CollectionSources = ({
           <a
             key={node.id}
             href={node.commentsPermalink}
-            rel="noopener"
+            rel={anchorDefaultRel}
             target="_blank"
             title={node.title}
             className="flex w-64 shrink-0 flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-primary"

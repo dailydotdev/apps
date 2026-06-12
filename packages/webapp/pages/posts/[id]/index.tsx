@@ -203,20 +203,11 @@ export const PostPage = ({
     feature: featurePostRedesign,
     shouldEvaluate: isRedesignEligible,
   });
-  // `?redesign=1`/`0` lets us preview/force the redesign for review while the
-  // flag default stays off; absent, it follows the flag.
-  const forceRedesign =
-    router.query.redesign === '1' || router.query.redesign === 'true';
-  const forceClassic =
-    router.query.redesign === '0' || router.query.redesign === 'false';
   // Entry-specific flows the focus card doesn't render (author onboarding via
   // `?author`, back-to-squad via `?squad`) stay on the classic layout.
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showRedesign =
-    isRedesignEligible &&
-    !forceClassic &&
-    !requiresClassicLayout &&
-    (isRedesignFlagOn || forceRedesign);
+    isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',

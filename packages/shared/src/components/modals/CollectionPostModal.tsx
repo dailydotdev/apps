@@ -41,7 +41,7 @@ export default function CollectionPostModal({
       post={post}
       onAfterOpen={onLoad}
       size={showRedesign ? Modal.Size.Large : Modal.Size.XLarge}
-      className={showRedesign ? 'laptop:!overflow-visible' : undefined}
+      className={showRedesign ? 'laptop:!overflow-clip' : undefined}
       onRequestClose={onRequestClose}
       postType={PostType.Collection}
       source={post.source}

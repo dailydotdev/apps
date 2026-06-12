@@ -19,6 +19,7 @@ import { adImprovementsV3Feature } from '../../lib/featureManagement';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { TargetId } from '../../lib/log';
 import { combinedClicks } from '../../lib/click';
+import { anchorDefaultRel } from '../../lib/strings';
 import {
   Typography,
   TypographyColor,
@@ -123,7 +124,7 @@ export function PostSidebarAdWidget({
         <a
           href={ad.link}
           target="_blank"
-          rel="noopener"
+          rel={anchorDefaultRel}
           title={ad.description}
           className="absolute inset-0 z-0"
           {...combinedClicks(() => onAdAction(AdActions.Click))}
@@ -160,7 +161,7 @@ export function PostSidebarAdWidget({
             tag="a"
             href={ad.link}
             target="_blank"
-            rel="noopener"
+            rel={anchorDefaultRel}
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             className="relative z-1 ml-auto shrink-0"
@@ -202,7 +203,7 @@ export function PostSidebarAdWidget({
           tag="a"
           href={ad.link}
           target="_blank"
-          rel="noopener"
+          rel={anchorDefaultRel}
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           className="relative z-1"
@@ -215,7 +216,7 @@ export function PostSidebarAdWidget({
       <a
         href={ad.link}
         target="_blank"
-        rel="noopener"
+        rel={anchorDefaultRel}
         title={ad.description}
         className="absolute inset-0 z-0"
         {...combinedClicks(() => onAdAction(AdActions.Click))}

@@ -1064,21 +1064,6 @@ describe('post redesign', () => {
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
   });
 
-  it('should force the redesign on with ?redesign=1 while the flag is off', async () => {
-    mockRedesignOn = false;
-    mockRouterQuery({ redesign: '1' });
-    renderPost();
-    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-  });
-
-  it('should force the classic layout with ?redesign=0 while the flag is on', async () => {
-    mockRedesignOn = true;
-    mockRouterQuery({ redesign: '0' });
-    renderPost();
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
-  });
-
   it('should keep the classic layout for author onboarding even when the flag is on', async () => {
     mockRedesignOn = true;
     mockRouterQuery({ author: 'true' });
