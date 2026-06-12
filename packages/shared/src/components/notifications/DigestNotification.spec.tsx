@@ -9,8 +9,8 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 // eslint-disable-next-line @typescript-eslint/no-use-before-define -- hoisted by jest.mock
 let mockNotificationSettings: Record<string, Record<string, string>> = {};
 
-const mockToggleSetting = jest.fn();
 const mockSetNotificationStatus = jest.fn();
+const mockSetNotificationStatusBulk = jest.fn();
 const mockSubscribe = jest.fn().mockResolvedValue({});
 const mockUnsubscribe = jest.fn().mockResolvedValue(null);
 const mockGetPersonalizedDigest = jest.fn();
@@ -20,8 +20,8 @@ jest.mock('../../hooks/notifications/useNotificationSettings', () => ({
   __esModule: true,
   default: () => ({
     notificationSettings: mockNotificationSettings,
-    toggleSetting: mockToggleSetting,
     setNotificationStatus: mockSetNotificationStatus,
+    setNotificationStatusBulk: mockSetNotificationStatusBulk,
   }),
 }));
 
@@ -90,11 +90,18 @@ describe('DigestNotification', () => {
       expect(mockUnsubscribe).toHaveBeenCalledWith({
         type: UserPersonalizedDigestType.Brief,
       });
-      expect(mockSetNotificationStatus).toHaveBeenCalledWith(
-        NotificationType.BriefingReady,
-        'inApp',
-        NotificationPreferenceStatus.Muted,
-      );
+      expect(mockSetNotificationStatusBulk).toHaveBeenCalledWith([
+        {
+          type: NotificationType.DigestReady,
+          channel: 'inApp',
+          status: NotificationPreferenceStatus.Subscribed,
+        },
+        {
+          type: NotificationType.BriefingReady,
+          channel: 'inApp',
+          status: NotificationPreferenceStatus.Muted,
+        },
+      ]);
       expect(mockSubscribe).toHaveBeenCalledWith({
         type: UserPersonalizedDigestType.Digest,
         sendType: 'workdays',
@@ -126,7 +133,12 @@ describe('DigestNotification', () => {
 
       expect(mockUnsubscribe).not.toHaveBeenCalled();
       expect(mockSubscribe).not.toHaveBeenCalled();
-      expect(mockSetNotificationStatus).not.toHaveBeenCalled();
+      expect(mockSetNotificationStatus).toHaveBeenCalledWith(
+        NotificationType.DigestReady,
+        'inApp',
+        NotificationPreferenceStatus.Subscribed,
+      );
+      expect(mockSetNotificationStatusBulk).not.toHaveBeenCalled();
     });
 
     it('should subscribe Digest without touching Brief when no subscriptions exist', () => {
@@ -143,7 +155,12 @@ describe('DigestNotification', () => {
       fireEvent.click(toggle);
 
       expect(mockUnsubscribe).not.toHaveBeenCalled();
-      expect(mockSetNotificationStatus).not.toHaveBeenCalled();
+      expect(mockSetNotificationStatusBulk).not.toHaveBeenCalled();
+      expect(mockSetNotificationStatus).toHaveBeenCalledWith(
+        NotificationType.DigestReady,
+        'inApp',
+        NotificationPreferenceStatus.Subscribed,
+      );
       expect(mockSubscribe).toHaveBeenCalledWith({
         type: UserPersonalizedDigestType.Digest,
         sendType: 'workdays',
