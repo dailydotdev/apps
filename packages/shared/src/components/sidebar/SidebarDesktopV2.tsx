@@ -26,11 +26,18 @@ import { PinnedSection } from './sections/PinnedSection';
 import { RecentSection } from './sections/RecentSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
-import { CreatePostButton } from '../post/write';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
+import { link } from '../../lib/links';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
 import { useClaimableQuestCount } from '../../hooks/useQuestDashboard';
 import { Bubble } from '../tooltips/utils';
-import { ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
@@ -45,6 +52,7 @@ import {
   DevCardIcon,
   DevPlusIcon,
   DocsIcon,
+  EditIcon,
   ExitIcon,
   EyeIcon,
   FeedbackIcon,
@@ -54,9 +62,11 @@ import {
   JobIcon,
   MegaphoneIcon,
   MenuIcon,
+  MicrophoneIcon,
   MoonIcon,
   PhoneIcon,
   PlusIcon,
+  PollIcon,
   PrivacyIcon,
   SearchIcon,
   SettingsIcon,
@@ -357,6 +367,57 @@ const SidebarSupportButton = (): ReactElement => {
         </InteractivePopup>
       )}
     </>
+  );
+};
+
+const createPostOptions: MenuItemProps[] = [
+  {
+    label: 'Free form',
+    icon: <EditIcon size={IconSize.Size16} />,
+    anchorProps: { href: link.post.create },
+  },
+  {
+    label: 'Poll',
+    icon: <PollIcon size={IconSize.Size16} />,
+    anchorProps: { href: `${link.post.create}?poll=true` },
+  },
+  {
+    label: 'Live',
+    icon: <MicrophoneIcon size={IconSize.Size16} />,
+    anchorProps: { href: `${link.post.create}?standup=true` },
+  },
+];
+
+// Rail "+" opens a small dropdown to start a new post: free form, a poll, or a
+// live standup. Each option deep-links into the composer with the matching
+// kind preselected.
+const SidebarCreatePostButton = (): ReactElement => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger
+        asChild
+        tooltip={{
+          side: 'right',
+          content: 'New post',
+          collisionPadding: RAIL_TOOLTIP_COLLISION_PADDING,
+        }}
+      >
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<PlusIcon />}
+          aria-label="New post"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          className="!size-9 !rounded-12 [&_svg]:!size-5"
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="right" align="start" className="!min-w-44">
+        <DropdownMenuOptions options={createPostOptions} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
@@ -1067,22 +1128,7 @@ export const SidebarDesktopV2 = ({
             ),
           )}
 
-          {isLoggedIn && (
-            <Tooltip
-              side="right"
-              content="New post"
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              <div>
-                <CreatePostButton
-                  compact
-                  showIcon
-                  size={ButtonSize.Small}
-                  className="!size-9 !rounded-12 [&_svg]:!size-5"
-                />
-              </div>
-            </Tooltip>
-          )}
+          {isLoggedIn && <SidebarCreatePostButton />}
 
           {isNavOverflowing && (
             <RailHoverCard label="More" panel={renderMorePanel()}>
