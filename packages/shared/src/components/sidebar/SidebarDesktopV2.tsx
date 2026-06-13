@@ -26,13 +26,6 @@ import { PinnedSection } from './sections/PinnedSection';
 import { RecentSection } from './sections/RecentSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuOptions,
-  DropdownMenuTrigger,
-} from '../dropdown/DropdownMenu';
-import type { MenuItemProps } from '../dropdown/common';
 import { link } from '../../lib/links';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
 import { useClaimableQuestCount } from '../../hooks/useQuestDashboard';
@@ -370,56 +363,18 @@ const SidebarSupportButton = (): ReactElement => {
   );
 };
 
-const createPostOptions: MenuItemProps[] = [
+// Hovering the rail "+" previews this panel (free form, poll, live standup);
+// each option deep-links into the composer with the matching kind. Clicking
+// the "+" itself opens the create-post composer modal.
+const createPanelItems: ProfileSectionItemProps[] = [
+  { title: 'Free form', href: link.post.create, icon: EditIcon },
+  { title: 'Poll', href: `${link.post.create}?poll=true`, icon: PollIcon },
   {
-    label: 'Free form',
-    icon: <EditIcon size={IconSize.Size16} />,
-    anchorProps: { href: link.post.create },
-  },
-  {
-    label: 'Poll',
-    icon: <PollIcon size={IconSize.Size16} />,
-    anchorProps: { href: `${link.post.create}?poll=true` },
-  },
-  {
-    label: 'Live',
-    icon: <MicrophoneIcon size={IconSize.Size16} />,
-    anchorProps: { href: `${link.post.create}?standup=true` },
+    title: 'Live',
+    href: `${link.post.create}?standup=true`,
+    icon: MicrophoneIcon,
   },
 ];
-
-// Rail "+" opens a small dropdown to start a new post: free form, a poll, or a
-// live standup. Each option deep-links into the composer with the matching
-// kind preselected.
-const SidebarCreatePostButton = (): ReactElement => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger
-        asChild
-        tooltip={{
-          side: 'right',
-          content: 'New post',
-          collisionPadding: RAIL_TOOLTIP_COLLISION_PADDING,
-        }}
-      >
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-          aria-label="New post"
-          aria-haspopup="menu"
-          aria-expanded={open}
-          className="!size-9 !rounded-12 [&_svg]:!size-5"
-        />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent side="right" align="start" className="!min-w-44">
-        <DropdownMenuOptions options={createPostOptions} />
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
 
 // Profile menu anchored to the bottom rail avatar. A curated, lean subset of
 // the production ProfileMenu (built from the shared ProfileSection item rows)
@@ -594,6 +549,7 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openNewSquad } = useSquadNavigation();
+  const { openModal } = useLazyModal();
   const { isLoggedIn } = useAuthContext();
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
@@ -680,6 +636,9 @@ export const SidebarDesktopV2 = ({
   const [hoveredCategory, setHoveredCategory] =
     useState<SidebarCategoryId | null>(null);
   const activeCategory = hoveredCategory ?? selectedCategory;
+  // Hovering the "+" previews the create-post options panel (takes precedence
+  // over a hovered category). Clicking "+" opens the composer modal instead.
+  const [isCreateHovered, setIsCreateHovered] = useState(false);
 
   useEffect(() => {
     if (pendingCategory !== null && pendingCategory === resolvedCategory) {
@@ -799,6 +758,7 @@ export const SidebarDesktopV2 = ({
     peekSuppressedRef.current = false;
     setIsRailHovered(false);
     setHoveredCategory(null);
+    setIsCreateHovered(false);
   }, []);
 
   const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
@@ -913,6 +873,7 @@ export const SidebarDesktopV2 = ({
           onMouseEnter={() => {
             onPrefetchCategory(category.id);
             setHoveredCategory(category.id);
+            setIsCreateHovered(false);
           }}
           onFocus={() => onPrefetchCategory(category.id)}
           onKeyDown={(event) => {
@@ -977,20 +938,29 @@ export const SidebarDesktopV2 = ({
     );
   };
 
-  // The panel always reflects the active category (hovered preview, else the
-  // selected/pinned one).
+  // The panel reflects the create-post options when hovering "+", otherwise
+  // the active category (hovered preview, else the selected/pinned one).
   const renderSelectedSection = (): ReactElement =>
-    renderCategorySection(activeCategory);
+    isCreateHovered ? (
+      <ProfileMenuSection items={createPanelItems} />
+    ) : (
+      renderCategorySection(activeCategory)
+    );
 
   const activeLabel = sidebarCategories.find(
     (category) => category.id === activeCategory,
   )?.label;
   const isNotificationsSelected =
     activeCategory === SidebarCategory.Notifications;
-  const isHomePanel = activeCategory === SidebarCategory.Main;
-  const isSquadsPanel = activeCategory === SidebarCategory.Squads;
+  const isHomePanel =
+    !isCreateHovered && activeCategory === SidebarCategory.Main;
+  const isSquadsPanel =
+    !isCreateHovered && activeCategory === SidebarCategory.Squads;
   const isUtilityPanelSelected = !isHomePanel;
   const utilityPanelTitle = (() => {
+    if (isCreateHovered) {
+      return 'New post';
+    }
     if (activeCategory === SidebarCategory.Settings) {
       return 'Settings';
     }
@@ -1128,7 +1098,27 @@ export const SidebarDesktopV2 = ({
             ),
           )}
 
-          {isLoggedIn && <SidebarCreatePostButton />}
+          {isLoggedIn && (
+            <Tooltip
+              side="right"
+              content="New post"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <Button
+                id="sidebar-create-post"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                aria-label="New post"
+                aria-controls="sidebar-context-panel"
+                onMouseEnter={() => setIsCreateHovered(true)}
+                onFocus={() => setIsCreateHovered(true)}
+                onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                className="!size-9 !rounded-12 [&_svg]:!size-5"
+              />
+            </Tooltip>
+          )}
 
           {isNavOverflowing && (
             <RailHoverCard label="More" panel={renderMorePanel()}>
@@ -1218,8 +1208,16 @@ export const SidebarDesktopV2 = ({
       <section
         id="sidebar-context-panel"
         role="tabpanel"
-        aria-labelledby={`sidebar-category-${activeCategory}`}
-        aria-label={`${activeLabel ?? 'Settings'} navigation`}
+        aria-labelledby={
+          isCreateHovered
+            ? 'sidebar-create-post'
+            : `sidebar-category-${activeCategory}`
+        }
+        aria-label={
+          isCreateHovered
+            ? 'New post'
+            : `${activeLabel ?? 'Settings'} navigation`
+        }
         className={classNames(
           'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
           isExpanded ? 'w-60 opacity-100' : 'pointer-events-none w-0 opacity-0',
