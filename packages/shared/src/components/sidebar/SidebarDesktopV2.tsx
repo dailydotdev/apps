@@ -324,7 +324,7 @@ const SidebarProfileButton = (): ReactElement | null => {
         <Typography
           bold
           truncate
-          type={TypographyType.Subhead}
+          type={TypographyType.Footnote}
           className="min-w-0 flex-1 text-left"
         >
           {user.name ?? user.username}
@@ -682,58 +682,70 @@ export const SidebarDesktopV2 = ({
       {/* Definite-height, clipped flex column so the nav scrolls and the
           header/footer stay pinned on-screen regardless of list length. */}
       <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-        {/* Linear-style top bar: the profile (avatar + name + @username) is the
-            primary switcher, with the reading streak, search and compose icons
-            beside it. The daily.dev brand + support live in the footer. */}
-        <header className="flex items-center gap-0.5 px-2 pb-2 pt-4">
-          {isLoggedIn ? (
-            <SidebarProfileButton />
-          ) : (
-            <>
-              <Link href={webappUrl} passHref prefetch={false}>
-                <a
-                  href={webappUrl}
-                  aria-label="Home"
-                  onClick={onLogoClick}
-                  className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
-                >
-                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
-                  <Typography
-                    bold
-                    type={TypographyType.Subhead}
-                    className="min-w-0 truncate"
+        {/* Top bar: profile (avatar + name) switcher with the reading streak
+            and compose action beside it, then a search field below. The
+            daily.dev brand + support live in the footer. */}
+        <header className="flex flex-col gap-2 px-2 pb-2 pt-4">
+          <div className="flex items-center gap-0.5">
+            {isLoggedIn ? (
+              <SidebarProfileButton />
+            ) : (
+              <>
+                <Link href={webappUrl} passHref prefetch={false}>
+                  <a
+                    href={webappUrl}
+                    aria-label="Home"
+                    onClick={onLogoClick}
+                    className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
                   >
-                    daily.dev
-                  </Typography>
-                </a>
-              </Link>
-              <span className="flex-1" />
-            </>
-          )}
-          {isLoggedIn && <SidebarStreakButton />}
-          <Tooltip side="bottom" content={`Search · ${shortcutKeys.join('')}`}>
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={openSpotlight}
-              className={iconButtonClass}
+                    <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                    <Typography
+                      bold
+                      type={TypographyType.Footnote}
+                      className="min-w-0 truncate"
+                    >
+                      daily.dev
+                    </Typography>
+                  </a>
+                </Link>
+                <span className="flex-1" />
+              </>
+            )}
+            {isLoggedIn && <SidebarStreakButton />}
+            {isLoggedIn && (
+              <Tooltip side="bottom" content="New post">
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<ComposeIcon />}
+                  aria-label="New post"
+                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                  className="!size-8 [&_svg]:!size-4"
+                />
+              </Tooltip>
+            )}
+          </div>
+
+          <button
+            type="button"
+            aria-label="Search"
+            onClick={openSpotlight}
+            className="focus-outline flex h-8 w-full items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+          >
+            <SearchIcon size={IconSize.Size16} aria-hidden />
+            <span className="flex-1 text-left typo-footnote">Search</span>
+            <span
+              aria-hidden
+              className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
             >
-              <SearchIcon size={IconSize.Small} aria-hidden />
-            </button>
-          </Tooltip>
-          {isLoggedIn && (
-            <Tooltip side="bottom" content="New post">
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<ComposeIcon />}
-                aria-label="New post"
-                onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                className="!size-8 [&_svg]:!size-4"
-              />
-            </Tooltip>
-          )}
+              {shortcutKeys.map((key) => (
+                <kbd key={key} className="font-sans">
+                  {key}
+                </kbd>
+              ))}
+            </span>
+          </button>
         </header>
 
         {isLoggedIn && additionalButtons && (
