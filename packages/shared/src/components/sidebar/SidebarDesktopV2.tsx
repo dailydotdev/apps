@@ -542,12 +542,10 @@ export const SidebarDesktopV2 = ({
               onClick={onToggleExpanded}
               aria-label="Open sidebar"
               aria-expanded={false}
-              className={classNames(
-                'shadow-1 fixed left-2 top-6 z-sidebarOverlay hidden size-7 items-center justify-center rounded-10 border border-border-subtlest-tertiary bg-background-default text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary laptop:flex',
-              )}
+              className="focus-outline fixed left-2 top-5 z-sidebarOverlay hidden size-8 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary laptop:flex"
             >
               <SidebarArrowLeft
-                size={IconSize.XSmall}
+                size={IconSize.Small}
                 aria-hidden
                 className="rotate-180"
               />
@@ -560,14 +558,22 @@ export const SidebarDesktopV2 = ({
         data-testid="sidebar-aside"
         onMouseLeave={handleAsideLeave}
         className={classNames(
-          'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:w-[19rem]',
+          'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:w-[19rem] laptop:border-r-0',
           isExpanded ? 'laptop:translate-x-0' : 'laptop:-translate-x-full',
           isBannerAvailable
             ? 'laptop:[--safe-area-top-offset:2rem]'
             : 'laptop:[--safe-area-top-offset:0rem]',
-          // Lift the panel while peeking so its overlay reads against the feed.
-          isHoverExpanded && 'laptop:shadow-3',
-          featureTheme && 'bg-transparent',
+          // Paint the exact V2 page background (same color-mix MainLayout uses)
+          // so the sidebar and feed read as one continuous surface — the feed
+          // floats as a box on top, with no divider between them. Opaque so the
+          // peek overlay stays legible over the feed.
+          !featureTheme &&
+            'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+          featureTheme && 'laptop:!bg-transparent',
+          // While peeking, the panel floats over the feed: round the free edge
+          // and add a shadow so it reads as an overlay — no border, keeping the
+          // one-box design intact.
+          isHoverExpanded && 'laptop:rounded-r-16 laptop:shadow-3',
           suppressTransition,
         )}
       >
