@@ -1300,7 +1300,7 @@ export const SidebarDesktopV2 = ({
                 }
                 onFocus={() => setIsCreateHovered(true)}
                 onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                className="!size-9 !rounded-12 [&_svg]:!size-6"
+                className="mt-2 !size-9 !rounded-12 [&_svg]:!size-6"
               />
             </Tooltip>
           )}
