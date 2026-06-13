@@ -61,6 +61,7 @@ import {
   MenuIcon,
   MicrophoneIcon,
   MoonIcon,
+  MoveToIcon,
   NewPostIcon,
   PhoneIcon,
   PlusIcon,
@@ -1528,17 +1529,16 @@ export const SidebarDesktopV2 = ({
       >
         <div className="pl-4 pr-3 pt-6">
           {isSettingsSelected ? (
-            <button
+            <Button
               type="button"
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              icon={<MoveToIcon />}
               onClick={onBackToApp}
-              aria-label="Back to app"
-              className="focus-outline -ml-1 flex h-10 items-center gap-2 rounded-10 px-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              className="-ml-1"
             >
-              <SidebarArrowLeft size={IconSize.Small} aria-hidden />
-              <Typography bold type={TypographyType.Callout}>
-                Back to app
-              </Typography>
-            </button>
+              Back to app
+            </Button>
           ) : (
             <div className="flex h-10 items-center justify-between gap-1">
               <Typography bold type={TypographyType.Callout}>
