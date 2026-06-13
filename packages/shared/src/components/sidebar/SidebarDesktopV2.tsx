@@ -796,6 +796,12 @@ export const SidebarDesktopV2 = ({
                     isItemsButton={false}
                   />
                 )}
+                <CustomFeedSection
+                  {...defaultRenderSectionProps}
+                  onNavTabClick={onNavTabClick}
+                  title="Feeds"
+                  isItemsButton={false}
+                />
                 <BookmarkSection
                   {...defaultRenderSectionProps}
                   title="Saved"
@@ -805,12 +811,6 @@ export const SidebarDesktopV2 = ({
                   {...defaultRenderSectionProps}
                   title="Squads"
                   isItemsButton={isNavButtons ?? false}
-                />
-                <CustomFeedSection
-                  {...defaultRenderSectionProps}
-                  onNavTabClick={onNavTabClick}
-                  title="Feeds"
-                  isItemsButton={false}
                 />
               </>
             )}
