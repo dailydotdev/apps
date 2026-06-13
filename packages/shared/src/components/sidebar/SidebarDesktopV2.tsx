@@ -56,6 +56,7 @@ import {
   HomeIcon,
   InviteIcon,
   JobIcon,
+  LinkIcon,
   MegaphoneIcon,
   MenuIcon,
   MicrophoneIcon,
@@ -377,6 +378,14 @@ const createMenuItems: SidebarMenuItem[] = [
     ),
     title: 'Free form',
     path: link.post.create,
+    isForcedLink: true,
+  },
+  {
+    icon: (active: boolean) => (
+      <ListIcon Icon={() => <LinkIcon secondary={active} />} />
+    ),
+    title: 'Share a link',
+    path: `${link.post.create}?share=true`,
     isForcedLink: true,
   },
   {
