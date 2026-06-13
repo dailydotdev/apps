@@ -10,12 +10,15 @@ import React, {
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import {
+  ListIcon,
   Nav,
   railTabClass,
   railTabLabelClass,
   SidebarAside,
   SidebarScrollWrapper,
 } from './common';
+import type { SidebarMenuItem } from './common';
+import { Section } from './Section';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
@@ -365,14 +368,32 @@ const SidebarSupportButton = (): ReactElement => {
 
 // Hovering the rail "+" previews this panel (free form, poll, live standup);
 // each option deep-links into the composer with the matching kind. Clicking
-// the "+" itself opens the create-post composer modal.
-const createPanelItems: ProfileSectionItemProps[] = [
-  { title: 'Free form', href: link.post.create, icon: EditIcon },
-  { title: 'Poll', href: `${link.post.create}?poll=true`, icon: PollIcon },
+// the "+" itself opens the create-post composer modal. Built as SidebarMenuItem
+// rows so the list matches the other category panels.
+const createMenuItems: SidebarMenuItem[] = [
   {
+    icon: (active: boolean) => (
+      <ListIcon Icon={() => <EditIcon secondary={active} />} />
+    ),
+    title: 'Free form',
+    path: link.post.create,
+    isForcedLink: true,
+  },
+  {
+    icon: (active: boolean) => (
+      <ListIcon Icon={() => <PollIcon secondary={active} />} />
+    ),
+    title: 'Poll',
+    path: `${link.post.create}?poll=true`,
+    isForcedLink: true,
+  },
+  {
+    icon: (active: boolean) => (
+      <ListIcon Icon={() => <MicrophoneIcon secondary={active} />} />
+    ),
     title: 'Live',
-    href: `${link.post.create}?standup=true`,
-    icon: MicrophoneIcon,
+    path: `${link.post.create}?standup=true`,
+    isForcedLink: true,
   },
 ];
 
@@ -942,7 +963,11 @@ export const SidebarDesktopV2 = ({
   // the active category (hovered preview, else the selected/pinned one).
   const renderSelectedSection = (): ReactElement =>
     isCreateHovered ? (
-      <ProfileMenuSection items={createPanelItems} />
+      <Section
+        {...defaultRenderSectionProps}
+        items={createMenuItems}
+        isItemsButton={false}
+      />
     ) : (
       renderCategorySection(activeCategory)
     );
