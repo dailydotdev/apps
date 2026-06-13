@@ -43,12 +43,18 @@ export type SettingsFlags = {
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
   showShortcutsOnWebapp?: boolean;
+  // v2 single-panel sidebar: per-section collapse state for the Home panel's
+  // Pinned and Recent groups.
+  sidebarPinnedExpanded?: boolean;
+  sidebarRecentExpanded?: boolean;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
+  PinnedExpanded = 'sidebarPinnedExpanded',
+  RecentExpanded = 'sidebarRecentExpanded',
   CustomFeedsExpanded = 'sidebarCustomFeedsExpanded',
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',

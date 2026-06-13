@@ -37,6 +37,7 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
   HomepageTopBanners,
@@ -119,6 +120,7 @@ function MainLayoutComponent({
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  useRecordRecentPages(isV2);
   useNotificationParams();
 
   // Settings pages render their navigation only inside the v2 context panel,
@@ -305,7 +307,11 @@ function MainLayoutComponent({
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
-            (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
+            // v2 is a single Linear-style panel: when collapsed it hides
+            // entirely (laptop:pl-0) and the content reclaims the full width;
+            // a floating toggle + left-edge hover zone reopen/peek it. Tablet
+            // still uses the icon SidebarTablet, so its rail width stays.
+            (isV2 ? 'tablet:pl-16 laptop:pl-0' : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&

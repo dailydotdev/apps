@@ -1,11 +1,5 @@
 import type { MouseEvent, ReactElement, ReactNode } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -22,12 +16,10 @@ import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SimpleTooltip } from '../tooltips';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
-import { RootPortal } from '../tooltips/Portal';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReadingStreakIcon, ReputationIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
-import { ReadingStreakPopup } from '../streak/popup/ReadingStreakPopup';
-import type { UserStreak } from '../../graphql/users';
+import { StreakPopover } from './StreakPopover';
 
 const slotClass =
   'focus-outline group flex flex-1 items-center justify-center gap-1 px-1.5 py-1.5 transition-colors hover:bg-surface-hover min-w-0';
@@ -105,84 +97,6 @@ const StatSlot = ({
 
 const dividerClass = 'w-px self-stretch bg-border-subtlest-quaternary';
 
-type StreakPopoverProps = {
-  streak: UserStreak;
-  triggerRef: React.RefObject<HTMLElement>;
-  onClose: () => void;
-};
-
-// Manually positioned portal popover: read the trigger's bounding rect
-// and render the panel directly below it via a body-level portal. This
-// keeps the popover stable (no Tippy auto-flip surprises inside the
-// sidebar's transform / overflow context) and ensures it always drops
-// down from the streak button as expected.
-const StreakPopover = ({
-  streak,
-  triggerRef,
-  onClose,
-}: StreakPopoverProps): ReactElement | null => {
-  const [position, setPosition] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  const updatePosition = useCallback(() => {
-    const trigger = triggerRef.current;
-    if (!trigger) {
-      return;
-    }
-    const rect = trigger.getBoundingClientRect();
-    setPosition({ top: rect.bottom + 8, left: rect.left });
-  }, [triggerRef]);
-
-  useLayoutEffect(() => {
-    updatePosition();
-  }, [updatePosition]);
-
-  useEffect(() => {
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
-    return () => {
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
-    };
-  }, [updatePosition]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: globalThis.MouseEvent) => {
-      const target = event.target as Node | null;
-      if (
-        target &&
-        !popoverRef.current?.contains(target) &&
-        !triggerRef.current?.contains(target)
-      ) {
-        onClose();
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [onClose, triggerRef]);
-
-  if (!position) {
-    return null;
-  }
-
-  return (
-    <RootPortal>
-      <div
-        ref={popoverRef}
-        role="dialog"
-        aria-label="Reading streak"
-        className="fixed z-tooltip overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-primary shadow-3 typo-callout"
-        style={{ top: position.top, left: position.left }}
-      >
-        <ReadingStreakPopup streak={streak} />
-      </div>
-    </RootPortal>
-  );
-};
-
 const StreakHintTooltip = ({
   children,
   content,
@@ -192,7 +106,16 @@ const StreakHintTooltip = ({
   </SimpleTooltip>
 );
 
-export const SidebarHeaderStats = (): ReactElement | null => {
+type SidebarHeaderStatsProps = {
+  // 'right' opens the streak popover beside the strip and anchors it to the
+  // bottom edge so it grows upward — used by the single-panel footer, which
+  // sits near the viewport bottom and would clip a downward popover.
+  streakPopoverPlacement?: 'bottom' | 'right';
+};
+
+export const SidebarHeaderStats = ({
+  streakPopoverPlacement = 'bottom',
+}: SidebarHeaderStatsProps = {}): ReactElement | null => {
   const { user } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
   const { logEvent } = useLogContext();
@@ -262,6 +185,7 @@ export const SidebarHeaderStats = (): ReactElement | null => {
               streak={streak}
               triggerRef={streakSlotRef}
               onClose={() => setIsStreaksOpen(false)}
+              placement={streakPopoverPlacement}
             />
           )}
           <span aria-hidden className={dividerClass} />
