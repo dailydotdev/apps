@@ -988,6 +988,10 @@ export const SidebarDesktopV2 = ({
         // overlay needs to paint over the feed.
         !featureTheme &&
           'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+        // While peeking, the panel floats over the feed — add a right border so
+        // its edge reads clearly against the content behind it.
+        isHoverExpanded &&
+          'laptop:!border-r laptop:border-border-subtlest-tertiary',
         // Collapsed sidebar reads as a resize handle: click the empty surface
         // to pin it open.
         isCollapsedHoverMode && 'laptop:cursor-ew-resize',
