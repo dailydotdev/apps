@@ -9,7 +9,6 @@ import { isSidebarSettingsPath } from './sidebarCategory';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
-import { MainSection } from './sections/MainSection';
 import { PinnedSection } from './sections/PinnedSection';
 import { RecentSection } from './sections/RecentSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
@@ -33,9 +32,12 @@ import {
   EyeIcon,
   FeedbackIcon,
   FlagIcon,
+  HomeIcon,
+  HotIcon,
   InviteIcon,
   JobIcon,
   JoystickIcon,
+  MagicIcon,
   MegaphoneIcon,
   MenuIcon,
   MoonIcon,
@@ -44,6 +46,7 @@ import {
   PrivacyIcon,
   SearchIcon,
   SettingsIcon,
+  SquadIcon,
   SunIcon,
   TerminalIcon,
   TrendingIcon,
@@ -70,7 +73,10 @@ import {
   termsOfService,
   webappUrl,
 } from '../../lib/constants';
-import { isAppleDevice } from '../../lib/func';
+import { isAppleDevice, isExtension } from '../../lib/func';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { OtherFeedPage } from '../../lib/query';
+import { SharedFeedPage, HorizontalSeparator } from '../utilities';
 import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -85,7 +91,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { FeedbackWidget } from '../feedback';
-import { HorizontalSeparator } from '../utilities';
 import {
   Typography,
   TypographyColor,
@@ -394,6 +399,7 @@ export const SidebarDesktopV2 = ({
   const { isLoggedIn } = useAuthContext();
   const { openModal } = useLazyModal();
   const { unreadCount } = useNotificationContext();
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const claimableQuestCount = useClaimableQuestCount();
   const showQuests = isLoggedIn && !optOutQuestSystem;
   const activePage = activePageProp || router.asPath || router.pathname || '';
@@ -439,6 +445,10 @@ export const SidebarDesktopV2 = ({
     );
   }, [resolvedWidth, sidebarExpanded]);
 
+  // Highlights the resize grip while actively dragging (toggled at drag
+  // start/end only — never on pointer move, so it doesn't re-render mid-drag).
+  const [isResizing, setIsResizing] = useState(false);
+
   // Drag-to-resize/collapse: dragging the right edge resizes the panel live;
   // releasing keeps the new width (persisted), or closes it when pulled past
   // the collapse threshold. Replaces an always-visible collapse button.
@@ -447,6 +457,7 @@ export const SidebarDesktopV2 = ({
       event.preventDefault();
       const root = document.documentElement;
       let lastCursorX: number | null = null;
+      setIsResizing(true);
       root.classList.add('sidebar-resizing');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
@@ -462,6 +473,7 @@ export const SidebarDesktopV2 = ({
       const onUp = () => {
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        setIsResizing(false);
         root.classList.remove('sidebar-resizing');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
@@ -517,15 +529,49 @@ export const SidebarDesktopV2 = ({
     [],
   );
 
-  // Notifications + Quests are top-level destinations that don't belong to any
-  // grouped section, so they render as a small flat block under the primary
-  // Home items (Linear keeps Inbox/single destinations flat too).
-  const utilityItems: SidebarMenuItem[] = useMemo(() => {
-    if (!isLoggedIn) {
-      return [];
+  // The primary nav, in an explicit (v2-only) order:
+  // For You, Following, Notifications, Quests, Explore, Happening Now, History.
+  // Built here rather than via the shared MainSection so the order — which
+  // interleaves Notifications/Quests with the feed items — stays v2-specific
+  // and doesn't affect the v1 sidebar.
+  const primaryItems: SidebarMenuItem[] = useMemo(() => {
+    // Mirror MainSection's "For You" target so navigation + active state match.
+    let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+    if (isExtension) {
+      myFeedPath = '/my-feed';
     }
-    const items: SidebarMenuItem[] = [
+
+    const items: (SidebarMenuItem | false)[] = [
+      isLoggedIn
+        ? {
+            title: 'For You',
+            path: myFeedPath,
+            action: () =>
+              onNavTabClick?.(
+                isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/',
+              ),
+            icon: (active: boolean) => (
+              <ListIcon Icon={() => <MagicIcon secondary={active} />} />
+            ),
+          }
+        : {
+            title: 'Home',
+            path: '/',
+            action: () => onNavTabClick?.('/'),
+            icon: (active: boolean) => (
+              <ListIcon Icon={() => <HomeIcon secondary={active} />} />
+            ),
+          },
       {
+        title: 'Following',
+        path: '/following',
+        action: () => onNavTabClick?.(OtherFeedPage.Following),
+        requiresLogin: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+        ),
+      },
+      isLoggedIn && {
         title: 'Notifications',
         path: `${webappUrl}notifications`,
         isForcedLink: true,
@@ -534,9 +580,7 @@ export const SidebarDesktopV2 = ({
         ),
         rightIcon: countBadge(unreadCount),
       },
-    ];
-    if (showQuests) {
-      items.push({
+      showQuests && {
         title: 'Quests',
         path: `${webappUrl}game-center`,
         isForcedLink: true,
@@ -544,10 +588,45 @@ export const SidebarDesktopV2 = ({
           <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
         ),
         rightIcon: countBadge(claimableQuestCount),
-      });
-    }
-    return items;
-  }, [claimableQuestCount, countBadge, isLoggedIn, showQuests, unreadCount]);
+      },
+      {
+        title: 'Explore',
+        path: '/posts',
+        action: () => onNavTabClick?.(OtherFeedPage.Explore),
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <HotIcon secondary={active} />} />
+        ),
+      },
+      {
+        title: 'Happening Now',
+        path: `${webappUrl}highlights`,
+        isForcedLink: true,
+        requiresLogin: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
+        ),
+      },
+      {
+        title: 'History',
+        path: `${webappUrl}history`,
+        isForcedLink: true,
+        requiresLogin: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <EyeIcon secondary={active} />} />
+        ),
+      },
+    ];
+
+    return items.filter(Boolean) as SidebarMenuItem[];
+  }, [
+    claimableQuestCount,
+    countBadge,
+    isCustomDefaultFeed,
+    isLoggedIn,
+    onNavTabClick,
+    showQuests,
+    unreadCount,
+  ]);
 
   return (
     <SidebarAside
@@ -657,18 +736,12 @@ export const SidebarDesktopV2 = ({
               </>
             ) : (
               <>
-                <MainSection
+                <Section
                   {...defaultRenderSectionProps}
-                  onNavTabClick={onNavTabClick}
+                  items={primaryItems}
                   isItemsButton={isNavButtons ?? false}
+                  className="!mt-0"
                 />
-                {utilityItems.length > 0 && (
-                  <Section
-                    {...defaultRenderSectionProps}
-                    items={utilityItems}
-                    isItemsButton={false}
-                  />
-                )}
                 {isLoggedIn && (
                   <PinnedSection
                     {...defaultRenderSectionProps}
@@ -732,15 +805,28 @@ export const SidebarDesktopV2 = ({
         </div>
       </div>
 
-      {/* Drag the right edge to resize; pull past the threshold to collapse.
-            Replaces an always-visible collapse button (Linear-style). */}
+      {/* Resize handle straddling the sidebar/feed boundary. The surface stays
+          invisible (no permanent divider), but hovering or dragging it reveals
+          a short, vertically-centered grip — the Claude resize affordance — so
+          it's discoverable without adding a border. Pull past the threshold to
+          collapse. */}
       {isExpanded && !forceExpanded && (
         <button
           type="button"
           aria-label="Resize sidebar"
           onMouseDown={onResizeHandleMouseDown}
-          className="absolute inset-y-0 right-0 z-1 hidden w-1 cursor-col-resize bg-transparent transition-colors hover:bg-border-subtlest-tertiary active:bg-border-subtlest-secondary laptop:block"
-        />
+          className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
+        >
+          <span
+            aria-hidden
+            className={classNames(
+              'pointer-events-none absolute left-1/2 top-1/2 h-12 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-text-quaternary transition-opacity duration-150',
+              isResizing
+                ? 'opacity-100'
+                : 'opacity-0 group-hover/resize:opacity-100',
+            )}
+          />
+        </button>
       )}
     </SidebarAside>
   );
