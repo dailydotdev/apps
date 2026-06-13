@@ -301,6 +301,7 @@ function MainLayoutComponent({
         />
       )}
       <main
+        data-resizable-pane
         className={classNames(
           'flex flex-col',
           animateContentPadding &&
@@ -317,7 +318,9 @@ function MainLayoutComponent({
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2
-              ? 'laptop:!pl-[19rem]'
+              ? // Matches the resizable sidebar width (see SidebarDesktopV2);
+                // the var is updated live while dragging so content tracks it.
+                'laptop:!pl-[var(--sidebar-width,19rem)]'
               : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
         )}

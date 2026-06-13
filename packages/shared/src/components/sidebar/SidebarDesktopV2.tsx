@@ -1,12 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper, ListIcon } from './common';
 import type { SidebarMenuItem } from './common';
@@ -99,6 +93,14 @@ import {
 
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
+
+// Resizable panel bounds (px). 304px = 19rem keeps the default in step with
+// the `var(--sidebar-width, 19rem)` fallback used before settings load.
+const SIDEBAR_DEFAULT_WIDTH = 304;
+const SIDEBAR_MIN_WIDTH = 240;
+const SIDEBAR_MAX_WIDTH = 420;
+// Pull the handle left of this cursor X to collapse instead of resize.
+const SIDEBAR_COLLAPSE_AT = 180;
 
 // Square icon button shared by the theme/support footer controls.
 const footerIconButtonClass =
@@ -402,6 +404,8 @@ export const SidebarDesktopV2 = ({
     toggleSidebarExpanded,
     loadedSettings,
     optOutQuestSystem,
+    flags,
+    updateFlag,
   } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -438,45 +442,70 @@ export const SidebarDesktopV2 = ({
   // headers surface while collapsed (see SidebarExpandButton).
   const isExpanded = sidebarExpanded || forceExpanded;
 
-  // Drag-to-resize/collapse: dragging the right edge narrows the panel live;
-  // releasing below the collapse threshold closes it, otherwise it snaps back
-  // to the default width. The width itself isn't persisted — the gesture is a
-  // "pull to collapse", matching how the panel reopens at its default width.
-  const [dragWidth, setDragWidth] = useState<number | null>(null);
-  const dragCursorXRef = useRef<number | null>(null);
+  // The panel width is resizable and persisted. The live value lives in the
+  // `--sidebar-width` CSS variable so the sidebar and the main content (which
+  // pads by the same variable in MainLayout) resize together, 1:1, while
+  // dragging — without re-rendering on every pointer move.
+  const resolvedWidth = Math.min(
+    SIDEBAR_MAX_WIDTH,
+    Math.max(SIDEBAR_MIN_WIDTH, flags?.sidebarWidth ?? SIDEBAR_DEFAULT_WIDTH),
+  );
 
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--sidebar-width',
+      `${resolvedWidth}px`,
+    );
+  }, [resolvedWidth, sidebarExpanded]);
+
+  // Drag-to-resize/collapse: dragging the right edge resizes the panel live;
+  // releasing keeps the new width (persisted), or closes it when pulled past
+  // the collapse threshold. Replaces an always-visible collapse button.
   const onResizeHandleMouseDown = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault();
-      const MIN_PREVIEW = 160;
-      const MAX_WIDTH = 420;
-      const COLLAPSE_AT = 210;
+      const root = document.documentElement;
+      let lastCursorX: number | null = null;
+      root.classList.add('sidebar-resizing');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
 
       const onMove = (moveEvent: MouseEvent) => {
-        dragCursorXRef.current = moveEvent.clientX;
-        setDragWidth(
-          Math.min(MAX_WIDTH, Math.max(MIN_PREVIEW, moveEvent.clientX)),
+        lastCursorX = moveEvent.clientX;
+        const width = Math.min(
+          SIDEBAR_MAX_WIDTH,
+          Math.max(SIDEBAR_MIN_WIDTH, moveEvent.clientX),
         );
+        root.style.setProperty('--sidebar-width', `${width}px`);
       };
       const onUp = () => {
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        root.classList.remove('sidebar-resizing');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
-        const cursorX = dragCursorXRef.current;
-        dragCursorXRef.current = null;
-        setDragWidth(null);
-        if (cursorX != null && cursorX < COLLAPSE_AT && sidebarExpanded) {
+        if (lastCursorX == null) {
+          return;
+        }
+        if (lastCursorX < SIDEBAR_COLLAPSE_AT) {
+          // Collapse from the current dragged width (animates to 0). The effect
+          // resets `--sidebar-width` to the stored width once collapsed — while
+          // w-0 it's unused, so reopening restores the persisted width.
           logEvent({ event_name: 'close sidebar' });
           toggleSidebarExpanded();
+          return;
         }
+        const width = Math.min(
+          SIDEBAR_MAX_WIDTH,
+          Math.max(SIDEBAR_MIN_WIDTH, lastCursorX),
+        );
+        root.style.setProperty('--sidebar-width', `${width}px`);
+        updateFlag('sidebarWidth', width);
       };
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
     },
-    [logEvent, sidebarExpanded, toggleSidebarExpanded],
+    [logEvent, toggleSidebarExpanded, updateFlag],
   );
 
   const defaultRenderSectionProps = useMemo(
@@ -540,10 +569,12 @@ export const SidebarDesktopV2 = ({
   return (
     <SidebarAside
       data-testid="sidebar-aside"
-      style={dragWidth != null ? { width: `${dragWidth}px` } : undefined}
+      data-resizable-pane
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
-        isExpanded ? 'laptop:w-[19rem]' : 'laptop:w-0',
+        // Expanded width tracks the resizable `--sidebar-width` variable (with
+        // the 19rem default as fallback before settings load).
+        isExpanded ? 'laptop:w-[var(--sidebar-width,19rem)]' : 'laptop:w-0',
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
@@ -553,8 +584,6 @@ export const SidebarDesktopV2 = ({
         !featureTheme &&
           'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
         featureTheme && 'laptop:!bg-transparent',
-        // Follow the cursor instantly while dragging the resize handle.
-        dragWidth != null && '!transition-none',
         suppressTransition,
       )}
     >

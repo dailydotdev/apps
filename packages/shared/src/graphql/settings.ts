@@ -47,6 +47,9 @@ export type SettingsFlags = {
   // Pinned and Recent groups.
   sidebarPinnedExpanded?: boolean;
   sidebarRecentExpanded?: boolean;
+  // v2 single-panel sidebar: the user's chosen panel width in pixels, set by
+  // dragging the resize handle.
+  sidebarWidth?: number;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
