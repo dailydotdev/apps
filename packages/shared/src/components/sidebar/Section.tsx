@@ -5,6 +5,7 @@ import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
 import { ArrowIcon, PlusIcon } from '../icons';
+import { IconSize } from '../Icon';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
@@ -98,7 +99,7 @@ export function Section({
               aria-label={`Toggle ${title}`}
               aria-expanded={!!isVisible.current}
               aria-controls={flag ? `section-${flag}` : undefined}
-              className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
+              className="group/toggle flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
               <span
                 className={classNames(
@@ -110,14 +111,20 @@ export function Section({
                 {title}
               </span>
               <ArrowIcon
+                // Size via the `size` prop, not className — the Icon wrapper's
+                // own size class otherwise wins the Tailwind tie and the
+                // className is ignored.
+                size={compact ? IconSize.XXSmall : undefined}
                 className={classNames(
                   'text-text-quaternary transition-[transform,opacity] duration-200',
                   isVisible.current ? 'rotate-180' : 'rotate-90',
-                  // v2 compact: smaller chevron, hidden until the section
-                  // (header or its items) is hovered/focused so the list stays
-                  // clean — like Linear.
+                  // v2 compact: hide the chevron until the section is hovered
+                  // (header or items) or the toggle is keyboard-focused, so the
+                  // list stays clean and it disappears on mouse-out — like
+                  // Linear. focus-within is avoided so a focused nav link in the
+                  // section doesn't keep it stuck visible.
                   compact
-                    ? 'h-2 w-2 opacity-0 group-focus-within/section:opacity-100 group-hover/section:opacity-100'
+                    ? 'opacity-0 group-hover/section:opacity-100 group-focus-visible/toggle:opacity-100'
                     : 'h-2.5 w-2.5',
                 )}
               />
