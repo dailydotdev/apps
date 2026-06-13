@@ -739,7 +739,7 @@ export const SidebarDesktopV2 = ({
                     icon={<ComposeIcon />}
                     aria-label="New post"
                     onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                    className="!size-8 [&_svg]:!size-4"
+                    className="ml-2 !size-7 [&_svg]:!size-4"
                   />
                 </Tooltip>
               )}

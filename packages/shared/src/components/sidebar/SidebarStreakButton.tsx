@@ -46,14 +46,14 @@ export const SidebarStreakButton = (): ReactElement | null => {
       aria-label={`Reading streak: ${value}`}
       className="focus-outline flex items-center gap-1 rounded-10 px-2 py-1.5 text-text-primary transition-colors hover:bg-surface-hover"
     >
+      <Typography bold type={TypographyType.Footnote} className="tabular-nums">
+        {value}
+      </Typography>
       <ReadingStreakIcon
         secondary={hasReadToday}
         size={IconSize.Size16}
         className="text-accent-bacon-default"
       />
-      <Typography bold type={TypographyType.Footnote} className="tabular-nums">
-        {value}
-      </Typography>
     </button>
   );
 
