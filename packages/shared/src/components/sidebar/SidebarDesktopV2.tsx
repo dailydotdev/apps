@@ -10,7 +10,6 @@ import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
 import { PinnedSection } from './sections/PinnedSection';
-import { RecentSection } from './sections/RecentSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
@@ -114,6 +113,39 @@ const SIDEBAR_COLLAPSE_AT = 180;
 const iconButtonClass =
   'focus-outline flex size-8 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary [&_svg]:!size-4';
 
+const SidebarThemeButton = (): ReactElement => {
+  const { setTheme, themeMode } = useSettingsContext();
+  const { logEvent } = useLogContext();
+  const isDark = themeMode === ThemeMode.Dark;
+  const Icon = isDark ? SunIcon : MoonIcon;
+
+  const onToggle = () => {
+    const nextMode = isDark ? ThemeMode.Light : ThemeMode.Dark;
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.Theme,
+      target_id: nextMode,
+    });
+    setTheme(nextMode);
+  };
+
+  return (
+    <Tooltip
+      side="top"
+      content={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+    >
+      <button
+        type="button"
+        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        className={iconButtonClass}
+        onClick={onToggle}
+      >
+        <Icon size={IconSize.Small} aria-hidden />
+      </button>
+    </Tooltip>
+  );
+};
+
 const supportItems: ProfileSectionItemProps[] = [
   {
     title: 'Get the mobile app',
@@ -187,32 +219,19 @@ const SidebarSupportButton = (): ReactElement => {
   );
 };
 
-// Profile switcher in the sidebar header (avatar + name + @username), opening
-// a curated menu built from the shared ProfileSection rows: reputation/cores
-// stats, account links, the theme toggle, and log out.
+// Profile switcher in the sidebar header (avatar + name), opening a curated
+// menu built from the shared ProfileSection rows: reputation/cores stats,
+// account links, and log out.
 const SidebarProfileButton = (): ReactElement | null => {
   const { user, logout } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { openModal } = useLazyModal();
-  const { themeMode, setTheme } = useSettingsContext();
-  const { logEvent } = useLogContext();
   const canPurchaseCores = useCanPurchaseCores();
-  const isDark = themeMode === ThemeMode.Dark;
 
   if (!user) {
     return null;
   }
-
-  const onToggleTheme = () => {
-    const nextMode = isDark ? ThemeMode.Light : ThemeMode.Dark;
-    logEvent({
-      event_name: LogEvent.ChangeSettings,
-      target_type: TargetType.Theme,
-      target_id: nextMode,
-    });
-    setTheme(nextMode);
-  };
 
   const mainItems: ProfileSectionItemProps[] = [
     {
@@ -263,11 +282,6 @@ const SidebarProfileButton = (): ReactElement | null => {
       title: 'Feed settings',
       href: `${settingsUrl}/feed/general`,
       icon: AppIcon,
-    },
-    {
-      title: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-      icon: isDark ? SunIcon : MoonIcon,
-      onClick: onToggleTheme,
     },
   ];
 
@@ -780,12 +794,6 @@ export const SidebarDesktopV2 = ({
                   title="Feeds"
                   isItemsButton={false}
                 />
-                {isLoggedIn && (
-                  <RecentSection
-                    {...defaultRenderSectionProps}
-                    isItemsButton={false}
-                  />
-                )}
               </>
             )}
           </Nav>
@@ -799,24 +807,31 @@ export const SidebarDesktopV2 = ({
           </div>
         )}
 
-        {/* Footer: help bottom-left (Linear), daily.dev brand bottom-right. */}
+        {/* Footer strip: daily.dev brand (→ home) on the left, theme toggle and
+            support center on the right. */}
         <div className="flex flex-col gap-2 px-2 py-2">
           {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
           <div className="flex items-center gap-0.5">
-            <SidebarSupportButton />
-            <span className="flex-1" />
-            <Tooltip side="top" content="daily.dev home">
-              <Link href={webappUrl} passHref prefetch={false}>
-                <a
-                  href={webappUrl}
-                  aria-label="daily.dev home"
-                  onClick={onLogoClick}
-                  className="focus-outline hover:opacity-80 flex size-8 items-center justify-center rounded-10 text-text-primary transition-opacity"
+            <Link href={webappUrl} passHref prefetch={false}>
+              <a
+                href={webappUrl}
+                aria-label="daily.dev home"
+                onClick={onLogoClick}
+                className="focus-outline flex min-w-0 items-center gap-2 rounded-10 px-1.5 py-1 text-text-primary transition-colors hover:bg-surface-hover"
+              >
+                <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                <Typography
+                  bold
+                  type={TypographyType.Subhead}
+                  className="min-w-0 truncate"
                 >
-                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
-                </a>
-              </Link>
-            </Tooltip>
+                  daily.dev
+                </Typography>
+              </a>
+            </Link>
+            <span className="flex-1" />
+            <SidebarThemeButton />
+            <SidebarSupportButton />
           </div>
         </div>
       </div>

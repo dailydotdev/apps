@@ -11,9 +11,8 @@ import { ReadingStreakIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
 import { StreakPopover } from './StreakPopover';
 
-// Compact reading-streak chip (icon + count) for the sidebar footer — sits on
-// the same row as the profile. Clicking opens the streak popover, anchored to
-// the right so it grows upward away from the viewport bottom.
+// Compact reading-streak chip (icon + count) shown beside the profile in the
+// sidebar header. Clicking opens the streak popover below it.
 export const SidebarStreakButton = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -72,7 +71,7 @@ export const SidebarStreakButton = (): ReactElement | null => {
           streak={streak}
           triggerRef={triggerRef}
           onClose={() => setIsOpen(false)}
-          placement="right"
+          placement="bottom"
         />
       )}
     </div>
