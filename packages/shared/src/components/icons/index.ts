@@ -108,6 +108,7 @@ export * from './Minimize';
 export * from './Minus';
 export * from './Moon';
 export * from './MoveTo';
+export * from './NewPost';
 export * from './NewSquad';
 export * from './NewTab';
 export * from './NumberedList';

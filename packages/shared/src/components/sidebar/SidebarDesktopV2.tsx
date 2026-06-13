@@ -61,6 +61,7 @@ import {
   MenuIcon,
   MicrophoneIcon,
   MoonIcon,
+  NewPostIcon,
   PhoneIcon,
   PlusIcon,
   PollIcon,
@@ -1156,7 +1157,7 @@ export const SidebarDesktopV2 = ({
                 type="button"
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
-                icon={<PlusIcon />}
+                icon={<NewPostIcon />}
                 aria-label="New post"
                 aria-controls="sidebar-context-panel"
                 onMouseEnter={() => setIsCreateHovered(true)}
