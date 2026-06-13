@@ -354,7 +354,9 @@ function MainLayoutComponent({
             <div
               className={classNames(
                 'relative flex min-h-0 flex-1 flex-col',
-                'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
+                // No drop shadow — the subtle border defines the floating card
+                // in both themes; shadow-2 cast a heavy bottom shadow.
+                'laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
                 !hasTopBanners &&
                   !topBanner &&
                   'laptop:min-h-[calc(100vh-1.5rem)]',
