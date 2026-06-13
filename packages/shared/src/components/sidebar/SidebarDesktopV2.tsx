@@ -734,7 +734,7 @@ export const SidebarDesktopV2 = ({
                 <Tooltip side="bottom" content="New post">
                   <Button
                     type="button"
-                    variant={ButtonVariant.Float}
+                    variant={ButtonVariant.Primary}
                     size={ButtonSize.Small}
                     icon={<ComposeIcon />}
                     aria-label="New post"
