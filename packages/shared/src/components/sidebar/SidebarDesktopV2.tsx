@@ -96,8 +96,8 @@ import {
 } from '../typography/Typography';
 
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
-// Sidebar collapse/expand shortcut, matching Linear's ⌘/Ctrl+Shift+L.
-const sidebarToggleShortcut = `${isAppleDevice() ? '⌘' : 'Ctrl'} ⇧ L`;
+// Sidebar collapse/expand shortcut (plain bracket key, like Linear).
+const sidebarToggleShortcut = '[';
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
 // Resizable panel bounds (px). 304px = 19rem keeps the default in step with
@@ -449,14 +449,14 @@ export const SidebarDesktopV2 = ({
     );
   }, [resolvedWidth, sidebarExpanded]);
 
-  // Collapse/expand shortcut (⌘/Ctrl+Shift+L), matching Linear. Ignored while
-  // typing so it never hijacks input.
+  // Collapse/expand shortcut: the plain "[" key (like Linear). Ignored with
+  // modifiers (so ⌘/Ctrl+[ stays browser "back") and while typing.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || !event.shiftKey) {
+      if (event.metaKey || event.ctrlKey || event.altKey) {
         return;
       }
-      if (event.key.toLowerCase() !== 'l') {
+      if (event.key !== '[') {
         return;
       }
       const target = event.target as HTMLElement | null;
@@ -807,22 +807,21 @@ export const SidebarDesktopV2 = ({
           </div>
         )}
 
-        {/* Footer strip: daily.dev brand (→ home) on the left, theme toggle and
-            support center on the right. */}
-        <div className="flex flex-col gap-2 px-2 py-2">
+        {/* Footer strip (separated by a top border): daily.dev brand (→ home)
+            on the left, theme toggle and support center on the right. */}
+        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-2 py-2">
           {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-1">
             <Link href={webappUrl} passHref prefetch={false}>
               <a
                 href={webappUrl}
                 aria-label="daily.dev home"
                 onClick={onLogoClick}
-                className="focus-outline flex min-w-0 items-center gap-2 rounded-10 px-1.5 py-1 text-text-primary transition-colors hover:bg-surface-hover"
+                className="focus-outline flex min-w-0 items-center gap-1.5 rounded-10 px-1.5 py-1.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
               >
-                <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                <LogoIcon className={{ container: 'h-4 w-auto' }} />
                 <Typography
-                  bold
-                  type={TypographyType.Subhead}
+                  type={TypographyType.Footnote}
                   className="min-w-0 truncate"
                 >
                   daily.dev

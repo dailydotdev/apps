@@ -7,9 +7,8 @@ import { isSidebarSettingsPath } from './sidebarCategory';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SidebarArrowLeft } from '../icons';
 import { IconSize } from '../Icon';
-import { isAppleDevice } from '../../lib/func';
 
-const openShortcut = `${isAppleDevice() ? '⌘' : 'Ctrl'} ⇧ L`;
+const openShortcut = '[';
 
 // "Open sidebar" control surfaced at the left of the feed-area headers while
 // the v2 single-panel sidebar is collapsed. The sidebar is collapsed by
