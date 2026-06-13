@@ -176,6 +176,9 @@ const RAIL_HOVER_SIDE_OFFSET = 12;
 // no top chrome to clip against, so a snug override re-centers tooltips
 // with their triggers.
 const RAIL_TOOLTIP_COLLISION_PADDING = 4;
+// Vertical slack (px) added to the safe-zone triangle so the pointer can dip
+// slightly past the panel's top/bottom edge while arcing in without losing it.
+const SAFE_ZONE_BUFFER = 26;
 
 interface RailHoverCardProps {
   label: string;
@@ -682,6 +685,14 @@ export const SidebarDesktopV2 = ({
   // the hover-peek until it actually leaves and re-enters, so the first click
   // collapses instead of instantly re-expanding under the cursor.
   const peekSuppressedRef = useRef(false);
+  // Prediction-cone "safe zone": while the pointer arcs from the active tab
+  // into the panel, block the rail tabs' pointer events so clipping a
+  // neighbouring tab can't switch the preview (menu-aim done with pointer
+  // blocking rather than fragile slope guesses).
+  const panelRef = useRef<HTMLElement>(null);
+  const safeBlockedRef = useRef(false);
+  const safePolyRef = useRef<Array<[number, number]> | null>(null);
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
     if (loadedSettings) {
@@ -778,12 +789,128 @@ export const SidebarDesktopV2 = ({
     setIsRailHovered(true);
   }, []);
 
+  const exitSafeZone = useCallback(() => {
+    safeBlockedRef.current = false;
+    safePolyRef.current = null;
+    if (navListRef.current) {
+      navListRef.current.style.pointerEvents = '';
+    }
+  }, []);
+
   const handleRailMouseLeave = useCallback(() => {
     peekSuppressedRef.current = false;
     setIsRailHovered(false);
     setHoveredCategory(null);
     setIsCreateHovered(false);
+    lastPointerRef.current = null;
+    exitSafeZone();
+  }, [exitSafeZone]);
+
+  // --- Prediction cone via pointer-events blocking -----------------------
+  // `commitPreview` maps a rail trigger key to the panel preview it shows.
+  const commitPreview = useCallback((key: string) => {
+    if (key === 'create') {
+      setIsCreateHovered(true);
+      return;
+    }
+    setIsCreateHovered(false);
+    setHoveredCategory(key as SidebarCategoryId);
   }, []);
+
+  const enterSafeZone = useCallback((x: number, y: number) => {
+    const panel = panelRef.current?.getBoundingClientRect();
+    if (!panel || panel.width < 8) {
+      return;
+    }
+    // Triangle from the pointer to the panel's near (left) edge, padded
+    // vertically. While the pointer stays inside it the tabs are inert.
+    safePolyRef.current = [
+      [x, y],
+      [panel.left, panel.top - SAFE_ZONE_BUFFER],
+      [panel.left, panel.bottom + SAFE_ZONE_BUFFER],
+    ];
+    safeBlockedRef.current = true;
+    if (navListRef.current) {
+      navListRef.current.style.pointerEvents = 'none';
+    }
+  }, []);
+
+  const pointInPolygon = (
+    x: number,
+    y: number,
+    poly: Array<[number, number]>,
+  ): boolean => {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i, i += 1) {
+      const [xi, yi] = poly[i];
+      const [xj, yj] = poly[j];
+      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+        inside = !inside;
+      }
+    }
+    return inside;
+  };
+
+  // Enter the safe zone when the pointer leaves the *active* trigger heading
+  // toward the panel (rightward). Pointer blocking then takes over.
+  const handlePreviewLeave = useCallback(
+    (key: string, event: React.MouseEvent) => {
+      if (safeBlockedRef.current) {
+        return;
+      }
+      const activeKey = isCreateHovered ? 'create' : activeCategory;
+      if (key !== activeKey) {
+        return;
+      }
+      const prev = lastPointerRef.current;
+      // Heading rightward off the active trigger = arcing toward the panel.
+      // enterSafeZone no-ops when the panel isn't actually open.
+      if (prev && event.clientX - prev.x > 0) {
+        enterSafeZone(event.clientX, event.clientY);
+      }
+    },
+    [isCreateHovered, activeCategory, enterSafeZone],
+  );
+
+  const handleRailMouseMove = useCallback(
+    (event: React.MouseEvent) => {
+      lastPointerRef.current = { x: event.clientX, y: event.clientY };
+      if (!safeBlockedRef.current) {
+        return;
+      }
+      const panel = panelRef.current?.getBoundingClientRect();
+      if (!panel) {
+        exitSafeZone();
+        return;
+      }
+      const { clientX: x, clientY: y } = event;
+      const overPanel =
+        x >= panel.left &&
+        x <= panel.right &&
+        y >= panel.top &&
+        y <= panel.bottom;
+      if (overPanel) {
+        // Reached the panel — keep the current preview, release the block.
+        exitSafeZone();
+        return;
+      }
+      if (safePolyRef.current && pointInPolygon(x, y, safePolyRef.current)) {
+        return;
+      }
+      // Left the safe zone without reaching the panel — honour the trigger
+      // the pointer actually landed on.
+      exitSafeZone();
+      const el = document.elementFromPoint(x, y) as HTMLElement | null;
+      const trigger = el?.closest('[data-sidebar-preview]');
+      const key = trigger?.getAttribute('data-sidebar-preview');
+      if (key) {
+        commitPreview(key);
+      }
+    },
+    [exitSafeZone, commitPreview],
+  );
+
+  useEffect(() => () => exitSafeZone(), [exitSafeZone]);
 
   const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
     if (category === SidebarCategory.Squads) {
@@ -890,15 +1017,16 @@ export const SidebarDesktopV2 = ({
           type="button"
           role="tab"
           id={`sidebar-category-${category.id}`}
+          data-sidebar-preview={category.id}
           aria-controls="sidebar-context-panel"
           aria-label={category.label}
           aria-selected={isSelected}
           onClick={() => onSelectCategory(category.id)}
           onMouseEnter={() => {
             onPrefetchCategory(category.id);
-            setHoveredCategory(category.id);
-            setIsCreateHovered(false);
+            commitPreview(category.id);
           }}
+          onMouseLeave={(event) => handlePreviewLeave(category.id, event)}
           onFocus={() => onPrefetchCategory(category.id)}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
@@ -1019,6 +1147,7 @@ export const SidebarDesktopV2 = ({
       data-testid="sidebar-aside"
       onMouseEnter={handleRailMouseEnter}
       onMouseLeave={handleRailMouseLeave}
+      onMouseMove={handleRailMouseMove}
       onClick={pinFromEmptyClick}
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
@@ -1129,8 +1258,12 @@ export const SidebarDesktopV2 = ({
               >
                 <div
                   className="w-full"
+                  data-sidebar-preview={SidebarCategory.Notifications}
                   onMouseEnter={() =>
-                    setHoveredCategory(SidebarCategory.Notifications)
+                    commitPreview(SidebarCategory.Notifications)
+                  }
+                  onMouseLeave={(event) =>
+                    handlePreviewLeave(SidebarCategory.Notifications, event)
                   }
                 >
                   <NotificationsBell
@@ -1160,7 +1293,11 @@ export const SidebarDesktopV2 = ({
                 icon={<NewPostIcon />}
                 aria-label="New post"
                 aria-controls="sidebar-context-panel"
-                onMouseEnter={() => setIsCreateHovered(true)}
+                data-sidebar-preview="create"
+                onMouseEnter={() => commitPreview('create')}
+                onMouseLeave={(event: React.MouseEvent) =>
+                  handlePreviewLeave('create', event)
+                }
                 onFocus={() => setIsCreateHovered(true)}
                 onClick={() => openModal({ type: LazyModal.SmartComposer })}
                 className="!size-9 !rounded-12 [&_svg]:!size-6"
@@ -1254,6 +1391,7 @@ export const SidebarDesktopV2 = ({
       )}
 
       <section
+        ref={panelRef}
         id="sidebar-context-panel"
         role="tabpanel"
         aria-labelledby={
