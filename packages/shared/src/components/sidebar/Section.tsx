@@ -5,6 +5,7 @@ import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
 import { ArrowIcon, PlusIcon } from '../icons';
+import { IconSize } from '../Icon';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
@@ -109,10 +110,14 @@ export function Section({
                   {title}
                 </span>
                 <ArrowIcon
+                  // `size` controls the real glyph dimensions — a w/h className
+                  // here loses to the Icon's size class (Tailwind resolves the
+                  // conflict by stylesheet order, not JSX order).
+                  size={IconSize.XXSmall}
                   className={classNames(
-                    // Smaller glyph, revealed only while hovering/focusing the
-                    // section (header or its items) — see group/section above.
-                    'h-1.5 w-1.5 text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
+                    // Revealed only while hovering/focusing the section (header
+                    // or its items) — see group/section above.
+                    'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
                     isVisible.current ? 'rotate-180' : 'rotate-90',
                   )}
                 />
