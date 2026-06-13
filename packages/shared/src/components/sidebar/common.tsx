@@ -137,7 +137,10 @@ export const ItemInner = ({
         active={active}
         iconClassName={
           compact
-            ? 'relative flex items-center justify-center w-6 h-6 [&_svg]:!size-4'
+            ? // mr-1 widens the icon→text gap; `[&_img]` matches `[&_svg]` so
+              // image icons (e.g. squad avatars) size + center identically to
+              // the glyph icons instead of running into the label.
+              'relative mr-1 flex h-6 w-6 items-center justify-center [&_img]:!size-4 [&_svg]:!size-4'
             : undefined
         }
       />
