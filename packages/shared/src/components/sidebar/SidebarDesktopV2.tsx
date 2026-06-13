@@ -20,7 +20,6 @@ import { HelpWidget } from '../help/HelpWidget';
 import {
   AnalyticsIcon,
   AppIcon,
-  ArrowIcon,
   BellIcon,
   BrowserGroupIcon,
   ComposeIcon,
@@ -40,6 +39,7 @@ import {
   MagicIcon,
   MegaphoneIcon,
   MoonIcon,
+  MoveToIcon,
   PhoneIcon,
   PrivacyIcon,
   SearchIcon,
@@ -682,71 +682,90 @@ export const SidebarDesktopV2 = ({
       {/* Definite-height, clipped flex column so the nav scrolls and the
           header/footer stay pinned on-screen regardless of list length. */}
       <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-        {/* Top bar: profile (avatar + name) switcher with the reading streak
-            and compose action beside it, then a search field below. The
-            daily.dev brand + support live in the footer. */}
-        <header className="flex flex-col gap-2 px-2 pb-2 pt-4">
-          <div className="flex items-center gap-0.5">
-            {isLoggedIn ? (
-              <SidebarProfileButton />
-            ) : (
-              <>
-                <Link href={webappUrl} passHref prefetch={false}>
-                  <a
-                    href={webappUrl}
-                    aria-label="Home"
-                    onClick={onLogoClick}
-                    className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
-                  >
-                    <LogoIcon className={{ container: 'h-5 w-auto' }} />
-                    <Typography
-                      bold
-                      type={TypographyType.Footnote}
-                      className="min-w-0 truncate"
-                    >
-                      daily.dev
-                    </Typography>
-                  </a>
-                </Link>
-                <span className="flex-1" />
-              </>
-            )}
-            {isLoggedIn && <SidebarStreakButton />}
-            {isLoggedIn && (
-              <Tooltip side="bottom" content="New post">
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  icon={<ComposeIcon />}
-                  aria-label="New post"
-                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                  className="!size-8 [&_svg]:!size-4"
-                />
-              </Tooltip>
-            )}
-          </div>
-
-          <button
-            type="button"
-            aria-label="Search"
-            onClick={openSpotlight}
-            className="focus-outline flex h-8 w-full items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
-          >
-            <SearchIcon size={IconSize.Size16} aria-hidden />
-            <span className="flex-1 text-left typo-footnote">Search</span>
-            <span
-              aria-hidden
-              className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
+        {/* Settings (and other inner pages) take over the panel: the header
+            becomes a single Back control instead of the profile/streak/compose
+            + search. Otherwise the normal top bar shows. */}
+        {forceExpanded ? (
+          <header className="px-2 pb-1 pt-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="focus-outline flex w-full items-center gap-2 rounded-10 px-1.5 py-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
-              {shortcutKeys.map((key) => (
-                <kbd key={key} className="font-sans">
-                  {key}
-                </kbd>
-              ))}
-            </span>
-          </button>
-        </header>
+              <MoveToIcon
+                size={IconSize.Size16}
+                aria-hidden
+                className="rotate-180"
+              />
+              <Typography bold type={TypographyType.Footnote}>
+                Back
+              </Typography>
+            </button>
+          </header>
+        ) : (
+          <header className="flex flex-col gap-2 px-2 pb-2 pt-4">
+            <div className="flex items-center gap-0.5">
+              {isLoggedIn ? (
+                <SidebarProfileButton />
+              ) : (
+                <>
+                  <Link href={webappUrl} passHref prefetch={false}>
+                    <a
+                      href={webappUrl}
+                      aria-label="Home"
+                      onClick={onLogoClick}
+                      className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
+                    >
+                      <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                      <Typography
+                        bold
+                        type={TypographyType.Footnote}
+                        className="min-w-0 truncate"
+                      >
+                        daily.dev
+                      </Typography>
+                    </a>
+                  </Link>
+                  <span className="flex-1" />
+                </>
+              )}
+              {isLoggedIn && <SidebarStreakButton />}
+              {isLoggedIn && (
+                <Tooltip side="bottom" content="New post">
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Small}
+                    icon={<ComposeIcon />}
+                    aria-label="New post"
+                    onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                    className="!size-8 [&_svg]:!size-4"
+                  />
+                </Tooltip>
+              )}
+            </div>
+
+            <button
+              type="button"
+              aria-label="Search"
+              onClick={openSpotlight}
+              className="focus-outline flex h-8 w-full items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+            >
+              <SearchIcon size={IconSize.Size16} aria-hidden />
+              <span className="flex-1 text-left typo-footnote">Search</span>
+              <span
+                aria-hidden
+                className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
+              >
+                {shortcutKeys.map((key) => (
+                  <kbd key={key} className="font-sans">
+                    {key}
+                  </kbd>
+                ))}
+              </span>
+            </button>
+          </header>
+        )}
 
         {isLoggedIn && additionalButtons && (
           <div className="flex items-center gap-1 px-3 pb-1 pt-1">
@@ -758,24 +777,11 @@ export const SidebarDesktopV2 = ({
           <Nav className="!pt-0">
             {forceExpanded ? (
               // Settings (and other inner pages) render their navigation only
-              // here, so the panel takes over. A Back control returns to the
-              // previous page since the app nav isn't shown while here.
-              <>
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="focus-outline mx-3 mb-1 flex h-8 items-center gap-2 rounded-10 px-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                >
-                  <ArrowIcon className="h-4 w-4 -rotate-90" aria-hidden />
-                  <Typography bold type={TypographyType.Footnote}>
-                    Back
-                  </Typography>
-                </button>
-                <SettingsPanelSection
-                  {...defaultRenderSectionProps}
-                  isItemsButton={false}
-                />
-              </>
+              // here; the Back control lives in the header above.
+              <SettingsPanelSection
+                {...defaultRenderSectionProps}
+                isItemsButton={false}
+              />
             ) : (
               <>
                 <Section
