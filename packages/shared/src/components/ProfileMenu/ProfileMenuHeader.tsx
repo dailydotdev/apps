@@ -27,9 +27,13 @@ export const ProfileMenuHeader = ({
   className,
   shouldOpenProfile = false,
   profileImageSize = ProfileImageSize.Large,
-}: Props): ReactElement => {
+}: Props): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <ConditionalWrapper
