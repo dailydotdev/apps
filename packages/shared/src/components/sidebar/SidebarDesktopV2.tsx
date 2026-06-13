@@ -49,7 +49,6 @@ import {
   PrivacyIcon,
   SearchIcon,
   SettingsIcon,
-  SidebarArrowLeft,
   SunIcon,
   TerminalIcon,
   TrendingIcon,
@@ -433,39 +432,52 @@ export const SidebarDesktopV2 = ({
     ? undefined
     : '!transition-none';
 
-  // Linear-style collapse: when not pinned open, the whole panel slides
-  // off-screen and the content reclaims the width (MainLayout drops its left
-  // padding). Hovering the left edge peeks the panel back in as an overlay
-  // without shifting the content behind it.
-  const [isPeeking, setIsPeeking] = useState(false);
-  // After a click-to-collapse the cursor still sits where the panel was;
-  // suppress the peek until it actually leaves and re-enters the edge zone so
-  // the first click collapses instead of instantly re-peeking.
-  const peekSuppressedRef = useRef(false);
-  const isCollapsedHoverMode = !sidebarExpanded && !forceExpanded;
-  const isHoverExpanded = isCollapsedHoverMode && isPeeking;
-  const isExpanded = sidebarExpanded || forceExpanded || isHoverExpanded;
+  // Linear-style collapse: when not pinned open the panel collapses to zero
+  // width and the content reclaims the space (MainLayout drops its left
+  // padding). It's reopened from the "Open sidebar" control that the feed
+  // headers surface while collapsed (see SidebarExpandButton).
+  const isExpanded = sidebarExpanded || forceExpanded;
 
-  const onToggleExpanded = useCallback(() => {
-    logEvent({ event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar` });
-    if (sidebarExpanded) {
-      peekSuppressedRef.current = true;
-      setIsPeeking(false);
-    }
-    toggleSidebarExpanded();
-  }, [logEvent, sidebarExpanded, toggleSidebarExpanded]);
+  // Drag-to-resize/collapse: dragging the right edge narrows the panel live;
+  // releasing below the collapse threshold closes it, otherwise it snaps back
+  // to the default width. The width itself isn't persisted — the gesture is a
+  // "pull to collapse", matching how the panel reopens at its default width.
+  const [dragWidth, setDragWidth] = useState<number | null>(null);
+  const dragCursorXRef = useRef<number | null>(null);
 
-  const handlePeekEnter = useCallback(() => {
-    if (peekSuppressedRef.current) {
-      return;
-    }
-    setIsPeeking(true);
-  }, []);
+  const onResizeHandleMouseDown = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      const MIN_PREVIEW = 160;
+      const MAX_WIDTH = 420;
+      const COLLAPSE_AT = 210;
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
 
-  const handleAsideLeave = useCallback(() => {
-    peekSuppressedRef.current = false;
-    setIsPeeking(false);
-  }, []);
+      const onMove = (moveEvent: MouseEvent) => {
+        dragCursorXRef.current = moveEvent.clientX;
+        setDragWidth(
+          Math.min(MAX_WIDTH, Math.max(MIN_PREVIEW, moveEvent.clientX)),
+        );
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        const cursorX = dragCursorXRef.current;
+        dragCursorXRef.current = null;
+        setDragWidth(null);
+        if (cursorX != null && cursorX < COLLAPSE_AT && sidebarExpanded) {
+          logEvent({ event_name: 'close sidebar' });
+          toggleSidebarExpanded();
+        }
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    },
+    [logEvent, sidebarExpanded, toggleSidebarExpanded],
+  );
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -526,231 +538,184 @@ export const SidebarDesktopV2 = ({
   }, [claimableQuestCount, countBadge, isLoggedIn, showQuests, unreadCount]);
 
   return (
-    <>
-      {/* Reopen affordance + peek hover zone, rendered as siblings so the
-          aside's transform doesn't drag them off-screen with it. */}
-      {isCollapsedHoverMode && !isHoverExpanded && (
-        <>
-          <div
-            aria-hidden
-            onMouseEnter={handlePeekEnter}
-            className="fixed inset-y-0 left-0 z-sidebar hidden w-3 laptop:block"
-          />
-          <Tooltip side="right" content="Open sidebar">
+    <SidebarAside
+      data-testid="sidebar-aside"
+      style={dragWidth != null ? { width: `${dragWidth}px` } : undefined}
+      className={classNames(
+        'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
+        isExpanded ? 'laptop:w-[19rem]' : 'laptop:w-0',
+        isBannerAvailable
+          ? 'laptop:[--safe-area-top-offset:2rem]'
+          : 'laptop:[--safe-area-top-offset:0rem]',
+        // Paint the exact V2 page background (same color-mix MainLayout uses)
+        // so the sidebar and feed read as one continuous surface — the feed
+        // floats as a box on top, with no divider between them.
+        !featureTheme &&
+          'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+        featureTheme && 'laptop:!bg-transparent',
+        // Follow the cursor instantly while dragging the resize handle.
+        dragWidth != null && '!transition-none',
+        suppressTransition,
+      )}
+    >
+      {/* Definite-height, clipped flex column so the nav scrolls and the
+          header/footer stay pinned on-screen regardless of list length. */}
+      <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
+        <header className="flex flex-col gap-2 px-3 pb-1 pt-5">
+          <div className="flex items-center gap-1.5 pl-1">
+            <Link href={webappUrl} passHref prefetch={false}>
+              <a
+                href={webappUrl}
+                aria-label="Home"
+                onClick={onLogoClick}
+                className="focus-outline hover:opacity-80 flex items-center rounded-12 text-text-primary transition-opacity"
+              >
+                <LogoIcon className={{ container: 'h-5 w-auto' }} />
+              </a>
+            </Link>
+            <Typography
+              bold
+              type={TypographyType.Body}
+              className="min-w-0 flex-1 truncate"
+            >
+              daily.dev
+            </Typography>
+            {isLoggedIn && (
+              <Tooltip side="bottom" content="New post">
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<PlusIcon />}
+                  aria-label="New post"
+                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                />
+              </Tooltip>
+            )}
+          </div>
+
+          <Tooltip side="bottom" content="Search">
             <button
               type="button"
-              onClick={onToggleExpanded}
-              aria-label="Open sidebar"
-              aria-expanded={false}
-              className="focus-outline fixed left-2 top-5 z-sidebarOverlay hidden size-8 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary laptop:flex"
+              aria-label="Search"
+              onClick={openSpotlight}
+              className="focus-outline flex h-9 w-full items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
             >
-              <SidebarArrowLeft
-                size={IconSize.Small}
+              <SearchIcon size={IconSize.Small} aria-hidden />
+              <span className="flex-1 text-left typo-callout">Search</span>
+              <span
                 aria-hidden
-                className="rotate-180"
-              />
+                className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
+              >
+                {shortcutKeys.map((key) => (
+                  <kbd key={key} className="font-sans">
+                    {key}
+                  </kbd>
+                ))}
+              </span>
             </button>
           </Tooltip>
-        </>
-      )}
+        </header>
 
-      <SidebarAside
-        data-testid="sidebar-aside"
-        onMouseLeave={handleAsideLeave}
-        className={classNames(
-          'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:w-[19rem] laptop:border-r-0',
-          isExpanded ? 'laptop:translate-x-0' : 'laptop:-translate-x-full',
-          isBannerAvailable
-            ? 'laptop:[--safe-area-top-offset:2rem]'
-            : 'laptop:[--safe-area-top-offset:0rem]',
-          // Paint the exact V2 page background (same color-mix MainLayout uses)
-          // so the sidebar and feed read as one continuous surface — the feed
-          // floats as a box on top, with no divider between them. Opaque so the
-          // peek overlay stays legible over the feed.
-          !featureTheme &&
-            'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
-          featureTheme && 'laptop:!bg-transparent',
-          // While peeking, the panel floats over the feed: round the free edge
-          // and add a shadow so it reads as an overlay — no border, keeping the
-          // one-box design intact.
-          isHoverExpanded && 'laptop:rounded-r-16 laptop:shadow-3',
-          suppressTransition,
+        {isLoggedIn && additionalButtons && (
+          <div className="flex items-center gap-1 px-3 pb-1 pt-1">
+            {additionalButtons}
+          </div>
         )}
-      >
-        {/* Definite-height, clipped flex column so the nav scrolls and the
-            header/footer stay pinned on-screen regardless of list length. */}
-        <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-          <header className="flex flex-col gap-2 px-3 pb-1 pt-5">
-            <div className="flex items-center gap-1.5 pl-1">
-              <Link href={webappUrl} passHref prefetch={false}>
-                <a
-                  href={webappUrl}
-                  aria-label="Home"
-                  onClick={onLogoClick}
-                  className="focus-outline hover:opacity-80 flex items-center rounded-12 text-text-primary transition-opacity"
-                >
-                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
-                </a>
-              </Link>
-              <Typography
-                bold
-                type={TypographyType.Body}
-                className="min-w-0 flex-1 truncate"
-              >
-                daily.dev
-              </Typography>
-              {isLoggedIn && (
-                <Tooltip side="bottom" content="New post">
-                  <Button
-                    type="button"
-                    variant={ButtonVariant.Float}
-                    size={ButtonSize.Small}
-                    icon={<PlusIcon />}
-                    aria-label="New post"
-                    onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                  />
-                </Tooltip>
-              )}
-              {!forceExpanded && (
-                <Tooltip
-                  side="bottom"
-                  content={
-                    sidebarExpanded ? 'Close sidebar' : 'Pin sidebar open'
-                  }
-                >
-                  <button
-                    type="button"
-                    onClick={onToggleExpanded}
-                    aria-label={
-                      sidebarExpanded ? 'Close sidebar' : 'Pin sidebar open'
-                    }
-                    aria-expanded={sidebarExpanded}
-                    className="focus-outline flex size-8 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                  >
-                    <SidebarArrowLeft
-                      size={IconSize.Small}
-                      aria-hidden
-                      className={classNames(!sidebarExpanded && 'rotate-180')}
-                    />
-                  </button>
-                </Tooltip>
-              )}
-            </div>
 
-            <Tooltip side="bottom" content="Search">
-              <button
-                type="button"
-                aria-label="Search"
-                onClick={openSpotlight}
-                className="focus-outline flex h-9 w-full items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
-              >
-                <SearchIcon size={IconSize.Small} aria-hidden />
-                <span className="flex-1 text-left typo-callout">Search</span>
-                <span
-                  aria-hidden
-                  className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
-                >
-                  {shortcutKeys.map((key) => (
-                    <kbd key={key} className="font-sans">
-                      {key}
-                    </kbd>
-                  ))}
-                </span>
-              </button>
-            </Tooltip>
-          </header>
-
-          {isLoggedIn && additionalButtons && (
-            <div className="flex items-center gap-1 px-3 pb-1 pt-1">
-              {additionalButtons}
-            </div>
-          )}
-
-          <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
-            <Nav className="!pt-0">
-              {forceExpanded ? (
-                // Settings pages render their navigation only here, so the panel
-                // takes over and shows the settings sections instead of the app
-                // nav (the collapse toggle is hidden while forceExpanded).
-                <SettingsPanelSection
+        <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
+          <Nav className="!pt-0">
+            {forceExpanded ? (
+              // Settings pages render their navigation only here, so the panel
+              // takes over and shows the settings sections instead of the app
+              // nav (the collapse toggle is hidden while forceExpanded).
+              <SettingsPanelSection
+                {...defaultRenderSectionProps}
+                isItemsButton={false}
+              />
+            ) : (
+              <>
+                <MainSection
                   {...defaultRenderSectionProps}
+                  onNavTabClick={onNavTabClick}
+                  isItemsButton={isNavButtons ?? false}
+                />
+                {utilityItems.length > 0 && (
+                  <Section
+                    {...defaultRenderSectionProps}
+                    items={utilityItems}
+                    isItemsButton={false}
+                  />
+                )}
+                {isLoggedIn && (
+                  <PinnedSection
+                    {...defaultRenderSectionProps}
+                    isItemsButton={false}
+                  />
+                )}
+                <BookmarkSection
+                  {...defaultRenderSectionProps}
+                  title="Saved"
                   isItemsButton={false}
                 />
-              ) : (
-                <>
-                  <MainSection
+                <NetworkSection
+                  {...defaultRenderSectionProps}
+                  title="Squads"
+                  isItemsButton={isNavButtons ?? false}
+                />
+                <CustomFeedSection
+                  {...defaultRenderSectionProps}
+                  onNavTabClick={onNavTabClick}
+                  title="Feeds"
+                  isItemsButton={false}
+                />
+                {isLoggedIn && (
+                  <RecentSection
                     {...defaultRenderSectionProps}
-                    onNavTabClick={onNavTabClick}
-                    isItemsButton={isNavButtons ?? false}
-                  />
-                  {utilityItems.length > 0 && (
-                    <Section
-                      {...defaultRenderSectionProps}
-                      items={utilityItems}
-                      isItemsButton={false}
-                    />
-                  )}
-                  {isLoggedIn && (
-                    <PinnedSection
-                      {...defaultRenderSectionProps}
-                      isItemsButton={false}
-                    />
-                  )}
-                  <BookmarkSection
-                    {...defaultRenderSectionProps}
-                    title="Saved"
                     isItemsButton={false}
                   />
-                  <NetworkSection
-                    {...defaultRenderSectionProps}
-                    title="Squads"
-                    isItemsButton={isNavButtons ?? false}
-                  />
-                  <CustomFeedSection
-                    {...defaultRenderSectionProps}
-                    onNavTabClick={onNavTabClick}
-                    title="Feeds"
-                    isItemsButton={false}
-                  />
-                  {isLoggedIn && (
-                    <RecentSection
-                      {...defaultRenderSectionProps}
-                      isItemsButton={false}
-                    />
-                  )}
-                </>
-              )}
-            </Nav>
-          </SidebarScrollWrapper>
-
-          {/* Rendered outside the scroll so its popover isn't clipped; the
-            widget self-hides when there's no active help campaign. */}
-          {!forceExpanded && (
-            <div className="px-1">
-              <HelpWidget sidebarExpanded />
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-3 py-3">
-            {isLoggedIn && (
-              <SidebarHeaderStats streakPopoverPlacement="right" />
-            )}
-            <div className="flex items-center gap-1">
-              {isLoggedIn && <SidebarProfileButton />}
-              <div
-                className={classNames(
-                  'flex items-center gap-1',
-                  !isLoggedIn && 'ml-auto',
                 )}
-              >
-                <SidebarThemeButton />
-                <SidebarSupportButton />
-              </div>
-            </div>
-            {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
+              </>
+            )}
+          </Nav>
+        </SidebarScrollWrapper>
+
+        {/* Rendered outside the scroll so its popover isn't clipped; the
+            widget self-hides when there's no active help campaign. */}
+        {!forceExpanded && (
+          <div className="px-1">
+            <HelpWidget sidebarExpanded />
           </div>
+        )}
+
+        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-3 py-3">
+          {isLoggedIn && <SidebarHeaderStats streakPopoverPlacement="right" />}
+          <div className="flex items-center gap-1">
+            {isLoggedIn && <SidebarProfileButton />}
+            <div
+              className={classNames(
+                'flex items-center gap-1',
+                !isLoggedIn && 'ml-auto',
+              )}
+            >
+              <SidebarThemeButton />
+              <SidebarSupportButton />
+            </div>
+          </div>
+          {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
         </div>
-      </SidebarAside>
-    </>
+      </div>
+
+      {/* Drag the right edge to resize; pull past the threshold to collapse.
+            Replaces an always-visible collapse button (Linear-style). */}
+      {isExpanded && !forceExpanded && (
+        <button
+          type="button"
+          aria-label="Resize sidebar"
+          onMouseDown={onResizeHandleMouseDown}
+          className="absolute inset-y-0 right-0 z-1 hidden w-1 cursor-col-resize bg-transparent transition-colors hover:bg-border-subtlest-tertiary active:bg-border-subtlest-secondary laptop:block"
+        />
+      )}
+    </SidebarAside>
   );
 };
