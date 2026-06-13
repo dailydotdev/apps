@@ -966,7 +966,9 @@ export const SidebarDesktopV2 = ({
       createMenuOptions.map(({ title, kind, icon }) => ({
         icon,
         title,
-        onClick: () =>
+        // SidebarItem/ClickableNavItem dispatches `action` (not `onClick`) and
+        // requires a `path` for link items — a path-less `onClick` row throws.
+        action: () =>
           openModal({
             type: LazyModal.SmartComposer,
             props: { initialKind: kind },
