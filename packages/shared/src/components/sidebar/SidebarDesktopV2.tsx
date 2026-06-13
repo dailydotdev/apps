@@ -982,12 +982,12 @@ export const SidebarDesktopV2 = ({
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
-        // Use the popover surface (accent-pepper-subtlest) for the rail + panel
-        // in every state — collapsed, peeking overlay and pinned — so it
-        // matches the floating menus/preview popovers ("the real one") and
-        // never flips to the darker page color (background-default). It's
-        // opaque, which the peek overlay needs to paint over the feed.
-        !featureTheme && 'laptop:!bg-accent-pepper-subtlest',
+        // Match the V2 page background exactly (same color-mix MainLayout uses)
+        // so the rail + panel blend with the rest of the app in every state —
+        // collapsed, peeking overlay and pinned. It's opaque, which the peek
+        // overlay needs to paint over the feed.
+        !featureTheme &&
+          'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
         // Collapsed sidebar reads as a resize handle: click the empty surface
         // to pin it open.
         isCollapsedHoverMode && 'laptop:cursor-ew-resize',
