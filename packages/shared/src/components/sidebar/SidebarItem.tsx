@@ -12,7 +12,7 @@ import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
-  'activePage' | 'isItemsButton' | 'shouldShowLabel'
+  'activePage' | 'isItemsButton' | 'shouldShowLabel' | 'compact'
 > & {
   item: SidebarMenuItem;
 };
@@ -22,6 +22,7 @@ export const SidebarItem = ({
   activePage,
   isItemsButton,
   shouldShowLabel,
+  compact,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   const { isV2 } = useLayoutVariant();
@@ -50,11 +51,13 @@ export const SidebarItem = ({
             : undefined
         }
         isButton={isItemsButton && !item?.isForcedLink}
+        className={compact ? 'laptop:!h-8' : undefined}
       >
         <ItemInner
           item={item}
           shouldShowLabel={shouldShowLabel}
           active={isActive}
+          compact={compact}
         />
       </ClickableNavItem>
     </NavItem>

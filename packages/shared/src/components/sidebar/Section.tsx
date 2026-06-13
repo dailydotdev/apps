@@ -12,7 +12,7 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import Link from '../utilities/Link';
 
 export interface SectionCommonProps
-  extends Pick<ItemInnerProps, 'shouldShowLabel'> {
+  extends Pick<ItemInnerProps, 'shouldShowLabel' | 'compact'> {
   sidebarExpanded: boolean;
   activePage: string;
   className?: string;
@@ -37,6 +37,7 @@ export function Section({
   isItemsButton,
   className,
   flag,
+  compact,
   isAlwaysOpenOnMobile,
   onAdd,
   addHref,
@@ -85,6 +86,8 @@ export function Section({
               // and the feed entries share the same x. Without this the
               // header was indented less than the items.
               'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
+              // v2 compact: tighter header to match the smaller nav rows.
+              compact && '!min-h-7',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
@@ -98,7 +101,8 @@ export function Section({
             >
               <span
                 className={classNames(
-                  'text-text-quaternary typo-callout',
+                  'text-text-quaternary',
+                  compact ? 'typo-caption1' : 'typo-callout',
                   !sidebarExpanded && 'opacity-0',
                 )}
               >
@@ -151,6 +155,7 @@ export function Section({
               activePage={activePage}
               isItemsButton={isItemsButton}
               shouldShowLabel={shouldShowLabel}
+              compact={compact}
             />
           ))}
         </div>

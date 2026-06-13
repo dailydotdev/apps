@@ -22,6 +22,7 @@ import { HelpWidget } from '../help/HelpWidget';
 import {
   AnalyticsIcon,
   AppIcon,
+  ArrowIcon,
   BellIcon,
   BrowserGroupIcon,
   CreditCardIcon,
@@ -56,7 +57,8 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { SidebarHeaderStats } from './SidebarHeaderStats';
+import { SidebarProfileStats } from './SidebarProfileStats';
+import { SidebarStreakButton } from './SidebarStreakButton';
 import Link from '../utilities/Link';
 import {
   appsUrl,
@@ -102,8 +104,9 @@ const SIDEBAR_MAX_WIDTH = 420;
 // Pull the handle left of this cursor X to collapse instead of resize.
 const SIDEBAR_COLLAPSE_AT = 180;
 
-// Square icon button shared by the theme/support footer controls.
-const footerIconButtonClass =
+// Square icon button shared by the header (search/support) and footer (theme)
+// controls.
+const iconButtonClass =
   'focus-outline flex size-9 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
 
 const themeIconMap: Record<
@@ -143,7 +146,7 @@ const SidebarThemeButton = (): ReactElement => {
       <button
         type="button"
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        className={footerIconButtonClass}
+        className={iconButtonClass}
         onClick={onToggleTheme}
       >
         <ActiveIcon size={IconSize.Small} aria-hidden />
@@ -201,7 +204,7 @@ const SidebarSupportButton = (): ReactElement => {
           aria-expanded={isOpen}
           onClick={wrapHandler(() => onUpdate(!isOpen))}
           className={classNames(
-            footerIconButtonClass,
+            iconButtonClass,
             isOpen && 'bg-background-default !text-text-primary',
           )}
         >
@@ -354,6 +357,8 @@ const SidebarProfileButton = (): ReactElement | null => {
               <ProfileMenuHeader profileImageSize={ProfileImageSize.Medium} />
             </a>
           </Link>
+
+          <SidebarProfileStats />
 
           <UpgradeToPlus
             target={TargetId.ProfileDropdown}
@@ -513,6 +518,8 @@ export const SidebarDesktopV2 = ({
       sidebarExpanded: true,
       shouldShowLabel: true,
       activePage,
+      // Compact (Linear-style) rows + section headers for the single panel.
+      compact: true,
     }),
     [activePage],
   );
@@ -590,60 +597,50 @@ export const SidebarDesktopV2 = ({
       {/* Definite-height, clipped flex column so the nav scrolls and the
           header/footer stay pinned on-screen regardless of list length. */}
       <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-        <header className="flex flex-col gap-2 px-3 pb-1 pt-5">
-          <div className="flex items-center gap-1.5 pl-1">
-            <Link href={webappUrl} passHref prefetch={false}>
-              <a
-                href={webappUrl}
-                aria-label="Home"
-                onClick={onLogoClick}
-                className="focus-outline hover:opacity-80 flex items-center rounded-12 text-text-primary transition-opacity"
-              >
-                <LogoIcon className={{ container: 'h-5 w-auto' }} />
-              </a>
-            </Link>
-            <Typography
-              bold
-              type={TypographyType.Body}
-              className="min-w-0 flex-1 truncate"
+        {/* Linear-style top bar: workspace + utility icons on one row. Search
+            is an icon (not a field), and Support lives here too. */}
+        <header className="flex items-center gap-0.5 px-2 pb-2 pt-5">
+          <Link href={webappUrl} passHref prefetch={false}>
+            <a
+              href={webappUrl}
+              aria-label="Home"
+              onClick={onLogoClick}
+              className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
             >
-              daily.dev
-            </Typography>
-            {isLoggedIn && (
-              <Tooltip side="bottom" content="New post">
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  icon={<PlusIcon />}
-                  aria-label="New post"
-                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                />
-              </Tooltip>
-            )}
-          </div>
-
-          <Tooltip side="bottom" content="Search">
+              <LogoIcon className={{ container: 'h-5 w-auto' }} />
+              <Typography
+                bold
+                type={TypographyType.Subhead}
+                className="min-w-0 truncate"
+              >
+                daily.dev
+              </Typography>
+            </a>
+          </Link>
+          <span className="flex-1" />
+          <SidebarSupportButton />
+          <Tooltip side="bottom" content={`Search · ${shortcutKeys.join('')}`}>
             <button
               type="button"
               aria-label="Search"
               onClick={openSpotlight}
-              className="focus-outline flex h-9 w-full items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+              className={iconButtonClass}
             >
               <SearchIcon size={IconSize.Small} aria-hidden />
-              <span className="flex-1 text-left typo-callout">Search</span>
-              <span
-                aria-hidden
-                className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
-              >
-                {shortcutKeys.map((key) => (
-                  <kbd key={key} className="font-sans">
-                    {key}
-                  </kbd>
-                ))}
-              </span>
             </button>
           </Tooltip>
+          {isLoggedIn && (
+            <Tooltip side="bottom" content="New post">
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                aria-label="New post"
+                onClick={() => openModal({ type: LazyModal.SmartComposer })}
+              />
+            </Tooltip>
+          )}
         </header>
 
         {isLoggedIn && additionalButtons && (
@@ -655,13 +652,25 @@ export const SidebarDesktopV2 = ({
         <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
           <Nav className="!pt-0">
             {forceExpanded ? (
-              // Settings pages render their navigation only here, so the panel
-              // takes over and shows the settings sections instead of the app
-              // nav (the collapse toggle is hidden while forceExpanded).
-              <SettingsPanelSection
-                {...defaultRenderSectionProps}
-                isItemsButton={false}
-              />
+              // Settings (and other inner pages) render their navigation only
+              // here, so the panel takes over. A Back control returns to the
+              // previous page since the app nav isn't shown while here.
+              <>
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="focus-outline mx-3 mb-1 flex h-8 items-center gap-2 rounded-10 px-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                >
+                  <ArrowIcon className="h-4 w-4 -rotate-90" aria-hidden />
+                  <Typography bold type={TypographyType.Footnote}>
+                    Back
+                  </Typography>
+                </button>
+                <SettingsPanelSection
+                  {...defaultRenderSectionProps}
+                  isItemsButton={false}
+                />
+              </>
             ) : (
               <>
                 <MainSection
@@ -717,19 +726,12 @@ export const SidebarDesktopV2 = ({
           </div>
         )}
 
-        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-3 py-3">
-          {isLoggedIn && <SidebarHeaderStats streakPopoverPlacement="right" />}
-          <div className="flex items-center gap-1">
+        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-2 py-2">
+          <div className="flex items-center gap-0.5">
             {isLoggedIn && <SidebarProfileButton />}
-            <div
-              className={classNames(
-                'flex items-center gap-1',
-                !isLoggedIn && 'ml-auto',
-              )}
-            >
-              <SidebarThemeButton />
-              <SidebarSupportButton />
-            </div>
+            {!isLoggedIn && <span className="flex-1" />}
+            {isLoggedIn && <SidebarStreakButton />}
+            <SidebarThemeButton />
           </div>
           {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
         </div>
