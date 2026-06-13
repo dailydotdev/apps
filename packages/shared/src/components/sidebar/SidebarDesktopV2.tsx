@@ -29,7 +29,7 @@ import { PinnedSection } from './sections/PinnedSection';
 import { RecentSection } from './sections/RecentSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
-import { link } from '../../lib/links';
+import type { ComposerKind } from '../post/composer/types';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
 import { useClaimableQuestCount } from '../../hooks/useQuestDashboard';
 import { Bubble } from '../tooltips/utils';
@@ -367,42 +367,35 @@ const SidebarSupportButton = (): ReactElement => {
   );
 };
 
-// Hovering the rail "+" previews this panel (free form, poll, live standup);
-// each option deep-links into the composer with the matching kind. Clicking
-// the "+" itself opens the create-post composer modal. Built as SidebarMenuItem
+// Options for the rail "+" hover panel. Each opens the composer modal with the
+// matching kind preselected (not a dedicated page). Built as SidebarMenuItem
 // rows so the list matches the other category panels.
-const createMenuItems: SidebarMenuItem[] = [
+const createMenuOptions: {
+  title: string;
+  kind: ComposerKind;
+  icon: (active: boolean) => ReactElement;
+}[] = [
   {
-    icon: (active: boolean) => (
-      <ListIcon Icon={() => <EditIcon secondary={active} />} />
-    ),
     title: 'Free form',
-    path: link.post.create,
-    isForcedLink: true,
+    kind: 'text',
+    icon: (active) => <ListIcon Icon={() => <EditIcon secondary={active} />} />,
   },
   {
-    icon: (active: boolean) => (
-      <ListIcon Icon={() => <LinkIcon secondary={active} />} />
-    ),
     title: 'Share a link',
-    path: `${link.post.create}?share=true`,
-    isForcedLink: true,
+    kind: 'link',
+    icon: (active) => <ListIcon Icon={() => <LinkIcon secondary={active} />} />,
   },
   {
-    icon: (active: boolean) => (
-      <ListIcon Icon={() => <PollIcon secondary={active} />} />
-    ),
     title: 'Poll',
-    path: `${link.post.create}?poll=true`,
-    isForcedLink: true,
+    kind: 'poll',
+    icon: (active) => <ListIcon Icon={() => <PollIcon secondary={active} />} />,
   },
   {
-    icon: (active: boolean) => (
+    title: 'Live',
+    kind: 'standup',
+    icon: (active) => (
       <ListIcon Icon={() => <MicrophoneIcon secondary={active} />} />
     ),
-    title: 'Live',
-    path: `${link.post.create}?standup=true`,
-    isForcedLink: true,
   },
 ];
 
@@ -967,6 +960,20 @@ export const SidebarDesktopV2 = ({
       </div>
     );
   };
+
+  const createMenuItems = useMemo<SidebarMenuItem[]>(
+    () =>
+      createMenuOptions.map(({ title, kind, icon }) => ({
+        icon,
+        title,
+        onClick: () =>
+          openModal({
+            type: LazyModal.SmartComposer,
+            props: { initialKind: kind },
+          }),
+      })),
+    [openModal],
+  );
 
   // The panel reflects the create-post options when hovering "+", otherwise
   // the active category (hovered preview, else the selected/pinned one).
