@@ -97,6 +97,8 @@ import {
 } from '../typography/Typography';
 
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
+// Sidebar collapse/expand shortcut, matching Linear's ⌘/Ctrl+Shift+L.
+const sidebarToggleShortcut = `${isAppleDevice() ? '⌘' : 'Ctrl'} ⇧ L`;
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
 // Resizable panel bounds (px). 304px = 19rem keeps the default in step with
@@ -432,6 +434,32 @@ export const SidebarDesktopV2 = ({
       `${resolvedWidth}px`,
     );
   }, [resolvedWidth, sidebarExpanded]);
+
+  // Collapse/expand shortcut (⌘/Ctrl+Shift+L), matching Linear. Ignored while
+  // typing so it never hijacks input.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || !event.shiftKey) {
+        return;
+      }
+      if (event.key.toLowerCase() !== 'l') {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.closest('input, textarea, select, [contenteditable="true"]')
+      ) {
+        return;
+      }
+      event.preventDefault();
+      logEvent({
+        event_name: `${sidebarExpanded ? 'close' : 'open'} sidebar`,
+      });
+      toggleSidebarExpanded();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [logEvent, sidebarExpanded, toggleSidebarExpanded]);
 
   // Highlights the resize grip while actively dragging (toggled at drag
   // start/end only — never on pointer move, so it doesn't re-render mid-drag).
@@ -799,22 +827,34 @@ export const SidebarDesktopV2 = ({
           it's discoverable without adding a border. Pull past the threshold to
           collapse. */}
       {isExpanded && !forceExpanded && (
-        <button
-          type="button"
-          aria-label="Resize sidebar"
-          onMouseDown={onResizeHandleMouseDown}
-          className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
+        <Tooltip
+          side="right"
+          content={
+            <span className="flex flex-col gap-0.5">
+              <span>Drag to resize</span>
+              <span className="text-text-tertiary">
+                Toggle sidebar · {sidebarToggleShortcut}
+              </span>
+            </span>
+          }
         >
-          <span
-            aria-hidden
-            className={classNames(
-              'pointer-events-none absolute left-1/2 top-1/2 h-12 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-4 bg-text-quaternary transition-opacity duration-150',
-              isResizing
-                ? 'opacity-100'
-                : 'opacity-0 group-hover/resize:opacity-100',
-            )}
-          />
-        </button>
+          <button
+            type="button"
+            aria-label={`Resize sidebar, toggle with ${sidebarToggleShortcut}`}
+            onMouseDown={onResizeHandleMouseDown}
+            className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
+          >
+            <span
+              aria-hidden
+              className={classNames(
+                'pointer-events-none absolute left-1/2 top-1/2 h-12 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-4 bg-text-quaternary transition-opacity duration-150',
+                isResizing
+                  ? 'opacity-100'
+                  : 'opacity-0 group-hover/resize:opacity-100',
+              )}
+            />
+          </button>
+        </Tooltip>
       )}
     </SidebarAside>
   );

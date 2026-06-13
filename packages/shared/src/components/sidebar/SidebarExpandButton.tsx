@@ -7,6 +7,9 @@ import { isSidebarSettingsPath } from './sidebarCategory';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SidebarArrowLeft } from '../icons';
 import { IconSize } from '../Icon';
+import { isAppleDevice } from '../../lib/func';
+
+const openShortcut = `${isAppleDevice() ? '⌘' : 'Ctrl'} ⇧ L`;
 
 // "Open sidebar" control surfaced at the left of the feed-area headers while
 // the v2 single-panel sidebar is collapsed. The sidebar is collapsed by
@@ -26,10 +29,10 @@ export const SidebarExpandButton = (): ReactElement | null => {
   }
 
   return (
-    <Tooltip side="bottom" content="Open sidebar">
+    <Tooltip side="bottom" content={`Open sidebar · ${openShortcut}`}>
       <button
         type="button"
-        aria-label="Open sidebar"
+        aria-label={`Open sidebar (${openShortcut})`}
         onClick={() => toggleSidebarExpanded()}
         className="focus-outline -ml-1 flex size-8 shrink-0 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
       >
