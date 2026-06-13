@@ -20,10 +20,14 @@ import { pageHeaderClassName } from '../../layout/PageHeader';
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
 const NewSquadButton = (
-  props: Pick<ButtonProps<'button'>, 'variant' | 'icon'>,
+  props: Pick<ButtonProps<'button'>, 'variant' | 'icon' | 'size'>,
 ) => {
   const { openNewSquad } = useSquadNavigation();
-  const { variant = ButtonVariant.Secondary, icon } = props;
+  const {
+    variant = ButtonVariant.Secondary,
+    icon,
+    size = ButtonSize.Medium,
+  } = props;
 
   const onNewSquadClick = () => {
     openNewSquad({ origin: Origin.SquadDirectory });
@@ -34,7 +38,7 @@ const NewSquadButton = (
       type="button"
       icon={icon}
       onClick={onNewSquadClick}
-      size={ButtonSize.Medium}
+      size={size}
       tag="button"
       variant={variant}
     >
@@ -86,7 +90,11 @@ export const SquadDirectoryLayout = (
             {tabItems}
           </SquadDirectoryNavbar>
           <div className="shrink-0 py-2">
-            <NewSquadButton />
+            <NewSquadButton
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              icon={<PlusIcon />}
+            />
           </div>
         </header>
       )}
