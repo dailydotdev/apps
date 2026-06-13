@@ -682,13 +682,18 @@ export const SidebarDesktopV2 = ({
   const [pendingCategory, setPendingCategory] =
     useState<SidebarCategoryId | null>(null);
   const selectedCategory = pendingCategory ?? resolvedCategory;
+  // On settings pages the sidebar collapses to a single full-width settings
+  // panel (no rail), so hover-preview is irrelevant — pin the panel to Settings.
+  const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
 
   // Hovering a rail tab previews that category's panel without committing to
   // it; the panel falls back to the selected/pinned category. Cleared when the
   // cursor leaves the sidebar (see handleRailMouseLeave).
   const [hoveredCategory, setHoveredCategory] =
     useState<SidebarCategoryId | null>(null);
-  const activeCategory = hoveredCategory ?? selectedCategory;
+  const activeCategory = isSettingsSelected
+    ? SidebarCategory.Settings
+    : hoveredCategory ?? selectedCategory;
   // Hovering the "+" previews the create-post options panel (takes precedence
   // over a hovered category). Clicking "+" opens the composer modal instead.
   const [isCreateHovered, setIsCreateHovered] = useState(false);
@@ -804,6 +809,29 @@ export const SidebarDesktopV2 = ({
     const { pathname } = new URL(href, 'http://_');
     setPendingCategory(getSidebarCategoryForPath(pathname));
   }, []);
+
+  // Remember the last non-settings location so "Back to app" returns the user
+  // where they were rather than always dumping them on the home feed.
+  const lastAppPathRef = useRef(webappUrl);
+  useEffect(() => {
+    if (getSidebarCategoryForPath(activePage) !== SidebarCategory.Settings) {
+      lastAppPathRef.current = activePage;
+    }
+  }, [activePage]);
+
+  const onBackToApp = useCallback(() => {
+    setPendingCategory(SidebarCategory.Main);
+    Promise.resolve(router.push(lastAppPathRef.current)).catch(() => undefined);
+  }, [router]);
+
+  // Entering settings collapses the rail, so any stale hover/create preview
+  // would otherwise leak into the settings panel — clear it.
+  useEffect(() => {
+    if (isSettingsSelected) {
+      setHoveredCategory(null);
+      setIsCreateHovered(false);
+    }
+  }, [isSettingsSelected]);
 
   const onToggleExpanded = useCallback(() => {
     logEvent({
@@ -1023,7 +1051,6 @@ export const SidebarDesktopV2 = ({
   // Force the panel open and hide the collapse toggle while on settings —
   // without touching the user's stored `sidebarExpanded` preference, so the
   // sidebar returns to its chosen state once they navigate away.
-  const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
   const forceExpanded = isSettingsSelected;
   // Reddit-style peek: when the sidebar is collapsed (not pinned open),
   // hovering anywhere over the rail expands the full sidebar as an overlay on
@@ -1242,7 +1269,7 @@ export const SidebarDesktopV2 = ({
         suppressTransition,
       )}
     >
-      {isExpanded && (
+      {isExpanded && !isSettingsSelected && (
         <span
           aria-hidden
           className={classNames(
@@ -1251,164 +1278,170 @@ export const SidebarDesktopV2 = ({
           )}
         />
       )}
-      <nav
-        aria-label="Primary navigation"
-        className={classNames(
-          'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-6',
-          railNavWidth,
-        )}
-      >
-        <Tooltip
-          side="right"
-          content="Home"
-          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+      {!isSettingsSelected && (
+        <nav
+          aria-label="Primary navigation"
+          className={classNames(
+            'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-6',
+            railNavWidth,
+          )}
         >
-          <div>
-            <Link href={webappUrl} passHref prefetch={false}>
-              <a
-                href={webappUrl}
-                aria-label="Home"
-                className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
-                onClick={onLogoClick}
-              >
-                <LogoIcon className={{ container: 'h-5 w-auto' }} />
-              </a>
-            </Link>
-          </div>
-        </Tooltip>
-
-        <Tooltip
-          side="right"
-          content="Search"
-          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-        >
-          <button
-            type="button"
-            aria-label="Search"
-            onClick={openSpotlight}
-            className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+          <Tooltip
+            side="right"
+            content="Home"
+            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
           >
-            <SearchIcon size={IconSize.Small} aria-hidden />
-          </button>
-        </Tooltip>
-        {!isCompact && (
-          <div
-            aria-hidden
-            className="-mt-1 flex items-center gap-0.5 text-text-quaternary typo-caption2"
-          >
-            {shortcutKeys.map((key) => (
-              <kbd key={key} className="font-sans">
-                {key}
-              </kbd>
-            ))}
-          </div>
-        )}
-
-        <div
-          aria-hidden
-          className="my-2 h-px w-6 bg-border-subtlest-quaternary"
-        />
-
-        <div
-          ref={navListRef}
-          role="tablist"
-          aria-label="Sidebar categories"
-          className="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-hidden"
-        >
-          {renderCategoryTab(SidebarCategory.Main)}
-          {renderCategoryTab(SidebarCategory.Squads)}
-
-          {overflowOrder.slice(0, visibleOverflowCount).map((id) =>
-            id === SidebarCategory.Notifications ? (
-              <RailHoverCard
-                key={id}
-                label="Notifications"
-                panel={<NotificationsRailPanel />}
-                enabled={!isExpanded}
-              >
-                <div
-                  className="w-full"
-                  data-sidebar-preview={SidebarCategory.Notifications}
-                  onMouseEnter={() =>
-                    commitPreview(SidebarCategory.Notifications)
-                  }
-                  onMouseLeave={(event) =>
-                    handlePreviewLeave(SidebarCategory.Notifications, event)
-                  }
+            <div>
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="Home"
+                  className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
+                  onClick={onLogoClick}
                 >
-                  <NotificationsBell
-                    rail
-                    noTooltip
-                    railHideLabel={isCompact}
-                    active={isNotificationsSelected}
-                  />
-                </div>
-              </RailHoverCard>
-            ) : (
-              <React.Fragment key={id}>{renderCategoryTab(id)}</React.Fragment>
-            ),
-          )}
+                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                </a>
+              </Link>
+            </div>
+          </Tooltip>
 
-          {isLoggedIn && (
-            <Tooltip
-              side="right"
-              content="New post"
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              <Button
-                id="sidebar-create-post"
-                type="button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                icon={<NewPostIcon />}
-                aria-label="New post"
-                aria-controls="sidebar-context-panel"
-                data-sidebar-preview="create"
-                onMouseEnter={() => commitPreview('create')}
-                onMouseLeave={(event: React.MouseEvent) =>
-                  handlePreviewLeave('create', event)
-                }
-                onFocus={() => setIsCreateHovered(true)}
-                onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                className="mt-2 !size-9 !rounded-12 [&_svg]:!size-6"
-              />
-            </Tooltip>
-          )}
-
-          {isNavOverflowing && (
-            <RailHoverCard label="More" panel={renderMorePanel()}>
-              <button
-                type="button"
-                aria-label="More"
-                aria-haspopup="menu"
-                className={railTabClass}
-              >
-                <span className="relative flex items-center justify-center">
-                  <MenuIcon size={IconSize.Small} aria-hidden />
-                </span>
-                {!isCompact && <span className={railTabLabelClass}>More</span>}
-              </button>
-            </RailHoverCard>
-          )}
-        </div>
-
-        <div className="mt-auto flex w-full flex-col items-center gap-2">
-          <div
-            role="tablist"
-            aria-label="Sidebar utilities"
-            className="flex w-full flex-col items-center gap-1"
+          <Tooltip
+            side="right"
+            content="Search"
+            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
           >
-            <SidebarThemeButton />
-            <SidebarSupportButton />
-          </div>
-          {isLoggedIn && (
-            <div className="flex w-full flex-col items-stretch gap-1">
-              <SidebarRailStats />
-              <SidebarProfileButton onPreviewHref={onPreviewHref} />
+            <button
+              type="button"
+              aria-label="Search"
+              onClick={openSpotlight}
+              className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <SearchIcon size={IconSize.Small} aria-hidden />
+            </button>
+          </Tooltip>
+          {!isCompact && (
+            <div
+              aria-hidden
+              className="-mt-1 flex items-center gap-0.5 text-text-quaternary typo-caption2"
+            >
+              {shortcutKeys.map((key) => (
+                <kbd key={key} className="font-sans">
+                  {key}
+                </kbd>
+              ))}
             </div>
           )}
-        </div>
-      </nav>
+
+          <div
+            aria-hidden
+            className="my-2 h-px w-6 bg-border-subtlest-quaternary"
+          />
+
+          <div
+            ref={navListRef}
+            role="tablist"
+            aria-label="Sidebar categories"
+            className="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-hidden"
+          >
+            {renderCategoryTab(SidebarCategory.Main)}
+            {renderCategoryTab(SidebarCategory.Squads)}
+
+            {overflowOrder.slice(0, visibleOverflowCount).map((id) =>
+              id === SidebarCategory.Notifications ? (
+                <RailHoverCard
+                  key={id}
+                  label="Notifications"
+                  panel={<NotificationsRailPanel />}
+                  enabled={!isExpanded}
+                >
+                  <div
+                    className="w-full"
+                    data-sidebar-preview={SidebarCategory.Notifications}
+                    onMouseEnter={() =>
+                      commitPreview(SidebarCategory.Notifications)
+                    }
+                    onMouseLeave={(event) =>
+                      handlePreviewLeave(SidebarCategory.Notifications, event)
+                    }
+                  >
+                    <NotificationsBell
+                      rail
+                      noTooltip
+                      railHideLabel={isCompact}
+                      active={isNotificationsSelected}
+                    />
+                  </div>
+                </RailHoverCard>
+              ) : (
+                <React.Fragment key={id}>
+                  {renderCategoryTab(id)}
+                </React.Fragment>
+              ),
+            )}
+
+            {isLoggedIn && (
+              <Tooltip
+                side="right"
+                content="New post"
+                collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+              >
+                <Button
+                  id="sidebar-create-post"
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Small}
+                  icon={<NewPostIcon />}
+                  aria-label="New post"
+                  aria-controls="sidebar-context-panel"
+                  data-sidebar-preview="create"
+                  onMouseEnter={() => commitPreview('create')}
+                  onMouseLeave={(event: React.MouseEvent) =>
+                    handlePreviewLeave('create', event)
+                  }
+                  onFocus={() => setIsCreateHovered(true)}
+                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                  className="mt-2 !size-9 !rounded-12 [&_svg]:!size-6"
+                />
+              </Tooltip>
+            )}
+
+            {isNavOverflowing && (
+              <RailHoverCard label="More" panel={renderMorePanel()}>
+                <button
+                  type="button"
+                  aria-label="More"
+                  aria-haspopup="menu"
+                  className={railTabClass}
+                >
+                  <span className="relative flex items-center justify-center">
+                    <MenuIcon size={IconSize.Small} aria-hidden />
+                  </span>
+                  {!isCompact && (
+                    <span className={railTabLabelClass}>More</span>
+                  )}
+                </button>
+              </RailHoverCard>
+            )}
+          </div>
+
+          <div className="mt-auto flex w-full flex-col items-center gap-2">
+            <div
+              role="tablist"
+              aria-label="Sidebar utilities"
+              className="flex w-full flex-col items-center gap-1"
+            >
+              <SidebarThemeButton />
+              <SidebarSupportButton />
+            </div>
+            {isLoggedIn && (
+              <div className="flex w-full flex-col items-stretch gap-1">
+                <SidebarRailStats />
+                <SidebarProfileButton onPreviewHref={onPreviewHref} />
+              </div>
+            )}
+          </div>
+        </nav>
+      )}
 
       {/*
         Slide-between-anchors toggle button. It tracks the *visible* right edge
@@ -1483,30 +1516,50 @@ export const SidebarDesktopV2 = ({
         }
         className={classNames(
           'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
-          isExpanded ? 'w-60 opacity-100' : 'pointer-events-none w-0 opacity-0',
+          // Settings collapses the rail, so the panel fills the whole sidebar.
+          // eslint-disable-next-line no-nested-ternary
+          isSettingsSelected
+            ? 'w-full opacity-100'
+            : isExpanded
+            ? 'w-60 opacity-100'
+            : 'pointer-events-none w-0 opacity-0',
           suppressTransition,
         )}
       >
         <div className="pl-4 pr-3 pt-6">
-          <div className="flex h-10 items-center justify-between gap-1">
-            <Typography bold type={TypographyType.Callout}>
-              {utilityPanelTitle}
-            </Typography>
-            {panelAddAction && (
-              <Tooltip side="bottom" content={panelAddAction.label}>
-                <button
-                  type="button"
-                  onClick={panelAddAction.onClick}
-                  aria-label={panelAddAction.label}
-                  // `mr-9` keeps the "+" clear of the collapse toggle that
-                  // floats over the panel's top-right corner.
-                  className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                >
-                  <PlusIcon size={IconSize.XSmall} aria-hidden />
-                </button>
-              </Tooltip>
-            )}
-          </div>
+          {isSettingsSelected ? (
+            <button
+              type="button"
+              onClick={onBackToApp}
+              aria-label="Back to app"
+              className="focus-outline -ml-1 flex h-10 items-center gap-2 rounded-10 px-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <SidebarArrowLeft size={IconSize.Small} aria-hidden />
+              <Typography bold type={TypographyType.Callout}>
+                Back to app
+              </Typography>
+            </button>
+          ) : (
+            <div className="flex h-10 items-center justify-between gap-1">
+              <Typography bold type={TypographyType.Callout}>
+                {utilityPanelTitle}
+              </Typography>
+              {panelAddAction && (
+                <Tooltip side="bottom" content={panelAddAction.label}>
+                  <button
+                    type="button"
+                    onClick={panelAddAction.onClick}
+                    aria-label={panelAddAction.label}
+                    // `mr-9` keeps the "+" clear of the collapse toggle that
+                    // floats over the panel's top-right corner.
+                    className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  >
+                    <PlusIcon size={IconSize.XSmall} aria-hidden />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
+          )}
         </div>
 
         {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
