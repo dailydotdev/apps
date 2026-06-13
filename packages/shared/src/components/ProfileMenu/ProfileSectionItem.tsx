@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import type { WithClassNameProps } from '../utilities';
 import Link from '../utilities/Link';
 import {
@@ -53,10 +54,20 @@ export const ProfileSectionItem = ({
   isActive,
   typography,
 }: ProfileSectionItemProps): ReactElement => {
+  const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const tag = href ? TypographyTag.Link : TypographyTag.Button;
   const showLinkIcon = href && external;
   const openNewTab = showLinkIcon && !href.startsWith(webappUrl);
+  // Warm the destination chunk while the cursor is on the row so the click
+  // resolves fast. The dropdown is conditionally mounted, so Next's default
+  // viewport prefetch never gets a chance before the click otherwise.
+  const isInternal = !!href && !external && href.startsWith(webappUrl);
+  const prefetch = () => {
+    if (isInternal) {
+      router.prefetch(href).catch(() => undefined);
+    }
+  };
   const content = (
     <Typography<typeof tag>
       tag={tag}
@@ -70,6 +81,8 @@ export const ProfileSectionItem = ({
       )}
       {...combinedClicks(() => onClick?.())}
       {...(openNewTab && { target: '_blank', rel: anchorDefaultRel })}
+      onMouseEnter={prefetch}
+      onFocus={prefetch}
     >
       {Icon && (
         <Icon

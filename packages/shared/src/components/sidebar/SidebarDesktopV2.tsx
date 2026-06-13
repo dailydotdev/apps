@@ -404,7 +404,11 @@ const createMenuOptions: {
 // Profile menu anchored to the bottom rail avatar. A curated, lean subset of
 // the production ProfileMenu (built from the shared ProfileSection item rows)
 // plus the rail-specific reputation/cores stats card.
-const SidebarProfileButton = (): ReactElement | null => {
+const SidebarProfileButton = ({
+  onPreviewHref,
+}: {
+  onPreviewHref: (href: string) => void;
+}): ReactElement | null => {
   const { user, logout } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
@@ -414,6 +418,26 @@ const SidebarProfileButton = (): ReactElement | null => {
   if (!user) {
     return null;
   }
+
+  // Optimistically switch the context panel to the link's category on click —
+  // same instant feedback as a rail-tab click — so the panel doesn't visibly
+  // lag a slow route transition (especially the heavy Settings pages).
+  const withPreview = (
+    items: ProfileSectionItemProps[],
+  ): ProfileSectionItemProps[] =>
+    items.map((item) => {
+      if (!item.href || item.external) {
+        return item;
+      }
+      const { href, onClick } = item;
+      return {
+        ...item,
+        onClick: () => {
+          onPreviewHref(href);
+          onClick?.();
+        },
+      };
+    });
 
   const mainItems: ProfileSectionItemProps[] = [
     { title: 'Analytics', href: `${webappUrl}analytics`, icon: AnalyticsIcon },
@@ -521,15 +545,15 @@ const SidebarProfileButton = (): ReactElement | null => {
           />
 
           <nav className="flex flex-col gap-2">
-            <ProfileMenuSection items={mainItems} />
+            <ProfileMenuSection items={withPreview(mainItems)} />
 
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={settingsItems} />
+            <ProfileMenuSection items={withPreview(settingsItems)} />
 
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={billingItems} />
+            <ProfileMenuSection items={withPreview(billingItems)} />
 
             <HorizontalSeparator />
 
@@ -767,6 +791,14 @@ export const SidebarDesktopV2 = ({
     },
     [getCategoryDefaultPath, router],
   );
+
+  // Profile-dropdown links navigate via `<Link>` and bypass `onSelectCategory`,
+  // so the panel would otherwise wait for the route to resolve before swapping.
+  // Map the link's path to its category and switch optimistically on click.
+  const onPreviewHref = useCallback((href: string) => {
+    const { pathname } = new URL(href, 'http://_');
+    setPendingCategory(getSidebarCategoryForPath(pathname));
+  }, []);
 
   const onToggleExpanded = useCallback(() => {
     logEvent({
@@ -1349,7 +1381,7 @@ export const SidebarDesktopV2 = ({
           {isLoggedIn && (
             <div className="flex w-full flex-col items-stretch gap-1">
               <SidebarRailStats />
-              <SidebarProfileButton />
+              <SidebarProfileButton onPreviewHref={onPreviewHref} />
             </div>
           )}
         </div>
