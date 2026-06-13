@@ -39,7 +39,6 @@ import {
   JoystickIcon,
   MagicIcon,
   MegaphoneIcon,
-  MenuIcon,
   MoonIcon,
   PhoneIcon,
   PlusIcon,
@@ -306,25 +305,14 @@ const SidebarProfileButton = (): ReactElement | null => {
             </span>
           )}
         </span>
-        <span className="flex min-w-0 flex-1 flex-col text-left">
-          <Typography bold truncate type={TypographyType.Subhead}>
-            {user.name ?? user.username}
-          </Typography>
-          {user.username && (
-            <Typography
-              truncate
-              type={TypographyType.Caption1}
-              className="text-text-tertiary"
-            >
-              @{user.username}
-            </Typography>
-          )}
-        </span>
-        <MenuIcon
-          size={IconSize.Size16}
-          aria-hidden
-          className="shrink-0 text-text-tertiary"
-        />
+        <Typography
+          bold
+          truncate
+          type={TypographyType.Subhead}
+          className="min-w-0 flex-1 text-left"
+        >
+          {user.name ?? user.username}
+        </Typography>
       </button>
       {isOpen && (
         <InteractivePopup
