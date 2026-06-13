@@ -86,8 +86,9 @@ export function Section({
               // and the feed entries share the same x. Without this the
               // header was indented less than the items.
               'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
-              // v2 compact: tighter header to match the smaller nav rows.
-              compact && '!min-h-7',
+              // v2 compact: tighter, left-aligned header to match the smaller
+              // nav rows (mx-2) and Linear's denser list.
+              compact && '!ml-2 !min-h-6 !py-0.5',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >

@@ -37,7 +37,12 @@ export const SidebarItem = ({
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
-        isV2 ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
+        // eslint-disable-next-line no-nested-ternary
+        compact
+          ? 'mx-2 rounded-8'
+          : isV2
+          ? 'mx-3 rounded-10'
+          : 'mx-1 rounded-10',
         item.itemClassName,
         isCollapsed && 'justify-center',
       )}
@@ -51,7 +56,7 @@ export const SidebarItem = ({
             : undefined
         }
         isButton={isItemsButton && !item?.isForcedLink}
-        className={compact ? 'laptop:!h-8' : undefined}
+        className={compact ? 'laptop:!h-7' : undefined}
       >
         <ItemInner
           item={item}

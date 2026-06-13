@@ -808,7 +808,7 @@ export const SidebarDesktopV2 = ({
           <span
             aria-hidden
             className={classNames(
-              'pointer-events-none absolute left-1/2 top-1/2 h-12 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-text-quaternary transition-opacity duration-150',
+              'pointer-events-none absolute left-1/2 top-1/2 h-12 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-4 bg-text-quaternary transition-opacity duration-150',
               isResizing
                 ? 'opacity-100'
                 : 'opacity-0 group-hover/resize:opacity-100',

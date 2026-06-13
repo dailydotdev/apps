@@ -137,7 +137,7 @@ export const ItemInner = ({
         active={active}
         iconClassName={
           compact
-            ? 'relative flex items-center justify-center w-7 h-7 [&_svg]:!size-4'
+            ? 'relative flex items-center justify-center w-6 h-6 [&_svg]:!size-4'
             : undefined
         }
       />
