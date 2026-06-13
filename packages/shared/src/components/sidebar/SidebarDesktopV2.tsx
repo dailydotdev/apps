@@ -23,6 +23,7 @@ import {
   ArrowIcon,
   BellIcon,
   BrowserGroupIcon,
+  ComposeIcon,
   CreditCardIcon,
   DevCardIcon,
   DevPlusIcon,
@@ -40,7 +41,6 @@ import {
   MegaphoneIcon,
   MoonIcon,
   PhoneIcon,
-  PlusIcon,
   PrivacyIcon,
   SearchIcon,
   SettingsIcon,
@@ -727,7 +727,7 @@ export const SidebarDesktopV2 = ({
                 type="button"
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Small}
-                icon={<PlusIcon />}
+                icon={<ComposeIcon />}
                 aria-label="New post"
                 onClick={() => openModal({ type: LazyModal.SmartComposer })}
                 className="!size-8 [&_svg]:!size-4"
