@@ -433,6 +433,13 @@ export const SidebarDesktopV2 = ({
   // headers surface while collapsed (see SidebarExpandButton).
   const isExpanded = sidebarExpanded || forceExpanded;
 
+  // Collapsed hover-peek: while collapsed, hovering the left edge reveals the
+  // panel as an overlay on top of the content (high z-index, MainLayout keeps
+  // its zero padding so nothing shifts). Closes when the cursor leaves it.
+  const [isPeeking, setIsPeeking] = useState(false);
+  const isHoverExpanded = !isExpanded && isPeeking;
+  const isVisible = isExpanded || isHoverExpanded;
+
   // The panel width is resizable and persisted. The live value lives in the
   // `--sidebar-width` CSS variable so the sidebar and the main content (which
   // pads by the same variable in MainLayout) resize together, 1:1, while
@@ -659,235 +666,251 @@ export const SidebarDesktopV2 = ({
   ]);
 
   return (
-    <SidebarAside
-      data-testid="sidebar-aside"
-      data-resizable-pane
-      className={classNames(
-        'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
-        // Expanded width tracks the resizable `--sidebar-width` variable (with
-        // the 19rem default as fallback before settings load).
-        isExpanded ? 'laptop:w-[var(--sidebar-width,19rem)]' : 'laptop:w-0',
-        isBannerAvailable
-          ? 'laptop:[--safe-area-top-offset:2rem]'
-          : 'laptop:[--safe-area-top-offset:0rem]',
-        // Paint the exact V2 page background (same color-mix MainLayout uses)
-        // so the sidebar and feed read as one continuous surface — the feed
-        // floats as a box on top, with no divider between them.
-        !featureTheme &&
-          'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
-        featureTheme && 'laptop:!bg-transparent',
-        suppressTransition,
+    <>
+      {/* Collapsed: a thin left-edge zone that reveals the panel on hover. */}
+      {!isExpanded && (
+        <div
+          aria-hidden
+          onMouseEnter={() => setIsPeeking(true)}
+          className="fixed inset-y-0 left-0 z-sidebar hidden w-3 laptop:block"
+        />
       )}
-    >
-      {/* Definite-height, clipped flex column so the nav scrolls and the
+      <SidebarAside
+        data-testid="sidebar-aside"
+        data-resizable-pane
+        onMouseLeave={() => setIsPeeking(false)}
+        className={classNames(
+          'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
+          // Width tracks the resizable `--sidebar-width` variable (with the
+          // 19rem fallback before settings load); zero when collapsed.
+          isVisible ? 'laptop:w-[var(--sidebar-width,19rem)]' : 'laptop:w-0',
+          isBannerAvailable
+            ? 'laptop:[--safe-area-top-offset:2rem]'
+            : 'laptop:[--safe-area-top-offset:0rem]',
+          // Paint the exact V2 page background (same color-mix MainLayout uses)
+          // so the sidebar and feed read as one continuous surface — the feed
+          // floats as a box on top, with no divider between them.
+          !featureTheme &&
+            'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+          featureTheme && 'laptop:!bg-transparent',
+          // Hover-peek: float the panel above everything without shifting the
+          // content (MainLayout padding stays put while collapsed).
+          isHoverExpanded && 'laptop:!z-sidebarOverlay laptop:shadow-3',
+          suppressTransition,
+        )}
+      >
+        {/* Definite-height, clipped flex column so the nav scrolls and the
           header/footer stay pinned on-screen regardless of list length. */}
-      <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-        {/* Settings (and other inner pages) take over the panel: the header
+        <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
+          {/* Settings (and other inner pages) take over the panel: the header
             becomes a single Back control instead of the profile/streak/compose
             + search. Otherwise the normal top bar shows. */}
-        {forceExpanded ? (
-          <header className="px-2 pb-1 pt-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="focus-outline flex w-full items-center gap-2 rounded-10 px-1.5 py-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-            >
-              <MoveToIcon
-                size={IconSize.Size16}
-                aria-hidden
-                className="rotate-180"
-              />
-              <Typography bold type={TypographyType.Footnote}>
-                Back
-              </Typography>
-            </button>
-          </header>
-        ) : (
-          <header className="flex flex-col gap-2 px-2 pb-2 pt-4">
-            <div className="flex items-center gap-0.5">
-              {isLoggedIn ? (
-                <SidebarProfileButton />
+          {forceExpanded ? (
+            <header className="px-2 pb-1 pt-4">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="focus-outline flex w-full items-center gap-2 rounded-10 px-1.5 py-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              >
+                <MoveToIcon
+                  size={IconSize.Size16}
+                  aria-hidden
+                  className="rotate-180"
+                />
+                <Typography bold type={TypographyType.Footnote}>
+                  Back
+                </Typography>
+              </button>
+            </header>
+          ) : (
+            <header className="flex flex-col gap-2 px-2 pb-2 pt-4">
+              <div className="flex items-center gap-0.5">
+                {isLoggedIn ? (
+                  <SidebarProfileButton />
+                ) : (
+                  <>
+                    <Link href={webappUrl} passHref prefetch={false}>
+                      <a
+                        href={webappUrl}
+                        aria-label="Home"
+                        onClick={onLogoClick}
+                        className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
+                      >
+                        <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                        <Typography
+                          bold
+                          type={TypographyType.Footnote}
+                          className="min-w-0 truncate"
+                        >
+                          daily.dev
+                        </Typography>
+                      </a>
+                    </Link>
+                    <span className="flex-1" />
+                  </>
+                )}
+                {isLoggedIn && <SidebarStreakButton />}
+                {isLoggedIn && (
+                  <Tooltip side="bottom" content="New post">
+                    <Button
+                      type="button"
+                      variant={ButtonVariant.Primary}
+                      size={ButtonSize.Small}
+                      icon={<ComposeIcon />}
+                      aria-label="New post"
+                      onClick={() =>
+                        openModal({ type: LazyModal.SmartComposer })
+                      }
+                      className="ml-2 !size-7 [&_svg]:!size-4"
+                    />
+                  </Tooltip>
+                )}
+              </div>
+
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={openSpotlight}
+                className="focus-outline flex h-8 w-full items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+              >
+                <SearchIcon size={IconSize.Size16} aria-hidden />
+                <span className="flex-1 text-left typo-footnote">Search</span>
+                <span
+                  aria-hidden
+                  className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
+                >
+                  {shortcutKeys.map((key) => (
+                    <kbd key={key} className="font-sans">
+                      {key}
+                    </kbd>
+                  ))}
+                </span>
+              </button>
+            </header>
+          )}
+
+          {isLoggedIn && additionalButtons && (
+            <div className="flex items-center gap-1 px-3 pb-1 pt-1">
+              {additionalButtons}
+            </div>
+          )}
+
+          <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
+            <Nav className="!pt-0">
+              {forceExpanded ? (
+                // Settings (and other inner pages) render their navigation only
+                // here; the Back control lives in the header above.
+                <SettingsPanelSection
+                  {...defaultRenderSectionProps}
+                  isItemsButton={false}
+                />
               ) : (
                 <>
-                  <Link href={webappUrl} passHref prefetch={false}>
-                    <a
-                      href={webappUrl}
-                      aria-label="Home"
-                      onClick={onLogoClick}
-                      className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
-                    >
-                      <LogoIcon className={{ container: 'h-5 w-auto' }} />
-                      <Typography
-                        bold
-                        type={TypographyType.Footnote}
-                        className="min-w-0 truncate"
-                      >
-                        daily.dev
-                      </Typography>
-                    </a>
-                  </Link>
-                  <span className="flex-1" />
-                </>
-              )}
-              {isLoggedIn && <SidebarStreakButton />}
-              {isLoggedIn && (
-                <Tooltip side="bottom" content="New post">
-                  <Button
-                    type="button"
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.Small}
-                    icon={<ComposeIcon />}
-                    aria-label="New post"
-                    onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                    className="ml-2 !size-7 [&_svg]:!size-4"
-                  />
-                </Tooltip>
-              )}
-            </div>
-
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={openSpotlight}
-              className="focus-outline flex h-8 w-full items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
-            >
-              <SearchIcon size={IconSize.Size16} aria-hidden />
-              <span className="flex-1 text-left typo-footnote">Search</span>
-              <span
-                aria-hidden
-                className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
-              >
-                {shortcutKeys.map((key) => (
-                  <kbd key={key} className="font-sans">
-                    {key}
-                  </kbd>
-                ))}
-              </span>
-            </button>
-          </header>
-        )}
-
-        {isLoggedIn && additionalButtons && (
-          <div className="flex items-center gap-1 px-3 pb-1 pt-1">
-            {additionalButtons}
-          </div>
-        )}
-
-        <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
-          <Nav className="!pt-0">
-            {forceExpanded ? (
-              // Settings (and other inner pages) render their navigation only
-              // here; the Back control lives in the header above.
-              <SettingsPanelSection
-                {...defaultRenderSectionProps}
-                isItemsButton={false}
-              />
-            ) : (
-              <>
-                <Section
-                  {...defaultRenderSectionProps}
-                  items={primaryItems}
-                  isItemsButton={isNavButtons ?? false}
-                  className="!mt-0"
-                />
-                {isLoggedIn && (
-                  <PinnedSection
+                  <Section
                     {...defaultRenderSectionProps}
+                    items={primaryItems}
+                    isItemsButton={isNavButtons ?? false}
+                    className="!mt-0"
+                  />
+                  {isLoggedIn && (
+                    <PinnedSection
+                      {...defaultRenderSectionProps}
+                      isItemsButton={false}
+                    />
+                  )}
+                  <CustomFeedSection
+                    {...defaultRenderSectionProps}
+                    onNavTabClick={onNavTabClick}
+                    title="Feeds"
                     isItemsButton={false}
                   />
-                )}
-                <CustomFeedSection
-                  {...defaultRenderSectionProps}
-                  onNavTabClick={onNavTabClick}
-                  title="Feeds"
-                  isItemsButton={false}
-                />
-                <BookmarkSection
-                  {...defaultRenderSectionProps}
-                  title="Saved"
-                  isItemsButton={false}
-                />
-                <NetworkSection
-                  {...defaultRenderSectionProps}
-                  title="Squads"
-                  isItemsButton={isNavButtons ?? false}
-                />
-              </>
-            )}
-          </Nav>
-        </SidebarScrollWrapper>
+                  <BookmarkSection
+                    {...defaultRenderSectionProps}
+                    title="Saved"
+                    isItemsButton={false}
+                  />
+                  <NetworkSection
+                    {...defaultRenderSectionProps}
+                    title="Squads"
+                    isItemsButton={isNavButtons ?? false}
+                  />
+                </>
+              )}
+            </Nav>
+          </SidebarScrollWrapper>
 
-        {/* Rendered outside the scroll so its popover isn't clipped; the
+          {/* Rendered outside the scroll so its popover isn't clipped; the
             widget self-hides when there's no active help campaign. */}
-        {!forceExpanded && (
-          <div className="px-1">
-            <HelpWidget sidebarExpanded />
-          </div>
-        )}
+          {!forceExpanded && (
+            <div className="px-1">
+              <HelpWidget sidebarExpanded />
+            </div>
+          )}
 
-        {/* Footer strip (separated by a top border): daily.dev brand (→ home)
+          {/* Footer strip (separated by a top border): daily.dev brand (→ home)
             on the left, theme toggle and support center on the right. */}
-        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-2 py-2">
-          {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
-          <div className="flex items-center gap-1">
-            <Link href={webappUrl} passHref prefetch={false}>
-              <a
-                href={webappUrl}
-                aria-label="daily.dev home"
-                onClick={onLogoClick}
-                className="focus-outline flex min-w-0 items-center gap-1.5 rounded-10 px-1.5 py-1.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-              >
-                <LogoIcon className={{ container: 'h-4 w-auto' }} />
-                <Typography
-                  type={TypographyType.Footnote}
-                  className="min-w-0 truncate"
+          <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-2 py-2">
+            {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
+            <div className="flex items-center gap-1">
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="daily.dev home"
+                  onClick={onLogoClick}
+                  className="focus-outline flex min-w-0 items-center gap-1.5 rounded-10 px-1.5 py-1.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                 >
-                  daily.dev
-                </Typography>
-              </a>
-            </Link>
-            <span className="flex-1" />
-            <SidebarThemeButton />
-            <SidebarSupportButton />
+                  <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                  <Typography
+                    type={TypographyType.Footnote}
+                    className="min-w-0 truncate"
+                  >
+                    daily.dev
+                  </Typography>
+                </a>
+              </Link>
+              <span className="flex-1" />
+              <SidebarThemeButton />
+              <SidebarSupportButton />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Resize handle straddling the sidebar/feed boundary. The surface stays
+        {/* Resize handle straddling the sidebar/feed boundary. The surface stays
           invisible (no permanent divider), but hovering or dragging it reveals
           a short, vertically-centered grip — the Claude resize affordance — so
           it's discoverable without adding a border. Pull past the threshold to
           collapse. */}
-      {isExpanded && !forceExpanded && (
-        <Tooltip
-          side="right"
-          content={
-            <span className="flex flex-col gap-0.5">
-              <span>Drag to resize</span>
-              <span className="text-text-tertiary">
-                Toggle sidebar · {sidebarToggleShortcut}
+        {isExpanded && !forceExpanded && (
+          <Tooltip
+            side="right"
+            content={
+              <span className="flex flex-col gap-0.5">
+                <span>Drag to resize</span>
+                <span className="text-text-tertiary">
+                  Toggle sidebar · {sidebarToggleShortcut}
+                </span>
               </span>
-            </span>
-          }
-        >
-          <button
-            type="button"
-            aria-label={`Resize sidebar, toggle with ${sidebarToggleShortcut}`}
-            onMouseDown={onResizeHandleMouseDown}
-            className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
+            }
           >
-            <span
-              aria-hidden
-              className={classNames(
-                'pointer-events-none absolute left-1/2 top-1/2 h-12 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-4 bg-text-quaternary transition-opacity duration-150',
-                isResizing
-                  ? 'opacity-100'
-                  : 'opacity-0 group-hover/resize:opacity-100',
-              )}
-            />
-          </button>
-        </Tooltip>
-      )}
-    </SidebarAside>
+            <button
+              type="button"
+              aria-label={`Resize sidebar, toggle with ${sidebarToggleShortcut}`}
+              onMouseDown={onResizeHandleMouseDown}
+              className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
+            >
+              <span
+                aria-hidden
+                className={classNames(
+                  'pointer-events-none absolute left-1/2 top-1/2 h-12 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-4 bg-text-quaternary transition-opacity duration-150',
+                  isResizing
+                    ? 'opacity-100'
+                    : 'opacity-0 group-hover/resize:opacity-100',
+                )}
+              />
+            </button>
+          </Tooltip>
+        )}
+      </SidebarAside>
+    </>
   );
 };
