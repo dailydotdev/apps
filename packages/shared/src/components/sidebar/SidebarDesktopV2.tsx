@@ -175,11 +175,6 @@ const RAIL_HOVER_SIDE_OFFSET = 12;
 // no top chrome to clip against, so a snug override re-centers tooltips
 // with their triggers.
 const RAIL_TOOLTIP_COLLISION_PADDING = 4;
-// How long the preview switch is held while the pointer keeps arcing toward
-// the open panel (the menu-aim "prediction cone"). Re-armed on each move, so a
-// continuous arc never switches; it only fires once the pointer settles on a
-// tab without heading for the panel.
-const PREVIEW_AIM_DELAY = 280;
 
 interface RailHoverCardProps {
   label: string;
@@ -686,11 +681,6 @@ export const SidebarDesktopV2 = ({
   // the hover-peek until it actually leaves and re-enters, so the first click
   // collapses instead of instantly re-expanding under the cursor.
   const peekSuppressedRef = useRef(false);
-  // Prediction cone (menu-aim): refs backing the deferred preview switch.
-  const panelRef = useRef<HTMLElement>(null);
-  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
-  const pendingPreviewRef = useRef<(() => void) | null>(null);
-  const previewTimeoutRef = useRef<number>();
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
     if (loadedSettings) {
@@ -792,92 +782,7 @@ export const SidebarDesktopV2 = ({
     setIsRailHovered(false);
     setHoveredCategory(null);
     setIsCreateHovered(false);
-    window.clearTimeout(previewTimeoutRef.current);
-    pendingPreviewRef.current = null;
-    lastPointerRef.current = null;
   }, []);
-
-  // --- Prediction cone (menu-aim) ----------------------------------------
-  // When the pointer arcs from a rail tab toward the open panel it crosses
-  // other tabs. Rather than swapping the preview immediately (which yanks the
-  // panel the user is aiming at), project the movement vector onto the panel's
-  // near edge: if it lands within the panel's vertical span the pointer is
-  // heading in, so defer the switch. The deferred switch re-arms while the
-  // pointer keeps aiming and is cancelled once it reaches the panel — so only
-  // a tab the user actually settles on wins.
-  const isAimingAtPanel = useCallback(
-    (fromX: number, fromY: number, toX: number, toY: number): boolean => {
-      const panel = panelRef.current?.getBoundingClientRect();
-      if (!panel || panel.width < 8) {
-        return false;
-      }
-      const dx = toX - fromX;
-      if (dx <= 2) {
-        // not moving toward the panel (it sits to the right of the rail)
-        return false;
-      }
-      const projectedY = toY + ((toY - fromY) / dx) * (panel.left - toX);
-      const margin = 48;
-      return (
-        projectedY >= panel.top - margin && projectedY <= panel.bottom + margin
-      );
-    },
-    [],
-  );
-
-  const commitPreview = useCallback(() => {
-    window.clearTimeout(previewTimeoutRef.current);
-    pendingPreviewRef.current?.();
-    pendingPreviewRef.current = null;
-  }, []);
-
-  const requestPreview = useCallback(
-    (commit: () => void, clientX: number, clientY: number) => {
-      const last = lastPointerRef.current;
-      window.clearTimeout(previewTimeoutRef.current);
-      if (last && isAimingAtPanel(last.x, last.y, clientX, clientY)) {
-        pendingPreviewRef.current = commit;
-        previewTimeoutRef.current = window.setTimeout(
-          commitPreview,
-          PREVIEW_AIM_DELAY,
-        );
-        return;
-      }
-      pendingPreviewRef.current = null;
-      commit();
-    },
-    [isAimingAtPanel, commitPreview],
-  );
-
-  const handleRailMouseMove = useCallback(
-    (event: React.MouseEvent) => {
-      const last = lastPointerRef.current;
-      const next = { x: event.clientX, y: event.clientY };
-      lastPointerRef.current = next;
-      if (!pendingPreviewRef.current || !last) {
-        return;
-      }
-      if (isAimingAtPanel(last.x, last.y, next.x, next.y)) {
-        window.clearTimeout(previewTimeoutRef.current);
-        previewTimeoutRef.current = window.setTimeout(
-          commitPreview,
-          PREVIEW_AIM_DELAY,
-        );
-      } else {
-        commitPreview();
-      }
-    },
-    [isAimingAtPanel, commitPreview],
-  );
-
-  // Reaching the panel means the user got where they were aiming — keep the
-  // current preview and drop any deferred switch.
-  const cancelPreview = useCallback(() => {
-    window.clearTimeout(previewTimeoutRef.current);
-    pendingPreviewRef.current = null;
-  }, []);
-
-  useEffect(() => () => window.clearTimeout(previewTimeoutRef.current), []);
 
   const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
     if (category === SidebarCategory.Squads) {
@@ -988,16 +893,10 @@ export const SidebarDesktopV2 = ({
           aria-label={category.label}
           aria-selected={isSelected}
           onClick={() => onSelectCategory(category.id)}
-          onMouseEnter={(event) => {
+          onMouseEnter={() => {
             onPrefetchCategory(category.id);
-            requestPreview(
-              () => {
-                setHoveredCategory(category.id);
-                setIsCreateHovered(false);
-              },
-              event.clientX,
-              event.clientY,
-            );
+            setHoveredCategory(category.id);
+            setIsCreateHovered(false);
           }}
           onFocus={() => onPrefetchCategory(category.id)}
           onKeyDown={(event) => {
@@ -1119,7 +1018,6 @@ export const SidebarDesktopV2 = ({
       data-testid="sidebar-aside"
       onMouseEnter={handleRailMouseEnter}
       onMouseLeave={handleRailMouseLeave}
-      onMouseMove={handleRailMouseMove}
       onClick={pinFromEmptyClick}
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
@@ -1230,15 +1128,8 @@ export const SidebarDesktopV2 = ({
               >
                 <div
                   className="w-full"
-                  onMouseEnter={(event) =>
-                    requestPreview(
-                      () => {
-                        setHoveredCategory(SidebarCategory.Notifications);
-                        setIsCreateHovered(false);
-                      },
-                      event.clientX,
-                      event.clientY,
-                    )
+                  onMouseEnter={() =>
+                    setHoveredCategory(SidebarCategory.Notifications)
                   }
                 >
                   <NotificationsBell
@@ -1268,13 +1159,7 @@ export const SidebarDesktopV2 = ({
                 icon={<PlusIcon />}
                 aria-label="New post"
                 aria-controls="sidebar-context-panel"
-                onMouseEnter={(event: React.MouseEvent) =>
-                  requestPreview(
-                    () => setIsCreateHovered(true),
-                    event.clientX,
-                    event.clientY,
-                  )
-                }
+                onMouseEnter={() => setIsCreateHovered(true)}
                 onFocus={() => setIsCreateHovered(true)}
                 onClick={() => openModal({ type: LazyModal.SmartComposer })}
                 className="!size-9 !rounded-12 [&_svg]:!size-5"
@@ -1368,10 +1253,8 @@ export const SidebarDesktopV2 = ({
       )}
 
       <section
-        ref={panelRef}
         id="sidebar-context-panel"
         role="tabpanel"
-        onMouseEnter={cancelPreview}
         aria-labelledby={
           isCreateHovered
             ? 'sidebar-create-post'
