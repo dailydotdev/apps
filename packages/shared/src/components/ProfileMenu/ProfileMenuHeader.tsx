@@ -51,7 +51,7 @@ export const ProfileMenuHeader = ({
           className="!rounded-10 border-background-default"
         />
 
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex items-center gap-1">
             <Typography
               type={TypographyType.Subhead}
