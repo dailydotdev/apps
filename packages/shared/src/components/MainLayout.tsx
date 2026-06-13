@@ -156,6 +156,18 @@ function MainLayoutComponent({
       setContentTransitionsEnabled(true);
     }
   }, [layoutSettled]);
+  // The v2 page uses a tinted background; the document root stays
+  // `background-default`, so overscroll past the feed reveals a darker strip.
+  // Flag the root while v2 is active so it can paint the same tint (laptop+,
+  // matching where the tinted page background applies — see base.css).
+  useEffect(() => {
+    if (!isV2) {
+      return undefined;
+    }
+    const root = globalThis.document?.documentElement;
+    root?.classList.add('layout-v2');
+    return () => root?.classList.remove('layout-v2');
+  }, [isV2]);
   // v2 (experiment) snaps the initial settle into place (transitions enable
   // one commit later, so only genuine toggles animate). The control variant
   // keeps animating on `layoutSettled` exactly as before.
