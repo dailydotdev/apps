@@ -64,8 +64,8 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   leftEnd: classNames(leftClass, endClass),
   profileMenu: classNames(profileMenuRightClass, 'top-14'),
   screen: 'inset-0 w-screen h-screen',
-  sidebarSupportMenu: 'left-3 top-16',
-  sidebarProfileMenu: 'left-3 bottom-20',
+  sidebarSupportMenu: 'left-3 bottom-16',
+  sidebarProfileMenu: 'left-3 top-16',
 };
 
 const leftPositions = [

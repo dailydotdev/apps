@@ -48,7 +48,6 @@ import {
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { ThemeAutoIcon } from '../icons/ThemeAuto';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
@@ -104,56 +103,10 @@ const SIDEBAR_MAX_WIDTH = 420;
 // Pull the handle left of this cursor X to collapse instead of resize.
 const SIDEBAR_COLLAPSE_AT = 180;
 
-// Square icon button shared by the header (search/support) and footer (theme)
-// controls.
+// Compact square icon button (Linear-sized: 32px hit area, 16px glyph) shared
+// by the header search and the footer support controls.
 const iconButtonClass =
-  'focus-outline flex size-9 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
-
-const themeIconMap: Record<
-  ThemeMode,
-  React.ComponentType<{
-    secondary?: boolean;
-    size?: IconSize;
-    'aria-hidden'?: boolean;
-  }>
-> = {
-  [ThemeMode.Dark]: MoonIcon,
-  [ThemeMode.Light]: SunIcon,
-  [ThemeMode.Auto]: ThemeAutoIcon,
-};
-
-const SidebarThemeButton = (): ReactElement => {
-  const { setTheme, themeMode } = useSettingsContext();
-  const { logEvent } = useLogContext();
-  const isDark = themeMode === ThemeMode.Dark;
-  const nextMode = isDark ? ThemeMode.Light : ThemeMode.Dark;
-  const ActiveIcon = themeIconMap[themeMode];
-
-  const onToggleTheme = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.ChangeSettings,
-      target_type: TargetType.Theme,
-      target_id: nextMode,
-    });
-    setTheme(nextMode);
-  }, [logEvent, nextMode, setTheme]);
-
-  return (
-    <Tooltip
-      side="top"
-      content={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-    >
-      <button
-        type="button"
-        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        className={iconButtonClass}
-        onClick={onToggleTheme}
-      >
-        <ActiveIcon size={IconSize.Small} aria-hidden />
-      </button>
-    </Tooltip>
-  );
-};
+  'focus-outline flex size-8 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary [&_svg]:!size-4';
 
 const supportItems: ProfileSectionItemProps[] = [
   {
@@ -228,20 +181,32 @@ const SidebarSupportButton = (): ReactElement => {
   );
 };
 
-// Profile menu anchored to the footer avatar/name row. A curated, lean subset
-// of the production ProfileMenu (built from the shared ProfileSection rows).
-// The footer stats strip already surfaces streak/cores/reputation, so this
-// menu stays navigation + account only.
+// Profile switcher in the sidebar header (avatar + name + @username), opening
+// a curated menu built from the shared ProfileSection rows: reputation/cores
+// stats, account links, the theme toggle, and log out.
 const SidebarProfileButton = (): ReactElement | null => {
   const { user, logout } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { openModal } = useLazyModal();
+  const { themeMode, setTheme } = useSettingsContext();
+  const { logEvent } = useLogContext();
   const canPurchaseCores = useCanPurchaseCores();
+  const isDark = themeMode === ThemeMode.Dark;
 
   if (!user) {
     return null;
   }
+
+  const onToggleTheme = () => {
+    const nextMode = isDark ? ThemeMode.Light : ThemeMode.Dark;
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.Theme,
+      target_id: nextMode,
+    });
+    setTheme(nextMode);
+  };
 
   const mainItems: ProfileSectionItemProps[] = [
     {
@@ -293,6 +258,11 @@ const SidebarProfileButton = (): ReactElement | null => {
       href: `${settingsUrl}/feed/general`,
       icon: AppIcon,
     },
+    {
+      title: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+      icon: isDark ? SunIcon : MoonIcon,
+      onClick: onToggleTheme,
+    },
   ];
 
   const logoutItems: ProfileSectionItemProps[] = [
@@ -318,7 +288,7 @@ const SidebarProfileButton = (): ReactElement | null => {
         <span className="relative shrink-0">
           <ProfilePicture
             user={user}
-            size={ProfileImageSize.Medium}
+            size={ProfileImageSize.Small}
             nativeLazyLoading
           />
           {isPlus && (
@@ -331,16 +301,22 @@ const SidebarProfileButton = (): ReactElement | null => {
             </span>
           )}
         </span>
-        <Typography
-          bold
-          truncate
-          type={TypographyType.Subhead}
-          className="min-w-0 flex-1 text-left"
-        >
-          {user.name ?? user.username}
-        </Typography>
+        <span className="flex min-w-0 flex-1 flex-col text-left">
+          <Typography bold truncate type={TypographyType.Subhead}>
+            {user.name ?? user.username}
+          </Typography>
+          {user.username && (
+            <Typography
+              truncate
+              type={TypographyType.Caption1}
+              className="text-text-tertiary"
+            >
+              @{user.username}
+            </Typography>
+          )}
+        </span>
         <MenuIcon
-          size={IconSize.Small}
+          size={IconSize.Size16}
           aria-hidden
           className="shrink-0 text-text-tertiary"
         />
@@ -597,28 +573,35 @@ export const SidebarDesktopV2 = ({
       {/* Definite-height, clipped flex column so the nav scrolls and the
           header/footer stay pinned on-screen regardless of list length. */}
       <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-        {/* Linear-style top bar: workspace + utility icons on one row. Search
-            is an icon (not a field), and Support lives here too. */}
-        <header className="flex items-center gap-0.5 px-2 pb-2 pt-5">
-          <Link href={webappUrl} passHref prefetch={false}>
-            <a
-              href={webappUrl}
-              aria-label="Home"
-              onClick={onLogoClick}
-              className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
-            >
-              <LogoIcon className={{ container: 'h-5 w-auto' }} />
-              <Typography
-                bold
-                type={TypographyType.Subhead}
-                className="min-w-0 truncate"
-              >
-                daily.dev
-              </Typography>
-            </a>
-          </Link>
-          <span className="flex-1" />
-          <SidebarSupportButton />
+        {/* Linear-style top bar: the profile (avatar + name + @username) is the
+            primary switcher, with the reading streak, search and compose icons
+            beside it. The daily.dev brand + support live in the footer. */}
+        <header className="flex items-center gap-0.5 px-2 pb-2 pt-4">
+          {isLoggedIn ? (
+            <SidebarProfileButton />
+          ) : (
+            <>
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="Home"
+                  onClick={onLogoClick}
+                  className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
+                >
+                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                  <Typography
+                    bold
+                    type={TypographyType.Subhead}
+                    className="min-w-0 truncate"
+                  >
+                    daily.dev
+                  </Typography>
+                </a>
+              </Link>
+              <span className="flex-1" />
+            </>
+          )}
+          {isLoggedIn && <SidebarStreakButton />}
           <Tooltip side="bottom" content={`Search · ${shortcutKeys.join('')}`}>
             <button
               type="button"
@@ -638,6 +621,7 @@ export const SidebarDesktopV2 = ({
                 icon={<PlusIcon />}
                 aria-label="New post"
                 onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                className="!size-8 [&_svg]:!size-4"
               />
             </Tooltip>
           )}
@@ -726,14 +710,25 @@ export const SidebarDesktopV2 = ({
           </div>
         )}
 
-        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-2 py-2">
-          <div className="flex items-center gap-0.5">
-            {isLoggedIn && <SidebarProfileButton />}
-            {!isLoggedIn && <span className="flex-1" />}
-            {isLoggedIn && <SidebarStreakButton />}
-            <SidebarThemeButton />
-          </div>
+        {/* Footer: help bottom-left (Linear), daily.dev brand bottom-right. */}
+        <div className="flex flex-col gap-2 px-2 py-2">
           {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
+          <div className="flex items-center gap-0.5">
+            <SidebarSupportButton />
+            <span className="flex-1" />
+            <Tooltip side="top" content="daily.dev home">
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="daily.dev home"
+                  onClick={onLogoClick}
+                  className="focus-outline hover:opacity-80 flex size-8 items-center justify-center rounded-10 text-text-primary transition-opacity"
+                >
+                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                </a>
+              </Link>
+            </Tooltip>
+          </div>
         </div>
       </div>
 
