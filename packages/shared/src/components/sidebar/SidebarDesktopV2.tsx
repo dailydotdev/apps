@@ -571,170 +571,178 @@ export const SidebarDesktopV2 = ({
           suppressTransition,
         )}
       >
-        <header className="flex flex-col gap-2 px-3 pb-1 pt-5">
-          <div className="flex items-center gap-1.5 pl-1">
-            <Link href={webappUrl} passHref prefetch={false}>
-              <a
-                href={webappUrl}
-                aria-label="Home"
-                onClick={onLogoClick}
-                className="focus-outline hover:opacity-80 flex items-center rounded-12 text-text-primary transition-opacity"
+        {/* Definite-height, clipped flex column so the nav scrolls and the
+            header/footer stay pinned on-screen regardless of list length. */}
+        <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
+          <header className="flex flex-col gap-2 px-3 pb-1 pt-5">
+            <div className="flex items-center gap-1.5 pl-1">
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="Home"
+                  onClick={onLogoClick}
+                  className="focus-outline hover:opacity-80 flex items-center rounded-12 text-text-primary transition-opacity"
+                >
+                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                </a>
+              </Link>
+              <Typography
+                bold
+                type={TypographyType.Body}
+                className="min-w-0 flex-1 truncate"
               >
-                <LogoIcon className={{ container: 'h-5 w-auto' }} />
-              </a>
-            </Link>
-            <Typography
-              bold
-              type={TypographyType.Body}
-              className="min-w-0 flex-1 truncate"
-            >
-              daily.dev
-            </Typography>
-            {isLoggedIn && (
-              <Tooltip side="bottom" content="New post">
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  icon={<PlusIcon />}
-                  aria-label="New post"
-                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                />
-              </Tooltip>
-            )}
-            {!forceExpanded && (
-              <Tooltip
-                side="bottom"
-                content={sidebarExpanded ? 'Close sidebar' : 'Pin sidebar open'}
-              >
-                <button
-                  type="button"
-                  onClick={onToggleExpanded}
-                  aria-label={
+                daily.dev
+              </Typography>
+              {isLoggedIn && (
+                <Tooltip side="bottom" content="New post">
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Small}
+                    icon={<PlusIcon />}
+                    aria-label="New post"
+                    onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                  />
+                </Tooltip>
+              )}
+              {!forceExpanded && (
+                <Tooltip
+                  side="bottom"
+                  content={
                     sidebarExpanded ? 'Close sidebar' : 'Pin sidebar open'
                   }
-                  aria-expanded={sidebarExpanded}
-                  className="focus-outline flex size-8 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                 >
-                  <SidebarArrowLeft
-                    size={IconSize.Small}
-                    aria-hidden
-                    className={classNames(!sidebarExpanded && 'rotate-180')}
-                  />
-                </button>
-              </Tooltip>
-            )}
-          </div>
-
-          <Tooltip side="bottom" content="Search">
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={openSpotlight}
-              className="focus-outline flex h-9 w-full items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
-            >
-              <SearchIcon size={IconSize.Small} aria-hidden />
-              <span className="flex-1 text-left typo-callout">Search</span>
-              <span
-                aria-hidden
-                className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
-              >
-                {shortcutKeys.map((key) => (
-                  <kbd key={key} className="font-sans">
-                    {key}
-                  </kbd>
-                ))}
-              </span>
-            </button>
-          </Tooltip>
-        </header>
-
-        {isLoggedIn && additionalButtons && (
-          <div className="flex items-center gap-1 px-3 pb-1 pt-1">
-            {additionalButtons}
-          </div>
-        )}
-
-        <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
-          <Nav className="!pt-0">
-            {forceExpanded ? (
-              // Settings pages render their navigation only here, so the panel
-              // takes over and shows the settings sections instead of the app
-              // nav (the collapse toggle is hidden while forceExpanded).
-              <SettingsPanelSection
-                {...defaultRenderSectionProps}
-                isItemsButton={false}
-              />
-            ) : (
-              <>
-                <MainSection
-                  {...defaultRenderSectionProps}
-                  onNavTabClick={onNavTabClick}
-                  isItemsButton={isNavButtons ?? false}
-                />
-                {utilityItems.length > 0 && (
-                  <Section
-                    {...defaultRenderSectionProps}
-                    items={utilityItems}
-                    isItemsButton={false}
-                  />
-                )}
-                {isLoggedIn && (
-                  <PinnedSection
-                    {...defaultRenderSectionProps}
-                    isItemsButton={false}
-                  />
-                )}
-                <BookmarkSection
-                  {...defaultRenderSectionProps}
-                  title="Saved"
-                  isItemsButton={false}
-                />
-                <NetworkSection
-                  {...defaultRenderSectionProps}
-                  title="Squads"
-                  isItemsButton={isNavButtons ?? false}
-                />
-                <CustomFeedSection
-                  {...defaultRenderSectionProps}
-                  onNavTabClick={onNavTabClick}
-                  title="Feeds"
-                  isItemsButton={false}
-                />
-                {isLoggedIn && (
-                  <RecentSection
-                    {...defaultRenderSectionProps}
-                    isItemsButton={false}
-                  />
-                )}
-              </>
-            )}
-          </Nav>
-        </SidebarScrollWrapper>
-
-        {/* Rendered outside the scroll so its popover isn't clipped; the
-            widget self-hides when there's no active help campaign. */}
-        {!forceExpanded && (
-          <div className="px-1">
-            <HelpWidget sidebarExpanded />
-          </div>
-        )}
-
-        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-3 py-3">
-          {isLoggedIn && <SidebarHeaderStats streakPopoverPlacement="right" />}
-          <div className="flex items-center gap-1">
-            {isLoggedIn && <SidebarProfileButton />}
-            <div
-              className={classNames(
-                'flex items-center gap-1',
-                !isLoggedIn && 'ml-auto',
+                  <button
+                    type="button"
+                    onClick={onToggleExpanded}
+                    aria-label={
+                      sidebarExpanded ? 'Close sidebar' : 'Pin sidebar open'
+                    }
+                    aria-expanded={sidebarExpanded}
+                    className="focus-outline flex size-8 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  >
+                    <SidebarArrowLeft
+                      size={IconSize.Small}
+                      aria-hidden
+                      className={classNames(!sidebarExpanded && 'rotate-180')}
+                    />
+                  </button>
+                </Tooltip>
               )}
-            >
-              <SidebarThemeButton />
-              <SidebarSupportButton />
             </div>
+
+            <Tooltip side="bottom" content="Search">
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={openSpotlight}
+                className="focus-outline flex h-9 w-full items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+              >
+                <SearchIcon size={IconSize.Small} aria-hidden />
+                <span className="flex-1 text-left typo-callout">Search</span>
+                <span
+                  aria-hidden
+                  className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
+                >
+                  {shortcutKeys.map((key) => (
+                    <kbd key={key} className="font-sans">
+                      {key}
+                    </kbd>
+                  ))}
+                </span>
+              </button>
+            </Tooltip>
+          </header>
+
+          {isLoggedIn && additionalButtons && (
+            <div className="flex items-center gap-1 px-3 pb-1 pt-1">
+              {additionalButtons}
+            </div>
+          )}
+
+          <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
+            <Nav className="!pt-0">
+              {forceExpanded ? (
+                // Settings pages render their navigation only here, so the panel
+                // takes over and shows the settings sections instead of the app
+                // nav (the collapse toggle is hidden while forceExpanded).
+                <SettingsPanelSection
+                  {...defaultRenderSectionProps}
+                  isItemsButton={false}
+                />
+              ) : (
+                <>
+                  <MainSection
+                    {...defaultRenderSectionProps}
+                    onNavTabClick={onNavTabClick}
+                    isItemsButton={isNavButtons ?? false}
+                  />
+                  {utilityItems.length > 0 && (
+                    <Section
+                      {...defaultRenderSectionProps}
+                      items={utilityItems}
+                      isItemsButton={false}
+                    />
+                  )}
+                  {isLoggedIn && (
+                    <PinnedSection
+                      {...defaultRenderSectionProps}
+                      isItemsButton={false}
+                    />
+                  )}
+                  <BookmarkSection
+                    {...defaultRenderSectionProps}
+                    title="Saved"
+                    isItemsButton={false}
+                  />
+                  <NetworkSection
+                    {...defaultRenderSectionProps}
+                    title="Squads"
+                    isItemsButton={isNavButtons ?? false}
+                  />
+                  <CustomFeedSection
+                    {...defaultRenderSectionProps}
+                    onNavTabClick={onNavTabClick}
+                    title="Feeds"
+                    isItemsButton={false}
+                  />
+                  {isLoggedIn && (
+                    <RecentSection
+                      {...defaultRenderSectionProps}
+                      isItemsButton={false}
+                    />
+                  )}
+                </>
+              )}
+            </Nav>
+          </SidebarScrollWrapper>
+
+          {/* Rendered outside the scroll so its popover isn't clipped; the
+            widget self-hides when there's no active help campaign. */}
+          {!forceExpanded && (
+            <div className="px-1">
+              <HelpWidget sidebarExpanded />
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-3 py-3">
+            {isLoggedIn && (
+              <SidebarHeaderStats streakPopoverPlacement="right" />
+            )}
+            <div className="flex items-center gap-1">
+              {isLoggedIn && <SidebarProfileButton />}
+              <div
+                className={classNames(
+                  'flex items-center gap-1',
+                  !isLoggedIn && 'ml-auto',
+                )}
+              >
+                <SidebarThemeButton />
+                <SidebarSupportButton />
+              </div>
+            </div>
+            {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
           </div>
-          {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
         </div>
       </SidebarAside>
     </>
