@@ -26,6 +26,9 @@ interface SectionProps extends SectionCommonProps {
   isAlwaysOpenOnMobile?: boolean;
   onAdd?: () => void;
   addHref?: string;
+  // Accessible label for the "+" add button when the section has no title
+  // (v2 panels render the title in the panel header instead).
+  addLabel?: string;
 }
 
 export function Section({
@@ -40,7 +43,9 @@ export function Section({
   isAlwaysOpenOnMobile,
   onAdd,
   addHref,
+  addLabel,
 }: SectionProps): ReactElement {
+  const addAriaLabel = title ? `Add to ${title}` : addLabel ?? 'Add';
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const shouldAlwaysBeVisible = isAlwaysOpenOnMobile && !sidebarRendered;
@@ -62,17 +67,19 @@ export function Section({
 
   return (
     <NavSection className={classNames('group/section mt-1', className)}>
-      {title && (
+      {(title || addHref || onAdd) && (
         <NavHeader className="relative hidden laptop:flex">
-          {/* Divider shown when sidebar is collapsed */}
-          <div
-            className={classNames(
-              'absolute inset-x-0 flex items-center justify-center px-2 transition-opacity duration-300',
-              sidebarExpanded ? 'opacity-0' : 'opacity-100',
-            )}
-          >
-            <hr className="w-full border-t border-border-subtlest-tertiary" />
-          </div>
+          {/* Divider shown when a collapsible (titled) section is collapsed */}
+          {title && (
+            <div
+              className={classNames(
+                'absolute inset-x-0 flex items-center justify-center px-2 transition-opacity duration-300',
+                sidebarExpanded ? 'opacity-0' : 'opacity-100',
+              )}
+            >
+              <hr className="w-full border-t border-border-subtlest-tertiary" />
+            </div>
+          )}
           {/* Header content shown when sidebar is expanded */}
           <div
             className={classNames(
@@ -84,35 +91,40 @@ export function Section({
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
-            <button
-              type="button"
-              onClick={toggleFlag}
-              aria-label={`Toggle ${title}`}
-              aria-expanded={!!isVisible.current}
-              aria-controls={flag ? `section-${flag}` : undefined}
-              className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
-            >
-              <span
-                className={classNames(
-                  'text-text-quaternary typo-callout',
-                  !sidebarExpanded && 'opacity-0',
-                )}
+            {title ? (
+              <button
+                type="button"
+                onClick={toggleFlag}
+                aria-label={`Toggle ${title}`}
+                aria-expanded={!!isVisible.current}
+                aria-controls={flag ? `section-${flag}` : undefined}
+                className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
               >
-                {title}
-              </span>
-              <ArrowIcon
-                className={classNames(
-                  // Smaller glyph, revealed only while hovering/focusing the
-                  // section (header or its items) — see group/section above.
-                  'h-2 w-2 text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
-                  isVisible.current ? 'rotate-180' : 'rotate-90',
-                )}
-              />
-            </button>
+                <span
+                  className={classNames(
+                    'text-text-quaternary typo-callout',
+                    !sidebarExpanded && 'opacity-0',
+                  )}
+                >
+                  {title}
+                </span>
+                <ArrowIcon
+                  className={classNames(
+                    // Smaller glyph, revealed only while hovering/focusing the
+                    // section (header or its items) — see group/section above.
+                    'h-1.5 w-1.5 text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
+                    isVisible.current ? 'rotate-180' : 'rotate-90',
+                  )}
+                />
+              </button>
+            ) : (
+              // Title-less section (v2 panel): keep the add button right-aligned.
+              <span aria-hidden />
+            )}
             {addHref && (
               <Link href={addHref}>
                 <a
-                  aria-label={`Add to ${title}`}
+                  aria-label={addAriaLabel}
                   className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
                 >
                   <PlusIcon className="h-4 w-4" />
@@ -123,7 +135,7 @@ export function Section({
               <button
                 type="button"
                 onClick={onAdd}
-                aria-label={`Add to ${title}`}
+                aria-label={addAriaLabel}
                 className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
               >
                 <PlusIcon className="h-4 w-4" />

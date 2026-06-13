@@ -101,6 +101,7 @@ export const BookmarkSection = ({
       flag={SidebarSettingsFlags.BookmarksExpanded}
       isAlwaysOpenOnMobile
       onAdd={handleAddFolder}
+      addLabel="New folder"
     />
   );
 };

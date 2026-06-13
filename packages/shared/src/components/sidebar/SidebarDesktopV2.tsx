@@ -63,7 +63,6 @@ import {
   MoonIcon,
   NewPostIcon,
   PhoneIcon,
-  PlusIcon,
   PollIcon,
   PrivacyIcon,
   SearchIcon,
@@ -75,10 +74,9 @@ import {
   TrendingIcon,
 } from '../icons';
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
-import { useSquadNavigation } from '../../hooks';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
-import { LogEvent, Origin, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -575,7 +573,6 @@ export const SidebarDesktopV2 = ({
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
-  const { openNewSquad } = useSquadNavigation();
   const { openModal } = useLazyModal();
   const { isLoggedIn } = useAuthContext();
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
@@ -781,6 +778,26 @@ export const SidebarDesktopV2 = ({
     }
     toggleSidebarExpanded();
   }, [logEvent, sidebarExpanded, toggleSidebarExpanded]);
+
+  // `[` toggles the sidebar open/closed (mirrors the collapse toggle button).
+  // Skipped while typing into a field so it doesn't hijack the bracket key.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== '[' || event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.isContentEditable ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName ?? '')
+      ) {
+        return;
+      }
+      onToggleExpanded();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onToggleExpanded]);
 
   const handleRailMouseEnter = useCallback(() => {
     if (peekSuppressedRef.current) {
@@ -1126,8 +1143,6 @@ export const SidebarDesktopV2 = ({
     activeCategory === SidebarCategory.Notifications;
   const isHomePanel =
     !isCreateHovered && activeCategory === SidebarCategory.Main;
-  const isSquadsPanel =
-    !isCreateHovered && activeCategory === SidebarCategory.Squads;
   const isUtilityPanelSelected = !isHomePanel;
   const utilityPanelTitle = (() => {
     if (isCreateHovered) {
@@ -1353,7 +1368,14 @@ export const SidebarDesktopV2 = ({
       {!forceExpanded && (
         <Tooltip
           side="right"
-          content={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+          content={
+            <span className="flex items-center gap-2">
+              {sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+              <kbd className="rounded-4 border border-border-subtlest-tertiary px-1 font-sans text-text-secondary typo-caption2">
+                [
+              </kbd>
+            </span>
+          }
           collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
         >
           <div
@@ -1415,18 +1437,6 @@ export const SidebarDesktopV2 = ({
             <Typography bold type={TypographyType.Callout}>
               {utilityPanelTitle}
             </Typography>
-            {isSquadsPanel && (
-              <Tooltip side="bottom" content="New Squad">
-                <button
-                  type="button"
-                  onClick={() => openNewSquad({ origin: Origin.Sidebar })}
-                  aria-label="New Squad"
-                  className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                >
-                  <PlusIcon size={IconSize.XSmall} aria-hidden />
-                </button>
-              </Tooltip>
-            )}
           </div>
         </div>
 
