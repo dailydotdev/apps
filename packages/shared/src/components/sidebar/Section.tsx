@@ -136,7 +136,11 @@ export function Section({
         id={flag ? `section-${flag}` : undefined}
         className={classNames(
           'grid transition-[grid-template-rows,opacity] duration-300',
-          isVisible.current || shouldAlwaysBeVisible
+          // Collapsing only applies when there's a title (the header is the
+          // only toggle). A flagged-but-title-less section — e.g. the Squads
+          // and Saved panels — would otherwise get stuck hidden when its flag
+          // is false, with no arrow to re-expand it.
+          !title || isVisible.current || shouldAlwaysBeVisible
             ? 'grid-rows-[1fr] opacity-100'
             : 'grid-rows-[0fr] opacity-0',
         )}
