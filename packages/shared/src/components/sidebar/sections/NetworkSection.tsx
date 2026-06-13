@@ -86,7 +86,6 @@ export const NetworkSection = ({
       isItemsButton={false}
       flag={SidebarSettingsFlags.SquadExpanded}
       onAdd={handleAddSquad}
-      addLabel="New Squad"
     />
   );
 };

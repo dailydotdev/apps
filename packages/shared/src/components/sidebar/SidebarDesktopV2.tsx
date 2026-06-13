@@ -63,6 +63,7 @@ import {
   MoonIcon,
   NewPostIcon,
   PhoneIcon,
+  PlusIcon,
   PollIcon,
   PrivacyIcon,
   SearchIcon,
@@ -76,7 +77,7 @@ import {
 import { ThemeAutoIcon } from '../icons/ThemeAuto';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetId, TargetType } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -113,6 +114,8 @@ import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
+import { useSquadNavigation } from '../../hooks';
+import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -599,6 +602,8 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight } = useSpotlight();
   const { openModal } = useLazyModal();
   const { isLoggedIn } = useAuthContext();
+  const { openNewSquad } = useSquadNavigation();
+  const addBookmarkFolder = useAddBookmarkFolder();
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
@@ -1189,6 +1194,24 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
+  // Single-section panels (Squads/Saved) host their "+" add action in the panel
+  // title strip — next to the title — rather than as a row inside the section.
+  const panelAddAction = (() => {
+    if (isCreateHovered) {
+      return null;
+    }
+    if (activeCategory === SidebarCategory.Squads) {
+      return {
+        label: 'New Squad',
+        onClick: () => openNewSquad({ origin: Origin.Sidebar }),
+      };
+    }
+    if (activeCategory === SidebarCategory.Saved) {
+      return { label: 'New folder', onClick: addBookmarkFolder };
+    }
+    return null;
+  })();
+
   return (
     <SidebarAside
       data-testid="sidebar-aside"
@@ -1469,6 +1492,20 @@ export const SidebarDesktopV2 = ({
             <Typography bold type={TypographyType.Callout}>
               {utilityPanelTitle}
             </Typography>
+            {panelAddAction && (
+              <Tooltip side="bottom" content={panelAddAction.label}>
+                <button
+                  type="button"
+                  onClick={panelAddAction.onClick}
+                  aria-label={panelAddAction.label}
+                  // `mr-9` keeps the "+" clear of the collapse toggle that
+                  // floats over the panel's top-right corner.
+                  className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                >
+                  <PlusIcon size={IconSize.XSmall} aria-hidden />
+                </button>
+              </Tooltip>
+            )}
           </div>
         </div>
 
