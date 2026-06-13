@@ -61,7 +61,7 @@ export function Section({
   };
 
   return (
-    <NavSection className={classNames('mt-1', className)}>
+    <NavSection className={classNames('group/section mt-1', className)}>
       {title && (
         <NavHeader className="relative hidden laptop:flex">
           {/* Divider shown when sidebar is collapsed */}
@@ -80,7 +80,7 @@ export function Section({
               // with the items below it (items have `mx-3`), so "Feeds v"
               // and the feed entries share the same x. Without this the
               // header was indented less than the items.
-              'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
+              'ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
@@ -102,7 +102,9 @@ export function Section({
               </span>
               <ArrowIcon
                 className={classNames(
-                  'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
+                  // Smaller glyph, revealed only while hovering/focusing the
+                  // section (header or its items) — see group/section above.
+                  'h-2 w-2 text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
                   isVisible.current ? 'rotate-180' : 'rotate-90',
                 )}
               />
