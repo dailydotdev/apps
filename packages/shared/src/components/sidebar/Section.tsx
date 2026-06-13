@@ -66,7 +66,7 @@ export function Section({
   };
 
   return (
-    <NavSection className={classNames('mt-1', className)}>
+    <NavSection className={classNames('group/section mt-1', className)}>
       {title && (
         <NavHeader className="relative hidden laptop:flex">
           {/* Divider shown when sidebar is collapsed */}
@@ -85,7 +85,7 @@ export function Section({
               // with the items below it (items have `mx-3`), so "Feeds v"
               // and the feed entries share the same x. Without this the
               // header was indented less than the items.
-              'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
+              'ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
               // v2 compact: tighter, left-aligned header to match the smaller
               // nav rows (mx-2) and Linear's denser list.
               compact && '!ml-2 !min-h-6 !py-0.5',
@@ -111,8 +111,14 @@ export function Section({
               </span>
               <ArrowIcon
                 className={classNames(
-                  'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
+                  'text-text-quaternary transition-[transform,opacity] duration-200',
                   isVisible.current ? 'rotate-180' : 'rotate-90',
+                  // v2 compact: smaller chevron, hidden until the section
+                  // (header or its items) is hovered/focused so the list stays
+                  // clean — like Linear.
+                  compact
+                    ? 'h-2 w-2 opacity-0 group-focus-within/section:opacity-100 group-hover/section:opacity-100'
+                    : 'h-2.5 w-2.5',
                 )}
               />
             </button>
