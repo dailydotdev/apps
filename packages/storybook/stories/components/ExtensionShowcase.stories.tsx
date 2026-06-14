@@ -18,20 +18,17 @@ export default meta;
 type Story = StoryObj<typeof ExtensionShowcase>;
 
 export const Default: Story = {
-  args: {
-    title: 'Everything daily.dev does in your browser',
-    description:
-      'A quick tour of what the extension unlocks the moment you install it.',
-  },
-};
-
-export const WithoutHeader: Story = {
   args: {},
 };
 
 export const CustomCta: Story = {
   args: {
-    title: 'Make every tab count',
-    ctaLabel: 'Get it for Chrome',
+    ctaLabel: 'Add daily.dev to Chrome — free',
+  },
+};
+
+export const StartOnBrief: Story = {
+  args: {
+    defaultFeatureId: 'brief',
   },
 };

@@ -9,7 +9,8 @@ import {
 } from '../../typography/Typography';
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
-import { ChromeIcon } from '../../icons';
+import { ChromeIcon, SparkleIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { downloadBrowserExtension } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { ExtensionShowcaseMedia } from './ExtensionShowcaseMedia';
@@ -21,11 +22,7 @@ export interface ExtensionShowcaseProps {
   features?: ExtensionShowcaseFeature[];
   /** Feature selected on first render. Defaults to the first feature. */
   defaultFeatureId?: string;
-  /** Optional heading above the showcase. */
-  title?: string;
-  /** Optional sub-heading above the showcase. */
-  description?: string;
-  /** CTA button label. Pass an empty string to hide the CTA. */
+  /** Big primary CTA label. Pass an empty string to hide the CTA. */
   ctaLabel?: string;
   /** CTA destination. Defaults to the extension download link. */
   ctaHref?: string;
@@ -82,9 +79,7 @@ function ShowcaseNavItem({
 export function ExtensionShowcase({
   features = defaultExtensionShowcaseFeatures,
   defaultFeatureId,
-  title,
-  description,
-  ctaLabel = 'Add to browser',
+  ctaLabel = 'Get the daily.dev extension',
   ctaHref = downloadBrowserExtension,
   onCtaClick,
   onFeatureChange,
@@ -104,72 +99,69 @@ export function ExtensionShowcase({
   };
 
   return (
-    <section className={classNames('flex w-full flex-col gap-6', className)}>
-      {(title || description) && (
-        <header className="flex flex-col items-center gap-2 text-center">
-          {title && (
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.Title2}
-              bold
-            >
-              {title}
-            </Typography>
-          )}
-          {description && (
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Body}
-              color={TypographyColor.Secondary}
-              className="max-w-xl text-balance"
-            >
-              {description}
-            </Typography>
-          )}
-        </header>
+    <section
+      className={classNames(
+        'flex w-full flex-col items-center gap-6 rounded-24 bg-gradient-to-br from-accent-cabbage-subtlest to-accent-onion-subtlest px-4 py-8 laptop:gap-8 laptop:px-12 laptop:py-12',
+        className,
       )}
-
-      <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-8">
-        <nav
-          aria-label="Extension features"
-          className="hidden laptop:flex laptop:w-64 laptop:shrink-0 laptop:flex-col laptop:gap-1"
+    >
+      <header className="flex flex-col items-center gap-2 text-center">
+        <span className="flex items-center gap-1.5 text-brand-default">
+          <SparkleIcon size={IconSize.Small} />
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Brand}
+            bold
+            className="uppercase tracking-wider"
+          >
+            {activeFeature.label}
+          </Typography>
+        </span>
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.LargeTitle}
+          bold
+          className="max-w-2xl text-balance"
         >
-          {features.map((feature) => (
-            <ShowcaseNavItem
-              key={feature.id}
-              feature={feature}
-              isActive={feature.id === activeFeature.id}
-              vertical
-              onClick={() => selectFeature(feature.id)}
-            />
-          ))}
-        </nav>
+          {activeFeature.title}
+        </Typography>
+      </header>
 
-        <nav
-          aria-label="Extension features"
-          className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 laptop:hidden"
-        >
-          {features.map((feature) => (
-            <ShowcaseNavItem
-              key={feature.id}
-              feature={feature}
-              isActive={feature.id === activeFeature.id}
-              vertical={false}
-              onClick={() => selectFeature(feature.id)}
-            />
-          ))}
-        </nav>
+      <div className="w-full rounded-24 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 laptop:p-6">
+        <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-8">
+          <nav
+            aria-label="Extension features"
+            className="hidden laptop:flex laptop:w-64 laptop:shrink-0 laptop:flex-col laptop:gap-1"
+          >
+            {features.map((feature) => (
+              <ShowcaseNavItem
+                key={feature.id}
+                feature={feature}
+                isActive={feature.id === activeFeature.id}
+                vertical
+                onClick={() => selectFeature(feature.id)}
+              />
+            ))}
+          </nav>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <ExtensionShowcaseMedia media={activeFeature.media} />
-          <div className="flex flex-col gap-2">
-            <Typography
-              tag={TypographyTag.H3}
-              type={TypographyType.Title3}
-              bold
-            >
-              {activeFeature.title}
-            </Typography>
+          <nav
+            aria-label="Extension features"
+            className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 laptop:hidden"
+          >
+            {features.map((feature) => (
+              <ShowcaseNavItem
+                key={feature.id}
+                feature={feature}
+                isActive={feature.id === activeFeature.id}
+                vertical={false}
+                onClick={() => selectFeature(feature.id)}
+              />
+            ))}
+          </nav>
+
+          <div className="flex min-w-0 flex-1 flex-col gap-4">
+            <ExtensionShowcaseMedia media={activeFeature.media} />
             <Typography
               tag={TypographyTag.P}
               type={TypographyType.Body}
@@ -183,13 +175,13 @@ export function ExtensionShowcase({
 
       {ctaLabel && (
         <Button
-          className="self-center"
+          className="w-full max-w-lg"
           tag="a"
           href={ctaHref}
           target="_blank"
           rel={anchorDefaultRel}
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
+          size={ButtonSize.XLarge}
           icon={<ChromeIcon aria-hidden />}
           onClick={onCtaClick}
         >
