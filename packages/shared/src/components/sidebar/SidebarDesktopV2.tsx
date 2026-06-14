@@ -905,16 +905,16 @@ export const SidebarDesktopV2 = ({
               onMouseDown={onResizeHandleMouseDown}
               className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
             >
-              {/* A thin full-height divider that's always visible at the
-                  resize boundary, thickening + darkening on hover/drag as the
-                  resize indicator (editor-style). */}
+              {/* Short, vertically-centered grip indicator — always visible at
+                  the resize boundary (no full-height divider). Grows + darkens
+                  on hover/drag. */}
               <span
                 aria-hidden
                 className={classNames(
-                  'pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 transition-all duration-150',
+                  'pointer-events-none absolute left-1/2 top-1/2 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-150',
                   isResizing
-                    ? 'w-0.5 bg-border-subtlest-primary'
-                    : 'w-px bg-border-subtlest-tertiary group-hover/resize:w-0.5 group-hover/resize:bg-border-subtlest-primary',
+                    ? 'h-12 bg-text-quaternary'
+                    : 'h-9 bg-border-subtlest-primary group-hover/resize:h-12 group-hover/resize:bg-text-quaternary',
                 )}
               />
             </button>
