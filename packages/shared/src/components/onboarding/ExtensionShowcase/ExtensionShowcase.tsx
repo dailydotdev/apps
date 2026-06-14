@@ -82,8 +82,8 @@ function ShowcaseNavItem({
 export function ExtensionShowcase({
   features = defaultExtensionShowcaseFeatures,
   defaultFeatureId,
-  title = 'Everything daily.dev adds to your browser',
-  subtitle = 'A quick tour of what you unlock the moment you install it.',
+  title = 'Everything the extension unlocks',
+  subtitle,
   ctaLabel = 'Get the daily.dev extension',
   ctaHref = downloadBrowserExtension,
   onCtaClick,
@@ -108,7 +108,7 @@ export function ExtensionShowcase({
   return (
     <section
       className={classNames(
-        'flex w-full flex-col items-center gap-6 rounded-24 bg-gradient-to-b from-accent-cabbage-subtlest to-background-default px-4 py-8 laptop:gap-8 laptop:px-10 laptop:py-10',
+        'flex w-full flex-col items-center gap-6 rounded-24 bg-overlay-float-cabbage px-4 py-8 laptop:gap-8 laptop:px-10 laptop:py-10',
         className,
       )}
     >
