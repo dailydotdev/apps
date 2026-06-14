@@ -258,6 +258,14 @@ export const BootDataProvider = ({
     [updateBootData],
   );
 
+  const updateNotificationsCount = useCallback(
+    (unreadNotificationsCount: number) =>
+      updateBootData({
+        notifications: { unreadNotificationsCount },
+      }),
+    [updateBootData],
+  );
+
   const updateExperimentation = useCallback(
     (exp: BootCacheData['exp']) => {
       updateLocalBootData(cachedBootData, { exp });
@@ -383,6 +391,7 @@ export const BootDataProvider = ({
                   <NotificationsContextProvider
                     isNotificationsReady={isBootReady}
                     unreadCount={notifications?.unreadNotificationsCount}
+                    onUpdateUnreadCount={updateNotificationsCount}
                   >
                     {children}
                   </NotificationsContextProvider>

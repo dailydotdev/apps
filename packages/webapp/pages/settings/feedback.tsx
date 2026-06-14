@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { FeedbackCard } from '@dailydotdev/shared/src/components/feedback/FeedbackCard';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
@@ -86,7 +91,21 @@ const AccountFeedbackPage = (): ReactElement => {
   }
 
   return (
-    <AccountPageContainer title="Your Feedback">{content}</AccountPageContainer>
+    <AccountPageContainer
+      title="Your Feedback"
+      actions={
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<PlusIcon />}
+          onClick={openFeedbackModal}
+        >
+          Submit feedback
+        </Button>
+      }
+    >
+      {content}
+    </AccountPageContainer>
   );
 };
 

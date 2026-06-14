@@ -82,6 +82,10 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
+// Toggled per-test to exercise the redesigned post page (PostFocusCard); the
+// flag defaults off so the classic layout renders unless a test flips it on.
+let mockRedesignOn = false;
+
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: (args: {
@@ -90,6 +94,9 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'reader_modal') {
       return { value: false, isLoading: false };
     }
+    if (args?.feature?.id === 'post_redesign') {
+      return { value: mockRedesignOn, isLoading: false };
+    }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
 }));
@@ -97,6 +104,7 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+  mockRedesignOn = false;
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -1026,5 +1034,41 @@ describe('article', () => {
         event_name: 'article page view',
       }),
     );
+  });
+});
+
+describe('post redesign', () => {
+  const mockRouterQuery = (query: Record<string, string>) => {
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          isFallback: false,
+          pathname: '/posts',
+          isReady: true,
+          query,
+        } as unknown as NextRouter),
+    );
+  };
+
+  it('should render the focus card redesign when the flag is on', async () => {
+    mockRedesignOn = true;
+    renderPost();
+    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+    expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
+  });
+
+  it('should keep the classic layout when the flag is off', async () => {
+    mockRedesignOn = false;
+    renderPost();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
+
+  it('should keep the classic layout for author onboarding even when the flag is on', async () => {
+    mockRedesignOn = true;
+    mockRouterQuery({ author: 'true' });
+    renderPost();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
   });
 });

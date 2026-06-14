@@ -106,6 +106,7 @@ export const SidebarDesktop = ({
           {/* Discovery Section */}
           <DiscoverSection
             {...defaultRenderSectionProps}
+            onNavTabClick={onNavTabClick}
             title="Discover"
             isItemsButton={isNavButtons ?? false}
           />

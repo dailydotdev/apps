@@ -46,9 +46,13 @@ export function Section({
   const { sidebarRendered } = useSidebarRendered();
   const shouldAlwaysBeVisible = isAlwaysOpenOnMobile && !sidebarRendered;
   const currentFlagValue = flag ? flags?.[flag] : undefined;
-  const initialIsVisible = isNullOrUndefined(currentFlagValue)
-    ? true
-    : currentFlagValue;
+  // The collapse toggle only renders alongside a section `title`. Without a
+  // title (e.g. the V2 sidebar's category panels) there is no way to
+  // re-expand, so a persisted `false` flag set from a layout that did show the
+  // toggle would strand the section permanently closed. Titleless sections are
+  // always expanded.
+  const initialIsVisible =
+    !title || isNullOrUndefined(currentFlagValue) ? true : currentFlagValue;
   const isVisible = useRef(initialIsVisible);
 
   const toggleFlag = () => {

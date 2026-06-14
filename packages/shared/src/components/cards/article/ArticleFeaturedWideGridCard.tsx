@@ -8,7 +8,7 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { usePostFeedback } from '../../../hooks';
 import { isVideoPost, PostType } from '../../../graphql/posts';
-import type { PostHeroSignificance } from '../../../graphql/posts';
+import type { PostHeroSignificance } from '../../../graphql/types';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import {
   CardSpace,
@@ -30,6 +30,10 @@ import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
 import { PlayIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { stripHtmlTags } from '../../../lib/strings';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureHeroCards } from '../../../lib/featureManagement';
+import { SimpleTooltip } from '../../tooltips';
+import { isTesting } from '../../../lib/constants';
 
 export type FeaturedWideColSpan = 2 | 3 | 4;
 
@@ -45,14 +49,6 @@ const IMAGE_COL_SPAN: Record<FeaturedWideColSpan, string> = {
   4: 'col-span-3',
 };
 
-const CHIP_LABEL: Partial<Record<PostHeroSignificance, string>> = {
-  breaking: 'Breaking',
-  major: 'Major',
-  notable: 'Notable',
-  breakout: 'Breaking out',
-  evergreen: 'Evergreen',
-};
-
 const HighlightChip = ({
   significance,
   className,
@@ -60,10 +56,14 @@ const HighlightChip = ({
   significance: PostHeroSignificance | null | undefined;
   className?: string;
 }): ReactElement | null => {
-  if (!significance) {
+  const { value: heroCardsConfig } = useConditionalFeature({
+    feature: featureHeroCards,
+    shouldEvaluate: !!significance,
+  });
+  if (!significance || !heroCardsConfig.enabled) {
     return null;
   }
-  const label = CHIP_LABEL[significance];
+  const label = heroCardsConfig.chipLabels[significance];
   if (!label) {
     return null;
   }
@@ -82,6 +82,38 @@ const HighlightChip = ({
         {label}
       </span>
     </span>
+  );
+};
+
+const WhyFeaturedButton = ({
+  significance,
+}: {
+  significance: PostHeroSignificance | null | undefined;
+}): ReactElement | null => {
+  const { value: heroCardsConfig } = useConditionalFeature({
+    feature: featureHeroCards,
+    shouldEvaluate: !!significance,
+  });
+  if (!significance || !heroCardsConfig.enabled) {
+    return null;
+  }
+  const label = heroCardsConfig.chipLabels[significance];
+  if (!label) {
+    return null;
+  }
+  return (
+    <SimpleTooltip
+      forceLoad={!isTesting}
+      content={`This card is highlighted because we think it's '${label}'. You can disable hero cards in Settings → Appearance.`}
+    >
+      <button
+        type="button"
+        aria-label="Why is this card featured?"
+        className="absolute right-3 top-3 z-2 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/24 bg-overlay-secondary-pepper font-bold leading-none text-white backdrop-blur-md typo-callout hover:bg-overlay-primary-pepper"
+      >
+        ?
+      </button>
+    </SimpleTooltip>
   );
 };
 
@@ -280,6 +312,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                 IMAGE_COL_SPAN[wideColSpan],
               )}
             >
+              <WhyFeaturedButton significance={significance} />
               <Image
                 aria-hidden
                 alt=""
