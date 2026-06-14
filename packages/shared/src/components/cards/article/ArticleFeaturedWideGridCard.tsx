@@ -329,6 +329,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                   onCopyLinkClick={onCopyLinkClick}
                   onBookmarkClick={onBookmarkClick}
                   onDownvoteClick={onDownvoteClick}
+                  coverScrim
                 />
               )}
             </div>
