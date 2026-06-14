@@ -87,6 +87,16 @@ const segmentContentBaseClasses = classNames(
 const segmentContentExpandClasses =
   'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100';
 
+// Soft dark glow anchored at the cover's bottom-left, behind the pill, so the
+// glass bar stays readable over busy/noisy cover images instead of getting lost
+// in the detail. A fixed dark pepper tint (consistent in both themes, matching
+// the media-overlay guidance) that fades out quickly so it's localized to the
+// corner. Inline gradient (no Tailwind color class) keeps it a one-off scrim.
+const scrimGradient =
+  'radial-gradient(75% 90% at 0% 100%, rgba(14, 18, 23, 0.55) 0%, rgba(14, 18, 23, 0) 70%)';
+const scrimClasses =
+  'pointer-events-none absolute bottom-0 left-0 z-0 h-24 w-3/5 rounded-bl-16';
+
 interface SegmentProps {
   children: ReactNode;
   wrapperClassName: string;
@@ -112,7 +122,8 @@ export function FeedCardGlassActions({
   onDownvoteClick,
   showDownvoteAction = true,
   showAwardAction = true,
-}: ActionButtonsProps): ReactElement | null {
+  coverScrim = false,
+}: ActionButtonsProps & { coverScrim?: boolean }): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
   const isScrolling = useIsScrolling();
   const {
@@ -181,98 +192,109 @@ export function FeedCardGlassActions({
   );
 
   return (
-    <div className={outerClasses}>
-      <div className={pillClasses}>
-        <Tooltip
-          content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-          side="bottom"
-        >
-          <QuaternaryButton
-            labelClassName="!pl-[1px] pr-1.5"
-            className="btn-tertiary-avocado pointer-events-auto"
-            id={`post-${post.id}-upvote-btn`}
-            color={ButtonColor.Avocado}
-            pressed={isUpvoteActive}
-            onClick={onToggleUpvote}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={
-              <UpvoteButtonIcon
-                secondary={isUpvoteActive}
-                size={IconSize.XSmall}
-              />
-            }
+    <>
+      {coverScrim && (
+        <div
+          aria-hidden
+          className={scrimClasses}
+          style={{ background: scrimGradient }}
+        />
+      )}
+      <div className={outerClasses}>
+        <div className={pillClasses}>
+          <Tooltip
+            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+            side="bottom"
           >
-            {upvoteCount > 0 && (
-              <InteractionCounter
-                className="tabular-nums typo-footnote"
-                value={upvoteCount}
-              />
-            )}
-          </QuaternaryButton>
-        </Tooltip>
-        {commentCount > 0 ? (
-          commentButton
-        ) : (
-          <Segment {...segmentProps}>{commentButton}</Segment>
-        )}
-        {showDownvoteAction && (
-          <Segment {...segmentProps}>
-            <Tooltip
-              content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-              side="bottom"
+            <QuaternaryButton
+              labelClassName="!pl-[1px] pr-1.5"
+              className="btn-tertiary-avocado pointer-events-auto"
+              id={`post-${post.id}-upvote-btn`}
+              color={ButtonColor.Avocado}
+              pressed={isUpvoteActive}
+              onClick={onToggleUpvote}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={
+                <UpvoteButtonIcon
+                  secondary={isUpvoteActive}
+                  size={IconSize.XSmall}
+                />
+              }
             >
-              <QuaternaryButton
-                className="pointer-events-auto"
-                id={`post-${post.id}-downvote-btn`}
-                color={ButtonColor.Ketchup}
-                icon={
-                  <DownvoteIcon
-                    secondary={isDownvoteActive}
-                    size={IconSize.XSmall}
-                  />
+              {upvoteCount > 0 && (
+                <InteractionCounter
+                  className="tabular-nums typo-footnote"
+                  value={upvoteCount}
+                />
+              )}
+            </QuaternaryButton>
+          </Tooltip>
+          {commentCount > 0 ? (
+            commentButton
+          ) : (
+            <Segment {...segmentProps}>{commentButton}</Segment>
+          )}
+          {showDownvoteAction && (
+            <Segment {...segmentProps}>
+              <Tooltip
+                content={
+                  isDownvoteActive ? 'Remove downvote' : 'Less like this'
                 }
-                pressed={isDownvoteActive}
-                onClick={onToggleDownvote}
-                variant={ButtonVariant.Tertiary}
+                side="bottom"
+              >
+                <QuaternaryButton
+                  className="pointer-events-auto"
+                  id={`post-${post.id}-downvote-btn`}
+                  color={ButtonColor.Ketchup}
+                  icon={
+                    <DownvoteIcon
+                      secondary={isDownvoteActive}
+                      size={IconSize.XSmall}
+                    />
+                  }
+                  pressed={isDownvoteActive}
+                  onClick={onToggleDownvote}
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                />
+              </Tooltip>
+            </Segment>
+          )}
+          {showAwardAction && (
+            <Segment {...segmentProps}>
+              <PostAwardAction post={post} iconSize={IconSize.XSmall} />
+            </Segment>
+          )}
+          <Segment {...segmentProps}>
+            <BookmarkButton
+              tooltipSide="bottom"
+              post={post}
+              buttonProps={{
+                id: `post-${post.id}-bookmark-btn`,
+                onClick: onToggleBookmark,
+                size: ButtonSize.Small,
+                className: 'btn-tertiary-bun pointer-events-auto',
+              }}
+              iconSize={IconSize.XSmall}
+            />
+          </Segment>
+          <Segment {...segmentProps}>
+            <Tooltip content="Copy link" side="bottom">
+              <QuaternaryButton
+                id="copy-post-btn"
                 size={ButtonSize.Small}
+                icon={<LinkIcon size={IconSize.XSmall} />}
+                onClick={onCopyLink}
+                variant={ButtonVariant.Tertiary}
+                color={ButtonColor.Cabbage}
+                className="pointer-events-auto"
               />
             </Tooltip>
           </Segment>
-        )}
-        {showAwardAction && (
-          <Segment {...segmentProps}>
-            <PostAwardAction post={post} iconSize={IconSize.XSmall} />
-          </Segment>
-        )}
-        <Segment {...segmentProps}>
-          <BookmarkButton
-            tooltipSide="bottom"
-            post={post}
-            buttonProps={{
-              id: `post-${post.id}-bookmark-btn`,
-              onClick: onToggleBookmark,
-              size: ButtonSize.Small,
-              className: 'btn-tertiary-bun pointer-events-auto',
-            }}
-            iconSize={IconSize.XSmall}
-          />
-        </Segment>
-        <Segment {...segmentProps}>
-          <Tooltip content="Copy link" side="bottom">
-            <QuaternaryButton
-              id="copy-post-btn"
-              size={ButtonSize.Small}
-              icon={<LinkIcon size={IconSize.XSmall} />}
-              onClick={onCopyLink}
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Cabbage}
-              className="pointer-events-auto"
-            />
-          </Tooltip>
-        </Segment>
+        </div>
+        <div aria-hidden />
       </div>
-      <div aria-hidden />
-    </div>
+    </>
   );
 }

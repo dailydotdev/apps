@@ -139,7 +139,8 @@ export const ShareGrid = forwardRef(function ShareGrid(
         openNewTab={openNewTab ?? false}
         post={footerPost}
         className={{
-          image: useGlass ? `px-1 ${glassCoverImageClassName}` : 'px-1',
+          image: 'px-1',
+          cover: useGlass ? glassCoverImageClassName : undefined,
         }}
       />
     );
@@ -236,6 +237,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
             onCopyLinkClick={onCopyLinkClick}
             onBookmarkClick={onBookmarkClick}
             onDownvoteClick={onDownvoteClick}
+            coverScrim
           />
         ) : (
           <ActionButtons

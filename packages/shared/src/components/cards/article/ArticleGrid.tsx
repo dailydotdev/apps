@@ -162,11 +162,11 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             post={post}
             onShare={onShare}
             className={{
-              image: classNames(
-                'px-1',
-                showFeedback && 'mb-0',
-                glassActions && !showFeedback && glassCoverImageClassName,
-              ),
+              image: classNames('px-1', showFeedback && 'mb-0'),
+              cover:
+                glassActions && !showFeedback
+                  ? glassCoverImageClassName
+                  : undefined,
             }}
             eagerLoadImage={eagerLoadImage}
           />
@@ -180,6 +180,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
                 onCopyLinkClick={onCopyLinkClick}
                 onBookmarkClick={onBookmarkClick}
                 onDownvoteClick={onDownvoteClick}
+                coverScrim
               />
             ) : (
               <ActionButtons

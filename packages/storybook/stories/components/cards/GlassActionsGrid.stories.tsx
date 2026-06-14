@@ -107,6 +107,13 @@ const posts: Post[] = [
     upvoted: true,
     numUpvotes: 512,
   }),
+  make({
+    id: 'glass-video',
+    title: 'Watch: building a realtime collaborative editor from scratch',
+    type: PostType.VideoYouTube,
+    numUpvotes: 318,
+    numComments: 24,
+  }),
 ];
 
 // Mixed post types — shared-to-squad, collection and freeform float over their
