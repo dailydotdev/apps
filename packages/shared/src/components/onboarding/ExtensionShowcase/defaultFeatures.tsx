@@ -1,9 +1,10 @@
 import React from 'react';
 import {
-  HomeIcon,
-  TLDRIcon,
   EmbedIcon,
+  HomeIcon,
+  SitesIcon,
   ShortcutsIcon,
+  TLDRIcon,
   ReadingStreakIcon,
   PauseIcon,
 } from '../../icons';
@@ -26,10 +27,20 @@ const placeholderImage: ExtensionShowcaseFeature['media'] = {
   alt: 'daily.dev extension preview',
 };
 
-// Every item here answers "why the extension, not just the website?" — these
-// are browser-level powers the webapp can't replicate (owning the new tab,
-// injecting into other sites, reading browser top sites, pausing the new tab).
+// Every item answers "why the extension, not just the website?" — these are
+// browser-level powers the webapp can't replicate. Ordered by install pull:
+// lead with reading inside daily.dev, then the new-tab experience and the two
+// shortcut flavors (auto most-visited vs. custom pins), then the rest.
 export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
+  {
+    id: 'read-here',
+    label: 'Read it here',
+    icon: <EmbedIcon />,
+    title: 'Read any article right inside daily.dev',
+    description:
+      'No more graveyard of half-read tabs. Open links inside daily.dev in a clean reader with the discussion right beside them, and close the loop without ever leaving your feed.',
+    media: placeholderImage,
+  },
   {
     id: 'feed',
     label: 'New tab feed',
@@ -44,30 +55,30 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     },
   },
   {
-    id: 'companion',
-    label: 'Companion',
-    icon: <TLDRIcon />,
-    title: 'Bring daily.dev onto any site you visit',
+    id: 'most-visited',
+    label: 'Most visited',
+    icon: <SitesIcon />,
+    title: 'Your most-visited sites, right where you left them',
     description:
-      'Reading a doc, a blog, or a Hacker News thread? The companion sidebar rides along on the page itself — instant TLDR, what the community thinks in the comments, and related reads. This is the one thing only the extension can do.',
-    media: placeholderImage,
-  },
-  {
-    id: 'read-here',
-    label: 'Read it here',
-    icon: <EmbedIcon />,
-    title: 'Read articles without drowning in tabs',
-    description:
-      'Open any post right inside daily.dev instead of spawning yet another tab. Distraction-free reading with the discussion beside it — your browser stays clean.',
+      'daily.dev pulls the sites you open most straight from your browser, so the new tab still knows where you were headed. No setup, nothing to relearn.',
     media: placeholderImage,
   },
   {
     id: 'shortcuts',
     label: 'Shortcuts',
     icon: <ShortcutsIcon />,
-    title: 'Your most-visited sites, pinned to every tab',
+    title: 'Pin the apps and tools you live in',
     description:
-      'The extension pulls your top sites straight from the browser, so GitHub, your docs, and your dashboards stay one click away. Your muscle memory keeps working, even with daily.dev on the new tab.',
+      'Add your own shortcuts to GitHub, Jira, your docs — whatever you open all day — so your essentials sit one click from every new tab.',
+    media: placeholderImage,
+  },
+  {
+    id: 'companion',
+    label: 'Companion',
+    icon: <TLDRIcon />,
+    title: 'Bring daily.dev onto any site you visit',
+    description:
+      'Reading a doc, a blog, or a Hacker News thread? The companion sidebar rides along on the page itself — instant TLDR, what the community thinks in the comments, and related reads. This is the one thing only the extension can do.',
     media: placeholderImage,
   },
   {
