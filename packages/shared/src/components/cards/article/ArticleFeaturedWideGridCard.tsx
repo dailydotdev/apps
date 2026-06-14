@@ -120,10 +120,11 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
     const glassActions = useFeedCardGlassActions();
-    // Float the engagement bar over the cover column (and shrink the card to
-    // the glass height) only when there's an image to float over and we're not
-    // in the feedback state; image-less heroes keep the inline bar.
-    const useGlass = glassActions && !!image && !showFeedback;
+    // The hero floats the glass pill on the content (left) column where the
+    // action bar has always sat — not over the cover image — and shrinks to the
+    // glass height so it lines up with the other glass cards in a row. The
+    // feedback state keeps its own layout.
+    const useGlass = glassActions && !showFeedback;
     const significance = post.hero?.significance;
     const isTweetPost =
       post.type === PostType.SocialTwitter ||
@@ -211,7 +212,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             INNER_GRID_COLS[wideColSpan],
           )}
         >
-          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
             {showFeedback ? (
               <>
                 <h3 className="line-clamp-2 break-words px-6 pt-6 font-bold text-text-primary typo-title3">
@@ -265,7 +266,16 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     </p>
                   ) : null}
                 </CardTextContainer>
-                {!useGlass && (
+                {useGlass ? (
+                  <FeedCardGlassActions
+                    post={post}
+                    onUpvoteClick={onUpvoteClick}
+                    onCommentClick={onCommentClick}
+                    onCopyLinkClick={onCopyLinkClick}
+                    onBookmarkClick={onBookmarkClick}
+                    onDownvoteClick={onDownvoteClick}
+                  />
+                ) : (
                   <Container>
                     <CardSpace />
                     <ActionButtons
@@ -321,17 +331,6 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                 )}
                 {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
               />
-              {useGlass && (
-                <FeedCardGlassActions
-                  post={post}
-                  onUpvoteClick={onUpvoteClick}
-                  onCommentClick={onCommentClick}
-                  onCopyLinkClick={onCopyLinkClick}
-                  onBookmarkClick={onBookmarkClick}
-                  onDownvoteClick={onDownvoteClick}
-                  coverScrim
-                />
-              )}
             </div>
           ) : null}
         </div>

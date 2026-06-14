@@ -275,9 +275,10 @@ const GlassActionsGrid = () => (
         Hero / featured card in a row
       </h3>
       <p className="mb-6 max-w-2xl text-sm text-text-tertiary">
-        The wide hero card floats the bar over its cover column and shrinks to
-        the same glass height, so a row mixing a hero with regular cards lines
-        up at one (shorter) height instead of the hero forcing the row taller.
+        The wide hero card keeps its bar on the content (left) side — not over
+        the cover image — and shrinks to the same glass height, so a row mixing
+        a hero with regular cards lines up at one (shorter) height instead of
+        the hero forcing the row taller.
       </p>
       <div
         className="mx-auto grid grid-cols-3 gap-8"
