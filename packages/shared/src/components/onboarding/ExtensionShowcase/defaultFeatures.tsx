@@ -37,9 +37,9 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'brief',
     label: 'Daily brief',
     icon: <BriefIcon />,
-    title: 'Your morning brief, on your first tab of the day',
+    title: 'Your brief opens itself, the moment you start your day',
     description:
-      'Open your browser to a brief built just for you. An AI agent reads the dev world overnight — releases, discussions, hot takes — and compresses what actually matters into a two-minute read. You stop trying to keep up, because it already did.',
+      'No inbox to dig through, no app to open. The first new tab of your day greets you with a brief built just for you — an AI agent reads the dev world overnight (releases, discussions, hot takes) and compresses what actually matters into a two-minute read. You stop trying to keep up, because it already did.',
     media: placeholderImage,
   },
   {
