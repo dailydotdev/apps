@@ -28,29 +28,11 @@ const placeholderImage: ExtensionShowcaseFeature['media'] = {
   alt: 'daily.dev extension preview',
 };
 
-// Ordered by install pull. Lead with the daily brief (the morning ritual the
-// extension delivers on your first tab), then reading inside daily.dev, the
-// new-tab experience, the two shortcut flavors, and the rest. Every item leans
-// on something the extension does that the website alone can't.
+// Ordered by install pull. Lead with the new-tab feed (what the extension is),
+// then reading inside daily.dev, the daily brief, the two shortcut flavors, the
+// companion, and the rest. Every item leans on something the extension does
+// that the website alone can't.
 export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
-  {
-    id: 'brief',
-    label: 'Daily brief',
-    icon: <BriefIcon />,
-    title: 'Your brief opens itself, the moment you start your day',
-    description:
-      'No inbox to dig through, no app to open. The first new tab of your day greets you with a brief built just for you — an AI agent reads the dev world overnight (releases, discussions, hot takes) and compresses what actually matters into a two-minute read. You stop trying to keep up, because it already did.',
-    media: placeholderImage,
-  },
-  {
-    id: 'read-here',
-    label: 'Read it here',
-    icon: <EmbedIcon />,
-    title: 'Read any article right inside daily.dev',
-    description:
-      'No more graveyard of half-read tabs. Open links inside daily.dev in a clean reader with the discussion right beside them, and close the loop without ever leaving your feed.',
-    media: placeholderImage,
-  },
   {
     id: 'feed',
     label: 'New tab feed',
@@ -63,6 +45,24 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
       src: cloudinaryOnboardingActivationDemo,
       alt: 'daily.dev new tab feed in action',
     },
+  },
+  {
+    id: 'read-here',
+    label: 'Read it here',
+    icon: <EmbedIcon />,
+    title: 'Read any article right inside daily.dev',
+    description:
+      'No more graveyard of half-read tabs. Open links inside daily.dev in a clean reader with the discussion right beside them, and close the loop without ever leaving your feed.',
+    media: placeholderImage,
+  },
+  {
+    id: 'brief',
+    label: 'Daily brief',
+    icon: <BriefIcon />,
+    title: 'Your brief opens itself, the moment you start your day',
+    description:
+      'No inbox to dig through, no app to open. The first new tab of your day greets you with a brief built just for you — an AI agent reads the dev world overnight (releases, discussions, hot takes) and compresses what actually matters into a two-minute read. You stop trying to keep up, because it already did.',
+    media: placeholderImage,
   },
   {
     id: 'most-visited',
