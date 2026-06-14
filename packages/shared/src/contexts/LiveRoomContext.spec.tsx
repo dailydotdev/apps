@@ -225,6 +225,112 @@ describe('LiveRoomContext', () => {
     expect(connectionInstances).toHaveLength(0);
   });
 
+  it('does not fetch a join token or open a websocket for anonymous community-moderated viewers', async () => {
+    mockUseAuthContext.mockReturnValue({
+      user: undefined,
+      isAuthReady: true,
+    });
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        mode: 'community_moderated',
+        status: 'created',
+      },
+      isLoading: false,
+    });
+    writeStoredLiveRoomResumeSession({
+      roomId: 'room-1',
+      participantId: 'tracking-anon-1',
+      resumeToken: 'resume-token-1',
+      ttlMs: 30_000,
+      updatedAt: Date.now(),
+    });
+
+    render(
+      <LiveRoomProvider roomId="room-1">
+        <div>standup</div>
+      </LiveRoomProvider>,
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(readStoredLiveRoomResumeSession('room-1')).toBeNull();
+    });
+
+    expect(gqlClient.request).not.toHaveBeenCalled();
+    expect(connectionInstances).toHaveLength(0);
+  });
+
+  it('only allows publishing in community-moderated rooms after quorum is live', async () => {
+    render(
+      <LiveRoomProvider roomId="room-1">
+        <ContextProbe />
+      </LiveRoomProvider>,
+      { wrapper },
+    );
+
+    await waitFor(() => expect(connectionInstances).toHaveLength(1));
+
+    const connection = connectionInstances[0];
+    const handleSessionReady = connection.onSessionReady.mock.calls[0][0];
+    const handleSnapshot = connection.onSnapshot.mock.calls[0][0];
+    const handleRoomUpdated = connection.onRoomUpdated.mock.calls[0][0];
+    const pendingRoom = {
+      roomId: 'room-1',
+      mode: 'community_moderated',
+      status: 'created',
+      activityStatus: 'pending',
+      minParticipantsToGoLive: 3,
+      version: 1,
+      participants: {
+        'speaker-1': {
+          participantId: 'speaker-1',
+          role: 'speaker',
+          sessionIds: ['session-speaker-1'],
+          joinedAt: '2026-05-12T10:00:00.000Z',
+          updatedAt: '2026-05-12T10:00:00.000Z',
+        },
+      },
+      coHostParticipantIds: [],
+      chatPermissions: {},
+      sessions: {},
+      stage: {
+        speakerQueueParticipantIds: [],
+        activeSpeakerParticipantIds: ['speaker-1'],
+        raisedHandParticipantIds: [],
+      },
+      mediaPublications: {},
+      mediaRuntimeOwner: null,
+      createdAt: '2026-05-12T10:00:00.000Z',
+      updatedAt: '2026-05-12T10:00:00.000Z',
+    };
+
+    act(() => {
+      handleSessionReady({
+        roomId: 'room-1',
+        participantId: 'speaker-1',
+        role: 'speaker',
+        resumeToken: 'resume-token-1',
+        resumeSessionTtlMs: 30_000,
+      });
+      handleSnapshot({ room: pendingRoom });
+    });
+
+    await waitFor(() => expect(latestContext?.canPublish).toBe(false));
+
+    act(() => {
+      handleRoomUpdated({
+        room: {
+          ...pendingRoom,
+          activityStatus: 'live',
+          version: 2,
+        },
+      });
+    });
+
+    await waitFor(() => expect(latestContext?.canPublish).toBe(true));
+  });
+
   it('lowers a raised hand after successfully unmuting', async () => {
     render(
       <LiveRoomProvider roomId="room-1">

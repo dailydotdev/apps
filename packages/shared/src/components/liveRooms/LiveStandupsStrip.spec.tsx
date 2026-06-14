@@ -7,6 +7,8 @@ import { gqlClient } from '../../graphql/common';
 import type { ActiveLiveRoom } from '../../graphql/liveRooms';
 import {
   ACTIVE_LIVE_ROOMS_QUERY,
+  LiveRoomActivityStatus,
+  LiveRoomMode,
   LiveRoomStatus,
 } from '../../graphql/liveRooms';
 import { LogEvent } from '../../lib/log';
@@ -31,6 +33,7 @@ const createClient = (): QueryClient =>
 const room: ActiveLiveRoom = {
   id: 'room-1',
   topic: 'Weekly product standup',
+  mode: LiveRoomMode.Moderated,
   status: LiveRoomStatus.Live,
   participantCount: 12,
   host: {
@@ -89,6 +92,24 @@ it('fetches and renders active standups when boot has a live-room hint', async (
       expect.objectContaining({ limit: expect.any(Number) }),
     ),
   );
+});
+
+it('renders community-moderated standups that are activity-live while durable-created', () => {
+  const communityRoom: ActiveLiveRoom = {
+    ...room,
+    id: 'room-community',
+    mode: LiveRoomMode.CommunityModerated,
+    status: LiveRoomStatus.Created,
+    activityStatus: LiveRoomActivityStatus.Live,
+  };
+
+  render(
+    <TestBootProvider client={createClient()}>
+      <LiveStandupsStrip items={[communityRoom]} />
+    </TestBootProvider>,
+  );
+
+  expect(screen.getByText('Weekly product standup')).toBeInTheDocument();
 });
 
 it('logs impression once when the strip renders with live standups', async () => {

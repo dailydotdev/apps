@@ -196,6 +196,7 @@ interface LiveRoomChatPanelProps {
   isEnded: boolean;
   isLoggedIn: boolean;
   hasHostPrivileges: boolean;
+  canKickParticipants: boolean;
   onSendMessage: (body: string) => Promise<void>;
   onDeleteMessage: (messageId: string) => Promise<void>;
   onSendMessageReaction: (
@@ -237,6 +238,7 @@ export const LiveRoomChatPanel = ({
   isEnded,
   isLoggedIn,
   hasHostPrivileges,
+  canKickParticipants,
   onSendMessage,
   onDeleteMessage,
   onSendMessageReaction,
@@ -642,7 +644,7 @@ export const LiveRoomChatPanel = ({
                             <TrashIcon /> Delete message
                           </div>
                         </DropdownMenuItem>
-                        {canModerateParticipant ? (
+                        {canModerateParticipant && canKickParticipants ? (
                           <DropdownMenuItem
                             disabled={!!moderationBusy}
                             onClick={() =>

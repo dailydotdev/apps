@@ -12,13 +12,13 @@ import {
 import { ArrowIcon, MicrophoneIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { ActiveLiveRoom } from '../../graphql/liveRooms';
-import { LiveRoomStatus } from '../../graphql/liveRooms';
 import { BOOT_QUERY_KEY } from '../../contexts/common';
 import type { Boot } from '../../lib/boot';
 import { useActiveLiveRooms } from '../../hooks/liveRooms/useActiveLiveRooms';
 import { useLogContext } from '../../contexts/LogContext';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../lib/log';
+import { isLiveRoomEffectivelyLive } from '../../lib/liveRoom/status';
 import styles from './LiveStandupsStrip.module.css';
 
 const STRIP_SURFACE = 'home_strip';
@@ -94,10 +94,7 @@ export const LiveStandupsStrip = ({
     },
   );
   const liveItems = useMemo(
-    () =>
-      (items ?? activeRooms ?? []).filter(
-        (item) => item.status === LiveRoomStatus.Live,
-      ),
+    () => (items ?? activeRooms ?? []).filter(isLiveRoomEffectivelyLive),
     [activeRooms, items],
   );
 

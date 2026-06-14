@@ -10,6 +10,7 @@ import {
   ViewSize,
 } from '../../../hooks';
 import { LiveRoomStatus } from '../../../graphql/liveRooms';
+import { isLiveRoomEffectivelyLive } from '../../../lib/liveRoom/status';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
@@ -79,8 +80,7 @@ export const LiveRoomPostList = forwardRef(function LiveRoomPostList(
   const metadata = useMemo(() => {
     const authorName = post.author?.name ?? post.source?.name;
     const isActiveOrEnded =
-      room.status === LiveRoomStatus.Live ||
-      room.status === LiveRoomStatus.Ended;
+      isLiveRoomEffectivelyLive(room) || room.status === LiveRoomStatus.Ended;
     const bottomLabel = isActiveOrEnded ? (
       <LiveRoomPostStatusBadge room={room} />
     ) : (

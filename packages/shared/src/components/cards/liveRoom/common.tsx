@@ -7,6 +7,7 @@ import { LiveRoomStatus } from '../../../graphql/liveRooms';
 import { webappUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { formatLiveRoomScheduledStart } from '../../../lib/liveRoom/date';
+import { isLiveRoomEffectivelyLive } from '../../../lib/liveRoom/status';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { BellIcon, CalendarIcon, MicrophoneIcon, VIcon } from '../../icons';
 import { IconSize } from '../../Icon';
@@ -45,7 +46,7 @@ export const LiveRoomPostStatusBadge = ({
   className?: string;
   room: LiveRoomPost;
 }): ReactElement | null => {
-  if (room.status === LiveRoomStatus.Live) {
+  if (isLiveRoomEffectivelyLive(room)) {
     return (
       <span
         className={classNames(
@@ -105,7 +106,11 @@ export const LiveRoomPostScheduledStart = ({
   className?: string;
   room: LiveRoomPost;
 }): ReactElement | null => {
-  if (!room.scheduledStart) {
+  if (
+    !room.scheduledStart ||
+    isLiveRoomEffectivelyLive(room) ||
+    room.status === LiveRoomStatus.Ended
+  ) {
     return null;
   }
 

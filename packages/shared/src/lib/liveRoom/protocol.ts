@@ -7,7 +7,11 @@ import type {
 } from 'mediasoup-client/types';
 
 export type LiveRoomStatusValue = 'created' | 'live' | 'ended';
-export type LiveRoomModeValue = 'moderated' | 'free_for_all';
+export type LiveRoomModeValue =
+  | 'moderated'
+  | 'free_for_all'
+  | 'community_moderated';
+export type LiveRoomActivityStatusValue = 'pending' | 'live';
 export type LiveRoomParticipantRoleValue = 'host' | 'speaker' | 'audience';
 export type MediaKindValue = 'audio' | 'video';
 
@@ -38,6 +42,23 @@ export interface LiveRoomMediaPublicationRecord {
   updatedAt: string;
 }
 
+export interface LiveRoomCommunityKickVote {
+  targetParticipantId: string;
+  proposedByParticipantId: string;
+  eligibleParticipantIds: string[];
+  yesParticipantIds: string[];
+  noParticipantIds: string[];
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface LiveRoomKickedParticipantRecord {
+  participantId: string;
+  kickedAt: string;
+  expiresAt: string | null;
+  reason: 'direct' | 'community_vote';
+}
+
 export interface LiveRoomStageState {
   speakerQueueParticipantIds: string[];
   activeSpeakerParticipantIds: string[];
@@ -49,9 +70,16 @@ export interface LiveRoomState {
   roomId: string;
   mode: LiveRoomModeValue;
   status: LiveRoomStatusValue;
+  activityStatus?: LiveRoomActivityStatusValue;
+  minParticipantsToGoLive?: number | null;
   version: number;
   participants: Record<string, LiveRoomParticipantRecord>;
   coHostParticipantIds: string[];
+  kickedParticipantIds?: string[];
+  kickedParticipants?: Record<string, LiveRoomKickedParticipantRecord>;
+  communityKickVotes?: Record<string, LiveRoomCommunityKickVote>;
+  communityKickVoteActorCooldowns?: Record<string, string>;
+  communityKickVoteTargetCooldowns?: Record<string, string>;
   chatPermissions: Record<string, boolean>;
   sessions: Record<string, LiveRoomSessionRecord>;
   stage: LiveRoomStageState;
@@ -232,6 +260,12 @@ export type LiveRoomCommand =
   | { type: 'stage.speaker.promote'; targetParticipantId: string }
   | { type: 'stage.speaker.remove'; targetParticipantId: string }
   | { type: 'stage.kick'; targetParticipantId: string }
+  | { type: 'stage.kick.vote.start'; targetParticipantId: string }
+  | {
+      type: 'stage.kick.vote.cast';
+      targetParticipantId: string;
+      vote: 'yes' | 'no';
+    }
   | { type: 'media.capabilities.get' }
   | { type: 'media.transport.create'; direction: 'send' | 'recv' }
   | {

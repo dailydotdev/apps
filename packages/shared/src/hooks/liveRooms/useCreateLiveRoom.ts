@@ -10,6 +10,7 @@ import { gqlClient } from '../../graphql/common';
 export interface CreateLiveRoomInput {
   topic: string;
   mode?: LiveRoomMode;
+  minParticipantsToGoLive?: number;
   speakerLimit?: number;
   scheduledStart?: string;
   description?: string;
@@ -24,6 +25,7 @@ export const useCreateLiveRoom = () => {
           input: {
             topic: input.topic,
             mode: input.mode ?? LiveRoomMode.Moderated,
+            minParticipantsToGoLive: input.minParticipantsToGoLive,
             speakerLimit: input.speakerLimit,
             scheduledStart: input.scheduledStart,
             description: input.description,

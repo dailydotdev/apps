@@ -10,6 +10,30 @@ jest.mock('../Markdown', () => ({
   default: ({ content }: { content: string }) => <span>{content}</span>,
 }));
 
+jest.mock('../dropdown/DropdownMenu', () => ({
+  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) =>
+    children,
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuItem: ({
+    children,
+    disabled,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    disabled?: boolean;
+    onClick?: () => void;
+  }) => (
+    <button type="button" disabled={disabled} onClick={onClick}>
+      {children}
+    </button>
+  ),
+}));
+
 jest.mock('../ProfilePicture', () => ({
   ProfilePicture: () => <div>avatar</div>,
   ProfileImageSize: { Small: 'small' },
@@ -35,6 +59,10 @@ jest.mock('../profile/ProfileTooltip', () => ({
 
 jest.mock('../tooltips/Portal', () => ({
   RootPortal: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+jest.mock('../tooltip/Tooltip', () => ({
+  Tooltip: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 jest.mock('../drawers', () => ({
@@ -100,6 +128,7 @@ const defaultProps = {
   isEnded: false,
   isLoggedIn: true,
   hasHostPrivileges: false,
+  canKickParticipants: true,
   onSendMessage: jest.fn(),
   onDeleteMessage: jest.fn(),
   onSendMessageReaction: jest.fn(),
@@ -220,6 +249,26 @@ describe('LiveRoomChatPanel', () => {
       'data-profile-tooltip-user-name',
       participantProfile.name,
     );
+  });
+
+  it('hides direct kick while keeping other moderation actions available', () => {
+    render(
+      <LiveRoomChatPanel
+        {...defaultProps}
+        hasHostPrivileges
+        canKickParticipants={false}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Delete message/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Kick user/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Revoke chat access/i }),
+    ).toBeInTheDocument();
   });
 
   it('scrolls to the full height of a newly added long message', () => {
