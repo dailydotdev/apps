@@ -21,7 +21,7 @@ import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
-import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
 import { MainSection } from './sections/MainSection';
@@ -53,6 +53,7 @@ import {
   EyeIcon,
   FeedbackIcon,
   FlagIcon,
+  GiftIcon,
   HomeIcon,
   InviteIcon,
   JobIcon,
@@ -60,7 +61,6 @@ import {
   MegaphoneIcon,
   MenuIcon,
   MicrophoneIcon,
-  MoonIcon,
   MoveToIcon,
   NewPostIcon,
   PhoneIcon,
@@ -71,14 +71,12 @@ import {
   SettingsIcon,
   SidebarArrowLeft,
   SourceIcon,
-  SunIcon,
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { ThemeAutoIcon } from '../icons/ThemeAuto';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
-import { LogEvent, Origin, TargetId, TargetType } from '../../lib/log';
+import { Origin, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -110,6 +108,7 @@ import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
 import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
+import { ThemeSection } from '../ProfileMenu/sections/ThemeSection';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -254,51 +253,17 @@ const RailHoverCard = ({
   );
 };
 
-const themeIconMap: Record<
-  ThemeMode,
-  React.ComponentType<{
-    secondary?: boolean;
-    size?: IconSize;
-    'aria-hidden'?: boolean;
-  }>
-> = {
-  [ThemeMode.Dark]: MoonIcon,
-  [ThemeMode.Light]: SunIcon,
-  [ThemeMode.Auto]: ThemeAutoIcon,
-};
-
-const SidebarThemeButton = (): ReactElement => {
-  const { setTheme, themeMode } = useSettingsContext();
-  const { logEvent } = useLogContext();
-  const isDark = themeMode === ThemeMode.Dark;
-  const nextMode = isDark ? ThemeMode.Light : ThemeMode.Dark;
-  const ActiveIcon = themeIconMap[themeMode];
-
-  const onToggleTheme = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.ChangeSettings,
-      target_type: TargetType.Theme,
-      target_id: nextMode,
-    });
-    setTheme(nextMode);
-  }, [logEvent, nextMode, setTheme]);
-
-  return (
-    <Tooltip
-      side="right"
-      content={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-    >
-      <button
-        type="button"
-        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        className={railButtonClass}
-        onClick={onToggleTheme}
-      >
-        <ActiveIcon size={IconSize.Small} aria-hidden />
-      </button>
-    </Tooltip>
-  );
-};
+// Theme toggling now lives in the profile dropdown (ThemeSection, matching
+// production). The rail slot is reused for a quick "Invite friends" shortcut.
+const SidebarInviteButton = (): ReactElement => (
+  <Tooltip side="right" content="Invite friends">
+    <Link href={`${settingsUrl}/invite`} passHref>
+      <a aria-label="Invite friends" className={railButtonClass}>
+        <GiftIcon size={IconSize.Small} aria-hidden />
+      </a>
+    </Link>
+  </Tooltip>
+);
 
 const supportItems: ProfileSectionItemProps[] = [
   {
@@ -550,6 +515,10 @@ const SidebarProfileButton = ({
 
           <nav className="flex flex-col gap-2">
             <ProfileMenuSection items={withPreview(mainItems)} />
+
+            <HorizontalSeparator />
+
+            <ThemeSection className="px-1" />
 
             <HorizontalSeparator />
 
@@ -1431,7 +1400,7 @@ export const SidebarDesktopV2 = ({
               aria-label="Sidebar utilities"
               className="flex w-full flex-col items-center gap-1"
             >
-              <SidebarThemeButton />
+              <SidebarInviteButton />
               <SidebarSupportButton />
             </div>
             {isLoggedIn && (
