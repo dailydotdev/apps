@@ -1,12 +1,13 @@
 import React from 'react';
 import {
   HomeIcon,
+  EmbedIcon,
+  TLDRIcon,
   SearchIcon,
   BookmarkIcon,
-  TLDRIcon,
+  ShortcutsIcon,
   ReadingStreakIcon,
   SquadIcon,
-  ShortcutsIcon,
 } from '../../icons';
 import {
   cloudinaryOnboardingActivationDemo,
@@ -27,14 +28,16 @@ const placeholderImage: ExtensionShowcaseFeature['media'] = {
   alt: 'daily.dev extension preview',
 };
 
+// Ordered for conversion: lead with what the extension *is* (the new tab),
+// then the "aha" tab-saving and context features, then habit and community.
 export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'feed',
     label: 'New tab feed',
     icon: <HomeIcon />,
-    title: 'Your personalized feed in every new tab',
+    title: 'Every new tab becomes your dev briefing',
     description:
-      'Turn every new tab into a developer feed tuned to your stack. The moment you open your browser, the best content from across the dev world is already waiting for you.',
+      'Stop staring at a blank page. Every new tab opens to a feed tuned to your stack, so you stay in the loop on the best dev content throughout your work routine — without ever going looking for it.',
     media: {
       type: 'video',
       src: cloudinaryOnboardingActivationDemo,
@@ -42,12 +45,30 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     },
   },
   {
+    id: 'read-here',
+    label: 'Read it here',
+    icon: <EmbedIcon />,
+    title: 'Read articles without the tab chaos',
+    description:
+      'Open any post right inside daily.dev instead of spawning yet another tab. Read distraction-free with the discussion right beside it, and keep your browser clean.',
+    media: placeholderImage,
+  },
+  {
+    id: 'companion',
+    label: 'Companion',
+    icon: <TLDRIcon />,
+    title: 'Context on every article you read',
+    description:
+      'The daily.dev companion rides along on any site you visit. Get an instant TLDR, see what the community thinks in the comments, and surface more relevant articles — right on the page.',
+    media: placeholderImage,
+  },
+  {
     id: 'search',
     label: 'AI search',
     icon: <SearchIcon />,
-    title: 'Search the dev world, powered by AI',
+    title: 'Ask anything, get real dev answers',
     description:
-      'Ask anything and get answers pulled from real developer content instead of generic results. Your AI co-pilot lives one tab away.',
+      'Skip the SEO spam. daily.dev search only pulls from developer content the community has actually read and upvoted, so your answers come from sources you can trust.',
     media: placeholderImage,
   },
   {
@@ -56,25 +77,25 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     icon: <BookmarkIcon />,
     title: 'Save now, read when it clicks',
     description:
-      'Bookmark any post in a click and pick it back up later on any device. Never lose that article you meant to get to.',
+      'Bookmark anything in a click and pick it back up later on any device. Never lose that article you meant to get to.',
     media: placeholderImage,
   },
   {
-    id: 'companion',
-    label: 'Companion',
-    icon: <TLDRIcon />,
-    title: 'Read smarter with the companion',
+    id: 'shortcuts',
+    label: 'Shortcuts',
+    icon: <ShortcutsIcon />,
+    title: 'Keep your shortcuts on every new tab',
     description:
-      'The daily.dev companion rides along on any article, giving you an instant TLDR, the upvotes, and the discussion right on the page you are reading.',
+      'Pin the tools and sites you open all day — GitHub, your docs, your dashboards — so they stay one click away and you never lose them when daily.dev takes over the new tab.',
     media: placeholderImage,
   },
   {
     id: 'streak',
-    label: 'Reading streaks',
+    label: 'Reading streak',
     icon: <ReadingStreakIcon />,
-    title: 'Build a reading habit that sticks',
+    title: 'Keep your streak, keep your momentum',
     description:
-      'Keep your streak alive and stay sharp. A little every day adds up, and daily.dev keeps you coming back.',
+      'With daily.dev in every new tab, staying sharp becomes automatic. Show up, keep your streak alive, and always find something worth reading.',
     media: placeholderImage,
   },
   {
@@ -83,16 +104,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     icon: <SquadIcon />,
     title: 'Find your people in Squads',
     description:
-      'Join developer communities built around what you love. Share, learn, and grow alongside millions of developers.',
-    media: placeholderImage,
-  },
-  {
-    id: 'shortcuts',
-    label: 'Shortcuts',
-    icon: <ShortcutsIcon />,
-    title: 'Your shortcuts, one tab away',
-    description:
-      'Pin the tools and sites you open every day so they are always a click away from your new tab.',
+      'Join developer communities built around the tools and topics you love. Share what you are learning and grow alongside millions of developers.',
     media: placeholderImage,
   },
 ];
