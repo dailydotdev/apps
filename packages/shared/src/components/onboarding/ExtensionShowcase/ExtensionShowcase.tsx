@@ -136,7 +136,7 @@ export function ExtensionShowcase({
         </header>
       )}
 
-      <div className="w-full rounded-24 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 laptop:p-6">
+      <div className="flex w-full flex-col gap-6 rounded-24 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 laptop:p-6">
         <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-8">
           <nav
             aria-label="Extension features"
@@ -170,41 +170,28 @@ export function ExtensionShowcase({
 
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             <ExtensionShowcaseMedia media={activeFeature.media} />
-            <div className="flex flex-col gap-2">
-              <Typography
-                tag={TypographyTag.H3}
-                type={TypographyType.Title3}
-                bold
-              >
-                {activeFeature.title}
-              </Typography>
-              <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Body}
-                color={TypographyColor.Secondary}
-              >
-                {activeFeature.description}
-              </Typography>
-            </div>
+            <Typography tag={TypographyTag.P} type={TypographyType.Title3}>
+              {activeFeature.description}
+            </Typography>
           </div>
         </div>
-      </div>
 
-      {ctaText && (
-        <Button
-          className="w-full max-w-lg"
-          tag="a"
-          href={ctaHref}
-          target="_blank"
-          rel={anchorDefaultRel}
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.XLarge}
-          icon={<ChromeIcon aria-hidden />}
-          onClick={onCtaClick}
-        >
-          {ctaText}
-        </Button>
-      )}
+        {ctaText && (
+          <Button
+            className="w-full"
+            tag="a"
+            href={ctaHref}
+            target="_blank"
+            rel={anchorDefaultRel}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.XLarge}
+            icon={<ChromeIcon aria-hidden />}
+            onClick={onCtaClick}
+          >
+            {ctaText}
+          </Button>
+        )}
+      </div>
     </section>
   );
 }

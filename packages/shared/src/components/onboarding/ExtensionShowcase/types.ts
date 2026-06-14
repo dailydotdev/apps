@@ -21,9 +21,7 @@ export interface ExtensionShowcaseFeature {
   label: string;
   /** Icon rendered in the dock. Should accept `secondary` and `className`. */
   icon: ReactElement;
-  /** Detail panel heading. */
-  title: string;
-  /** Detail panel body copy. */
+  /** Single-sentence value message shown in the detail panel. */
   description: string;
   /** Optional CTA label shown while this feature is active. Falls back to the
    * component's `ctaLabel` when omitted. */

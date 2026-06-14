@@ -4,18 +4,22 @@ import { ExtensionShowcase } from './ExtensionShowcase';
 import { defaultExtensionShowcaseFeatures } from './defaultFeatures';
 import type { ExtensionShowcaseFeature } from './types';
 
+const soloFeature: ExtensionShowcaseFeature = {
+  id: 'solo',
+  label: 'Solo',
+  icon: <span />,
+  description: 'Solo description',
+};
+
 describe('ExtensionShowcase', () => {
-  it('shows the first feature detail by default', () => {
+  it('shows the first feature message by default', () => {
     render(<ExtensionShowcase />);
 
     const [first] = defaultExtensionShowcaseFeatures;
-    expect(
-      screen.getByRole('heading', { name: first.title }),
-    ).toBeInTheDocument();
     expect(screen.getByText(first.description)).toBeInTheDocument();
   });
 
-  it('keeps the heading static and swaps the detail panel on selection', () => {
+  it('keeps the heading static and swaps the message on selection', () => {
     const onFeatureChange = jest.fn();
     render(
       <ExtensionShowcase
@@ -32,9 +36,7 @@ describe('ExtensionShowcase', () => {
     expect(
       screen.getByRole('heading', { name: 'Static title' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: target.title }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(target.description)).toBeInTheDocument();
   });
 
   it('shows the active feature CTA and updates it when switching', () => {
@@ -54,14 +56,9 @@ describe('ExtensionShowcase', () => {
   });
 
   it('falls back to ctaLabel when the feature has no cta', () => {
-    const feature: ExtensionShowcaseFeature = {
-      id: 'solo',
-      label: 'Solo',
-      icon: <span />,
-      title: 'Solo title',
-      description: 'Solo description',
-    };
-    render(<ExtensionShowcase features={[feature]} ctaLabel="Fallback CTA" />);
+    render(
+      <ExtensionShowcase features={[soloFeature]} ctaLabel="Fallback CTA" />,
+    );
 
     expect(
       screen.getByRole('link', { name: 'Fallback CTA' }),
@@ -69,14 +66,7 @@ describe('ExtensionShowcase', () => {
   });
 
   it('hides the CTA when neither feature cta nor ctaLabel is set', () => {
-    const feature: ExtensionShowcaseFeature = {
-      id: 'solo',
-      label: 'Solo',
-      icon: <span />,
-      title: 'Solo title',
-      description: 'Solo description',
-    };
-    render(<ExtensionShowcase features={[feature]} ctaLabel="" />);
+    render(<ExtensionShowcase features={[soloFeature]} ctaLabel="" />);
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });

@@ -37,9 +37,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'feed',
     label: 'New tab feed',
     icon: <HomeIcon />,
-    title: 'Every new tab becomes your dev briefing',
     description:
-      'You open dozens of blank tabs a day. The extension turns each one into a feed tuned to your stack — so staying current happens in the gaps of your workday, with zero effort.',
+      'Every new tab becomes a feed tuned to your stack, so staying current happens in the gaps of your day — with zero effort.',
     cta: 'Get daily.dev on every new tab',
     media: {
       type: 'video',
@@ -51,9 +50,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'read-here',
     label: 'Read it here',
     icon: <EmbedIcon />,
-    title: 'Read any article right inside daily.dev',
     description:
-      'No more graveyard of half-read tabs. Open links inside daily.dev in a clean reader with the discussion right beside them, and close the loop without ever leaving your feed.',
+      'Open any article inside daily.dev in a clean reader with the discussion beside it — no more graveyard of half-read tabs.',
     cta: 'Get the in-app reader',
     media: placeholderImage,
   },
@@ -61,9 +59,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'brief',
     label: 'Daily brief',
     icon: <BriefIcon />,
-    title: 'Your brief opens itself, the moment you start your day',
     description:
-      'No inbox to dig through, no app to open. The first new tab of your day greets you with a brief built just for you — an AI agent reads the dev world overnight (releases, discussions, hot takes) and compresses what actually matters into a two-minute read. You stop trying to keep up, because it already did.',
+      'Your first tab of the day opens to an AI-built brief that compresses everything that matters into a two-minute read.',
     cta: 'Get your daily brief',
     media: placeholderImage,
   },
@@ -71,9 +68,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'most-visited',
     label: 'Most visited',
     icon: <SitesIcon />,
-    title: 'Your most-visited sites, right where you left them',
     description:
-      'daily.dev pulls the sites you open most straight from your browser, so the new tab still knows where you were headed. No setup, nothing to relearn.',
+      'Your most-visited sites come straight from your browser, so the new tab still knows where you were headed — no setup.',
     cta: 'Bring my top sites back',
     media: placeholderImage,
   },
@@ -81,9 +77,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'shortcuts',
     label: 'Shortcuts',
     icon: <ShortcutsIcon />,
-    title: 'Pin the apps and tools you live in',
     description:
-      'Add your own shortcuts to GitHub, Jira, your docs — or import your whole bookmarks bar in a click. Your essentials stay one click from every new tab, and nothing leaves your browser.',
+      'Pin the apps you live in — or import your bookmarks bar in a click — so your essentials stay one click from every tab.',
     cta: 'Get my shortcuts everywhere',
     media: placeholderImage,
   },
@@ -91,9 +86,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'companion',
     label: 'Companion',
     icon: <TLDRIcon />,
-    title: 'Bring daily.dev onto any site you visit',
     description:
-      'Reading a doc, a blog, or a Hacker News thread? The companion sidebar rides along on the page itself — instant TLDR, what the community thinks in the comments, and related reads. This is the one thing only the extension can do.',
+      'The companion rides along on any site you visit, adding an instant TLDR, what the community thinks, and related reads.',
     cta: 'Get the companion',
     media: placeholderImage,
   },
@@ -101,9 +95,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'streak',
     label: 'Reading streak',
     icon: <ReadingStreakIcon />,
-    title: 'A daily habit that builds itself',
     description:
-      'Because daily.dev greets you on every new tab, keeping your streak alive takes no willpower. Show up, read one thing, stay sharp — day after day.',
+      'daily.dev greets you on every new tab, so keeping your reading streak alive takes no willpower.',
     cta: 'Start my reading streak',
     media: placeholderImage,
   },
@@ -111,9 +104,8 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'focus',
     label: 'Focus mode',
     icon: <PauseIcon />,
-    title: 'Heads-down? Pause it in one click',
     description:
-      'Need to focus, or just want your blank tab back for a while? Pause the new tab for as long as you like and point it anywhere — full control, only because the extension owns the page.',
+      'Need to focus? Pause the new tab for as long as you like and point it anywhere — full control, in one click.',
     cta: 'Add daily.dev to my browser',
     media: placeholderImage,
   },
