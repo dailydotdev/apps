@@ -723,7 +723,7 @@ export const SidebarDesktopV2 = ({
               </button>
             </header>
           ) : (
-            <header className="flex flex-col gap-2 px-2 pb-2 pt-4">
+            <header className="px-2 pb-2 pt-4">
               <div className="flex items-center gap-0.5">
                 {isLoggedIn ? (
                   <SidebarProfileButton />
@@ -766,26 +766,6 @@ export const SidebarDesktopV2 = ({
                   </Tooltip>
                 )}
               </div>
-
-              <button
-                type="button"
-                aria-label="Search"
-                onClick={openSpotlight}
-                className="focus-outline flex h-8 w-full items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
-              >
-                <SearchIcon size={IconSize.Size16} aria-hidden />
-                <span className="flex-1 text-left typo-footnote">Search</span>
-                <span
-                  aria-hidden
-                  className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
-                >
-                  {shortcutKeys.map((key) => (
-                    <kbd key={key} className="font-sans">
-                      {key}
-                    </kbd>
-                  ))}
-                </span>
-              </button>
             </header>
           )}
 
@@ -806,6 +786,30 @@ export const SidebarDesktopV2 = ({
                 />
               ) : (
                 <>
+                  {/* Search scrolls with the list (not pinned in the header). */}
+                  <div className="px-2 pb-1">
+                    <button
+                      type="button"
+                      aria-label="Search"
+                      onClick={openSpotlight}
+                      className="focus-outline flex h-8 w-full items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+                    >
+                      <SearchIcon size={IconSize.Size16} aria-hidden />
+                      <span className="flex-1 text-left typo-footnote">
+                        Search
+                      </span>
+                      <span
+                        aria-hidden
+                        className="flex items-center gap-0.5 text-text-quaternary typo-caption2"
+                      >
+                        {shortcutKeys.map((key) => (
+                          <kbd key={key} className="font-sans">
+                            {key}
+                          </kbd>
+                        ))}
+                      </span>
+                    </button>
+                  </div>
                   <Section
                     {...defaultRenderSectionProps}
                     items={primaryItems}
