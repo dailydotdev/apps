@@ -915,15 +915,15 @@ export const SidebarDesktopV2 = ({
                     : 'bg-transparent group-hover/resize:bg-surface-hover',
                 )}
               />
-              {/* Always-visible grip: a rounded rectangle, light by default,
-                  turning blue on hover/drag. */}
+              {/* Always-visible grip: a rounded rectangle, thin + light by
+                  default, widening and turning blue on hover/drag. */}
               <span
                 aria-hidden
                 className={classNames(
-                  'pointer-events-none absolute left-1/2 top-1/2 h-9 w-1 -translate-x-1/2 -translate-y-1/2 rounded-4 transition-colors duration-150',
+                  'pointer-events-none absolute left-1/2 top-1/2 h-9 -translate-x-1/2 -translate-y-1/2 rounded-4 transition-all duration-150',
                   isResizing
-                    ? 'bg-accent-blueCheese-default'
-                    : 'bg-border-subtlest-secondary group-hover/resize:bg-accent-blueCheese-default',
+                    ? 'w-1 bg-accent-blueCheese-default'
+                    : 'w-0.5 bg-border-subtlest-secondary group-hover/resize:w-1 group-hover/resize:bg-accent-blueCheese-default',
                 )}
               />
             </button>
