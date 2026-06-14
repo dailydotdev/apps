@@ -44,6 +44,7 @@ import {
   useHomepageTopBannersVisibility,
 } from './marketing/banners/HomepageTopBanners';
 import { RouteProgressBar } from './RouteProgressBar';
+import { ReadingStreakHud } from './streak/ReadingStreakHud';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -363,6 +364,7 @@ function MainLayoutComponent({
               )}
             >
               <RouteProgressBar />
+              {isLaptop && <ReadingStreakHud />}
               {children}
             </div>
           </div>
