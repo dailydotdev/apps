@@ -1,13 +1,13 @@
 import React from 'react';
 import {
-  BriefIcon,
-  EmbedIcon,
-  HomeIcon,
+  NewTabIcon,
   SitesIcon,
-  ShortcutsIcon,
   TLDRIcon,
-  ReadingStreakIcon,
-  PauseIcon,
+  StarIcon,
+  ShortcutsIcon,
+  SidebarArrowLeft,
+  HotIcon,
+  MoonIcon,
 } from '../../icons';
 import {
   cloudinaryOnboardingActivationDemo,
@@ -36,7 +36,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'feed',
     label: 'New tab feed',
-    icon: <HomeIcon />,
+    icon: <NewTabIcon />,
     description:
       'Every new tab becomes a feed tuned to your stack, so staying current happens in the gaps of your day — with zero effort.',
     cta: 'Get daily.dev on every new tab',
@@ -49,7 +49,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'read-here',
     label: 'Read it here',
-    icon: <EmbedIcon />,
+    icon: <SitesIcon />,
     description:
       'Open any article inside daily.dev in a clean reader with the discussion beside it — no more graveyard of half-read tabs.',
     cta: 'Get the in-app reader',
@@ -58,7 +58,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'brief',
     label: 'Daily brief',
-    icon: <BriefIcon />,
+    icon: <TLDRIcon />,
     description:
       'Your first tab of the day opens to an AI-built brief that compresses everything that matters into a two-minute read.',
     cta: 'Get your daily brief',
@@ -67,7 +67,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'most-visited',
     label: 'Most visited',
-    icon: <SitesIcon />,
+    icon: <StarIcon />,
     description:
       'Your most-visited sites come straight from your browser, so the new tab still knows where you were headed — no setup.',
     cta: 'Bring my top sites back',
@@ -85,7 +85,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'companion',
     label: 'Companion',
-    icon: <TLDRIcon />,
+    icon: <SidebarArrowLeft />,
     description:
       'The companion rides along on any site you visit, adding an instant TLDR, what the community thinks, and related reads.',
     cta: 'Get the companion',
@@ -94,7 +94,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'streak',
     label: 'Reading streak',
-    icon: <ReadingStreakIcon />,
+    icon: <HotIcon />,
     description:
       'daily.dev greets you on every new tab, so keeping your reading streak alive takes no willpower.',
     cta: 'Start my reading streak',
@@ -103,7 +103,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'focus',
     label: 'Focus mode',
-    icon: <PauseIcon />,
+    icon: <MoonIcon />,
     description:
       'Need to focus? Pause the new tab for as long as you like and point it anywhere — full control, in one click.',
     cta: 'Add daily.dev to my browser',
