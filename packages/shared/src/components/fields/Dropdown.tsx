@@ -143,12 +143,14 @@ export function Dropdown({
       size={buttonSize}
       disabled={disabled}
       className={classNames(
-        // `!pl-4 !pr-2.5` overrides the Button's built-in Large padding (px-6)
-        // so the value lines up with the other fields' 16px text inset and the
-        // chevron sits tight to the right edge instead of floating 24px in.
-        'group flex w-full items-center !pl-4 !pr-2.5 font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
+        'group flex items-center font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
+        // Value dropdowns get `!pl-4 !pr-2.5` so the value lines up with other
+        // fields' 16px text inset and the chevron sits tight to the right edge.
+        // Icon-only dropdowns drop that and render as a square instead.
+        iconOnly
+          ? 'aspect-square justify-center !px-0'
+          : 'w-full !pl-4 !pr-2.5',
         className?.button,
-        iconOnly && 'items-center justify-center',
       )}
       onClick={fullScreen ? handleMenuTrigger : undefined}
       onKeyDown={handleKeyboard}

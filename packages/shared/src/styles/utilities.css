@@ -897,3 +897,10 @@
     background-position: 100% 50%, 50% 0%;
   }
 }
+
+/* While dragging the v2 sidebar's resize handle, suppress transitions on the
+   resizable panes (the sidebar and the main content) so both track the cursor
+   1:1 instead of easing behind it. */
+html.sidebar-resizing [data-resizable-pane] {
+  transition-duration: 0s !important;
+}

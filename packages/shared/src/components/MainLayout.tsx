@@ -299,19 +299,26 @@ function MainLayoutComponent({
         />
       )}
       <main
+        data-resizable-pane
         className={classNames(
           'flex flex-col',
           animateContentPadding &&
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
-            (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
+            // v2 is a single Linear-style panel: when collapsed it hides
+            // entirely (laptop:pl-0) and the content reclaims the full width;
+            // a floating toggle + left-edge hover zone reopen/peek it. Tablet
+            // still uses the icon SidebarTablet, so its rail width stays.
+            (isV2 ? 'tablet:pl-16 laptop:pl-0' : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2
-              ? 'laptop:!pl-[19rem]'
+              ? // Matches the resizable sidebar width (see SidebarDesktopV2);
+                // the var is updated live while dragging so content tracks it.
+                'laptop:!pl-[var(--sidebar-width,19rem)]'
               : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
         )}

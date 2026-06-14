@@ -5,4 +5,6 @@ export type SidebarSectionProps = {
   activePage: string;
   title?: string;
   onNavTabClick?: (page: string) => void;
+  // v2 single-panel sidebar: render compact (Linear-style) rows + headers.
+  compact?: boolean;
 };

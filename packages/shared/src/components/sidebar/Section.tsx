@@ -5,6 +5,7 @@ import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
 import { ArrowIcon, PlusIcon } from '../icons';
+import { IconSize } from '../Icon';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
@@ -12,7 +13,7 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import Link from '../utilities/Link';
 
 export interface SectionCommonProps
-  extends Pick<ItemInnerProps, 'shouldShowLabel'> {
+  extends Pick<ItemInnerProps, 'shouldShowLabel' | 'compact'> {
   sidebarExpanded: boolean;
   activePage: string;
   className?: string;
@@ -37,6 +38,7 @@ export function Section({
   isItemsButton,
   className,
   flag,
+  compact,
   isAlwaysOpenOnMobile,
   onAdd,
   addHref,
@@ -65,7 +67,7 @@ export function Section({
   };
 
   return (
-    <NavSection className={classNames('mt-1', className)}>
+    <NavSection className={classNames('group/section mt-1', className)}>
       {title && (
         <NavHeader className="relative hidden laptop:flex">
           {/* Divider shown when sidebar is collapsed */}
@@ -84,7 +86,10 @@ export function Section({
               // with the items below it (items have `mx-3`), so "Feeds v"
               // and the feed entries share the same x. Without this the
               // header was indented less than the items.
-              'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
+              'ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
+              // v2 compact: tighter, left-aligned header to match the smaller
+              // nav rows (mx-2) and Linear's denser list.
+              compact && '!ml-2 !min-h-6 !py-0.5',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
@@ -94,20 +99,33 @@ export function Section({
               aria-label={`Toggle ${title}`}
               aria-expanded={!!isVisible.current}
               aria-controls={flag ? `section-${flag}` : undefined}
-              className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
+              className="group/toggle flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
               <span
                 className={classNames(
-                  'text-text-quaternary typo-callout',
+                  'text-text-quaternary',
+                  compact ? 'typo-caption1' : 'typo-callout',
                   !sidebarExpanded && 'opacity-0',
                 )}
               >
                 {title}
               </span>
               <ArrowIcon
+                // Size via the `size` prop, not className — the Icon wrapper's
+                // own size class otherwise wins the Tailwind tie and the
+                // className is ignored.
+                size={compact ? IconSize.XXSmall : undefined}
                 className={classNames(
-                  'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
+                  'text-text-quaternary transition-[transform,opacity] duration-200',
                   isVisible.current ? 'rotate-180' : 'rotate-90',
+                  // v2 compact: hide the chevron until the section is hovered
+                  // (header or items) or the toggle is keyboard-focused, so the
+                  // list stays clean and it disappears on mouse-out — like
+                  // Linear. focus-within is avoided so a focused nav link in the
+                  // section doesn't keep it stuck visible.
+                  compact
+                    ? 'opacity-0 group-hover/section:opacity-100 group-focus-visible/toggle:opacity-100'
+                    : 'h-2.5 w-2.5',
                 )}
               />
             </button>
@@ -143,7 +161,7 @@ export function Section({
             : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        <div className="flex min-h-0 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-col gap-px overflow-hidden">
           {items.map((item) => (
             <SidebarItem
               key={`${item.title}-${item.path}`}
@@ -151,6 +169,7 @@ export function Section({
               activePage={activePage}
               isItemsButton={isItemsButton}
               shouldShowLabel={shouldShowLabel}
+              compact={compact}
             />
           ))}
         </div>

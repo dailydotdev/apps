@@ -40,6 +40,10 @@ export interface ItemInnerProps {
   item: SidebarMenuItem;
   shouldShowLabel: boolean;
   active?: boolean;
+  // v2 single-panel sidebar: smaller icon + 13px label (Linear-style compact
+  // rows). Set by the parent list, not derived here, so the primitive stays
+  // context-free.
+  compact?: boolean;
 }
 interface NavItemProps {
   color?: string;
@@ -122,16 +126,29 @@ export const ItemInner = ({
   item,
   shouldShowLabel,
   active,
+  compact,
 }: ItemInnerProps): ReactElement => {
   const isLabelHidden = !shouldShowLabel;
 
   return (
     <>
-      <ItemInnerIcon {...item} active={active} />
+      <ItemInnerIcon
+        {...item}
+        active={active}
+        iconClassName={
+          compact
+            ? // mr-1 widens the icon→text gap; `[&_img]` matches `[&_svg]` so
+              // image icons (e.g. squad avatars) size + center identically to
+              // the glyph icons instead of running into the label.
+              'relative mr-1 flex h-6 w-6 items-center justify-center [&_img]:!size-4 [&_svg]:!size-4'
+            : undefined
+        }
+      />
       <span
         className={classNames(
           'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
           isLabelHidden ? 'w-0 opacity-0' : 'opacity-100',
+          compact && 'typo-footnote',
           item.titleClassName,
         )}
         title={shouldShowLabel ? item.title : undefined}

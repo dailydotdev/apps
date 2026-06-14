@@ -32,6 +32,7 @@ export * from './Codeberg';
 export * from './CodePen';
 export * from './Coin';
 export * from './CommunityPicksIcon';
+export * from './Compose';
 export * from './Cookie';
 export * from './Copy';
 export * from './Core';

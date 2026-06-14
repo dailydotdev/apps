@@ -7,6 +7,7 @@ import {
   SquadDirectoryNavbar,
   SquadDirectoryNavbarItem,
 } from '../squads/layout/SquadDirectoryNavbar';
+import { SidebarExpandButton } from '../sidebar/SidebarExpandButton';
 import { getTagPageLink } from '../../lib/links';
 import { formatKeyword } from '../../lib/strings';
 import { webappUrl } from '../../lib/constants';
@@ -43,6 +44,7 @@ export function TagPageNavbar({
     <header
       className={classNames(pageHeaderClassName, 'gap-4 !py-0', className)}
     >
+      <SidebarExpandButton />
       <SquadDirectoryNavbar
         aria-label="Tags navigation"
         className="!mx-0 min-w-0 flex-1 !border-0 !px-0"
