@@ -110,76 +110,63 @@ export const ReadingStreakHud = (): ReactElement | null => {
   const count = streak.current ?? 0;
   const isAtRisk = dailyState === 'pending';
 
-  const label = (() => {
-    if (isAtRisk) {
-      return count > 0
-        ? `Read 1 post to keep your ${count}-day streak`
-        : 'Read 1 post to start a streak';
-    }
-    if (dailyState === 'freeze') {
-      return `${count} day streak · rest day`;
-    }
-    return `${count} day streak`;
-  })();
-
   return (
-    <div className="flex justify-center px-4 pb-2 pt-3">
+    <div className="flex px-4 py-2">
       <button
         ref={triggerRef}
         type="button"
         onClick={onToggle}
-        aria-label={`Reading streak: ${count} days. ${
-          isAtRisk ? 'At risk — read a post to keep it.' : ''
+        aria-label={`Reading streak: ${count} days.${
+          isAtRisk ? ' At risk — read a post to keep it.' : ''
         }`}
         aria-expanded={isPopoverOpen}
-        className={classNames(
-          'focus-outline flex items-center gap-2.5 rounded-12 border px-3 py-1.5 transition-colors',
-          isAtRisk
-            ? 'border-accent-bacon-default bg-accent-bacon-subtlest hover:bg-accent-bacon-subtler'
-            : 'border-border-subtlest-tertiary bg-surface-float hover:bg-surface-hover',
-        )}
+        // A single slim inline line, not a card: flame + count + a 7-segment
+        // "week track". Sits flush against the content edge so it costs one
+        // text line of height, no boxed strip.
+        className="focus-outline group flex items-center gap-1.5 rounded-8 px-1.5 py-0.5 transition-colors hover:bg-surface-hover"
       >
         <span
           className={classNames(
-            'flex size-6 shrink-0 items-center justify-center',
+            'flex size-4 shrink-0 items-center justify-center',
             isCelebrating && 'animate-pulse',
           )}
           aria-hidden
         >
           <ReadingStreakIcon
             secondary={hasReadToday}
-            size={IconSize.Medium}
+            size={IconSize.Size16}
             className="text-accent-bacon-default"
           />
         </span>
 
         <Typography
-          type={TypographyType.Footnote}
+          type={TypographyType.Caption1}
           bold
           className={classNames(
-            'whitespace-nowrap',
-            isAtRisk ? 'text-accent-bacon-default' : 'text-text-primary',
+            'tabular-nums',
+            isAtRisk ? 'text-accent-bacon-default' : 'text-text-secondary',
           )}
         >
-          {label}
+          {count}
         </Typography>
 
-        <span className="ml-1 flex items-center gap-1" aria-hidden>
+        <span className="flex items-center gap-0.5" aria-hidden>
           {weekDots.map((dot) => (
             <span
               key={dot.key}
               className={classNames(
-                'size-2 rounded-full border',
-                dot.didRead &&
-                  'border-accent-bacon-default bg-accent-bacon-default',
+                'h-1 w-2.5 rounded-full transition-colors',
+                dot.didRead && 'bg-accent-bacon-default',
                 !dot.didRead &&
                   dot.isToday &&
-                  'border-accent-bacon-default bg-transparent',
+                  (isAtRisk
+                    ? 'animate-pulse bg-accent-bacon-default'
+                    : 'bg-accent-bacon-subtler'),
                 !dot.didRead &&
                   !dot.isToday &&
                   (dot.isFreeze
-                    ? 'border-border-subtlest-tertiary bg-border-subtlest-tertiary'
-                    : 'border-border-subtlest-secondary bg-transparent'),
+                    ? 'bg-border-subtlest-tertiary'
+                    : 'bg-border-subtlest-secondary'),
               )}
             />
           ))}
