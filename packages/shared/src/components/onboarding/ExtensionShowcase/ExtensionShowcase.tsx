@@ -136,7 +136,7 @@ export function ExtensionShowcase({
         </header>
       )}
 
-      <div className="flex w-full flex-col gap-6 rounded-24 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 laptop:p-6">
+      <div className="w-full rounded-24 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 laptop:p-6">
         <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-8">
           <nav
             aria-label="Extension features"
@@ -173,24 +173,23 @@ export function ExtensionShowcase({
             <Typography tag={TypographyTag.P} type={TypographyType.Title3}>
               {activeFeature.description}
             </Typography>
+            {ctaText && (
+              <Button
+                className="w-full"
+                tag="a"
+                href={ctaHref}
+                target="_blank"
+                rel={anchorDefaultRel}
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.XLarge}
+                icon={<ChromeIcon aria-hidden />}
+                onClick={onCtaClick}
+              >
+                {ctaText}
+              </Button>
+            )}
           </div>
         </div>
-
-        {ctaText && (
-          <Button
-            className="w-full"
-            tag="a"
-            href={ctaHref}
-            target="_blank"
-            rel={anchorDefaultRel}
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.XLarge}
-            icon={<ChromeIcon aria-hidden />}
-            onClick={onCtaClick}
-          >
-            {ctaText}
-          </Button>
-        )}
       </div>
     </section>
   );
