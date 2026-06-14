@@ -4,6 +4,7 @@ import { fn } from 'storybook/test';
 import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
+import { ArticleFeaturedWideGridCard } from '@dailydotdev/shared/src/components/cards/article/ArticleFeaturedWideGridCard';
 import { ShareGrid } from '@dailydotdev/shared/src/components/cards/share/ShareGrid';
 import { CollectionGrid } from '@dailydotdev/shared/src/components/cards/collection/CollectionGrid';
 import { FreeformGrid } from '@dailydotdev/shared/src/components/cards/Freeform/FreeformGrid';
@@ -175,6 +176,16 @@ const pollPost = make({
   numPollVotes: 105,
 });
 
+const heroPost = make({
+  id: 'glass-hero',
+  title: 'The breakthrough that is reshaping how teams ship software in 2024',
+  summary:
+    'A deep look at the tooling shift moving teams from manual release trains to fully automated, observable delivery pipelines.',
+  numUpvotes: 842,
+  numComments: 96,
+  hero: { significance: 'major' },
+});
+
 const actionHandlers = {
   onPostClick: fn(),
   onPostAuxClick: fn(),
@@ -251,6 +262,31 @@ const GlassActionsGrid = () => (
         <FreeformGrid post={freeformPost} {...actionHandlers} />
         <FreeformGrid post={freeformTextPost} {...actionHandlers} />
         <PollGrid post={pollPost} {...actionHandlers} />
+      </div>
+
+      <h3 className="mb-2 mt-12 text-xl font-bold text-text-primary">
+        Hero / featured card in a row
+      </h3>
+      <p className="mb-6 max-w-2xl text-sm text-text-tertiary">
+        The wide hero card floats the bar over its cover column and shrinks to
+        the same glass height, so a row mixing a hero with regular cards lines
+        up at one (shorter) height instead of the hero forcing the row taller.
+      </p>
+      <div
+        className="mx-auto grid grid-cols-3 gap-8"
+        style={{
+          ...gridContainerStyle,
+          maxWidth:
+            'calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1))',
+        }}
+      >
+        <ArticleFeaturedWideGridCard
+          post={heroPost}
+          wideColSpan={2}
+          domProps={{ className: 'col-span-2' }}
+          {...actionHandlers}
+        />
+        <ArticleGrid post={posts[0]} {...actionHandlers} />
       </div>
     </div>
   </ExtensionProviders>
