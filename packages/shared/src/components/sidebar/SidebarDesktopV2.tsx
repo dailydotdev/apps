@@ -905,16 +905,25 @@ export const SidebarDesktopV2 = ({
               onMouseDown={onResizeHandleMouseDown}
               className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
             >
-              {/* Short, vertically-centered grip indicator — always visible at
-                  the resize boundary (no full-height divider). Grows + darkens
-                  on hover/drag. */}
+              {/* Full-height strip that tints top-to-bottom on hover/drag. */}
               <span
                 aria-hidden
                 className={classNames(
-                  'pointer-events-none absolute left-1/2 top-1/2 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-150',
+                  'pointer-events-none absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 transition-colors duration-150',
                   isResizing
-                    ? 'h-12 bg-text-quaternary'
-                    : 'h-9 bg-border-subtlest-primary group-hover/resize:h-12 group-hover/resize:bg-text-quaternary',
+                    ? 'bg-surface-hover'
+                    : 'bg-transparent group-hover/resize:bg-surface-hover',
+                )}
+              />
+              {/* Always-visible grip: a rounded rectangle, light by default,
+                  turning blue on hover/drag. */}
+              <span
+                aria-hidden
+                className={classNames(
+                  'pointer-events-none absolute left-1/2 top-1/2 h-9 w-1 -translate-x-1/2 -translate-y-1/2 rounded-4 transition-colors duration-150',
+                  isResizing
+                    ? 'bg-accent-blueCheese-default'
+                    : 'bg-border-subtlest-secondary group-hover/resize:bg-accent-blueCheese-default',
                 )}
               />
             </button>
