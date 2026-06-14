@@ -694,8 +694,11 @@ export const SidebarDesktopV2 = ({
             'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
           featureTheme && 'laptop:!bg-transparent',
           // Hover-peek: float the panel above everything without shifting the
-          // content (MainLayout padding stays put while collapsed).
-          isHoverExpanded && 'laptop:!z-sidebarOverlay laptop:shadow-3',
+          // content (MainLayout padding stays put while collapsed). A soft
+          // right border + shadow separate the overlay from the content behind
+          // it — only in this peek state (pinned/collapsed keep no divider).
+          isHoverExpanded &&
+            'laptop:!z-sidebarOverlay laptop:!border-r laptop:border-border-subtlest-quaternary laptop:shadow-3',
           suppressTransition,
         )}
       >
