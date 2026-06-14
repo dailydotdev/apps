@@ -1533,7 +1533,10 @@ export const SidebarDesktopV2 = ({
               type="button"
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
-              icon={<MoveToIcon />}
+              // Smaller glyph, flipped to point left (it's a back action).
+              icon={
+                <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
+              }
               onClick={onBackToApp}
               className="-ml-1"
             >
