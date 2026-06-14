@@ -9,8 +9,7 @@ import {
 } from '../../typography/Typography';
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
-import { ChromeIcon, SparkleIcon } from '../../icons';
-import { IconSize } from '../../Icon';
+import { ChromeIcon } from '../../icons';
 import { downloadBrowserExtension } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { ExtensionShowcaseMedia } from './ExtensionShowcaseMedia';
@@ -22,7 +21,11 @@ export interface ExtensionShowcaseProps {
   features?: ExtensionShowcaseFeature[];
   /** Feature selected on first render. Defaults to the first feature. */
   defaultFeatureId?: string;
-  /** Big primary CTA label. Pass an empty string to hide the CTA. */
+  /** Static heading above the card. */
+  title?: string;
+  /** Static sub-heading above the card. */
+  subtitle?: string;
+  /** Fallback CTA label used when the active feature defines no `cta`. */
   ctaLabel?: string;
   /** CTA destination. Defaults to the extension download link. */
   ctaHref?: string;
@@ -79,6 +82,8 @@ function ShowcaseNavItem({
 export function ExtensionShowcase({
   features = defaultExtensionShowcaseFeatures,
   defaultFeatureId,
+  title = 'Everything daily.dev adds to your browser',
+  subtitle = 'A quick tour of what you unlock the moment you install it.',
   ctaLabel = 'Get the daily.dev extension',
   ctaHref = downloadBrowserExtension,
   onCtaClick,
@@ -98,35 +103,38 @@ export function ExtensionShowcase({
     onFeatureChange?.(featureId);
   };
 
+  const ctaText = activeFeature.cta ?? ctaLabel;
+
   return (
     <section
       className={classNames(
-        'flex w-full flex-col items-center gap-6 rounded-24 bg-gradient-to-br from-accent-cabbage-subtlest to-accent-onion-subtlest px-4 py-8 laptop:gap-8 laptop:px-12 laptop:py-12',
+        'flex w-full flex-col items-center gap-6 rounded-24 bg-gradient-to-b from-accent-cabbage-subtlest to-background-default px-4 py-8 laptop:gap-8 laptop:px-10 laptop:py-10',
         className,
       )}
     >
-      <header className="flex flex-col items-center gap-2 text-center">
-        <span className="flex items-center gap-1.5 text-brand-default">
-          <SparkleIcon size={IconSize.Small} />
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Brand}
-            bold
-            className="uppercase tracking-wider"
-          >
-            {activeFeature.label}
-          </Typography>
-        </span>
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          bold
-          className="max-w-2xl text-balance"
-        >
-          {activeFeature.title}
-        </Typography>
-      </header>
+      {(title || subtitle) && (
+        <header className="flex flex-col items-center gap-2 text-center">
+          {title && (
+            <Typography
+              tag={TypographyTag.H2}
+              type={TypographyType.Title1}
+              bold
+            >
+              {title}
+            </Typography>
+          )}
+          {subtitle && (
+            <Typography
+              tag={TypographyTag.P}
+              type={TypographyType.Body}
+              color={TypographyColor.Secondary}
+              className="max-w-xl text-balance"
+            >
+              {subtitle}
+            </Typography>
+          )}
+        </header>
+      )}
 
       <div className="w-full rounded-24 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 laptop:p-6">
         <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-8">
@@ -162,18 +170,27 @@ export function ExtensionShowcase({
 
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             <ExtensionShowcaseMedia media={activeFeature.media} />
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Body}
-              color={TypographyColor.Secondary}
-            >
-              {activeFeature.description}
-            </Typography>
+            <div className="flex flex-col gap-2">
+              <Typography
+                tag={TypographyTag.H3}
+                type={TypographyType.Title3}
+                bold
+              >
+                {activeFeature.title}
+              </Typography>
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+              >
+                {activeFeature.description}
+              </Typography>
+            </div>
           </div>
         </div>
       </div>
 
-      {ctaLabel && (
+      {ctaText && (
         <Button
           className="w-full max-w-lg"
           tag="a"
@@ -185,7 +202,7 @@ export function ExtensionShowcase({
           icon={<ChromeIcon aria-hidden />}
           onClick={onCtaClick}
         >
-          {ctaLabel}
+          {ctaText}
         </Button>
       )}
     </section>

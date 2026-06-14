@@ -25,6 +25,9 @@ export interface ExtensionShowcaseFeature {
   title: string;
   /** Detail panel body copy. */
   description: string;
+  /** Optional CTA label shown while this feature is active. Falls back to the
+   * component's `ctaLabel` when omitted. */
+  cta?: string;
   /** Right-side media. Video is autoplayed muted/looped; image supports retina. */
   media?: ExtensionShowcaseMedia;
 }
