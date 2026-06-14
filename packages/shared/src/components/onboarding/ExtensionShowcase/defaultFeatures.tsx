@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  BriefIcon,
   EmbedIcon,
   HomeIcon,
   SitesIcon,
@@ -27,11 +28,20 @@ const placeholderImage: ExtensionShowcaseFeature['media'] = {
   alt: 'daily.dev extension preview',
 };
 
-// Every item answers "why the extension, not just the website?" — these are
-// browser-level powers the webapp can't replicate. Ordered by install pull:
-// lead with reading inside daily.dev, then the new-tab experience and the two
-// shortcut flavors (auto most-visited vs. custom pins), then the rest.
+// Ordered by install pull. Lead with the daily brief (the morning ritual the
+// extension delivers on your first tab), then reading inside daily.dev, the
+// new-tab experience, the two shortcut flavors, and the rest. Every item leans
+// on something the extension does that the website alone can't.
 export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
+  {
+    id: 'brief',
+    label: 'Daily brief',
+    icon: <BriefIcon />,
+    title: 'Your morning brief, on your first tab of the day',
+    description:
+      'Open your browser to a brief built just for you. An AI agent reads the dev world overnight — releases, discussions, hot takes — and compresses what actually matters into a two-minute read. You stop trying to keep up, because it already did.',
+    media: placeholderImage,
+  },
   {
     id: 'read-here',
     label: 'Read it here',
@@ -69,7 +79,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     icon: <ShortcutsIcon />,
     title: 'Pin the apps and tools you live in',
     description:
-      'Add your own shortcuts to GitHub, Jira, your docs — whatever you open all day — so your essentials sit one click from every new tab.',
+      'Add your own shortcuts to GitHub, Jira, your docs — or import your whole bookmarks bar in a click. Your essentials stay one click from every new tab, and nothing leaves your browser.',
     media: placeholderImage,
   },
   {
