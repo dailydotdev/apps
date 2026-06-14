@@ -1,13 +1,11 @@
 import React from 'react';
 import {
   HomeIcon,
-  EmbedIcon,
   TLDRIcon,
-  SearchIcon,
-  BookmarkIcon,
+  EmbedIcon,
   ShortcutsIcon,
   ReadingStreakIcon,
-  SquadIcon,
+  PauseIcon,
 } from '../../icons';
 import {
   cloudinaryOnboardingActivationDemo,
@@ -28,8 +26,9 @@ const placeholderImage: ExtensionShowcaseFeature['media'] = {
   alt: 'daily.dev extension preview',
 };
 
-// Ordered for conversion: lead with what the extension *is* (the new tab),
-// then the "aha" tab-saving and context features, then habit and community.
+// Every item here answers "why the extension, not just the website?" — these
+// are browser-level powers the webapp can't replicate (owning the new tab,
+// injecting into other sites, reading browser top sites, pausing the new tab).
 export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'feed',
@@ -37,7 +36,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     icon: <HomeIcon />,
     title: 'Every new tab becomes your dev briefing',
     description:
-      'Stop staring at a blank page. Every new tab opens to a feed tuned to your stack, so you stay in the loop on the best dev content throughout your work routine — without ever going looking for it.',
+      'You open dozens of blank tabs a day. The extension turns each one into a feed tuned to your stack — so staying current happens in the gaps of your workday, with zero effort.',
     media: {
       type: 'video',
       src: cloudinaryOnboardingActivationDemo,
@@ -45,66 +44,48 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     },
   },
   {
-    id: 'read-here',
-    label: 'Read it here',
-    icon: <EmbedIcon />,
-    title: 'Read articles without the tab chaos',
-    description:
-      'Open any post right inside daily.dev instead of spawning yet another tab. Read distraction-free with the discussion right beside it, and keep your browser clean.',
-    media: placeholderImage,
-  },
-  {
     id: 'companion',
     label: 'Companion',
     icon: <TLDRIcon />,
-    title: 'Context on every article you read',
+    title: 'Bring daily.dev onto any site you visit',
     description:
-      'The daily.dev companion rides along on any site you visit. Get an instant TLDR, see what the community thinks in the comments, and surface more relevant articles — right on the page.',
+      'Reading a doc, a blog, or a Hacker News thread? The companion sidebar rides along on the page itself — instant TLDR, what the community thinks in the comments, and related reads. This is the one thing only the extension can do.',
     media: placeholderImage,
   },
   {
-    id: 'search',
-    label: 'AI search',
-    icon: <SearchIcon />,
-    title: 'Ask anything, get real dev answers',
+    id: 'read-here',
+    label: 'Read it here',
+    icon: <EmbedIcon />,
+    title: 'Read articles without drowning in tabs',
     description:
-      'Skip the SEO spam. daily.dev search only pulls from developer content the community has actually read and upvoted, so your answers come from sources you can trust.',
-    media: placeholderImage,
-  },
-  {
-    id: 'bookmarks',
-    label: 'Bookmarks',
-    icon: <BookmarkIcon />,
-    title: 'Save now, read when it clicks',
-    description:
-      'Bookmark anything in a click and pick it back up later on any device. Never lose that article you meant to get to.',
+      'Open any post right inside daily.dev instead of spawning yet another tab. Distraction-free reading with the discussion beside it — your browser stays clean.',
     media: placeholderImage,
   },
   {
     id: 'shortcuts',
     label: 'Shortcuts',
     icon: <ShortcutsIcon />,
-    title: 'Keep your shortcuts on every new tab',
+    title: 'Your most-visited sites, pinned to every tab',
     description:
-      'Pin the tools and sites you open all day — GitHub, your docs, your dashboards — so they stay one click away and you never lose them when daily.dev takes over the new tab.',
+      'The extension pulls your top sites straight from the browser, so GitHub, your docs, and your dashboards stay one click away. Your muscle memory keeps working, even with daily.dev on the new tab.',
     media: placeholderImage,
   },
   {
     id: 'streak',
     label: 'Reading streak',
     icon: <ReadingStreakIcon />,
-    title: 'Keep your streak, keep your momentum',
+    title: 'A daily habit that builds itself',
     description:
-      'With daily.dev in every new tab, staying sharp becomes automatic. Show up, keep your streak alive, and always find something worth reading.',
+      'Because daily.dev greets you on every new tab, keeping your streak alive takes no willpower. Show up, read one thing, stay sharp — day after day.',
     media: placeholderImage,
   },
   {
-    id: 'squads',
-    label: 'Squads',
-    icon: <SquadIcon />,
-    title: 'Find your people in Squads',
+    id: 'focus',
+    label: 'Focus mode',
+    icon: <PauseIcon />,
+    title: 'Heads-down? Pause it in one click',
     description:
-      'Join developer communities built around the tools and topics you love. Share what you are learning and grow alongside millions of developers.',
+      'Need to focus, or just want your blank tab back for a while? Pause the new tab for as long as you like and point it anywhere — full control, only because the extension owns the page.',
     media: placeholderImage,
   },
 ];
