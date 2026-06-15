@@ -5,6 +5,7 @@ import { HotIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Typography, TypographyType } from '../typography/Typography';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import {
   countClassByState,
@@ -17,10 +18,25 @@ import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 // leftover from the old top-header layout) so the chip tooltip sits snug.
 const TOOLTIP_COLLISION_PADDING = 4;
 
+// The exact v2 rail/page tint (the same color-mix the rail and MainLayout use)
+// so the chip masks the bottom border seamlessly against the sidebar.
+const railTintBg =
+  'bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]';
+// Shared chip position/shape — used by both the real chip and the loading
+// skeleton so they occupy the identical spot (no layout shift on load).
+const chipBaseClass = classNames(
+  'absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 px-1.5 py-0.5',
+  railTintBg,
+);
+
 export interface StreakRingProps {
   state: StreakRingState;
   count: number;
   hasReadToday: boolean;
+  // While the streak data is still being fetched, render a same-size skeleton
+  // (neutral border + placeholder flame/number) so the component never shifts
+  // in once the real values arrive.
+  isLoading?: boolean;
   // The avatar (a 40px square — a button in the rail, an image in Storybook).
   // StreakRing positions it inside the top ring.
   avatar: ReactNode;
@@ -35,18 +51,17 @@ export interface StreakRingProps {
 
 // Presentational streak indicator ("border legend" layout): a bordered box
 // wraps the avatar, and the flame + count sit on the bottom border and break
-// through it — the chip's background is the exact v2 rail/page tint
-// (surface-secondary 3% over background-default, the same color-mix the rail
-// and MainLayout use) so it masks the line seamlessly, and a long number just
-// opens a wider gap.
-// All state visuals (border dashes/colour, fill, number colour, animations)
-// come from useStreakRingState's exported maps, so the live rail and Storybook
-// render identically. This component owns only the layout; it takes `state` as
-// a prop and never calls the hook, so it stays provider-light.
+// through it. The chip's background is the v2 rail tint so it masks the line
+// seamlessly, and a long number just opens a wider gap. All state visuals
+// (border dashes/colour, fill, number colour, animations) come from
+// useStreakRingState's exported maps, so the live rail and Storybook render
+// identically. This component owns only the layout; it takes `state` as a prop
+// and never calls the hook, so it stays provider-light.
 export const StreakRing = ({
   state,
   count,
   hasReadToday,
+  isLoading,
   avatar,
   chipRef,
   chipAriaLabel,
@@ -55,14 +70,29 @@ export const StreakRing = ({
   chipTooltip,
   chipTooltipOpen,
 }: StreakRingProps): ReactElement => {
-  const chip = (
+  // Loading: a neutral calm border + transparent fill keep the box stable while
+  // the data resolves.
+  const frameClassName = isLoading
+    ? 'border-border-subtlest-tertiary'
+    : frameClassByState[state];
+  const fillClassName = isLoading ? 'bg-transparent' : fillClassByState[state];
+
+  const chip = isLoading ? (
+    <div className={chipBaseClass} aria-hidden>
+      <ElementPlaceholder className="size-4 rounded-full" />
+      <ElementPlaceholder className="h-3 w-4 rounded-4" />
+    </div>
+  ) : (
     <button
       ref={chipRef}
       type="button"
       aria-label={chipAriaLabel}
       aria-expanded={chipAriaExpanded}
       onClick={onChipClick}
-      className="focus-outline absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))] px-1.5 py-0.5 transition-transform hover:scale-110"
+      className={classNames(
+        'focus-outline transition-transform hover:scale-110',
+        chipBaseClass,
+      )}
     >
       <HotIcon
         secondary={hasReadToday || state === 'freeze'}
@@ -97,18 +127,18 @@ export const StreakRing = ({
         <span
           className={classNames(
             'absolute inset-0 rounded-[16px] border transition-colors',
-            frameClassByState[state],
+            frameClassName,
           )}
         />
         <span
           className={classNames(
             'absolute inset-[3px] rounded-[13px] transition-colors',
-            fillClassByState[state],
+            fillClassName,
           )}
         />
       </div>
       <div className="absolute left-[7px] top-[7px] z-1 size-10">{avatar}</div>
-      {chipTooltip ? (
+      {!isLoading && chipTooltip ? (
         <Tooltip
           side="right"
           content={chipTooltip}

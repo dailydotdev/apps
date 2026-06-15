@@ -90,6 +90,8 @@ export const countClassByState: Record<StreakRingState, string> = {
 
 export interface StreakRingInfo {
   isEnabled: boolean;
+  // Streak data still loading — render a same-size skeleton, no real state yet.
+  isLoading: boolean;
   streak?: UserStreak;
   state: StreakRingState;
   // Outer border that outlines the whole component (dashed/solid + colour).
@@ -135,7 +137,7 @@ const getCopy = (state: StreakRingState, count: number): string => {
 // callers (the rail avatar).
 export const useStreakRingState = (): StreakRingInfo => {
   const { user } = useAuthContext();
-  const { isEnabled, streak, count, hasReadToday, isAtRisk } =
+  const { isEnabled, isLoading, streak, count, hasReadToday, isAtRisk } =
     useReadingStreakSummary();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
 
@@ -150,11 +152,11 @@ export const useStreakRingState = (): StreakRingInfo => {
   const [isCelebrating, setIsCelebrating] = useState(false);
   const prevReadRef = useRef<boolean | null>(null);
   useEffect(() => {
-    // Wait for the streak data to load before tracking. Otherwise a page
-    // refresh — where `hasReadToday` settles from false (loading) to true
-    // (loaded) — would replay the pop even though the streak was earned
-    // earlier. The first loaded value just sets the baseline (prev === null).
-    if (!isEnabled) {
+    // Wait for the streak data to load before tracking. Otherwise the
+    // loading -> loaded settle of `hasReadToday` (false -> true) would replay
+    // the pop on every refresh even though the streak was earned earlier. Only
+    // once loaded does the first value set the baseline (prev === null).
+    if (!isEnabled || isLoading) {
       return undefined;
     }
     const prev = prevReadRef.current;
@@ -165,7 +167,7 @@ export const useStreakRingState = (): StreakRingInfo => {
       return () => clearTimeout(timeout);
     }
     return undefined;
-  }, [isEnabled, hasReadToday]);
+  }, [isEnabled, isLoading, hasReadToday]);
 
   const hour = parseInt(dateFormatInTimezone(new Date(), 'HH', timezone), 10);
   const hoursLeft = Number.isNaN(hour) ? 24 : 24 - hour;
@@ -216,6 +218,7 @@ export const useStreakRingState = (): StreakRingInfo => {
 
   return {
     isEnabled,
+    isLoading,
     streak,
     state,
     frameClassName: frameClassByState[state],

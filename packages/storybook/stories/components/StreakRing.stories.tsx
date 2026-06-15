@@ -44,6 +44,7 @@ const meta: Meta<typeof StreakRing> = {
     state: { control: 'select', options: STATES },
     count: { control: { type: 'number', min: 0 } },
     hasReadToday: { control: 'boolean' },
+    isLoading: { control: 'boolean' },
     avatar: { table: { disable: true } },
     chipRef: { table: { disable: true } },
     onChipClick: { table: { disable: true } },
@@ -71,6 +72,12 @@ type Story = StoryObj<typeof StreakRing>;
 
 // Tweak state / count / hasReadToday from the controls panel.
 export const Playground: Story = {};
+
+// Same size as every other state — a neutral border with placeholder flame +
+// number while the streak data is fetched, so the rail never shifts on load.
+export const Loading: Story = {
+  args: { isLoading: true },
+};
 
 // Every state side by side — change the count control to see how each handles a
 // long number (the flame + count break a wider gap in the bottom border).

@@ -392,6 +392,7 @@ const SidebarProfileButton = ({
   // avatar opens the profile menu; the tab opens the streak calendar.
   const {
     isEnabled: isStreakEnabled,
+    isLoading: isStreakLoading,
     streak,
     state: streakState,
     count: streakCount,
@@ -496,6 +497,7 @@ const SidebarProfileButton = ({
             state={streakState}
             count={streakCount}
             hasReadToday={hasReadToday}
+            isLoading={isStreakLoading}
             chipRef={streakChipRef}
             chipAriaLabel={`Reading streak: ${streakCount} days. ${streakCopy}`}
             chipAriaExpanded={isStreakOpen}
