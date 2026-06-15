@@ -9,26 +9,16 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { TerminalIcon, TwitterIcon } from '../icons';
 import { statusPage, twitter } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
-import { useThemedAsset } from '../../hooks/utils';
-import { cloudinaryGenericErrorDark } from '../../lib/image';
+import { cloudinaryCharmSomethingWentWrong } from '../../lib/image';
 
-const ThemedImage = () => {
-  const { gardrError } = useThemedAsset();
-  return <img src={gardrError} alt="Production is down (FML)" />;
-};
-
-function ServerError({
-  themedImage = false,
-}: {
-  themedImage?: boolean;
-}): ReactElement {
+function ServerError(): ReactElement {
   return (
     <div className="flex max-h-full w-full flex-col items-center justify-center gap-4 self-center text-center laptop:w-[21.25rem] laptop:max-w-[21.25rem]">
-      {themedImage ? (
-        <ThemedImage />
-      ) : (
-        <img src={cloudinaryGenericErrorDark} alt="Production is down (FML)" />
-      )}
+      <img
+        className="h-40 w-40 object-contain"
+        src={cloudinaryCharmSomethingWentWrong}
+        alt="Production is down (FML)"
+      />
       <Typography type={TypographyType.LargeTitle} bold>
         Production is down
         <br />

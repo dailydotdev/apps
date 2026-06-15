@@ -12,8 +12,6 @@ import {
   cloudinaryShortcutsIconsGithubDark,
   cloudinaryIntegrationsSlackHeaderLight,
   cloudinaryIntegrationsSlackHeaderDark,
-  cloudinaryGenericErrorLight,
-  cloudinaryGenericErrorDark,
   boostNewPostBanner,
   boostNewPostBannerLight,
   jobsWelcomeDarkMode,
@@ -32,7 +30,6 @@ interface UseAsset {
   themeColor: string;
   githubShortcut: string;
   slackIntegrationHeader: string;
-  gardrError: string;
   jobsWelcome: string;
   jobOfferDesktop: string;
   jobOfferMobile: string;
@@ -72,9 +69,6 @@ export const useThemedAsset = (): UseAsset => {
     slackIntegrationHeader: isLight
       ? cloudinaryIntegrationsSlackHeaderLight
       : cloudinaryIntegrationsSlackHeaderDark,
-    gardrError: isLight
-      ? cloudinaryGenericErrorLight
-      : cloudinaryGenericErrorDark,
     jobsWelcome: isLight ? jobsWelcomeLightMode : jobsWelcomeDarkMode,
     jobOfferDesktop: isLight ? jobOfferLightDesktop : jobOfferDarkDesktop,
     jobOfferMobile: isLight ? jobOfferLightMobile : jobOfferDarkMobile,

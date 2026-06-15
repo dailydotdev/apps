@@ -157,12 +157,6 @@ export const cloudinaryGenericNotFoundLight =
 export const cloudinaryGenericNotFoundDark =
   'https://media.daily.dev/image/upload/s--Rxdm7vdJ--/f_auto/v1708328512/404_z4xiwg';
 
-export const cloudinaryGenericErrorLight =
-  'https://media.daily.dev/image/upload/v1725365692/lightversion_dmnj1s.gif';
-
-export const cloudinaryGenericErrorDark =
-  'https://media.daily.dev/image/upload/v1725365692/darkversion_bfrze7.gif';
-
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';
 
@@ -473,3 +467,6 @@ export const cloudinaryCharmSearchNoResults =
 
 export const cloudinaryCharmReadLater =
   'https://media.daily.dev/image/upload/s--RGUXYEF---/f_auto,q_auto/v1781523670/public/daily.dev%20Charm%20-%20Read%20later';
+
+export const cloudinaryCharmSomethingWentWrong =
+  'https://media.daily.dev/image/upload/s--NThDL7xq--/f_auto,q_auto/v1781523966/public/daily.dev%20Charm%20-%20Something%20went%20wrong';
