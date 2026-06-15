@@ -377,7 +377,8 @@ export default {
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
         'streak-earn-border':
           'streak-earn-border 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
-        'streak-earn-fill': 'streak-earn-fill 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'streak-earn-fill':
+          'streak-earn-fill 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
