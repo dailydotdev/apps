@@ -56,7 +56,7 @@ const meta: Meta<typeof StreakRing> = {
   // background so it reads the way it does in the app.
   decorators: [
     (Story) => (
-      <div className="dark flex min-h-[220px] items-center justify-center bg-background-default p-10">
+      <div className="dark flex min-h-[220px] items-center justify-center bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))] p-10">
         <Story />
       </div>
     ),

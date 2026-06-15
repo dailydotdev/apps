@@ -35,8 +35,10 @@ export interface StreakRingProps {
 
 // Presentational streak indicator ("border legend" layout): a bordered box
 // wraps the avatar, and the flame + count sit on the bottom border and break
-// through it — the chip's `bg-background-default` matches the sidebar so it
-// masks the line where it crosses, and a long number just opens a wider gap.
+// through it — the chip's background is the exact v2 rail/page tint
+// (surface-secondary 3% over background-default, the same color-mix the rail
+// and MainLayout use) so it masks the line seamlessly, and a long number just
+// opens a wider gap.
 // All state visuals (border dashes/colour, fill, number colour, animations)
 // come from useStreakRingState's exported maps, so the live rail and Storybook
 // render identically. This component owns only the layout; it takes `state` as
@@ -60,7 +62,7 @@ export const StreakRing = ({
       aria-label={chipAriaLabel}
       aria-expanded={chipAriaExpanded}
       onClick={onChipClick}
-      className="focus-outline absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 bg-background-default px-1.5 py-0.5 transition-transform hover:scale-110"
+      className="focus-outline absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))] px-1.5 py-0.5 transition-transform hover:scale-110"
     >
       <HotIcon
         secondary={hasReadToday || state === 'freeze'}
