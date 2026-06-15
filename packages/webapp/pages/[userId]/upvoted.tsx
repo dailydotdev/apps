@@ -6,6 +6,7 @@ import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { USER_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
+import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import classNames from 'classnames';
@@ -50,12 +51,16 @@ const ProfileUpvotedPage = ({
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen
         className="items-center px-4 py-6 text-center tablet:px-6"
+        image={cloudinaryCharmEmptyProfile}
+        imageAlt="daily.dev charm with an empty profile"
         text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
         cta="Explore posts"
         buttonProps={{ tag: 'a', href: '/' }}
       />
     ) : (
       <ProfileEmptyScreen
+        image={cloudinaryCharmEmptyProfile}
+        imageAlt="daily.dev charm with an empty profile"
         title={`${user?.name ?? 'User'} hasn't upvoted yet`}
         text="Once they do, those posts will show up here."
       />

@@ -6,8 +6,6 @@ import {
   cloudinaryFeedFiltersYourFeedDark,
   cloudinaryFeedFiltersScrollLight,
   cloudinaryFeedFiltersScrollDark,
-  cloudinaryGenericNotFoundLight,
-  cloudinaryGenericNotFoundDark,
   cloudinaryShortcutsIconsGithubLight,
   cloudinaryShortcutsIconsGithubDark,
   cloudinaryIntegrationsSlackHeaderLight,
@@ -26,7 +24,6 @@ interface UseAsset {
   postBoostStrip: string;
   onboardingIntroduction: string;
   scrollBlock: string;
-  notFound: string;
   themeColor: string;
   githubShortcut: string;
   slackIntegrationHeader: string;
@@ -59,9 +56,6 @@ export const useThemedAsset = (): UseAsset => {
     scrollBlock: isLight
       ? cloudinaryFeedFiltersScrollLight
       : cloudinaryFeedFiltersScrollDark,
-    notFound: isLight
-      ? cloudinaryGenericNotFoundLight
-      : cloudinaryGenericNotFoundDark,
     themeColor: isLight ? colors.salt['0'] : colors.pepper['90'],
     githubShortcut: isLight
       ? cloudinaryShortcutsIconsGithubLight

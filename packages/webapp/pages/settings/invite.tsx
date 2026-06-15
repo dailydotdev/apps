@@ -7,6 +7,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { cloudinaryCharmInviteFriends } from '@dailydotdev/shared/src/lib/image';
 import {
   generateQueryKey,
   getNextPageParam,
@@ -111,6 +112,11 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
+      <img
+        className="mb-6 h-40 w-40 self-center object-contain"
+        src={cloudinaryCharmInviteFriends}
+        alt="daily.dev charm inviting your friends"
+      />
       {isPlusAvailable && (
         <div className="mb-6 flex flex-col gap-4">
           <div className="space-y-1">

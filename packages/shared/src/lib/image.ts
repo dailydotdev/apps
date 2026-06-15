@@ -92,12 +92,6 @@ export const cloudinarySquadsPromotionInvite =
 export const cloudinarySquadsPromotionPromote =
   'https://media.daily.dev/image/upload/s--iMFoS7Pd--/f_auto/v1686119165/Manage_roles_and_permissions_om64cu';
 
-export const cloudinarySquadsEmptySquad =
-  'https://media.daily.dev/image/upload/f_auto/public/empty-squad';
-
-export const cloudinarySquadsEmptySquadLight =
-  'https://media.daily.dev/image/upload/f_auto/public/empty_squad_light';
-
 export const cloudinaryReferralCampaignGenericSad =
   'https://media.daily.dev/image/upload/s--rMfJxJbl--/f_auto/v1697024846/ido_sad_xbe6p5';
 
@@ -150,12 +144,6 @@ export const cloudinaryOnboardingHeroDesk = {
   '2560':
     'https://media.daily.dev/image/upload/s--opbsGDUn--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk-2560',
 };
-
-export const cloudinaryGenericNotFoundLight =
-  'https://media.daily.dev/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu';
-
-export const cloudinaryGenericNotFoundDark =
-  'https://media.daily.dev/image/upload/s--Rxdm7vdJ--/f_auto/v1708328512/404_z4xiwg';
 
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';
@@ -457,16 +445,31 @@ export const opportunityBriefcaseDone =
 
 // Charm mascot illustrations for emotional product moments (empty states, milestones, etc.)
 export const cloudinaryCharmNoComments =
-  'https://media.daily.dev/image/upload/s--9T4IIRt7--/f_auto,q_auto/v1781520953/public/daily.dev%20Charm%20-%20no%20comment';
+  'https://media.daily.dev/image/upload/s--9T4IIRt7--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20comment';
 
 export const cloudinaryCharmBookmarks =
-  'https://media.daily.dev/image/upload/s--LnFPuTT7--/f_auto,q_auto/v1781523670/public/daily.dev%20Charm%20-%20bookmark';
+  'https://media.daily.dev/image/upload/s--LnFPuTT7--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20bookmark';
 
 export const cloudinaryCharmSearchNoResults =
-  'https://media.daily.dev/image/upload/s--HZdPG0L1--/f_auto,q_auto/v1781523670/public/daily.dev%20Charm%20-%20no%20seach%20result';
+  'https://media.daily.dev/image/upload/s--HZdPG0L1--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20seach%20result';
 
 export const cloudinaryCharmReadLater =
-  'https://media.daily.dev/image/upload/s--RGUXYEF---/f_auto,q_auto/v1781523670/public/daily.dev%20Charm%20-%20Read%20later';
+  'https://media.daily.dev/image/upload/s--RGUXYEF---/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Read%20later';
 
 export const cloudinaryCharmSomethingWentWrong =
-  'https://media.daily.dev/image/upload/s--NThDL7xq--/f_auto,q_auto/v1781523966/public/daily.dev%20Charm%20-%20Something%20went%20wrong';
+  'https://media.daily.dev/image/upload/s--NThDL7xq--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Something%20went%20wrong';
+
+export const cloudinaryCharm404 =
+  'https://media.daily.dev/image/upload/s--7RbaM_Ro--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20404';
+
+export const cloudinaryCharmEmptyProfile =
+  'https://media.daily.dev/image/upload/s--ulSOVWbq--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20empty%20profile';
+
+export const cloudinaryCharmEmptySquads =
+  'https://media.daily.dev/image/upload/s--J9OZk_3w--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20empty%20squads';
+
+export const cloudinaryCharmInviteFriends =
+  'https://media.daily.dev/image/upload/s--RaAyR83N--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Invite%20friends';
+
+export const cloudinaryCharmNoPosts =
+  'https://media.daily.dev/image/upload/s--JbsZvCUt--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20post';

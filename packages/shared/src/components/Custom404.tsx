@@ -3,15 +3,13 @@ import React from 'react';
 import Link from './utilities/Link';
 import { PageContainer } from './utilities';
 import { Button, ButtonVariant } from './buttons/Button';
-import { useThemedAsset } from '../hooks/utils';
+import { cloudinaryCharm404 } from '../lib/image';
 
 interface Custom404Props {
   children?: ReactNode;
 }
 
 export default function Custom404({ children }: Custom404Props): ReactElement {
-  const { notFound } = useThemedAsset();
-
   return (
     <PageContainer
       className="min-h-page !items-center justify-center"
@@ -19,7 +17,11 @@ export default function Custom404({ children }: Custom404Props): ReactElement {
     >
       {children}
       <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-6 text-center">
-        <img src={notFound} alt="404 - Page not found" />
+        <img
+          className="h-40 w-40 object-contain"
+          src={cloudinaryCharm404}
+          alt="404 - Page not found"
+        />
         <h1 className="font-bold typo-large-title">Why are you here?</h1>
         <p className="text-text-tertiary typo-callout">
           You’re not supposed to be here.

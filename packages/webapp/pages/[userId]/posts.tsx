@@ -7,6 +7,7 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
+import { cloudinaryCharmNoPosts } from '@dailydotdev/shared/src/lib/image';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import classNames from 'classnames';
@@ -50,12 +51,16 @@ const ProfilePostsPage = ({
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen
         className="items-center px-4 py-6 text-center tablet:px-6"
+        image={cloudinaryCharmNoPosts}
+        imageAlt="daily.dev charm waiting for your first post"
         text="Hardest part of being a developer? Where do we start – it’s everything. Go on, share with us your best rant."
         cta="New post"
         buttonProps={{ tag: 'a', href: link.post.create }}
       />
     ) : (
       <ProfileEmptyScreen
+        image={cloudinaryCharmNoPosts}
+        imageAlt="daily.dev charm waiting for the first post"
         title={`${user?.name ?? 'User'} hasn't posted yet`}
         text="Once they do, those posts will show up here."
       />

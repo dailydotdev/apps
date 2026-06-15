@@ -9,6 +9,7 @@ import {
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
+import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
 import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -48,12 +49,16 @@ const ProfileCommentsPage = ({
   const emptyScreen = isSameUser ? (
     <MyProfileEmptyScreen
       className="items-center px-4 py-6 text-center tablet:px-6"
+      image={cloudinaryCharmEmptyProfile}
+      imageAlt="daily.dev charm with an empty profile"
       text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
       cta="Explore posts"
       buttonProps={{ tag: 'a', href: '/' }}
     />
   ) : (
     <ProfileEmptyScreen
+      image={cloudinaryCharmEmptyProfile}
+      imageAlt="daily.dev charm with an empty profile"
       title={`${user?.name ?? 'User'} hasn't replied to any post yet`}
       text="Once they do, those replies will show up here."
     />
