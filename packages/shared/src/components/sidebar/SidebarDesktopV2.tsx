@@ -483,16 +483,18 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <div className="relative mb-2 flex justify-center">
+      <div className="relative mb-2.5 flex justify-center">
         {isStreakEnabled ? (
-          // A bordered box wraps the 40px avatar (top) and the flame + number
-          // (bottom), with a 7px padding ring around the avatar. Concentric
-          // radii: avatar 12 + 7 gap = frame 19, fill (3px in) = 16. The avatar
+          // "Border legend" layout: a bordered box holds the 40px avatar (7px
+          // ring; frame radius 16, fill 13), and the flame + number sit ON the
+          // bottom border and break through it like a fieldset legend — the
+          // chip's background matches the sidebar so it masks the line where it
+          // crosses, and a long number simply opens a wider gap. The avatar
           // (profile menu) and the streak chip (streak popover) are two distinct
-          // buttons, each with its own hover + tooltip. All state visuals
-          // (border dashes/colour, fill, number colour, animations) come from
-          // useStreakRingState and are unchanged — only the layout lives here.
-          <div className="relative h-[76px] w-[54px]">
+          // buttons, each with its own hover + tooltip. All state visuals (border
+          // dashes/colour, fill, number colour, animations) come from
+          // useStreakRingState — only the layout lives here.
+          <div className="relative h-[56px] w-[54px]">
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
                 component, and a separate inner background fill. Avatar + number
@@ -507,13 +509,13 @@ const SidebarProfileButton = ({
             >
               <span
                 className={classNames(
-                  'absolute inset-0 rounded-[19px] border',
+                  'absolute inset-0 rounded-[16px] border',
                   streakFrameClassName,
                 )}
               />
               <span
                 className={classNames(
-                  'absolute inset-[3px] rounded-[16px]',
+                  'absolute inset-[3px] rounded-[13px]',
                   streakFillClassName,
                 )}
               />
@@ -549,11 +551,11 @@ const SidebarProfileButton = ({
               open={autoOpenStreakTooltip || undefined}
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
-              {/* The button hugs the flame + number and is centred at the
-                  bottom, so the tooltip anchors to the visible chip and its
-                  arrow points right at it (a full-width button made the arrow
-                  point past the chip into empty rail space). The hover pill is
-                  the button itself. */}
+              {/* The chip straddles the box's bottom border and uses the
+                  sidebar background so it masks the line where it crosses — the
+                  number "breaks through" the border (fieldset-legend style). It
+                  hangs a touch below the box; a longer number just widens the
+                  gap it opens. Scales gently on hover for affordance. */}
               <button
                 ref={streakChipRef}
                 type="button"
@@ -563,7 +565,7 @@ const SidebarProfileButton = ({
                   event.stopPropagation();
                   setIsStreakOpen((open) => !open);
                 }}
-                className="focus-outline absolute bottom-[5px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 px-1.5 py-0.5 transition-colors hover:bg-surface-hover"
+                className="focus-outline absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 bg-background-default px-1.5 py-0.5 transition-transform hover:scale-110"
               >
                 <HotIcon
                   secondary={hasReadToday}
