@@ -26,18 +26,19 @@ const CRITICAL_TOOLTIP_MS = 5000;
 // Default states are just a slim coloured border with a transparent inside;
 // only at-risk/critical add a faint colour fill that opacity-pulses (more/less
 // visible) so danger reads as an ambient glow, not a solid block.
-// Outer border (frame). Most states wear the same slim solid gray as the
-// default border — only `new` (dashed) and `at_risk` (dashed amber) deviate.
-// Critical and rest day keep the calm gray border on purpose: their identity
-// comes from the fill + flame/number colour (red pulse / frozen blue), not the
-// border. The earn celebration briefly flashes the brand pink.
+// Outer border (frame). Calm states (pending/safe/rest) wear the same slim
+// solid gray as the default border. `new` and `at_risk` are dashed (gray /
+// static amber). Critical is dashed red that gently breathes (opacity pulse) in
+// sync with its fill — the escalation cue beyond at_risk's static amber. Rest
+// day keeps the calm gray border; its frozen identity is the fill + flame/
+// number colour. The earn celebration briefly flashes the brand pink.
 const frameClassByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-border-subtlest-tertiary',
   pending: 'border-border-subtlest-tertiary',
   safe: 'border-border-subtlest-tertiary',
   celebration: 'border-accent-bacon-default',
   at_risk: 'border-dashed border-status-warning',
-  critical: 'border-border-subtlest-tertiary',
+  critical: 'animate-streak-border-pulse border-dashed border-status-error',
   freeze: 'border-border-subtlest-tertiary',
 };
 
@@ -52,7 +53,7 @@ const fillClassByState: Record<StreakRingState, string> = {
   safe: 'bg-transparent',
   celebration: 'bg-accent-bacon-default',
   at_risk: 'animate-streak-fade bg-status-warning opacity-20',
-  critical: 'animate-streak-pulse-fast bg-status-error opacity-40',
+  critical: 'animate-streak-pulse bg-status-error opacity-40',
   freeze: 'bg-accent-blueCheese-flat',
 };
 
