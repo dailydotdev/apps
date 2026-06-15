@@ -490,13 +490,11 @@ const SidebarProfileButton = ({
           // 40px avatar with a 7px ring of padding so the frame + background sit
           // well clear of the avatar and the number never touches the border.
           // Concentric radii: avatar 12 + 7 gap = frame 19; fill (3px in) = 16.
-          <div className="group/streak relative h-[76px] w-[54px]">
-            {/* Hover highlight behind the whole component (matches the rail's
-                other hover targets). */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-[19px] bg-surface-hover opacity-0 transition-opacity duration-150 group-hover/streak:opacity-100"
-            />
+          // The avatar (profile menu) and the streak chip (streak popover) are
+          // two distinct buttons. Each owns its OWN bounded hover highlight +
+          // tooltip so they never read as one combined target; the decorative
+          // ring between them is non-interactive and never highlights.
+          <div className="relative h-[76px] w-[54px]">
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
                 component, and a separate inner background fill. Avatar + number
@@ -522,19 +520,27 @@ const SidebarProfileButton = ({
                 )}
               />
             </div>
-            <button
-              type="button"
-              aria-label="Open profile menu"
-              aria-expanded={isOpen}
-              onClick={wrapHandler(() => onUpdate(!isOpen))}
-              className="focus-outline absolute left-[7px] top-[7px] z-1 rounded-12 transition-transform hover:scale-105"
-            >
-              <ProfilePicture
-                user={user}
-                size={ProfileImageSize.Large}
-                nativeLazyLoading
-              />
-            </button>
+            <Tooltip side="right" content="Profile menu">
+              <button
+                type="button"
+                aria-label="Open profile menu"
+                aria-expanded={isOpen}
+                onClick={wrapHandler(() => onUpdate(!isOpen))}
+                className="group/avatar focus-outline absolute left-[7px] top-[7px] z-1 rounded-12 transition-transform hover:scale-105"
+              >
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.Large}
+                  nativeLazyLoading
+                />
+                {/* Hover scrim bounded to the avatar so it reads as its own
+                    button, separate from the streak chip below. */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-12 bg-surface-hover opacity-0 transition-opacity group-hover/avatar:opacity-100"
+                />
+              </button>
+            </Tooltip>
             <Tooltip
               side="right"
               content={streakCopy}
@@ -549,23 +555,27 @@ const SidebarProfileButton = ({
                   event.stopPropagation();
                   setIsStreakOpen((open) => !open);
                 }}
-                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-7 items-end justify-center gap-0.5 pb-[6px]"
+                className="group/chip focus-outline absolute inset-x-0 bottom-0 z-2 flex h-7 items-end justify-center pb-[5px]"
               >
-                <HotIcon
-                  secondary={hasReadToday}
-                  size={IconSize.Size16}
-                  className={streakCountClassName}
-                />
-                <Typography
-                  type={TypographyType.Caption1}
-                  bold
-                  className={classNames(
-                    'whitespace-nowrap tabular-nums',
-                    streakCountClassName,
-                  )}
-                >
-                  {largeNumberFormat(streakCount) ?? streakCount}
-                </Typography>
+                {/* Hover pill hugs the flame + number so the chip reads as its
+                    own button, separate from the avatar above. */}
+                <span className="flex items-center gap-0.5 rounded-8 px-1.5 py-0.5 transition-colors group-hover/chip:bg-surface-hover">
+                  <HotIcon
+                    secondary={hasReadToday}
+                    size={IconSize.Size16}
+                    className={streakCountClassName}
+                  />
+                  <Typography
+                    type={TypographyType.Caption1}
+                    bold
+                    className={classNames(
+                      'whitespace-nowrap tabular-nums',
+                      streakCountClassName,
+                    )}
+                  >
+                    {largeNumberFormat(streakCount) ?? streakCount}
+                  </Typography>
+                </span>
               </button>
             </Tooltip>
           </div>
