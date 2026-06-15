@@ -46,6 +46,7 @@ import {
   BrowserGroupIcon,
   CreditCardIcon,
   DevCardIcon,
+  DevPlusIcon,
   DocsIcon,
   EditIcon,
   ExitIcon,
@@ -75,6 +76,7 @@ import {
   TrendingIcon,
 } from '../icons';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { Origin, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -619,6 +621,7 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight } = useSpotlight();
   const { openModal } = useLazyModal();
   const { isLoggedIn } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const { openNewSquad } = useSquadNavigation();
   const addBookmarkFolder = useAddBookmarkFolder();
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
@@ -1438,7 +1441,7 @@ export const SidebarDesktopV2 = ({
               content="Home"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
-              <div>
+              <div className="relative">
                 <Link href={webappUrl} passHref prefetch={false}>
                   <a
                     href={webappUrl}
@@ -1449,6 +1452,18 @@ export const SidebarDesktopV2 = ({
                     <LogoIcon className={{ container: 'h-4 w-auto' }} />
                   </a>
                 </Link>
+                {isPlus && (
+                  <span
+                    aria-label="Plus member"
+                    className="absolute -bottom-1 left-1/2 flex size-4 -translate-x-1/2 items-center justify-center rounded-full bg-background-default"
+                  >
+                    <DevPlusIcon
+                      secondary
+                      size={IconSize.Size16}
+                      className="text-action-plus-default"
+                    />
+                  </span>
+                )}
               </div>
             </Tooltip>
           </div>
