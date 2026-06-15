@@ -92,7 +92,7 @@ describe('BriefContext', () => {
       });
 
       expect(mockUsePersistentState).toHaveBeenCalledWith(
-        `brief_card_${defaultUser.id}_v4`,
+        `brief_card_${defaultUser.id}_v5`,
         undefined,
       );
     });
