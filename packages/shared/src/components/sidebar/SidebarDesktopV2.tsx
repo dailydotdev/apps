@@ -389,6 +389,7 @@ const SidebarProfileButton = ({
     streak,
     count: streakCount,
     hasReadToday,
+    isAtRisk: isStreakAtRisk,
   } = useReadingStreakSummary();
   const [isStreakOpen, setIsStreakOpen] = useState(false);
   const streakChipRef = useRef<HTMLButtonElement>(null);
@@ -481,15 +482,25 @@ const SidebarProfileButton = ({
           aria-label="Open profile menu"
           aria-expanded={isOpen}
           onClick={wrapHandler(() => onUpdate(!isOpen))}
-          className={classNames(
-            'focus-outline rounded-full p-0.5 transition-transform hover:scale-105',
-          )}
+          className="focus-outline rounded-14 transition-transform hover:scale-105"
         >
-          <ProfilePicture
-            user={user}
-            size={ProfileImageSize.Large}
-            nativeLazyLoading
-          />
+          {/* Status ring matching the avatar's rounded-square shape: solid
+              while the streak is safe, pulsing when it's at risk today. */}
+          <span
+            className={classNames(
+              'flex rounded-14 border-2 p-0.5 transition-colors',
+              isStreakEnabled
+                ? 'border-accent-bacon-default'
+                : 'border-transparent',
+              isStreakEnabled && isStreakAtRisk && 'animate-pulse',
+            )}
+          >
+            <ProfilePicture
+              user={user}
+              size={ProfileImageSize.Large}
+              nativeLazyLoading
+            />
+          </span>
         </button>
         {isStreakEnabled && (
           <button
