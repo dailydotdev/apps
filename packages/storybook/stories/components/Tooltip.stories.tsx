@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 
@@ -28,13 +28,9 @@ const meta: Meta<typeof Tooltip> = {
       control: 'boolean',
       description: 'Controls the open state of the tooltip',
     },
-    defaultOpen: {
+    showArrow: {
       control: 'boolean',
-      description: 'The default open state of the tooltip',
-    },
-    onOpenChange: {
-      action: 'onOpenChange',
-      description: 'Callback when the tooltip open state changes',
+      description: 'Show the pointer arrow (off by default)',
     },
   },
 };

@@ -64,6 +64,10 @@ export function Tooltip({
           container={container || globalThis?.document?.body}
         >
           <RadixPrimitive.Content
+            // The default `flex items-center gap-1.5` lays out simple content
+            // (leading icon + label + trailing shortcut). Full-bleed custom
+            // tooltips pass a single self-contained child and override the
+            // surface via className; the flex wrapper is a no-op around one item.
             className={classNames(
               styles.TooltipContent,
               'z-tooltip flex max-w-[18rem] items-center gap-1.5 rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2 py-1 text-text-primary shadow-2 typo-caption1 font-medium',
