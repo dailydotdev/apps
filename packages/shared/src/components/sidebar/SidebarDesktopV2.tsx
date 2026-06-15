@@ -46,7 +46,6 @@ import {
   BrowserGroupIcon,
   CreditCardIcon,
   DevCardIcon,
-  DevPlusIcon,
   DocsIcon,
   EditIcon,
   ExitIcon,
@@ -76,7 +75,6 @@ import {
   TrendingIcon,
 } from '../icons';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { Origin, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -268,7 +266,9 @@ const SidebarInviteButton = (): ReactElement => (
   </Tooltip>
 );
 
-const supportItems: ProfileSectionItemProps[] = [
+// daily.dev logo dropdown — the apps, changelog and docs are grouped under the
+// brand mark at the bottom of the rail.
+const logoItems: ProfileSectionItemProps[] = [
   {
     title: 'Get the mobile app',
     href: appsUrl,
@@ -287,6 +287,9 @@ const supportItems: ProfileSectionItemProps[] = [
     icon: TerminalIcon,
   },
   { title: 'Docs', href: docs, icon: DocsIcon, external: true },
+];
+
+const supportItems: ProfileSectionItemProps[] = [
   { title: 'Report a bug', href: feedback, icon: FlagIcon, external: true },
 ];
 
@@ -335,6 +338,46 @@ const SidebarSupportButton = (): ReactElement => {
           <ProfileMenuSection items={supportItems} />
           <HorizontalSeparator />
           <ProfileMenuSection items={legalItems} />
+        </InteractivePopup>
+      )}
+    </>
+  );
+};
+
+// The daily.dev brand mark at the bottom of the rail. Clicking it opens a small
+// menu with the apps, changelog and docs. Home navigation lives on the Home rail
+// tab, so the logo is free to act as this menu trigger.
+const SidebarLogoButton = (): ReactElement => {
+  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
+
+  return (
+    <>
+      <Tooltip
+        side="right"
+        content="daily.dev"
+        collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+      >
+        <button
+          type="button"
+          aria-label="daily.dev menu"
+          aria-expanded={isOpen}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
+          className={classNames(
+            'focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity',
+            isOpen && 'opacity-80',
+          )}
+        >
+          <LogoIcon className={{ container: 'h-4 w-auto' }} />
+        </button>
+      </Tooltip>
+      {isOpen && (
+        <InteractivePopup
+          closeOutsideClick
+          onClose={() => onUpdate(false)}
+          position={InteractivePopupPosition.SidebarLogoMenu}
+          className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+        >
+          <ProfileMenuSection items={logoItems} />
         </InteractivePopup>
       )}
     </>
@@ -546,6 +589,11 @@ const SidebarProfileButton = ({
               content={streakCopy}
               open={autoOpenStreakTooltip || undefined}
             >
+              {/* The button hugs the flame + number and is centred at the
+                  bottom, so the tooltip anchors to the visible chip and its
+                  arrow points right at it (a full-width button made the arrow
+                  point past the chip into empty rail space). The hover pill is
+                  the button itself. */}
               <button
                 ref={streakChipRef}
                 type="button"
@@ -555,27 +603,23 @@ const SidebarProfileButton = ({
                   event.stopPropagation();
                   setIsStreakOpen((open) => !open);
                 }}
-                className="group/chip focus-outline absolute inset-x-0 bottom-0 z-2 flex h-7 items-end justify-center pb-[5px]"
+                className="focus-outline absolute bottom-[5px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 px-1.5 py-0.5 transition-colors hover:bg-surface-hover"
               >
-                {/* Hover pill hugs the flame + number so the chip reads as its
-                    own button, separate from the avatar above. */}
-                <span className="flex items-center gap-0.5 rounded-8 px-1.5 py-0.5 transition-colors group-hover/chip:bg-surface-hover">
-                  <HotIcon
-                    secondary={hasReadToday}
-                    size={IconSize.Size16}
-                    className={streakCountClassName}
-                  />
-                  <Typography
-                    type={TypographyType.Caption1}
-                    bold
-                    className={classNames(
-                      'whitespace-nowrap tabular-nums',
-                      streakCountClassName,
-                    )}
-                  >
-                    {largeNumberFormat(streakCount) ?? streakCount}
-                  </Typography>
-                </span>
+                <HotIcon
+                  secondary={hasReadToday}
+                  size={IconSize.Size16}
+                  className={streakCountClassName}
+                />
+                <Typography
+                  type={TypographyType.Caption1}
+                  bold
+                  className={classNames(
+                    'whitespace-nowrap tabular-nums',
+                    streakCountClassName,
+                  )}
+                >
+                  {largeNumberFormat(streakCount) ?? streakCount}
+                </Typography>
               </button>
             </Tooltip>
           </div>
@@ -667,7 +711,6 @@ export const SidebarDesktopV2 = ({
   isNavButtons,
   showFeedbackWidget,
   onNavTabClick,
-  onLogoClick,
   additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
@@ -682,7 +725,6 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight } = useSpotlight();
   const { openModal } = useLazyModal();
   const { isLoggedIn } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
   const { openNewSquad } = useSquadNavigation();
   const addBookmarkFolder = useAddBookmarkFolder();
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
@@ -1497,33 +1539,7 @@ export const SidebarDesktopV2 = ({
               <SidebarInviteButton />
               <SidebarSupportButton />
             </div>
-            <Tooltip
-              side="right"
-              content="Home"
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              <div>
-                <Link href={webappUrl} passHref prefetch={false}>
-                  <a
-                    href={webappUrl}
-                    aria-label="Home"
-                    className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
-                    onClick={onLogoClick}
-                  >
-                    <span className="relative">
-                      <LogoIcon className={{ container: 'h-4 w-auto' }} />
-                      {isPlus && (
-                        <DevPlusIcon
-                          aria-hidden
-                          size={IconSize.XXSmall}
-                          className="absolute right-0 top-0 -translate-y-2/3 translate-x-2/3 text-action-plus-default"
-                        />
-                      )}
-                    </span>
-                  </a>
-                </Link>
-              </div>
-            </Tooltip>
+            <SidebarLogoButton />
           </div>
         </nav>
       )}
