@@ -201,7 +201,7 @@ export enum FeedChipsVariant {
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',
-  FeedChipsVariant.None,
+  FeedChipsVariant.V2,
 );
 
 export enum HijackingVariant {

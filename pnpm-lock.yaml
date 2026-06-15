@@ -834,6 +834,9 @@ importers:
       storybook:
         specifier: ^9.1.10
         version: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@3.8.1)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.5.13))(terser@5.46.2))
+      tailwindcss:
+        specifier: ^3.4.14
+        version: 3.4.16
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
@@ -20066,7 +20069,7 @@ snapshots:
 
   sucrase@3.35.0:
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.8
+      '@jridgewell/gen-mapping': 0.3.13
       commander: 4.1.1
       glob: 10.5.0
       lines-and-columns: 1.2.4
@@ -20151,7 +20154,7 @@ snapshots:
       postcss-load-config: 4.0.2(postcss@8.5.13)
       postcss-nested: 6.2.0(postcss@8.5.13)
       postcss-selector-parser: 6.1.2
-      resolve: 1.22.10
+      resolve: 1.22.11
       sucrase: 3.35.0
     transitivePeerDependencies:
       - ts-node
