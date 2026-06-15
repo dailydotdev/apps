@@ -483,19 +483,16 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <div className="relative mb-3 flex w-full justify-center">
+      <div className="relative mb-3 flex justify-center">
         {isStreakEnabled ? (
-          // The component fills the rail width (w-full) so its frame lines up
-          // with the nav tabs (Home/Squads/etc.) and reads as a wide bordered
-          // tile. The 40px avatar is centred with a generous ring of padding on
-          // each side, so the number below has room and never touches the
-          // border. The frame radius matches the nav tabs exactly (rounded-12);
-          // fill (3px in) = 9, avatar 10. Rail pt-1.5 matches the px-1.5 sides
-          // for uniform
-          // top/left/right spacing. The avatar (profile menu) and the streak
-          // chip (streak popover) are two distinct buttons — each has its own
-          // hover + tooltip; the decorative ring between them never lights up.
-          <div className="relative h-[82px] w-full">
+          // A bordered box wraps the 40px avatar (top) and the flame + number
+          // (bottom), with a 7px padding ring around the avatar. Concentric
+          // radii: avatar 12 + 7 gap = frame 19, fill (3px in) = 16. The avatar
+          // (profile menu) and the streak chip (streak popover) are two distinct
+          // buttons, each with its own hover + tooltip. All state visuals
+          // (border dashes/colour, fill, number colour, animations) come from
+          // useStreakRingState and are unchanged — only the layout lives here.
+          <div className="relative h-[76px] w-[54px]">
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
                 component, and a separate inner background fill. Avatar + number
@@ -510,13 +507,13 @@ const SidebarProfileButton = ({
             >
               <span
                 className={classNames(
-                  'absolute inset-0 rounded-12 border',
+                  'absolute inset-0 rounded-[19px] border',
                   streakFrameClassName,
                 )}
               />
               <span
                 className={classNames(
-                  'absolute inset-[3px] rounded-[9px]',
+                  'absolute inset-[3px] rounded-[16px]',
                   streakFillClassName,
                 )}
               />
@@ -531,7 +528,7 @@ const SidebarProfileButton = ({
                 // (scale + brighten) rather than a light wash — distinct from
                 // the streak chip's light hover pill so the two read as two
                 // separate buttons.
-                className="focus-outline absolute left-1/2 top-[10px] z-1 -translate-x-1/2 overflow-hidden rounded-10 transition-[transform,filter] hover:scale-105 hover:brightness-110"
+                className="focus-outline absolute left-[7px] top-[7px] z-1 overflow-hidden rounded-12 transition-[transform,filter] hover:scale-105 hover:brightness-110"
               >
                 <ProfilePicture
                   user={user}
