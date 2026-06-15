@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StreakRing } from '@dailydotdev/shared/src/components/sidebar/StreakRing';
@@ -97,6 +97,192 @@ export const CriticalWithTooltip: Story = {
     chipTooltip: 'Last chance - read 1 post to save your 12-day streak.',
     chipTooltipOpen: true,
   },
+};
+
+// ---------------------------------------------------------------------------
+// Earn-pop lab — a row of celebration animations at different speeds/easings so
+// we can eyeball the perfect fit. These use INLINE keyframes (not the tailwind
+// `animate-streak-earn-*` utilities) so they're independent of the tailwind
+// build — i.e. they show the true speed even when the running Storybook is
+// serving a stale tailwind config. Hit "Replay" to retrigger them all.
+// ---------------------------------------------------------------------------
+const POP_GRAY = 'var(--theme-border-subtlest-tertiary)';
+const POP_PINK = 'var(--theme-accent-bacon-default)';
+const POP_FILL =
+  'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)';
+const RAIL_TINT =
+  'color-mix(in srgb, var(--theme-surface-secondary) 3%, var(--theme-background-default))';
+
+const POP_CSS = `
+@keyframes lab-pop-rebound {
+  0%   { transform: scale(1);    border-color: ${POP_GRAY}; }
+  25%  { transform: scale(1.25); border-color: ${POP_PINK}; }
+  55%  { transform: scale(0.97); border-color: ${POP_PINK}; }
+  100% { transform: scale(1);    border-color: ${POP_PINK}; }
+}
+@keyframes lab-pop-punch {
+  0%   { transform: scale(1);   border-color: ${POP_GRAY}; }
+  40%  { transform: scale(1.3); border-color: ${POP_PINK}; }
+  100% { transform: scale(1);   border-color: ${POP_PINK}; }
+}
+@keyframes lab-pop-spring {
+  0%   { transform: scale(1);   border-color: ${POP_GRAY}; }
+  50%  { transform: scale(1.2); border-color: ${POP_PINK}; }
+  100% { transform: scale(1);   border-color: ${POP_PINK}; }
+}
+@keyframes lab-pop-gong {
+  0%   { transform: scale(1);    border-color: ${POP_GRAY}; }
+  18%  { transform: scale(1.3);  border-color: ${POP_PINK}; }
+  42%  { transform: scale(0.92); }
+  64%  { transform: scale(1.08); }
+  84%  { transform: scale(0.98); }
+  100% { transform: scale(1);    border-color: ${POP_PINK}; }
+}
+@keyframes lab-fill {
+  0%   { background-color: transparent; }
+  35%  { background-color: ${POP_FILL}; }
+  100% { background-color: ${POP_FILL}; }
+}
+`;
+
+interface PopVariation {
+  id: string;
+  label: string;
+  frame: string;
+  duration: string;
+  easing: string;
+}
+
+const POP_VARIATIONS: PopVariation[] = [
+  {
+    id: 'rebound-300',
+    label: '0.30s · punch + rebound (current)',
+    frame: 'lab-pop-rebound',
+    duration: '0.3s',
+    easing: 'ease-out',
+  },
+  {
+    id: 'rebound-220',
+    label: '0.22s · punch + rebound',
+    frame: 'lab-pop-rebound',
+    duration: '0.22s',
+    easing: 'ease-out',
+  },
+  {
+    id: 'punch-200',
+    label: '0.20s · quick punch',
+    frame: 'lab-pop-punch',
+    duration: '0.2s',
+    easing: 'ease-out',
+  },
+  {
+    id: 'punch-150',
+    label: '0.15s · snap',
+    frame: 'lab-pop-punch',
+    duration: '0.15s',
+    easing: 'ease-out',
+  },
+  {
+    id: 'spring-300',
+    label: '0.30s · spring (back-out)',
+    frame: 'lab-pop-spring',
+    duration: '0.3s',
+    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  {
+    id: 'gong-400',
+    label: '0.40s · gong ring (damped bounce)',
+    frame: 'lab-pop-gong',
+    duration: '0.4s',
+    easing: 'ease-out',
+  },
+];
+
+const PopFlame = (): React.ReactElement => (
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M12 12c2-2.96 0-7-1-8 0 3.038-1.773 4.741-3 6-1.226 1.26-2 3.24-2 5a6 6 0 1 0 12 0c0-1.532-1.056-3.94-2-5-1.786 3-2.791 3-4 2z" />
+  </svg>
+);
+
+const EarnPopLab = (): React.ReactElement => {
+  const [run, setRun] = useState(0);
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <style>{POP_CSS}</style>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setRun((value) => value + 1)}
+          className="focus-outline rounded-10 bg-accent-bacon-default px-4 py-1.5 font-bold text-white typo-callout"
+        >
+          ▶ Replay all
+        </button>
+        <span className="text-text-tertiary typo-caption1">
+          Tell me which id feels right and I&apos;ll ship it.
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-x-10 gap-y-12">
+        {POP_VARIATIONS.map((variation) => (
+          <div
+            key={`${variation.id}-${run}`}
+            className="flex flex-col items-center gap-3"
+          >
+            <div className="relative h-[62px] w-[54px]">
+              <span
+                className="absolute inset-0 rounded-[16px] border"
+                style={{
+                  animation: `${variation.frame} ${variation.duration} ${variation.easing} both`,
+                }}
+              />
+              <span
+                className="absolute inset-[3px] rounded-[13px]"
+                style={{
+                  animation: `lab-fill ${variation.duration} ${variation.easing} both`,
+                }}
+              />
+              <span className="absolute left-[7px] top-[7px] flex size-10 items-center justify-center rounded-12 bg-surface-float font-bold text-text-tertiary typo-callout">
+                AD
+              </span>
+              <span
+                className="absolute -bottom-[8px] left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 px-1.5 py-0.5 font-bold text-accent-bacon-default typo-caption1 tabular-nums"
+                style={{ backgroundColor: RAIL_TINT }}
+              >
+                <PopFlame />
+                12
+              </span>
+            </div>
+            <span className="text-center text-text-secondary typo-caption1">
+              {variation.label}
+            </span>
+            <code className="text-text-quaternary typo-caption2">
+              {variation.id}
+            </code>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// A side-by-side comparison of earn-pop speeds + easings. Independent inline
+// keyframes (see POP_CSS) so the timing is accurate regardless of the tailwind
+// build state. Use the Replay button to retrigger.
+export const EarnPopVariations: Story = {
+  argTypes: {
+    state: { table: { disable: true } },
+    count: { table: { disable: true } },
+    hasReadToday: { table: { disable: true } },
+    isLoading: { table: { disable: true } },
+    chipTooltip: { table: { disable: true } },
+    chipTooltipOpen: { table: { disable: true } },
+  },
+  render: () => <EarnPopLab />,
 };
 
 // Every state side by side — change the count control to see how each handles a
