@@ -326,16 +326,20 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
         },
-        // Earn pop: a smooth single "breathe" — the border eases bigger while
-        // shifting gray -> pink, then eases back to its default size (colour
-        // stays pink). Symmetric ease-in-out, so it feels fluid, not snappy.
+        // Earn pop ("gong"): a punchy strike — the border snaps bigger and
+        // gray -> pink fast (overshoot), rebounds slightly past its rest size
+        // (the vibration), then settles. Short and snappy, not a slow breathe.
         'streak-earn-border': {
           '0%': {
             transform: 'scale(1)',
             borderColor: 'var(--theme-border-subtlest-tertiary)',
           },
-          '50%': {
-            transform: 'scale(1.16)',
+          '25%': {
+            transform: 'scale(1.25)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+          '55%': {
+            transform: 'scale(0.97)',
             borderColor: 'var(--theme-accent-bacon-default)',
           },
           '100%': {
@@ -343,10 +347,14 @@ export default {
             borderColor: 'var(--theme-accent-bacon-default)',
           },
         },
-        // Earn pop: the pink fill rushes in with the strike and rings out in
-        // harmony with the border — no size change.
+        // Earn pop: the pink fill flashes in with the strike and holds — no
+        // size change.
         'streak-earn-fill': {
           '0%': { backgroundColor: 'transparent' },
+          '25%': {
+            backgroundColor:
+              'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
+          },
           '100%': {
             backgroundColor:
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
@@ -375,8 +383,8 @@ export default {
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
         'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
-        'streak-earn-border': 'streak-earn-border 0.5s ease-in-out both',
-        'streak-earn-fill': 'streak-earn-fill 0.5s ease-in-out both',
+        'streak-earn-border': 'streak-earn-border 0.45s ease-out both',
+        'streak-earn-fill': 'streak-earn-fill 0.45s ease-out both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
