@@ -92,6 +92,13 @@ export const useStreakRingState = (): StreakRingInfo => {
   const [isCelebrating, setIsCelebrating] = useState(false);
   const prevReadRef = useRef<boolean | null>(null);
   useEffect(() => {
+    // Wait for the streak data to load before tracking. Otherwise a page
+    // refresh — where `hasReadToday` settles from false (loading) to true
+    // (loaded) — would replay the pop even though the streak was earned
+    // earlier. The first loaded value just sets the baseline (prev === null).
+    if (!isEnabled) {
+      return undefined;
+    }
     const prev = prevReadRef.current;
     prevReadRef.current = hasReadToday;
     if (prev === false && hasReadToday) {
@@ -100,7 +107,7 @@ export const useStreakRingState = (): StreakRingInfo => {
       return () => clearTimeout(timeout);
     }
     return undefined;
-  }, [hasReadToday]);
+  }, [isEnabled, hasReadToday]);
 
   const hour = parseInt(dateFormatInTimezone(new Date(), 'HH', timezone), 10);
   const hoursLeft = Number.isNaN(hour) ? 24 : 24 - hour;
