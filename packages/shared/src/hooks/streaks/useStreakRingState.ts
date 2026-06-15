@@ -21,27 +21,44 @@ const TICK_MS = 5 * 60 * 1000;
 // critical, before reverting to hover-only.
 const CRITICAL_TOOLTIP_MS = 5000;
 
-// Variable ring classes per state, applied to a 3px border overlay around the
-// avatar (the base `-inset-[3px] rounded-[15px] border-[3px]` keeps it
-// concentric with the rounded-12 image). Healthy states are a solid streak-pink
-// ring; at-risk/critical/milestone fray into dashes in a non-streak colour so
-// danger never reads as the pink streak.
-const ringClassByState: Record<StreakRingState, string> = {
-  none: 'border-dashed border-border-subtlest-secondary',
-  // Pending is intentionally static (no pulse) — no early-day nagging.
-  pending: 'border-accent-bacon-default',
-  safe: 'border-accent-bacon-default',
-  celebration: 'animate-reward-pop border-accent-bacon-default',
-  at_risk: 'animate-streak-breathe border-dashed border-status-warning',
-  critical: 'animate-streak-breathe-fast border-dashed border-status-error',
-  freeze: 'border-accent-blueCheese-default',
+// The streak component is one connected colored shape behind the avatar: the
+// border (around the avatar) and the peeking tab share the same fill, so they
+// read as a single card. Healthy states are solid streak-pink; at-risk/critical
+// fray into dashes in a non-streak colour (so danger never reads as the streak)
+// and the background slowly pops (scale only — no colour fade, so the seam
+// never breaks and the avatar/number stay still). `new` is a muted gray.
+const surroundClassByState: Record<StreakRingState, string> = {
+  none: 'border-dashed border-border-subtlest-secondary bg-border-subtlest-secondary',
+  pending: 'border-accent-bacon-default bg-accent-bacon-default',
+  safe: 'border-accent-bacon-default bg-accent-bacon-default',
+  celebration:
+    'animate-reward-pop border-accent-bacon-default bg-accent-bacon-default',
+  at_risk:
+    'animate-streak-pop border-dashed border-status-warning bg-status-warning',
+  critical:
+    'animate-streak-pop-fast border-dashed border-status-error bg-status-error',
+  freeze: 'border-accent-blueCheese-default bg-accent-blueCheese-default',
+};
+
+// Contrast-safe text/flame colour for the count sitting on each fill.
+const countClassByState: Record<StreakRingState, string> = {
+  none: 'text-raw-pepper-90',
+  pending: 'text-white',
+  safe: 'text-white',
+  celebration: 'text-white',
+  at_risk: 'text-raw-pepper-90',
+  critical: 'text-white',
+  freeze: 'text-white',
 };
 
 export interface StreakRingInfo {
   isEnabled: boolean;
   streak?: UserStreak;
   state: StreakRingState;
-  ringClassName: string;
+  // Classes for the connected colored shape (border + fill + dash + pop).
+  surroundClassName: string;
+  // Contrast-safe text/flame colour for the count on that fill.
+  countClassName: string;
   count: number;
   hasReadToday: boolean;
   copy: string;
@@ -160,7 +177,8 @@ export const useStreakRingState = (): StreakRingInfo => {
     isEnabled,
     streak,
     state,
-    ringClassName: ringClassByState[state],
+    surroundClassName: surroundClassByState[state],
+    countClassName: countClassByState[state],
     count,
     hasReadToday,
     copy: getCopy(state, count),

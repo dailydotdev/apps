@@ -384,16 +384,17 @@ const SidebarProfileButton = ({
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { openModal } = useLazyModal();
   const canPurchaseCores = useCanPurchaseCores();
-  // The reading streak rides the avatar as a chip pinned to its bottom edge:
-  // the avatar opens the profile menu, the chip opens the streak calendar.
+  // The reading streak is one connected colored shape behind the avatar: the
+  // border around the avatar + a peeking tab share the fill (state colour). The
+  // avatar opens the profile menu; the tab opens the streak calendar.
   const {
     isEnabled: isStreakEnabled,
     streak,
     count: streakCount,
     hasReadToday,
-    ringClassName: streakRingClassName,
+    surroundClassName: streakSurroundClassName,
+    countClassName: streakCountClassName,
     copy: streakCopy,
-    isUrgent: isStreakUrgent,
     autoOpenTooltip: autoOpenStreakTooltip,
   } = useStreakRingState();
   const [isStreakOpen, setIsStreakOpen] = useState(false);
@@ -481,70 +482,77 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <div className="relative mb-4 flex justify-center">
-        <button
-          type="button"
-          aria-label="Open profile menu"
-          aria-expanded={isOpen}
-          onClick={wrapHandler(() => onUpdate(!isOpen))}
-          className="focus-outline rounded-[15px] transition-transform hover:scale-105"
-        >
-          <span className="relative block">
+      <div className="relative mb-3 flex justify-center">
+        {isStreakEnabled ? (
+          <div className="relative h-[58px] w-[46px]">
+            {/* One connected colored shape: border around the avatar + the
+                peeking tab share the fill. Slow scale pop on at-risk/critical
+                (background only — the avatar and number never move). */}
+            <span
+              aria-hidden
+              className={classNames(
+                'pointer-events-none absolute inset-0 rounded-[15px] border-[3px]',
+                streakSurroundClassName,
+              )}
+            />
+            <button
+              type="button"
+              aria-label="Open profile menu"
+              aria-expanded={isOpen}
+              onClick={wrapHandler(() => onUpdate(!isOpen))}
+              className="focus-outline absolute left-[3px] top-[3px] z-1 rounded-12 transition-transform hover:scale-105"
+            >
+              <ProfilePicture
+                user={user}
+                size={ProfileImageSize.Large}
+                nativeLazyLoading
+              />
+            </button>
+            <Tooltip
+              side="right"
+              content={streakCopy}
+              open={autoOpenStreakTooltip || undefined}
+            >
+              <button
+                ref={streakChipRef}
+                type="button"
+                aria-label={`Reading streak: ${streakCount} days. ${streakCopy}`}
+                aria-expanded={isStreakOpen}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsStreakOpen((open) => !open);
+                }}
+                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-[15px] items-center justify-center gap-0.5"
+              >
+                <ReadingStreakIcon
+                  secondary={hasReadToday}
+                  size={IconSize.Size16}
+                  className={streakCountClassName}
+                />
+                <Typography
+                  type={TypographyType.Caption2}
+                  bold
+                  className={classNames('tabular-nums', streakCountClassName)}
+                >
+                  {streakCount}
+                </Typography>
+              </button>
+            </Tooltip>
+          </div>
+        ) : (
+          <button
+            type="button"
+            aria-label="Open profile menu"
+            aria-expanded={isOpen}
+            onClick={wrapHandler(() => onUpdate(!isOpen))}
+            className="focus-outline rounded-12 transition-transform hover:scale-105"
+          >
             <ProfilePicture
               user={user}
               size={ProfileImageSize.Large}
               nativeLazyLoading
             />
-            {/* Streak status ring as a 3px border overlay (separate layer so it
-                can animate without moving the avatar). The inset/radius keep it
-                concentric: outer 15px = avatar rounded-12 + 3px. */}
-            {isStreakEnabled && (
-              <span
-                aria-hidden
-                className={classNames(
-                  'pointer-events-none absolute -inset-[3px] rounded-[15px] border-[3px] transition-colors',
-                  streakRingClassName,
-                )}
-              />
-            )}
-          </span>
-        </button>
-        {isStreakEnabled && (
-          <Tooltip
-            side="right"
-            content={streakCopy}
-            open={autoOpenStreakTooltip || undefined}
-          >
-            <button
-              ref={streakChipRef}
-              type="button"
-              aria-label={`Reading streak: ${streakCount} days. ${streakCopy}`}
-              aria-expanded={isStreakOpen}
-              onClick={(event) => {
-                event.stopPropagation();
-                setIsStreakOpen((open) => !open);
-              }}
-              className={classNames(
-                'focus-outline absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-0.5 rounded-8 border bg-background-default py-0.5 pl-1 pr-1.5 transition-colors',
-                isStreakUrgent
-                  ? 'border-status-warning'
-                  : 'border-border-subtlest-tertiary hover:border-accent-bacon-default',
-              )}
-            >
-              <ReadingStreakIcon
-                secondary={hasReadToday}
-                size={IconSize.Size16}
-                className="text-accent-bacon-default"
-              />
-              <Typography
-                type={TypographyType.Caption2}
-                bold
-                className="tabular-nums text-text-primary"
-              >
-                {streakCount}
-              </Typography>
-            </button>
-          </Tooltip>
+          </button>
         )}
       </div>
       {isStreakOpen && streak && (
