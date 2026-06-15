@@ -24,7 +24,6 @@ import { useCommentContentPreferenceMutationSubscription } from './useCommentCon
 import { generateCommentsQueryKey } from '../../lib/query';
 import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
-import { DiscussIcon } from '../icons';
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
@@ -48,11 +47,6 @@ interface PostCommentsProps {
   className?: CommentClassName;
   onCommented?: MainCommentProps['onCommented'];
   /**
-   * Opens the comment composer. When provided, the empty state shows an
-   * "Add comment" call-to-action; otherwise it stays message-only.
-   */
-  onComment?: () => void;
-  /**
    * Drop the list's top margin. Use when comments are the first element in
    * their container (e.g. the redesign discussion panel) so they don't get an
    * extra gap above the first item.
@@ -75,7 +69,6 @@ export function PostComments({
   joinNotificationCommentId,
   className = {},
   onCommented,
-  onComment,
   removeTopSpacing = false,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
@@ -126,15 +119,6 @@ export function PostComments({
         imageAlt="daily.dev charm peeking over a glowing speech bubble"
         title="No comments yet"
         description="The discussion is waiting for a spark. Share your take and get it started."
-        action={
-          onComment
-            ? {
-                label: 'Add comment',
-                icon: <DiscussIcon />,
-                onClick: onComment,
-              }
-            : undefined
-        }
       />
     );
   }

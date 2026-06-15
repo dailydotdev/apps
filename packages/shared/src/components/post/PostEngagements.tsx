@@ -172,9 +172,6 @@ function PostEngagements({
         permissionNotificationCommentId={permissionNotificationCommentId}
         joinNotificationCommentId={joinNotificationCommentId}
         onCommented={onCommented}
-        onComment={() =>
-          commentRef.current?.onShowInput(Origin.StartDiscussion)
-        }
       />
       {authorOnboarding && (
         <AuthorOnboarding

@@ -219,9 +219,6 @@ export const PostDiscussionPanel = ({
           onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
           modalParentSelector={resolveModalParent}
           removeTopSpacing
-          onComment={() =>
-            commentRef.current?.onShowInput(Origin.StartDiscussion)
-          }
         />
       </div>
       {showMetaBar && (

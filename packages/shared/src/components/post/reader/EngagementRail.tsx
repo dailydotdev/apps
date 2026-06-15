@@ -325,9 +325,6 @@ export function EngagementRail({
             modalParentSelector={() =>
               document.getElementById('reader-post-modal-root') ?? document.body
             }
-            onComment={() =>
-              commentRef.current?.onShowInput(Origin.StartDiscussion)
-            }
           />
           <ShareBar post={post} />
         </section>
