@@ -62,18 +62,6 @@ export const fillClassByState: Record<StreakRingState, string> = {
   freeze: 'bg-accent-blueCheese-flat',
 };
 
-// The earn pop now scales the border only (streak-earn-border), not the whole
-// surround, so no surround-level animation is needed any more.
-export const popClassByState: Record<StreakRingState, string> = {
-  none: '',
-  pending: '',
-  safe: '',
-  celebration: '',
-  at_risk: '',
-  critical: '',
-  freeze: '',
-};
-
 // Count + flame colour. Not-read is muted gray; once you've read today the
 // flame turns brand pink (and fills, via `secondary={hasReadToday}`).
 // At-risk/critical use the state colour, rest day blue, earn flash white.
@@ -98,16 +86,11 @@ export interface StreakRingInfo {
   frameClassName: string;
   // Inner background fill colour.
   fillClassName: string;
-  // Scale-pop animation for the surround group (background only).
-  popClassName: string;
   // Contrast-safe text/flame colour for the count on that fill.
   countClassName: string;
   count: number;
   hasReadToday: boolean;
   copy: string;
-  // at_risk | critical — drives the urgent chip border + auto-opens the tooltip
-  // (the caller keeps it open until the user hovers the streak).
-  isUrgent: boolean;
 }
 
 const getCopy = (state: StreakRingState, count: number): string => {
@@ -201,11 +184,9 @@ export const useStreakRingState = (): StreakRingInfo => {
     state,
     frameClassName: frameClassByState[state],
     fillClassName: fillClassByState[state],
-    popClassName: popClassByState[state],
     countClassName: countClassByState[state],
     count,
     hasReadToday,
     copy: getCopy(state, count),
-    isUrgent: state === 'at_risk' || state === 'critical',
   };
 };
