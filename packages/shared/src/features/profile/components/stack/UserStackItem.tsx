@@ -117,7 +117,7 @@ function UserStackItemBody({
       align="start"
       sideOffset={8}
       collisionPadding={12}
-      noArrow={!!sponsoredCreative}
+      showArrow={!sponsoredCreative}
       className={classNames(
         sponsoredCreative
           ? '!max-w-none !rounded-16 !bg-transparent !p-0'

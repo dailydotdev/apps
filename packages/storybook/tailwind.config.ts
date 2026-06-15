@@ -5,6 +5,7 @@ export default {
   ...config,
   content: [
     './src/**/*.{ts,tsx}',
+    './stories/**/*.{ts,tsx}',
     './node_modules/@dailydotdev/shared/src/**/*.{ts,tsx}',
   ],
   safelist: [
