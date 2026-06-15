@@ -483,7 +483,7 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <div className="relative mb-3 flex justify-center">
+      <div className="relative mb-2 flex justify-center">
         {isStreakEnabled ? (
           // A bordered box wraps the 40px avatar (top) and the flame + number
           // (bottom), with a 7px padding ring around the avatar. Concentric
@@ -1359,7 +1359,7 @@ export const SidebarDesktopV2 = ({
         <nav
           aria-label="Primary navigation"
           className={classNames(
-            'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-1.5',
+            'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-3',
             railNavWidth,
           )}
         >
