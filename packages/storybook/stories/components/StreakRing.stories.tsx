@@ -1,7 +1,12 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StreakRing } from '@dailydotdev/shared/src/components/sidebar/StreakRing';
 import type { StreakRingState } from '@dailydotdev/shared/src/hooks/streaks/useStreakRingState';
+
+// The chip tooltip uses the shared Tooltip, which reads the request protocol via
+// useQueryClient — so a QueryClientProvider is required or the tooltip throws.
+const queryClient = new QueryClient();
 
 const STATES: StreakRingState[] = [
   'none',
@@ -57,9 +62,11 @@ const meta: Meta<typeof StreakRing> = {
   // background so it reads the way it does in the app.
   decorators: [
     (Story) => (
-      <div className="dark flex min-h-[220px] items-center justify-center bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))] p-10">
-        <Story />
-      </div>
+      <QueryClientProvider client={queryClient}>
+        <div className="dark flex min-h-[220px] items-center justify-center bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))] p-10">
+          <Story />
+        </div>
+      </QueryClientProvider>
     ),
   ],
   parameters: { layout: 'fullscreen', controls: { expanded: true } },
