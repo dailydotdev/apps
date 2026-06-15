@@ -442,7 +442,9 @@ export const PostFocusCard = ({
                 'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
                 // mobileL and below stay full width — the screen is already
                 // narrow, so the floating 70% preview only wastes space.
-                isVideoPlaying ? 'max-w-full' : 'max-w-full mobileXL:max-w-[70%]',
+                isVideoPlaying
+                  ? 'max-w-full'
+                  : 'max-w-full mobileXL:max-w-[70%]',
               )}
             >
               {isVideoPlaying ? (
