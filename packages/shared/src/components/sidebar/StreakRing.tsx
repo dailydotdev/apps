@@ -22,19 +22,19 @@ const TOOLTIP_COLLISION_PADDING = 4;
 // so the chip masks the bottom border seamlessly against the sidebar.
 const railTintBg =
   'bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]';
-// Chip background per state: it picks up the same colour sitting behind the
-// avatar (the fill) so the chip reads as part of the coloured state instead of
-// a separate neutral box. Calm states (transparent fill) keep the rail tint;
-// the coloured states use the matching opaque `-flat` tint (freeze is the exact
-// same token as its fill).
-const chipBgClassByState: Record<StreakRingState, string> = {
-  none: railTintBg,
-  pending: railTintBg,
-  safe: railTintBg,
-  celebration: 'bg-accent-bacon-flat',
-  at_risk: 'bg-accent-bun-flat',
-  critical: 'bg-accent-ketchup-flat',
-  freeze: 'bg-accent-blueCheese-flat',
+// Chip hover background per state: at rest the chip stays the neutral rail tint
+// (masking the border); on hover it picks up the same colour sitting behind the
+// avatar (the fill) — the coloured states use the matching opaque `-flat` tint
+// (freeze is the exact same token as its fill), calm states get a subtle
+// surface-hover.
+const chipHoverBgClassByState: Record<StreakRingState, string> = {
+  none: 'hover:bg-surface-hover',
+  pending: 'hover:bg-surface-hover',
+  safe: 'hover:bg-surface-hover',
+  celebration: 'hover:bg-accent-bacon-flat',
+  at_risk: 'hover:bg-accent-bun-flat',
+  critical: 'hover:bg-accent-ketchup-flat',
+  freeze: 'hover:bg-accent-blueCheese-flat',
 };
 // Shared chip position/shape — used by both the real chip and the loading
 // skeleton so they occupy the identical spot (no layout shift on load).
@@ -108,7 +108,8 @@ export const StreakRing = ({
       className={classNames(
         'focus-outline transition-[transform,background-color] hover:scale-110',
         chipBaseClass,
-        chipBgClassByState[state],
+        railTintBg,
+        chipHoverBgClassByState[state],
       )}
     >
       <HotIcon
