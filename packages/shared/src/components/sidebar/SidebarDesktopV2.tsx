@@ -117,7 +117,7 @@ import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { useSquadNavigation } from '../../hooks';
 import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
-import { useReadingStreakSummary } from '../../hooks/streaks/useReadingStreakSummary';
+import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -391,8 +391,10 @@ const SidebarProfileButton = ({
     streak,
     count: streakCount,
     hasReadToday,
-    isAtRisk: isStreakAtRisk,
-  } = useReadingStreakSummary();
+    ringClassName: streakRingClassName,
+    copy: streakCopy,
+    isUrgent: isStreakUrgent,
+  } = useStreakRingState();
   const [isStreakOpen, setIsStreakOpen] = useState(false);
   const streakChipRef = useRef<HTMLButtonElement>(null);
 
@@ -486,52 +488,58 @@ const SidebarProfileButton = ({
           onClick={wrapHandler(() => onUpdate(!isOpen))}
           className="focus-outline rounded-[15px] transition-transform hover:scale-105"
         >
-          {/* Status ring drawn as a padded background (not a CSS border) so the
-              corners stay concentric with the avatar. Nested-radius formula:
-              outer radius (15px) = avatar radius (rounded-12) + ring width
-              (3px). Bacon while the streak is safe, red when it's at risk. */}
-          <span
-            className={classNames(
-              'flex rounded-[15px] p-[3px] transition-colors',
-              !isStreakEnabled && 'bg-transparent',
-              isStreakEnabled &&
-                (isStreakAtRisk
-                  ? 'bg-status-error'
-                  : 'bg-accent-bacon-default'),
-            )}
-          >
+          <span className="relative block">
             <ProfilePicture
               user={user}
               size={ProfileImageSize.Large}
               nativeLazyLoading
             />
+            {/* Streak status ring as a 3px border overlay (separate layer so it
+                can animate without moving the avatar). The inset/radius keep it
+                concentric: outer 15px = avatar rounded-12 + 3px. */}
+            {isStreakEnabled && (
+              <span
+                aria-hidden
+                className={classNames(
+                  'pointer-events-none absolute -inset-[3px] rounded-[15px] border-[3px] transition-colors',
+                  streakRingClassName,
+                )}
+              />
+            )}
           </span>
         </button>
         {isStreakEnabled && (
-          <button
-            ref={streakChipRef}
-            type="button"
-            aria-label={`Reading streak: ${streakCount} days`}
-            aria-expanded={isStreakOpen}
-            onClick={(event) => {
-              event.stopPropagation();
-              setIsStreakOpen((open) => !open);
-            }}
-            className="focus-outline absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-0.5 rounded-8 border border-border-subtlest-tertiary bg-background-default py-0.5 pl-1 pr-1.5 transition-colors hover:border-accent-bacon-default"
-          >
-            <ReadingStreakIcon
-              secondary={hasReadToday}
-              size={IconSize.Size16}
-              className="text-accent-bacon-default"
-            />
-            <Typography
-              type={TypographyType.Caption2}
-              bold
-              className="tabular-nums text-text-primary"
+          <Tooltip side="right" content={streakCopy}>
+            <button
+              ref={streakChipRef}
+              type="button"
+              aria-label={`Reading streak: ${streakCount} days. ${streakCopy}`}
+              aria-expanded={isStreakOpen}
+              onClick={(event) => {
+                event.stopPropagation();
+                setIsStreakOpen((open) => !open);
+              }}
+              className={classNames(
+                'focus-outline absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-0.5 rounded-8 border bg-background-default py-0.5 pl-1 pr-1.5 transition-colors',
+                isStreakUrgent
+                  ? 'border-status-warning'
+                  : 'border-border-subtlest-tertiary hover:border-accent-bacon-default',
+              )}
             >
-              {streakCount}
-            </Typography>
-          </button>
+              <ReadingStreakIcon
+                secondary={hasReadToday}
+                size={IconSize.Size16}
+                className="text-accent-bacon-default"
+              />
+              <Typography
+                type={TypographyType.Caption2}
+                bold
+                className="tabular-nums text-text-primary"
+              >
+                {streakCount}
+              </Typography>
+            </button>
+          </Tooltip>
         )}
       </div>
       {isStreakOpen && streak && (
