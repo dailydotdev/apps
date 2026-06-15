@@ -101,6 +101,7 @@ import {
   webappUrl,
 } from '../../lib/constants';
 import { isAppleDevice } from '../../lib/func';
+import { largeNumberFormat } from '../../lib/numberFormat';
 import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -486,7 +487,7 @@ const SidebarProfileButton = ({
     <>
       <div className="relative mb-3 flex justify-center">
         {isStreakEnabled ? (
-          <div className="group/streak relative h-[66px] w-[46px]">
+          <div className="group/streak relative h-[70px] w-[46px]">
             {/* Hover highlight behind the whole component (matches the rail's
                 other hover targets). */}
             <span
@@ -555,9 +556,12 @@ const SidebarProfileButton = ({
                 <Typography
                   type={TypographyType.Caption1}
                   bold
-                  className={classNames('tabular-nums', streakCountClassName)}
+                  className={classNames(
+                    'whitespace-nowrap tabular-nums',
+                    streakCountClassName,
+                  )}
                 >
-                  {streakCount}
+                  {largeNumberFormat(streakCount) ?? streakCount}
                 </Typography>
               </button>
             </Tooltip>
