@@ -55,6 +55,7 @@ import {
   GiftIcon,
   HelpIcon,
   HomeIcon,
+  HotIcon,
   InviteIcon,
   JobIcon,
   LinkIcon,
@@ -67,7 +68,6 @@ import {
   PlusIcon,
   PollIcon,
   PrivacyIcon,
-  ReadingStreakIcon,
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
@@ -484,7 +484,7 @@ const SidebarProfileButton = ({
     <>
       <div className="relative mb-3 flex justify-center">
         {isStreakEnabled ? (
-          <div className="relative h-[58px] w-[46px]">
+          <div className="relative h-[66px] w-[46px]">
             {/* One connected colored shape: border around the avatar + the
                 peeking tab share the fill. Slow scale pop on at-risk/critical
                 (background only — the avatar and number never move). */}
@@ -522,15 +522,15 @@ const SidebarProfileButton = ({
                   event.stopPropagation();
                   setIsStreakOpen((open) => !open);
                 }}
-                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-[15px] items-center justify-center gap-0.5"
+                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-[22px] items-center justify-center gap-0.5"
               >
-                <ReadingStreakIcon
+                <HotIcon
                   secondary={hasReadToday}
                   size={IconSize.Size16}
                   className={streakCountClassName}
                 />
                 <Typography
-                  type={TypographyType.Caption2}
+                  type={TypographyType.Caption1}
                   bold
                   className={classNames('tabular-nums', streakCountClassName)}
                 >
