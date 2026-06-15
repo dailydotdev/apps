@@ -10,11 +10,14 @@ import {
 } from '../typography/Typography';
 import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import Link from '../utilities/Link';
 
 export interface CharmEmptyStateAction {
   label: string;
-  onClick: () => void;
   icon?: ButtonProps<'button'>['icon'];
+  /** Render as a link. Takes precedence over `onClick`. */
+  href?: string;
+  onClick?: () => void;
 }
 
 export interface CharmEmptyStateProps {
@@ -78,18 +81,31 @@ export function CharmEmptyState({
           {description}
         </Typography>
       )}
-      {action && (
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
-          icon={action.icon}
-          onClick={action.onClick}
-          className="mt-5"
-        >
-          {action.label}
-        </Button>
-      )}
+      {action &&
+        (action.href ? (
+          <Link href={action.href} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              icon={action.icon}
+              className="mt-5"
+            >
+              {action.label}
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            icon={action.icon}
+            onClick={action.onClick}
+            className="mt-5"
+          >
+            {action.label}
+          </Button>
+        ))}
     </div>
   );
 }

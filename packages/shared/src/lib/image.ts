@@ -464,3 +464,12 @@ export const opportunityBriefcaseDone =
 // Charm mascot illustrations for emotional product moments (empty states, milestones, etc.)
 export const cloudinaryCharmNoComments =
   'https://media.daily.dev/image/upload/s--9T4IIRt7--/f_auto,q_auto/v1781520953/public/daily.dev%20Charm%20-%20no%20comment';
+
+export const cloudinaryCharmBookmarks =
+  'https://media.daily.dev/image/upload/s--LnFPuTT7--/f_auto,q_auto/v1781523670/public/daily.dev%20Charm%20-%20bookmark';
+
+export const cloudinaryCharmSearchNoResults =
+  'https://media.daily.dev/image/upload/s--HZdPG0L1--/f_auto,q_auto/v1781523670/public/daily.dev%20Charm%20-%20no%20seach%20result';
+
+export const cloudinaryCharmReadLater =
+  'https://media.daily.dev/image/upload/s--RGUXYEF---/f_auto,q_auto/v1781523670/public/daily.dev%20Charm%20-%20Read%20later';

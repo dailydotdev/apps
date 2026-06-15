@@ -36,6 +36,7 @@ import {
   TypographyType,
 } from './typography/Typography';
 import type { BookmarkFolder } from '../graphql/bookmarks';
+import { cloudinaryCharmReadLater } from '../lib/image';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 import { TargetType } from '../lib/log';
 import usePlusEntry from '../hooks/usePlusEntry';
@@ -153,7 +154,14 @@ export default function BookmarkFeedLayout({
         sort: selectedSortValue,
         supportedTypes: supportedTypesForPrivateSources,
       },
-      emptyScreen: (
+      emptyScreen: isReminderOnly ? (
+        <BookmarkEmptyScreen
+          image={cloudinaryCharmReadLater}
+          imageAlt="daily.dev charm kicking back to read posts later"
+          title="Nothing to read later yet"
+          description="Save posts to read later and they’ll be waiting for you right here."
+        />
+      ) : (
         <BookmarkEmptyScreen
           {...(listId && {
             title: 'Your folder is feeling a little empty',
