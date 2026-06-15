@@ -1449,7 +1449,7 @@ export const SidebarDesktopV2 = ({
               content="Home"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
-              <div className="relative">
+              <div>
                 <Link href={webappUrl} passHref prefetch={false}>
                   <a
                     href={webappUrl}
@@ -1457,21 +1457,18 @@ export const SidebarDesktopV2 = ({
                     className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
                     onClick={onLogoClick}
                   >
-                    <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                    <span className="relative">
+                      <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                      {isPlus && (
+                        <DevPlusIcon
+                          aria-hidden
+                          size={IconSize.XXSmall}
+                          className="absolute right-0 top-0 -translate-y-2/3 translate-x-2/3 text-action-plus-default"
+                        />
+                      )}
+                    </span>
                   </a>
                 </Link>
-                {isPlus && (
-                  <span
-                    aria-label="Plus member"
-                    className="absolute -bottom-1 left-1/2 flex size-4 -translate-x-1/2 items-center justify-center rounded-full bg-background-default"
-                  >
-                    <DevPlusIcon
-                      secondary
-                      size={IconSize.Size16}
-                      className="text-action-plus-default"
-                    />
-                  </span>
-                )}
               </div>
             </Tooltip>
           </div>
