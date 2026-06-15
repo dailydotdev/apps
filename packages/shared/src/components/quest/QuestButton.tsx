@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { useQueryClient } from '@tanstack/react-query';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import {
   Button,
@@ -19,17 +18,8 @@ import {
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
 import { DevPlusIcon, TourIcon } from '../icons';
-import type {
-  QuestDashboard,
-  QuestLevel,
-  QuestType,
-  UserQuest,
-} from '../../graphql/quests';
-import {
-  QuestRewardType,
-  QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-  QUEST_UPDATE_SUBSCRIPTION,
-} from '../../graphql/quests';
+import type { QuestLevel, QuestType, UserQuest } from '../../graphql/quests';
+import { QuestRewardType } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import {
   getClaimableQuestCount,
@@ -41,8 +31,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { plusUrl, webappUrl } from '../../lib/constants';
 import { agentsHighlightsPath } from '../../lib/links';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import useSubscription from '../../hooks/useSubscription';
 import Link from '../utilities/Link';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
@@ -77,44 +65,6 @@ const getLevelProgress = (level: QuestLevel) => {
   }
 
   return Math.min(100, (level.xpInLevel / totalForLevel) * 100);
-};
-
-type ClaimableQuestSnapshot = {
-  rotationId: string;
-  questId: string;
-  questType: QuestType;
-  userQuestId: string | null;
-  locked: boolean;
-  claimable: boolean;
-};
-
-const getQuestClaimableSnapshots = (
-  dashboard?: QuestDashboard,
-): Map<string, ClaimableQuestSnapshot> => {
-  const snapshots = new Map<string, ClaimableQuestSnapshot>();
-
-  if (!dashboard) {
-    return snapshots;
-  }
-
-  [
-    ...dashboard.daily.regular,
-    ...dashboard.daily.plus,
-    ...dashboard.weekly.regular,
-    ...dashboard.weekly.plus,
-    ...dashboard.milestone,
-  ].forEach((quest) => {
-    snapshots.set(quest.rotationId, {
-      rotationId: quest.rotationId,
-      questId: quest.quest.id,
-      questType: quest.quest.type,
-      userQuestId: quest.userQuestId ?? null,
-      locked: quest.locked,
-      claimable: quest.claimable,
-    });
-  });
-
-  return snapshots;
 };
 
 const QUEST_LEVEL_PROGRESS_SIZE = 40;
@@ -666,98 +616,13 @@ export const QuestButton = ({
 }: QuestButtonProps): ReactElement => {
   const router = useRouter();
   const { optOutLevelSystem } = useSettingsContext();
-  const queryClient = useQueryClient();
   const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
-  const { data, isPending, isError, dataUpdatedAt } = useQuestDashboard();
+  const { data, isPending, isError } = useQuestDashboard();
   const {
     mutate: claimQuestReward,
     isPending: isClaimPending,
     variables,
   } = useClaimQuestReward();
-  const questDashboardQueryKey = generateQueryKey(
-    RequestKey.QuestDashboard,
-    user,
-  );
-  const invalidateQuestDashboard = useCallback(() => {
-    queryClient.invalidateQueries({
-      queryKey: questDashboardQueryKey,
-      exact: true,
-    });
-  }, [queryClient, questDashboardQueryKey]);
-  const shouldLogClaimableQuestRef = useRef(false);
-  const previousClaimableQuestSnapshotsRef = useRef<Map<
-    string,
-    ClaimableQuestSnapshot
-  > | null>(null);
-  const previousQuestDashboardUpdatedAtRef = useRef<number | null>(null);
-  const handleQuestDashboardRefresh = useCallback(() => {
-    shouldLogClaimableQuestRef.current = true;
-    invalidateQuestDashboard();
-  }, [invalidateQuestDashboard]);
-
-  useSubscription(
-    () => ({
-      query: QUEST_UPDATE_SUBSCRIPTION,
-    }),
-    {
-      next: handleQuestDashboardRefresh,
-    },
-    [user?.id],
-  );
-
-  useSubscription(
-    () => ({
-      query: QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-    }),
-    {
-      next: handleQuestDashboardRefresh,
-    },
-    [user?.id],
-  );
-
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    const currentClaimableQuestSnapshots = getQuestClaimableSnapshots(data);
-    const currentQuestDashboardUpdatedAt = dataUpdatedAt;
-    const didReceiveFreshQuestDashboard =
-      previousQuestDashboardUpdatedAtRef.current !==
-      currentQuestDashboardUpdatedAt;
-
-    if (
-      shouldLogClaimableQuestRef.current &&
-      didReceiveFreshQuestDashboard &&
-      previousClaimableQuestSnapshotsRef.current
-    ) {
-      currentClaimableQuestSnapshots.forEach((quest) => {
-        const previousQuest = previousClaimableQuestSnapshotsRef.current?.get(
-          quest.rotationId,
-        );
-
-        if (!quest.locked && !previousQuest?.claimable && quest.claimable) {
-          logEvent({
-            event_name: LogEvent.QuestClaimable,
-            target_id: quest.questId,
-            target_type: TargetType.Quest,
-            extra: JSON.stringify({
-              questType: quest.questType,
-              userQuestId: quest.userQuestId,
-              userId: user?.id,
-              rotationId: quest.rotationId,
-            }),
-          });
-        }
-      });
-
-      shouldLogClaimableQuestRef.current = false;
-    }
-
-    previousClaimableQuestSnapshotsRef.current = currentClaimableQuestSnapshots;
-    previousQuestDashboardUpdatedAtRef.current = currentQuestDashboardUpdatedAt;
-  }, [data, dataUpdatedAt, logEvent, user?.id]);
 
   const level = data?.level?.level ?? 1;
   const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
