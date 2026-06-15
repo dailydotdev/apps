@@ -347,14 +347,13 @@ export default {
             borderColor: 'var(--theme-accent-bacon-default)',
           },
         },
-        // Earn pop: the pink fill flashes in with the strike and holds — no
-        // size change.
+        // Earn pop: the fill stays clear while the border strikes up to its
+        // peak (0 -> 25%, matching streak-earn-border's max-scale keyframe),
+        // then the pink washes in from that point to the end as the border
+        // rebounds and settles.
         'streak-earn-fill': {
           '0%': { backgroundColor: 'transparent' },
-          '25%': {
-            backgroundColor:
-              'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
-          },
+          '25%': { backgroundColor: 'transparent' },
           '100%': {
             backgroundColor:
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
@@ -383,8 +382,8 @@ export default {
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
         'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
-        'streak-earn-border': 'streak-earn-border 0.3s ease-out both',
-        'streak-earn-fill': 'streak-earn-fill 0.3s ease-out both',
+        'streak-earn-border': 'streak-earn-border 0.6s ease-out both',
+        'streak-earn-fill': 'streak-earn-fill 0.6s ease-out both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },

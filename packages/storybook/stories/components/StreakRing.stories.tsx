@@ -122,7 +122,7 @@ const POP_CSS = `
 }
 @keyframes lab-fill {
   0%   { background-color: transparent; }
-  35%  { background-color: ${POP_FILL}; }
+  25%  { background-color: transparent; }
   100% { background-color: ${POP_FILL}; }
 }
 `;

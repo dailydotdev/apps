@@ -13,9 +13,10 @@ export type StreakRingState =
   | 'critical'
   | 'freeze';
 
-// Short, punchy earn pop (~0.3s strike + rebound), then the tile snaps back to
-// its read-today look with no lingering hold.
-const CELEBRATION_MS = 400;
+// Earn pop: a 0.6s strike + rebound while the pink fill washes in, then the
+// tile snaps back to its read-today look (small buffer past the animation so it
+// finishes cleanly, no lingering hold).
+const CELEBRATION_MS = 700;
 const AT_RISK_HOURS = 6;
 const CRITICAL_HOURS = 2;
 const TICK_MS = 5 * 60 * 1000;
