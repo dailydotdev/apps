@@ -73,6 +73,7 @@ export * from './Hamburger';
 export * from './Hammer';
 export * from './Hashnode';
 export * from './Hashtag';
+export * from './Help';
 export * from './Home';
 export * from './Hot';
 export * from './Image';

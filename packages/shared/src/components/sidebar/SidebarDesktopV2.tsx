@@ -29,8 +29,8 @@ import {
   DocsIcon,
   ExitIcon,
   EyeIcon,
-  FeedbackIcon,
   FlagIcon,
+  HelpIcon,
   HomeIcon,
   HotIcon,
   InviteIcon,
@@ -199,7 +199,7 @@ const SidebarSupportButton = (): ReactElement => {
             isOpen && 'bg-background-default !text-text-primary',
           )}
         >
-          <FeedbackIcon secondary={isOpen} size={IconSize.Small} aria-hidden />
+          <HelpIcon secondary={isOpen} size={IconSize.Small} aria-hidden />
         </button>
       </Tooltip>
       {isOpen && (
