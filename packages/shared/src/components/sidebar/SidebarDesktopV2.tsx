@@ -169,6 +169,8 @@ const railButtonClass =
 // Shared group so the rail's click popups (support, profile menu, streak) are
 // mutually exclusive — opening one closes the others.
 const RAIL_POPUP_GROUP = 'sidebar-rail';
+// How long the urgency tooltip auto-surfaces when the streak turns critical.
+const STREAK_CRITICAL_TOOLTIP_MS = 5000;
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -398,23 +400,32 @@ const SidebarProfileButton = ({
     count: streakCount,
     hasReadToday,
     copy: streakCopy,
-    isUrgent: isStreakUrgent,
   } = useStreakRingState();
   const { isOpen: isStreakOpen, onUpdate: setStreakOpen } =
     useInteractivePopup(RAIL_POPUP_GROUP);
   const streakChipRef = useRef<HTMLButtonElement>(null);
-  // When at risk / critical, auto-open the streak tooltip to nudge the user, and
-  // keep it open until they hover the streak (then it reverts to hover-only).
-  // Re-arms each time the streak (re-)enters an urgent state.
-  const [streakTooltipDismissed, setStreakTooltipDismissed] = useState(false);
-  const prevStreakUrgentRef = useRef(false);
+  // Only on critical: auto-open the streak tooltip to nudge the user for ~5s,
+  // then hide it (or sooner, the moment they hover the streak). Re-arms each
+  // time the streak re-enters the critical state.
+  const [autoOpenStreakTooltip, setAutoOpenStreakTooltip] = useState(false);
+  const prevStreakCriticalRef = useRef(false);
   useEffect(() => {
-    if (isStreakUrgent && !prevStreakUrgentRef.current) {
-      setStreakTooltipDismissed(false);
+    const isCritical = streakState === 'critical';
+    const wasCritical = prevStreakCriticalRef.current;
+    prevStreakCriticalRef.current = isCritical;
+    if (isCritical && !wasCritical) {
+      setAutoOpenStreakTooltip(true);
+      const timeout = setTimeout(
+        () => setAutoOpenStreakTooltip(false),
+        STREAK_CRITICAL_TOOLTIP_MS,
+      );
+      return () => clearTimeout(timeout);
     }
-    prevStreakUrgentRef.current = isStreakUrgent;
-  }, [isStreakUrgent]);
-  const autoOpenStreakTooltip = isStreakUrgent && !streakTooltipDismissed;
+    if (!isCritical) {
+      setAutoOpenStreakTooltip(false);
+    }
+    return undefined;
+  }, [streakState]);
 
   if (!user) {
     return null;
@@ -519,7 +530,7 @@ const SidebarProfileButton = ({
             }}
             chipTooltip={streakCopy}
             chipTooltipOpen={autoOpenStreakTooltip}
-            onMouseEnter={() => setStreakTooltipDismissed(true)}
+            onMouseEnter={() => setAutoOpenStreakTooltip(false)}
             avatar={
               <Tooltip
                 side="right"

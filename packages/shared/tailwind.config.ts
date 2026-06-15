@@ -326,16 +326,16 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
         },
-        // Earn pop ("gong"): a sharp fast strike — the border snaps bigger and
-        // gray -> pink almost instantly (by 20%), then rings out, settling
-        // smoothly back to default size over the rest. No plateau/hold.
+        // Earn pop: a smooth single "breathe" — the border eases bigger while
+        // shifting gray -> pink, then eases back to its default size (colour
+        // stays pink). Symmetric ease-in-out, so it feels fluid, not snappy.
         'streak-earn-border': {
           '0%': {
             transform: 'scale(1)',
             borderColor: 'var(--theme-border-subtlest-tertiary)',
           },
-          '20%': {
-            transform: 'scale(1.22)',
+          '50%': {
+            transform: 'scale(1.16)',
             borderColor: 'var(--theme-accent-bacon-default)',
           },
           '100%': {
@@ -375,10 +375,8 @@ export default {
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
         'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
-        'streak-earn-border':
-          'streak-earn-border 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
-        'streak-earn-fill':
-          'streak-earn-fill 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'streak-earn-border': 'streak-earn-border 0.5s ease-in-out both',
+        'streak-earn-fill': 'streak-earn-fill 0.5s ease-in-out both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },

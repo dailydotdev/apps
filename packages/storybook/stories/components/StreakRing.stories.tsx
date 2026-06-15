@@ -79,6 +79,19 @@ export const Loading: Story = {
   args: { isLoading: true },
 };
 
+// Critical state with the urgency tooltip forced open (in the rail it
+// auto-opens for ~5s, or until the user hovers, then reverts to hover-only).
+// The tooltip appears to the right of the streak.
+export const CriticalWithTooltip: Story = {
+  args: {
+    state: 'critical',
+    count: 12,
+    hasReadToday: false,
+    chipTooltip: 'Last chance — read 1 post to save your 12-day streak.',
+    chipTooltipOpen: true,
+  },
+};
+
 // Every state side by side — change the count control to see how each handles a
 // long number (the flame + count break a wider gap in the bottom border).
 export const AllStates: Story = {

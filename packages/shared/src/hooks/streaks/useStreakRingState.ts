@@ -13,9 +13,9 @@ export type StreakRingState =
   | 'critical'
   | 'freeze';
 
-// Short, gong-like earn pop — the strike + ring-out complete quickly with no
-// hold before the tile settles back to its read-today look.
-const CELEBRATION_MS = 800;
+// Short, smooth "breathe" earn pop — expand + settle complete quickly with no
+// hold before the tile eases back to its read-today look.
+const CELEBRATION_MS = 600;
 const AT_RISK_HOURS = 6;
 const CRITICAL_HOURS = 2;
 const TICK_MS = 5 * 60 * 1000;
