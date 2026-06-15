@@ -18,12 +18,7 @@ import {
   AnalyticsIcon,
   JobIcon,
   MagicIcon,
-  VIcon,
-  AlertIcon,
-  WarningIcon,
-  InfoIcon,
 } from '../icons';
-import { ToastType } from '../../hooks/useToastNotification';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
@@ -45,17 +40,6 @@ export const NotifMessage = classed(
   'div',
   'min-w-0 flex-1 typo-subhead font-medium text-text-primary',
 );
-
-// Semantic variant → leading status icon + colour. `Loading` (spinner) and
-// `Default` (no icon) are handled in the Toast component, not here.
-export const toastIcon: Partial<
-  Record<ToastType, { Icon: ComponentType<IconProps>; color: string }>
-> = {
-  [ToastType.Success]: { Icon: VIcon, color: 'text-status-success' },
-  [ToastType.Error]: { Icon: AlertIcon, color: 'text-status-error' },
-  [ToastType.Warning]: { Icon: WarningIcon, color: 'text-status-warning' },
-  [ToastType.Info]: { Icon: InfoIcon, color: 'text-status-info' },
-};
 
 export enum NotificationType {
   System = 'system',

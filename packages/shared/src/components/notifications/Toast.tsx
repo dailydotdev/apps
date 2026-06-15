@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from 'react';
+import type { ComponentType, CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,10 +9,17 @@ import { ToastType } from '../../hooks/useToastNotification';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import styles from './Toast.module.css';
-import { MiniCloseIcon as XIcon } from '../icons';
+import {
+  MiniCloseIcon as XIcon,
+  VIcon,
+  AlertIcon,
+  WarningIcon,
+  InfoIcon,
+} from '../icons';
+import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import { isTouchDevice } from '../../lib/tooltip';
-import { NotifContainer, NotifMessage, toastIcon } from './utils';
+import { NotifContainer, NotifMessage } from './utils';
 import { Loader } from '../Loader';
 import { useTimedAnimation } from '../../hooks/useTimedAnimation';
 
@@ -21,6 +28,17 @@ interface ToastProps {
 }
 
 const Container = classed(NotifContainer, styles.toastContainer);
+
+// Semantic variant → leading status icon + colour, mapped to the food palette.
+// `Loading` (spinner) and `Default` (no icon) are handled in ToastIcon below.
+const toastIcon: Partial<
+  Record<ToastType, { Icon: ComponentType<IconProps>; color: string }>
+> = {
+  [ToastType.Success]: { Icon: VIcon, color: 'text-status-success' },
+  [ToastType.Error]: { Icon: AlertIcon, color: 'text-status-error' },
+  [ToastType.Warning]: { Icon: WarningIcon, color: 'text-status-warning' },
+  [ToastType.Info]: { Icon: InfoIcon, color: 'text-status-info' },
+};
 
 const ToastIcon = ({ type }: { type?: ToastType }): ReactElement | null => {
   if (type === ToastType.Loading) {
