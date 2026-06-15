@@ -177,8 +177,10 @@ const Toast = ({
   }
 
   // Remaining time as a 0–100 stroke-dashoffset so the dismiss ring drains as
-  // the countdown elapses. Only shown when the toast actually auto-dismisses.
-  const showRing = autoDismissNotifications && !isPersistentToast;
+  // the countdown elapses. Non-persistent toasts always auto-dismiss, so the
+  // ring is tied to that (not the autoDismissNotifications setting, which only
+  // governs the timed-animation end callback).
+  const showRing = !isPersistentToast && toast.timer > 0;
   const remaining = toast.timer > 0 ? (timer / toast.timer) * 100 : 0;
   const dashoffset = Math.min(100, Math.max(0, 100 - remaining));
 
@@ -194,7 +196,7 @@ const Toast = ({
       {toast.action && (
         <Button
           type="button"
-          variant={ButtonVariant.Primary}
+          variant={ButtonVariant.Subtle}
           size={ButtonSize.XSmall}
           aria-label={toast.action.copy}
           {...(toast.action.buttonProps ?? {})}
