@@ -26,31 +26,33 @@ const CRITICAL_TOOLTIP_MS = 5000;
 // Default states are just a slim coloured border with a transparent inside;
 // only at-risk/critical add a faint colour fill that opacity-pulses (more/less
 // visible) so danger reads as an ambient glow, not a solid block.
-// Outer border (frame). Calm states (safe/pending/rest) are a slim solid gray
-// matching the default border; only new + at-risk + critical are dashed, and
-// only at-risk/critical carry colour. The earn celebration briefly flashes the
-// brand pink (V1-style filled pop).
+// Outer border (frame). Most states wear the same slim solid gray as the
+// default border — only `new` (dashed) and `at_risk` (dashed amber) deviate.
+// Critical and rest day keep the calm gray border on purpose: their identity
+// comes from the fill + flame/number colour (red pulse / frozen blue), not the
+// border. The earn celebration briefly flashes the brand pink.
 const frameClassByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-border-subtlest-tertiary',
   pending: 'border-border-subtlest-tertiary',
   safe: 'border-border-subtlest-tertiary',
   celebration: 'border-accent-bacon-default',
   at_risk: 'border-dashed border-status-warning',
-  critical: 'border-dashed border-status-error',
-  freeze: 'border-accent-blueCheese-default',
+  critical: 'border-border-subtlest-tertiary',
+  freeze: 'border-border-subtlest-tertiary',
 };
 
 // Inner background fill. Transparent by default; a faint, opacity-pulsing tint
-// when at risk (`opacity-20` is the resting faintness + reduced-motion
-// fallback). Rest day is a static faint blue (frozen). The earn celebration is
-// a solid brand-pink fill (V1 style).
+// when at risk (`opacity-*` is the resting faintness + reduced-motion
+// fallback). Critical pulses harder + wider (more prominent animation, not a
+// heavier static block). Rest day is a static faint blue (frozen). The earn
+// celebration is a solid brand-pink fill (V1 style).
 const fillClassByState: Record<StreakRingState, string> = {
   none: 'bg-transparent',
   pending: 'bg-transparent',
   safe: 'bg-transparent',
   celebration: 'bg-accent-bacon-default',
   at_risk: 'animate-streak-fade bg-status-warning opacity-20',
-  critical: 'animate-streak-fade-fast bg-status-error opacity-20',
+  critical: 'animate-streak-pulse-fast bg-status-error opacity-40',
   freeze: 'bg-accent-blueCheese-flat',
 };
 

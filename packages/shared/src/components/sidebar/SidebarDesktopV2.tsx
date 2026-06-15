@@ -487,12 +487,15 @@ const SidebarProfileButton = ({
     <>
       <div className="relative mb-3 flex justify-center">
         {isStreakEnabled ? (
-          <div className="group/streak relative h-[70px] w-[46px]">
+          // 40px avatar with a 7px ring of padding so the frame + background sit
+          // well clear of the avatar and the number never touches the border.
+          // Concentric radii: avatar 12 + 7 gap = frame 19; fill (3px in) = 16.
+          <div className="group/streak relative h-[76px] w-[54px]">
             {/* Hover highlight behind the whole component (matches the rail's
                 other hover targets). */}
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-[16px] bg-surface-hover opacity-0 transition-opacity duration-150 group-hover/streak:opacity-100"
+              className="pointer-events-none absolute inset-0 rounded-[19px] bg-surface-hover opacity-0 transition-opacity duration-150 group-hover/streak:opacity-100"
             />
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
@@ -508,13 +511,13 @@ const SidebarProfileButton = ({
             >
               <span
                 className={classNames(
-                  'absolute inset-0 rounded-[16px] border',
+                  'absolute inset-0 rounded-[19px] border',
                   streakFrameClassName,
                 )}
               />
               <span
                 className={classNames(
-                  'absolute inset-[3px] rounded-[13px]',
+                  'absolute inset-[3px] rounded-[16px]',
                   streakFillClassName,
                 )}
               />
@@ -524,7 +527,7 @@ const SidebarProfileButton = ({
               aria-label="Open profile menu"
               aria-expanded={isOpen}
               onClick={wrapHandler(() => onUpdate(!isOpen))}
-              className="focus-outline absolute left-[3px] top-[3px] z-1 rounded-12 transition-transform hover:scale-105"
+              className="focus-outline absolute left-[7px] top-[7px] z-1 rounded-12 transition-transform hover:scale-105"
             >
               <ProfilePicture
                 user={user}
@@ -546,7 +549,7 @@ const SidebarProfileButton = ({
                   event.stopPropagation();
                   setIsStreakOpen((open) => !open);
                 }}
-                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-6 items-end justify-center gap-0.5 pb-[5px]"
+                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-7 items-end justify-center gap-0.5 pb-[6px]"
               >
                 <HotIcon
                   secondary={hasReadToday}

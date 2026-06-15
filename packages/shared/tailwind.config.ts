@@ -318,6 +318,10 @@ export default {
           '0%, 100%': { opacity: '0.24' },
           '50%': { opacity: '0.08' },
         },
+        'streak-pulse': {
+          '0%, 100%': { opacity: '0.45' },
+          '50%': { opacity: '0.12' },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -339,7 +343,7 @@ export default {
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
         'reward-pop': 'reward-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
-        'streak-fade-fast': 'streak-fade 1.5s ease-in-out infinite',
+        'streak-pulse-fast': 'streak-pulse 1.2s ease-in-out infinite',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
