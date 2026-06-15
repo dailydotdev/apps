@@ -518,7 +518,11 @@ const SidebarProfileButton = ({
                 )}
               />
             </div>
-            <Tooltip side="right" content="Profile menu">
+            <Tooltip
+              side="right"
+              content="Profile menu"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
               <button
                 type="button"
                 aria-label="Open profile menu"
@@ -527,13 +531,15 @@ const SidebarProfileButton = ({
                 // The avatar is a photo, so it gets a photo-friendly hover
                 // (scale + brighten) rather than a light wash — distinct from
                 // the streak chip's light hover pill so the two read as two
-                // separate buttons.
+                // separate buttons. `block` on the image kills the inline
+                // baseline gap that otherwise made the button taller than wide.
                 className="focus-outline absolute left-[7px] top-[7px] z-1 overflow-hidden rounded-12 transition-[transform,filter] hover:scale-105 hover:brightness-110"
               >
                 <ProfilePicture
                   user={user}
                   size={ProfileImageSize.Large}
                   nativeLazyLoading
+                  className="block"
                 />
               </button>
             </Tooltip>
@@ -541,6 +547,7 @@ const SidebarProfileButton = ({
               side="right"
               content={streakCopy}
               open={autoOpenStreakTooltip || undefined}
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
               {/* The button hugs the flame + number and is centred at the
                   bottom, so the tooltip anchors to the visible chip and its
@@ -582,12 +589,13 @@ const SidebarProfileButton = ({
             aria-label="Open profile menu"
             aria-expanded={isOpen}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
-            className="focus-outline rounded-12 transition-transform hover:scale-105"
+            className="focus-outline block overflow-hidden rounded-12 transition-transform hover:scale-105"
           >
             <ProfilePicture
               user={user}
               size={ProfileImageSize.Large}
               nativeLazyLoading
+              className="block"
             />
           </button>
         )}
