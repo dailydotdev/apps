@@ -482,19 +482,20 @@ const SidebarProfileButton = ({
           aria-label="Open profile menu"
           aria-expanded={isOpen}
           onClick={wrapHandler(() => onUpdate(!isOpen))}
-          className="focus-outline rounded-12 transition-transform hover:scale-105"
+          className="focus-outline rounded-[15px] transition-transform hover:scale-105"
         >
-          {/* Status ring hugging the avatar's rounded-square shape (matched
-              radius, 1px): bacon while the streak is safe, red when it's at
-              risk today. */}
+          {/* Status ring drawn as a padded background (not a CSS border) so the
+              corners stay concentric with the avatar. Nested-radius formula:
+              outer radius (15px) = avatar radius (rounded-12) + ring width
+              (3px). Bacon while the streak is safe, red when it's at risk. */}
           <span
             className={classNames(
-              'flex rounded-12 border transition-colors',
-              !isStreakEnabled && 'border-transparent',
+              'flex rounded-[15px] p-[3px] transition-colors',
+              !isStreakEnabled && 'bg-transparent',
               isStreakEnabled &&
                 (isStreakAtRisk
-                  ? 'border-status-error'
-                  : 'border-accent-bacon-default'),
+                  ? 'bg-status-error'
+                  : 'bg-accent-bacon-default'),
             )}
           >
             <ProfilePicture
