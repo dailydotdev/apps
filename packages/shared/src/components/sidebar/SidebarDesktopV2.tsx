@@ -534,8 +534,9 @@ const SidebarProfileButton = ({
           // with the nav tabs (Home/Squads/etc.) and reads as a wide bordered
           // tile. The 40px avatar is centred with a generous ring of padding on
           // each side, so the number below has room and never touches the
-          // border. Radii are reduced to sit closer to the tabs: frame 14, fill
-          // 11, avatar 10. Rail pt-1.5 matches the px-1.5 sides for uniform
+          // border. The frame radius matches the nav tabs exactly (rounded-12);
+          // fill (3px in) = 9, avatar 10. Rail pt-1.5 matches the px-1.5 sides
+          // for uniform
           // top/left/right spacing. The avatar (profile menu) and the streak
           // chip (streak popover) are two distinct buttons — each has its own
           // hover + tooltip; the decorative ring between them never lights up.
@@ -554,13 +555,13 @@ const SidebarProfileButton = ({
             >
               <span
                 className={classNames(
-                  'absolute inset-0 rounded-[14px] border',
+                  'absolute inset-0 rounded-12 border',
                   streakFrameClassName,
                 )}
               />
               <span
                 className={classNames(
-                  'absolute inset-[3px] rounded-[11px]',
+                  'absolute inset-[3px] rounded-[9px]',
                   streakFillClassName,
                 )}
               />
