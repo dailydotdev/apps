@@ -392,7 +392,9 @@ const SidebarProfileButton = ({
     streak,
     count: streakCount,
     hasReadToday,
-    surroundClassName: streakSurroundClassName,
+    frameClassName: streakFrameClassName,
+    fillClassName: streakFillClassName,
+    popClassName: streakPopClassName,
     countClassName: streakCountClassName,
     copy: streakCopy,
     autoOpenTooltip: autoOpenStreakTooltip,
@@ -485,16 +487,31 @@ const SidebarProfileButton = ({
       <div className="relative mb-3 flex justify-center">
         {isStreakEnabled ? (
           <div className="relative h-[66px] w-[46px]">
-            {/* One connected colored shape: border around the avatar + the
-                peeking tab share the fill. Slow scale pop on at-risk/critical
-                (background only — the avatar and number never move). */}
-            <span
+            {/* Surround = two layers grouped so they pop together (background
+                only): an outer dashed/solid frame that outlines the whole
+                component, and a separate inner background fill. Avatar + number
+                sit above and stay static. */}
+            <div
               aria-hidden
               className={classNames(
-                'pointer-events-none absolute inset-0 rounded-[15px] border-[3px]',
-                streakSurroundClassName,
+                'pointer-events-none absolute inset-0',
+                streakPopClassName,
               )}
-            />
+              style={{ transformOrigin: '50% 30%' }}
+            >
+              <span
+                className={classNames(
+                  'absolute inset-0 rounded-[16px] border-2',
+                  streakFrameClassName,
+                )}
+              />
+              <span
+                className={classNames(
+                  'absolute inset-[3px] rounded-[13px]',
+                  streakFillClassName,
+                )}
+              />
+            </div>
             <button
               type="button"
               aria-label="Open profile menu"

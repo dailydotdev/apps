@@ -21,23 +21,42 @@ const TICK_MS = 5 * 60 * 1000;
 // critical, before reverting to hover-only.
 const CRITICAL_TOOLTIP_MS = 5000;
 
-// The streak component is one connected colored shape behind the avatar: the
-// border (around the avatar) and the peeking tab share the same fill, so they
-// read as a single card. Healthy states are solid streak-pink; at-risk/critical
-// fray into dashes in a non-streak colour (so danger never reads as the streak)
-// and the background slowly pops (scale only — no colour fade, so the seam
-// never breaks and the avatar/number stay still). `new` is a muted gray.
-const surroundClassByState: Record<StreakRingState, string> = {
-  none: 'border-dashed border-border-subtlest-secondary bg-border-subtlest-secondary',
-  pending: 'border-accent-bacon-default bg-accent-bacon-default',
-  safe: 'border-accent-bacon-default bg-accent-bacon-default',
-  celebration:
-    'animate-reward-pop border-accent-bacon-default bg-accent-bacon-default',
-  at_risk:
-    'animate-streak-pop border-dashed border-status-warning bg-status-warning',
-  critical:
-    'animate-streak-pop-fast border-dashed border-status-error bg-status-error',
-  freeze: 'border-accent-blueCheese-default bg-accent-blueCheese-default',
+// The streak component is two layers: an outer border that outlines the whole
+// thing (avatar + the bottom streak tab) and a separate inner background fill.
+// Keeping them apart lets the dashes read as a clean frame and lets the border
+// and fill colours be tuned independently. Healthy states are solid streak
+// pink; at-risk/critical use dashes in a non-streak colour so danger never
+// reads as the streak; `new` is a muted gray.
+const frameClassByState: Record<StreakRingState, string> = {
+  none: 'border-dashed border-border-subtlest-secondary',
+  pending: 'border-accent-bacon-default',
+  safe: 'border-accent-bacon-default',
+  celebration: 'border-accent-bacon-default',
+  at_risk: 'border-dashed border-status-warning',
+  critical: 'border-dashed border-status-error',
+  freeze: 'border-accent-blueCheese-default',
+};
+
+const fillClassByState: Record<StreakRingState, string> = {
+  none: 'bg-border-subtlest-secondary',
+  pending: 'bg-accent-bacon-default',
+  safe: 'bg-accent-bacon-default',
+  celebration: 'bg-accent-bacon-default',
+  at_risk: 'bg-status-warning',
+  critical: 'bg-status-error',
+  freeze: 'bg-accent-blueCheese-default',
+};
+
+// Animation applied to the surround group (frame + fill together) — scale only,
+// so the background pops while the avatar and number stay still.
+const popClassByState: Record<StreakRingState, string> = {
+  none: '',
+  pending: '',
+  safe: '',
+  celebration: 'animate-reward-pop',
+  at_risk: 'animate-streak-pop',
+  critical: 'animate-streak-pop-fast',
+  freeze: '',
 };
 
 // Contrast-safe text/flame colour for the count sitting on each fill.
@@ -55,8 +74,12 @@ export interface StreakRingInfo {
   isEnabled: boolean;
   streak?: UserStreak;
   state: StreakRingState;
-  // Classes for the connected colored shape (border + fill + dash + pop).
-  surroundClassName: string;
+  // Outer border that outlines the whole component (dashed/solid + colour).
+  frameClassName: string;
+  // Inner background fill colour.
+  fillClassName: string;
+  // Scale-pop animation for the surround group (background only).
+  popClassName: string;
   // Contrast-safe text/flame colour for the count on that fill.
   countClassName: string;
   count: number;
@@ -177,7 +200,9 @@ export const useStreakRingState = (): StreakRingInfo => {
     isEnabled,
     streak,
     state,
-    surroundClassName: surroundClassByState[state],
+    frameClassName: frameClassByState[state],
+    fillClassName: fillClassByState[state],
+    popClassName: popClassByState[state],
     countClassName: countClassByState[state],
     count,
     hasReadToday,
