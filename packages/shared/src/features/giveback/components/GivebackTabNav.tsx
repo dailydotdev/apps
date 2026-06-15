@@ -35,7 +35,7 @@ export const GivebackTabNav = ({
     <div className="bg-background-default/80 sticky top-0 z-3 w-full border-b border-border-subtlest-tertiary backdrop-blur-xl">
       <div
         aria-hidden
-        className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-cabbage-default/40 to-transparent"
       />
       <div className="mx-auto w-full max-w-6xl px-4">
         <TabList
