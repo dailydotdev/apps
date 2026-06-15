@@ -67,6 +67,7 @@ import {
   PlusIcon,
   PollIcon,
   PrivacyIcon,
+  ReadingStreakIcon,
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
@@ -85,7 +86,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { SidebarRailStats } from './SidebarRailStats';
 import { SidebarProfileStats } from './SidebarProfileStats';
 import Link from '../utilities/Link';
 import {
@@ -116,6 +116,7 @@ import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { useSquadNavigation } from '../../hooks';
 import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
+import { useReadingStreakSummary } from '../../hooks/streaks/useReadingStreakSummary';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -383,6 +384,15 @@ const SidebarProfileButton = ({
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { openModal } = useLazyModal();
   const canPurchaseCores = useCanPurchaseCores();
+  // Option A: the reading streak rides the always-visible avatar as a ring +
+  // flame/count badge (story-ring style), so it's prominent without any extra
+  // surface.
+  const {
+    isEnabled: isStreakEnabled,
+    count: streakCount,
+    hasReadToday,
+    isAtRisk: isStreakAtRisk,
+  } = useReadingStreakSummary();
 
   if (!user) {
     return null;
@@ -476,7 +486,18 @@ const SidebarProfileButton = ({
           isOpen && 'bg-surface-hover',
         )}
       >
-        <span className="relative">
+        <span
+          className={classNames(
+            'relative flex items-center justify-center rounded-full',
+            isStreakEnabled &&
+              classNames(
+                'border-2 p-0.5',
+                isStreakAtRisk
+                  ? 'animate-pulse border-accent-bacon-default'
+                  : 'border-accent-bacon-default',
+              ),
+          )}
+        >
           <ProfilePicture
             user={user}
             size={ProfileImageSize.Medium}
@@ -489,6 +510,22 @@ const SidebarProfileButton = ({
                 size={IconSize.Size16}
                 className="text-action-plus-default"
               />
+            </span>
+          )}
+          {isStreakEnabled && (
+            <span className="absolute -right-1.5 -top-1.5 flex items-center gap-0.5 rounded-full border border-border-subtlest-tertiary bg-background-default py-px pl-0.5 pr-1 shadow-2">
+              <ReadingStreakIcon
+                secondary={hasReadToday}
+                size={IconSize.Size16}
+                className="text-accent-bacon-default"
+              />
+              <Typography
+                type={TypographyType.Caption2}
+                bold
+                className="tabular-nums text-text-primary"
+              >
+                {streakCount}
+              </Typography>
             </span>
           )}
         </span>
@@ -1405,7 +1442,6 @@ export const SidebarDesktopV2 = ({
             </div>
             {isLoggedIn && (
               <div className="flex w-full flex-col items-stretch gap-1">
-                <SidebarRailStats />
                 <SidebarProfileButton onPreviewHref={onPreviewHref} />
               </div>
             )}

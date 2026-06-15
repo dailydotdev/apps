@@ -44,7 +44,7 @@ import {
   useHomepageTopBannersVisibility,
 } from './marketing/banners/HomepageTopBanners';
 import { RouteProgressBar } from './RouteProgressBar';
-import { ReadingStreakHud } from './streak/ReadingStreakHud';
+import { StreakContentEdge } from './streak/StreakContentEdge';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -368,6 +368,7 @@ function MainLayoutComponent({
               )}
             >
               <RouteProgressBar />
+              {sidebarOwnsHeader && <StreakContentEdge />}
               {children}
             </div>
           </div>
@@ -376,7 +377,6 @@ function MainLayoutComponent({
         )}
       </main>
       {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
-      {sidebarOwnsHeader && <ReadingStreakHud />}
     </div>
   );
 }
