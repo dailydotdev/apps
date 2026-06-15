@@ -26,20 +26,20 @@ const CRITICAL_TOOLTIP_MS = 5000;
 // Default states are just a slim coloured border with a transparent inside;
 // only at-risk/critical add a faint colour fill that opacity-pulses (more/less
 // visible) so danger reads as an ambient glow, not a solid block.
-// Outer border (frame). Calm states (pending/safe/rest) wear the same slim
-// solid gray as the default border. `new` and `at_risk` are dashed (gray /
+// Outer border (frame). Calm states (pending/safe/rest) wear the same soft
+// gray as the sidebar's rail/panel separator (border-subtlest-quaternary). `new` and `at_risk` are dashed (gray /
 // static amber). Critical is dashed red that gently breathes (opacity pulse) in
 // sync with its fill — the escalation cue beyond at_risk's static amber. Rest
 // day keeps the calm gray border; its frozen identity is the fill + flame/
 // number colour. The earn celebration briefly flashes the brand pink.
 const frameClassByState: Record<StreakRingState, string> = {
-  none: 'border-dashed border-border-subtlest-tertiary',
-  pending: 'border-border-subtlest-tertiary',
-  safe: 'border-border-subtlest-tertiary',
+  none: 'border-dashed border-border-subtlest-quaternary',
+  pending: 'border-border-subtlest-quaternary',
+  safe: 'border-border-subtlest-quaternary',
   celebration: 'border-accent-bacon-default',
   at_risk: 'border-dashed border-status-warning',
   critical: 'animate-streak-border-pulse border-dashed border-status-error',
-  freeze: 'border-border-subtlest-tertiary',
+  freeze: 'border-border-subtlest-quaternary',
 };
 
 // Inner background fill. Transparent by default; a faint, opacity-pulsing tint
