@@ -49,7 +49,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
-import { GiftIcon, InviteIcon } from '@dailydotdev/shared/src/components/icons';
+import { GiftIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -112,11 +112,6 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
-      <img
-        className="mb-6 h-40 w-40 self-center object-contain"
-        src={cloudinaryCharmInviteFriends}
-        alt="daily.dev charm inviting your friends"
-      />
       {isPlusAvailable && (
         <div className="mb-6 flex flex-col gap-4">
           <div className="space-y-1">
@@ -190,7 +185,11 @@ const AccountInvitePage = (): ReactElement => {
           }}
           emptyPlaceholder={
             <div className="mt-16 flex flex-col items-center text-text-secondary">
-              <InviteIcon size={IconSize.XXXLarge} />
+              <img
+                className="h-40 w-40 object-contain"
+                src={cloudinaryCharmInviteFriends}
+                alt="daily.dev charm inviting your friends"
+              />
               <p className="mt-2 typo-body">
                 No one has joined yet. Share your link!
               </p>
