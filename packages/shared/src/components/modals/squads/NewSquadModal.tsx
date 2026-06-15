@@ -8,7 +8,7 @@ import { useSquadNavigation } from '../../../hooks';
 import { webappUrl } from '../../../lib/constants';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { Image } from '../../image/Image';
-import { cloudinarySquadsCreateSquadBiggerThanMobile } from '../../../lib/image';
+import { cloudinaryCharmEmptySquads } from '../../../lib/image';
 import {
   Typography,
   TypographyColor,
@@ -50,9 +50,9 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           variant={ButtonVariant.Primary}
         />
         <Image
-          className="rounded-16"
-          src={cloudinarySquadsCreateSquadBiggerThanMobile}
-          alt="Slack integration"
+          className="h-40 w-40 object-contain"
+          src={cloudinaryCharmEmptySquads}
+          alt="daily.dev charm waving in an empty squad"
         />
         <Typography
           type={TypographyType.Title1}
