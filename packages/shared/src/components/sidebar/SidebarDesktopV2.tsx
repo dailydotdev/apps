@@ -54,7 +54,6 @@ import {
   GiftIcon,
   HelpIcon,
   HomeIcon,
-  HotIcon,
   InviteIcon,
   JobIcon,
   LinkIcon,
@@ -80,6 +79,7 @@ import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakPopover } from './StreakPopover';
+import { StreakRing } from './StreakRing';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -99,7 +99,6 @@ import {
   webappUrl,
 } from '../../lib/constants';
 import { isAppleDevice } from '../../lib/func';
-import { largeNumberFormat } from '../../lib/numberFormat';
 import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -394,12 +393,9 @@ const SidebarProfileButton = ({
   const {
     isEnabled: isStreakEnabled,
     streak,
+    state: streakState,
     count: streakCount,
     hasReadToday,
-    frameClassName: streakFrameClassName,
-    fillClassName: streakFillClassName,
-    popClassName: streakPopClassName,
-    countClassName: streakCountClassName,
     copy: streakCopy,
     autoOpenTooltip: autoOpenStreakTooltip,
   } = useStreakRingState();
@@ -491,105 +487,49 @@ const SidebarProfileButton = ({
     <>
       <div className="relative mb-2.5 flex justify-center">
         {isStreakEnabled ? (
-          // "Border legend" layout: a bordered box holds the 40px avatar (7px
-          // ring; frame radius 16, fill 13), and the flame + number sit ON the
-          // bottom border and break through it like a fieldset legend — the
-          // chip's background is the sidebar background so it masks the line
-          // where it crosses, and a long number simply opens a wider gap. The
-          // box is tall enough (66) that the chip sits well below the avatar
-          // instead of crowding it. The avatar (profile menu) and the streak
-          // chip (streak popover) are two distinct buttons, each with its own
-          // hover + tooltip. All state visuals (border dashes/colour, fill,
-          // number colour, animations) come from useStreakRingState.
-          <div className="relative h-[66px] w-[54px]">
-            {/* Surround = two layers grouped so they pop together (background
-                only): an outer dashed/solid frame that outlines the whole
-                component, and a separate inner background fill. Avatar + number
-                sit above and stay static. */}
-            <div
-              aria-hidden
-              className={classNames(
-                'pointer-events-none absolute inset-0',
-                streakPopClassName,
-              )}
-              style={{ transformOrigin: '50% 30%' }}
-            >
-              <span
-                className={classNames(
-                  'absolute inset-0 rounded-[16px] border',
-                  streakFrameClassName,
-                )}
-              />
-              <span
-                className={classNames(
-                  'absolute inset-[3px] rounded-[13px]',
-                  streakFillClassName,
-                )}
-              />
-            </div>
-            <Tooltip
-              side="right"
-              content="Profile menu"
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              <button
-                type="button"
-                aria-label="Open profile menu"
-                aria-expanded={isOpen}
-                onClick={wrapHandler(() => onUpdate(!isOpen))}
-                // Avatar simply scales up a touch on hover — no brightness/glow.
-                // `block` on the image kills the inline baseline gap that
-                // otherwise made the button taller than wide.
-                className="focus-outline absolute left-[7px] top-[7px] z-1 overflow-hidden rounded-12 transition-transform hover:scale-105"
+          // Shared StreakRing renders the "border legend" visual (avatar in a
+          // bordered box; flame + count break through the bottom border). The
+          // avatar (profile menu) and the chip (streak popover) are two distinct
+          // buttons — we pass the avatar button + the chip's interactivity here;
+          // all state visuals live in StreakRing / useStreakRingState.
+          <StreakRing
+            state={streakState}
+            count={streakCount}
+            hasReadToday={hasReadToday}
+            chipRef={streakChipRef}
+            chipAriaLabel={`Reading streak: ${streakCount} days. ${streakCopy}`}
+            chipAriaExpanded={isStreakOpen}
+            onChipClick={(event) => {
+              event.stopPropagation();
+              setStreakOpen(!isStreakOpen);
+            }}
+            chipTooltip={streakCopy}
+            chipTooltipOpen={autoOpenStreakTooltip}
+            avatar={
+              <Tooltip
+                side="right"
+                content="Profile menu"
+                collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
               >
-                <ProfilePicture
-                  user={user}
-                  size={ProfileImageSize.Large}
-                  nativeLazyLoading
-                  className="block"
-                />
-              </button>
-            </Tooltip>
-            <Tooltip
-              side="right"
-              content={streakCopy}
-              open={autoOpenStreakTooltip || undefined}
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              {/* The chip straddles the box's bottom border and uses the
-                  sidebar background so it masks the line where it crosses — the
-                  number "breaks through" the border (fieldset-legend style). It
-                  hangs a touch below the box; a longer number just widens the
-                  gap it opens. Scales gently on hover for affordance. */}
-              <button
-                ref={streakChipRef}
-                type="button"
-                aria-label={`Reading streak: ${streakCount} days. ${streakCopy}`}
-                aria-expanded={isStreakOpen}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setStreakOpen(!isStreakOpen);
-                }}
-                className="focus-outline absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 bg-background-default px-1.5 py-0.5 transition-transform hover:scale-110"
-              >
-                <HotIcon
-                  secondary={hasReadToday}
-                  size={IconSize.Size16}
-                  className={streakCountClassName}
-                />
-                <Typography
-                  type={TypographyType.Caption1}
-                  bold
-                  className={classNames(
-                    'whitespace-nowrap tabular-nums',
-                    streakCountClassName,
-                  )}
+                <button
+                  type="button"
+                  aria-label="Open profile menu"
+                  aria-expanded={isOpen}
+                  onClick={wrapHandler(() => onUpdate(!isOpen))}
+                  // Avatar scales up a touch on hover — no glow. `block` on the
+                  // image kills the inline baseline gap.
+                  className="focus-outline size-full overflow-hidden rounded-12 transition-transform hover:scale-105"
                 >
-                  {largeNumberFormat(streakCount) ?? streakCount}
-                </Typography>
-              </button>
-            </Tooltip>
-          </div>
+                  <ProfilePicture
+                    user={user}
+                    size={ProfileImageSize.Large}
+                    nativeLazyLoading
+                    className="block"
+                  />
+                </button>
+              </Tooltip>
+            }
+          />
         ) : (
           <button
             type="button"

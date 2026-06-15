@@ -33,7 +33,7 @@ const CRITICAL_TOOLTIP_MS = 5000;
 // sync with its fill — the escalation cue beyond at_risk's static amber. Rest
 // day keeps the calm gray border; its frozen identity is the fill + flame/
 // number colour. The earn celebration briefly flashes the brand pink.
-const frameClassByState: Record<StreakRingState, string> = {
+export const frameClassByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-border-subtlest-tertiary',
   pending: 'border-border-subtlest-tertiary',
   safe: 'border-border-subtlest-tertiary',
@@ -48,7 +48,7 @@ const frameClassByState: Record<StreakRingState, string> = {
 // fallback). Critical pulses harder + wider (more prominent animation, not a
 // heavier static block). Rest day is a static faint blue (frozen). The earn
 // celebration is a solid brand-pink fill (V1 style).
-const fillClassByState: Record<StreakRingState, string> = {
+export const fillClassByState: Record<StreakRingState, string> = {
   none: 'bg-transparent',
   pending: 'bg-transparent',
   safe: 'bg-transparent',
@@ -60,7 +60,7 @@ const fillClassByState: Record<StreakRingState, string> = {
 
 // One-off scale pop reserved for the earn moment — the whole component does a
 // V1-style celebratory pop; other states don't scale.
-const popClassByState: Record<StreakRingState, string> = {
+export const popClassByState: Record<StreakRingState, string> = {
   none: '',
   pending: '',
   safe: '',
@@ -73,7 +73,7 @@ const popClassByState: Record<StreakRingState, string> = {
 // Count + flame colour. Not-read is muted gray; once you've read today the
 // flame turns brand pink (and fills, via `secondary={hasReadToday}`).
 // At-risk/critical use the state colour, rest day blue, earn flash white.
-const countClassByState: Record<StreakRingState, string> = {
+export const countClassByState: Record<StreakRingState, string> = {
   none: 'text-text-quaternary',
   pending: 'text-text-tertiary',
   safe: 'text-accent-bacon-default',
