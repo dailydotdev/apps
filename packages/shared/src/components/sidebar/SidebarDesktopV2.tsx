@@ -476,7 +476,7 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <div className="relative flex justify-center pb-1">
+      <div className="relative mb-3 flex justify-center">
         <button
           type="button"
           aria-label="Open profile menu"
@@ -512,7 +512,7 @@ const SidebarProfileButton = ({
               event.stopPropagation();
               setIsStreakOpen((open) => !open);
             }}
-            className="focus-outline absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full border border-border-subtlest-tertiary bg-background-default py-0.5 pl-1 pr-1.5 shadow-2 transition-colors hover:bg-surface-hover"
+            className="focus-outline absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 border border-border-subtlest-tertiary bg-background-default py-0.5 pl-1 pr-1.5 transition-colors hover:bg-surface-hover"
           >
             <ReadingStreakIcon
               secondary={hasReadToday}
