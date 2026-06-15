@@ -82,7 +82,7 @@ export const StreakRing = ({
   );
 
   return (
-    <div className="relative h-[66px] w-[54px]">
+    <div className="relative h-[62px] w-[54px]">
       {/* Surround = frame (dashed/solid coloured border) + a separate fill
           layer; grouped so the celebration pop scales them together. */}
       <div
