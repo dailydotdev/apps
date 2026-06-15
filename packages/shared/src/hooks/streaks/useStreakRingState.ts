@@ -37,7 +37,9 @@ export const frameClassByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-border-subtlest-tertiary',
   pending: 'border-border-subtlest-tertiary',
   safe: 'border-border-subtlest-tertiary',
-  celebration: 'border-accent-bacon-default',
+  // Earn: only the border animates — it pops bigger while shifting gray -> pink,
+  // then settles back to default size (see streak-earn-border keyframe).
+  celebration: 'animate-streak-earn-border border-accent-bacon-default',
   at_risk: 'border-dashed border-status-warning',
   critical: 'animate-streak-border-pulse border-dashed border-status-error',
   freeze: 'border-border-subtlest-tertiary',
@@ -52,19 +54,21 @@ export const fillClassByState: Record<StreakRingState, string> = {
   none: 'bg-transparent',
   pending: 'bg-transparent',
   safe: 'bg-transparent',
-  celebration: 'bg-accent-bacon-default',
+  // Earn: the background stays clear while the border pops, then fades to pink
+  // on the way back (no size change) — see streak-earn-fill keyframe.
+  celebration: 'animate-streak-earn-fill',
   at_risk: 'animate-streak-fade bg-status-warning opacity-20',
   critical: 'animate-streak-pulse bg-status-error opacity-40',
   freeze: 'bg-accent-blueCheese-flat',
 };
 
-// One-off scale pop reserved for the earn moment — the whole component does a
-// V1-style celebratory pop; other states don't scale.
+// The earn pop now scales the border only (streak-earn-border), not the whole
+// surround, so no surround-level animation is needed any more.
 export const popClassByState: Record<StreakRingState, string> = {
   none: '',
   pending: '',
   safe: '',
-  celebration: 'animate-reward-pop',
+  celebration: '',
   at_risk: '',
   critical: '',
   freeze: '',
@@ -77,7 +81,8 @@ export const countClassByState: Record<StreakRingState, string> = {
   none: 'text-text-quaternary',
   pending: 'text-text-tertiary',
   safe: 'text-accent-bacon-default',
-  celebration: 'text-white',
+  // Earn shares the read-today pink for the flame + number.
+  celebration: 'text-accent-bacon-default',
   at_risk: 'text-status-warning',
   critical: 'text-status-error',
   freeze: 'text-accent-blueCheese-default',

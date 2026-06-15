@@ -10,7 +10,6 @@ import {
   countClassByState,
   fillClassByState,
   frameClassByState,
-  popClassByState,
 } from '../../hooks/streaks/useStreakRingState';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 
@@ -64,7 +63,7 @@ export const StreakRing = ({
       className="focus-outline absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 bg-background-default px-1.5 py-0.5 transition-transform hover:scale-110"
     >
       <HotIcon
-        secondary={hasReadToday}
+        secondary={hasReadToday || state === 'freeze'}
         size={IconSize.Size16}
         className={countClassByState[state]}
       />
@@ -84,24 +83,24 @@ export const StreakRing = ({
   return (
     <div className="relative h-[62px] w-[54px]">
       {/* Surround = frame (dashed/solid coloured border) + a separate fill
-          layer; grouped so the celebration pop scales them together. */}
+          layer. `transition-colors` makes state colour changes — and the
+          earn-pop's settle back to the calm look — fade smoothly. The earn pop
+          scales the frame only (see streak-earn-border), so the fill never
+          changes size. */}
       <div
         aria-hidden
-        className={classNames(
-          'pointer-events-none absolute inset-0',
-          popClassByState[state],
-        )}
+        className="pointer-events-none absolute inset-0"
         style={{ transformOrigin: '50% 35%' }}
       >
         <span
           className={classNames(
-            'absolute inset-0 rounded-[16px] border',
+            'absolute inset-0 rounded-[16px] border transition-colors',
             frameClassByState[state],
           )}
         />
         <span
           className={classNames(
-            'absolute inset-[3px] rounded-[13px]',
+            'absolute inset-[3px] rounded-[13px] transition-colors',
             fillClassByState[state],
           )}
         />

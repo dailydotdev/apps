@@ -326,6 +326,31 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
         },
+        // Earn pop: the border scales up while shifting gray -> pink, then
+        // settles back to its default size (the colour stays pink).
+        'streak-earn-border': {
+          '0%': {
+            transform: 'scale(1)',
+            borderColor: 'var(--theme-border-subtlest-tertiary)',
+          },
+          '40%': {
+            transform: 'scale(1.22)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+          '70%, 100%': {
+            transform: 'scale(1)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+        },
+        // Earn pop: the fill stays clear while the border pops, then fades to a
+        // pink tint on the way back — no size change.
+        'streak-earn-fill': {
+          '0%, 50%': { backgroundColor: 'transparent' },
+          '100%': {
+            backgroundColor:
+              'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
+          },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -349,6 +374,9 @@ export default {
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
         'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
+        'streak-earn-border':
+          'streak-earn-border 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'streak-earn-fill': 'streak-earn-fill 1.5s ease-out both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
