@@ -8,6 +8,7 @@ import {
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { cloudinaryCharmInviteFriends } from '@dailydotdev/shared/src/lib/image';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
   generateQueryKey,
   getNextPageParam,
@@ -185,10 +186,11 @@ const AccountInvitePage = (): ReactElement => {
           }}
           emptyPlaceholder={
             <div className="mt-16 flex flex-col items-center text-text-secondary">
-              <img
+              <Image
                 className="h-40 w-40 object-contain"
                 src={cloudinaryCharmInviteFriends}
                 alt="daily.dev charm inviting your friends"
+                loading="lazy"
               />
               <p className="mt-2 typo-body">
                 No one has joined yet. Share your link!

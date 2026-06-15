@@ -11,6 +11,7 @@ function SquadEmptyScreen(): ReactElement {
         className="mb-3 h-40 w-40 object-contain tablet:mb-8"
         src={cloudinaryCharmEmptySquads}
         alt="daily.dev charm waving in an empty squad"
+        loading="lazy"
       />
       <span className="max-w-lg text-text-primary typo-body tablet:typo-title1">
         Get started by sharing your first post and inviting other developers you

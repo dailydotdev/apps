@@ -4,6 +4,7 @@ import Link from './utilities/Link';
 import { PageContainer } from './utilities';
 import { Button, ButtonVariant } from './buttons/Button';
 import { cloudinaryCharm404 } from '../lib/image';
+import { Image } from './image/Image';
 
 interface Custom404Props {
   children?: ReactNode;
@@ -17,10 +18,11 @@ export default function Custom404({ children }: Custom404Props): ReactElement {
     >
       {children}
       <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-6 text-center">
-        <img
+        <Image
           className="h-40 w-40 object-contain"
           src={cloudinaryCharm404}
           alt="404 - Page not found"
+          loading="lazy"
         />
         <h1 className="font-bold typo-large-title">Why are you here?</h1>
         <p className="text-text-tertiary typo-callout">

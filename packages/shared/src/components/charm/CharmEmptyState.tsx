@@ -12,13 +12,15 @@ import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
 
-export interface CharmEmptyStateAction {
+interface CharmEmptyStateActionBase {
   label: string;
   icon?: ButtonProps<'button'>['icon'];
-  /** Render as a link. Takes precedence over `onClick`. */
-  href?: string;
-  onClick?: () => void;
 }
+
+/** Exactly one of `href` (renders a link) or `onClick` (renders a button). */
+export type CharmEmptyStateAction =
+  | (CharmEmptyStateActionBase & { href: string; onClick?: never })
+  | (CharmEmptyStateActionBase & { onClick: () => void; href?: never });
 
 export interface CharmEmptyStateProps {
   /** Charm illustration URL (e.g. a `cloudinaryCharm*` constant from lib/image). */

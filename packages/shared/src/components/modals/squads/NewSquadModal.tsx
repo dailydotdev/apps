@@ -53,6 +53,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           className="h-56 w-56 object-contain"
           src={cloudinaryCharmEmptySquads}
           alt="daily.dev charm waving in an empty squad"
+          loading="lazy"
         />
         <Typography
           type={TypographyType.Title1}

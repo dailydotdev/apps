@@ -3,14 +3,16 @@ import React from 'react';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
 
-export interface ProfileEmptyScreenProps {
+type EmptyScreenImage =
+  | { image: string; imageAlt: string }
+  | { image?: never; imageAlt?: never };
+
+export type ProfileEmptyScreenProps = {
   text: string;
   title: string;
   className?: string;
   children?: ReactElement;
-  image?: string;
-  imageAlt?: string;
-}
+} & EmptyScreenImage;
 
 export function ProfileEmptyScreen({
   text,

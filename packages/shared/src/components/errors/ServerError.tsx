@@ -10,14 +10,16 @@ import { TerminalIcon, TwitterIcon } from '../icons';
 import { statusPage, twitter } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { cloudinaryCharmSomethingWentWrong } from '../../lib/image';
+import { Image } from '../image/Image';
 
 function ServerError(): ReactElement {
   return (
     <div className="flex max-h-full w-full flex-col items-center justify-center gap-4 self-center text-center laptop:w-[21.25rem] laptop:max-w-[21.25rem]">
-      <img
+      <Image
         className="h-40 w-40 object-contain"
         src={cloudinaryCharmSomethingWentWrong}
-        alt="Production is down (FML)"
+        alt="daily.dev charm — something went wrong"
+        loading="lazy"
       />
       <Typography type={TypographyType.LargeTitle} bold>
         Production is down

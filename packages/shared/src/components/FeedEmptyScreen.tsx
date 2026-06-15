@@ -11,6 +11,7 @@ import { PageContainer } from './utilities';
 import { ButtonSize } from './buttons/common';
 import { webappUrl } from '../lib/constants';
 import { cloudinaryCharmNotEnoughTags } from '../lib/image';
+import { Image } from './image/Image';
 import { useAuthContext } from '../contexts/AuthContext';
 
 function FeedEmptyScreen(): ReactElement | null {
@@ -24,10 +25,11 @@ function FeedEmptyScreen(): ReactElement | null {
   return (
     <PageContainer className="mx-auto">
       <EmptyScreenContainer>
-        <img
+        <Image
           className="h-40 w-40 object-contain"
           src={cloudinaryCharmNotEnoughTags}
           alt="daily.dev charm holding tags"
+          loading="lazy"
         />
         <EmptyScreenTitle>Your feed filters are too specific.</EmptyScreenTitle>
         <EmptyScreenDescription>

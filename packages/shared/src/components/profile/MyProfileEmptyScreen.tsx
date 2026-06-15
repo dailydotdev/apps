@@ -5,15 +5,17 @@ import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 
-export interface MyProfileEmptyScreenProps {
+type EmptyScreenImage =
+  | { image: string; imageAlt: string }
+  | { image?: never; imageAlt?: never };
+
+export type MyProfileEmptyScreenProps = {
   text: string;
   cta: string;
   buttonProps?: ButtonProps<'a' | 'button'>;
   className?: string;
   children?: ReactElement;
-  image?: string;
-  imageAlt?: string;
-}
+} & EmptyScreenImage;
 
 export function MyProfileEmptyScreen({
   text,

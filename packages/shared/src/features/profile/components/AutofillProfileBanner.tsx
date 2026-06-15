@@ -6,6 +6,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { cloudinaryCharmEmptyProfile } from '../../../lib/image';
+import { Image } from '../../../components/image/Image';
 
 import { CustomPromptIcon } from '../../../components/icons';
 import { cvUploadBannerBg } from '../../../styles/custom';
@@ -119,10 +120,11 @@ export function AutofillProfileBanner({
         />
       </div>
       <div className="w-60 laptop:w-40">
-        <img
+        <Image
           className="mx-auto h-40 w-40 object-contain"
           src={cloudinaryCharmEmptyProfile}
           alt="daily.dev charm encouraging you to complete your profile"
+          loading="lazy"
         />
       </div>
     </div>
