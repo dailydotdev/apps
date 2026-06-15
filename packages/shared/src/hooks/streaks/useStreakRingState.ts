@@ -13,13 +13,12 @@ export type StreakRingState =
   | 'critical'
   | 'freeze';
 
-const CELEBRATION_MS = 1800;
+// Short, gong-like earn pop — the strike + ring-out complete quickly with no
+// hold before the tile settles back to its read-today look.
+const CELEBRATION_MS = 800;
 const AT_RISK_HOURS = 6;
 const CRITICAL_HOURS = 2;
 const TICK_MS = 5 * 60 * 1000;
-// How long the urgency tooltip auto-surfaces when the streak first turns
-// critical, before reverting to hover-only.
-const CRITICAL_TOOLTIP_MS = 5000;
 
 // The streak component is two layers: an outer border (frame) outlining the
 // whole thing — avatar + bottom tab — and a separate inner background fill.
@@ -105,11 +104,9 @@ export interface StreakRingInfo {
   count: number;
   hasReadToday: boolean;
   copy: string;
-  // at_risk | critical — drives the urgent chip border + tooltip emphasis.
+  // at_risk | critical — drives the urgent chip border + auto-opens the tooltip
+  // (the caller keeps it open until the user hovers the streak).
   isUrgent: boolean;
-  // True briefly when the streak first turns critical, to auto-open the
-  // urgency tooltip; reverts to hover-only after.
-  autoOpenTooltip: boolean;
 }
 
 const getCopy = (state: StreakRingState, count: number): string => {
@@ -196,26 +193,6 @@ export const useStreakRingState = (): StreakRingInfo => {
     return 'pending';
   })();
 
-  // Auto-surface the urgency tooltip once when the streak first turns critical.
-  const [autoOpenTooltip, setAutoOpenTooltip] = useState(false);
-  const prevStateRef = useRef<StreakRingState | null>(null);
-  useEffect(() => {
-    const prev = prevStateRef.current;
-    prevStateRef.current = state;
-    if (prev !== 'critical' && state === 'critical') {
-      setAutoOpenTooltip(true);
-      const timeout = setTimeout(
-        () => setAutoOpenTooltip(false),
-        CRITICAL_TOOLTIP_MS,
-      );
-      return () => clearTimeout(timeout);
-    }
-    if (state !== 'critical') {
-      setAutoOpenTooltip(false);
-    }
-    return undefined;
-  }, [state]);
-
   return {
     isEnabled,
     isLoading,
@@ -229,6 +206,5 @@ export const useStreakRingState = (): StreakRingInfo => {
     hasReadToday,
     copy: getCopy(state, count),
     isUrgent: state === 'at_risk' || state === 'critical',
-    autoOpenTooltip,
   };
 };

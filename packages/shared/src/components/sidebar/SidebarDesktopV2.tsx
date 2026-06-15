@@ -398,11 +398,23 @@ const SidebarProfileButton = ({
     count: streakCount,
     hasReadToday,
     copy: streakCopy,
-    autoOpenTooltip: autoOpenStreakTooltip,
+    isUrgent: isStreakUrgent,
   } = useStreakRingState();
   const { isOpen: isStreakOpen, onUpdate: setStreakOpen } =
     useInteractivePopup(RAIL_POPUP_GROUP);
   const streakChipRef = useRef<HTMLButtonElement>(null);
+  // When at risk / critical, auto-open the streak tooltip to nudge the user, and
+  // keep it open until they hover the streak (then it reverts to hover-only).
+  // Re-arms each time the streak (re-)enters an urgent state.
+  const [streakTooltipDismissed, setStreakTooltipDismissed] = useState(false);
+  const prevStreakUrgentRef = useRef(false);
+  useEffect(() => {
+    if (isStreakUrgent && !prevStreakUrgentRef.current) {
+      setStreakTooltipDismissed(false);
+    }
+    prevStreakUrgentRef.current = isStreakUrgent;
+  }, [isStreakUrgent]);
+  const autoOpenStreakTooltip = isStreakUrgent && !streakTooltipDismissed;
 
   if (!user) {
     return null;
@@ -507,6 +519,7 @@ const SidebarProfileButton = ({
             }}
             chipTooltip={streakCopy}
             chipTooltipOpen={autoOpenStreakTooltip}
+            onMouseEnter={() => setStreakTooltipDismissed(true)}
             avatar={
               <Tooltip
                 side="right"

@@ -47,6 +47,9 @@ export interface StreakRingProps {
   // When provided, the chip shows a right-side tooltip with this content.
   chipTooltip?: ReactNode;
   chipTooltipOpen?: boolean;
+  // Fired when the user hovers the streak — used to dismiss the auto-opened
+  // urgency tooltip.
+  onMouseEnter?: MouseEventHandler<HTMLDivElement>;
 }
 
 // Presentational streak indicator ("border legend" layout): a bordered box
@@ -69,6 +72,7 @@ export const StreakRing = ({
   onChipClick,
   chipTooltip,
   chipTooltipOpen,
+  onMouseEnter,
 }: StreakRingProps): ReactElement => {
   // Loading: a neutral calm border + transparent fill keep the box stable while
   // the data resolves.
@@ -113,7 +117,7 @@ export const StreakRing = ({
   );
 
   return (
-    <div className="relative h-[62px] w-[54px]">
+    <div className="relative h-[62px] w-[54px]" onMouseEnter={onMouseEnter}>
       {/* Surround = frame (dashed/solid coloured border) + a separate fill
           layer. `transition-colors` makes state colour changes — and the
           earn-pop's settle back to the calm look — fade smoothly. The earn pop
