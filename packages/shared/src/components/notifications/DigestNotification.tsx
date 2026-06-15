@@ -22,8 +22,8 @@ const digestCopy = `Our recommendation system scans everything on daily.dev and
 const DigestNotification = () => {
   const {
     notificationSettings: ns,
-    toggleSetting,
     setNotificationStatus,
+    setNotificationStatusBulk,
   } = useNotificationSettings();
   const { isPushSupported } = usePushNotificationContext();
   const { user } = useAuthContext();
@@ -82,19 +82,27 @@ const DigestNotification = () => {
   const isChecked = ns?.[NotificationType.DigestReady]?.inApp === 'subscribed';
 
   const onToggleDigest = () => {
-    toggleSetting(NotificationType.DigestReady, 'inApp');
-    onLogToggle(!isChecked, NotificationCategory.Digest);
+    const enabling = !isChecked;
+    const newStatus = enabling
+      ? NotificationPreferenceStatus.Subscribed
+      : NotificationPreferenceStatus.Muted;
+
+    onLogToggle(enabling, NotificationCategory.Digest);
 
     // Email for digest is managed via BriefingReady in the email tab
     const emailActive =
       ns?.[NotificationType.BriefingReady]?.email === 'subscribed';
 
-    if (isChecked && !emailActive) {
+    if (!enabling && !emailActive) {
       // Turning off in-app and email is already off → fully unsubscribe
+      setNotificationStatus(NotificationType.DigestReady, 'inApp', newStatus);
       unsubscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Digest,
       });
-    } else if (!digest) {
+      return;
+    }
+
+    if (enabling && !digest) {
       // Enabling Digest — if Brief subscription exists, replace it
       const briefDigest = getPersonalizedDigest(
         UserPersonalizedDigestType.Brief,
@@ -103,17 +111,33 @@ const DigestNotification = () => {
         unsubscribePersonalizedDigest({
           type: UserPersonalizedDigestType.Brief,
         });
+        setNotificationStatusBulk([
+          {
+            type: NotificationType.DigestReady,
+            channel: 'inApp',
+            status: NotificationPreferenceStatus.Subscribed,
+          },
+          {
+            type: NotificationType.BriefingReady,
+            channel: 'inApp',
+            status: NotificationPreferenceStatus.Muted,
+          },
+        ]);
+      } else {
         setNotificationStatus(
-          NotificationType.BriefingReady,
+          NotificationType.DigestReady,
           'inApp',
-          NotificationPreferenceStatus.Muted,
+          NotificationPreferenceStatus.Subscribed,
         );
       }
       subscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Digest,
         sendType: SendType.Workdays,
       });
+      return;
     }
+
+    setNotificationStatus(NotificationType.DigestReady, 'inApp', newStatus);
   };
 
   const onSubscribeDigest = async ({

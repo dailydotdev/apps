@@ -87,7 +87,7 @@ describe('useFeeds hook', () => {
       request: {
         query: FEED_LIST_QUERY,
         variables: {
-          includeTagChipFeeds: false,
+          includeTagChipFeeds: true,
         },
       },
       result: () => {
