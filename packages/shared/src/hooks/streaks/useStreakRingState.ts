@@ -9,16 +9,17 @@ export type StreakRingState =
   | 'pending'
   | 'safe'
   | 'celebration'
-  | 'milestone'
   | 'at_risk'
   | 'critical'
   | 'freeze';
 
-const MILESTONES = [7, 30, 50, 100, 365];
 const CELEBRATION_MS = 1800;
 const AT_RISK_HOURS = 6;
 const CRITICAL_HOURS = 2;
 const TICK_MS = 5 * 60 * 1000;
+// How long the urgency tooltip auto-surfaces when the streak first turns
+// critical, before reverting to hover-only.
+const CRITICAL_TOOLTIP_MS = 5000;
 
 // Variable ring classes per state, applied to a 3px border overlay around the
 // avatar (the base `-inset-[3px] rounded-[15px] border-[3px]` keeps it
@@ -27,10 +28,10 @@ const TICK_MS = 5 * 60 * 1000;
 // danger never reads as the pink streak.
 const ringClassByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-border-subtlest-secondary',
-  pending: 'animate-pulse border-accent-bacon-default',
+  // Pending is intentionally static (no pulse) — no early-day nagging.
+  pending: 'border-accent-bacon-default',
   safe: 'border-accent-bacon-default',
   celebration: 'animate-reward-pop border-accent-bacon-default',
-  milestone: 'animate-streak-shimmer border-dashed border-accent-bacon-default',
   at_risk: 'animate-streak-breathe border-dashed border-status-warning',
   critical: 'animate-streak-breathe-fast border-dashed border-status-error',
   freeze: 'border-accent-blueCheese-default',
@@ -44,8 +45,11 @@ export interface StreakRingInfo {
   count: number;
   hasReadToday: boolean;
   copy: string;
-  // at_risk | critical — surfaces the urgency tooltip on the streak chip.
+  // at_risk | critical — drives the urgent chip border + tooltip emphasis.
   isUrgent: boolean;
+  // True briefly when the streak first turns critical, to auto-open the
+  // urgency tooltip; reverts to hover-only after.
+  autoOpenTooltip: boolean;
 }
 
 const getCopy = (state: StreakRingState, count: number): string => {
@@ -56,8 +60,6 @@ const getCopy = (state: StreakRingState, count: number): string => {
       return `${count}-day reading streak.`;
     case 'celebration':
       return `Streak extended — ${count} days!`;
-    case 'milestone':
-      return `${count} days — a new milestone!`;
     case 'at_risk':
       return `Your ${count}-day streak ends tonight — read 1 post to keep it.`;
     case 'critical':
@@ -111,7 +113,7 @@ export const useStreakRingState = (): StreakRingInfo => {
       return 'none';
     }
     if (hasReadToday) {
-      return MILESTONES.includes(count) ? 'milestone' : 'safe';
+      return 'safe';
     }
     // Not read today: weekends/freeze days aren't at risk (summary already
     // accounts for the timezone + week start).
@@ -127,6 +129,26 @@ export const useStreakRingState = (): StreakRingInfo => {
     return 'pending';
   })();
 
+  // Auto-surface the urgency tooltip once when the streak first turns critical.
+  const [autoOpenTooltip, setAutoOpenTooltip] = useState(false);
+  const prevStateRef = useRef<StreakRingState | null>(null);
+  useEffect(() => {
+    const prev = prevStateRef.current;
+    prevStateRef.current = state;
+    if (prev !== 'critical' && state === 'critical') {
+      setAutoOpenTooltip(true);
+      const timeout = setTimeout(
+        () => setAutoOpenTooltip(false),
+        CRITICAL_TOOLTIP_MS,
+      );
+      return () => clearTimeout(timeout);
+    }
+    if (state !== 'critical') {
+      setAutoOpenTooltip(false);
+    }
+    return undefined;
+  }, [state]);
+
   return {
     isEnabled,
     streak,
@@ -136,5 +158,6 @@ export const useStreakRingState = (): StreakRingInfo => {
     hasReadToday,
     copy: getCopy(state, count),
     isUrgent: state === 'at_risk' || state === 'critical',
+    autoOpenTooltip,
   };
 };

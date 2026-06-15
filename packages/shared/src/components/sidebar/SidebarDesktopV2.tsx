@@ -394,6 +394,7 @@ const SidebarProfileButton = ({
     ringClassName: streakRingClassName,
     copy: streakCopy,
     isUrgent: isStreakUrgent,
+    autoOpenTooltip: autoOpenStreakTooltip,
   } = useStreakRingState();
   const [isStreakOpen, setIsStreakOpen] = useState(false);
   const streakChipRef = useRef<HTMLButtonElement>(null);
@@ -509,7 +510,11 @@ const SidebarProfileButton = ({
           </span>
         </button>
         {isStreakEnabled && (
-          <Tooltip side="right" content={streakCopy}>
+          <Tooltip
+            side="right"
+            content={streakCopy}
+            open={autoOpenStreakTooltip || undefined}
+          >
             <button
               ref={streakChipRef}
               type="button"
