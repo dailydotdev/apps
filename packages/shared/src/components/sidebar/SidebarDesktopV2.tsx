@@ -485,15 +485,14 @@ const SidebarProfileButton = ({
     <>
       <div className="relative mb-2 flex justify-center">
         {isStreakEnabled ? (
-          // A bordered box wraps the 40px avatar (top, centred) and the flame +
-          // number (bottom). The box is a little wider (62px) than the avatar so
-          // the number has room and never touches the border; frame radius 19,
-          // fill (3px in) = 16. The avatar (profile menu) and the streak chip
-          // (streak popover) are two distinct buttons, each with its own hover +
-          // tooltip. All state visuals (border dashes/colour, fill, number
-          // colour, animations) come from useStreakRingState — only the layout
-          // lives here.
-          <div className="relative h-[76px] w-[62px]">
+          // A bordered box wraps the 40px avatar (top) and the flame + number
+          // (bottom), with a 7px padding ring around the avatar. Concentric
+          // radii: avatar 12 + 7 gap = frame 19, fill (3px in) = 16. The avatar
+          // (profile menu) and the streak chip (streak popover) are two distinct
+          // buttons, each with its own hover + tooltip. All state visuals
+          // (border dashes/colour, fill, number colour, animations) come from
+          // useStreakRingState and are unchanged — only the layout lives here.
+          <div className="relative h-[76px] w-[54px]">
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
                 component, and a separate inner background fill. Avatar + number
@@ -529,7 +528,7 @@ const SidebarProfileButton = ({
                 // (scale + brighten) rather than a light wash — distinct from
                 // the streak chip's light hover pill so the two read as two
                 // separate buttons.
-                className="focus-outline absolute left-1/2 top-[7px] z-1 -translate-x-1/2 overflow-hidden rounded-12 transition-[transform,filter] hover:scale-105 hover:brightness-110"
+                className="focus-outline absolute left-[7px] top-[7px] z-1 overflow-hidden rounded-12 transition-[transform,filter] hover:scale-105 hover:brightness-110"
               >
                 <ProfilePicture
                   user={user}
