@@ -44,7 +44,11 @@ export const useTimedAnimation = ({
   };
 
   const endAnimation = useCallback(() => {
-    if (!interval.current) {
+    // Guard on hasStartedAnimation (not interval.current): hover-pause clears
+    // the interval, so an interval check would make dismiss/undo a no-op while
+    // the pointer is over the toast. A started-but-paused animation must still
+    // be endable.
+    if (!hasStartedAnimation.current) {
       return;
     }
 

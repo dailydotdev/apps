@@ -189,7 +189,6 @@ export const usePostToSquad = ({
             onClick: () => toggleGroup('pollResult', true, 'inApp'),
             copy: 'Enable',
             buttonProps: {
-              className: 'bg-background-default text-text-primary',
               size: ButtonSize.Small,
               icon: <BellIcon />,
             },
