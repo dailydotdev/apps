@@ -23,6 +23,12 @@ interface PostCardFooterProps extends CommonCardCoverProps {
   eagerLoadImage?: boolean;
 }
 
+// When the cover is full-bleed (glass), the video tint must match the image
+// exactly: drop the side inset, square the top + round the bottom to the card,
+// and darken it a touch for legibility.
+const glassVideoOverlay =
+  '!inset-x-0 !rounded-t-none !rounded-b-16 !bg-overlay-secondary-black';
+
 export const PostCardFooter = ({
   className,
   eagerLoadImage = false,
@@ -50,7 +56,10 @@ export const PostCardFooter = ({
           ...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }),
           src: post.image,
         }}
-        videoProps={{ className: classNames(videoProps, className.cover) }}
+        videoProps={{
+          className: classNames(videoProps, className.cover),
+          overlayClassName: className.cover ? glassVideoOverlay : undefined,
+        }}
       />
     </>
   );
