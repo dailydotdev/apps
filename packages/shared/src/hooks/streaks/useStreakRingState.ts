@@ -26,31 +26,35 @@ const CRITICAL_TOOLTIP_MS = 5000;
 // Default states are just a slim coloured border with a transparent inside;
 // only at-risk/critical add a faint colour fill that opacity-pulses (more/less
 // visible) so danger reads as an ambient glow, not a solid block.
+// Outer border (frame). Calm states (safe/pending/rest) are a slim solid gray
+// matching the default border; only new + at-risk + critical are dashed, and
+// only at-risk/critical carry colour. The earn celebration briefly flashes the
+// brand pink (V1-style filled pop).
 const frameClassByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-border-subtlest-secondary',
-  pending: 'border-accent-bacon-default',
-  safe: 'border-accent-bacon-default',
+  pending: 'border-border-subtlest-secondary',
+  safe: 'border-border-subtlest-secondary',
   celebration: 'border-accent-bacon-default',
   at_risk: 'border-dashed border-status-warning',
   critical: 'border-dashed border-status-error',
-  freeze: 'border-accent-blueCheese-default',
+  freeze: 'border-border-subtlest-secondary',
 };
 
 // Inner background fill. Transparent by default; a faint, opacity-pulsing tint
-// only when the streak is at risk. `opacity-20` is the resting faintness (also
-// the reduced-motion fallback); the fade animation pulses around it.
+// when at risk (`opacity-20` is the resting faintness + reduced-motion
+// fallback). The earn celebration is a solid brand-pink fill (V1 style).
 const fillClassByState: Record<StreakRingState, string> = {
   none: 'bg-transparent',
   pending: 'bg-transparent',
   safe: 'bg-transparent',
-  celebration: 'bg-transparent',
+  celebration: 'bg-accent-bacon-default',
   at_risk: 'animate-streak-fade bg-status-warning opacity-20',
   critical: 'animate-streak-fade-fast bg-status-error opacity-20',
   freeze: 'bg-transparent',
 };
 
-// One-off scale pop reserved for the earn moment (the frame pops); other states
-// don't scale.
+// One-off scale pop reserved for the earn moment — the whole component does a
+// V1-style celebratory pop; other states don't scale.
 const popClassByState: Record<StreakRingState, string> = {
   none: '',
   pending: '',
@@ -61,16 +65,16 @@ const popClassByState: Record<StreakRingState, string> = {
   freeze: '',
 };
 
-// Count + flame colour. With a transparent/faint fill the count sits on the
-// rail, so it uses the state colour itself.
+// Count + flame colour. Calm states are muted gray; at-risk/critical use the
+// state colour; the earn flash uses white on the solid pink fill.
 const countClassByState: Record<StreakRingState, string> = {
   none: 'text-text-quaternary',
-  pending: 'text-accent-bacon-default',
-  safe: 'text-accent-bacon-default',
-  celebration: 'text-accent-bacon-default',
+  pending: 'text-text-tertiary',
+  safe: 'text-text-tertiary',
+  celebration: 'text-white',
   at_risk: 'text-status-warning',
   critical: 'text-status-error',
-  freeze: 'text-accent-blueCheese-default',
+  freeze: 'text-text-tertiary',
 };
 
 export interface StreakRingInfo {
