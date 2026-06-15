@@ -31,7 +31,10 @@ export enum ToastType {
 export interface ToastNotification {
   message: ReactNode;
   timer: number;
-  type?: ToastType;
+  // Named `variant` (not `type`) on purpose: a bare `type` field collides with
+  // `MouseEvent.type` (string) and breaks callers that pass a copy/share
+  // handler — which extends NotifyOptionalProps — directly as an onClick.
+  variant?: ToastType;
   subject?: ToastSubject;
   persistent?: boolean;
   onClose?: AnyFunction;
@@ -47,7 +50,7 @@ export const TOAST_NOTIF_KEY = ['toast_notif'];
 export type NotifyOptionalProps = Partial<
   Pick<
     ToastNotification,
-    'timer' | 'type' | 'subject' | 'persistent' | 'onClose' | 'action'
+    'timer' | 'variant' | 'subject' | 'persistent' | 'onClose' | 'action'
   >
 >;
 

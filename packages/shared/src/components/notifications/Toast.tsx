@@ -40,8 +40,12 @@ const toastIcon: Partial<
   [ToastType.Info]: { Icon: InfoIcon, color: 'text-status-info' },
 };
 
-const ToastIcon = ({ type }: { type?: ToastType }): ReactElement | null => {
-  if (type === ToastType.Loading) {
+const ToastIcon = ({
+  variant,
+}: {
+  variant?: ToastType;
+}): ReactElement | null => {
+  if (variant === ToastType.Loading) {
     // Loader defaults to a white spinner; point it at the chip's foreground so
     // it stays visible on both the dark (light page) and light (dark page) chip.
     return (
@@ -54,7 +58,7 @@ const ToastIcon = ({ type }: { type?: ToastType }): ReactElement | null => {
     );
   }
 
-  const entry = type ? toastIcon[type] : undefined;
+  const entry = variant ? toastIcon[variant] : undefined;
   if (!entry) {
     return null;
   }
@@ -185,7 +189,7 @@ const Toast = ({
       onMouseEnter={pauseAnimation}
       onMouseLeave={resumeAnimation}
     >
-      <ToastIcon type={toast.type} />
+      <ToastIcon variant={toast.variant} />
       <NotifMessage>{toast.message}</NotifMessage>
       {toast.action && (
         <Button
