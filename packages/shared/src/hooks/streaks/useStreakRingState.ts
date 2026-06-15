@@ -21,12 +21,11 @@ const TICK_MS = 5 * 60 * 1000;
 // critical, before reverting to hover-only.
 const CRITICAL_TOOLTIP_MS = 5000;
 
-// The streak component is two layers: an outer border that outlines the whole
-// thing (avatar + the bottom streak tab) and a separate inner background fill.
-// Keeping them apart lets the dashes read as a clean frame and lets the border
-// and fill colours be tuned independently. Healthy states are solid streak
-// pink; at-risk/critical use dashes in a non-streak colour so danger never
-// reads as the streak; `new` is a muted gray.
+// The streak component is two layers: an outer border (frame) outlining the
+// whole thing — avatar + bottom tab — and a separate inner background fill.
+// Default states are just a slim coloured border with a transparent inside;
+// only at-risk/critical add a faint colour fill that opacity-pulses (more/less
+// visible) so danger reads as an ambient glow, not a solid block.
 const frameClassByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-border-subtlest-secondary',
   pending: 'border-accent-bacon-default',
@@ -37,37 +36,41 @@ const frameClassByState: Record<StreakRingState, string> = {
   freeze: 'border-accent-blueCheese-default',
 };
 
+// Inner background fill. Transparent by default; a faint, opacity-pulsing tint
+// only when the streak is at risk. `opacity-20` is the resting faintness (also
+// the reduced-motion fallback); the fade animation pulses around it.
 const fillClassByState: Record<StreakRingState, string> = {
-  none: 'bg-border-subtlest-secondary',
-  pending: 'bg-accent-bacon-default',
-  safe: 'bg-accent-bacon-default',
-  celebration: 'bg-accent-bacon-default',
-  at_risk: 'bg-status-warning',
-  critical: 'bg-status-error',
-  freeze: 'bg-accent-blueCheese-default',
+  none: 'bg-transparent',
+  pending: 'bg-transparent',
+  safe: 'bg-transparent',
+  celebration: 'bg-transparent',
+  at_risk: 'animate-streak-fade bg-status-warning opacity-20',
+  critical: 'animate-streak-fade-fast bg-status-error opacity-20',
+  freeze: 'bg-transparent',
 };
 
-// Animation applied to the surround group (frame + fill together) — scale only,
-// so the background pops while the avatar and number stay still.
+// One-off scale pop reserved for the earn moment (the frame pops); other states
+// don't scale.
 const popClassByState: Record<StreakRingState, string> = {
   none: '',
   pending: '',
   safe: '',
   celebration: 'animate-reward-pop',
-  at_risk: 'animate-streak-pop',
-  critical: 'animate-streak-pop-fast',
+  at_risk: '',
+  critical: '',
   freeze: '',
 };
 
-// Contrast-safe text/flame colour for the count sitting on each fill.
+// Count + flame colour. With a transparent/faint fill the count sits on the
+// rail, so it uses the state colour itself.
 const countClassByState: Record<StreakRingState, string> = {
-  none: 'text-raw-pepper-90',
-  pending: 'text-white',
-  safe: 'text-white',
-  celebration: 'text-white',
-  at_risk: 'text-raw-pepper-90',
-  critical: 'text-white',
-  freeze: 'text-white',
+  none: 'text-text-quaternary',
+  pending: 'text-accent-bacon-default',
+  safe: 'text-accent-bacon-default',
+  celebration: 'text-accent-bacon-default',
+  at_risk: 'text-status-warning',
+  critical: 'text-status-error',
+  freeze: 'text-accent-blueCheese-default',
 };
 
 export interface StreakRingInfo {

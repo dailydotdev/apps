@@ -501,7 +501,7 @@ const SidebarProfileButton = ({
             >
               <span
                 className={classNames(
-                  'absolute inset-0 rounded-[16px] border-2',
+                  'absolute inset-0 rounded-[16px] border',
                   streakFrameClassName,
                 )}
               />
