@@ -98,6 +98,7 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  DailyPage = 'daily page',
 }
 
 export enum LogEvent {
@@ -508,6 +509,9 @@ export enum LogEvent {
   ClickGivebackEditCauses = 'click giveback edit causes',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
+  // Daily homepage
+  ReadDailyItem = 'read daily item',
+  DailyFeedback = 'daily feedback',
 }
 
 export enum TargetType {

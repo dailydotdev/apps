@@ -9,6 +9,10 @@ import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureDailyPage } from '../../lib/featureManagement';
+import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import type { ExploreCategory } from './exploreCategories';
 import { findActiveChipId } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
@@ -37,6 +41,13 @@ export function ExploreChipsBar({
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
+  const { isLoggedIn } = useAuthContext();
+  const { value: isDailyEnabled } = useConditionalFeature({
+    feature: featureDailyPage,
+    shouldEvaluate: isLoggedIn,
+  });
+  // When Daily is on, the Daily/Feed switcher replaces the "For you" chip.
+  const showDailySwitcher = isLoggedIn && isDailyEnabled;
 
   const forYouCategory: ExploreCategory = useMemo(() => {
     const path = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
@@ -54,8 +65,8 @@ export function ExploreChipsBar({
   }, [isCustomDefaultFeed]);
 
   const allCategories = useMemo(
-    () => [forYouCategory, ...categories],
-    [forYouCategory, categories],
+    () => (showDailySwitcher ? categories : [forYouCategory, ...categories]),
+    [showDailySwitcher, forYouCategory, categories],
   );
 
   const activeId = useMemo(
@@ -86,6 +97,7 @@ export function ExploreChipsBar({
         <NewStripCta
           className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
         />
+        {showDailySwitcher && <DailySwitcher reverse compact={compact} />}
         {allCategories.map((category) => {
           const isActive = category.id === activeId;
           const onClick = () => {

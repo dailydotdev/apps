@@ -242,3 +242,5 @@ export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
 );
+
+export const featureDailyPage = new Feature('daily_page', isDevelopment);

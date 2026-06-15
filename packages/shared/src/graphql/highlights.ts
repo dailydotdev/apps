@@ -259,6 +259,38 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
 
+export interface ChannelConfigurationsData {
+  channelConfigurations: ChannelConfiguration[];
+}
+
+export const CHANNEL_CONFIGURATIONS_QUERY_KEY = ['channel-configurations'];
+
+export const CHANNEL_CONFIGURATIONS_QUERY = gql`
+  query ChannelConfigurations {
+    channelConfigurations {
+      channel
+      displayName
+      digest {
+        frequency
+        source {
+          id
+          name
+          image
+          handle
+          permalink
+        }
+      }
+    }
+  }
+`;
+
+export const channelConfigurationsQueryOptions = () => ({
+  queryKey: CHANNEL_CONFIGURATIONS_QUERY_KEY,
+  queryFn: () =>
+    gqlClient.request<ChannelConfigurationsData>(CHANNEL_CONFIGURATIONS_QUERY),
+  staleTime: ONE_MINUTE,
+});
+
 export const highlightsPageQueryOptions = ({
   first = MAJOR_HEADLINES_MAX_FIRST,
   after,
