@@ -94,7 +94,7 @@ export const CriticalWithTooltip: Story = {
     state: 'critical',
     count: 12,
     hasReadToday: false,
-    chipTooltip: 'Last chance — read 1 post to save your 12-day streak.',
+    chipTooltip: 'Last chance - read 1 post to save your 12-day streak.',
     chipTooltipOpen: true,
   },
 };
