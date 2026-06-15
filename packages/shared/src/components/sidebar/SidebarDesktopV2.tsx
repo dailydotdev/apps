@@ -266,9 +266,7 @@ const SidebarInviteButton = (): ReactElement => (
   </Tooltip>
 );
 
-// daily.dev logo dropdown — the apps, changelog and docs are grouped under the
-// brand mark at the bottom of the rail.
-const logoItems: ProfileSectionItemProps[] = [
+const supportItems: ProfileSectionItemProps[] = [
   {
     title: 'Get the mobile app',
     href: appsUrl,
@@ -287,9 +285,6 @@ const logoItems: ProfileSectionItemProps[] = [
     icon: TerminalIcon,
   },
   { title: 'Docs', href: docs, icon: DocsIcon, external: true },
-];
-
-const supportItems: ProfileSectionItemProps[] = [
   { title: 'Report a bug', href: feedback, icon: FlagIcon, external: true },
 ];
 
@@ -338,46 +333,6 @@ const SidebarSupportButton = (): ReactElement => {
           <ProfileMenuSection items={supportItems} />
           <HorizontalSeparator />
           <ProfileMenuSection items={legalItems} />
-        </InteractivePopup>
-      )}
-    </>
-  );
-};
-
-// The daily.dev brand mark at the bottom of the rail. Clicking it opens a small
-// menu with the apps, changelog and docs. Home navigation lives on the Home rail
-// tab, so the logo is free to act as this menu trigger.
-const SidebarLogoButton = (): ReactElement => {
-  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
-
-  return (
-    <>
-      <Tooltip
-        side="right"
-        content="daily.dev"
-        collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-      >
-        <button
-          type="button"
-          aria-label="daily.dev menu"
-          aria-expanded={isOpen}
-          onClick={wrapHandler(() => onUpdate(!isOpen))}
-          className={classNames(
-            'focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity',
-            isOpen && 'opacity-80',
-          )}
-        >
-          <LogoIcon className={{ container: 'h-4 w-auto' }} />
-        </button>
-      </Tooltip>
-      {isOpen && (
-        <InteractivePopup
-          closeOutsideClick
-          onClose={() => onUpdate(false)}
-          position={InteractivePopupPosition.SidebarLogoMenu}
-          className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
-        >
-          <ProfileMenuSection items={logoItems} />
         </InteractivePopup>
       )}
     </>
@@ -712,6 +667,7 @@ export const SidebarDesktopV2 = ({
   isNavButtons,
   showFeedbackWidget,
   onNavTabClick,
+  onLogoClick,
   additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
@@ -1540,7 +1496,24 @@ export const SidebarDesktopV2 = ({
               <SidebarInviteButton />
               <SidebarSupportButton />
             </div>
-            <SidebarLogoButton />
+            <Tooltip
+              side="right"
+              content="Home"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <div>
+                <Link href={webappUrl} passHref prefetch={false}>
+                  <a
+                    href={webappUrl}
+                    aria-label="Home"
+                    className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
+                    onClick={onLogoClick}
+                  >
+                    <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                  </a>
+                </Link>
+              </div>
+            </Tooltip>
           </div>
         </nav>
       )}

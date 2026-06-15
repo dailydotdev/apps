@@ -26,7 +26,6 @@ export enum InteractivePopupPosition {
   Screen = 'screen',
   SidebarSupportMenu = 'sidebarSupportMenu',
   SidebarProfileMenu = 'sidebarProfileMenu',
-  SidebarLogoMenu = 'sidebarLogoMenu',
 }
 
 type CloseButtonProps = {
@@ -68,8 +67,6 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   sidebarSupportMenu: 'left-20 bottom-3 ml-2',
   // Avatar lives at the top of the rail, so its menu drops down from the top.
   sidebarProfileMenu: 'left-20 top-3 ml-2',
-  // Logo sits at the very bottom of the rail; its menu opens up from there.
-  sidebarLogoMenu: 'left-20 bottom-3 ml-2',
 };
 
 const leftPositions = [
@@ -152,7 +149,6 @@ function InteractivePopup({
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&
             finalPosition !== InteractivePopupPosition.SidebarSupportMenu &&
             finalPosition !== InteractivePopupPosition.SidebarProfileMenu &&
-            finalPosition !== InteractivePopupPosition.SidebarLogoMenu &&
             onClose && (
               <Button
                 size={buttonSize}
