@@ -162,14 +162,11 @@ export default function SettingsLayout({
           </Typography>
         </button>
       )}
-      {/* v2 PageHeader strip slot. Centered on the same 768px column as the
-          content below so the header and the settings sections align.
-          AccountPageContainer portals into this on laptop v2. */}
+      {/* v2 PageHeader strip slot. The header spans the full floating-card
+          width (the v2 layout guideline) — only the content column below is
+          capped at 768px. AccountPageContainer portals into this on laptop v2. */}
       {isV2Laptop && (
-        <div
-          id={SETTINGS_PAGE_HEADER_PORTAL_ID}
-          className="mx-auto w-full max-w-[48rem] px-4 tablet:px-6"
-        />
+        <div id={SETTINGS_PAGE_HEADER_PORTAL_ID} className="contents" />
       )}
       <div
         className={classNames(
