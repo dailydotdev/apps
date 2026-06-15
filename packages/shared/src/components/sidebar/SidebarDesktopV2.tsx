@@ -1369,7 +1369,10 @@ export const SidebarDesktopV2 = ({
         <nav
           aria-label="Primary navigation"
           className={classNames(
-            'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-3',
+            // pt matches the streak tile's side gap (54px tile centred in the
+            // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
+            // spacing is equal.
+            'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
             railNavWidth,
           )}
         >
