@@ -89,6 +89,7 @@ const resolveDefaultKind = (
 export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialSquadHandle?: string;
+  initialKind?: ComposerKind;
   preview?: ExternalLinkPreview;
   editPost?: Post;
 }
@@ -97,6 +98,7 @@ export function SmartComposerModal({
   onRequestClose,
   initialUrl,
   initialSquadHandle,
+  initialKind,
   preview: initialPreview,
   editPost,
   ...props
@@ -118,6 +120,9 @@ export function SmartComposerModal({
     if (initialUrl) {
       return 'link';
     }
+    if (initialKind) {
+      return initialKind;
+    }
     return resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled);
   });
   // Settings load async; if the modal opens before they're ready, apply the
@@ -129,7 +134,7 @@ export function SmartComposerModal({
       return;
     }
     hasAppliedDefaultKind.current = true;
-    if (isEditing || initialUrl || hasUserChangedKind.current) {
+    if (isEditing || initialUrl || initialKind || hasUserChangedKind.current) {
       return;
     }
     setKind(resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled));
@@ -137,6 +142,7 @@ export function SmartComposerModal({
     loadedSettings,
     isEditing,
     initialUrl,
+    initialKind,
     flags?.defaultWriteTab,
     isStandupEnabled,
   ]);

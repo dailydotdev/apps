@@ -7,6 +7,7 @@ import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sec
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
 import {
@@ -64,6 +65,9 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const showReaderToggle = isReaderEligible && isReaderModalEnabled;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
+  const { isV2: isLayoutV2 } = useLayoutVariant();
+  const { value: isSidebarCompact, toggle: toggleSidebarCompact } =
+    useSettingsBooleanFlag('sidebarCompact');
   const isReadInsideEnabled = !isLegacyLayoutOptedOut;
   const onToggleReadInside = () => {
     if (isReadInsideEnabled) {
@@ -109,6 +113,16 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               offLabel="Cards"
               onLabel="List"
             />
+
+            {isLayoutV2 && (
+              <SettingsSwitch
+                name="compact-sidebar"
+                checked={isSidebarCompact}
+                onToggle={toggleSidebarCompact}
+              >
+                Compact sidebar (hide labels)
+              </SettingsSwitch>
+            )}
           </FlexCol>
         )}
 

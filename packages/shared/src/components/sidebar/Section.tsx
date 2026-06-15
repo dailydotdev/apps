@@ -5,6 +5,7 @@ import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
 import { ArrowIcon, PlusIcon } from '../icons';
+import { IconSize } from '../Icon';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
@@ -65,10 +66,10 @@ export function Section({
   };
 
   return (
-    <NavSection className={classNames('mt-1', className)}>
+    <NavSection className={classNames('group/section mt-1', className)}>
       {title && (
         <NavHeader className="relative hidden laptop:flex">
-          {/* Divider shown when sidebar is collapsed */}
+          {/* Divider shown when a collapsible (titled) section is collapsed */}
           <div
             className={classNames(
               'absolute inset-x-0 flex items-center justify-center px-2 transition-opacity duration-300',
@@ -84,7 +85,7 @@ export function Section({
               // with the items below it (items have `mx-3`), so "Feeds v"
               // and the feed entries share the same x. Without this the
               // header was indented less than the items.
-              'group/section ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
+              'ml-3 mr-2 flex min-h-9 flex-1 items-center justify-between py-1.5 pl-1 transition-opacity duration-300',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
@@ -105,8 +106,14 @@ export function Section({
                 {title}
               </span>
               <ArrowIcon
+                // `size` controls the real glyph dimensions — a w/h className
+                // here loses to the Icon's size class (Tailwind resolves the
+                // conflict by stylesheet order, not JSX order).
+                size={IconSize.XXSmall}
                 className={classNames(
-                  'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
+                  // Revealed only while hovering/focusing the section (header
+                  // or its items) — see group/section above.
+                  'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
                   isVisible.current ? 'rotate-180' : 'rotate-90',
                 )}
               />
@@ -138,12 +145,16 @@ export function Section({
         id={flag ? `section-${flag}` : undefined}
         className={classNames(
           'grid transition-[grid-template-rows,opacity] duration-300',
-          isVisible.current || shouldAlwaysBeVisible
+          // Collapsing only applies when there's a title (the header is the
+          // only toggle). A flagged-but-title-less section — e.g. the Squads
+          // and Saved panels — would otherwise get stuck hidden when its flag
+          // is false, with no arrow to re-expand it.
+          !title || isVisible.current || shouldAlwaysBeVisible
             ? 'grid-rows-[1fr] opacity-100'
             : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        <div className="flex min-h-0 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-col gap-px overflow-hidden">
           {items.map((item) => (
             <SidebarItem
               key={`${item.title}-${item.path}`}
