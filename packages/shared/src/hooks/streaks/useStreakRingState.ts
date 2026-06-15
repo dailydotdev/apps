@@ -31,9 +31,9 @@ const CRITICAL_TOOLTIP_MS = 5000;
 // only at-risk/critical carry colour. The earn celebration briefly flashes the
 // brand pink (V1-style filled pop).
 const frameClassByState: Record<StreakRingState, string> = {
-  none: 'border-dashed border-border-subtlest-secondary',
-  pending: 'border-border-subtlest-secondary',
-  safe: 'border-border-subtlest-secondary',
+  none: 'border-dashed border-border-subtlest-tertiary',
+  pending: 'border-border-subtlest-tertiary',
+  safe: 'border-border-subtlest-tertiary',
   celebration: 'border-accent-bacon-default',
   at_risk: 'border-dashed border-status-warning',
   critical: 'border-dashed border-status-error',

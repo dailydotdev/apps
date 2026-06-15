@@ -486,7 +486,13 @@ const SidebarProfileButton = ({
     <>
       <div className="relative mb-3 flex justify-center">
         {isStreakEnabled ? (
-          <div className="relative h-[66px] w-[46px]">
+          <div className="group/streak relative h-[66px] w-[46px]">
+            {/* Hover highlight behind the whole component (matches the rail's
+                other hover targets). */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-[16px] bg-surface-hover opacity-0 transition-opacity duration-150 group-hover/streak:opacity-100"
+            />
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
                 component, and a separate inner background fill. Avatar + number
