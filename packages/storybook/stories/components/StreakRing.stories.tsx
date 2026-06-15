@@ -120,24 +120,6 @@ const POP_CSS = `
   55%  { transform: scale(0.97); border-color: ${POP_PINK}; }
   100% { transform: scale(1);    border-color: ${POP_PINK}; }
 }
-@keyframes lab-pop-punch {
-  0%   { transform: scale(1);   border-color: ${POP_GRAY}; }
-  40%  { transform: scale(1.3); border-color: ${POP_PINK}; }
-  100% { transform: scale(1);   border-color: ${POP_PINK}; }
-}
-@keyframes lab-pop-spring {
-  0%   { transform: scale(1);   border-color: ${POP_GRAY}; }
-  50%  { transform: scale(1.2); border-color: ${POP_PINK}; }
-  100% { transform: scale(1);   border-color: ${POP_PINK}; }
-}
-@keyframes lab-pop-gong {
-  0%   { transform: scale(1);    border-color: ${POP_GRAY}; }
-  18%  { transform: scale(1.3);  border-color: ${POP_PINK}; }
-  42%  { transform: scale(0.92); }
-  64%  { transform: scale(1.08); }
-  84%  { transform: scale(0.98); }
-  100% { transform: scale(1);    border-color: ${POP_PINK}; }
-}
 @keyframes lab-fill {
   0%   { background-color: transparent; }
   35%  { background-color: ${POP_FILL}; }
@@ -153,50 +135,20 @@ interface PopVariation {
   easing: string;
 }
 
+// Same punch + rebound pop, swept across 6 durations from 0.15s to 1s, so we
+// can compare speed only and pick the sweet spot.
 const POP_VARIATIONS: PopVariation[] = [
-  {
-    id: 'rebound-300',
-    label: '0.30s · punch + rebound (current)',
-    frame: 'lab-pop-rebound',
-    duration: '0.3s',
-    easing: 'ease-out',
-  },
-  {
-    id: 'rebound-220',
-    label: '0.22s · punch + rebound',
-    frame: 'lab-pop-rebound',
-    duration: '0.22s',
-    easing: 'ease-out',
-  },
-  {
-    id: 'punch-200',
-    label: '0.20s · quick punch',
-    frame: 'lab-pop-punch',
-    duration: '0.2s',
-    easing: 'ease-out',
-  },
-  {
-    id: 'punch-150',
-    label: '0.15s · snap',
-    frame: 'lab-pop-punch',
-    duration: '0.15s',
-    easing: 'ease-out',
-  },
-  {
-    id: 'spring-300',
-    label: '0.30s · spring (back-out)',
-    frame: 'lab-pop-spring',
-    duration: '0.3s',
-    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-  },
-  {
-    id: 'gong-400',
-    label: '0.40s · gong ring (damped bounce)',
-    frame: 'lab-pop-gong',
-    duration: '0.4s',
-    easing: 'ease-out',
-  },
-];
+  { duration: '0.15s', frame: 'lab-pop-rebound', easing: 'ease-out' },
+  { duration: '0.3s', frame: 'lab-pop-rebound', easing: 'ease-out' },
+  { duration: '0.45s', frame: 'lab-pop-rebound', easing: 'ease-out' },
+  { duration: '0.6s', frame: 'lab-pop-rebound', easing: 'ease-out' },
+  { duration: '0.8s', frame: 'lab-pop-rebound', easing: 'ease-out' },
+  { duration: '1s', frame: 'lab-pop-rebound', easing: 'ease-out' },
+].map((variation) => ({
+  ...variation,
+  id: `pop-${variation.duration.replace('.', '')}`,
+  label: `${variation.duration} · punch + rebound`,
+}));
 
 const PopFlame = (): React.ReactElement => (
   <svg
