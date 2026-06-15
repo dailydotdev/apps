@@ -490,13 +490,13 @@ const SidebarProfileButton = ({
           // 40px avatar with a 10px ring of padding so the frame + background
           // sit well clear of the avatar and the number never touches the
           // border. Concentric radii: avatar 12 + 10 gap = frame 22; fill (3px
-          // in) = 19. The 60px width also leaves ~10px to each rail edge, which
-          // the rail's pt-2.5 matches so the component's top/left/right spacing
-          // is uniform. The avatar (profile menu) and the streak chip (streak
-          // popover) are two distinct buttons. Each owns its OWN bounded hover
-          // highlight + tooltip so they never read as one combined target; the
-          // decorative ring between them is non-interactive and never lights up.
-          <div className="relative h-[78px] w-[60px]">
+          // in) = 19. The 60px width leaves ~10px to each rail edge, which the
+          // rail's pt-2.5 matches so the component's top/left/right spacing is
+          // uniform. The extra height (82) opens up the gap between the avatar
+          // and the number below. The avatar (profile menu) and the streak chip
+          // (streak popover) are two distinct buttons — each has its own hover
+          // + tooltip; the decorative ring between them never lights up.
+          <div className="relative h-[82px] w-[60px]">
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
                 component, and a separate inner background fill. Avatar + number
@@ -528,18 +528,16 @@ const SidebarProfileButton = ({
                 aria-label="Open profile menu"
                 aria-expanded={isOpen}
                 onClick={wrapHandler(() => onUpdate(!isOpen))}
-                className="group/avatar focus-outline absolute left-[10px] top-[10px] z-1 rounded-12 transition-transform hover:scale-105"
+                // The avatar is a photo, so it gets a photo-friendly hover
+                // (scale + brighten) rather than a light wash — distinct from
+                // the streak chip's light hover pill so the two read as two
+                // separate buttons.
+                className="focus-outline absolute left-[10px] top-[10px] z-1 overflow-hidden rounded-12 transition-[transform,filter] hover:scale-105 hover:brightness-110"
               >
                 <ProfilePicture
                   user={user}
                   size={ProfileImageSize.Large}
                   nativeLazyLoading
-                />
-                {/* Hover scrim bounded to the avatar so it reads as its own
-                    button, separate from the streak chip below. */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-12 bg-surface-hover opacity-0 transition-opacity group-hover/avatar:opacity-100"
                 />
               </button>
             </Tooltip>
