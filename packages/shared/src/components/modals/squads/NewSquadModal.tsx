@@ -50,7 +50,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           variant={ButtonVariant.Primary}
         />
         <Image
-          className="h-40 w-40 object-contain"
+          className="h-56 w-56 object-contain"
           src={cloudinaryCharmEmptySquads}
           alt="daily.dev charm waving in an empty squad"
         />
