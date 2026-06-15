@@ -473,3 +473,6 @@ export const cloudinaryCharmInviteFriends =
 
 export const cloudinaryCharmNoPosts =
   'https://media.daily.dev/image/upload/s--JbsZvCUt--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20post';
+
+export const cloudinaryCharmNotEnoughTags =
+  'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';

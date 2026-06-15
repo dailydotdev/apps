@@ -1,8 +1,7 @@
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React from 'react';
-import { EmptyScreenIcon } from './EmptyScreen';
-import { HashtagIcon } from './icons';
 import { PageContainer, SharedFeedPage } from './utilities';
+import { cloudinaryCharmNotEnoughTags } from '../lib/image';
 import {
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
@@ -48,9 +47,10 @@ export const CustomFeedEmptyScreen = ({
       </div>
       <PageContainer className="mx-auto">
         <div className="mt-16 flex max-h-full w-full max-w-screen-tablet flex-col items-center justify-center gap-4 px-6 text-center">
-          <HashtagIcon
-            className={EmptyScreenIcon.className}
-            style={EmptyScreenIcon.style}
+          <img
+            className="h-40 w-40 object-contain"
+            src={cloudinaryCharmNotEnoughTags}
+            alt="daily.dev charm holding tags"
           />
           <Typography
             type={TypographyType.Title1}

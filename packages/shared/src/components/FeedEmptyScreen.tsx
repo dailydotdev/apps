@@ -5,13 +5,12 @@ import {
   EmptyScreenButton,
   EmptyScreenContainer,
   EmptyScreenDescription,
-  EmptyScreenIcon,
   EmptyScreenTitle,
 } from './EmptyScreen';
-import { FilterIcon } from './icons';
 import { PageContainer } from './utilities';
 import { ButtonSize } from './buttons/common';
 import { webappUrl } from '../lib/constants';
+import { cloudinaryCharmNotEnoughTags } from '../lib/image';
 import { useAuthContext } from '../contexts/AuthContext';
 
 function FeedEmptyScreen(): ReactElement | null {
@@ -25,9 +24,10 @@ function FeedEmptyScreen(): ReactElement | null {
   return (
     <PageContainer className="mx-auto">
       <EmptyScreenContainer>
-        <FilterIcon
-          className={EmptyScreenIcon.className}
-          style={EmptyScreenIcon.style}
+        <img
+          className="h-40 w-40 object-contain"
+          src={cloudinaryCharmNotEnoughTags}
+          alt="daily.dev charm holding tags"
         />
         <EmptyScreenTitle>Your feed filters are too specific.</EmptyScreenTitle>
         <EmptyScreenDescription>
