@@ -65,7 +65,8 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   profileMenu: classNames(profileMenuRightClass, 'top-14'),
   screen: 'inset-0 w-screen h-screen',
   sidebarSupportMenu: 'left-20 bottom-3 ml-2',
-  sidebarProfileMenu: 'left-20 bottom-3 ml-2',
+  // Avatar lives at the top of the rail, so its menu drops down from the top.
+  sidebarProfileMenu: 'left-20 top-3 ml-2',
 };
 
 const leftPositions = [

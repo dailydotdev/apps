@@ -46,7 +46,6 @@ import {
   BrowserGroupIcon,
   CreditCardIcon,
   DevCardIcon,
-  DevPlusIcon,
   DocsIcon,
   EditIcon,
   ExitIcon,
@@ -75,12 +74,12 @@ import {
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { Origin, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
+import { StreakPopover } from './StreakPopover';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -380,19 +379,19 @@ const SidebarProfileButton = ({
   onPreviewHref: (href: string) => void;
 }): ReactElement | null => {
   const { user, logout } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { openModal } = useLazyModal();
   const canPurchaseCores = useCanPurchaseCores();
-  // Option A: the reading streak rides the always-visible avatar as a ring +
-  // flame/count badge (story-ring style), so it's prominent without any extra
-  // surface.
+  // The reading streak rides the avatar as a chip pinned to its bottom edge:
+  // the avatar opens the profile menu, the chip opens the streak calendar.
   const {
     isEnabled: isStreakEnabled,
+    streak,
     count: streakCount,
     hasReadToday,
-    isAtRisk: isStreakAtRisk,
   } = useReadingStreakSummary();
+  const [isStreakOpen, setIsStreakOpen] = useState(false);
+  const streakChipRef = useRef<HTMLButtonElement>(null);
 
   if (!user) {
     return null;
@@ -476,60 +475,57 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <button
-        type="button"
-        aria-label="Open profile menu"
-        aria-expanded={isOpen}
-        onClick={wrapHandler(() => onUpdate(!isOpen))}
-        className={classNames(
-          'focus-outline flex w-full items-center justify-center rounded-12 py-2 transition-colors hover:bg-surface-hover',
-          isOpen && 'bg-surface-hover',
-        )}
-      >
-        <span
+      <div className="relative flex justify-center pb-1">
+        <button
+          type="button"
+          aria-label="Open profile menu"
+          aria-expanded={isOpen}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
           className={classNames(
-            'relative flex items-center justify-center rounded-full',
-            isStreakEnabled &&
-              classNames(
-                'border-2 p-0.5',
-                isStreakAtRisk
-                  ? 'animate-pulse border-accent-bacon-default'
-                  : 'border-accent-bacon-default',
-              ),
+            'focus-outline rounded-full p-0.5 transition-transform hover:scale-105',
           )}
         >
           <ProfilePicture
             user={user}
-            size={ProfileImageSize.Medium}
+            size={ProfileImageSize.Large}
             nativeLazyLoading
           />
-          {isPlus && (
-            <span className="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-background-default">
-              <DevPlusIcon
-                secondary
-                size={IconSize.Size16}
-                className="text-action-plus-default"
-              />
-            </span>
-          )}
-          {isStreakEnabled && (
-            <span className="absolute -right-1.5 -top-1.5 flex items-center gap-0.5 rounded-full border border-border-subtlest-tertiary bg-background-default py-px pl-0.5 pr-1 shadow-2">
-              <ReadingStreakIcon
-                secondary={hasReadToday}
-                size={IconSize.Size16}
-                className="text-accent-bacon-default"
-              />
-              <Typography
-                type={TypographyType.Caption2}
-                bold
-                className="tabular-nums text-text-primary"
-              >
-                {streakCount}
-              </Typography>
-            </span>
-          )}
-        </span>
-      </button>
+        </button>
+        {isStreakEnabled && (
+          <button
+            ref={streakChipRef}
+            type="button"
+            aria-label={`Reading streak: ${streakCount} days`}
+            aria-expanded={isStreakOpen}
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsStreakOpen((open) => !open);
+            }}
+            className="focus-outline absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full border border-border-subtlest-tertiary bg-background-default py-0.5 pl-1 pr-1.5 shadow-2 transition-colors hover:bg-surface-hover"
+          >
+            <ReadingStreakIcon
+              secondary={hasReadToday}
+              size={IconSize.Size16}
+              className="text-accent-bacon-default"
+            />
+            <Typography
+              type={TypographyType.Caption2}
+              bold
+              className="tabular-nums text-text-primary"
+            >
+              {streakCount}
+            </Typography>
+          </button>
+        )}
+      </div>
+      {isStreakOpen && streak && (
+        <StreakPopover
+          streak={streak}
+          triggerRef={streakChipRef}
+          onClose={() => setIsStreakOpen(false)}
+          placement="bottom"
+        />
+      )}
       {isOpen && (
         <InteractivePopup
           closeOutsideClick
@@ -1293,24 +1289,7 @@ export const SidebarDesktopV2 = ({
             railNavWidth,
           )}
         >
-          <Tooltip
-            side="right"
-            content="Home"
-            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-          >
-            <div>
-              <Link href={webappUrl} passHref prefetch={false}>
-                <a
-                  href={webappUrl}
-                  aria-label="Home"
-                  className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
-                  onClick={onLogoClick}
-                >
-                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
-                </a>
-              </Link>
-            </div>
-          </Tooltip>
+          {isLoggedIn && <SidebarProfileButton onPreviewHref={onPreviewHref} />}
 
           <Tooltip
             side="right"
@@ -1440,11 +1419,24 @@ export const SidebarDesktopV2 = ({
               <SidebarInviteButton />
               <SidebarSupportButton />
             </div>
-            {isLoggedIn && (
-              <div className="flex w-full flex-col items-stretch gap-1">
-                <SidebarProfileButton onPreviewHref={onPreviewHref} />
+            <Tooltip
+              side="right"
+              content="Home"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <div>
+                <Link href={webappUrl} passHref prefetch={false}>
+                  <a
+                    href={webappUrl}
+                    aria-label="Home"
+                    className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
+                    onClick={onLogoClick}
+                  >
+                    <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                  </a>
+                </Link>
               </div>
-            )}
+            </Tooltip>
           </div>
         </nav>
       )}
