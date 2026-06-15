@@ -494,13 +494,14 @@ const SidebarProfileButton = ({
           // "Border legend" layout: a bordered box holds the 40px avatar (7px
           // ring; frame radius 16, fill 13), and the flame + number sit ON the
           // bottom border and break through it like a fieldset legend — the
-          // chip's background matches the sidebar so it masks the line where it
-          // crosses, and a long number simply opens a wider gap. The avatar
-          // (profile menu) and the streak chip (streak popover) are two distinct
-          // buttons, each with its own hover + tooltip. All state visuals (border
-          // dashes/colour, fill, number colour, animations) come from
-          // useStreakRingState — only the layout lives here.
-          <div className="relative h-[56px] w-[54px]">
+          // chip's background is the sidebar background so it masks the line
+          // where it crosses, and a long number simply opens a wider gap. The
+          // box is tall enough (66) that the chip sits well below the avatar
+          // instead of crowding it. The avatar (profile menu) and the streak
+          // chip (streak popover) are two distinct buttons, each with its own
+          // hover + tooltip. All state visuals (border dashes/colour, fill,
+          // number colour, animations) come from useStreakRingState.
+          <div className="relative h-[66px] w-[54px]">
             {/* Surround = two layers grouped so they pop together (background
                 only): an outer dashed/solid frame that outlines the whole
                 component, and a separate inner background fill. Avatar + number
