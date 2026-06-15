@@ -125,18 +125,17 @@ const Toast = ({
     }
   }, [autoDismissNotifications, endAnimation, startAnimation, toast]);
 
-  const dismissToast = async () => {
-    if (!toast) {
+  // The current toast is cleared only if it's still the one we acted on — an
+  // onClose/onClick handler may itself surface a replacement toast (e.g. Undo
+  // shows a new confirmation), which must not be clobbered.
+  const clearIfUnchanged = (acted: ToastNotification) => {
+    if (client.getQueryData(TOAST_NOTIF_KEY) !== acted) {
       return;
     }
 
-    if (toast.onClose) {
-      await toast.onClose();
-    }
-
     // No running countdown when auto-dismiss is off or the toast is persistent,
-    // so clear it directly; otherwise let the timed animation play out.
-    if (!autoDismissNotifications || toast.persistent) {
+    // so clear directly; otherwise let the timed animation play out.
+    if (!autoDismissNotifications || acted.persistent) {
       toastRef.current = null;
       client.setQueryData(TOAST_NOTIF_KEY, null);
       return;
@@ -145,19 +144,27 @@ const Toast = ({
     endAnimation();
   };
 
+  const dismissToast = async () => {
+    if (!toast) {
+      return;
+    }
+
+    const acted = toast;
+    if (acted.onClose) {
+      await acted.onClose();
+    }
+
+    clearIfUnchanged(acted);
+  };
+
   const onAction = async () => {
-    if (!toast?.action) {
+    const acted = toast;
+    if (!acted?.action) {
       return;
     }
 
-    await toast.action.onClick();
-    if (!autoDismissNotifications || toast.persistent) {
-      toastRef.current = null;
-      client.setQueryData(TOAST_NOTIF_KEY, null);
-      return;
-    }
-
-    endAnimation();
+    await acted.action.onClick();
+    clearIfUnchanged(acted);
   };
 
   useEffect(() => {
