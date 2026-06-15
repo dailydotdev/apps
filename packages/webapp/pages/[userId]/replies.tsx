@@ -41,10 +41,15 @@ const commentClassName = {
 const ProfileCommentsPage = ({
   user,
   noindex,
-}: ProfileLayoutProps): ReactElement => {
+}: ProfileLayoutProps): ReactElement | null => {
   const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = user && loggedUser?.id === user.id;
-  const userId = user?.id;
+
+  if (!user) {
+    return null;
+  }
+
+  const isSameUser = loggedUser?.id === user.id;
+  const userId = user.id;
 
   const emptyScreen = isSameUser ? (
     <MyProfileEmptyScreen
@@ -87,7 +92,11 @@ const ProfileCommentsPage = ({
         </Typography>
       </GoBackHeaderMobile>
       <CommentFeed
-        feedQueryKey={generateQueryKey(RequestKey.UserComments, null, userId)}
+        feedQueryKey={generateQueryKey(
+          RequestKey.UserComments,
+          undefined,
+          userId,
+        )}
         query={USER_COMMENTS_QUERY}
         logOrigin={Origin.Profile}
         variables={{ userId }}

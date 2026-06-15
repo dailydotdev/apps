@@ -34,12 +34,16 @@ export const getStaticPaths = getProfileStaticPaths;
 const ProfilePostsPage = ({
   user,
   noindex,
-}: ProfileLayoutProps): ReactElement => {
+}: ProfileLayoutProps): ReactElement | null => {
   const { user: loggedUser } = useContext(AuthContext);
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const isSameUser = user && loggedUser?.id === user.id;
 
-  const userId = user?.id;
+  if (!user) {
+    return null;
+  }
+
+  const isSameUser = loggedUser?.id === user.id;
+  const userId = user.id;
   const feedProps: FeedProps<unknown> = {
     feedName: OtherFeedPage.Author,
     feedQueryKey: ['author', userId],

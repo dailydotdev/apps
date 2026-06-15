@@ -40,9 +40,12 @@ export function AutofillProfileBanner({
 }: ProfileUploadBannerProps): ReactElement {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const inputRef = React.useRef<HTMLInputElement>(null);
   const { validateFiles } = useFileValidation();
   const handleFiles = (files: FileList | null) => {
+    if (!files) {
+      return;
+    }
+
     const { validFiles, errors } = validateFiles(files);
 
     if (errors.length > 0) {
@@ -60,7 +63,6 @@ export function AutofillProfileBanner({
   };
 
   const { input, openFileInput } = useFileInput({
-    inputRef,
     onFiles: handleFiles,
     multiple: false,
     disabled: isLoading,
