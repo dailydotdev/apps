@@ -10,6 +10,7 @@ import {
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import { ChromeIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { downloadBrowserExtension } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { ExtensionShowcaseMedia } from './ExtensionShowcaseMedia';
@@ -182,7 +183,7 @@ export function ExtensionShowcase({
                 rel={anchorDefaultRel}
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.XLarge}
-                icon={<ChromeIcon aria-hidden />}
+                icon={<ChromeIcon aria-hidden size={IconSize.Small} />}
                 onClick={onCtaClick}
               >
                 {ctaText}
