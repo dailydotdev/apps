@@ -102,9 +102,13 @@ const Toast = ({
       return;
     }
 
+    // Auto-dismiss (and the countdown ring) only when the setting is on and the
+    // toast isn't explicitly persistent; otherwise it stays until dismissed.
+    const shouldAutoDismiss = autoDismissNotifications && !toast.persistent;
+
     if (!toastRef.current) {
       toastRef.current = toast;
-      if (!toast.persistent) {
+      if (shouldAutoDismiss) {
         startAnimation(toast.timer);
       }
       return;
@@ -116,10 +120,10 @@ const Toast = ({
 
     endAnimation();
     toastRef.current = toast;
-    if (!toast.persistent) {
+    if (shouldAutoDismiss) {
       startAnimation(toast.timer);
     }
-  }, [endAnimation, startAnimation, toast]);
+  }, [autoDismissNotifications, endAnimation, startAnimation, toast]);
 
   const dismissToast = async () => {
     if (!toast) {
@@ -130,7 +134,9 @@ const Toast = ({
       await toast.onClose();
     }
 
-    if (toast.persistent) {
+    // No running countdown when auto-dismiss is off or the toast is persistent,
+    // so clear it directly; otherwise let the timed animation play out.
+    if (!autoDismissNotifications || toast.persistent) {
       toastRef.current = null;
       client.setQueryData(TOAST_NOTIF_KEY, null);
       return;
@@ -145,7 +151,7 @@ const Toast = ({
     }
 
     await toast.action.onClick();
-    if (toast.persistent) {
+    if (!autoDismissNotifications || toast.persistent) {
       toastRef.current = null;
       client.setQueryData(TOAST_NOTIF_KEY, null);
       return;
@@ -176,17 +182,17 @@ const Toast = ({
     return null;
   }
 
-  // Remaining time as a 0–100 stroke-dashoffset so the dismiss ring drains as
-  // the countdown elapses. Non-persistent toasts always auto-dismiss, so the
-  // ring is tied to that (not the autoDismissNotifications setting, which only
-  // governs the timed-animation end callback).
-  const showRing = !isPersistentToast && toast.timer > 0;
+  // The dismiss ring is the auto-dismiss countdown made visible, so it shows
+  // exactly when the toast will auto-dismiss (setting on + not persistent).
+  // dashoffset drains 0→100 as the remaining time elapses.
+  const shouldAutoDismiss = autoDismissNotifications && !isPersistentToast;
+  const showRing = shouldAutoDismiss && toast.timer > 0;
   const remaining = toast.timer > 0 ? (timer / toast.timer) * 100 : 0;
   const dashoffset = Math.min(100, Math.max(0, 100 - remaining));
 
   return (
     <Container
-      className={isAnimating || isPersistentToast ? 'slide-in' : undefined}
+      className={isAnimating || !shouldAutoDismiss ? 'slide-in' : undefined}
       role="alert"
       onMouseEnter={pauseAnimation}
       onMouseLeave={resumeAnimation}

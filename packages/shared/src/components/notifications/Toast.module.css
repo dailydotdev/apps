@@ -21,7 +21,9 @@
     min-width: 12.5rem;
     max-width: 80vw;
     min-height: 2.75rem;
-    max-height: 4.125rem;
+    /* No max-height: a long message (e.g. a verbatim backend error) wraps and
+       grows the chip instead of spilling out of the rounded container. Short
+       toasts stay compact via min-height. */
   }
 
   &:global(.slide-in) {
