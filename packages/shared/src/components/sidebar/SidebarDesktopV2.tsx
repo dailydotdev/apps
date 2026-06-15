@@ -539,7 +539,7 @@ const SidebarProfileButton = ({
                   event.stopPropagation();
                   setIsStreakOpen((open) => !open);
                 }}
-                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-[22px] items-center justify-center gap-0.5"
+                className="focus-outline absolute inset-x-0 bottom-0 z-2 flex h-6 items-end justify-center gap-0.5 pb-[5px]"
               >
                 <HotIcon
                   secondary={hasReadToday}
