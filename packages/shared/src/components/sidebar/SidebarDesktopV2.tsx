@@ -476,23 +476,25 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <div className="relative mb-3 flex justify-center">
+      <div className="relative mb-4 flex justify-center">
         <button
           type="button"
           aria-label="Open profile menu"
           aria-expanded={isOpen}
           onClick={wrapHandler(() => onUpdate(!isOpen))}
-          className="focus-outline rounded-14 transition-transform hover:scale-105"
+          className="focus-outline rounded-12 transition-transform hover:scale-105"
         >
-          {/* Status ring matching the avatar's rounded-square shape: solid
-              while the streak is safe, pulsing when it's at risk today. */}
+          {/* Status ring hugging the avatar's rounded-square shape (matched
+              radius, 1px): bacon while the streak is safe, red when it's at
+              risk today. */}
           <span
             className={classNames(
-              'flex rounded-14 border-2 p-0.5 transition-colors',
-              isStreakEnabled
-                ? 'border-accent-bacon-default'
-                : 'border-transparent',
-              isStreakEnabled && isStreakAtRisk && 'animate-pulse',
+              'flex rounded-12 border transition-colors',
+              !isStreakEnabled && 'border-transparent',
+              isStreakEnabled &&
+                (isStreakAtRisk
+                  ? 'border-status-error'
+                  : 'border-accent-bacon-default'),
             )}
           >
             <ProfilePicture
@@ -512,7 +514,7 @@ const SidebarProfileButton = ({
               event.stopPropagation();
               setIsStreakOpen((open) => !open);
             }}
-            className="focus-outline absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 border border-border-subtlest-tertiary bg-background-default py-0.5 pl-1 pr-1.5 transition-colors hover:bg-surface-hover"
+            className="focus-outline absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-0.5 rounded-8 border border-border-subtlest-tertiary bg-background-default py-0.5 pl-1 pr-1.5 transition-colors hover:border-accent-bacon-default"
           >
             <ReadingStreakIcon
               secondary={hasReadToday}
@@ -1443,7 +1445,7 @@ export const SidebarDesktopV2 = ({
                     className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
                     onClick={onLogoClick}
                   >
-                    <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                    <LogoIcon className={{ container: 'h-4 w-auto' }} />
                   </a>
                 </Link>
               </div>
