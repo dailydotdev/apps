@@ -368,7 +368,6 @@ function MainLayoutComponent({
               )}
             >
               <RouteProgressBar />
-              {isLaptop && <ReadingStreakHud />}
               {children}
             </div>
           </div>
@@ -377,6 +376,7 @@ function MainLayoutComponent({
         )}
       </main>
       {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
+      {sidebarOwnsHeader && <ReadingStreakHud />}
     </div>
   );
 }

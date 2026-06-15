@@ -111,7 +111,10 @@ export const ReadingStreakHud = (): ReactElement | null => {
   const isAtRisk = dailyState === 'pending';
 
   return (
-    <div className="flex px-4 py-2">
+    // Floats over the content in the bottom-right corner — costs zero layout
+    // space and stays put while the page scrolls (fixed). z-header keeps it
+    // above content but below its own popover (z-tooltip) and modals.
+    <div className="pointer-events-none fixed bottom-4 right-4 z-header hidden laptop:bottom-6 laptop:right-6 laptop:flex">
       <button
         ref={triggerRef}
         type="button"
@@ -120,47 +123,54 @@ export const ReadingStreakHud = (): ReactElement | null => {
           isAtRisk ? ' At risk — read a post to keep it.' : ''
         }`}
         aria-expanded={isPopoverOpen}
-        // A single slim inline line, not a card: flame + count + a 7-segment
-        // "week track". Sits flush against the content edge so it costs one
-        // text line of height, no boxed strip.
-        className="focus-outline group flex items-center gap-1.5 rounded-8 px-1.5 py-0.5 transition-colors hover:bg-surface-hover"
+        className={classNames(
+          'focus-outline group pointer-events-auto flex items-center gap-1.5 rounded-full border bg-background-default py-1.5 pl-2 pr-2.5 shadow-2 transition-colors hover:bg-surface-hover',
+          isAtRisk
+            ? 'border-accent-bacon-default'
+            : 'border-border-subtlest-tertiary',
+        )}
       >
         <span
           className={classNames(
-            'flex size-4 shrink-0 items-center justify-center',
-            isCelebrating && 'animate-pulse',
+            'flex size-5 shrink-0 items-center justify-center',
+            (isCelebrating || isAtRisk) && 'animate-pulse',
           )}
           aria-hidden
         >
           <ReadingStreakIcon
             secondary={hasReadToday}
-            size={IconSize.Size16}
+            size={IconSize.XSmall}
             className="text-accent-bacon-default"
           />
         </span>
 
         <Typography
-          type={TypographyType.Caption1}
+          type={TypographyType.Footnote}
           bold
           className={classNames(
             'tabular-nums',
-            isAtRisk ? 'text-accent-bacon-default' : 'text-text-secondary',
+            isAtRisk ? 'text-accent-bacon-default' : 'text-text-primary',
           )}
         >
           {count}
         </Typography>
 
-        <span className="flex items-center gap-0.5" aria-hidden>
+        {/* The week track stays hidden until hover/focus, so at rest the HUD is
+            just a small flame + number. */}
+        <span
+          className="flex max-w-0 items-center gap-0.5 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-w-24 group-hover:opacity-100 group-focus-visible:max-w-24 group-focus-visible:opacity-100"
+          aria-hidden
+        >
           {weekDots.map((dot) => (
             <span
               key={dot.key}
               className={classNames(
-                'h-1 w-2.5 rounded-full transition-colors',
+                'h-1 w-2.5 shrink-0 rounded-full',
                 dot.didRead && 'bg-accent-bacon-default',
                 !dot.didRead &&
                   dot.isToday &&
                   (isAtRisk
-                    ? 'animate-pulse bg-accent-bacon-default'
+                    ? 'bg-accent-bacon-default'
                     : 'bg-accent-bacon-subtler'),
                 !dot.didRead &&
                   !dot.isToday &&
@@ -178,7 +188,7 @@ export const ReadingStreakHud = (): ReactElement | null => {
           streak={streak}
           triggerRef={triggerRef}
           onClose={() => setIsPopoverOpen(false)}
-          placement="bottom"
+          placement="top"
         />
       )}
     </div>

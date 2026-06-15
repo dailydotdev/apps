@@ -16,8 +16,9 @@ type StreakPopoverProps = {
   onClose: () => void;
   // 'bottom' drops below the trigger (panel/header usage). 'right' opens
   // beside the trigger and anchors to its bottom edge so it grows upward —
-  // used by the rail cluster, which sits near the viewport bottom.
-  placement?: 'bottom' | 'right';
+  // used by the rail cluster, which sits near the viewport bottom. 'top'
+  // opens above the trigger, right-aligned — for the floating corner HUD.
+  placement?: 'bottom' | 'right' | 'top';
 };
 
 // Manually positioned portal popover: read the trigger's bounding rect
@@ -33,8 +34,9 @@ export const StreakPopover = ({
 }: StreakPopoverProps): ReactElement | null => {
   const [position, setPosition] = useState<{
     top?: number;
-    left: number;
+    left?: number;
     bottom?: number;
+    right?: number;
   } | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +50,13 @@ export const StreakPopover = ({
       setPosition({
         left: rect.right + 8,
         bottom: window.innerHeight - rect.bottom,
+      });
+      return;
+    }
+    if (placement === 'top') {
+      setPosition({
+        bottom: window.innerHeight - rect.top + 8,
+        right: window.innerWidth - rect.right,
       });
       return;
     }
@@ -97,6 +106,7 @@ export const StreakPopover = ({
           top: position.top,
           left: position.left,
           bottom: position.bottom,
+          right: position.right,
         }}
       >
         <ReadingStreakPopup streak={streak} />
