@@ -167,6 +167,9 @@ const sidebarCategories: SidebarCategoryConfig[] = [
 
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
+// Shared group so the rail's click popups (support, profile menu, streak) are
+// mutually exclusive — opening one closes the others.
+const RAIL_POPUP_GROUP = 'sidebar-rail';
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -304,7 +307,8 @@ const legalItems: ProfileSectionItemProps[] = [
 ];
 
 const SidebarSupportButton = (): ReactElement => {
-  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
+  const { isOpen, onUpdate, wrapHandler } =
+    useInteractivePopup(RAIL_POPUP_GROUP);
 
   return (
     <>
@@ -380,7 +384,8 @@ const SidebarProfileButton = ({
   onPreviewHref: (href: string) => void;
 }): ReactElement | null => {
   const { user, logout } = useAuthContext();
-  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
+  const { isOpen, onUpdate, wrapHandler } =
+    useInteractivePopup(RAIL_POPUP_GROUP);
   const { openModal } = useLazyModal();
   const canPurchaseCores = useCanPurchaseCores();
   // The reading streak is one connected colored shape behind the avatar: the
@@ -398,7 +403,8 @@ const SidebarProfileButton = ({
     copy: streakCopy,
     autoOpenTooltip: autoOpenStreakTooltip,
   } = useStreakRingState();
-  const [isStreakOpen, setIsStreakOpen] = useState(false);
+  const { isOpen: isStreakOpen, onUpdate: setStreakOpen } =
+    useInteractivePopup(RAIL_POPUP_GROUP);
   const streakChipRef = useRef<HTMLButtonElement>(null);
 
   if (!user) {
@@ -530,12 +536,10 @@ const SidebarProfileButton = ({
                 aria-label="Open profile menu"
                 aria-expanded={isOpen}
                 onClick={wrapHandler(() => onUpdate(!isOpen))}
-                // The avatar is a photo, so it gets a photo-friendly hover
-                // (scale + brighten) rather than a light wash — distinct from
-                // the streak chip's light hover pill so the two read as two
-                // separate buttons. `block` on the image kills the inline
-                // baseline gap that otherwise made the button taller than wide.
-                className="focus-outline absolute left-[7px] top-[7px] z-1 overflow-hidden rounded-12 transition-[transform,filter] hover:scale-105 hover:brightness-110"
+                // Avatar simply scales up a touch on hover — no brightness/glow.
+                // `block` on the image kills the inline baseline gap that
+                // otherwise made the button taller than wide.
+                className="focus-outline absolute left-[7px] top-[7px] z-1 overflow-hidden rounded-12 transition-transform hover:scale-105"
               >
                 <ProfilePicture
                   user={user}
@@ -563,7 +567,7 @@ const SidebarProfileButton = ({
                 aria-expanded={isStreakOpen}
                 onClick={(event) => {
                   event.stopPropagation();
-                  setIsStreakOpen((open) => !open);
+                  setStreakOpen(!isStreakOpen);
                 }}
                 className="focus-outline absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-8 bg-background-default px-1.5 py-0.5 transition-transform hover:scale-110"
               >
@@ -606,7 +610,7 @@ const SidebarProfileButton = ({
         <StreakPopover
           streak={streak}
           triggerRef={streakChipRef}
-          onClose={() => setIsStreakOpen(false)}
+          onClose={() => setStreakOpen(false)}
           placement="bottom"
         />
       )}
