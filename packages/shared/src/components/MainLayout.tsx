@@ -44,7 +44,6 @@ import {
   useHomepageTopBannersVisibility,
 } from './marketing/banners/HomepageTopBanners';
 import { RouteProgressBar } from './RouteProgressBar';
-import { ActivityDock } from './streak/ActivityDock';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -376,7 +375,6 @@ function MainLayoutComponent({
         )}
       </main>
       {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
-      {sidebarOwnsHeader && <ActivityDock />}
     </div>
   );
 }
