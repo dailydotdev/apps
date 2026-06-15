@@ -7,6 +7,8 @@ interface UseTimedAnimation {
   isAnimating: boolean;
   endAnimation: () => void;
   startAnimation: (duration: number) => void;
+  pauseAnimation: () => void;
+  resumeAnimation: () => void;
 }
 
 interface UseTimedAnimationProps {
@@ -49,6 +51,16 @@ export const useTimedAnimation = ({
     setTimer(0);
   }, []);
 
+  const runTick = useCallback(() => {
+    interval.current = window.setInterval(
+      () =>
+        setTimer((current) =>
+          PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
+        ),
+      PROGRESS_INTERVAL,
+    );
+  }, []);
+
   const startAnimation = useCallback(
     (duration: number) => {
       if (interval.current) {
@@ -67,16 +79,23 @@ export const useTimedAnimation = ({
         interval.current = MANUAL_DISMISS_ANIMATION_ID;
       }
 
-      interval.current = window.setInterval(
-        () =>
-          setTimer((current) =>
-            PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
-          ),
-        PROGRESS_INTERVAL,
-      );
+      runTick();
     },
-    [autoEndAnimation],
+    [autoEndAnimation, runTick],
   );
+
+  // Pause/resume the countdown (e.g. while the user hovers the toast) without
+  // losing the remaining time. Resume only restarts a paused, still-running
+  // animation — it never revives one that already elapsed.
+  const pauseAnimation = useCallback(() => clearInterval(), []);
+
+  const resumeAnimation = useCallback(() => {
+    if (interval.current || !hasStartedAnimation.current) {
+      return;
+    }
+
+    runTick();
+  }, [runTick]);
 
   useEffect(() => {
     // when the timer ends we need to do cleanups
@@ -107,7 +126,9 @@ export const useTimedAnimation = ({
       isAnimating: timer > 0,
       endAnimation,
       startAnimation,
+      pauseAnimation,
+      resumeAnimation,
     }),
-    [endAnimation, startAnimation, timer],
+    [endAnimation, startAnimation, pauseAnimation, resumeAnimation, timer],
   );
 };

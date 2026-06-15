@@ -1,13 +1,14 @@
 .toastContainer {
   z-index: 1000;
-  /* Slides down from above on every breakpoint so the toast never overlaps
-     bottom-anchored chrome (mobile floating bars, footer nav). Mirrors the
-     existing tablet+ behaviour, just applied to mobile too.
-     Adds --safe-area-top so the toast clears the iOS status bar when running
-     as a PWA / native iOS app (otherwise it renders behind the system clock,
-     signal, and battery icons and is unreadable). */
-  transform: translate(-50%, -5rem);
-  transition: transform 0.14s ease-in-out;
+  /* Hidden/exit state. Slides down from just above on every breakpoint so the
+     toast never overlaps bottom-anchored chrome, with a subtle fade + scale.
+     --safe-area-top clears the iOS status bar in the PWA / native iOS app.
+     The base transition is the EXIT (faster, ease-in); the enter transition
+     lives on .slide-in below (slightly slower, gentle ease-out). Only transform
+     and opacity animate, so it stays GPU-composited and smooth. */
+  transform: translate(-50%, -1rem) scale(0.96);
+  opacity: 0;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease-in;
   max-width: calc(100vw - 2rem);
   max-height: unset;
   min-height: unset;
@@ -24,11 +25,18 @@
   }
 
   &:global(.slide-in) {
-    transform: translate(-50%, 0);
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+    transition: transform 0.3s cubic-bezier(0.21, 1.02, 0.73, 1),
+      opacity 0.3s ease-out;
   }
 }
 
-.toastProgress {
-  left: 50%;
-  transform: translate(-50%, 0);
+/* Respect users who prefer reduced motion: drop the slide + scale, fade only. */
+@media (prefers-reduced-motion: reduce) {
+  .toastContainer,
+  .toastContainer:global(.slide-in) {
+    transform: translate(-50%, 0);
+    transition: opacity 0.2s ease;
+  }
 }

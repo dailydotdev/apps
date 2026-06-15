@@ -18,7 +18,12 @@ import {
   AnalyticsIcon,
   JobIcon,
   MagicIcon,
+  VIcon,
+  AlertIcon,
+  WarningIcon,
+  InfoIcon,
 } from '../icons';
+import { ToastType } from '../../hooks/useToastNotification';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
@@ -28,22 +33,29 @@ import type {
 } from '../../hooks/notifications/useNotificationSettings';
 import { briefButtonBg } from '../../styles/custom';
 
+// Compact inverting "chip": `invert` makes the contents (text, status icon)
+// resolve against the chip background, which is the opposite of the page — so
+// they stay readable on both a dark chip (light page) and a light chip (dark
+// page). Single row, medium-weight message, theme-matching surface.
 export const NotifContainer = classed(
   'div',
-  'fixed left-1/2 flex flex-col justify-center bg-text-primary p-2 rounded-14 border-border-subtlest-primary shadow-2',
-);
-export const NotifContent = classed(
-  'div',
-  'relative ml-2 flex flex-row items-center gap-2',
+  'fixed left-1/2 invert flex flex-row items-center gap-2.5 rounded-12 border border-border-subtlest-tertiary bg-background-default py-2 pl-3 pr-2 shadow-3',
 );
 export const NotifMessage = classed(
   'div',
-  'flex-1 typo-subhead text-surface-invert',
+  'min-w-0 flex-1 typo-subhead font-medium text-text-primary',
 );
-export const NotifProgress = classed(
-  'span',
-  'absolute -bottom-2 h-1 ease-in-out bg-accent-cabbage-default rounded-8',
-);
+
+// Semantic variant → leading status icon + colour. `Loading` (spinner) and
+// `Default` (no icon) are handled in the Toast component, not here.
+export const toastIcon: Partial<
+  Record<ToastType, { Icon: ComponentType<IconProps>; color: string }>
+> = {
+  [ToastType.Success]: { Icon: VIcon, color: 'text-status-success' },
+  [ToastType.Error]: { Icon: AlertIcon, color: 'text-status-error' },
+  [ToastType.Warning]: { Icon: WarningIcon, color: 'text-status-warning' },
+  [ToastType.Info]: { Icon: InfoIcon, color: 'text-status-info' },
+};
 
 export enum NotificationType {
   System = 'system',

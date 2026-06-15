@@ -17,9 +17,21 @@ export enum ToastSubject {
   OpportunityScreeningQuestions = 'opportunity-screening-questions',
 }
 
+// Semantic variant — drives the leading status icon + colour. Defaults to
+// `Default` (neutral, no icon) so existing callers are unaffected.
+export enum ToastType {
+  Default = 'default',
+  Success = 'success',
+  Error = 'error',
+  Warning = 'warning',
+  Info = 'info',
+  Loading = 'loading',
+}
+
 export interface ToastNotification {
   message: ReactNode;
   timer: number;
+  type?: ToastType;
   subject?: ToastSubject;
   persistent?: boolean;
   onClose?: AnyFunction;
@@ -35,7 +47,7 @@ export const TOAST_NOTIF_KEY = ['toast_notif'];
 export type NotifyOptionalProps = Partial<
   Pick<
     ToastNotification,
-    'timer' | 'subject' | 'persistent' | 'onClose' | 'action'
+    'timer' | 'type' | 'subject' | 'persistent' | 'onClose' | 'action'
   >
 >;
 
