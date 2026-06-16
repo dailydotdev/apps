@@ -109,9 +109,6 @@ const SIDEBAR_MAX_WIDTH = 420;
 const SIDEBAR_RAIL_WIDTH = 56;
 // Pulling the open panel narrower than this collapses it to the rail.
 const SIDEBAR_COLLAPSE_AT = 180;
-// Dragging the rail past ~2× its width commits to opening (a small pull is
-// enough — it then snaps to the stored/min width).
-const SIDEBAR_RAIL_OPEN_AT = SIDEBAR_RAIL_WIDTH * 2;
 
 // Compact square icon button (Linear-sized: 32px hit area, 16px glyph) shared
 // by the header search and the footer support controls.
@@ -439,12 +436,18 @@ export const SidebarDesktopV2 = ({
     ? undefined
     : '!transition-none';
 
+  // While dragging the rail grip we preview the open panel (full layout) before
+  // the open state is committed on release — so the icons jump to the left and
+  // labels fade in, instead of the rail growing with centered icons.
+  const [railPreview, setRailPreview] = useState(false);
+
   // Pinned-open vs collapsed. Collapsed isn't hidden — it's a persistent
   // icon-only rail (production-style); hovering it does NOT open the panel.
   // The panel only opens when pinned (resize grip / "[" / feed-header button).
-  // Settings force the full panel open. `isPanelOpen` = labels + full layout.
+  // Settings force the full panel open. `isPanelOpen` = labels + full layout
+  // (also true mid drag-to-open preview, before the open state commits).
   const isExpanded = sidebarExpanded || forceExpanded;
-  const isPanelOpen = isExpanded;
+  const isPanelOpen = isExpanded || railPreview;
 
   // The panel width is resizable and persisted. The live value lives in the
   // `--sidebar-width` CSS variable so the sidebar and the main content (which
@@ -492,38 +495,80 @@ export const SidebarDesktopV2 = ({
   // start/end only — never on pointer move, so it doesn't re-render mid-drag).
   const [isResizing, setIsResizing] = useState(false);
 
-  // Grip drag: when open, resize the panel live / pull past the threshold to
-  // collapse. When collapsed, pull the rail open — the width grows from the
-  // rail and tracks the cursor; a plain click opens too. Transitions are
-  // suppressed only during the active drag so it tracks 1:1, then eases on
-  // release for a smooth open/close.
-  const onResizeHandleMouseDown = useCallback(
+  // Once the open state actually commits, drop the preview flag. Keeping the
+  // preview on until `isExpanded` flips avoids a one-frame collapse flash
+  // between releasing the drag and the settings update landing.
+  useEffect(() => {
+    if (isExpanded) {
+      setRailPreview(false);
+    }
+  }, [isExpanded]);
+
+  // Grip drag from the COLLAPSED rail: previews the open panel as soon as the
+  // pointer moves (full layout animates in, icons stay left — the rail does
+  // NOT grow with centered icons), then commits open on release. A plain click
+  // opens too. Dragging back over the rail cancels.
+  const onRailGripMouseDown = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault();
       const root = document.documentElement;
-      const startedCollapsed = !isExpanded;
       const startX = event.clientX;
       let lastCursorX: number | null = null;
       let moved = false;
+      document.body.style.userSelect = 'none';
+
+      const onMove = (moveEvent: MouseEvent) => {
+        lastCursorX = moveEvent.clientX;
+        if (!moved && Math.abs(moveEvent.clientX - startX) > 6) {
+          moved = true;
+          // Snap straight to the open width and let the CSS transition animate
+          // the expand (transitions stay enabled — this isn't a 1:1 resize).
+          root.style.setProperty('--sidebar-width', `${resolvedWidth}px`);
+          setRailPreview(true);
+        }
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.body.style.userSelect = '';
+
+        // Dragged back over the rail → cancel, stay collapsed.
+        if (moved && lastCursorX != null && lastCursorX < SIDEBAR_RAIL_WIDTH) {
+          setRailPreview(false);
+          return;
+        }
+        root.style.setProperty('--sidebar-width', `${resolvedWidth}px`);
+        logEvent({ event_name: 'open sidebar' });
+        toggleSidebarExpanded();
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    },
+    [resolvedWidth, logEvent, toggleSidebarExpanded],
+  );
+
+  // Grip drag from the OPEN panel: live 1:1 resize; pull past the collapse
+  // threshold to close. Transitions are suppressed only during the active
+  // drag so the panel tracks the cursor exactly.
+  const onResizeHandleMouseDown = useCallback(
+    (event: React.MouseEvent) => {
+      if (!isExpanded) {
+        onRailGripMouseDown(event);
+        return;
+      }
+      event.preventDefault();
+      const root = document.documentElement;
+      let lastCursorX: number | null = null;
       setIsResizing(true);
       root.classList.add('sidebar-resizing');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
-      if (startedCollapsed) {
-        root.style.setProperty('--sidebar-width', `${SIDEBAR_RAIL_WIDTH}px`);
-      }
 
       const onMove = (moveEvent: MouseEvent) => {
-        if (Math.abs(moveEvent.clientX - startX) > 3) {
-          moved = true;
-        }
         lastCursorX = moveEvent.clientX;
-        const minWidth = startedCollapsed
-          ? SIDEBAR_RAIL_WIDTH
-          : SIDEBAR_MIN_WIDTH;
         const width = Math.min(
           SIDEBAR_MAX_WIDTH,
-          Math.max(minWidth, moveEvent.clientX),
+          Math.max(SIDEBAR_MIN_WIDTH, moveEvent.clientX),
         );
         root.style.setProperty('--sidebar-width', `${width}px`);
       };
@@ -534,30 +579,6 @@ export const SidebarDesktopV2 = ({
         root.classList.remove('sidebar-resizing');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
-
-        if (startedCollapsed) {
-          const draggedOpen =
-            lastCursorX != null && lastCursorX >= SIDEBAR_RAIL_OPEN_AT;
-          if (!moved || draggedOpen) {
-            if (moved && lastCursorX != null) {
-              const width = Math.min(
-                SIDEBAR_MAX_WIDTH,
-                Math.max(SIDEBAR_MIN_WIDTH, lastCursorX),
-              );
-              root.style.setProperty('--sidebar-width', `${width}px`);
-              updateFlag('sidebarWidth', width);
-            } else {
-              // Plain click → open at the stored width (animates from the rail).
-              root.style.setProperty('--sidebar-width', `${resolvedWidth}px`);
-            }
-            logEvent({ event_name: 'open sidebar' });
-            toggleSidebarExpanded();
-          } else {
-            // Released too narrow → settle back to the rail.
-            root.style.setProperty('--sidebar-width', `${resolvedWidth}px`);
-          }
-          return;
-        }
 
         if (lastCursorX == null) {
           return;
@@ -577,7 +598,13 @@ export const SidebarDesktopV2 = ({
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
     },
-    [isExpanded, resolvedWidth, logEvent, toggleSidebarExpanded, updateFlag],
+    [
+      isExpanded,
+      onRailGripMouseDown,
+      logEvent,
+      toggleSidebarExpanded,
+      updateFlag,
+    ],
   );
 
   const defaultRenderSectionProps = useMemo(
@@ -721,9 +748,10 @@ export const SidebarDesktopV2 = ({
         isPanelOpen || isResizing
           ? 'laptop:w-[var(--sidebar-width,19rem)]'
           : 'laptop:w-14',
-        // While dragging the rail open, float over the feed so content doesn't
-        // jump — it settles into flow when the open state is committed.
-        !isPanelOpen && isResizing && 'laptop:z-sidebarOverlay laptop:shadow-3',
+        // While previewing the drag-to-open (panel is open-wide but the open
+        // state hasn't committed, so content is still padded for the rail),
+        // float over the feed; it settles into flow once committed.
+        !isExpanded && isPanelOpen && 'laptop:z-sidebarOverlay laptop:shadow-3',
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
@@ -1036,7 +1064,7 @@ export const SidebarDesktopV2 = ({
               aria-hidden
               className={classNames(
                 'pointer-events-none absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 transition-colors duration-150',
-                isResizing
+                isResizing || railPreview
                   ? 'bg-surface-hover'
                   : 'bg-transparent group-hover/resize:bg-surface-hover',
               )}
@@ -1047,13 +1075,23 @@ export const SidebarDesktopV2 = ({
               aria-hidden
               className={classNames(
                 'pointer-events-none absolute left-1/2 top-1/2 h-9 -translate-x-1/2 -translate-y-1/2 rounded-4 transition-all duration-150',
-                isResizing
+                isResizing || railPreview
                   ? 'w-1 bg-accent-blueCheese-default'
                   : 'w-0.5 bg-border-subtlest-secondary group-hover/resize:w-1 group-hover/resize:bg-accent-blueCheese-default',
               )}
             />
           </button>
         </Tooltip>
+      )}
+      {/* Drag gesture hint: while previewing the open panel, tell the user that
+          releasing the cursor will keep it open. */}
+      {railPreview && !isExpanded && (
+        <div
+          aria-hidden
+          className="z-20 pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 whitespace-nowrap rounded-8 bg-accent-blueCheese-default px-2 py-1 text-white shadow-3 typo-caption1 laptop:block"
+        >
+          Release to open
+        </div>
       )}
     </SidebarAside>
   );
