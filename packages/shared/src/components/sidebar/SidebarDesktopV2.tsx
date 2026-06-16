@@ -1088,7 +1088,7 @@ export const SidebarDesktopV2 = ({
       {railPreview && !isExpanded && (
         <div
           aria-hidden
-          className="z-20 pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 whitespace-nowrap rounded-8 bg-accent-blueCheese-default px-2 py-1 text-white shadow-3 typo-caption1 laptop:block"
+          className="z-20 pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 whitespace-nowrap rounded-8 bg-accent-blueCheese-bolder px-2 py-1 font-bold text-white shadow-3 typo-caption1 laptop:block"
         >
           Release to open
         </div>
