@@ -7,6 +7,8 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { cloudinaryCharmInviteFriends } from '@dailydotdev/shared/src/lib/image';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
   generateQueryKey,
   getNextPageParam,
@@ -48,7 +50,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
-import { GiftIcon, InviteIcon } from '@dailydotdev/shared/src/components/icons';
+import { GiftIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -184,7 +186,12 @@ const AccountInvitePage = (): ReactElement => {
           }}
           emptyPlaceholder={
             <div className="mt-16 flex flex-col items-center text-text-secondary">
-              <InviteIcon size={IconSize.XXXLarge} />
+              <Image
+                className="h-40 w-40 object-contain"
+                src={cloudinaryCharmInviteFriends}
+                alt="daily.dev charm inviting your friends"
+                loading="lazy"
+              />
               <p className="mt-2 typo-body">
                 No one has joined yet. Share your link!
               </p>
