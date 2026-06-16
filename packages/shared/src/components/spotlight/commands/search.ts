@@ -66,7 +66,9 @@ const buildTagCommand = (
   group: SpotlightGroup.Search,
   meta: { kind: 'tag', tagName: hit.title },
   perform: () => {
-    router.push(`${webappUrl}tags/${hit.title}`);
+    // `id` is the normalized tag value; `title` is the humanized label and
+    // would 404 the tag page, so navigate with the normalized value.
+    router.push(`${webappUrl}tags/${encodeURIComponent(hit.id ?? hit.title)}`);
   },
 });
 
