@@ -56,7 +56,11 @@ export const SidebarItem = ({
             : undefined
         }
         isButton={isItemsButton && !item?.isForcedLink}
-        className={compact ? 'laptop:!h-7' : undefined}
+        className={classNames(
+          compact && 'laptop:!h-7',
+          // Collapsed rail: center the icon (override the row's label padding).
+          compact && isCollapsed && 'laptop:!justify-center laptop:!px-0',
+        )}
       >
         <ItemInner
           item={item}

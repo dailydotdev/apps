@@ -1,12 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper, ListIcon } from './common';
 import type { SidebarMenuItem } from './common';
@@ -441,28 +435,11 @@ export const SidebarDesktopV2 = ({
     : '!transition-none';
 
   // Pinned-open vs collapsed. Collapsed isn't hidden — it's a persistent
-  // icon-only rail (production-style). Settings force the full panel open.
+  // icon-only rail (production-style); hovering it does NOT open the panel.
+  // The panel only opens when pinned (resize grip / "[" / feed-header button).
+  // Settings force the full panel open. `isPanelOpen` = labels + full layout.
   const isExpanded = sidebarExpanded || forceExpanded;
-
-  // Hovering the collapsed rail peeks the full panel open as an overlay on top
-  // of the content (high z-index; MainLayout keeps the rail-width padding so
-  // nothing shifts). `isPanelOpen` = show labels + full layout; otherwise the
-  // rail shows icon-only.
-  const [isPeeking, setIsPeeking] = useState(false);
-  const peekSuppressedRef = useRef(false);
-  const isHoverExpanded = !isExpanded && isPeeking;
-  const isPanelOpen = isExpanded || isHoverExpanded;
-
-  const handleRailEnter = () => {
-    if (isExpanded || peekSuppressedRef.current) {
-      return;
-    }
-    setIsPeeking(true);
-  };
-  const handleRailLeave = () => {
-    peekSuppressedRef.current = false;
-    setIsPeeking(false);
-  };
+  const isPanelOpen = isExpanded;
 
   // The panel width is resizable and persisted. The live value lives in the
   // `--sidebar-width` CSS variable so the sidebar and the main content (which
@@ -497,12 +474,6 @@ export const SidebarDesktopV2 = ({
         return;
       }
       event.preventDefault();
-      // Suppress the hover-peek after collapsing so the cursor sitting over
-      // the rail doesn't instantly re-open it.
-      if (sidebarExpanded) {
-        peekSuppressedRef.current = true;
-        setIsPeeking(false);
-      }
       logEvent({
         event_name: `${sidebarExpanded ? 'close' : 'open'} sidebar`,
       });
@@ -548,10 +519,7 @@ export const SidebarDesktopV2 = ({
           return;
         }
         if (lastCursorX < SIDEBAR_COLLAPSE_AT) {
-          // Collapse to the icon rail. Suppress the hover-peek so the cursor
-          // resting near the rail doesn't immediately re-open the full panel.
-          peekSuppressedRef.current = true;
-          setIsPeeking(false);
+          // Collapse to the icon rail.
           logEvent({ event_name: 'close sidebar' });
           toggleSidebarExpanded();
           return;
@@ -702,8 +670,6 @@ export const SidebarDesktopV2 = ({
     <SidebarAside
       data-testid="sidebar-aside"
       data-resizable-pane
-      onMouseEnter={handleRailEnter}
-      onMouseLeave={handleRailLeave}
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
         // Open: width tracks the resizable `--sidebar-width` variable (19rem
@@ -718,12 +684,6 @@ export const SidebarDesktopV2 = ({
         !featureTheme &&
           'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
         featureTheme && 'laptop:!bg-transparent',
-        // Hover-peek: float the panel above everything without shifting the
-        // content (MainLayout padding stays put while collapsed). A soft
-        // right border + shadow separate the overlay from the content behind
-        // it — only in this peek state (pinned/collapsed keep no divider).
-        isHoverExpanded &&
-          'laptop:!z-sidebarOverlay laptop:!border-r laptop:border-border-subtlest-quaternary laptop:shadow-3',
         suppressTransition,
       )}
     >
@@ -974,28 +934,39 @@ export const SidebarDesktopV2 = ({
         </div>
       </div>
 
-      {/* Resize handle straddling the sidebar/feed boundary. The surface stays
-          invisible (no permanent divider), but hovering or dragging it reveals
-          a short, vertically-centered grip — the Claude resize affordance — so
-          it's discoverable without adding a border. Pull past the threshold to
-          collapse. */}
-      {isExpanded && !forceExpanded && (
+      {/* Grip on the sidebar's right edge — always present (the resize
+          affordance), in both the rail and the open panel. Open: drag to
+          resize / pull past the threshold to collapse. Collapsed rail: click
+          to open. Reveals a centered grip that turns blue on hover/drag. */}
+      {!forceExpanded && (
         <Tooltip
           side="right"
           content={
-            <span className="flex flex-col gap-0.5">
-              <span>Drag to resize</span>
-              <span className="text-text-tertiary">
-                Toggle sidebar · {sidebarToggleShortcut}
+            isExpanded ? (
+              <span className="flex flex-col gap-0.5">
+                <span>Drag to resize</span>
+                <span className="text-text-tertiary">
+                  Toggle sidebar · {sidebarToggleShortcut}
+                </span>
               </span>
-            </span>
+            ) : (
+              `Open sidebar · ${sidebarToggleShortcut}`
+            )
           }
         >
           <button
             type="button"
-            aria-label={`Resize sidebar, toggle with ${sidebarToggleShortcut}`}
-            onMouseDown={onResizeHandleMouseDown}
-            className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
+            aria-label={
+              isExpanded
+                ? `Resize sidebar, toggle with ${sidebarToggleShortcut}`
+                : 'Open sidebar'
+            }
+            onMouseDown={isExpanded ? onResizeHandleMouseDown : undefined}
+            onClick={isExpanded ? undefined : () => toggleSidebarExpanded()}
+            className={classNames(
+              'group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 laptop:block',
+              isExpanded ? 'cursor-col-resize' : 'cursor-pointer',
+            )}
           >
             {/* Full-height strip that tints top-to-bottom on hover/drag. */}
             <span
