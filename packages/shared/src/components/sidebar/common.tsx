@@ -150,8 +150,12 @@ export const ItemInner = ({
       />
       <span
         className={classNames(
-          'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
-          isLabelHidden ? 'w-0 opacity-0' : 'opacity-100',
+          'overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
+          // Collapsed: `flex-none w-0` so the label takes zero space — without
+          // dropping `flex-1` here it grows and shoves the icon off-center in
+          // the square rail button. Expanded: `flex-1` fills the row and the
+          // opacity transition fades the text in as the panel opens.
+          isLabelHidden ? 'w-0 flex-none opacity-0' : 'flex-1 opacity-100',
           compact && 'typo-footnote',
           item.titleClassName,
         )}

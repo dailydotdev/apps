@@ -107,8 +107,11 @@ const SIDEBAR_MIN_WIDTH = 240;
 const SIDEBAR_MAX_WIDTH = 420;
 // Collapsed icon-rail width (px) — must match the `w-14` class + MainLayout.
 const SIDEBAR_RAIL_WIDTH = 56;
-// Below this cursor X a drag collapses (from open) / doesn't open (from rail).
+// Pulling the open panel narrower than this collapses it to the rail.
 const SIDEBAR_COLLAPSE_AT = 180;
+// Dragging the rail past ~2× its width commits to opening (a small pull is
+// enough — it then snaps to the stored/min width).
+const SIDEBAR_RAIL_OPEN_AT = SIDEBAR_RAIL_WIDTH * 2;
 
 // Compact square icon button (Linear-sized: 32px hit area, 16px glyph) shared
 // by the header search and the footer support controls.
@@ -534,7 +537,7 @@ export const SidebarDesktopV2 = ({
 
         if (startedCollapsed) {
           const draggedOpen =
-            lastCursorX != null && lastCursorX >= SIDEBAR_COLLAPSE_AT;
+            lastCursorX != null && lastCursorX >= SIDEBAR_RAIL_OPEN_AT;
           if (!moved || draggedOpen) {
             if (moved && lastCursorX != null) {
               const width = Math.min(
@@ -817,7 +820,7 @@ export const SidebarDesktopV2 = ({
                 </a>
               </Link>
             )}
-            {isLoggedIn && <SidebarStreakButton />}
+            {isLoggedIn && <SidebarStreakButton iconOnly />}
             {isLoggedIn && (
               <Tooltip side="right" content="New post">
                 <Button
