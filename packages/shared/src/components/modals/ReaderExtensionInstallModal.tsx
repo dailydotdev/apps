@@ -15,6 +15,7 @@ import { downloadBrowserExtension, isChrome } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import type { SettingsFlags } from '../../graphql/settings';
 
 /**
  * Install nudge shown when a user tries to enable the reader (e.g. from the
@@ -27,7 +28,7 @@ function ReaderExtensionInstallModal({
   onRequestClose,
 }: LazyModalCommonProps): ReactElement {
   const { logEvent } = useLogContext();
-  const { updateFlags } = useSettingsContext();
+  const { flags, setSettings } = useSettingsContext();
   const isChromeBrowser = isChrome();
   const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
   const browser = isChromeBrowser ? 'chrome' : 'edge';
@@ -50,10 +51,15 @@ function ReaderExtensionInstallModal({
     });
     // Installing signals intent to read inside daily.dev, so enable it now
     // rather than waiting for a permission grant — the actual permission is
-    // handled at the reader surface once the extension is present.
-    updateFlags({
-      legacyPostLayoutOptOut: false,
-      readerInstallPromptAcknowledged: true,
+    // handled at the reader surface once the extension is present. setSettings
+    // merges both flags in one atomic write. `flags` is typed optional but is
+    // always populated by the time this modal can open.
+    setSettings({
+      flags: {
+        ...flags,
+        legacyPostLayoutOptOut: false,
+        readerInstallPromptAcknowledged: true,
+      } as SettingsFlags,
     });
     logEvent({
       event_name: LogEvent.ToggleEmbeddedReader,

@@ -67,10 +67,6 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
     flag: K,
     value: SettingsFlags[K],
   ) => Promise<unknown>;
-  // Atomically merge several flags in one update. Prefer this over calling
-  // updateFlag in sequence — updateFlag builds its update from a snapshot of
-  // settings, so back-to-back calls in the same tick clobber each other.
-  updateFlags: (flags: Partial<SettingsFlags>) => Promise<unknown>;
   updateFlagRemote: <K extends keyof SettingsFlags>(
     flag: K,
     value: SettingsFlags[K],
@@ -345,14 +341,6 @@ export const SettingsContextProvider = ({
           flags: {
             ...settings.flags,
             [flag]: value,
-          },
-        }),
-      updateFlags: (flags: Partial<SettingsFlags>) =>
-        setSettings({
-          ...settings,
-          flags: {
-            ...settings.flags,
-            ...flags,
           },
         }),
       updateFlagRemote: <K extends keyof SettingsFlags>(

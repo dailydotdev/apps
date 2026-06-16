@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
+import type { SettingsFlags } from '../../../../graphql/settings';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../modals/common/types';
@@ -18,7 +19,7 @@ import { requestFrameEmbeddingPermissionFromPage } from '../../../../features/ex
  *   reader off instead of stuck "enabled" without the access it needs.
  */
 export function useEnableReaderInside(): { enable: () => void } {
-  const { updateFlags } = useSettingsContext();
+  const { flags, setSettings } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
 
@@ -35,16 +36,23 @@ export function useEnableReaderInside(): { enable: () => void } {
       if (!granted) {
         return;
       }
-      updateFlags({
-        legacyPostLayoutOptOut: false,
-        readerInstallPromptAcknowledged: true,
+      // Write both flags in one update — setSettings merges atomically, so
+      // neither write clobbers the other (two updateFlag calls would race on a
+      // shared settings snapshot). `flags` is typed optional but is always
+      // populated by the time the reader can be enabled.
+      setSettings({
+        flags: {
+          ...flags,
+          legacyPostLayoutOptOut: false,
+          readerInstallPromptAcknowledged: true,
+        } as SettingsFlags,
       });
       logEvent({
         event_name: LogEvent.ToggleEmbeddedReader,
         target_id: TargetId.On,
       });
     });
-  }, [logEvent, openModal, updateFlags]);
+  }, [flags, logEvent, openModal, setSettings]);
 
   return { enable };
 }

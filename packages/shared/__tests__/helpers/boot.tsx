@@ -69,7 +69,6 @@ export const settingsContext: SettingsContextData = {
   updateCustomLinks: jest.fn(),
   updateSortCommentsBy: jest.fn(),
   updateFlag: jest.fn(),
-  updateFlags: jest.fn(),
   updateFlagRemote: jest.fn(),
   updatePromptFlag: jest.fn(),
   applyThemeMode: jest.fn(),
