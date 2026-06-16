@@ -5,6 +5,10 @@ import { MyProfileEmptyScreen } from '../../../components/profile/MyProfileEmpty
 import { ProfileEmptyScreen } from '../../../components/profile/ProfileEmptyScreen';
 import { link } from '../../../lib/links';
 import {
+  cloudinaryCharmEmptyProfile,
+  cloudinaryCharmNoPosts,
+} from '../../../lib/image';
+import {
   OtherFeedPage,
   generateQueryKey,
   RequestKey,
@@ -113,6 +117,8 @@ export const renderEmptyScreen = (
         return (
           <MyProfileEmptyScreen
             className="min-h-[27.125rem] items-center justify-center px-4 py-6 text-center tablet:px-6"
+            image={cloudinaryCharmNoPosts}
+            imageAlt="daily.dev charm waiting for your first post"
             text="Hardest part of being a developer? Where do we start – it's everything. Go on, share with us your best rant."
             cta="New post"
             buttonProps={{ tag: 'a', href: link.post.create }}
@@ -122,6 +128,8 @@ export const renderEmptyScreen = (
         return (
           <MyProfileEmptyScreen
             className="min-h-[27.125rem] items-center justify-center px-4 py-6 text-center tablet:px-6"
+            image={cloudinaryCharmEmptyProfile}
+            imageAlt="daily.dev charm with an empty profile"
             text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
             cta="Explore posts"
             buttonProps={{ tag: 'a', href: '/' }}
@@ -131,6 +139,8 @@ export const renderEmptyScreen = (
         return (
           <MyProfileEmptyScreen
             className="min-h-[27.125rem] items-center justify-center px-4 py-6 text-center tablet:px-6"
+            image={cloudinaryCharmEmptyProfile}
+            imageAlt="daily.dev charm with an empty profile"
             text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
             cta="Explore posts"
             buttonProps={{ tag: 'a', href: '/' }}
@@ -146,6 +156,8 @@ export const renderEmptyScreen = (
     case ActivityTabIndex.Posts:
       return (
         <ProfileEmptyScreen
+          image={cloudinaryCharmNoPosts}
+          imageAlt="daily.dev charm waiting for the first post"
           title={`${userName} hasn't posted yet`}
           text="Once they do, those posts will show up here."
         />
@@ -153,6 +165,8 @@ export const renderEmptyScreen = (
     case ActivityTabIndex.Upvoted:
       return (
         <ProfileEmptyScreen
+          image={cloudinaryCharmEmptyProfile}
+          imageAlt="daily.dev charm with an empty profile"
           title={`${userName} hasn't upvoted yet`}
           text="Once they do, those posts will show up here."
         />
@@ -160,6 +174,8 @@ export const renderEmptyScreen = (
     case ActivityTabIndex.Replies:
       return (
         <ProfileEmptyScreen
+          image={cloudinaryCharmEmptyProfile}
+          imageAlt="daily.dev charm with an empty profile"
           title={`${userName} hasn't replied to any post yet`}
           text="Once they do, those replies will show up here."
         />
