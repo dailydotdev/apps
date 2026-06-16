@@ -47,6 +47,7 @@ const renderBadge = (badge?: AnnouncementBadge): ReactElement | null => {
     <Pill
       label={badge.label}
       size={PillSize.XSmall}
+      alignment="self-center"
       className={classNames(
         'uppercase tracking-wide',
         badge.className ?? 'bg-surface-float text-text-secondary',
