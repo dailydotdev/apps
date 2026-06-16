@@ -16,7 +16,6 @@ import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
-import { SidebarExpandButton } from '../../sidebar/SidebarExpandButton';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -83,7 +82,6 @@ export const SquadDirectoryLayout = (
         // mobile bleed/border classes are zeroed out so it sits flush
         // inside the slim header row.
         <header className={classNames(pageHeaderClassName, 'gap-4 !py-0')}>
-          <SidebarExpandButton />
           <SquadDirectoryNavbar className="!mx-0 min-w-0 flex-1 !border-0 !px-0">
             {tabItems}
           </SquadDirectoryNavbar>

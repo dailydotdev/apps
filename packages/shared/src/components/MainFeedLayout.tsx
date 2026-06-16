@@ -59,7 +59,6 @@ import {
 } from '../hooks';
 import { feedNameToHeading } from './feeds/FeedContainer';
 import { pageHeaderClassName } from './layout/PageHeader';
-import { SidebarExpandButton } from './sidebar/SidebarExpandButton';
 import {
   customFeedVersion,
   discussedFeedVersion,
@@ -772,14 +771,12 @@ export default function MainFeedLayout({
     <>
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          <SidebarExpandButton />
           <ExploreSectionTabs />
           {isAnyExplore && <ExploreSortDropdown />}
         </header>
       )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          <SidebarExpandButton />
           {v2ActionButtons || (
             <strong className="min-w-0 flex-1 truncate typo-callout">
               {feedHeading}

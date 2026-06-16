@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { SidebarExpandButton } from '../sidebar/SidebarExpandButton';
 
 // `min-h-14` locks the strip to a Small-button + py-3 height so the
 // header reads at a consistent 56px regardless of action contents.
@@ -20,7 +19,6 @@ export const PageHeader = ({
   className,
 }: PageHeaderProps): ReactElement => (
   <header className={classNames(pageHeaderClassName, className)}>
-    <SidebarExpandButton />
     {title !== undefined &&
       (typeof title === 'string' ? (
         <strong className="min-w-0 flex-1 truncate typo-callout">
