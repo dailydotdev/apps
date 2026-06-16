@@ -4,9 +4,6 @@ import classNames from 'classnames';
 import { AnnouncementCard } from './AnnouncementCard';
 import { AnnouncementCardVariant } from './types';
 import type { AnnouncementItem } from './types';
-import CarouselIndicator from '../containers/CarouselIndicator';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon } from '../icons';
 
 const EXIT_MS = 200;
 
@@ -124,37 +121,30 @@ export function AnnouncementCarousel({
       </div>
 
       {hasMultiple && (
-        <div className="flex items-center justify-between px-1">
-          <CarouselIndicator
-            active={safeActive}
-            max={count}
-            onItemClick={goTo}
-            className={{
-              item: 'transition-transform duration-150 ease-out hover:scale-125',
-            }}
-          />
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Tertiary}
-              aria-label="Previous announcement"
-              disabled={safeActive === 0}
-              className="motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-110 motion-safe:active:scale-90"
-              icon={<ArrowIcon className="-rotate-90" />}
-              onClick={() => goTo(safeActive - 1)}
-            />
-            <Button
-              type="button"
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Tertiary}
-              aria-label="Next announcement"
-              disabled={safeActive >= count - 1}
-              className="motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-110 motion-safe:active:scale-90"
-              icon={<ArrowIcon className="rotate-90" />}
-              onClick={() => goTo(safeActive + 1)}
-            />
-          </div>
+        // Centered segmented indicator. Hovering (or focusing) a dot switches
+        // to that announcement; the active dot stretches into a pill and the
+        // fill glides between positions for a sense of motion.
+        <div className="flex items-center justify-center gap-1.5 pt-0.5">
+          {items.map((item, index) => {
+            const isActive = index === safeActive;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                aria-label={`Show announcement ${index + 1} of ${count}`}
+                aria-current={isActive}
+                onMouseEnter={() => goTo(index)}
+                onFocus={() => goTo(index)}
+                onClick={() => goTo(index)}
+                className={classNames(
+                  'h-1.5 rounded-full transition-all duration-300 ease-out',
+                  isActive
+                    ? 'w-5 bg-text-primary'
+                    : 'w-1.5 bg-text-quaternary hover:bg-text-tertiary',
+                )}
+              />
+            );
+          })}
         </div>
       )}
     </section>

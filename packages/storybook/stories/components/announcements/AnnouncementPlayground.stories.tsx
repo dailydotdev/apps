@@ -180,17 +180,16 @@ const Playground = (): ReactElement => {
           <h3 className="font-bold typo-title3">Try the interactions</h3>
           <ul className="mt-2 flex flex-col gap-1.5 text-text-secondary typo-footnote">
             <li>
-              • <b>Switch</b>: click the dots, the{' '}
-              <Chip>‹</Chip> <Chip>›</Chip> arrows, or press{' '}
-              <Chip>←</Chip> <Chip>→</Chip> (focus a control first).
+              • <b>Switch</b>: hover (or click) the dots — the card changes as
+              you move across them and the active dot stretches into a pill.
             </li>
             <li>
               • <b>Dismiss</b>: hit the <Chip>✕</Chip> — the card animates out
               and the next one slides up into its place.
             </li>
             <li>
-              • <b>Stack</b>: the edges peeking under the card show there are
-              more behind; they shrink as the stack empties.
+              • <b>Stack</b>: a card peeks behind the active one; hover the
+              stack and it “opens” — the card behind slides out and brightens.
             </li>
             <li>
               • <b>Empty</b>: dismiss them all to see the caught-up state, then
