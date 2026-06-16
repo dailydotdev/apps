@@ -235,7 +235,35 @@ export const PostFocusCard = ({
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
+  // The video is a small floating preview on tablet/desktop and expands to the
+  // full width on first interaction. We keep YouTube's native iframe (so the
+  // first click plays with sound), so there's no React click handler to hook —
+  // instead we detect the click landing inside the cross-origin iframe via the
+  // window losing focus to it, then animate the container open.
+  const videoWrapperRef = useRef<HTMLDivElement>(null);
+  const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
+
+  useEffect(() => {
+    if (!isVideoType || isVideoExpanded) {
+      return undefined;
+    }
+    const onWindowBlur = () => {
+      // activeElement updates after the blur dispatches, so defer the check.
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (
+          active?.tagName === 'IFRAME' &&
+          videoWrapperRef.current?.contains(active)
+        ) {
+          setIsVideoExpanded(true);
+        }
+      });
+    };
+    window.addEventListener('blur', onWindowBlur);
+    return () => window.removeEventListener('blur', onWindowBlur);
+  }, [isVideoType, isVideoExpanded]);
+
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -434,10 +462,21 @@ export const PostFocusCard = ({
           />
 
           {isVideoType && (
-            <div className="shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
-              {/* Embed YouTube's native player directly (like the control
-                  layout) so the first click plays inside the iframe with
-                  sound — no custom overlay or muted autoplay. */}
+            <div
+              ref={videoWrapperRef}
+              className={classNames(
+                'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
+                // Phones (below mobileXL, the mobileL bucket and smaller) and
+                // the expanded state use the full width; tablet/desktop start
+                // as a smaller floating preview until the user plays the video.
+                isVideoExpanded
+                  ? 'max-w-full'
+                  : 'max-w-full mobileXL:max-w-[70%]',
+              )}
+            >
+              {/* Embed YouTube's native player directly so the first click
+                  plays inside the iframe with sound — no custom overlay or
+                  muted autoplay. */}
               <YoutubeVideo
                 placeholderProps={{
                   post: article,
