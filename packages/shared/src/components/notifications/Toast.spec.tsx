@@ -94,20 +94,21 @@ it('should display a toast notification and be dismissable', async () => {
   );
 });
 
-it('should display a toast notification and do not automatically close', async () => {
+it('should not auto-dismiss when autoDismissNotifications is off, and still close on manual dismiss', async () => {
   jest.useFakeTimers();
   renderComponent(false);
   const button = await screen.findByText('Regular Toast');
   fireEvent.click(button);
   const alertEl = await screen.findByRole('alert');
   expect(alertEl).toBeInTheDocument();
-  expect(jest.getTimerCount()).toBeGreaterThan(0);
-  const dismiss = await screen.findByLabelText('Dismiss toast notification');
-  expect(dismiss).toBeInTheDocument();
-  fireEvent.click(dismiss);
+  // It must NOT auto-dismiss even well past the timer that would have elapsed.
   act(() => {
-    jest.advanceTimersByTime(500);
+    jest.advanceTimersByTime(2000);
   });
+  expect(screen.queryByRole('alert')).toBeInTheDocument();
+  // Manual dismiss still closes it.
+  const dismiss = await screen.findByLabelText('Dismiss toast notification');
+  fireEvent.click(dismiss);
   await waitFor(() =>
     expect(screen.queryByRole('alert')).not.toBeInTheDocument(),
   );
