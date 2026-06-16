@@ -52,24 +52,33 @@ export const SidebarStreakButton = ({
       aria-label={`Reading streak: ${value}`}
       className={
         iconOnly
-          ? 'focus-outline flex size-8 items-center justify-center rounded-10 text-text-primary transition-colors hover:bg-surface-hover'
+          ? 'focus-outline flex items-center gap-0.5 rounded-10 px-1 py-1 text-text-primary transition-colors hover:bg-surface-hover'
           : 'focus-outline flex items-center gap-1 rounded-10 px-2 py-1.5 text-text-primary transition-colors hover:bg-surface-hover'
       }
     >
-      {!iconOnly && (
-        <Typography
-          bold
-          type={TypographyType.Footnote}
-          className="tabular-nums"
-        >
-          {value}
-        </Typography>
+      {/* Rail: small flame on the left, then the count. Open header: count
+          first, then the larger flame. */}
+      {iconOnly && (
+        <ReadingStreakIcon
+          secondary={hasReadToday}
+          size={IconSize.XXSmall}
+          className="text-accent-bacon-default"
+        />
       )}
-      <ReadingStreakIcon
-        secondary={hasReadToday}
-        size={iconOnly ? IconSize.XXSmall : IconSize.Size16}
-        className="text-accent-bacon-default"
-      />
+      <Typography
+        bold
+        type={iconOnly ? TypographyType.Caption1 : TypographyType.Footnote}
+        className="tabular-nums"
+      >
+        {value}
+      </Typography>
+      {!iconOnly && (
+        <ReadingStreakIcon
+          secondary={hasReadToday}
+          size={IconSize.Size16}
+          className="text-accent-bacon-default"
+        />
+      )}
     </button>
   );
 
