@@ -33,8 +33,10 @@ export interface AnnouncementCardProps {
   className?: string;
 }
 
+// Clean, low-dominance surface: a hairline border over the sidebar background
+// rather than a filled card. Interactive variants add a subtle hover fill.
 const cardBaseClasses =
-  'border border-border-subtlest-tertiary bg-surface-float transition-colors';
+  'border border-border-subtlest-tertiary transition-colors';
 
 const renderBadge = (badge?: AnnouncementBadge): ReactElement | null => {
   if (!badge) {
@@ -47,7 +49,7 @@ const renderBadge = (badge?: AnnouncementBadge): ReactElement | null => {
       size={PillSize.XSmall}
       className={classNames(
         'uppercase tracking-wide',
-        badge.className ?? 'bg-accent-cabbage-subtlest text-brand-default',
+        badge.className ?? 'bg-surface-float text-text-secondary',
       )}
     />
   );
@@ -96,7 +98,7 @@ export function AnnouncementCard({
         className={classNames(
           'focus-outline group flex w-full items-center gap-3 rounded-12 p-3 text-left',
           cardBaseClasses,
-          'hover:border-border-subtlest-secondary',
+          'hover:border-border-subtlest-secondary hover:bg-surface-float',
           className,
         )}
       >

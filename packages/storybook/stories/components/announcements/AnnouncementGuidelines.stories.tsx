@@ -230,10 +230,10 @@ export const Guidelines: StoryObj = {
             ],
             [
               'Surface',
-              'Floating surface + subtle border',
+              'Transparent + hairline border (no fill)',
               <>
+                <Code>border-border-subtlest-tertiary</Code>; interactive hover{' '}
                 <Code>bg-surface-float</Code> +{' '}
-                <Code>border-border-subtlest-tertiary</Code>, hover{' '}
                 <Code>border-border-subtlest-secondary</Code>
               </>,
             ],
@@ -270,7 +270,7 @@ export const Guidelines: StoryObj = {
             [
               'Badge',
               <Code key="bd">Pill · XSmall (typo-caption2)</Code>,
-              <Code key="bdc">bg-accent-cabbage-subtlest · text-brand-default</Code>,
+              <Code key="bdc">bg-surface-float · text-text-secondary</Code>,
             ],
             [
               'Carousel counter',
