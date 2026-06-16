@@ -43,12 +43,19 @@ export type SettingsFlags = {
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
   showShortcutsOnWebapp?: boolean;
+  // v2 desktop rail: hide the text labels under each icon and narrow the
+  // rail back to its icon-only width.
+  sidebarCompact?: boolean;
+  sidebarPinnedExpanded?: boolean;
+  sidebarRecentExpanded?: boolean;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
+  PinnedExpanded = 'sidebarPinnedExpanded',
+  RecentExpanded = 'sidebarRecentExpanded',
   CustomFeedsExpanded = 'sidebarCustomFeedsExpanded',
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',

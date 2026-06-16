@@ -14,9 +14,11 @@ describe('getSidebarCategoryForPath', () => {
     );
   });
 
-  it('keeps the devcard customization page on the Profile category', () => {
+  it('maps the devcard customization page to the Settings category', () => {
+    // Profile moved to the bottom-rail dropdown, so its old sub-pages
+    // (devcard lives under /settings) now resolve to the Settings panel.
     expect(getSidebarCategoryForPath('/settings/customization/devcard')).toBe(
-      SidebarCategory.Profile,
+      SidebarCategory.Settings,
     );
   });
 
@@ -33,10 +35,11 @@ describe('isSidebarSettingsPath', () => {
     expect(isSidebarSettingsPath('/settings/notifications')).toBe(true);
   });
 
-  it('is false for the devcard page and non-settings pages', () => {
-    expect(isSidebarSettingsPath('/settings/customization/devcard')).toBe(
-      false,
-    );
+  it('is true for settings pages including devcard customization', () => {
+    expect(isSidebarSettingsPath('/settings/customization/devcard')).toBe(true);
+  });
+
+  it('is false for non-settings pages', () => {
     expect(isSidebarSettingsPath('/notifications')).toBe(false);
     expect(isSidebarSettingsPath('/posts')).toBe(false);
     expect(isSidebarSettingsPath('/')).toBe(false);

@@ -20,10 +20,14 @@ import { pageHeaderClassName } from '../../layout/PageHeader';
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
 const NewSquadButton = (
-  props: Pick<ButtonProps<'button'>, 'variant' | 'icon'>,
+  props: Pick<ButtonProps<'button'>, 'variant' | 'icon' | 'size'>,
 ) => {
   const { openNewSquad } = useSquadNavigation();
-  const { variant = ButtonVariant.Secondary, icon } = props;
+  const {
+    variant = ButtonVariant.Secondary,
+    icon,
+    size = ButtonSize.Medium,
+  } = props;
 
   const onNewSquadClick = () => {
     openNewSquad({ origin: Origin.SquadDirectory });
@@ -34,7 +38,7 @@ const NewSquadButton = (
       type="button"
       icon={icon}
       onClick={onNewSquadClick}
-      size={ButtonSize.Medium}
+      size={size}
       tag="button"
       variant={variant}
     >
@@ -86,14 +90,20 @@ export const SquadDirectoryLayout = (
             {tabItems}
           </SquadDirectoryNavbar>
           <div className="shrink-0 py-2">
-            <NewSquadButton />
+            <NewSquadButton
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              icon={<PlusIcon />}
+            />
           </div>
         </header>
       )}
       <BaseFeedPage
         className={classNames(
-          'relative mb-4 flex-col px-4 pt-4 laptop:px-18',
-          isV2Laptop ? 'laptop:pt-6' : 'laptop:pt-8',
+          'relative mb-4 flex-col px-4 pt-4',
+          // v2 matches the home feed gutters (24px) instead of the wide 72px
+          // directory padding, so the content spans the same width.
+          isV2Laptop ? 'laptop:px-6 laptop:pt-6' : 'laptop:px-18 laptop:pt-8',
         )}
       >
         {isDiscover && (
@@ -127,7 +137,11 @@ export const SquadDirectoryLayout = (
         </header>
         <section
           {...attrs}
-          className={classNames('flex w-full flex-col pt-5', className)}
+          className={classNames(
+            'flex w-full flex-col pt-5',
+            isV2Laptop && 'laptop:!pt-0',
+            className,
+          )}
         >
           {children}
         </section>
