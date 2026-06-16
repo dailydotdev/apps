@@ -76,6 +76,15 @@ const renderCta = (cta?: AnnouncementCta): ReactElement | null => {
   );
 };
 
+// Soft white inner gradient hugging the bottom edge — a subtle "lip" that reads
+// as depth/3D on the dark sidebar (gracefully invisible on light surfaces).
+const bottomDepth = (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute inset-x-0 bottom-0 h-6 rounded-b-16 bg-gradient-to-t from-white/[0.08] to-transparent"
+  />
+);
+
 export function AnnouncementCard({
   variant = AnnouncementCardVariant.Default,
   title,
@@ -193,6 +202,7 @@ export function AnnouncementCard({
           )}
         </div>
         <div className="p-3">{renderBody(false)}</div>
+        {bottomDepth}
       </div>
     );
   }
@@ -214,6 +224,7 @@ export function AnnouncementCard({
         />
       )}
       {renderBody(Boolean(onClose))}
+      {bottomDepth}
     </div>
   );
 }

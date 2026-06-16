@@ -113,7 +113,11 @@ export function AnnouncementCarousel({
                 : undefined
             }
             onClose={() => handleDismiss(current.id)}
-            className={hasMultiple ? 'shadow-2' : undefined}
+            className={
+              hasMultiple
+                ? 'shadow-[0_4px_12px_-6px_rgba(0,0,0,0.25)]'
+                : undefined
+            }
           />
         </div>
       </div>
