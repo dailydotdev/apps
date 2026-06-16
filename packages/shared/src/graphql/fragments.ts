@@ -303,6 +303,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     type
     subType
+    videoId
     tags
     source {
       id
@@ -642,6 +643,7 @@ export const FEED_POST_FRAGMENT = gql`
       createdAt
       type
       subType
+      videoId
       tags
       private
       yggdrasilId
