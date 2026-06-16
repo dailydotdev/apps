@@ -30,6 +30,7 @@ import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
+import { SidebarAnnouncements } from './SidebarAnnouncements';
 import {
   BookmarkIcon,
   FeedbackIcon,
@@ -924,6 +925,9 @@ export const SidebarDesktopV2 = ({
           </Nav>
         </SidebarScrollWrapper>
 
+        {isExpanded && !isUtilityPanelSelected && (
+          <SidebarAnnouncements className="mt-2 px-3 pb-1" />
+        )}
         {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
         {showFeedbackWidget && !isUtilityPanelSelected && (
           <div className="absolute inset-x-3 bottom-3">
