@@ -11,6 +11,7 @@ import Toast from './notifications/Toast';
 import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
+import { QuestUpdatesListener } from './quest/QuestUpdatesListener';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
@@ -277,6 +278,7 @@ function MainLayoutComponent({
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
+      <QuestUpdatesListener />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
