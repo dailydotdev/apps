@@ -9,6 +9,7 @@ import {
 } from '../../../graphql/search';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import { webappUrl } from '../../../lib/constants';
+import { getTagPageLink } from '../../../lib/links';
 import {
   SpotlightGroup,
   SpotlightScope,
@@ -68,7 +69,7 @@ const buildTagCommand = (
   perform: () => {
     // `id` is the normalized tag value; `title` is the humanized label and
     // would 404 the tag page, so navigate with the normalized value.
-    router.push(`${webappUrl}tags/${encodeURIComponent(hit.id ?? hit.title)}`);
+    router.push(getTagPageLink(hit.id ?? hit.title));
   },
 });
 
