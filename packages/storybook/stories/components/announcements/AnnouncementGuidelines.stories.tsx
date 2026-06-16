@@ -3,10 +3,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AnnouncementCard } from '@dailydotdev/shared/src/components/announcements/AnnouncementCard';
 import { AnnouncementCardVariant } from '@dailydotdev/shared/src/components/announcements/types';
-import {
-  HotIcon,
-  SparkleIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { HotIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '@dailydotdev/shared/src/lib/image';
 
@@ -130,7 +127,6 @@ export const Guidelines: StoryObj = {
               card: (
                 <AnnouncementCard
                   variant={AnnouncementCardVariant.Default}
-                  icon={<SparkleIcon size={IconSize.Small} />}
                   badge={{ label: 'Updated' }}
                   title="Smarter custom feeds"
                   description="Custom feeds now learn from what you read to surface more of what matters."
@@ -177,7 +173,7 @@ export const Guidelines: StoryObj = {
             [
               <Code key="d">Default</Code>,
               'A normal feature/release worth a sentence and a CTA.',
-              'Badge (+icon) · title · 2-line body · primary CTA · dismiss ×.',
+              'Badge · title · 2-line body · primary CTA · dismiss ×.',
             ],
             [
               <Code key="v">Cover</Code>,
@@ -270,7 +266,7 @@ export const Guidelines: StoryObj = {
             [
               'Badge',
               <Code key="bd">Pill · XSmall (typo-caption2)</Code>,
-              <Code key="bdc">bg-surface-float · text-text-secondary</Code>,
+              <Code key="bdc">bg-accent-cabbage-flat · text-brand-default</Code>,
             ],
             [
               'Carousel counter',

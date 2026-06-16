@@ -20,6 +20,7 @@ export interface AnnouncementCardProps {
   title: string;
   description?: string;
   badge?: AnnouncementBadge;
+  // Leading icon for the Compact variant (Default/Cover lead with the badge).
   icon?: ReactNode;
   // Cover image, only rendered by the Cover variant.
   image?: string;
@@ -47,10 +48,12 @@ const renderBadge = (badge?: AnnouncementBadge): ReactElement | null => {
     <Pill
       label={badge.label}
       size={PillSize.XSmall}
-      alignment="self-center"
+      alignment="self-start"
       className={classNames(
         'uppercase tracking-wide',
-        badge.className ?? 'bg-surface-float text-text-secondary',
+        // Idiomatic flat-accent chip: a visible brand tint with readable brand
+        // text, theme-safe in both light and dark.
+        badge.className ?? 'bg-accent-cabbage-flat text-brand-default',
       )}
     />
   );
@@ -142,16 +145,7 @@ export function AnnouncementCard({
     <div
       className={classNames('flex flex-col gap-2', reserveCloseSpace && 'pr-5')}
     >
-      {(icon || badge) && (
-        <div className="flex items-center gap-2">
-          {icon && (
-            <span className="flex text-text-primary" aria-hidden>
-              {icon}
-            </span>
-          )}
-          {renderBadge(badge)}
-        </div>
-      )}
+      {renderBadge(badge)}
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Primary}

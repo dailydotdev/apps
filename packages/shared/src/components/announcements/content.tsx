@@ -1,7 +1,7 @@
 import React from 'react';
 import { AnnouncementCardVariant } from './types';
 import type { AnnouncementItem } from './types';
-import { HotIcon, MegaphoneIcon, SparkleIcon } from '../icons';
+import { HotIcon, MegaphoneIcon } from '../icons';
 import { IconSize } from '../Icon';
 import {
   cloudinaryFeedFiltersYourFeedDark,
@@ -26,7 +26,6 @@ export const SIDEBAR_ANNOUNCEMENTS: AnnouncementItem[] = [
   {
     id: 'default-2026-06-custom-feeds',
     variant: AnnouncementCardVariant.Default,
-    icon: <SparkleIcon size={IconSize.Small} />,
     badge: { label: 'Updated' },
     title: 'Smarter custom feeds',
     description:

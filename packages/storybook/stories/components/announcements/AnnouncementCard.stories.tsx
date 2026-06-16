@@ -5,7 +5,6 @@ import { AnnouncementCardVariant } from '@dailydotdev/shared/src/components/anno
 import {
   HotIcon,
   MegaphoneIcon,
-  SparkleIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '@dailydotdev/shared/src/lib/image';
@@ -65,7 +64,6 @@ export const Default: Story = {
   decorators: [framed],
   args: {
     variant: AnnouncementCardVariant.Default,
-    icon: <SparkleIcon size={IconSize.Small} />,
     badge: { label: 'Updated' },
     title: 'Smarter custom feeds',
     description:
