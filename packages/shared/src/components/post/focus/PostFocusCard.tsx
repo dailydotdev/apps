@@ -19,8 +19,6 @@ import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
-import { PlayIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
@@ -237,7 +235,6 @@ export const PostFocusCard = ({
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const readHref = getReadArticleHref(post);
   const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
@@ -437,47 +434,17 @@ export const PostFocusCard = ({
           />
 
           {isVideoType && (
-            <div
-              className={classNames(
-                'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
-                // Phones (below mobileXL, i.e. the mobileL bucket and smaller)
-                // stay full width — the screen is already narrow, so the
-                // floating 70% preview only wastes space.
-                isVideoPlaying
-                  ? 'max-w-full'
-                  : 'max-w-full mobileXL:max-w-[70%]',
-              )}
-            >
-              {isVideoPlaying ? (
-                <YoutubeVideo
-                  autoplay
-                  placeholderProps={{
-                    post: article,
-                    onWatchVideo: onReadArticle,
-                  }}
-                  videoId={article.videoId ?? ''}
-                />
-              ) : (
-                <button
-                  type="button"
-                  aria-label="Play video"
-                  onClick={() => setIsVideoPlaying(true)}
-                  className="group relative block w-full overflow-hidden rounded-16"
-                >
-                  <LazyImage
-                    eager
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    imgAlt="Video thumbnail"
-                    imgSrc={article.image}
-                    ratio="56.25%"
-                  />
-                  <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="flex size-14 items-center justify-center rounded-full bg-background-default text-text-primary shadow-2 transition-transform group-hover:scale-110">
-                      <PlayIcon secondary size={IconSize.XLarge} />
-                    </span>
-                  </span>
-                </button>
-              )}
+            <div className="shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3">
+              {/* Embed YouTube's native player directly (like the control
+                  layout) so the first click plays inside the iframe with
+                  sound — no custom overlay or muted autoplay. */}
+              <YoutubeVideo
+                placeholderProps={{
+                  post: article,
+                  onWatchVideo: onReadArticle,
+                }}
+                videoId={article.videoId ?? ''}
+              />
             </div>
           )}
 
