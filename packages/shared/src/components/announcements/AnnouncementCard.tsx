@@ -37,7 +37,7 @@ export interface AnnouncementCardProps {
 // clean stack and a card behind is properly occluded. Hover gently brightens
 // the border and lifts the card for a tactile, alive feel.
 const cardBaseClasses =
-  'border border-border-subtlest-tertiary bg-background-subtle transition-all duration-200 ease-out hover:border-border-subtlest-secondary motion-safe:hover:-translate-y-0.5';
+  'border border-border-subtlest-quaternary bg-background-subtle transition-all duration-200 ease-out hover:border-border-subtlest-tertiary motion-safe:hover:-translate-y-0.5';
 
 // Small, flush-left brand label — visible via the brand color but kept light so
 // it never competes with the title (no filled chip).

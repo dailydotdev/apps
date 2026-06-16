@@ -86,7 +86,7 @@ export function AnnouncementCarousel({
           // stack "opens": the card behind slides out and brightens.
           <div
             aria-hidden
-            className="opacity-60 group-hover/stack:opacity-80 absolute inset-x-2 -bottom-2 top-2 z-0 rounded-16 border border-border-subtlest-tertiary bg-background-subtle transition-all duration-200 ease-out motion-safe:group-hover/stack:-bottom-3"
+            className="opacity-60 group-hover/stack:opacity-80 absolute inset-x-2 -bottom-2 top-2 z-0 rounded-16 border border-border-subtlest-quaternary bg-background-subtle transition-all duration-200 ease-out motion-safe:group-hover/stack:-bottom-3"
           />
         )}
         <div
@@ -124,7 +124,7 @@ export function AnnouncementCarousel({
         // Centered segmented indicator. Hovering (or focusing) a dot switches
         // to that announcement; the active dot stretches into a pill and the
         // fill glides between positions for a sense of motion.
-        <div className="flex items-center justify-center gap-1.5 pt-0.5">
+        <div className="flex items-center justify-center gap-1.5 pt-2.5">
           {items.map((item, index) => {
             const isActive = index === safeActive;
             return (
@@ -137,9 +137,9 @@ export function AnnouncementCarousel({
                 onFocus={() => goTo(index)}
                 onClick={() => goTo(index)}
                 className={classNames(
-                  'h-1.5 rounded-full transition-all duration-300 ease-out',
+                  'h-1.5 rounded-2 transition-all duration-300 ease-out',
                   isActive
-                    ? 'w-5 bg-text-primary'
+                    ? 'w-4 bg-text-primary'
                     : 'w-1.5 bg-text-quaternary hover:bg-text-tertiary',
                 )}
               />
