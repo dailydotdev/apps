@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
-import { ArrowIcon, MiniCloseIcon } from '../icons';
+import { MiniCloseIcon, MoveToIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Image } from '../image/Image';
 import {
@@ -137,9 +137,9 @@ export function AnnouncementCard({
             </Typography>
           )}
         </span>
-        <ArrowIcon
-          size={IconSize.Size16}
-          className="rotate-90 text-text-tertiary transition-transform group-hover:translate-x-0.5"
+        <MoveToIcon
+          size={IconSize.XXSmall}
+          className="text-text-tertiary transition-transform group-hover:translate-x-0.5"
           aria-hidden
         />
       </Tag>
