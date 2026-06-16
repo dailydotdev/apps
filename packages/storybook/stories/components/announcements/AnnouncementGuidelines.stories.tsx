@@ -226,11 +226,11 @@ export const Guidelines: StoryObj = {
             ],
             [
               'Surface',
-              'Transparent + hairline border (no fill)',
+              'Subtle card surface + hairline border',
               <>
-                <Code>border-border-subtlest-tertiary</Code>; interactive hover{' '}
-                <Code>bg-surface-float</Code> +{' '}
-                <Code>border-border-subtlest-secondary</Code>
+                <Code>bg-background-subtle</Code> +{' '}
+                <Code>border-border-subtlest-tertiary</Code>; when stacked, a{' '}
+                <Code>shadow-2</Code> lifts it over the card behind
               </>,
             ],
             [
@@ -265,8 +265,8 @@ export const Guidelines: StoryObj = {
             ],
             [
               'Badge',
-              <Code key="bd">Pill · XSmall (typo-caption2)</Code>,
-              <Code key="bdc">bg-accent-cabbage-flat · text-brand-default</Code>,
+              <Code key="bd">typo-caption2 · bold · uppercase</Code>,
+              <Code key="bdc">text-brand-default (text label, no chip)</Code>,
             ],
             [
               'Carousel counter',

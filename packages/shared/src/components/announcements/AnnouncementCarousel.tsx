@@ -75,8 +75,6 @@ export function AnnouncementCarousel({
 
   const hasMultiple = count > 1;
   const isExiting = exitingId === current.id;
-  // Decorative "cards behind" edges peeking below the active card.
-  const peekLayers = Math.min(count - 1, 2);
 
   return (
     <section
@@ -84,7 +82,15 @@ export function AnnouncementCarousel({
       aria-label="What's new"
       className={classNames('flex flex-col gap-2', className)}
     >
-      <div className="relative">
+      <div className="relative isolate">
+        {hasMultiple && (
+          // A single card peeking behind, occluded by the active card so only
+          // its bottom edge shows — like a notification stack.
+          <div
+            aria-hidden
+            className="opacity-60 absolute inset-x-2 -bottom-2 top-2 z-0 rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
+          />
+        )}
         <div
           key={current.id}
           className={classNames(
@@ -107,19 +113,9 @@ export function AnnouncementCarousel({
                 : undefined
             }
             onClose={() => handleDismiss(current.id)}
+            className={hasMultiple ? 'shadow-2' : undefined}
           />
         </div>
-        {peekLayers > 0 && (
-          <div
-            aria-hidden
-            className="pointer-events-none -mt-2 flex flex-col items-center"
-          >
-            <div className="h-2 w-[94%] rounded-b-12 border border-t-0 border-border-subtlest-tertiary bg-background-subtle" />
-            {peekLayers > 1 && (
-              <div className="opacity-60 h-2 w-[86%] rounded-b-12 border border-t-0 border-border-subtlest-tertiary bg-background-subtle" />
-            )}
-          </div>
-        )}
       </div>
 
       {hasMultiple && (

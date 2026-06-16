@@ -6,7 +6,6 @@ import CloseButton from '../CloseButton';
 import { ArrowIcon, MiniCloseIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Image } from '../image/Image';
-import { Pill, PillSize } from '../Pill';
 import {
   Typography,
   TypographyColor,
@@ -34,28 +33,27 @@ export interface AnnouncementCardProps {
   className?: string;
 }
 
-// Clean, low-dominance surface: a hairline border over the sidebar background
-// rather than a filled card. Interactive variants add a subtle hover fill.
+// Subtle, defined surface (the canonical card background) so cards read as a
+// clean stack and a card behind is properly occluded.
 const cardBaseClasses =
-  'border border-border-subtlest-tertiary transition-colors';
+  'border border-border-subtlest-tertiary bg-background-subtle transition-colors';
 
+// Small, flush-left brand label — visible via the brand color but kept light so
+// it never competes with the title (no filled chip).
 const renderBadge = (badge?: AnnouncementBadge): ReactElement | null => {
   if (!badge) {
     return null;
   }
 
   return (
-    <Pill
-      label={badge.label}
-      size={PillSize.XSmall}
-      alignment="self-start"
+    <span
       className={classNames(
-        'uppercase tracking-wide',
-        // Idiomatic flat-accent chip: a visible brand tint with readable brand
-        // text, theme-safe in both light and dark.
-        badge.className ?? 'bg-accent-cabbage-flat text-brand-default',
+        'font-bold uppercase typo-caption2',
+        badge.className ?? 'text-brand-default',
       )}
-    />
+    >
+      {badge.label}
+    </span>
   );
 };
 
@@ -102,7 +100,7 @@ export function AnnouncementCard({
         className={classNames(
           'focus-outline group flex w-full items-center gap-3 rounded-12 p-3 text-left',
           cardBaseClasses,
-          'hover:border-border-subtlest-secondary hover:bg-surface-float',
+          'hover:border-border-subtlest-secondary',
           className,
         )}
       >
