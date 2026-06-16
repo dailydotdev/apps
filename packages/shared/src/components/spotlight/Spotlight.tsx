@@ -610,6 +610,10 @@ export const Spotlight = ({
     SpotlightGroup.Help,
   ];
 
+  const hasActionCommands = actionScopeGroups.some(
+    (group) => grouped[group].length > 0,
+  );
+
   /**
    * Which scope chips to surface below the input. Apple Spotlight pattern:
    * tabs only appear when there's something to filter through (i.e. a
@@ -965,10 +969,38 @@ export const Spotlight = ({
                 </Command.Group>
               )}
 
+            {/*
+              No recent or suggested commands to lead with — fall back to the
+              full actions catalog so the idle palette shows something to do
+              instead of an empty surface. Only render groups that actually
+              have commands to avoid bare headings.
+            */}
             {scope === SpotlightScope.All &&
               !isFiltering &&
               suggested.length === 0 &&
-              recentCommands.length === 0 && (
+              recentCommands.length === 0 &&
+              hasActionCommands &&
+              actionScopeGroups.map((group) =>
+                grouped[group].length > 0 ? (
+                  <Command.Group
+                    key={group}
+                    heading={groupLabels[group]}
+                    data-spotlight-group={group}
+                    className={groupHeadingClass}
+                  >
+                    {renderRows({
+                      ...commonRowProps,
+                      commands: grouped[group],
+                    })}
+                  </Command.Group>
+                ) : null,
+              )}
+
+            {scope === SpotlightScope.All &&
+              !isFiltering &&
+              suggested.length === 0 &&
+              recentCommands.length === 0 &&
+              !hasActionCommands && (
                 <div
                   className="px-4 py-8 text-center text-text-tertiary typo-footnote"
                   aria-hidden
