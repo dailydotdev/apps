@@ -39,6 +39,10 @@ export type SettingsFlags = {
   // skip the prompt and open the reader modal directly. Dismissing the prompt
   // without choosing an option leaves this unset so the prompt reappears.
   readerInstallPromptAcknowledged?: boolean;
+  // Persists that the reader_modal_v3 nudge (the intermediate install prompt)
+  // has been surfaced to this user. Once set, the prompt never auto-opens
+  // again regardless of whether the user accepted or dismissed it.
+  readerInstallPromptSeen?: boolean;
   shortcutMeta?: Record<string, ShortcutMeta>;
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;

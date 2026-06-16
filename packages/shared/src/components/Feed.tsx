@@ -72,7 +72,6 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 
 const FeedErrorScreen = dynamic(
@@ -322,17 +321,7 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
-  const {
-    isEligible: isReaderEligible,
-    isReaderModalEnabled: readerModalFromGrowthBook,
-    isReaderFeatureLoading,
-  } = useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  // Viewport gating lives in useReaderModalEligibility (isReaderEligible is
-  // already tablet-or-larger), so no separate isTabletViewport check here.
-  const isReaderModalOn =
-    isReaderEligible && readerModalFromGrowthBook && !isLegacyLayoutOptedOut;
-  const isReaderModalFeatureReady = !isReaderFeatureLoading;
+  const { isReaderEnabled: isReaderModalOn } = useReaderModalEligibility();
   const readerEligiblePostTypes = useMemo(
     () =>
       new Set<PostType>([
@@ -344,10 +333,8 @@ export default function Feed<T>({
   );
   const isReaderEligiblePost = useCallback(
     (post: Post): boolean =>
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligiblePostTypes.has(post.type),
-    [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
+      isReaderModalOn && readerEligiblePostTypes.has(post.type),
+    [isReaderModalOn, readerEligiblePostTypes],
   );
   const {
     showPromoBanner,

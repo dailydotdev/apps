@@ -104,6 +104,7 @@ export enum LazyModal {
   AchievementShowcase = 'achievementShowcase',
   IntroQuests = 'introQuests',
   ReaderInstallPrompt = 'readerInstallPrompt',
+  ReaderExtensionInstall = 'readerExtensionInstall',
   ReaderPreview = 'readerPreview',
 }
 

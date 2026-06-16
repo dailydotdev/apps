@@ -201,6 +201,7 @@ const renderComponent = (
     updateCustomLinks: jest.fn().mockResolvedValue(undefined),
     updateSortCommentsBy: jest.fn().mockResolvedValue(undefined),
     updateFlag: jest.fn().mockResolvedValue(undefined),
+    updateFlags: jest.fn().mockResolvedValue(undefined),
     updateFlagRemote: jest.fn().mockResolvedValue(undefined),
     updatePromptFlag: jest.fn().mockResolvedValue(undefined),
     syncSettings: jest.fn().mockResolvedValue(undefined),

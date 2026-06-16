@@ -29,6 +29,9 @@ export function useLegacyPostLayoutOptOut(): {
     [logEvent, updateFlag],
   );
 
+  // Clears the opt-out only. Enablement requires a granted permission
+  // (`readerInstallPromptAcknowledged`), so optIn is only meaningful for users
+  // who already acknowledged once and later want the reader back on.
   const optIn = useCallback(() => {
     updateFlag('legacyPostLayoutOptOut', false);
     logEvent({

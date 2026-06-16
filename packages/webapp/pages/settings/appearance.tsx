@@ -9,6 +9,7 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
 import {
   Typography,
   TypographyType,
@@ -53,24 +54,32 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
+    flags,
   } = useSettingsContext();
-  const { isEligible: isReaderEligible, isReaderModalEnabled } =
+  const { isEligible: isReaderEligible, isReaderEnabled } =
     useReaderModalEligibility();
-  const {
-    isOptedOut: isLegacyLayoutOptedOut,
-    optIn,
-    optOut,
-  } = useLegacyPostLayoutOptOut();
-  const showReaderToggle = isReaderEligible && isReaderModalEnabled;
+  const { optIn, optOut } = useLegacyPostLayoutOptOut();
+  const { enable: enableReaderInside } = useEnableReaderInside();
+  // The reader settings toggle is now available to every eligible user (the
+  // reader_modal_v2 experiment that used to gate it has graduated).
+  const showReaderToggle = isReaderEligible;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
-  const isReadInsideEnabled = !isLegacyLayoutOptedOut;
+  const isReadInsideEnabled = isReaderEnabled;
+  const isReaderPermissionGranted =
+    flags?.readerInstallPromptAcknowledged ?? false;
   const onToggleReadInside = () => {
     if (isReadInsideEnabled) {
       optOut();
       return;
     }
-    optIn();
+    // Already granted permission before (just opted out) → flip back on.
+    // Otherwise drive the install/permission flow so the reader actually works.
+    if (isReaderPermissionGranted) {
+      optIn();
+      return;
+    }
+    enableReaderInside();
   };
 
   const onLayoutToggle = useCallback(
