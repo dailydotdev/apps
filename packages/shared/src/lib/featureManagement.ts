@@ -99,6 +99,13 @@ export const featureReadingReminderHeroCopy = new Feature(
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
+// Experiment: show the clickbait shield to free users even while they have
+// intro quests, to measure the effect on D1 retention.
+export const featureClickbaitShieldIntroQuests = new Feature(
+  'clickbait_shield_intro_quests',
+  false,
+);
+
 export { feature };
 
 export const featureCores = new Feature('cores', isDevelopment);
