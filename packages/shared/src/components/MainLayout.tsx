@@ -308,10 +308,10 @@ function MainLayoutComponent({
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
-            // v2 collapses to a 4rem icon rail (laptop:pl-16); expanded, the
+            // v2 collapses to a narrow icon rail (laptop:pl-14); expanded, the
             // padding tracks the resizable panel width below. Tablet keeps the
             // icon SidebarTablet width.
-            (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
+            (isV2 ? 'tablet:pl-16 laptop:pl-14' : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&

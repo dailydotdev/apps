@@ -105,7 +105,9 @@ const settingsDefaultPath = `${settingsUrl}/profile`;
 const SIDEBAR_DEFAULT_WIDTH = 304;
 const SIDEBAR_MIN_WIDTH = 240;
 const SIDEBAR_MAX_WIDTH = 420;
-// Pull the handle left of this cursor X to collapse instead of resize.
+// Collapsed icon-rail width (px) — must match the `w-14` class + MainLayout.
+const SIDEBAR_RAIL_WIDTH = 56;
+// Below this cursor X a drag collapses (from open) / doesn't open (from rail).
 const SIDEBAR_COLLAPSE_AT = 180;
 
 // Compact square icon button (Linear-sized: 32px hit area, 16px glyph) shared
@@ -487,24 +489,38 @@ export const SidebarDesktopV2 = ({
   // start/end only — never on pointer move, so it doesn't re-render mid-drag).
   const [isResizing, setIsResizing] = useState(false);
 
-  // Drag-to-resize/collapse: dragging the right edge resizes the panel live;
-  // releasing keeps the new width (persisted), or closes it when pulled past
-  // the collapse threshold. Replaces an always-visible collapse button.
+  // Grip drag: when open, resize the panel live / pull past the threshold to
+  // collapse. When collapsed, pull the rail open — the width grows from the
+  // rail and tracks the cursor; a plain click opens too. Transitions are
+  // suppressed only during the active drag so it tracks 1:1, then eases on
+  // release for a smooth open/close.
   const onResizeHandleMouseDown = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault();
       const root = document.documentElement;
+      const startedCollapsed = !isExpanded;
+      const startX = event.clientX;
       let lastCursorX: number | null = null;
+      let moved = false;
       setIsResizing(true);
       root.classList.add('sidebar-resizing');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
+      if (startedCollapsed) {
+        root.style.setProperty('--sidebar-width', `${SIDEBAR_RAIL_WIDTH}px`);
+      }
 
       const onMove = (moveEvent: MouseEvent) => {
+        if (Math.abs(moveEvent.clientX - startX) > 3) {
+          moved = true;
+        }
         lastCursorX = moveEvent.clientX;
+        const minWidth = startedCollapsed
+          ? SIDEBAR_RAIL_WIDTH
+          : SIDEBAR_MIN_WIDTH;
         const width = Math.min(
           SIDEBAR_MAX_WIDTH,
-          Math.max(SIDEBAR_MIN_WIDTH, moveEvent.clientX),
+          Math.max(minWidth, moveEvent.clientX),
         );
         root.style.setProperty('--sidebar-width', `${width}px`);
       };
@@ -515,11 +531,35 @@ export const SidebarDesktopV2 = ({
         root.classList.remove('sidebar-resizing');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
+
+        if (startedCollapsed) {
+          const draggedOpen =
+            lastCursorX != null && lastCursorX >= SIDEBAR_COLLAPSE_AT;
+          if (!moved || draggedOpen) {
+            if (moved && lastCursorX != null) {
+              const width = Math.min(
+                SIDEBAR_MAX_WIDTH,
+                Math.max(SIDEBAR_MIN_WIDTH, lastCursorX),
+              );
+              root.style.setProperty('--sidebar-width', `${width}px`);
+              updateFlag('sidebarWidth', width);
+            } else {
+              // Plain click → open at the stored width (animates from the rail).
+              root.style.setProperty('--sidebar-width', `${resolvedWidth}px`);
+            }
+            logEvent({ event_name: 'open sidebar' });
+            toggleSidebarExpanded();
+          } else {
+            // Released too narrow → settle back to the rail.
+            root.style.setProperty('--sidebar-width', `${resolvedWidth}px`);
+          }
+          return;
+        }
+
         if (lastCursorX == null) {
           return;
         }
         if (lastCursorX < SIDEBAR_COLLAPSE_AT) {
-          // Collapse to the icon rail.
           logEvent({ event_name: 'close sidebar' });
           toggleSidebarExpanded();
           return;
@@ -534,7 +574,7 @@ export const SidebarDesktopV2 = ({
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
     },
-    [logEvent, toggleSidebarExpanded, updateFlag],
+    [isExpanded, resolvedWidth, logEvent, toggleSidebarExpanded, updateFlag],
   );
 
   const defaultRenderSectionProps = useMemo(
@@ -672,9 +712,15 @@ export const SidebarDesktopV2 = ({
       data-resizable-pane
       className={classNames(
         'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
-        // Open: width tracks the resizable `--sidebar-width` variable (19rem
-        // fallback before settings load). Collapsed: a 4rem icon rail.
-        isPanelOpen ? 'laptop:w-[var(--sidebar-width,19rem)]' : 'laptop:w-16',
+        // Open (or mid drag-to-open from the rail): width tracks the resizable
+        // `--sidebar-width` variable (19rem fallback before settings load).
+        // Collapsed: a narrow icon rail.
+        isPanelOpen || isResizing
+          ? 'laptop:w-[var(--sidebar-width,19rem)]'
+          : 'laptop:w-14',
+        // While dragging the rail open, float over the feed so content doesn't
+        // jump — it settles into flow when the open state is committed.
+        !isPanelOpen && isResizing && 'laptop:z-sidebarOverlay laptop:shadow-3',
         isBannerAvailable
           ? 'laptop:[--safe-area-top-offset:2rem]'
           : 'laptop:[--safe-area-top-offset:0rem]',
@@ -771,6 +817,7 @@ export const SidebarDesktopV2 = ({
                 </a>
               </Link>
             )}
+            {isLoggedIn && <SidebarStreakButton />}
             {isLoggedIn && (
               <Tooltip side="right" content="New post">
                 <Button
@@ -904,40 +951,52 @@ export const SidebarDesktopV2 = ({
                 : 'flex-col items-center gap-1',
             )}
           >
-            <Link href={webappUrl} passHref prefetch={false}>
-              <a
-                href={webappUrl}
-                aria-label="daily.dev home"
-                onClick={onLogoClick}
-                className={classNames(
-                  'focus-outline flex min-w-0 items-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
-                  isPanelOpen
-                    ? 'gap-1.5 px-1.5 py-1.5'
-                    : 'size-8 justify-center',
-                )}
-              >
-                <LogoIcon className={{ container: 'h-4 w-auto' }} />
-                {isPanelOpen && (
-                  <Typography
-                    type={TypographyType.Footnote}
-                    className="min-w-0 truncate"
+            {/* Open: logo sits at the start of the row. Rail: logo drops to the
+                very bottom, below the support icon. */}
+            {isPanelOpen && (
+              <>
+                <Link href={webappUrl} passHref prefetch={false}>
+                  <a
+                    href={webappUrl}
+                    aria-label="daily.dev home"
+                    onClick={onLogoClick}
+                    className="focus-outline flex min-w-0 items-center gap-1.5 rounded-10 px-1.5 py-1.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                   >
-                    daily.dev
-                  </Typography>
-                )}
-              </a>
-            </Link>
-            {isPanelOpen && <span className="flex-1" />}
+                    <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                    <Typography
+                      type={TypographyType.Footnote}
+                      className="min-w-0 truncate"
+                    >
+                      daily.dev
+                    </Typography>
+                  </a>
+                </Link>
+                <span className="flex-1" />
+              </>
+            )}
             <SidebarThemeButton />
             <SidebarSupportButton />
+            {!isPanelOpen && (
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="daily.dev home"
+                  onClick={onLogoClick}
+                  className="focus-outline flex size-8 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                >
+                  <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                </a>
+              </Link>
+            )}
           </div>
         </div>
       </div>
 
       {/* Grip on the sidebar's right edge — always present (the resize
           affordance), in both the rail and the open panel. Open: drag to
-          resize / pull past the threshold to collapse. Collapsed rail: click
-          to open. Reveals a centered grip that turns blue on hover/drag. */}
+          resize / pull past the threshold to collapse. Collapsed rail: drag to
+          pull open (or click). One mousedown handler covers click + drag, so
+          both states share a smooth transition. */}
       {!forceExpanded && (
         <Tooltip
           side="right"
@@ -950,7 +1009,12 @@ export const SidebarDesktopV2 = ({
                 </span>
               </span>
             ) : (
-              `Open sidebar · ${sidebarToggleShortcut}`
+              <span className="flex flex-col gap-0.5">
+                <span>Drag or click to open</span>
+                <span className="text-text-tertiary">
+                  Toggle sidebar · {sidebarToggleShortcut}
+                </span>
+              </span>
             )
           }
         >
@@ -961,12 +1025,8 @@ export const SidebarDesktopV2 = ({
                 ? `Resize sidebar, toggle with ${sidebarToggleShortcut}`
                 : 'Open sidebar'
             }
-            onMouseDown={isExpanded ? onResizeHandleMouseDown : undefined}
-            onClick={isExpanded ? undefined : () => toggleSidebarExpanded()}
-            className={classNames(
-              'group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 laptop:block',
-              isExpanded ? 'cursor-col-resize' : 'cursor-pointer',
-            )}
+            onMouseDown={onResizeHandleMouseDown}
+            className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
           >
             {/* Full-height strip that tints top-to-bottom on hover/drag. */}
             <span

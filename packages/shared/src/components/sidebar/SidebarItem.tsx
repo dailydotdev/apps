@@ -38,7 +38,11 @@ export const SidebarItem = ({
       disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
         // eslint-disable-next-line no-nested-ternary
-        compact
+        compact && isCollapsed
+          ? // Collapsed rail: a centered square button (1:1) in the w-14 rail.
+            'mx-auto size-8 rounded-10'
+          : // eslint-disable-next-line no-nested-ternary
+          compact
           ? 'mx-2 rounded-8'
           : isV2
           ? 'mx-3 rounded-10'
@@ -57,9 +61,11 @@ export const SidebarItem = ({
         }
         isButton={isItemsButton && !item?.isForcedLink}
         className={classNames(
-          compact && 'laptop:!h-7',
-          // Collapsed rail: center the icon (override the row's label padding).
-          compact && isCollapsed && 'laptop:!justify-center laptop:!px-0',
+          // Collapsed rail: fill the square + center the icon (override the
+          // row's height + label padding). Otherwise compact = 28px rows.
+          compact && isCollapsed
+            ? 'laptop:!size-8 laptop:!justify-center laptop:!p-0'
+            : compact && 'laptop:!h-7',
         )}
       >
         <ItemInner
