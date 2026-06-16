@@ -306,11 +306,10 @@ function MainLayoutComponent({
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
-            // v2 is a single Linear-style panel: when collapsed it hides
-            // entirely (laptop:pl-0) and the content reclaims the full width;
-            // a floating toggle + left-edge hover zone reopen/peek it. Tablet
-            // still uses the icon SidebarTablet, so its rail width stays.
-            (isV2 ? 'tablet:pl-16 laptop:pl-0' : 'tablet:pl-16 laptop:pl-11'),
+            // v2 collapses to a 4rem icon rail (laptop:pl-16); expanded, the
+            // padding tracks the resizable panel width below. Tablet keeps the
+            // icon SidebarTablet width.
+            (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&

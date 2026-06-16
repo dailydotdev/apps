@@ -1,6 +1,12 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper, ListIcon } from './common';
 import type { SidebarMenuItem } from './common';
@@ -222,7 +228,11 @@ const SidebarSupportButton = (): ReactElement => {
 // Profile switcher in the sidebar header (avatar + name), opening a curated
 // menu built from the shared ProfileSection rows: reputation/cores stats,
 // account links, and log out.
-const SidebarProfileButton = (): ReactElement | null => {
+const SidebarProfileButton = ({
+  iconOnly = false,
+}: {
+  iconOnly?: boolean;
+} = {}): ReactElement | null => {
   const { user, logout } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
@@ -301,8 +311,9 @@ const SidebarProfileButton = (): ReactElement | null => {
         aria-expanded={isOpen}
         onClick={wrapHandler(() => onUpdate(!isOpen))}
         className={classNames(
-          'focus-outline flex min-w-0 flex-1 items-center gap-2 rounded-12 px-1 py-1 transition-colors hover:bg-surface-hover',
+          'focus-outline flex items-center rounded-12 transition-colors hover:bg-surface-hover',
           isOpen && 'bg-surface-hover',
+          iconOnly ? 'justify-center p-1' : 'min-w-0 flex-1 gap-2 px-1 py-1',
         )}
       >
         <span className="relative shrink-0">
@@ -321,14 +332,16 @@ const SidebarProfileButton = (): ReactElement | null => {
             </span>
           )}
         </span>
-        <Typography
-          bold
-          truncate
-          type={TypographyType.Footnote}
-          className="min-w-0 flex-1 text-left"
-        >
-          {user.name ?? user.username}
-        </Typography>
+        {!iconOnly && (
+          <Typography
+            bold
+            truncate
+            type={TypographyType.Footnote}
+            className="min-w-0 flex-1 text-left"
+          >
+            {user.name ?? user.username}
+          </Typography>
+        )}
       </button>
       {isOpen && (
         <InteractivePopup
@@ -427,18 +440,29 @@ export const SidebarDesktopV2 = ({
     ? undefined
     : '!transition-none';
 
-  // Linear-style collapse: when not pinned open the panel collapses to zero
-  // width and the content reclaims the space (MainLayout drops its left
-  // padding). It's reopened from the "Open sidebar" control that the feed
-  // headers surface while collapsed (see SidebarExpandButton).
+  // Pinned-open vs collapsed. Collapsed isn't hidden — it's a persistent
+  // icon-only rail (production-style). Settings force the full panel open.
   const isExpanded = sidebarExpanded || forceExpanded;
 
-  // Collapsed hover-peek: while collapsed, hovering the left edge reveals the
-  // panel as an overlay on top of the content (high z-index, MainLayout keeps
-  // its zero padding so nothing shifts). Closes when the cursor leaves it.
+  // Hovering the collapsed rail peeks the full panel open as an overlay on top
+  // of the content (high z-index; MainLayout keeps the rail-width padding so
+  // nothing shifts). `isPanelOpen` = show labels + full layout; otherwise the
+  // rail shows icon-only.
   const [isPeeking, setIsPeeking] = useState(false);
+  const peekSuppressedRef = useRef(false);
   const isHoverExpanded = !isExpanded && isPeeking;
-  const isVisible = isExpanded || isHoverExpanded;
+  const isPanelOpen = isExpanded || isHoverExpanded;
+
+  const handleRailEnter = () => {
+    if (isExpanded || peekSuppressedRef.current) {
+      return;
+    }
+    setIsPeeking(true);
+  };
+  const handleRailLeave = () => {
+    peekSuppressedRef.current = false;
+    setIsPeeking(false);
+  };
 
   // The panel width is resizable and persisted. The live value lives in the
   // `--sidebar-width` CSS variable so the sidebar and the main content (which
@@ -473,6 +497,12 @@ export const SidebarDesktopV2 = ({
         return;
       }
       event.preventDefault();
+      // Suppress the hover-peek after collapsing so the cursor sitting over
+      // the rail doesn't instantly re-open it.
+      if (sidebarExpanded) {
+        peekSuppressedRef.current = true;
+        setIsPeeking(false);
+      }
       logEvent({
         event_name: `${sidebarExpanded ? 'close' : 'open'} sidebar`,
       });
@@ -518,9 +548,10 @@ export const SidebarDesktopV2 = ({
           return;
         }
         if (lastCursorX < SIDEBAR_COLLAPSE_AT) {
-          // Collapse from the current dragged width (animates to 0). The effect
-          // resets `--sidebar-width` to the stored width once collapsed — while
-          // w-0 it's unused, so reopening restores the persisted width.
+          // Collapse to the icon rail. Suppress the hover-peek so the cursor
+          // resting near the rail doesn't immediately re-open the full panel.
+          peekSuppressedRef.current = true;
+          setIsPeeking(false);
           logEvent({ event_name: 'close sidebar' });
           toggleSidebarExpanded();
           return;
@@ -540,13 +571,15 @@ export const SidebarDesktopV2 = ({
 
   const defaultRenderSectionProps = useMemo(
     () => ({
-      sidebarExpanded: true,
-      shouldShowLabel: true,
+      // When the panel is open, sections show titles + labels; collapsed to
+      // the rail they become icon-only with tooltips and divider headers.
+      sidebarExpanded: isPanelOpen,
+      shouldShowLabel: isPanelOpen,
       activePage,
       // Compact (Linear-style) rows + section headers for the single panel.
       compact: true,
     }),
-    [activePage],
+    [activePage, isPanelOpen],
   );
 
   const countBadge = useCallback(
@@ -666,130 +699,154 @@ export const SidebarDesktopV2 = ({
   ]);
 
   return (
-    <>
-      {/* Collapsed: a thin left-edge zone that reveals the panel on hover. */}
-      {!isExpanded && (
-        <div
-          aria-hidden
-          onMouseEnter={() => setIsPeeking(true)}
-          className="fixed inset-y-0 left-0 z-sidebar hidden w-3 laptop:block"
-        />
+    <SidebarAside
+      data-testid="sidebar-aside"
+      data-resizable-pane
+      onMouseEnter={handleRailEnter}
+      onMouseLeave={handleRailLeave}
+      className={classNames(
+        'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
+        // Open: width tracks the resizable `--sidebar-width` variable (19rem
+        // fallback before settings load). Collapsed: a 4rem icon rail.
+        isPanelOpen ? 'laptop:w-[var(--sidebar-width,19rem)]' : 'laptop:w-16',
+        isBannerAvailable
+          ? 'laptop:[--safe-area-top-offset:2rem]'
+          : 'laptop:[--safe-area-top-offset:0rem]',
+        // Paint the exact V2 page background (same color-mix MainLayout uses)
+        // so the sidebar and feed read as one continuous surface — the feed
+        // floats as a box on top, with no divider between them.
+        !featureTheme &&
+          'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+        featureTheme && 'laptop:!bg-transparent',
+        // Hover-peek: float the panel above everything without shifting the
+        // content (MainLayout padding stays put while collapsed). A soft
+        // right border + shadow separate the overlay from the content behind
+        // it — only in this peek state (pinned/collapsed keep no divider).
+        isHoverExpanded &&
+          'laptop:!z-sidebarOverlay laptop:!border-r laptop:border-border-subtlest-quaternary laptop:shadow-3',
+        suppressTransition,
       )}
-      <SidebarAside
-        data-testid="sidebar-aside"
-        data-resizable-pane
-        onMouseLeave={() => setIsPeeking(false)}
-        className={classNames(
-          'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
-          // Width tracks the resizable `--sidebar-width` variable (with the
-          // 19rem fallback before settings load); zero when collapsed.
-          isVisible ? 'laptop:w-[var(--sidebar-width,19rem)]' : 'laptop:w-0',
-          isBannerAvailable
-            ? 'laptop:[--safe-area-top-offset:2rem]'
-            : 'laptop:[--safe-area-top-offset:0rem]',
-          // Paint the exact V2 page background (same color-mix MainLayout uses)
-          // so the sidebar and feed read as one continuous surface — the feed
-          // floats as a box on top, with no divider between them.
-          !featureTheme &&
-            'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
-          featureTheme && 'laptop:!bg-transparent',
-          // Hover-peek: float the panel above everything without shifting the
-          // content (MainLayout padding stays put while collapsed). A soft
-          // right border + shadow separate the overlay from the content behind
-          // it — only in this peek state (pinned/collapsed keep no divider).
-          isHoverExpanded &&
-            'laptop:!z-sidebarOverlay laptop:!border-r laptop:border-border-subtlest-quaternary laptop:shadow-3',
-          suppressTransition,
-        )}
-      >
-        {/* Definite-height, clipped flex column so the nav scrolls and the
+    >
+      {/* Definite-height, clipped flex column so the nav scrolls and the
           header/footer stay pinned on-screen regardless of list length. */}
-        <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
-          {/* Settings (and other inner pages) take over the panel: the header
-            becomes a single Back control instead of the profile/streak/compose
-            + search. Otherwise the normal top bar shows. */}
-          {forceExpanded ? (
-            <header className="px-2 pb-1 pt-4">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="focus-outline flex w-full items-center gap-2 rounded-10 px-1.5 py-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-              >
-                <MoveToIcon
-                  size={IconSize.Size16}
-                  aria-hidden
-                  className="rotate-180"
-                />
-                <Typography bold type={TypographyType.Footnote}>
-                  Back
-                </Typography>
-              </button>
-            </header>
-          ) : (
-            <header className="px-2 pb-2 pt-4">
-              <div className="flex items-center gap-0.5">
-                {isLoggedIn ? (
-                  <SidebarProfileButton />
-                ) : (
-                  <>
-                    <Link href={webappUrl} passHref prefetch={false}>
-                      <a
-                        href={webappUrl}
-                        aria-label="Home"
-                        onClick={onLogoClick}
-                        className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
-                      >
-                        <LogoIcon className={{ container: 'h-5 w-auto' }} />
-                        <Typography
-                          bold
-                          type={TypographyType.Footnote}
-                          className="min-w-0 truncate"
-                        >
-                          daily.dev
-                        </Typography>
-                      </a>
-                    </Link>
-                    <span className="flex-1" />
-                  </>
-                )}
-                {isLoggedIn && <SidebarStreakButton />}
-                {isLoggedIn && (
-                  <Tooltip side="bottom" content="New post">
-                    <Button
-                      type="button"
-                      variant={ButtonVariant.Primary}
-                      size={ButtonSize.Small}
-                      icon={<ComposeIcon />}
-                      aria-label="New post"
-                      onClick={() =>
-                        openModal({ type: LazyModal.SmartComposer })
-                      }
-                      className="ml-2 !size-7 [&_svg]:!size-4"
-                    />
-                  </Tooltip>
-                )}
-              </div>
-            </header>
-          )}
-
-          {isLoggedIn && additionalButtons && (
-            <div className="flex items-center gap-1 px-3 pb-1 pt-1">
-              {additionalButtons}
-            </div>
-          )}
-
-          <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
-            <Nav className="!pt-0">
-              {forceExpanded ? (
-                // Settings (and other inner pages) render their navigation only
-                // here; the Back control lives in the header above.
-                <SettingsPanelSection
-                  {...defaultRenderSectionProps}
-                  isItemsButton={false}
-                />
+      <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
+        {/* Settings take over the panel with a single Back control. When
+              open, the full profile/streak/compose top bar shows; collapsed,
+              the rail shows the same controls as centered icons. */}
+        {forceExpanded && (
+          <header className="px-2 pb-1 pt-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="focus-outline flex w-full items-center gap-2 rounded-10 px-1.5 py-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <MoveToIcon
+                size={IconSize.Size16}
+                aria-hidden
+                className="rotate-180"
+              />
+              <Typography bold type={TypographyType.Footnote}>
+                Back
+              </Typography>
+            </button>
+          </header>
+        )}
+        {!forceExpanded && isPanelOpen && (
+          <header className="px-2 pb-2 pt-4">
+            <div className="flex items-center gap-0.5">
+              {isLoggedIn ? (
+                <SidebarProfileButton />
               ) : (
                 <>
-                  {/* Search scrolls with the list (not pinned in the header). */}
+                  <Link href={webappUrl} passHref prefetch={false}>
+                    <a
+                      href={webappUrl}
+                      aria-label="Home"
+                      onClick={onLogoClick}
+                      className="focus-outline hover:opacity-80 flex items-center gap-2 rounded-12 px-1 text-text-primary transition-opacity"
+                    >
+                      <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                      <Typography
+                        bold
+                        type={TypographyType.Footnote}
+                        className="min-w-0 truncate"
+                      >
+                        daily.dev
+                      </Typography>
+                    </a>
+                  </Link>
+                  <span className="flex-1" />
+                </>
+              )}
+              {isLoggedIn && <SidebarStreakButton />}
+              {isLoggedIn && (
+                <Tooltip side="bottom" content="New post">
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    icon={<ComposeIcon />}
+                    aria-label="New post"
+                    onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                    className="ml-2 !size-7 [&_svg]:!size-4"
+                  />
+                </Tooltip>
+              )}
+            </div>
+          </header>
+        )}
+        {!forceExpanded && !isPanelOpen && (
+          <header className="flex flex-col items-center gap-1 px-2 pb-2 pt-4">
+            {isLoggedIn ? (
+              <SidebarProfileButton iconOnly />
+            ) : (
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="Home"
+                  onClick={onLogoClick}
+                  className="focus-outline hover:opacity-80 flex size-8 items-center justify-center rounded-12 text-text-primary transition-opacity"
+                >
+                  <LogoIcon className={{ container: 'h-5 w-auto' }} />
+                </a>
+              </Link>
+            )}
+            {isLoggedIn && (
+              <Tooltip side="right" content="New post">
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Small}
+                  icon={<ComposeIcon />}
+                  aria-label="New post"
+                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                  className="!size-8 [&_svg]:!size-4"
+                />
+              </Tooltip>
+            )}
+          </header>
+        )}
+
+        {isLoggedIn && isPanelOpen && additionalButtons && (
+          <div className="flex items-center gap-1 px-3 pb-1 pt-1">
+            {additionalButtons}
+          </div>
+        )}
+
+        <SidebarScrollWrapper className="mt-1 min-h-0 flex-1">
+          <Nav className="!pt-0">
+            {forceExpanded ? (
+              // Settings (and other inner pages) render their navigation only
+              // here; the Back control lives in the header above.
+              <SettingsPanelSection
+                {...defaultRenderSectionProps}
+                isItemsButton={false}
+              />
+            ) : (
+              <>
+                {/* Search scrolls with the list (a field when open, a
+                      centered icon in the rail). */}
+                {isPanelOpen ? (
                   <div className="px-2 pb-1">
                     <button
                       type="button"
@@ -813,123 +870,157 @@ export const SidebarDesktopV2 = ({
                       </span>
                     </button>
                   </div>
-                  <Section
+                ) : (
+                  <div className="flex justify-center pb-1">
+                    <Tooltip
+                      side="right"
+                      content={`Search · ${shortcutKeys.join('')}`}
+                    >
+                      <button
+                        type="button"
+                        aria-label="Search"
+                        onClick={openSpotlight}
+                        className={iconButtonClass}
+                      >
+                        <SearchIcon size={IconSize.Size16} aria-hidden />
+                      </button>
+                    </Tooltip>
+                  </div>
+                )}
+                <Section
+                  {...defaultRenderSectionProps}
+                  items={primaryItems}
+                  isItemsButton={isNavButtons ?? false}
+                  className="!mt-0"
+                />
+                {isLoggedIn && (
+                  <PinnedSection
                     {...defaultRenderSectionProps}
-                    items={primaryItems}
-                    isItemsButton={isNavButtons ?? false}
-                    className="!mt-0"
-                  />
-                  {isLoggedIn && (
-                    <PinnedSection
-                      {...defaultRenderSectionProps}
-                      isItemsButton={false}
-                    />
-                  )}
-                  <CustomFeedSection
-                    {...defaultRenderSectionProps}
-                    onNavTabClick={onNavTabClick}
-                    title="Feeds"
                     isItemsButton={false}
                   />
-                  <BookmarkSection
-                    {...defaultRenderSectionProps}
-                    title="Saved"
-                    isItemsButton={false}
-                  />
-                  <NetworkSection
-                    {...defaultRenderSectionProps}
-                    title="Squads"
-                    isItemsButton={isNavButtons ?? false}
-                  />
-                </>
-              )}
-            </Nav>
-          </SidebarScrollWrapper>
+                )}
+                <CustomFeedSection
+                  {...defaultRenderSectionProps}
+                  onNavTabClick={onNavTabClick}
+                  title="Feeds"
+                  isItemsButton={false}
+                />
+                <BookmarkSection
+                  {...defaultRenderSectionProps}
+                  title="Saved"
+                  isItemsButton={false}
+                />
+                <NetworkSection
+                  {...defaultRenderSectionProps}
+                  title="Squads"
+                  isItemsButton={isNavButtons ?? false}
+                />
+              </>
+            )}
+          </Nav>
+        </SidebarScrollWrapper>
 
-          {/* Rendered outside the scroll so its popover isn't clipped; the
-            widget self-hides when there's no active help campaign. */}
-          {!forceExpanded && (
-            <div className="px-1">
-              <HelpWidget sidebarExpanded />
-            </div>
+        {/* Rendered outside the scroll so its popover isn't clipped; the
+            widget self-hides when there's no active help campaign. Hidden in
+            the rail (no room for the card). */}
+        {!forceExpanded && isPanelOpen && (
+          <div className="px-1">
+            <HelpWidget sidebarExpanded />
+          </div>
+        )}
+
+        {/* Footer strip: open → daily.dev brand (→ home) on the left with the
+              theme + support icons on the right; collapsed → the same icons
+              stacked and centered in the rail. */}
+        <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-2 py-2">
+          {showFeedbackWidget && isPanelOpen && (
+            <FeedbackWidget placement="sidebar" />
           )}
-
-          {/* Footer strip (separated by a top border): daily.dev brand (→ home)
-            on the left, theme toggle and support center on the right. */}
-          <div className="flex flex-col gap-2 border-t border-border-subtlest-quaternary px-2 py-2">
-            {showFeedbackWidget && <FeedbackWidget placement="sidebar" />}
-            <div className="flex items-center gap-1">
-              <Link href={webappUrl} passHref prefetch={false}>
-                <a
-                  href={webappUrl}
-                  aria-label="daily.dev home"
-                  onClick={onLogoClick}
-                  className="focus-outline flex min-w-0 items-center gap-1.5 rounded-10 px-1.5 py-1.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                >
-                  <LogoIcon className={{ container: 'h-4 w-auto' }} />
+          <div
+            className={classNames(
+              'flex',
+              isPanelOpen
+                ? 'items-center gap-1'
+                : 'flex-col items-center gap-1',
+            )}
+          >
+            <Link href={webappUrl} passHref prefetch={false}>
+              <a
+                href={webappUrl}
+                aria-label="daily.dev home"
+                onClick={onLogoClick}
+                className={classNames(
+                  'focus-outline flex min-w-0 items-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                  isPanelOpen
+                    ? 'gap-1.5 px-1.5 py-1.5'
+                    : 'size-8 justify-center',
+                )}
+              >
+                <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                {isPanelOpen && (
                   <Typography
                     type={TypographyType.Footnote}
                     className="min-w-0 truncate"
                   >
                     daily.dev
                   </Typography>
-                </a>
-              </Link>
-              <span className="flex-1" />
-              <SidebarThemeButton />
-              <SidebarSupportButton />
-            </div>
+                )}
+              </a>
+            </Link>
+            {isPanelOpen && <span className="flex-1" />}
+            <SidebarThemeButton />
+            <SidebarSupportButton />
           </div>
         </div>
+      </div>
 
-        {/* Resize handle straddling the sidebar/feed boundary. The surface stays
+      {/* Resize handle straddling the sidebar/feed boundary. The surface stays
           invisible (no permanent divider), but hovering or dragging it reveals
           a short, vertically-centered grip — the Claude resize affordance — so
           it's discoverable without adding a border. Pull past the threshold to
           collapse. */}
-        {isExpanded && !forceExpanded && (
-          <Tooltip
-            side="right"
-            content={
-              <span className="flex flex-col gap-0.5">
-                <span>Drag to resize</span>
-                <span className="text-text-tertiary">
-                  Toggle sidebar · {sidebarToggleShortcut}
-                </span>
+      {isExpanded && !forceExpanded && (
+        <Tooltip
+          side="right"
+          content={
+            <span className="flex flex-col gap-0.5">
+              <span>Drag to resize</span>
+              <span className="text-text-tertiary">
+                Toggle sidebar · {sidebarToggleShortcut}
               </span>
-            }
+            </span>
+          }
+        >
+          <button
+            type="button"
+            aria-label={`Resize sidebar, toggle with ${sidebarToggleShortcut}`}
+            onMouseDown={onResizeHandleMouseDown}
+            className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
           >
-            <button
-              type="button"
-              aria-label={`Resize sidebar, toggle with ${sidebarToggleShortcut}`}
-              onMouseDown={onResizeHandleMouseDown}
-              className="group/resize z-10 absolute inset-y-0 -right-1.5 hidden w-3 cursor-col-resize laptop:block"
-            >
-              {/* Full-height strip that tints top-to-bottom on hover/drag. */}
-              <span
-                aria-hidden
-                className={classNames(
-                  'pointer-events-none absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 transition-colors duration-150',
-                  isResizing
-                    ? 'bg-surface-hover'
-                    : 'bg-transparent group-hover/resize:bg-surface-hover',
-                )}
-              />
-              {/* Always-visible grip: a rounded rectangle, thin + light by
+            {/* Full-height strip that tints top-to-bottom on hover/drag. */}
+            <span
+              aria-hidden
+              className={classNames(
+                'pointer-events-none absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 transition-colors duration-150',
+                isResizing
+                  ? 'bg-surface-hover'
+                  : 'bg-transparent group-hover/resize:bg-surface-hover',
+              )}
+            />
+            {/* Always-visible grip: a rounded rectangle, thin + light by
                   default, widening and turning blue on hover/drag. */}
-              <span
-                aria-hidden
-                className={classNames(
-                  'pointer-events-none absolute left-1/2 top-1/2 h-9 -translate-x-1/2 -translate-y-1/2 rounded-4 transition-all duration-150',
-                  isResizing
-                    ? 'w-1 bg-accent-blueCheese-default'
-                    : 'w-0.5 bg-border-subtlest-secondary group-hover/resize:w-1 group-hover/resize:bg-accent-blueCheese-default',
-                )}
-              />
-            </button>
-          </Tooltip>
-        )}
-      </SidebarAside>
-    </>
+            <span
+              aria-hidden
+              className={classNames(
+                'pointer-events-none absolute left-1/2 top-1/2 h-9 -translate-x-1/2 -translate-y-1/2 rounded-4 transition-all duration-150',
+                isResizing
+                  ? 'w-1 bg-accent-blueCheese-default'
+                  : 'w-0.5 bg-border-subtlest-secondary group-hover/resize:w-1 group-hover/resize:bg-accent-blueCheese-default',
+              )}
+            />
+          </button>
+        </Tooltip>
+      )}
+    </SidebarAside>
   );
 };
