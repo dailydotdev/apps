@@ -82,13 +82,14 @@ export function AnnouncementCarousel({
       aria-label="What's new"
       className={classNames('flex flex-col gap-2', className)}
     >
-      <div className="relative isolate">
+      <div className="group/stack relative isolate">
         {hasMultiple && (
           // A single card peeking behind, occluded by the active card so only
-          // its bottom edge shows — like a notification stack.
+          // its bottom edge shows — like a notification stack. On hover the
+          // stack "opens": the card behind slides out and brightens.
           <div
             aria-hidden
-            className="opacity-60 absolute inset-x-2 -bottom-2 top-2 z-0 rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
+            className="opacity-60 group-hover/stack:opacity-80 absolute inset-x-2 -bottom-2 top-2 z-0 rounded-16 border border-border-subtlest-tertiary bg-background-subtle transition-all duration-200 ease-out motion-safe:group-hover/stack:-bottom-3"
           />
         )}
         <div
@@ -115,7 +116,7 @@ export function AnnouncementCarousel({
             onClose={() => handleDismiss(current.id)}
             className={
               hasMultiple
-                ? 'shadow-[0_4px_12px_-6px_rgba(0,0,0,0.25)]'
+                ? 'shadow-[0_4px_12px_-6px_rgba(0,0,0,0.25)] hover:shadow-[0_10px_24px_-8px_rgba(0,0,0,0.35)]'
                 : undefined
             }
           />
@@ -128,6 +129,9 @@ export function AnnouncementCarousel({
             active={safeActive}
             max={count}
             onItemClick={goTo}
+            className={{
+              item: 'transition-transform duration-150 ease-out hover:scale-125',
+            }}
           />
           <div className="flex items-center gap-1">
             <Button
@@ -136,6 +140,7 @@ export function AnnouncementCarousel({
               variant={ButtonVariant.Tertiary}
               aria-label="Previous announcement"
               disabled={safeActive === 0}
+              className="motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-110 motion-safe:active:scale-90"
               icon={<ArrowIcon className="-rotate-90" />}
               onClick={() => goTo(safeActive - 1)}
             />
@@ -145,6 +150,7 @@ export function AnnouncementCarousel({
               variant={ButtonVariant.Tertiary}
               aria-label="Next announcement"
               disabled={safeActive >= count - 1}
+              className="motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-110 motion-safe:active:scale-90"
               icon={<ArrowIcon className="rotate-90" />}
               onClick={() => goTo(safeActive + 1)}
             />

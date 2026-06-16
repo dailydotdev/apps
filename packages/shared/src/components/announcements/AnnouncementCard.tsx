@@ -34,9 +34,10 @@ export interface AnnouncementCardProps {
 }
 
 // Subtle, defined surface (the canonical card background) so cards read as a
-// clean stack and a card behind is properly occluded.
+// clean stack and a card behind is properly occluded. Hover gently brightens
+// the border and lifts the card for a tactile, alive feel.
 const cardBaseClasses =
-  'border border-border-subtlest-tertiary bg-background-subtle transition-colors';
+  'border border-border-subtlest-tertiary bg-background-subtle transition-all duration-200 ease-out hover:border-border-subtlest-secondary motion-safe:hover:-translate-y-0.5';
 
 // Small, flush-left brand label — visible via the brand color but kept light so
 // it never competes with the title (no filled chip).
@@ -109,7 +110,6 @@ export function AnnouncementCard({
         className={classNames(
           'focus-outline group flex w-full items-center gap-3 rounded-12 p-3 text-left',
           cardBaseClasses,
-          'hover:border-border-subtlest-secondary',
           className,
         )}
       >
@@ -177,14 +177,18 @@ export function AnnouncementCard({
     return (
       <div
         className={classNames(
-          'relative flex flex-col overflow-hidden rounded-16',
+          'group/card relative flex flex-col overflow-hidden rounded-16',
           cardBaseClasses,
           className,
         )}
       >
-        <div className="relative">
+        <div className="relative overflow-hidden">
           {image && (
-            <Image src={image} alt="" className="h-28 w-full object-cover" />
+            <Image
+              src={image}
+              alt=""
+              className="h-28 w-full object-cover transition-transform duration-500 ease-out motion-safe:group-hover/card:scale-105"
+            />
           )}
           {onClose && (
             // Frosted glass close over imagery — translucent + backdrop blur so
@@ -195,7 +199,7 @@ export function AnnouncementCard({
               aria-label="Dismiss"
               title="Close"
               onClick={onClose}
-              className="focus-outline absolute right-2 top-2 z-1 flex size-7 items-center justify-center rounded-10 border border-white/24 bg-overlay-secondary-pepper text-white backdrop-blur-md transition-colors hover:bg-overlay-primary-pepper"
+              className="focus-outline absolute right-2 top-2 z-1 flex size-7 items-center justify-center rounded-10 border border-white/24 bg-overlay-secondary-pepper text-white backdrop-blur-md transition duration-200 hover:bg-overlay-primary-pepper motion-safe:hover:scale-105 motion-safe:active:scale-95"
             >
               <MiniCloseIcon size={IconSize.Size16} aria-hidden />
             </button>
