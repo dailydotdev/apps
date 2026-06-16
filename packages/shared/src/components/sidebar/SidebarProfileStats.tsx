@@ -5,7 +5,7 @@ import {
   reputation as reputationDocsUrl,
   walletUrl,
 } from '../../lib/constants';
-import { largeNumberFormat } from '../../lib';
+import { largeNumberFormat } from '../../lib/numberFormat';
 import { formatCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
 import { IconSize } from '../Icon';

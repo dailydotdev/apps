@@ -173,7 +173,7 @@ export default function SettingsLayout({
           'mx-auto flex w-full gap-4 tablet:p-6',
           // v2 caps the settings content to a 768px reading column (matches the
           // redesign post composer); control keeps the wider two-column layout.
-          isV2Laptop ? 'max-w-[48rem]' : 'max-w-5xl',
+          isV2Laptop ? 'max-w-3xl' : 'max-w-5xl',
         )}
       >
         <h1 className="sr-only">Settings</h1>

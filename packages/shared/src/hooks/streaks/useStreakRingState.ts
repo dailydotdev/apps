@@ -123,11 +123,17 @@ export const useStreakRingState = (): StreakRingInfo => {
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
 
   // Re-render every few minutes so the time-of-day escalation stays current.
+  // The tick only drives the pending → at_risk → critical escalation, which is
+  // reachable only before today's read on an at-risk day — so skip the timer
+  // entirely when streaks are off, already read, or it's a freeze/weekend day.
   const [, setTick] = useState(0);
   useEffect(() => {
+    if (!isEnabled || isLoading || hasReadToday || !isAtRisk) {
+      return undefined;
+    }
     const id = setInterval(() => setTick((tick) => tick + 1), TICK_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [isEnabled, isLoading, hasReadToday, isAtRisk]);
 
   // One-off celebration the moment today's first read lands (false -> true).
   const [isCelebrating, setIsCelebrating] = useState(false);

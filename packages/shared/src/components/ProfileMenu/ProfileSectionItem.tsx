@@ -23,6 +23,9 @@ type ProfileSectionItemPropsCommon = WithClassNameProps & {
   icon?: (props: IconProps) => ReactElement;
   onClick?: () => void;
   isActive?: boolean;
+  // v2 reveals the external-link icon only on hover/focus for a cleaner column.
+  // Defaults to the v1 always-visible icon so the production menu is unchanged.
+  linkIconHoverOnly?: boolean;
   typography?: Partial<{
     type: TypographyType;
     color: TypographyColor;
@@ -52,6 +55,7 @@ export const ProfileSectionItem = ({
   onClick,
   external,
   isActive,
+  linkIconHoverOnly,
   typography,
 }: ProfileSectionItemProps): ReactElement => {
   const router = useRouter();
@@ -94,7 +98,11 @@ export const ProfileSectionItem = ({
 
       {!isMobile && showLinkIcon && (
         <OpenLinkIcon
-          className="ml-auto text-text-quaternary opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
+          className={classNames(
+            'ml-auto text-text-quaternary',
+            linkIconHoverOnly &&
+              'opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100',
+          )}
           size={IconSize.Size16}
         />
       )}

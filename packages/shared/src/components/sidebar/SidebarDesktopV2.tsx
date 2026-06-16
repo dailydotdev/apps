@@ -335,9 +335,9 @@ const SidebarSupportButton = (): ReactElement => {
           className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <FeedbackWidget placement="support" />
-          <ProfileMenuSection items={supportItems} />
+          <ProfileMenuSection items={supportItems} linkIconHoverOnly />
           <HorizontalSeparator />
-          <ProfileMenuSection items={legalItems} />
+          <ProfileMenuSection items={legalItems} linkIconHoverOnly />
         </InteractivePopup>
       )}
     </>
@@ -589,7 +589,10 @@ const SidebarProfileButton = ({
         >
           <Link href={`${webappUrl}${user.username}`} passHref>
             <a className="rounded-10 px-1 py-1 hover:bg-surface-hover">
-              <ProfileMenuHeader profileImageSize={ProfileImageSize.Medium} />
+              <ProfileMenuHeader
+                profileImageSize={ProfileImageSize.Medium}
+                compact
+              />
             </a>
           </Link>
           <SidebarProfileStats />
@@ -601,7 +604,10 @@ const SidebarProfileButton = ({
           />
 
           <nav className="flex flex-col gap-2">
-            <ProfileMenuSection items={withPreview(mainItems)} />
+            <ProfileMenuSection
+              items={withPreview(mainItems)}
+              linkIconHoverOnly
+            />
 
             <HorizontalSeparator />
 
@@ -609,15 +615,21 @@ const SidebarProfileButton = ({
 
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={withPreview(settingsItems)} />
+            <ProfileMenuSection
+              items={withPreview(settingsItems)}
+              linkIconHoverOnly
+            />
 
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={withPreview(billingItems)} />
+            <ProfileMenuSection
+              items={withPreview(billingItems)}
+              linkIconHoverOnly
+            />
 
             <HorizontalSeparator />
 
-            <ProfileMenuSection items={logoutItems} />
+            <ProfileMenuSection items={logoutItems} linkIconHoverOnly />
           </nav>
         </InteractivePopup>
       )}
@@ -778,6 +790,7 @@ export const SidebarDesktopV2 = ({
   // neighbouring tab can't switch the preview (menu-aim done with pointer
   // blocking rather than fragile slope guesses).
   const panelRef = useRef<HTMLElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
   const safeBlockedRef = useRef(false);
   const safePolyRef = useRef<Array<[number, number]> | null>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
@@ -793,11 +806,17 @@ export const SidebarDesktopV2 = ({
 
   // Escape resets the pinned panel back to Main so the keyboard story
   // mirrors the click model — Tab+Enter opens a panel, Escape backs out.
+  // Scoped to when focus is inside the sidebar; otherwise a global Escape
+  // (closing a modal, blurring a field) would yank the panel back to Main.
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setPendingCategory(SidebarCategory.Main);
+      if (event.key !== 'Escape') {
+        return;
       }
+      if (!sidebarRef.current?.contains(document.activeElement)) {
+        return;
+      }
+      setPendingCategory(SidebarCategory.Main);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -808,6 +827,7 @@ export const SidebarDesktopV2 = ({
       sidebarExpanded: true,
       shouldShowLabel: true,
       activePage,
+      compact: true,
     }),
     [activePage],
   );
@@ -1299,6 +1319,7 @@ export const SidebarDesktopV2 = ({
 
   return (
     <SidebarAside
+      ref={sidebarRef}
       data-testid="sidebar-aside"
       onMouseEnter={handleRailMouseEnter}
       onMouseLeave={handleRailMouseLeave}
@@ -1443,6 +1464,7 @@ export const SidebarDesktopV2 = ({
                     handlePreviewLeave('create', event)
                   }
                   onFocus={() => setIsCreateHovered(true)}
+                  onBlur={() => setIsCreateHovered(false)}
                   onClick={() => openModal({ type: LazyModal.SmartComposer })}
                   className="mt-2 !size-9 !rounded-12 [&_svg]:!size-6"
                 />

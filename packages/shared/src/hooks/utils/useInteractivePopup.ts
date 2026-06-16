@@ -33,6 +33,9 @@ export const useInteractivePopup = (group?: string): UseInteractivePopup => {
     set.add(close);
     return () => {
       set.delete(close);
+      if (set.size === 0) {
+        popupGroups.delete(group);
+      }
     };
   }, [group]);
 

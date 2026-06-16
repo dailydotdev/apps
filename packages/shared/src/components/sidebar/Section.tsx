@@ -18,6 +18,9 @@ export interface SectionCommonProps
   activePage: string;
   className?: string;
   flag?: keyof SettingsFlags;
+  // v2 sidebar polish: hover-only collapse arrow + 1px item gap. Defaults to
+  // the v1 always-visible arrow and no gap so the v1 sidebar is unchanged.
+  compact?: boolean;
 }
 
 interface SectionProps extends SectionCommonProps {
@@ -41,6 +44,7 @@ export function Section({
   isAlwaysOpenOnMobile,
   onAdd,
   addHref,
+  compact = false,
 }: SectionProps): ReactElement {
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
@@ -109,11 +113,15 @@ export function Section({
                 // `size` controls the real glyph dimensions — a w/h className
                 // here loses to the Icon's size class (Tailwind resolves the
                 // conflict by stylesheet order, not JSX order).
-                size={IconSize.XXSmall}
+                size={compact ? IconSize.XXSmall : undefined}
                 className={classNames(
-                  // Revealed only while hovering/focusing the section (header
-                  // or its items) — see group/section above.
-                  'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
+                  'text-text-quaternary duration-200',
+                  // v2: revealed only while hovering/focusing the section
+                  // (header or its items) — see group/section above. v1 keeps
+                  // the arrow always visible at its original size.
+                  compact
+                    ? 'opacity-0 transition-[transform,opacity] group-focus-within/section:opacity-100 group-hover/section:opacity-100'
+                    : 'h-2.5 w-2.5 transition-transform',
                   isVisible.current ? 'rotate-180' : 'rotate-90',
                 )}
               />
@@ -154,7 +162,12 @@ export function Section({
             : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        <div className="flex min-h-0 flex-col gap-px overflow-hidden">
+        <div
+          className={classNames(
+            'flex min-h-0 flex-col overflow-hidden',
+            compact && 'gap-px',
+          )}
+        >
           {items.map((item) => (
             <SidebarItem
               key={`${item.title}-${item.path}`}
