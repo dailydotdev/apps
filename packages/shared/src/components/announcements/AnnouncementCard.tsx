@@ -194,7 +194,7 @@ export function AnnouncementCard({
               aria-label="Dismiss"
               title="Close"
               onClick={onClose}
-              className="focus-outline absolute right-2 top-2 z-1 flex size-7 items-center justify-center rounded-full border border-white/24 bg-overlay-secondary-pepper text-white backdrop-blur-md transition-colors hover:bg-overlay-primary-pepper"
+              className="focus-outline absolute right-2 top-2 z-1 flex size-7 items-center justify-center rounded-10 border border-white/24 bg-overlay-secondary-pepper text-white backdrop-blur-md transition-colors hover:bg-overlay-primary-pepper"
             >
               <MiniCloseIcon size={IconSize.Size16} aria-hidden />
             </button>
