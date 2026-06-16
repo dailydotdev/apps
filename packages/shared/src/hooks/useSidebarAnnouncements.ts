@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { usePersistentState } from './usePersistentState';
 import { SIDEBAR_ANNOUNCEMENTS } from '../components/announcements/content';
 import type { AnnouncementItem } from '../components/announcements/types';
@@ -28,13 +28,16 @@ export const useSidebarAnnouncements = (): UseSidebarAnnouncements => {
     return SIDEBAR_ANNOUNCEMENTS.filter((item) => !dismissedSet.has(item.id));
   }, [dismissed, loaded]);
 
-  const dismiss = (id: string): void => {
-    if (dismissed.includes(id)) {
-      return;
-    }
+  const dismiss = useCallback(
+    (id: string): void => {
+      if (dismissed.includes(id)) {
+        return;
+      }
 
-    setDismissed([...dismissed, id]);
-  };
+      setDismissed([...dismissed, id]);
+    },
+    [dismissed, setDismissed],
+  );
 
   return { items, dismiss, isReady: loaded };
 };

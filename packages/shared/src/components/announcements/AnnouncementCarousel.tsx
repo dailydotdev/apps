@@ -6,6 +6,9 @@ import { AnnouncementCardVariant } from './types';
 import type { AnnouncementItem } from './types';
 
 const EXIT_MS = 200;
+// How long a card must stay active before it counts as a genuine impression —
+// long enough that hovering across the dots to browse doesn't log every card.
+const VIEW_DWELL_MS = 400;
 
 const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
@@ -32,21 +35,39 @@ export function AnnouncementCarousel({
   const [active, setActive] = useState(0);
   const [exitingId, setExitingId] = useState<string | null>(null);
   const exitTimer = useRef<ReturnType<typeof setTimeout>>();
+  const viewTimer = useRef<ReturnType<typeof setTimeout>>();
+  // Ids already counted as viewed, so scrubbing back and forth never
+  // double-logs an impression.
+  const viewedRef = useRef<Set<string>>(new Set());
 
   const count = items.length;
   // Items shrink as cards are dismissed; keep the index in range.
   const safeActive = Math.min(active, Math.max(count - 1, 0));
   const current = items[safeActive];
 
+  // Log an impression only after a card has settled (dwell) and only once —
+  // hovering across the dots to browse the stack shouldn't fire impressions.
   useEffect(() => {
-    if (current) {
-      onView?.(current);
+    const id = current?.id;
+    if (!id || viewedRef.current.has(id)) {
+      return undefined;
     }
+    viewTimer.current = setTimeout(() => {
+      viewedRef.current.add(id);
+      onView?.(current);
+    }, VIEW_DWELL_MS);
+    return () => clearTimeout(viewTimer.current);
     // Re-run only when the visible card changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current?.id]);
 
-  useEffect(() => () => clearTimeout(exitTimer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(exitTimer.current);
+      clearTimeout(viewTimer.current);
+    },
+    [],
+  );
 
   if (!current) {
     return null;
@@ -121,9 +142,10 @@ export function AnnouncementCarousel({
       </div>
 
       {hasMultiple && (
-        // Centered segmented indicator. Hovering (or focusing) a dot switches
-        // to that announcement; the active dot stretches into a pill and the
-        // fill glides between positions for a sense of motion.
+        // Centered segmented indicator. Hovering or focusing a dot switches to
+        // that announcement (this lives in the desktop sidebar; click/focus
+        // cover keyboard and any non-hover input). The active dot stretches
+        // into a pill and the fill glides between positions.
         <div className="flex items-center justify-center gap-1.5 pt-2.5">
           {items.map((item, index) => {
             const isActive = index === safeActive;
