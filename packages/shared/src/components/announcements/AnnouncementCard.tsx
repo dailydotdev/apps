@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
-import { ArrowIcon } from '../icons';
+import { ArrowIcon, MiniCloseIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Image } from '../image/Image';
 import { Pill, PillSize } from '../Pill';
@@ -186,14 +186,18 @@ export function AnnouncementCard({
             <Image src={image} alt="" className="h-28 w-full object-cover" />
           )}
           {onClose && (
-            // Float is invisible over imagery — use a solid Primary close.
-            <CloseButton
+            // Frosted glass close over imagery — translucent + backdrop blur so
+            // the image reads through, matching the floating-control idiom in
+            // ArticleFeaturedWideGridCard.
+            <button
               type="button"
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Primary}
-              className="absolute right-2 top-2"
+              aria-label="Dismiss"
+              title="Close"
               onClick={onClose}
-            />
+              className="focus-outline absolute right-2 top-2 z-1 flex size-7 items-center justify-center rounded-full border border-white/24 bg-overlay-secondary-pepper text-white backdrop-blur-md transition-colors hover:bg-overlay-primary-pepper"
+            >
+              <MiniCloseIcon size={IconSize.Size16} aria-hidden />
+            </button>
           )}
         </div>
         <div className="p-3">{renderBody(false)}</div>
