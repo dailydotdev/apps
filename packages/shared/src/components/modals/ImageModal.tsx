@@ -1,52 +1,62 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type ReactModal from 'react-modal';
-import { Modal } from './common/Modal';
-import { ModalKind, ModalSize } from './common/types';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
+import { useEventListener } from '../../hooks';
 
 interface ImageModalProps extends ReactModal.Props {
   src: string;
   alt?: string;
 }
 
+/**
+ * Full-screen image lightbox. Unlike the standard Modal card (fixed width + top
+ * margins), this fills the viewport and centers the image on both axes, sizing
+ * it with `max-h-full max-w-full object-contain` inside a padded container — so
+ * the image is always fully visible and scales down with the screen while
+ * preserving its aspect ratio. Mirrors the workspace-photos lightbox.
+ */
 export default function ImageModal({
   onRequestClose,
   src,
   alt = 'Image',
-  ...props
 }: ImageModalProps): ReactElement {
+  const close = () => onRequestClose?.(undefined as never);
+
+  useEventListener(globalThis as unknown as Window, 'keydown', (event) => {
+    if (event.key === 'Escape') {
+      close();
+    }
+  });
+
   return (
-    <Modal
-      kind={ModalKind.FlexibleCenter}
-      size={ModalSize.XLarge}
-      onRequestClose={onRequestClose}
-      // A photo lightbox needs a darker tint than the default modal overlay so
-      // the image stands out; `!` wins the conflict with the base
-      // `bg-overlay-quaternary-onion`. The backdrop blur softens the page
-      // behind it. The blur also makes the overlay the containing block for the
-      // fixed close button below, but since the overlay fills the viewport that
-      // resolves to the screen corner all the same.
-      overlayClassName="!bg-overlay-primary-pepper backdrop-blur-md"
-      // The image is the surface — drop the modal's own background/border/shadow.
-      className="!border-0 !bg-transparent !shadow-none tablet:!bg-transparent"
-      {...props}
+    <div
+      className="fixed inset-0 z-modal flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt}
     >
+      <button
+        type="button"
+        aria-label="Close"
+        className="absolute inset-0 cursor-default bg-overlay-primary-pepper backdrop-blur-md"
+        onClick={close}
+      />
       <img
         src={src}
         alt={alt}
-        className="max-h-[90vh] w-full rounded-16 object-contain"
+        className="relative max-h-full max-w-full rounded-16 object-contain"
       />
-      {/* Pinned to the screen's top-right corner (not the image) so a busy
-          image can't camouflage it. Primary (solid) variant stays visible over
-          the dark overlay. */}
+      {/* Pinned to the screen corner (not the image) so a busy image can't
+          camouflage it. Primary (solid) variant stays visible over the dark
+          overlay. */}
       <CloseButton
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
-        className="fixed right-4 top-4 z-1"
-        onClick={onRequestClose}
+        className="absolute right-4 top-4 z-1"
+        onClick={close}
       />
-    </Modal>
+    </div>
   );
 }
