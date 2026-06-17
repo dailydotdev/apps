@@ -58,22 +58,22 @@ export interface PersonaEngineConfig {
   instantLockMargin: number;
 }
 
+
 export const PERSONAS: DeveloperPersona[] = [
   {
     id: 'generalist-developer',
     name: 'Generalist Developer',
     emoji: '🐙',
     color: '#f59e0b',
-    tagline:
-      "Your curiosity is too broad to pin down. We'll give you a wide-angle feed.",
-    tags: ['webdev', 'javascript', 'python', 'programming', 'opensource', 'git'],
+    tagline: 'A bit of everything, tied to nothing. Your feed stays wide.',
+    tags: ['webdev', 'javascript', 'python', 'open-source', 'git', 'github'],
   },
   {
     id: 'full-stack-web-developer',
     name: 'Full-Stack Web Developer',
     emoji: '⚛️',
     color: '#06b6d4',
-    tagline: 'React, TypeScript, Node, the works. You ship product.',
+    tagline: 'React, Node, and everything between. You ship the whole thing.',
     tags: ['javascript', 'typescript', 'react', 'nodejs', 'webdev', 'css'],
   },
   {
@@ -81,69 +81,63 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Frontend Specialist',
     emoji: '🎨',
     color: '#ec4899',
-    tagline: 'Deep in the framework wars. You sweat the details.',
-    tags: ['react', 'css', 'javascript', 'typescript', 'webdev', 'vuejs'],
+    tagline: 'Components, CSS, and the framework wars. You sweat the pixels.',
+    tags: ['react', 'css', 'typescript', 'vuejs', 'svelte', 'tailwind-css', 'nextjs'],
   },
   {
     id: 'ai-specialist',
     name: 'AI Specialist',
     emoji: '🤖',
     color: '#22c55e',
-    tagline: 'You live in Claude, agents, and RAG pipelines. AI is your work.',
-    tags: [
-      'machine-learning',
-      'python',
-      'data-science',
-      'ai',
-      'deep-learning',
-      'llm',
-    ],
+    tagline: 'LLMs, agents, RAG. You build with AI, not just around it.',
+    tags: ['ai', 'llm', 'ai-agents', 'rag', 'claude', 'openai', 'prompt-engineering', 'agentic-ai'],
+  },
+  {
+    id: 'ml-engineer',
+    name: 'ML Engineer',
+    emoji: '🧠',
+    color: '#10b981',
+    tagline: 'PyTorch, datasets, GPUs. You train the models everyone else calls.',
+    tags: ['machine-learning', 'deep-learning', 'pytorch', 'tensorflow', 'computer-vision', 'nlp', 'data-science'],
   },
   {
     id: 'backend-developer',
     name: 'Backend Developer',
     emoji: '🛠️',
     color: '#3b82f6',
-    tagline: 'SQL, APIs, queues, databases. You make the data move.',
-    tags: ['nodejs', 'python', 'sql', 'database', 'api', 'golang'],
+    tagline: 'APIs, queues, databases. You make the data move.',
+    tags: ['backend', 'sql', 'database', 'postgresql', 'nodejs', 'golang', 'rest-api', 'redis'],
   },
   {
     id: 'software-architect',
     name: 'Software Architect',
     emoji: '🏛️',
     color: '#14b8a6',
-    tagline: 'Microservices, distributed systems, scale. You draw the boxes.',
-    tags: [
-      'architecture',
-      'microservices',
-      'system-design',
-      'devops',
-      'cloud',
-      'kubernetes',
-    ],
+    tagline: 'Microservices, scale, trade-offs. You draw the boxes others build.',
+    tags: ['architecture', 'microservices', 'system-design', 'distributed-systems', 'design-patterns', 'cloud'],
   },
   {
     id: 'systems-programmer',
     name: 'Systems Programmer',
     emoji: '⚡',
     color: '#f97316',
-    tagline: 'Go, Rust, C++. Memory matters. Performance matters.',
-    tags: ['rust', 'golang', 'cpp', 'c', 'linux', 'performance'],
+    tagline: 'Go, Rust, C++. Close to the metal, fast by default.',
+    tags: ['rust', 'golang', 'c++', 'c', 'linux', 'performance', 'zig', 'webassembly'],
   },
   {
     id: 'devops-engineer',
     name: 'DevOps Engineer',
     emoji: '🐳',
     color: '#0ea5e9',
-    tagline: 'Kubernetes, CI/CD, observability. You keep prod alive.',
-    tags: ['devops', 'kubernetes', 'docker', 'aws', 'cloud', 'terraform'],
+    tagline: 'Kubernetes, CI/CD, observability. You keep prod breathing.',
+    tags: ['devops', 'kubernetes', 'docker', 'aws', 'terraform', 'cicd', 'observability', 'sre'],
   },
   {
     id: 'php-developer',
     name: 'PHP Developer',
     emoji: '🐘',
     color: '#777bb3',
-    tagline: "Laravel, Symfony, WordPress. The web's quiet workhorse.",
+    tagline: 'Laravel, Symfony, WordPress. The web's quiet workhorse.',
     tags: ['php', 'laravel', 'symfony', 'wordpress', 'mysql', 'webdev'],
   },
   {
@@ -151,267 +145,117 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Security Engineer',
     emoji: '🛡️',
     color: '#dc2626',
-    tagline: 'CVEs, authentication, attack surface. You find the bugs first.',
-    tags: [
-      'security',
-      'cybersecurity',
-      'privacy',
-      'hacking',
-      'cryptography',
-      'devsecops',
-    ],
+    tagline: 'Threats, CVEs, attack surface. You break it before they do.',
+    tags: ['security', 'cyber', 'vulnerability', 'cryptography', 'devsecops', 'appsec', 'authentication'],
   },
   {
     id: 'dotnet-developer',
     name: '.NET Developer',
-    emoji: '🪟',
+    emoji: '🟦',
     color: '#512bd4',
-    tagline: 'C#, ASP.NET, Blazor. The Microsoft stack done right.',
-    tags: ['csharp', 'dotnet', 'azure', 'aspnet', 'blazor', 'visualstudio'],
+    tagline: 'C#, ASP.NET, Blazor. The Microsoft stack, done right.',
+    tags: ['.net', 'aspnet', 'blazor', 'azure', 'visual-studio', 'backend'],
   },
   {
     id: 'game-developer',
     name: 'Game Developer',
     emoji: '🎮',
     color: '#a855f7',
-    tagline: 'Unity, Unreal, Godot. You ship frames per second.',
-    tags: ['gamedev', 'unity', 'unreal-engine', 'godot', 'cpp', 'graphics'],
+    tagline: 'Unity, Unreal, Godot. Sixty frames a second or bust.',
+    tags: ['game-development', 'unity', 'unreal-engine', 'godot', 'game-design', 'c++'],
   },
   {
     id: 'mobile-developer',
     name: 'Mobile Developer',
     emoji: '📱',
     color: '#f43f5e',
-    tagline: 'iOS, Android, Flutter. The app store is your stage.',
-    tags: ['android', 'ios', 'swift', 'kotlin', 'flutter', 'react-native'],
+    tagline: 'Swift, Kotlin, Flutter. Your code ships to a pocket.',
+    tags: ['android', 'ios', 'swift', 'kotlin', 'flutter', 'react-native', 'swiftui'],
   },
   {
     id: 'operator',
     name: 'The Operator',
     emoji: '💼',
     color: '#64748b',
-    tagline: 'Product, design, strategy. You ship outcomes.',
-    tags: [
-      'product-management',
-      'startup',
-      'design',
-      'ux',
-      'productivity',
-      'leadership',
-    ],
+    tagline: 'Product, design, strategy. You ship outcomes, not commits.',
+    tags: ['product-management', 'startup', 'design', 'ux', 'productivity', 'leadership', 'ui-design'],
   },
 ];
 
 export const QUESTIONS: PersonaQuestion[] = [
-  {
-    text: 'Do you ship the things users see and click on?',
-    layer: 0,
-    exclusiveGroup: 'primary-domain',
-    closesOnNo: ['primary-platform'],
-  },
-  {
-    text: 'Is your work mostly backend or infrastructure, not frontend or mobile?',
-    layer: 0,
-    exclusiveGroup: 'primary-domain',
-    closesOnYes: ['primary-platform'],
-  },
-  {
-    text: 'Is writing code not part of your day-to-day job?',
-    layer: 0,
-    lockPersonaId: 'operator',
-  },
-  {
-    text: 'Is your main output a web app people open in a browser?',
-    layer: 1,
-    exclusiveGroup: 'primary-platform',
-  },
-  { text: 'Are you faster in a terminal than in any GUI?', layer: 1 },
-  {
-    text: 'Is your daily IDE Xcode or Android Studio?',
-    layer: 1,
-    lockPersonaId: 'mobile-developer',
-    exclusiveGroup: 'primary-platform',
-  },
-  {
-    text: 'Does your day involve Jupyter notebooks, datasets, or training runs?',
-    layer: 1,
-    exclusiveGroup: 'primary-platform',
-  },
-  {
-    text: 'Is your main language TypeScript or JavaScript?',
-    layer: 2,
-    exclusiveGroup: 'main-language',
-  },
-  {
-    text: 'Is your main language Python?',
-    layer: 2,
-    exclusiveGroup: 'main-language',
-  },
-  {
-    text: 'Is your main language Go, Rust, or C/C++?',
-    layer: 2,
-    exclusiveGroup: 'main-language',
-  },
-  {
-    text: 'Is your main language Java or Kotlin?',
-    layer: 2,
-    exclusiveGroup: 'main-language',
-  },
-  {
-    text: 'Is AI what you build, not just what you use?',
-    layer: 2,
-    lockPersonaId: 'ai-specialist',
-  },
-  {
-    text: 'Is your main language PHP?',
-    layer: 2,
-    lockPersonaId: 'php-developer',
-    exclusiveGroup: 'main-language',
-  },
-  {
-    text: 'Is your main stack C# / .NET?',
-    layer: 2,
-    lockPersonaId: 'dotnet-developer',
-    exclusiveGroup: 'main-language',
-  },
-  {
-    text: 'Are Kubernetes, CI/CD, and observability what you ship?',
-    layer: 3,
-    lockPersonaId: 'devops-engineer',
-  },
-  { text: 'Do you write more SQL than CSS?', layer: 3 },
-  {
-    text: 'Have you drawn boxes and arrows on a whiteboard this month?',
-    layer: 3,
-  },
-  {
-    text: 'Do you specialize in one stack rather than dabble across many?',
-    layer: 2,
-  },
-  {
-    text: 'Do you build games or interactive 3D experiences?',
-    layer: 2,
-    lockPersonaId: 'game-developer',
-  },
-  {
-    text: 'Is your week threat modeling, pen tests, and vulnerability triage?',
-    layer: 2,
-    lockPersonaId: 'security-engineer',
-  },
+  { text: 'You ship the things users see and click on.', layer: 0, exclusiveGroup: 'primary-domain', closesOnNo: ['primary-platform'] },
+  { text: 'Your work is mostly backend or infrastructure, not frontend or mobile.', layer: 0, exclusiveGroup: 'primary-domain', closesOnYes: ['primary-platform'] },
+  { text: 'You don\'t write code as part of your day-to-day job.', layer: 0, lockPersonaId: 'operator' },
+  { text: 'Your main output is a web app people open in a browser.', layer: 1, exclusiveGroup: 'primary-platform' },
+  { text: 'You\'re faster in a terminal than in any GUI.', layer: 1 },
+  { text: 'Your daily IDE is Xcode or Android Studio.', layer: 1, lockPersonaId: 'mobile-developer', exclusiveGroup: 'primary-platform' },
+  { text: 'Your day is notebooks, datasets, and training runs.', layer: 1, lockPersonaId: 'ml-engineer', exclusiveGroup: 'primary-platform' },
+  { text: 'Your main language is TypeScript or JavaScript.', layer: 2, exclusiveGroup: 'main-language' },
+  { text: 'Your main language is Python.', layer: 2, exclusiveGroup: 'main-language' },
+  { text: 'Your main language is Go, Rust, or C/C++.', layer: 2, exclusiveGroup: 'main-language' },
+  { text: 'Your main language is Java or Kotlin.', layer: 2, exclusiveGroup: 'main-language' },
+  { text: 'AI is what you build, not just what you use.', layer: 2, lockPersonaId: 'ai-specialist' },
+  { text: 'Your main language is PHP.', layer: 2, lockPersonaId: 'php-developer', exclusiveGroup: 'main-language' },
+  { text: 'Your main stack is C# / .NET.', layer: 2, lockPersonaId: 'dotnet-developer', exclusiveGroup: 'main-language' },
+  { text: 'Kubernetes, CI/CD, and observability are what you ship.', layer: 3, lockPersonaId: 'devops-engineer' },
+  { text: 'You write more SQL than CSS.', layer: 3 },
+  { text: 'You\'ve drawn boxes and arrows on a whiteboard this month.', layer: 3 },
+  { text: 'You specialize in one stack. You don\'t dabble across many.', layer: 2 },
+  { text: 'You build games or interactive 3D experiences.', layer: 2, lockPersonaId: 'game-developer' },
+  { text: 'Your week is threat modeling, pen tests, and vulnerability triage.', layer: 2, lockPersonaId: 'security-engineer' },
 ];
-
-/**
- * Deduped union of the resolved persona's tags and the tags of every selected
- * modifier. This is the keyword set batch-followed when the quiz concludes.
- */
-export const resolveFollowTags = (
-  persona: DeveloperPersona,
-  selectedModifierIds: string[],
-): string[] => {
-  const selected = new Set(selectedModifierIds);
-  const modifierTags = MODIFIERS.filter((modifier) =>
-    selected.has(modifier.id),
-  ).flatMap((modifier) => modifier.tags);
-
-  return Array.from(new Set([...persona.tags, ...modifierTags]));
-};
 
 export const MODIFIERS: PersonaModifier[] = [
   {
     id: 'ai-heavy',
     label: 'AI Heavy',
     emoji: '🤖',
-    description:
-      'You use AI tools (Cursor, Claude, agents) for meaningful chunks of your work.',
-    tags: ['ai', 'llm', 'chatgpt', 'github-copilot', 'prompt-engineering'],
+    description: 'Cursor, Claude, and agents do real chunks of your work.',
+    tags: ['ai', 'llm', 'ai-agents', 'ai-coding', 'prompt-engineering', 'agentic-ai'],
   },
   {
     id: 'founder',
     label: 'Founder',
     emoji: '🚀',
-    description: "You're building your own product, startup, or side business.",
-    tags: ['startup', 'entrepreneurship', 'saas', 'marketing', 'business'],
+    description: 'You\'re shipping your own product, startup, or side bet.',
+    tags: ['startup', 'entrepreneurship', 'business', 'marketing', 'product-management'],
   },
   {
     id: 'engineering-leader',
     label: 'Engineering Leader',
     emoji: '📰',
-    description:
-      'You lead engineers or set technical direction more than you write code.',
-    tags: ['leadership', 'engineering-management', 'management', 'career', 'agile'],
+    description: 'You set direction and grow engineers more than you ship code.',
+    tags: ['leadership', 'career', 'agile', 'productivity', 'product-management'],
   },
 ];
 
 /**
  * Likelihood matrix: P[persona][question] = probability a member of that
- * persona answers yes. Computed from 90d engagement data on 93,345 active
- * daily.dev users. 13 engineer-persona rows are data-grounded via K-means.
- * The Operator row and the 'don't write code' column are hand-crafted
- * (non-engineers do not appear in the engagement clustering).
+ * persona answers yes. Computed from 90d engagement data on ~92k active
+ * daily.dev users via K-means. The Operator row and the 'don't write code'
+ * column are hand-crafted (non-engineers don't appear in the clustering).
  */
 export const PERSONA_QUESTION_LIKELIHOOD: number[][] = [
-  [
-    0.192, 0.263, 0, 0.148, 0.411, 0.005, 0.029, 0.358, 0.16, 0.331, 0.05,
-    0.003, 0.002, 0.001, 0.186, 0.244, 0.206, 0.03, 0.001, 0,
-  ],
-  [
-    0.956, 0.002, 0, 0.955, 0.111, 0.011, 0.008, 0.97, 0.082, 0.189, 0.03,
-    0.011, 0.005, 0.001, 0.071, 0.151, 0.103, 0.004, 0.002, 0,
-  ],
-  [
-    1, 0, 0, 1, 0.035, 0.019, 0.005, 1, 0.044, 0.065, 0.01, 0, 0.012, 0.002,
-    0.011, 0.045, 0.026, 0.826, 0.006, 0,
-  ],
-  [
-    0.062, 0.052, 0, 0.052, 0.08, 0.006, 0.019, 0.088, 0.131, 0.055, 0.02,
-    0.891, 0.007, 0.004, 0.041, 0.04, 0.066, 0.568, 0.002, 0,
-  ],
-  [
-    0.095, 0.863, 0, 0.099, 0.083, 0.005, 0.015, 0.118, 0.091, 0.078, 0.35,
-    0.001, 0.006, 0.002, 0.036, 0.999, 0.136, 0.157, 0.002, 0,
-  ],
-  [
-    0.061, 0.214, 0, 0.066, 0.066, 0.006, 0.033, 0.114, 0.152, 0.095, 0.3,
-    0.016, 0.005, 0.002, 0.048, 0.213, 0.44, 0.043, 0.001, 0,
-  ],
-  [
-    0.103, 0.85, 0, 0.097, 0.95, 0.006, 0.026, 0.167, 0.126, 0.987, 0.05, 0.002,
-    0.005, 0.002, 0.119, 0.159, 0.153, 0.066, 0.002, 0,
-  ],
-  [
-    0.073, 0.9, 0, 0.07, 0.936, 0.007, 0.02, 0.154, 0.111, 0.172, 0.05, 0.004,
-    0.004, 0.001, 0.939, 0.234, 0.196, 0.118, 0.001, 0,
-  ],
-  [
-    0.987, 0.13, 0, 0.999, 0.12, 0.009, 0.006, 0.343, 0.066, 0.153, 0.01, 0.001,
-    0.876, 0.001, 0.096, 0.197, 0.077, 0.137, 0.003, 0,
-  ],
-  [
-    0.344, 0.479, 0, 0.412, 0.273, 0.014, 0.014, 0.39, 0.1, 0.096, 0.05, 0.027,
-    0.028, 0.007, 0.055, 0.077, 0.048, 0.164, 0.009, 0.394,
-  ],
-  [
-    0.1, 0.836, 0, 0.099, 0.171, 0.006, 0.005, 0.217, 0.049, 0.163, 0.02, 0,
-    0.003, 0.824, 0.073, 0.205, 0.222, 0.143, 0.008, 0,
-  ],
-  [
-    0.944, 0.001, 0, 0.161, 0.166, 0.022, 0.03, 0.247, 0.143, 0.207, 0.05,
-    0.001, 0.006, 0.01, 0.034, 0.079, 0.047, 0.136, 0.771, 0,
-  ],
-  [
-    0.986, 0.002, 0, 0.266, 0.094, 0.989, 0.008, 0.296, 0.077, 0.046, 0.3,
-    0.002, 0.007, 0.004, 0.026, 0.101, 0.085, 0.131, 0.01, 0,
-  ],
-  [
-    0.2, 0.03, 0.95, 0.05, 0.02, 0.03, 0.05, 0.03, 0.05, 0.01, 0.01, 0.03, 0.01,
-    0.01, 0.02, 0.05, 0.4, 0.25, 0.02, 0.03,
-  ],
+  [0.17132, 0.274564, 0, 0.13908, 0.374098, 0, 0, 0.33229, 0.15462, 0.307211, 0.107158, 0.00243542, 0.00205851, 0.00118872, 0.162274, 0.217303, 0.19953, 0.0301818, 0, 0.00316024],
+  [0.956496, 0.00212214, 0, 0.960092, 0.103042, 0, 0, 0.972353, 0.0832351, 0.19005, 0.0341311, 0.0142066, 0.00448008, 0.00135581, 0.0695001, 0.140887, 0.110057, 0.00394954, 0, 0.000471587],
+  [1, 0, 0, 1, 0.0302971, 0, 0, 1, 0.0421441, 0.0646728, 0.011847, 0, 0.0110701, 0.00271897, 0.0112643, 0.0471936, 0.0423383, 0.810643, 0, 0.0102933],
+  [0.0523551, 0.0548913, 0, 0.0532609, 0.0719203, 0, 0, 0.0844203, 0.11558, 0.0490942, 0.0106884, 0.968116, 0.0057971, 0.00271739, 0.036413, 0.0338768, 0.0594203, 0.645109, 0, 0.00706522],
+  [0.082495, 0.126761, 0, 0.100604, 0.0704225, 0.00402414, 1, 0.104628, 1, 0.0422535, 0.00804829, 0.0704225, 0.0100604, 0.00804829, 0.0241449, 0.0925553, 0.0382294, 0.169014, 0, 0.00804829],
+  [0.0662522, 0.874879, 0, 0.0866524, 0.0650865, 0, 0, 0.102584, 0.0837381, 0.0699437, 0.0248689, 0.000194288, 0.00680008, 0.00213717, 0.0316689, 0.999029, 0.171751, 0.128424, 0, 0.00213717],
+  [0.0497947, 0.249179, 0, 0.0684805, 0.0584189, 0, 0, 0.105647, 0.119405, 0.0734086, 0.0412731, 0.0148871, 0.0036961, 0.00174538, 0.0449692, 0.200616, 0.444764, 0.0609856, 0, 0.00256674],
+  [0.0948818, 0.859922, 0, 0.0918887, 0.954205, 0, 0, 0.180485, 0.129003, 0.977252, 0.0466926, 0.00209518, 0.00448967, 0.00119725, 0.134092, 0.14786, 0.155642, 0.0583658, 0, 0.00149656],
+  [0.0669856, 0.912679, 0, 0.069378, 0.94378, 0, 0, 0.152711, 0.106858, 0.165869, 0.0641946, 0.00518341, 0.00279107, 0.0015949, 0.961324, 0.210128, 0.197767, 0.129585, 0, 0.0099681],
+  [0.987699, 0.146165, 0, 0.999276, 0.109986, 0, 0, 0.342619, 0.0680174, 0.15919, 0.0231548, 0.00108538, 0.880246, 0.00144718, 0.0918958, 0.196093, 0.0770622, 0.140738, 0, 0.00397974],
+  [0.345912, 0.562035, 0, 0.42024, 0.19211, 0, 0, 0.412807, 0.136078, 0.0897656, 0.0125786, 0.00285878, 0.00857633, 0.00114351, 0.0423099, 0.0691824, 0.0343053, 0.121784, 0, 0.686106],
+  [0.0816761, 0.860085, 0, 0.0802557, 0.144176, 0, 0, 0.199574, 0.0482955, 0.15483, 0.0262784, 0, 0.00213068, 0.827415, 0.0646307, 0.182528, 0.230114, 0.138494, 0, 0.00355114],
+  [1, 0, 0, 0.180198, 0.150495, 0.0247525, 0.00792079, 0.222772, 0.119802, 0.148515, 0.0168317, 0.0217822, 0.0128713, 0.0237624, 0.0257426, 0.0633663, 0.0356436, 0.179208, 1, 0.0158416],
+  [0.879567, 0, 0, 0.32544, 0.116373, 1, 0, 0.343708, 0.0818674, 0.0751015, 0.105548, 0.0250338, 0.0216509, 0.00473613, 0.0290934, 0.102165, 0.135995, 0.135995, 0, 0.00811908],
+  [0.2, 0.03, 0.95, 0.05, 0.02, 0.03, 0.03, 0.03, 0.05, 0.01, 0.01, 0.03, 0.01, 0.01, 0.02, 0.05, 0.4, 0.25, 0.02, 0.03],
 ];
 
-/** Prior probability of each persona (log-shaped to balance large and niche personas). */
+/** Prior probability of each persona (log-shaped). */
 export const PERSONA_PRIOR: number[] = [
-  0.2163, 0.1645, 0.0746, 0.0754, 0.0732, 0.1093, 0.0543, 0.042, 0.0407, 0.0498,
-  0.0241, 0.0181, 0.021, 0.0366,
+  0.2262, 0.1583, 0.0724, 0.0763, 0.0092, 0.0724, 0.1133, 0.0516, 0.0407, 0.0441, 0.0297, 0.0245, 0.0180, 0.0256, 0.0377,
 ];
 
 export const PERSONA_ENGINE_CONFIG: PersonaEngineConfig = {
