@@ -272,10 +272,10 @@ const ThinkingDots = (): ReactElement => (
 
 const warmthLabelFor = (value: number): string => {
   if (value >= 0.8) {
-    return 'almost got it';
+    return 'red hot';
   }
   if (value >= 0.5) {
-    return 'narrowing it down';
+    return 'heating up';
   }
   if (value >= 0.2) {
     return 'getting warmer';
@@ -679,14 +679,14 @@ function PersonaQuizPhases({
                 type={TypographyType.LargeTitle}
                 bold
               >
-                {headline || "Let's play a game"}
+                {headline || 'Let me figure out your dev type'}
               </Typography>
               <Typography
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
               >
                 {explainer ||
-                  'A few quick yes/no questions are enough for me to know what kind of dev you are.'}
+                  "A few yes/no questions, and I'll fill your feed with the stuff that's actually relevant to you."}
               </Typography>
             </div>
           </SpeechBubble>
@@ -895,8 +895,8 @@ function PersonaQuizPhases({
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
               >
-                Tick any of these that describe you. They tune your feed beyond
-                your persona.
+                Check any of these that describe you. They tune your feed
+                beyond your persona.
               </Typography>
             </div>
           </SpeechBubble>

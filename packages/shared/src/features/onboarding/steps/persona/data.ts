@@ -64,7 +64,8 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Generalist Developer',
     emoji: '🐙',
     color: '#f59e0b',
-    tagline: 'A bit of everything, tied to nothing. Your feed stays wide.',
+    tagline:
+      'You dip into JavaScript, Python, and whatever open source is shipping this week.',
     tags: ['webdev', 'javascript', 'python', 'open-source', 'github'],
   },
   {
@@ -72,7 +73,8 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Full-Stack Web Developer',
     emoji: '⚛️',
     color: '#06b6d4',
-    tagline: 'React, Node, and everything between. You ship the whole thing.',
+    tagline:
+      'You ship the whole thing, from the React on top to the Node underneath.',
     tags: ['javascript', 'typescript', 'react', 'nodejs', 'css', 'nextjs'],
   },
   {
@@ -80,7 +82,8 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Frontend Specialist',
     emoji: '🎨',
     color: '#ec4899',
-    tagline: 'Components, CSS, and the framework wars. You sweat the pixels.',
+    tagline:
+      'You sweat the pixels, the components, and every framework war worth having.',
     tags: ['react', 'typescript', 'css', 'nextjs', 'tailwind-css', 'svelte'],
   },
   {
@@ -88,7 +91,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'AI Specialist',
     emoji: '🤖',
     color: '#22c55e',
-    tagline: 'LLMs, agents, RAG. You build with AI, not just around it.',
+    tagline: 'You build with LLMs and agents, not just around them.',
     tags: ['llm', 'ai-agents', 'claude', 'openai', 'rag', 'prompt-engineering'],
   },
   {
@@ -96,8 +99,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'ML Engineer',
     emoji: '🧠',
     color: '#10b981',
-    tagline:
-      'PyTorch, datasets, GPUs. You train the models everyone else calls.',
+    tagline: 'You train the models everyone else just calls.',
     tags: [
       'machine-learning',
       'deep-learning',
@@ -112,7 +114,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Backend Developer',
     emoji: '🛠️',
     color: '#3b82f6',
-    tagline: 'APIs, queues, databases. You make the data move.',
+    tagline: 'You make the data move through APIs, queues, and databases.',
     tags: ['backend', 'postgresql', 'golang', 'sql', 'nodejs', 'redis'],
   },
   {
@@ -120,8 +122,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Software Architect',
     emoji: '🏛️',
     color: '#14b8a6',
-    tagline:
-      'Microservices, scale, trade-offs. You draw the boxes others build.',
+    tagline: 'You draw the boxes and trade-offs that everyone else builds.',
     tags: [
       'architecture',
       'microservices',
@@ -135,7 +136,8 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Systems Programmer',
     emoji: '⚡',
     color: '#f97316',
-    tagline: 'Go, Rust, C++. Close to the metal, fast by default.',
+    tagline:
+      'You live close to the metal in Go, Rust, C++, and Zig, fast by default.',
     tags: ['rust', 'golang', 'c++', 'c', 'zig', 'performance'],
   },
   {
@@ -143,7 +145,8 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'DevOps Engineer',
     emoji: '🐳',
     color: '#0ea5e9',
-    tagline: 'Kubernetes, CI/CD, observability. You keep prod breathing.',
+    tagline:
+      'You keep prod breathing with Kubernetes, pipelines, and observability.',
     tags: ['kubernetes', 'docker', 'aws', 'cicd', 'observability', 'terraform'],
   },
   {
@@ -151,7 +154,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'PHP Developer',
     emoji: '🐘',
     color: '#777bb3',
-    tagline: "Laravel, Symfony, WordPress. The web's quiet workhorse.",
+    tagline: "You keep the web's quiet workhorse running on PHP.",
     tags: ['php', 'laravel', 'symfony', 'wordpress', 'mysql'],
   },
   {
@@ -159,7 +162,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Security Engineer',
     emoji: '🛡️',
     color: '#dc2626',
-    tagline: 'Threats, CVEs, attack surface. You break it before they do.',
+    tagline: 'You break it before they do, hunting CVEs and attack surface.',
     tags: [
       'security',
       'cyber',
@@ -174,7 +177,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: '.NET Developer',
     emoji: '🟦',
     color: '#512bd4',
-    tagline: 'C#, ASP.NET, Blazor. The Microsoft stack, done right.',
+    tagline: 'You live deep in the Microsoft stack, from C# to Azure.',
     tags: ['.net', 'aspnet', 'blazor', 'azure', 'visual-studio'],
   },
   {
@@ -182,7 +185,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Game Developer',
     emoji: '🎮',
     color: '#a855f7',
-    tagline: 'Unity, Unreal, Godot. Sixty frames a second or bust.',
+    tagline: 'You chase sixty frames a second, one render loop at a time.',
     tags: [
       'game-development',
       'unity',
@@ -196,7 +199,7 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'Mobile Developer',
     emoji: '📱',
     color: '#f43f5e',
-    tagline: 'Swift, Kotlin, Flutter. Your code ships to a pocket.',
+    tagline: "You ship code straight into people's pockets.",
     tags: ['android', 'ios', 'swift', 'kotlin', 'flutter', 'react-native'],
   },
   {
@@ -204,7 +207,8 @@ export const PERSONAS: DeveloperPersona[] = [
     name: 'The Operator',
     emoji: '💼',
     color: '#64748b',
-    tagline: 'Product, design, strategy. You ship outcomes, not commits.',
+    tagline:
+      'You ship outcomes, not commits, across product, design, and strategy.',
     tags: [
       'product-management',
       'startup',
@@ -224,13 +228,13 @@ export const QUESTIONS: PersonaQuestion[] = [
     closesOnNo: ['primary-platform'],
   },
   {
-    text: 'Your work is mostly backend or infrastructure, not frontend or mobile.',
+    text: 'Your work is mostly backend or infrastructure.',
     layer: 0,
     exclusiveGroup: 'primary-domain',
     closesOnYes: ['primary-platform'],
   },
   {
-    text: "You don't write code as part of your day-to-day job.",
+    text: 'Coding is a small part of your role.',
     layer: 0,
     lockPersonaId: 'operator',
   },
@@ -283,7 +287,7 @@ export const QUESTIONS: PersonaQuestion[] = [
     exclusiveGroup: 'main-language',
   },
   {
-    text: 'Your main stack is C# / .NET.',
+    text: 'Your main language is C#.',
     layer: 2,
     lockPersonaId: 'dotnet-developer',
     exclusiveGroup: 'main-language',
@@ -299,7 +303,7 @@ export const QUESTIONS: PersonaQuestion[] = [
     layer: 3,
   },
   {
-    text: "You specialize in one stack. You don't dabble across many.",
+    text: 'You go deep in one stack rather than dabbling across many.',
     layer: 2,
   },
   {
@@ -332,7 +336,7 @@ export const MODIFIERS: PersonaModifier[] = [
   {
     id: 'engineering-leader',
     label: 'Engineering Leader',
-    emoji: '📰',
+    emoji: '👔',
     description:
       'You set direction and grow engineers more than you ship code.',
     tags: ['leadership', 'career', 'productivity'],
