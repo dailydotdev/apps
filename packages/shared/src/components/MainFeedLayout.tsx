@@ -16,7 +16,6 @@ import { FeedPageLayoutMobile } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
-import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
@@ -84,9 +83,7 @@ import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
-import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
-import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 
 const FeedExploreHeader = dynamic(
@@ -244,20 +241,8 @@ export default function MainFeedLayout({
   const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
-  const {
-    shouldShow: shouldShowReadingReminder,
-    title: readingReminderTitle,
-    subtitle: readingReminderSubtitle,
-    onEnable,
-    onDismiss,
-  } = useReadingReminderHero();
   const isExtension = checkIsExtension();
   const isHomePage = router.pathname === webappUrl;
-  const shouldEvaluateReminderPlacement =
-    isHomePage && shouldShowReadingReminder;
-  const { isControl: isControlVariation } = useReadingReminderVariation({
-    shouldEvaluate: shouldEvaluateReminderPlacement,
-  });
   const {
     isUpvoted,
     isPopular,
@@ -677,9 +662,6 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
-  const shouldShowReadingReminderOnHomepage =
-    shouldEvaluateReminderPlacement && isControlVariation;
-
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
       if (clickedTab === ExploreTabs.BestOf && isExtension) {
@@ -790,15 +772,6 @@ export default function MainFeedLayout({
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
-        )}
-        {shouldShowReadingReminderOnHomepage && (
-          <ReadingReminderHero
-            className="px-4 pb-2"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onEnable={onEnable}
-            onDismiss={onDismiss}
-          />
         )}
         {isHomePage && (
           <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />

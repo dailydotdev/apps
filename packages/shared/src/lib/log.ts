@@ -669,7 +669,6 @@ export enum NotificationTarget {
 
 export enum NotificationCtaPlacement {
   TopHero = 'top-hero',
-  InFeedHero = 'in-feed-hero',
   CommentInline = 'comment-inline',
   UserCard = 'user-card',
   SourceCard = 'source-card',
