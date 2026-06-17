@@ -38,7 +38,6 @@ import {
   NotificationType,
   type NotificationFilterCategory,
 } from '@dailydotdev/shared/src/components/notifications/utils';
-import { getReadHistoryDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useTopReaderModal } from '@dailydotdev/shared/src/hooks/modals/useTopReaderModal';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
@@ -56,33 +55,6 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   data.pages.some((page) =>
     page.notifications.edges.some(({ node }) => !node.readAt),
   );
-
-interface NotificationDateGroup {
-  label: string;
-  items: Notification[];
-}
-
-// Group an already date-sorted (desc) list into "Today / Yesterday / ..."
-// buckets, preserving order.
-const groupByDate = (items: Notification[]): NotificationDateGroup[] => {
-  const groups: NotificationDateGroup[] = [];
-  const indexByLabel = new Map<string, number>();
-
-  items.forEach((item) => {
-    const label = getReadHistoryDateFormat(new Date(item.createdAt));
-    const existing = indexByLabel.get(label);
-
-    if (existing === undefined) {
-      indexByLabel.set(label, groups.length);
-      groups.push({ label, items: [item] });
-      return;
-    }
-
-    groups[existing].items.push(item);
-  });
-
-  return groups;
-};
 
 const seo: NextSeoProps = {
   title: 'Notifications',
@@ -153,14 +125,15 @@ const Notifications = (): ReactElement => {
     );
   }, [notifications]);
 
-  const groups = useMemo(() => {
-    const filtered = activeCategory
-      ? notifications.filter(
-          (node) => getNotificationCategory(node.type) === activeCategory,
-        )
-      : notifications;
-    return groupByDate(filtered);
-  }, [notifications, activeCategory]);
+  const filtered = useMemo(
+    () =>
+      activeCategory
+        ? notifications.filter(
+            (node) => getNotificationCategory(node.type) === activeCategory,
+          )
+        : notifications,
+    [notifications, activeCategory],
+  );
 
   const hasNotifications = notifications.length > 0;
 
@@ -217,27 +190,20 @@ const Notifications = (): ReactElement => {
           canFetchMore={checkFetchMore(queryResult)}
           fetchNextPage={queryResult.fetchNextPage}
         >
-          {groups.map((group) => (
-            <section key={group.label}>
-              <h3 className="px-6 py-2 font-bold uppercase text-text-quaternary typo-footnote">
-                {group.label}
-              </h3>
-              {group.items.map((node) => {
-                const { id, createdAt, readAt, type, ...props } = node;
+          {filtered.map((node) => {
+            const { id, createdAt, readAt, type, ...props } = node;
 
-                return (
-                  <NotificationItem
-                    key={id}
-                    {...props}
-                    type={type}
-                    isUnread={!readAt}
-                    onClick={() => onNotificationClick(node)}
-                    createdAt={createdAt}
-                  />
-                );
-              })}
-            </section>
-          ))}
+            return (
+              <NotificationItem
+                key={id}
+                {...props}
+                type={type}
+                isUnread={!readAt}
+                onClick={() => onNotificationClick(node)}
+                createdAt={createdAt}
+              />
+            );
+          })}
           {(!hasNotifications || !hasNextPage) && isFetched && (
             <FirstNotification />
           )}

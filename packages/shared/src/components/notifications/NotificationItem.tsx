@@ -6,7 +6,6 @@ import Link from '../utilities/Link';
 import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
-import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import {
   notificationMutingCopy,
@@ -26,7 +25,12 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import {
+  NotificationAttachmentType,
+  NotificationPreferenceStatus,
+} from '../../graphql/notifications';
+import { CardCover } from '../cards/common/CardCover';
+import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
 
@@ -181,12 +185,14 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     return null;
   }
 
-  const avatarComponents = [
+  const isAvatarGroup = [
     NotificationType.CollectionUpdated,
     NotificationType.ArticleUpvoteMilestone,
     NotificationType.CommentUpvoteMilestone,
     NotificationType.WarmIntro,
-  ].includes(type) ? (
+  ].includes(type);
+
+  const avatarContent = isAvatarGroup ? (
     <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
       {filteredAvatars.map((avatar) => (
         <ProfilePicture
@@ -198,23 +204,34 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       ))}
     </ProfilePictureGroup>
   ) : (
-    filteredAvatars
-      .map((avatar) => (
+    <span className="flex flex-row gap-1">
+      {filteredAvatars.map((avatar) => (
         <NotificationItemAvatar
           key={avatar.referenceId}
           className="z-1"
           {...avatar}
         />
-      ))
-      .filter((avatar) => avatar) ?? []
+      ))}
+    </span>
   );
+
   const hasAvatar = filteredAvatars.length > 0;
   const renderLink = onClick && isClickable;
+  const hasOptions = Object.keys(notificationMutingCopy).includes(type);
+  const [attachment] = attachments ?? [];
+
+  // The type icon: it is the lead element when there is no person involved
+  // (system/digest/streak) and an overlaid corner badge on the avatar
+  // otherwise — the signature "avatar + small action badge" pattern used by
+  // Instagram, TikTok and Facebook.
+  const leadIcon = (
+    <NotificationItemIcon icon={icon} iconTheme={notificationTypeTheme[type]} />
+  );
 
   return (
     <div
       className={classNames(
-        'group relative flex flex-row border-y border-background-default py-3 pl-6 pr-4 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex flex-row items-start gap-3 border-y border-background-default px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -240,56 +257,77 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           </a>
         </Link>
       )}
-      <div className="absolute right-4 top-3 my-auto flex items-center">
-        {Object.keys(notificationMutingCopy).includes(type) && (
-          <NotificationOptionsButton notification={{ type, referenceId }} />
-        )}
-        {createdAt && (
-          <DateFormat
-            className="ml-1 text-text-quaternary typo-footnote"
-            date={createdAt}
-            type={TimeFormatType.LastActivity}
-          />
-        )}
-      </div>
 
-      <NotificationItemIcon
-        icon={icon}
-        iconTheme={notificationTypeTheme[type]}
-      />
-      <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
-        {hasAvatar && (
-          <span className="mb-2 flex flex-row gap-2">{avatarComponents}</span>
-        )}
+      {hasAvatar ? (
+        <span className="relative flex shrink-0 items-center">
+          {avatarContent}
+          <span className="absolute -bottom-1.5 -right-1.5 rounded-10 border-2 border-background-default bg-background-default">
+            {leadIcon}
+          </span>
+        </span>
+      ) : (
+        <span className="shrink-0">{leadIcon}</span>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col gap-1 text-left typo-callout">
         <span
-          className="max-w-full break-words"
+          className="line-clamp-2 break-words"
           dangerouslySetInnerHTML={{
             __html: memoizedTitle,
           }}
         />
         {description && (
-          <span className="mt-1 flex w-4/5 flex-1 gap-2 text-text-quaternary">
+          <span className="flex gap-1 text-text-quaternary typo-footnote">
             <NotificationItemDescriptionIcon type={type} key="icon" />
             <p
-              className="flex-1 break-words"
+              className="line-clamp-2 min-w-0 flex-1 break-words"
               dangerouslySetInnerHTML={{
                 __html: memoizedDescription,
               }}
             />
           </span>
         )}
-        {type === NotificationType.UserFollow && (
-          <NotificationFollowUserButton {...props} />
+        {attachment?.title && (
+          <span className="line-clamp-2 break-words text-text-tertiary typo-footnote">
+            {attachment.title}
+          </span>
         )}
-        {attachments?.map(({ title: attachment, ...restAttachmentProps }) => (
-          <NotificationItemAttachment
-            key={attachment}
-            title={attachment}
-            notificationType={type}
-            {...restAttachmentProps}
+        {createdAt && (
+          <DateFormat
+            className="mt-0.5 text-text-quaternary typo-caption1"
+            date={createdAt}
+            type={TimeFormatType.LastActivity}
           />
-        ))}
+        )}
+        {type === NotificationType.UserFollow && (
+          <span className="relative z-1 mt-1">
+            <NotificationFollowUserButton {...props} />
+          </span>
+        )}
       </div>
+
+      {(attachment?.image || hasOptions) && (
+        <div className="flex shrink-0 flex-row items-start gap-2">
+          {attachment?.image && (
+            <CardCover
+              data-testid="postImage"
+              isVideoType={attachment.type === NotificationAttachmentType.Video}
+              imageProps={{
+                loading: 'lazy',
+                alt: `Cover preview of: ${attachment.title}`,
+                src: attachment.image,
+                className: '!h-12 !w-12 !rounded-12 object-cover',
+              }}
+              videoProps={{ size: IconSize.Medium }}
+            />
+          )}
+          {hasOptions && (
+            <span className="relative z-1">
+              <NotificationOptionsButton notification={{ type, referenceId }} />
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
