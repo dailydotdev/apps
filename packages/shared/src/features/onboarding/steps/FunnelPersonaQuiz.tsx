@@ -29,6 +29,7 @@ import type { DeveloperPersona } from './persona/data';
 import styles from './FunnelPersonaQuiz.module.css';
 import useTagAndSource from '../../../hooks/useTagAndSource';
 import { Origin } from '../../../lib/log';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 
 // Fallback until a mascot video is provided via parameters.
 const MASCOT_EMOJI = '🧞';
@@ -565,6 +566,8 @@ function PersonaQuizPhases({
   const { onFollowTags } = useTagAndSource({
     origin: Origin.OnboardingPersona,
   });
+  const { displayToast } = useToastNotification();
+  const [isFollowing, setIsFollowing] = useState(false);
 
   // Which clip plays during the thinking beat, chosen per answer.
   const [thinkingClip, setThinkingClip] = useState<MascotState>('thinking');
@@ -597,17 +600,7 @@ function PersonaQuizPhases({
     answer(value);
   };
 
-  const handleComplete = async () => {
-    const tags = result?.tags ?? [];
-    if (tags.length) {
-      // Seed the feed from the persona, but never block the funnel on a
-      // follow failure.
-      try {
-        await onFollowTags({ tags, requireLogin: true });
-      } catch {
-        // no-op: advancing matters more than a failed seed.
-      }
-    }
+  const completeStep = () => {
     onTransition({
       type: FunnelStepTransitionType.Complete,
       details: {
@@ -618,6 +611,39 @@ function PersonaQuizPhases({
         manual: isManual,
       },
     });
+  };
+
+  const handleComplete = async () => {
+    if (isFollowing) {
+      return;
+    }
+
+    const tags = result?.tags ?? [];
+    if (!tags.length) {
+      completeStep();
+      return;
+    }
+
+    // Seeding the feed from the persona is the whole point of the quiz, so a
+    // failed follow must block the step. We surface it and let the user retry
+    // rather than dropping them into an empty feed.
+    setIsFollowing(true);
+    try {
+      const { successful } = await onFollowTags({ tags, requireLogin: true });
+      if (!successful) {
+        throw new Error('Persona tag follow was unsuccessful');
+      }
+      completeStep();
+    } catch {
+      displayToast(
+        "We couldn't set up your feed from your answers. Please try again.",
+        {
+          action: { copy: 'Retry', onClick: handleComplete },
+        },
+      );
+    } finally {
+      setIsFollowing(false);
+    }
   };
 
   if (phase === 'intro') {
@@ -923,6 +949,8 @@ function PersonaQuizPhases({
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
             onClick={handleComplete}
+            loading={isFollowing}
+            disabled={isFollowing}
             type="button"
           >
             {selectedModifierIds.length === 0
