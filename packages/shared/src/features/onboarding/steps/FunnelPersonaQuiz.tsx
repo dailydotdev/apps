@@ -895,8 +895,8 @@ function PersonaQuizPhases({
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
               >
-                Check any of these that describe you. They tune your feed
-                beyond your persona.
+                Check any of these that describe you. They tune your feed beyond
+                your persona.
               </Typography>
             </div>
           </SpeechBubble>
