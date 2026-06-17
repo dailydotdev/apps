@@ -918,14 +918,6 @@ function PersonaQuizPhases({
                       : 'border-border-subtlest-tertiary bg-surface-float hover:border-text-quaternary',
                   )}
                 >
-                  <span
-                    className={classNames(
-                      styles.cardEmoji,
-                      'shrink-0 text-4xl leading-none',
-                    )}
-                  >
-                    {modifier.emoji}
-                  </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <Typography type={TypographyType.Body} bold>
                       {modifier.label}

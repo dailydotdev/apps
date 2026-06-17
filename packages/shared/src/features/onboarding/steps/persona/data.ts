@@ -36,7 +36,6 @@ export interface PersonaQuestion {
 export interface PersonaModifier {
   id: string;
   label: string;
-  emoji: string;
   description: string;
   /**
    * Extra keyword slugs followed on top of the persona's tags when this
@@ -322,21 +321,18 @@ export const MODIFIERS: PersonaModifier[] = [
   {
     id: 'ai-heavy',
     label: 'AI Heavy',
-    emoji: '🤖',
     description: 'Cursor, Claude, and agents do real chunks of your work.',
     tags: ['ai-coding', 'ai-assisted-development', 'vibe-coding'],
   },
   {
     id: 'founder',
     label: 'Founder',
-    emoji: '🚀',
     description: "You're shipping your own product, startup, or side bet.",
     tags: ['startup', 'business', 'product-management'],
   },
   {
     id: 'engineering-leader',
     label: 'Engineering Leader',
-    emoji: '👔',
     description:
       'You set direction and grow engineers more than you ship code.',
     tags: ['leadership', 'career', 'productivity'],
