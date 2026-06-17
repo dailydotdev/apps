@@ -211,21 +211,21 @@ export const MODIFIERS: PersonaModifier[] = [
     label: 'AI Heavy',
     emoji: '🤖',
     description: 'Cursor, Claude, and agents do real chunks of your work.',
-    tags: ['ai', 'llm', 'ai-agents', 'ai-coding', 'prompt-engineering', 'agentic-ai'],
+    tags: ['ai-coding', 'ai-assisted-development', 'vibe-coding'],
   },
   {
     id: 'founder',
     label: 'Founder',
     emoji: '🚀',
     description: 'You\'re shipping your own product, startup, or side bet.',
-    tags: ['startup', 'entrepreneurship', 'business', 'marketing', 'product-management'],
+    tags: ['startup', 'business', 'product-management'],
   },
   {
     id: 'engineering-leader',
     label: 'Engineering Leader',
     emoji: '📰',
     description: 'You set direction and grow engineers more than you ship code.',
-    tags: ['leadership', 'career', 'agile', 'productivity', 'product-management'],
+    tags: ['leadership', 'career', 'productivity'],
   },
 ];
 
