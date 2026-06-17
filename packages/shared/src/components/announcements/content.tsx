@@ -3,10 +3,7 @@ import { AnnouncementCardVariant } from './types';
 import type { AnnouncementItem } from './types';
 import { HotIcon, MegaphoneIcon } from '../icons';
 import { IconSize } from '../Icon';
-import {
-  cloudinaryFeedFiltersYourFeedDark,
-  cloudinarySquadsDirectoryCardBannerDefault,
-} from '../../lib/image';
+import { cloudinarySquadsDirectoryCardBannerDefault } from '../../lib/image';
 
 // Curated list of "what's new" announcements shown in the sidebar.
 // Keep this short and high-signal — show fewer, better entries. Newest first.
@@ -48,6 +45,3 @@ export const SIDEBAR_ANNOUNCEMENTS: AnnouncementItem[] = [
     href: 'https://daily.dev/changelog',
   },
 ];
-
-// Exported for stories/tests that want a richer cover example.
-export const exampleCoverImage = cloudinaryFeedFiltersYourFeedDark;

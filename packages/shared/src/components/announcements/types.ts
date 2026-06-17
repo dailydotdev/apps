@@ -11,7 +11,7 @@ export enum AnnouncementCardVariant {
 
 export interface AnnouncementBadge {
   label: string;
-  // Tailwind classes to tint the pill. Defaults to a brand (cabbage) tint.
+  // Override classes for the label. Defaults to brand-colored text.
   className?: string;
 }
 
@@ -30,7 +30,7 @@ export interface AnnouncementItem {
   badge?: AnnouncementBadge;
   // Cover image url, used by the Cover variant.
   image?: string;
-  // Leading icon for the Compact/Default variants.
+  // Leading icon for the Compact variant (Default/Cover lead with the badge).
   icon?: ReactNode;
   cta?: AnnouncementCta;
   // Makes the whole card a link when there is no explicit CTA (Compact).
