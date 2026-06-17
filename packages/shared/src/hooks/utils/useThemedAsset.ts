@@ -6,14 +6,10 @@ import {
   cloudinaryFeedFiltersYourFeedDark,
   cloudinaryFeedFiltersScrollLight,
   cloudinaryFeedFiltersScrollDark,
-  cloudinaryGenericNotFoundLight,
-  cloudinaryGenericNotFoundDark,
   cloudinaryShortcutsIconsGithubLight,
   cloudinaryShortcutsIconsGithubDark,
   cloudinaryIntegrationsSlackHeaderLight,
   cloudinaryIntegrationsSlackHeaderDark,
-  cloudinaryGenericErrorLight,
-  cloudinaryGenericErrorDark,
   boostNewPostBanner,
   boostNewPostBannerLight,
   jobsWelcomeDarkMode,
@@ -28,11 +24,9 @@ interface UseAsset {
   postBoostStrip: string;
   onboardingIntroduction: string;
   scrollBlock: string;
-  notFound: string;
   themeColor: string;
   githubShortcut: string;
   slackIntegrationHeader: string;
-  gardrError: string;
   jobsWelcome: string;
   jobOfferDesktop: string;
   jobOfferMobile: string;
@@ -62,9 +56,6 @@ export const useThemedAsset = (): UseAsset => {
     scrollBlock: isLight
       ? cloudinaryFeedFiltersScrollLight
       : cloudinaryFeedFiltersScrollDark,
-    notFound: isLight
-      ? cloudinaryGenericNotFoundLight
-      : cloudinaryGenericNotFoundDark,
     themeColor: isLight ? colors.salt['0'] : colors.pepper['90'],
     githubShortcut: isLight
       ? cloudinaryShortcutsIconsGithubLight
@@ -72,9 +63,6 @@ export const useThemedAsset = (): UseAsset => {
     slackIntegrationHeader: isLight
       ? cloudinaryIntegrationsSlackHeaderLight
       : cloudinaryIntegrationsSlackHeaderDark,
-    gardrError: isLight
-      ? cloudinaryGenericErrorLight
-      : cloudinaryGenericErrorDark,
     jobsWelcome: isLight ? jobsWelcomeLightMode : jobsWelcomeDarkMode,
     jobOfferDesktop: isLight ? jobOfferLightDesktop : jobOfferDarkDesktop,
     jobOfferMobile: isLight ? jobOfferLightMobile : jobOfferDarkMobile,

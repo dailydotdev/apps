@@ -29,12 +29,7 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import {
-  LogEvent,
-  NotificationCtaPlacement,
-  Origin,
-  TargetId,
-} from '../lib/log';
+import { LogEvent, Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -70,10 +65,11 @@ import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
-import { TopHero } from './marketing/banners/HeroBottomBanner';
+import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
+import { useQuestDashboard } from '../hooks/useQuestDashboard';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -250,8 +246,14 @@ export default function Feed<T>({
   const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBriefCard,
   });
+  const { isPending: isPendingQuestDashboard } = useQuestDashboard({
+    enabled: shouldEvaluateBriefCard,
+  });
   const showBriefCard =
-    shouldEvaluateBriefCard && briefCardFeatureValue && !hasIntroQuests;
+    shouldEvaluateBriefCard &&
+    briefCardFeatureValue &&
+    !isPendingQuestDashboard &&
+    !hasIntroQuests;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
@@ -354,8 +356,6 @@ export default function Feed<T>({
     indexWhenShowingPromoBanner,
     hero: {
       shouldShowTopHero,
-      shouldShowInFeedHero,
-      adjustedHeroInsertIndex,
       title: readingReminderTitle,
       subtitle: readingReminderSubtitle,
       onEnable: onEnableHero,
@@ -638,12 +638,12 @@ export default function Feed<T>({
         topContent:
           topContentProp ??
           (shouldShowTopHero ? (
-            <TopHero
+            <ReadingReminderFeedHero
               className="pt-2"
               title={readingReminderTitle}
               subtitle={readingReminderSubtitle}
-              onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
-              onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
+              onCtaClick={onEnableHero}
+              onClose={onDismissHero}
             />
           ) : undefined),
         header,
@@ -733,28 +733,6 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {shouldShowInFeedHero &&
-                    index === adjustedHeroInsertIndex && (
-                      <div
-                        style={{
-                          gridColumn: !shouldUseListFeedLayout
-                            ? `span ${virtualizedNumCards}`
-                            : undefined,
-                        }}
-                      >
-                        <TopHero
-                          className="pt-0"
-                          title={readingReminderTitle}
-                          subtitle={readingReminderSubtitle}
-                          onCtaClick={() =>
-                            onEnableHero(NotificationCtaPlacement.InFeedHero)
-                          }
-                          onClose={() =>
-                            onDismissHero(NotificationCtaPlacement.InFeedHero)
-                          }
-                        />
-                      </div>
-                    )}
                   {isWidened ? (
                     <div
                       className="flex h-full w-full [&>*]:h-full [&>*]:w-full"

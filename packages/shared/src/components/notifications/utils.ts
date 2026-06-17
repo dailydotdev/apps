@@ -28,21 +28,17 @@ import type {
 } from '../../hooks/notifications/useNotificationSettings';
 import { briefButtonBg } from '../../styles/custom';
 
+// Compact inverting "chip": `invert` makes the contents (text, status icon)
+// resolve against the chip background, which is the opposite of the page — so
+// they stay readable on both a dark chip (light page) and a light chip (dark
+// page). Single row, medium-weight message, theme-matching surface.
 export const NotifContainer = classed(
   'div',
-  'fixed left-1/2 flex flex-col justify-center bg-text-primary p-2 rounded-14 border-border-subtlest-primary shadow-2',
-);
-export const NotifContent = classed(
-  'div',
-  'relative ml-2 flex flex-row items-center gap-2',
+  'fixed left-1/2 invert flex flex-row items-center gap-2.5 rounded-12 border border-border-subtlest-tertiary bg-background-default py-2 pl-3 pr-2 shadow-3',
 );
 export const NotifMessage = classed(
   'div',
-  'flex-1 typo-subhead text-surface-invert',
-);
-export const NotifProgress = classed(
-  'span',
-  'absolute -bottom-2 h-1 ease-in-out bg-accent-cabbage-default rounded-8',
+  'min-w-0 flex-1 typo-subhead font-medium text-text-primary',
 );
 
 export enum NotificationType {
