@@ -47,7 +47,7 @@ export function NotificationFilterBar({
       aria-label="Filter notifications by type"
     >
       <Chip
-        label="All"
+        label="All activity"
         isActive={active === null}
         onClick={() => onSelect(null)}
       />

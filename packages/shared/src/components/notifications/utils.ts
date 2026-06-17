@@ -347,9 +347,10 @@ export const OPPORTUNITY_KEYS = [NotificationType.NewOpportunityMatch];
 // NotificationType maps to exactly one category; anything not listed below
 // falls back to `Updates` so new backend types never disappear from the feed.
 export enum NotificationFilterCategory {
-  MentionsReplies = 'mentions_replies',
-  Reactions = 'reactions',
-  Following = 'following',
+  Upvotes = 'upvotes',
+  Mentions = 'mentions',
+  Comments = 'comments',
+  Followers = 'followers',
   Squads = 'squads',
   Updates = 'updates',
 }
@@ -358,30 +359,21 @@ export const notificationCategoryToTypes: Record<
   NotificationFilterCategory,
   NotificationType[]
 > = {
-  [NotificationFilterCategory.MentionsReplies]: [
-    NotificationType.PostMention,
-    NotificationType.CommentMention,
-    NotificationType.CommentReply,
-    NotificationType.SquadReply,
-    NotificationType.ArticleNewComment,
-    NotificationType.SquadNewComment,
-  ],
-  [NotificationFilterCategory.Reactions]: [
+  [NotificationFilterCategory.Upvotes]: [
     NotificationType.ArticleUpvoteMilestone,
     NotificationType.CommentUpvoteMilestone,
-    NotificationType.UserReceivedAward,
-    NotificationType.UserTopReaderBadge,
-    NotificationType.DevCardUnlocked,
   ],
-  [NotificationFilterCategory.Following]: [
-    NotificationType.SourcePostAdded,
-    NotificationType.UserPostAdded,
-    NotificationType.CollectionUpdated,
-    NotificationType.PostBookmarkReminder,
-    NotificationType.PollResult,
-    NotificationType.PollResultAuthor,
-    NotificationType.UserFollow,
+  [NotificationFilterCategory.Mentions]: [
+    NotificationType.PostMention,
+    NotificationType.CommentMention,
   ],
+  [NotificationFilterCategory.Comments]: [
+    NotificationType.ArticleNewComment,
+    NotificationType.SquadNewComment,
+    NotificationType.CommentReply,
+    NotificationType.SquadReply,
+  ],
+  [NotificationFilterCategory.Followers]: [NotificationType.UserFollow],
   [NotificationFilterCategory.Squads]: [
     NotificationType.SquadPostAdded,
     NotificationType.SquadMemberJoined,
@@ -396,18 +388,27 @@ export const notificationCategoryToTypes: Record<
     NotificationType.SourcePostApproved,
     NotificationType.SourcePostRejected,
     NotificationType.ArticlePicked,
-    NotificationType.SourceApproved,
-    NotificationType.SourceRejected,
-    NotificationType.ArticleReportApproved,
   ],
   [NotificationFilterCategory.Updates]: [
     NotificationType.System,
+    NotificationType.SourcePostAdded,
+    NotificationType.UserPostAdded,
+    NotificationType.CollectionUpdated,
+    NotificationType.PostBookmarkReminder,
+    NotificationType.PollResult,
+    NotificationType.PollResultAuthor,
+    NotificationType.UserReceivedAward,
+    NotificationType.UserTopReaderBadge,
+    NotificationType.DevCardUnlocked,
+    NotificationType.ArticleReportApproved,
+    NotificationType.ArticleAnalytics,
+    NotificationType.PostAnalytics,
+    NotificationType.SourceApproved,
+    NotificationType.SourceRejected,
     NotificationType.BriefingReady,
     NotificationType.DigestReady,
     NotificationType.StreakReminder,
     NotificationType.StreakResetRestore,
-    NotificationType.ArticleAnalytics,
-    NotificationType.PostAnalytics,
     NotificationType.Marketing,
     NotificationType.Announcements,
     NotificationType.NewUserWelcome,
@@ -421,9 +422,10 @@ export const notificationCategoryToTypes: Record<
 
 // Order the chips appear in the filter bar.
 export const notificationFilterCategoryList: NotificationFilterCategory[] = [
-  NotificationFilterCategory.MentionsReplies,
-  NotificationFilterCategory.Reactions,
-  NotificationFilterCategory.Following,
+  NotificationFilterCategory.Upvotes,
+  NotificationFilterCategory.Mentions,
+  NotificationFilterCategory.Comments,
+  NotificationFilterCategory.Followers,
   NotificationFilterCategory.Squads,
   NotificationFilterCategory.Updates,
 ];
@@ -432,9 +434,10 @@ export const notificationFilterCategoryLabel: Record<
   NotificationFilterCategory,
   string
 > = {
-  [NotificationFilterCategory.MentionsReplies]: 'Mentions & replies',
-  [NotificationFilterCategory.Reactions]: 'Reactions',
-  [NotificationFilterCategory.Following]: 'Following',
+  [NotificationFilterCategory.Upvotes]: 'Upvotes',
+  [NotificationFilterCategory.Mentions]: 'Mentions',
+  [NotificationFilterCategory.Comments]: 'Comments',
+  [NotificationFilterCategory.Followers]: 'Followers',
   [NotificationFilterCategory.Squads]: 'Squads',
   [NotificationFilterCategory.Updates]: 'Updates',
 };

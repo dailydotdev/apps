@@ -231,7 +231,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex flex-row items-start gap-3 border-y border-background-default px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex flex-row items-start gap-3 border-b border-border-subtlest-tertiary px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -258,18 +258,26 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         </Link>
       )}
 
-      {hasAvatar ? (
-        <span className="relative flex shrink-0 items-center">
-          {avatarContent}
-          <span className="absolute -bottom-1.5 -right-1.5 rounded-10 border-2 border-background-default bg-background-default">
-            {leadIcon}
+      {/* Fixed-width lead column so every row's text starts at the same x */}
+      <div
+        className={classNames(
+          'flex shrink-0 justify-center',
+          !isAvatarGroup && 'w-10',
+        )}
+      >
+        {hasAvatar ? (
+          <span className="relative flex items-center">
+            {avatarContent}
+            <span className="absolute -bottom-1 -right-1 rounded-10 border-2 border-background-default bg-background-default">
+              {leadIcon}
+            </span>
           </span>
-        </span>
-      ) : (
-        <span className="shrink-0">{leadIcon}</span>
-      )}
+        ) : (
+          leadIcon
+        )}
+      </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1 text-left typo-callout">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left typo-callout">
         <span
           className="multi-truncate line-clamp-2 break-words [&_p]:m-0"
           dangerouslySetInnerHTML={{
@@ -292,13 +300,6 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             {attachment.title}
           </span>
         )}
-        {createdAt && (
-          <DateFormat
-            className="mt-0.5 text-text-quaternary typo-caption1"
-            date={createdAt}
-            type={TimeFormatType.LastActivity}
-          />
-        )}
         {type === NotificationType.UserFollow && (
           <span className="relative z-1 mt-1">
             <NotificationFollowUserButton {...props} />
@@ -306,28 +307,35 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {(attachment?.image || hasOptions) && (
-        <div className="flex shrink-0 flex-row items-start gap-2">
-          {attachment?.image && (
-            <CardCover
-              data-testid="postImage"
-              isVideoType={attachment.type === NotificationAttachmentType.Video}
-              imageProps={{
-                loading: 'lazy',
-                alt: `Cover preview of: ${attachment.title}`,
-                src: attachment.image,
-                className: '!h-12 !w-12 !rounded-12 object-cover',
-              }}
-              videoProps={{ size: IconSize.Medium }}
-            />
-          )}
+      <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="flex flex-row items-center gap-1">
           {hasOptions && (
             <span className="relative z-1">
               <NotificationOptionsButton notification={{ type, referenceId }} />
             </span>
           )}
+          {createdAt && (
+            <DateFormat
+              className="whitespace-nowrap text-text-quaternary typo-caption1"
+              date={createdAt}
+              type={TimeFormatType.LastActivity}
+            />
+          )}
         </div>
-      )}
+        {attachment?.image && (
+          <CardCover
+            data-testid="postImage"
+            isVideoType={attachment.type === NotificationAttachmentType.Video}
+            imageProps={{
+              loading: 'lazy',
+              alt: `Cover preview of: ${attachment.title}`,
+              src: attachment.image,
+              className: '!h-12 !w-12 !rounded-12 object-cover',
+            }}
+            videoProps={{ size: IconSize.Medium }}
+          />
+        )}
+      </div>
     </div>
   );
 }
