@@ -214,7 +214,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex flex-row border-y border-background-default py-4 pl-6 pr-4 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex flex-row border-y border-background-default py-3 pl-6 pr-4 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -259,7 +259,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       />
       <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
         {hasAvatar && (
-          <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
+          <span className="mb-2 flex flex-row gap-2">{avatarComponents}</span>
         )}
         <span
           className="max-w-full break-words"
@@ -268,7 +268,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           }}
         />
         {description && (
-          <span className="mt-2 flex w-4/5 flex-1 gap-2 text-text-quaternary">
+          <span className="mt-1 flex w-4/5 flex-1 gap-2 text-text-quaternary">
             <NotificationItemDescriptionIcon type={type} key="icon" />
             <p
               className="flex-1 break-words"

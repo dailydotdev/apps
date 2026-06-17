@@ -343,6 +343,116 @@ export const POLL_RESULT_KEYS = [
 
 export const OPPORTUNITY_KEYS = [NotificationType.NewOpportunityMatch];
 
+// Human-friendly buckets used to filter the notifications page. Each raw
+// NotificationType maps to exactly one category; anything not listed below
+// falls back to `Updates` so new backend types never disappear from the feed.
+export enum NotificationFilterCategory {
+  MentionsReplies = 'mentions_replies',
+  Reactions = 'reactions',
+  Following = 'following',
+  Squads = 'squads',
+  Updates = 'updates',
+}
+
+export const notificationCategoryToTypes: Record<
+  NotificationFilterCategory,
+  NotificationType[]
+> = {
+  [NotificationFilterCategory.MentionsReplies]: [
+    NotificationType.PostMention,
+    NotificationType.CommentMention,
+    NotificationType.CommentReply,
+    NotificationType.SquadReply,
+    NotificationType.ArticleNewComment,
+    NotificationType.SquadNewComment,
+  ],
+  [NotificationFilterCategory.Reactions]: [
+    NotificationType.ArticleUpvoteMilestone,
+    NotificationType.CommentUpvoteMilestone,
+    NotificationType.UserReceivedAward,
+    NotificationType.UserTopReaderBadge,
+    NotificationType.DevCardUnlocked,
+  ],
+  [NotificationFilterCategory.Following]: [
+    NotificationType.SourcePostAdded,
+    NotificationType.UserPostAdded,
+    NotificationType.CollectionUpdated,
+    NotificationType.PostBookmarkReminder,
+    NotificationType.PollResult,
+    NotificationType.PollResultAuthor,
+    NotificationType.UserFollow,
+  ],
+  [NotificationFilterCategory.Squads]: [
+    NotificationType.SquadPostAdded,
+    NotificationType.SquadMemberJoined,
+    NotificationType.SquadBlocked,
+    NotificationType.PromotedToAdmin,
+    NotificationType.PromotedToModerator,
+    NotificationType.DemotedToMember,
+    NotificationType.SquadPublicApproved,
+    NotificationType.SquadFeatured,
+    NotificationType.SquadSubscribeNotification,
+    NotificationType.SourcePostSubmitted,
+    NotificationType.SourcePostApproved,
+    NotificationType.SourcePostRejected,
+    NotificationType.ArticlePicked,
+    NotificationType.SourceApproved,
+    NotificationType.SourceRejected,
+    NotificationType.ArticleReportApproved,
+  ],
+  [NotificationFilterCategory.Updates]: [
+    NotificationType.System,
+    NotificationType.BriefingReady,
+    NotificationType.DigestReady,
+    NotificationType.StreakReminder,
+    NotificationType.StreakResetRestore,
+    NotificationType.ArticleAnalytics,
+    NotificationType.PostAnalytics,
+    NotificationType.Marketing,
+    NotificationType.Announcements,
+    NotificationType.NewUserWelcome,
+    NotificationType.InAppPurchases,
+    NotificationType.NewOpportunityMatch,
+    NotificationType.WarmIntro,
+    NotificationType.ExperienceCompanyEnriched,
+    NotificationType.LiveRoomStarted,
+  ],
+};
+
+// Order the chips appear in the filter bar.
+export const notificationFilterCategoryList: NotificationFilterCategory[] = [
+  NotificationFilterCategory.MentionsReplies,
+  NotificationFilterCategory.Reactions,
+  NotificationFilterCategory.Following,
+  NotificationFilterCategory.Squads,
+  NotificationFilterCategory.Updates,
+];
+
+export const notificationFilterCategoryLabel: Record<
+  NotificationFilterCategory,
+  string
+> = {
+  [NotificationFilterCategory.MentionsReplies]: 'Mentions & replies',
+  [NotificationFilterCategory.Reactions]: 'Reactions',
+  [NotificationFilterCategory.Following]: 'Following',
+  [NotificationFilterCategory.Squads]: 'Squads',
+  [NotificationFilterCategory.Updates]: 'Updates',
+};
+
+const notificationTypeToCategory = Object.entries(
+  notificationCategoryToTypes,
+).reduce((acc, [category, types]) => {
+  types.forEach((type) => {
+    acc[type] = category as NotificationFilterCategory;
+  });
+  return acc;
+}, {} as Partial<Record<NotificationType, NotificationFilterCategory>>);
+
+export const getNotificationCategory = (
+  type: NotificationType,
+): NotificationFilterCategory =>
+  notificationTypeToCategory[type] ?? NotificationFilterCategory.Updates;
+
 export const NotificationContainer = classed('div', 'flex flex-col gap-6');
 
 export const NotificationSection = classed(

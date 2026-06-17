@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 import type { InfiniteData } from '@tanstack/react-query';
@@ -32,7 +32,13 @@ import {
   NotificationPromptSource,
   Origin,
 } from '@dailydotdev/shared/src/lib/log';
-import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
+import {
+  getNotificationCategory,
+  notificationFilterCategoryList,
+  NotificationType,
+  type NotificationFilterCategory,
+} from '@dailydotdev/shared/src/components/notifications/utils';
+import { getReadHistoryDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useTopReaderModal } from '@dailydotdev/shared/src/hooks/modals/useTopReaderModal';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
@@ -44,11 +50,39 @@ import { useCampaignByIdModal } from '@dailydotdev/shared/src/hooks/notification
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
+import { NotificationFilterBar } from '../components/notifications/NotificationFilterBar';
 
 const hasUnread = (data: InfiniteData<NotificationsData>) =>
   data.pages.some((page) =>
     page.notifications.edges.some(({ node }) => !node.readAt),
   );
+
+interface NotificationDateGroup {
+  label: string;
+  items: Notification[];
+}
+
+// Group an already date-sorted (desc) list into "Today / Yesterday / ..."
+// buckets, preserving order.
+const groupByDate = (items: Notification[]): NotificationDateGroup[] => {
+  const groups: NotificationDateGroup[] = [];
+  const indexByLabel = new Map<string, number>();
+
+  items.forEach((item) => {
+    const label = getReadHistoryDateFormat(new Date(item.createdAt));
+    const existing = indexByLabel.get(label);
+
+    if (existing === undefined) {
+      indexByLabel.set(label, groups.length);
+      groups.push({ label, items: [item] });
+      return;
+    }
+
+    groups[existing].items.push(item);
+  });
+
+  return groups;
+};
 
 const seo: NextSeoProps = {
   title: 'Notifications',
@@ -88,7 +122,47 @@ const Notifications = (): ReactElement => {
 
   const { isFetchedAfterMount, isFetched, hasNextPage } = queryResult ?? {};
 
-  const length = queryResult?.data?.pages?.length ?? 0;
+  const [activeCategory, setActiveCategory] =
+    useState<NotificationFilterCategory | null>(null);
+
+  // The notifications API has no server-side type filter, so we filter the
+  // already-loaded pages on the client. For the typical user every
+  // notification fits in the first page; heavy users see the chips refine as
+  // more pages load via infinite scroll.
+  const notifications = useMemo<Notification[]>(() => {
+    const pages = queryResult?.data?.pages ?? [];
+    return pages.flatMap((page) =>
+      page.notifications.edges
+        .map(({ node }) => node)
+        .filter(
+          (node) =>
+            !(
+              isSubscribed &&
+              node.type === NotificationType.SquadSubscribeNotification
+            ),
+        ),
+    );
+  }, [queryResult?.data?.pages, isSubscribed]);
+
+  const availableCategories = useMemo(() => {
+    const present = new Set(
+      notifications.map((node) => getNotificationCategory(node.type)),
+    );
+    return notificationFilterCategoryList.filter((category) =>
+      present.has(category),
+    );
+  }, [notifications]);
+
+  const groups = useMemo(() => {
+    const filtered = activeCategory
+      ? notifications.filter(
+          (node) => getNotificationCategory(node.type) === activeCategory,
+        )
+      : notifications;
+    return groupByDate(filtered);
+  }, [notifications, activeCategory]);
+
+  const hasNotifications = notifications.length > 0;
 
   const onNotificationClick = ({ id, type }: Notification) => {
     logEvent({
@@ -131,24 +205,27 @@ const Notifications = (): ReactElement => {
             Notifications
           </h2>
         )}
+        {hasNotifications && availableCategories.length > 1 && (
+          <NotificationFilterBar
+            categories={availableCategories}
+            active={activeCategory}
+            onSelect={setActiveCategory}
+          />
+        )}
         <InfiniteScrolling
           isFetchingNextPage={queryResult.isFetchingNextPage}
           canFetchMore={checkFetchMore(queryResult)}
           fetchNextPage={queryResult.fetchNextPage}
         >
-          {length > 0 &&
-            queryResult.data.pages.map((page) =>
-              page.notifications.edges.reduce((nodes, { node }) => {
+          {groups.map((group) => (
+            <section key={group.label}>
+              <h3 className="px-6 py-2 font-bold uppercase text-text-quaternary typo-footnote">
+                {group.label}
+              </h3>
+              {group.items.map((node) => {
                 const { id, createdAt, readAt, type, ...props } = node;
 
-                if (
-                  isSubscribed &&
-                  type === NotificationType.SquadSubscribeNotification
-                ) {
-                  return nodes;
-                }
-
-                nodes.push(
+                return (
                   <NotificationItem
                     key={id}
                     {...props}
@@ -156,13 +233,14 @@ const Notifications = (): ReactElement => {
                     isUnread={!readAt}
                     onClick={() => onNotificationClick(node)}
                     createdAt={createdAt}
-                  />,
+                  />
                 );
-
-                return nodes;
-              }, []),
-            )}
-          {(!length || !hasNextPage) && isFetched && <FirstNotification />}
+              })}
+            </section>
+          ))}
+          {(!hasNotifications || !hasNextPage) && isFetched && (
+            <FirstNotification />
+          )}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>
