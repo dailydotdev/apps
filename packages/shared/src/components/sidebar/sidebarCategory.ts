@@ -4,30 +4,14 @@
 export const SidebarCategory = {
   Main: 'main',
   Squads: 'squads',
-  Discover: 'discover',
   Notifications: 'notifications',
   Saved: 'saved',
   GameCenter: 'gameCenter',
-  Profile: 'profile',
   Settings: 'settings',
 } as const;
 
 export type SidebarCategoryId =
   (typeof SidebarCategory)[keyof typeof SidebarCategory];
-
-const discoverPathFragments = [
-  '/posts',
-  '/tags',
-  '/sources',
-  '/users',
-  '/discussed',
-];
-const profilePathFragments = [
-  '/analytics',
-  '/jobs',
-  '/settings/customization/devcard',
-  '/wallet',
-];
 
 export const getSidebarCategoryForPath = (
   activePage: string,
@@ -55,15 +39,11 @@ export const getSidebarCategoryForPath = (
   if (activePage.includes('/squads')) {
     return SidebarCategory.Squads;
   }
-  if (profilePathFragments.some((path) => activePage.includes(path))) {
-    return SidebarCategory.Profile;
-  }
   if (activePage.includes('/settings')) {
     return SidebarCategory.Settings;
   }
-  if (discoverPathFragments.some((path) => activePage.includes(path))) {
-    return SidebarCategory.Discover;
-  }
+  // Explore and its sub-pages (/posts, /tags, /sources, /users, /discussed)
+  // now live under Home, so they fall through to the Main category.
   return SidebarCategory.Main;
 };
 

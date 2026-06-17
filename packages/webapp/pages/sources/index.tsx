@@ -21,7 +21,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
@@ -122,9 +122,7 @@ const SourcesPage = ({
 
   return (
     <>
-      {isV2Laptop && (
-        <PageHeader title="Sources">{suggestSourceButton}</PageHeader>
-      )}
+      {isV2Laptop && <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>}
       <PageWrapperLayout className="py-6">
         <Head>
           <script

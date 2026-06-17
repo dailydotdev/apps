@@ -4,6 +4,18 @@ html, #daily-companion-wrapper {
   height: stretch;
 }
 
+/* Match the tinted v2 page background at laptop+ so overscrolling past the
+   feed doesn't reveal the darker default document background. */
+@screen laptop {
+  html.layout-v2 {
+    background: color-mix(
+      in srgb,
+      var(--theme-surface-secondary) 3%,
+      var(--theme-background-default)
+    );
+  }
+}
+
 body {
   min-width: 20rem;
   overflow-y: scroll;

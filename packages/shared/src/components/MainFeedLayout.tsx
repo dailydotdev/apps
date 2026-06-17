@@ -85,6 +85,8 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { ExploreSectionTabs } from './header/ExploreSectionTabs';
+import { ExploreSortDropdown } from './header/ExploreSortDropdown';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -248,6 +250,7 @@ export default function MainFeedLayout({
     isPopular,
     isAnyExplore,
     isExploreLatest,
+    isDiscussed,
     isSortableFeed,
     isCustomFeed,
     isSearch: isSearchPage,
@@ -708,7 +711,10 @@ export default function MainFeedLayout({
   // page-header strip (matching the SquadDirectoryLayout pattern). The
   // inline FeedExploreComponent is suppressed below to avoid showing
   // the same tabs twice.
-  const showExploreV2PageHeader = isAnyExplore && isV2;
+  // The Discussions feed (/discussed) is part of the Explore hub — show the
+  // same section tabs there so the hub persists. The Sort dropdown is only
+  // for the actual Explore sorts, so it stays gated on isAnyExplore.
+  const showExploreV2PageHeader = (isAnyExplore || isDiscussed) && isV2;
 
   // v2 also hoists the regular page-header strip up here, OUTSIDE
   // `FeedPageLayoutComponent`, so it can span the full floating-card
@@ -747,13 +753,8 @@ export default function MainFeedLayout({
     <>
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          <FeedExploreHeader
-            directoryTabs
-            tab={tab}
-            setTab={onTabChange}
-            showBreadcrumbs={false}
-            className={{ container: 'min-w-0 flex-1' }}
-          />
+          <ExploreSectionTabs />
+          {isAnyExplore && <ExploreSortDropdown />}
         </header>
       )}
       {showFeedV2PageHeader && (

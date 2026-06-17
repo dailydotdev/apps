@@ -15,6 +15,8 @@ export type ProfileSectionProps = {
   items: Array<ProfileSectionItemProps>;
   title?: string;
   withSeparator?: boolean;
+  // Forwarded to every row; v2 reveals external-link icons on hover only.
+  linkIconHoverOnly?: boolean;
 } & WithClassNameProps;
 
 export const ProfileSection = ({
@@ -22,6 +24,7 @@ export const ProfileSection = ({
   className,
   title,
   withSeparator,
+  linkIconHoverOnly,
 }: ProfileSectionProps): ReactElement => {
   return (
     <>
@@ -39,6 +42,7 @@ export const ProfileSection = ({
         {items.map((item) => (
           <ProfileSectionItem
             {...item}
+            linkIconHoverOnly={item.linkIconHoverOnly ?? linkIconHoverOnly}
             key={`${item.title.trim().toLowerCase().replace(' ', '-')}`}
           />
         ))}
