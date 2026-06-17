@@ -28,6 +28,7 @@ import type { AnswerValue } from './persona/engine';
 import type { DeveloperPersona } from './persona/data';
 import styles from './FunnelPersonaQuiz.module.css';
 import useTagAndSource from '../../../hooks/useTagAndSource';
+import useFeedSettings from '../../../hooks/useFeedSettings';
 import { Origin } from '../../../lib/log';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 
@@ -566,6 +567,10 @@ function PersonaQuizPhases({
   const { onFollowTags } = useTagAndSource({
     origin: Origin.OnboardingPersona,
   });
+  // Prime the feed settings cache so the follow mutation's optimistic update
+  // has something to read; without it the mutation throws before reaching the
+  // server. Matches what the tag-selection step does.
+  const { feedSettings } = useFeedSettings();
   const { displayToast } = useToastNotification();
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -629,6 +634,12 @@ function PersonaQuizPhases({
     // rather than dropping them into an empty feed.
     setIsFollowing(true);
     try {
+      // The follow mutation optimistically reads the feed settings cache, so it
+      // must be loaded first. If the user finished before the fetch resolved,
+      // surface the retry rather than letting the mutation throw internally.
+      if (!feedSettings) {
+        throw new Error('Feed settings are not ready yet');
+      }
       const { successful } = await onFollowTags({ tags, requireLogin: true });
       if (!successful) {
         throw new Error('Persona tag follow was unsuccessful');
@@ -1157,7 +1168,12 @@ function FunnelPersonaQuizComponent(
   // continuously across the step. Phases remount on transition (keyed), so a
   // backdrop nested inside them would restart its animation each time.
   return (
-    <div className={classNames(styles.stage, 'relative isolate flex flex-1 flex-col')}>
+    <div
+      className={classNames(
+        styles.stage,
+        'relative isolate flex flex-1 flex-col',
+      )}
+    >
       <StageBackdrop />
       <PersonaQuizPhases {...props} />
     </div>
