@@ -68,6 +68,7 @@ export enum ActionType {
   AskUpsellSearch = 'ask_upsell_search',
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
   ClickedNewStripCta = 'click_new_strip_cta',
+  ClosedShortcutsBanner = 'closed_shortcuts_banner',
 }
 
 export const cvActions = [
