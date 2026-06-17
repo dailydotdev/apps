@@ -38,9 +38,12 @@ export function ExploreSortDropdown(): ReactElement {
           icon={<CalendarIcon size={IconSize.Small} />}
           buttonSize={ButtonSize.Small}
           buttonVariant={ButtonVariant.Float}
-          // Render the icon-only date filter as a square; the shared Dropdown
-          // defaults icon-only triggers to a full-width value field.
-          className={{ button: 'aspect-square !w-auto justify-center !px-0' }}
+          // Render the date filter as a true icon-only square button (the
+          // shared Dropdown otherwise lays its trigger out as a full-width
+          // value field). Matches the design system's icon-only Small spec
+          // (`IconOnlySizeToClassName`) and the v2 layout's compact icon
+          // buttons: 32px square, rounded-10, no padding.
+          className={{ button: '!size-8 !rounded-10 !p-0' }}
           selectedIndex={period}
           options={periodTexts}
           onChange={(_, index) => setPeriod(index)}
