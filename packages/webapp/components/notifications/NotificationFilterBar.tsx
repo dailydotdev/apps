@@ -42,7 +42,7 @@ export function NotificationFilterBar({
 }: NotificationFilterBarProps): ReactElement {
   return (
     <div
-      className="no-scrollbar flex items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-6 py-3"
+      className="no-scrollbar sticky top-0 z-2 flex items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-4 py-3"
       role="group"
       aria-label="Filter notifications by type"
     >

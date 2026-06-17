@@ -220,10 +220,9 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
 
-  // The type icon: it is the lead element when there is no person involved
-  // (system/digest/streak) and an overlaid corner badge on the avatar
-  // otherwise — the signature "avatar + small action badge" pattern used by
-  // Instagram, TikTok and Facebook.
+  // When there is a person/source involved we show their avatar; otherwise
+  // (system/digest/streak) the type icon stands in as the lead. Kept flat and
+  // single — no overlaid badge — to match the settings-page aesthetic.
   const leadIcon = (
     <NotificationItemIcon icon={icon} iconTheme={notificationTypeTheme[type]} />
   );
@@ -231,7 +230,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex flex-row items-start gap-3 border-b border-border-subtlest-tertiary px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -265,16 +264,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           !isAvatarGroup && 'w-10',
         )}
       >
-        {hasAvatar ? (
-          <span className="relative flex items-center">
-            {avatarContent}
-            <span className="absolute -bottom-1 -right-1 rounded-10 border-2 border-background-default bg-background-default">
-              {leadIcon}
-            </span>
-          </span>
-        ) : (
-          leadIcon
-        )}
+        {hasAvatar ? avatarContent : leadIcon}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left typo-callout">

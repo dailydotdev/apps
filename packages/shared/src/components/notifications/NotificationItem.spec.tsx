@@ -126,7 +126,9 @@ describe('notification avatars', () => {
 
 describe('notification item', () => {
   it('should display the icon of the notification', async () => {
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={undefined} />,
+    );
     const testid = `notification-${sampleNotification.icon}`;
     const img = await screen.findByTestId(testid);
     expect(img).toBeInTheDocument();
@@ -134,7 +136,7 @@ describe('notification item', () => {
 
   it('should display the default icon if the passed icon is unknown', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const notification = { ...sampleNotification } as any; // using any to validate unknown icon
+    const notification = { ...sampleNotification, avatars: undefined } as any; // using any to validate unknown icon
     notification.icon = 'new notif';
     renderComponent(<NotificationItem {...notification} />);
     const testid = `notification-${notification.icon}`;
