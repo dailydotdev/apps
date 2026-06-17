@@ -271,24 +271,24 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
       <div className="flex min-w-0 flex-1 flex-col gap-1 text-left typo-callout">
         <span
-          className="line-clamp-2 break-words"
+          className="multi-truncate line-clamp-2 break-words [&_p]:m-0"
           dangerouslySetInnerHTML={{
             __html: memoizedTitle,
           }}
         />
         {description && (
-          <span className="flex gap-1 text-text-quaternary typo-footnote">
+          <div className="flex gap-1 text-text-quaternary typo-footnote">
             <NotificationItemDescriptionIcon type={type} key="icon" />
-            <p
-              className="line-clamp-2 min-w-0 flex-1 break-words"
+            <div
+              className="multi-truncate line-clamp-2 min-w-0 flex-1 break-words [&_p]:m-0"
               dangerouslySetInnerHTML={{
                 __html: memoizedDescription,
               }}
             />
-          </span>
+          </div>
         )}
         {attachment?.title && (
-          <span className="line-clamp-2 break-words text-text-tertiary typo-footnote">
+          <span className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote">
             {attachment.title}
           </span>
         )}
