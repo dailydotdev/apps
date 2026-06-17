@@ -146,7 +146,7 @@ export function AnnouncementCarousel({
         // that announcement (this lives in the desktop sidebar; click/focus
         // cover keyboard and any non-hover input). The active dot stretches
         // into a pill and the fill glides between positions.
-        <div className="flex items-center justify-center gap-1.5 pt-2.5">
+        <div className="flex items-center justify-center gap-1.5 pb-1 pt-2.5">
           {items.map((item, index) => {
             const isActive = index === safeActive;
             return (

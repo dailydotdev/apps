@@ -214,16 +214,11 @@ export const featureHijackingVariants = new Feature<HijackingVariant>(
   HijackingVariant.Default,
 );
 
-// TEMPORARY: defaulted on for review so the V2 sidebar (which hosts the
-// announcements card) renders without GrowthBook config. Revert to `false`
-// before shipping.
-export const featureLayoutV2 = new Feature('layout_v2', true);
+export const featureLayoutV2 = new Feature('layout_v2', false);
 
-// TEMPORARY: defaulted on for design review so the card shows in the V2
-// sidebar without GrowthBook config. Flip back to `false` before shipping.
 export const featureSidebarAnnouncements = new Feature(
   'sidebar_announcements',
-  true,
+  false,
 );
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
