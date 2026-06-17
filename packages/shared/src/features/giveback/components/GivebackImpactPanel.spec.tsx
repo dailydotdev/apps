@@ -1,8 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
-import { useContributionStatus } from '../hooks/useContributionStatus';
-import { useContributionSponsors } from '../hooks/useContributionSponsors';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
 import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
@@ -11,8 +9,6 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { ContributionRewardType, type ContributionRewardTier } from '../types';
 
-jest.mock('../hooks/useContributionStatus');
-jest.mock('../hooks/useContributionSponsors');
 jest.mock('../hooks/useGivebackContribution');
 jest.mock('../hooks/useContributionRewards');
 jest.mock('../hooks/useContributionUserRewards');
@@ -26,12 +22,6 @@ jest.mock('../useGivebackMotion', () => ({
   useCountUp: (target: number) => target,
 }));
 
-const mockStatus = useContributionStatus as jest.MockedFunction<
-  typeof useContributionStatus
->;
-const mockSponsors = useContributionSponsors as jest.MockedFunction<
-  typeof useContributionSponsors
->;
 const mockContribution = useGivebackContribution as jest.MockedFunction<
   typeof useGivebackContribution
 >;
@@ -73,20 +63,6 @@ const tiers: ContributionRewardTier[] = [
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockStatus.mockReturnValue({
-    status: {
-      enabled: true,
-      eligible: true,
-      currentCyclePoints: 4000,
-      currentCycleTargetPoints: 10000,
-      lifetimePoints: 0,
-      lifetimeAmountCents: 0,
-      contributorsCount: 128,
-      userPoints: 40,
-    },
-    isPending: false,
-  });
-  mockSponsors.mockReturnValue({ sponsors: [], isPending: false });
   mockContribution.mockReturnValue({
     earnedPoints: 40,
     nextReward: tiers[1],
@@ -107,18 +83,10 @@ beforeEach(() => {
   >);
 });
 
-it('renders the funding progress section with live totals', () => {
-  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
-
-  expect(screen.getByText('Funding progress')).toBeInTheDocument();
-  expect(screen.getByText('$4,000')).toBeInTheDocument();
-  expect(screen.getByText('128')).toBeInTheDocument();
-});
-
 it('renders the reward-ladder journey with the current level', () => {
   render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
-  expect(screen.getByText('Your journey')).toBeInTheDocument();
+  expect(screen.getByText('Your impact')).toBeInTheDocument();
   expect(screen.getByText('Sticker pack')).toBeInTheDocument();
   expect(screen.getByText('One month of Plus')).toBeInTheDocument();
   expect(screen.getByText('Hoodie')).toBeInTheDocument();

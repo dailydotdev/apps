@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
@@ -8,62 +8,45 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
+import { MedalBadgeIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useContributionSponsors } from '../hooks/useContributionSponsors';
-import { sponsorTierLabel } from '../utils';
+import { getSponsorInitials, sponsorTierLabel } from '../utils';
 import type { ContributionSponsor } from '../types';
 import { ContributionSponsorTier } from '../types';
 
-interface TierStyle {
-  // Tier marker dot + label color (soft, on-brand accent tints).
-  dotClass: string;
-  labelClass: string;
-  // White-card padding + logo height, stepping down platinum → backer.
-  chipClass: string;
-  logoClass: string;
-}
-
-const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
-  [ContributionSponsorTier.Gold]: {
-    dotClass: 'bg-accent-cheese-default',
-    labelClass: 'text-accent-cheese-default',
-    chipClass: 'px-4 py-2.5',
-    logoClass: 'h-8 tablet:h-9',
-  },
-  [ContributionSponsorTier.Silver]: {
-    dotClass: 'bg-text-quaternary',
-    labelClass: 'text-text-secondary',
-    chipClass: 'px-3.5 py-2',
-    logoClass: 'h-6 tablet:h-7',
-  },
-  [ContributionSponsorTier.Bronze]: {
-    dotClass: 'bg-accent-bacon-default',
-    labelClass: 'text-accent-bacon-default',
-    chipClass: 'px-3 py-1.5',
-    logoClass: 'h-5 tablet:h-6',
-  },
+// Each tier gets its own colored pill so the sponsor level is spelled out on the
+// card itself — no decoding a small dot. The colors map to the brand accents
+// (gold = cheese, bronze = bacon); silver stays a quiet neutral.
+const tierPillClass: Record<ContributionSponsorTier, string> = {
+  [ContributionSponsorTier.Gold]:
+    'bg-accent-cheese-flat text-accent-cheese-default',
+  [ContributionSponsorTier.Silver]:
+    'bg-background-subtle text-text-secondary',
+  [ContributionSponsorTier.Bronze]:
+    'bg-accent-bacon-flat text-accent-bacon-default',
 };
 
-// The headline tier sits on its own row inside a warm glow; the lower two
-// tiers share the row beneath it.
-const HEADLINE_TIERS = [ContributionSponsorTier.Gold];
-const LOWER_TIERS = [
+// Headline tiers first so the wall reads top-down by prestige.
+const TIER_ORDER: ContributionSponsorTier[] = [
+  ContributionSponsorTier.Gold,
   ContributionSponsorTier.Silver,
   ContributionSponsorTier.Bronze,
 ];
 
-// Brand logos rest on white "medal cards" so they stay legible on the dark page
-// regardless of the logo's own colors; logo-less sponsors (e.g. individuals)
-// fall back to a quiet name pill so the card is never empty.
-const SponsorChip = ({
+// A self-describing sponsor card: the brand logo sits on its own white tile so
+// it stays legible regardless of the page theme (the high-contrast half), while
+// the card body carries the name and a colored tier pill (the colorful half).
+// The card itself rests on a flat surface rather than a bare white block.
+const SponsorCard = ({
   sponsor,
-  style,
 }: {
   sponsor: ContributionSponsor;
-  style: TierStyle;
 }): ReactElement => {
   const { logEvent } = useLogContext();
+  const [failed, setFailed] = useState(false);
+  const showLogo = Boolean(sponsor.logoUrl) && !failed;
 
   const onClick = () =>
     logEvent({
@@ -72,59 +55,52 @@ const SponsorChip = ({
       extra: JSON.stringify({ name: sponsor.name, tier: sponsor.tier }),
     });
 
-  if (!sponsor.logoUrl) {
-    const pillClass =
-      'flex shrink-0 items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none';
-    const name = (
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Footnote}
-        color={TypographyColor.Primary}
-        bold
-        className="whitespace-nowrap"
-      >
-        {sponsor.name}
-      </Typography>
-    );
+  const cardClass =
+    'flex min-w-0 items-center gap-3 rounded-14 border border-border-subtlest-tertiary bg-surface-float p-3 transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none';
 
-    if (!sponsor.url) {
-      return <span className={pillClass}>{name}</span>;
-    }
-
-    return (
-      <a
-        href={sponsor.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={sponsor.name}
-        className={pillClass}
-        onClick={onClick}
-      >
-        {name}
-      </a>
-    );
-  }
-
-  const cardClass = classNames(
-    'flex shrink-0 items-center rounded-12 bg-white shadow-[0_10px_28px_-12px_rgba(0,0,0,0.6)] transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none',
-    style.chipClass,
-  );
-  const logo = (
-    <img
-      src={sponsor.logoUrl}
-      alt={`${sponsor.name} logo`}
-      loading="lazy"
-      className={classNames(
-        'w-auto max-w-[140px] object-contain',
-        style.logoClass,
-      )}
-    />
+  const body = (
+    <>
+      <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-12 bg-white text-text-primary">
+        {showLogo ? (
+          <img
+            src={sponsor.logoUrl ?? undefined}
+            alt={`${sponsor.name} logo`}
+            loading="lazy"
+            className="size-full object-contain p-1.5"
+            onError={() => setFailed(true)}
+          />
+        ) : (
+          <span className="font-bold typo-callout">
+            {getSponsorInitials(sponsor.name)}
+          </span>
+        )}
+      </span>
+      <FlexCol className="min-w-0 gap-1">
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+          bold
+          truncate
+        >
+          {sponsor.name}
+        </Typography>
+        <span
+          className={classNames(
+            'inline-flex w-fit items-center gap-1 rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wider typo-caption2 [&_svg]:size-3',
+            tierPillClass[sponsor.tier],
+          )}
+        >
+          <MedalBadgeIcon />
+          {sponsorTierLabel[sponsor.tier]} sponsor
+        </span>
+      </FlexCol>
+    </>
   );
 
   if (!sponsor.url) {
     return (
       <span aria-label={sponsor.name} className={cardClass}>
-        {logo}
+        {body}
       </span>
     );
   }
@@ -138,37 +114,8 @@ const SponsorChip = ({
       className={cardClass}
       onClick={onClick}
     >
-      {logo}
+      {body}
     </a>
-  );
-};
-
-const SponsorTierGroup = ({
-  tier,
-  sponsors,
-}: {
-  tier: ContributionSponsorTier;
-  sponsors: ContributionSponsor[];
-}): ReactElement => {
-  const style = tierStyles[tier];
-
-  return (
-    <FlexRow className="flex-wrap items-center gap-x-4 gap-y-3">
-      <FlexRow className="shrink-0 items-center gap-2">
-        <span className={classNames('size-2 rounded-full', style.dotClass)} />
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Caption1}
-          bold
-          className={classNames('uppercase tracking-wider', style.labelClass)}
-        >
-          {sponsorTierLabel[tier]}
-        </Typography>
-      </FlexRow>
-      {sponsors.map((sponsor) => (
-        <SponsorChip key={sponsor.id} sponsor={sponsor} style={style} />
-      ))}
-    </FlexRow>
   );
 };
 
@@ -179,13 +126,9 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
     return null;
   }
 
-  const byTier = (tier: ContributionSponsorTier) =>
-    sponsors.filter((sponsor) => sponsor.tier === tier);
-
-  const headlineTiers = HEADLINE_TIERS.filter(
-    (tier) => byTier(tier).length > 0,
+  const ordered = [...sponsors].sort(
+    (a, b) => TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier),
   );
-  const lowerTiers = LOWER_TIERS.filter((tier) => byTier(tier).length > 0);
 
   return (
     <section className="relative w-full">
@@ -213,45 +156,11 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
           Sponsored by
         </Typography>
 
-        <FlexCol className="gap-6">
-          {headlineTiers.length > 0 && (
-            <div className="relative">
-              {/* Warm halo so the headline tiers glow softly above the rest. */}
-              <div aria-hidden className="pointer-events-none absolute inset-0">
-                <div className="bg-accent-cheese-default/12 absolute -left-6 -top-4 h-28 w-72 rounded-full blur-3xl" />
-              </div>
-              <FlexCol className="relative gap-5">
-                {headlineTiers.map((tier) => (
-                  <SponsorTierGroup
-                    key={tier}
-                    tier={tier}
-                    sponsors={byTier(tier)}
-                  />
-                ))}
-              </FlexCol>
-            </div>
-          )}
-
-          {lowerTiers.length > 0 && (
-            <>
-              {headlineTiers.length > 0 && (
-                <div
-                  aria-hidden
-                  className="h-px w-full bg-gradient-to-r from-transparent via-border-subtlest-tertiary to-transparent"
-                />
-              )}
-              <FlexRow className="flex-wrap items-center gap-x-10 gap-y-4">
-                {lowerTiers.map((tier) => (
-                  <SponsorTierGroup
-                    key={tier}
-                    tier={tier}
-                    sponsors={byTier(tier)}
-                  />
-                ))}
-              </FlexRow>
-            </>
-          )}
-        </FlexCol>
+        <FlexRow className="flex-wrap gap-3">
+          {ordered.map((sponsor) => (
+            <SponsorCard key={sponsor.id} sponsor={sponsor} />
+          ))}
+        </FlexRow>
       </FlexCol>
     </section>
   );

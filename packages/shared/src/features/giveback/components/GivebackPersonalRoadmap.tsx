@@ -23,7 +23,6 @@ import {
   StarIcon,
   VIcon,
 } from '../../../components/icons';
-import ConfettiSvg from '../../../svg/ConfettiSvg';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
@@ -64,13 +63,16 @@ interface RoadmapLevel {
 // "locked" never disagree (RPG / battle-pass clarity).
 type NodeState = 'claimed' | 'summit' | 'current' | 'unlocked' | 'locked';
 
+// Every step you've already cleared shares one "completed" green so the trail
+// reads as a single continuous path. "Current" stays purple to mark where you
+// are, the summit keeps its gold treatment, and locked steps stay muted.
 const nodeStyles: Record<NodeState, string> = {
   claimed: 'bg-accent-avocado-default text-white',
   summit:
     'bg-gradient-to-br from-accent-cheese-default to-accent-bacon-default text-white shadow-2',
   current:
     'bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage',
-  unlocked: 'bg-accent-cabbage-default text-white',
+  unlocked: 'bg-accent-avocado-default text-white',
   locked:
     'border border-border-subtlest-tertiary bg-surface-float text-text-quaternary',
 };
@@ -94,7 +96,7 @@ const Connector = ({ fill }: { fill: ConnectorFill }): ReactElement => (
   <div className="relative w-1 flex-1">
     <div className="absolute inset-0 rounded-full bg-border-subtlest-tertiary" />
     {fill.type === 'full' && (
-      <div className="absolute inset-0 rounded-full bg-accent-cabbage-default" />
+      <div className="absolute inset-0 rounded-full bg-accent-avocado-default" />
     )}
     {fill.type === 'partial' && (
       <div
@@ -124,7 +126,7 @@ const RailToggle = ({
     className="group flex w-full gap-4 text-left"
   >
     <div className="relative flex w-10 shrink-0 flex-col items-center">
-      <span className="z-1 flex size-10 items-center justify-center rounded-full border border-dashed border-border-subtlest-secondary bg-background-default text-text-tertiary transition-colors group-hover:border-accent-cabbage-default group-hover:text-accent-cabbage-default [&_svg]:size-4">
+      <span className="z-1 flex size-10 items-center justify-center rounded-14 border border-dashed border-border-subtlest-secondary bg-background-default text-text-tertiary transition-colors group-hover:border-accent-cabbage-default group-hover:text-accent-cabbage-default [&_svg]:size-4">
         {icon}
       </span>
       {connectorBelow && <Connector fill={connectorBelow} />}
@@ -150,6 +152,17 @@ const RailToggle = ({
     </div>
   </button>
 );
+
+// Directions the celebration sparkles fly when a reward is claimed, fed to the
+// reaction-burst keyframe via CSS custom properties.
+const claimSparkles: ReadonlyArray<{ tx: string; ty: string; delay: string }> =
+  [
+    { tx: '-20px', ty: '-18px', delay: '0ms' },
+    { tx: '18px', ty: '-22px', delay: '40ms' },
+    { tx: '26px', ty: '2px', delay: '20ms' },
+    { tx: '-24px', ty: '6px', delay: '60ms' },
+    { tx: '4px', ty: '-26px', delay: '0ms' },
+  ];
 
 interface NodeRowProps {
   node: RoadmapNode;
@@ -213,24 +226,24 @@ const NodeRow = ({
   return (
     <FlexRow className="relative gap-4">
       <div className="relative flex w-10 shrink-0 flex-col items-center">
-        {celebrate && (
-          <ConfettiSvg
-            aria-hidden
-            className="z-10 pointer-events-none absolute -top-4 left-1/2 h-20 w-32 -translate-x-1/2"
-          />
-        )}
         <span className="relative z-1 flex size-10 shrink-0 items-center justify-center">
           {isCurrent && (
             <span
               aria-hidden
-              className="bg-accent-cabbage-default/25 absolute inset-0 rounded-full motion-safe:animate-ping"
+              className="bg-accent-cabbage-default/25 absolute inset-0 rounded-14 motion-safe:animate-ping"
+            />
+          )}
+          {isNext && (
+            <span
+              aria-hidden
+              className="bg-accent-cabbage-default/30 absolute -inset-1 rounded-16 blur-sm motion-safe:animate-glow-pulse"
             />
           )}
           <span
             className={classNames(
-              'relative flex size-10 items-center justify-center rounded-full [&_svg]:size-5',
+              'relative flex size-10 items-center justify-center rounded-14 transition-colors [&_svg]:size-5',
               nodeStyles[getNodeState()],
-              isNext && 'motion-safe:animate-glow-pulse',
+              celebrate && isClaimed && 'motion-safe:animate-reward-pop',
             )}
           >
             {getNodeIcon()}
@@ -304,19 +317,39 @@ const NodeRow = ({
             </FlexCol>
 
             {canClaim ? (
-              <Button
-                type="button"
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Primary}
-                onClick={handleClaim}
-                loading={isClaiming}
-                className={classNames(
-                  'shrink-0',
-                  celebrate && 'motion-safe:animate-reward-pop',
+              <div className="relative shrink-0">
+                {celebrate && (
+                  <span aria-hidden className="pointer-events-none absolute inset-0 z-10">
+                    <span className="absolute inset-0 rounded-12 ring-2 ring-accent-avocado-default motion-safe:animate-claim-ring" />
+                    {claimSparkles.map((sparkle) => (
+                      <span
+                        key={`${sparkle.tx}-${sparkle.ty}`}
+                        className="absolute left-1/2 top-1/2 size-1.5 rounded-full bg-accent-cheese-default opacity-0 motion-safe:animate-reaction-burst"
+                        style={
+                          {
+                            '--burst-tx': sparkle.tx,
+                            '--burst-ty': sparkle.ty,
+                            animationDelay: sparkle.delay,
+                          } as React.CSSProperties
+                        }
+                      />
+                    ))}
+                  </span>
                 )}
-              >
-                Claim
-              </Button>
+                <Button
+                  type="button"
+                  size={ButtonSize.XSmall}
+                  variant={ButtonVariant.Primary}
+                  onClick={handleClaim}
+                  loading={isClaiming}
+                  className={classNames(
+                    'relative',
+                    celebrate && 'motion-safe:animate-reward-pop',
+                  )}
+                >
+                  Claim
+                </Button>
+              </div>
             ) : (
               !isReached &&
               !isNext && (
@@ -344,7 +377,7 @@ const NodeRow = ({
                 <Typography
                   bold
                   type={TypographyType.Caption1}
-                  className="tabular-nums text-accent-cabbage-default"
+                  className="tabular-nums text-accent-avocado-default"
                 >
                   {formatDonationAmount(amountToNext)} to go
                 </Typography>
@@ -544,7 +577,7 @@ export const GivebackPersonalRoadmap = ({
             bold
             className="uppercase tracking-wider"
           >
-            Your journey
+            Your impact
           </Typography>
           <FlexRow className="flex-wrap items-center gap-4">
             <FlexCol className="size-16 shrink-0 items-center justify-center rounded-20 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage">

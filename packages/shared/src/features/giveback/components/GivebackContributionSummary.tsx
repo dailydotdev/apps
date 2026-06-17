@@ -50,7 +50,7 @@ export const GivebackContributionSummary = (): ReactElement => {
           <ProfilePicture
             user={user}
             size={ProfileImageSize.XXLarge}
-            rounded="full"
+            rounded={ProfileImageSize.XXLarge}
             className="ring-2 ring-accent-cabbage-default"
           />
           <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent-cabbage-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-background-default typo-caption2">
@@ -141,7 +141,7 @@ export const GivebackContributionSummary = (): ReactElement => {
             tag={TypographyTag.Span}
             bold
             type={TypographyType.Caption1}
-            className="tabular-nums text-accent-cabbage-default"
+            className="tabular-nums text-status-success"
           >
             {formatDonationAmount(pointsToNext)} to go
           </Typography>
