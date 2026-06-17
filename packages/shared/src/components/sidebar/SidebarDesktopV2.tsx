@@ -925,7 +925,7 @@ export const SidebarDesktopV2 = ({
           </Nav>
         </SidebarScrollWrapper>
 
-        {isExpanded && !isUtilityPanelSelected && !showFeedbackWidget && (
+        {isExpanded && !isUtilityPanelSelected && (
           <SidebarAnnouncements className="mt-2 px-3 pb-1" />
         )}
         {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
