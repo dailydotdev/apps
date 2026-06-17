@@ -45,8 +45,8 @@ const NEW: Palette = {
   cabbage: { 10:'#C16AFA',20:'#B95EF6',30:'#AC4EF4',40:'#A03FF1',50:'#8E2BEE',60:'#7A1FE2',70:'#6D17D7',80:'#600FCD',90:'#5607C2' },
   onion: { 10:'#9670F8',20:'#8662F4',30:'#7855F0',40:'#6947ED',50:'#5637E9',60:'#452CD7',70:'#3B25C8',80:'#331EBA',90:'#2C19AD' },
   water: { 10:'#6B85F9',20:'#5F78F7',30:'#5367F6',40:'#4657F3',50:'#353FF1',60:'#292BE9',70:'#2421E2',80:'#2119DC',90:'#1C11D5' },
-  salt: { 0:'#FFFFFF',10:'#F9F8F9',20:'#F3F1F3',30:'#ECE9ED',40:'#E5E2E6',50:'#DCD7DE',60:'#D2CCD4',70:'#CBC4CE',80:'#C5BDC7',90:'#BFB5C2' },
-  pepper: { 10:'#585167',20:'#4E485C',30:'#454051',40:'#3C3847',50:'#312D3A',60:'#26232C',70:'#1F1D25',80:'#1A181E',90:'#121015' },
+  salt: { 0:'#FFFFFF',10:'#F7F8FA',20:'#EFF0F5',30:'#E7E9EF',40:'#DFE1E9',50:'#D3D6E2',60:'#C7CAD9',70:'#BEC3D4',80:'#B6BBCE',90:'#AEB3C9' },
+  pepper: { 10:'#4F4870',20:'#464064',30:'#3E3958',40:'#36324D',50:'#2C283F',60:'#221F30',70:'#1C1A28',80:'#171521',90:'#100E17' },
 };
 
 const FAMILIES = Object.keys(NEW);
@@ -138,7 +138,7 @@ const TOKENS: Token[] = [
 
 // ---------- presentational helpers (inline-styled, theme-independent) ----------
 const mono: React.CSSProperties = { fontFamily: 'monospace', fontSize: 11 };
-const card: React.CSSProperties = { background: '#1A181E', color: '#FFFFFF', padding: 24, borderRadius: 12 };
+const card: React.CSSProperties = { background: '#171521', color: '#FFFFFF', padding: 24, borderRadius: 12 };
 
 const Swatch = ({ hex, w = 64, h = 40 }: { hex: string; w?: number; h?: number }) => (
   <div style={{ width: w, height: h, background: hex, borderRadius: 6, border: '1px solid rgba(255,255,255,0.12)' }} />
