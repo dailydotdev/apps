@@ -653,14 +653,18 @@ body {
 html,
 html.light .invert,
 html .invert .invert,
-#daily-companion-wrapper {
+#daily-companion-wrapper,
+#daily-companion-wrapper.light .invert,
+#daily-companion-wrapper .invert .invert {
   @mixin dark-mode;
 }
 
 html.light,
 html .invert,
 html.light .invert .invert,
-#daily-companion-wrapper.light {
+#daily-companion-wrapper.light,
+#daily-companion-wrapper .invert,
+#daily-companion-wrapper.light .invert .invert {
   @mixin light-mode;
 }
 

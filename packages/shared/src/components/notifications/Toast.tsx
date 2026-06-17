@@ -1,21 +1,26 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type { ToastNotification } from '../../hooks';
 import { TOAST_NOTIF_KEY } from '../../hooks';
+import { ToastType } from '../../hooks/useToastNotification';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import styles from './Toast.module.css';
-import { MiniCloseIcon as XIcon } from '../icons';
-import { isTouchDevice } from '../../lib/tooltip';
 import {
-  NotifContainer,
-  NotifContent,
-  NotifMessage,
-  NotifProgress,
-} from './utils';
+  MiniCloseIcon as XIcon,
+  VIcon,
+  AlertIcon,
+  WarningIcon,
+  InfoIcon,
+} from '../icons';
+import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
+import { isTouchDevice } from '../../lib/tooltip';
+import { NotifContainer, NotifMessage } from './utils';
+import { Loader } from '../Loader';
 import { useTimedAnimation } from '../../hooks/useTimedAnimation';
 
 interface ToastProps {
@@ -23,7 +28,46 @@ interface ToastProps {
 }
 
 const Container = classed(NotifContainer, styles.toastContainer);
-const Progress = classed(NotifProgress, styles.toastProgress);
+
+// Semantic variant → leading status icon + colour, mapped to the food palette.
+// `Loading` (spinner) and `Default` (no icon) are handled in ToastIcon below.
+const toastIcon: Partial<
+  Record<ToastType, { Icon: ComponentType<IconProps>; color: string }>
+> = {
+  [ToastType.Success]: { Icon: VIcon, color: 'text-status-success' },
+  [ToastType.Error]: { Icon: AlertIcon, color: 'text-status-error' },
+  [ToastType.Warning]: { Icon: WarningIcon, color: 'text-status-warning' },
+  [ToastType.Info]: { Icon: InfoIcon, color: 'text-status-info' },
+};
+
+const ToastIcon = ({
+  variant,
+}: {
+  variant?: ToastType;
+}): ReactElement | null => {
+  if (variant === ToastType.Loading) {
+    // Loader defaults to a white spinner; point it at the chip's foreground so
+    // it stays visible on both the dark (light page) and light (dark page) chip.
+    return (
+      <Loader
+        className="!h-5 !w-5 shrink-0"
+        style={
+          { '--loader-color': 'var(--theme-text-primary)' } as CSSProperties
+        }
+      />
+    );
+  }
+
+  const entry = variant ? toastIcon[variant] : undefined;
+  if (!entry) {
+    return null;
+  }
+
+  const { Icon, color } = entry;
+  return (
+    <Icon size={IconSize.XSmall} className={classNames('shrink-0', color)} />
+  );
+};
 
 const Toast = ({
   autoDismissNotifications = false,
@@ -31,11 +75,18 @@ const Toast = ({
   const router = useRouter();
   const client = useQueryClient();
   const toastRef = useRef<ToastNotification | null>(null);
-  const { timer, isAnimating, endAnimation, startAnimation } =
-    useTimedAnimation({
-      autoEndAnimation: autoDismissNotifications,
-      onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
-    });
+  const {
+    timer,
+    isAnimating,
+    endAnimation,
+    startAnimation,
+    pauseAnimation,
+    resumeAnimation,
+  } = useTimedAnimation({
+    autoEndAnimation: autoDismissNotifications,
+    outAnimationDuration: 220,
+    onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
+  });
   const { data: toast = null } = useQuery<ToastNotification | null>({
     queryKey: TOAST_NOTIF_KEY,
     queryFn: () =>
@@ -51,9 +102,13 @@ const Toast = ({
       return;
     }
 
+    // Auto-dismiss (and the countdown ring) only when the setting is on and the
+    // toast isn't explicitly persistent; otherwise it stays until dismissed.
+    const shouldAutoDismiss = autoDismissNotifications && !toast.persistent;
+
     if (!toastRef.current) {
       toastRef.current = toast;
-      if (!toast.persistent) {
+      if (shouldAutoDismiss) {
         startAnimation(toast.timer);
       }
       return;
@@ -65,21 +120,22 @@ const Toast = ({
 
     endAnimation();
     toastRef.current = toast;
-    if (!toast.persistent) {
+    if (shouldAutoDismiss) {
       startAnimation(toast.timer);
     }
-  }, [endAnimation, startAnimation, toast]);
+  }, [autoDismissNotifications, endAnimation, startAnimation, toast]);
 
-  const dismissToast = async () => {
-    if (!toast) {
+  // The current toast is cleared only if it's still the one we acted on — an
+  // onClose/onClick handler may itself surface a replacement toast (e.g. Undo
+  // shows a new confirmation), which must not be clobbered.
+  const clearIfUnchanged = (acted: ToastNotification) => {
+    if (client.getQueryData(TOAST_NOTIF_KEY) !== acted) {
       return;
     }
 
-    if (toast.onClose) {
-      await toast.onClose();
-    }
-
-    if (toast.persistent) {
+    // No running countdown when auto-dismiss is off or the toast is persistent,
+    // so clear directly; otherwise let the timed animation play out.
+    if (!autoDismissNotifications || acted.persistent) {
       toastRef.current = null;
       client.setQueryData(TOAST_NOTIF_KEY, null);
       return;
@@ -88,19 +144,27 @@ const Toast = ({
     endAnimation();
   };
 
+  const dismissToast = async () => {
+    if (!toast) {
+      return;
+    }
+
+    const acted = toast;
+    if (acted.onClose) {
+      await acted.onClose();
+    }
+
+    clearIfUnchanged(acted);
+  };
+
   const onAction = async () => {
-    if (!toast?.action) {
+    const acted = toast;
+    if (!acted?.action) {
       return;
     }
 
-    await toast.action.onClick();
-    if (toast.persistent) {
-      toastRef.current = null;
-      client.setQueryData(TOAST_NOTIF_KEY, null);
-      return;
-    }
-
-    endAnimation();
+    await acted.action.onClick();
+    clearIfUnchanged(acted);
   };
 
   useEffect(() => {
@@ -125,42 +189,66 @@ const Toast = ({
     return null;
   }
 
-  const progress = (timer / toast.timer) * 100;
+  // The dismiss ring is the auto-dismiss countdown made visible, so it shows
+  // exactly when the toast will auto-dismiss (setting on + not persistent).
+  // dashoffset drains 0→100 as the remaining time elapses.
+  const shouldAutoDismiss = autoDismissNotifications && !isPersistentToast;
+  const showRing = shouldAutoDismiss && toast.timer > 0;
+  const remaining = toast.timer > 0 ? (timer / toast.timer) * 100 : 0;
+  const dashoffset = Math.min(100, Math.max(0, 100 - remaining));
 
   return (
     <Container
-      className={isAnimating || isPersistentToast ? 'slide-in' : undefined}
+      className={isAnimating || !shouldAutoDismiss ? 'slide-in' : undefined}
       role="alert"
+      onMouseEnter={pauseAnimation}
+      onMouseLeave={resumeAnimation}
     >
-      <NotifContent>
-        <NotifMessage>{toast.message}</NotifMessage>
-        {toast.action && (
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.XSmall}
-            aria-label={toast.action.copy}
-            {...(toast.action.buttonProps ?? {})}
-            className={classNames(
-              'shrink-0',
-              toast.action.buttonProps?.className,
-            )}
-            onClick={onAction}
-          >
-            {toast.action.copy}
-          </Button>
-        )}
+      <ToastIcon variant={toast.variant} />
+      <NotifMessage>{toast.message}</NotifMessage>
+      {toast.action && (
         <Button
-          className="shrink-0"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<XIcon />}
-          onClick={dismissToast}
-          aria-label="Dismiss toast notification"
-        />
-        {autoDismissNotifications && !isPersistentToast && (
-          <Progress style={{ width: `${progress}%` }} />
+          type="button"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.XSmall}
+          aria-label={toast.action.copy}
+          {...(toast.action.buttonProps ?? {})}
+          className={classNames(
+            'shrink-0',
+            toast.action.buttonProps?.className,
+          )}
+          onClick={onAction}
+        >
+          {toast.action.copy}
+        </Button>
+      )}
+      <button
+        type="button"
+        aria-label="Dismiss toast notification"
+        onClick={dismissToast}
+        className="relative grid size-8 shrink-0 place-items-center rounded-full text-text-primary hover:bg-surface-float"
+      >
+        {showRing && (
+          <svg
+            viewBox="0 0 36 36"
+            className="pointer-events-none absolute inset-0 size-full -rotate-90 text-accent-cabbage-default"
+            aria-hidden
+          >
+            <circle
+              cx="18"
+              cy="18"
+              r="15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              pathLength={100}
+              strokeDasharray="100"
+              strokeDashoffset={dashoffset}
+            />
+          </svg>
         )}
-      </NotifContent>
+        <XIcon size={IconSize.Small} />
+      </button>
     </Container>
   );
 };
