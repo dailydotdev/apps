@@ -16,15 +16,36 @@ import { getSponsorInitials, sponsorTierLabel } from '../utils';
 import type { ContributionSponsor } from '../types';
 import { ContributionSponsorTier } from '../types';
 
-// Each tier gets its own colored pill so the sponsor level is spelled out on the
-// card itself — no decoding a small dot. The colors map to the brand accents
-// (gold = cheese, bronze = bacon); silver stays a quiet neutral.
-const tierPillClass: Record<ContributionSponsorTier, string> = {
-  [ContributionSponsorTier.Gold]:
-    'bg-accent-cheese-flat text-accent-cheese-default',
-  [ContributionSponsorTier.Silver]: 'bg-background-subtle text-text-secondary',
-  [ContributionSponsorTier.Bronze]:
-    'bg-accent-bacon-flat text-accent-bacon-default',
+interface TierStyle {
+  // Colored tier pill so the level is spelled out on the card (gold = cheese,
+  // bronze = brown/burger; silver stays a quiet neutral).
+  pillClass: string;
+  // Card + logo size step down by prestige — the classic sponsor-wall hierarchy
+  // where gold reads biggest and bronze smallest.
+  cardClass: string;
+  tileClass: string;
+  nameType: TypographyType;
+}
+
+const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
+  [ContributionSponsorTier.Gold]: {
+    pillClass: 'bg-accent-cheese-flat text-accent-cheese-default',
+    cardClass: 'gap-4 p-4',
+    tileClass: 'size-16',
+    nameType: TypographyType.Body,
+  },
+  [ContributionSponsorTier.Silver]: {
+    pillClass: 'bg-background-subtle text-text-secondary',
+    cardClass: 'gap-3 p-3',
+    tileClass: 'size-12',
+    nameType: TypographyType.Callout,
+  },
+  [ContributionSponsorTier.Bronze]: {
+    pillClass: 'bg-accent-burger-flat text-accent-burger-default',
+    cardClass: 'gap-2.5 p-2.5',
+    tileClass: 'size-10',
+    nameType: TypographyType.Footnote,
+  },
 };
 
 // Headline tiers first so the wall reads top-down by prestige.
@@ -46,6 +67,7 @@ const SponsorCard = ({
   const { logEvent } = useLogContext();
   const [failed, setFailed] = useState(false);
   const showLogo = Boolean(sponsor.logoUrl) && !failed;
+  const style = tierStyles[sponsor.tier];
 
   const onClick = () =>
     logEvent({
@@ -54,12 +76,19 @@ const SponsorCard = ({
       extra: JSON.stringify({ name: sponsor.name, tier: sponsor.tier }),
     });
 
-  const cardClass =
-    'flex min-w-0 items-center gap-3 rounded-14 border border-border-subtlest-tertiary bg-surface-float p-3 transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none';
+  const cardClass = classNames(
+    'flex min-w-0 items-center rounded-14 border border-border-subtlest-tertiary bg-surface-float transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none',
+    style.cardClass,
+  );
 
   const body = (
     <>
-      <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-12 bg-white text-text-primary">
+      <span
+        className={classNames(
+          'flex shrink-0 items-center justify-center overflow-hidden rounded-12 bg-white text-text-primary',
+          style.tileClass,
+        )}
+      >
         {showLogo ? (
           <img
             src={sponsor.logoUrl ?? undefined}
@@ -77,7 +106,7 @@ const SponsorCard = ({
       <FlexCol className="min-w-0 gap-1">
         <Typography
           tag={TypographyTag.Span}
-          type={TypographyType.Footnote}
+          type={style.nameType}
           bold
           truncate
         >
@@ -86,7 +115,7 @@ const SponsorCard = ({
         <span
           className={classNames(
             'inline-flex w-fit items-center gap-1 rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wider typo-caption2 [&_svg]:size-3',
-            tierPillClass[sponsor.tier],
+            style.pillClass,
           )}
         >
           <MedalBadgeIcon />
@@ -155,7 +184,7 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
           Sponsored by
         </Typography>
 
-        <FlexRow className="flex-wrap gap-3">
+        <FlexRow className="flex-wrap items-start gap-3">
           {ordered.map((sponsor) => (
             <SponsorCard key={sponsor.id} sponsor={sponsor} />
           ))}
