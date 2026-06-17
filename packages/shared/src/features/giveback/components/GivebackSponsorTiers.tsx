@@ -77,7 +77,7 @@ const SponsorCard = ({
     });
 
   const cardClass = classNames(
-    'flex min-w-0 items-center rounded-14 border border-border-subtlest-tertiary bg-surface-float transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none',
+    'flex min-w-0 items-center rounded-14 border border-border-subtlest-tertiary transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none',
     style.cardClass,
   );
 
@@ -154,9 +154,13 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
     return null;
   }
 
-  const ordered = [...sponsors].sort(
-    (a, b) => TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier),
-  );
+  // Each tier becomes its own row so cards within a row are the same size and
+  // the hierarchy reads top-down (gold → bronze) instead of mixed sizes
+  // wrapping into a ragged grid.
+  const tierRows = TIER_ORDER.map((tier) => ({
+    tier,
+    sponsors: sponsors.filter((sponsor) => sponsor.tier === tier),
+  })).filter((row) => row.sponsors.length > 0);
 
   return (
     <section className="relative w-full">
@@ -184,11 +188,15 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
           Sponsored by
         </Typography>
 
-        <FlexRow className="flex-wrap items-start gap-3">
-          {ordered.map((sponsor) => (
-            <SponsorCard key={sponsor.id} sponsor={sponsor} />
+        <FlexCol className="gap-4">
+          {tierRows.map((row) => (
+            <FlexRow key={row.tier} className="flex-wrap items-stretch gap-3">
+              {row.sponsors.map((sponsor) => (
+                <SponsorCard key={sponsor.id} sponsor={sponsor} />
+              ))}
+            </FlexRow>
           ))}
-        </FlexRow>
+        </FlexCol>
       </FlexCol>
     </section>
   );
