@@ -512,6 +512,10 @@ export const PostFocusCard = ({
             post={post}
             onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
             onCommentsClick={scrollToComment}
+            // Spacing in this column is governed by its `gap-4`; drop the stats
+            // row's own bottom margin so the gap above the action bar matches
+            // the gap below it.
+            className="!mb-0"
           />
 
           {isCollection && <CollectionSources post={article} />}

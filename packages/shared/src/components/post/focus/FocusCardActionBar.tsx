@@ -88,9 +88,6 @@ export const FocusCardActionBar = ({
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
-  const upvotes = post.numUpvotes || 0;
-  const comments = post.numComments || 0;
-  const awards = post.numAwards || 0;
   // Sticky offset depends on the top chrome. The modal has no app header (pin
   // to the very top). On the post page, the v2 rail layout hides the global
   // header on laptop for logged-in users, so the bar sticks to the very top
@@ -127,14 +124,7 @@ export const FocusCardActionBar = ({
     const observer = new ResizeObserver(fit);
     observer.observe(bar);
     return () => observer.disconnect();
-  }, [
-    upvotes,
-    comments,
-    awards,
-    canAward,
-    post.clickbaitTitleDetected,
-    post.bookmarked,
-  ]);
+  }, [canAward, post.clickbaitTitleDetected, post.bookmarked]);
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
@@ -186,9 +176,9 @@ export const FocusCardActionBar = ({
         className={classNames(
           // Static on mobile (no sticky), sticky from tablet up so the bar
           // never overlaps the small-screen reading flow.
-          'relative z-3 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-1 py-2 tablet:sticky',
-          // Drop the top border once pinned so it doesn't double up with the
-          // header border above it.
+          'relative z-3 flex items-center justify-between gap-2 border-border-subtlest-tertiary bg-background-default px-1 py-2 tablet:sticky',
+          // Only a top divider, dropped once pinned so it doesn't double up
+          // with the header border above it.
           !isStuck && 'border-t',
           stickyTopClassName,
           className,
@@ -204,7 +194,6 @@ export const FocusCardActionBar = ({
               color={ButtonColor.Avocado}
               icon={<UpvoteButtonIcon />}
               iconPressed={<UpvoteButtonIcon secondary />}
-              count={upvotes}
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
             />
@@ -229,7 +218,6 @@ export const FocusCardActionBar = ({
               color={ButtonColor.BlueCheese}
               icon={<CommentIcon />}
               iconPressed={<CommentIcon secondary />}
-              count={comments}
               pressed={post.commented}
               onClick={onComment}
             />
@@ -244,7 +232,6 @@ export const FocusCardActionBar = ({
                 color={ButtonColor.Cabbage}
                 icon={<MedalBadgeIcon secondary />}
                 iconPressed={<MedalBadgeIcon />}
-                count={awards}
                 pressed={isAwarded}
                 onClick={onGiveAward}
               />
