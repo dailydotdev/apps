@@ -8,6 +8,10 @@
     min-height: 100vh;
     padding: 0;
     overflow-y: auto;
+    /* Keep the scroll inside the overlay: without this, overscrolling at the
+       top/bottom chains to the page behind and the backdrop appears to slide
+       away, exposing the feed underneath. */
+    overscroll-behavior: contain;
     z-index: 100;
   }
 }

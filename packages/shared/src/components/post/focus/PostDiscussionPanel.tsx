@@ -84,7 +84,6 @@ export const PostDiscussionPanel = ({
     useSettingsContext();
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const commentRef = useRef<NewCommentRef | null>(null);
-  const rootRef = useRef<HTMLElement | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(origin);
@@ -109,7 +108,9 @@ export const PostDiscussionPanel = ({
       return modalParentSelector();
     }
 
-    return rootRef.current ?? document.body;
+    // Append to the document body, not the panel root: the redesign modal card
+    // clips overflow, which would cut off profile hover cards near its edges.
+    return document.body;
   };
 
   const renderComposerTrigger = ({
@@ -156,7 +157,6 @@ export const PostDiscussionPanel = ({
 
   return (
     <section
-      ref={rootRef}
       aria-label="Discussion"
       className={classNames('flex min-h-0 min-w-0 flex-col gap-2', className)}
     >
