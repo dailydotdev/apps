@@ -17,8 +17,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useEventListener } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
-import { useScrollTopOffset } from '../../hooks/useScrollTopOffset';
-import { FocusModalScrollBar } from '../post/focus/FocusModalScrollBar';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -92,18 +90,6 @@ function BasePostModal({
   const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
   useEventListener(scrollNode, 'scroll', debouncedOnScroll);
 
-  // Once the redesign modal scrolls past the article header, the in-flow top
-  // strip and the header's "…" menu are gone — float a fixed bar instead.
-  const [isScrolled, setIsScrolled] = useState(false);
-  useScrollTopOffset(
-    useCallback(() => scrollNode, [scrollNode]),
-    {
-      onOverOffset: () => navigationRedesign && setIsScrolled(true),
-      onUnderOffset: () => navigationRedesign && setIsScrolled(false),
-      offset: 80,
-    },
-  );
-
   return (
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
@@ -156,13 +142,6 @@ function BasePostModal({
                 onClose={onRequestClose}
                 post={post}
               />
-              {navigationRedesign && isScrolled && post && (
-                <FocusModalScrollBar
-                  post={post}
-                  size={size}
-                  onClose={() => onRequestClose?.(undefined as never)}
-                />
-              )}
               {children}
             </>
           )}

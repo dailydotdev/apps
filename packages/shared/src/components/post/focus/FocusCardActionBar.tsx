@@ -30,6 +30,7 @@ import {
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { LoggedUser } from '../../../lib/user';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
+import { PostMenuOptions } from '../PostMenuOptions';
 
 interface FocusCardActionBarProps {
   post: Post;
@@ -88,6 +89,12 @@ export const FocusCardActionBar = ({
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
+  // Counts are hidden in the resting bar (the stats row sitting right above it
+  // already shows them) and surface only once the bar is pinned and that row
+  // has scrolled away.
+  const upvotes = post.numUpvotes || 0;
+  const comments = post.numComments || 0;
+  const awards = post.numAwards || 0;
   // Sticky offset depends on the top chrome. The modal has no app header (pin
   // to the very top). On the post page, the v2 rail layout hides the global
   // header on laptop for logged-in users, so the bar sticks to the very top
@@ -124,7 +131,16 @@ export const FocusCardActionBar = ({
     const observer = new ResizeObserver(fit);
     observer.observe(bar);
     return () => observer.disconnect();
-  }, [canAward, post.clickbaitTitleDetected, post.bookmarked]);
+    // isStuck/counts change the row width (counts + "…" menu appear when pinned).
+  }, [
+    canAward,
+    post.clickbaitTitleDetected,
+    post.bookmarked,
+    isStuck,
+    upvotes,
+    comments,
+    awards,
+  ]);
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
@@ -177,9 +193,10 @@ export const FocusCardActionBar = ({
           // Static on mobile (no sticky), sticky from tablet up so the bar
           // never overlaps the small-screen reading flow.
           'relative z-3 flex items-center justify-between gap-2 border-border-subtlest-tertiary bg-background-default px-1 py-2 tablet:sticky',
-          // Only a top divider, dropped once pinned so it doesn't double up
-          // with the header border above it.
-          !isStuck && 'border-t',
+          // Resting: a top divider under the stats row. Pinned: a bottom
+          // divider instead, separating the bar from the content scrolling
+          // beneath it.
+          isStuck ? 'border-b' : 'border-t',
           stickyTopClassName,
           className,
         )}
@@ -194,6 +211,7 @@ export const FocusCardActionBar = ({
               color={ButtonColor.Avocado}
               icon={<UpvoteButtonIcon />}
               iconPressed={<UpvoteButtonIcon secondary />}
+              count={isStuck ? upvotes : undefined}
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
             />
@@ -218,6 +236,7 @@ export const FocusCardActionBar = ({
               color={ButtonColor.BlueCheese}
               icon={<CommentIcon />}
               iconPressed={<CommentIcon secondary />}
+              count={isStuck ? comments : undefined}
               pressed={post.commented}
               onClick={onComment}
             />
@@ -232,6 +251,7 @@ export const FocusCardActionBar = ({
                 color={ButtonColor.Cabbage}
                 icon={<MedalBadgeIcon secondary />}
                 iconPressed={<MedalBadgeIcon />}
+                count={isStuck ? awards : undefined}
                 pressed={isAwarded}
                 onClick={onGiveAward}
               />
@@ -267,6 +287,15 @@ export const FocusCardActionBar = ({
           </div>
           {post.clickbaitTitleDetected && (
             <PostClickbaitShield post={post} iconOnly />
+          )}
+          {/* While pinned, the article header (which owns the "…" menu) has
+              scrolled away, so surface the menu here — to the left of the X. */}
+          {isStuck && (
+            <PostMenuOptions
+              post={post}
+              origin={origin}
+              buttonSize={ButtonSize.Medium}
+            />
           )}
           {isStuck && onClose && (
             <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
