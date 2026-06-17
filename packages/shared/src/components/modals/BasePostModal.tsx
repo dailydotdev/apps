@@ -17,6 +17,8 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useEventListener } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { useScrollTopOffset } from '../../hooks/useScrollTopOffset';
+import { FocusModalScrollBar } from '../post/focus/FocusModalScrollBar';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -30,6 +32,12 @@ interface BasePostModalProps extends ModalProps {
   navigationCustomActions?: ReactNode;
   navigationContainerClassName?: string;
   navigationHideSubscribeAction?: boolean;
+  /**
+   * Redesign top-bar behavior: hide the top strip's "…" menu (it lives in the
+   * focus-card header) and, once scrolled, float a fixed bar with the post
+   * stats + "…" menu + close.
+   */
+  navigationRedesign?: boolean;
   loadingChildren?: ReactNode;
   post?: Post;
 }
@@ -48,6 +56,7 @@ function BasePostModal({
   navigationCustomActions,
   navigationContainerClassName,
   navigationHideSubscribeAction,
+  navigationRedesign,
   loadingChildren,
   post,
   onRequestClose,
@@ -82,6 +91,18 @@ function BasePostModal({
 
   const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
   useEventListener(scrollNode, 'scroll', debouncedOnScroll);
+
+  // Once the redesign modal scrolls past the article header, the in-flow top
+  // strip and the header's "…" menu are gone — float a fixed bar instead.
+  const [isScrolled, setIsScrolled] = useState(false);
+  useScrollTopOffset(
+    useCallback(() => scrollNode, [scrollNode]),
+    {
+      onOverOffset: () => navigationRedesign && setIsScrolled(true),
+      onUnderOffset: () => navigationRedesign && setIsScrolled(false),
+      offset: 80,
+    },
+  );
 
   return (
     <ActivePostContextProvider post={post}>
@@ -131,9 +152,17 @@ function BasePostModal({
                 leadingContent={navigationLeadingContent}
                 customActions={navigationCustomActions}
                 hideSubscribeAction={navigationHideSubscribeAction}
+                hideOptions={navigationRedesign}
                 onClose={onRequestClose}
                 post={post}
               />
+              {navigationRedesign && isScrolled && post && (
+                <FocusModalScrollBar
+                  post={post}
+                  size={size}
+                  onClose={() => onRequestClose?.(undefined as never)}
+                />
+              )}
               {children}
             </>
           )}
