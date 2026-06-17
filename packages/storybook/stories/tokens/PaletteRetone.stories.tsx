@@ -42,11 +42,11 @@ const NEW: Palette = {
   bun: { 10:'#FFB260',20:'#FFA455',30:'#FF9748',40:'#FF873B',50:'#FF732B',60:'#FA5F20',70:'#F55219',80:'#F04511',90:'#EB370A' },
   ketchup: { 10:'#F1746E',20:'#EB635E',30:'#E5514D',40:'#DD3D3A',50:'#D22523',60:'#C41A1A',70:'#BA1414',80:'#B00E10',90:'#A7070B' },
   bacon: { 10:'#FC7CD0',20:'#FB70C5',30:'#FB63BC',40:'#F956AF',50:'#F9439F',60:'#F0348A',70:'#E7297C',80:'#DF1F70',90:'#D61463' },
-  cabbage: { 10:'#D8B4FE',20:'#CC9CFD',30:'#C084FC',40:'#A855F7',50:'#9333EA',60:'#7E22CE',70:'#7522BB',80:'#6B21A8',90:'#581C87' },
+  cabbage: { 10:'#C084FC',20:'#B46DFA',30:'#A855F7',40:'#9333EA',50:'#892BDC',60:'#7E22CE',70:'#7522BB',80:'#6B21A8',90:'#581C87' },
   onion: { 10:'#9670F8',20:'#8662F4',30:'#7855F0',40:'#6947ED',50:'#5637E9',60:'#452CD7',70:'#3B25C8',80:'#331EBA',90:'#2C19AD' },
   water: { 10:'#6B85F9',20:'#5F78F7',30:'#5367F6',40:'#4657F3',50:'#353FF1',60:'#292BE9',70:'#2421E2',80:'#2119DC',90:'#1C11D5' },
-  salt: { 0:'#FFFFFF',10:'#F9F8F9',20:'#F3F1F3',30:'#ECE9ED',40:'#E6E1E7',50:'#DDD7DE',60:'#D4CBD5',70:'#CEC2D0',80:'#C8BACA',90:'#C2B1C6' },
-  pepper: { 10:'#52525B',20:'#494951',30:'#3F3F46',40:'#2F2F36',50:'#1F1F25',60:'#1B1B21',70:'#17171C',80:'#131317',90:'#0F0F12' },
+  salt: { 0:'#FFFFFF',10:'#FAFAFA',20:'#F5F4F5',30:'#EEECEE',40:'#E6E4E7',50:'#DFDDDF',60:'#D8D4D8',70:'#CBC7CC',80:'#BDB6BE',90:'#ACA2AE' },
+  pepper: { 10:'#52525B',20:'#494951',30:'#3F3F46',40:'#35353B',50:'#2A2A30',60:'#25252B',70:'#1F1F25',80:'#17171C',90:'#0F0F12' },
 };
 
 const FAMILIES = Object.keys(NEW);
@@ -138,7 +138,7 @@ const TOKENS: Token[] = [
 
 // ---------- presentational helpers (inline-styled, theme-independent) ----------
 const mono: React.CSSProperties = { fontFamily: 'monospace', fontSize: 11 };
-const card: React.CSSProperties = { background: '#131317', color: '#FFFFFF', padding: 24, borderRadius: 12 };
+const card: React.CSSProperties = { background: '#17171C', color: '#FFFFFF', padding: 24, borderRadius: 12 };
 
 const Swatch = ({ hex, w = 64, h = 40 }: { hex: string; w?: number; h?: number }) => (
   <div style={{ width: w, height: h, background: hex, borderRadius: 6, border: '1px solid rgba(255,255,255,0.12)' }} />
@@ -169,7 +169,7 @@ type Story = StoryObj;
 
 // ===================== Story 0: guidelines =====================
 const GUIDE: { token: string; value: string; note: string }[] = [
-  { token: 'brand / share', value: NEW.cabbage['50'], note: 'docs purple #9333EA (Tailwind purple-600)' },
+  { token: 'brand / share', value: NEW.cabbage['50'], note: 'docs purple #892BDC (Tailwind purple-600)' },
   { token: 'background-default (dark)', value: NEW.pepper['90'], note: 'near-black base — the sidebar/page surface' },
   { token: 'background-subtle (dark)', value: NEW.pepper['70'], note: 'cards / content sit one step up for contrast' },
   { token: 'background-default (light)', value: WHITE, note: 'pure white; subtle surface is faint lavender salt.10' },
@@ -184,8 +184,8 @@ export const Guidelines: Story = {
     <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Palette guideline — docs.daily.dev aligned</h1>
       <ul style={{ opacity: 0.8, maxWidth: 780, lineHeight: 1.6, paddingLeft: 18, margin: 0 }}>
-        <li><b>Purple is the brand, not the surface.</b> The accent (cabbage) is the docs purple #9333EA; backgrounds stay neutral so the purple pops.</li>
-        <li><b>Near-black dark mode.</b> Surfaces step #0F0F12 → #17171C → #1F1F25 for clear separation between sidebar, content and cards.</li>
+        <li><b>Purple is the brand, not the surface.</b> The accent (cabbage) is the docs purple #892BDC; backgrounds stay neutral so the purple pops.</li>
+        <li><b>Near-black dark mode.</b> Surfaces step #0F0F12 → #1F1F25 → #2A2A30 for clear separation between sidebar, content and cards.</li>
         <li><b>Lavender-tinted light mode.</b> White base with a faint purple cast on subtle surfaces.</li>
         <li><b>Status stays functional.</b> Error/success/warning remain red/green/orange.</li>
         <li><b>Structure untouched.</b> Same token names, shade levels and opacity percentages — only hues moved.</li>
@@ -212,8 +212,8 @@ export const RawRamps: Story = {
       <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Raw color ramps — old (top) vs new (bottom)</h1>
       <p style={{ opacity: 0.7, maxWidth: 760 }}>
         Every family keeps its name and all nine shade levels. The brand (cabbage) now follows the
-        docs.daily.dev purple ramp (#9333EA); dark neutrals (pepper) are near-black and essentially
-        neutral (#0F0F12 → #17171C) for strong element contrast; light neutrals (salt) carry a faint
+        docs.daily.dev purple ramp (#892BDC); dark neutrals (pepper) are near-black and essentially
+        neutral (#0F0F12 → #1F1F25) for strong element contrast; light neutrals (salt) carry a faint
         lavender tint. Social colors and opacity percentages are unchanged.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 12 }}>

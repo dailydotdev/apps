@@ -127,7 +127,7 @@ const ensureStyles = (): void => {
       padding: 0 1rem;
       border: 0;
       border-radius: 12px;
-      background: #9333EA;
+      background: #892BDC;
       color: #ffffff;
       font: inherit;
       font-size: 0.9375rem;
