@@ -6,6 +6,11 @@ export interface DeveloperPersona {
   /** Brand color for the persona, used for glow/silhouette tinting. */
   color: string;
   tagline: string;
+  /**
+   * daily.dev keyword slugs batch-followed when the quiz lands on this
+   * persona, seeding the feed. Must be real keyword slugs to take effect.
+   */
+  tags: string[];
 }
 
 export interface PersonaQuestion {
@@ -33,6 +38,11 @@ export interface PersonaModifier {
   label: string;
   emoji: string;
   description: string;
+  /**
+   * Extra keyword slugs followed on top of the persona's tags when this
+   * modifier is selected. Must be real keyword slugs to take effect.
+   */
+  tags: string[];
 }
 
 export interface PersonaEngineConfig {
@@ -56,6 +66,7 @@ export const PERSONAS: DeveloperPersona[] = [
     color: '#f59e0b',
     tagline:
       "Your curiosity is too broad to pin down. We'll give you a wide-angle feed.",
+    tags: ['webdev', 'javascript', 'python', 'programming', 'opensource', 'git'],
   },
   {
     id: 'full-stack-web-developer',
@@ -63,6 +74,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '⚛️',
     color: '#06b6d4',
     tagline: 'React, TypeScript, Node, the works. You ship product.',
+    tags: ['javascript', 'typescript', 'react', 'nodejs', 'webdev', 'css'],
   },
   {
     id: 'frontend-specialist',
@@ -70,6 +82,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🎨',
     color: '#ec4899',
     tagline: 'Deep in the framework wars. You sweat the details.',
+    tags: ['react', 'css', 'javascript', 'typescript', 'webdev', 'vuejs'],
   },
   {
     id: 'ai-specialist',
@@ -77,6 +90,14 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🤖',
     color: '#22c55e',
     tagline: 'You live in Claude, agents, and RAG pipelines. AI is your work.',
+    tags: [
+      'machine-learning',
+      'python',
+      'data-science',
+      'ai',
+      'deep-learning',
+      'llm',
+    ],
   },
   {
     id: 'backend-developer',
@@ -84,6 +105,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🛠️',
     color: '#3b82f6',
     tagline: 'SQL, APIs, queues, databases. You make the data move.',
+    tags: ['nodejs', 'python', 'sql', 'database', 'api', 'golang'],
   },
   {
     id: 'software-architect',
@@ -91,6 +113,14 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🏛️',
     color: '#14b8a6',
     tagline: 'Microservices, distributed systems, scale. You draw the boxes.',
+    tags: [
+      'architecture',
+      'microservices',
+      'system-design',
+      'devops',
+      'cloud',
+      'kubernetes',
+    ],
   },
   {
     id: 'systems-programmer',
@@ -98,6 +128,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '⚡',
     color: '#f97316',
     tagline: 'Go, Rust, C++. Memory matters. Performance matters.',
+    tags: ['rust', 'golang', 'cpp', 'c', 'linux', 'performance'],
   },
   {
     id: 'devops-engineer',
@@ -105,6 +136,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🐳',
     color: '#0ea5e9',
     tagline: 'Kubernetes, CI/CD, observability. You keep prod alive.',
+    tags: ['devops', 'kubernetes', 'docker', 'aws', 'cloud', 'terraform'],
   },
   {
     id: 'php-developer',
@@ -112,6 +144,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🐘',
     color: '#777bb3',
     tagline: "Laravel, Symfony, WordPress. The web's quiet workhorse.",
+    tags: ['php', 'laravel', 'symfony', 'wordpress', 'mysql', 'webdev'],
   },
   {
     id: 'security-engineer',
@@ -119,6 +152,14 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🛡️',
     color: '#dc2626',
     tagline: 'CVEs, authentication, attack surface. You find the bugs first.',
+    tags: [
+      'security',
+      'cybersecurity',
+      'privacy',
+      'hacking',
+      'cryptography',
+      'devsecops',
+    ],
   },
   {
     id: 'dotnet-developer',
@@ -126,6 +167,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🪟',
     color: '#512bd4',
     tagline: 'C#, ASP.NET, Blazor. The Microsoft stack done right.',
+    tags: ['csharp', 'dotnet', 'azure', 'aspnet', 'blazor', 'visualstudio'],
   },
   {
     id: 'game-developer',
@@ -133,6 +175,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🎮',
     color: '#a855f7',
     tagline: 'Unity, Unreal, Godot. You ship frames per second.',
+    tags: ['gamedev', 'unity', 'unreal-engine', 'godot', 'cpp', 'graphics'],
   },
   {
     id: 'mobile-developer',
@@ -140,6 +183,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '📱',
     color: '#f43f5e',
     tagline: 'iOS, Android, Flutter. The app store is your stage.',
+    tags: ['android', 'ios', 'swift', 'kotlin', 'flutter', 'react-native'],
   },
   {
     id: 'operator',
@@ -147,6 +191,14 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '💼',
     color: '#64748b',
     tagline: 'Product, design, strategy. You ship outcomes.',
+    tags: [
+      'product-management',
+      'startup',
+      'design',
+      'ux',
+      'productivity',
+      'leadership',
+    ],
   },
 ];
 
@@ -248,6 +300,22 @@ export const QUESTIONS: PersonaQuestion[] = [
   },
 ];
 
+/**
+ * Deduped union of the resolved persona's tags and the tags of every selected
+ * modifier. This is the keyword set batch-followed when the quiz concludes.
+ */
+export const resolveFollowTags = (
+  persona: DeveloperPersona,
+  selectedModifierIds: string[],
+): string[] => {
+  const selected = new Set(selectedModifierIds);
+  const modifierTags = MODIFIERS.filter((modifier) =>
+    selected.has(modifier.id),
+  ).flatMap((modifier) => modifier.tags);
+
+  return Array.from(new Set([...persona.tags, ...modifierTags]));
+};
+
 export const MODIFIERS: PersonaModifier[] = [
   {
     id: 'ai-heavy',
@@ -255,12 +323,14 @@ export const MODIFIERS: PersonaModifier[] = [
     emoji: '🤖',
     description:
       'You use AI tools (Cursor, Claude, agents) for meaningful chunks of your work.',
+    tags: ['ai', 'llm', 'chatgpt', 'github-copilot', 'prompt-engineering'],
   },
   {
     id: 'founder',
     label: 'Founder',
     emoji: '🚀',
     description: "You're building your own product, startup, or side business.",
+    tags: ['startup', 'entrepreneurship', 'saas', 'marketing', 'business'],
   },
   {
     id: 'engineering-leader',
@@ -268,6 +338,7 @@ export const MODIFIERS: PersonaModifier[] = [
     emoji: '📰',
     description:
       'You lead engineers or set technical direction more than you write code.',
+    tags: ['leadership', 'engineering-management', 'management', 'career', 'agile'],
   },
 ];
 

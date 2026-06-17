@@ -27,6 +27,8 @@ import { usePersonaQuiz } from './persona/usePersonaQuiz';
 import type { AnswerValue } from './persona/engine';
 import type { DeveloperPersona } from './persona/data';
 import styles from './FunnelPersonaQuiz.module.css';
+import useTagAndSource from '../../../hooks/useTagAndSource';
+import { Origin } from '../../../lib/log';
 
 // Fallback until a mascot video is provided via parameters.
 const MASCOT_EMOJI = '🧞';
@@ -560,6 +562,10 @@ function PersonaQuizPhases({
     toggleModifier,
   } = usePersonaQuiz();
 
+  const { onFollowTags } = useTagAndSource({
+    origin: Origin.OnboardingPersona,
+  });
+
   // Which clip plays during the thinking beat, chosen per answer.
   const [thinkingClip, setThinkingClip] = useState<MascotState>('thinking');
   // On the reveal we hold the answer back until Patchy finishes his animation.
@@ -591,7 +597,17 @@ function PersonaQuizPhases({
     answer(value);
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    const tags = result?.tags ?? [];
+    if (tags.length) {
+      // Seed the feed from the persona, but never block the funnel on a
+      // follow failure.
+      try {
+        await onFollowTags({ tags, requireLogin: true });
+      } catch {
+        // no-op: advancing matters more than a failed seed.
+      }
+    }
     onTransition({
       type: FunnelStepTransitionType.Complete,
       details: {

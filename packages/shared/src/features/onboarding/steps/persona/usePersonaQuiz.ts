@@ -8,7 +8,13 @@ import {
   updateBelief,
 } from './engine';
 import type { DeveloperPersona, PersonaModifier } from './data';
-import { MODIFIERS, PERSONAS, PERSONA_ENGINE_CONFIG, QUESTIONS } from './data';
+import {
+  MODIFIERS,
+  PERSONAS,
+  PERSONA_ENGINE_CONFIG,
+  QUESTIONS,
+  resolveFollowTags,
+} from './data';
 
 export type PersonaQuizPhase =
   | 'intro'
@@ -46,6 +52,8 @@ interface PersonaResult {
   persona: DeveloperPersona;
   confidence: number;
   modifiers: string[];
+  /** Deduped persona + selected-modifier tags to batch-follow on finish. */
+  tags: string[];
 }
 
 export interface PersonaQuizState {
@@ -348,10 +356,12 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     if (resultIndex === null) {
       return null;
     }
+    const persona = PERSONAS[resultIndex];
     return {
-      persona: PERSONAS[resultIndex],
+      persona,
       confidence: belief[resultIndex],
       modifiers: selectedModifierIds,
+      tags: resolveFollowTags(persona, selectedModifierIds),
     };
   }, [belief, resultIndex, selectedModifierIds]);
 
