@@ -385,7 +385,8 @@ export default {
         'meter-shine': 'meter-shine 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
         'reward-pop': 'reward-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
-        'claim-ring': 'claim-ring 640ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards',
+        'claim-ring':
+          'claim-ring 640ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards',
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
         'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
