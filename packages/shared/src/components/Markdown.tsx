@@ -14,15 +14,14 @@ import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
 import { getUserShortInfo } from '../graphql/users';
 import { generateQueryKey, RequestKey } from '../lib/query';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
+import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
 function isImageElement(
   element: Element | EventTarget,
 ): element is HTMLImageElement {
   return element instanceof HTMLImageElement;
-}
-
-function openImageInNewTab(src: string): void {
-  window.open(src, '_blank', 'noopener,noreferrer');
 }
 
 const UserEntityCard = dynamic(() => import('./cards/entity/UserEntityCard'), {
@@ -65,6 +64,8 @@ export default function Markdown({
   openLinksInNewTab = false,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
+  const { openModal } = useLazyModal();
+  const { isCompanion } = useRequestProtocol();
   const containerRef = useRef<HTMLDivElement>(null);
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
@@ -91,7 +92,7 @@ export default function Markdown({
     images.forEach((img) => {
       img.setAttribute('tabindex', '0');
       img.setAttribute('role', 'button');
-      img.setAttribute('aria-label', 'Open image in new tab');
+      img.setAttribute('aria-label', 'Open image');
     });
   });
 
@@ -136,28 +137,47 @@ export default function Markdown({
     [cancelUserClearing, userId, clearUser],
   );
 
-  const onImageClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
-    const element = e.target;
+  const openImage = useCallback(
+    (src: string) => {
+      // The lazy-modal renderer isn't mounted in the extension companion, so
+      // fall back to opening the image in a new tab there.
+      if (isCompanion) {
+        window.open(src, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      openModal({ type: LazyModal.ImageView, props: { src } });
+    },
+    [isCompanion, openModal],
+  );
 
-    if (isImageElement(element) && element.src) {
-      e.stopPropagation();
-      openImageInNewTab(element.src);
-    }
-  }, []);
+  const onImageClick = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      const element = e.target;
 
-  const onImageKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
-    const element = e.target;
+      if (isImageElement(element) && element.src) {
+        e.stopPropagation();
+        openImage(element.src);
+      }
+    },
+    [openImage],
+  );
 
-    if (
-      isImageElement(element) &&
-      element.src &&
-      (e.key === 'Enter' || e.key === ' ')
-    ) {
-      e.preventDefault();
-      e.stopPropagation();
-      openImageInNewTab(element.src);
-    }
-  }, []);
+  const onImageKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const element = e.target;
+
+      if (
+        isImageElement(element) &&
+        element.src &&
+        (e.key === 'Enter' || e.key === ' ')
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        openImage(element.src);
+      }
+    },
+    [openImage],
+  );
 
   return (
     <HoverCard

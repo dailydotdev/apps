@@ -28,11 +28,6 @@ import {
 } from '../../buttons/Button';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { SortCommentsBy } from '../../../graphql/comments';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../typography/Typography';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
@@ -179,14 +174,8 @@ export const PostDiscussionPanel = ({
       <DiscussionShareRow post={post} withSquads />
       {showSortHeader && (
         <span className="flex shrink-0 flex-row items-center">
-          <Typography
-            color={TypographyColor.Tertiary}
-            type={TypographyType.Footnote}
-          >
-            Sort:
-          </Typography>
           <Button
-            className="ml-1 !px-1 !text-text-tertiary"
+            className="!px-1 !text-text-tertiary"
             icon={
               <TimeSortIcon
                 secondary

@@ -41,6 +41,7 @@ export enum LazyModal {
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
   Video = 'video',
+  ImageView = 'imageView',
   NewStreak = 'newStreak',
   RecoverStreak = 'recoverStreak',
   ReputationPrivileges = 'reputationPrivileges',

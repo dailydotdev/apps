@@ -22,7 +22,6 @@ import CloseButton from '../../CloseButton';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
 import { IconSize } from '../../Icon';
 import {
-  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -30,9 +29,6 @@ import {
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { LoggedUser } from '../../../lib/user';
-import { canViewPostAnalytics } from '../../../lib/user';
-import { webappUrl } from '../../../lib/constants';
-import { PostMenuOptions } from '../PostMenuOptions';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 
 interface FocusCardActionBarProps {
@@ -75,7 +71,6 @@ export const FocusCardActionBar = ({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const copyLinkRef = useRef<HTMLDivElement>(null);
-  const analyticsRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
   useEffect(() => {
     const el = sentinelRef.current;
@@ -96,7 +91,6 @@ export const FocusCardActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  const canSeeAnalytics = canViewPostAnalytics({ user, post });
   // Sticky offset depends on the top chrome. The modal has no app header (pin
   // to the very top). On the post page, the v2 rail layout hides the global
   // header on laptop for logged-in users, so the bar sticks to the very top
@@ -106,11 +100,9 @@ export const FocusCardActionBar = ({
   const stickyTopClassName =
     onClose || railOwnsHeader ? 'top-0' : 'top-0 laptop:top-16';
 
-  // Dynamically fold the lowest-priority utilities into the "…" menu (which
-  // already lists Share and Post analytics) whenever the bar would overflow,
-  // and bring them back inline when there is room again. Measured against the
-  // real available width — not breakpoints — so it reacts to page/modal
-  // resizing. Priority (first to fold): analytics, then copy/share.
+  // Fold copy link out of the row when the bar would overflow, and bring it
+  // back inline when there is room again. Measured against the real available
+  // width — not breakpoints — so it reacts to page/modal resizing.
   useEffect(() => {
     const bar = barRef.current;
     if (!bar) {
@@ -118,19 +110,12 @@ export const FocusCardActionBar = ({
     }
     const fit = () => {
       const copyLink = copyLinkRef.current;
-      const analytics = analyticsRef.current;
-      // Show both first (inline display overrides the SSR fallback classes),
-      // then hide in priority order until the row stops overflowing.
+      // Show first (inline display overrides the SSR fallback classes), then
+      // hide it if the row still overflows.
       if (copyLink) {
         copyLink.style.display = 'flex';
       }
-      if (analytics) {
-        analytics.style.display = 'flex';
-      }
       const overflows = () => bar.scrollWidth > bar.clientWidth;
-      if (analytics && overflows()) {
-        analytics.style.display = 'none';
-      }
       if (copyLink && overflows()) {
         copyLink.style.display = 'none';
       }
@@ -143,7 +128,6 @@ export const FocusCardActionBar = ({
     observer.observe(bar);
     return () => observer.disconnect();
   }, [
-    canSeeAnalytics,
     upvotes,
     comments,
     awards,
@@ -279,11 +263,11 @@ export const FocusCardActionBar = ({
               size: ButtonSize.Medium,
             }}
           />
-          {/* Bookmark stays — it is the primary save action and is not in the
-              menu. Copy/share and analytics fold into the "…" menu when space
-              is tight (see the overflow effect); the `hidden tablet:flex` /
-              `hidden laptop:flex` classes are only the pre-measurement (SSR)
-              fallback — the effect overrides display once it measures. */}
+          {/* Bookmark stays — it is the primary save action. Copy link folds
+              out when space is tight (see the overflow effect); the
+              `hidden tablet:flex` classes are only the pre-measurement (SSR)
+              fallback — the effect overrides display once it measures. The "…"
+              menu and analytics now live in the card header / stats row. */}
           <div ref={copyLinkRef} className="hidden tablet:flex">
             <Tooltip content="Copy link">
               <CardAction
@@ -297,22 +281,6 @@ export const FocusCardActionBar = ({
           {post.clickbaitTitleDetected && (
             <PostClickbaitShield post={post} iconOnly />
           )}
-          {canSeeAnalytics && (
-            <div ref={analyticsRef} className="hidden laptop:flex">
-              <Tooltip content="Analytics">
-                <CardAction
-                  label="Analytics"
-                  icon={<AnalyticsIcon />}
-                  href={`${webappUrl}posts/${post.id}/analytics`}
-                />
-              </Tooltip>
-            </div>
-          )}
-          <PostMenuOptions
-            post={post}
-            origin={Origin.ArticleModal}
-            buttonSize={ButtonSize.Medium}
-          />
           {isStuck && onClose && (
             <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
           )}

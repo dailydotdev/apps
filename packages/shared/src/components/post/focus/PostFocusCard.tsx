@@ -16,7 +16,8 @@ import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
-import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
@@ -41,6 +42,7 @@ import type { UserShortProfile } from '../../../lib/user';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
+import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -229,9 +231,8 @@ export const PostFocusCard = ({
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
+  const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
-  const { onReadClick: onReaderInstallGateClick } =
-    useReaderInstallPromptGate(post);
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
@@ -264,12 +265,6 @@ export const PostFocusCard = ({
     return () => window.removeEventListener('blur', onWindowBlur);
   }, [isVideoType, isVideoExpanded]);
 
-  const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (onReaderInstallGateClick(event)) {
-      return;
-    }
-    onReadArticle();
-  };
   const scrollToDiscussion = () =>
     discussionRef.current?.scrollIntoView({
       behavior: 'smooth',
@@ -280,8 +275,9 @@ export const PostFocusCard = ({
     focusCommentRef.current();
   };
 
-  // Rendered in the header on tablet+ (next to Follow) but moved below the
-  // title on mobile, where the header row is too tight to hold both.
+  // Sits below the title block (where the engagement bar used to be); the
+  // engagement bar now lives down by the comment composer where the reader's
+  // cursor naturally rests.
   const renderReadButton = (className: string): ReactElement | null =>
     readHref && !isInternalReadType(post) ? (
       <Button
@@ -340,7 +336,13 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            {renderReadButton('ml-auto hidden shrink-0 tablet:flex')}
+            <div className="ml-auto shrink-0">
+              <PostMenuOptions
+                post={post}
+                origin={origin}
+                buttonSize={ButtonSize.Medium}
+              />
+            </div>
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
@@ -385,10 +387,9 @@ export const PostFocusCard = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* Title and image are top-aligned columns. The below-title read
-                button lives in the SAME column as the title (tight gap) so it
-                sits right under it regardless of the image height; from tablet
-                (656px) up the button moves to the top row and this one hides. */}
+            {/* Title and image are top-aligned columns. The cover image opens a
+                lightbox rather than navigating away; the read button sits below
+                the whole block (see renderReadButton call after this section). */}
             <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
@@ -403,16 +404,21 @@ export const PostFocusCard = ({
                 >
                   {title}
                 </h1>
-                {renderReadButton('w-fit tablet:hidden')}
               </div>
               {!isVideoType && article.image && (
-                <a
-                  className="block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  href={readHref}
-                  onClick={handleImageClick}
-                  rel="noopener"
-                  target="_blank"
-                  title="Go to post"
+                <button
+                  type="button"
+                  aria-label="View cover image"
+                  className="block h-fit w-24 shrink-0 cursor-pointer overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  onClick={() =>
+                    openModal({
+                      type: LazyModal.ImageView,
+                      props: {
+                        src: article.image as string,
+                        alt: 'Post cover image',
+                      },
+                    })
+                  }
                 >
                   <LazyImage
                     eager
@@ -424,18 +430,12 @@ export const PostFocusCard = ({
                     imgAlt="Post cover image"
                     imgSrc={article.image}
                   />
-                </a>
+                </button>
               )}
             </div>
           </div>
 
-          <FocusCardActionBar
-            post={post}
-            origin={origin}
-            onComment={scrollToComment}
-            onCopyLinkClick={onCopyPostLink}
-            onClose={onClose}
-          />
+          {renderReadButton('w-fit')}
 
           <PostMetadata
             className="!typo-callout"
@@ -523,6 +523,14 @@ export const PostFocusCard = ({
           )}
 
           <PostSidebarAdWidget postId={post.id} variant="inline" />
+
+          <FocusCardActionBar
+            post={post}
+            origin={origin}
+            onComment={scrollToComment}
+            onCopyLinkClick={onCopyPostLink}
+            onClose={onClose}
+          />
 
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel
