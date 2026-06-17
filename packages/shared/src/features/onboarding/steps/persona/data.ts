@@ -66,7 +66,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🐙',
     color: '#f59e0b',
     tagline: 'A bit of everything, tied to nothing. Your feed stays wide.',
-    tags: ['webdev', 'javascript', 'python', 'open-source', 'git', 'github'],
+    tags: ['webdev', 'javascript', 'python', 'open-source', 'github'],
   },
   {
     id: 'full-stack-web-developer',
@@ -74,7 +74,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '⚛️',
     color: '#06b6d4',
     tagline: 'React, Node, and everything between. You ship the whole thing.',
-    tags: ['javascript', 'typescript', 'react', 'nodejs', 'webdev', 'css'],
+    tags: ['javascript', 'typescript', 'react', 'nodejs', 'css', 'nextjs'],
   },
   {
     id: 'frontend-specialist',
@@ -82,7 +82,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🎨',
     color: '#ec4899',
     tagline: 'Components, CSS, and the framework wars. You sweat the pixels.',
-    tags: ['react', 'css', 'typescript', 'vuejs', 'svelte', 'tailwind-css', 'nextjs'],
+    tags: ['react', 'typescript', 'css', 'nextjs', 'tailwind-css', 'svelte'],
   },
   {
     id: 'ai-specialist',
@@ -90,7 +90,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🤖',
     color: '#22c55e',
     tagline: 'LLMs, agents, RAG. You build with AI, not just around it.',
-    tags: ['ai', 'llm', 'ai-agents', 'rag', 'claude', 'openai', 'prompt-engineering', 'agentic-ai'],
+    tags: ['llm', 'ai-agents', 'claude', 'openai', 'rag', 'prompt-engineering'],
   },
   {
     id: 'ml-engineer',
@@ -98,7 +98,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🧠',
     color: '#10b981',
     tagline: 'PyTorch, datasets, GPUs. You train the models everyone else calls.',
-    tags: ['machine-learning', 'deep-learning', 'pytorch', 'tensorflow', 'computer-vision', 'nlp', 'data-science'],
+    tags: ['machine-learning', 'deep-learning', 'pytorch', 'computer-vision', 'nlp', 'data-science'],
   },
   {
     id: 'backend-developer',
@@ -106,7 +106,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🛠️',
     color: '#3b82f6',
     tagline: 'APIs, queues, databases. You make the data move.',
-    tags: ['backend', 'sql', 'database', 'postgresql', 'nodejs', 'golang', 'rest-api', 'redis'],
+    tags: ['backend', 'postgresql', 'golang', 'sql', 'nodejs', 'redis'],
   },
   {
     id: 'software-architect',
@@ -114,7 +114,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🏛️',
     color: '#14b8a6',
     tagline: 'Microservices, scale, trade-offs. You draw the boxes others build.',
-    tags: ['architecture', 'microservices', 'system-design', 'distributed-systems', 'design-patterns', 'cloud'],
+    tags: ['architecture', 'microservices', 'distributed-systems', 'design-patterns', 'backend'],
   },
   {
     id: 'systems-programmer',
@@ -122,7 +122,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '⚡',
     color: '#f97316',
     tagline: 'Go, Rust, C++. Close to the metal, fast by default.',
-    tags: ['rust', 'golang', 'c++', 'c', 'linux', 'performance', 'zig', 'webassembly'],
+    tags: ['rust', 'golang', 'c++', 'c', 'zig', 'performance'],
   },
   {
     id: 'devops-engineer',
@@ -130,7 +130,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🐳',
     color: '#0ea5e9',
     tagline: 'Kubernetes, CI/CD, observability. You keep prod breathing.',
-    tags: ['devops', 'kubernetes', 'docker', 'aws', 'terraform', 'cicd', 'observability', 'sre'],
+    tags: ['kubernetes', 'docker', 'aws', 'cicd', 'observability', 'terraform'],
   },
   {
     id: 'php-developer',
@@ -138,7 +138,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🐘',
     color: '#777bb3',
     tagline: 'Laravel, Symfony, WordPress. The web's quiet workhorse.',
-    tags: ['php', 'laravel', 'symfony', 'wordpress', 'mysql', 'webdev'],
+    tags: ['php', 'laravel', 'symfony', 'wordpress', 'mysql'],
   },
   {
     id: 'security-engineer',
@@ -146,7 +146,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🛡️',
     color: '#dc2626',
     tagline: 'Threats, CVEs, attack surface. You break it before they do.',
-    tags: ['security', 'cyber', 'vulnerability', 'cryptography', 'devsecops', 'appsec', 'authentication'],
+    tags: ['security', 'cyber', 'vulnerability', 'appsec', 'authentication', 'cryptography'],
   },
   {
     id: 'dotnet-developer',
@@ -154,7 +154,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🟦',
     color: '#512bd4',
     tagline: 'C#, ASP.NET, Blazor. The Microsoft stack, done right.',
-    tags: ['.net', 'aspnet', 'blazor', 'azure', 'visual-studio', 'backend'],
+    tags: ['.net', 'aspnet', 'blazor', 'azure', 'visual-studio'],
   },
   {
     id: 'game-developer',
@@ -162,7 +162,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '🎮',
     color: '#a855f7',
     tagline: 'Unity, Unreal, Godot. Sixty frames a second or bust.',
-    tags: ['game-development', 'unity', 'unreal-engine', 'godot', 'game-design', 'c++'],
+    tags: ['game-development', 'unity', 'unreal-engine', 'godot', 'game-design'],
   },
   {
     id: 'mobile-developer',
@@ -170,7 +170,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '📱',
     color: '#f43f5e',
     tagline: 'Swift, Kotlin, Flutter. Your code ships to a pocket.',
-    tags: ['android', 'ios', 'swift', 'kotlin', 'flutter', 'react-native', 'swiftui'],
+    tags: ['android', 'ios', 'swift', 'kotlin', 'flutter', 'react-native'],
   },
   {
     id: 'operator',
@@ -178,7 +178,7 @@ export const PERSONAS: DeveloperPersona[] = [
     emoji: '💼',
     color: '#64748b',
     tagline: 'Product, design, strategy. You ship outcomes, not commits.',
-    tags: ['product-management', 'startup', 'design', 'ux', 'productivity', 'leadership', 'ui-design'],
+    tags: ['product-management', 'startup', 'leadership', 'ux', 'ui-design', 'productivity'],
   },
 ];
 
