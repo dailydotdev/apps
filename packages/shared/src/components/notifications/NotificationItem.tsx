@@ -267,15 +267,15 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         {hasAvatar ? avatarContent : leadIcon}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left typo-callout">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 text-left">
         <span
-          className="multi-truncate line-clamp-2 break-words [&_p]:m-0"
+          className="multi-truncate line-clamp-2 break-words typo-callout [&_p]:m-0"
           dangerouslySetInnerHTML={{
             __html: memoizedTitle,
           }}
         />
         {description && (
-          <div className="flex gap-1 text-text-quaternary typo-footnote">
+          <div className="flex gap-1 text-text-tertiary typo-footnote">
             <NotificationItemDescriptionIcon type={type} key="icon" />
             <div
               className="multi-truncate line-clamp-2 min-w-0 flex-1 break-words [&_p]:m-0"
@@ -285,10 +285,30 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             />
           </div>
         )}
-        {attachment?.title && (
-          <span className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote">
-            {attachment.title}
-          </span>
+        {/* The article/post the notification refers to — one compact card
+            (thumbnail + title) instead of a separate text line, so the
+            "mentioned article" reads as a single unit. */}
+        {attachment && (
+          <div className="mt-1 flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary p-2">
+            {attachment.image && (
+              <CardCover
+                data-testid="postImage"
+                isVideoType={
+                  attachment.type === NotificationAttachmentType.Video
+                }
+                imageProps={{
+                  loading: 'lazy',
+                  alt: `Cover preview of: ${attachment.title}`,
+                  src: attachment.image,
+                  className: '!h-10 !w-10 !rounded-8 object-cover',
+                }}
+                videoProps={{ size: IconSize.Small }}
+              />
+            )}
+            <span className="multi-truncate line-clamp-2 min-w-0 flex-1 break-words text-text-secondary typo-footnote">
+              {attachment.title}
+            </span>
+          </div>
         )}
         {type === NotificationType.UserFollow && (
           <span className="relative z-1 mt-1">
@@ -297,32 +317,17 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-2">
-        <div className="flex flex-row items-center gap-1">
-          {hasOptions && (
-            <span className="relative z-1">
-              <NotificationOptionsButton notification={{ type, referenceId }} />
-            </span>
-          )}
-          {createdAt && (
-            <DateFormat
-              className="whitespace-nowrap text-text-quaternary typo-caption1"
-              date={createdAt}
-              type={TimeFormatType.LastActivity}
-            />
-          )}
-        </div>
-        {attachment?.image && (
-          <CardCover
-            data-testid="postImage"
-            isVideoType={attachment.type === NotificationAttachmentType.Video}
-            imageProps={{
-              loading: 'lazy',
-              alt: `Cover preview of: ${attachment.title}`,
-              src: attachment.image,
-              className: '!h-12 !w-12 !rounded-12 object-cover',
-            }}
-            videoProps={{ size: IconSize.Medium }}
+      <div className="flex shrink-0 flex-row items-center gap-1">
+        {hasOptions && (
+          <span className="relative z-1">
+            <NotificationOptionsButton notification={{ type, referenceId }} />
+          </span>
+        )}
+        {createdAt && (
+          <DateFormat
+            className="whitespace-nowrap text-text-quaternary typo-caption1"
+            date={createdAt}
+            type={TimeFormatType.LastActivity}
           />
         )}
       </div>

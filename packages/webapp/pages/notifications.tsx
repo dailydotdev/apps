@@ -166,7 +166,11 @@ const Notifications = (): ReactElement => {
     <ProtectedPage>
       {isV2Laptop && <PageHeader title="Notifications" />}
       <main
-        className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
+        className={classNames(
+          !isV2Laptop && pageBorders,
+          pageContainerClassNames,
+          'pb-12',
+        )}
       >
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
@@ -178,7 +182,7 @@ const Notifications = (): ReactElement => {
             Notifications
           </h2>
         )}
-        {hasNotifications && availableCategories.length > 1 && (
+        {hasNotifications && availableCategories.length > 0 && (
           <NotificationFilterBar
             categories={availableCategories}
             active={activeCategory}
