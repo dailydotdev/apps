@@ -34,19 +34,19 @@ const OLD: Palette = {
 
 // The new re-toned ramps now shipping in the palette.
 const NEW: Palette = {
-  burger: { 10:'#C68B67',20:'#BD815E',30:'#B47755',40:'#AA6D4B',50:'#9E5F3F',60:'#8F5233',70:'#84482B',80:'#7A3F24',90:'#70361D' },
-  blueCheese: { 10:'#71E6F4',20:'#5EE0EF',30:'#48D8EA',40:'#2FCDE3',50:'#10BFD9',60:'#0BB1CB',70:'#08A6C2',80:'#059CBA',90:'#0391B0' },
-  avocado: { 10:'#76F1C8',20:'#67EFBB',30:'#53E9AF',40:'#3CE29D',50:'#20D982',60:'#18CB6F',70:'#12C261',80:'#0DBA54',90:'#07B147' },
-  lettuce: { 10:'#D0FC6E',20:'#C1F95D',30:'#B1F54C',40:'#9FF238',50:'#84EF20',60:'#6FE617',70:'#62DF12',80:'#55D80C',90:'#4BD107' },
-  cheese: { 10:'#FFF76F',20:'#FFF35A',30:'#FFEF40',40:'#FFE923',50:'#FFDF00',60:'#FCD400',70:'#F9CC00',80:'#F6C400',90:'#F3BC00' },
-  bun: { 10:'#FFB260',20:'#FFA455',30:'#FF9748',40:'#FF873B',50:'#FF732B',60:'#FA5F20',70:'#F55219',80:'#F04511',90:'#EB370A' },
-  ketchup: { 10:'#F1746E',20:'#EB635E',30:'#E5514D',40:'#DD3D3A',50:'#D22523',60:'#C41A1A',70:'#BA1414',80:'#B00E10',90:'#A7070B' },
-  bacon: { 10:'#FC7CD0',20:'#FB70C5',30:'#FB63BC',40:'#F956AF',50:'#F9439F',60:'#F0348A',70:'#E7297C',80:'#DF1F70',90:'#D61463' },
-  cabbage: { 10:'#C084FC',20:'#B46DFA',30:'#A855F7',40:'#9333EA',50:'#892BDC',60:'#7E22CE',70:'#7522BB',80:'#6B21A8',90:'#581C87' },
-  onion: { 10:'#9670F8',20:'#8662F4',30:'#7855F0',40:'#6947ED',50:'#5637E9',60:'#452CD7',70:'#3B25C8',80:'#331EBA',90:'#2C19AD' },
-  water: { 10:'#6B85F9',20:'#5F78F7',30:'#5367F6',40:'#4657F3',50:'#353FF1',60:'#292BE9',70:'#2421E2',80:'#2119DC',90:'#1C11D5' },
-  salt: { 0:'#FFFFFF',10:'#FAFAFA',20:'#F5F4F5',30:'#EEECEE',40:'#E6E4E7',50:'#DFDDDF',60:'#D8D4D8',70:'#CBC7CC',80:'#BDB6BE',90:'#ACA2AE' },
-  pepper: { 10:'#52525B',20:'#494951',30:'#3F3F46',40:'#2A2A30',50:'#1F1F25',60:'#1B1B21',70:'#17171C',80:'#131318',90:'#0F0F12' },
+  burger: { 10:'#E1CCBF',20:'#D1B7A6',30:'#BE9F8B',40:'#A6856F',50:'#916F58',60:'#7D5D48',70:'#6B4E3B',80:'#594130',90:'#473325' },
+  blueCheese: { 10:'#B7F5FD',20:'#94E5F0',30:'#6CD1DF',40:'#3EBAC9',50:'#00A6B6',60:'#0092A1',70:'#00818E',80:'#00717D',90:'#00616B' },
+  avocado: { 10:'#B7F7C7',20:'#96E8AC',30:'#70D68F',40:'#47BF72',50:'#19AB5A',60:'#00974C',70:'#008542',80:'#007539',90:'#0C6332' },
+  lettuce: { 10:'#D5FEB5',20:'#BDF092',30:'#A2DF6C',40:'#88CB44',50:'#72B818',60:'#65A700',70:'#5B9701',80:'#548813',90:'#4C771E' },
+  cheese: { 10:'#FFF8B6',20:'#F4E985',30:'#E6D858',40:'#D4C31B',50:'#C1B100',60:'#B1A300',70:'#A39500',80:'#968900',90:'#877C11' },
+  bun: { 10:'#FFE1CC',20:'#FFC89E',30:'#FFA761',40:'#EA8B36',50:'#D67400',60:'#BC6500',70:'#A65800',80:'#924D00',90:'#7D4100' },
+  ketchup: { 10:'#FEA196',20:'#F9857A',30:'#EF655B',40:'#DD423B',50:'#CA1C20',60:'#B20010',70:'#99000C',80:'#820008',90:'#6B0005' },
+  bacon: { 10:'#FFB5CD',20:'#FF98BC',30:'#F976A8',40:'#E85692',50:'#D5397F',60:'#C0296F',70:'#AA2161',80:'#941F55',90:'#7C1D47' },
+  cabbage: { 10:'#BC94F2',20:'#B17BF2',30:'#A35DED',40:'#913BE0',50:'#8112D2',60:'#6F00B8',70:'#5E009D',80:'#500086',90:'#40006D' },
+  onion: { 10:'#A0ABF3',20:'#8B97F2',30:'#767FEB',40:'#6065DC',50:'#4E4FCD',60:'#413FB6',70:'#36329E',80:'#2C2986',90:'#221F6B' },
+  water: { 10:'#92CAFF',20:'#6CB7FD',30:'#40A1F4',40:'#0087E0',50:'#0072BE',60:'#0061A2',70:'#00518A',80:'#004374',90:'#00355D' },
+  salt: { 0:'#FFFFFF',10:'#F6F6FB',20:'#EEEEF3',30:'#E5E6EB',40:'#DCDCE1',50:'#D0D0D5',60:'#C3C3C9',70:'#B7B7BC',80:'#AAAAAF',90:'#9E9EA3' },
+  pepper: { 10:'#62626B',20:'#56565E',30:'#494951',40:'#3C3C44',50:'#2E2E36',60:'#222229',70:'#19191F',80:'#131319',90:'#0E0E14' },
 };
 
 const FAMILIES = Object.keys(NEW);
@@ -211,10 +211,12 @@ export const RawRamps: Story = {
     <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 4 }}>
       <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Raw color ramps — old (top) vs new (bottom)</h1>
       <p style={{ opacity: 0.7, maxWidth: 760 }}>
-        Every family keeps its name and all nine shade levels. The brand (cabbage) now follows the
-        docs.daily.dev purple ramp (#892BDC); dark neutrals (pepper) are near-black and essentially
-        neutral (#0F0F12 → #17171C) for strong element contrast; light neutrals (salt) carry a faint
-        lavender tint. Social colors and opacity percentages are unchanged.
+        Every family keeps its name and all nine shade levels. Ramps are built in OKLCH for even
+        perceptual steps: lightness eases from a per-hue light end to a dark end, chroma peaks mid-ramp,
+        and out-of-gamut colors are chroma-fit. The brand (cabbage) is a saturated violet; dark neutrals
+        (pepper) are near-black with a whisper of violet chroma; light neutrals (salt) a faint lavender.
+        Status colors are each their own hue, kept distinguishable. Social colors and opacity percentages
+        are unchanged.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 12 }}>
         {FAMILIES.map((fam) => (
