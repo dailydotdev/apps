@@ -19,7 +19,7 @@
   }
 
   &::before {
-    background: linear-gradient(135.18deg, #E769FB 0%, #9E70F8 24.16%, #68A6FD 40%, #9E70F8 71.33%, #D473F4 100%);
+    background: linear-gradient(135.18deg, #C16AFA 0%, #9670F8 24.16%, #6B85F9 40%, #9670F8 71.33%, #AC4EF4 100%);
     content: '';
     position: absolute;
     top: 0;

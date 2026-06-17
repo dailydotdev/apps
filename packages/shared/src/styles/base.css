@@ -814,7 +814,7 @@ details.right-icon {
 }
 
 .squad-background-fade {
-  background: radial-gradient(ellipse, #c029f088 0%, #c029f000 400px);
+  background: radial-gradient(ellipse, #8E2BEE88 0%, #8E2BEE00 400px);
   background-size: 1200px 500px;
   background-position: center -250px;
   background-repeat: no-repeat;
@@ -911,7 +911,7 @@ meter::-webkit-meter-bar {
   }
 
   &-best-price {
-    background: linear-gradient(135deg, #E769FB 0%, #9E70F8 44.71%, #68A6FD 100%);
+    background: linear-gradient(135deg, #C16AFA 0%, #9670F8 44.71%, #6B85F9 100%);
   }
 }
 
@@ -1077,11 +1077,11 @@ meter::-webkit-meter-bar {
   }
 
   .top-hero-panel-border {
-    background: linear-gradient(122deg, #2d1b8f 0%, #5d1fb7 45%, #ff00a8 100%);
+    background: linear-gradient(122deg, #331EBA 0%, #600FCD 45%, #F956AF 100%);
   }
 
   .top-hero-glow {
-    background: rgb(255 0 168 / 35%);
+    background: rgb(249 86 175 / 35%);
   }
 
   .top-hero-aurora {
