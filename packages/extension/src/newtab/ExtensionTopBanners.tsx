@@ -143,7 +143,8 @@ export const ExtensionTopBanners = (): ReactElement | null => {
     cards.push(
       <TopHero
         key="reminder"
-        subtitle="Turn on your daily reading reminder and never miss a learning day."
+        title={reminder.title}
+        subtitle={reminder.subtitle}
         illustration={<CompactReminderCat />}
         onCtaClick={() => {
           reminder.onEnable();

@@ -85,10 +85,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 
-export const featureReadingReminderVariation = new Feature<
-  'control' | 'hero' | 'inline'
->('reading_reminder_variation', 'control');
-
 export const featureReadingReminderHeroCopy = new Feature(
   'reading_reminder_hero_copy',
   {
