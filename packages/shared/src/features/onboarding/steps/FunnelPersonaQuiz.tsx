@@ -11,10 +11,10 @@ import type { FunnelStepPersonaQuiz } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import {
-  Button,
   ButtonSize,
+  ButtonV2,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -22,6 +22,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DownvoteIcon, UpvoteIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { usePersonaQuiz } from './persona/usePersonaQuiz';
 import type { AnswerValue } from './persona/engine';
 import type { DeveloperPersona } from './persona/data';
@@ -297,21 +298,72 @@ const SpeechBubble = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'relative w-full rounded-16 border-2 border-border-subtlest-tertiary p-6 text-center tablet:p-8',
+      styles.panel,
+      'relative w-full p-6 text-center tablet:p-8',
       className,
     )}
   >
     {children}
-    {/* On mobile Patchy sits above the bubble, so the tail points up. */}
+    {/* Thought-cloud trailing toward Patchy: up on mobile (he sits above the
+     * bubble), out to the right on laptop (he sits beside it). */}
     <span
       aria-hidden
-      className="absolute left-1/2 top-0 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rotate-45 border-l-2 border-t-2 border-border-subtlest-tertiary bg-background-default laptop:hidden"
-    />
-    {/* On laptop Patchy sits to the right, so the tail points right. */}
+      className="absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 flex-col-reverse items-center gap-1.5 laptop:hidden"
+    >
+      <span className={classNames(styles.bubbleDot, 'h-4 w-4')} />
+      <span className={classNames(styles.bubbleDot, 'h-2.5 w-2.5')} />
+      <span className={classNames(styles.bubbleDot, 'h-1.5 w-1.5')} />
+    </span>
     <span
       aria-hidden
-      className="absolute right-0 top-1/2 hidden h-8 w-8 -translate-y-1/2 translate-x-1/2 rotate-45 border-r-2 border-t-2 border-border-subtlest-tertiary bg-background-default laptop:block"
-    />
+      className="absolute left-full top-1/2 ml-3 hidden -translate-y-1/2 items-center gap-2 laptop:flex"
+    >
+      <span className={classNames(styles.bubbleDot, 'h-5 w-5')} />
+      <span className={classNames(styles.bubbleDot, 'h-3 w-3')} />
+      <span className={classNames(styles.bubbleDot, 'h-2 w-2')} />
+    </span>
+  </div>
+);
+
+// Fixed configs (left column / size / timing) so the floating dust is stable
+// across SSR and re-renders instead of jumping on every paint. Delays are
+// negative so each speck starts partway through its rise: at load the dust is
+// already spread up the screen instead of bunched at the bottom edge.
+const MAGIC_PARTICLES = [
+  { left: '10%', size: 3, delay: '-2.5s', duration: '5s' },
+  { left: '22%', size: 5, delay: '-1.6s', duration: '6.2s' },
+  { left: '34%', size: 3, delay: '-3.2s', duration: '4.6s' },
+  { left: '44%', size: 4, delay: '-0.8s', duration: '5.6s' },
+  { left: '52%', size: 6, delay: '-2.4s', duration: '6.8s' },
+  { left: '61%', size: 3, delay: '-4s', duration: '5.2s' },
+  { left: '70%', size: 5, delay: '-0.4s', duration: '6s' },
+  { left: '79%', size: 4, delay: '-3s', duration: '4.4s' },
+  { left: '88%', size: 3, delay: '-1.2s', duration: '6.4s' },
+  { left: '16%', size: 4, delay: '-3.8s', duration: '5.4s' },
+  { left: '66%', size: 3, delay: '-4.6s', duration: '4.8s' },
+  { left: '93%', size: 5, delay: '-2s', duration: '7s' },
+];
+
+// Decorative spotlight-stage layer: a colour-shifting aurora plus floating
+// "magic dust" rising from the lamp. Purely presentational, behind content.
+const StageBackdrop = (): ReactElement => (
+  <div aria-hidden className={styles.stageBackdrop}>
+    <span className={styles.auroraAlt} />
+    {MAGIC_PARTICLES.map((particle) => (
+      <span
+        key={particle.left + particle.delay}
+        className={styles.magicParticle}
+        style={
+          {
+            left: particle.left,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            '--particle-delay': particle.delay,
+            '--particle-duration': particle.duration,
+          } as React.CSSProperties
+        }
+      />
+    ))}
   </div>
 );
 
@@ -356,12 +408,15 @@ const QuizStage = ({
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-10 bg-surface-float">
         <div
-          className="h-full rounded-10 bg-accent-cabbage-default transition-[width] duration-500"
+          className={classNames(
+            styles.progressFill,
+            'h-full rounded-10 transition-[width] duration-500',
+          )}
           style={{ width: `${(progress?.value ?? 0) * 100}%` }}
         />
       </div>
     </div>
-    <div className="mx-auto mt-8 flex w-full max-w-screen-laptop flex-1 flex-col items-center gap-4 laptop:mt-0 laptop:flex-row laptop:items-center laptop:justify-center laptop:gap-6">
+    <div className="mx-auto mt-4 flex w-full max-w-screen-laptop flex-1 flex-col items-center gap-8 laptop:mt-0 laptop:flex-row laptop:items-center laptop:justify-center laptop:gap-6">
       {children}
       {mascot}
     </div>
@@ -385,12 +440,16 @@ const PersonaCard = ({
     key={persona.id}
     type="button"
     onClick={() => onSelect(persona.id)}
-    className="flex flex-col items-center gap-2 rounded-16 border-2 border-border-subtlest-tertiary bg-surface-float p-6 text-center transition-all hover:-translate-y-1 hover:border-accent-cabbage-default tablet:p-8"
+    className={classNames(
+      styles.card,
+      'flex flex-col items-center gap-2 rounded-16 border-2 border-border-subtlest-tertiary bg-surface-float p-6 text-center hover:-translate-y-1 hover:border-accent-cabbage-default active:translate-y-0 active:scale-[0.98] tablet:p-8',
+    )}
   >
     <span
-      className={
-        size === 'small' ? 'text-4xl leading-none' : 'text-5xl leading-none'
-      }
+      className={classNames(
+        styles.cardEmoji,
+        size === 'small' ? 'text-4xl leading-none' : 'text-5xl leading-none',
+      )}
       style={{ color: persona.color }}
     >
       {persona.emoji}
@@ -410,7 +469,71 @@ const PersonaCard = ({
   </button>
 );
 
-function FunnelPersonaQuizComponent({
+// Reveal firework: glowing dots (same family as the floating dust) explode
+// radially from the emblem centre. Generated once (deterministic, no
+// randomness) so it's SSR-stable.
+const FIREWORK_COLORS = [
+  'var(--theme-accent-cabbage-default)',
+  'var(--theme-accent-cabbage-bolder)',
+  'var(--theme-accent-cabbage-subtler)',
+  'var(--theme-accent-onion-default)',
+  'var(--theme-accent-onion-bolder)',
+  'var(--theme-accent-onion-subtler)',
+];
+
+const REVEAL_FIREWORK = Array.from({ length: 30 }, (_, index) => {
+  // Even radial spread + slight per-spoke jitter so it reads organic.
+  const angle = (index / 30) * Math.PI * 2 + (index % 2 ? 0.12 : -0.12);
+  const distance = 95 + (index % 4) * 48; // 95 to 239px rings
+  const gravity = 24 + (index % 3) * 16; // gentle downward sag
+  return {
+    id: index,
+    dx: `${Math.round(Math.cos(angle) * distance)}px`,
+    dy: `${Math.round(Math.sin(angle) * distance + gravity)}px`,
+    sw: `${4 + (index % 3) * 2}px`,
+    sc: FIREWORK_COLORS[index % FIREWORK_COLORS.length],
+    sd: `${1.1 + (index % 4) * 0.2}s`,
+    sdelay: `${(index % 3) * 0.05}s`,
+  };
+});
+
+// The celebratory persona "amulet" for the reveal: a glowing coin in the
+// persona's brand colour with a shockwave ring, and a firework of glowing dots
+// that explodes outward from the icon. `--persona` cascades to every layer.
+const PersonaEmblem = ({
+  persona,
+}: {
+  persona: DeveloperPersona;
+}): ReactElement => (
+  <div
+    className={styles.emblem}
+    style={{ '--persona': persona.color } as React.CSSProperties}
+  >
+    <span aria-hidden className={styles.emblemFlash} />
+    {REVEAL_FIREWORK.map((spark) => (
+      <span
+        key={spark.id}
+        aria-hidden
+        className={styles.fireworkSpark}
+        style={
+          {
+            '--dx': spark.dx,
+            '--dy': spark.dy,
+            '--sw': spark.sw,
+            '--sc': spark.sc,
+            '--sd': spark.sd,
+            '--sdelay': spark.sdelay,
+          } as React.CSSProperties
+        }
+      />
+    ))}
+    <span className={styles.emblemCoin}>
+      <span className={styles.emblemEmoji}>{persona.emoji}</span>
+    </span>
+  </div>
+);
+
+function PersonaQuizPhases({
   parameters: { headline, explainer, cta, mascotVideoBaseUrl },
   onTransition,
 }: FunnelStepPersonaQuiz): ReactElement {
@@ -515,23 +638,27 @@ function FunnelPersonaQuizComponent({
             </div>
           </SpeechBubble>
           <div className="mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto">
-            <Button
-              className="w-full laptop:w-auto"
+            <ButtonV2
+              className={classNames(
+                styles.cta,
+                'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
+              )}
               variant={ButtonVariant.Primary}
               size={ButtonSize.XLarge}
               onClick={start}
               type="button"
             >
               {cta || "I'm ready!"}
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
+              className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Medium}
               onClick={pickManually}
               type="button"
             >
               Nah, I&apos;ll pick myself
-            </Button>
+            </ButtonV2>
           </div>
         </div>
       </QuizStage>
@@ -559,7 +686,7 @@ function FunnelPersonaQuizComponent({
               key={persona.id}
               type="button"
               onClick={() => selectPersona(persona.id)}
-              className="flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-colors hover:border-accent-cabbage-default"
+              className="flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-[transform,border-color] duration-200 ease-out hover:translate-x-1 hover:border-accent-cabbage-default active:scale-[0.99]"
             >
               <span
                 className="shrink-0 text-4xl leading-none"
@@ -673,15 +800,15 @@ function FunnelPersonaQuizComponent({
               />
             ))}
           </div>
-          <Button
-            className="mt-auto laptop:mt-0"
+          <ButtonV2
+            className="mt-auto text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95 laptop:mt-0"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
             onClick={pickManually}
             type="button"
           >
             None of these. Let me pick.
-          </Button>
+          </ButtonV2>
         </div>
       </QuizStage>
     );
@@ -731,13 +858,19 @@ function FunnelPersonaQuizComponent({
                   aria-checked={checked}
                   onClick={() => toggleModifier(modifier.id)}
                   className={classNames(
-                    'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left transition-colors',
+                    styles.card,
+                    'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left active:scale-[0.99]',
                     checked
                       ? 'border-accent-cabbage-default bg-surface-float'
                       : 'border-border-subtlest-tertiary bg-surface-float hover:border-text-quaternary',
                   )}
                 >
-                  <span className="shrink-0 text-4xl leading-none">
+                  <span
+                    className={classNames(
+                      styles.cardEmoji,
+                      'shrink-0 text-4xl leading-none',
+                    )}
+                  >
                     {modifier.emoji}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -753,30 +886,33 @@ function FunnelPersonaQuizComponent({
                   </span>
                   <span
                     className={classNames(
-                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-6 border-2 text-sm font-bold',
+                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-6 border-2 text-sm font-bold transition-colors',
                       checked
                         ? 'border-accent-cabbage-default bg-accent-cabbage-default text-text-primary'
                         : 'border-border-subtlest-tertiary',
                     )}
                     aria-hidden
                   >
-                    {checked ? '✓' : ''}
+                    {checked && <span className={styles.tick}>✓</span>}
                   </span>
                 </button>
               );
             })}
           </div>
-          <Button
-            className="mt-auto w-full laptop:mt-0 laptop:w-auto"
+          <ButtonV2
+            className={classNames(
+              styles.cta,
+              'mt-auto w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:mt-0 laptop:w-auto',
+            )}
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
             onClick={handleComplete}
             type="button"
           >
             {selectedModifierIds.length === 0
-              ? 'None of these — continue'
+              ? 'None of these, continue'
               : 'Continue →'}
-          </Button>
+          </ButtonV2>
         </div>
       </QuizStage>
     );
@@ -798,52 +934,58 @@ function FunnelPersonaQuizComponent({
           />
         }
       >
-        <div className="flex w-full max-w-xl flex-1 flex-col items-center gap-8 laptop:flex-none">
+        <div className="flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 laptop:flex-none">
           {revealReady && (
             <>
-              <SpeechBubble>
-                <div className="flex flex-col gap-4">
-                  <Typography
-                    tag={TypographyTag.H1}
-                    type={TypographyType.LargeTitle}
-                    bold
-                    className={styles.revealName}
-                    style={{ color: persona.color }}
-                  >
-                    {personaRevealPhrase(persona.name)} {persona.emoji}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Body}
-                    color={TypographyColor.Secondary}
-                    className={styles.revealTagline}
-                  >
-                    {persona.tagline}
-                  </Typography>
-                </div>
-              </SpeechBubble>
+              <PersonaEmblem persona={persona} />
+              <Typography
+                tag={TypographyTag.H1}
+                type={TypographyType.Title1}
+                bold
+                className={classNames(styles.revealName, 'text-center')}
+                style={{
+                  color: `color-mix(in srgb, ${persona.color} 60%, white)`,
+                }}
+              >
+                {personaRevealPhrase(persona.name)}
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+                className={classNames(
+                  styles.revealTagline,
+                  'max-w-md text-center',
+                )}
+              >
+                {persona.tagline}
+              </Typography>
               <div
                 className={classNames(
                   styles.revealActions,
-                  'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-0 laptop:w-auto',
+                  'mt-auto flex w-full flex-col items-center gap-3 laptop:mt-2 laptop:w-auto',
                 )}
               >
-                <Button
-                  className="w-full laptop:w-auto"
+                <ButtonV2
+                  className={classNames(
+                    styles.cta,
+                    'w-full transition-transform duration-200 ease-out hover:scale-[1.03] active:scale-[0.97] laptop:w-auto',
+                  )}
                   variant={ButtonVariant.Primary}
                   size={ButtonSize.XLarge}
                   onClick={confirmPersona}
                   type="button"
                 >
                   {cta || "Yes, that's me!"}
-                </Button>
-                <Button
+                </ButtonV2>
+                <ButtonV2
+                  className="text-text-tertiary transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Medium}
                   onClick={pickManually}
                   type="button"
                 >
                   Nah, I&apos;ll pick myself
-                </Button>
+                </ButtonV2>
               </div>
             </>
           )}
@@ -890,47 +1032,68 @@ function FunnelPersonaQuizComponent({
             {questionText}
           </Typography>
         </SpeechBubble>
-        <div className="mx-auto mt-auto w-full max-w-md laptop:mt-0">
+        <div className="mx-auto mt-auto w-full max-w-sm laptop:mt-0">
           <div
             className={classNames(
-              'flex flex-col gap-3 transition-opacity duration-200',
+              'flex flex-col gap-7 transition-opacity duration-200',
               isThinking && 'pointer-events-none opacity-0',
             )}
           >
-            <div className="flex w-full gap-3">
-              <Button
-                className="flex-1"
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Large}
+            <div className="flex w-full items-center justify-center gap-2">
+              <button
                 type="button"
-                icon={<UpvoteIcon />}
                 disabled={isThinking}
                 onClick={() => handleAnswer(1)}
+                className={classNames(
+                  styles.answer,
+                  styles.answerYes,
+                  'flex items-center gap-3 p-1 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.95]',
+                )}
               >
-                Yes
-              </Button>
-              <Button
-                className="flex-1"
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Large}
+                <Typography
+                  type={TypographyType.Title3}
+                  color={TypographyColor.Secondary}
+                >
+                  Yes
+                </Typography>
+                <span className={classNames(styles.answerBadge, 'h-20 w-20')}>
+                  <UpvoteIcon size={IconSize.XLarge} />
+                </span>
+              </button>
+              <button
                 type="button"
-                icon={<DownvoteIcon />}
                 disabled={isThinking}
                 onClick={() => handleAnswer(0)}
+                className={classNames(
+                  styles.answer,
+                  styles.answerNo,
+                  'flex items-center gap-3 p-1 transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.95]',
+                )}
               >
-                No
-              </Button>
+                <span className={classNames(styles.answerBadge, 'h-20 w-20')}>
+                  <DownvoteIcon size={IconSize.XLarge} />
+                </span>
+                <Typography
+                  type={TypographyType.Title3}
+                  color={TypographyColor.Secondary}
+                >
+                  No
+                </Typography>
+              </button>
             </div>
-            <Button
-              className="self-center"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Medium}
+            <button
               type="button"
               disabled={isThinking}
               onClick={() => handleAnswer(0.5)}
+              className={classNames(
+                styles.notSure,
+                'mx-auto flex items-center gap-2 px-5 py-2 transition-transform duration-150 ease-out hover:scale-105 active:scale-95',
+              )}
             >
-              Not sure
-            </Button>
+              <Typography type={TypographyType.Footnote} bold>
+                Not sure
+              </Typography>
+            </button>
           </div>
         </div>
         {isThinking && (
@@ -940,6 +1103,20 @@ function FunnelPersonaQuizComponent({
         )}
       </div>
     </QuizStage>
+  );
+}
+
+function FunnelPersonaQuizComponent(
+  props: FunnelStepPersonaQuiz,
+): ReactElement {
+  // The spotlight stage lives above every phase so its animation runs
+  // continuously across the step. Phases remount on transition (keyed), so a
+  // backdrop nested inside them would restart its animation each time.
+  return (
+    <div className={classNames(styles.stage, 'relative isolate flex flex-1 flex-col')}>
+      <StageBackdrop />
+      <PersonaQuizPhases {...props} />
+    </div>
   );
 }
 

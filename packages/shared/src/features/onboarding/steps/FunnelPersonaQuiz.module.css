@@ -42,15 +42,484 @@
 }
 
 .revealName {
-  animation: reveal-rise 0.5s ease 0.15s both;
+  animation: reveal-rise 0.5s ease 0.5s both;
 }
 
 .revealTagline {
-  animation: reveal-rise 0.5s ease 0.3s both;
+  animation: reveal-rise 0.5s ease 0.64s both;
 }
 
 .revealActions {
-  animation: reveal-rise 0.5s ease 0.45s both;
+  animation: reveal-rise 0.5s ease 0.78s both;
+}
+
+/* Reveal celebration. Patchy's verdict lands as an event: a glowing persona
+ * "amulet" springs in, a shockwave ring snaps out, and a burst of brand
+ * coloured sparks scatters. `--persona` (the persona's brand colour) is set
+ * inline on the .emblem and inherited by every layer. */
+.emblem {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  height: 9rem;
+}
+
+@keyframes emblem-pop {
+  0% {
+    transform: scale(0) rotate(-28deg);
+    opacity: 0;
+  }
+  62% {
+    transform: scale(1.14) rotate(6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes emblem-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--persona) 55%, transparent),
+      0 14px 44px -10px color-mix(in srgb, var(--persona) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--persona) 85%, transparent),
+      0 18px 64px -8px color-mix(in srgb, var(--persona) 85%, transparent);
+  }
+}
+
+.emblemCoin {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 9999px;
+  background: radial-gradient(
+      circle at 36% 28%,
+      color-mix(in srgb, var(--persona) 10%, white) 0%,
+      transparent 46%
+    ),
+    color-mix(in srgb, var(--persona) 32%, var(--theme-surface-float));
+  border: 1px solid color-mix(in srgb, var(--persona) 65%, transparent);
+  animation: emblem-pop 0.6s cubic-bezier(0.18, 0.9, 0.32, 1.4) both,
+    emblem-glow 2.6s ease-in-out 0.65s infinite;
+}
+
+.emblemEmoji {
+  font-size: 3.25rem;
+  line-height: 1;
+  filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.4));
+}
+
+@keyframes shockwave {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.7);
+    opacity: 0;
+  }
+}
+
+.emblemFlash {
+  position: absolute;
+  z-index: 1;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 9999px;
+  border: 2px solid color-mix(in srgb, var(--persona) 70%, transparent);
+  animation: shockwave 0.85s ease-out 0.1s both;
+}
+
+/* Firework burst: glowing dots (same family as the floating dust) explode
+ * outward from the emblem centre, decelerate, sag a touch with gravity, then
+ * fade, like a firework going off where the icon is. */
+@keyframes firework {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+      scale(0.6);
+    opacity: 0;
+  }
+}
+
+.fireworkSpark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: var(--sw, 5px);
+  height: var(--sw, 5px);
+  border-radius: 9999px;
+  background: var(--sc);
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--sc) 65%, transparent);
+  animation: firework var(--sd, 1.3s) cubic-bezier(0.12, 0.75, 0.25, 1)
+    var(--sdelay, 0s) both;
+}
+
+/* White CTA sitting in the spotlight: a soft luminous halo that breathes, so
+ * the button reads as the lit object on the stage. Neutral white light with the
+ * faintest cabbage rim, so it never tints the white fill. */
+@keyframes cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 10px 34px -16px rgb(255 255 255 / 35%);
+  }
+  50% {
+    box-shadow: 0 12px 42px -14px rgb(255 255 255 / 55%),
+      0 0 24px -6px
+        color-mix(in srgb, var(--theme-accent-cabbage-default) 45%, transparent);
+  }
+}
+
+@keyframes bar-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Primary "play" button: a living halo so it reads as the lit object on the
+ * stage. */
+.cta {
+  animation: cta-pulse 2.6s ease-in-out infinite;
+}
+
+/* The pulse animates box-shadow, which otherwise overrides the v2 focus ring
+ * (also a box-shadow). Drop the halo while focused so the ring stays visible
+ * for keyboard users. */
+.cta:focus-visible {
+  animation: none;
+}
+
+/* Frosted-glass panel for Patchy's lines: translucent, blurred, with a glass
+ * top-edge highlight. Replaces the flat bordered speech bubble. */
+.panel {
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--theme-surface-float) 50%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  border: 1px solid
+    color-mix(in srgb, var(--theme-text-primary) 12%, transparent);
+  box-shadow: 0 28px 64px -34px rgb(0 0 0 / 65%),
+    inset 0 1px 0 0
+      color-mix(in srgb, var(--theme-text-primary) 10%, transparent);
+}
+
+/* Thought-cloud connector: glassy circles that trail from the panel toward
+ * Patchy, so the message reads as coming from the avatar. */
+.bubbleDot {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--theme-surface-float) 50%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  border: 1px solid
+    color-mix(in srgb, var(--theme-text-primary) 12%, transparent);
+}
+
+/* Progress fill: a slow cabbage to cheese shimmer so the bar feels alive while
+ * it fills, not a static block. */
+.progressFill {
+  background-image: linear-gradient(
+    90deg,
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-bacon-default),
+    var(--theme-accent-cheese-default),
+    var(--theme-accent-cabbage-default)
+  );
+  background-size: 200% 100%;
+  animation: bar-shimmer 3s linear infinite;
+}
+
+/* Yes / No answers. Flat, no tile background or border: just a colour-filled
+ * circle (the icon) beside a plain label, with the labels flanking the outer
+ * edges. On hover the circle fills solid, glows and lifts. */
+.answer {
+  background: transparent;
+  border: none;
+  transition: transform 0.18s ease;
+}
+
+/* Icon circle: a colour-tinted disc that brightens to a solid fill on hover. */
+.answerBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.answerYes .answerBadge {
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-avocado-default) 22%,
+    transparent
+  );
+  color: var(--theme-accent-avocado-default);
+}
+
+.answerNo .answerBadge {
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-ketchup-default) 22%,
+    transparent
+  );
+  color: var(--theme-accent-ketchup-default);
+}
+
+/* Scaling the badge (not the svg) keeps the downvote's `rotate-180` intact. */
+.answerYes:hover .answerBadge {
+  background: var(--theme-accent-avocado-default);
+  color: var(--theme-surface-invert);
+  transform: scale(1.08);
+  box-shadow: 0 0 28px -4px
+    color-mix(in srgb, var(--theme-accent-avocado-default) 75%, transparent);
+}
+
+.answerNo:hover .answerBadge {
+  background: var(--theme-accent-ketchup-default);
+  color: var(--theme-surface-invert);
+  transform: scale(1.08);
+  box-shadow: 0 0 28px -4px
+    color-mix(in srgb, var(--theme-accent-ketchup-default) 75%, transparent);
+}
+
+/* "Not sure": a clearly secondary ghost pill, visible but lighter than the
+ * answer tiles. Dashed hairline + muted label that warms on hover. */
+.notSure {
+  border-radius: 9999px;
+  border: 1px dashed
+    color-mix(in srgb, var(--theme-text-primary) 22%, transparent);
+  background: color-mix(in srgb, var(--theme-surface-float) 30%, transparent);
+  color: var(--theme-text-secondary);
+  transition: transform 0.16s ease, color 0.18s ease, border-color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.notSure:hover {
+  color: var(--theme-text-primary);
+  border-color: color-mix(in srgb, var(--theme-text-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--theme-surface-float) 55%, transparent);
+}
+
+/* Persona / option cards: a reach-for-it glow as you hover, with the emoji
+ * giving a little wink. */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 14px 34px -16px
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 90%, transparent);
+}
+
+.cardEmoji {
+  transition: transform 0.2s ease;
+}
+
+.card:hover .cardEmoji {
+  transform: scale(1.16) rotate(-6deg);
+}
+
+@keyframes tick-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Selected modifier tick, popping in when the row is checked. */
+.tick {
+  animation: tick-pop 0.28s ease both;
+}
+
+/* Spotlight "stage" backdrop. Decorative, scoped to the quiz step, and made
+ * self-contained: it paints its own opaque app background so the look is the
+ * same regardless of the funnel's backgroundType. A soft cabbage lamp-light
+ * glows up from the base, a vignette pulls focus to the centre, a colour
+ * shifting aurora drifts behind it, and faint twinkling dust floats up. */
+@keyframes aurora-drift {
+  from {
+    transform: translate(-58%, -3%) scale(1);
+  }
+  to {
+    transform: translate(-42%, 5%) scale(1.08);
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes aurora-shift {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translate(-38%, 4%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-58%, -4%) scale(1.12);
+  }
+}
+
+/* Floating "magic dust": specks lift off the bottom edge, drift up, and fade by
+ * ~25% of screen height. Linear timing keeps them continuously moving. */
+@keyframes particle-rise {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-26vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Full-bleed via `fixed` so it is never clipped by the content column, and sits
+ * behind the content via a negative z-index inside the isolated stage. The
+ * final layer is an opaque app background so the funnel gradient never bleeds
+ * through the transparent centre. */
+.stageBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(
+      120% 95% at 50% 32%,
+      transparent 52%,
+      rgb(0 0 0 / 55%) 100%
+    ),
+    radial-gradient(
+      46% 36% at 50% 104%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent),
+      transparent 72%
+    ),
+    var(--theme-background-default);
+}
+
+/* Slow-drifting aurora blob rising from the base. Gives the lamp-light life and
+ * a colour shift without lighting up the top of the screen. */
+.stageBackdrop::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -28%;
+  width: 90vw;
+  height: 60vh;
+  transform: translate(-50%, 0);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 24%, transparent),
+    transparent
+  );
+  filter: blur(48px);
+  animation: aurora-drift 16s ease-in-out infinite alternate;
+}
+
+/* Sparse twinkling "magic dust" starfield, masked to the stage centre. */
+.stageBackdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      1.5px 1.5px at 18% 24%,
+      color-mix(in srgb, var(--theme-text-primary) 55%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 72% 16%,
+      color-mix(in srgb, var(--theme-text-primary) 45%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 84% 60%,
+      color-mix(in srgb, var(--theme-text-primary) 45%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 30% 72%,
+      color-mix(in srgb, var(--theme-text-primary) 40%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 58% 84%,
+      color-mix(in srgb, var(--theme-text-primary) 40%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 8% 54%,
+      color-mix(in srgb, var(--theme-text-primary) 40%, transparent),
+      transparent
+    );
+  animation: star-twinkle 5s ease-in-out infinite;
+  mask-image: radial-gradient(75% 70% at 50% 35%, #000, transparent 80%);
+}
+
+/* Second aurora in a cooler hue, drifting the opposite way and breathing out of
+ * phase with the cabbage one so the spotlight slowly shifts colour. */
+.auroraAlt {
+  position: absolute;
+  left: 50%;
+  bottom: -30%;
+  width: 80vw;
+  height: 58vh;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 26%, transparent),
+    transparent
+  );
+  filter: blur(54px);
+  animation: aurora-shift 13s ease-in-out infinite;
+}
+
+.magicParticle {
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--theme-accent-cabbage-default) 75%, white);
+  box-shadow: 0 0 8px 1px
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent);
+  animation: particle-rise var(--particle-duration, 6s) linear infinite;
+  animation-delay: var(--particle-delay, 0s);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -58,7 +527,31 @@
   .dot,
   .revealName,
   .revealTagline,
-  .revealActions {
+  .revealActions,
+  .cta,
+  .progressFill,
+  .stageBackdrop::before,
+  .stageBackdrop::after,
+  .auroraAlt,
+  .magicParticle,
+  .emblemCoin,
+  .emblemFlash,
+  .tick {
     animation: none;
+  }
+
+  .magicParticle,
+  .emblemFlash,
+  .fireworkSpark {
+    display: none;
+  }
+
+  /* Snap every remaining hover/press transition instantly (card lift, emoji
+   * wink, chip and badge hover, button scale) so no motion is perceived. Only
+   * the duration is zeroed, so transforms still apply for layout/positioning. */
+  .stage *,
+  .stage *::before,
+  .stage *::after {
+    transition-duration: 0.01ms !important;
   }
 }
