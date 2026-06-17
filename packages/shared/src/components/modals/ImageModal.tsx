@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import type ReactModal from 'react-modal';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
@@ -16,12 +17,16 @@ interface ImageModalProps extends ReactModal.Props {
  * it with `max-h-full max-w-full object-contain` inside a padded container — so
  * the image is always fully visible and scales down with the screen while
  * preserving its aspect ratio. Mirrors the workspace-photos lightbox.
+ *
+ * Portaled into `document.body` so it stacks above the post modal (which lives
+ * in its own body-level ReactModal portal); rendering inline would leave it
+ * trapped under that portal at the same z-index.
  */
 export default function ImageModal({
   onRequestClose,
   src,
   alt = 'Image',
-}: ImageModalProps): ReactElement {
+}: ImageModalProps): ReactElement | null {
   const close = () => onRequestClose?.(undefined as never);
 
   useEventListener(globalThis as unknown as Window, 'keydown', (event) => {
@@ -30,7 +35,12 @@ export default function ImageModal({
     }
   });
 
-  return (
+  const body = globalThis?.document?.body;
+  if (!body) {
+    return null;
+  }
+
+  return createPortal(
     <div
       className="fixed inset-0 z-modal flex items-center justify-center p-4"
       role="dialog"
@@ -57,6 +67,7 @@ export default function ImageModal({
         className="absolute right-4 top-4 z-1"
         onClick={close}
       />
-    </div>
+    </div>,
+    body,
   );
 }
