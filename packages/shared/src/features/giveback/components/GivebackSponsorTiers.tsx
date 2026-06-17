@@ -17,33 +17,29 @@ import type { ContributionSponsor } from '../types';
 import { ContributionSponsorTier } from '../types';
 
 interface TierStyle {
-  // Colored tier pill so the level is spelled out on the card (gold = cheese,
-  // bronze = brown/burger; silver stays a quiet neutral).
-  pillClass: string;
-  // Card + logo size step down by prestige — the classic sponsor-wall hierarchy
-  // where gold reads biggest and bronze smallest.
-  cardClass: string;
+  // Tint for the inline tier marker (icon + short label) — gold = cheese,
+  // bronze = brown/burger; silver stays a quiet neutral.
+  tierClass: string;
+  // Logo tile size steps down by prestige so gold reads biggest, bronze
+  // smallest — the sponsor-wall hierarchy, kept compact.
   tileClass: string;
   nameType: TypographyType;
 }
 
 const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
   [ContributionSponsorTier.Gold]: {
-    pillClass: 'bg-accent-cheese-flat text-accent-cheese-default',
-    cardClass: 'gap-4 p-4',
-    tileClass: 'size-16',
-    nameType: TypographyType.Body,
-  },
-  [ContributionSponsorTier.Silver]: {
-    pillClass: 'bg-background-subtle text-text-secondary',
-    cardClass: 'gap-3 p-3',
-    tileClass: 'size-12',
+    tierClass: 'text-accent-cheese-default',
+    tileClass: 'size-10',
     nameType: TypographyType.Callout,
   },
+  [ContributionSponsorTier.Silver]: {
+    tierClass: 'text-text-secondary',
+    tileClass: 'size-8',
+    nameType: TypographyType.Footnote,
+  },
   [ContributionSponsorTier.Bronze]: {
-    pillClass: 'bg-accent-burger-flat text-accent-burger-default',
-    cardClass: 'gap-2.5 p-2.5',
-    tileClass: 'size-10',
+    tierClass: 'text-accent-burger-default',
+    tileClass: 'size-7',
     nameType: TypographyType.Footnote,
   },
 };
@@ -55,10 +51,9 @@ const TIER_ORDER: ContributionSponsorTier[] = [
   ContributionSponsorTier.Bronze,
 ];
 
-// A self-describing sponsor card: the brand logo sits on its own white tile so
-// it stays legible regardless of the page theme (the high-contrast half), while
-// the card body carries the name and a colored tier pill (the colorful half).
-// The card itself rests on a flat surface rather than a bare white block.
+// A compact, content-width sponsor chip: a small white logo tile, the name, and
+// an inline tier marker (medal icon + short tier word) tucked at the end of the
+// name. Border-only and sized to its text so a row of them stays tight.
 const SponsorCard = ({
   sponsor,
 }: {
@@ -76,16 +71,14 @@ const SponsorCard = ({
       extra: JSON.stringify({ name: sponsor.name, tier: sponsor.tier }),
     });
 
-  const cardClass = classNames(
-    'flex min-w-0 items-center rounded-14 border border-border-subtlest-tertiary transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none',
-    style.cardClass,
-  );
+  const cardClass =
+    'inline-flex max-w-full items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-2.5 py-1.5 transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none';
 
   const body = (
     <>
       <span
         className={classNames(
-          'flex shrink-0 items-center justify-center overflow-hidden rounded-12 bg-white text-text-primary',
+          'flex shrink-0 items-center justify-center overflow-hidden rounded-8 bg-white text-text-primary',
           style.tileClass,
         )}
       >
@@ -94,34 +87,33 @@ const SponsorCard = ({
             src={sponsor.logoUrl ?? undefined}
             alt={`${sponsor.name} logo`}
             loading="lazy"
-            className="size-full object-contain p-1.5"
+            className="size-full object-contain p-1"
             onError={() => setFailed(true)}
           />
         ) : (
-          <span className="font-bold typo-callout">
+          <span className="font-bold typo-footnote">
             {getSponsorInitials(sponsor.name)}
           </span>
         )}
       </span>
-      <FlexCol className="min-w-0 gap-1">
-        <Typography
-          tag={TypographyTag.Span}
-          type={style.nameType}
-          bold
-          truncate
-        >
-          {sponsor.name}
-        </Typography>
-        <span
-          className={classNames(
-            'inline-flex w-fit items-center gap-1 rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wider typo-caption2 [&_svg]:size-3',
-            style.pillClass,
-          )}
-        >
-          <MedalBadgeIcon />
-          {sponsorTierLabel[sponsor.tier]} sponsor
-        </span>
-      </FlexCol>
+      <Typography
+        tag={TypographyTag.Span}
+        type={style.nameType}
+        bold
+        truncate
+        className="min-w-0"
+      >
+        {sponsor.name}
+      </Typography>
+      <span
+        className={classNames(
+          'flex shrink-0 items-center gap-1 font-bold uppercase tracking-wider typo-caption2 [&_svg]:size-4',
+          style.tierClass,
+        )}
+      >
+        <MedalBadgeIcon />
+        {sponsorTierLabel[sponsor.tier]}
+      </span>
     </>
   );
 
@@ -190,7 +182,7 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
 
         <FlexCol className="gap-4">
           {tierRows.map((row) => (
-            <FlexRow key={row.tier} className="flex-wrap items-stretch gap-3">
+            <FlexRow key={row.tier} className="flex-wrap items-center gap-3">
               {row.sponsors.map((sponsor) => (
                 <SponsorCard key={sponsor.id} sponsor={sponsor} />
               ))}

@@ -59,8 +59,8 @@ it('renders a brand logo card with an explicit tier pill per sponsor', () => {
   render(<GivebackSponsorTiers />);
 
   expect(screen.getByText('Sponsored by')).toBeInTheDocument();
-  expect(screen.getByText('Gold sponsor')).toBeInTheDocument();
-  expect(screen.getByText('Bronze sponsor')).toBeInTheDocument();
+  expect(screen.getByText('Gold')).toBeInTheDocument();
+  expect(screen.getByText('Bronze')).toBeInTheDocument();
 
   const link = screen.getByRole('link', { name: 'Vercel' });
   expect(link).toHaveAttribute('href', 'https://acme.test');
