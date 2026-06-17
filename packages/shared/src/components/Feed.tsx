@@ -73,6 +73,7 @@ import { ActionType } from '../graphql/actions';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
+import { useQuestDashboard } from '../hooks/useQuestDashboard';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -249,8 +250,14 @@ export default function Feed<T>({
   const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBriefCard,
   });
+  const { isPending: isPendingQuestDashboard } = useQuestDashboard({
+    enabled: shouldEvaluateBriefCard,
+  });
   const showBriefCard =
-    shouldEvaluateBriefCard && briefCardFeatureValue && !hasIntroQuests;
+    shouldEvaluateBriefCard &&
+    briefCardFeatureValue &&
+    !isPendingQuestDashboard &&
+    !hasIntroQuests;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
