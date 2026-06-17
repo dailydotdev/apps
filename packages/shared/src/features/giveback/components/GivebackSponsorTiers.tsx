@@ -22,8 +22,7 @@ import { ContributionSponsorTier } from '../types';
 const tierPillClass: Record<ContributionSponsorTier, string> = {
   [ContributionSponsorTier.Gold]:
     'bg-accent-cheese-flat text-accent-cheese-default',
-  [ContributionSponsorTier.Silver]:
-    'bg-background-subtle text-text-secondary',
+  [ContributionSponsorTier.Silver]: 'bg-background-subtle text-text-secondary',
   [ContributionSponsorTier.Bronze]:
     'bg-accent-bacon-flat text-accent-bacon-default',
 };

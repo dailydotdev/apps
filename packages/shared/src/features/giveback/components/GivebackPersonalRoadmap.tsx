@@ -319,7 +319,10 @@ const NodeRow = ({
             {canClaim ? (
               <div className="relative shrink-0">
                 {celebrate && (
-                  <span aria-hidden className="pointer-events-none absolute inset-0 z-10">
+                  <span
+                    aria-hidden
+                    className="z-10 pointer-events-none absolute inset-0"
+                  >
                     <span className="absolute inset-0 rounded-12 ring-2 ring-accent-avocado-default motion-safe:animate-claim-ring" />
                     {claimSparkles.map((sparkle) => (
                       <span
