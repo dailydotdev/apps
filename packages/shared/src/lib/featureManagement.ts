@@ -252,5 +252,5 @@ export enum DailyPageVariant {
 }
 export const featureDailyPage = new Feature<DailyPageVariant>(
   'daily_page',
-  isDevelopment ? DailyPageVariant.V1 : DailyPageVariant.None,
+  DailyPageVariant.None,
 );
