@@ -39,11 +39,11 @@ export const CoverClosing = (): ReactElement => {
 
   return (
     <section
-      aria-label="End of brief"
+      aria-label="End of your Daily"
       className="flex flex-col items-center gap-3 py-6 text-center"
     >
       <DailyFeedback
-        prompt="Was today's brief useful?"
+        prompt="Was today's Daily useful?"
         size="md"
         align="center"
         className="mb-2"
@@ -73,7 +73,7 @@ export const CoverClosing = (): ReactElement => {
           type={TypographyType.Footnote}
           color={TypographyColor.Quaternary}
         >
-          Next brief drops {tomorrow}.
+          Next Daily drops {tomorrow}.
         </Typography>
       </div>
     </section>

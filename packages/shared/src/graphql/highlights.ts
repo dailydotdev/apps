@@ -285,10 +285,11 @@ export const DAILY_HIGHLIGHTS_QUERY = gql`
 
 export const dailyHighlightsQueryOptions = () => ({
   queryKey: DAILY_HIGHLIGHTS_QUERY_KEY,
-  queryFn: () =>
-    gqlClient.request<DailyHighlightsData>(DAILY_HIGHLIGHTS_QUERY, {
+  queryFn: async () => {
+    return gqlClient.request<DailyHighlightsData>(DAILY_HIGHLIGHTS_QUERY, {
       first: MAJOR_HEADLINES_MAX_FIRST,
-    }),
+    });
+  },
   staleTime: ONE_MINUTE,
 });
 

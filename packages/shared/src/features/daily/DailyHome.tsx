@@ -43,7 +43,7 @@ export const DailyHome = ({
       )}
       <section
         id="daily-bounds"
-        aria-label="Your daily"
+        aria-label="Your Daily"
         className={classNames(
           'mx-auto mb-6 flex w-full max-w-[60rem] flex-col px-4 pt-6',
           className,

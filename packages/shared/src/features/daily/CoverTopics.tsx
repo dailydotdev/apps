@@ -19,7 +19,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { Loader } from '../../components/Loader';
+import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import Link from '../../components/utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
@@ -106,6 +106,17 @@ const HeadlineRow = ({
   );
 };
 
+const HEADLINES_PLACEHOLDER_COUNT = 5;
+
+const HeadlineRowSkeleton = (): ReactElement => (
+  <li className="flex w-full items-center gap-4 px-4 py-4 tablet:px-5">
+    <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-1.5">
+      <ElementPlaceholder className="h-3 w-20 rounded-6" />
+      <ElementPlaceholder className="h-5 w-3/4 rounded-8" />
+    </div>
+  </li>
+);
+
 export const CoverTopics = (): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -169,7 +180,15 @@ export const CoverTopics = (): ReactElement => {
           className="ml-auto"
         />
       </div>
-      {isPending && <Loader className="mx-auto my-6" />}
+      {isPending && (
+        <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
+          {Array.from({ length: HEADLINES_PLACEHOLDER_COUNT }, (_, i) => i).map(
+            (i) => (
+              <HeadlineRowSkeleton key={`headline-skeleton-${i}`} />
+            ),
+          )}
+        </ol>
+      )}
       {!isPending && highlights.length === 0 && (
         <Typography
           type={TypographyType.Callout}

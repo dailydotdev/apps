@@ -74,7 +74,7 @@ export const CoverHeader = (): ReactElement => (
       bold
       className="!leading-[1.05] tracking-[-0.02em]"
     >
-      Your daily
+      Your Daily
     </Typography>
     <DateWidget />
   </header>

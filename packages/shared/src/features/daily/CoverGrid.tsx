@@ -27,9 +27,10 @@ import { LogEvent, Origin } from '../../lib/log';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../../lib/feed';
 import Link from '../../components/utilities/Link';
 import type { Ad, Post } from '../../graphql/posts';
-import { Loader } from '../../components/Loader';
+import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import useLogImpression from '../../hooks/feed/useLogImpression';
 import { FeedItemType } from '../../components/cards/common/common';
+import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { useDailyFeed } from './hooks/useDailyFeed';
 
 const AD_SLOT_INDEX = 1;
@@ -153,6 +154,7 @@ const PickRow = ({
   onClick: () => void;
 }): ReactElement => {
   const { source } = post;
+  const { title } = useSmartTitle(post);
   const impressionRef = useLogImpression(
     {
       type: FeedItemType.Post,
@@ -186,7 +188,7 @@ const PickRow = ({
             color={TypographyColor.Primary}
             className="min-w-0 max-w-3xl flex-1 !leading-snug"
           >
-            {post.title}
+            {title}
           </Typography>
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <InlineStat
@@ -235,9 +237,18 @@ const PickRow = ({
   );
 };
 
+const PICKS_PLACEHOLDER_COUNT = 5;
+
+const PickRowSkeleton = (): ReactElement => (
+  <li className="flex w-full items-center gap-4 px-4 py-4 tablet:px-5">
+    <ElementPlaceholder className="h-5 max-w-3xl flex-1 rounded-8" />
+    <ElementPlaceholder className="h-4 w-12 rounded-8" />
+  </li>
+);
+
 export const CoverGrid = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const { posts, isLoading } = useDailyFeed();
+  const { posts, isPending } = useDailyFeed();
   const { data: ad } = useAdQuery({
     queryKey: ['ad', 'daily-picks'],
     placement: AdPlacement.Feed,
@@ -269,24 +280,22 @@ export const CoverGrid = (): ReactElement => {
           Picks
         </Typography>
       </div>
-      {isLoading && !posts.length ? (
-        <div className="flex justify-center py-10">
-          <Loader />
-        </div>
-      ) : (
-        <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
-          {posts.map((post, idx) => (
-            <React.Fragment key={post.id}>
-              {idx === AD_SLOT_INDEX && ad ? <AdRow ad={ad} /> : null}
-              <PickRow
-                post={post}
-                position={idx}
-                onClick={() => onPickClick(post, idx)}
-              />
-            </React.Fragment>
-          ))}
-        </ol>
-      )}
+      <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
+        {isPending && !posts.length
+          ? Array.from({ length: PICKS_PLACEHOLDER_COUNT }, (_, i) => i).map(
+              (i) => <PickRowSkeleton key={`pick-skeleton-${i}`} />,
+            )
+          : posts.map((post, idx) => (
+              <React.Fragment key={post.id}>
+                {idx === AD_SLOT_INDEX && ad ? <AdRow ad={ad} /> : null}
+                <PickRow
+                  post={post}
+                  position={idx}
+                  onClick={() => onPickClick(post, idx)}
+                />
+              </React.Fragment>
+            ))}
+      </ol>
     </section>
   );
 };

@@ -21,7 +21,7 @@ interface UseDailyFeed {
   fetchNextPage: () => Promise<void>;
   canFetchMore: boolean;
   isFetchingNextPage: boolean;
-  isLoading: boolean;
+  isPending: boolean;
   isError: boolean;
 }
 
@@ -75,7 +75,7 @@ export const useDailyFeed = (): UseDailyFeed => {
     },
     canFetchMore: !!feedQuery.hasNextPage,
     isFetchingNextPage: feedQuery.isFetchingNextPage,
-    isLoading: feedQuery.isLoading,
+    isPending: feedQuery.isPending,
     isError: feedQuery.isError,
   };
 };
