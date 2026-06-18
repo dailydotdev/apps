@@ -19,28 +19,31 @@ import { ContributionSponsorTier } from '../types';
 interface TierStyle {
   // Tint for the tier label that sits beside each row.
   labelClass: string;
-  // White logo card height + horizontal padding, stepping down by prestige so
-  // gold logos read largest and bronze smallest.
-  cardClass: string;
-  // Max logo height inside the card.
+  // Chip padding + logo height step down by prestige so gold reads largest.
+  chipClass: string;
   logoClass: string;
+  // Fallback name size for logo-less sponsors.
+  nameType: TypographyType;
 }
 
 const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
   [ContributionSponsorTier.Gold]: {
     labelClass: 'text-accent-cheese-default',
-    cardClass: 'h-20 px-6',
-    logoClass: 'max-h-12',
+    chipClass: 'px-4 py-2.5',
+    logoClass: 'max-h-8',
+    nameType: TypographyType.Callout,
   },
   [ContributionSponsorTier.Silver]: {
     labelClass: 'text-text-secondary',
-    cardClass: 'h-16 px-5',
-    logoClass: 'max-h-9',
+    chipClass: 'px-3.5 py-2',
+    logoClass: 'max-h-6',
+    nameType: TypographyType.Footnote,
   },
   [ContributionSponsorTier.Bronze]: {
     labelClass: 'text-accent-burger-default',
-    cardClass: 'h-14 px-4',
-    logoClass: 'max-h-7',
+    chipClass: 'px-3 py-1.5',
+    logoClass: 'max-h-5',
+    nameType: TypographyType.Footnote,
   },
 };
 
@@ -51,10 +54,10 @@ const TIER_ORDER: ContributionSponsorTier[] = [
   ContributionSponsorTier.Bronze,
 ];
 
-// A logo-forward sponsor card: the brand logo fills a white card (legible on the
-// dark page) with no name text — the logo carries the brand. Logo-less sponsors
-// (individuals, fresh sponsors) fall back to their name so the card is never
-// empty. Card size is driven by the sponsor's tier.
+// A flat, logo-forward sponsor chip: no fill, just a hairline border. The logo
+// is forced to a single light tint at rest (so wildly different brand logos read
+// as one calm wall on the dark page) and reveals its true colors on hover.
+// Logo-less sponsors fall back to their name so the chip is never empty.
 const SponsorCard = ({
   sponsor,
 }: {
@@ -73,8 +76,8 @@ const SponsorCard = ({
     });
 
   const cardClass = classNames(
-    'inline-flex max-w-full shrink-0 items-center justify-center rounded-12 bg-white shadow-2 transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none',
-    style.cardClass,
+    'group inline-flex max-w-full shrink-0 items-center justify-center rounded-10 border border-border-subtlest-tertiary transition-colors duration-200 hover:border-border-subtlest-secondary',
+    style.chipClass,
   );
 
   const body = showLogo ? (
@@ -83,7 +86,7 @@ const SponsorCard = ({
       alt={`${sponsor.name} logo`}
       loading="lazy"
       className={classNames(
-        'w-auto max-w-[160px] object-contain',
+        'opacity-70 w-auto max-w-[140px] object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:opacity-100 group-hover:[filter:none]',
         style.logoClass,
       )}
       onError={() => setFailed(true)}
@@ -91,10 +94,10 @@ const SponsorCard = ({
   ) : (
     <Typography
       tag={TypographyTag.Span}
-      type={TypographyType.Callout}
+      type={style.nameType}
       bold
       truncate
-      className="max-w-[160px] text-text-primary"
+      className="max-w-[140px] text-text-secondary transition-colors group-hover:text-text-primary"
     >
       {sponsor.name}
     </Typography>
@@ -129,7 +132,7 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
     return null;
   }
 
-  // Each tier is its own row — a small tier label, then the row of logo cards —
+  // Each tier is its own row — a small tier label, then the row of logo chips —
   // so the hierarchy reads top-down (gold → bronze) by both label and size.
   const tierRows = TIER_ORDER.map((tier) => ({
     tier,
