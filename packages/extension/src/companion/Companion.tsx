@@ -97,6 +97,10 @@ export default function Companion({
     }, []),
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    // This query mirrors the postData prop rather than fetching; it must
+    // re-run on mount to reflect the current prop, so it opts out of the
+    // global staleTime floor. Mutations update the cache via updatePostCache.
+    staleTime: 0,
   });
   const setPost = useCallback(
     (newPostData: PostBootData) => {
