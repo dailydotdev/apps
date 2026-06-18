@@ -25,6 +25,14 @@ export type PersonaQuizPhase =
   | 'picker'
   | 'reveal';
 
+/** How the quiz arrived at its persona, reported for analytics. */
+export type PersonaResolution =
+  | 'auto'
+  | 'fallback'
+  | 'tiebreak'
+  | 'triplebreak'
+  | 'manual';
+
 /** UI-only pause so the belief shift feels deliberate; not a game tunable. */
 const THINKING_DURATION_MS = 450;
 
@@ -71,6 +79,8 @@ export interface PersonaQuizState {
   result: PersonaResult | null;
   /** True when the user picked their persona instead of playing the quiz. */
   isManual: boolean;
+  /** How the persona was reached, for analytics. */
+  resolution: PersonaResolution;
   questionsAnswered: number;
   start: () => void;
   answer: (value: AnswerValue) => void;
@@ -91,6 +101,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
   const [tiebreak, setTiebreak] = useState<number[] | null>(null);
   const [resultIndex, setResultIndex] = useState<number | null>(null);
   const [isManual, setIsManual] = useState(false);
+  const [resolution, setResolution] = useState<PersonaResolution>('auto');
   const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([]);
   // How close Patchy is to a confident guess (0..1), clamped so it never
   // visibly moves backwards even if belief dips after a surprising answer.
@@ -136,18 +147,21 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         top.belief >= tiebreakThreshold &&
         top.belief - runnerUp.belief >= tiebreakMargin
       ) {
+        setResolution('auto');
         revealGuess(top.index, nextBelief);
         return;
       }
 
       // 2. Belief is too diffuse: fall back to the generalist.
       if (top.belief < fallbackFloor) {
+        setResolution('fallback');
         revealGuess(FALLBACK_PERSONA_INDEX, nextBelief);
         return;
       }
 
       // 3. Belief is moderate but not decisive: two-way pick.
       if (top.belief >= triplebreakFloor && runnerUp) {
+        setResolution('tiebreak');
         setTiebreak([top.index, runnerUp.index]);
         setBelief(nextBelief);
         setPhase('tiebreak');
@@ -160,12 +174,15 @@ export const usePersonaQuiz = (): PersonaQuizState => {
       );
 
       if (candidates.length >= 2) {
+        const isTriple = candidates.length >= 3;
+        setResolution(isTriple ? 'triplebreak' : 'tiebreak');
         setTiebreak(candidates.slice(0, 3));
         setBelief(nextBelief);
-        setPhase(candidates.length >= 3 ? 'triplebreak' : 'tiebreak');
+        setPhase(isTriple ? 'triplebreak' : 'tiebreak');
         return;
       }
 
+      setResolution('auto');
       revealGuess(top.index, nextBelief);
     },
     [revealGuess],
@@ -226,6 +243,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setTiebreak(null);
     setIsThinking(false);
     setIsManual(false);
+    setResolution('auto');
     setSelectedModifierIds([]);
     setProgress(0);
     setQuestionsShown(0);
@@ -269,6 +287,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
             (persona) => persona.id === question.lockPersonaId,
           );
           if (lockIndex >= 0) {
+            setResolution('auto');
             revealGuess(lockIndex, nextBelief);
             return;
           }
@@ -306,6 +325,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
         return;
       }
       setIsManual(true);
+      setResolution('manual');
       goToModifiers(index, belief);
     },
     [belief, goToModifiers],
@@ -332,6 +352,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     setTiebreak(null);
     setResultIndex(null);
     setIsManual(false);
+    setResolution('auto');
     setSelectedModifierIds([]);
     setProgress(0);
     askedRef.current = new Set();
@@ -380,6 +401,7 @@ export const usePersonaQuiz = (): PersonaQuizState => {
     personas: PERSONAS,
     result,
     isManual,
+    resolution,
     questionsAnswered: askedRef.current.size,
     start,
     answer,

@@ -29,8 +29,10 @@ import type { DeveloperPersona } from './persona/data';
 import styles from './FunnelPersonaQuiz.module.css';
 import useTagAndSource from '../../../hooks/useTagAndSource';
 import useFeedSettings from '../../../hooks/useFeedSettings';
-import { Origin } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useLogContext } from '../../../contexts/LogContext';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 // Fallback until a mascot video is provided via parameters.
 const MASCOT_EMOJI = '🧞';
@@ -444,6 +446,8 @@ const PersonaCard = ({
     key={persona.id}
     type="button"
     onClick={() => onSelect(persona.id)}
+    data-funnel-track={FunnelTargetId.PersonaSelect}
+    aria-label={persona.name}
     className={classNames(
       styles.card,
       'flex flex-col items-center gap-2 rounded-16 border-2 border-border-subtlest-tertiary bg-surface-float p-6 text-center hover:-translate-y-1 hover:border-accent-cabbage-default active:translate-y-0 active:scale-[0.98] tablet:p-8',
@@ -554,6 +558,7 @@ function PersonaQuizPhases({
     personas,
     result,
     isManual,
+    resolution,
     questionsAnswered,
     start,
     answer,
@@ -572,6 +577,7 @@ function PersonaQuizPhases({
   // server. Matches what the tag-selection step does.
   const { feedSettings } = useFeedSettings();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const [isFollowing, setIsFollowing] = useState(false);
 
   // Which clip plays during the thinking beat, chosen per answer.
@@ -606,6 +612,21 @@ function PersonaQuizPhases({
   };
 
   const completeStep = () => {
+    logEvent({
+      event_name: LogEvent.CompletePersonaQuiz,
+      target_type: 'persona',
+      target_id: result?.persona.id,
+      extra: JSON.stringify({
+        resolution,
+        confidence: isManual ? undefined : result?.confidence,
+        questions_answered: questionsAnswered,
+        modifiers: result?.modifiers ?? [],
+        manual: isManual,
+        // Played the quiz then rejected Patchy's guess, vs opted out at intro.
+        overridden: isManual && questionsAnswered > 0,
+      }),
+    });
+
     onTransition({
       type: FunnelStepTransitionType.Complete,
       details: {
@@ -709,6 +730,7 @@ function PersonaQuizPhases({
               size={ButtonSize.Medium}
               onClick={pickManually}
               type="button"
+              data-funnel-track={FunnelTargetId.PersonaManualPick}
             >
               Nah, I&apos;ll pick myself
             </ButtonV2>
@@ -739,6 +761,8 @@ function PersonaQuizPhases({
               key={persona.id}
               type="button"
               onClick={() => selectPersona(persona.id)}
+              data-funnel-track={FunnelTargetId.PersonaSelect}
+              aria-label={persona.name}
               className="flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-[transform,border-color] duration-200 ease-out hover:translate-x-1 hover:border-accent-cabbage-default active:scale-[0.99]"
             >
               <span
@@ -859,6 +883,7 @@ function PersonaQuizPhases({
             size={ButtonSize.Medium}
             onClick={pickManually}
             type="button"
+            data-funnel-track={FunnelTargetId.PersonaManualPick}
           >
             None of these. Let me pick.
           </ButtonV2>
@@ -909,7 +934,9 @@ function PersonaQuizPhases({
                   type="button"
                   role="checkbox"
                   aria-checked={checked}
+                  aria-label={modifier.label}
                   onClick={() => toggleModifier(modifier.id)}
+                  data-funnel-track={FunnelTargetId.PersonaModifier}
                   className={classNames(
                     styles.card,
                     'flex w-full items-center gap-4 rounded-16 border-2 p-4 text-left active:scale-[0.99]',
@@ -1021,6 +1048,8 @@ function PersonaQuizPhases({
                   size={ButtonSize.XLarge}
                   onClick={confirmPersona}
                   type="button"
+                  data-funnel-track={FunnelTargetId.PersonaSelect}
+                  aria-label={`Confirm ${persona.name}`}
                 >
                   {cta || "Yes, that's me!"}
                 </ButtonV2>
@@ -1030,6 +1059,7 @@ function PersonaQuizPhases({
                   size={ButtonSize.Medium}
                   onClick={pickManually}
                   type="button"
+                  data-funnel-track={FunnelTargetId.PersonaManualPick}
                 >
                   Nah, I&apos;ll pick myself
                 </ButtonV2>
@@ -1091,6 +1121,8 @@ function PersonaQuizPhases({
                 type="button"
                 disabled={isThinking}
                 onClick={() => handleAnswer(1)}
+                data-funnel-track={FunnelTargetId.QuizInput}
+                aria-label={`Yes — ${questionText ?? ''}`}
                 className={classNames(
                   styles.answer,
                   styles.answerYes,
@@ -1111,6 +1143,8 @@ function PersonaQuizPhases({
                 type="button"
                 disabled={isThinking}
                 onClick={() => handleAnswer(0)}
+                data-funnel-track={FunnelTargetId.QuizInput}
+                aria-label={`No — ${questionText ?? ''}`}
                 className={classNames(
                   styles.answer,
                   styles.answerNo,
@@ -1132,6 +1166,8 @@ function PersonaQuizPhases({
               type="button"
               disabled={isThinking}
               onClick={() => handleAnswer(0.5)}
+              data-funnel-track={FunnelTargetId.QuizInput}
+              aria-label={`Not sure — ${questionText ?? ''}`}
               className={classNames(
                 styles.notSure,
                 'mx-auto flex items-center gap-2 px-5 py-2 transition-transform duration-150 ease-out hover:scale-105 active:scale-95',
