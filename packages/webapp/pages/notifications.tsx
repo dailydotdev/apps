@@ -17,7 +17,7 @@ import {
   pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
@@ -154,9 +154,32 @@ const Notifications = (): ReactElement => {
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
 
+  const filterTabs = (
+    <NotificationFilterBar
+      categories={notificationFilterCategoryList}
+      active={activeCategory}
+      onSelect={setActiveCategory}
+    />
+  );
+
   return (
     <ProtectedPage>
-      {isV2Laptop && <PageHeader title="Notifications" />}
+      {isV2Laptop && (
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            hasNotifications && '!py-0',
+          )}
+        >
+          {hasNotifications ? (
+            filterTabs
+          ) : (
+            <strong className="min-w-0 flex-1 truncate typo-callout">
+              Notifications
+            </strong>
+          )}
+        </header>
+      )}
       <main
         className={classNames(
           !isV2Laptop && pageBorders,
@@ -174,12 +197,10 @@ const Notifications = (): ReactElement => {
             Notifications
           </h2>
         )}
-        {hasNotifications && (
-          <NotificationFilterBar
-            categories={notificationFilterCategoryList}
-            active={activeCategory}
-            onSelect={setActiveCategory}
-          />
+        {!isV2Laptop && hasNotifications && (
+          <div className="border-b border-border-subtlest-tertiary px-4">
+            {filterTabs}
+          </div>
         )}
         <InfiniteScrolling
           isFetchingNextPage={queryResult.isFetchingNextPage}
