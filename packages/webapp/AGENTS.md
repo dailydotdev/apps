@@ -204,7 +204,3 @@ export default function ProtectedPage() {
 
 - For `pages/settings/api.tsx`, free users should see the full API/Skills page content, but token creation should be gated only inside the token empty-state widget.
 - Avoid adding header upsell markers/badges for this flow unless product explicitly asks for it.
-
-## PWA Manifest
-
-- Installed-PWA screen orientation is controlled solely by `orientation` in `public/manifest.json` — NOT by the viewport `<meta>` in `pages/_app.tsx` or any CSS. The viewport meta (`width=device-width`) already adapts to landscape. To support both portrait and landscape, use `"orientation": "any"`; do not chase orientation behavior in HTML/CSS.
