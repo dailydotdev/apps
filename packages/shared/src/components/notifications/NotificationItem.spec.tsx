@@ -93,7 +93,11 @@ describe('notification attachment', () => {
 
   it('should have a title', async () => {
     const [attachment] = sampleNotificationAttachments;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    // The post title shows as the secondary line only when there is no
+    // comment/description to show instead.
+    renderComponent(
+      <NotificationItem {...sampleNotification} description={undefined} />,
+    );
     await screen.findByText(attachment.title);
   });
 });
