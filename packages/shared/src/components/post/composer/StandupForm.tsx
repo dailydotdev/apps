@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import RichTextInput from '../../fields/RichTextInput';
-import styles from './StandupForm.module.css';
+import styles from '../../fields/dateTimeInput.module.css';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   dateFormatInTimezone,
@@ -191,7 +191,7 @@ export const StandupForm = ({
               }
               aria-label="Scheduled time"
               className={classNames(
-                styles.scheduledTimeInput,
+                styles.dateTimeInput,
                 'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-8 border bg-surface-float px-3 text-text-primary outline-none typo-caption1',
                 scheduledStartError
                   ? 'border-status-error'
