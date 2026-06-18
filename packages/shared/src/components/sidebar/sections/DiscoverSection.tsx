@@ -24,11 +24,15 @@ import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 interface DiscoverSectionProps extends SidebarSectionProps {
   onNavTabClick?: (tab: string) => void;
+  // Hot Takes is a modal launcher rather than a hub section; the v2 Explore
+  // panel opts out of it. Defaults on so the v1 sidebar is unchanged.
+  showHotTakes?: boolean;
 }
 
 export const DiscoverSection = ({
   isItemsButton,
   onNavTabClick,
+  showHotTakes = true,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
@@ -86,7 +90,7 @@ export const DiscoverSection = ({
           }
         },
       },
-      {
+      showHotTakes && {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotTakesIcon secondary={active} />} />
         ),
@@ -98,8 +102,15 @@ export const DiscoverSection = ({
           logEvent({ event_name: LogEvent.OpenHotAndCold });
         },
       },
-    ].filter(Boolean);
-  }, [completeAction, user, logEvent, onNavTabClick, HotTakesIcon]);
+    ].filter(Boolean) as SidebarMenuItem[];
+  }, [
+    completeAction,
+    user,
+    logEvent,
+    onNavTabClick,
+    HotTakesIcon,
+    showHotTakes,
+  ]);
 
   return (
     <Section
