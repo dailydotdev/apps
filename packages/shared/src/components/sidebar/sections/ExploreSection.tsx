@@ -9,10 +9,12 @@ import {
   DiscussIcon,
   HotIcon,
   MedalBadgeIcon,
+  MegaphoneIcon,
   UpvoteIcon,
 } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import type { OtherFeedPage } from '../../../lib/query';
+import { webappUrl } from '../../../lib/constants';
 import {
   ExploreTabs,
   tabToUrl,
@@ -56,8 +58,8 @@ export const ExploreSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const menuItems: SidebarMenuItem[] = useMemo(
-    () =>
-      (Object.values(ExploreTabs) as ExploreTabs[]).map((tab) => {
+    () => [
+      ...(Object.values(ExploreTabs) as ExploreTabs[]).map((tab) => {
         const feedPage = exploreTabFeedPage[tab];
         return {
           title: tab,
@@ -66,6 +68,15 @@ export const ExploreSection = ({
           action: feedPage ? () => onNavTabClick?.(feedPage) : undefined,
         };
       }),
+      {
+        title: 'Happening Now',
+        path: `${webappUrl}highlights`,
+        isForcedLink: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
+        ),
+      },
+    ],
     [onNavTabClick],
   );
 

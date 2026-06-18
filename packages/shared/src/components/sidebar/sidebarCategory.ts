@@ -48,15 +48,14 @@ export const getSidebarCategoryForPath = (
   if (activePage.includes('/settings')) {
     return SidebarCategory.Settings;
   }
-  // Profile-panel destinations: your feeds (Following, Happening Now) and
-  // activity (History, Analytics, Jobs). Visiting any of them keeps the
-  // Profile panel selected so the panel matches the page.
+  // Profile-panel destinations: your feed (Following) and activity (History,
+  // Analytics, Jobs). Visiting any of them keeps the Profile panel selected so
+  // the panel matches the page. (Happening Now lives under Explore.)
   if (
     activePage.includes('/analytics') ||
     activePage.includes('/jobs') ||
     activePage.includes('/history') ||
-    activePage.includes('/following') ||
-    activePage.includes('/highlights')
+    activePage.includes('/following')
   ) {
     return SidebarCategory.Profile;
   }

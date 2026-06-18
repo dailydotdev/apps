@@ -35,9 +35,6 @@ describe('getSidebarCategoryForPath', () => {
       SidebarCategory.Profile,
     );
     expect(getSidebarCategoryForPath('/history')).toBe(SidebarCategory.Profile);
-    expect(getSidebarCategoryForPath('/highlights')).toBe(
-      SidebarCategory.Profile,
-    );
     expect(getSidebarCategoryForPath('/analytics')).toBe(
       SidebarCategory.Profile,
     );
@@ -46,6 +43,8 @@ describe('getSidebarCategoryForPath', () => {
   it('falls back to the Main (Explore) category for feed pages', () => {
     expect(getSidebarCategoryForPath('/posts')).toBe(SidebarCategory.Main);
     expect(getSidebarCategoryForPath('/')).toBe(SidebarCategory.Main);
+    // Happening Now lives under Explore, not Profile.
+    expect(getSidebarCategoryForPath('/highlights')).toBe(SidebarCategory.Main);
   });
 });
 

@@ -10,7 +10,6 @@ import {
   DevCardIcon,
   EyeIcon,
   JobIcon,
-  MegaphoneIcon,
   SquadIcon,
 } from '../../icons';
 import type { SidebarSectionProps } from './common';
@@ -50,14 +49,6 @@ export const ProfilePanelSection = ({
         isForcedLink: true,
         icon: (active: boolean) => (
           <ListIcon Icon={() => <EyeIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'Happening Now',
-        path: `${webappUrl}highlights`,
-        isForcedLink: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
         ),
       },
       {
