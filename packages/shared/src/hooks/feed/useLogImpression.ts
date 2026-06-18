@@ -7,6 +7,7 @@ import {
   feedLogExtra,
   usePostLogEvent,
 } from '../../lib/feed';
+import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
@@ -30,6 +31,7 @@ export default function useLogImpression(
   feedName: string,
   ranking?: string,
   highlightColSpan?: number,
+  origin?: Origin,
 ): (node?: Element | null) => void {
   const { logEventStart, logEventEnd } = useLogContext();
   const postLogEvent = usePostLogEvent();
@@ -49,9 +51,12 @@ export default function useLogImpression(
             column,
             row,
             extra: {
-              ...feedLogExtra(feedName, ranking, {
-                scroll_y: window.scrollY,
-              }).extra,
+              ...feedLogExtra(
+                feedName,
+                ranking,
+                { scroll_y: window.scrollY },
+                origin,
+              ).extra,
               clickbait_badge: isShareLikePost(item.post)
                 ? item.post.sharedPost?.clickbaitTitleDetected
                 : item.post.clickbaitTitleDetected,
@@ -84,7 +89,7 @@ export default function useLogImpression(
             columns,
             column,
             row,
-            ...feedLogExtra(feedName, ranking),
+            ...feedLogExtra(feedName, ranking, undefined, origin),
           }),
         );
         // eslint-disable-next-line no-param-reassign
@@ -119,6 +124,7 @@ export default function useLogImpression(
             count: item.highlights.length,
             highlightIds,
             feedMeta: item.feedMeta,
+            origin,
           }),
         );
         // eslint-disable-next-line no-param-reassign
