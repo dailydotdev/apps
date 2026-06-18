@@ -275,9 +275,9 @@ export const PostFocusCard = ({
     focusCommentRef.current();
   };
 
-  // Sits below the title block (where the engagement bar used to be); the
-  // engagement bar now lives down by the comment composer where the reader's
-  // cursor naturally rests.
+  // Rendered in the title column, directly under the title, so it stays close
+  // to the title regardless of the cover image height. The engagement bar lives
+  // further down by the comment composer where the reader's cursor rests.
   const renderReadButton = (className: string): ReactElement | null =>
     readHref && !isInternalReadType(post) ? (
       <Button
@@ -388,8 +388,10 @@ export const PostFocusCard = ({
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
             {/* Title and image are top-aligned columns. The cover image opens a
-                lightbox rather than navigating away; the read button sits below
-                the whole block (see renderReadButton call after this section). */}
+                lightbox rather than navigating away. The read button lives in
+                the title column (right under the title) so it hugs the title
+                regardless of the image height — a short title next to a tall
+                image keeps the button close instead of dragging it down. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
@@ -404,6 +406,7 @@ export const PostFocusCard = ({
                 >
                   {title}
                 </h1>
+                {renderReadButton('w-fit')}
               </div>
               {!isVideoType && article.image && (
                 <button
@@ -434,8 +437,6 @@ export const PostFocusCard = ({
               )}
             </div>
           </div>
-
-          {renderReadButton('w-fit')}
 
           <PostMetadata
             className="!typo-callout"
