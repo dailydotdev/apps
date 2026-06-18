@@ -30,8 +30,8 @@ interface TierStyle {
 const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
   [ContributionSponsorTier.Gold]: {
     labelClass: 'text-accent-cheese-default',
-    chipClass: 'h-14 px-4',
-    logoClass: 'max-h-9',
+    chipClass: 'h-16 px-5',
+    logoClass: 'max-h-10',
     nameType: TypographyType.Callout,
   },
   [ContributionSponsorTier.Silver]: {
@@ -42,9 +42,9 @@ const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
   },
   [ContributionSponsorTier.Bronze]: {
     labelClass: 'text-accent-burger-default',
-    chipClass: 'h-10 px-3',
-    logoClass: 'max-h-5',
-    nameType: TypographyType.Footnote,
+    chipClass: 'h-9 px-2.5',
+    logoClass: 'max-h-4',
+    nameType: TypographyType.Caption1,
   },
 };
 
@@ -92,14 +92,10 @@ const SponsorLogo = ({
         <img
           src={sponsor.logoUrl ?? undefined}
           alt={`${sponsor.name} logo`}
-          onLoad={(event) =>
-            event.currentTarget.naturalWidth === 0
-              ? setLogoFailed(true)
-              : setLogoLoaded(true)
-          }
+          onLoad={() => setLogoLoaded(true)}
           onError={() => setLogoFailed(true)}
           className={classNames(
-            'opacity-70 w-auto max-w-[120px] object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:opacity-100 group-hover:[filter:none]',
+            'w-auto max-w-[120px] object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:[filter:none]',
             style.logoClass,
             !logoLoaded && 'hidden',
           )}
@@ -111,7 +107,7 @@ const SponsorLogo = ({
           type={style.nameType}
           bold
           truncate
-          className="max-w-[120px] text-text-secondary transition-colors group-hover:text-black"
+          className="max-w-[120px] text-text-primary transition-colors group-hover:text-black"
         >
           {sponsor.name}
         </Typography>
