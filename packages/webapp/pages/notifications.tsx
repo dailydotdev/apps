@@ -34,6 +34,7 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import {
   getNotificationCategory,
+  notificationFilterCategoryLabel,
   notificationFilterCategoryList,
   NotificationType,
   type NotificationFilterCategory,
@@ -116,15 +117,6 @@ const Notifications = (): ReactElement => {
     );
   }, [queryResult?.data?.pages, isSubscribed]);
 
-  const availableCategories = useMemo(() => {
-    const present = new Set(
-      notifications.map((node) => getNotificationCategory(node.type)),
-    );
-    return notificationFilterCategoryList.filter((category) =>
-      present.has(category),
-    );
-  }, [notifications]);
-
   const filtered = useMemo(
     () =>
       activeCategory
@@ -182,9 +174,9 @@ const Notifications = (): ReactElement => {
             Notifications
           </h2>
         )}
-        {hasNotifications && availableCategories.length > 0 && (
+        {hasNotifications && (
           <NotificationFilterBar
-            categories={availableCategories}
+            categories={notificationFilterCategoryList}
             active={activeCategory}
             onSelect={setActiveCategory}
           />
@@ -208,9 +200,15 @@ const Notifications = (): ReactElement => {
               />
             );
           })}
-          {(!hasNotifications || !hasNextPage) && isFetched && (
-            <FirstNotification />
+          {isFetched && filtered.length === 0 && activeCategory && (
+            <p className="px-4 py-10 text-center text-text-tertiary typo-callout">
+              No {notificationFilterCategoryLabel[activeCategory].toLowerCase()}{' '}
+              notifications yet.
+            </p>
           )}
+          {isFetched &&
+            !activeCategory &&
+            (!hasNotifications || !hasNextPage) && <FirstNotification />}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>
