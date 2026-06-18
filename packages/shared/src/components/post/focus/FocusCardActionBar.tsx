@@ -96,19 +96,20 @@ export const FocusCardActionBar = ({
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
   // The bar is sticky at BOTH edges (`top` + `bottom`): while its natural spot
-  // is still below the fold it pins to the bottom of the screen so it's always
-  // reachable, it scrolls naturally as it passes through the viewport, then
-  // pins to the top once it scrolls above. The top offset depends on the top
-  // chrome — the modal has no app header (pin to the very top); on the post
-  // page the v2 rail hides the global header on laptop for logged-in users, so
-  // the bar pins to the very top like the feed nav, while the legacy/logged-out
-  // layout keeps a fixed 4rem header the bar must clear. `onClose` is only
-  // provided by the modal.
+  // is still below the fold it pins near the bottom of the screen so it's
+  // always reachable, it scrolls naturally as it passes through the viewport,
+  // then pins to the top once it scrolls above. `bottom-4` leaves a gap from
+  // the bottom edge so the pill reads as floating. The top offset depends on
+  // the top chrome — the modal has no app header (pin to the very top); on the
+  // post page the v2 rail hides the global header on laptop for logged-in
+  // users, so the bar pins to the very top like the feed nav, while the
+  // legacy/logged-out layout keeps a fixed 4rem header the bar must clear.
+  // `onClose` is only provided by the modal.
   const railOwnsHeader = isV2 && !!user;
   const stickyOffsetClassName =
     onClose || railOwnsHeader
-      ? 'top-0 bottom-0'
-      : 'top-0 bottom-0 laptop:top-16';
+      ? 'top-0 bottom-4'
+      : 'top-0 bottom-4 laptop:top-16';
 
   // Fold copy link out of the row when the bar would overflow, and bring it
   // back inline when there is room again. Measured against the real available
