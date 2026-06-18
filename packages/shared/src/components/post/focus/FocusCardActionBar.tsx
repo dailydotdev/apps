@@ -95,21 +95,21 @@ export const FocusCardActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  // The bar is sticky at BOTH edges (`top` + `bottom`): while its natural spot
-  // is still below the fold it pins near the bottom of the screen so it's
-  // always reachable, it scrolls naturally as it passes through the viewport,
-  // then pins to the top once it scrolls above. `bottom-4` leaves a gap from
-  // the bottom edge so the pill reads as floating. The top offset depends on
-  // the top chrome — the modal has no app header (pin to the very top); on the
-  // post page the v2 rail hides the global header on laptop for logged-in
-  // users, so the bar pins to the very top like the feed nav, while the
-  // legacy/logged-out layout keeps a fixed 4rem header the bar must clear.
-  // `onClose` is only provided by the modal.
+  // Sticky at BOTH edges (`top` + `bottom`), tablet and up only — on mobile the
+  // dedicated floating bottom bar already covers this, so the desktop treatment
+  // is excluded there. While its natural spot is still below the fold the bar
+  // pins near the bottom (always reachable), scrolls naturally through the
+  // viewport, then pins near the top once it scrolls above. `top-4`/`bottom-4`
+  // leave a gap from each edge so the pill reads as floating. The top offset
+  // also accounts for the top chrome — the modal has no app header; on the post
+  // page the v2 rail hides the global header on laptop for logged-in users, so
+  // the bar floats near the top, while the legacy/logged-out layout must clear
+  // a fixed 4rem header (4rem + 1rem gap = top-20). `onClose` is modal-only.
   const railOwnsHeader = isV2 && !!user;
   const stickyOffsetClassName =
     onClose || railOwnsHeader
-      ? 'top-0 bottom-4'
-      : 'top-0 bottom-4 laptop:top-16';
+      ? 'tablet:top-4 tablet:bottom-4'
+      : 'tablet:top-4 tablet:bottom-4 laptop:top-20';
 
   // Fold copy link out of the row when the bar would overflow, and bring it
   // back inline when there is room again. Measured against the real available
@@ -197,11 +197,16 @@ export const FocusCardActionBar = ({
       <div
         ref={barRef}
         className={classNames(
-          // Floating pill styled to match the mobile post action bar
-          // (MobilePostFloatingBar.v2): translucent elevated surface with a
-          // blur, soft shadow and a full rounded border. Behaviour is
-          // unchanged — static on mobile, sticky top+bottom from tablet up.
-          'relative z-3 flex items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky',
+          'relative z-3 flex items-center justify-between gap-2 border-border-subtlest-tertiary',
+          // Mobile: a plain in-flow bar with a divider — the dedicated mobile
+          // floating bottom bar already provides the floating treatment there,
+          // so we don't duplicate it.
+          'bg-background-default px-1 py-2',
+          isStuck ? 'border-b' : 'border-t',
+          // Tablet and up: a floating pill matching the mobile post action bar
+          // style (MobilePostFloatingBar.v2) — translucent elevated surface,
+          // blur, soft shadow, full rounded border — sticky at both edges.
+          'tablet:sticky tablet:rounded-16 tablet:border tablet:bg-surface-float tablet:px-2 tablet:py-1 tablet:shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] tablet:backdrop-blur-[2.5rem]',
           stickyOffsetClassName,
           className,
         )}
