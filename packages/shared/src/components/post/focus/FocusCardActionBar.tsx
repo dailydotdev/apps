@@ -196,13 +196,11 @@ export const FocusCardActionBar = ({
       <div
         ref={barRef}
         className={classNames(
-          // Static on mobile (no sticky), sticky from tablet up so the bar
-          // never overlaps the small-screen reading flow.
-          'relative z-3 flex items-center justify-between gap-2 border-border-subtlest-tertiary bg-background-default px-1 py-2 tablet:sticky',
-          // Resting: a top divider under the stats row. Pinned: a bottom
-          // divider instead, separating the bar from the content scrolling
-          // beneath it.
-          isStuck ? 'border-b' : 'border-t',
+          // Floating pill styled to match the mobile post action bar
+          // (MobilePostFloatingBar.v2): translucent elevated surface with a
+          // blur, soft shadow and a full rounded border. Behaviour is
+          // unchanged — static on mobile, sticky top+bottom from tablet up.
+          'relative z-3 flex items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky',
           stickyOffsetClassName,
           className,
         )}
