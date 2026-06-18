@@ -10,6 +10,7 @@ import { useFeeds } from '../../hooks/feed/useFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ExploreChipsBar } from '../../components/feeds/ExploreChipsBar';
 import UnifiedMobileFeedNav from '../../components/feeds/UnifiedMobileFeedNav';
+import { MobileFeedActions } from '../../components/feeds/MobileFeedActions';
 import { buildPersonalizedCategories } from '../../components/feeds/exploreCategories';
 
 interface DailyHomeProps {
@@ -39,7 +40,10 @@ export const DailyHome = ({
           <ExploreChipsBar categories={exploreCategories} isPending={!feeds} />
         </div>
       ) : (
-        <UnifiedMobileFeedNav />
+        <>
+          <MobileFeedActions />
+          <UnifiedMobileFeedNav />
+        </>
       )}
       <section
         id="daily-bounds"

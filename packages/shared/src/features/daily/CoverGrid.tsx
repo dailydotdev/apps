@@ -22,6 +22,7 @@ import { adFaviconPlaceholder } from '../../lib/image';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../lib/featureManagement';
 import { combinedClicks } from '../../lib/click';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../../lib/feed';
@@ -248,10 +249,12 @@ const PickRowSkeleton = (): ReactElement => (
 
 export const CoverGrid = (): ReactElement => {
   const { logEvent } = useLogContext();
+  const { isPlus } = usePlusSubscription();
   const { posts, isPending } = useDailyFeed();
   const { data: ad } = useAdQuery({
     queryKey: ['ad', 'daily-picks'],
     placement: AdPlacement.Feed,
+    enabled: !isPlus,
   });
 
   const onPickClick = (post: Post, position: number): void => {

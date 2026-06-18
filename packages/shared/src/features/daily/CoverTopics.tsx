@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import {
@@ -81,7 +82,7 @@ const HeadlineRow = ({
             <Typography
               type={TypographyType.Caption1}
               bold
-              className={colorClass}
+              className={classNames('capitalize', colorClass)}
             >
               {channelName}
             </Typography>
