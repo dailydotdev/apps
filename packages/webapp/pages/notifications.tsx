@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 import type { InfiniteData } from '@tanstack/react-query';
@@ -17,7 +18,7 @@ import {
   pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
-import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
@@ -95,8 +96,33 @@ const Notifications = (): ReactElement => {
 
   const { isFetchedAfterMount, isFetched, hasNextPage } = queryResult ?? {};
 
-  const [activeCategory, setActiveCategory] =
-    useState<NotificationFilterCategory | null>(null);
+  const router = useRouter();
+  // Filtering is driven by the `?type=` query param so the sidebar rail panel
+  // (a separate component tree) can control which category is shown.
+  const activeCategory = useMemo<NotificationFilterCategory | null>(() => {
+    const type = router.query?.type;
+    const value = typeof type === 'string' ? type : undefined;
+    return value &&
+      notificationFilterCategoryList.includes(
+        value as NotificationFilterCategory,
+      )
+      ? (value as NotificationFilterCategory)
+      : null;
+  }, [router.query?.type]);
+
+  const onSelectCategory = useCallback(
+    (category: NotificationFilterCategory | null) => {
+      router.replace(
+        {
+          pathname: '/notifications',
+          query: category ? { type: category } : {},
+        },
+        undefined,
+        { shallow: true },
+      );
+    },
+    [router],
+  );
 
   // The notifications API has no server-side type filter, so we filter the
   // already-loaded pages on the client. For the typical user every
@@ -154,32 +180,9 @@ const Notifications = (): ReactElement => {
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
 
-  const filterTabs = (
-    <NotificationFilterBar
-      categories={notificationFilterCategoryList}
-      active={activeCategory}
-      onSelect={setActiveCategory}
-    />
-  );
-
   return (
     <ProtectedPage>
-      {isV2Laptop && (
-        <header
-          className={classNames(
-            pageHeaderClassName,
-            hasNotifications && '!py-0',
-          )}
-        >
-          {hasNotifications ? (
-            filterTabs
-          ) : (
-            <strong className="min-w-0 flex-1 truncate typo-callout">
-              Notifications
-            </strong>
-          )}
-        </header>
-      )}
+      {isV2Laptop && <PageHeader title="Notifications" />}
       <main
         className={classNames(
           !isV2Laptop && pageBorders,
@@ -197,9 +200,15 @@ const Notifications = (): ReactElement => {
             Notifications
           </h2>
         )}
+        {/* On v2 the type filters live in the sidebar rail panel; on the
+            legacy/mobile layout (no rail) keep them as in-page tabs. */}
         {!isV2Laptop && hasNotifications && (
           <div className="border-b border-border-subtlest-tertiary px-4">
-            {filterTabs}
+            <NotificationFilterBar
+              categories={notificationFilterCategoryList}
+              active={activeCategory}
+              onSelect={onSelectCategory}
+            />
           </div>
         )}
         <InfiniteScrolling
