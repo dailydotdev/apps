@@ -510,7 +510,6 @@ export enum LogEvent {
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
   // Daily homepage
-  ReadDailyItem = 'read daily item',
   DailyFeedback = 'daily feedback',
 }
 

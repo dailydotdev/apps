@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type ReactModal from 'react-modal';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../components/modals/common/types';
 import { ModalHeader } from '../../components/modals/common/ModalHeader';
@@ -13,7 +13,10 @@ import {
 import { Switch } from '../../components/fields/Switch';
 import { Loader } from '../../components/Loader';
 import type { ChannelConfiguration } from '../../graphql/highlights';
-import { channelConfigurationsQueryOptions } from '../../graphql/highlights';
+import {
+  channelConfigurationsQueryOptions,
+  DAILY_HIGHLIGHTS_QUERY_KEY,
+} from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
@@ -31,6 +34,7 @@ const ChannelRow = ({
   channel: ChannelConfiguration;
   source: Source;
 }): ReactElement => {
+  const queryClient = useQueryClient();
   const { isFollowing, toggleFollow } = useSourceActionsFollow({ source });
   const { haveNotificationsOn, isReady, onNotify } = useSourceActionsNotify({
     source,
@@ -42,6 +46,10 @@ const ChannelRow = ({
       await toggleFollow();
     }
     await onNotify();
+
+    await queryClient.invalidateQueries({
+      queryKey: DAILY_HIGHLIGHTS_QUERY_KEY,
+    });
   };
 
   return (

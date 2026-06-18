@@ -13,7 +13,8 @@ import { gqlClient } from '../../../graphql/common';
 import AuthContext from '../../../contexts/AuthContext';
 import { getNextPageParam, RequestKey, StaleTime } from '../../../lib/query';
 
-const PAGE_SIZE = 10;
+// Picks shows a fixed set of 5 posts (no pagination).
+const PAGE_SIZE = 5;
 
 interface UseDailyFeed {
   posts: Post[];

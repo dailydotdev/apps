@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -14,7 +14,7 @@ import {
   ButtonVariant,
 } from '../../components/buttons/Button';
 
-type Vote = 'up' | 'down';
+export type Vote = 'up' | 'down';
 
 export interface DailyFeedbackProps {
   prompt: string;
@@ -24,6 +24,7 @@ export interface DailyFeedbackProps {
   size?: 'sm' | 'md';
   align?: 'start' | 'center';
   className?: string;
+  vote?: Vote | null;
   onVote?: (vote: Vote) => void;
 }
 
@@ -35,13 +36,11 @@ export const DailyFeedback = ({
   size = 'sm',
   align = 'start',
   className,
+  vote = null,
   onVote,
 }: DailyFeedbackProps): ReactElement => {
-  const [vote, setVote] = useState<Vote | null>(null);
-
   const handleVote = (next: Vote) => (e: React.MouseEvent) => {
     e.stopPropagation();
-    setVote(next);
     onVote?.(next);
   };
 

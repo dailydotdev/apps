@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
+import React from 'react';
 import {
   Typography,
   TypographyColor,
@@ -25,12 +24,20 @@ import { adImprovementsV3Feature } from '../../lib/featureManagement';
 import { combinedClicks } from '../../lib/click';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
+import { adLogEvent, feedLogExtra, postLogEvent } from '../../lib/feed';
 import Link from '../../components/utilities/Link';
 import type { Ad, Post } from '../../graphql/posts';
 import { Loader } from '../../components/Loader';
+import useLogImpression from '../../hooks/feed/useLogImpression';
+import { FeedItemType } from '../../components/cards/common/common';
 import { useDailyFeed } from './hooks/useDailyFeed';
 
 const AD_SLOT_INDEX = 1;
+const DAILY_FEED_NAME = 'daily';
+
+// Picks is a single-column list, so grid position is always column 0 of 1.
+const dailyFeedExtra = () =>
+  feedLogExtra(DAILY_FEED_NAME, undefined, undefined, Origin.DailyPage);
 
 const InlineStat = ({
   icon,
@@ -57,23 +64,46 @@ const InlineStat = ({
   </span>
 );
 
-interface CoverGridProps {
-  onMarkRead: (id: string) => void;
-}
-
 const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
+  const { logEvent } = useLogContext();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const faviconSrc = getAdFaviconImageLink({ ad, adImprovementsV3, size: 24 });
   const adLabel = useScrambler('Ad');
+  const impressionRef = useLogImpression(
+    {
+      type: FeedItemType.Ad,
+      ad,
+      index: AD_SLOT_INDEX,
+      updatedAt: 0,
+      dataUpdatedAt: 0,
+    },
+    AD_SLOT_INDEX,
+    1,
+    0,
+    AD_SLOT_INDEX,
+    DAILY_FEED_NAME,
+    undefined,
+    undefined,
+    Origin.DailyPage,
+  );
 
   return (
-    <li>
+    <li ref={impressionRef}>
       <a
         href={ad.link}
         target="_blank"
         rel="noopener noreferrer sponsored"
         title={ad.description}
-        {...combinedClicks(() => undefined)}
+        {...combinedClicks(() =>
+          logEvent(
+            adLogEvent(LogEvent.Click, ad, {
+              columns: 1,
+              column: 0,
+              row: AD_SLOT_INDEX,
+              ...dailyFeedExtra(),
+            }),
+          ),
+        )}
         className="group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float tablet:px-5"
       >
         <Typography
@@ -122,23 +152,27 @@ const PickRow = ({
   position: number;
   onClick: () => void;
 }): ReactElement => {
-  const { logEvent } = useLogContext();
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.5 });
   const { source } = post;
-
-  useEffect(() => {
-    if (!inView) {
-      return;
-    }
-    logEvent({
-      event_name: LogEvent.Impression,
-      target_id: post.id,
-      extra: JSON.stringify({ origin: Origin.DailyPage, position }),
-    });
-  }, [inView, logEvent, post.id, position]);
+  const impressionRef = useLogImpression(
+    {
+      type: FeedItemType.Post,
+      post,
+      page: 0,
+      index: position,
+      dataUpdatedAt: 0,
+    },
+    position,
+    1,
+    0,
+    position,
+    DAILY_FEED_NAME,
+    undefined,
+    undefined,
+    Origin.DailyPage,
+  );
 
   return (
-    <li ref={ref}>
+    <li ref={impressionRef}>
       <Link href={post.commentsPermalink} passHref>
         <a
           href={post.commentsPermalink}
@@ -201,7 +235,7 @@ const PickRow = ({
   );
 };
 
-export const CoverGrid = ({ onMarkRead }: CoverGridProps): ReactElement => {
+export const CoverGrid = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { posts, isLoading } = useDailyFeed();
   const { data: ad } = useAdQuery({
@@ -210,12 +244,14 @@ export const CoverGrid = ({ onMarkRead }: CoverGridProps): ReactElement => {
   });
 
   const onPickClick = (post: Post, position: number): void => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_id: post.id,
-      extra: JSON.stringify({ origin: Origin.DailyPage, position }),
-    });
-    onMarkRead(post.id);
+    logEvent(
+      postLogEvent(LogEvent.Click, post, {
+        columns: 1,
+        column: 0,
+        row: position,
+        ...dailyFeedExtra(),
+      }),
+    );
   };
 
   return (

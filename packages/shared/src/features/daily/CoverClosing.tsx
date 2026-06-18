@@ -6,12 +6,17 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { LinkIcon, VIcon } from '../../components/icons';
+import { VIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import type { Vote } from './DailyFeedback';
 import { DailyFeedback } from './DailyFeedback';
+
+type StoredFeedback = { date: string; vote: Vote };
+
+const todayKey = (): string => new Date().toISOString().slice(0, 10);
 
 const formatTomorrow = (): string => {
   const t = new Date();
@@ -26,20 +31,11 @@ const formatTomorrow = (): string => {
 
 export const CoverClosing = (): ReactElement => {
   const tomorrow = useMemo(formatTomorrow, []);
-  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
-
-  const onCopy = async () => {
-    if (typeof window === 'undefined' || !navigator.clipboard) {
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      displayToast('Link copied to clipboard');
-    } catch {
-      displayToast("Couldn't copy link, try again");
-    }
-  };
+  const [storedFeedback, setStoredFeedback] =
+    usePersistentContext<StoredFeedback | null>('daily_feedback', null);
+  const todaysVote =
+    storedFeedback?.date === todayKey() ? storedFeedback.vote : null;
 
   return (
     <section
@@ -51,12 +47,14 @@ export const CoverClosing = (): ReactElement => {
         size="md"
         align="center"
         className="mb-2"
-        onVote={(vote) =>
+        vote={todaysVote}
+        onVote={(vote) => {
+          setStoredFeedback({ date: todayKey(), vote });
           logEvent({
             event_name: LogEvent.DailyFeedback,
             extra: JSON.stringify({ origin: Origin.DailyPage, vote }),
-          })
-        }
+          });
+        }}
       />
 
       <div className="flex flex-col items-center gap-0.5">
@@ -78,17 +76,6 @@ export const CoverClosing = (): ReactElement => {
           Next brief drops {tomorrow}.
         </Typography>
       </div>
-
-      <button
-        type="button"
-        onClick={onCopy}
-        className="mt-1 inline-flex items-center gap-1.5 rounded-10 border border-border-subtlest-quaternary bg-background-default px-3 py-2 text-text-primary transition-colors hover:bg-surface-float"
-      >
-        <LinkIcon size={IconSize.XSmall} />
-        <Typography type={TypographyType.Footnote} bold>
-          Share this brief
-        </Typography>
-      </button>
     </section>
   );
 };

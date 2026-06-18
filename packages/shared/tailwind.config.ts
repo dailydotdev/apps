@@ -25,6 +25,9 @@ import overlay from './tailwind/overlay';
 
 export default {
   content: [],
+  // Channel highlight colors are stored as full classes in the DB, so Tailwind
+  // can't see them as literals — safelist the accent text utilities.
+  safelist: [{ pattern: /^text-accent-.+-default$/ }],
   theme: {
     colors: {
       raw: {

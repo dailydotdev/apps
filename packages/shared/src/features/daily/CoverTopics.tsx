@@ -1,63 +1,89 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
-import classNames from 'classnames';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { ArrowIcon, MegaphoneIcon, SettingsIcon } from '../../components/icons';
+import {
+  MegaphoneIcon,
+  OpenLinkIcon,
+  SettingsIcon,
+} from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
+import { Loader } from '../../components/Loader';
+import Link from '../../components/utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
+import { feedHighlightsLogEvent } from '../../lib/feed';
+import type { PostHighlightFeed } from '../../graphql/highlights';
+import {
+  channelConfigurationsQueryOptions,
+  dailyHighlightsQueryOptions,
+} from '../../graphql/highlights';
 import { HeadlinesSettingsModal } from './HeadlinesSettingsModal';
-import { DailyFeedback } from './DailyFeedback';
-import { TOPIC_TOKEN, type TopicDigest } from './types';
 
-interface CoverTopicsProps {
-  topics: TopicDigest[];
-  onMarkRead: (id: string) => void;
-}
+// channelConfigurations.color holds the full Tailwind text class per channel.
+const DEFAULT_COLOR_CLASS = 'text-text-tertiary';
+const DAILY_FEED_NAME = 'daily';
 
-const TopicRow = ({
-  topic,
-  isExpanded,
-  onToggle,
-  onVote,
+const HeadlineRow = ({
+  highlight,
+  channelName,
+  colorClass,
+  position,
+  onClick,
 }: {
-  topic: TopicDigest;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onVote: (vote: 'up' | 'down') => void;
+  highlight: PostHighlightFeed;
+  channelName: string;
+  colorClass: string;
+  position: number;
+  onClick: () => void;
 }): ReactElement => {
-  const panelId = `daily-topic-tldr-${topic.id}`;
+  const { logEvent } = useLogContext();
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.5 });
+
+  useEffect(() => {
+    if (!inView) {
+      return;
+    }
+    logEvent(
+      feedHighlightsLogEvent(LogEvent.Impression, {
+        feedName: DAILY_FEED_NAME,
+        action: 'impression',
+        columns: 1,
+        column: 0,
+        row: position,
+        count: 1,
+        highlightIds: [highlight.id],
+        origin: Origin.DailyPage,
+      }),
+    );
+  }, [inView, logEvent, highlight.id, position]);
 
   return (
-    <li>
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={isExpanded}
-        aria-controls={panelId}
-        className={classNames(
-          'group flex w-full flex-col gap-3 px-4 py-4 text-left transition-colors tablet:px-5',
-          !isExpanded && 'hover:bg-surface-float',
-        )}
-      >
-        <div className="flex w-full items-center gap-4">
+    <li ref={ref}>
+      <Link href={highlight.post.commentsPermalink} passHref>
+        <a
+          href={highlight.post.commentsPermalink}
+          onClick={onClick}
+          className="group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float tablet:px-5"
+        >
           <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-1">
             <Typography
               type={TypographyType.Caption1}
               bold
-              className={classNames(TOPIC_TOKEN[topic.topic])}
+              className={colorClass}
             >
-              {topic.topic}
+              {channelName}
             </Typography>
             <Typography
               tag={TypographyTag.H3}
@@ -66,49 +92,58 @@ const TopicRow = ({
               color={TypographyColor.Primary}
               className="!leading-snug"
             >
-              {topic.title}
+              {highlight.headline}
             </Typography>
           </div>
-          <ArrowIcon
+          <OpenLinkIcon
             size={IconSize.XSmall}
-            className={classNames(
-              'ml-auto shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
-              isExpanded ? 'rotate-0' : 'rotate-180',
-            )}
+            className="ml-auto shrink-0 text-text-quaternary"
             aria-hidden
           />
-        </div>
-
-        {isExpanded ? (
-          <div id={panelId} className="contents">
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Primary}
-              className="max-w-3xl !leading-relaxed"
-            >
-              {topic.tldr}
-            </Typography>
-            <div className="mt-1 flex w-full flex-wrap items-center justify-end gap-3">
-              <DailyFeedback
-                prompt="Worth your time?"
-                className="ml-auto"
-                onVote={onVote}
-              />
-            </div>
-          </div>
-        ) : null}
-      </button>
+        </a>
+      </Link>
     </li>
   );
 };
 
-export const CoverTopics = ({
-  topics,
-  onMarkRead,
-}: CoverTopicsProps): ReactElement => {
+export const CoverTopics = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { data, isPending } = useQuery(dailyHighlightsQueryOptions());
+  const { data: channelData } = useQuery(channelConfigurationsQueryOptions());
+
+  const channelByKey = useMemo(
+    () =>
+      new Map(
+        (channelData?.channelConfigurations ?? []).map((channel) => [
+          channel.channel,
+          channel,
+        ]),
+      ),
+    [channelData],
+  );
+
+  const highlights = useMemo(
+    () => data?.dailyHighlights.edges.map((edge) => edge.node) ?? [],
+    [data],
+  );
+
+  const onHeadlineClick = (highlight: PostHighlightFeed, position: number) => {
+    logEvent(
+      feedHighlightsLogEvent(LogEvent.Click, {
+        feedName: DAILY_FEED_NAME,
+        action: 'highlight_click',
+        columns: 1,
+        column: 0,
+        row: position,
+        position: position + 1,
+        count: 1,
+        clickedHighlight: highlight,
+        highlightIds: [highlight.id],
+        origin: Origin.DailyPage,
+      }),
+    );
+  };
 
   return (
     <section>
@@ -134,37 +169,33 @@ export const CoverTopics = ({
           className="ml-auto"
         />
       </div>
-      <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
-        {topics.map((t) => (
-          <TopicRow
-            key={t.id}
-            topic={t}
-            isExpanded={expanded.has(t.id)}
-            onToggle={() => {
-              const isOpen = expanded.has(t.id);
-              setExpanded((current) => {
-                const next = new Set(current);
-                if (isOpen) {
-                  next.delete(t.id);
-                } else {
-                  next.add(t.id);
-                }
-                return next;
-              });
-              if (!isOpen) {
-                onMarkRead(t.id);
-              }
-            }}
-            onVote={(vote) =>
-              logEvent({
-                event_name: LogEvent.DailyFeedback,
-                target_id: t.id,
-                extra: JSON.stringify({ origin: Origin.DailyPage, vote }),
-              })
-            }
-          />
-        ))}
-      </ol>
+      {isPending && <Loader className="mx-auto my-6" />}
+      {!isPending && highlights.length === 0 && (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="px-1 py-2"
+        >
+          No headlines today, yet...
+        </Typography>
+      )}
+      {highlights.length > 0 && (
+        <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
+          {highlights.map((highlight, index) => {
+            const config = channelByKey.get(highlight.channel);
+            return (
+              <HeadlineRow
+                key={highlight.id}
+                highlight={highlight}
+                channelName={config?.displayName ?? highlight.channel}
+                colorClass={config?.color || DEFAULT_COLOR_CLASS}
+                position={index}
+                onClick={() => onHeadlineClick(highlight, index)}
+              />
+            );
+          })}
+        </ol>
+      )}
       {isSettingsOpen ? (
         <HeadlinesSettingsModal
           isOpen
