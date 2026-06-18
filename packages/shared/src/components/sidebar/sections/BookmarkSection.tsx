@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { SidebarMenuItem } from '../common';
-import { ListIcon } from '../common';
+import { createSidebarAddItem, ListIcon } from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
 import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
@@ -22,6 +22,8 @@ export const BookmarkSection = ({
   const briefUIFeatureValue = useFeature(briefUIFeature);
   const { folders } = useBookmarkFolderList();
   const handleAddFolder = useAddBookmarkFolder();
+  // v2 rail panels (`compact`) also expose the add action as a bottom row.
+  const { compact } = defaultRenderSectionProps;
 
   const isLaptop = useViewSize(ViewSize.Laptop);
   const rightIcon = !isLaptop
@@ -71,6 +73,7 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     })),
+    compact && createSidebarAddItem('New folder', { onClick: handleAddFolder }),
   ];
   const menuItems: SidebarMenuItem[] = allMenuItems.filter(
     Boolean,

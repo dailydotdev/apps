@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
+import { createSidebarAddItem, SIDEBAR_ADD_TOP_THRESHOLD } from '../common';
 import { HashtagIcon, StarIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
@@ -73,13 +74,22 @@ export const CustomFeedSection = ({
     onNavTabClick,
   ]);
 
+  // v2 rail panels (`compact`) get a Slack-style "New feed" row at the bottom;
+  // the header "+" only stays once the list grows past a few entries.
+  const { compact } = defaultRenderSectionProps;
+  const addHref = `${webappUrl}feeds/new`;
+  const showTopAdd = !compact || menuItems.length > SIDEBAR_ADD_TOP_THRESHOLD;
+  const items = compact
+    ? [...menuItems, createSidebarAddItem('New feed', { href: addHref })]
+    : menuItems;
+
   return (
     <Section
       {...defaultRenderSectionProps}
-      items={menuItems}
+      items={items}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.CustomFeedsExpanded}
-      addHref={`${webappUrl}feeds/new`}
+      addHref={showTopAdd ? addHref : undefined}
     />
   );
 };

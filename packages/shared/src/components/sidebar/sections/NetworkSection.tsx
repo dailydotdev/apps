@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
-import { ListIcon } from '../common';
+import { createSidebarAddItem, ListIcon } from '../common';
 import { SourceIcon, TimerIcon } from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
@@ -22,6 +22,9 @@ export const NetworkSection = ({
   asPin = false,
   ...defaultRenderSectionProps
 }: SidebarSectionProps & { asPin?: boolean }): ReactElement => {
+  // `compact` marks the v2 rail panels, where the add action also appears as a
+  // dedicated bottom row (Slack-style). v1 keeps only its header "+".
+  const { compact } = defaultRenderSectionProps;
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
@@ -64,8 +67,9 @@ export const NetworkSection = ({
         }),
       },
       ...squadItems,
+      compact && createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
     ].filter(Boolean) as SidebarMenuItem[];
-  }, [squads, isModeratorInAnySquad, count, asPin]);
+  }, [squads, isModeratorInAnySquad, count, asPin, compact, handleAddSquad]);
 
   return (
     <Section

@@ -14,6 +14,7 @@ import {
   Nav,
   railTabClass,
   railTabLabelClass,
+  SIDEBAR_ADD_TOP_THRESHOLD,
   SidebarAside,
   SidebarScrollWrapper,
 } from './common';
@@ -24,10 +25,8 @@ import type { SidebarCategoryId } from './sidebarCategory';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useBanner } from '../../hooks/useBanner';
-import { MainSection } from './sections/MainSection';
-import { PinnedSection } from './sections/PinnedSection';
-import { RecentSection } from './sections/RecentSection';
-import { CustomFeedSection } from './sections/CustomFeedSection';
+import { ExploreSection } from './sections/ExploreSection';
+import { ProfilePanelSection } from './sections/ProfilePanelSection';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import type { ComposerKind } from '../post/composer/types';
 import { QuestRailIcon } from '../quest/QuestRailIcon';
@@ -39,13 +38,11 @@ import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
-  AnalyticsIcon,
   AppIcon,
   BellIcon,
   BookmarkIcon,
   BrowserGroupIcon,
   CreditCardIcon,
-  DevCardIcon,
   DocsIcon,
   EditIcon,
   ExitIcon,
@@ -54,8 +51,7 @@ import {
   GiftIcon,
   HelpIcon,
   HomeIcon,
-  InviteIcon,
-  JobIcon,
+  HotIcon,
   LinkIcon,
   MegaphoneIcon,
   MenuIcon,
@@ -74,7 +70,7 @@ import {
   TrendingIcon,
 } from '../icons';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
-import { Origin, TargetId } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -85,8 +81,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { SidebarProfileStats } from './SidebarProfileStats';
 import Link from '../utilities/Link';
+import { SharedFeedPage, HorizontalSeparator } from '../utilities';
 import {
   appsUrl,
   businessWebsiteUrl,
@@ -98,7 +94,7 @@ import {
   termsOfService,
   webappUrl,
 } from '../../lib/constants';
-import { isAppleDevice } from '../../lib/func';
+import { isAppleDevice, isExtension } from '../../lib/func';
 import LogoIcon from '../../svg/LogoIcon';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -106,18 +102,17 @@ import InteractivePopup, {
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
 import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
-import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import { ThemeSection } from '../ProfileMenu/sections/ThemeSection';
-import { UpgradeToPlus } from '../UpgradeToPlus';
 import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { useSquadNavigation } from '../../hooks';
 import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
+import { useBookmarkFolderList } from '../../hooks/bookmark';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
-import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
 
 type SidebarCategoryConfig = {
@@ -130,8 +125,18 @@ type SidebarCategoryConfig = {
 const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarCategory.Main,
-    label: 'Home',
-    defaultPath: webappUrl,
+    label: 'Explore',
+    defaultPath: `${webappUrl}posts`,
+    icon: (active) => (
+      <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
+    ),
+  },
+  {
+    // Rendered via the avatar (not the tablist loop); listed here so panel
+    // title / label lookups resolve. The icon is unused — the avatar renders
+    // the user's profile picture.
+    id: SidebarCategory.Profile,
+    label: 'Profile',
     icon: (active) => (
       <HomeIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -376,22 +381,112 @@ const createMenuOptions: {
   },
 ];
 
-// Profile menu anchored to the bottom rail avatar. A curated, lean subset of
-// the production ProfileMenu (built from the shared ProfileSection item rows)
-// plus the rail-specific reputation/cores stats card.
-const SidebarProfileButton = ({
-  onPreviewHref,
-}: {
-  onPreviewHref: (href: string) => void;
-}): ReactElement | null => {
-  const { user, logout } = useAuthContext();
+// Account/app controls that used to live in the avatar dropdown now sit behind
+// a bottom-rail gear (sibling to Invite/Support). Profile-related items moved
+// to the avatar panel; this keeps the leftover account/app/billing actions.
+const SidebarSettingsButton = (): ReactElement => {
+  const { logout } = useAuthContext();
   const { isOpen, onUpdate, wrapHandler } =
     useInteractivePopup(RAIL_POPUP_GROUP);
   const { openModal } = useLazyModal();
   const canPurchaseCores = useCanPurchaseCores();
-  // The reading streak is one connected colored shape behind the avatar: the
-  // border around the avatar + a peeking tab share the fill (state colour). The
-  // avatar opens the profile menu; the tab opens the streak calendar.
+
+  const settingsItems: ProfileSectionItemProps[] = [
+    { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
+    { title: 'Appearance', href: `${settingsUrl}/appearance`, icon: EyeIcon },
+    {
+      title: 'Feed settings',
+      href: `${settingsUrl}/feed/general`,
+      icon: AppIcon,
+    },
+  ];
+
+  const billingItems: ProfileSectionItemProps[] = [
+    {
+      title: 'Subscriptions',
+      href: `${settingsUrl}/subscription`,
+      icon: CreditCardIcon,
+    },
+    ...(canPurchaseCores
+      ? [
+          {
+            title: 'Ads dashboard',
+            icon: TrendingIcon,
+            onClick: () => openModal({ type: LazyModal.AdsDashboard }),
+          } satisfies ProfileSectionItemProps,
+        ]
+      : []),
+    {
+      title: 'Advertise',
+      href: businessWebsiteUrl,
+      icon: MegaphoneIcon,
+      external: true,
+    },
+  ];
+
+  const logoutItems: ProfileSectionItemProps[] = [
+    {
+      title: 'Log out',
+      icon: ExitIcon,
+      onClick: () => logout(LogoutReason.ManualLogout),
+    },
+  ];
+
+  return (
+    <>
+      <Tooltip side="right" content="Settings">
+        <button
+          type="button"
+          aria-label="Settings"
+          aria-expanded={isOpen}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
+          className={classNames(
+            railButtonClass,
+            isOpen && 'bg-background-default !text-text-primary',
+          )}
+        >
+          <SettingsIcon secondary={isOpen} size={IconSize.Small} aria-hidden />
+        </button>
+      </Tooltip>
+      {isOpen && (
+        <InteractivePopup
+          closeOutsideClick
+          onClose={() => onUpdate(false)}
+          position={InteractivePopupPosition.SidebarSupportMenu}
+          className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+        >
+          <ThemeSection className="px-1" />
+          <HorizontalSeparator />
+          <ProfileMenuSection items={settingsItems} linkIconHoverOnly />
+          <HorizontalSeparator />
+          <ProfileMenuSection items={billingItems} linkIconHoverOnly />
+          <HorizontalSeparator />
+          <ProfileMenuSection items={logoutItems} linkIconHoverOnly />
+        </InteractivePopup>
+      )}
+    </>
+  );
+};
+
+// The avatar is a rail tab: it opens the Profile context panel (your feeds,
+// activity, pins, custom feeds) like every other category — no dropdown menu.
+// The streak chip is still its own button, opening the streak calendar.
+const SidebarProfileButton = ({
+  isSelected,
+  isExpanded,
+  panel,
+  onSelect,
+  onPreview,
+  onPreviewLeave,
+}: {
+  isSelected: boolean;
+  isExpanded: boolean;
+  panel: ReactElement;
+  onSelect: () => void;
+  onPreview: () => void;
+  onPreviewLeave: (event: React.MouseEvent) => void;
+}): ReactElement | null => {
+  const { user } = useAuthContext();
   const {
     isEnabled: isStreakEnabled,
     isLoading: isStreakLoading,
@@ -431,207 +526,79 @@ const SidebarProfileButton = ({
     return null;
   }
 
-  // Optimistically switch the context panel to the link's category on click —
-  // same instant feedback as a rail-tab click — so the panel doesn't visibly
-  // lag a slow route transition (especially the heavy Settings pages).
-  const withPreview = (
-    items: ProfileSectionItemProps[],
-  ): ProfileSectionItemProps[] =>
-    items.map((item) => {
-      if (!item.href || item.external) {
-        return item;
-      }
-      const { href, onClick } = item;
-      return {
-        ...item,
-        onClick: () => {
-          onPreviewHref(href);
-          onClick?.();
-        },
-      };
-    });
-
-  const mainItems: ProfileSectionItemProps[] = [
-    { title: 'Analytics', href: `${webappUrl}analytics`, icon: AnalyticsIcon },
-    { title: 'Jobs', href: `${webappUrl}jobs`, icon: JobIcon },
-    {
-      title: 'DevCard',
-      href: `${settingsUrl}/customization/devcard`,
-      icon: DevCardIcon,
-    },
-    {
-      title: 'Invite friends',
-      href: `${settingsUrl}/invite`,
-      icon: InviteIcon,
-    },
-  ];
-
-  const billingItems: ProfileSectionItemProps[] = [
-    {
-      title: 'Subscriptions',
-      href: `${settingsUrl}/subscription`,
-      icon: CreditCardIcon,
-    },
-    ...(canPurchaseCores
-      ? [
-          {
-            title: 'Ads dashboard',
-            icon: TrendingIcon,
-            onClick: () => openModal({ type: LazyModal.AdsDashboard }),
-          } satisfies ProfileSectionItemProps,
-        ]
-      : []),
-    {
-      title: 'Advertise',
-      href: businessWebsiteUrl,
-      icon: MegaphoneIcon,
-      external: true,
-    },
-  ];
-
-  const settingsItems: ProfileSectionItemProps[] = [
-    { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
-    { title: 'Appearance', href: `${settingsUrl}/appearance`, icon: EyeIcon },
-    {
-      title: 'Feed settings',
-      href: `${settingsUrl}/feed/general`,
-      icon: AppIcon,
-    },
-  ];
-
-  const logoutItems: ProfileSectionItemProps[] = [
-    {
-      title: 'Log out',
-      icon: ExitIcon,
-      onClick: () => logout(LogoutReason.ManualLogout),
-    },
-  ];
+  const avatarButton = (
+    <Tooltip
+      side="right"
+      content="Profile"
+      collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+    >
+      <button
+        type="button"
+        role="tab"
+        aria-label="Profile"
+        aria-selected={isSelected}
+        aria-controls="sidebar-context-panel"
+        onClick={onSelect}
+        // Avatar scales up a touch on hover — no glow. `block` on the image
+        // kills the inline baseline gap. A ring marks the selected state.
+        className={classNames(
+          'focus-outline size-full overflow-hidden rounded-12 transition-transform hover:scale-105',
+          isSelected && 'ring-2 ring-text-primary',
+        )}
+      >
+        <ProfilePicture
+          user={user}
+          size={ProfileImageSize.Large}
+          nativeLazyLoading
+          className="block"
+        />
+      </button>
+    </Tooltip>
+  );
 
   return (
     <>
-      <div className="relative mb-2.5 flex justify-center">
-        {isStreakEnabled ? (
-          // Shared StreakRing renders the "border legend" visual (avatar in a
-          // bordered box; flame + count break through the bottom border). The
-          // avatar (profile menu) and the chip (streak popover) are two distinct
-          // buttons — we pass the avatar button + the chip's interactivity here;
-          // all state visuals live in StreakRing / useStreakRingState.
-          <StreakRing
-            state={streakState}
-            count={streakCount}
-            hasReadToday={hasReadToday}
-            isLoading={isStreakLoading}
-            chipRef={streakChipRef}
-            chipAriaLabel={`Reading streak: ${streakCount} days. ${streakCopy}`}
-            chipAriaExpanded={isStreakOpen}
-            onChipClick={(event) => {
-              event.stopPropagation();
-              setStreakOpen(!isStreakOpen);
-            }}
-            chipTooltip={streakCopy}
-            chipTooltipOpen={autoOpenStreakTooltip}
-            onMouseEnter={() => setAutoOpenStreakTooltip(false)}
-            avatar={
-              <Tooltip
-                side="right"
-                content="Profile menu"
-                collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-              >
-                <button
-                  type="button"
-                  aria-label="Open profile menu"
-                  aria-expanded={isOpen}
-                  onClick={wrapHandler(() => onUpdate(!isOpen))}
-                  // Avatar scales up a touch on hover — no glow. `block` on the
-                  // image kills the inline baseline gap.
-                  className="focus-outline size-full overflow-hidden rounded-12 transition-transform hover:scale-105"
-                >
-                  <ProfilePicture
-                    user={user}
-                    size={ProfileImageSize.Large}
-                    nativeLazyLoading
-                    className="block"
-                  />
-                </button>
-              </Tooltip>
-            }
-          />
-        ) : (
-          <button
-            type="button"
-            aria-label="Open profile menu"
-            aria-expanded={isOpen}
-            onClick={wrapHandler(() => onUpdate(!isOpen))}
-            className="focus-outline block overflow-hidden rounded-12 transition-transform hover:scale-105"
-          >
-            <ProfilePicture
-              user={user}
-              size={ProfileImageSize.Large}
-              nativeLazyLoading
-              className="block"
+      <RailHoverCard label="Profile" panel={panel} enabled={!isExpanded}>
+        <div
+          className="relative mb-2.5 flex w-full justify-center"
+          data-sidebar-preview={SidebarCategory.Profile}
+          onMouseEnter={onPreview}
+          onMouseLeave={onPreviewLeave}
+        >
+          {isStreakEnabled ? (
+            // Shared StreakRing renders the "border legend" visual (avatar in a
+            // bordered box; flame + count break through the bottom border). The
+            // avatar (profile panel) and the chip (streak popover) are two
+            // distinct buttons — all state visuals live in StreakRing /
+            // useStreakRingState.
+            <StreakRing
+              state={streakState}
+              count={streakCount}
+              hasReadToday={hasReadToday}
+              isLoading={isStreakLoading}
+              chipRef={streakChipRef}
+              chipAriaLabel={`Reading streak: ${streakCount} days. ${streakCopy}`}
+              chipAriaExpanded={isStreakOpen}
+              onChipClick={(event) => {
+                event.stopPropagation();
+                setStreakOpen(!isStreakOpen);
+              }}
+              chipTooltip={streakCopy}
+              chipTooltipOpen={autoOpenStreakTooltip}
+              onMouseEnter={() => setAutoOpenStreakTooltip(false)}
+              avatar={avatarButton}
             />
-          </button>
-        )}
-      </div>
+          ) : (
+            avatarButton
+          )}
+        </div>
+      </RailHoverCard>
       {isStreakOpen && streak && (
         <StreakPopover
           streak={streak}
           triggerRef={streakChipRef}
           onClose={() => setStreakOpen(false)}
         />
-      )}
-      {isOpen && (
-        <InteractivePopup
-          closeOutsideClick
-          onClose={() => onUpdate(false)}
-          position={InteractivePopupPosition.SidebarProfileMenu}
-          className="flex max-h-[calc(100dvh-4rem)] w-72 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
-        >
-          <Link href={`${webappUrl}${user.username}`} passHref>
-            <a className="rounded-10 px-1 py-1 hover:bg-surface-hover">
-              <ProfileMenuHeader
-                profileImageSize={ProfileImageSize.Medium}
-                compact
-              />
-            </a>
-          </Link>
-          <SidebarProfileStats />
-
-          <UpgradeToPlus
-            target={TargetId.ProfileDropdown}
-            size={ButtonSize.Small}
-            className="flex-initial"
-          />
-
-          <nav className="flex flex-col gap-2">
-            <ProfileMenuSection
-              items={withPreview(mainItems)}
-              linkIconHoverOnly
-            />
-
-            <HorizontalSeparator />
-
-            <ThemeSection className="px-1" />
-
-            <HorizontalSeparator />
-
-            <ProfileMenuSection
-              items={withPreview(settingsItems)}
-              linkIconHoverOnly
-            />
-
-            <HorizontalSeparator />
-
-            <ProfileMenuSection
-              items={withPreview(billingItems)}
-              linkIconHoverOnly
-            />
-
-            <HorizontalSeparator />
-
-            <ProfileMenuSection items={logoutItems} linkIconHoverOnly />
-          </nav>
-        </InteractivePopup>
       )}
     </>
   );
@@ -670,9 +637,17 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openModal } = useLazyModal();
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, user, squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
   const addBookmarkFolder = useAddBookmarkFolder();
+  const { folders } = useBookmarkFolderList();
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  // The flat Home button targets the "For You" feed. On extension there's no
+  // router, so it always uses the explicit /my-feed path.
+  let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+  if (isExtension) {
+    myFeedPath = '/my-feed';
+  }
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
@@ -879,13 +854,23 @@ export const SidebarDesktopV2 = ({
     [getCategoryDefaultPath, router],
   );
 
-  // Profile-dropdown links navigate via `<Link>` and bypass `onSelectCategory`,
-  // so the panel would otherwise wait for the route to resolve before swapping.
-  // Map the link's path to its category and switch optimistically on click.
-  const onPreviewHref = useCallback((href: string) => {
-    const { pathname } = new URL(href, 'http://_');
-    setPendingCategory(getSidebarCategoryForPath(pathname));
-  }, []);
+  // Avatar click opens the Profile panel and navigates to the user's profile
+  // page. Like a rail tab, it sets the pending category for instant feedback.
+  const onSelectProfile = useCallback(() => {
+    setPendingCategory(SidebarCategory.Profile);
+    if (!user) {
+      return;
+    }
+    const targetPath = `${webappUrl}${user.username}`;
+    Promise.resolve(router.push(targetPath)).catch(() => undefined);
+  }, [router, user]);
+
+  // The flat Home button switches to the "For You" feed. It mirrors the rail
+  // tabs' optimistic panel switch (Main = Explore) while the route resolves.
+  const onHomeClick = useCallback(() => {
+    setPendingCategory(SidebarCategory.Main);
+    onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
+  }, [isCustomDefaultFeed, onNavTabClick]);
 
   // Remember the last non-settings location so "Back to app" returns the user
   // where they were rather than always dumping them on the home feed.
@@ -1105,22 +1090,21 @@ export const SidebarDesktopV2 = ({
         />
       );
     }
-    return (
-      <>
-        <MainSection
+    if (category === SidebarCategory.Profile) {
+      return (
+        <ProfilePanelSection
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}
-          isItemsButton={isNavButtons ?? false}
-        />
-        <PinnedSection {...defaultRenderSectionProps} isItemsButton={false} />
-        <RecentSection {...defaultRenderSectionProps} isItemsButton={false} />
-        <CustomFeedSection
-          {...defaultRenderSectionProps}
-          onNavTabClick={onNavTabClick}
-          title="Feeds"
           isItemsButton={false}
         />
-      </>
+      );
+    }
+    return (
+      <ExploreSection
+        {...defaultRenderSectionProps}
+        onNavTabClick={onNavTabClick}
+        isItemsButton={isNavButtons ?? false}
+      />
     );
   };
 
@@ -1280,19 +1264,26 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
-  // Single-section panels (Squads/Saved) host their "+" add action in the panel
-  // title strip — next to the title — rather than as a row inside the section.
+  // Squads/Saved expose their add action as a bottom row inside the panel
+  // (Slack-style). The title-strip "+" is a shortcut that only appears once the
+  // list is long enough that the bottom row would require scrolling.
   const panelAddAction = (() => {
     if (isCreateHovered) {
       return null;
     }
-    if (activeCategory === SidebarCategory.Squads) {
+    if (
+      activeCategory === SidebarCategory.Squads &&
+      (squads?.length ?? 0) > SIDEBAR_ADD_TOP_THRESHOLD
+    ) {
       return {
         label: 'New Squad',
         onClick: () => openNewSquad({ origin: Origin.Sidebar }),
       };
     }
-    if (activeCategory === SidebarCategory.Saved) {
+    if (
+      activeCategory === SidebarCategory.Saved &&
+      (folders?.length ?? 0) > SIDEBAR_ADD_TOP_THRESHOLD
+    ) {
       return { label: 'New folder', onClick: addBookmarkFolder };
     }
     return null;
@@ -1345,7 +1336,55 @@ export const SidebarDesktopV2 = ({
             railNavWidth,
           )}
         >
-          {isLoggedIn && <SidebarProfileButton onPreviewHref={onPreviewHref} />}
+          <Tooltip
+            side="right"
+            content="daily.dev"
+            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+          >
+            <div className="mb-1">
+              <Link href={webappUrl} passHref prefetch={false}>
+                <a
+                  href={webappUrl}
+                  aria-label="daily.dev"
+                  className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
+                  onClick={onLogoClick}
+                >
+                  <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                </a>
+              </Link>
+            </div>
+          </Tooltip>
+
+          {isLoggedIn && (
+            <SidebarProfileButton
+              isSelected={activeCategory === SidebarCategory.Profile}
+              isExpanded={isExpanded}
+              panel={renderCategorySection(SidebarCategory.Profile)}
+              onSelect={onSelectProfile}
+              onPreview={() => commitPreview(SidebarCategory.Profile)}
+              onPreviewLeave={(event) =>
+                handlePreviewLeave(SidebarCategory.Profile, event)
+              }
+            />
+          )}
+
+          <Tooltip
+            side="right"
+            content="Home"
+            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+          >
+            <Link href={myFeedPath} passHref>
+              <a
+                href={myFeedPath}
+                aria-label="Home"
+                // Flat: no border, no hover fill — just the icon.
+                className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-primary"
+                onClick={onHomeClick}
+              >
+                <HomeIcon size={IconSize.Small} aria-hidden />
+              </a>
+            </Link>
+          </Tooltip>
 
           <Tooltip
             side="right"
@@ -1467,33 +1506,14 @@ export const SidebarDesktopV2 = ({
             )}
           </div>
 
-          <div className="mt-auto flex w-full flex-col items-center gap-2">
-            <div
-              role="tablist"
-              aria-label="Sidebar utilities"
-              className="flex w-full flex-col items-center gap-1"
-            >
-              <SidebarInviteButton />
-              <SidebarSupportButton />
-            </div>
-            <Tooltip
-              side="right"
-              content="Home"
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              <div>
-                <Link href={webappUrl} passHref prefetch={false}>
-                  <a
-                    href={webappUrl}
-                    aria-label="Home"
-                    className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
-                    onClick={onLogoClick}
-                  >
-                    <LogoIcon className={{ container: 'h-4 w-auto' }} />
-                  </a>
-                </Link>
-              </div>
-            </Tooltip>
+          <div
+            role="tablist"
+            aria-label="Sidebar utilities"
+            className="mt-auto flex w-full flex-col items-center gap-1"
+          >
+            <SidebarInviteButton />
+            <SidebarSupportButton />
+            {isLoggedIn && <SidebarSettingsButton />}
           </div>
         </nav>
       )}

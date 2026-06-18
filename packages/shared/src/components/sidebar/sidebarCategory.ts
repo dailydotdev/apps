@@ -2,7 +2,13 @@
 // stored in local state for click-driven overrides — intentionally NOT
 // persisted to SettingsContext / localStorage / IndexedDB.
 export const SidebarCategory = {
+  // The primary feed/discovery category. Surfaced on the rail as "Explore"
+  // (its panel lists the /posts sub-tabs); the id stays `main` so it remains
+  // the default/fallback category.
   Main: 'main',
+  // The avatar tab. Opens the profile panel (your feeds, activity, account
+  // shortcuts) instead of a dropdown menu.
+  Profile: 'profile',
   Squads: 'squads',
   Notifications: 'notifications',
   Saved: 'saved',
@@ -42,8 +48,20 @@ export const getSidebarCategoryForPath = (
   if (activePage.includes('/settings')) {
     return SidebarCategory.Settings;
   }
+  // Profile-panel destinations: your feeds (Following, Happening Now) and
+  // activity (History, Analytics, Jobs). Visiting any of them keeps the
+  // Profile panel selected so the panel matches the page.
+  if (
+    activePage.includes('/analytics') ||
+    activePage.includes('/jobs') ||
+    activePage.includes('/history') ||
+    activePage.includes('/following') ||
+    activePage.includes('/highlights')
+  ) {
+    return SidebarCategory.Profile;
+  }
   // Explore and its sub-pages (/posts, /tags, /sources, /users, /discussed)
-  // now live under Home, so they fall through to the Main category.
+  // fall through to the Main ("Explore") category.
   return SidebarCategory.Main;
 };
 

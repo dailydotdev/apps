@@ -8,6 +8,7 @@ import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
+import { PlusIcon } from '../icons';
 
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
@@ -80,6 +81,25 @@ const RawNavItem = classed(
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
   <Icon className="pointer-events-none h-5 w-5" />
 );
+
+// Once a v2 panel list holds more than this many entries, the inline "+" add
+// row is far enough down that we also surface a "+" at the top of the panel so
+// the add action stays reachable without scrolling.
+export const SIDEBAR_ADD_TOP_THRESHOLD = 5;
+
+// A Slack-style "add" row that sits at the bottom of a v2 panel list to
+// encourage creating the next squad / folder / feed. Pass either an `onClick`
+// (button row, e.g. opens a modal) or an `href` (link row, e.g. a create page).
+export const createSidebarAddItem = (
+  title: string,
+  target: { onClick: () => void } | { href: string },
+): SidebarMenuItem => ({
+  icon: () => <ListIcon Icon={() => <PlusIcon />} />,
+  title,
+  ...('href' in target
+    ? { path: target.href, isForcedLink: true }
+    : { action: target.onClick }),
+});
 
 // Compares a (possibly absolute, possibly query-bearing) menu href against
 // the current page so v2 rail panels can flag the active row with a single
