@@ -357,6 +357,28 @@ export const FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const DAILY_FEED_QUERY = gql`
+  query DailyFeed(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+    $version: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: dailyFeed(
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const FEED_V2_QUERY = gql`
   query FeedV2(
     $loggedIn: Boolean! = false
