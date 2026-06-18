@@ -145,6 +145,7 @@ export enum RequestKey {
   Tags = 'tags',
   FeedPreview = 'feedPreview',
   FeedPreviewCustom = 'feedPreviewCustom',
+  DailyFeed = 'dailyFeed',
   ReferredUsers = 'referred',
   Post = 'post',
   Prompt = 'prompt',
