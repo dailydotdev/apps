@@ -245,3 +245,12 @@ export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
 );
+
+export enum DailyPageVariant {
+  None = 'none',
+  V1 = 'v1',
+}
+export const featureDailyPage = new Feature<DailyPageVariant>(
+  'daily_page',
+  DailyPageVariant.None,
+);

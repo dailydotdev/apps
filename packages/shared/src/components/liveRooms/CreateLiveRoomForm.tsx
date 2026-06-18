@@ -26,7 +26,7 @@ import {
 import { timezoneSettingsUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { CREATE_LIVE_ROOM_FORM_ID } from '../fields/form/common';
-import styles from './CreateLiveRoomForm.module.css';
+import styles from '../fields/dateTimeInput.module.css';
 
 const DEFAULT_SCHEDULE_DELAY_MS = 30 * 60 * 1000;
 const TOPIC_MAX_LENGTH = 280;
@@ -246,7 +246,7 @@ export const CreateLiveRoomForm = ({
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   valid={!fieldState.error}
-                  className={{ input: styles.scheduledTimeInput }}
+                  className={{ input: styles.dateTimeInput }}
                 />
                 <Typography
                   type={TypographyType.Caption1}
