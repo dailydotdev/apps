@@ -50,15 +50,24 @@ export const NotificationsRailPanel = (): ReactElement => {
     typeof router.query?.type === 'string' ? router.query.type : undefined;
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
-    const allActivityPath = `${webappUrl}notifications`;
     // Category-owned settings shortcut: keeps the Notifications panel active
     // (the canonical /settings/notifications page keeps the Settings panel).
     const settingsPath = `${webappUrl}notifications/settings`;
 
+    // Filters navigate via `action` (button), NOT `path`. SidebarItem treats
+    // any `?type=` path as active for the whole `/notifications` route (its
+    // matcher strips the query), so a path would light up every row at once.
+    // With no path, the explicit `active` flag is the sole source of truth.
+    const navigate = (category: NotificationFilterCategory | null) =>
+      router.push({
+        pathname: '/notifications',
+        query: category ? { type: category } : {},
+      });
+
     const allActivity: SidebarMenuItem = {
       title: 'All activity',
-      path: allActivityPath,
       active: isListPage && !activeType,
+      action: () => navigate(null),
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BellIcon secondary={active} />} />
       ),
@@ -80,8 +89,8 @@ export const NotificationsRailPanel = (): ReactElement => {
         const Icon = categoryIcon[category];
         return {
           title: notificationFilterCategoryLabel[category],
-          path: `${allActivityPath}?type=${category}`,
           active: isListPage && activeType === category,
+          action: () => navigate(category),
           icon: (active: boolean) => (
             <ListIcon Icon={() => <Icon secondary={active} />} />
           ),
@@ -99,7 +108,7 @@ export const NotificationsRailPanel = (): ReactElement => {
     };
 
     return [allActivity, ...categoryItems, settings];
-  }, [activePage, activeType, hasUnread, isListPage, unreadCount]);
+  }, [activePage, activeType, hasUnread, isListPage, router, unreadCount]);
 
   return (
     <Section
