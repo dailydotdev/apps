@@ -28,6 +28,7 @@ import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
+  DailyPageVariant,
   featureDailyPage,
   featurePlusApiLanding,
   featureYearInReview,
@@ -56,10 +57,11 @@ export const MainSection = ({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
   });
-  const { value: showDailyPage } = useConditionalFeature({
+  const { value: dailyVariant } = useConditionalFeature({
     feature: featureDailyPage,
     shouldEvaluate: isLoggedIn,
   });
+  const showDailyPage = dailyVariant === DailyPageVariant.V1;
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>

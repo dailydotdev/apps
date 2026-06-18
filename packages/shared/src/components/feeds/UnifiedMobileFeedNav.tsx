@@ -13,7 +13,10 @@ import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureDailyPage } from '../../lib/featureManagement';
+import {
+  DailyPageVariant,
+  featureDailyPage,
+} from '../../lib/featureManagement';
 import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
@@ -50,13 +53,13 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
-  const { value: isDailyEnabled } = useConditionalFeature({
+  const { value: dailyVariant } = useConditionalFeature({
     feature: featureDailyPage,
     shouldEvaluate: isLoggedIn,
   });
   // When Daily is on, the Daily/Feed switcher replaces the "For you" chip for
   // logged-in users (logged-out users still get a "Home" chip).
-  const showDailySwitcher = isLoggedIn && isDailyEnabled;
+  const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
 
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];

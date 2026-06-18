@@ -11,7 +11,10 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureDailyPage } from '../../lib/featureManagement';
+import {
+  DailyPageVariant,
+  featureDailyPage,
+} from '../../lib/featureManagement';
 import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import type { ExploreCategory } from './exploreCategories';
 import { findActiveChipId } from './exploreCategories';
@@ -42,12 +45,12 @@ export function ExploreChipsBar({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
   const { isLoggedIn } = useAuthContext();
-  const { value: isDailyEnabled } = useConditionalFeature({
+  const { value: dailyVariant } = useConditionalFeature({
     feature: featureDailyPage,
     shouldEvaluate: isLoggedIn,
   });
   // When Daily is on, the Daily/Feed switcher replaces the "For you" chip.
-  const showDailySwitcher = isLoggedIn && isDailyEnabled;
+  const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
 
   const forYouCategory: ExploreCategory = useMemo(() => {
     const path = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;

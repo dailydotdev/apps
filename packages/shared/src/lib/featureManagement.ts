@@ -246,4 +246,11 @@ export const featurePublicSignupBanner = new Feature(
   false,
 );
 
-export const featureDailyPage = new Feature('daily_page', isDevelopment);
+export enum DailyPageVariant {
+  None = 'none',
+  V1 = 'v1',
+}
+export const featureDailyPage = new Feature<DailyPageVariant>(
+  'daily_page',
+  isDevelopment ? DailyPageVariant.V1 : DailyPageVariant.None,
+);
