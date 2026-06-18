@@ -375,6 +375,7 @@ export const defaultQueryClientConfig: QueryClientConfig = {
         return failureCount < 3;
       },
       refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
+      staleTime: StaleTime.Base,
     },
   },
 };
