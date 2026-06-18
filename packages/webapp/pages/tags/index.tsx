@@ -7,6 +7,8 @@ import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { TagsDirectoryPage } from '@dailydotdev/shared/src/components/tags/TagsDirectoryPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -61,6 +63,7 @@ const TagsPage = ({
   popularTags,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
+  const { isV2: isV2Laptop } = useLayoutVariant();
 
   if (isLoading) {
     return <></>;
@@ -70,6 +73,7 @@ const TagsPage = ({
 
   return (
     <>
+      {isV2Laptop && <ExploreHubHeader />}
       <Head>
         <script
           type="application/ld+json"

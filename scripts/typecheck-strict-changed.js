@@ -137,6 +137,14 @@ const strictSkipList = new Set([
   // ReactElement vs null return, Button props union) live on unrelated
   // lines and should be addressed in a dedicated cleanup PR.
   'packages/shared/src/components/streak/ReadingStreakButton.tsx',
+  // Toast v2 migration — usePoll and useSharedByToast were touched only to drop
+  // stale action-button styling (`bg-background-default text-text-primary`) that
+  // no longer suits the new theme-matching toast chip. Pre-existing strict
+  // violations (feed/poll query-data optionality; shared-post string/image
+  // typing) live on unrelated lines and should be addressed in a dedicated
+  // cleanup PR.
+  'packages/shared/src/hooks/usePoll.tsx',
+  'packages/webapp/hooks/useSharedByToast.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

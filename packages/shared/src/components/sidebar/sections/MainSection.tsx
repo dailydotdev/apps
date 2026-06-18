@@ -7,6 +7,7 @@ import {
   DevPlusIcon,
   EyeIcon,
   HomeIcon,
+  HotIcon,
   JoystickIcon,
   MagicIcon,
   SquadIcon,
@@ -171,6 +172,19 @@ export const MainSection = ({
         }
       : undefined;
 
+    // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
+    // are reached from here instead of a dedicated rail category.
+    const explore = isV2
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <HotIcon secondary={active} />} />
+          ),
+          title: 'Explore',
+          path: '/posts',
+          action: () => onNavTabClick?.(OtherFeedPage.Explore),
+        }
+      : undefined;
+
     return (
       [
         myFeed,
@@ -186,6 +200,7 @@ export const MainSection = ({
             <ListIcon Icon={() => <SquadIcon secondary={active} />} />
           ),
         },
+        explore,
         {
           icon: (active: boolean) => (
             <ListIcon Icon={() => <EyeIcon secondary={active} />} />

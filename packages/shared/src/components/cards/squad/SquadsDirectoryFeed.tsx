@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
+import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import type { Squad } from '../../../graphql/sources';
 import type { SourcesQueryProps } from '../../../hooks/source/useSources';
@@ -26,6 +27,7 @@ import type { Ad } from '../../../graphql/posts';
 import { AdPixel } from '../ad/common/AdPixel';
 import { TargetType } from '../../../lib/log';
 import { useAdQuery } from '../../../features/monetization/useAdQuery';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -88,11 +90,12 @@ export function SquadsDirectoryFeed({
   className,
   children,
   firstItemShouldBeAd = false,
-}: SquadHorizontalListProps): ReactElement {
+}: SquadHorizontalListProps): ReactElement | null {
   const { ref, inView } = useInView({
     triggerOnce: true,
   });
   const { user, isAuthReady } = useAuthContext();
+  const { isV2 } = useLayoutVariant();
   const { result } = useSources<Squad>({ query, isEnabled: inView });
   const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -107,7 +110,9 @@ export function SquadsDirectoryFeed({
     ),
     enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
   });
-  const { squad: squadAd } = useSquad({ handle: ad?.data?.source?.handle });
+  const { squad: squadAd } = useSquad({
+    handle: ad?.data?.source?.handle ?? '',
+  });
   const flatSources = useMemo(() => {
     const map = getFlatteredNodes(result);
 
@@ -148,8 +153,8 @@ export function SquadsDirectoryFeed({
           const isAd = ad && index === 0;
 
           return (
-            <SquadItemLogExtraContext key={node.id} ad={ad}>
-              <SquadList squad={node} ad={isAd ? ad : undefined}>
+            <SquadItemLogExtraContext key={node.id} ad={ad ?? undefined}>
+              <SquadList squad={node} ad={isAd ? ad ?? undefined : undefined}>
                 {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
               </SquadList>
             </SquadItemLogExtraContext>
@@ -163,7 +168,13 @@ export function SquadsDirectoryFeed({
   return (
     <HorizontalScroll
       ref={ref}
-      className={{ container: className, scroll: 'gap-6' }}
+      className={{
+        container: className,
+        // v2: bleed the scroll row past the page gutters (laptop:px-6) so the
+        // cards run continuously to the edge of the feed area instead of being
+        // clipped inside the padding. Re-pad so the first card stays aligned.
+        scroll: classNames('gap-6', isV2 && 'laptop:-mx-6 laptop:px-6'),
+      }}
       scrollProps={{ title, linkToSeeAll }}
     >
       {children}
@@ -175,12 +186,12 @@ export function SquadsDirectoryFeed({
             (node.flags?.featured && linkToSeeAll.includes('featured'));
 
           return showFeaturedCard ? (
-            <SquadItemLogExtraContext key={node.id} ad={ad}>
+            <SquadItemLogExtraContext key={node.id} ad={ad ?? undefined}>
               <SquadGrid
                 source={node}
                 className="w-80"
                 border={shouldShowAd ? SourceCardBorderColor.Pepper : undefined}
-                ad={shouldShowAd ? ad : undefined}
+                ad={shouldShowAd ? ad ?? undefined : undefined}
               >
                 {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
               </SquadGrid>

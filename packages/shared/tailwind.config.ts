@@ -317,6 +317,51 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-6px)' },
         },
+        'streak-fade': {
+          '0%, 100%': { opacity: '0.24' },
+          '50%': { opacity: '0.08' },
+        },
+        'streak-pulse': {
+          '0%, 100%': { opacity: '0.45' },
+          '50%': { opacity: '0.12' },
+        },
+        'streak-border-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
+        },
+        // Earn pop ("gong"): a punchy strike — the border snaps bigger and
+        // gray -> pink fast (overshoot), rebounds slightly past its rest size
+        // (the vibration), then settles. Short and snappy, not a slow breathe.
+        'streak-earn-border': {
+          '0%': {
+            transform: 'scale(1)',
+            borderColor: 'var(--theme-border-subtlest-tertiary)',
+          },
+          '25%': {
+            transform: 'scale(1.25)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+          '55%': {
+            transform: 'scale(0.97)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+        },
+        // Earn pop: the fill stays clear while the border strikes up to its
+        // peak (0 -> 25%, matching streak-earn-border's max-scale keyframe),
+        // then the pink washes in from that point to the end as the border
+        // rebounds and settles.
+        'streak-earn-fill': {
+          '0%': { backgroundColor: 'transparent' },
+          '25%': { backgroundColor: 'transparent' },
+          '100%': {
+            backgroundColor:
+              'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
+          },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -337,6 +382,11 @@ export default {
         'meter-shine': 'meter-shine 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
         'reward-pop': 'reward-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
+        'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
+        'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
+        'streak-earn-border': 'streak-earn-border 0.6s ease-out both',
+        'streak-earn-fill': 'streak-earn-fill 0.6s ease-out both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
