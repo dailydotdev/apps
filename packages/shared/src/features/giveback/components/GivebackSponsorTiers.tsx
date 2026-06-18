@@ -64,8 +64,13 @@ const SponsorCard = ({
   sponsor: ContributionSponsor;
 }): ReactElement => {
   const { logEvent } = useLogContext();
-  const [failed, setFailed] = useState(false);
-  const showLogo = Boolean(sponsor.logoUrl) && !failed;
+  // The logo only counts as usable once it actually decodes with real pixels.
+  // Until then (still loading, hung, CSP-blocked, 404, or no URL at all) we show
+  // the sponsor's name so a chip is never blank.
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const hasLogo = Boolean(sponsor.logoUrl) && !logoFailed;
+  const showName = !hasLogo || !logoLoaded;
   const style = tierStyles[sponsor.tier];
 
   const onClick = () =>
@@ -80,27 +85,37 @@ const SponsorCard = ({
     style.chipClass,
   );
 
-  const body = showLogo ? (
-    <img
-      src={sponsor.logoUrl ?? undefined}
-      alt={`${sponsor.name} logo`}
-      loading="lazy"
-      className={classNames(
-        'opacity-70 w-auto max-w-[140px] object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:opacity-100 group-hover:[filter:none]',
-        style.logoClass,
+  const body = (
+    <>
+      {hasLogo && (
+        <img
+          src={sponsor.logoUrl ?? undefined}
+          alt={`${sponsor.name} logo`}
+          onLoad={(event) =>
+            event.currentTarget.naturalWidth === 0
+              ? setLogoFailed(true)
+              : setLogoLoaded(true)
+          }
+          onError={() => setLogoFailed(true)}
+          className={classNames(
+            'opacity-70 w-auto max-w-[140px] object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:opacity-100 group-hover:[filter:none]',
+            style.logoClass,
+            !logoLoaded && 'hidden',
+          )}
+        />
       )}
-      onError={() => setFailed(true)}
-    />
-  ) : (
-    <Typography
-      tag={TypographyTag.Span}
-      type={style.nameType}
-      bold
-      truncate
-      className="max-w-[140px] text-text-secondary transition-colors group-hover:text-text-primary"
-    >
-      {sponsor.name}
-    </Typography>
+      {showName && (
+        <Typography
+          tag={TypographyTag.Span}
+          type={style.nameType}
+          bold
+          truncate
+          className="max-w-[140px] text-text-secondary transition-colors group-hover:text-text-primary"
+        >
+          {sponsor.name}
+        </Typography>
+      )}
+    </>
   );
 
   if (!sponsor.url) {
