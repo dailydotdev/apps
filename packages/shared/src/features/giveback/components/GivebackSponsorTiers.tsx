@@ -16,11 +16,36 @@ import { sponsorTierLabel } from '../utils';
 import type { ContributionSponsor } from '../types';
 import { ContributionSponsorTier } from '../types';
 
-// Tint for each tier's column heading.
-const tierLabelClass: Record<ContributionSponsorTier, string> = {
-  [ContributionSponsorTier.Gold]: 'text-accent-cheese-default',
-  [ContributionSponsorTier.Silver]: 'text-text-secondary',
-  [ContributionSponsorTier.Bronze]: 'text-accent-burger-default',
+interface TierStyle {
+  // Tint for the tier's column heading.
+  labelClass: string;
+  // Chip height + logo size step down by prestige: gold biggest, bronze
+  // smallest.
+  chipClass: string;
+  logoClass: string;
+  // Fallback name size when a sponsor has no usable logo.
+  nameType: TypographyType;
+}
+
+const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
+  [ContributionSponsorTier.Gold]: {
+    labelClass: 'text-accent-cheese-default',
+    chipClass: 'h-14 px-4',
+    logoClass: 'max-h-9',
+    nameType: TypographyType.Callout,
+  },
+  [ContributionSponsorTier.Silver]: {
+    labelClass: 'text-text-secondary',
+    chipClass: 'h-12 px-3.5',
+    logoClass: 'max-h-7',
+    nameType: TypographyType.Footnote,
+  },
+  [ContributionSponsorTier.Bronze]: {
+    labelClass: 'text-accent-burger-default',
+    chipClass: 'h-10 px-3',
+    logoClass: 'max-h-5',
+    nameType: TypographyType.Footnote,
+  },
 };
 
 // Gold first so the columns read left-to-right by prestige.
@@ -30,14 +55,18 @@ const TIER_ORDER: ContributionSponsorTier[] = [
   ContributionSponsorTier.Bronze,
 ];
 
-// A sponsor logo on a white tile so the brand's real colors stay visible on the
-// dark page. The logo only counts once it actually decodes (onLoad with real
-// pixels); until then — loading, hung, blocked, 404, zero-size, or no URL — the
-// sponsor name shows instead, so a tile is never blank.
+// A sponsor chip that lights up on hover: at rest it's a flat bordered tile with
+// a monochrome (light-tinted) logo so the wall reads calm; on hover it fills
+// white and reveals the logo's true colors. The logo only counts once it
+// actually decodes (onLoad with real pixels) — until then (loading, hung,
+// blocked, 404, zero-size, or no URL) the sponsor name shows so a tile is never
+// blank.
 const SponsorLogo = ({
   sponsor,
+  style,
 }: {
   sponsor: ContributionSponsor;
+  style: TierStyle;
 }): ReactElement => {
   const { logEvent } = useLogContext();
   const [logoLoaded, setLogoLoaded] = useState(false);
@@ -52,8 +81,10 @@ const SponsorLogo = ({
       extra: JSON.stringify({ name: sponsor.name, tier: sponsor.tier }),
     });
 
-  const tileClass =
-    'inline-flex h-12 min-w-[88px] max-w-full items-center justify-center rounded-10 bg-white px-3 transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none';
+  const tileClass = classNames(
+    'group inline-flex max-w-full items-center justify-center rounded-10 border border-border-subtlest-tertiary transition-colors duration-200 hover:border-transparent hover:bg-white',
+    style.chipClass,
+  );
 
   const body = (
     <>
@@ -68,7 +99,8 @@ const SponsorLogo = ({
           }
           onError={() => setLogoFailed(true)}
           className={classNames(
-            'max-h-7 w-auto max-w-[120px] object-contain',
+            'opacity-70 w-auto max-w-[120px] object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:opacity-100 group-hover:[filter:none]',
+            style.logoClass,
             !logoLoaded && 'hidden',
           )}
         />
@@ -76,10 +108,10 @@ const SponsorLogo = ({
       {showName && (
         <Typography
           tag={TypographyTag.Span}
-          type={TypographyType.Footnote}
+          type={style.nameType}
           bold
           truncate
-          className="max-w-[120px] text-black"
+          className="max-w-[120px] text-text-secondary transition-colors group-hover:text-black"
         >
           {sponsor.name}
         </Typography>
@@ -116,7 +148,8 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
     return null;
   }
 
-  // One card per tier that has sponsors, laid out as up-to-three equal columns.
+  // One column per tier that has sponsors, side by side, split by a divider
+  // rather than wrapped in cards.
   const tierColumns = TIER_ORDER.map((tier) => ({
     tier,
     sponsors: sponsors.filter((sponsor) => sponsor.tier === tier),
@@ -148,35 +181,46 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
           Sponsored by
         </Typography>
 
-        <div className="grid w-full grid-cols-1 gap-4 tablet:grid-cols-3">
-          {tierColumns.map((column) => (
-            <FlexCol
-              key={column.tier}
-              className="items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-5"
-            >
-              <FlexRow
+        <div className="flex w-full flex-col tablet:flex-row">
+          {tierColumns.map((column, index) => {
+            const style = tierStyles[column.tier];
+            return (
+              <FlexCol
+                key={column.tier}
                 className={classNames(
-                  'items-center gap-1.5 [&_svg]:size-4',
-                  tierLabelClass[column.tier],
+                  'flex-1 items-center gap-4 p-5',
+                  index > 0 &&
+                    'border-t border-border-subtlest-tertiary tablet:border-l tablet:border-t-0',
                 )}
               >
-                <MedalBadgeIcon />
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  bold
-                  className="uppercase tracking-wider"
+                <FlexRow
+                  className={classNames(
+                    'items-center gap-1.5 [&_svg]:size-4',
+                    style.labelClass,
+                  )}
                 >
-                  {sponsorTierLabel[column.tier]}
-                </Typography>
-              </FlexRow>
-              <FlexRow className="flex-wrap justify-center gap-2.5">
-                {column.sponsors.map((sponsor) => (
-                  <SponsorLogo key={sponsor.id} sponsor={sponsor} />
-                ))}
-              </FlexRow>
-            </FlexCol>
-          ))}
+                  <MedalBadgeIcon />
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    bold
+                    className="uppercase tracking-wider"
+                  >
+                    {sponsorTierLabel[column.tier]}
+                  </Typography>
+                </FlexRow>
+                <FlexRow className="flex-wrap justify-center gap-2.5">
+                  {column.sponsors.map((sponsor) => (
+                    <SponsorLogo
+                      key={sponsor.id}
+                      sponsor={sponsor}
+                      style={style}
+                    />
+                  ))}
+                </FlexRow>
+              </FlexCol>
+            );
+          })}
         </div>
       </FlexCol>
     </section>
