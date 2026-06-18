@@ -7,24 +7,26 @@
     bottom: 0;
     padding: 0;
     overflow-y: auto;
-    /* Keep the scroll inside the overlay: without this, overscrolling at the
-       top/bottom chains to the page behind. */
+    /* Keep the scroll inside the overlay so overscroll doesn't chain to the
+       page behind. */
     overscroll-behavior: contain;
     z-index: 100;
-    /* The backdrop tint moves to the fixed ::before below. Painting it on this
-       scroll container made it scroll away with the content (the dark backdrop
-       slid off and exposed the feed); a fixed layer stays pinned to the
-       viewport while only the modal content scrolls. Higher specificity than
-       the `bg-overlay-quaternary-onion` utility, so it wins without !important. */
+    /* Backdrop tint lives on the fixed pseudo-element below, not on this
+       scroll container — painting it here made it scroll away with the
+       content and expose the feed. */
     background-color: transparent;
+  }
 
-    &::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      background-color: theme('colors.overlay.quaternary.onion');
-    }
+  /* Fixed backdrop pinned to the viewport: stays put while only the modal
+     content scrolls. z-index:-1 keeps it behind the modal content but, since
+     the overlay establishes a z-index:100 stacking context, still above the
+     feed. */
+  & :global(.post-modal-overlay)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: theme('colors.overlay.quaternary.onion');
   }
 }
