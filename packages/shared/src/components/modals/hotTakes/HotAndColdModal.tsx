@@ -74,8 +74,6 @@ type CSSPropertiesWithVars = React.CSSProperties & {
 
 type SwipeDirection = 'left' | 'right';
 
-type CssIntensity = number | string;
-
 export const smoothstep01 = (t: number): number => {
   const x = Math.min(Math.max(t, 0), 1);
   return x * x * (3 - 2 * x);
@@ -135,78 +133,6 @@ const getOnboardingSwipeVisualIntensities = (
 
   return { left: 0, right: 0 };
 };
-
-const cssNumber = (
-  intensity: CssIntensity,
-  multiplier: number,
-  offset = 0,
-): number | string => {
-  if (typeof intensity === 'number') {
-    return offset + intensity * multiplier;
-  }
-
-  if (offset === 0) {
-    return `calc(${intensity} * ${multiplier})`;
-  }
-
-  return `calc(${offset} + (${intensity} * ${multiplier}))`;
-};
-
-const cssPixels = (
-  intensity: CssIntensity,
-  multiplier: number,
-  offset = 0,
-): number | string => {
-  if (typeof intensity === 'number') {
-    return offset + intensity * multiplier;
-  }
-
-  if (offset === 0) {
-    return `calc(${intensity} * ${multiplier}px)`;
-  }
-
-  return `calc(${offset}px + (${intensity} * ${multiplier}px))`;
-};
-
-const cssPixelText = (
-  intensity: CssIntensity,
-  multiplier: number,
-  offset = 0,
-): string => {
-  const value = cssPixels(intensity, multiplier, offset);
-  return typeof value === 'number' ? `${value}px` : value;
-};
-
-const cssNegativePixelText = (
-  intensity: CssIntensity,
-  multiplier: number,
-  offset = 0,
-): string => {
-  const value = cssPixels(intensity, multiplier, offset);
-  return typeof value === 'number' ? `${-value}px` : `calc(-1 * ${value})`;
-};
-
-const cssPercent = (
-  intensity: CssIntensity,
-  multiplier: number,
-  offset = 0,
-): string => {
-  if (typeof intensity === 'number') {
-    return `${offset + intensity * multiplier}%`;
-  }
-
-  if (offset === 0) {
-    return `calc(${intensity} * ${multiplier}%)`;
-  }
-
-  return `calc(${offset}% + (${intensity} * ${multiplier}%))`;
-};
-
-const cssAlpha = (
-  intensity: CssIntensity,
-  multiplier: number,
-  offset = 0,
-): number | string => cssNumber(intensity, multiplier, offset);
 
 const HOT_INTENSITY_VAR = 'var(--hot-take-hot-intensity, 0)';
 const COLD_INTENSITY_VAR = 'var(--hot-take-cold-intensity, 0)';
@@ -1359,9 +1285,12 @@ const LIGHTWEIGHT_SLEEP_BUBBLES = SLEEP_BUBBLES.filter((_, index) =>
   [0, 3, 6].includes(index),
 );
 
-type FeedbackEffectLayerProps = {
+type SwipeEffectKind = 'hot' | 'cold' | 'skip';
+
+type SwipeEffectLayerProps = {
   active: boolean;
   intensity: number;
+  kind: SwipeEffectKind;
   lightweight: boolean;
   reducedMotion: boolean;
   useLiveIntensity: boolean;
@@ -1371,7 +1300,19 @@ const getEffectIntensityValue = (
   fallbackIntensity: number,
   liveIntensity: string,
   useLiveIntensity: boolean,
-): CssIntensity => (useLiveIntensity ? liveIntensity : fallbackIntensity);
+): number | string => (useLiveIntensity ? liveIntensity : fallbackIntensity);
+
+const getSwipeEffectLiveIntensity = (kind: SwipeEffectKind): string => {
+  if (kind === 'hot') {
+    return HOT_INTENSITY_VAR;
+  }
+
+  if (kind === 'cold') {
+    return COLD_INTENSITY_VAR;
+  }
+
+  return SKIP_INTENSITY_VAR;
+};
 
 const HotTakeEffectKeyframes = React.memo(
   function HotTakeEffectKeyframes(): ReactElement {
@@ -1382,339 +1323,207 @@ const HotTakeEffectKeyframes = React.memo(
   },
 );
 
-const HotSwipeEffectLayer = React.memo(function HotSwipeEffectLayer({
+const SwipeEffectLayer = React.memo(function SwipeEffectLayer({
   active,
   intensity: fallbackIntensity,
+  kind,
   lightweight,
   reducedMotion,
   useLiveIntensity,
-}: FeedbackEffectLayerProps): ReactElement | null {
+}: SwipeEffectLayerProps): ReactElement | null {
   if (!active) {
     return null;
   }
 
   const intensity = getEffectIntensityValue(
     fallbackIntensity,
-    HOT_INTENSITY_VAR,
+    getSwipeEffectLiveIntensity(kind),
     useLiveIntensity,
   );
-  const flames = lightweight ? LIGHTWEIGHT_FLAMES : FLAMES;
-  const embers = lightweight ? LIGHTWEIGHT_EMBERS : EMBERS;
   const showParticles = !reducedMotion;
 
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden rounded-16"
-      style={{ opacity: intensity }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 'inherit',
-          background: `linear-gradient(180deg, rgba(255,150,20,${cssAlpha(
-            intensity,
-            0.08,
-          )}) 0%, rgba(255,90,0,${cssAlpha(
-            intensity,
-            0.16,
-          )}) 42%, rgba(100,20,0,${cssAlpha(intensity, 0.24)}) 100%)`,
-          boxShadow: lightweight
-            ? undefined
-            : [
-                `inset 0 ${cssNegativePixelText(intensity, 55)} ${cssPixelText(
-                  intensity,
-                  44,
-                )} ${cssNegativePixelText(intensity, 16)} rgba(255,100,0,0.4)`,
-                `inset ${cssPixelText(intensity, 26)} 0 ${cssPixelText(
-                  intensity,
-                  28,
-                )} ${cssNegativePixelText(intensity, 14)} rgba(255,60,0,0.15)`,
-                `inset ${cssNegativePixelText(intensity, 26)} 0 ${cssPixelText(
-                  intensity,
-                  28,
-                )} ${cssNegativePixelText(intensity, 14)} rgba(255,60,0,0.15)`,
-              ].join(', '),
-          animation: reducedMotion
-            ? undefined
-            : `hotTakeHeatShimmer ${cssNumber(
-                intensity,
-                -0.4,
-                1,
-              )}s ease-in-out infinite`,
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          left: '-10%',
-          right: '-10%',
-          bottom: '-16%',
-          height: '44%',
-          borderRadius: '50%',
-          background: `radial-gradient(ellipse at 50% 100%, rgba(255,80,0,${cssAlpha(
-            intensity,
-            0.42,
-          )}) 0%, rgba(255,125,0,${cssAlpha(
-            intensity,
-            0.24,
-          )}) 40%, transparent 78%)`,
-          filter: lightweight
-            ? undefined
-            : `blur(${cssPixelText(intensity, 5, 5)})`,
-          animation: reducedMotion
-            ? undefined
-            : 'hotTakeHeatShimmer 1.1s ease-in-out infinite',
-        }}
-      />
-      {showParticles &&
-        flames.map((flame, i) => (
-          <div
-            key={flame.left}
-            data-hot-take-particle="flame"
-            style={{
-              position: 'absolute',
-              bottom: -2,
-              left: flame.left,
-              width: flame.size * 0.55,
-              height: cssPixels(intensity, flame.size),
-              background:
-                'radial-gradient(ellipse at 50% 88%, #fff29a 0%, #ffcf3d 20%, #ff8a00 45%, #ff3b00 66%, rgba(0,0,0,0) 84%)',
-              borderRadius: '50% 50% 20% 20%',
-              filter: lightweight
-                ? undefined
-                : `blur(${cssPixelText(
-                    intensity,
-                    1.8,
-                    1.4,
-                  )}) saturate(${cssNumber(intensity, 0.35, 1)})`,
-              animation: reducedMotion
-                ? undefined
-                : `hotTakeFlame ${
-                    0.3 + i * 0.06
-                  }s ease-in-out infinite alternate`,
-              animationDelay: `${flame.delay}s`,
-              transform: 'translateX(-50%)',
-              opacity: cssNumber(intensity, 0.55, 0.45),
-            }}
-          />
-        ))}
-      {showParticles &&
-        embers.map((ember) => (
-          <div
-            key={`${ember.left}-${ember.bottom}`}
-            data-hot-take-particle="ember"
-            style={{
-              position: 'absolute',
-              left: ember.left,
-              bottom: ember.bottom,
-              width: ember.size,
-              height: ember.size,
-              borderRadius: '50%',
-              background:
-                'radial-gradient(circle, #fff6ba 0%, #ffcb58 22%, #ff7a1a 54%, rgba(255,80,0,0.2) 80%, transparent 100%)',
-              boxShadow: lightweight
-                ? undefined
-                : `0 0 ${ember.size + 3}px rgba(255,120,0,${cssAlpha(
-                    intensity,
-                    0.55,
-                    0.35,
-                  )})`,
-              animation: reducedMotion
-                ? undefined
-                : `hotTakeEmber ${ember.duration}s ease-out infinite`,
-              animationDelay: `${ember.delay}s`,
-              opacity: cssNumber(intensity, 0.7, 0.3),
-            }}
-          />
-        ))}
-    </div>
-  );
-});
+  if (kind === 'hot') {
+    const flames = lightweight ? LIGHTWEIGHT_FLAMES : FLAMES;
+    const embers = lightweight ? LIGHTWEIGHT_EMBERS : EMBERS;
 
-const ColdSwipeEffectLayer = React.memo(function ColdSwipeEffectLayer({
-  active,
-  intensity: fallbackIntensity,
-  lightweight,
-  reducedMotion,
-  useLiveIntensity,
-}: FeedbackEffectLayerProps): ReactElement | null {
-  if (!active) {
-    return null;
+    return (
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-16"
+        style={{ opacity: intensity }}
+      >
+        <div
+          className="absolute inset-0 rounded-16"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(255,150,20,0.08) 0%, rgba(255,90,0,0.16) 42%, rgba(100,20,0,0.24) 100%)',
+            boxShadow: lightweight
+              ? undefined
+              : 'inset 0 -55px 44px -16px rgba(255,100,0,0.4), inset 26px 0 28px -14px rgba(255,60,0,0.15), inset -26px 0 28px -14px rgba(255,60,0,0.15)',
+            animation: reducedMotion
+              ? undefined
+              : 'hotTakeHeatShimmer 0.9s ease-in-out infinite',
+          }}
+        />
+        <div
+          className="absolute bottom-[-16%] left-[-10%] right-[-10%] h-[44%] rounded-full"
+          style={{
+            background:
+              'radial-gradient(ellipse at 50% 100%, rgba(255,80,0,0.42) 0%, rgba(255,125,0,0.24) 40%, transparent 78%)',
+            filter: lightweight ? undefined : 'blur(10px)',
+            animation: reducedMotion
+              ? undefined
+              : 'hotTakeHeatShimmer 1.1s ease-in-out infinite',
+          }}
+        />
+        {showParticles &&
+          flames.map((flame, i) => (
+            <div
+              key={flame.left}
+              data-hot-take-particle="flame"
+              style={{
+                position: 'absolute',
+                bottom: -2,
+                left: flame.left,
+                width: flame.size * 0.55,
+                height: flame.size,
+                background:
+                  'radial-gradient(ellipse at 50% 88%, #fff29a 0%, #ffcf3d 20%, #ff8a00 45%, #ff3b00 66%, rgba(0,0,0,0) 84%)',
+                borderRadius: '50% 50% 20% 20%',
+                filter: lightweight ? undefined : 'blur(2px) saturate(1.2)',
+                animation: reducedMotion
+                  ? undefined
+                  : `hotTakeFlame ${
+                      0.3 + i * 0.06
+                    }s ease-in-out infinite alternate`,
+                animationDelay: `${flame.delay}s`,
+                transform: 'translateX(-50%)',
+                opacity: 0.9,
+              }}
+            />
+          ))}
+        {showParticles &&
+          embers.map((ember) => (
+            <div
+              key={`${ember.left}-${ember.bottom}`}
+              data-hot-take-particle="ember"
+              style={{
+                position: 'absolute',
+                left: ember.left,
+                bottom: ember.bottom,
+                width: ember.size,
+                height: ember.size,
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle, #fff6ba 0%, #ffcb58 22%, #ff7a1a 54%, rgba(255,80,0,0.2) 80%, transparent 100%)',
+                boxShadow: lightweight
+                  ? undefined
+                  : `0 0 ${ember.size + 3}px rgba(255,120,0,0.7)`,
+                animation: reducedMotion
+                  ? undefined
+                  : `hotTakeEmber ${ember.duration}s ease-out infinite`,
+                animationDelay: `${ember.delay}s`,
+                opacity: 0.8,
+              }}
+            />
+          ))}
+      </div>
+    );
   }
 
-  const intensity = getEffectIntensityValue(
-    fallbackIntensity,
-    COLD_INTENSITY_VAR,
-    useLiveIntensity,
-  );
-  const icicles = lightweight ? LIGHTWEIGHT_ICICLES : ICICLES;
-  const snowflakes = lightweight ? LIGHTWEIGHT_SNOWFLAKES : SNOWFLAKES;
-  const showParticles = !reducedMotion;
+  if (kind === 'cold') {
+    const icicles = lightweight ? LIGHTWEIGHT_ICICLES : ICICLES;
+    const snowflakes = lightweight ? LIGHTWEIGHT_SNOWFLAKES : SNOWFLAKES;
 
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden rounded-16"
-      style={{ opacity: intensity }}
-    >
+    return (
       <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 'inherit',
-          background: `linear-gradient(180deg, rgba(210,240,255,${cssAlpha(
-            intensity,
-            0.22,
-          )}) 0%, rgba(140,210,255,${cssAlpha(
-            intensity,
-            0.12,
-          )}) 42%, rgba(120,170,255,${cssAlpha(intensity, 0.1)}) 100%)`,
-          boxShadow: lightweight
-            ? undefined
-            : [
-                `inset 0 ${cssPixelText(intensity, 52)} ${cssPixelText(
-                  intensity,
-                  42,
-                )} ${cssNegativePixelText(
-                  intensity,
-                  15,
-                )} rgba(150,210,255,0.35)`,
-                `inset ${cssPixelText(intensity, 24)} 0 ${cssPixelText(
-                  intensity,
-                  26,
-                )} ${cssNegativePixelText(
-                  intensity,
-                  15,
-                )} rgba(130,200,255,0.12)`,
-                `inset ${cssNegativePixelText(intensity, 24)} 0 ${cssPixelText(
-                  intensity,
-                  26,
-                )} ${cssNegativePixelText(
-                  intensity,
-                  15,
-                )} rgba(130,200,255,0.12)`,
-              ].join(', '),
-          backdropFilter: lightweight
-            ? undefined
-            : `blur(${cssPixelText(intensity, 1.2)})`,
-          animation: reducedMotion
-            ? undefined
-            : `hotTakeFrostBreath ${cssNumber(
-                intensity,
-                -0.35,
-                1.2,
-              )}s ease-in-out infinite`,
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: cssPercent(intensity, 10, 18),
-          background: `linear-gradient(180deg, rgba(225,245,255,${cssAlpha(
-            intensity,
-            0.42,
-          )}) 0%, rgba(170,220,255,${cssAlpha(
-            intensity,
-            0.14,
-          )}) 75%, transparent 100%)`,
-          filter: lightweight
-            ? undefined
-            : `blur(${cssPixelText(intensity, 1.2, 1.5)})`,
-          animation: reducedMotion
-            ? undefined
-            : 'hotTakeFrostBreath 1.2s ease-in-out infinite',
-        }}
-      />
-      {showParticles &&
-        icicles.map((icicle, i) => (
-          <div
-            key={icicle.left}
-            data-hot-take-particle="icicle"
-            style={{
-              position: 'absolute',
-              top: -1,
-              left: icicle.left,
-              width: icicle.width,
-              height: cssPixels(intensity, icicle.height),
-              background:
-                'linear-gradient(180deg, rgba(220,240,255,0.95) 0%, rgba(140,210,255,0.85) 40%, rgba(100,180,255,0.5) 100%)',
-              clipPath: ICICLE_SHAPES[icicle.shape],
-              transform: `translateX(-50%) rotate(${icicle.rotate}deg)`,
-              transformOrigin: 'top center',
-              boxShadow: lightweight
-                ? undefined
-                : `0 2px ${cssPixelText(
-                    intensity,
-                    4,
-                    4,
-                  )} rgba(175,220,255,${cssAlpha(intensity, 0.4, 0.3)})`,
-              filter: lightweight
-                ? undefined
-                : `saturate(${cssNumber(intensity, 0.25, 1)})`,
-              animation: reducedMotion
-                ? undefined
-                : `hotTakeIcicleShimmer ${2 + i * 0.2}s ease-in-out infinite`,
-              animationDelay: `${icicle.delay}s`,
-            }}
-          />
-        ))}
-      {showParticles &&
-        snowflakes.map((flake) => (
-          <div
-            key={`${flake.left}-${flake.top}`}
-            data-hot-take-particle="snowflake"
-            style={{
-              position: 'absolute',
-              left: flake.left,
-              top: flake.top,
-              width: flake.size,
-              height: flake.size,
-              borderRadius: '50%',
-              background:
-                'radial-gradient(circle, white 0%, rgba(200,230,255,0.8) 60%, transparent 100%)',
-              boxShadow: lightweight
-                ? undefined
-                : `0 0 ${cssPixelText(
-                    intensity,
-                    2,
-                    flake.size,
-                  )} rgba(200,230,255,${cssAlpha(intensity, 0.5, 0.35)})`,
-              animation: reducedMotion
-                ? undefined
-                : `hotTakeSnowfall ${flake.duration}s ease-in-out infinite`,
-              animationDelay: `${flake.delay}s`,
-              opacity: cssNumber(intensity, 0.65, 0.35),
-            }}
-          />
-        ))}
-    </div>
-  );
-});
-
-const SkipSwipeEffectLayer = React.memo(function SkipSwipeEffectLayer({
-  active,
-  intensity: fallbackIntensity,
-  lightweight,
-  reducedMotion,
-  useLiveIntensity,
-}: FeedbackEffectLayerProps): ReactElement | null {
-  if (!active) {
-    return null;
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-16"
+        style={{ opacity: intensity }}
+      >
+        <div
+          className="absolute inset-0 rounded-16"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(210,240,255,0.22) 0%, rgba(140,210,255,0.12) 42%, rgba(120,170,255,0.1) 100%)',
+            boxShadow: lightweight
+              ? undefined
+              : 'inset 0 52px 42px -15px rgba(150,210,255,0.35), inset 24px 0 26px -15px rgba(130,200,255,0.12), inset -24px 0 26px -15px rgba(130,200,255,0.12)',
+            backdropFilter: lightweight ? undefined : 'blur(1px)',
+            animation: reducedMotion
+              ? undefined
+              : 'hotTakeFrostBreath 1s ease-in-out infinite',
+          }}
+        />
+        <div
+          className="absolute left-0 right-0 top-0 h-[28%]"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(225,245,255,0.42) 0%, rgba(170,220,255,0.14) 75%, transparent 100%)',
+            filter: lightweight ? undefined : 'blur(2px)',
+            animation: reducedMotion
+              ? undefined
+              : 'hotTakeFrostBreath 1.2s ease-in-out infinite',
+          }}
+        />
+        {showParticles &&
+          icicles.map((icicle, i) => (
+            <div
+              key={icicle.left}
+              data-hot-take-particle="icicle"
+              style={{
+                position: 'absolute',
+                top: -1,
+                left: icicle.left,
+                width: icicle.width,
+                height: icicle.height,
+                background:
+                  'linear-gradient(180deg, rgba(220,240,255,0.95) 0%, rgba(140,210,255,0.85) 40%, rgba(100,180,255,0.5) 100%)',
+                clipPath: ICICLE_SHAPES[icicle.shape],
+                transform: `translateX(-50%) rotate(${icicle.rotate}deg)`,
+                transformOrigin: 'top center',
+                boxShadow: lightweight
+                  ? undefined
+                  : '0 2px 8px rgba(175,220,255,0.6)',
+                filter: lightweight ? undefined : 'saturate(1.15)',
+                animation: reducedMotion
+                  ? undefined
+                  : `hotTakeIcicleShimmer ${2 + i * 0.2}s ease-in-out infinite`,
+                animationDelay: `${icicle.delay}s`,
+              }}
+            />
+          ))}
+        {showParticles &&
+          snowflakes.map((flake) => (
+            <div
+              key={`${flake.left}-${flake.top}`}
+              data-hot-take-particle="snowflake"
+              style={{
+                position: 'absolute',
+                left: flake.left,
+                top: flake.top,
+                width: flake.size,
+                height: flake.size,
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle, white 0%, rgba(200,230,255,0.8) 60%, transparent 100%)',
+                boxShadow: lightweight
+                  ? undefined
+                  : `0 0 ${flake.size + 2}px rgba(200,230,255,0.7)`,
+                animation: reducedMotion
+                  ? undefined
+                  : `hotTakeSnowfall ${flake.duration}s ease-in-out infinite`,
+                animationDelay: `${flake.delay}s`,
+                opacity: 0.8,
+              }}
+            />
+          ))}
+      </div>
+    );
   }
 
-  const intensity = getEffectIntensityValue(
-    fallbackIntensity,
-    SKIP_INTENSITY_VAR,
-    useLiveIntensity,
-  );
   const sleepZs = lightweight ? LIGHTWEIGHT_SLEEP_ZS : SLEEP_ZS;
   const bubbles = lightweight ? LIGHTWEIGHT_SLEEP_BUBBLES : SLEEP_BUBBLES;
-  const showParticles = !reducedMotion;
 
   return (
     <div
@@ -1723,72 +1532,25 @@ const SkipSwipeEffectLayer = React.memo(function SkipSwipeEffectLayer({
       style={{ opacity: intensity }}
     >
       <div
+        className="absolute inset-0 rounded-16"
         style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 'inherit',
-          background: `linear-gradient(180deg, rgba(222,246,255,${cssAlpha(
-            intensity,
-            0.2,
-          )}) 0%, rgba(180,230,255,${cssAlpha(
-            intensity,
-            0.12,
-          )}) 46%, rgba(120,186,240,${cssAlpha(intensity, 0.16)}) 100%)`,
+          background:
+            'linear-gradient(180deg, rgba(222,246,255,0.2) 0%, rgba(180,230,255,0.12) 46%, rgba(120,186,240,0.16) 100%)',
           boxShadow: lightweight
             ? undefined
-            : [
-                `inset 0 ${cssPixelText(intensity, 52)} ${cssPixelText(
-                  intensity,
-                  44,
-                )} ${cssNegativePixelText(
-                  intensity,
-                  15,
-                )} rgba(170,225,255,0.32)`,
-                `inset ${cssPixelText(intensity, 24)} 0 ${cssPixelText(
-                  intensity,
-                  24,
-                )} ${cssNegativePixelText(
-                  intensity,
-                  14,
-                )} rgba(140,210,255,0.18)`,
-                `inset ${cssNegativePixelText(intensity, 24)} 0 ${cssPixelText(
-                  intensity,
-                  24,
-                )} ${cssNegativePixelText(
-                  intensity,
-                  14,
-                )} rgba(140,210,255,0.18)`,
-              ].join(', '),
-          backdropFilter: lightweight
-            ? undefined
-            : `blur(${cssPixelText(intensity, 1.5, 0.4)})`,
+            : 'inset 0 52px 44px -15px rgba(170,225,255,0.32), inset 24px 0 24px -14px rgba(140,210,255,0.18), inset -24px 0 24px -14px rgba(140,210,255,0.18)',
+          backdropFilter: lightweight ? undefined : 'blur(1.5px)',
           animation: reducedMotion
             ? undefined
-            : `hotTakeSleepBreath ${cssNumber(
-                intensity,
-                -0.4,
-                1.6,
-              )}s ease-in-out infinite`,
+            : 'hotTakeSleepBreath 1.3s ease-in-out infinite',
         }}
       />
       <div
+        className="absolute left-[-8%] right-[-8%] top-[-16%] h-[42%] rounded-full"
         style={{
-          position: 'absolute',
-          left: '-8%',
-          right: '-8%',
-          top: '-16%',
-          height: '42%',
-          borderRadius: '50%',
-          background: `radial-gradient(ellipse at 50% 0%, rgba(220,245,255,${cssAlpha(
-            intensity,
-            0.52,
-          )}) 0%, rgba(170,220,255,${cssAlpha(
-            intensity,
-            0.22,
-          )}) 42%, transparent 78%)`,
-          filter: lightweight
-            ? undefined
-            : `blur(${cssPixelText(intensity, 5, 4)})`,
+          background:
+            'radial-gradient(ellipse at 50% 0%, rgba(220,245,255,0.52) 0%, rgba(170,220,255,0.22) 42%, transparent 78%)',
+          filter: lightweight ? undefined : 'blur(8px)',
         }}
       />
       {showParticles &&
@@ -1803,20 +1565,16 @@ const SkipSwipeEffectLayer = React.memo(function SkipSwipeEffectLayer({
               fontSize: sleepZ.size,
               fontWeight: 800,
               lineHeight: 1,
-              color: `rgba(230,248,255,${cssAlpha(intensity, 0.75, 0.25)})`,
+              color: 'rgba(230,248,255,0.8)',
               textShadow: lightweight
                 ? undefined
-                : `0 0 ${cssPixelText(
-                    intensity,
-                    10,
-                    4,
-                  )} rgba(150,220,255,${cssAlpha(intensity, 0.52, 0.18)})`,
+                : '0 0 10px rgba(150,220,255,0.6)',
               transform: `translateX(-50%) rotate(${sleepZ.rotate}deg)`,
               animation: reducedMotion
                 ? undefined
                 : `hotTakeSleepFloat ${sleepZ.duration}s ease-in infinite`,
               animationDelay: `${sleepZ.delay}s`,
-              opacity: cssNumber(intensity, 0.76, 0.24),
+              opacity: 0.85,
             }}
           >
             Z
@@ -1836,23 +1594,15 @@ const SkipSwipeEffectLayer = React.memo(function SkipSwipeEffectLayer({
               borderRadius: '50%',
               background:
                 'radial-gradient(circle at 28% 28%, rgba(255,255,255,0.95) 0%, rgba(225,245,255,0.55) 44%, rgba(170,220,255,0.2) 100%)',
-              border: `1px solid rgba(208,240,255,${cssAlpha(
-                intensity,
-                0.5,
-                0.18,
-              )})`,
+              border: '1px solid rgba(208,240,255,0.5)',
               boxShadow: lightweight
                 ? undefined
-                : `0 0 ${bubble.size + 4}px rgba(150,220,255,${cssAlpha(
-                    intensity,
-                    0.48,
-                    0.15,
-                  )})`,
+                : `0 0 ${bubble.size + 4}px rgba(150,220,255,0.5)`,
               animation: reducedMotion
                 ? undefined
                 : `hotTakeBubbleRise ${bubble.duration}s ease-out infinite`,
               animationDelay: `${bubble.delay}s`,
-              opacity: cssNumber(intensity, 0.8, 0.2),
+              opacity: 0.8,
             }}
           />
         ))}
@@ -1877,67 +1627,60 @@ const HotTakeFeedbackBadges = React.memo(function HotTakeFeedbackBadges({
     return null;
   }
 
-  const hotOpacity = getEffectIntensityValue(
-    hotIntensity,
-    HOT_INTENSITY_VAR,
-    useLiveIntensity,
-  );
-  const coldOpacity = getEffectIntensityValue(
-    coldIntensity,
-    COLD_INTENSITY_VAR,
-    useLiveIntensity,
-  );
-  const skipOpacity = getEffectIntensityValue(
-    skipIntensity,
-    SKIP_INTENSITY_VAR,
-    useLiveIntensity,
+  const renderBadge = ({
+    backgroundColor,
+    className,
+    intensity,
+    liveIntensity,
+    text,
+  }: {
+    backgroundColor?: string;
+    className: string;
+    intensity: number;
+    liveIntensity: string;
+    text: string;
+  }): ReactElement => (
+    <div
+      className={classNames(
+        'z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 px-4 py-1 font-bold text-white typo-title3',
+        className,
+      )}
+      style={{
+        opacity: getEffectIntensityValue(
+          intensity,
+          liveIntensity,
+          useLiveIntensity,
+        ),
+        animation: 'hotTakeBadgePulse 0.18s ease-out',
+        backgroundColor,
+        boxShadow: '0 6px 18px rgba(0,0,0,0.2)',
+      }}
+    >
+      {text}
+    </div>
   );
 
   return (
     <>
-      <div
-        className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-accent-ketchup-default px-4 py-1 font-bold text-white typo-title3"
-        style={{
-          opacity: hotOpacity,
-          animation: 'hotTakeBadgePulse 0.18s ease-out',
-          boxShadow: `0 6px ${cssPixelText(
-            hotOpacity,
-            10,
-            12,
-          )} rgba(0,0,0,${cssAlpha(hotOpacity, 0.18, 0.1)})`,
-        }}
-      >
-        HOT 🔥
-      </div>
-      <div
-        className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 px-4 py-1 font-bold text-white typo-title3"
-        style={{
-          opacity: coldOpacity,
-          animation: 'hotTakeBadgePulse 0.18s ease-out',
-          backgroundColor: COLD_ACCENT_COLOR,
-          boxShadow: `0 6px ${cssPixelText(
-            coldOpacity,
-            10,
-            12,
-          )} rgba(0,0,0,${cssAlpha(coldOpacity, 0.18, 0.1)})`,
-        }}
-      >
-        COLD 🥶
-      </div>
-      <div
-        className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-accent-blueCheese-default px-4 py-1 font-bold text-white typo-title3"
-        style={{
-          opacity: skipOpacity,
-          animation: 'hotTakeBadgePulse 0.18s ease-out',
-          boxShadow: `0 6px ${cssPixelText(
-            skipOpacity,
-            10,
-            12,
-          )} rgba(0,0,0,${cssAlpha(skipOpacity, 0.18, 0.1)})`,
-        }}
-      >
-        SKIP 😴
-      </div>
+      {renderBadge({
+        className: 'bg-accent-ketchup-default',
+        intensity: hotIntensity,
+        liveIntensity: HOT_INTENSITY_VAR,
+        text: 'HOT 🔥',
+      })}
+      {renderBadge({
+        className: '',
+        backgroundColor: COLD_ACCENT_COLOR,
+        intensity: coldIntensity,
+        liveIntensity: COLD_INTENSITY_VAR,
+        text: 'COLD 🥶',
+      })}
+      {renderBadge({
+        className: 'bg-accent-blueCheese-default',
+        intensity: skipIntensity,
+        liveIntensity: SKIP_INTENSITY_VAR,
+        text: 'SKIP 😴',
+      })}
     </>
   );
 });
@@ -2058,23 +1801,26 @@ const HotTakeCard = React.memo(
           } as CSSPropertiesWithVars
         }
       >
-        <HotSwipeEffectLayer
+        <SwipeEffectLayer
           active={feedbackActive}
           intensity={hotEffectIntensity}
+          kind="hot"
           lightweight={isLightweightEffects}
           reducedMotion={prefersReducedMotion}
           useLiveIntensity={useLiveIntensity}
         />
-        <ColdSwipeEffectLayer
+        <SwipeEffectLayer
           active={feedbackActive}
           intensity={coldEffectIntensity}
+          kind="cold"
           lightweight={isLightweightEffects}
           reducedMotion={prefersReducedMotion}
           useLiveIntensity={useLiveIntensity}
         />
-        <SkipSwipeEffectLayer
+        <SwipeEffectLayer
           active={feedbackActive}
           intensity={quantizedSkipEffectIntensity}
+          kind="skip"
           lightweight={isLightweightEffects}
           reducedMotion={prefersReducedMotion}
           useLiveIntensity={useLiveIntensity}
