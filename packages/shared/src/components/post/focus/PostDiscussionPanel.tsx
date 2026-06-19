@@ -62,11 +62,6 @@ export interface PostDiscussionPanelProps {
    * panel root so modals stay scoped to this surface.
    */
   modalParentSelector?: () => HTMLElement;
-  /**
-   * Experiment: the composer is joined to the engagement bar above it as one
-   * block, so its top is flush (no top rounding/border) from tablet up.
-   */
-  connectedComposer?: boolean;
 }
 
 const noopFocus = (): void => {};
@@ -84,7 +79,6 @@ export const PostDiscussionPanel = ({
   showSortHeader = false,
   onRegisterFocusComment,
   modalParentSelector,
-  connectedComposer,
 }: PostDiscussionPanelProps): ReactElement => {
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
@@ -127,12 +121,7 @@ export const PostDiscussionPanel = ({
       type="button"
       aria-label="Add a comment"
       onClick={() => onCommentClick(Origin.StartDiscussion)}
-      className={classNames(
-        'group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover',
-        // Joined to the engagement bar above: flush top (no top rounding/border)
-        // from tablet up so the two read as one block.
-        connectedComposer && 'tablet:rounded-t-none tablet:border-t-0',
-      )}
+      className="group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
     >
       {triggerUser ? (
         <ProfilePicture

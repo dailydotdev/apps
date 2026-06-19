@@ -31,11 +31,7 @@ import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
-import {
-  feature,
-  featureFocusActionBarConnected,
-} from '../../../lib/featureManagement';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { feature } from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
 import HoverCard from '../../cards/common/HoverCard';
@@ -238,11 +234,6 @@ export const PostFocusCard = ({
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
-  // Experiment: connect the engagement bar to the composer (flat while resting,
-  // floating only when pinned). Off keeps the always-floating pill.
-  const { value: isConnectedBar } = useConditionalFeature({
-    feature: featureFocusActionBarConnected,
-  });
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
@@ -544,25 +535,15 @@ export const PostFocusCard = ({
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
             onClose={onClose}
-            connected={isConnectedBar}
             // Tighten the gap to the stats row above (the column's gap-4 alone
             // read as too large here).
             className="-mt-2"
           />
 
-          <div
-            ref={discussionRef}
-            className={classNames(
-              'scroll-mt-16',
-              // Connected experiment: pull the composer flush against the bar
-              // above so they read as one block (cancels the column gap-4).
-              isConnectedBar && 'tablet:-mt-4',
-            )}
-          >
+          <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel
               showMetaBar={false}
               showSortHeader
-              connectedComposer={isConnectedBar}
               onRegisterFocusComment={(fn) => {
                 focusCommentRef.current = fn;
               }}
