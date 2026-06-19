@@ -17,7 +17,6 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
-import { useIsScrolling } from '../../../hooks/useIsScrolling';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -28,17 +27,15 @@ const morphEase =
   'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none';
 
 // Positioning grid: track 1 holds the pill, track 2 is a spacer. Animating the
-// fr split expands the pill from content-hugging to full width — `fit-content →
-// 100%` isn't animatable, but fr tracks are. The expand classes are appended
-// only when not scrolling (see `expandOnHover`).
-const outerBaseClasses = classNames(
+// fr split expands the pill from content-hugging to full width on hover —
+// `fit-content → 100%` isn't animatable, but fr tracks are.
+const outerClasses = classNames(
   'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid',
   `transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr_0fr]',
   'laptop:mouse:[grid-template-columns:0fr_1fr]',
+  'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]',
 );
-const outerExpandClasses =
-  'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]';
 
 // Only the rest color is pinned to text-primary for contrast on the glass;
 // hover/pressed colors are left to each `btn-tertiary-*` class so icons keep
@@ -51,24 +48,27 @@ const pillClasses = classNames(
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
 
-// One collapsible track per secondary action: width animates 0fr ↔ 1fr while
-// the content fades in. `visibility` removes hidden buttons from focus order.
-const segmentBaseClasses = classNames(
+// One collapsible track per secondary action: width animates 0fr ↔ 1fr on hover
+// while the content fades in. `visibility` removes hidden buttons from focus order.
+const segmentClasses = classNames(
   `grid transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr]',
   'laptop:mouse:[grid-template-columns:0fr]',
+  'laptop:mouse:group-hover:[grid-template-columns:1fr]',
 );
-const segmentExpandClasses =
-  'laptop:mouse:group-hover:[grid-template-columns:1fr]';
 
-const segmentContentBaseClasses = classNames(
+const segmentContentClasses = classNames(
   'flex min-w-0 items-center justify-center overflow-hidden',
   'transition-[opacity,visibility] duration-200 ease-out motion-reduce:transition-none',
   'visible opacity-100',
   'laptop:mouse:invisible laptop:mouse:opacity-0',
+  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100',
 );
-const segmentContentExpandClasses =
-  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100';
+
+const segmentProps = {
+  wrapperClassName: segmentClasses,
+  contentClassName: segmentContentClasses,
+};
 
 // Dark glow behind the pill so it stays readable over busy cover images. Fixed
 // pepper tint in both themes; inline gradient since it's a one-off scrim.
@@ -105,7 +105,6 @@ export function FeedCardGlassActions({
   coverScrim = false,
 }: ActionButtonsProps & { coverScrim?: boolean }): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
-  const isScrolling = useIsScrolling();
   const {
     isUpvoteActive,
     isDownvoteActive,
@@ -127,26 +126,6 @@ export function FeedCardGlassActions({
 
   const upvoteCount = post.numUpvotes ?? 0;
   const commentCount = post.numComments ?? 0;
-
-  // Don't expand on hover while scrolling, so a card passing under the cursor
-  // mid-scroll stays collapsed.
-  const expandOnHover = !isScrolling;
-  const outerClasses = classNames(
-    outerBaseClasses,
-    expandOnHover && outerExpandClasses,
-  );
-  const segmentClasses = classNames(
-    segmentBaseClasses,
-    expandOnHover && segmentExpandClasses,
-  );
-  const segmentContentClasses = classNames(
-    segmentContentBaseClasses,
-    expandOnHover && segmentContentExpandClasses,
-  );
-  const segmentProps = {
-    wrapperClassName: segmentClasses,
-    contentClassName: segmentContentClasses,
-  };
 
   const commentButton = (
     <Tooltip content="Comments" side="bottom">
