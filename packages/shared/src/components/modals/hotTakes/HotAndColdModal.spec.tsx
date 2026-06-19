@@ -5,8 +5,14 @@ import { useDiscoverHotTakes } from '../../../hooks/useDiscoverHotTakes';
 import { useVoteHotTake } from '../../../hooks/vote/useVoteHotTake';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useMedia } from '../../../hooks/useMedia';
+import { useViewSize } from '../../../hooks/useViewSize';
 import { LogEvent, Origin } from '../../../lib/log';
-import HotAndColdModal from './HotAndColdModal';
+import HotAndColdModal, {
+  getElasticDelta,
+  quantizeIntensity,
+  smoothstep01,
+} from './HotAndColdModal';
 
 jest.mock('../../../hooks/useDiscoverHotTakes', () => ({
   useDiscoverHotTakes: jest.fn(),
@@ -26,6 +32,17 @@ jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock('../../../hooks/useMedia', () => ({
+  useMedia: jest.fn(),
+}));
+
+jest.mock('../../../hooks/useViewSize', () => ({
+  ViewSize: {
+    MobileL: 'mobileL',
+  },
+  useViewSize: jest.fn(),
+}));
+
 jest.mock('../../../hooks/useRequestProtocol', () => ({
   useRequestProtocol: () => ({ isCompanion: false }),
 }));
@@ -34,6 +51,8 @@ const mockedUseDiscoverHotTakes = useDiscoverHotTakes as jest.Mock;
 const mockedUseVoteHotTake = useVoteHotTake as jest.Mock;
 const mockedUseLogContext = useLogContext as jest.Mock;
 const mockedUseAuthContext = useAuthContext as jest.Mock;
+const mockedUseMedia = useMedia as jest.Mock;
+const mockedUseViewSize = useViewSize as jest.Mock;
 
 const createHotTake = (id = 'take-1'): HotTake => ({
   id,
@@ -47,7 +66,7 @@ const createHotTake = (id = 'take-1'): HotTake => ({
 });
 
 const renderComponent = (onRequestClose = jest.fn()) => {
-  render(
+  const view = render(
     <HotAndColdModal
       isOpen
       onRequestClose={onRequestClose}
@@ -55,7 +74,34 @@ const renderComponent = (onRequestClose = jest.fn()) => {
     />,
   );
 
-  return { onRequestClose };
+  return { onRequestClose, ...view };
+};
+
+const swipeCard = ({
+  deltaX = 0,
+  deltaY = 0,
+}: {
+  deltaX?: number;
+  deltaY?: number;
+}) => {
+  const swipeArea = screen.getAllByTestId('hot-takes-swipe-area')[0];
+  const startX = 200;
+  const startY = 400;
+
+  fireEvent.mouseDown(swipeArea, {
+    clientX: startX,
+    clientY: startY,
+    buttons: 1,
+  });
+  fireEvent.mouseMove(document, {
+    clientX: startX + deltaX,
+    clientY: startY + deltaY,
+    buttons: 1,
+  });
+  fireEvent.mouseUp(document, {
+    clientX: startX + deltaX,
+    clientY: startY + deltaY,
+  });
 };
 
 describe('HotAndColdModal', () => {
@@ -78,6 +124,8 @@ describe('HotAndColdModal', () => {
     mockedUseAuthContext.mockReturnValue({
       user: { username: 'tester' },
     });
+    mockedUseMedia.mockReturnValue(false);
+    mockedUseViewSize.mockReturnValue(false);
     mockedUseDiscoverHotTakes.mockReturnValue({
       hotTakes: [createHotTake()],
       currentTake: createHotTake(),
@@ -90,6 +138,17 @@ describe('HotAndColdModal', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it('should keep swipe helper math bounded and quantized', () => {
+    expect(smoothstep01(-1)).toBe(0);
+    expect(smoothstep01(0.5)).toBe(0.5);
+    expect(smoothstep01(2)).toBe(1);
+    expect(getElasticDelta(40)).toBe(40);
+    expect(getElasticDelta(120)).toBe(92);
+    expect(getElasticDelta(-120)).toBe(-92);
+    expect(quantizeIntensity(0.53)).toBe(0.55);
+    expect(quantizeIntensity(1.2)).toBe(1);
   });
 
   it('should trigger upvote flow for hot action', () => {
@@ -135,6 +194,125 @@ describe('HotAndColdModal', () => {
     });
 
     expect(dismissCurrent).toHaveBeenCalledTimes(1);
+  });
+
+  it('should trigger upvote flow when swiped right past threshold', () => {
+    jest.useFakeTimers();
+    const currentTake = createHotTake('swipe-hot-take');
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    swipeCard({ deltaX: 130 });
+
+    expect(toggleUpvote).toHaveBeenCalledWith({
+      payload: currentTake,
+      origin: Origin.HotAndCold,
+    });
+    expect(toggleDownvote).not.toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.VoteHotAndCold,
+        target_id: currentTake.id,
+      }),
+    );
+    expect(dismissCurrent).not.toHaveBeenCalled();
+
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    expect(dismissCurrent).toHaveBeenCalledTimes(1);
+  });
+
+  it('should snap back when swiped under threshold', () => {
+    renderComponent();
+
+    swipeCard({ deltaX: 50 });
+
+    expect(toggleUpvote).not.toHaveBeenCalled();
+    expect(toggleDownvote).not.toHaveBeenCalled();
+    expect(cancelHotTakeVote).not.toHaveBeenCalled();
+    expect(dismissCurrent).not.toHaveBeenCalled();
+  });
+
+  it('should trigger skip flow when swiped up past threshold', () => {
+    jest.useFakeTimers();
+    const currentTake = createHotTake('swipe-skip-take');
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    swipeCard({ deltaY: -130 });
+
+    expect(cancelHotTakeVote).toHaveBeenCalledWith({ id: currentTake.id });
+    expect(toggleUpvote).not.toHaveBeenCalled();
+    expect(toggleDownvote).not.toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.SkipHotTake,
+        target_id: currentTake.id,
+      }),
+    );
+
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    expect(dismissCurrent).toHaveBeenCalledTimes(1);
+  });
+
+  it('should write the active drag transform outside React state', () => {
+    const originalRequestAnimationFrame = window.requestAnimationFrame;
+    const originalCancelAnimationFrame = window.cancelAnimationFrame;
+    window.requestAnimationFrame = ((callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    }) as typeof window.requestAnimationFrame;
+    window.cancelAnimationFrame =
+      jest.fn() as typeof window.cancelAnimationFrame;
+
+    try {
+      renderComponent();
+
+      const swipeArea = screen.getByTestId('hot-takes-swipe-area');
+      fireEvent.mouseDown(swipeArea, {
+        clientX: 200,
+        clientY: 400,
+        buttons: 1,
+      });
+      fireEvent.mouseMove(document, {
+        clientX: 296,
+        clientY: 400,
+        buttons: 1,
+      });
+
+      const activeCard = document.querySelector(
+        '[data-testid="hot-take-card"][data-active-card="true"]',
+      ) as HTMLElement;
+
+      expect(activeCard.style.transform).toContain('translateX(96px)');
+      expect(activeCard).toHaveStyle({ willChange: 'transform' });
+    } finally {
+      window.requestAnimationFrame = originalRequestAnimationFrame;
+      window.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
   });
 
   it('should trigger downvote flow for cold action', () => {
@@ -370,5 +548,80 @@ describe('HotAndColdModal', () => {
       screen.getAllByRole('img', { name: 'daily.dev source icon' })[0],
     ).toBeVisible();
     expect(screen.getAllByText('Starter feed ready')[0]).toBeVisible();
+  });
+
+  it('should preserve onboarding swipe action metadata', () => {
+    jest.useFakeTimers();
+    const onSwipeAction = jest.fn();
+
+    render(
+      <HotAndColdModal
+        isOpen
+        onRequestClose={jest.fn()}
+        ariaHideApp={false}
+        onboardingCards={[
+          {
+            id: 'onboarding-card-1',
+            title: 'Figma launches MCP tool for AI agents to design on canvas',
+            source: { name: 'daily.dev' },
+          },
+        ]}
+        onSwipeAction={onSwipeAction}
+      />,
+    );
+
+    swipeCard({ deltaX: 130 });
+
+    expect(onSwipeAction).toHaveBeenCalledWith('right', {
+      onboardingCardId: 'onboarding-card-1',
+    });
+
+    act(() => {
+      jest.runAllTimers();
+    });
+  });
+
+  it('should render lightweight directional effects on mobile', () => {
+    mockedUseViewSize.mockReturnValue(true);
+    renderComponent();
+
+    const swipeArea = screen.getAllByTestId('hot-takes-swipe-area')[0];
+    fireEvent.mouseDown(swipeArea, {
+      clientX: 200,
+      clientY: 400,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(document, {
+      clientX: 320,
+      clientY: 400,
+      buttons: 1,
+    });
+
+    expect(
+      document.querySelectorAll('[data-hot-take-particle="flame"]'),
+    ).toHaveLength(4);
+    expect(screen.getByText('HOT 🔥')).toBeInTheDocument();
+  });
+
+  it('should remove decorative particles for reduced motion', () => {
+    mockedUseMedia.mockReturnValue(true);
+    renderComponent();
+
+    const swipeArea = screen.getAllByTestId('hot-takes-swipe-area')[0];
+    fireEvent.mouseDown(swipeArea, {
+      clientX: 200,
+      clientY: 400,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(document, {
+      clientX: 320,
+      clientY: 400,
+      buttons: 1,
+    });
+
+    expect(document.querySelectorAll('[data-hot-take-particle]')).toHaveLength(
+      0,
+    );
+    expect(screen.getByText('HOT 🔥')).toBeInTheDocument();
   });
 });
