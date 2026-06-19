@@ -138,14 +138,14 @@ export default function Markdown({
   );
 
   const openImage = useCallback(
-    (src: string) => {
+    (src: string, alt?: string) => {
       // The lazy-modal renderer isn't mounted in the extension companion, so
       // fall back to opening the image in a new tab there.
       if (isCompanion) {
         window.open(src, '_blank', 'noopener,noreferrer');
         return;
       }
-      openModal({ type: LazyModal.ImageView, props: { src } });
+      openModal({ type: LazyModal.ImageView, props: { src, alt } });
     },
     [isCompanion, openModal],
   );
@@ -156,7 +156,7 @@ export default function Markdown({
 
       if (isImageElement(element) && element.src) {
         e.stopPropagation();
-        openImage(element.src);
+        openImage(element.src, element.alt || undefined);
       }
     },
     [openImage],
@@ -173,7 +173,7 @@ export default function Markdown({
       ) {
         e.preventDefault();
         e.stopPropagation();
-        openImage(element.src);
+        openImage(element.src, element.alt || undefined);
       }
     },
     [openImage],

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type ReactModal from 'react-modal';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -29,11 +29,33 @@ export default function ImageModal({
 }: ImageModalProps): ReactElement | null {
   const close = () => onRequestClose?.(undefined as never);
 
-  useEventListener(globalThis as unknown as Window, 'keydown', (event) => {
-    if (event.key === 'Escape') {
+  // Close on Escape, but only this lightbox: capture the event and stop it
+  // before it reaches the underlying post modal's react-modal Esc handler —
+  // otherwise Esc would close both at once.
+  useEventListener(
+    globalThis as unknown as Window,
+    'keydown',
+    (event) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+      event.stopImmediatePropagation();
+      event.preventDefault();
       close();
-    }
-  });
+    },
+    true,
+  );
+
+  // Lock background scroll while open. Restores the previous value on close so
+  // a still-open underlying modal keeps its own lock (which is class-based).
+  useEffect(() => {
+    const { style } = document.body;
+    const previousOverflow = style.overflow;
+    style.overflow = 'hidden';
+    return () => {
+      style.overflow = previousOverflow;
+    };
+  }, []);
 
   const body = globalThis?.document?.body;
   if (!body) {
