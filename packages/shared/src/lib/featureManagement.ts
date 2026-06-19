@@ -251,6 +251,13 @@ export const featureOnboardingPermissionPrimer = new Feature(
 
 export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
 
+// Experiment: skip layout/paint for off-screen feed cards via CSS
+// `content-visibility: auto` to keep long feeds responsive.
+export const featureFeedContentVisibility = new Feature(
+  'feed_content_visibility',
+  false,
+);
+
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
