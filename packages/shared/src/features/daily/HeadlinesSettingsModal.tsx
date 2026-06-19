@@ -38,6 +38,7 @@ const ChannelRow = ({
   const { isFollowing, toggleFollow } = useSourceActionsFollow({ source });
   const { haveNotificationsOn, isReady, onNotify } = useSourceActionsNotify({
     source,
+    optimistic: true,
   });
   const inputId = `headline-toggle-${channel.channel}`;
 
