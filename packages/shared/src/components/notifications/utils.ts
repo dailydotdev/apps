@@ -18,6 +18,10 @@ import {
   AnalyticsIcon,
   JobIcon,
   MagicIcon,
+  AtIcon,
+  AddUserIcon,
+  SquadIcon,
+  MegaphoneIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -455,6 +459,39 @@ export const getNotificationCategory = (
   type: NotificationType,
 ): NotificationFilterCategory =>
   notificationTypeToCategory[type] ?? NotificationFilterCategory.Updates;
+
+// Eye-catching colored type badge overlaid on the avatar (Instagram/Facebook/
+// TikTok pattern): a solid accent circle + white glyph that signals the
+// notification type at a glance.
+export const notificationCategoryBadge: Record<
+  NotificationFilterCategory,
+  { bg: string; Icon: ComponentType<IconProps> }
+> = {
+  [NotificationFilterCategory.Upvotes]: {
+    bg: 'bg-accent-avocado-default',
+    Icon: UpvoteIcon,
+  },
+  [NotificationFilterCategory.Mentions]: {
+    bg: 'bg-accent-cabbage-default',
+    Icon: AtIcon,
+  },
+  [NotificationFilterCategory.Comments]: {
+    bg: 'bg-accent-blueCheese-default',
+    Icon: DiscussIcon,
+  },
+  [NotificationFilterCategory.Followers]: {
+    bg: 'bg-accent-onion-default',
+    Icon: AddUserIcon,
+  },
+  [NotificationFilterCategory.Squads]: {
+    bg: 'bg-accent-cheese-default',
+    Icon: SquadIcon,
+  },
+  [NotificationFilterCategory.Updates]: {
+    bg: 'bg-accent-bun-default',
+    Icon: MegaphoneIcon,
+  },
+};
 
 export const NotificationContainer = classed('div', 'flex flex-col gap-6');
 

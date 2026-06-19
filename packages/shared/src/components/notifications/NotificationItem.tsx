@@ -8,6 +8,8 @@ import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import {
+  getNotificationCategory,
+  notificationCategoryBadge,
   notificationMutingCopy,
   NotificationType,
   notificationTypeNotClickable,
@@ -27,12 +29,10 @@ import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Image, ImageType } from '../image/Image';
+import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
-
-import { DateFormat } from '../utilities';
-import { TimeFormatType } from '../../lib/dateFormat';
-import { NotificationItemDescriptionIcon } from './NotificationDescriptionIcon';
+import { getLastActivityDateFormat } from '../../lib/dateFormat';
 
 export interface NotificationItemProps
   extends Pick<
@@ -216,17 +216,19 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
 
-  // When there is a person/source involved we show their avatar; otherwise
-  // (system/digest/streak) the type icon stands in as the lead. Kept flat and
-  // single — no overlaid badge — to match the settings-page aesthetic.
+  // When there is a person/source involved we show their avatar with a colored
+  // type badge; otherwise (system/digest/streak) the type icon is the lead.
   const leadIcon = (
     <NotificationItemIcon icon={icon} iconTheme={notificationTypeTheme[type]} />
   );
+  const badge = notificationCategoryBadge[getNotificationCategory(type)];
+  const BadgeIcon = badge.Icon;
+  const timeText = createdAt ? getLastActivityDateFormat(createdAt) : '';
 
   return (
     <div
       className={classNames(
-        'group relative flex min-h-16 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex min-h-16 flex-row items-center gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -253,53 +255,55 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         </Link>
       )}
 
-      {/* Leading avatar/icon */}
+      {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
+          glance cue (Instagram/Facebook/TikTok). System rows with no person
+          fall back to the plain type icon. */}
       <div
         className={classNames(
-          'flex shrink-0 items-center justify-center pt-0.5',
+          'relative flex shrink-0 items-center justify-center',
           !isAvatarGroup && 'w-10',
         )}
       >
-        {hasAvatar ? avatarContent : leadIcon}
+        {hasAvatar ? (
+          <>
+            {avatarContent}
+            <span
+              className={classNames(
+                'absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
+                badge.bg,
+              )}
+            >
+              <BadgeIcon size={IconSize.XXSmall} className="text-white" />
+            </span>
+          </>
+        ) : (
+          leadIcon
+        )}
       </div>
 
-      {/* Content: bold title (the headline), one muted snippet, and the post
-          preview beneath it. Nothing here is right-aligned, so the only thing
-          on the right edge is the timestamp — its position never shifts. */}
-      <div className="flex min-w-0 flex-1 flex-col gap-1 text-left">
+      {/* Two levels: bold headline, then a muted meta line carrying the snippet
+          plus an inline timestamp — nothing is pinned to the right edge, so the
+          layout never shifts when a thumbnail is present. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
         <span
           className="multi-truncate line-clamp-2 break-words font-bold text-text-primary typo-callout [&_p]:m-0"
           dangerouslySetInnerHTML={{
             __html: memoizedTitle,
           }}
         />
-        {description ? (
-          <div className="flex items-center gap-1 text-text-tertiary typo-footnote">
-            <NotificationItemDescriptionIcon type={type} key="icon" />
-            <div
-              className="multi-truncate line-clamp-1 min-w-0 flex-1 break-words [&_p]:m-0"
-              dangerouslySetInnerHTML={{
-                __html: memoizedDescription,
-              }}
-            />
-          </div>
-        ) : (
-          attachment?.title && (
-            <span className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote">
-              {attachment.title}
+        <div className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline">
+          {description ? (
+            <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
+          ) : (
+            attachment?.title && <span>{attachment.title}</span>
+          )}
+          {timeText && (
+            <span className="text-text-quaternary">
+              {(description || attachment?.title) && ' · '}
+              {timeText}
             </span>
-          )
-        )}
-        {attachment?.image && (
-          <Image
-            data-testid="postImage"
-            loading="lazy"
-            type={ImageType.Post}
-            className="mt-1 h-12 w-20 rounded-12 object-cover"
-            src={attachment.image}
-            alt={`Cover preview of: ${attachment.title}`}
-          />
-        )}
+          )}
+        </div>
         {type === NotificationType.UserFollow && (
           <span className="relative z-1 mt-1">
             <NotificationFollowUserButton {...props} />
@@ -307,21 +311,22 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* The only right-edge element: timestamp (mute menu on hover above it) */}
-      <div className="flex shrink-0 flex-row items-center gap-1 pt-0.5">
-        {hasOptions && (
-          <span className="relative z-1">
-            <NotificationOptionsButton notification={{ type, referenceId }} />
-          </span>
-        )}
-        {createdAt && (
-          <DateFormat
-            className="whitespace-nowrap text-text-quaternary typo-caption1"
-            date={createdAt}
-            type={TimeFormatType.LastActivity}
-          />
-        )}
-      </div>
+      {/* Small trailing content thumbnail + hover mute menu */}
+      {attachment?.image && (
+        <Image
+          data-testid="postImage"
+          loading="lazy"
+          type={ImageType.Post}
+          className="size-11 shrink-0 rounded-12 object-cover"
+          src={attachment.image}
+          alt={`Cover preview of: ${attachment.title}`}
+        />
+      )}
+      {hasOptions && (
+        <span className="relative z-1 shrink-0">
+          <NotificationOptionsButton notification={{ type, referenceId }} />
+        </span>
+      )}
     </div>
   );
 }
