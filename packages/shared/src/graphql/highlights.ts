@@ -220,6 +220,7 @@ export interface ChannelDigestConfiguration {
 export interface ChannelConfiguration {
   channel: string;
   displayName: string;
+  color: string;
   digest?: ChannelDigestConfiguration | null;
 }
 
@@ -258,6 +259,72 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
   }
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
+
+export interface DailyHighlightsData {
+  dailyHighlights: Connection<PostHighlightFeed>;
+}
+
+export const DAILY_HIGHLIGHTS_QUERY_KEY = ['daily-highlights'];
+
+export const DAILY_HIGHLIGHTS_QUERY = gql`
+  query DailyHighlights($first: Int, $after: String) {
+    dailyHighlights(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...PostHighlightFeedCard
+        }
+      }
+    }
+  }
+  ${POST_HIGHLIGHT_FEED_FRAGMENT}
+`;
+
+export const dailyHighlightsQueryOptions = () => ({
+  queryKey: DAILY_HIGHLIGHTS_QUERY_KEY,
+  queryFn: async () => {
+    return gqlClient.request<DailyHighlightsData>(DAILY_HIGHLIGHTS_QUERY, {
+      first: MAJOR_HEADLINES_MAX_FIRST,
+    });
+  },
+  staleTime: ONE_MINUTE,
+});
+
+export interface ChannelConfigurationsData {
+  channelConfigurations: ChannelConfiguration[];
+}
+
+export const CHANNEL_CONFIGURATIONS_QUERY_KEY = ['channel-configurations'];
+
+export const CHANNEL_CONFIGURATIONS_QUERY = gql`
+  query ChannelConfigurations {
+    channelConfigurations {
+      channel
+      displayName
+      color
+      digest {
+        frequency
+        source {
+          id
+          name
+          image
+          handle
+          permalink
+        }
+      }
+    }
+  }
+`;
+
+export const channelConfigurationsQueryOptions = () => ({
+  queryKey: CHANNEL_CONFIGURATIONS_QUERY_KEY,
+  queryFn: () =>
+    gqlClient.request<ChannelConfigurationsData>(CHANNEL_CONFIGURATIONS_QUERY),
+  staleTime: ONE_MINUTE,
+});
 
 export const highlightsPageQueryOptions = ({
   first = MAJOR_HEADLINES_MAX_FIRST,

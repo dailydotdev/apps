@@ -5,7 +5,10 @@ import PostsSearch from '@dailydotdev/shared/src/components/PostsSearch';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
+import {
+  getSearchTimeQueryParam,
+  SearchProviderEnum,
+} from '@dailydotdev/shared/src/graphql/search';
 import { useSearchContextProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 
 export default function RouterPostsSearch(
@@ -27,7 +30,7 @@ export default function RouterPostsSearch(
 
     return router.replace({
       pathname: router?.pathname ? router?.pathname : '/search',
-      query: { q: query },
+      query: { q: query, ...getSearchTimeQueryParam(time) },
     });
   };
 

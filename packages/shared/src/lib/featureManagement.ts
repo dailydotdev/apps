@@ -85,10 +85,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 
-export const featureReadingReminderVariation = new Feature<
-  'control' | 'hero' | 'inline'
->('reading_reminder_variation', 'control');
-
 export const featureReadingReminderHeroCopy = new Feature(
   'reading_reminder_hero_copy',
   {
@@ -251,4 +247,13 @@ export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
+);
+
+export enum DailyPageVariant {
+  None = 'none',
+  V1 = 'v1',
+}
+export const featureDailyPage = new Feature<DailyPageVariant>(
+  'daily_page',
+  DailyPageVariant.None,
 );
