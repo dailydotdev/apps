@@ -15,7 +15,7 @@ import { Loader } from '../../components/Loader';
 import type { ChannelConfiguration } from '../../graphql/highlights';
 import {
   channelConfigurationsQueryOptions,
-  DAILY_HIGHLIGHTS_QUERY_KEY,
+  DAILY_HEADLINES_QUERY_KEY,
 } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
@@ -48,7 +48,7 @@ const ChannelRow = ({
     await onNotify();
 
     await queryClient.invalidateQueries({
-      queryKey: DAILY_HIGHLIGHTS_QUERY_KEY,
+      queryKey: DAILY_HEADLINES_QUERY_KEY,
     });
   };
 
