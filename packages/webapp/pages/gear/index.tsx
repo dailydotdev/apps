@@ -63,8 +63,8 @@ const GearPage = ({ gearByCategory }: GearPageProps): ReactElement => {
     <div className="relative mx-auto flex w-full max-w-6xl flex-col">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="animate-float-slow bg-accent-cabbage-default/10 absolute -left-32 -top-32 h-96 w-96 rounded-full blur-3xl" />
-        <div className="animate-float-slow-reverse absolute -right-32 -top-16 h-64 w-64 rounded-full bg-accent-onion-default/[0.08] blur-3xl" />
-        <div className="animate-float-slow-delayed absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-accent-water-default/[0.06] blur-3xl" />
+        <div className="animate-float-slow-reverse bg-accent-onion-default/[0.08] absolute -right-32 -top-16 h-64 w-64 rounded-full blur-3xl" />
+        <div className="animate-float-slow-delayed bg-accent-water-default/[0.06] absolute -bottom-20 left-1/3 h-48 w-48 rounded-full blur-3xl" />
       </div>
 
       <PageWrapperLayout className="py-6">

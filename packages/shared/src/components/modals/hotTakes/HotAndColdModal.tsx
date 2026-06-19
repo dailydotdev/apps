@@ -416,7 +416,7 @@ const OnboardingCardBehindParticles = (): ReactElement => (
       className="opacity-70 pointer-events-none absolute inset-0 z-[21] overflow-hidden rounded-16"
     >
       <div
-        className="absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full bg-accent-avocado-default/50 blur-2xl"
+        className="bg-accent-avocado-default/50 absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 5.5s ease-in-out infinite',
         }}
@@ -429,7 +429,7 @@ const OnboardingCardBehindParticles = (): ReactElement => (
         }}
       />
       <div
-        className="absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full bg-accent-cabbage-default/40 blur-2xl"
+        className="bg-accent-cabbage-default/40 absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 4.8s ease-in-out infinite',
           animationDelay: '0.6s',

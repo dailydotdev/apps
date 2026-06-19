@@ -80,7 +80,7 @@ export const GivebackFundingBar = ({
         {/* Brand hairline along the top edge, matching the sticky tabs bar. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-cabbage-default/40 to-transparent"
+          className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
         />
 
         <FlexRow className="items-center justify-between gap-4">

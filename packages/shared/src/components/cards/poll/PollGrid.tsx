@@ -50,7 +50,7 @@ const PollGrid = forwardRef(function PollCard(
         ...domProps,
         className: getPostClassNames(
           post,
-          domProps?.className,
+          domProps?.className ?? '',
           useGlass ? 'min-h-cardGlass' : 'min-h-card',
         ),
       }}
@@ -58,8 +58,8 @@ const PollGrid = forwardRef(function PollCard(
     >
       <CardOverlay
         post={post}
-        onPostCardAuxClick={() => onPostAuxClick(post)}
-        onPostCardClick={() => onPostClick(post)}
+        onPostCardAuxClick={() => onPostAuxClick?.(post)}
+        onPostCardClick={() => onPostClick?.(post)}
       />
       <CardTextContainer>
         <SquadPostCardHeader
@@ -84,7 +84,7 @@ const PollGrid = forwardRef(function PollCard(
           className={{
             container: 'px-2',
           }}
-          options={pollOptions}
+          options={pollOptions ?? []}
           onClick={handleVote}
           userVote={post?.userState?.pollOption?.id}
           numPollVotes={numPollVotes || 0}

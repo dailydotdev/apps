@@ -233,11 +233,9 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 
 // Floats the feed card action bar over the cover image with an iOS-style glass
 // (dark translucent + blur) effect and shrinks the card height.
-// NOTE: defaulted to `true` to showcase the design mock-up — flip to `false`
-// before running the real GrowthBook experiment.
 export const featureFeedCardGlassActions = new Feature(
   'feed_card_glass_actions',
-  true,
+  false,
 );
 
 export const featureOnboardingPermissionPrimer = new Feature(

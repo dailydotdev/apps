@@ -193,7 +193,7 @@ export default function ImportPickerModal({
       <Modal.Body>
         <p className="mb-3 text-text-tertiary typo-callout">{sourceCopy}</p>
         <div
-          className="mb-4 flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float/40 px-3 py-2"
+          className="bg-surface-float/40 mb-4 flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary px-3 py-2"
           aria-live="polite"
         >
           <div className="flex flex-col leading-tight">
@@ -223,7 +223,7 @@ export default function ImportPickerModal({
         </div>
 
         {dedupedItems.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary bg-surface-float/40 px-6 py-10 text-center">
+          <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary px-6 py-10 text-center">
             <span
               aria-hidden
               className="flex size-12 items-center justify-center rounded-14 bg-overlay-float-cabbage text-accent-cabbage-default"
