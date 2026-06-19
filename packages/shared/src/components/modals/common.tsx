@@ -494,6 +494,13 @@ const ReaderInstallPromptModal = dynamic(
     ),
 );
 
+const ReaderExtensionInstallModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerExtensionInstallModal" */ './ReaderExtensionInstallModal'
+    ),
+);
+
 const ReaderPreviewLazyModal = dynamic(
   () =>
     import(
@@ -581,6 +588,7 @@ export const modals = {
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
   [LazyModal.IntroQuests]: IntroQuestModal,
   [LazyModal.ReaderInstallPrompt]: ReaderInstallPromptModal,
+  [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
 };
 

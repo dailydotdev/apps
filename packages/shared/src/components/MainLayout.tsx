@@ -11,6 +11,7 @@ import Toast from './notifications/Toast';
 import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
+import { QuestUpdatesListener } from './quest/QuestUpdatesListener';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
@@ -37,6 +38,7 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
   HomepageTopBanners,
@@ -104,8 +106,15 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
+  const { sidebarExpanded, autoDismissNotifications, loadedSettings, flags } =
     useContext(SettingsContext);
+  const isSidebarCompact = !!flags?.sidebarCompact;
+  const v2CollapsedPadding = isSidebarCompact
+    ? 'tablet:pl-16 laptop:pl-16'
+    : 'tablet:pl-16 laptop:pl-20';
+  const v2ExpandedPadding = isSidebarCompact
+    ? 'laptop:!pl-[19rem]'
+    : 'laptop:!pl-[20rem]';
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
@@ -119,6 +128,7 @@ function MainLayoutComponent({
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  useRecordRecentPages(isV2);
   useNotificationParams();
 
   // Settings pages render their navigation only inside the v2 context panel,
@@ -147,6 +157,18 @@ function MainLayoutComponent({
       setContentTransitionsEnabled(true);
     }
   }, [layoutSettled]);
+  // The v2 page uses a tinted background; the document root stays
+  // `background-default`, so overscroll past the feed reveals a darker strip.
+  // Flag the root while v2 is active so it can paint the same tint (laptop+,
+  // matching where the tinted page background applies — see base.css).
+  useEffect(() => {
+    if (!isV2) {
+      return undefined;
+    }
+    const root = globalThis.document?.documentElement;
+    root?.classList.add('layout-v2');
+    return () => root?.classList.remove('layout-v2');
+  }, [isV2]);
   // v2 (experiment) snaps the initial settle into place (transitions enable
   // one commit later, so only genuine toggles animate). The control variant
   // keeps animating on `layoutSettled` exactly as before.
@@ -277,6 +299,7 @@ function MainLayoutComponent({
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
+      <QuestUpdatesListener />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
@@ -305,14 +328,12 @@ function MainLayoutComponent({
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
           showSidebar &&
-            (isV2 ? 'tablet:pl-16 laptop:pl-16' : 'tablet:pl-16 laptop:pl-11'),
+            (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
-            (isV2
-              ? 'laptop:!pl-[19rem]'
-              : !isScreenCentered && 'laptop:!pl-60'),
+            (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
         )}
       >
@@ -339,7 +360,9 @@ function MainLayoutComponent({
                 // card without establishing a scroll container, so descendant
                 // `position: sticky` elements (e.g. the post action bar) stick
                 // to the viewport instead of being inert.
-                'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:shadow-2',
+                // No drop shadow — the subtle border defines the floating card
+                // in both themes; shadow-2 cast a heavy bottom shadow.
+                'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
                 !hasTopBanners &&
                   !topBanner &&
                   'laptop:min-h-[calc(100vh-1.5rem)]',

@@ -17,10 +17,10 @@ import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
+import { EarthIcon } from '../../icons';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
-import { PlayIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
@@ -234,12 +234,44 @@ export const PostFocusCard = ({
   const { onShowUpvoted } = useUpvoteQuery();
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
+  const { isReaderEnabled } = useReaderModalEligibility();
+  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  // The video is a small floating preview on tablet/desktop and expands to the
+  // full width on first interaction. We keep YouTube's native iframe (so the
+  // first click plays with sound), so there's no React click handler to hook —
+  // instead we detect the click landing inside the cross-origin iframe via the
+  // window losing focus to it, then animate the container open.
+  const videoWrapperRef = useRef<HTMLDivElement>(null);
+  const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
-  const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+
+  useEffect(() => {
+    if (!isVideoType || isVideoExpanded) {
+      return undefined;
+    }
+    const onWindowBlur = () => {
+      // activeElement updates after the blur dispatches, so defer the check.
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (
+          active?.tagName === 'IFRAME' &&
+          videoWrapperRef.current?.contains(active)
+        ) {
+          setIsVideoExpanded(true);
+        }
+      });
+    };
+    window.addEventListener('blur', onWindowBlur);
+    return () => window.removeEventListener('blur', onWindowBlur);
+  }, [isVideoType, isVideoExpanded]);
+
+  // Shared by the cover image and the Read button so both honor the reader
+  // gate (open the reader inside daily.dev / install nudge) before falling back
+  // to opening the external article.
+  const handleReadClick = (event: React.MouseEvent) => {
     if (onReaderInstallGateClick(event)) {
       return;
     }
@@ -264,8 +296,8 @@ export const PostFocusCard = ({
         href={readHref}
         target="_blank"
         rel="noopener"
-        icon={getReadPostButtonIcon(post)}
-        onClick={onReadArticle}
+        icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
+        onClick={handleReadClick}
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
         className={className}
@@ -384,7 +416,7 @@ export const PostFocusCard = ({
                 <a
                   className="block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                   href={readHref}
-                  onClick={handleImageClick}
+                  onClick={handleReadClick}
                   rel="noopener"
                   target="_blank"
                   title="Go to post"
@@ -438,41 +470,27 @@ export const PostFocusCard = ({
 
           {isVideoType && (
             <div
+              ref={videoWrapperRef}
               className={classNames(
                 'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
-                isVideoPlaying ? 'max-w-full' : 'max-w-[70%]',
+                // Phones (below mobileXL, the mobileL bucket and smaller) and
+                // the expanded state use the full width; tablet/desktop start
+                // as a smaller floating preview until the user plays the video.
+                isVideoExpanded
+                  ? 'max-w-full'
+                  : 'max-w-full mobileXL:max-w-[70%]',
               )}
             >
-              {isVideoPlaying ? (
-                <YoutubeVideo
-                  autoplay
-                  placeholderProps={{
-                    post: article,
-                    onWatchVideo: onReadArticle,
-                  }}
-                  videoId={article.videoId ?? ''}
-                />
-              ) : (
-                <button
-                  type="button"
-                  aria-label="Play video"
-                  onClick={() => setIsVideoPlaying(true)}
-                  className="group relative block w-full overflow-hidden rounded-16"
-                >
-                  <LazyImage
-                    eager
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    imgAlt="Video thumbnail"
-                    imgSrc={article.image}
-                    ratio="56.25%"
-                  />
-                  <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="flex size-14 items-center justify-center rounded-full bg-background-default text-text-primary shadow-2 transition-transform group-hover:scale-110">
-                      <PlayIcon secondary size={IconSize.XLarge} />
-                    </span>
-                  </span>
-                </button>
-              )}
+              {/* Embed YouTube's native player directly so the first click
+                  plays inside the iframe with sound — no custom overlay or
+                  muted autoplay. */}
+              <YoutubeVideo
+                placeholderProps={{
+                  post: article,
+                  onWatchVideo: onReadArticle,
+                }}
+                videoId={article.videoId ?? ''}
+              />
             </div>
           )}
 

@@ -8,7 +8,6 @@ import {
   CreditCardIcon,
   EditIcon,
   EmbedIcon,
-  ExitIcon,
   EyeIcon,
   FeatherIcon,
   HashtagIcon,
@@ -32,8 +31,6 @@ import { ListIcon } from '../common';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { settingsUrl } from '../../../lib/constants';
-import { LogoutReason } from '../../../lib/user';
-import { logout } from '../../../contexts/AuthContext';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -275,18 +272,6 @@ export const SettingsPanelSection = ({
               <ListIcon Icon={() => <TrendingIcon secondary={active} />} />
             ),
             action: () => openModal({ type: LazyModal.AdsDashboard }),
-          },
-        ],
-      },
-      {
-        key: 'logout',
-        items: [
-          {
-            title: 'Log out',
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <ExitIcon secondary={active} />} />
-            ),
-            action: () => logout(LogoutReason.ManualLogout),
           },
         ],
       },

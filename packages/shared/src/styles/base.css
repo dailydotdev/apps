@@ -4,6 +4,18 @@ html, #daily-companion-wrapper {
   height: stretch;
 }
 
+/* Match the tinted v2 page background at laptop+ so overscrolling past the
+   feed doesn't reveal the darker default document background. */
+@screen laptop {
+  html.layout-v2 {
+    background: color-mix(
+      in srgb,
+      var(--theme-surface-secondary) 3%,
+      var(--theme-background-default)
+    );
+  }
+}
+
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -653,14 +665,18 @@ body {
 html,
 html.light .invert,
 html .invert .invert,
-#daily-companion-wrapper {
+#daily-companion-wrapper,
+#daily-companion-wrapper.light .invert,
+#daily-companion-wrapper .invert .invert {
   @mixin dark-mode;
 }
 
 html.light,
 html .invert,
 html.light .invert .invert,
-#daily-companion-wrapper.light {
+#daily-companion-wrapper.light,
+#daily-companion-wrapper .invert,
+#daily-companion-wrapper.light .invert .invert {
   @mixin light-mode;
 }
 

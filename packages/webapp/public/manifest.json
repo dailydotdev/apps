@@ -25,5 +25,5 @@
   "background_color": "#151618",
   "start_url": "/?pwa=true",
   "display": "standalone",
-  "orientation": "portrait"
+  "orientation": "any"
 }

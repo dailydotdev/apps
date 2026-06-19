@@ -29,7 +29,6 @@ import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
-import type { NotificationCtaPlacement } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
@@ -170,20 +169,10 @@ export type FeedBannerInsertions = {
   indexWhenShowingPromoBanner: number;
   hero: {
     shouldShowTopHero: boolean;
-    shouldShowInFeedHero: boolean;
-    adjustedHeroInsertIndex: number;
     title: string;
     subtitle: string;
-    onEnable: (
-      placement:
-        | NotificationCtaPlacement.TopHero
-        | NotificationCtaPlacement.InFeedHero,
-    ) => Promise<void>;
-    onDismiss: (
-      placement:
-        | NotificationCtaPlacement.TopHero
-        | NotificationCtaPlacement.InFeedHero,
-    ) => Promise<void>;
+    onEnable: () => Promise<void>;
+    onDismiss: () => Promise<void>;
   };
 };
 
@@ -424,17 +413,7 @@ export default function useFeed<T>(
     shouldEvaluate: isBriefBannerEligible,
   });
 
-  const rawEdgeCount = useMemo(
-    () =>
-      feedQuery.data?.pages.reduce((acc, p) => acc + p.page.edges.length, 0) ??
-      0,
-    [feedQuery.data?.pages],
-  );
-
   const heroFeedHero = useReadingReminderFeedHero({
-    itemCount: rawEdgeCount,
-    itemsPerRow: virtualizedNumCards,
-    firstSlotOffset,
     disableTopHero,
   });
 
@@ -450,16 +429,8 @@ export default function useFeed<T>(
     if (showPromoBanner) {
       set.add(indexWhenShowingPromoBanner);
     }
-    if (heroFeedHero.shouldShowInFeedHero) {
-      set.add(heroFeedHero.adjustedHeroInsertIndex);
-    }
     return set;
-  }, [
-    showPromoBanner,
-    indexWhenShowingPromoBanner,
-    heroFeedHero.shouldShowInFeedHero,
-    heroFeedHero.adjustedHeroInsertIndex,
-  ]);
+  }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
   const { fetchAd } = useFetchAd();
   const adsQuery = useInfiniteQuery<
@@ -826,8 +797,6 @@ export default function useFeed<T>(
     indexWhenShowingPromoBanner,
     hero: {
       shouldShowTopHero: heroFeedHero.shouldShowTopHero,
-      shouldShowInFeedHero: heroFeedHero.shouldShowInFeedHero,
-      adjustedHeroInsertIndex: heroFeedHero.adjustedHeroInsertIndex,
       title: heroFeedHero.title,
       subtitle: heroFeedHero.subtitle,
       onEnable: heroFeedHero.onEnableHero,

@@ -85,10 +85,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 
-export const featureReadingReminderVariation = new Feature<
-  'control' | 'hero' | 'inline'
->('reading_reminder_variation', 'control');
-
 export const featureReadingReminderHeroCopy = new Feature(
   'reading_reminder_hero_copy',
   {
@@ -98,6 +94,13 @@ export const featureReadingReminderHeroCopy = new Feature(
 );
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
+
+// Experiment: show the clickbait shield to free users even while they have
+// intro quests, to measure the effect on D1 retention.
+export const featureClickbaitShieldIntroQuests = new Feature(
+  'clickbait_shield_intro_quests',
+  false,
+);
 
 export { feature };
 
@@ -172,7 +175,10 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal_v2', false);
+// Gates the one-time intermediate "read inside daily.dev" install prompt for
+// users who haven't enabled the reader yet. Unlike the retired reader_modal_v2,
+// this nudge is shown at most once ever (see readerInstallPromptSeen).
+export const featureReaderModalNudge = new Feature('reader_modal_v3', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
@@ -201,7 +207,7 @@ export enum FeedChipsVariant {
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',
-  FeedChipsVariant.None,
+  FeedChipsVariant.V2,
 );
 
 export enum HijackingVariant {
@@ -248,4 +254,13 @@ export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
+);
+
+export enum DailyPageVariant {
+  None = 'none',
+  V1 = 'v1',
+}
+export const featureDailyPage = new Feature<DailyPageVariant>(
+  'daily_page',
+  DailyPageVariant.None,
 );
