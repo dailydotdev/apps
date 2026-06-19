@@ -3,14 +3,17 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useScrollRestoration,
+} from '@dailydotdev/shared/src/hooks';
 import {
   DailyPageVariant,
   featureDailyPage,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
-import { getLayout } from '../components/layouts/FeedLayout';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getLayout } from '../../components/layouts/FeedLayout';
 
 const seo: NextSeoProps = {
   title: 'Daily',
@@ -19,6 +22,7 @@ const seo: NextSeoProps = {
 };
 
 const DailyPage = (): ReactElement | null => {
+  useScrollRestoration();
   const router = useRouter();
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { value: dailyVariant, isLoading } = useConditionalFeature({
