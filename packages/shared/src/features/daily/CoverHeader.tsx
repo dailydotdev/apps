@@ -6,6 +6,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface DateParts {
   month: string;
@@ -13,17 +14,20 @@ interface DateParts {
   weekday: string;
 }
 
-const formatDateParts = (): DateParts => {
+const formatDateParts = (timeZone?: string): DateParts => {
   const now = new Date();
   return {
-    month: now.toLocaleDateString(undefined, { month: 'short' }).toUpperCase(),
-    day: now.toLocaleDateString(undefined, { day: 'numeric' }),
-    weekday: now.toLocaleDateString(undefined, { weekday: 'short' }),
+    month: now
+      .toLocaleDateString(undefined, { month: 'short', timeZone })
+      .toUpperCase(),
+    day: now.toLocaleDateString(undefined, { day: 'numeric', timeZone }),
+    weekday: now.toLocaleDateString(undefined, { weekday: 'short', timeZone }),
   };
 };
 
 const DateWidget = (): ReactElement => {
-  const { month, day, weekday } = formatDateParts();
+  const { user } = useAuthContext();
+  const { month, day, weekday } = formatDateParts(user?.timezone || undefined);
 
   return (
     <div

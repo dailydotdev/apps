@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import {
   Typography,
   TypographyColor,
@@ -10,32 +12,38 @@ import { VIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
+import { useAuthContext } from '../../contexts/AuthContext';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import type { Vote } from './DailyFeedback';
 import { DailyFeedback } from './DailyFeedback';
 
 type StoredFeedback = { date: string; vote: Vote };
 
-const todayKey = (): string => new Date().toISOString().slice(0, 10);
+const todayKey = (timeZone: string): string =>
+  formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd');
 
-const formatTomorrow = (): string => {
-  const t = new Date();
-  t.setDate(t.getDate() + 1);
-  t.setHours(9, 0, 0, 0);
-  return t.toLocaleString(undefined, {
+const formatNextDrop = (timeZone: string): string => {
+  const base = utcToZonedTime(new Date(), timeZone);
+  base.setDate(base.getDate() + 1);
+  base.setHours(9, 0, 0, 0);
+  return zonedTimeToUtc(base, timeZone).toLocaleString(undefined, {
     weekday: 'long',
     hour: 'numeric',
     minute: '2-digit',
+    timeZone,
   });
 };
 
 export const CoverClosing = (): ReactElement => {
-  const tomorrow = useMemo(formatTomorrow, []);
+  const { user } = useAuthContext();
+  const timezone =
+    user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const tomorrow = useMemo(() => formatNextDrop(timezone), [timezone]);
   const { logEvent } = useLogContext();
   const [storedFeedback, setStoredFeedback] =
     usePersistentContext<StoredFeedback | null>('daily_feedback', null);
   const todaysVote =
-    storedFeedback?.date === todayKey() ? storedFeedback.vote : null;
+    storedFeedback?.date === todayKey(timezone) ? storedFeedback.vote : null;
 
   return (
     <section
@@ -49,7 +57,7 @@ export const CoverClosing = (): ReactElement => {
         className="mb-2"
         vote={todaysVote}
         onVote={(vote) => {
-          setStoredFeedback({ date: todayKey(), vote });
+          setStoredFeedback({ date: todayKey(timezone), vote });
           logEvent({
             event_name: LogEvent.DailyFeedback,
             extra: JSON.stringify({ origin: Origin.DailyPage, vote }),
