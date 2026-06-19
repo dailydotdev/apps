@@ -200,6 +200,9 @@ export default {
       minHeight: {
         page: 'calc(100vh - 4rem)',
         card: '24rem',
+        // Shorter floor for the glass-action-bar feed card variant: the action
+        // bar floats over the cover image instead of taking its own row.
+        cardGlass: '21.5rem',
       },
       gap: {
         unset: 'unset',

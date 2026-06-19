@@ -237,6 +237,13 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   },
 });
 
+// Floats the feed card action bar over the cover image with an iOS-style glass
+// (dark translucent + blur) effect and shrinks the card height.
+export const featureFeedCardGlassActions = new Feature(
+  'feed_card_glass_actions',
+  false,
+);
+
 export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
