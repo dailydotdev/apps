@@ -9,10 +9,9 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 interface PostCardFooterClassName {
   image?: string;
-  // Full-bleed cover classes applied to BOTH the still image and the video
-  // wrapper, so a video thumbnail lands edge-to-edge / flush exactly like a
-  // regular cover image (the video wrapper otherwise keeps its own
-  // mb-1/rounded-12 that `image` classes can't reach).
+  // Applied to both the still image and the video wrapper so a video thumbnail
+  // lands full-bleed too (the wrapper's own margin/radius isn't reachable via
+  // `image`).
   cover?: string;
 }
 
@@ -23,9 +22,7 @@ interface PostCardFooterProps extends CommonCardCoverProps {
   eagerLoadImage?: boolean;
 }
 
-// When the cover is full-bleed (glass), the video tint must match the image
-// exactly: drop the side inset, square the top + round the bottom to the card,
-// and darken it a touch for legibility.
+// Full-bleed video tint matching the image crop, darkened for legibility.
 const glassVideoOverlay =
   '!inset-x-0 !rounded-t-none !rounded-b-16 !bg-overlay-secondary-black';
 

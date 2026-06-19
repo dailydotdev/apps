@@ -73,8 +73,8 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isSharedTweet = isSocialTwitterPost(sharedPost);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const glassActions = useFeedCardGlassActions();
-  // The glass bar floats over a cover image; the preview/tweet/empty footers
-  // render text we must not cover, so keep the inline bar for those.
+  // Only float the bar over a cover image; preview/tweet/empty footers render
+  // text we must not cover, so they keep the inline bar.
   const footerIsCover =
     !isDeleted && !isPrivate && !isSharedTweet && !isSharedPostPreviewEnabled;
   const useGlass = glassActions && footerIsCover;

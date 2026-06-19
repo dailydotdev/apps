@@ -19,29 +19,18 @@ import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useIsScrolling } from '../../../hooks/useIsScrolling';
 
-// Full-bleed cover for the glass variant: drop the side padding and bottom
-// margin so the image meets the card's left/right/bottom edges, and round the
-// bottom corners to the card. Height and object-cover are untouched — same
-// crop and aspect, just edge-to-edge instead of inset.
+// Full-bleed cover: drop side padding/bottom margin and round only the bottom
+// corners so the image meets the card edges. Height/crop are untouched.
 export const glassCoverImageClassName =
   '!px-0 !mb-0 !rounded-t-none !rounded-b-16';
 
-// iOS-26 "Liquid Glass" morph: there is ONE pill containing the real action
-// buttons at all times. Anchored actions (upvote always; comment when it has a
-// count) sit first and never move or swap; every other action sits in its own
-// grid track that animates 0fr ↔ 1fr, so the pill hugs the visible buttons and
-// stretches open on hover. Nothing cross-fades over the glass — the surface is
-// continuous and the icons materialize inside it.
 const morphEase =
   'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none';
 
-// Full-width positioning grid: the first track holds the pill, the second is
-// an empty spacer. Animating the fr split is what lets the pill go from
-// content-hugging (spacer absorbs the rest) to spanning the full card —
-// `width: fit-content → 100%` is not animatable, but fr tracks are. The
-// `group-hover` expansion is appended by the component only when the feed
-// isn't scrolling (see `expandOnHover`), so cards expand on a resting hover but
-// never mid-scroll — no hover-intent delay, the expand is immediate.
+// Positioning grid: track 1 holds the pill, track 2 is a spacer. Animating the
+// fr split expands the pill from content-hugging to full width — `fit-content →
+// 100%` isn't animatable, but fr tracks are. The expand classes are appended
+// only when not scrolling (see `expandOnHover`).
 const outerBaseClasses = classNames(
   'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid',
   `transition-[grid-template-columns] ${morphEase}`,
@@ -51,14 +40,9 @@ const outerBaseClasses = classNames(
 const outerExpandClasses =
   'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]';
 
-// `min-w-fit` keeps the pill floored at its visible content while the outer
-// track animates. The glass surface uses the theme-aware `blur-bg` token
-// (pepper glass in dark mode, white glass in light mode — both at 64%).
-// Only the REST color is pinned to text-primary (`--button-default-color`) for
-// max contrast on the glass; the hover/pressed colors are left to each
-// `btn-tertiary-*` class so the icon AND its counter turn the action's brand
-// tint on hover (avocado for upvote, blueCheese for comment, etc.), matching
-// the standard ActionButtons.
+// Only the rest color is pinned to text-primary for contrast on the glass;
+// hover/pressed colors are left to each `btn-tertiary-*` class so icons keep
+// their brand tint on hover, matching the standard ActionButtons.
 const pillClasses = classNames(
   'pointer-events-auto flex h-10 min-w-fit items-center justify-between overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
@@ -67,9 +51,8 @@ const pillClasses = classNames(
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
 
-// One collapsible track per secondary action. Width animates 0fr ↔ 1fr while
-// the content fades in, so the pill's growth leads and the icon settles into
-// place (and focus is removed while hidden via visibility).
+// One collapsible track per secondary action: width animates 0fr ↔ 1fr while
+// the content fades in. `visibility` removes hidden buttons from focus order.
 const segmentBaseClasses = classNames(
   `grid transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr]',
@@ -87,11 +70,8 @@ const segmentContentBaseClasses = classNames(
 const segmentContentExpandClasses =
   'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100';
 
-// Soft dark glow anchored at the cover's bottom-left, behind the pill, so the
-// glass bar stays readable over busy/noisy cover images instead of getting lost
-// in the detail. A fixed dark pepper tint (consistent in both themes, matching
-// the media-overlay guidance) that fades out quickly so it's localized to the
-// corner. Inline gradient (no Tailwind color class) keeps it a one-off scrim.
+// Dark glow behind the pill so it stays readable over busy cover images. Fixed
+// pepper tint in both themes; inline gradient since it's a one-off scrim.
 const scrimGradient =
   'radial-gradient(75% 90% at 0% 100%, rgba(14, 18, 23, 0.55) 0%, rgba(14, 18, 23, 0) 70%)';
 const scrimClasses =
@@ -148,10 +128,8 @@ export function FeedCardGlassActions({
   const upvoteCount = post.numUpvotes ?? 0;
   const commentCount = post.numComments ?? 0;
 
-  // Only attach the hover-expand utilities when the feed isn't scrolling, so a
-  // card passing under the cursor mid-scroll can't fire the expand animation —
-  // the grid simply stays collapsed regardless of hover. When scrolling stops,
-  // a genuinely hovered card expands (after the intent delay).
+  // Don't expand on hover while scrolling, so a card passing under the cursor
+  // mid-scroll stays collapsed.
   const expandOnHover = !isScrolling;
   const outerClasses = classNames(
     outerBaseClasses,

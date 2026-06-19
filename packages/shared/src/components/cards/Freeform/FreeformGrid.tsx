@@ -48,11 +48,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-  const glassActions = useFeedCardGlassActions();
-  // The floating glass bar applies to every freeform post. When there's a cover
-  // image it floats over it full-bleed; for text/markdown posts it floats over
-  // the bottom of the content (which blurs through the glass).
-  const useGlass = glassActions;
+  const useGlass = useFeedCardGlassActions();
 
   if (isHidden) {
     return (

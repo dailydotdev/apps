@@ -47,11 +47,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-  const glassActions = useFeedCardGlassActions();
-  // The floating glass bar applies to every collection. When there's a cover
-  // image it floats over it full-bleed; otherwise it floats over the bottom of
-  // the content (which blurs through the glass).
-  const useGlass = glassActions;
+  const useGlass = useFeedCardGlassActions();
 
   if (isHidden) {
     return (

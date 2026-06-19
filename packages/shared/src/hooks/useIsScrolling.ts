@@ -1,9 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
-// Shared scroll-state store: a single capture-phase scroll listener serves every
-// subscriber (so N feed cards don't attach N listeners), flips `isScrolling`
-// true on the first scroll event and back to false a short debounce after the
-// last one. Used to suppress hover-driven animations while the feed scrolls.
+// Shared store so N feed cards share one scroll listener instead of N. Goes
+// true on scroll, back to false a debounce after the last event.
 const IDLE_DELAY_MS = 200;
 
 let isScrolling = false;

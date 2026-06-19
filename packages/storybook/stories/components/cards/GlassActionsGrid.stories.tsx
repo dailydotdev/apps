@@ -116,9 +116,7 @@ const posts: Post[] = [
   }),
 ];
 
-// Mixed post types — shared-to-squad, collection and freeform float over their
-// cover image; the text-only freeform and the poll deliberately keep the inline
-// bar because there is no image to float over.
+// Mixed post types covering the cover-image and text-only layouts.
 const sharePost = make({
   id: 'glass-share',
   title: 'Great breakdown of edge rendering — worth a read',

@@ -152,10 +152,8 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
     const glassActions = useFeedCardGlassActions();
-    // The hero floats the glass pill on the content (left) column where the
-    // action bar has always sat — not over the cover image — and shrinks to the
-    // glass height so it lines up with the other glass cards in a row. The
-    // feedback state keeps its own layout.
+    // The hero keeps the pill on the content column (where its bar already sat),
+    // not over the cover image.
     const useGlass = glassActions && !showFeedback;
     const significance = post.hero?.significance;
     const isTweetPost =
