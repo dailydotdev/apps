@@ -31,17 +31,17 @@ interface TierStyle {
 const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
   [ContributionSponsorTier.Gold]: {
     labelClass: 'text-accent-cheese-default',
-    logoClass: 'h-10',
-    nameType: TypographyType.Callout,
+    logoClass: 'h-14',
+    nameType: TypographyType.Body,
   },
   [ContributionSponsorTier.Silver]: {
     labelClass: 'text-text-secondary',
-    logoClass: 'h-7',
+    logoClass: 'h-8',
     nameType: TypographyType.Footnote,
   },
   [ContributionSponsorTier.Bronze]: {
     labelClass: 'text-accent-burger-default',
-    logoClass: 'h-5',
+    logoClass: 'h-4',
     nameType: TypographyType.Caption1,
   },
 };
@@ -135,7 +135,7 @@ const SponsorLogo = ({
 const Divider = (): ReactElement => (
   <span
     aria-hidden
-    className="hidden h-10 w-px self-center bg-border-subtlest-tertiary tablet:block"
+    className="hidden h-12 w-px self-center bg-border-subtlest-tertiary tablet:block"
   />
 );
 
