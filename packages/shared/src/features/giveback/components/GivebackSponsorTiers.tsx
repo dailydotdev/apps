@@ -31,12 +31,12 @@ interface TierStyle {
 const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
   [ContributionSponsorTier.Gold]: {
     labelClass: 'text-accent-cheese-default',
-    logoClass: 'h-7',
-    nameType: TypographyType.Footnote,
+    logoClass: 'h-10',
+    nameType: TypographyType.Callout,
   },
   [ContributionSponsorTier.Silver]: {
     labelClass: 'text-text-secondary',
-    logoClass: 'h-6',
+    logoClass: 'h-7',
     nameType: TypographyType.Footnote,
   },
   [ContributionSponsorTier.Bronze]: {
@@ -135,7 +135,7 @@ const SponsorLogo = ({
 const Divider = (): ReactElement => (
   <span
     aria-hidden
-    className="hidden h-8 w-px self-center bg-border-subtlest-tertiary tablet:block"
+    className="hidden h-10 w-px self-center bg-border-subtlest-tertiary tablet:block"
   />
 );
 
@@ -155,7 +155,7 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
     <section className="flex w-full justify-center">
       {/* One compact bordered strip; "Sponsored by" sits inline at the start and
           a divider separates each tier section. */}
-      <div className="flex max-w-full flex-wrap items-center justify-center gap-x-5 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-5 py-3">
+      <div className="flex max-w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-6 py-4">
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Caption1}
