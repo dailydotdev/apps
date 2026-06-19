@@ -270,7 +270,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
         <div className="flex items-baseline gap-2">
           <span
-            className="multi-truncate line-clamp-2 min-w-0 flex-1 break-words text-text-primary typo-callout [&_p]:m-0"
+            className="multi-truncate line-clamp-2 min-w-0 flex-1 break-words font-bold text-text-primary typo-callout [&_p]:m-0"
             dangerouslySetInnerHTML={{
               __html: memoizedTitle,
             }}

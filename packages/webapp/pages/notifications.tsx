@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { differenceInCalendarDays } from 'date-fns';
 import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 import type { InfiniteData } from '@tanstack/react-query';
@@ -63,6 +64,15 @@ const seo: NextSeoProps = {
   noindex: true,
   nofollow: true,
 };
+
+// Coarse time buckets (Instagram/TikTok/X style) that give the feed rhythm and
+// breathing room without per-day noise. First match wins.
+const TIME_GROUPS = [
+  { key: 'today', label: 'Today', maxDays: 0 },
+  { key: 'week', label: 'This week', maxDays: 7 },
+  { key: 'month', label: 'This month', maxDays: 30 },
+  { key: 'earlier', label: 'Earlier', maxDays: Number.POSITIVE_INFINITY },
+] as const;
 
 const Notifications = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -153,6 +163,26 @@ const Notifications = (): ReactElement => {
     [notifications, activeCategory],
   );
 
+  const groups = useMemo(() => {
+    const now = new Date();
+    const byKey = new Map<string, Notification[]>();
+    filtered.forEach((node) => {
+      const days = differenceInCalendarDays(now, new Date(node.createdAt));
+      const group =
+        TIME_GROUPS.find((bucket) => days <= bucket.maxDays) ??
+        TIME_GROUPS[TIME_GROUPS.length - 1];
+      const list = byKey.get(group.key) ?? [];
+      list.push(node);
+      byKey.set(group.key, list);
+    });
+    return TIME_GROUPS.filter((bucket) => byKey.has(bucket.key)).map(
+      (bucket) => ({
+        ...bucket,
+        items: byKey.get(bucket.key) as Notification[],
+      }),
+    );
+  }, [filtered]);
+
   const hasNotifications = notifications.length > 0;
 
   const onNotificationClick = ({ id, type }: Notification) => {
@@ -216,20 +246,27 @@ const Notifications = (): ReactElement => {
           canFetchMore={checkFetchMore(queryResult)}
           fetchNextPage={queryResult.fetchNextPage}
         >
-          {filtered.map((node) => {
-            const { id, createdAt, readAt, type, ...props } = node;
+          {groups.map((group) => (
+            <section key={group.key}>
+              <h3 className="px-4 pb-1 pt-6 font-bold text-text-tertiary typo-footnote first:pt-4">
+                {group.label}
+              </h3>
+              {group.items.map((node) => {
+                const { id, createdAt, readAt, type, ...props } = node;
 
-            return (
-              <NotificationItem
-                key={id}
-                {...props}
-                type={type}
-                isUnread={!readAt}
-                onClick={() => onNotificationClick(node)}
-                createdAt={createdAt}
-              />
-            );
-          })}
+                return (
+                  <NotificationItem
+                    key={id}
+                    {...props}
+                    type={type}
+                    isUnread={!readAt}
+                    onClick={() => onNotificationClick(node)}
+                    createdAt={createdAt}
+                  />
+                );
+              })}
+            </section>
+          ))}
           {isFetched && filtered.length === 0 && activeCategory && (
             <p className="px-4 py-10 text-center text-text-tertiary typo-callout">
               No {notificationFilterCategoryLabel[activeCategory].toLowerCase()}{' '}
