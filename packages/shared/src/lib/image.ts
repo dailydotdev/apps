@@ -92,12 +92,6 @@ export const cloudinarySquadsPromotionInvite =
 export const cloudinarySquadsPromotionPromote =
   'https://media.daily.dev/image/upload/s--iMFoS7Pd--/f_auto/v1686119165/Manage_roles_and_permissions_om64cu';
 
-export const cloudinarySquadsEmptySquad =
-  'https://media.daily.dev/image/upload/f_auto/public/empty-squad';
-
-export const cloudinarySquadsEmptySquadLight =
-  'https://media.daily.dev/image/upload/f_auto/public/empty_squad_light';
-
 export const cloudinaryReferralCampaignGenericSad =
   'https://media.daily.dev/image/upload/s--rMfJxJbl--/f_auto/v1697024846/ido_sad_xbe6p5';
 
@@ -150,18 +144,6 @@ export const cloudinaryOnboardingHeroDesk = {
   '2560':
     'https://media.daily.dev/image/upload/s--opbsGDUn--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk-2560',
 };
-
-export const cloudinaryGenericNotFoundLight =
-  'https://media.daily.dev/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu';
-
-export const cloudinaryGenericNotFoundDark =
-  'https://media.daily.dev/image/upload/s--Rxdm7vdJ--/f_auto/v1708328512/404_z4xiwg';
-
-export const cloudinaryGenericErrorLight =
-  'https://media.daily.dev/image/upload/v1725365692/lightversion_dmnj1s.gif';
-
-export const cloudinaryGenericErrorDark =
-  'https://media.daily.dev/image/upload/v1725365692/darkversion_bfrze7.gif';
 
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';
@@ -444,8 +426,6 @@ export const recruiterSpamCampaignSEO =
 export const locationProfileImage =
   'https://media.daily.dev/image/upload/s--RYwMw9py--/f_auto/v1726486879/company_bdage_xwzrnh';
 
-export const autofillProfileCover =
-  'https://media.daily.dev/image/upload/s--0pMFz3kQ--/f_auto/v1757577987/public/Autofill%20your%20profile!';
 export const adFaviconPlaceholder =
   'https://media.daily.dev/image/upload/s--SOLIE7Bc--/f_auto/v1761801782/webapp/daily.dev_-_Boost_Icon';
 export const jobOfferDarkDesktop =
@@ -460,3 +440,37 @@ export const opportunityBriefcase =
   'https://media.daily.dev/image/upload/s--6n-4BFXP--/f_auto/v1763884475/public/dailydev.hire';
 export const opportunityBriefcaseDone =
   'https://media.daily.dev/image/upload/s--rWk2SCPQ--/f_auto/v1763884475/public/dailydev.hire.allset';
+
+// Charm mascot illustrations for emotional product moments (empty states, milestones, etc.)
+export const cloudinaryCharmNoComments =
+  'https://media.daily.dev/image/upload/s--9T4IIRt7--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20comment';
+
+export const cloudinaryCharmBookmarks =
+  'https://media.daily.dev/image/upload/s--LnFPuTT7--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20bookmark';
+
+export const cloudinaryCharmSearchNoResults =
+  'https://media.daily.dev/image/upload/s--HZdPG0L1--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20seach%20result';
+
+export const cloudinaryCharmReadLater =
+  'https://media.daily.dev/image/upload/s--RGUXYEF---/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Read%20later';
+
+export const cloudinaryCharmSomethingWentWrong =
+  'https://media.daily.dev/image/upload/s--NThDL7xq--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Something%20went%20wrong';
+
+export const cloudinaryCharm404 =
+  'https://media.daily.dev/image/upload/s--7RbaM_Ro--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20404';
+
+export const cloudinaryCharmEmptyProfile =
+  'https://media.daily.dev/image/upload/s--ulSOVWbq--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20empty%20profile';
+
+export const cloudinaryCharmEmptySquads =
+  'https://media.daily.dev/image/upload/s--J9OZk_3w--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20empty%20squads';
+
+export const cloudinaryCharmInviteFriends =
+  'https://media.daily.dev/image/upload/s--RaAyR83N--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Invite%20friends';
+
+export const cloudinaryCharmNoPosts =
+  'https://media.daily.dev/image/upload/s--JbsZvCUt--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20post';
+
+export const cloudinaryCharmNotEnoughTags =
+  'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';

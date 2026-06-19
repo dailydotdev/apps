@@ -12,7 +12,7 @@ export type UseSourceActionsFollowProps = {
 
 export interface UseSourceActionsFollow {
   isFollowing: boolean;
-  toggleFollow: () => void;
+  toggleFollow: () => Promise<void>;
 }
 
 export function useSourceActionsFollow({

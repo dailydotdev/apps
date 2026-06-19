@@ -389,16 +389,16 @@ function ReaderInstallPromptModal({
     setIsRequestingPermission(true);
     const permissionPromise = requestFrameEmbeddingPermissionFromPage();
 
-    // Persist that the user engaged with the install prompt so subsequent
-    // reads bypass it and open the reader modal directly. Only set on the
-    // explicit accept path — dismissing the modal leaves the flag untouched.
-    updateFlag('readerInstallPromptAcknowledged', true);
-
     permissionPromise.then(({ granted }) => {
       setIsRequestingPermission(false);
-      if (granted) {
-        setIsPreparingReader(true);
+      if (!granted) {
+        return;
       }
+      // Persist enablement only once permission is actually granted. Setting
+      // it optimistically would leave the reader "enabled" after a denied OS
+      // prompt, so every later read would re-trigger the permission request.
+      updateFlag('readerInstallPromptAcknowledged', true);
+      setIsPreparingReader(true);
     });
   };
 

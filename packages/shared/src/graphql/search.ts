@@ -15,6 +15,38 @@ export enum SearchTime {
   LastYear = 'Last Year',
 }
 
+export type SearchTimeKey = keyof typeof SearchTime;
+
+export const defaultSearchTime: SearchTimeKey = 'AllTime';
+
+// URL-friendly slugs for the search time filter so it can be shared/bookmarked
+// via the `time` query param (e.g. /search?q=react&time=7d).
+const searchTimeUrlSlug: Record<SearchTimeKey, string> = {
+  AllTime: 'all',
+  Today: 'today',
+  Yesterday: 'yesterday',
+  LastSevenDays: '7d',
+  LastThirtyDays: '30d',
+  LastMonth: 'last-month',
+  ThisYear: 'this-year',
+  LastYear: 'last-year',
+};
+
+const urlSlugToSearchTime = Object.fromEntries(
+  Object.entries(searchTimeUrlSlug).map(([key, slug]) => [slug, key]),
+) as Record<string, SearchTimeKey>;
+
+export const getSearchTimeFromUrl = (
+  value?: string,
+): SearchTimeKey | undefined =>
+  value ? urlSlugToSearchTime[value] : undefined;
+
+// `AllTime` is the default and is omitted from the URL to keep links clean.
+export const getSearchTimeQueryParam = (
+  time: SearchTimeKey,
+): { time?: string } =>
+  time === defaultSearchTime ? {} : { time: searchTimeUrlSlug[time] };
+
 export enum SearchProviderEnum {
   Posts = 'posts',
   Tags = 'tags',

@@ -16,7 +16,7 @@ export type PromptOptions = {
   icon?: ReactNode;
   description?: string | ReactNode;
   okButton?: PromptButtonProps;
-  cancelButton?: PromptButtonProps;
+  cancelButton?: PromptButtonProps | null;
   content?: ReactNode;
   promptSize?: ModalSize.XSmall | ModalSize.Small;
   className?: {
