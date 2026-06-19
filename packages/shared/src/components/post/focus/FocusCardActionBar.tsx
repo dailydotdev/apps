@@ -39,6 +39,12 @@ interface FocusCardActionBarProps {
   onCopyLinkClick?: (post?: Post) => void;
   /** When provided (post modal), renders an X close button next to the menu. */
   onClose?: () => void;
+  /**
+   * Experiment: render flat and visually connected to the composer below while
+   * resting, gaining the floating-pill shadow only once pinned on scroll
+   * (instead of the always-floating pill).
+   */
+  connected?: boolean;
   className?: string;
 }
 
@@ -54,6 +60,7 @@ export const FocusCardActionBar = ({
   onComment,
   onCopyLinkClick,
   onClose,
+  connected,
   className,
 }: FocusCardActionBarProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
@@ -203,10 +210,20 @@ export const FocusCardActionBar = ({
           // so we don't duplicate it.
           'bg-background-default px-1 py-2',
           isStuck ? 'border-b' : 'border-t',
-          // Tablet and up: a floating pill matching the mobile post action bar
-          // style (MobilePostFloatingBar.v2) — translucent elevated surface,
-          // blur, soft shadow, full rounded border — sticky at both edges.
-          'tablet:sticky tablet:rounded-16 tablet:border tablet:bg-surface-float tablet:px-2 tablet:py-1 tablet:shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] tablet:backdrop-blur-[2.5rem]',
+          // Tablet and up, sticky at both edges (see stickyOffsetClassName).
+          'tablet:sticky tablet:border tablet:bg-surface-float tablet:px-2 tablet:py-1',
+          connected
+            ? [
+                // Connected experiment: flat and joined to the composer below
+                // while resting (rounded top only, no shadow, no bottom border);
+                // becomes the floating pill only once pinned on scroll.
+                isStuck
+                  ? 'tablet:rounded-16 tablet:shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] tablet:backdrop-blur-[2.5rem]'
+                  : 'tablet:rounded-t-16 tablet:border-b-0',
+              ]
+            : // Default: always a floating pill (translucent surface, blur,
+              // soft shadow, full rounded border) matching the mobile bar.
+              'tablet:rounded-16 tablet:shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] tablet:backdrop-blur-[2.5rem]',
           stickyOffsetClassName,
           className,
         )}

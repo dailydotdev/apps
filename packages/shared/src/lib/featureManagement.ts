@@ -221,6 +221,14 @@ export const featureLayoutV2 = new Feature('layout_v2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
+// Experiment: connect the focus-card engagement bar to the comment composer as
+// one block — flat/in-flow while there's room, floating (shadow) only when it
+// pins on scroll. Off keeps the always-floating pill.
+export const featureFocusActionBarConnected = new Feature(
+  'focus_action_bar_connected',
+  false,
+);
+
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
   minSpacing: 10,
