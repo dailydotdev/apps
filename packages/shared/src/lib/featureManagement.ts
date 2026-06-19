@@ -175,7 +175,10 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal_v2', false);
+// Gates the one-time intermediate "read inside daily.dev" install prompt for
+// users who haven't enabled the reader yet. Unlike the retired reader_modal_v2,
+// this nudge is shown at most once ever (see readerInstallPromptSeen).
+export const featureReaderModalNudge = new Feature('reader_modal_v3', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 

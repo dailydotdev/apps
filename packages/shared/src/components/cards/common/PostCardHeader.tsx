@@ -10,7 +10,6 @@ import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
-import { useLegacyPostLayoutOptOut } from '../../post/reader/hooks/useLegacyPostLayoutOptOut';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
@@ -73,18 +72,12 @@ export const PostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: (post.bookmarked && !showFeedback) ?? false,
   });
-  const { isEligible: isReaderEligible, isReaderModalEnabled } =
-    useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const { isReaderEnabled } = useReaderModalEligibility();
   // Variant: clicking Read post on the card opens the reader preview inside
   // daily.dev (globe-icon CTA) instead of navigating to the external article.
-  // Once a user opts out (via the install-prompt overlay) the card reverts
-  // to the classic external Read post button.
-  const isReaderVariant =
-    isReaderEligible &&
-    isReaderModalEnabled &&
-    post.type === PostType.Article &&
-    !isLegacyLayoutOptedOut;
+  // Once a user opts out (via the install-prompt overlay or settings) the card
+  // reverts to the classic external Read post button.
+  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
 
