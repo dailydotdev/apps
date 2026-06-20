@@ -170,7 +170,7 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
 
         {/* One compact bordered strip spanning the page column; a divider
             separates each tier section. */}
-        <div className="flex w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-6 py-4">
+        <div className="flex w-full flex-wrap items-center justify-start gap-x-6 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-6 py-4">
           {tierGroups.map((group, index) => {
             const style = tierStyles[group.tier];
             return (
