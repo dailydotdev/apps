@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
-import { useVotePost } from '../../../hooks';
+import { useViewSize, useVotePost, ViewSize } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
@@ -95,6 +95,11 @@ export const FocusCardActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
+  // The "stuck" treatment (counts/menu/border-flip appearing on scroll) is only
+  // meaningful where the bar actually floats — tablet and up. On mobile the bar
+  // is plain in-flow, so gate it off to stop the metrics flickering on scroll.
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isPinned = isStuck && isTablet;
   // Sticky at BOTH edges (`top` + `bottom`), tablet and up only — on mobile the
   // dedicated floating bottom bar already covers this, so the desktop treatment
   // is excluded there. While its natural spot is still below the fold the bar
@@ -138,12 +143,12 @@ export const FocusCardActionBar = ({
     const observer = new ResizeObserver(fit);
     observer.observe(bar);
     return () => observer.disconnect();
-    // isStuck/counts change the row width (counts + "…" menu appear when pinned).
+    // isPinned/counts change the row width (counts + "…" menu appear when pinned).
   }, [
     canAward,
     post.clickbaitTitleDetected,
     post.bookmarked,
-    isStuck,
+    isPinned,
     upvotes,
     comments,
     awards,
@@ -202,7 +207,7 @@ export const FocusCardActionBar = ({
           // floating bottom bar already provides the floating treatment there,
           // so we don't duplicate it.
           'bg-background-default px-1 py-2',
-          isStuck ? 'border-b' : 'border-t',
+          isPinned ? 'border-b' : 'border-t',
           // Tablet and up: a floating pill matching the mobile post action bar
           // style (MobilePostFloatingBar.v2) — translucent elevated surface,
           // blur, soft shadow, full rounded border — sticky at both edges.
@@ -221,7 +226,7 @@ export const FocusCardActionBar = ({
               color={ButtonColor.Avocado}
               icon={<UpvoteButtonIcon />}
               iconPressed={<UpvoteButtonIcon secondary />}
-              count={isStuck ? upvotes : undefined}
+              count={isPinned ? upvotes : undefined}
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
             />
@@ -246,7 +251,7 @@ export const FocusCardActionBar = ({
               color={ButtonColor.BlueCheese}
               icon={<CommentIcon />}
               iconPressed={<CommentIcon secondary />}
-              count={isStuck ? comments : undefined}
+              count={isPinned ? comments : undefined}
               pressed={post.commented}
               onClick={onComment}
             />
@@ -261,7 +266,7 @@ export const FocusCardActionBar = ({
                 color={ButtonColor.Cabbage}
                 icon={<MedalBadgeIcon secondary />}
                 iconPressed={<MedalBadgeIcon />}
-                count={isStuck ? awards : undefined}
+                count={isPinned ? awards : undefined}
                 pressed={isAwarded}
                 onClick={onGiveAward}
               />
@@ -300,14 +305,14 @@ export const FocusCardActionBar = ({
           )}
           {/* While pinned, the article header (which owns the "…" menu) has
               scrolled away, so surface the menu here — to the left of the X. */}
-          {isStuck && (
+          {isPinned && (
             <PostMenuOptions
               post={post}
               origin={origin}
               buttonSize={ButtonSize.Medium}
             />
           )}
-          {isStuck && onClose && (
+          {isPinned && onClose && (
             <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
           )}
         </div>
