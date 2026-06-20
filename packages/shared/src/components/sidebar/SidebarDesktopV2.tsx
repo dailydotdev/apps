@@ -903,13 +903,6 @@ export const SidebarDesktopV2 = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onToggleExpanded]);
 
-  const handleRailMouseEnter = useCallback(() => {
-    if (peekSuppressedRef.current) {
-      return;
-    }
-    setIsRailHovered(true);
-  }, []);
-
   const exitSafeZone = useCallback(() => {
     safeBlockedRef.current = false;
     safePolyRef.current = null;
@@ -929,7 +922,14 @@ export const SidebarDesktopV2 = ({
 
   // --- Prediction cone via pointer-events blocking -----------------------
   // `commitPreview` maps a rail trigger key to the panel preview it shows.
+  // Hovering a panel-bearing icon is also what opens the collapsed peek — the
+  // rail no longer expands just because the cursor entered it, so empty space
+  // and panel-less icons (logo, Home, Search, Invite, Support, Settings) never
+  // pop the panel open.
   const commitPreview = useCallback((key: string) => {
+    if (!peekSuppressedRef.current) {
+      setIsRailHovered(true);
+    }
     if (key === 'create') {
       setIsCreateHovered(true);
       return;
@@ -1240,7 +1240,6 @@ export const SidebarDesktopV2 = ({
     <SidebarAside
       ref={sidebarRef}
       data-testid="sidebar-aside"
-      onMouseEnter={handleRailMouseEnter}
       onMouseLeave={handleRailMouseLeave}
       onMouseMove={handleRailMouseMove}
       className={classNames(
@@ -1461,9 +1460,13 @@ export const SidebarDesktopV2 = ({
             )}
           </div>
 
+          {/* Utility actions (not tabs) — Invite/Support/Settings open their
+              own popups, so this is a plain group rather than a tablist.
+              Hovering it closes any open collapsed-peek so these panel-less
+              icons never leave a stale panel showing. */}
           <div
-            role="tablist"
             aria-label="Sidebar utilities"
+            onMouseEnter={handleRailMouseLeave}
             className="mt-auto flex w-full flex-col items-center gap-1"
           >
             <SidebarInviteButton />
