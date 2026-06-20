@@ -92,15 +92,17 @@ interface RoadmapNode {
   connector?: ConnectorFill;
 }
 
+// A straight rectangular track between nodes — no rounded "pill" ends. Width is
+// a crisp 3px line; the fill colors echo the node states (green = cleared).
 const Connector = ({ fill }: { fill: ConnectorFill }): ReactElement => (
-  <div className="relative w-1 flex-1">
-    <div className="absolute inset-0 rounded-full bg-border-subtlest-tertiary" />
+  <div className="relative w-[3px] flex-1">
+    <div className="absolute inset-0 bg-border-subtlest-tertiary" />
     {fill.type === 'full' && (
-      <div className="absolute inset-0 rounded-full bg-accent-avocado-default" />
+      <div className="absolute inset-0 bg-accent-avocado-default" />
     )}
     {fill.type === 'partial' && (
       <div
-        className="absolute inset-x-0 top-0 rounded-full bg-gradient-to-b from-accent-avocado-default to-accent-cabbage-default"
+        className="absolute inset-x-0 top-0 bg-gradient-to-b from-accent-avocado-default to-accent-cabbage-default"
         style={{ height: `${Math.round(fill.progress * 100)}%` }}
       />
     )}
@@ -633,7 +635,7 @@ export const GivebackPersonalRoadmap = ({
             </FlexCol>
 
             {claimableCount > 0 && (
-              <FlexRow className="items-center gap-1.5 self-start rounded-10 bg-accent-cheese-flat px-3 py-1.5 text-accent-cheese-default">
+              <FlexRow className="items-center gap-1.5 self-start rounded-10 bg-accent-cheese-flat px-3 py-1.5 text-accent-cheese-default [&_svg]:size-4">
                 <GiftIcon />
                 <Typography bold type={TypographyType.Caption1}>
                   {claimableCount} ready to claim
