@@ -95,11 +95,12 @@ export const FocusCardActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  // The "stuck" treatment (counts/menu/border-flip appearing on scroll) is only
-  // meaningful where the bar actually floats — tablet and up. On mobile the bar
-  // is plain in-flow, so gate it off to stop the metrics flickering on scroll.
-  const isTablet = useViewSize(ViewSize.Tablet);
-  const isPinned = isStuck && isTablet;
+  // The "stuck" treatment (counts/menu/border-flip appearing on scroll) is
+  // reserved for the desktop experience (laptop and up, >= 1020px). Below that
+  // — phones AND tablets — the bar stays stable; those widths kept flickering
+  // the metrics in/out on scroll, and the counts already live in the stats row.
+  const isDesktop = useViewSize(ViewSize.Laptop);
+  const isPinned = isStuck && isDesktop;
   // Sticky at BOTH edges (`top` + `bottom`), tablet and up only — on mobile the
   // dedicated floating bottom bar already covers this, so the desktop treatment
   // is excluded there. While its natural spot is still below the fold the bar
