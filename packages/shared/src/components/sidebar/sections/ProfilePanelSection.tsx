@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
@@ -37,6 +39,16 @@ export const ProfilePanelSection = ({
 }: SidebarSectionProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const router = useRouter();
+
+  // The header links to your profile, so highlight it as the active row (same
+  // look as the Explore/Squads rows) whenever you're on your profile page or
+  // any of its sub-pages — mirrors how the rail resolves the Profile tab.
+  const currentPath = (router?.asPath || '').split('?')[0];
+  const profileBase = user?.username ? `/${user.username}` : null;
+  const isProfileActive =
+    !!profileBase &&
+    (currentPath === profileBase || currentPath.startsWith(`${profileBase}/`));
 
   const menuItems: SidebarMenuItem[] = useMemo(
     () =>
@@ -124,7 +136,13 @@ export const ProfilePanelSection = ({
         {/* Clickable to the profile, but without the open-link icon — the
             avatar isn't a "leaves the sidebar" destination in that sense. */}
         <Link href={`${webappUrl}${user.username}`} passHref>
-          <a className="-mx-1 rounded-10 px-1 hover:bg-surface-hover">
+          <a
+            aria-current={isProfileActive ? 'page' : undefined}
+            className={classNames(
+              '-mx-1 rounded-10 px-1',
+              isProfileActive ? 'bg-surface-hover' : 'hover:bg-surface-hover',
+            )}
+          >
             <ProfileMenuHeader
               compact
               profileImageSize={ProfileImageSize.Medium}

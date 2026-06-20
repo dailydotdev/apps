@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/router';
-import type { RecentPage } from '../lib/recentPages';
+import type { RecentPage, RecentPageType } from '../lib/recentPages';
 import {
   getRecentPages,
   recordRecentPage,
@@ -16,6 +16,25 @@ export const useRecentPages = (): RecentPage[] =>
 const brandSuffix = /\s*[|·\-–—]\s*daily\.dev\s*$/i;
 const cleanTitle = (title: string): string =>
   title.replace(brandSuffix, '').trim();
+
+// Classify by the route template (router.pathname), not the resolved URL — only
+// the template distinguishes a user profile (`/[userId]`) from other top-level
+// pages like `/jobs`.
+const typeForPathname = (pathname: string): RecentPageType => {
+  if (pathname === '/[userId]') {
+    return 'user';
+  }
+  if (pathname.startsWith('/sources/')) {
+    return 'source';
+  }
+  if (pathname.startsWith('/squads/')) {
+    return 'squad';
+  }
+  if (pathname.startsWith('/tags/')) {
+    return 'tag';
+  }
+  return 'page';
+};
 
 // Records the last visited non-post pages for the v2 Home "Recent" section.
 // Individual post permalinks (`/posts/[id]`) are skipped — those belong to
@@ -41,7 +60,11 @@ export const useRecordRecentPages = (enabled: boolean): void => {
       timeoutId = window.setTimeout(() => {
         const title = cleanTitle(document.title);
         if (title) {
-          recordRecentPage({ path, title });
+          recordRecentPage({
+            path,
+            title,
+            type: typeForPathname(router.pathname),
+          });
         }
       }, 250);
     };
