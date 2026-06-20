@@ -140,7 +140,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             showFeedback={showFeedback}
           />
           <CardTitle
-            lineClamp={showFeedback || glassActions ? 'line-clamp-2' : undefined}
+            lineClamp={
+              showFeedback || glassActions ? 'line-clamp-2' : undefined
+            }
           >
             {title}
           </CardTitle>

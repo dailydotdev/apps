@@ -75,6 +75,12 @@ jest.mock('../buttons/ToggleClickbaitShield', () => ({
   },
 }));
 
+jest.mock('../buttons/ToggleGlassActionsExpanded', () => ({
+  ToggleGlassActionsExpanded: function MockToggleGlassActionsExpanded() {
+    return null;
+  },
+}));
+
 jest.mock('../filters/AchievementTrackerButton', () => ({
   AchievementTrackerButton: function MockAchievementTrackerButton() {
     return null;
