@@ -699,11 +699,23 @@ export const SidebarDesktopV2 = ({
     if (isLoggedIn && isHomeActive) {
       return SidebarCategory.Profile;
     }
+    // The user's own profile page (`/<username>` and its sub-pages) also keeps
+    // the Profile panel — the avatar navigates here, so it must resolve back to
+    // Profile (otherwise the optimistic pending category never clears).
+    const path = activePage.split('?')[0];
+    const ownProfileBase = user?.username ? `/${user.username}` : null;
+    if (
+      isLoggedIn &&
+      ownProfileBase &&
+      (path === ownProfileBase || path.startsWith(`${ownProfileBase}/`))
+    ) {
+      return SidebarCategory.Profile;
+    }
     if (isFeedPage) {
       return SidebarCategory.Main;
     }
     return getSidebarCategoryForPath(activePage);
-  }, [activePage, isFeedPage, isHomeActive, isLoggedIn]);
+  }, [activePage, isFeedPage, isHomeActive, isLoggedIn, user?.username]);
 
   // Optimistic override so a rail click feels instant even when
   // router.push is async. Cleared once the URL catches up.
@@ -726,11 +738,14 @@ export const SidebarDesktopV2 = ({
   // over a hovered category). Clicking "+" opens the composer modal instead.
   const [isCreateHovered, setIsCreateHovered] = useState(false);
 
+  // Clear the optimistic override once the route actually settles (activePage
+  // changed). The category resolved from the URL is now authoritative — keeping
+  // a stale pending value would strand the panel on the wrong category until a
+  // refresh (e.g. after the avatar navigates and you then open Settings). The
+  // pending value still bridges the click→route-change gap for instant feedback.
   useEffect(() => {
-    if (pendingCategory !== null && pendingCategory === resolvedCategory) {
-      setPendingCategory(null);
-    }
-  }, [pendingCategory, resolvedCategory]);
+    setPendingCategory(null);
+  }, [activePage]);
 
   // Settings load client-side, so on a hard refresh `sidebarExpanded`
   // flips from its `false` default to the user's stored value once
