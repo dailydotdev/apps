@@ -22,7 +22,9 @@ export function ExploreHubHeader({
   children?: ReactNode;
 }): ReactElement {
   const router = useRouter();
-  const path = (router.pathname || router.asPath || '').split('?')[0];
+  // asPath-first (the resolved URL) — consistent with FeedExploreTabs and
+  // correct for dynamic routes where pathname is the template.
+  const path = (router.asPath || router.pathname || '').split('?')[0];
   const title =
     hubTitles.find((entry) => entry.match(path))?.label ?? 'Explore';
 
