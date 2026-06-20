@@ -129,7 +129,8 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     // title / label lookups resolve. The icon is unused — the avatar renders
     // the user's profile picture.
     id: SidebarCategory.Profile,
-    label: 'Profile',
+    // Surfaced as the panel title and the avatar tooltip/label.
+    label: 'You',
     icon: (active) => (
       <HomeIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
@@ -509,13 +510,13 @@ const SidebarProfileButton = ({
   const avatarButton = (
     <Tooltip
       side="right"
-      content="Profile"
+      content="You"
       collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
     >
       <button
         type="button"
         role="tab"
-        aria-label="Profile"
+        aria-label="You"
         aria-selected={isSelected}
         aria-controls="sidebar-context-panel"
         onClick={onSelect}
@@ -538,7 +539,7 @@ const SidebarProfileButton = ({
 
   return (
     <>
-      <RailHoverCard label="Profile" panel={panel} enabled={!isExpanded}>
+      <RailHoverCard label="You" panel={panel} enabled={!isExpanded}>
         <div
           className="relative mb-2.5 flex w-full justify-center"
           data-sidebar-preview={SidebarCategory.Profile}
