@@ -8,6 +8,7 @@ import { BookmarkSection } from './BookmarkSection';
 import { CustomFeedSection } from './CustomFeedSection';
 import {
   AnalyticsIcon,
+  AppIcon,
   DevCardIcon,
   EyeIcon,
   JobIcon,
@@ -66,6 +67,14 @@ export const ProfilePanelSection = ({
         isForcedLink: true,
         icon: (active: boolean) => (
           <ListIcon Icon={() => <JobIcon secondary={active} />} />
+        ),
+      },
+      {
+        title: 'Feed settings',
+        path: `${settingsUrl}/feed/general`,
+        isForcedLink: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <AppIcon secondary={active} />} />
         ),
       },
       {

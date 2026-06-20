@@ -10,6 +10,7 @@ import React, {
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import {
+  isSidebarItemActive,
   ListIcon,
   Nav,
   railTabClass,
@@ -36,7 +37,6 @@ import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
-  AppIcon,
   BellIcon,
   BrowserGroupIcon,
   CreditCardIcon,
@@ -378,11 +378,6 @@ const SidebarSettingsButton = (): ReactElement => {
   const settingsItems: ProfileSectionItemProps[] = [
     { title: 'Settings', href: settingsDefaultPath, icon: SettingsIcon },
     { title: 'Appearance', href: `${settingsUrl}/appearance`, icon: EyeIcon },
-    {
-      title: 'Feed settings',
-      href: `${settingsUrl}/feed/general`,
-      icon: AppIcon,
-    },
   ];
 
   const billingItems: ProfileSectionItemProps[] = [
@@ -692,6 +687,9 @@ export const SidebarDesktopV2 = ({
   const foldedNavIds = overflowOrder.slice(visibleOverflowCount);
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isFeedPage = activePage.includes('/feeds/');
+  // When the For You feed is the current page, the Home button reads as
+  // selected — fill its icon (secondary) instead of the outline.
+  const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
 
   const resolvedCategory = useMemo((): SidebarCategoryId => {
     if (isFeedPage) {
@@ -1317,7 +1315,11 @@ export const SidebarDesktopV2 = ({
                 className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-primary"
                 onClick={onHomeClick}
               >
-                <HomeIcon size={IconSize.Small} aria-hidden />
+                <HomeIcon
+                  secondary={isHomeActive}
+                  size={IconSize.Small}
+                  aria-hidden
+                />
               </a>
             </Link>
           </Tooltip>
