@@ -720,14 +720,17 @@ export const SidebarDesktopV2 = ({
 
   // Opening a single post (`/posts/[id]`) shouldn't change the sidebar context
   // — the panel behind the post page keeps whatever you came from (History,
-  // a Squad, etc.). Remember the last non-post category and reuse it on posts.
+  // a Squad, etc.). Remember the last non-post category (committed renders
+  // only, so it's concurrent-safe) and reuse it on posts.
   const isPostPage = router.pathname === '/posts/[id]';
   const lastNonPostCategoryRef = useRef<SidebarCategoryId>(
     SidebarCategory.Main,
   );
-  if (!isPostPage) {
-    lastNonPostCategoryRef.current = resolvedBaseCategory;
-  }
+  useEffect(() => {
+    if (!isPostPage) {
+      lastNonPostCategoryRef.current = resolvedBaseCategory;
+    }
+  }, [isPostPage, resolvedBaseCategory]);
   const resolvedCategory = isPostPage
     ? lastNonPostCategoryRef.current
     : resolvedBaseCategory;
