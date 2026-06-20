@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <title>Icon/Compass/Outline</title>
-    <g id="Icon/Compass/Outline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path fill="#FFFFFF" d="M12,2 a10,10 0 1,0 0,20 a10,10 0 1,0 0,-20 Z M12,4 a8,8 0 1,1 0,16 a8,8 0 1,1 0,-16 Z"></path>
-        <path fill="#FFFFFF" fill-rule="evenodd" d="M15,9 L13.2,13.2 L9,15 L10.8,10.8 Z M12,10.9 a1.1,1.1 0 1,0 0,2.2 a1.1,1.1 0 1,0 0,-2.2 Z"></path>
-    </g>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Filled=no">
+<path id="Union" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3ZM12 4.5C7.85786 4.5 4.5 7.85786 4.5 12C4.5 16.1421 7.85786 19.5 12 19.5C16.1421 19.5 19.5 16.1421 19.5 12C19.5 7.85786 16.1421 4.5 12 4.5ZM13.9668 10.0557L16.2646 16.2422L10.0781 13.9443L7.7793 7.75781L13.9668 10.0557ZM12.7998 11.2227C12.3738 10.7966 11.6805 10.799 11.251 11.2285C10.8214 11.6581 10.8191 12.3513 11.2451 12.7773C11.6712 13.2033 12.3644 13.201 12.7939 12.7715C13.2235 12.3419 13.2258 11.6487 12.7998 11.2227Z" fill="#FFFFFF"/>
+</g>
 </svg>
