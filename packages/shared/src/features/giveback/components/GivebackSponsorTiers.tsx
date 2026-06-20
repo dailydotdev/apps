@@ -22,7 +22,10 @@ interface TierStyle {
   // A FIXED logo height (not max-height): many brand SVGs ship with only a
   // viewBox and no width/height, so `w-auto max-h-*` collapses their width to 0
   // and they render blank. A fixed height lets the browser derive width from the
-  // viewBox aspect ratio. Steps down by prestige: gold biggest, bronze smallest.
+  // viewBox aspect ratio. Each tier also caps width proportional to its height —
+  // otherwise wide wordmark logos hit a shared cap and shrink, flattening the
+  // size hierarchy so gold and silver end up looking the same. Steps down by
+  // prestige: gold biggest, bronze smallest.
   logoClass: string;
   // Fallback name size when a sponsor has no usable logo.
   nameType: TypographyType;
@@ -31,17 +34,17 @@ interface TierStyle {
 const tierStyles: Record<ContributionSponsorTier, TierStyle> = {
   [ContributionSponsorTier.Gold]: {
     labelClass: 'text-accent-cheese-default',
-    logoClass: 'h-14',
+    logoClass: 'h-14 max-w-[260px]',
     nameType: TypographyType.Body,
   },
   [ContributionSponsorTier.Silver]: {
     labelClass: 'text-text-secondary',
-    logoClass: 'h-8',
+    logoClass: 'h-8 max-w-[150px]',
     nameType: TypographyType.Footnote,
   },
   [ContributionSponsorTier.Bronze]: {
     labelClass: 'text-accent-burger-default',
-    logoClass: 'h-4',
+    logoClass: 'h-4 max-w-[80px]',
     nameType: TypographyType.Caption1,
   },
 };
@@ -90,7 +93,7 @@ const SponsorLogo = ({
           onLoad={() => setLogoLoaded(true)}
           onError={() => setLogoFailed(true)}
           className={classNames(
-            'w-auto max-w-[120px] object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:[filter:none]',
+            'w-auto object-contain transition duration-200 [filter:brightness(0)_invert(1)] group-hover:[filter:none]',
             style.logoClass,
             !logoLoaded && 'hidden',
           )}
