@@ -155,10 +155,10 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
   })).filter((group) => group.sponsors.length > 0);
 
   return (
-    <section className="flex w-full justify-center">
-      {/* One compact bordered strip; "Sponsored by" sits inline at the start and
-          a divider separates each tier section. */}
-      <div className="flex max-w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-6 py-4">
+    <section className="w-full">
+      {/* One compact bordered strip spanning the page column; "Sponsored by"
+          sits inline at the start and a divider separates each tier section. */}
+      <div className="flex w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-6 py-4">
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Caption1}

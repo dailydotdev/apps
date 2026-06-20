@@ -125,9 +125,7 @@ export const GivebackPage = (): ReactElement => {
           />
         </div>
 
-        {/* The sponsor wall spans wider than the page column so logos get room
-            to breathe and only wrap when there are genuinely many. */}
-        <div className="mx-auto w-full max-w-[120rem] px-4">
+        <div className={column}>
           <GivebackSponsorTiers />
         </div>
 
