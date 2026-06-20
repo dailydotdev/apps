@@ -1326,7 +1326,23 @@ export const SidebarDesktopV2 = ({
 
           <Tooltip
             side="right"
-            content="Search"
+            // The ⌘K hint moved off the rail and into the tooltip to save
+            // vertical space — same treatment as the sidebar-toggle shortcut.
+            content={
+              <span className="flex items-center gap-2">
+                Search
+                <span className="flex items-center gap-0.5">
+                  {shortcutKeys.map((key) => (
+                    <kbd
+                      key={key}
+                      className="rounded-4 border border-border-subtlest-tertiary px-1 font-sans text-text-secondary typo-caption2"
+                    >
+                      {key}
+                    </kbd>
+                  ))}
+                </span>
+              </span>
+            }
             collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
           >
             <button
@@ -1338,18 +1354,11 @@ export const SidebarDesktopV2 = ({
               <SearchIcon size={IconSize.Small} aria-hidden />
             </button>
           </Tooltip>
-          {!isCompact && (
-            <div
-              aria-hidden
-              className="-mt-1 flex items-center gap-0.5 text-text-quaternary typo-caption2"
-            >
-              {shortcutKeys.map((key) => (
-                <kbd key={key} className="font-sans">
-                  {key}
-                </kbd>
-              ))}
-            </div>
-          )}
+
+          <div
+            aria-hidden
+            className="my-2 h-px w-6 bg-border-subtlest-quaternary"
+          />
 
           {isLoggedIn && (
             <SidebarProfileButton
@@ -1363,11 +1372,6 @@ export const SidebarDesktopV2 = ({
               }
             />
           )}
-
-          <div
-            aria-hidden
-            className="my-2 h-px w-6 bg-border-subtlest-quaternary"
-          />
 
           <div
             ref={navListRef}
