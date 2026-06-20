@@ -57,7 +57,7 @@ import {
   ViewSize,
 } from '../hooks';
 import { feedNameToHeading } from './feeds/FeedContainer';
-import { PageHeader, pageHeaderClassName } from './layout/PageHeader';
+import { pageHeaderClassName } from './layout/PageHeader';
 import {
   customFeedVersion,
   discussedFeedVersion,
@@ -85,7 +85,6 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { ExploreSortDropdown } from './header/ExploreSortDropdown';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -747,9 +746,21 @@ export default function MainFeedLayout({
   return (
     <>
       {showExploreV2PageHeader && (
-        <PageHeader title="Explore" className="!py-0">
-          <ExploreSortDropdown />
-        </PageHeader>
+        <header className={classNames(pageHeaderClassName, '!py-0')}>
+          {/* The sort options (Popular / By upvotes / …) read as regular tabs
+              here rather than a dropdown, matching the docs/feed tab bars. The
+              date-range filter stays as FeedExploreHeader's own dropdown. */}
+          <FeedExploreHeader
+            tab={tab}
+            setTab={onTabChange}
+            showBreadcrumbs={false}
+            className={{
+              container: 'min-w-0 flex-1',
+              tabBarHeader: 'no-scrollbar overflow-x-auto',
+              tabBarContainer: 'min-w-0 flex-1',
+            }}
+          />
+        </header>
       )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
