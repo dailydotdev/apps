@@ -32,6 +32,9 @@ export const RecentSection = ({
         icon: () => <ListIcon Icon={() => iconForPath(page.path)} />,
         title: page.title,
         path: page.path,
+        // Recent mirrors pages you've already visited (often the current one),
+        // so it should never render as the active nav item.
+        disableActiveState: true,
       })),
     [recentPages],
   );

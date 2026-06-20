@@ -39,6 +39,7 @@ export const NetworkSection = ({
     const squadItems =
       squads?.map((squad) => createSquadMenuItem(squad, asPin)) ?? [];
     return [
+      compact && createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SourceIcon secondary={active} />} />
@@ -67,7 +68,6 @@ export const NetworkSection = ({
         }),
       },
       ...squadItems,
-      compact && createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
     ].filter(Boolean) as SidebarMenuItem[];
   }, [squads, isModeratorInAnySquad, count, asPin, compact, handleAddSquad]);
 

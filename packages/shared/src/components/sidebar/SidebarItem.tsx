@@ -26,7 +26,9 @@ export const SidebarItem = ({
   const { user, showLogin } = useContext(AuthContext);
   const { isV2 } = useLayoutVariant();
   const isActive =
-    item.active || (!!item.path && isSidebarItemActive(activePage, item.path));
+    !item.disableActiveState &&
+    (item.active ||
+      (!!item.path && isSidebarItemActive(activePage, item.path)));
   const isCollapsed = !shouldShowLabel;
 
   const navItem = (

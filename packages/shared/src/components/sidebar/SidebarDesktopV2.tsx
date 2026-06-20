@@ -14,7 +14,6 @@ import {
   Nav,
   railTabClass,
   railTabLabelClass,
-  SIDEBAR_ADD_TOP_THRESHOLD,
   SidebarAside,
   SidebarScrollWrapper,
 } from './common';
@@ -57,7 +56,6 @@ import {
   MoveToIcon,
   NewPostIcon,
   PhoneIcon,
-  PlusIcon,
   PollIcon,
   PrivacyIcon,
   SearchIcon,
@@ -68,7 +66,6 @@ import {
   TrendingIcon,
 } from '../icons';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
-import { Origin } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -105,7 +102,6 @@ import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
-import { useSquadNavigation } from '../../hooks';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
@@ -625,8 +621,7 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openModal } = useLazyModal();
-  const { isLoggedIn, user, squads } = useAuthContext();
-  const { openNewSquad } = useSquadNavigation();
+  const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The flat Home button targets the "For You" feed. On extension there's no
   // router, so it always uses the explicit /my-feed path.
@@ -1243,25 +1238,6 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
-  // Squads exposes its add action as a bottom row inside the panel
-  // (Slack-style). The title-strip "+" is a shortcut that only appears once the
-  // list is long enough that the bottom row would require scrolling.
-  const panelAddAction = (() => {
-    if (isCreateHovered) {
-      return null;
-    }
-    if (
-      activeCategory === SidebarCategory.Squads &&
-      (squads?.length ?? 0) > SIDEBAR_ADD_TOP_THRESHOLD
-    ) {
-      return {
-        label: 'New Squad',
-        onClick: () => openNewSquad({ origin: Origin.Sidebar }),
-      };
-    }
-    return null;
-  })();
-
   return (
     <SidebarAside
       ref={sidebarRef}
@@ -1328,19 +1304,6 @@ export const SidebarDesktopV2 = ({
             </div>
           </Tooltip>
 
-          {isLoggedIn && (
-            <SidebarProfileButton
-              isSelected={activeCategory === SidebarCategory.Profile}
-              isExpanded={isExpanded}
-              panel={renderCategorySection(SidebarCategory.Profile)}
-              onSelect={onSelectProfile}
-              onPreview={() => commitPreview(SidebarCategory.Profile)}
-              onPreviewLeave={(event) =>
-                handlePreviewLeave(SidebarCategory.Profile, event)
-              }
-            />
-          )}
-
           <Tooltip
             side="right"
             content="Home"
@@ -1384,6 +1347,19 @@ export const SidebarDesktopV2 = ({
                 </kbd>
               ))}
             </div>
+          )}
+
+          {isLoggedIn && (
+            <SidebarProfileButton
+              isSelected={activeCategory === SidebarCategory.Profile}
+              isExpanded={isExpanded}
+              panel={renderCategorySection(SidebarCategory.Profile)}
+              onSelect={onSelectProfile}
+              onPreview={() => commitPreview(SidebarCategory.Profile)}
+              onPreviewLeave={(event) =>
+                handlePreviewLeave(SidebarCategory.Profile, event)
+              }
+            />
           )}
 
           <div
@@ -1590,24 +1566,10 @@ export const SidebarDesktopV2 = ({
               Back to app
             </Button>
           ) : (
-            <div className="flex h-10 items-center justify-between gap-1">
+            <div className="flex h-10 items-center gap-1">
               <Typography bold type={TypographyType.Callout}>
                 {utilityPanelTitle}
               </Typography>
-              {panelAddAction && (
-                <Tooltip side="bottom" content={panelAddAction.label}>
-                  <button
-                    type="button"
-                    onClick={panelAddAction.onClick}
-                    aria-label={panelAddAction.label}
-                    // `mr-9` keeps the "+" clear of the collapse toggle that
-                    // floats over the panel's top-right corner.
-                    className="focus-outline mr-9 flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                  >
-                    <PlusIcon size={IconSize.XSmall} aria-hidden />
-                  </button>
-                </Tooltip>
-              )}
             </div>
           )}
         </div>

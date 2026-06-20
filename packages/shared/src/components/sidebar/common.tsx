@@ -31,6 +31,9 @@ export interface SidebarMenuItem {
   navItemRef?: MutableRefObject<HTMLElement>;
   color?: string;
   disableDefaultBackground?: boolean;
+  // Skip the path-based active highlight (e.g. Recent rows, which mirror pages
+  // you're already on and shouldn't read as the selected nav item).
+  disableActiveState?: boolean;
 }
 
 interface ListIconProps {
@@ -82,14 +85,9 @@ export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
   <Icon className="pointer-events-none h-5 w-5" />
 );
 
-// Once a v2 panel list holds more than this many entries, the inline "+" add
-// row is far enough down that we also surface a "+" at the top of the panel so
-// the add action stays reachable without scrolling.
-export const SIDEBAR_ADD_TOP_THRESHOLD = 5;
-
-// A Slack-style "add" row that sits at the bottom of a v2 panel list to
-// encourage creating the next squad / folder / feed. Pass either an `onClick`
-// (button row, e.g. opens a modal) or an `href` (link row, e.g. a create page).
+// A Slack-style "add" row that leads a v2 panel list to encourage creating the
+// next squad / folder / feed. Pass either an `onClick` (button row, e.g. opens
+// a modal) or an `href` (link row, e.g. a create page).
 export const createSidebarAddItem = (
   title: string,
   target: { onClick: () => void } | { href: string },

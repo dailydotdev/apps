@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { SidebarMenuItem } from '../common';
-import {
-  createSidebarAddItem,
-  ListIcon,
-  SIDEBAR_ADD_TOP_THRESHOLD,
-} from '../common';
+import { createSidebarAddItem, ListIcon } from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
 import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
@@ -35,6 +31,7 @@ export const BookmarkSection = ({
     : undefined;
 
   const allMenuItems = [
+    compact && createSidebarAddItem('New folder', { onClick: handleAddFolder }),
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
@@ -77,16 +74,10 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     })),
-    compact && createSidebarAddItem('New folder', { onClick: handleAddFolder }),
   ];
   const menuItems: SidebarMenuItem[] = allMenuItems.filter(
     Boolean,
   ) as SidebarMenuItem[];
-
-  // In v2 (`compact`) the header "+" only stays once there are more than a few
-  // folders; otherwise the bottom "New folder" row is the single add affordance.
-  const showTopAdd =
-    !compact || (folders?.length ?? 0) > SIDEBAR_ADD_TOP_THRESHOLD;
 
   return (
     <Section
@@ -95,7 +86,9 @@ export const BookmarkSection = ({
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.BookmarksExpanded}
       isAlwaysOpenOnMobile
-      onAdd={showTopAdd ? handleAddFolder : undefined}
+      // v2 (`compact`) uses the leading "New folder" row instead of a header
+      // "+"; v1 keeps its header add button.
+      onAdd={compact ? undefined : handleAddFolder}
     />
   );
 };
