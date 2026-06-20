@@ -37,28 +37,33 @@ const outerClasses = classNames(
 // hover/pressed colors are left to each `btn-tertiary-*` class so icons keep
 // their brand tint on hover, matching the standard ActionButtons.
 const pillClasses = classNames(
-  'pointer-events-auto flex h-10 min-w-fit items-center justify-between overflow-hidden px-1',
+  'pointer-events-auto flex h-10 min-w-fit items-center overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
 
-// One collapsible track per secondary action: width flips 0fr ↔ 1fr on hover
-// while the content shows/hides. `visibility` removes hidden buttons from focus
-// order. No transition so secondary actions appear instantly.
+// Every action sits in an equal-width slot with its content centered, so the
+// icons stay evenly spaced across the full-width pill no matter how wide the
+// upvote/comment counts make any single button.
+const slotClasses = 'flex min-w-0 flex-1 items-center justify-center';
+
+// Collapsible slot for secondary actions: equal-width by default (and on touch),
+// collapsed to zero width on desktop until the card is hovered. No transition so
+// it flips instantly. `visibility` removes hidden buttons from focus order.
 const segmentClasses = classNames(
-  'grid',
-  '[grid-template-columns:1fr]',
-  'laptop:mouse:[grid-template-columns:0fr]',
-  'laptop:mouse:group-hover:[grid-template-columns:1fr]',
+  slotClasses,
+  'overflow-hidden',
+  'laptop:mouse:w-0 laptop:mouse:flex-none',
+  'laptop:mouse:group-hover:w-auto laptop:mouse:group-hover:flex-1',
 );
 
 const segmentContentClasses = classNames(
   'flex min-w-0 items-center justify-center overflow-hidden',
   'visible opacity-100',
-  'laptop:mouse:invisible laptop:mouse:opacity-0',
-  'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100',
+  'laptop:mouse:invisible',
+  'laptop:mouse:group-hover:visible',
 );
 
 const segmentProps = {
@@ -155,36 +160,38 @@ export function FeedCardGlassActions({
       )}
       <div className={outerClasses}>
         <div className={pillClasses}>
-          <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-            side="bottom"
-          >
-            <QuaternaryButton
-              labelClassName="!pl-[1px] pr-1.5"
-              className="btn-tertiary-avocado pointer-events-auto"
-              id={`post-${post.id}-upvote-btn`}
-              color={ButtonColor.Avocado}
-              pressed={isUpvoteActive}
-              onClick={onToggleUpvote}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={
-                <UpvoteButtonIcon
-                  secondary={isUpvoteActive}
-                  size={IconSize.XSmall}
-                />
-              }
+          <div className={slotClasses}>
+            <Tooltip
+              content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+              side="bottom"
             >
-              {upvoteCount > 0 && (
-                <InteractionCounter
-                  className="tabular-nums typo-footnote"
-                  value={upvoteCount}
-                />
-              )}
-            </QuaternaryButton>
-          </Tooltip>
+              <QuaternaryButton
+                labelClassName="!pl-[1px] pr-1.5"
+                className="btn-tertiary-avocado pointer-events-auto"
+                id={`post-${post.id}-upvote-btn`}
+                color={ButtonColor.Avocado}
+                pressed={isUpvoteActive}
+                onClick={onToggleUpvote}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={
+                  <UpvoteButtonIcon
+                    secondary={isUpvoteActive}
+                    size={IconSize.XSmall}
+                  />
+                }
+              >
+                {upvoteCount > 0 && (
+                  <InteractionCounter
+                    className="tabular-nums typo-footnote"
+                    value={upvoteCount}
+                  />
+                )}
+              </QuaternaryButton>
+            </Tooltip>
+          </div>
           {commentCount > 0 ? (
-            commentButton
+            <div className={slotClasses}>{commentButton}</div>
           ) : (
             <Segment {...segmentProps}>{commentButton}</Segment>
           )}
