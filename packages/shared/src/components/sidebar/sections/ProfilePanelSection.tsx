@@ -98,9 +98,10 @@ export const ProfilePanelSection = ({
 
   return (
     <>
-      {/* pr-6 (vs pl-3) lines the header/stats right edge up with the list
-          rows' content, which is inset by the row's own right padding. */}
-      <div className="mb-1 flex flex-col gap-3 pl-3 pr-6">
+      {/* The list rows below inset their icon inside a w-9 column (≈8px), so
+          pl-5 lines the avatar/stats left edge up with those icons; pr-6
+          matches the rows' right content edge. */}
+      <div className="mb-1 flex flex-col gap-3 pl-5 pr-6">
         {/* Clickable to the profile, but without the open-link icon — the
             avatar isn't a "leaves the sidebar" destination in that sense. */}
         <Link href={`${webappUrl}${user.username}`} passHref>

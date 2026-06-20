@@ -57,7 +57,7 @@ import {
   ViewSize,
 } from '../hooks';
 import { feedNameToHeading } from './feeds/FeedContainer';
-import { pageHeaderClassName } from './layout/PageHeader';
+import { PageHeader, pageHeaderClassName } from './layout/PageHeader';
 import {
   customFeedVersion,
   discussedFeedVersion,
@@ -86,7 +86,6 @@ import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { ExploreSortDropdown } from './header/ExploreSortDropdown';
-import { ExploreHubBreadcrumb } from './header/ExploreHubHeader';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -748,12 +747,9 @@ export default function MainFeedLayout({
   return (
     <>
       {showExploreV2PageHeader && (
-        <header className={classNames(pageHeaderClassName, '!py-0')}>
-          <ExploreHubBreadcrumb />
-          <span className="ml-auto">
-            <ExploreSortDropdown />
-          </span>
-        </header>
+        <PageHeader title="Explore" className="!py-0">
+          <ExploreSortDropdown />
+        </PageHeader>
       )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
