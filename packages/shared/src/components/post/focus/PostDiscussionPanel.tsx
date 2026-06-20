@@ -20,12 +20,8 @@ import {
 } from '../../ProfilePicture';
 import { Image } from '../../image/Image';
 import { fallbackImages } from '../../../lib/config';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { ClickableText } from '../../buttons/ClickableText';
+import { IconSize } from '../../Icon';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { SortCommentsBy } from '../../../graphql/comments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
@@ -173,30 +169,27 @@ export const PostDiscussionPanel = ({
       </div>
       <DiscussionShareRow post={post} withSquads />
       {showSortHeader && (
-        <span className="flex shrink-0 flex-row items-center">
-          <Button
-            className="!px-1 !text-text-tertiary"
-            icon={
-              <TimeSortIcon
-                secondary
-                className={isNewestFirst ? undefined : 'rotate-180'}
-              />
-            }
-            iconPosition={ButtonIconPosition.Right}
-            onClick={() =>
-              setSortBy(
-                isNewestFirst
-                  ? SortCommentsBy.OldestFirst
-                  : SortCommentsBy.NewestFirst,
-              )
-            }
-            size={ButtonSize.XSmall}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-          >
-            {isNewestFirst ? 'Newest first' : 'Oldest first'}
-          </Button>
-        </span>
+        // A text link (not a button) so it aligns flush-left with the comments
+        // below it; `mb-2` adds breathing room before the first comment.
+        <ClickableText
+          type="button"
+          defaultTypo={false}
+          className="mb-2 w-fit gap-1 typo-footnote"
+          onClick={() =>
+            setSortBy(
+              isNewestFirst
+                ? SortCommentsBy.OldestFirst
+                : SortCommentsBy.NewestFirst,
+            )
+          }
+        >
+          {isNewestFirst ? 'Newest first' : 'Oldest first'}
+          <TimeSortIcon
+            secondary
+            size={IconSize.XSmall}
+            className={isNewestFirst ? undefined : 'rotate-180'}
+          />
+        </ClickableText>
       )}
       <div className="min-w-0">
         <PostComments
