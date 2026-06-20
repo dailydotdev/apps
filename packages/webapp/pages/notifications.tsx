@@ -20,6 +20,14 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
@@ -223,12 +231,23 @@ const Notifications = (): ReactElement => {
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
         {!isV2Laptop && (
-          <h2
-            className="p-6 font-bold typo-body"
-            data-testid="notification_page-title"
-          >
-            Notifications
-          </h2>
+          <div className="flex items-center justify-between p-6">
+            <h2
+              className="font-bold typo-body"
+              data-testid="notification_page-title"
+            >
+              Notifications
+            </h2>
+            <Link href={`${webappUrl}notifications/settings`} passHref>
+              <Button
+                tag="a"
+                icon={<SettingsIcon />}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                aria-label="Notification settings"
+              />
+            </Link>
+          </div>
         )}
         {/* On v2 the type filters live in the sidebar rail panel; on the
             legacy/mobile layout (no rail) keep them as in-page tabs. */}
