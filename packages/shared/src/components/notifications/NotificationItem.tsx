@@ -315,7 +315,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         />
         {showDescription && (
           <div
-            className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline"
+            className="multi-truncate line-clamp-3 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline"
             dangerouslySetInnerHTML={{
               __html: memoizedDescription,
             }}
