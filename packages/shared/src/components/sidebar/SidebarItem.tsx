@@ -43,7 +43,9 @@ export const SidebarItem = ({
       disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
         isV2 ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
-        showLinkIconOnHover && 'group',
+        // Named group so the open-link icon reveals on hovering this row only
+        // (the SidebarAside also carries an unnamed `group`).
+        showLinkIconOnHover && 'group/openLink',
         item.itemClassName,
         isCollapsed && 'justify-center',
       )}

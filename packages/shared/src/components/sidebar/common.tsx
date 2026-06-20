@@ -190,10 +190,13 @@ export const ItemInner = ({
         />
       )}
       {shouldShowLabel && showLinkIconOnHover && !item.rightIcon && (
+        // Named group (`openLink`) so it reveals on hovering THIS row only —
+        // an unnamed group-hover would also match the SidebarAside's `group`
+        // and show on hover anywhere in the sidebar.
         <OpenLinkIcon
           aria-hidden
           size={IconSize.Size16}
-          className="ml-1 shrink-0 text-text-quaternary opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
+          className="ml-1 shrink-0 text-text-quaternary opacity-0 transition-opacity group-focus-within/openLink:opacity-100 group-hover/openLink:opacity-100"
         />
       )}
     </>
