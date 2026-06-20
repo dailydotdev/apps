@@ -1111,7 +1111,12 @@ export const SidebarDesktopV2 = ({
     if (!category) {
       return null;
     }
-    const isSelected = activeCategory === category.id;
+    // The "selected" (white) indicator tracks the committed category so it
+    // never moves while you hover/preview other tabs — you always know where
+    // you are. Hovering only previews the panel and shows the row's hover
+    // background; it doesn't claim the selected state.
+    const isSelected = selectedCategory === category.id;
+    const isPreviewing = !isSelected && activeCategory === category.id;
     return (
       <RailHoverCard
         label={category.label}
@@ -1141,6 +1146,7 @@ export const SidebarDesktopV2 = ({
           className={classNames(
             railTabClass,
             isSelected && 'bg-background-default !text-text-primary',
+            isPreviewing && 'bg-surface-hover text-text-primary',
           )}
         >
           <span className="relative flex items-center justify-center">
@@ -1227,8 +1233,13 @@ export const SidebarDesktopV2 = ({
   const activeLabel = sidebarCategories.find(
     (category) => category.id === activeCategory,
   )?.label;
-  const isNotificationsSelected =
+  // Preview state (panel content/title) vs committed selection (the bell's
+  // filled indicator) — kept separate so hover-preview never moves the
+  // selected indicator.
+  const isNotificationsActive =
     activeCategory === SidebarCategory.Notifications;
+  const isNotificationsSelected =
+    selectedCategory === SidebarCategory.Notifications;
   const isHomePanel =
     !isCreateHovered && activeCategory === SidebarCategory.Main;
   const isUtilityPanelSelected = !isHomePanel;
@@ -1239,7 +1250,7 @@ export const SidebarDesktopV2 = ({
     if (activeCategory === SidebarCategory.Settings) {
       return 'Settings';
     }
-    if (isNotificationsSelected) {
+    if (isNotificationsActive) {
       return 'Notifications';
     }
     return activeLabel ?? '';
@@ -1296,7 +1307,9 @@ export const SidebarDesktopV2 = ({
             content="daily.dev"
             collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
           >
-            <div className="mb-1">
+            {/* mt nudges the logo down so it lines up vertically with the
+                panel title row (which sits at pt-6). */}
+            <div className="mb-1 mt-2.5">
               <Link href={webappUrl} passHref prefetch={false}>
                 <a
                   href={webappUrl}
@@ -1319,8 +1332,13 @@ export const SidebarDesktopV2 = ({
               <a
                 href={myFeedPath}
                 aria-label="Home"
-                // Flat: no border, no hover fill — just the icon.
-                className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-primary"
+                // Matches the Search icon: same size, hover background and
+                // tertiary color; the icon fills (and goes primary) when the
+                // For You feed is the current page.
+                className={classNames(
+                  'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                  isHomeActive && '!text-text-primary',
+                )}
                 onClick={onHomeClick}
               >
                 <HomeIcon
@@ -1370,7 +1388,7 @@ export const SidebarDesktopV2 = ({
 
           {isLoggedIn && (
             <SidebarProfileButton
-              isSelected={activeCategory === SidebarCategory.Profile}
+              isSelected={selectedCategory === SidebarCategory.Profile}
               isExpanded={isExpanded}
               panel={renderCategorySection(SidebarCategory.Profile)}
               onSelect={onSelectProfile}

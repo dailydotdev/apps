@@ -5,7 +5,6 @@ import { ListIcon } from '../common';
 import { Section } from '../Section';
 import { PinnedSection } from './PinnedSection';
 import { BookmarkSection } from './BookmarkSection';
-import { CustomFeedSection } from './CustomFeedSection';
 import {
   AnalyticsIcon,
   AppIcon,
@@ -121,12 +120,6 @@ export const ProfilePanelSection = ({
       <BookmarkSection
         {...defaultRenderSectionProps}
         title="Bookmarks"
-        isItemsButton={false}
-      />
-      <CustomFeedSection
-        {...defaultRenderSectionProps}
-        onNavTabClick={onNavTabClick}
-        title="Feeds"
         isItemsButton={false}
       />
     </>
