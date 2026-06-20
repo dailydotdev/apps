@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
-import { ListIcon, isSidebarItemActive } from '../common';
+import {
+  createSidebarSeparatorItem,
+  ListIcon,
+  isSidebarItemActive,
+} from '../common';
 import { JoystickIcon, SettingsIcon } from '../../icons';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
@@ -38,6 +42,7 @@ export const GameCenterSection = ({
           <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
         ),
       },
+      createSidebarSeparatorItem('quests-settings-divider'),
       {
         title: 'Quests settings',
         path: questsSettingsPath,

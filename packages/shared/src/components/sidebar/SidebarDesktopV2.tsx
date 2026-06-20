@@ -1203,27 +1203,31 @@ export const SidebarDesktopV2 = ({
   };
 
   const createMenuItems = useMemo<SidebarMenuItem[]>(
-    () =>
-      createMenuOptions.flatMap(({ title, kind, icon }) => {
-        const item: SidebarMenuItem = {
-          icon,
-          title,
-          // SidebarItem/ClickableNavItem dispatches `action` (not `onClick`)
-          // and requires a `path` for link items — a path-less `onClick` row
-          // throws.
-          action: () =>
-            openModal({
-              type: LazyModal.SmartComposer,
-              props: { initialKind: kind },
-            }),
-        };
-        // "Live" opens a live room rather than composing a post, so a divider
-        // sets it apart from the post types above (settings-dropdown style).
-        if (kind === 'standup') {
-          return [createSidebarSeparatorItem('create-live-divider'), item];
-        }
-        return [item];
-      }),
+    () => [
+      ...createMenuOptions.map(({ title, kind, icon }) => ({
+        icon,
+        title,
+        // SidebarItem/ClickableNavItem dispatches `action` (not `onClick`) and
+        // requires a `path` for link items — a path-less `onClick` row throws.
+        action: () =>
+          openModal({
+            type: LazyModal.SmartComposer,
+            props: { initialKind: kind },
+          }),
+      })),
+      // Divider below the post types, then a settings shortcut that leaves the
+      // sidebar (→ /settings) — its open-link icon reveals on row hover.
+      createSidebarSeparatorItem('create-settings-divider'),
+      {
+        title: 'Settings',
+        path: settingsDefaultPath,
+        isForcedLink: true,
+        showOpenLinkIcon: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SettingsIcon secondary={active} />} />
+        ),
+      },
+    ],
     [openModal],
   );
 
