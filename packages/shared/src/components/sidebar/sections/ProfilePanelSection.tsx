@@ -12,6 +12,7 @@ import {
   EyeIcon,
   JobIcon,
   SquadIcon,
+  TerminalIcon,
 } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
@@ -86,6 +87,15 @@ export const ProfilePanelSection = ({
         showOpenLinkIcon: true,
         icon: (active: boolean) => (
           <ListIcon Icon={() => <DevCardIcon secondary={active} />} />
+        ),
+      },
+      {
+        title: 'API access',
+        path: `${settingsUrl}/api`,
+        isForcedLink: true,
+        showOpenLinkIcon: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
         ),
       },
     ],

@@ -1622,7 +1622,9 @@ export const SidebarDesktopV2 = ({
           suppressTransition,
         )}
       >
-        <div className="pl-4 pr-3 pt-6">
+        {/* pl-5 lines the panel title up with the list rows' icon glyphs
+            (icons sit ~8px into their w-9 column) and the section titles. */}
+        <div className="pl-5 pr-3 pt-6">
           {isSettingsSelected ? (
             <Button
               type="button"
