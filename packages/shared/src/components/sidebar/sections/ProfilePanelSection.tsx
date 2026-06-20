@@ -4,6 +4,7 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import { PinnedSection } from './PinnedSection';
+import { BookmarkSection } from './BookmarkSection';
 import { CustomFeedSection } from './CustomFeedSection';
 import {
   AnalyticsIcon,
@@ -105,6 +106,11 @@ export const ProfilePanelSection = ({
         className="!mt-0"
       />
       <PinnedSection {...defaultRenderSectionProps} isItemsButton={false} />
+      <BookmarkSection
+        {...defaultRenderSectionProps}
+        title="Bookmarks"
+        isItemsButton={false}
+      />
       <CustomFeedSection
         {...defaultRenderSectionProps}
         onNavTabClick={onNavTabClick}

@@ -33,14 +33,12 @@ import { QuestRailIcon } from '../quest/QuestRailIcon';
 import { useClaimableQuestCount } from '../../hooks/useQuestDashboard';
 import { Bubble } from '../tooltips/utils';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { GameCenterSection } from './sections/GameCenterSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
   AppIcon,
   BellIcon,
-  BookmarkIcon,
   BrowserGroupIcon,
   CreditCardIcon,
   DocsIcon,
@@ -108,8 +106,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { useSquadNavigation } from '../../hooks';
-import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
-import { useBookmarkFolderList } from '../../hooks/bookmark';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
@@ -158,14 +154,6 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     // via the hover panel.
     defaultPath: `${webappUrl}daily-quests`,
     icon: (active) => <QuestRailIcon active={active} />,
-  },
-  {
-    id: SidebarCategory.Saved,
-    label: 'Saved',
-    defaultPath: `${webappUrl}bookmarks`,
-    icon: (active) => (
-      <BookmarkIcon secondary={active} size={IconSize.Small} aria-hidden />
-    ),
   },
 ];
 
@@ -639,8 +627,6 @@ export const SidebarDesktopV2 = ({
   const { openModal } = useLazyModal();
   const { isLoggedIn, user, squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
-  const addBookmarkFolder = useAddBookmarkFolder();
-  const { folders } = useBookmarkFolderList();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The flat Home button targets the "For You" feed. On extension there's no
   // router, so it always uses the explicit /my-feed path.
@@ -663,10 +649,9 @@ export const SidebarDesktopV2 = ({
 
   // --- Vertical "More" overflow -------------------------------------------
   // When the rail is too short to fit every nav item, the lowest-priority
-  // items fold into the Settings button, which becomes a 3-dots "More"
-  // dropdown. Fold order: Saved, then Quests, then Alerts. Home, Squads and
-  // New post always stay. Measured against the nav list's height so it tracks
-  // the viewport like Slack's sidebar.
+  // items fold into a 3-dots "More" dropdown. Fold order: Quests, then
+  // Notifications. Explore, Squads and New post always stay. Measured against
+  // the nav list's height so it tracks the viewport like Slack's sidebar.
   const navListRef = useRef<HTMLDivElement>(null);
   const [maxNavSlots, setMaxNavSlots] = useState(Number.POSITIVE_INFINITY);
   useEffect(() => {
@@ -696,7 +681,6 @@ export const SidebarDesktopV2 = ({
       [
         isLoggedIn ? SidebarCategory.Notifications : null,
         SidebarCategory.GameCenter,
-        SidebarCategory.Saved,
       ].filter(Boolean) as SidebarCategoryId[],
     [isLoggedIn],
   );
@@ -1066,11 +1050,6 @@ export const SidebarDesktopV2 = ({
         />
       );
     }
-    if (category === SidebarCategory.Saved) {
-      return (
-        <BookmarkSection {...defaultRenderSectionProps} isItemsButton={false} />
-      );
-    }
     if (category === SidebarCategory.Settings) {
       return (
         <SettingsPanelSection
@@ -1264,7 +1243,7 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
-  // Squads/Saved expose their add action as a bottom row inside the panel
+  // Squads exposes its add action as a bottom row inside the panel
   // (Slack-style). The title-strip "+" is a shortcut that only appears once the
   // list is long enough that the bottom row would require scrolling.
   const panelAddAction = (() => {
@@ -1279,12 +1258,6 @@ export const SidebarDesktopV2 = ({
         label: 'New Squad',
         onClick: () => openNewSquad({ origin: Origin.Sidebar }),
       };
-    }
-    if (
-      activeCategory === SidebarCategory.Saved &&
-      (folders?.length ?? 0) > SIDEBAR_ADD_TOP_THRESHOLD
-    ) {
-      return { label: 'New folder', onClick: addBookmarkFolder };
     }
     return null;
   })();

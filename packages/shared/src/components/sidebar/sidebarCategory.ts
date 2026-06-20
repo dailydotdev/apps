@@ -6,12 +6,11 @@ export const SidebarCategory = {
   // (its panel lists the /posts sub-tabs); the id stays `main` so it remains
   // the default/fallback category.
   Main: 'main',
-  // The avatar tab. Opens the profile panel (your feeds, activity, account
-  // shortcuts) instead of a dropdown menu.
+  // The avatar tab. Opens the profile panel (your feeds, activity, bookmarks,
+  // pins, custom feeds, account shortcuts) instead of a dropdown menu.
   Profile: 'profile',
   Squads: 'squads',
   Notifications: 'notifications',
-  Saved: 'saved',
   GameCenter: 'gameCenter',
   Settings: 'settings',
 } as const;
@@ -39,23 +38,23 @@ export const getSidebarCategoryForPath = (
   ) {
     return SidebarCategory.GameCenter;
   }
-  if (activePage.includes('/bookmarks') || activePage.includes('/briefing')) {
-    return SidebarCategory.Saved;
-  }
   if (activePage.includes('/squads')) {
     return SidebarCategory.Squads;
   }
   if (activePage.includes('/settings')) {
     return SidebarCategory.Settings;
   }
-  // Profile-panel destinations: your feed (Following) and activity (History,
-  // Analytics, Jobs). Visiting any of them keeps the Profile panel selected so
-  // the panel matches the page. (Happening Now lives under Explore.)
+  // Profile-panel destinations: your feed (Following), activity (History,
+  // Analytics, Jobs) and saved content (Bookmarks, briefings). Visiting any of
+  // them keeps the Profile panel selected so the panel matches the page.
+  // (Happening Now lives under Explore.)
   if (
     activePage.includes('/analytics') ||
     activePage.includes('/jobs') ||
     activePage.includes('/history') ||
-    activePage.includes('/following')
+    activePage.includes('/following') ||
+    activePage.includes('/bookmarks') ||
+    activePage.includes('/briefing')
   ) {
     return SidebarCategory.Profile;
   }

@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { SidebarMenuItem } from '../common';
-import { createSidebarAddItem, ListIcon } from '../common';
+import {
+  createSidebarAddItem,
+  ListIcon,
+  SIDEBAR_ADD_TOP_THRESHOLD,
+} from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
 import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
@@ -79,6 +83,11 @@ export const BookmarkSection = ({
     Boolean,
   ) as SidebarMenuItem[];
 
+  // In v2 (`compact`) the header "+" only stays once there are more than a few
+  // folders; otherwise the bottom "New folder" row is the single add affordance.
+  const showTopAdd =
+    !compact || (folders?.length ?? 0) > SIDEBAR_ADD_TOP_THRESHOLD;
+
   return (
     <Section
       {...defaultRenderSectionProps}
@@ -86,7 +95,7 @@ export const BookmarkSection = ({
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.BookmarksExpanded}
       isAlwaysOpenOnMobile
-      onAdd={handleAddFolder}
+      onAdd={showTopAdd ? handleAddFolder : undefined}
     />
   );
 };

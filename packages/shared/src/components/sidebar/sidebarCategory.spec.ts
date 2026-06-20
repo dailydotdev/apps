@@ -38,6 +38,13 @@ describe('getSidebarCategoryForPath', () => {
     expect(getSidebarCategoryForPath('/analytics')).toBe(
       SidebarCategory.Profile,
     );
+    // Bookmarks now live in the Profile panel rather than a Saved rail tab.
+    expect(getSidebarCategoryForPath('/bookmarks')).toBe(
+      SidebarCategory.Profile,
+    );
+    expect(getSidebarCategoryForPath('/bookmarks/later')).toBe(
+      SidebarCategory.Profile,
+    );
   });
 
   it('falls back to the Main (Explore) category for feed pages', () => {
