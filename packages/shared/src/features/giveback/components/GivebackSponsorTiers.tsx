@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
   TypographyColor,
@@ -156,9 +156,8 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
 
   return (
     <section className="w-full">
-      {/* One compact bordered strip spanning the page column; "Sponsored by"
-          sits inline at the start and a divider separates each tier section. */}
-      <div className="flex w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-6 py-4">
+      <FlexCol className="gap-3">
+        {/* Label above the strip, left aligned. */}
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Caption1}
@@ -169,42 +168,46 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
           Sponsored by
         </Typography>
 
-        {tierGroups.map((group) => {
-          const style = tierStyles[group.tier];
-          return (
-            <React.Fragment key={group.tier}>
-              <Divider />
-              <FlexRow className="items-center gap-3">
-                <FlexRow
-                  className={classNames(
-                    'items-center gap-1 [&_svg]:size-3.5',
-                    style.labelClass,
-                  )}
-                >
-                  <MedalBadgeIcon />
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Caption2}
-                    bold
-                    className="uppercase tracking-wider"
+        {/* One compact bordered strip spanning the page column; a divider
+            separates each tier section. */}
+        <div className="flex w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-16 border border-border-subtlest-tertiary px-6 py-4">
+          {tierGroups.map((group, index) => {
+            const style = tierStyles[group.tier];
+            return (
+              <React.Fragment key={group.tier}>
+                {index > 0 && <Divider />}
+                <FlexRow className="items-center gap-3">
+                  <FlexRow
+                    className={classNames(
+                      'items-center gap-1 [&_svg]:size-3.5',
+                      style.labelClass,
+                    )}
                   >
-                    {sponsorTierLabel[group.tier]}
-                  </Typography>
+                    <MedalBadgeIcon />
+                    <Typography
+                      tag={TypographyTag.Span}
+                      type={TypographyType.Caption2}
+                      bold
+                      className="uppercase tracking-wider"
+                    >
+                      {sponsorTierLabel[group.tier]}
+                    </Typography>
+                  </FlexRow>
+                  <FlexRow className="flex-wrap items-center gap-1.5">
+                    {group.sponsors.map((sponsor) => (
+                      <SponsorLogo
+                        key={sponsor.id}
+                        sponsor={sponsor}
+                        style={style}
+                      />
+                    ))}
+                  </FlexRow>
                 </FlexRow>
-                <FlexRow className="flex-wrap items-center gap-1.5">
-                  {group.sponsors.map((sponsor) => (
-                    <SponsorLogo
-                      key={sponsor.id}
-                      sponsor={sponsor}
-                      style={style}
-                    />
-                  ))}
-                </FlexRow>
-              </FlexRow>
-            </React.Fragment>
-          );
-        })}
-      </div>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </FlexCol>
     </section>
   );
 };
