@@ -91,14 +91,15 @@ describe('notification attachment', () => {
     expect(img).toHaveAttribute('src', attachment.image);
   });
 
-  it('should have a title', async () => {
+  it('should represent the attachment via its cover image (not a duplicate title line)', async () => {
     const [attachment] = sampleNotificationAttachments;
-    // The post title shows as the secondary line only when there is no
-    // comment/description to show instead.
     renderComponent(
       <NotificationItem {...sampleNotification} description={undefined} />,
     );
-    await screen.findByText(attachment.title);
+    // The post is shown as a thumbnail; its title is NOT repeated as text
+    // (that would duplicate the notification headline).
+    await screen.findByAltText(`Cover preview of: ${attachment.title}`);
+    expect(screen.queryByText(attachment.title)).not.toBeInTheDocument();
   });
 });
 

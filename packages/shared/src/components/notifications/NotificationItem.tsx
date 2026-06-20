@@ -291,15 +291,16 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             __html: memoizedTitle,
           }}
         />
+        {/* Secondary line is the comment/description only — never the post
+            title, which would just repeat the bold headline. The post itself
+            is represented by the trailing thumbnail. */}
         <div className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline">
-          {description ? (
+          {description && (
             <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
-          ) : (
-            attachment?.title && <span>{attachment.title}</span>
           )}
           {timeText && (
             <span className="text-text-quaternary">
-              {(description || attachment?.title) && ' · '}
+              {description && ' · '}
               {timeText}
             </span>
           )}
