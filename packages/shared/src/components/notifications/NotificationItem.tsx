@@ -34,6 +34,7 @@ import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
+import { stripHtmlTags } from '../../lib/strings';
 
 export interface NotificationItemProps
   extends Pick<
@@ -232,6 +233,15 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     hasAvatar && category !== NotificationFilterCategory.Updates;
   const timeText = createdAt ? getLastActivityDateFormat(createdAt) : '';
 
+  // Some notification types echo the title in the description (e.g. source
+  // posts). Hide the snippet when it just repeats the headline, so we never
+  // show the same text twice.
+  const normalize = (html: string) =>
+    stripHtmlTags(html).replace(/\s+/g, ' ').trim().toLowerCase();
+  const showDescription =
+    !!description &&
+    normalize(memoizedDescription) !== normalize(memoizedTitle);
+
   return (
     <div
       className={classNames(
@@ -299,7 +309,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             __html: memoizedTitle,
           }}
         />
-        {description && (
+        {showDescription && (
           <div
             className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline"
             dangerouslySetInnerHTML={{

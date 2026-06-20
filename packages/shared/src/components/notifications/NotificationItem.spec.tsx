@@ -161,6 +161,18 @@ describe('notification item', () => {
     renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(sampleNotificationDescription);
   });
+
+  it('should not render the description when it duplicates the title', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        title="<p>Exactly the same</p>"
+        description="<p>Exactly the same</p>"
+      />,
+    );
+    const matches = await screen.findAllByText('Exactly the same');
+    expect(matches).toHaveLength(1);
+  });
 });
 
 describe('notification click if onClick prop is provided', () => {
