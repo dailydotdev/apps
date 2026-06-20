@@ -693,7 +693,7 @@ export const SidebarDesktopV2 = ({
   // selected — fill its icon (secondary) instead of the outline.
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
 
-  const resolvedCategory = useMemo((): SidebarCategoryId => {
+  const resolvedBaseCategory = useMemo((): SidebarCategoryId => {
     // The home / For You feed is a logged-in user's personal hub, so it
     // defaults to the Profile panel rather than Explore. Anonymous users (no
     // profile panel) fall back to Explore.
@@ -717,6 +717,20 @@ export const SidebarDesktopV2 = ({
     }
     return getSidebarCategoryForPath(activePage);
   }, [activePage, isFeedPage, isHomeActive, isLoggedIn, user?.username]);
+
+  // Opening a single post (`/posts/[id]`) shouldn't change the sidebar context
+  // — the panel behind the post page keeps whatever you came from (History,
+  // a Squad, etc.). Remember the last non-post category and reuse it on posts.
+  const isPostPage = router.pathname === '/posts/[id]';
+  const lastNonPostCategoryRef = useRef<SidebarCategoryId>(
+    SidebarCategory.Main,
+  );
+  if (!isPostPage) {
+    lastNonPostCategoryRef.current = resolvedBaseCategory;
+  }
+  const resolvedCategory = isPostPage
+    ? lastNonPostCategoryRef.current
+    : resolvedBaseCategory;
 
   // Optimistic override so a rail click feels instant even when
   // router.push is async. Cleared once the URL catches up.
@@ -958,6 +972,9 @@ export const SidebarDesktopV2 = ({
     }
     if (key === 'create') {
       setIsCreateHovered(true);
+      // Clear any category preview so a previously-hovered tab (e.g. Quests)
+      // doesn't keep its hover/preview state while the New post panel shows.
+      setHoveredCategory(null);
       return;
     }
     setIsCreateHovered(false);

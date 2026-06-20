@@ -28,12 +28,16 @@ interface DiscoverSectionProps extends SidebarSectionProps {
   // Hot Takes is a modal launcher rather than a hub section; the v2 Explore
   // panel opts out of it. Defaults on so the v1 sidebar is unchanged.
   showHotTakes?: boolean;
+  // Extra rows injected right after "Explore" (e.g. the v2 Explore panel slots
+  // Happening Now between Explore and Tags).
+  itemsAfterExplore?: SidebarMenuItem[];
 }
 
 export const DiscoverSection = ({
   isItemsButton,
   onNavTabClick,
   showHotTakes = true,
+  itemsAfterExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
@@ -54,6 +58,7 @@ export const DiscoverSection = ({
         path: '/posts',
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
+      ...(itemsAfterExplore ?? []),
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
@@ -111,6 +116,7 @@ export const DiscoverSection = ({
     onNavTabClick,
     HotTakesIcon,
     showHotTakes,
+    itemsAfterExplore,
   ]);
 
   return (
