@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Icon/Compass/Filled</title>
+    <g id="Icon/Compass/Filled" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path fill="#FFFFFF" d="M12,2 a10,10 0 1,0 0,20 a10,10 0 1,0 0,-20 Z M12,6.5 L13.6,12 L12,17.5 L10.4,12 Z"></path>
+    </g>
+</svg>

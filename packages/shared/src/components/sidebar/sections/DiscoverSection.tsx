@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
+  CompassIcon,
   DiscussIcon,
   EarthIcon,
   HashtagIcon,
@@ -44,7 +45,7 @@ export const DiscoverSection = ({
     return [
       {
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotIcon secondary={active} />} />
+          <ListIcon Icon={() => <CompassIcon secondary={active} />} />
         ),
         title: 'Explore',
         // Bare path (not webappUrl) so it active-matches the in-place Explore

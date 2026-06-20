@@ -39,6 +39,7 @@ import { HelpWidget } from '../help/HelpWidget';
 import {
   BellIcon,
   BrowserGroupIcon,
+  CompassIcon,
   CreditCardIcon,
   DocsIcon,
   EditIcon,
@@ -48,7 +49,6 @@ import {
   GiftIcon,
   HelpIcon,
   HomeIcon,
-  HotIcon,
   LinkIcon,
   MegaphoneIcon,
   MenuIcon,
@@ -120,7 +120,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Explore',
     defaultPath: `${webappUrl}posts`,
     icon: (active) => (
-      <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <CompassIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
   {
