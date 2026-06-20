@@ -9,6 +9,7 @@ import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import {
   getNotificationCategory,
+  NotificationFilterCategory,
   notificationCategoryBadge,
   notificationMutingCopy,
   NotificationType,
@@ -221,8 +222,14 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const leadIcon = (
     <NotificationItemIcon icon={icon} iconTheme={notificationTypeTheme[type]} />
   );
-  const badge = notificationCategoryBadge[getNotificationCategory(type)];
+  const category = getNotificationCategory(type);
+  const badge = notificationCategoryBadge[category];
   const BadgeIcon = badge.Icon;
+  // Badge only for notifications about you (upvotes/comments/mentions/follows/
+  // squad activity). Source posts & system land in `Updates` and would just
+  // stamp the same loud badge on most rows, so they keep a clean avatar/icon.
+  const showBadge =
+    hasAvatar && category !== NotificationFilterCategory.Updates;
   const timeText = createdAt ? getLastActivityDateFormat(createdAt) : '';
 
   return (
@@ -267,23 +274,24 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         {hasAvatar ? (
           <>
             {avatarContent}
-            <span
-              className={classNames(
-                'absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
-                badge.bg,
-              )}
-            >
-              <BadgeIcon size={IconSize.XXSmall} className="text-white" />
-            </span>
+            {showBadge && (
+              <span
+                className={classNames(
+                  'absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
+                  badge.bg,
+                )}
+              >
+                <BadgeIcon size={IconSize.XXSmall} className="text-white" />
+              </span>
+            )}
           </>
         ) : (
           leadIcon
         )}
       </div>
 
-      {/* Two levels: bold headline, then a muted meta line carrying the snippet
-          plus an inline timestamp — nothing is pinned to the right edge, so the
-          layout never shifts when a thumbnail is present. */}
+      {/* Bold headline + (only when it's a real comment) a muted snippet. The
+          post title is never repeated here — the thumbnail represents the post. */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
         <span
           className="multi-truncate line-clamp-2 break-words font-bold text-text-primary typo-callout [&_p]:m-0"
@@ -291,20 +299,14 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             __html: memoizedTitle,
           }}
         />
-        {/* Secondary line is the comment/description only — never the post
-            title, which would just repeat the bold headline. The post itself
-            is represented by the trailing thumbnail. */}
-        <div className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline">
-          {description && (
-            <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
-          )}
-          {timeText && (
-            <span className="text-text-quaternary">
-              {description && ' · '}
-              {timeText}
-            </span>
-          )}
-        </div>
+        {description && (
+          <div
+            className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline"
+            dangerouslySetInnerHTML={{
+              __html: memoizedDescription,
+            }}
+          />
+        )}
         {type === NotificationType.UserFollow && (
           <span className="relative z-1 mt-1">
             <NotificationFollowUserButton {...props} />
@@ -312,7 +314,8 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Small trailing content thumbnail + hover mute menu */}
+      {/* Small content thumbnail, then the date as the fixed right-most element
+          so it always lands in the same place and stays easy to scan. */}
       {attachment?.image && (
         <Image
           data-testid="postImage"
@@ -323,8 +326,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           alt={`Cover preview of: ${attachment.title}`}
         />
       )}
+      {timeText && (
+        <time className="shrink-0 whitespace-nowrap text-text-tertiary typo-caption1">
+          {timeText}
+        </time>
+      )}
       {hasOptions && (
-        <span className="relative z-1 shrink-0">
+        <span className="invisible absolute right-3 top-2.5 z-1 group-hover:visible">
           <NotificationOptionsButton notification={{ type, referenceId }} />
         </span>
       )}
