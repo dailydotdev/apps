@@ -31,6 +31,7 @@ import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
+import { useGlassActionsExpanded } from '../../../hooks/useGlassActionsExpanded';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -61,6 +62,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
   const glassActions = useFeedCardGlassActions();
+  const [glassActionsExpanded] = useGlassActionsExpanded();
 
   if (isHidden) {
     return (
@@ -137,7 +139,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             onReadArticleClick={onReadArticleClick}
             showFeedback={showFeedback}
           />
-          <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
+          <CardTitle
+            lineClamp={showFeedback || glassActions ? 'line-clamp-2' : undefined}
+          >
             {title}
           </CardTitle>
         </CardTextContainer>
@@ -181,6 +185,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
                 onBookmarkClick={onBookmarkClick}
                 onDownvoteClick={onDownvoteClick}
                 coverScrim
+                expanded={glassActionsExpanded}
               />
             ) : (
               <ActionButtons

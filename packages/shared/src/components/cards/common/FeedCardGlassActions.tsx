@@ -23,12 +23,13 @@ import { useCardActions } from '../../../hooks/cards/useCardActions';
 export const glassCoverImageClassName =
   '!px-0 !mb-0 !rounded-t-none !rounded-b-16';
 
-// Positioning grid: track 1 holds the pill, track 2 is a spacer. The fr split
-// flips the pill between content-hugging and full width on hover — no transition
-// so it appears instantly.
-const outerClasses = classNames(
-  'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid',
-  '[grid-template-columns:1fr_0fr]',
+// Positioning grid: track 1 holds the pill, track 2 is a spacer. Base keeps the
+// pill full width (the always-expanded variant); the collapse classes (compact
+// mode) shrink it to content width on desktop until the card is hovered. No
+// transition so it flips instantly.
+const outerBaseClasses =
+  'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid [grid-template-columns:1fr_0fr]';
+const outerCollapseClasses = classNames(
   'laptop:mouse:[grid-template-columns:0fr_1fr]',
   'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]',
 );
@@ -49,27 +50,21 @@ const pillClasses = classNames(
 // upvote/comment counts make any single button.
 const slotClasses = 'flex min-w-0 flex-1 items-center justify-center';
 
-// Collapsible slot for secondary actions: equal-width by default (and on touch),
-// collapsed to zero width on desktop until the card is hovered. No transition so
-// it flips instantly. `visibility` removes hidden buttons from focus order.
-const segmentClasses = classNames(
-  slotClasses,
-  'overflow-hidden',
+// Secondary-action slot. Base (and the always-expanded variant) keeps it
+// equal-width and visible; the collapse classes shrink it to zero width on
+// desktop until hover. `visibility` removes hidden buttons from focus order.
+const segmentBaseClasses = classNames(slotClasses, 'overflow-hidden');
+const segmentCollapseClasses = classNames(
   'laptop:mouse:w-0 laptop:mouse:flex-none',
   'laptop:mouse:group-hover:w-auto laptop:mouse:group-hover:flex-1',
 );
 
-const segmentContentClasses = classNames(
-  'flex min-w-0 items-center justify-center overflow-hidden',
-  'visible opacity-100',
+const segmentContentBaseClasses =
+  'flex min-w-0 items-center justify-center overflow-hidden';
+const segmentContentCollapseClasses = classNames(
   'laptop:mouse:invisible',
   'laptop:mouse:group-hover:visible',
 );
-
-const segmentProps = {
-  wrapperClassName: segmentClasses,
-  contentClassName: segmentContentClasses,
-};
 
 // Dark glow behind the pill so it stays readable over busy cover images. Fixed
 // pepper tint in both themes; inline gradient since it's a one-off scrim.
@@ -104,7 +99,11 @@ export function FeedCardGlassActions({
   showDownvoteAction = true,
   showAwardAction = true,
   coverScrim = false,
-}: ActionButtonsProps & { coverScrim?: boolean }): ReactElement | null {
+  expanded = false,
+}: ActionButtonsProps & {
+  coverScrim?: boolean;
+  expanded?: boolean;
+}): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
   const {
     isUpvoteActive,
@@ -124,6 +123,21 @@ export function FeedCardGlassActions({
   if (isFeedPreview) {
     return null;
   }
+
+  const outerClasses = classNames(
+    outerBaseClasses,
+    !expanded && outerCollapseClasses,
+  );
+  const segmentProps = {
+    wrapperClassName: classNames(
+      segmentBaseClasses,
+      !expanded && segmentCollapseClasses,
+    ),
+    contentClassName: classNames(
+      segmentContentBaseClasses,
+      !expanded && segmentContentCollapseClasses,
+    ),
+  };
 
   const upvoteCount = post.numUpvotes ?? 0;
   const commentCount = post.numComments ?? 0;

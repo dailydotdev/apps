@@ -34,6 +34,7 @@ import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
+import { ToggleGlassActionsExpanded } from '../buttons/ToggleGlassActionsExpanded';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
@@ -265,6 +266,21 @@ export const SearchControlHeader = ({
         }
         iconSize={isV2Strip ? IconSize.XSmall : undefined}
         key="toggle-clickbait-shield"
+      />
+    ),
+    hasFeedActions && (
+      <ToggleGlassActionsExpanded
+        key="toggle-glass-actions"
+        buttonProps={
+          isV2Strip
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: compactIconButtonClassName,
+              }
+            : undefined
+        }
+        iconSize={isV2Strip ? IconSize.XSmall : undefined}
       />
     ),
     hasFeedActions && !isV2Strip && <IntroQuestButton key="intro-quests" />,
