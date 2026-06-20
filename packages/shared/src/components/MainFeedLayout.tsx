@@ -77,6 +77,7 @@ import { ClientQuestEventType } from '../graphql/quests';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
+import { FeedExploreTabs } from './header/FeedExploreTabs';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
@@ -747,19 +748,9 @@ export default function MainFeedLayout({
     <>
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          {/* The sort options (Popular / By upvotes / …) read as regular tabs
-              here rather than a dropdown, matching the docs/feed tab bars. The
-              date-range filter stays as FeedExploreHeader's own dropdown. */}
-          <FeedExploreHeader
-            tab={tab}
-            setTab={onTabChange}
-            showBreadcrumbs={false}
-            className={{
-              container: 'min-w-0 flex-1',
-              tabBarHeader: 'no-scrollbar overflow-x-auto',
-              tabBarContainer: 'min-w-0 flex-1',
-            }}
-          />
+          {/* Sort options as pill tabs — same navbar as the Tags / Squad
+              directory pages, not the underlined TabContainer. */}
+          <FeedExploreTabs />
         </header>
       )}
       {showFeedV2PageHeader && (
