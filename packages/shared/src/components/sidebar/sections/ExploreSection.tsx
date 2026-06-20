@@ -5,9 +5,11 @@ import { ListIcon } from '../common';
 import { Section } from '../Section';
 import { DiscoverSection } from './DiscoverSection';
 import { RecentSection } from './RecentSection';
-import { MegaphoneIcon } from '../../icons';
+import { MegaphoneIcon, TourIcon } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 // Explore tab panel: the discovery hub sections (Explore, Tags, Sources,
 // Leaderboard, Discussions — reused from DiscoverSection), then Happening Now
@@ -18,6 +20,7 @@ export const ExploreSection = ({
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const extraItems: SidebarMenuItem[] = useMemo(
     () => [
       {
@@ -28,8 +31,18 @@ export const ExploreSection = ({
           <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
         ),
       },
+      {
+        title: 'Hot Takes',
+        path: `${webappUrl}?openModal=hottakes`,
+        isForcedLink: true,
+        requiresLogin: true,
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <TourIcon secondary={active} />} />
+        ),
+        action: () => logEvent({ event_name: LogEvent.OpenHotAndCold }),
+      },
     ],
-    [],
+    [logEvent],
   );
 
   return (

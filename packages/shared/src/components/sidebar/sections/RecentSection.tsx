@@ -12,7 +12,7 @@ const iconForPath = (path: string): ReactElement => {
   if (path.startsWith('/tags/')) {
     return <HashtagIcon />;
   }
-  if (path.startsWith('/squads/')) {
+  if (path.startsWith('/sources/') || path.startsWith('/squads/')) {
     return <SourceIcon />;
   }
   return <EarthIcon />;

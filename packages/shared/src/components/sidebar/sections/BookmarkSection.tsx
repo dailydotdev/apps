@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { SidebarMenuItem } from '../common';
-import { createSidebarAddItem, ListIcon } from '../common';
+import {
+  createSidebarAddItem,
+  createSidebarSeparatorItem,
+  ListIcon,
+} from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
 import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
@@ -31,7 +35,6 @@ export const BookmarkSection = ({
     : undefined;
 
   const allMenuItems = [
-    compact && createSidebarAddItem('New folder', { onClick: handleAddFolder }),
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
@@ -62,6 +65,12 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     },
+    // New folder sits below the fixed entries; the user's folders list builds
+    // up beneath it, separated by a border (mirrors the Squads panel).
+    compact && createSidebarAddItem('New folder', { onClick: handleAddFolder }),
+    (folders?.length ?? 0) > 0 &&
+      compact &&
+      createSidebarSeparatorItem('folders-divider'),
     ...(folders ?? []).map((folder) => ({
       icon:
         folder.icon ||

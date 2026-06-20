@@ -1436,7 +1436,10 @@ export const SidebarDesktopV2 = ({
             ref={navListRef}
             role="tablist"
             aria-label="Sidebar categories"
-            className="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-hidden"
+            // overflow-visible (not hidden) so the focus-visible ring on the
+            // selected/focused tab isn't clipped on its edges. The "More" fold
+            // already guarantees the items fit, so nothing actually overflows.
+            className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
           >
             {renderCategoryTab(SidebarCategory.Main)}
             {renderCategoryTab(SidebarCategory.Squads)}
