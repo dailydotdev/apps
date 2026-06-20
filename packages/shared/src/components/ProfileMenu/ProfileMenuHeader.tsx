@@ -23,6 +23,8 @@ type Props = WithClassNameProps & {
   profileImageSize?: ProfileImageSize;
   // v2 sidebar dropdown tightens the name/handle gap; defaults to the v1 value.
   compact?: boolean;
+  // Reveal the open-link icon on hover/focus only (v2 profile panel).
+  linkIconHoverOnly?: boolean;
 };
 
 export const ProfileMenuHeader = ({
@@ -30,6 +32,7 @@ export const ProfileMenuHeader = ({
   shouldOpenProfile = false,
   profileImageSize = ProfileImageSize.Large,
   compact = false,
+  linkIconHoverOnly = false,
 }: Props): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -48,7 +51,11 @@ export const ProfileMenuHeader = ({
       )}
     >
       <div
-        className={classNames('relative flex items-center gap-2', className)}
+        className={classNames(
+          'relative flex items-center gap-2',
+          linkIconHoverOnly && 'group',
+          className,
+        )}
       >
         <ProfilePicture
           user={user}
@@ -87,7 +94,11 @@ export const ProfileMenuHeader = ({
 
         {shouldOpenProfile && (
           <OpenLinkIcon
-            className="text-text-quaternary"
+            className={classNames(
+              'text-text-quaternary',
+              linkIconHoverOnly &&
+                'opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100',
+            )}
             size={IconSize.Size16}
           />
         )}

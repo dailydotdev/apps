@@ -692,11 +692,17 @@ export const SidebarDesktopV2 = ({
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
 
   const resolvedCategory = useMemo((): SidebarCategoryId => {
+    // The home / For You feed is a logged-in user's personal hub, so it
+    // defaults to the Profile panel rather than Explore. Anonymous users (no
+    // profile panel) fall back to Explore.
+    if (isLoggedIn && isHomeActive) {
+      return SidebarCategory.Profile;
+    }
     if (isFeedPage) {
       return SidebarCategory.Main;
     }
     return getSidebarCategoryForPath(activePage);
-  }, [activePage, isFeedPage]);
+  }, [activePage, isFeedPage, isHomeActive, isLoggedIn]);
 
   // Optimistic override so a rail click feels instant even when
   // router.push is async. Cleared once the URL catches up.
@@ -845,9 +851,12 @@ export const SidebarDesktopV2 = ({
   // The flat Home button switches to the "For You" feed. It mirrors the rail
   // tabs' optimistic panel switch (Main = Explore) while the route resolves.
   const onHomeClick = useCallback(() => {
-    setPendingCategory(SidebarCategory.Main);
+    // Home opens the Profile panel by default (logged in); Explore for anon.
+    setPendingCategory(
+      isLoggedIn ? SidebarCategory.Profile : SidebarCategory.Main,
+    );
     onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
-  }, [isCustomDefaultFeed, onNavTabClick]);
+  }, [isCustomDefaultFeed, isLoggedIn, onNavTabClick]);
 
   // Remember the last non-settings location so "Back to app" returns the user
   // where they were rather than always dumping them on the home feed.

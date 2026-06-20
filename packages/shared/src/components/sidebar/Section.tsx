@@ -175,6 +175,7 @@ export function Section({
               activePage={activePage}
               isItemsButton={isItemsButton}
               shouldShowLabel={shouldShowLabel}
+              compact={compact}
             />
           ))}
         </div>

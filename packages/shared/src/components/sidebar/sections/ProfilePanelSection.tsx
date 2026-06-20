@@ -95,9 +95,12 @@ export const ProfilePanelSection = ({
 
   return (
     <>
-      <div className="mb-1 flex flex-col gap-3 px-3">
+      {/* pr-6 (vs pl-3) lines the header/stats right edge up with the list
+          rows' content, which is inset by the row's own right padding. */}
+      <div className="mb-1 flex flex-col gap-3 pl-3 pr-6">
         <ProfileMenuHeader
           shouldOpenProfile
+          linkIconHoverOnly
           compact
           profileImageSize={ProfileImageSize.Medium}
         />

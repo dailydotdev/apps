@@ -8,7 +8,8 @@ import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
-import { PlusIcon } from '../icons';
+import { OpenLinkIcon, PlusIcon } from '../icons';
+import { IconSize } from '../Icon';
 
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
@@ -44,6 +45,9 @@ export interface ItemInnerProps {
   item: SidebarMenuItem;
   shouldShowLabel: boolean;
   active?: boolean;
+  // Reveal an "open link" icon on hover/focus for link rows (v2 panels), the
+  // same affordance the ProfileMenu rows use. The row must carry `group`.
+  showLinkIconOnHover?: boolean;
 }
 interface NavItemProps {
   color?: string;
@@ -146,6 +150,7 @@ export const ItemInner = ({
   item,
   shouldShowLabel,
   active,
+  showLinkIconOnHover,
 }: ItemInnerProps): ReactElement => {
   const isLabelHidden = !shouldShowLabel;
 
@@ -168,6 +173,13 @@ export const ItemInner = ({
           {...item}
           icon={item.rightIcon}
           iconClassName="relative flex items-center justify-center"
+        />
+      )}
+      {shouldShowLabel && showLinkIconOnHover && !item.rightIcon && (
+        <OpenLinkIcon
+          aria-hidden
+          size={IconSize.Size16}
+          className="ml-1 shrink-0 text-text-quaternary opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
         />
       )}
     </>
