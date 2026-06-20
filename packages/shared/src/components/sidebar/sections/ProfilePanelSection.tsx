@@ -9,15 +9,16 @@ import {
   AnalyticsIcon,
   AppIcon,
   DevCardIcon,
+  DevPlusIcon,
   EyeIcon,
   JobIcon,
   SquadIcon,
-  TerminalIcon,
 } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
-import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { plusUrl, settingsUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { usePlusSubscription } from '../../../hooks';
 import Link from '../../utilities/Link';
 import { ProfileMenuHeader } from '../../ProfileMenu/ProfileMenuHeader';
 import { ProfileImageSize } from '../../ProfilePicture';
@@ -35,71 +36,78 @@ export const ProfilePanelSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement | null => {
   const { user } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
 
   const menuItems: SidebarMenuItem[] = useMemo(
-    () => [
-      {
-        title: 'Following',
-        path: '/following',
-        action: () => onNavTabClick?.(OtherFeedPage.Following),
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'History',
-        path: `${webappUrl}history`,
-        isForcedLink: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <EyeIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'Analytics',
-        path: `${webappUrl}analytics`,
-        isForcedLink: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <AnalyticsIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'Jobs',
-        path: `${webappUrl}jobs`,
-        isForcedLink: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <JobIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'Feed settings',
-        path: `${settingsUrl}/feed/general`,
-        isForcedLink: true,
-        // Leaves the sidebar for the Settings page → show the open-link hint.
-        showOpenLinkIcon: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <AppIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'DevCard',
-        path: `${settingsUrl}/customization/devcard`,
-        isForcedLink: true,
-        showOpenLinkIcon: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <DevCardIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'API access',
-        path: `${settingsUrl}/api`,
-        isForcedLink: true,
-        showOpenLinkIcon: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
-        ),
-      },
-    ],
-    [onNavTabClick],
+    () =>
+      [
+        {
+          title: 'Following',
+          path: '/following',
+          action: () => onNavTabClick?.(OtherFeedPage.Following),
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+          ),
+        },
+        {
+          title: 'History',
+          path: `${webappUrl}history`,
+          isForcedLink: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <EyeIcon secondary={active} />} />
+          ),
+        },
+        {
+          title: 'Analytics',
+          path: `${webappUrl}analytics`,
+          isForcedLink: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AnalyticsIcon secondary={active} />} />
+          ),
+        },
+        {
+          title: 'Jobs',
+          path: `${webappUrl}jobs`,
+          isForcedLink: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <JobIcon secondary={active} />} />
+          ),
+        },
+        {
+          title: 'Feed settings',
+          path: `${settingsUrl}/feed/general`,
+          isForcedLink: true,
+          // Leaves the sidebar for the Settings page → show the open-link hint.
+          showOpenLinkIcon: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AppIcon secondary={active} />} />
+          ),
+        },
+        {
+          title: 'DevCard',
+          path: `${settingsUrl}/customization/devcard`,
+          isForcedLink: true,
+          showOpenLinkIcon: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <DevCardIcon secondary={active} />} />
+          ),
+        },
+        // Non-Plus only: a purple "Get API Access" upgrade CTA (API access is a
+        // Plus perk). Plus users already have it, so it's hidden for them.
+        !isPlus && {
+          title: 'Get API Access',
+          path: plusUrl,
+          isForcedLink: true,
+          requiresLogin: true,
+          color: 'text-action-plus-default',
+          itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
+          disableDefaultBackground: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
+          ),
+        },
+      ].filter(Boolean) as SidebarMenuItem[],
+    [onNavTabClick, isPlus],
   );
 
   if (!user) {

@@ -949,9 +949,6 @@ export const SidebarDesktopV2 = ({
   const exitSafeZone = useCallback(() => {
     safeBlockedRef.current = false;
     safePolyRef.current = null;
-    if (navListRef.current) {
-      navListRef.current.style.pointerEvents = '';
-    }
   }, []);
 
   const handleRailMouseLeave = useCallback(() => {
@@ -963,13 +960,19 @@ export const SidebarDesktopV2 = ({
     exitSafeZone();
   }, [exitSafeZone]);
 
-  // --- Prediction cone via pointer-events blocking -----------------------
+  // --- Prediction cone ---------------------------------------------------
   // `commitPreview` maps a rail trigger key to the panel preview it shows.
   // Hovering a panel-bearing icon is also what opens the collapsed peek — the
   // rail no longer expands just because the cursor entered it, so empty space
   // and panel-less icons (logo, Home, Search, Invite, Support, Settings) never
   // pop the panel open.
   const commitPreview = useCallback((key: string) => {
+    // While arcing toward the panel, ignore hover-switches but DON'T block
+    // pointer events — blocking the tabs swallowed real clicks (the panel is
+    // already open, so there's nothing to re-open here).
+    if (safeBlockedRef.current) {
+      return;
+    }
     if (!peekSuppressedRef.current) {
       setIsRailHovered(true);
     }
@@ -990,16 +993,14 @@ export const SidebarDesktopV2 = ({
       return;
     }
     // Triangle from the pointer to the panel's near (left) edge, padded
-    // vertically. While the pointer stays inside it the tabs are inert.
+    // vertically. While the pointer stays inside it, hover-switches are
+    // ignored (via commitPreview's guard) — but tabs stay clickable.
     safePolyRef.current = [
       [x, y],
       [panel.left, panel.top - SAFE_ZONE_BUFFER],
       [panel.left, panel.bottom + SAFE_ZONE_BUFFER],
     ];
     safeBlockedRef.current = true;
-    if (navListRef.current) {
-      navListRef.current.style.pointerEvents = 'none';
-    }
   }, []);
 
   const pointInPolygon = (
