@@ -12,7 +12,7 @@ import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
-  'activePage' | 'isItemsButton' | 'shouldShowLabel' | 'compact'
+  'activePage' | 'isItemsButton' | 'shouldShowLabel'
 > & {
   item: SidebarMenuItem;
 };
@@ -22,7 +22,6 @@ export const SidebarItem = ({
   activePage,
   isItemsButton,
   shouldShowLabel,
-  compact,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   const { isV2 } = useLayoutVariant();
@@ -31,9 +30,10 @@ export const SidebarItem = ({
     (item.active ||
       (!!item.path && isSidebarItemActive(activePage, item.path)));
   const isCollapsed = !shouldShowLabel;
-  // v2 panels reveal an "open link" icon on hover for link rows (no custom
-  // right icon of their own). Requires `group` on the row.
-  const showLinkIconOnHover = !!compact && !!item.path && !item.rightIcon;
+  // Opt-in per item: only rows that leave the sidebar (e.g. Feed settings,
+  // DevCard → /settings) reveal the "open link" icon on hover. Requires
+  // `group` on the row.
+  const showLinkIconOnHover = !!item.showOpenLinkIcon;
 
   const navItem = (
     <NavItem

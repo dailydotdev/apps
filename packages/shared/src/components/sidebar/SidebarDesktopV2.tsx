@@ -10,6 +10,7 @@ import React, {
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import {
+  createSidebarSeparatorItem,
   isSidebarItemActive,
   ListIcon,
   Nav,
@@ -1203,17 +1204,26 @@ export const SidebarDesktopV2 = ({
 
   const createMenuItems = useMemo<SidebarMenuItem[]>(
     () =>
-      createMenuOptions.map(({ title, kind, icon }) => ({
-        icon,
-        title,
-        // SidebarItem/ClickableNavItem dispatches `action` (not `onClick`) and
-        // requires a `path` for link items — a path-less `onClick` row throws.
-        action: () =>
-          openModal({
-            type: LazyModal.SmartComposer,
-            props: { initialKind: kind },
-          }),
-      })),
+      createMenuOptions.flatMap(({ title, kind, icon }) => {
+        const item: SidebarMenuItem = {
+          icon,
+          title,
+          // SidebarItem/ClickableNavItem dispatches `action` (not `onClick`)
+          // and requires a `path` for link items — a path-less `onClick` row
+          // throws.
+          action: () =>
+            openModal({
+              type: LazyModal.SmartComposer,
+              props: { initialKind: kind },
+            }),
+        };
+        // "Live" opens a live room rather than composing a post, so a divider
+        // sets it apart from the post types above (settings-dropdown style).
+        if (kind === 'standup') {
+          return [createSidebarSeparatorItem('create-live-divider'), item];
+        }
+        return [item];
+      }),
     [openModal],
   );
 

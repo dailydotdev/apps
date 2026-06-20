@@ -35,6 +35,12 @@ export interface SidebarMenuItem {
   // Skip the path-based active highlight (e.g. Recent rows, which mirror pages
   // you're already on and shouldn't read as the selected nav item).
   disableActiveState?: boolean;
+  // Reveal an "open link" icon on hover — only for rows that leave the sidebar
+  // (e.g. Feed settings, DevCard → /settings). Opt-in, not for in-panel feeds.
+  showOpenLinkIcon?: boolean;
+  // Render a horizontal divider instead of a nav row (groups options like the
+  // settings dropdown). Build via `createSidebarSeparatorItem`.
+  isSeparator?: boolean;
 }
 
 interface ListIconProps {
@@ -101,6 +107,14 @@ export const createSidebarAddItem = (
   ...('href' in target
     ? { path: target.href, isForcedLink: true }
     : { action: target.onClick }),
+});
+
+// A horizontal divider row that groups options inside a v2 panel, mirroring the
+// settings dropdown. `key` just needs to be unique within the item list.
+export const createSidebarSeparatorItem = (key: string): SidebarMenuItem => ({
+  icon: null,
+  title: key,
+  isSeparator: true,
 });
 
 // Compares a (possibly absolute, possibly query-bearing) menu href against

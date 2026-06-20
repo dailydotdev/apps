@@ -6,7 +6,11 @@ import { Typography, TypographyType } from '../typography/Typography';
 import { webappUrl } from '../../lib/constants';
 import { BellIcon, SettingsIcon } from '../icons';
 import type { SidebarMenuItem } from '../sidebar/common';
-import { ListIcon, isSidebarItemActive } from '../sidebar/common';
+import {
+  createSidebarSeparatorItem,
+  ListIcon,
+  isSidebarItemActive,
+} from '../sidebar/common';
 import { Section } from '../sidebar/Section';
 
 // Compact menu in the rail hover card. Lists the destinations the
@@ -45,6 +49,7 @@ export const NotificationsRailPanel = (): ReactElement => {
           ),
         }),
       },
+      createSidebarSeparatorItem('notifications-settings'),
       {
         title: 'Settings',
         path: settingsPath,

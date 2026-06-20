@@ -11,6 +11,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import Link from '../utilities/Link';
+import { HorizontalSeparator } from '../utilities';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -168,16 +169,22 @@ export function Section({
             compact && 'gap-px',
           )}
         >
-          {items.map((item) => (
-            <SidebarItem
-              key={`${item.title}-${item.path}`}
-              item={item}
-              activePage={activePage}
-              isItemsButton={isItemsButton}
-              shouldShowLabel={shouldShowLabel}
-              compact={compact}
-            />
-          ))}
+          {items.map((item) =>
+            item.isSeparator ? (
+              <HorizontalSeparator
+                key={item.title}
+                className="mx-3 my-2 w-auto"
+              />
+            ) : (
+              <SidebarItem
+                key={`${item.title}-${item.path}`}
+                item={item}
+                activePage={activePage}
+                isItemsButton={isItemsButton}
+                shouldShowLabel={shouldShowLabel}
+              />
+            ),
+          )}
         </div>
       </div>
     </NavSection>

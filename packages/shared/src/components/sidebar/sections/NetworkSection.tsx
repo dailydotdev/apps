@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
-import { createSidebarAddItem, ListIcon } from '../common';
+import {
+  createSidebarAddItem,
+  createSidebarSeparatorItem,
+  ListIcon,
+} from '../common';
 import { SourceIcon, TimerIcon } from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
@@ -67,6 +71,12 @@ export const NetworkSection = ({
           ),
         }),
       },
+      // Border between the discovery/moderation actions and the squad list,
+      // matching the settings-dropdown grouping. Skip it when there are no
+      // squads so the list never ends on a dangling divider.
+      squadItems.length > 0 &&
+        compact &&
+        createSidebarSeparatorItem('squads-divider'),
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];
   }, [squads, isModeratorInAnySquad, count, asPin, compact, handleAddSquad]);

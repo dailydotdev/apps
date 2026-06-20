@@ -17,6 +17,7 @@ import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
 import { settingsUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import Link from '../../utilities/Link';
 import { ProfileMenuHeader } from '../../ProfileMenu/ProfileMenuHeader';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { SidebarProfileStats } from '../SidebarProfileStats';
@@ -72,6 +73,8 @@ export const ProfilePanelSection = ({
         title: 'Feed settings',
         path: `${settingsUrl}/feed/general`,
         isForcedLink: true,
+        // Leaves the sidebar for the Settings page → show the open-link hint.
+        showOpenLinkIcon: true,
         icon: (active: boolean) => (
           <ListIcon Icon={() => <AppIcon secondary={active} />} />
         ),
@@ -80,6 +83,7 @@ export const ProfilePanelSection = ({
         title: 'DevCard',
         path: `${settingsUrl}/customization/devcard`,
         isForcedLink: true,
+        showOpenLinkIcon: true,
         icon: (active: boolean) => (
           <ListIcon Icon={() => <DevCardIcon secondary={active} />} />
         ),
@@ -97,12 +101,16 @@ export const ProfilePanelSection = ({
       {/* pr-6 (vs pl-3) lines the header/stats right edge up with the list
           rows' content, which is inset by the row's own right padding. */}
       <div className="mb-1 flex flex-col gap-3 pl-3 pr-6">
-        <ProfileMenuHeader
-          shouldOpenProfile
-          linkIconHoverOnly
-          compact
-          profileImageSize={ProfileImageSize.Medium}
-        />
+        {/* Clickable to the profile, but without the open-link icon — the
+            avatar isn't a "leaves the sidebar" destination in that sense. */}
+        <Link href={`${webappUrl}${user.username}`} passHref>
+          <a className="-mx-1 rounded-10 px-1 hover:bg-surface-hover">
+            <ProfileMenuHeader
+              compact
+              profileImageSize={ProfileImageSize.Medium}
+            />
+          </a>
+        </Link>
         <SidebarProfileStats />
         <UpgradeToPlus
           target={TargetId.ProfileDropdown}
