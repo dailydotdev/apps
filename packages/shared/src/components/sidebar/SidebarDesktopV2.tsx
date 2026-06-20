@@ -616,7 +616,7 @@ export const SidebarDesktopV2 = ({
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
-  const { openModal } = useLazyModal();
+  const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The flat Home button targets the "For You" feed. On extension there's no
@@ -1230,12 +1230,12 @@ export const SidebarDesktopV2 = ({
             props: { initialKind: kind },
           }),
       })),
-      // Divider below the post types, then a settings shortcut that leaves the
-      // sidebar (→ /settings) — its open-link icon reveals on row hover.
+      // Divider below the post types, then the Posting settings page shortcut
+      // (→ /settings/composition) — its open-link icon reveals on row hover.
       createSidebarSeparatorItem('create-settings-divider'),
       {
-        title: 'Settings',
-        path: settingsDefaultPath,
+        title: 'Posting settings',
+        path: `${settingsUrl}/composition`,
         isForcedLink: true,
         showOpenLinkIcon: true,
         icon: (active: boolean) => (
@@ -1246,10 +1246,13 @@ export const SidebarDesktopV2 = ({
     [openModal],
   );
 
-  // The panel reflects the create-post options when hovering "+", otherwise
-  // the active category (hovered preview, else the selected/pinned one).
+  // The panel reflects the create-post options when hovering "+" OR while the
+  // composer modal it opens is still open — otherwise clicking "+" would shift
+  // the background panel back to the feed as focus leaves the rail (a glitch).
+  const isComposerOpen = modal?.type === LazyModal.SmartComposer;
+  const showCreatePanel = isCreateHovered || isComposerOpen;
   const renderSelectedSection = (): ReactElement =>
-    isCreateHovered ? (
+    showCreatePanel ? (
       <Section
         {...defaultRenderSectionProps}
         items={createMenuItems}
@@ -1270,10 +1273,10 @@ export const SidebarDesktopV2 = ({
   const isNotificationsSelected =
     selectedCategory === SidebarCategory.Notifications;
   const isHomePanel =
-    !isCreateHovered && activeCategory === SidebarCategory.Main;
+    !showCreatePanel && activeCategory === SidebarCategory.Main;
   const isUtilityPanelSelected = !isHomePanel;
   const utilityPanelTitle = (() => {
-    if (isCreateHovered) {
+    if (showCreatePanel) {
       return 'New post';
     }
     if (activeCategory === SidebarCategory.Settings) {
@@ -1594,12 +1597,12 @@ export const SidebarDesktopV2 = ({
         id="sidebar-context-panel"
         role="tabpanel"
         aria-labelledby={
-          isCreateHovered
+          showCreatePanel
             ? 'sidebar-create-post'
             : `sidebar-category-${activeCategory}`
         }
         aria-label={
-          isCreateHovered
+          showCreatePanel
             ? 'New post'
             : `${activeLabel ?? 'Settings'} navigation`
         }

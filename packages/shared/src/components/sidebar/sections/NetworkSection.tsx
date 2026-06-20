@@ -43,7 +43,6 @@ export const NetworkSection = ({
     const squadItems =
       squads?.map((squad) => createSquadMenuItem(squad, asPin)) ?? [];
     return [
-      compact && createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SourceIcon secondary={active} />} />
@@ -71,6 +70,7 @@ export const NetworkSection = ({
           ),
         }),
       },
+      compact && createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
       // Border between the discovery/moderation actions and the squad list,
       // matching the settings-dropdown grouping. Skip it when there are no
       // squads so the list never ends on a dangling divider.
