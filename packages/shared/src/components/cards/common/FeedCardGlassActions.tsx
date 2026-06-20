@@ -23,15 +23,11 @@ import { useCardActions } from '../../../hooks/cards/useCardActions';
 export const glassCoverImageClassName =
   '!px-0 !mb-0 !rounded-t-none !rounded-b-16';
 
-const morphEase =
-  'duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none';
-
-// Positioning grid: track 1 holds the pill, track 2 is a spacer. Animating the
-// fr split expands the pill from content-hugging to full width on hover —
-// `fit-content → 100%` isn't animatable, but fr tracks are.
+// Positioning grid: track 1 holds the pill, track 2 is a spacer. The fr split
+// flips the pill between content-hugging and full width on hover — no transition
+// so it appears instantly.
 const outerClasses = classNames(
   'pointer-events-none absolute inset-x-2 bottom-2 z-1 grid',
-  `transition-[grid-template-columns] ${morphEase}`,
   '[grid-template-columns:1fr_0fr]',
   'laptop:mouse:[grid-template-columns:0fr_1fr]',
   'laptop:mouse:group-hover:[grid-template-columns:1fr_0fr]',
@@ -48,10 +44,11 @@ const pillClasses = classNames(
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
 
-// One collapsible track per secondary action: width animates 0fr ↔ 1fr on hover
-// while the content fades in. `visibility` removes hidden buttons from focus order.
+// One collapsible track per secondary action: width flips 0fr ↔ 1fr on hover
+// while the content shows/hides. `visibility` removes hidden buttons from focus
+// order. No transition so secondary actions appear instantly.
 const segmentClasses = classNames(
-  `grid transition-[grid-template-columns] ${morphEase}`,
+  'grid',
   '[grid-template-columns:1fr]',
   'laptop:mouse:[grid-template-columns:0fr]',
   'laptop:mouse:group-hover:[grid-template-columns:1fr]',
@@ -59,7 +56,6 @@ const segmentClasses = classNames(
 
 const segmentContentClasses = classNames(
   'flex min-w-0 items-center justify-center overflow-hidden',
-  'transition-[opacity,visibility] duration-200 ease-out motion-reduce:transition-none',
   'visible opacity-100',
   'laptop:mouse:invisible laptop:mouse:opacity-0',
   'laptop:mouse:group-hover:visible laptop:mouse:group-hover:opacity-100',
