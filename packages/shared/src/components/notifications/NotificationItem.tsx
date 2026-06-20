@@ -287,11 +287,15 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             {showBadge && (
               <span
                 className={classNames(
-                  'absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
+                  'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
                   badge.bg,
                 )}
               >
-                <BadgeIcon size={IconSize.XXSmall} className="text-white" />
+                <BadgeIcon
+                  secondary
+                  size={IconSize.XXSmall}
+                  className="text-white"
+                />
               </span>
             )}
           </>
