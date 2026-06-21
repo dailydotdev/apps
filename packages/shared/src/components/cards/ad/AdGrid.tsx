@@ -56,7 +56,6 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
         ) : null}
         <AdAttribution className={{ main: 'font-normal' }} />
       </CardTextContainer>
-      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
       <CardTextContainer className="!mx-1 my-1">
         <div className="flex items-center">
           {!!ad.callToAction && (
@@ -89,6 +88,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           </div>
         </div>
       </CardTextContainer>
+      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
       <AdPixel pixel={ad.pixel} />
     </Card>
   );
