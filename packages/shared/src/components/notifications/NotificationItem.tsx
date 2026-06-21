@@ -144,8 +144,10 @@ const NotificationOptionsButton = ({
         }}
       >
         <Button
-          variant={ButtonVariant.Tertiary}
-          className="invisible group-hover:visible"
+          variant={ButtonVariant.Float}
+          // Visible by default on mobile (no hover); reveal on hover from
+          // tablet up.
+          className="tablet:invisible tablet:group-hover:visible"
           icon={<MenuIcon className="rotate-90" />}
           size={ButtonSize.XSmall}
         />
@@ -168,7 +170,6 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     attachments,
     onClick,
     targetUrl,
-    numTotalAvatars,
     referenceId,
     createdAt,
   } = props;
@@ -191,7 +192,6 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
   const [primaryAvatar] = filteredAvatars;
   const hasAvatar = filteredAvatars.length > 0;
-  const totalAvatars = numTotalAvatars ?? filteredAvatars.length;
   const renderLink = onClick && isClickable;
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
@@ -218,20 +218,20 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       <NotificationItemAvatar className="z-1" {...primaryAvatar} />
     );
   } else if (filteredAvatars.length > 1) {
+    // 2x2 of separate, individually-rounded face boxes (no connecting frame,
+    // no "+N" count) plus a circular action cell, sized like one avatar so the
+    // lead width never grows. Each face keeps its hover profile tooltip.
     const slots = showBadge ? 3 : 4;
-    const hasOverflow = totalAvatars > slots;
-    const faceLimit = hasOverflow ? slots - 1 : slots;
     const cells: ReactElement[] = filteredAvatars
-      .slice(0, faceLimit)
+      .slice(0, slots)
       .map((avatar) => {
         const image = (
           <Image
-            className="size-full object-cover"
+            className="size-full rounded-4 object-cover"
             src={avatar.image}
             alt={`${avatar.name} avatar`}
           />
         );
-
         return avatar.type === NotificationAvatarType.User ? (
           <ProfileTooltip
             key={avatar.referenceId}
@@ -243,43 +243,32 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         ) : (
           <Image
             key={avatar.referenceId}
-            className="size-full object-cover"
+            className="size-full rounded-4 object-cover"
             src={avatar.image}
             alt={`${avatar.name} avatar`}
           />
         );
       });
-
-    if (hasOverflow) {
-      cells.push(
-        <div
-          key="overflow"
-          className="flex items-center justify-center bg-surface-float font-bold text-text-tertiary typo-caption2"
-        >
-          +{totalAvatars - cells.length}
-        </div>,
-      );
-    }
+    // Pad empty face cells so the circular action always lands bottom-right.
     while (cells.length < slots) {
-      cells.push(
-        <div key={`empty-${cells.length}`} className="bg-surface-float" />,
-      );
+      cells.push(<span key={`empty-${cells.length}`} />);
     }
     if (showBadge) {
       cells.push(
-        <div
+        <span
           key="action"
-          className={classNames('flex items-center justify-center', badge.bg)}
+          className={classNames(
+            'flex items-center justify-center rounded-full',
+            badge.bg,
+          )}
         >
           <BadgeIcon secondary size={IconSize.XXSmall} className="text-white" />
-        </div>,
+        </span>,
       );
     }
 
     avatarContent = (
-      <div className="grid size-10 grid-cols-2 grid-rows-2 overflow-hidden rounded-12">
-        {cells}
-      </div>
+      <div className="grid size-8 grid-cols-2 grid-rows-2 gap-0.5">{cells}</div>
     );
   }
   const timeText = createdAt ? publishTimeRelativeShort(createdAt) : '';
@@ -399,21 +388,21 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Square post cover sits at the bottom-right, just left of the menu, so
-          it never pushes the menu down or grows the title line. */}
+      {/* Square post cover sits on the right, vertically centered, just left of
+          (and with a gap from) the menu. */}
       {attachment?.image && (
         <Image
           data-testid="postImage"
           loading="lazy"
           type={ImageType.Post}
-          className="size-12 shrink-0 self-end rounded-12 object-cover"
+          className="mr-2 size-12 shrink-0 self-center rounded-12 object-cover"
           src={attachment.image}
           alt={`Cover preview of: ${attachment.title}`}
         />
       )}
-      {/* Small rotated kebab menu sits in the title row, top-right, on hover */}
+      {/* Small rotated kebab in the title row, top-right (flat Float button) */}
       {hasOptions && (
-        <span className="invisible absolute right-2 top-2.5 z-1 rounded-10 bg-background-default group-hover:visible">
+        <span className="absolute right-2 top-2.5 z-1">
           <NotificationOptionsButton notification={{ type, referenceId }} />
         </span>
       )}
