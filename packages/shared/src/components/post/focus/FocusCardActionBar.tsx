@@ -67,19 +67,28 @@ export const FocusCardActionBar = ({
     receivingUser: post.author as LoggedUser | undefined,
   });
 
-  // Detect when the sticky bar is pinned to the top so the X close button
-  // (modal only) appears just for the stuck state.
+  // Track whether the bar is pinned, and at which edge. The sentinel sits just
+  // above the bar: when it scrolls above the viewport top the bar is pinned at
+  // the TOP; when it's still below the viewport the bar is floating at the
+  // BOTTOM. The modal's X is only useful at the top (where the top nav strip
+  // has scrolled away) — at the bottom that strip is still on screen.
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const copyLinkRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
+  const [isStuckTop, setIsStuckTop] = useState(false);
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') {
       return undefined;
     }
     const observer = new IntersectionObserver(
-      ([entry]) => setIsStuck(!entry.isIntersecting),
+      ([entry]) => {
+        const stuck = !entry.isIntersecting;
+        setIsStuck(stuck);
+        const rootTop = entry.rootBounds?.top ?? 0;
+        setIsStuckTop(stuck && entry.boundingClientRect.top < rootTop);
+      },
       { threshold: 0 },
     );
     observer.observe(el);
@@ -102,6 +111,9 @@ export const FocusCardActionBar = ({
   // width where toggling on scroll looked like flicker.
   const barFloats = useViewSize(ViewSize.Tablet);
   const isPinned = isStuck && barFloats;
+  // The X (modal close) only makes sense when pinned at the top; at the bottom
+  // the modal's top strip — and its own close — are still on screen.
+  const isPinnedTop = isStuckTop && barFloats;
   // Sticky at BOTH edges (`top` + `bottom`), tablet and up only — on mobile the
   // dedicated floating bottom bar already covers this, so the desktop treatment
   // is excluded there. While its natural spot is still below the fold the bar
@@ -309,7 +321,7 @@ export const FocusCardActionBar = ({
               buttonSize={ButtonSize.Medium}
             />
           )}
-          {isPinned && onClose && (
+          {isPinnedTop && onClose && (
             <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
           )}
         </div>
