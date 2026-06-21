@@ -10,7 +10,7 @@ import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
-import { QuestButton } from '../../quest/QuestButton';
+import { CompactQuestList } from '../../quest/CompactQuestList';
 import { HorizontalSeparator } from '../../utilities';
 import Link from '../../utilities/Link';
 import {
@@ -124,8 +124,8 @@ export const StreakQuestsSection = ({
       <div className="flex h-9 items-center px-4">
         <span className="text-text-quaternary typo-callout">Quests</span>
       </div>
-      <div className="max-h-96 overflow-y-auto px-2">
-        <QuestButton panelOnly />
+      <div className="max-h-96 overflow-y-auto px-4">
+        <CompactQuestList />
       </div>
 
       {/* 3. Reference links / settings — demoted to the bottom. */}
