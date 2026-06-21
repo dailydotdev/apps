@@ -146,8 +146,8 @@ const NotificationOptionsButton = ({
         <Button
           variant={ButtonVariant.Tertiary}
           className="invisible group-hover:visible"
-          icon={<MenuIcon />}
-          size={ButtonSize.Small}
+          icon={<MenuIcon className="rotate-90" />}
+          size={ButtonSize.XSmall}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -399,20 +399,21 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Square post cover on the right, vertically centered to the row */}
+      {/* Square post cover sits at the bottom-right, just left of the menu, so
+          it never pushes the menu down or grows the title line. */}
       {attachment?.image && (
         <Image
           data-testid="postImage"
           loading="lazy"
           type={ImageType.Post}
-          className="size-12 shrink-0 self-center rounded-12 object-cover"
+          className="size-12 shrink-0 self-end rounded-12 object-cover"
           src={attachment.image}
           alt={`Cover preview of: ${attachment.title}`}
         />
       )}
-      {/* Mute menu sits in the top-right corner, on hover */}
+      {/* Small rotated kebab menu sits in the title row, top-right, on hover */}
       {hasOptions && (
-        <span className="invisible absolute right-2 top-2 z-1 rounded-10 bg-background-default group-hover:visible">
+        <span className="invisible absolute right-2 top-2.5 z-1 rounded-10 bg-background-default group-hover:visible">
           <NotificationOptionsButton notification={{ type, referenceId }} />
         </span>
       )}
