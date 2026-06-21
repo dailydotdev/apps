@@ -106,7 +106,11 @@ describe('notification attachment', () => {
 describe('notification avatars', () => {
   it('should display the avatar of the source', async () => {
     const [source] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    // A single avatar renders the rich source/user avatar (multiple actors
+    // render as an overlapping stack instead).
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[source]} />,
+    );
     const img = await screen.findByAltText(`${source.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', source.image);
   });

@@ -17,6 +17,7 @@ import {
   notificationTypeTheme,
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -160,6 +161,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     attachments,
     onClick,
     targetUrl,
+    numTotalAvatars,
     referenceId,
     createdAt,
   } = props;
@@ -180,16 +182,49 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     return null;
   }
 
-  // One primary avatar keeps every row's lead a fixed width, so titles line up
-  // and multiple avatars never overflow onto the text. The count/context
-  // ("3 upvotes", "submitted for review") lives in the title, and the colored
-  // badge conveys the type.
+  // Multiple actors (e.g. several upvoters) render as an overlapping stack;
+  // a single actor renders one avatar. Both sit in a fixed-width lead so the
+  // title always starts at the same x regardless of avatar count.
   const [primaryAvatar] = filteredAvatars;
-  const avatarContent = primaryAvatar ? (
-    <NotificationItemAvatar className="z-1" {...primaryAvatar} />
-  ) : null;
+  const hasAvatar = filteredAvatars.length > 0;
+  const totalAvatars = numTotalAvatars ?? filteredAvatars.length;
+  const maxFaces = 3;
+  const showAvatarCount = totalAvatars > maxFaces;
+  const stackFaces = filteredAvatars.slice(
+    0,
+    showAvatarCount ? maxFaces - 1 : maxFaces,
+  );
 
-  const hasAvatar = !!avatarContent;
+  let avatarContent: ReactElement | null = null;
+  if (filteredAvatars.length === 1) {
+    avatarContent = (
+      <NotificationItemAvatar className="z-1" {...primaryAvatar} />
+    );
+  } else if (filteredAvatars.length > 1) {
+    avatarContent = (
+      <div className="flex items-center">
+        {stackFaces.map((avatar, index) => (
+          <div
+            key={avatar.referenceId}
+            style={{ zIndex: stackFaces.length - index }}
+            className={classNames(index > 0 && '-ml-3')}
+          >
+            <ProfilePicture
+              size={ProfileImageSize.Small}
+              rounded="full"
+              className="border-2 border-background-default"
+              user={{ image: avatar.image }}
+            />
+          </div>
+        ))}
+        {showAvatarCount && (
+          <span className="-ml-3 flex size-6 items-center justify-center rounded-full border-2 border-background-default bg-surface-float font-bold text-text-tertiary typo-caption2">
+            +{totalAvatars - stackFaces.length}
+          </span>
+        )}
+      </div>
+    );
+  }
   const renderLink = onClick && isClickable;
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
@@ -251,28 +286,24 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
           fall back to the plain type icon. */}
-      <div className="relative flex w-10 shrink-0 items-center justify-center">
-        {hasAvatar ? (
-          <>
-            {avatarContent}
-            {showBadge && (
-              <span
-                className={classNames(
-                  'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
-                  badge.bg,
-                )}
-              >
-                <BadgeIcon
-                  secondary
-                  size={IconSize.XXSmall}
-                  className="text-white"
-                />
-              </span>
-            )}
-          </>
-        ) : (
-          leadIcon
-        )}
+      <div className="flex w-12 shrink-0 items-center justify-center">
+        <div className="relative flex items-center">
+          {hasAvatar ? avatarContent : leadIcon}
+          {showBadge && (
+            <span
+              className={classNames(
+                'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
+                badge.bg,
+              )}
+            >
+              <BadgeIcon
+                secondary
+                size={IconSize.XXSmall}
+                className="text-white"
+              />
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Bold headline + (only when it's a real comment) a muted snippet. The
