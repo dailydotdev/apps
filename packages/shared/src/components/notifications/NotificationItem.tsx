@@ -289,7 +289,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex min-h-20 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex min-h-16 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -348,16 +348,31 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             __html: memoizedTitle,
           }}
         />
-        {showDescription && (
-          <div
-            className="multi-truncate line-clamp-3 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline"
-            dangerouslySetInnerHTML={{
-              __html: memoizedDescription,
-            }}
-          />
+        {/* Meta line leads with the time, then a dot, then the comment (or the
+            post title when there's no comment). */}
+        {(timeText || showDescription || showAttachmentTitle) && (
+          <div className="multi-truncate line-clamp-3 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline">
+            {timeText && (
+              <Tooltip content={fullDate}>
+                <time className="relative z-1 text-text-quaternary">
+                  {timeText}
+                </time>
+              </Tooltip>
+            )}
+            {timeText && (showDescription || showAttachmentTitle) && (
+              <span className="text-text-quaternary"> · </span>
+            )}
+            {showDescription ? (
+              <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
+            ) : (
+              showAttachmentTitle && <span>{attachmentTitle}</span>
+            )}
+          </div>
         )}
-        {showAttachmentTitle && (
-          <div className="multi-truncate mt-0.5 line-clamp-1 break-words text-text-quaternary typo-footnote">
+        {/* When there's both a comment and a post, name the post on its own
+            line so it's clear which article it's about. */}
+        {showDescription && showAttachmentTitle && (
+          <div className="multi-truncate line-clamp-1 break-words text-text-quaternary typo-footnote">
             {attachmentTitle}
           </div>
         )}
@@ -368,31 +383,20 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Small content thumbnail, then the date as the fixed right-most element
-          so it always lands in the same place and stays easy to scan. */}
-      {(timeText || attachment?.image) && (
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
-          {timeText && (
-            <Tooltip content={fullDate}>
-              <time className="relative z-1 whitespace-nowrap text-text-tertiary typo-caption1">
-                {timeText}
-              </time>
-            </Tooltip>
-          )}
-          {attachment?.image && (
-            <Image
-              data-testid="postImage"
-              loading="lazy"
-              type={ImageType.Post}
-              className="size-12 rounded-12 object-cover"
-              src={attachment.image}
-              alt={`Cover preview of: ${attachment.title}`}
-            />
-          )}
-        </div>
+      {/* Square post cover on the right */}
+      {attachment?.image && (
+        <Image
+          data-testid="postImage"
+          loading="lazy"
+          type={ImageType.Post}
+          className="size-12 shrink-0 rounded-12 object-cover"
+          src={attachment.image}
+          alt={`Cover preview of: ${attachment.title}`}
+        />
       )}
+      {/* Mute menu sits in the top-right corner, on hover */}
       {hasOptions && (
-        <span className="invisible absolute bottom-2.5 right-3 z-1 group-hover:visible">
+        <span className="invisible absolute right-2 top-2 z-1 rounded-10 bg-background-default group-hover:visible">
           <NotificationOptionsButton notification={{ type, referenceId }} />
         </span>
       )}
