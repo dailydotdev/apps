@@ -395,27 +395,29 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Square post cover, top-aligned with the title (so it never drifts
-          below the headline on tall rows; on a two-line row it reads centered).
-          Sits to the left of the menu, separated by the row gap. */}
-      {attachment?.image && (
-        <Image
-          data-testid="postImage"
-          loading="lazy"
-          type={ImageType.Post}
-          className="mt-1 size-12 shrink-0 self-start rounded-12 object-cover"
-          src={attachment.image}
-          alt={`Cover preview of: ${attachment.title}`}
-        />
-      )}
-      {/* Rotated flat kebab, right-most in the title row. In-flow (not floating)
-          so it reserves its own space and never sits on top of the cover; the
-          row gap keeps a gap between them. Hidden until hover on desktop,
-          shown by default on mobile. */}
-      {hasOptions && (
-        <span className="relative z-1 shrink-0 self-start">
-          <NotificationOptionsButton notification={{ type, referenceId }} />
-        </span>
+      {/* Trailing actions: the post cover plus a fixed-width menu slot. The
+          slot is always reserved whenever a row has a cover and/or a menu, so
+          every cover image lands at the same x regardless of whether that row
+          has a menu — keeping covers aligned down the whole feed. The cover is
+          top-aligned with the title (centered-looking on a two-line row). */}
+      {(attachment?.image || hasOptions) && (
+        <div className="mt-1 flex shrink-0 items-start gap-2 self-start">
+          {attachment?.image && (
+            <Image
+              data-testid="postImage"
+              loading="lazy"
+              type={ImageType.Post}
+              className="size-12 rounded-12 object-cover"
+              src={attachment.image}
+              alt={`Cover preview of: ${attachment.title}`}
+            />
+          )}
+          <div className="relative z-1 flex w-7 shrink-0 justify-center">
+            {hasOptions && (
+              <NotificationOptionsButton notification={{ type, referenceId }} />
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
