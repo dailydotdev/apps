@@ -91,15 +91,28 @@ describe('notification attachment', () => {
     expect(img).toHaveAttribute('src', attachment.image);
   });
 
-  it('should represent the attachment via its cover image (not a duplicate title line)', async () => {
+  it('should show the post title as the subtitle (and cover image) when there is no comment', async () => {
     const [attachment] = sampleNotificationAttachments;
     renderComponent(
       <NotificationItem {...sampleNotification} description={undefined} />,
     );
-    // The post is shown as a thumbnail; its title is NOT repeated as text
-    // (that would duplicate the notification headline).
+    await screen.findByText(attachment.title);
     await screen.findByAltText(`Cover preview of: ${attachment.title}`);
-    expect(screen.queryByText(attachment.title)).not.toBeInTheDocument();
+  });
+
+  it('should not repeat the post title when it matches the notification title', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        description={undefined}
+        title="<p>Same post title</p>"
+        attachments={[
+          { ...sampleNotificationAttachments[0], title: 'Same post title' },
+        ]}
+      />,
+    );
+    const matches = await screen.findAllByText('Same post title');
+    expect(matches).toHaveLength(1);
   });
 });
 

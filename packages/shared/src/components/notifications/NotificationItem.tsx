@@ -269,14 +269,20 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const timeText = createdAt ? publishTimeRelativeShort(createdAt) : '';
   const fullDate = createdAt ? getFullNotificationDate(createdAt) : '';
 
-  // Some notification types echo the title in the description (e.g. source
-  // posts). Hide the snippet when it just repeats the headline, so we never
-  // show the same text twice.
+  // Subtitle = the comment when there is one, otherwise the referenced post's
+  // title (so "mentioned you in a post" etc. show what post it was). Either is
+  // hidden when it just repeats the headline, so we never show the same text
+  // twice (e.g. source-post rows whose title already is the post title).
   const normalize = (html: string) =>
     stripHtmlTags(html).replace(/\s+/g, ' ').trim().toLowerCase();
+  const titleNorm = normalize(memoizedTitle);
   const showDescription =
-    !!description &&
-    normalize(memoizedDescription) !== normalize(memoizedTitle);
+    !!description && normalize(memoizedDescription) !== titleNorm;
+  const attachmentTitle = attachment?.title;
+  const showAttachmentTitle =
+    !showDescription &&
+    !!attachmentTitle &&
+    normalize(attachmentTitle) !== titleNorm;
 
   return (
     <div
@@ -347,6 +353,11 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
               __html: memoizedDescription,
             }}
           />
+        )}
+        {showAttachmentTitle && (
+          <div className="multi-truncate line-clamp-2 break-words text-text-tertiary typo-footnote">
+            {attachmentTitle}
+          </div>
         )}
         {type === NotificationType.UserFollow && (
           <span className="relative z-1 mt-1">
