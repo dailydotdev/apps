@@ -17,7 +17,6 @@ import {
   notificationTypeTheme,
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import {
   DropdownMenu,
@@ -190,65 +189,9 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     return null;
   }
 
-  // Multiple actors (e.g. several upvoters) render as an overlapping stack;
-  // a single actor renders one avatar. Both sit in a fixed-width lead so the
-  // title always starts at the same x regardless of avatar count.
   const [primaryAvatar] = filteredAvatars;
   const hasAvatar = filteredAvatars.length > 0;
   const totalAvatars = numTotalAvatars ?? filteredAvatars.length;
-  const maxFaces = 3;
-  const showAvatarCount = totalAvatars > maxFaces;
-  const stackFaces = filteredAvatars.slice(
-    0,
-    showAvatarCount ? maxFaces - 1 : maxFaces,
-  );
-
-  let avatarContent: ReactElement | null = null;
-  if (filteredAvatars.length === 1) {
-    avatarContent = (
-      <NotificationItemAvatar className="z-1" {...primaryAvatar} />
-    );
-  } else if (filteredAvatars.length > 1) {
-    avatarContent = (
-      <div className="flex items-center">
-        {stackFaces.map((avatar, index) => {
-          // Stacked faces are rounded rectangles (a circle is reserved for a
-          // single source/user). Each one keeps a hover profile tooltip.
-          const picture = (
-            <ProfilePicture
-              size={ProfileImageSize.Small}
-              className="!rounded-8 border-2 border-background-default"
-              user={{ image: avatar.image }}
-            />
-          );
-
-          return (
-            <div
-              key={avatar.referenceId}
-              style={{ zIndex: stackFaces.length - index }}
-              className={classNames('relative', index > 0 && '-ml-3')}
-            >
-              {avatar.type === NotificationAvatarType.User ? (
-                <ProfileTooltip
-                  userId={avatar.referenceId}
-                  link={{ href: avatar.targetUrl }}
-                >
-                  {picture}
-                </ProfileTooltip>
-              ) : (
-                picture
-              )}
-            </div>
-          );
-        })}
-        {showAvatarCount && (
-          <span className="-ml-3 flex size-6 items-center justify-center rounded-8 border-2 border-background-default bg-surface-float font-bold text-text-tertiary typo-caption2">
-            +{totalAvatars - stackFaces.length}
-          </span>
-        )}
-      </div>
-    );
-  }
   const renderLink = onClick && isClickable;
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
@@ -262,10 +205,83 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const badge = notificationCategoryBadge[category];
   const BadgeIcon = badge.Icon;
   // Badge only for notifications about you (upvotes/comments/mentions/follows/
-  // squad activity). Source posts & system land in `Updates` and would just
-  // stamp the same loud badge on most rows, so they keep a clean avatar/icon.
+  // squad activity). Source posts & system land in `Updates` and stay clean.
   const showBadge =
     hasAvatar && category !== NotificationFilterCategory.Updates;
+
+  // A single actor renders one avatar (with a corner badge). Multiple actors
+  // render as a 2x2 grid the size of one avatar — up to three faces plus the
+  // action icon — so the lead never grows wider and every row stays aligned.
+  let avatarContent: ReactElement | null = null;
+  if (filteredAvatars.length === 1) {
+    avatarContent = (
+      <NotificationItemAvatar className="z-1" {...primaryAvatar} />
+    );
+  } else if (filteredAvatars.length > 1) {
+    const slots = showBadge ? 3 : 4;
+    const hasOverflow = totalAvatars > slots;
+    const faceLimit = hasOverflow ? slots - 1 : slots;
+    const cells: ReactElement[] = filteredAvatars
+      .slice(0, faceLimit)
+      .map((avatar) => {
+        const image = (
+          <Image
+            className="size-full object-cover"
+            src={avatar.image}
+            alt={`${avatar.name} avatar`}
+          />
+        );
+
+        return avatar.type === NotificationAvatarType.User ? (
+          <ProfileTooltip
+            key={avatar.referenceId}
+            userId={avatar.referenceId}
+            link={{ href: avatar.targetUrl }}
+          >
+            {image}
+          </ProfileTooltip>
+        ) : (
+          <Image
+            key={avatar.referenceId}
+            className="size-full object-cover"
+            src={avatar.image}
+            alt={`${avatar.name} avatar`}
+          />
+        );
+      });
+
+    if (hasOverflow) {
+      cells.push(
+        <div
+          key="overflow"
+          className="flex items-center justify-center bg-surface-float font-bold text-text-tertiary typo-caption2"
+        >
+          +{totalAvatars - cells.length}
+        </div>,
+      );
+    }
+    while (cells.length < slots) {
+      cells.push(
+        <div key={`empty-${cells.length}`} className="bg-surface-float" />,
+      );
+    }
+    if (showBadge) {
+      cells.push(
+        <div
+          key="action"
+          className={classNames('flex items-center justify-center', badge.bg)}
+        >
+          <BadgeIcon secondary size={IconSize.XXSmall} className="text-white" />
+        </div>,
+      );
+    }
+
+    avatarContent = (
+      <div className="grid size-10 grid-cols-2 grid-rows-2 overflow-hidden rounded-12">
+        {cells}
+      </div>
+    );
+  }
   const timeText = createdAt ? publishTimeRelativeShort(createdAt) : '';
   const fullDate = createdAt ? getFullNotificationDate(createdAt) : '';
 
@@ -319,10 +335,10 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
           fall back to the plain type icon. */}
-      <div className="flex w-12 shrink-0 items-start justify-start">
+      <div className="flex w-10 shrink-0 items-center justify-start self-center">
         <div className="relative flex items-center">
           {hasAvatar ? avatarContent : leadIcon}
-          {showBadge && (
+          {showBadge && filteredAvatars.length === 1 && (
             <span
               className={classNames(
                 'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
@@ -383,13 +399,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Square post cover on the right */}
+      {/* Square post cover on the right, vertically centered to the row */}
       {attachment?.image && (
         <Image
           data-testid="postImage"
           loading="lazy"
           type={ImageType.Post}
-          className="size-12 shrink-0 rounded-12 object-cover"
+          className="size-12 shrink-0 self-center rounded-12 object-cover"
           src={attachment.image}
           alt={`Cover preview of: ${attachment.title}`}
         />
