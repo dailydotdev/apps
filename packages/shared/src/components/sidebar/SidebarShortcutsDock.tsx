@@ -37,7 +37,7 @@ import {
   JobIcon,
   LinkIcon,
   MegaphoneIcon,
-  PlusIcon,
+  MenuIcon,
   SquadIcon,
   TrashIcon,
   UserIcon,
@@ -543,7 +543,11 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                 trayOpen && 'bg-surface-hover text-text-primary',
               )}
             >
-              <PlusIcon size={IconSize.Small} aria-hidden />
+              <MenuIcon
+                size={IconSize.Small}
+                aria-hidden
+                className="rotate-90"
+              />
             </button>
           </Tooltip>
         </div>
