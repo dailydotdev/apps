@@ -50,28 +50,39 @@ export const StreakMonthCalendar = ({
   }, [history, streak?.weekStart, timezone]);
 
   return (
-    <div className="grid grid-cols-10 gap-1">
+    <div className="grid grid-cols-10 gap-x-2 gap-y-2.5">
       {days.map(({ date, state, isToday }) => {
         const isRead = state === Streak.Completed;
         const isFreeze = state === Streak.Freeze;
+        // Today is a ring (not a fill) so it reads as "you are here" even when
+        // already read; read days fill pink; weekends get the dashed pattern.
+        let stateClass = 'border-border-subtlest-tertiary';
+        if (isToday) {
+          stateClass =
+            'border-transparent ring-1 ring-text-primary ring-offset-2 ring-offset-background-default';
+        } else if (isRead) {
+          stateClass = 'border-transparent bg-accent-bacon-default';
+        } else if (isFreeze) {
+          stateClass =
+            'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-border-subtlest-tertiary';
+        }
         return (
           <div
             key={date.getTime()}
             className={classNames(
-              'relative flex size-5 items-center justify-center place-self-center rounded-full border',
-              isRead
-                ? 'border-transparent bg-accent-bacon-default'
-                : 'border-border-subtlest-tertiary',
-              isFreeze &&
-                'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-border-subtlest-tertiary',
-              isToday &&
-                'ring-1 ring-text-primary ring-offset-1 ring-offset-background-default',
+              'relative flex size-4 items-center justify-center place-self-center rounded-full border',
+              stateClass,
             )}
           >
             {isRead && (
               <ReadingStreakIcon
                 secondary
-                className="size-3.5 text-background-default"
+                className={classNames(
+                  'size-3',
+                  isToday
+                    ? 'text-accent-bacon-default'
+                    : 'text-background-default',
+                )}
               />
             )}
           </div>
