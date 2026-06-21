@@ -324,7 +324,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
           fall back to the plain type icon. */}
-      <div className="flex w-10 shrink-0 items-center justify-start self-start">
+      <div className="mt-1 flex w-10 shrink-0 items-center justify-start self-start">
         <div className="relative flex items-center">
           {hasAvatar ? avatarContent : leadIcon}
           {showBadge && filteredAvatars.length === 1 && (
@@ -396,7 +396,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           data-testid="postImage"
           loading="lazy"
           type={ImageType.Post}
-          className="mr-2 size-12 shrink-0 self-start rounded-12 object-cover"
+          className="mr-2 mt-1 size-12 shrink-0 self-start rounded-12 object-cover"
           src={attachment.image}
           alt={`Cover preview of: ${attachment.title}`}
         />
