@@ -17,8 +17,6 @@ import {
   notificationTypeTheme,
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { ProfilePictureGroup } from '../ProfilePictureGroup';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -162,7 +160,6 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     attachments,
     onClick,
     targetUrl,
-    numTotalAvatars,
     referenceId,
     createdAt,
   } = props;
@@ -183,37 +180,16 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     return null;
   }
 
-  const isAvatarGroup = [
-    NotificationType.CollectionUpdated,
-    NotificationType.ArticleUpvoteMilestone,
-    NotificationType.CommentUpvoteMilestone,
-    NotificationType.WarmIntro,
-  ].includes(type);
+  // One primary avatar keeps every row's lead a fixed width, so titles line up
+  // and multiple avatars never overflow onto the text. The count/context
+  // ("3 upvotes", "submitted for review") lives in the title, and the colored
+  // badge conveys the type.
+  const [primaryAvatar] = filteredAvatars;
+  const avatarContent = primaryAvatar ? (
+    <NotificationItemAvatar className="z-1" {...primaryAvatar} />
+  ) : null;
 
-  const avatarContent = isAvatarGroup ? (
-    <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
-      {filteredAvatars.map((avatar) => (
-        <ProfilePicture
-          key={avatar.referenceId}
-          rounded="full"
-          size={ProfileImageSize.Medium}
-          user={{ image: avatar.image }}
-        />
-      ))}
-    </ProfilePictureGroup>
-  ) : (
-    <span className="flex flex-row gap-1">
-      {filteredAvatars.map((avatar) => (
-        <NotificationItemAvatar
-          key={avatar.referenceId}
-          className="z-1"
-          {...avatar}
-        />
-      ))}
-    </span>
-  );
-
-  const hasAvatar = filteredAvatars.length > 0;
+  const hasAvatar = !!avatarContent;
   const renderLink = onClick && isClickable;
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
@@ -275,12 +251,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
           fall back to the plain type icon. */}
-      <div
-        className={classNames(
-          'relative flex shrink-0 items-center justify-center',
-          !isAvatarGroup && 'w-10',
-        )}
-      >
+      <div className="relative flex w-10 shrink-0 items-center justify-center">
         {hasAvatar ? (
           <>
             {avatarContent}

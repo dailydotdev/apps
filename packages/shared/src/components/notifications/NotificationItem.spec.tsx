@@ -113,18 +113,23 @@ describe('notification avatars', () => {
 
   it('should display the avatar of the user', async () => {
     const [, user] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    // Only the primary (first) avatar is shown, so render the user as the
+    // single avatar to verify user avatars render.
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[user]} />,
+    );
     const img = await screen.findByAltText(`${user.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', user.image);
   });
 
   it('should not display anything if the type is unknown', async () => {
+    const [source] = sampleNotificationAvatars;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const notif = { ...sampleNotification } as any;
-    notif.avatars[1].type = 'Test';
-    const [, user] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...notif} />);
-    const img = screen.queryByAltText(`${user.referenceId}'s profile`);
+    const unknownAvatar = { ...source, type: 'Test' } as any;
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[unknownAvatar]} />,
+    );
+    const img = screen.queryByAltText(`${source.referenceId}'s profile`);
     expect(img).not.toBeInTheDocument();
   });
 });
