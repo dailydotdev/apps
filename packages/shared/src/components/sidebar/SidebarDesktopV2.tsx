@@ -1573,7 +1573,10 @@ export const SidebarDesktopV2 = ({
               </Tooltip>
             )}
 
-            <div aria-hidden className="h-px w-6 bg-border-subtlest-tertiary" />
+            <div
+              aria-hidden
+              className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+            />
 
             <div
               ref={navListRef}

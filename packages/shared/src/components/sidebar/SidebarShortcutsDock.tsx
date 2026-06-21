@@ -513,11 +513,14 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
         onDragLeave={() => setIsPageDropActive(false)}
         onDrop={onPageDrop}
       >
-        <div aria-hidden className="h-px w-6 bg-border-subtlest-tertiary" />
+        <div
+          aria-hidden
+          className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+        />
         <div
           ref={setDockRef}
           className={classNames(
-            'flex w-full flex-col items-center gap-1 rounded-12 py-1 transition-colors',
+            'flex w-full flex-col items-center gap-1 rounded-12 transition-colors',
             isPageDropActive &&
               'bg-surface-float ring-2 ring-accent-bacon-default',
           )}
