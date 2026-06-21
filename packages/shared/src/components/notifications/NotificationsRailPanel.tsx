@@ -1,40 +1,19 @@
-import type { ComponentType, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { Typography, TypographyType } from '../typography/Typography';
 import { webappUrl } from '../../lib/constants';
-import {
-  AddUserIcon,
-  AtIcon,
-  BellIcon,
-  DiscussIcon,
-  MegaphoneIcon,
-  SettingsIcon,
-  SquadIcon,
-  UpvoteIcon,
-} from '../icons';
-import type { IconProps } from '../Icon';
+import { BellIcon, SettingsIcon } from '../icons';
 import type { SidebarMenuItem } from '../sidebar/common';
 import { ListIcon, isSidebarItemActive } from '../sidebar/common';
 import { Section } from '../sidebar/Section';
+import type { NotificationFilterCategory } from './utils';
 import {
-  NotificationFilterCategory,
+  notificationCategoryBadge,
   notificationFilterCategoryLabel,
   notificationFilterCategoryList,
 } from './utils';
-
-const categoryIcon: Record<
-  NotificationFilterCategory,
-  ComponentType<IconProps>
-> = {
-  [NotificationFilterCategory.Upvotes]: UpvoteIcon,
-  [NotificationFilterCategory.Mentions]: AtIcon,
-  [NotificationFilterCategory.Comments]: DiscussIcon,
-  [NotificationFilterCategory.Followers]: AddUserIcon,
-  [NotificationFilterCategory.Squads]: SquadIcon,
-  [NotificationFilterCategory.Updates]: MegaphoneIcon,
-};
 
 // Compact menu in the rail / v2 context panel. Lists the notification type
 // filters (driven by the `?type=` query param on the notifications page) plus
@@ -86,7 +65,7 @@ export const NotificationsRailPanel = (): ReactElement => {
 
     const categoryItems: SidebarMenuItem[] = notificationFilterCategoryList.map(
       (category) => {
-        const Icon = categoryIcon[category];
+        const { Icon } = notificationCategoryBadge[category];
         return {
           title: notificationFilterCategoryLabel[category],
           active: isListPage && activeType === category,
