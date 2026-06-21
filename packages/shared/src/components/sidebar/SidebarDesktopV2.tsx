@@ -738,11 +738,10 @@ export const SidebarDesktopV2 = ({
     return [...known, ...missing];
   }, [reorderableCategories, storedRailOrder]);
 
-  // Fold the tail of the order into a 3-dots "More" dropdown when the rail is
-  // too short to show every tab. New post is fixed (costs a slot when present);
-  // the "More" button itself costs a slot once anything folds.
-  const newPostSlots = isLoggedIn ? 1 : 0;
-  const slotsForTabs = Math.max(0, maxNavSlots - newPostSlots);
+  // Fold the tail of the order into a 3-dots "More" dropdown when the nav list
+  // is too short to show every tab. (New post / logo / avatar live outside this
+  // list.) The "More" button itself costs a slot once anything folds.
+  const slotsForTabs = maxNavSlots;
   const isNavOverflowing = railOrder.length > slotsForTabs;
   const visibleCount = isNavOverflowing
     ? Math.max(0, slotsForTabs - 1)
@@ -1554,6 +1553,33 @@ export const SidebarDesktopV2 = ({
             </button>
           </Tooltip>
 
+          {isLoggedIn && (
+            <Tooltip
+              side="right"
+              content="New post"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <Button
+                id="sidebar-create-post"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+                icon={<NewPostIcon />}
+                aria-label="New post"
+                aria-controls="sidebar-context-panel"
+                data-sidebar-preview="create"
+                onMouseEnter={() => commitPreview('create')}
+                onMouseLeave={(event: React.MouseEvent) =>
+                  handlePreviewLeave('create', event)
+                }
+                onFocus={() => setIsCreateHovered(true)}
+                onBlur={() => setIsCreateHovered(false)}
+                onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                className="!size-9 !rounded-12 [&_svg]:!size-6"
+              />
+            </Tooltip>
+          )}
+
           <div
             aria-hidden
             className="my-2 h-px w-6 bg-border-subtlest-quaternary"
@@ -1601,33 +1627,6 @@ export const SidebarDesktopV2 = ({
                 ))}
               </SortableContext>
             </DndContext>
-
-            {isLoggedIn && (
-              <Tooltip
-                side="right"
-                content="New post"
-                collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-              >
-                <Button
-                  id="sidebar-create-post"
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                  icon={<NewPostIcon />}
-                  aria-label="New post"
-                  aria-controls="sidebar-context-panel"
-                  data-sidebar-preview="create"
-                  onMouseEnter={() => commitPreview('create')}
-                  onMouseLeave={(event: React.MouseEvent) =>
-                    handlePreviewLeave('create', event)
-                  }
-                  onFocus={() => setIsCreateHovered(true)}
-                  onBlur={() => setIsCreateHovered(false)}
-                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                  className="mt-2 !size-9 !rounded-12 [&_svg]:!size-6"
-                />
-              </Tooltip>
-            )}
 
             {isNavOverflowing && (
               <RailHoverCard label="More" panel={renderMorePanel()}>
