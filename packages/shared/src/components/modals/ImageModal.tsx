@@ -78,7 +78,7 @@ export default function ImageModal({
       <img
         src={src}
         alt={alt}
-        className="relative max-h-full max-w-full rounded-16 object-contain"
+        className="relative max-h-full max-w-full animate-image-zoom-in rounded-16 object-contain"
       />
       {/* Pinned to the screen corner (not the image) so a busy image can't
           camouflage it. Primary (solid) variant stays visible over the dark

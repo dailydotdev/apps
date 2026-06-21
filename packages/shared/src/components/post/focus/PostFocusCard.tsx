@@ -412,7 +412,7 @@ export const PostFocusCard = ({
                 <button
                   type="button"
                   aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-pointer overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                   onClick={() =>
                     openModal({
                       type: LazyModal.ImageView,
