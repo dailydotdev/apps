@@ -22,8 +22,13 @@ import { plusUrl, settingsUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
 import Link from '../../utilities/Link';
-import { ProfileMenuHeader } from '../../ProfileMenu/ProfileMenuHeader';
-import { ProfileImageSize } from '../../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { PlusUser } from '../../PlusUser';
 import { SidebarProfileStats } from '../SidebarProfileStats';
 import { UpgradeToPlus } from '../../UpgradeToPlus';
 import { ButtonSize } from '../../buttons/Button';
@@ -139,14 +144,33 @@ export const ProfilePanelSection = ({
           <a
             aria-current={isProfileActive ? 'page' : undefined}
             className={classNames(
-              '-mx-1 rounded-10 px-1',
+              '-mx-1 rounded-10 px-1 py-1',
               isProfileActive ? 'bg-surface-hover' : 'hover:bg-surface-hover',
             )}
           >
-            <ProfileMenuHeader
-              compact
-              profileImageSize={ProfileImageSize.Medium}
-            />
+            {/* No @handle here — clicking through to the profile page already
+                shows it. Just the avatar + name, centered against each other. */}
+            <div className="flex items-center gap-2">
+              <ProfilePicture
+                user={user}
+                nativeLazyLoading
+                eager
+                size={ProfileImageSize.Medium}
+                className="!rounded-10 border-background-default"
+              />
+              <div className="flex min-w-0 items-center gap-1">
+                <Typography
+                  type={TypographyType.Subhead}
+                  color={TypographyColor.Primary}
+                  bold
+                  truncate
+                  className="min-w-0"
+                >
+                  {user.name}
+                </Typography>
+                {isPlus && <PlusUser withText={false} />}
+              </div>
+            </div>
           </a>
         </Link>
         <SidebarProfileStats />
