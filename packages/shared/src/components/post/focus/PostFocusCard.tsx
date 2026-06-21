@@ -19,6 +19,8 @@ import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
 import { EarthIcon } from '../../icons';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
@@ -43,6 +45,7 @@ import type { UserShortProfile } from '../../../lib/user';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
+import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -231,6 +234,7 @@ export const PostFocusCard = ({
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
+  const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
@@ -268,9 +272,8 @@ export const PostFocusCard = ({
     return () => window.removeEventListener('blur', onWindowBlur);
   }, [isVideoType, isVideoExpanded]);
 
-  // Shared by the cover image and the Read button so both honor the reader
-  // gate (open the reader inside daily.dev / install nudge) before falling back
-  // to opening the external article.
+  // Honors the reader gate (open the reader inside daily.dev / install nudge)
+  // before falling back to opening the external article.
   const handleReadClick = (event: React.MouseEvent) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -287,8 +290,9 @@ export const PostFocusCard = ({
     focusCommentRef.current();
   };
 
-  // Rendered in the header on tablet+ (next to Follow) but moved below the
-  // title on mobile, where the header row is too tight to hold both.
+  // Rendered in the title column, directly under the title, so it stays close
+  // to the title regardless of the cover image height. The engagement bar lives
+  // further down by the comment composer where the reader's cursor rests.
   const renderReadButton = (className: string): ReactElement | null =>
     readHref && !isInternalReadType(post) ? (
       <Button
@@ -347,7 +351,13 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            {renderReadButton('ml-auto hidden shrink-0 tablet:flex')}
+            <div className="ml-auto shrink-0">
+              <PostMenuOptions
+                post={post}
+                origin={origin}
+                buttonSize={ButtonSize.Medium}
+              />
+            </div>
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
@@ -392,10 +402,11 @@ export const PostFocusCard = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* Title and image are top-aligned columns. The below-title read
-                button lives in the SAME column as the title (tight gap) so it
-                sits right under it regardless of the image height; from tablet
-                (656px) up the button moves to the top row and this one hides. */}
+            {/* Title and image are top-aligned columns. The cover image opens a
+                lightbox rather than navigating away. The read button lives in
+                the title column (right under the title) so it hugs the title
+                regardless of the image height — a short title next to a tall
+                image keeps the button close instead of dragging it down. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
@@ -410,16 +421,25 @@ export const PostFocusCard = ({
                 >
                   {title}
                 </h1>
-                {renderReadButton('w-fit tablet:hidden')}
+                {renderReadButton('w-fit')}
               </div>
               {!isVideoType && article.image && (
-                <a
-                  className="block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  href={readHref}
-                  onClick={handleReadClick}
-                  rel="noopener"
-                  target="_blank"
-                  title="Go to post"
+                <button
+                  type="button"
+                  aria-label="View cover image"
+                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  onClick={(event) => {
+                    const { top, left, width, height } =
+                      event.currentTarget.getBoundingClientRect();
+                    openModal({
+                      type: LazyModal.ImageView,
+                      props: {
+                        src: article.image as string,
+                        alt: 'Post cover image',
+                        originRect: { top, left, width, height },
+                      },
+                    });
+                  }}
                 >
                   <LazyImage
                     eager
@@ -431,18 +451,10 @@ export const PostFocusCard = ({
                     imgAlt="Post cover image"
                     imgSrc={article.image}
                   />
-                </a>
+                </button>
               )}
             </div>
           </div>
-
-          <FocusCardActionBar
-            post={post}
-            origin={origin}
-            onComment={scrollToComment}
-            onCopyLinkClick={onCopyPostLink}
-            onClose={onClose}
-          />
 
           <PostMetadata
             className="!typo-callout"
@@ -519,6 +531,10 @@ export const PostFocusCard = ({
             post={post}
             onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
             onCommentsClick={scrollToComment}
+            // Spacing in this column is governed by its `gap-4`; drop the stats
+            // row's own bottom margin so the gap above the action bar matches
+            // the gap below it.
+            className="!mb-0"
           />
 
           {isCollection && <CollectionSources post={article} />}
@@ -530,6 +546,17 @@ export const PostFocusCard = ({
           )}
 
           <PostSidebarAdWidget postId={post.id} variant="inline" />
+
+          <FocusCardActionBar
+            post={post}
+            origin={origin}
+            onComment={scrollToComment}
+            onCopyLinkClick={onCopyPostLink}
+            onClose={onClose}
+            // Tighten the gap to the stats row above (the column's gap-4 alone
+            // read as too large here).
+            className="-mt-2"
+          />
 
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel
