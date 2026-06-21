@@ -105,6 +105,7 @@ const allDefs: Array<Partial<NotificationItemProps>> = [
     icon: NotificationIconType.Comment,
     title: '<b>Tsahi Matsliah</b> mentioned you in a post',
     avatars: [userAvatar('tsahi', 'Tsahi')],
+    attachments: [postAttachment('mention1', 'How we cut build times in half')],
     createdAt: hoursAgo(5),
   },
   {
@@ -113,6 +114,9 @@ const allDefs: Array<Partial<NotificationItemProps>> = [
     title: '<b>Tsahi Matsliah</b> mentioned you in a comment',
     description: 'Hey @you, what do you think about this approach?',
     avatars: [userAvatar('tsahi', 'Tsahi')],
+    attachments: [
+      postAttachment('mention2', 'The state of frontend frameworks in 2026'),
+    ],
     createdAt: hoursAgo(6),
   },
   // Reactions / upvotes (green badge) — multi-avatar stacks

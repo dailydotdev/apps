@@ -269,20 +269,22 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const timeText = createdAt ? publishTimeRelativeShort(createdAt) : '';
   const fullDate = createdAt ? getFullNotificationDate(createdAt) : '';
 
-  // Subtitle = the comment when there is one, otherwise the referenced post's
-  // title (so "mentioned you in a post" etc. show what post it was). Either is
-  // hidden when it just repeats the headline, so we never show the same text
-  // twice (e.g. source-post rows whose title already is the post title).
+  // Subtitle can carry two things: the comment (what was said) AND the title
+  // of the referenced post (which article/post it's about), so a mention or
+  // comment makes clear where it happened. Each is hidden when it just repeats
+  // the headline or the other, so we never show the same text twice (e.g.
+  // source-post rows whose title already is the post title).
   const normalize = (html: string) =>
     stripHtmlTags(html).replace(/\s+/g, ' ').trim().toLowerCase();
   const titleNorm = normalize(memoizedTitle);
-  const showDescription =
-    !!description && normalize(memoizedDescription) !== titleNorm;
+  const descriptionNorm = description ? normalize(memoizedDescription) : '';
+  const showDescription = !!description && descriptionNorm !== titleNorm;
   const attachmentTitle = attachment?.title;
+  const attachmentTitleNorm = attachmentTitle ? normalize(attachmentTitle) : '';
   const showAttachmentTitle =
-    !showDescription &&
     !!attachmentTitle &&
-    normalize(attachmentTitle) !== titleNorm;
+    attachmentTitleNorm !== titleNorm &&
+    attachmentTitleNorm !== descriptionNorm;
 
   return (
     <div
@@ -337,8 +339,8 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         </div>
       </div>
 
-      {/* Bold headline + (only when it's a real comment) a muted snippet. The
-          post title is never repeated here — the thumbnail represents the post. */}
+      {/* Bold headline, then the comment (if any), then the referenced post's
+          title so it's clear which post/article the notification is about. */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
         <span
           className="multi-truncate line-clamp-2 break-words font-bold text-text-primary typo-callout [&_p]:m-0"
@@ -355,7 +357,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           />
         )}
         {showAttachmentTitle && (
-          <div className="multi-truncate line-clamp-2 break-words text-text-tertiary typo-footnote">
+          <div className="multi-truncate mt-0.5 line-clamp-1 break-words text-text-quaternary typo-footnote">
             {attachmentTitle}
           </div>
         )}
