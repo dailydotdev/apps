@@ -388,22 +388,25 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Square post cover on the right, top-aligned with the title (same top
-          padding) so it never drifts below the headline on tall rows; on a
-          two-line row that reads as centered. Sits left of the menu with a gap. */}
+      {/* Square post cover, top-aligned with the title (so it never drifts
+          below the headline on tall rows; on a two-line row it reads centered).
+          Sits to the left of the menu, separated by the row gap. */}
       {attachment?.image && (
         <Image
           data-testid="postImage"
           loading="lazy"
           type={ImageType.Post}
-          className="mr-2 mt-1 size-12 shrink-0 self-start rounded-12 object-cover"
+          className="mt-1 size-12 shrink-0 self-start rounded-12 object-cover"
           src={attachment.image}
           alt={`Cover preview of: ${attachment.title}`}
         />
       )}
-      {/* Small rotated kebab in the title row, top-right (flat Float button) */}
+      {/* Rotated flat kebab, right-most in the title row. In-flow (not floating)
+          so it reserves its own space and never sits on top of the cover; the
+          row gap keeps a gap between them. Hidden until hover on desktop,
+          shown by default on mobile. */}
       {hasOptions && (
-        <span className="absolute right-2 top-2.5 z-1">
+        <span className="relative z-1 shrink-0 self-start">
           <NotificationOptionsButton notification={{ type, referenceId }} />
         </span>
       )}
