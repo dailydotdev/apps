@@ -647,12 +647,13 @@ export const SidebarDesktopV2 = ({
     return () => observer.disconnect();
   }, [isCompact]);
 
-  // The reorderable rail tabs (each opens a panel). Order is user-customizable
-  // via drag-and-drop and persisted; New post / logo / avatar / settings are
-  // fixed and live outside this list.
+  // The reorderable rail tabs (each opens a panel), including the avatar/"You"
+  // tab so it can be moved too. Order is user-customizable via drag-and-drop and
+  // persisted; logo / New post / settings are fixed and live outside this list.
   const reorderableCategories = useMemo(
     () =>
       [
+        isLoggedIn ? SidebarCategory.Profile : null,
         SidebarCategory.Main,
         SidebarCategory.Squads,
         isLoggedIn ? SidebarCategory.Notifications : null,
@@ -664,13 +665,14 @@ export const SidebarDesktopV2 = ({
     SidebarCategoryId[]
   >('sidebar_rail_order', reorderableCategories);
   // Reconcile the saved order against the valid set: drop unknown/stale ids and
-  // append any newly-added category that isn't in the stored order yet.
+  // surface any newly-added category that isn't in the stored order yet at the
+  // front (e.g. the avatar tab for users who saved an order before it existed).
   const railOrder = useMemo(() => {
     const known = (storedRailOrder ?? []).filter((id) =>
       reorderableCategories.includes(id),
     );
     const missing = reorderableCategories.filter((id) => !known.includes(id));
-    return [...known, ...missing];
+    return [...missing, ...known];
   }, [reorderableCategories, storedRailOrder]);
 
   // Fold the tail of the order into a 3-dots "More" dropdown when the nav list
@@ -1332,6 +1334,25 @@ export const SidebarDesktopV2 = ({
   // category (it renders the bell with its unread badge); everything else goes
   // through renderCategoryTab.
   const renderRailTab = (id: SidebarCategoryId): ReactElement => {
+    if (id === SidebarCategory.Profile) {
+      return (
+        <SidebarProfileButton
+          isSelected={selectedCategory === SidebarCategory.Profile}
+          isPreviewing={
+            selectedCategory !== SidebarCategory.Profile &&
+            activeCategory === SidebarCategory.Profile
+          }
+          isCompact={isCompact}
+          isExpanded={isExpanded}
+          panel={renderCategorySection(SidebarCategory.Profile)}
+          onSelect={onSelectProfile}
+          onPreview={() => commitPreview(SidebarCategory.Profile)}
+          onPreviewLeave={(event) =>
+            handlePreviewLeave(SidebarCategory.Profile, event)
+          }
+        />
+      );
+    }
     if (id === SidebarCategory.Notifications) {
       return (
         <RailHoverCard
@@ -1531,24 +1552,6 @@ export const SidebarDesktopV2 = ({
             aria-hidden
             className="my-4 h-px w-6 bg-border-subtlest-tertiary"
           />
-
-          {isLoggedIn && (
-            <SidebarProfileButton
-              isSelected={selectedCategory === SidebarCategory.Profile}
-              isPreviewing={
-                selectedCategory !== SidebarCategory.Profile &&
-                activeCategory === SidebarCategory.Profile
-              }
-              isCompact={isCompact}
-              isExpanded={isExpanded}
-              panel={renderCategorySection(SidebarCategory.Profile)}
-              onSelect={onSelectProfile}
-              onPreview={() => commitPreview(SidebarCategory.Profile)}
-              onPreviewLeave={(event) =>
-                handlePreviewLeave(SidebarCategory.Profile, event)
-              }
-            />
-          )}
 
           <div
             ref={navListRef}
