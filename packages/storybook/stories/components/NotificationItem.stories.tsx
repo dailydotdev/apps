@@ -62,28 +62,33 @@ const base: Partial<NotificationItemProps> = {
   targetUrl: '/post/123',
 };
 
-// ---- Individual cases (one per notification shape) ------------------------
+// ---- Individual cases ------------------------------------------------------
+
+export const SingleUserAvatar: Story = {
+  args: {
+    ...base,
+    type: NotificationType.CommentReply,
+    icon: NotificationIconType.Comment,
+    title: '<b>Ido Shamun</b> replied to your comment',
+    description: 'Looks great — shipping it!',
+    avatars: [userAvatar('ido', 'Ido')],
+    createdAt: new Date(Date.now() - 2 * 3600_000),
+  },
+};
 
 export const SourcePost: Story = {
-  name: 'Source post (no badge, with thumbnail)',
   args: {
     ...base,
     type: NotificationType.SourcePostAdded,
     icon: NotificationIconType.Bell,
     title: 'New post in <b>Agentic Digest</b>',
     avatars: [sourceAvatar('agentic', 'Agentic Digest')],
-    attachments: [
-      postAttachment(
-        'agentic',
-        'MAI-Code-1-Flash beats Claude Haiku 4.5 on SWE-Bench, Gemini CLI quietly replaced',
-      ),
-    ],
+    attachments: [postAttachment('agentic', 'MAI-Code-1-Flash beats Claude Haiku')],
     createdAt: new Date(Date.now() - 2 * 3600_000),
   },
 };
 
-export const Briefing: Story = {
-  name: 'Briefing (icon only)',
+export const IconOnly: Story = {
   args: {
     ...base,
     type: NotificationType.BriefingReady,
@@ -93,32 +98,8 @@ export const Briefing: Story = {
   },
 };
 
-export const Award: Story = {
-  name: 'Award (Cores)',
-  args: {
-    ...base,
-    type: NotificationType.UserReceivedAward,
-    icon: NotificationIconType.Star,
-    title: '<b>keshavashiya</b> awarded you +7 Cores for being awesome!',
-    avatars: [userAvatar('keshav', 'keshavashiya')],
-    createdAt: new Date(Date.now() - 3 * 3600_000),
-  },
-};
-
-export const SquadPostForReview: Story = {
-  name: 'Squad post submitted (2 avatars + badge)',
-  args: {
-    ...base,
-    type: NotificationType.SourcePostSubmitted,
-    icon: NotificationIconType.Bell,
-    title: '<b>Tobias Wolf</b> submitted a post in <b>DevOps</b> for review',
-    avatars: [sourceAvatar('devops', 'DevOps'), userAvatar('tobias', 'Tobias')],
-    createdAt: new Date(Date.now() - 16 * 3600_000),
-  },
-};
-
-export const UpvoteMilestone: Story = {
-  name: 'Upvote milestone (avatar group + badge)',
+export const AvatarStackThree: Story = {
+  name: 'Avatar stack (3 upvoters)',
   args: {
     ...base,
     type: NotificationType.ArticleUpvoteMilestone,
@@ -135,80 +116,20 @@ export const UpvoteMilestone: Story = {
   },
 };
 
-export const CommentReply: Story = {
-  name: 'Comment reply (badge + comment snippet)',
+export const AvatarStackOverflow: Story = {
+  name: 'Avatar stack (12 upvoters → +10)',
   args: {
     ...base,
-    type: NotificationType.CommentReply,
-    icon: NotificationIconType.Comment,
-    title:
-      '<b>Ante Barić</b> replied to your comment on <b>daily.dev Engineering</b>.',
-    description: '@idoshamun this is the GIF reply preview text',
-    avatars: [userAvatar('ante', 'Ante')],
-    createdAt: new Date(Date.now() - 26 * 3600_000),
-  },
-};
-
-export const Mention: Story = {
-  args: {
-    ...base,
-    type: NotificationType.CommentMention,
-    icon: NotificationIconType.Comment,
-    title: '<b>Ido Shamun</b> mentioned you in a comment',
-    description: 'Hey @you, what do you think about this approach?',
-    avatars: [userAvatar('ido', 'Ido')],
-    createdAt: new Date(Date.now() - 5 * 3600_000),
-  },
-};
-
-export const Follow: Story = {
-  args: {
-    ...base,
-    type: NotificationType.UserFollow,
-    icon: NotificationIconType.User,
-    title: '<b>Nimrod Kramer</b> started following you',
-    avatars: [userAvatar('nimrod', 'Nimrod')],
-    createdAt: new Date(Date.now() - 8 * 3600_000),
-  },
-};
-
-export const PostWithWideImage: Story = {
-  name: 'New post with non-square cover',
-  args: {
-    ...base,
-    type: NotificationType.SourcePostAdded,
-    icon: NotificationIconType.Bell,
-    title: 'New post in <b>Netflix TechBlog</b>',
-    avatars: [sourceAvatar('netflix', 'Netflix TechBlog')],
-    attachments: [postAttachment('netflix-wide', 'Cassandra Analytics at scale')],
-    createdAt: new Date(Date.now() - 23 * 3600_000),
-  },
-};
-
-export const LongTitle: Story = {
-  args: {
-    ...base,
-    type: NotificationType.SourcePostAdded,
-    icon: NotificationIconType.Bell,
-    title:
-      'New post in <b>Security Weekly</b>: Laravel-Lang supply chain attack rewrites all tags across three Composer packages to steal CI secrets',
-    avatars: [sourceAvatar('sec', 'Security Weekly')],
-    attachments: [postAttachment('sec', 'Laravel-Lang supply chain attack')],
-    createdAt: new Date(Date.now() - 30 * 3600_000),
-  },
-};
-
-export const LongComment: Story = {
-  name: 'Long comment (clamps at 3 lines)',
-  args: {
-    ...base,
-    type: NotificationType.CommentReply,
-    icon: NotificationIconType.Comment,
-    title: '<b>Lee Solway</b> replied to your comment',
-    description:
-      'This is a much longer comment so we can verify the snippet wraps across up to three full lines and only then truncates with an ellipsis, rather than being cut off after a single line which made it impossible to read on mobile before this change.',
-    avatars: [userAvatar('lee', 'Lee')],
-    createdAt: new Date(Date.now() - 40 * 3600_000),
+    type: NotificationType.ArticleUpvoteMilestone,
+    icon: NotificationIconType.Upvote,
+    title: '12 upvotes! You are on fire 🔥',
+    numTotalAvatars: 12,
+    avatars: [
+      userAvatar('o1', 'One'),
+      userAvatar('o2', 'Two'),
+      userAvatar('o3', 'Three'),
+    ],
+    createdAt: new Date(Date.now() - 18 * 3600_000),
   },
 };
 
@@ -217,38 +138,176 @@ export const Unread: Story = {
     ...base,
     type: NotificationType.CommentReply,
     icon: NotificationIconType.Comment,
-    title: '<b>Ido Shamun</b> replied to your comment',
-    description: 'Looks great, shipping it!',
-    avatars: [userAvatar('ido', 'Ido')],
+    title: '<b>Ante Barić</b> replied to your comment',
+    description: 'Nice catch, fixing now.',
+    avatars: [userAvatar('ante', 'Ante')],
     isUnread: true,
     createdAt: new Date(Date.now() - 1 * 3600_000),
   },
 };
 
-// ---- Gallery: the whole feed together (best for checking alignment) -------
+// ---- Showcase: every shape in one continuous feed --------------------------
 
-const gallery: NotificationItemProps[] = [
-  SourcePost.args,
-  Briefing.args,
-  Award.args,
-  SquadPostForReview.args,
-  UpvoteMilestone.args,
-  CommentReply.args,
-  PostWithWideImage.args,
-  LongTitle.args,
-  LongComment.args,
-  Follow.args,
-].map((args, index) => ({
-  ...(args as NotificationItemProps),
-  referenceId: `gallery-${index}`,
-}));
+const showcaseDefs: Array<Partial<NotificationItemProps>> = [
+  // Comments (blue badge) — single user avatar
+  {
+    type: NotificationType.CommentReply,
+    icon: NotificationIconType.Comment,
+    title: '<b>Ido Shamun</b> replied to your comment',
+    description: 'Looks great — shipping it!',
+    avatars: [userAvatar('ido', 'Ido')],
+    createdAt: new Date(Date.now() - 1 * 3600_000),
+  },
+  {
+    type: NotificationType.ArticleNewComment,
+    icon: NotificationIconType.Comment,
+    title: '<b>Nimrod Kramer</b> commented on your post',
+    description:
+      'This is a much longer comment so we can confirm the snippet wraps to a maximum of three lines and then truncates with an ellipsis instead of being cut off after one line.',
+    avatars: [userAvatar('nimrod', 'Nimrod')],
+    attachments: [postAttachment('c1', 'The post being commented on')],
+    createdAt: new Date(Date.now() - 2 * 3600_000),
+  },
+  // Mentions (cabbage badge)
+  {
+    type: NotificationType.CommentMention,
+    icon: NotificationIconType.Comment,
+    title: '<b>Lee Solway</b> mentioned you in a comment',
+    description: 'Hey @you, what do you think about this approach?',
+    avatars: [userAvatar('lee', 'Lee')],
+    createdAt: new Date(Date.now() - 4 * 3600_000),
+  },
+  // Followers (onion badge) + follow button
+  {
+    type: NotificationType.UserFollow,
+    icon: NotificationIconType.User,
+    title: '<b>Tobias Wolf</b> started following you',
+    avatars: [userAvatar('tobias', 'Tobias')],
+    createdAt: new Date(Date.now() - 6 * 3600_000),
+  },
+  // Upvotes (green badge) — stack of 3
+  {
+    type: NotificationType.ArticleUpvoteMilestone,
+    icon: NotificationIconType.Upvote,
+    title: '3 upvotes! No bugs, just vibes ✨',
+    description: '@kkurko you gonna see Patchy here and there',
+    numTotalAvatars: 3,
+    avatars: [
+      userAvatar('a1', 'One'),
+      userAvatar('a2', 'Two'),
+      userAvatar('a3', 'Three'),
+    ],
+    createdAt: new Date(Date.now() - 16 * 3600_000),
+  },
+  // Upvotes — overflow +N
+  {
+    type: NotificationType.CommentUpvoteMilestone,
+    icon: NotificationIconType.Upvote,
+    title: '12 upvotes on your comment!',
+    numTotalAvatars: 12,
+    avatars: [
+      userAvatar('b1', 'One'),
+      userAvatar('b2', 'Two'),
+      userAvatar('b3', 'Three'),
+    ],
+    createdAt: new Date(Date.now() - 17 * 3600_000),
+  },
+  // Squads (cheese badge) — 2-avatar stack
+  {
+    type: NotificationType.SourcePostSubmitted,
+    icon: NotificationIconType.Bell,
+    title: '<b>Ankur Gupta</b> submitted a post in <b>WebDev</b> for review',
+    avatars: [sourceAvatar('webdev', 'WebDev'), userAvatar('ankur', 'Ankur')],
+    createdAt: new Date(Date.now() - 18 * 3600_000),
+  },
+  {
+    type: NotificationType.SquadMemberJoined,
+    icon: NotificationIconType.User,
+    title: '<b>GeekLuffy</b> joined <b>AI</b>',
+    avatars: [sourceAvatar('ai', 'AI'), userAvatar('luffy', 'Luffy')],
+    createdAt: new Date(Date.now() - 20 * 3600_000),
+  },
+  {
+    type: NotificationType.PromotedToAdmin,
+    icon: NotificationIconType.Star,
+    title: 'You were promoted to admin in <b>DevOps</b>',
+    avatars: [sourceAvatar('devops', 'DevOps')],
+    createdAt: new Date(Date.now() - 22 * 3600_000),
+  },
+  // Source posts (no badge) — single source avatar, with/without thumbnail
+  {
+    type: NotificationType.SourcePostAdded,
+    icon: NotificationIconType.Bell,
+    title: 'New post in <b>Agentic Digest</b>',
+    avatars: [sourceAvatar('agentic', 'Agentic Digest')],
+    attachments: [
+      postAttachment('p1', 'MAI-Code-1-Flash beats Claude Haiku 4.5 on SWE-Bench'),
+    ],
+    createdAt: new Date(Date.now() - 23 * 3600_000),
+  },
+  {
+    type: NotificationType.SourcePostAdded,
+    icon: NotificationIconType.Bell,
+    title:
+      'New post in <b>Security Weekly</b>: Laravel-Lang supply chain attack rewrites all tags across three Composer packages to steal CI secrets',
+    avatars: [sourceAvatar('sec', 'Security Weekly')],
+    attachments: [postAttachment('p2', 'Laravel-Lang supply chain attack')],
+    createdAt: new Date(Date.now() - 25 * 3600_000),
+  },
+  {
+    type: NotificationType.SourcePostAdded,
+    icon: NotificationIconType.Bell,
+    title: 'New post in <b>Netflix TechBlog</b> (no cover image)',
+    avatars: [sourceAvatar('netflix', 'Netflix TechBlog')],
+    createdAt: new Date(Date.now() - 26 * 3600_000),
+  },
+  // Updates (no badge) — icon only, various icons
+  {
+    type: NotificationType.BriefingReady,
+    icon: NotificationIconType.DailyDev,
+    title: 'Your presidential briefing is ready',
+    createdAt: new Date(Date.now() - 27 * 3600_000),
+  },
+  {
+    type: NotificationType.StreakReminder,
+    icon: NotificationIconType.Streak,
+    title: 'Your 7-day streak is about to expire',
+    description: 'Read a post today to keep it alive',
+    createdAt: new Date(Date.now() - 28 * 3600_000),
+  },
+  {
+    type: NotificationType.UserReceivedAward,
+    icon: NotificationIconType.Star,
+    title: '<b>keshavashiya</b> awarded you +7 Cores for being awesome!',
+    avatars: [userAvatar('keshav', 'keshavashiya')],
+    createdAt: new Date(Date.now() - 30 * 3600_000),
+  },
+  {
+    type: NotificationType.Announcements,
+    icon: NotificationIconType.DailyDev,
+    title: 'A big new feature just landed on daily.dev',
+    createdAt: new Date(Date.now() - 2 * 86_400_000),
+  },
+];
 
-export const Gallery: Story = {
-  name: 'Gallery (full feed)',
+const showcase: NotificationItemProps[] = showcaseDefs.map((def, index) => ({
+  onClick: fn(),
+  targetUrl: '/post/123',
+  referenceId: `showcase-${index}`,
+  ...def,
+})) as NotificationItemProps[];
+
+export const Showcase: Story = {
+  name: 'Showcase (all types — alignment check)',
+  parameters: { layout: 'fullscreen' },
   render: () => (
     <ExtensionProviders>
-      <div className="w-full max-w-[40rem] bg-background-default">
-        {gallery.map((notification) => (
+      <div className="relative w-full max-w-[40rem] bg-background-default">
+        {/* Alignment guides: titles should start on the left line, dates
+            should end on the right line, across every row. */}
+        <div className="pointer-events-none absolute inset-y-0 left-[76px] z-3 w-px bg-accent-cabbage-default opacity-40" />
+        <div className="pointer-events-none absolute inset-y-0 right-4 z-3 w-px bg-accent-cabbage-default opacity-40" />
+        {showcase.map((notification) => (
           <NotificationItem key={notification.referenceId} {...notification} />
         ))}
       </div>
