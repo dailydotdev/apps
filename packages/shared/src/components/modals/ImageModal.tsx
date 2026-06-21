@@ -54,8 +54,8 @@ export default function ImageModal({
   const hasPlayedRef = useRef(false);
 
   // FLIP: render the image at its final centered size, but start it transformed
-  // to sit exactly over the clicked thumbnail, then animate the transform away
-  // so it visually grows/moves from the thumbnail into the full view.
+  // to sit over the clicked thumbnail, then animate the transform away so it
+  // visually grows from the thumbnail into the full view.
   const playFlip = () => {
     const img = imgRef.current;
     if (!originRect || !img || hasPlayedRef.current) {
@@ -67,20 +67,41 @@ export default function ImageModal({
       return;
     }
     hasPlayedRef.current = true;
-    const dx = originRect.left - final.left;
-    const dy = originRect.top - final.top;
-    const sx = originRect.width / final.width;
-    const sy = originRect.height / final.height;
-    img.style.transformOrigin = 'top left';
+
+    // A single uniform scale (not independent sx/sy) so the image keeps its
+    // aspect ratio and never warps mid-flight. `min` contains the start frame
+    // within the thumbnail's footprint, so it reads as lifting off from there.
+    const scale = Math.min(
+      originRect.width / final.width,
+      originRect.height / final.height,
+    );
+    // Translate centers together (transform-origin is the center too), so the
+    // image grows out of where the thumbnail sat rather than from a corner.
+    const dx =
+      originRect.left + originRect.width / 2 - (final.left + final.width / 2);
+    const dy =
+      originRect.top + originRect.height / 2 - (final.top + final.height / 2);
+    // Transform scales the corner radius along with everything else, so a fixed
+    // radius would render near-square at the small start scale and then "snap"
+    // round. Pre-divide by the scale so the rendered radius stays a constant
+    // ~16px (rounded-16) for the whole animation; read the resting value off the
+    // element so it tracks the class instead of a hardcoded number.
+    const restRadius =
+      parseFloat(getComputedStyle(img).borderTopLeftRadius) || 16;
+
+    img.style.transformOrigin = 'center center';
     img.style.transition = 'none';
-    img.style.transform = `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+    img.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    img.style.borderRadius = `${restRadius / scale}px`;
     img.style.opacity = '1';
-    // Two frames: let the browser paint the start transform first, then
-    // transition to identity — doing both in one frame can coalesce and snap.
+    // Two frames: let the browser paint the start state first, then transition
+    // to identity — doing both in one frame can coalesce and snap.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        img.style.transition = 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)';
+        img.style.transition =
+          'transform 300ms cubic-bezier(0.16, 1, 0.3, 1), border-radius 300ms cubic-bezier(0.16, 1, 0.3, 1)';
         img.style.transform = 'none';
+        img.style.borderRadius = `${restRadius}px`;
       });
     });
   };
