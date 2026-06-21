@@ -203,16 +203,11 @@ export const FocusCardActionBar = ({
       <div
         ref={barRef}
         className={classNames(
-          'relative z-3 flex items-center justify-between gap-2 border-border-subtlest-tertiary',
-          // Mobile: a plain in-flow bar with a divider — the dedicated mobile
-          // floating bottom bar already provides the floating treatment there,
-          // so we don't duplicate it.
-          'bg-background-default px-1 py-2',
-          isPinned ? 'border-b' : 'border-t',
-          // Tablet and up: a floating pill matching the mobile post action bar
-          // style (MobilePostFloatingBar.v2) — translucent elevated surface,
-          // blur, soft shadow, full rounded border — sticky at both edges.
-          'tablet:sticky tablet:rounded-16 tablet:border tablet:bg-surface-float tablet:px-2 tablet:py-1 tablet:shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] tablet:backdrop-blur-[2.5rem]',
+          // Same floating-pill design on every resolution (incl. the
+          // translucent surface): rounded, blur, soft shadow, full border.
+          // Sticky from tablet up only — on mobile it stays in-flow, since the
+          // dedicated footer floating bar handles the pinned behavior there.
+          'relative z-3 flex items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky',
           stickyOffsetClassName,
           className,
         )}

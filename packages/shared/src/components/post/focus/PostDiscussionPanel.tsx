@@ -117,7 +117,7 @@ export const PostDiscussionPanel = ({
       type="button"
       aria-label="Add a comment"
       onClick={() => onCommentClick(Origin.StartDiscussion)}
-      className="group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
+      className="group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3 text-left transition-colors hover:border-border-subtlest-primary"
     >
       {triggerUser ? (
         <ProfilePicture
