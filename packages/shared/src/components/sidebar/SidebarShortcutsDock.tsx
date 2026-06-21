@@ -35,6 +35,7 @@ import {
   EyeIcon,
   HashtagIcon,
   JobIcon,
+  LinkIcon,
   MegaphoneIcon,
   PlusIcon,
   SquadIcon,
@@ -49,7 +50,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { isSidebarItemActive } from './common';
+import type { ShortcutDragData } from './common';
+import { SHORTCUT_DRAG_MIME, isSidebarItemActive } from './common';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
@@ -63,8 +65,8 @@ interface ShortcutDef {
   icon: ShortcutIcon;
 }
 
-// The catalog of pages a user can pin as a no-panel shortcut. Add new entries
-// here; order is the order they appear in the tray.
+// The catalog of pages a user can pin from the tray. Dragging an arbitrary
+// panel row in also resolves to one of these (by path) when it matches.
 export const SHORTCUT_CATALOG: ShortcutDef[] = [
   {
     id: 'explore',
@@ -160,18 +162,60 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
 
 const CATALOG_BY_ID = new Map(SHORTCUT_CATALOG.map((item) => [item.id, item]));
 
+// Strip origin/query so a panel row's path (which may be absolute or relative)
+// can be matched against a catalog entry.
+const normalizePath = (path: string): string =>
+  path
+    .replace(/^https?:\/\/[^/]+/, '')
+    .split('?')[0]
+    .split('#')[0] || '/';
+
+const CATALOG_BY_PATH = new Map(
+  SHORTCUT_CATALOG.map((item) => [normalizePath(item.path), item]),
+);
+
+// A stored shortcut is either a catalog id (string) or an arbitrary pinned page
+// ({title, path}) dragged in from a panel.
+type StoredShortcut = string | ShortcutDragData;
+
 const SHORTCUTS_KEY = 'sidebar_shortcuts';
 const DOCK_DROPPABLE_ID = 'sidebar-shortcuts-dock';
+
+const keyOf = (entry: StoredShortcut): string =>
+  typeof entry === 'string' ? entry : entry.path;
+
+interface ResolvedShortcut {
+  key: string;
+  label: string;
+  path: string;
+  icon: ShortcutIcon;
+}
+
+const resolveShortcut = (entry: StoredShortcut): ResolvedShortcut | null => {
+  if (typeof entry === 'string') {
+    const def = CATALOG_BY_ID.get(entry);
+    if (!def) {
+      return null;
+    }
+    return { key: def.id, label: def.label, path: def.path, icon: def.icon };
+  }
+  return {
+    key: entry.path,
+    label: entry.title,
+    path: entry.path,
+    icon: (a) => <LinkIcon secondary={a} size={IconSize.Small} aria-hidden />,
+  };
+};
 
 // Matches the Home/Search rail buttons exactly.
 const dockButtonClass =
   'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
 
 const SortableShortcut = ({
-  def,
+  shortcut,
   active,
 }: {
-  def: ShortcutDef;
+  shortcut: ResolvedShortcut;
   active: boolean;
 }): ReactElement => {
   const {
@@ -181,10 +225,10 @@ const SortableShortcut = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: def.id });
+  } = useSortable({ id: shortcut.key });
 
   return (
-    <Tooltip side="right" content={def.label} collisionPadding={4}>
+    <Tooltip side="right" content={shortcut.label} collisionPadding={4}>
       <div
         ref={setNodeRef}
         {...attributes}
@@ -192,20 +236,19 @@ const SortableShortcut = ({
         style={{ transform: CSS.Transform.toString(transform), transition }}
         className={classNames('touch-none', isDragging && 'opacity-40')}
       >
-        <Link href={def.path} passHref prefetch={false}>
+        <Link href={shortcut.path} passHref prefetch={false}>
           <a
-            href={def.path}
-            aria-label={def.label}
+            href={shortcut.path}
+            aria-label={shortcut.label}
             // Anchors are natively draggable, which hijacks dnd-kit's pointer
-            // drag (the link URL gets dragged instead) — disable it so reorder
-            // and drag-out-to-remove work.
+            // drag — disable it so reorder and drag-out-to-remove work.
             draggable={false}
             className={classNames(
               dockButtonClass,
               active && '!text-text-primary',
             )}
           >
-            {def.icon(active)}
+            {shortcut.icon(active)}
           </a>
         </Link>
       </div>
@@ -261,20 +304,33 @@ const TrayItem = ({
 };
 
 // A customizable "dock" of single-icon page shortcuts below the rail tabs.
-// Add by dragging from (or clicking) the tray, reorder by dragging, and remove
-// by dragging an icon off the rail (macOS-style) or toggling it off in the tray
-// — with an Undo toast. Persisted per-user.
+// Add from the tray (drag-from or tap), drag a panel row in to pin it, reorder
+// by dragging, and remove by dragging an icon off the rail — all with an Undo
+// toast. Persisted per-user.
 export const SidebarShortcutsDock = (): ReactElement | null => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
-  const [stored, setStored] = usePersistentContext<string[]>(SHORTCUTS_KEY, []);
-  const ids = useMemo(
-    () => (stored ?? []).filter((id) => CATALOG_BY_ID.has(id)),
+  const [stored, setStored] = usePersistentContext<StoredShortcut[]>(
+    SHORTCUTS_KEY,
+    [],
+  );
+  const items = useMemo(
+    () =>
+      (stored ?? []).filter((entry) =>
+        typeof entry === 'string' ? CATALOG_BY_ID.has(entry) : !!entry?.path,
+      ),
     [stored],
   );
+  const keys = useMemo(() => items.map(keyOf), [items]);
+  const pinnedPaths = useMemo(
+    () => new Set(items.map((entry) => normalizePath(keyOf(entry)))),
+    [items],
+  );
+
   const [trayOpen, setTrayOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
+  const [isPageDropActive, setIsPageDropActive] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -282,39 +338,59 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const { setNodeRef: setDockRef } = useDroppable({ id: DOCK_DROPPABLE_ID });
 
   const persist = useCallback(
-    (next: string[]) => {
+    (next: StoredShortcut[]) => {
       setStored(next).catch(() => undefined);
     },
     [setStored],
   );
 
-  const addShortcut = useCallback(
+  const addCatalog = useCallback(
     (id: string) => {
-      if (!CATALOG_BY_ID.has(id) || ids.includes(id)) {
+      if (!CATALOG_BY_ID.has(id) || keys.includes(id)) {
         return;
       }
-      persist([...ids, id]);
+      persist([...items, id]);
     },
-    [ids, persist],
+    [items, keys, persist],
   );
 
   const removeShortcut = useCallback(
-    (id: string) => {
-      if (!ids.includes(id)) {
+    (key: string) => {
+      const index = items.findIndex((entry) => keyOf(entry) === key);
+      if (index === -1) {
         return;
       }
-      const previous = ids;
-      persist(ids.filter((item) => item !== id));
-      displayToast(`${CATALOG_BY_ID.get(id)?.label ?? 'Shortcut'} removed`, {
+      const previous = items;
+      const label = resolveShortcut(items[index])?.label ?? 'Shortcut';
+      persist(items.filter((entry) => keyOf(entry) !== key));
+      displayToast(`${label} removed`, {
         action: { copy: 'Undo', onClick: () => persist(previous) },
       });
     },
-    [displayToast, ids, persist],
+    [displayToast, items, persist],
+  );
+
+  // Pin a page dragged in from a panel: resolve to a catalog entry by path when
+  // possible (so it gets the proper icon), else store it as an arbitrary page.
+  const pinPage = useCallback(
+    (payload: ShortcutDragData) => {
+      const normalized = normalizePath(payload.path);
+      if (pinnedPaths.has(normalized)) {
+        return;
+      }
+      const catalogDef = CATALOG_BY_PATH.get(normalized);
+      const entry: StoredShortcut = catalogDef
+        ? catalogDef.id
+        : { title: payload.title, path: payload.path };
+      persist([...items, entry]);
+      displayToast(`${catalogDef?.label ?? payload.title} pinned to sidebar`);
+    },
+    [displayToast, items, persist, pinnedPaths],
   );
 
   const isOverDock = (overId?: string | number | null): boolean =>
     overId === DOCK_DROPPABLE_ID ||
-    (typeof overId === 'string' && ids.includes(overId));
+    (typeof overId === 'string' && keys.includes(overId));
 
   const onDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -323,20 +399,20 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
 
   const onDragOver = (event: DragOverEvent) => {
     const id = event.active.id as string;
-    const fromDock = ids.includes(id);
+    const fromDock = keys.includes(id);
     setWillRemove(fromDock && !isOverDock(event.over?.id));
   };
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     const id = active.id as string;
-    const fromDock = ids.includes(id);
+    const fromDock = keys.includes(id);
     setActiveId(null);
     setWillRemove(false);
 
     if (!fromDock) {
       if (isOverDock(over?.id)) {
-        addShortcut(id);
+        addCatalog(id);
       }
       return;
     }
@@ -347,8 +423,8 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     }
 
     const overId = over?.id as string;
-    if (overId && overId !== id && ids.includes(overId)) {
-      persist(arrayMove(ids, ids.indexOf(id), ids.indexOf(overId)));
+    if (overId && overId !== id && keys.includes(overId)) {
+      persist(arrayMove(items, keys.indexOf(id), keys.indexOf(overId)));
     }
   };
 
@@ -357,7 +433,45 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     setWillRemove(false);
   };
 
-  const activeDef = activeId ? CATALOG_BY_ID.get(activeId) : null;
+  // Native drag of a panel row over the dock → allow drop + highlight.
+  const onPageDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!event.dataTransfer.types.includes(SHORTCUT_DRAG_MIME)) {
+      return;
+    }
+    event.preventDefault();
+    // eslint-disable-next-line no-param-reassign
+    event.dataTransfer.dropEffect = 'copy';
+    if (!isPageDropActive) {
+      setIsPageDropActive(true);
+    }
+  };
+
+  const onPageDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    const raw = event.dataTransfer.getData(SHORTCUT_DRAG_MIME);
+    setIsPageDropActive(false);
+    if (!raw) {
+      return;
+    }
+    event.preventDefault();
+    try {
+      const payload = JSON.parse(raw) as ShortcutDragData;
+      if (payload?.path && payload?.title) {
+        pinPage(payload);
+      }
+    } catch {
+      // ignore malformed payloads
+    }
+  };
+
+  const activeEntry = activeId
+    ? items.find((entry) => keyOf(entry) === activeId)
+    : undefined;
+  let activeResolved: ResolvedShortcut | null = null;
+  if (activeEntry) {
+    activeResolved = resolveShortcut(activeEntry);
+  } else if (activeId && CATALOG_BY_ID.has(activeId)) {
+    activeResolved = resolveShortcut(activeId);
+  }
 
   return (
     <DndContext
@@ -368,26 +482,36 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       onDragEnd={onDragEnd}
       onDragCancel={onDragCancel}
     >
-      <div className="relative flex w-full flex-col items-center">
+      <div
+        className="relative flex w-full flex-col items-center"
+        onDragOver={onPageDragOver}
+        onDragEnter={onPageDragOver}
+        onDragLeave={() => setIsPageDropActive(false)}
+        onDrop={onPageDrop}
+      >
         <div
           aria-hidden
           className="my-3 h-px w-6 bg-border-subtlest-tertiary"
         />
         <div
           ref={setDockRef}
-          className="flex w-full flex-col items-center gap-1"
+          className={classNames(
+            'flex w-full flex-col items-center gap-1 rounded-12 py-1 transition-colors',
+            isPageDropActive &&
+              'bg-surface-float ring-2 ring-accent-bacon-default',
+          )}
         >
-          <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-            {ids.map((id) => {
-              const def = CATALOG_BY_ID.get(id);
-              if (!def) {
+          <SortableContext items={keys} strategy={verticalListSortingStrategy}>
+            {items.map((entry) => {
+              const shortcut = resolveShortcut(entry);
+              if (!shortcut) {
                 return null;
               }
               return (
                 <SortableShortcut
-                  key={id}
-                  def={def}
-                  active={isSidebarItemActive(router.asPath, def.path)}
+                  key={shortcut.key}
+                  shortcut={shortcut}
+                  active={isSidebarItemActive(router.asPath, shortcut.path)}
                 />
               );
             })}
@@ -423,16 +547,16 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               color={TypographyColor.Tertiary}
               className="mb-3 block"
             >
-              Drag onto the sidebar, or tap to add. Drag an icon off the sidebar
-              to remove it.
+              Drag onto the sidebar, or tap to add. Drag any panel row in to pin
+              it; drag an icon off the sidebar to remove it.
             </Typography>
             <div className="grid grid-cols-4 gap-1">
               {SHORTCUT_CATALOG.map((def) => (
                 <TrayItem
                   key={def.id}
                   def={def}
-                  added={ids.includes(def.id)}
-                  onAdd={addShortcut}
+                  added={keys.includes(def.id)}
+                  onAdd={addCatalog}
                   onRemove={removeShortcut}
                 />
               ))}
@@ -442,7 +566,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       </div>
 
       <DragOverlay>
-        {activeDef ? (
+        {activeResolved ? (
           <div className="relative flex cursor-grabbing items-center">
             <div
               className={classNames(
@@ -453,7 +577,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                   : 'bg-surface-hover text-text-primary',
               )}
             >
-              {activeDef.icon(false)}
+              {activeResolved.icon(false)}
             </div>
             {willRemove && (
               <span className="ml-2 flex items-center gap-1 whitespace-nowrap rounded-8 border border-status-error bg-background-default px-2 py-1 text-status-error typo-caption1">

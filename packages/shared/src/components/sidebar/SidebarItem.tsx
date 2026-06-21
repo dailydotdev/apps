@@ -4,7 +4,12 @@ import classNames from 'classnames';
 import { ClickableNavItem } from './ClickableNavItem';
 import type { AuthTriggersType } from '../../lib/auth';
 import type { SidebarMenuItem } from './common';
-import { isSidebarItemActive, ItemInner, NavItem } from './common';
+import {
+  isSidebarItemActive,
+  ItemInner,
+  NavItem,
+  SHORTCUT_DRAG_MIME,
+} from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
 import { SimpleTooltip } from '../tooltips';
@@ -35,12 +40,29 @@ export const SidebarItem = ({
   // `group` on the row.
   const showLinkIconOnHover = !!item.showOpenLinkIcon;
 
+  // v2 only: any row with a path can be dragged into the shortcuts dock to pin
+  // it. Uses native drag (the row's anchor is the drag source); the dock reads
+  // the payload off dataTransfer. Inert in v1 (draggable stays unset).
+  const canPinToDock = isV2 && !!item.path;
+  const handleDragStart = canPinToDock
+    ? (event: React.DragEvent<HTMLElement>) => {
+        event.dataTransfer.setData(
+          SHORTCUT_DRAG_MIME,
+          JSON.stringify({ title: item.title, path: item.path }),
+        );
+        // eslint-disable-next-line no-param-reassign
+        event.dataTransfer.effectAllowed = 'copy';
+      }
+    : undefined;
+
   const navItem = (
     <NavItem
       active={isActive}
       ref={item.navItemRef}
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
+      draggable={canPinToDock}
+      onDragStart={handleDragStart}
       className={classNames(
         isV2 ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
         // Named group so the open-link icon reveals on hovering this row only

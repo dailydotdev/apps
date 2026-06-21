@@ -11,6 +11,14 @@ import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { OpenLinkIcon, PlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 
+// Drag payload used when a v2 sidebar panel row is dragged into the shortcuts
+// dock to pin it. Carried on the native dataTransfer under this MIME type.
+export const SHORTCUT_DRAG_MIME = 'application/x-dailydev-shortcut';
+export interface ShortcutDragData {
+  title: string;
+  path: string;
+}
+
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
@@ -61,6 +69,11 @@ interface NavItemProps {
   children?: ReactNode;
   className?: string;
   disableDefaultBackground?: boolean;
+  // Opt-in native drag passthrough (used by the v2 sidebar to let panel rows be
+  // dragged into the shortcuts dock). Inert unless a caller sets `draggable`.
+  draggable?: boolean;
+  onDragStart?: (event: React.DragEvent<HTMLElement>) => void;
+  onDragEnd?: (event: React.DragEvent<HTMLElement>) => void;
 }
 
 export const navBtnClass =
@@ -205,7 +218,16 @@ export const ItemInner = ({
 
 export const NavItem = forwardRef<HTMLElement, NavItemProps>(
   (
-    { className, color, active, children, disableDefaultBackground },
+    {
+      className,
+      color,
+      active,
+      children,
+      disableDefaultBackground,
+      draggable,
+      onDragStart,
+      onDragEnd,
+    },
     ref,
   ): ReactElement => {
     const baseClasses = active
@@ -224,6 +246,9 @@ export const NavItem = forwardRef<HTMLElement, NavItemProps>(
     return (
       <RawNavItem
         ref={ref}
+        draggable={draggable}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
         className={classNames(
           className,
           color || baseClasses,
