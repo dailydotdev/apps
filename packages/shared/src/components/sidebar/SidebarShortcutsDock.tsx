@@ -38,6 +38,7 @@ import {
   MegaphoneIcon,
   PlusIcon,
   SquadIcon,
+  TrashIcon,
   UserIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
@@ -195,6 +196,10 @@ const SortableShortcut = ({
           <a
             href={def.path}
             aria-label={def.label}
+            // Anchors are natively draggable, which hijacks dnd-kit's pointer
+            // drag (the link URL gets dragged instead) — disable it so reorder
+            // and drag-out-to-remove work.
+            draggable={false}
             className={classNames(
               dockButtonClass,
               active && '!text-text-primary',
@@ -438,15 +443,24 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
 
       <DragOverlay>
         {activeDef ? (
-          <div
-            className={classNames(
-              dockButtonClass,
-              willRemove
-                ? 'opacity-60 text-status-error ring-1 ring-status-error'
-                : 'bg-surface-hover text-text-primary',
+          <div className="relative flex cursor-grabbing items-center">
+            <div
+              className={classNames(
+                dockButtonClass,
+                'scale-110 shadow-3',
+                willRemove
+                  ? 'opacity-70 text-status-error ring-2 ring-status-error'
+                  : 'bg-surface-hover text-text-primary',
+              )}
+            >
+              {activeDef.icon(false)}
+            </div>
+            {willRemove && (
+              <span className="ml-2 flex items-center gap-1 whitespace-nowrap rounded-8 border border-status-error bg-background-default px-2 py-1 text-status-error typo-caption1">
+                <TrashIcon size={IconSize.XSmall} aria-hidden />
+                Remove
+              </span>
             )}
-          >
-            {activeDef.icon(false)}
           </div>
         ) : null}
       </DragOverlay>
