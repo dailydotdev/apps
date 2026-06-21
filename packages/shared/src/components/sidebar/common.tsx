@@ -186,7 +186,9 @@ export const ItemInner = ({
       <ItemInnerIcon {...item} active={active} />
       <span
         className={classNames(
-          'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
+          // min-w-0 lets the flex item shrink so a long title actually
+          // ellipsis-truncates instead of shoving the trailing icon off-row.
+          'min-w-0 flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
           isLabelHidden ? 'w-0 opacity-0' : 'opacity-100',
           item.titleClassName,
         )}
@@ -199,7 +201,7 @@ export const ItemInner = ({
         <ItemInnerIcon
           {...item}
           icon={item.rightIcon}
-          iconClassName="relative flex items-center justify-center"
+          iconClassName="relative ml-2 flex shrink-0 items-center justify-center"
         />
       )}
       {shouldShowLabel && showLinkIconOnHover && !item.rightIcon && (

@@ -54,14 +54,13 @@ export const StreakMonthCalendar = ({
       {days.map(({ date, state, isToday }) => {
         const isRead = state === Streak.Completed;
         const isFreeze = state === Streak.Freeze;
-        // Today is a ring (not a fill) so it reads as "you are here" even when
-        // already read; read days fill pink; weekends get the dashed pattern.
+        // Every cell is the same hollow circle; a read day just carries the
+        // flame icon inside it (so it never looks bigger/heavier than the empty
+        // ones). Today gets a ring, weekends the dashed pattern.
         let stateClass = 'border-border-subtlest-tertiary';
         if (isToday) {
           stateClass =
             'border-transparent ring-1 ring-text-primary ring-offset-2 ring-offset-background-default';
-        } else if (isRead) {
-          stateClass = 'border-transparent bg-accent-bacon-default';
         } else if (isFreeze) {
           stateClass =
             'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-border-subtlest-tertiary';
@@ -77,12 +76,7 @@ export const StreakMonthCalendar = ({
             {isRead && (
               <ReadingStreakIcon
                 secondary
-                className={classNames(
-                  'size-3',
-                  isToday
-                    ? 'text-accent-bacon-default'
-                    : 'text-background-default',
-                )}
+                className="size-3 text-accent-bacon-default"
               />
             )}
           </div>

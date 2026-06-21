@@ -144,7 +144,7 @@ export const ProfilePanelSection = ({
           <a
             aria-current={isProfileActive ? 'page' : undefined}
             className={classNames(
-              '-mx-1 rounded-10 px-1 py-1',
+              '-mx-2 flex rounded-12 px-2 py-2',
               isProfileActive ? 'bg-surface-hover' : 'hover:bg-surface-hover',
             )}
           >
