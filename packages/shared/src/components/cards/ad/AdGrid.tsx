@@ -88,7 +88,11 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           </div>
         </div>
       </CardTextContainer>
-      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
+      <AdImage
+        className="!mx-0 !mb-0 !rounded-b-16 !rounded-t-none [&_img]:!rounded-none"
+        ad={ad}
+        ImageComponent={CardImage}
+      />
       <AdPixel pixel={ad.pixel} />
     </Card>
   );
