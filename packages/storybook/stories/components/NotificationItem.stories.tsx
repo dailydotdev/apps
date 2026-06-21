@@ -503,10 +503,27 @@ export const Responsive: Story = {
         <p className="mb-2 font-bold text-text-primary typo-body">
           Mobile — min supported (356px)
         </p>
+        <p className="mb-2 max-w-[356px] text-text-tertiary typo-footnote">
+          Note: CSS breakpoints follow the browser viewport, not this box — so
+          mobile-only styles (like the always-visible kebab) won&apos;t show
+          here. Use the &quot;Mobile viewport&quot; story below.
+        </p>
         <div className="w-[356px] overflow-hidden rounded-16 border border-border-subtlest-tertiary">
           <Feed />
         </div>
       </div>
     </div>
   ),
+};
+
+// ---- True mobile viewport (narrows the canvas so mobile breakpoints apply,
+// e.g. the mute kebab shows by default instead of on hover) ------------------
+
+export const MobileViewport: Story = {
+  name: 'Mobile viewport (kebab visible by default)',
+  parameters: {
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'mobile2' },
+  },
+  render: () => framed(<Feed />),
 };
