@@ -45,12 +45,11 @@ import { ExploreSection } from './sections/ExploreSection';
 import { ProfilePanelSection } from './sections/ProfilePanelSection';
 import { SettingsPanelSection } from './sections/SettingsPanelSection';
 import type { ComposerKind } from '../post/composer/types';
-import { QuestRailIcon } from '../quest/QuestRailIcon';
 import { useClaimableQuestCount } from '../../hooks/useQuestDashboard';
 import { Bubble } from '../tooltips/utils';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { NetworkSection } from './sections/NetworkSection';
-import { GameCenterSection } from './sections/GameCenterSection';
+import { StreakQuestsSection } from './sections/StreakQuestsSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
   BellIcon,
@@ -65,6 +64,7 @@ import {
   GiftIcon,
   HelpIcon,
   HomeIcon,
+  HotIcon,
   LinkIcon,
   MegaphoneIcon,
   MenuIcon,
@@ -85,8 +85,6 @@ import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
-import { StreakPopover } from './StreakPopover';
-import { StreakRing } from './StreakRing';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -120,7 +118,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
 import { Typography, TypographyType } from '../typography/Typography';
 
@@ -160,14 +157,15 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     ),
   },
   {
+    // The reading-streak tab. Its panel leads with the streak details, then a
+    // Game Center link and the daily quests. Clicking the rail icon lands on
+    // Game Center; the streak/quests detail is one hover away in the panel.
     id: SidebarCategory.GameCenter,
-    label: 'Quests',
-    // First sub-page in the Game Center category is the Daily quests
-    // page (the panel that used to live in the sidebar). Clicking the
-    // rail icon lands you there; Game Center proper is one click away
-    // via the hover panel.
-    defaultPath: `${webappUrl}daily-quests`,
-    icon: (active) => <QuestRailIcon active={active} />,
+    label: 'Streak',
+    defaultPath: `${webappUrl}game-center`,
+    icon: (active) => (
+      <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
+    ),
   },
 ];
 
@@ -176,8 +174,6 @@ const railButtonClass =
 // Shared group so the rail's click popups (support, profile menu, streak) are
 // mutually exclusive — opening one closes the others.
 const RAIL_POPUP_GROUP = 'sidebar-rail';
-// How long the urgency tooltip auto-surfaces when the streak turns critical.
-const STREAK_CRITICAL_TOOLTIP_MS = 5000;
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -512,120 +508,50 @@ const SidebarProfileButton = ({
   onPreviewLeave: (event: React.MouseEvent) => void;
 }): ReactElement | null => {
   const { user } = useAuthContext();
-  const {
-    isEnabled: isStreakEnabled,
-    isLoading: isStreakLoading,
-    streak,
-    state: streakState,
-    count: streakCount,
-    hasReadToday,
-    copy: streakCopy,
-  } = useStreakRingState();
-  const { isOpen: isStreakOpen, onUpdate: setStreakOpen } =
-    useInteractivePopup(RAIL_POPUP_GROUP);
-  const streakChipRef = useRef<HTMLButtonElement>(null);
-  // Only on critical: auto-open the streak tooltip to nudge the user for ~5s,
-  // then hide it (or sooner, the moment they hover the streak). Re-arms each
-  // time the streak re-enters the critical state.
-  const [autoOpenStreakTooltip, setAutoOpenStreakTooltip] = useState(false);
-  const prevStreakCriticalRef = useRef(false);
-  useEffect(() => {
-    const isCritical = streakState === 'critical';
-    const wasCritical = prevStreakCriticalRef.current;
-    prevStreakCriticalRef.current = isCritical;
-    if (isCritical && !wasCritical) {
-      setAutoOpenStreakTooltip(true);
-      const timeout = setTimeout(
-        () => setAutoOpenStreakTooltip(false),
-        STREAK_CRITICAL_TOOLTIP_MS,
-      );
-      return () => clearTimeout(timeout);
-    }
-    if (!isCritical) {
-      setAutoOpenStreakTooltip(false);
-    }
-    return undefined;
-  }, [streakState]);
 
   if (!user) {
     return null;
   }
 
-  const avatarButton = (
-    <Tooltip
-      side="right"
-      content="You"
-      collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-    >
-      <button
-        type="button"
-        role="tab"
-        aria-label="You"
-        aria-selected={isSelected}
-        aria-controls="sidebar-context-panel"
-        onClick={onSelect}
-        // Avatar scales up a touch on hover — no glow. `block` on the image
-        // kills the inline baseline gap. A ring marks the selected state.
-        className={classNames(
-          'focus-outline size-full overflow-hidden rounded-12 transition-transform hover:scale-105',
-          isSelected && 'ring-2 ring-text-primary',
-        )}
-      >
-        <ProfilePicture
-          user={user}
-          size={ProfileImageSize.Large}
-          nativeLazyLoading
-          className="block"
-        />
-      </button>
-    </Tooltip>
-  );
-
+  // The reading streak now lives in its own rail tab, so the avatar is just the
+  // profile picture (a ring marks the selected state).
   return (
-    <>
-      <RailHoverCard label="You" panel={panel} enabled={!isExpanded}>
-        <div
-          className="relative mb-2.5 flex w-full justify-center"
-          data-sidebar-preview={SidebarCategory.Profile}
-          onMouseEnter={onPreview}
-          onMouseLeave={onPreviewLeave}
+    <RailHoverCard label="You" panel={panel} enabled={!isExpanded}>
+      <div
+        className="relative flex w-full justify-center"
+        data-sidebar-preview={SidebarCategory.Profile}
+        onMouseEnter={onPreview}
+        onMouseLeave={onPreviewLeave}
+      >
+        <Tooltip
+          side="right"
+          content="You"
+          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
         >
-          {isStreakEnabled ? (
-            // Shared StreakRing renders the "border legend" visual (avatar in a
-            // bordered box; flame + count break through the bottom border). The
-            // avatar (profile panel) and the chip (streak popover) are two
-            // distinct buttons — all state visuals live in StreakRing /
-            // useStreakRingState.
-            <StreakRing
-              state={streakState}
-              count={streakCount}
-              hasReadToday={hasReadToday}
-              isLoading={isStreakLoading}
-              chipRef={streakChipRef}
-              chipAriaLabel={`Reading streak: ${streakCount} days. ${streakCopy}`}
-              chipAriaExpanded={isStreakOpen}
-              onChipClick={(event) => {
-                event.stopPropagation();
-                setStreakOpen(!isStreakOpen);
-              }}
-              chipTooltip={streakCopy}
-              chipTooltipOpen={autoOpenStreakTooltip}
-              onMouseEnter={() => setAutoOpenStreakTooltip(false)}
-              avatar={avatarButton}
+          <button
+            type="button"
+            role="tab"
+            aria-label="You"
+            aria-selected={isSelected}
+            aria-controls="sidebar-context-panel"
+            onClick={onSelect}
+            // `block` on the image kills the inline baseline gap; scales up a
+            // touch on hover.
+            className={classNames(
+              'focus-outline size-10 overflow-hidden rounded-12 transition-transform hover:scale-105',
+              isSelected && 'ring-2 ring-text-primary',
+            )}
+          >
+            <ProfilePicture
+              user={user}
+              size={ProfileImageSize.Large}
+              nativeLazyLoading
+              className="block"
             />
-          ) : (
-            avatarButton
-          )}
-        </div>
-      </RailHoverCard>
-      {isStreakOpen && streak && (
-        <StreakPopover
-          streak={streak}
-          triggerRef={streakChipRef}
-          onClose={() => setStreakOpen(false)}
-        />
-      )}
-    </>
+          </button>
+        </Tooltip>
+      </div>
+    </RailHoverCard>
   );
 };
 
@@ -1189,7 +1115,7 @@ export const SidebarDesktopV2 = ({
     }
     if (category === SidebarCategory.GameCenter) {
       return (
-        <GameCenterSection
+        <StreakQuestsSection
           {...defaultRenderSectionProps}
           isItemsButton={false}
         />
