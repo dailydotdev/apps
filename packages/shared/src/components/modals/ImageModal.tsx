@@ -1,14 +1,25 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import classNames from 'classnames';
 import type ReactModal from 'react-modal';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import { useEventListener } from '../../hooks';
 
+export interface ImageOriginRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
 interface ImageModalProps extends ReactModal.Props {
   src: string;
   alt?: string;
+  /** Bounds of the thumbnail that was clicked, used to animate the image
+   * expanding from it into the full view (a FLIP transition). */
+  originRect?: ImageOriginRect;
 }
 
 /**
@@ -26,8 +37,44 @@ export default function ImageModal({
   onRequestClose,
   src,
   alt = 'Image',
+  originRect,
 }: ImageModalProps): ReactElement | null {
   const close = () => onRequestClose?.(undefined as never);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const hasPlayedRef = useRef(false);
+
+  // FLIP: render the image at its final centered size, but start it transformed
+  // to sit exactly over the clicked thumbnail, then animate the transform away
+  // so it visually grows/moves from the thumbnail into the full view.
+  const playFlip = () => {
+    const img = imgRef.current;
+    if (!originRect || !img || hasPlayedRef.current) {
+      return;
+    }
+    const final = img.getBoundingClientRect();
+    if (!final.width || !final.height) {
+      // Not laid out yet (image still loading) — onLoad will retry.
+      return;
+    }
+    hasPlayedRef.current = true;
+    const dx = originRect.left - final.left;
+    const dy = originRect.top - final.top;
+    const sx = originRect.width / final.width;
+    const sy = originRect.height / final.height;
+    img.style.transformOrigin = 'top left';
+    img.style.transition = 'none';
+    img.style.transform = `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+    img.style.opacity = '1';
+    requestAnimationFrame(() => {
+      img.style.transition = 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)';
+      img.style.transform = 'none';
+    });
+  };
+
+  useLayoutEffect(() => {
+    playFlip();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Close on Escape, but only this lightbox: capture the event and stop it
   // before it reaches the underlying post modal's react-modal Esc handler —
@@ -76,9 +123,17 @@ export default function ImageModal({
         onClick={close}
       />
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
-        className="relative max-h-full max-w-full animate-image-zoom-in rounded-16 object-contain"
+        onLoad={playFlip}
+        className={classNames(
+          'relative max-h-full max-w-full rounded-16 object-contain',
+          // With an origin we drive the entrance via the FLIP transform (start
+          // hidden so a freshly-loaded image doesn't flash at full size first);
+          // otherwise fall back to a simple centered zoom-in.
+          originRect ? 'opacity-0' : 'animate-image-zoom-in',
+        )}
       />
       {/* Pinned to the screen corner (not the image) so a busy image can't
           camouflage it. Primary (solid) variant stays visible over the dark

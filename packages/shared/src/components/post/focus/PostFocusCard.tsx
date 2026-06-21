@@ -413,15 +413,18 @@ export const PostFocusCard = ({
                   type="button"
                   aria-label="View cover image"
                   className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  onClick={() =>
+                  onClick={(event) => {
+                    const { top, left, width, height } =
+                      event.currentTarget.getBoundingClientRect();
                     openModal({
                       type: LazyModal.ImageView,
                       props: {
                         src: article.image as string,
                         alt: 'Post cover image',
+                        originRect: { top, left, width, height },
                       },
-                    })
-                  }
+                    });
+                  }}
                 >
                   <LazyImage
                     eager

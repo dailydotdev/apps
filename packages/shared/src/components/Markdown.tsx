@@ -16,6 +16,7 @@ import { getUserShortInfo } from '../graphql/users';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
+import type { ImageOriginRect } from './modals/ImageModal';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
 function isImageElement(
@@ -138,14 +139,19 @@ export default function Markdown({
   );
 
   const openImage = useCallback(
-    (src: string, alt?: string) => {
+    (element: HTMLImageElement) => {
       // The lazy-modal renderer isn't mounted in the extension companion, so
       // fall back to opening the image in a new tab there.
       if (isCompanion) {
-        window.open(src, '_blank', 'noopener,noreferrer');
+        window.open(element.src, '_blank', 'noopener,noreferrer');
         return;
       }
-      openModal({ type: LazyModal.ImageView, props: { src, alt } });
+      const { top, left, width, height } = element.getBoundingClientRect();
+      const originRect: ImageOriginRect = { top, left, width, height };
+      openModal({
+        type: LazyModal.ImageView,
+        props: { src: element.src, alt: element.alt || undefined, originRect },
+      });
     },
     [isCompanion, openModal],
   );
@@ -156,7 +162,7 @@ export default function Markdown({
 
       if (isImageElement(element) && element.src) {
         e.stopPropagation();
-        openImage(element.src, element.alt || undefined);
+        openImage(element);
       }
     },
     [openImage],
@@ -173,7 +179,7 @@ export default function Markdown({
       ) {
         e.preventDefault();
         e.stopPropagation();
-        openImage(element.src, element.alt || undefined);
+        openImage(element);
       }
     },
     [openImage],
