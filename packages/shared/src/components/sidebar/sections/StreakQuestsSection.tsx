@@ -73,7 +73,7 @@ export const StreakQuestsSection = ({
           <div className="flex flex-col px-4 pb-4 pt-1">
             <div className="flex items-start justify-between">
               <Typography
-                type={TypographyType.Mega1}
+                type={TypographyType.Title1}
                 color={TypographyColor.Primary}
                 bold
                 className="tabular-nums leading-none"
@@ -90,15 +90,15 @@ export const StreakQuestsSection = ({
               </Link>
             </div>
             <Typography
-              type={TypographyType.Callout}
+              type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="mt-1.5"
+              className="mt-1"
             >
               Current streak · {streak.max} Longest · {streak.total} Total
             </Typography>
             <div className="mb-2 mt-5 flex items-center justify-between gap-2">
               <Typography
-                type={TypographyType.Subhead}
+                type={TypographyType.Caption1}
                 color={TypographyColor.Primary}
                 bold
                 truncate
@@ -107,7 +107,7 @@ export const StreakQuestsSection = ({
                 Today, {todayLabel}
               </Typography>
               <Typography
-                type={TypographyType.Footnote}
+                type={TypographyType.Caption1}
                 color={TypographyColor.Tertiary}
                 className="shrink-0"
               >
