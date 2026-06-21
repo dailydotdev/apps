@@ -86,6 +86,7 @@ import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
+import { SidebarShortcutsDock } from './SidebarShortcutsDock';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -1596,6 +1597,10 @@ export const SidebarDesktopV2 = ({
                 </button>
               </RailHoverCard>
             )}
+
+            {/* User-customizable shortcut dock — a separator then any pinned
+                page shortcuts, sitting directly below the rail tabs. */}
+            {isLoggedIn && <SidebarShortcutsDock />}
           </div>
 
           {/* Utility actions (not tabs) — Invite/Support/Settings open their
