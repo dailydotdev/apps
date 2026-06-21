@@ -11,9 +11,14 @@ import { ReadingStreakPopup } from '../../streak/popup/ReadingStreakPopup';
 import { QuestButton } from '../../quest/QuestButton';
 import { HorizontalSeparator } from '../../utilities';
 
-// The streak rail tab's panel: the full reading-streak details up top, then the
-// Game Center / settings links, then the daily quests (the same panel as the
-// /daily-quests page) rendered inline.
+// The streak rail tab's panel, ordered by how often each block matters (a la
+// Duolingo's "daily habit → today's goals → reference last"):
+//   1. Reading streak — the hero (the panel title already reads "Streak").
+//   2. Quests — the same daily/weekly panel as the /daily-quests page.
+//   3. Game Center / Quests settings — low-frequency reference links, demoted
+//      to the bottom so they don't sit between the two primary modules.
+// Everything here is composed from existing components — only the layout,
+// grouping and hierarchy changed.
 export const StreakQuestsSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
@@ -48,25 +53,34 @@ export const StreakQuestsSection = ({
   }, [activePage]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pb-2">
+      {/* 1. Reading streak — the hero. */}
       {isStreaksEnabled && streak && (
         <>
-          <div className="px-4 pb-2 pt-1">
+          <div className="px-4 pb-3 pt-1">
             <ReadingStreakPopup streak={streak} fullWidth />
           </div>
-          <HorizontalSeparator className="mx-3 mb-2 w-auto" />
+          <HorizontalSeparator className="mx-3 w-auto" />
         </>
       )}
+
+      {/* 2. Today's quests (level + daily/weekly). Labelled to read as its own
+          module, matching the sidebar's section-header style. */}
+      <div className="flex h-9 items-center px-4">
+        <span className="text-text-quaternary typo-callout">Quests</span>
+      </div>
+      <div className="px-2">
+        <QuestButton panelOnly />
+      </div>
+
+      {/* 3. Reference links / settings — demoted to the bottom. */}
+      <HorizontalSeparator className="mx-3 my-2 w-auto" />
       <Section
         {...defaultRenderSectionProps}
         items={linkItems}
         isItemsButton={isItemsButton}
         className="!mt-0"
       />
-      <HorizontalSeparator className="mx-3 my-2 w-auto" />
-      <div className="px-2 pb-2">
-        <QuestButton panelOnly />
-      </div>
     </div>
   );
 };
