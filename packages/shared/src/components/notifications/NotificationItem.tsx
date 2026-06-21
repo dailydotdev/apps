@@ -144,7 +144,9 @@ const NotificationOptionsButton = ({
         }}
       >
         <Button
-          variant={ButtonVariant.Float}
+          // Tertiary is the flat variant — transparent, no background or
+          // border (Float carries a faint surface-float background).
+          variant={ButtonVariant.Tertiary}
           // Visible by default on mobile (no hover); reveal on hover from
           // tablet up.
           className="tablet:invisible tablet:group-hover:visible"
