@@ -17,6 +17,7 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { useGlassActionsExpanded } from '../../../hooks/useGlassActionsExpanded';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -37,31 +38,40 @@ const outerCollapseClasses = classNames(
 // Only the rest color is pinned to text-primary for contrast on the glass;
 // hover/pressed colors are left to each `btn-tertiary-*` class so icons keep
 // their brand tint on hover, matching the standard ActionButtons.
-// `justify-between` spreads the actions across the full-width pill and anchors
-// the ends, so the upvote stays put when the pill expands (no hover shift) —
-// matching the standard `CardActionBar` feedCard layout. `gap-1` keeps a minimum
-// spacing when the pill is content-width (compact, upvote only).
-const pillClasses = classNames(
-  'pointer-events-auto flex h-10 min-w-fit items-center justify-between gap-1 overflow-hidden px-1',
+const pillBaseClasses = classNames(
+  'pointer-events-auto flex h-10 min-w-fit items-center overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
 
-// One collapsible track per secondary action. Base (and the always-expanded
-// variant) keeps it content-width and visible; the collapse classes shrink the
-// track to zero width on desktop until the card is hovered. No transition so it
-// flips instantly. `visibility` removes hidden buttons from focus order.
-const segmentBaseClasses = 'grid [grid-template-columns:1fr]';
-const segmentCollapseClasses = classNames(
+// Compact (hover-to-reveal) mode: `justify-between` spreads the actions across
+// the pill and anchors the ends, so the upvote stays put when the pill expands
+// on hover (no layout shift). `gap-1` keeps a minimum spacing when the pill is
+// content-width (only the upvote showing).
+const pillCompactClasses = 'justify-between gap-1';
+
+// Always-expanded variant: every action gets an equal-width slot with its
+// content centered, so the icons are evenly spaced across the pill regardless of
+// upvote/comment counts. There's no hover here, so equal slots can't cause a
+// shift.
+const evenSlotClasses = 'flex min-w-0 flex-1 items-center justify-center';
+
+// Compact secondary action: one collapsible grid track that is content-width and
+// visible at rest, collapsed to zero width on desktop until the card is hovered.
+// No transition so it flips instantly. `visibility` drops hidden buttons from
+// the focus order.
+const segmentCompactClasses = classNames(
+  'grid [grid-template-columns:1fr]',
   'laptop:mouse:[grid-template-columns:0fr]',
   'laptop:mouse:group-hover:[grid-template-columns:1fr]',
 );
 
 const segmentContentBaseClasses =
   'flex min-w-0 items-center justify-center overflow-hidden';
-const segmentContentCollapseClasses = classNames(
+const segmentContentCompactClasses = classNames(
+  segmentContentBaseClasses,
   'laptop:mouse:invisible',
   'laptop:mouse:group-hover:visible',
 );
@@ -99,12 +109,14 @@ export function FeedCardGlassActions({
   showDownvoteAction = true,
   showAwardAction = true,
   coverScrim = false,
-  expanded = false,
 }: ActionButtonsProps & {
   coverScrim?: boolean;
-  expanded?: boolean;
 }): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
+  // Read the per-device "always show actions" preference here so every card type
+  // that renders this bar respects the feed-header toggle without threading a
+  // prop through each card component.
+  const [expanded] = useGlassActionsExpanded();
   const {
     isUpvoteActive,
     isDownvoteActive,
@@ -124,20 +136,27 @@ export function FeedCardGlassActions({
     return null;
   }
 
+  const pillClasses = classNames(
+    pillBaseClasses,
+    !expanded && pillCompactClasses,
+  );
   const outerClasses = classNames(
     outerBaseClasses,
     !expanded && outerCollapseClasses,
   );
-  const segmentProps = {
-    wrapperClassName: classNames(
-      segmentBaseClasses,
-      !expanded && segmentCollapseClasses,
-    ),
-    contentClassName: classNames(
-      segmentContentBaseClasses,
-      !expanded && segmentContentCollapseClasses,
-    ),
-  };
+  // In the expanded variant every action is an equal-width slot; in compact mode
+  // the always-visible upvote/comment stay direct flex children (`contents`) so
+  // `justify-between` anchors them, and secondaries use the collapsible grid.
+  const alwaysWrapperClass = expanded ? evenSlotClasses : 'contents';
+  const segmentProps = expanded
+    ? {
+        wrapperClassName: classNames(evenSlotClasses, 'overflow-hidden'),
+        contentClassName: segmentContentBaseClasses,
+      }
+    : {
+        wrapperClassName: segmentCompactClasses,
+        contentClassName: segmentContentCompactClasses,
+      };
 
   const upvoteCount = post.numUpvotes ?? 0;
   const commentCount = post.numComments ?? 0;
@@ -174,36 +193,38 @@ export function FeedCardGlassActions({
       )}
       <div className={outerClasses}>
         <div className={pillClasses}>
-          <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-            side="bottom"
-          >
-            <QuaternaryButton
-              labelClassName="!pl-[1px] pr-1.5"
-              className="btn-tertiary-avocado pointer-events-auto"
-              id={`post-${post.id}-upvote-btn`}
-              color={ButtonColor.Avocado}
-              pressed={isUpvoteActive}
-              onClick={onToggleUpvote}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={
-                <UpvoteButtonIcon
-                  secondary={isUpvoteActive}
-                  size={IconSize.XSmall}
-                />
-              }
+          <div className={alwaysWrapperClass}>
+            <Tooltip
+              content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+              side="bottom"
             >
-              {upvoteCount > 0 && (
-                <InteractionCounter
-                  className="tabular-nums typo-footnote"
-                  value={upvoteCount}
-                />
-              )}
-            </QuaternaryButton>
-          </Tooltip>
+              <QuaternaryButton
+                labelClassName="!pl-[1px] pr-1.5"
+                className="btn-tertiary-avocado pointer-events-auto"
+                id={`post-${post.id}-upvote-btn`}
+                color={ButtonColor.Avocado}
+                pressed={isUpvoteActive}
+                onClick={onToggleUpvote}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={
+                  <UpvoteButtonIcon
+                    secondary={isUpvoteActive}
+                    size={IconSize.XSmall}
+                  />
+                }
+              >
+                {upvoteCount > 0 && (
+                  <InteractionCounter
+                    className="tabular-nums typo-footnote"
+                    value={upvoteCount}
+                  />
+                )}
+              </QuaternaryButton>
+            </Tooltip>
+          </div>
           {commentCount > 0 ? (
-            commentButton
+            <div className={alwaysWrapperClass}>{commentButton}</div>
           ) : (
             <Segment {...segmentProps}>{commentButton}</Segment>
           )}

@@ -31,7 +31,6 @@ import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
-import { useGlassActionsExpanded } from '../../../hooks/useGlassActionsExpanded';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -62,7 +61,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
   const glassActions = useFeedCardGlassActions();
-  const [glassActionsExpanded] = useGlassActionsExpanded();
 
   if (isHidden) {
     return (
@@ -187,7 +185,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
                 onBookmarkClick={onBookmarkClick}
                 onDownvoteClick={onDownvoteClick}
                 coverScrim
-                expanded={glassActionsExpanded}
               />
             ) : (
               <ActionButtons
