@@ -261,7 +261,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex min-h-16 flex-row items-center gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex min-h-16 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -291,7 +291,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
           fall back to the plain type icon. */}
-      <div className="flex w-12 shrink-0 items-center justify-center">
+      <div className="flex w-12 shrink-0 items-start justify-start">
         <div className="relative flex items-center">
           {hasAvatar ? avatarContent : leadIcon}
           {showBadge && (
@@ -337,25 +337,29 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
       {/* Small content thumbnail, then the date as the fixed right-most element
           so it always lands in the same place and stays easy to scan. */}
-      {attachment?.image && (
-        <Image
-          data-testid="postImage"
-          loading="lazy"
-          type={ImageType.Post}
-          className="size-11 shrink-0 rounded-12 object-cover"
-          src={attachment.image}
-          alt={`Cover preview of: ${attachment.title}`}
-        />
-      )}
-      {timeText && (
-        <Tooltip content={fullDate}>
-          <time className="relative z-1 shrink-0 whitespace-nowrap text-text-tertiary typo-caption1">
-            {timeText}
-          </time>
-        </Tooltip>
+      {(timeText || attachment?.image) && (
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          {timeText && (
+            <Tooltip content={fullDate}>
+              <time className="relative z-1 whitespace-nowrap text-text-tertiary typo-caption1">
+                {timeText}
+              </time>
+            </Tooltip>
+          )}
+          {attachment?.image && (
+            <Image
+              data-testid="postImage"
+              loading="lazy"
+              type={ImageType.Post}
+              className="h-11 w-16 rounded-12 object-cover"
+              src={attachment.image}
+              alt={`Cover preview of: ${attachment.title}`}
+            />
+          )}
+        </div>
       )}
       {hasOptions && (
-        <span className="invisible absolute right-3 top-2.5 z-1 group-hover:visible">
+        <span className="invisible absolute bottom-2.5 right-3 z-1 group-hover:visible">
           <NotificationOptionsButton notification={{ type, referenceId }} />
         </span>
       )}
