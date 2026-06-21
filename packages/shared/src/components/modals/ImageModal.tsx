@@ -65,9 +65,13 @@ export default function ImageModal({
     img.style.transition = 'none';
     img.style.transform = `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
     img.style.opacity = '1';
+    // Two frames: let the browser paint the start transform first, then
+    // transition to identity — doing both in one frame can coalesce and snap.
     requestAnimationFrame(() => {
-      img.style.transition = 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)';
-      img.style.transform = 'none';
+      requestAnimationFrame(() => {
+        img.style.transition = 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)';
+        img.style.transform = 'none';
+      });
     });
   };
 
@@ -93,14 +97,24 @@ export default function ImageModal({
     true,
   );
 
-  // Lock background scroll while open. Restores the previous value on close so
-  // a still-open underlying modal keeps its own lock (which is class-based).
+  // Lock background scroll while open. Compensate for the removed scrollbar
+  // with matching padding so the page (and the FLIP's captured origin) doesn't
+  // shift sideways when the lightbox opens. Restores the previous values on
+  // close so a still-open underlying modal keeps its own (class-based) lock —
+  // where the scrollbar is already gone, so the width is 0 and we add nothing.
   useEffect(() => {
     const { style } = document.body;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
     const previousOverflow = style.overflow;
+    const previousPaddingRight = style.paddingRight;
     style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      style.paddingRight = `${scrollbarWidth}px`;
+    }
     return () => {
       style.overflow = previousOverflow;
+      style.paddingRight = previousPaddingRight;
     };
   }, []);
 
