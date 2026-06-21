@@ -616,7 +616,6 @@ export const SidebarDesktopV2 = ({
     hasReadToday: streakReadToday,
     copy: streakCopy,
   } = useStreakRingState();
-  const showStreakCount = isStreakEnabled && streakCount > 0;
 
   // --- Vertical "More" overflow -------------------------------------------
   // When the rail is too short to fit every nav item, the lowest-priority
@@ -1176,18 +1175,22 @@ export const SidebarDesktopV2 = ({
     // background; it doesn't claim the selected state.
     const isSelected = selectedCategory === category.id;
     const isPreviewing = !isSelected && activeCategory === category.id;
-    // The Streak tab reflects live streak state: the flame fills once you've
-    // read today and takes the state colour, and the label becomes the day
-    // count. When streaks are off / no active streak it renders as a plain tab.
+    // The Streak tab renders the live streak ring (StreakBadge): dashed/solid
+    // animated border by state, flame filled once you've read today, and the
+    // day count in a chip. It replaces the icon+label entirely (the chip is the
+    // label). When streaks are off it falls back to a plain flame tab.
     const isStreakTab = category.id === SidebarCategory.GameCenter;
-    const iconNode =
-      isStreakTab && isStreakEnabled ? (
-        <StreakBadge state={streakState} hasReadToday={streakReadToday} />
-      ) : (
-        category.icon(isSelected)
-      );
-    const labelText =
-      isStreakTab && showStreakCount ? `${streakCount}` : category.label;
+    const showStreakBadge = isStreakTab && isStreakEnabled;
+    const iconNode = showStreakBadge ? (
+      <StreakBadge
+        state={streakState}
+        count={streakCount}
+        hasReadToday={streakReadToday}
+        className="mb-2"
+      />
+    ) : (
+      category.icon(isSelected)
+    );
     const ariaLabel =
       isStreakTab && isStreakEnabled ? streakCopy : category.label;
     return (
@@ -1225,7 +1228,9 @@ export const SidebarDesktopV2 = ({
           <span className="relative flex items-center justify-center">
             {iconNode}
           </span>
-          {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
+          {!isCompact && !showStreakBadge && (
+            <span className={railTabLabelClass}>{category.label}</span>
+          )}
           {category.id === SidebarCategory.GameCenter && showQuestBadge && (
             // Pin the badge to the button's top-right corner (not the icon's)
             // so the quest level ring + number stay fully visible.

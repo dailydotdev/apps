@@ -1,17 +1,16 @@
-import { useMemo } from 'react';
 import { addDays, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { Streak } from '../../components/streak/popup/DayStreak';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import type { ReadingDay, UserStreak } from '../../graphql/users';
+import type { ReadingDay } from '../../graphql/users';
 import { getReadingStreak30Days } from '../../graphql/users';
 import { DayOfWeek, isWeekend } from '../../lib/date';
-import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../lib/timezones';
+import { isSameDayInTimezone } from '../../lib/timezones';
 
 // Classify a single day against the user's reading history. Extracted from
-// ReadingStreakPopup so both the popup and the compact sidebar calendar share
-// one implementation.
+// ReadingStreakPopup so the popup, the compact sidebar calendar and the rail
+// all share one implementation.
 export const getStreak = ({
   value,
   today,
@@ -52,7 +51,7 @@ export const getStreak = ({
   return Streak.Upcoming;
 };
 
-// The 4-days-before → today → 4-days-after window the streak calendar shows.
+// The 4-days-before → today → 4-days-after window the popup calendar shows.
 export const getStreakDays = (today: Date): Date[] => [
   subDays(today, 4),
   subDays(today, 3),
@@ -65,37 +64,15 @@ export const getStreakDays = (today: Date): Date[] => [
   addDays(today, 4),
 ];
 
-export interface StreakDay {
-  date: Date;
-  streak: Streak;
-  isToday: boolean;
-}
-
-// Resolves the calendar window into per-day streak states, fetching the reading
-// history once (shared cache key with ReadingStreakPopup, so no extra request).
-export const useStreakDays = (streak?: UserStreak): StreakDay[] => {
+// The user's last-30-days reading history (one shared cache key, so callers
+// never trigger a duplicate request).
+export const useReadingHistory = (): ReadingDay[] | undefined => {
   const { user } = useAuthContext();
   const userId = user?.id;
-  const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const { data: history } = useQuery<ReadingDay[]>({
+  return useQuery<ReadingDay[]>({
     queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
     queryFn: () => getReadingStreak30Days(userId ?? ''),
     staleTime: StaleTime.Default,
     enabled: !!userId,
-  });
-
-  return useMemo(() => {
-    const today = new Date();
-    return getStreakDays(today).map((date) => ({
-      date,
-      streak: getStreak({
-        value: date,
-        today,
-        history,
-        startOfWeek: streak?.weekStart,
-        timezone,
-      }),
-      isToday: isSameDayInTimezone(date, today, timezone),
-    }));
-  }, [history, streak?.weekStart, timezone]);
+  }).data;
 };

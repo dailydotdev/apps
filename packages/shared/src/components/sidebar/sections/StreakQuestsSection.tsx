@@ -8,12 +8,10 @@ import { StreakBadge } from '../StreakBadge';
 import type { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
-import { useStreakDays } from '../../../hooks/streaks/useStreakDays';
 import { StreakSection } from '../../streak/popup/StreakSection';
-import { DayStreak } from '../../streak/popup/DayStreak';
+import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { QuestButton } from '../../quest/QuestButton';
 import { HorizontalSeparator } from '../../utilities';
-import { IconSize } from '../../Icon';
 
 // The streak rail tab's panel, ordered by how often each block matters (a la
 // Duolingo's "daily habit → today's goals → reference last"):
@@ -32,10 +30,10 @@ export const StreakQuestsSection = ({
   const {
     isEnabled: isStreakEnabled,
     state,
+    count,
     hasReadToday,
     streak,
   } = useStreakRingState();
-  const days = useStreakDays(streak);
 
   const linkItems: SidebarMenuItem[] = useMemo(() => {
     const gameCenterPath = `${webappUrl}game-center`;
@@ -72,25 +70,16 @@ export const StreakQuestsSection = ({
             <div className="flex items-center gap-3">
               <StreakBadge
                 state={state}
+                count={count}
                 hasReadToday={hasReadToday}
-                size="lg"
+                showChip={false}
               />
               <div className="flex flex-1 gap-4">
                 <StreakSection streak={streak.current} label="Current streak" />
                 <StreakSection streak={streak.max} label="Longest streak 🏆" />
               </div>
             </div>
-            <div className="flex justify-between">
-              {days.map((day) => (
-                <DayStreak
-                  key={day.date.getTime()}
-                  streak={day.streak}
-                  date={day.date}
-                  shouldShowArrow={day.isToday}
-                  size={IconSize.Small}
-                />
-              ))}
-            </div>
+            <StreakMonthCalendar streak={streak} />
           </div>
           <HorizontalSeparator className="mx-3 w-auto" />
         </>

@@ -3,6 +3,8 @@ import React from 'react';
 import classNames from 'classnames';
 import { HotIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { Typography, TypographyType } from '../typography/Typography';
+import { largeNumberFormat } from '../../lib/numberFormat';
 import {
   countClassByState,
   fillClassByState,
@@ -12,55 +14,67 @@ import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 
 interface StreakBadgeProps {
   state: StreakRingState;
+  count: number;
   hasReadToday: boolean;
-  // `sm` sits on the rail tab; `lg` leads the streak panel.
-  size?: 'sm' | 'lg';
+  // The flame+count chip that breaks through the bottom border. Turn off when
+  // the count is shown elsewhere (e.g. the panel's "Current streak" stat).
+  showChip?: boolean;
   className?: string;
 }
 
-// The reading-streak indicator without an avatar: the same state-driven ring
-// (border dash/colour + fill + earn/at-risk/critical animations) and flame as
-// StreakRing, but sized to stand on its own — on the sidebar rail tab (`sm`) or
-// leading the streak panel (`lg`). All state visuals come from
-// useStreakRingState's exported maps, so it tracks the rest of the streak UI
-// exactly; it owns layout only and never calls the hook (stays provider-light).
+// The reading-streak "ring" without an avatar: the exact StreakRing visual
+// language — dashed/solid state border, fill, and the earn/at-risk/critical
+// animations — wrapping a flame instead of a profile picture, with a count chip
+// breaking through the bottom border. All state visuals come from
+// useStreakRingState's exported maps, so it tracks the rest of the streak UI.
+// Presentational only (no interactive chip button), so it can sit inside the
+// rail tab's <button>.
 export const StreakBadge = ({
   state,
+  count,
   hasReadToday,
-  size = 'sm',
+  showChip = true,
   className,
-}: StreakBadgeProps): ReactElement => {
-  const isLarge = size === 'lg';
-  return (
+}: StreakBadgeProps): ReactElement => (
+  <span className={classNames('relative block h-[62px] w-[54px]', className)}>
     <span
-      className={classNames(
-        'relative flex shrink-0 items-center justify-center',
-        isLarge ? 'size-14' : 'size-7',
-        className,
-      )}
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{ transformOrigin: '50% 35%' }}
     >
       <span
-        aria-hidden
-        style={{ transformOrigin: '50% 50%' }}
         className={classNames(
-          'pointer-events-none absolute inset-0 border transition-colors',
-          isLarge ? 'rounded-16' : 'rounded-8',
+          'absolute inset-0 rounded-[16px] border transition-colors',
           frameClassByState[state],
         )}
       />
       <span
-        aria-hidden
         className={classNames(
-          'pointer-events-none absolute inset-[3px] transition-colors',
-          isLarge ? 'rounded-12' : 'rounded-6',
+          'absolute inset-[3px] rounded-[13px] transition-colors',
           fillClassByState[state],
         )}
       />
+    </span>
+    <span className="absolute left-[7px] top-[7px] z-1 flex size-10 items-center justify-center">
       <HotIcon
         secondary={hasReadToday || state === 'freeze'}
-        size={isLarge ? IconSize.Large : IconSize.Small}
-        className={classNames('relative', countClassByState[state])}
+        size={IconSize.Large}
+        className={countClassByState[state]}
       />
     </span>
-  );
-};
+    {showChip && (
+      <span className="absolute -bottom-[8px] left-1/2 z-2 flex -translate-x-1/2 items-center rounded-8 bg-background-default px-1.5 py-0.5">
+        <Typography
+          type={TypographyType.Caption1}
+          bold
+          className={classNames(
+            'whitespace-nowrap tabular-nums',
+            countClassByState[state],
+          )}
+        >
+          {largeNumberFormat(count) ?? count}
+        </Typography>
+      </span>
+    )}
+  </span>
+);
