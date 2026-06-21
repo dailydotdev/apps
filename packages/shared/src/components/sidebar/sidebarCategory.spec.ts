@@ -53,6 +53,19 @@ describe('getSidebarCategoryForPath', () => {
     // Happening Now lives under Explore, not Profile.
     expect(getSidebarCategoryForPath('/highlights')).toBe(SidebarCategory.Main);
   });
+
+  it('matches the leading segment, not a substring', () => {
+    // A tag/source whose slug contains a profile keyword must stay on Explore,
+    // not jump to the Profile panel.
+    expect(getSidebarCategoryForPath('/tags/jobs')).toBe(SidebarCategory.Main);
+    expect(getSidebarCategoryForPath('/sources/history-channel')).toBe(
+      SidebarCategory.Main,
+    );
+    // A category's own settings shortcut keeps that category (not Settings).
+    expect(getSidebarCategoryForPath('/notifications/settings')).toBe(
+      SidebarCategory.Notifications,
+    );
+  });
 });
 
 describe('isSidebarSettingsPath', () => {

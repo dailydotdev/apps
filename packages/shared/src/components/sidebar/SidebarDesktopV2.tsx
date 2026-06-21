@@ -10,6 +10,21 @@ import React, {
 import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
   createSidebarSeparatorItem,
   isSidebarItemActive,
   ListIcon,
@@ -96,6 +111,7 @@ import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
+import usePersistentContext from '../../hooks/usePersistentContext';
 import { ProfileSection as ProfileMenuSection } from '../ProfileMenu/ProfileSection';
 import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { ThemeSection } from '../ProfileMenu/sections/ThemeSection';
@@ -176,6 +192,34 @@ const RAIL_TOOLTIP_COLLISION_PADDING = 4;
 // Vertical slack (px) added to the safe-zone triangle so the pointer can dip
 // slightly past the panel's top/bottom edge while arcing in without losing it.
 const SAFE_ZONE_BUFFER = 26;
+
+// Wraps a rail category tab so it can be reordered by cursor drag. Drag
+// listeners sit on this outer element; the tab's own button stays the focus
+// target. PointerSensor's distance constraint (set on the DndContext) means a
+// plain click still selects the category instead of starting a drag.
+const SortableRailTab = ({
+  id,
+  children,
+}: {
+  id: string;
+  children: ReactNode;
+}): ReactElement => {
+  const { setNodeRef, listeners, transform, transition, isDragging } =
+    useSortable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={classNames(
+        'w-full touch-none',
+        isDragging ? 'opacity-60 relative z-1 cursor-grabbing' : 'cursor-grab',
+      )}
+    >
+      {children}
+    </div>
+  );
+};
 
 interface RailHoverCardProps {
   label: string;
@@ -668,25 +712,67 @@ export const SidebarDesktopV2 = ({
     return () => observer.disconnect();
   }, [isCompact]);
 
-  const overflowOrder = useMemo(
+  // The reorderable rail tabs (each opens a panel). Order is user-customizable
+  // via drag-and-drop and persisted; New post / logo / avatar / settings are
+  // fixed and live outside this list.
+  const reorderableCategories = useMemo(
     () =>
       [
+        SidebarCategory.Main,
+        SidebarCategory.Squads,
         isLoggedIn ? SidebarCategory.Notifications : null,
         SidebarCategory.GameCenter,
       ].filter(Boolean) as SidebarCategoryId[],
     [isLoggedIn],
   );
-  // Home, Squads and (logged-in) New post never fold. The 3-dots "More"
-  // button only appears when something overflows, so it costs a slot then.
-  const fixedNavSlots = 2 + (isLoggedIn ? 1 : 0);
-  const isNavOverflowing = maxNavSlots < fixedNavSlots + overflowOrder.length;
-  const visibleOverflowCount = isNavOverflowing
-    ? Math.max(
-        0,
-        Math.min(overflowOrder.length, maxNavSlots - fixedNavSlots - 1),
-      )
-    : overflowOrder.length;
-  const foldedNavIds = overflowOrder.slice(visibleOverflowCount);
+  const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
+    SidebarCategoryId[]
+  >('sidebar_rail_order', reorderableCategories);
+  // Reconcile the saved order against the valid set: drop unknown/stale ids and
+  // append any newly-added category that isn't in the stored order yet.
+  const railOrder = useMemo(() => {
+    const known = (storedRailOrder ?? []).filter((id) =>
+      reorderableCategories.includes(id),
+    );
+    const missing = reorderableCategories.filter((id) => !known.includes(id));
+    return [...known, ...missing];
+  }, [reorderableCategories, storedRailOrder]);
+
+  // Fold the tail of the order into a 3-dots "More" dropdown when the rail is
+  // too short to show every tab. New post is fixed (costs a slot when present);
+  // the "More" button itself costs a slot once anything folds.
+  const newPostSlots = isLoggedIn ? 1 : 0;
+  const slotsForTabs = Math.max(0, maxNavSlots - newPostSlots);
+  const isNavOverflowing = railOrder.length > slotsForTabs;
+  const visibleCount = isNavOverflowing
+    ? Math.max(0, slotsForTabs - 1)
+    : railOrder.length;
+  const visibleCategoryIds = railOrder.slice(0, visibleCount);
+  const foldedNavIds = railOrder.slice(visibleCount);
+
+  const railSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
+  const isDraggingRef = useRef(false);
+  const handleRailDragStart = useCallback(() => {
+    isDraggingRef.current = true;
+  }, []);
+  const handleRailDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      isDraggingRef.current = false;
+      const { active, over } = event;
+      if (!over || active.id === over.id) {
+        return;
+      }
+      const oldIndex = railOrder.indexOf(active.id as SidebarCategoryId);
+      const newIndex = railOrder.indexOf(over.id as SidebarCategoryId);
+      if (oldIndex === -1 || newIndex === -1) {
+        return;
+      }
+      setStoredRailOrder(arrayMove(railOrder, oldIndex, newIndex));
+    },
+    [railOrder, setStoredRailOrder],
+  );
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isFeedPage = activePage.includes('/feeds/');
   // When the For You feed is the current page, the Home button reads as
@@ -969,8 +1055,9 @@ export const SidebarDesktopV2 = ({
   const commitPreview = useCallback((key: string) => {
     // While arcing toward the panel, ignore hover-switches but DON'T block
     // pointer events — blocking the tabs swallowed real clicks (the panel is
-    // already open, so there's nothing to re-open here).
-    if (safeBlockedRef.current) {
+    // already open, so there's nothing to re-open here). Also ignore the hover
+    // that fires under the cursor mid-drag so reordering doesn't flip panels.
+    if (safeBlockedRef.current || isDraggingRef.current) {
       return;
     }
     if (!peekSuppressedRef.current) {
@@ -1294,6 +1381,38 @@ export const SidebarDesktopV2 = ({
     activeCategory === SidebarCategory.Notifications;
   const isNotificationsSelected =
     selectedCategory === SidebarCategory.Notifications;
+
+  // Resolve a rail tab by id. Notifications is the one tab that isn't a plain
+  // category (it renders the bell with its unread badge); everything else goes
+  // through renderCategoryTab.
+  const renderRailTab = (id: SidebarCategoryId): ReactElement => {
+    if (id === SidebarCategory.Notifications) {
+      return (
+        <RailHoverCard
+          label="Notifications"
+          panel={<NotificationsRailPanel />}
+          enabled={!isExpanded}
+        >
+          <div
+            className="w-full"
+            data-sidebar-preview={SidebarCategory.Notifications}
+            onMouseEnter={() => commitPreview(SidebarCategory.Notifications)}
+            onMouseLeave={(event) =>
+              handlePreviewLeave(SidebarCategory.Notifications, event)
+            }
+          >
+            <NotificationsBell
+              rail
+              noTooltip
+              railHideLabel={isCompact}
+              active={isNotificationsSelected}
+            />
+          </div>
+        </RailHoverCard>
+      );
+    }
+    return renderCategoryTab(id) ?? <></>;
+  };
   const isHomePanel =
     !showCreatePanel && activeCategory === SidebarCategory.Main;
   const isUtilityPanelSelected = !isHomePanel;
@@ -1462,41 +1581,26 @@ export const SidebarDesktopV2 = ({
             // already guarantees the items fit, so nothing actually overflows.
             className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
           >
-            {renderCategoryTab(SidebarCategory.Main)}
-            {renderCategoryTab(SidebarCategory.Squads)}
-
-            {overflowOrder.slice(0, visibleOverflowCount).map((id) =>
-              id === SidebarCategory.Notifications ? (
-                <RailHoverCard
-                  key={id}
-                  label="Notifications"
-                  panel={<NotificationsRailPanel />}
-                  enabled={!isExpanded}
-                >
-                  <div
-                    className="w-full"
-                    data-sidebar-preview={SidebarCategory.Notifications}
-                    onMouseEnter={() =>
-                      commitPreview(SidebarCategory.Notifications)
-                    }
-                    onMouseLeave={(event) =>
-                      handlePreviewLeave(SidebarCategory.Notifications, event)
-                    }
-                  >
-                    <NotificationsBell
-                      rail
-                      noTooltip
-                      railHideLabel={isCompact}
-                      active={isNotificationsSelected}
-                    />
-                  </div>
-                </RailHoverCard>
-              ) : (
-                <React.Fragment key={id}>
-                  {renderCategoryTab(id)}
-                </React.Fragment>
-              ),
-            )}
+            <DndContext
+              sensors={railSensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleRailDragStart}
+              onDragEnd={handleRailDragEnd}
+              onDragCancel={() => {
+                isDraggingRef.current = false;
+              }}
+            >
+              <SortableContext
+                items={visibleCategoryIds}
+                strategy={verticalListSortingStrategy}
+              >
+                {visibleCategoryIds.map((id) => (
+                  <SortableRailTab key={id} id={id}>
+                    {renderRailTab(id)}
+                  </SortableRailTab>
+                ))}
+              </SortableContext>
+            </DndContext>
 
             {isLoggedIn && (
               <Tooltip
