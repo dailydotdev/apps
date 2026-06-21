@@ -118,6 +118,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
 import { Typography, TypographyType } from '../typography/Typography';
 
@@ -491,9 +492,12 @@ const SidebarSettingsButton = (): ReactElement => {
 
 // The avatar is a rail tab: it opens the Profile context panel (your feeds,
 // activity, pins, custom feeds) like every other category — no dropdown menu.
-// The streak chip is still its own button, opening the streak calendar.
+// Styled identically to the category tabs (icon + label below, same hover and
+// selected states) — the profile picture stands in for the glyph icon.
 const SidebarProfileButton = ({
   isSelected,
+  isPreviewing,
+  isCompact,
   isExpanded,
   panel,
   onSelect,
@@ -501,6 +505,8 @@ const SidebarProfileButton = ({
   onPreviewLeave,
 }: {
   isSelected: boolean;
+  isPreviewing: boolean;
+  isCompact: boolean;
   isExpanded: boolean;
   panel: ReactElement;
   onSelect: () => void;
@@ -513,44 +519,34 @@ const SidebarProfileButton = ({
     return null;
   }
 
-  // The reading streak now lives in its own rail tab, so the avatar is just the
-  // profile picture (a ring marks the selected state).
   return (
     <RailHoverCard label="You" panel={panel} enabled={!isExpanded}>
-      <div
-        className="relative flex w-full justify-center"
+      <button
+        type="button"
+        role="tab"
+        aria-label="You"
+        aria-selected={isSelected}
+        aria-controls="sidebar-context-panel"
         data-sidebar-preview={SidebarCategory.Profile}
+        onClick={onSelect}
         onMouseEnter={onPreview}
         onMouseLeave={onPreviewLeave}
+        className={classNames(
+          railTabClass,
+          isSelected && 'bg-background-default !text-text-primary',
+          isPreviewing && 'bg-surface-hover text-text-primary',
+        )}
       >
-        <Tooltip
-          side="right"
-          content="You"
-          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-label="You"
-            aria-selected={isSelected}
-            aria-controls="sidebar-context-panel"
-            onClick={onSelect}
-            // `block` on the image kills the inline baseline gap; scales up a
-            // touch on hover.
-            className={classNames(
-              'focus-outline size-10 overflow-hidden rounded-12 transition-transform hover:scale-105',
-              isSelected && 'ring-2 ring-text-primary',
-            )}
-          >
-            <ProfilePicture
-              user={user}
-              size={ProfileImageSize.Large}
-              nativeLazyLoading
-              className="block"
-            />
-          </button>
-        </Tooltip>
-      </div>
+        <span className="relative flex items-center justify-center">
+          <ProfilePicture
+            user={user}
+            size={ProfileImageSize.Small}
+            nativeLazyLoading
+            className="!rounded-full"
+          />
+        </span>
+        {!isCompact && <span className={railTabLabelClass}>You</span>}
+      </button>
     </RailHoverCard>
   );
 };
@@ -608,6 +604,18 @@ export const SidebarDesktopV2 = ({
   const railToggleOpenLeft = isCompact ? 'left-[16.5rem]' : 'left-[17.5rem]';
   const claimableQuestCount = useClaimableQuestCount();
   const showQuestBadge = !optOutQuestSystem && claimableQuestCount > 0;
+
+  // Drives the Streak tab's status: flame fills once you've read today and is
+  // tinted by state (safe / at-risk / critical / freeze); the label shows the
+  // day count. Reuses the same state machine the avatar streak ring used.
+  const {
+    isEnabled: isStreakEnabled,
+    count: streakCount,
+    hasReadToday: streakReadToday,
+    countClassName: streakColorClass,
+    copy: streakCopy,
+  } = useStreakRingState();
+  const showStreakCount = isStreakEnabled && streakCount > 0;
 
   // --- Vertical "More" overflow -------------------------------------------
   // When the rail is too short to fit every nav item, the lowest-priority
@@ -1167,6 +1175,25 @@ export const SidebarDesktopV2 = ({
     // background; it doesn't claim the selected state.
     const isSelected = selectedCategory === category.id;
     const isPreviewing = !isSelected && activeCategory === category.id;
+    // The Streak tab reflects live streak state: the flame fills once you've
+    // read today and takes the state colour, and the label becomes the day
+    // count. When streaks are off / no active streak it renders as a plain tab.
+    const isStreakTab = category.id === SidebarCategory.GameCenter;
+    const iconNode =
+      isStreakTab && isStreakEnabled ? (
+        <HotIcon
+          secondary={streakReadToday}
+          size={IconSize.Small}
+          aria-hidden
+          className={!isSelected ? streakColorClass : undefined}
+        />
+      ) : (
+        category.icon(isSelected)
+      );
+    const labelText =
+      isStreakTab && showStreakCount ? `${streakCount}` : category.label;
+    const ariaLabel =
+      isStreakTab && isStreakEnabled ? streakCopy : category.label;
     return (
       <RailHoverCard
         label={category.label}
@@ -1179,7 +1206,7 @@ export const SidebarDesktopV2 = ({
           id={`sidebar-category-${category.id}`}
           data-sidebar-preview={category.id}
           aria-controls="sidebar-context-panel"
-          aria-label={category.label}
+          aria-label={ariaLabel}
           aria-selected={isSelected}
           onClick={() => onSelectCategory(category.id)}
           onMouseEnter={() => {
@@ -1200,11 +1227,9 @@ export const SidebarDesktopV2 = ({
           )}
         >
           <span className="relative flex items-center justify-center">
-            {category.icon(isSelected)}
+            {iconNode}
           </span>
-          {!isCompact && (
-            <span className={railTabLabelClass}>{category.label}</span>
-          )}
+          {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
           {category.id === SidebarCategory.GameCenter && showQuestBadge && (
             // Pin the badge to the button's top-right corner (not the icon's)
             // so the quest level ring + number stay fully visible.
@@ -1514,6 +1539,11 @@ export const SidebarDesktopV2 = ({
           {isLoggedIn && (
             <SidebarProfileButton
               isSelected={selectedCategory === SidebarCategory.Profile}
+              isPreviewing={
+                selectedCategory !== SidebarCategory.Profile &&
+                activeCategory === SidebarCategory.Profile
+              }
+              isCompact={isCompact}
               isExpanded={isExpanded}
               panel={renderCategorySection(SidebarCategory.Profile)}
               onSelect={onSelectProfile}
