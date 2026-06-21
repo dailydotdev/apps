@@ -120,22 +120,22 @@ export const StreakQuestsSection = ({
         </>
       )}
 
-      {/* 2. Today's quests, capped so the list never crowds out the rest. */}
-      <div className="flex h-9 items-center px-4">
-        <span className="text-text-quaternary typo-callout">Quests</span>
-      </div>
-      <div className="max-h-96 overflow-y-auto px-4">
-        <CompactQuestList />
-      </div>
-
-      {/* 3. Reference links / settings — demoted to the bottom. */}
-      <HorizontalSeparator className="mx-3 my-2 w-auto" />
+      {/* 2. Game Center / Quests settings links — directly below the streak
+          separator, above the quest list. */}
       <Section
         {...defaultRenderSectionProps}
         items={linkItems}
         isItemsButton={isItemsButton}
         className="!mt-0"
       />
+
+      {/* 3. Today's quests, capped so the list never crowds out the rest. */}
+      <div className="flex h-9 items-center px-4">
+        <span className="text-text-quaternary typo-callout">Quests</span>
+      </div>
+      <div className="max-h-96 overflow-y-auto px-4">
+        <CompactQuestList />
+      </div>
     </div>
   );
 };

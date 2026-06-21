@@ -1175,22 +1175,18 @@ export const SidebarDesktopV2 = ({
     // background; it doesn't claim the selected state.
     const isSelected = selectedCategory === category.id;
     const isPreviewing = !isSelected && activeCategory === category.id;
-    // The Streak tab renders the live streak ring (StreakBadge): dashed/solid
-    // animated border by state, flame filled once you've read today, and the
-    // day count in a chip. It replaces the icon+label entirely (the chip is the
-    // label). When streaks are off it falls back to a plain flame tab.
+    // The Streak tab keeps the standard icon+label rhythm: the small square
+    // StreakBadge (state-driven border + flame) stands in for the glyph, and
+    // the day count is the label. When streaks are off it's a plain flame tab.
     const isStreakTab = category.id === SidebarCategory.GameCenter;
     const showStreakBadge = isStreakTab && isStreakEnabled;
     const iconNode = showStreakBadge ? (
-      <StreakBadge
-        state={streakState}
-        count={streakCount}
-        hasReadToday={streakReadToday}
-        className="mb-2"
-      />
+      <StreakBadge state={streakState} hasReadToday={streakReadToday} />
     ) : (
       category.icon(isSelected)
     );
+    const labelText =
+      showStreakBadge && streakCount > 0 ? `${streakCount}` : category.label;
     const ariaLabel =
       isStreakTab && isStreakEnabled ? streakCopy : category.label;
     return (
@@ -1228,9 +1224,7 @@ export const SidebarDesktopV2 = ({
           <span className="relative flex items-center justify-center">
             {iconNode}
           </span>
-          {!isCompact && !showStreakBadge && (
-            <span className={railTabLabelClass}>{category.label}</span>
-          )}
+          {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
           {category.id === SidebarCategory.GameCenter && showQuestBadge && (
             // Pin the badge to the button's top-right corner (not the icon's)
             // so the quest level ring + number stay fully visible.
