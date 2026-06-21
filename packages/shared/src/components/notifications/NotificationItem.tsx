@@ -25,9 +25,10 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
+import { BellDisabledIcon, BellIcon, MenuIcon, PlayIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
 import {
+  NotificationAttachmentType,
   NotificationAvatarType,
   NotificationPreferenceStatus,
 } from '../../graphql/notifications';
@@ -41,6 +42,12 @@ import {
 } from '../../lib/dateFormat';
 import { stripHtmlTags } from '../../lib/strings';
 import { Tooltip } from '../tooltip/Tooltip';
+
+// Strip markup + collapse whitespace so two HTML strings can be compared for
+// "is this just the same text again" de-duplication. Pure + module-scoped so
+// it isn't re-allocated on every row render.
+const normalizeText = (html: string): string =>
+  stripHtmlTags(html).replace(/\s+/g, ' ').trim().toLowerCase();
 
 export interface NotificationItemProps
   extends Pick<
@@ -195,7 +202,9 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
   const [primaryAvatar] = filteredAvatars;
   const hasAvatar = filteredAvatars.length > 0;
-  const totalAvatars = numTotalAvatars ?? filteredAvatars.length;
+  // `numTotalAvatars` can arrive as 0 from the backend even when avatars are
+  // present, so take the larger of the two rather than `??` (which keeps 0).
+  const totalAvatars = Math.max(numTotalAvatars ?? 0, filteredAvatars.length);
   // Only show the multi-image grid for more than three actors; one/two/three
   // just show a single avatar (with a corner badge).
   const showGrid = filteredAvatars.length > 1 && totalAvatars > 3;
@@ -232,8 +241,22 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     const cells: ReactElement[] = filteredAvatars
       .slice(0, slots)
       .map((avatar) => {
+        // Only image-backed actors (the ones that actually appear in a >3
+        // stack) render as a compact face. Icon-backed types (badges/briefs/
+        // digests) never reach this path, but fall back to the full avatar
+        // renderer rather than a broken <img> if one ever does.
+        const isImageBacked =
+          avatar.type === NotificationAvatarType.User ||
+          avatar.type === NotificationAvatarType.Source ||
+          avatar.type === NotificationAvatarType.Organization;
+        if (!isImageBacked) {
+          return (
+            <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
+          );
+        }
         const image = (
           <Image
+            key={avatar.referenceId}
             className="size-full rounded-4 object-cover"
             src={avatar.image}
             alt={`${avatar.name} avatar`}
@@ -248,12 +271,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             {image}
           </ProfileTooltip>
         ) : (
-          <Image
-            key={avatar.referenceId}
-            className="size-full rounded-4 object-cover"
-            src={avatar.image}
-            alt={`${avatar.name} avatar`}
-          />
+          image
         );
       });
     // Pad empty face cells so the circular action always lands bottom-right.
@@ -286,13 +304,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   // comment makes clear where it happened. Each is hidden when it just repeats
   // the headline or the other, so we never show the same text twice (e.g.
   // source-post rows whose title already is the post title).
-  const normalize = (html: string) =>
-    stripHtmlTags(html).replace(/\s+/g, ' ').trim().toLowerCase();
-  const titleNorm = normalize(memoizedTitle);
-  const descriptionNorm = description ? normalize(memoizedDescription) : '';
+  const titleNorm = normalizeText(memoizedTitle);
+  const descriptionNorm = description ? normalizeText(memoizedDescription) : '';
   const showDescription = !!description && descriptionNorm !== titleNorm;
   const attachmentTitle = attachment?.title;
-  const attachmentTitleNorm = attachmentTitle ? normalize(attachmentTitle) : '';
+  const attachmentTitleNorm = attachmentTitle
+    ? normalizeText(attachmentTitle)
+    : '';
   const showAttachmentTitle =
     !!attachmentTitle &&
     attachmentTitleNorm !== titleNorm &&
@@ -403,14 +421,29 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {(attachment?.image || hasOptions) && (
         <div className="mt-1 flex shrink-0 items-start gap-2 self-start">
           {attachment?.image && (
-            <Image
-              data-testid="postImage"
-              loading="lazy"
-              type={ImageType.Post}
-              className="size-12 rounded-12 object-cover"
-              src={attachment.image}
-              alt={`Cover preview of: ${attachment.title}`}
-            />
+            <span className="relative flex size-12 shrink-0">
+              <Image
+                data-testid="postImage"
+                loading="lazy"
+                type={ImageType.Post}
+                className="size-12 rounded-12 object-cover"
+                src={attachment.image}
+                alt={
+                  attachment.title
+                    ? `Cover preview of: ${attachment.title}`
+                    : 'Post cover preview'
+                }
+              />
+              {attachment.type === NotificationAttachmentType.Video && (
+                <span className="absolute inset-0 flex items-center justify-center rounded-12 bg-overlay-tertiary-black">
+                  <PlayIcon
+                    secondary
+                    size={IconSize.Small}
+                    className="text-white"
+                  />
+                </span>
+              )}
+            </span>
           )}
           <div className="relative z-1 flex w-7 shrink-0 justify-center">
             {hasOptions && (

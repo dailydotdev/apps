@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -28,20 +28,29 @@ export const NotificationsRailPanel = (): ReactElement => {
   const activeType =
     typeof router.query?.type === 'string' ? router.query.type : undefined;
 
+  // Filters navigate via `action` (button), NOT `path`. SidebarItem treats
+  // any `?type=` path as active for the whole `/notifications` route (its
+  // matcher strips the query), so a path would light up every row at once.
+  // With no path, the explicit `active` flag is the sole source of truth.
+  // Use a shallow `replace` to match the in-page filter bar — toggling a
+  // filter shouldn't push a new history entry or trigger a data refetch.
+  const navigate = useCallback(
+    (category: NotificationFilterCategory | null) =>
+      router.replace(
+        {
+          pathname: '/notifications',
+          query: category ? { type: category } : {},
+        },
+        undefined,
+        { shallow: true },
+      ),
+    [router],
+  );
+
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // Category-owned settings shortcut: keeps the Notifications panel active
     // (the canonical /settings/notifications page keeps the Settings panel).
     const settingsPath = `${webappUrl}notifications/settings`;
-
-    // Filters navigate via `action` (button), NOT `path`. SidebarItem treats
-    // any `?type=` path as active for the whole `/notifications` route (its
-    // matcher strips the query), so a path would light up every row at once.
-    // With no path, the explicit `active` flag is the sole source of truth.
-    const navigate = (category: NotificationFilterCategory | null) =>
-      router.push({
-        pathname: '/notifications',
-        query: category ? { type: category } : {},
-      });
 
     const allActivity: SidebarMenuItem = {
       title: 'All activity',
@@ -87,7 +96,7 @@ export const NotificationsRailPanel = (): ReactElement => {
     };
 
     return [allActivity, ...categoryItems, settings];
-  }, [activePage, activeType, hasUnread, isListPage, router, unreadCount]);
+  }, [activePage, activeType, hasUnread, isListPage, navigate, unreadCount]);
 
   return (
     <Section

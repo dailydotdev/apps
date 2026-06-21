@@ -176,6 +176,9 @@ const Notifications = (): ReactElement => {
     const byKey = new Map<string, Notification[]>();
     filtered.forEach((node) => {
       const days = differenceInCalendarDays(now, new Date(node.createdAt));
+      // An invalid `createdAt` makes `days` NaN, which is `<=` nothing (not
+      // even Infinity), so `.find` returns undefined — fall back to the last
+      // bucket ("Earlier") instead of dropping the notification.
       const group =
         TIME_GROUPS.find((bucket) => days <= bucket.maxDays) ??
         TIME_GROUPS[TIME_GROUPS.length - 1];
@@ -286,12 +289,19 @@ const Notifications = (): ReactElement => {
               })}
             </section>
           ))}
-          {isFetched && filtered.length === 0 && activeCategory && (
-            <p className="px-4 py-10 text-center text-text-tertiary typo-callout">
-              No {notificationFilterCategoryLabel[activeCategory].toLowerCase()}{' '}
-              notifications yet.
-            </p>
-          )}
+          {/* Filtering is client-side over loaded pages, so only claim a
+              category is empty once every page has loaded — otherwise matches
+              on a not-yet-fetched page would flash this message. */}
+          {isFetched &&
+            !hasNextPage &&
+            filtered.length === 0 &&
+            activeCategory && (
+              <p className="px-4 py-10 text-center text-text-tertiary typo-callout">
+                No{' '}
+                {notificationFilterCategoryLabel[activeCategory].toLowerCase()}{' '}
+                notifications yet.
+              </p>
+            )}
           {isFetched &&
             !activeCategory &&
             (!hasNotifications || !hasNextPage) && <FirstNotification />}
