@@ -54,6 +54,12 @@ export const publishTimeRelativeShort = (
   return `${numYears}y`;
 };
 
+// Full, readable date for the notification timestamp tooltip — e.g.
+// "15 April 2024 at 14:30".
+export const getFullNotificationDate = (
+  value: Date | number | string,
+): string => format(new Date(value), "d MMMM yyyy 'at' HH:mm");
+
 export const publishTimeLiveTimer: typeof publishTimeRelativeShort = (
   value,
   now = new Date(),

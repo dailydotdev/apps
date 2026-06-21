@@ -32,8 +32,12 @@ import { Image, ImageType } from '../image/Image';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
-import { getLastActivityDateFormat } from '../../lib/dateFormat';
+import {
+  getFullNotificationDate,
+  publishTimeRelativeShort,
+} from '../../lib/dateFormat';
 import { stripHtmlTags } from '../../lib/strings';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export interface NotificationItemProps
   extends Pick<
@@ -242,7 +246,8 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   // stamp the same loud badge on most rows, so they keep a clean avatar/icon.
   const showBadge =
     hasAvatar && category !== NotificationFilterCategory.Updates;
-  const timeText = createdAt ? getLastActivityDateFormat(createdAt) : '';
+  const timeText = createdAt ? publishTimeRelativeShort(createdAt) : '';
+  const fullDate = createdAt ? getFullNotificationDate(createdAt) : '';
 
   // Some notification types echo the title in the description (e.g. source
   // posts). Hide the snippet when it just repeats the headline, so we never
@@ -343,9 +348,11 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         />
       )}
       {timeText && (
-        <time className="shrink-0 whitespace-nowrap text-text-tertiary typo-caption1">
-          {timeText}
-        </time>
+        <Tooltip content={fullDate}>
+          <time className="relative z-1 shrink-0 whitespace-nowrap text-text-tertiary typo-caption1">
+            {timeText}
+          </time>
+        </Tooltip>
       )}
       {hasOptions && (
         <span className="invisible absolute right-3 top-2.5 z-1 group-hover:visible">
