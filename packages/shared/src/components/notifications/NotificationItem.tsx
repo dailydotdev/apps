@@ -18,6 +18,7 @@ import {
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +28,10 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import {
+  NotificationAvatarType,
+  NotificationPreferenceStatus,
+} from '../../graphql/notifications';
 import { Image, ImageType } from '../image/Image';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
@@ -207,22 +211,38 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   } else if (filteredAvatars.length > 1) {
     avatarContent = (
       <div className="flex items-center">
-        {stackFaces.map((avatar, index) => (
-          <div
-            key={avatar.referenceId}
-            style={{ zIndex: stackFaces.length - index }}
-            className={classNames(index > 0 && '-ml-3')}
-          >
+        {stackFaces.map((avatar, index) => {
+          // Stacked faces are rounded rectangles (a circle is reserved for a
+          // single source/user). Each one keeps a hover profile tooltip.
+          const picture = (
             <ProfilePicture
               size={ProfileImageSize.Small}
-              rounded="full"
-              className="border-2 border-background-default"
+              className="!rounded-8 border-2 border-background-default"
               user={{ image: avatar.image }}
             />
-          </div>
-        ))}
+          );
+
+          return (
+            <div
+              key={avatar.referenceId}
+              style={{ zIndex: stackFaces.length - index }}
+              className={classNames('relative', index > 0 && '-ml-3')}
+            >
+              {avatar.type === NotificationAvatarType.User ? (
+                <ProfileTooltip
+                  userId={avatar.referenceId}
+                  link={{ href: avatar.targetUrl }}
+                >
+                  {picture}
+                </ProfileTooltip>
+              ) : (
+                picture
+              )}
+            </div>
+          );
+        })}
         {showAvatarCount && (
-          <span className="-ml-3 flex size-6 items-center justify-center rounded-full border-2 border-background-default bg-surface-float font-bold text-text-tertiary typo-caption2">
+          <span className="-ml-3 flex size-6 items-center justify-center rounded-8 border-2 border-background-default bg-surface-float font-bold text-text-tertiary typo-caption2">
             +{totalAvatars - stackFaces.length}
           </span>
         )}
@@ -261,7 +281,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex min-h-16 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex min-h-20 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -338,7 +358,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {/* Small content thumbnail, then the date as the fixed right-most element
           so it always lands in the same place and stays easy to scan. */}
       {(timeText || attachment?.image) && (
-        <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
           {timeText && (
             <Tooltip content={fullDate}>
               <time className="relative z-1 whitespace-nowrap text-text-tertiary typo-caption1">
@@ -351,7 +371,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
               data-testid="postImage"
               loading="lazy"
               type={ImageType.Post}
-              className="h-11 w-16 rounded-12 object-cover"
+              className="size-12 rounded-12 object-cover"
               src={attachment.image}
               alt={`Cover preview of: ${attachment.title}`}
             />
