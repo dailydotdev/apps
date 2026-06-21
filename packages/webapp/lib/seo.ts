@@ -1,8 +1,12 @@
-const DEFAULT_APP_ORIGIN = 'https://app.daily.dev';
+const DEFAULT_APP_ORIGIN = 'https://daily.dev';
 const DEFAULT_SITE_ORIGIN = 'https://daily.dev';
 
 const normalizeOrigin = (value?: string): string | undefined => {
   if (!value) {
+    return undefined;
+  }
+
+  if (value.startsWith('/')) {
     return undefined;
   }
 

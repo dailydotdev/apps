@@ -2,7 +2,7 @@
 
 A Next.js + React web application of daily.dev.
 It utilizes the brand new incremental static generation feature of Next.js to deliver pages fast.
-Available at: [app.daily.dev](https://app.daily.dev)
+Available at: [daily.dev](https://daily.dev)
 
 ## Stack
 
