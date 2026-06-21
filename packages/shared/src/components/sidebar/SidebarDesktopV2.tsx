@@ -87,6 +87,10 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import { SidebarShortcutsDock } from './SidebarShortcutsDock';
+import {
+  SidebarDragStateProvider,
+  useSidebarDragState,
+} from './useSidebarDragState';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -242,13 +246,19 @@ const RailHoverCard = ({
   // up after navigation.
   const [open, setOpen] = useState(false);
   const suppressOpenRef = useRef(false);
+  // Never let the panel pop open while something is being dragged — its portal
+  // (z-tooltip) would render over the drag ghost.
+  const { isDragging } = useSidebarDragState();
 
-  const handleOpenChange = useCallback((next: boolean) => {
-    if (next && suppressOpenRef.current) {
-      return;
-    }
-    setOpen(next);
-  }, []);
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      if (next && (suppressOpenRef.current || isDragging)) {
+        return;
+      }
+      setOpen(next);
+    },
+    [isDragging],
+  );
 
   const handleTriggerClick = useCallback(() => {
     suppressOpenRef.current = true;
@@ -266,7 +276,7 @@ const RailHoverCard = ({
     <HoverCardPrimitive.Root
       openDelay={RAIL_HOVER_OPEN_DELAY}
       closeDelay={RAIL_HOVER_CLOSE_DELAY}
-      open={open}
+      open={open && !isDragging}
       onOpenChange={handleOpenChange}
     >
       <HoverCardPrimitive.Trigger
@@ -690,12 +700,25 @@ export const SidebarDesktopV2 = ({
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
   const isDraggingRef = useRef(false);
-  const handleRailDragStart = useCallback(() => {
-    isDraggingRef.current = true;
+  // Shared "any sidebar drag active" flag. Every drag system (tab reorder, the
+  // shortcuts dock, and panel-row→dock) flips this so tooltips, hover-card
+  // panels and the panel-preview all stand down for the duration of a drag —
+  // they were rendering over the drag ghost and making it feel broken.
+  const [isAnyDragging, setIsAnyDragging] = useState(false);
+  const setSidebarDragging = useCallback((value: boolean) => {
+    isDraggingRef.current = value;
+    setIsAnyDragging(value);
   }, []);
+  const dragStateValue = useMemo(
+    () => ({ isDragging: isAnyDragging, setDragging: setSidebarDragging }),
+    [isAnyDragging, setSidebarDragging],
+  );
+  const handleRailDragStart = useCallback(() => {
+    setSidebarDragging(true);
+  }, [setSidebarDragging]);
   const handleRailDragEnd = useCallback(
     (event: DragEndEvent) => {
-      isDraggingRef.current = false;
+      setSidebarDragging(false);
       const { active, over } = event;
       if (!over || active.id === over.id) {
         return;
@@ -707,7 +730,7 @@ export const SidebarDesktopV2 = ({
       }
       setStoredRailOrder(arrayMove(railOrder, oldIndex, newIndex));
     },
-    [railOrder, setStoredRailOrder],
+    [railOrder, setStoredRailOrder, setSidebarDragging],
   );
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isFeedPage = activePage.includes('/feeds/');
@@ -1397,232 +1420,231 @@ export const SidebarDesktopV2 = ({
   })();
 
   return (
-    <SidebarAside
-      ref={sidebarRef}
-      data-testid="sidebar-aside"
-      onMouseLeave={handleRailMouseLeave}
-      onMouseMove={handleRailMouseMove}
-      className={classNames(
-        'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
-        isExpanded ? railExpandedWidth : railCollapsedWidth,
-        isBannerAvailable
-          ? 'laptop:[--safe-area-top-offset:2rem]'
-          : 'laptop:[--safe-area-top-offset:0rem]',
-        // Match the V2 page background exactly (same color-mix MainLayout uses)
-        // so the rail + panel blend with the rest of the app in every state —
-        // collapsed, peeking overlay and pinned. It's opaque, which the peek
-        // overlay needs to paint over the feed.
-        !featureTheme &&
-          'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
-        // While peeking, the panel floats over the feed — add a right border so
-        // its edge reads clearly against the content behind it.
-        isHoverExpanded &&
-          'laptop:!border-r laptop:border-border-subtlest-tertiary',
-        featureTheme && 'bg-transparent',
-        suppressTransition,
-      )}
-    >
-      {isExpanded && !isSettingsSelected && (
-        <span
-          aria-hidden
-          className={classNames(
-            'pointer-events-none absolute inset-y-0 hidden border-r border-border-subtlest-quaternary laptop:block',
-            railSeparatorLeft,
-          )}
-        />
-      )}
-      {!isSettingsSelected && (
-        <nav
-          aria-label="Primary navigation"
-          className={classNames(
-            // pt matches the streak tile's side gap (54px tile centred in the
-            // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
-            // spacing is equal.
-            'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
-            railNavWidth,
-          )}
-        >
-          <Tooltip
-            side="right"
-            content="daily.dev"
-            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+    <SidebarDragStateProvider value={dragStateValue}>
+      <SidebarAside
+        ref={sidebarRef}
+        data-testid="sidebar-aside"
+        onMouseLeave={handleRailMouseLeave}
+        onMouseMove={handleRailMouseMove}
+        className={classNames(
+          'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
+          isExpanded ? railExpandedWidth : railCollapsedWidth,
+          isBannerAvailable
+            ? 'laptop:[--safe-area-top-offset:2rem]'
+            : 'laptop:[--safe-area-top-offset:0rem]',
+          // Match the V2 page background exactly (same color-mix MainLayout uses)
+          // so the rail + panel blend with the rest of the app in every state —
+          // collapsed, peeking overlay and pinned. It's opaque, which the peek
+          // overlay needs to paint over the feed.
+          !featureTheme &&
+            'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+          // While peeking, the panel floats over the feed — add a right border so
+          // its edge reads clearly against the content behind it.
+          isHoverExpanded &&
+            'laptop:!border-r laptop:border-border-subtlest-tertiary',
+          featureTheme && 'bg-transparent',
+          suppressTransition,
+        )}
+      >
+        {isExpanded && !isSettingsSelected && (
+          <span
+            aria-hidden
+            className={classNames(
+              'pointer-events-none absolute inset-y-0 hidden border-r border-border-subtlest-quaternary laptop:block',
+              railSeparatorLeft,
+            )}
+          />
+        )}
+        {!isSettingsSelected && (
+          <nav
+            aria-label="Primary navigation"
+            className={classNames(
+              // pt matches the streak tile's side gap (54px tile centred in the
+              // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
+              // spacing is equal.
+              'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
+              railNavWidth,
+            )}
           >
-            {/* mt nudges the logo down so it lines up vertically with the
-                panel title row (which sits at pt-6). */}
-            <div className="mb-1 mt-2.5">
-              <Link href={webappUrl} passHref prefetch={false}>
-                <a
-                  href={webappUrl}
-                  aria-label="daily.dev"
-                  className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
-                  onClick={onLogoClick}
-                >
-                  <LogoIcon className={{ container: 'h-4 w-auto' }} />
-                </a>
-              </Link>
-            </div>
-          </Tooltip>
-
-          <Tooltip
-            side="right"
-            content="Home"
-            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-          >
-            <Link href={myFeedPath} passHref>
-              <a
-                href={myFeedPath}
-                aria-label="Home"
-                // Matches the Search icon: same size, hover background and
-                // tertiary color; the icon fills (and goes primary) when the
-                // For You feed is the current page.
-                className={classNames(
-                  'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
-                  isHomeActive && '!text-text-primary',
-                )}
-                onClick={onHomeClick}
-              >
-                <HomeIcon
-                  secondary={isHomeActive}
-                  size={IconSize.Small}
-                  aria-hidden
-                />
-              </a>
-            </Link>
-          </Tooltip>
-
-          <Tooltip
-            side="right"
-            // The ⌘K hint moved off the rail and into the tooltip to save
-            // vertical space — same treatment as the sidebar-toggle shortcut.
-            content={
-              <span className="flex items-center gap-2">
-                Search
-                <span className="flex items-center gap-0.5">
-                  {shortcutKeys.map((key) => (
-                    <kbd
-                      key={key}
-                      className="rounded-4 border border-border-subtlest-tertiary px-1 font-sans text-text-secondary typo-caption2"
-                    >
-                      {key}
-                    </kbd>
-                  ))}
-                </span>
-              </span>
-            }
-            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-          >
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={openSpotlight}
-              className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-            >
-              <SearchIcon size={IconSize.Small} aria-hidden />
-            </button>
-          </Tooltip>
-
-          {isLoggedIn && (
             <Tooltip
               side="right"
-              content="New post"
+              content="daily.dev"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
-              <Button
-                id="sidebar-create-post"
-                type="button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                icon={<NewPostIcon />}
-                aria-label="New post"
-                aria-controls="sidebar-context-panel"
-                data-sidebar-preview="create"
-                onMouseEnter={() => commitPreview('create')}
-                onMouseLeave={(event: React.MouseEvent) =>
-                  handlePreviewLeave('create', event)
-                }
-                onFocus={() => setIsCreateHovered(true)}
-                onBlur={() => setIsCreateHovered(false)}
-                onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                className="!size-9 !rounded-12 [&_svg]:!size-6"
-              />
+              {/* mt nudges the logo down so it lines up vertically with the
+                panel title row (which sits at pt-6). */}
+              <div className="mb-1 mt-2.5">
+                <Link href={webappUrl} passHref prefetch={false}>
+                  <a
+                    href={webappUrl}
+                    aria-label="daily.dev"
+                    className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
+                    onClick={onLogoClick}
+                  >
+                    <LogoIcon className={{ container: 'h-4 w-auto' }} />
+                  </a>
+                </Link>
+              </div>
             </Tooltip>
-          )}
 
-          <div
-            aria-hidden
-            className="my-4 h-px w-6 bg-border-subtlest-tertiary"
-          />
-
-          <div
-            ref={navListRef}
-            role="tablist"
-            aria-label="Sidebar categories"
-            // overflow-visible (not hidden) so the focus-visible ring on the
-            // selected/focused tab isn't clipped on its edges. The "More" fold
-            // already guarantees the items fit, so nothing actually overflows.
-            className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
-          >
-            <DndContext
-              sensors={railSensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleRailDragStart}
-              onDragEnd={handleRailDragEnd}
-              onDragCancel={() => {
-                isDraggingRef.current = false;
-              }}
+            <Tooltip
+              side="right"
+              content="Home"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
-              <SortableContext
-                items={visibleCategoryIds}
-                strategy={verticalListSortingStrategy}
-              >
-                {visibleCategoryIds.map((id) => (
-                  <SortableRailTab key={id} id={id}>
-                    {renderRailTab(id)}
-                  </SortableRailTab>
-                ))}
-              </SortableContext>
-            </DndContext>
-
-            {isNavOverflowing && (
-              <RailHoverCard label="More" panel={renderMorePanel()}>
-                <button
-                  type="button"
-                  aria-label="More"
-                  aria-haspopup="menu"
-                  className={railTabClass}
-                >
-                  <span className="relative flex items-center justify-center">
-                    <MenuIcon size={IconSize.Small} aria-hidden />
-                  </span>
-                  {!isCompact && (
-                    <span className={railTabLabelClass}>More</span>
+              <Link href={myFeedPath} passHref>
+                <a
+                  href={myFeedPath}
+                  aria-label="Home"
+                  // Matches the Search icon: same size, hover background and
+                  // tertiary color; the icon fills (and goes primary) when the
+                  // For You feed is the current page.
+                  className={classNames(
+                    'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                    isHomeActive && '!text-text-primary',
                   )}
-                </button>
-              </RailHoverCard>
+                  onClick={onHomeClick}
+                >
+                  <HomeIcon
+                    secondary={isHomeActive}
+                    size={IconSize.Small}
+                    aria-hidden
+                  />
+                </a>
+              </Link>
+            </Tooltip>
+
+            <Tooltip
+              side="right"
+              // The ⌘K hint moved off the rail and into the tooltip to save
+              // vertical space — same treatment as the sidebar-toggle shortcut.
+              content={
+                <span className="flex items-center gap-2">
+                  Search
+                  <span className="flex items-center gap-0.5">
+                    {shortcutKeys.map((key) => (
+                      <kbd
+                        key={key}
+                        className="rounded-4 border border-border-subtlest-tertiary px-1 font-sans text-text-secondary typo-caption2"
+                      >
+                        {key}
+                      </kbd>
+                    ))}
+                  </span>
+                </span>
+              }
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={openSpotlight}
+                className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              >
+                <SearchIcon size={IconSize.Small} aria-hidden />
+              </button>
+            </Tooltip>
+
+            {isLoggedIn && (
+              <Tooltip
+                side="right"
+                content="New post"
+                collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+              >
+                <Button
+                  id="sidebar-create-post"
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Small}
+                  icon={<NewPostIcon />}
+                  aria-label="New post"
+                  aria-controls="sidebar-context-panel"
+                  data-sidebar-preview="create"
+                  onMouseEnter={() => commitPreview('create')}
+                  onMouseLeave={(event: React.MouseEvent) =>
+                    handlePreviewLeave('create', event)
+                  }
+                  onFocus={() => setIsCreateHovered(true)}
+                  onBlur={() => setIsCreateHovered(false)}
+                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
+                  className="!size-9 !rounded-12 [&_svg]:!size-6"
+                />
+              </Tooltip>
             )}
 
-            {/* User-customizable shortcut dock — a separator then any pinned
-                page shortcuts, sitting directly below the rail tabs. */}
-            {isLoggedIn && <SidebarShortcutsDock />}
-          </div>
+            <div
+              aria-hidden
+              className="my-4 h-px w-6 bg-border-subtlest-tertiary"
+            />
 
-          {/* Utility actions (not tabs) — Invite/Support/Settings open their
+            <div
+              ref={navListRef}
+              role="tablist"
+              aria-label="Sidebar categories"
+              // overflow-visible (not hidden) so the focus-visible ring on the
+              // selected/focused tab isn't clipped on its edges. The "More" fold
+              // already guarantees the items fit, so nothing actually overflows.
+              className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
+            >
+              <DndContext
+                sensors={railSensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleRailDragStart}
+                onDragEnd={handleRailDragEnd}
+                onDragCancel={() => setSidebarDragging(false)}
+              >
+                <SortableContext
+                  items={visibleCategoryIds}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {visibleCategoryIds.map((id) => (
+                    <SortableRailTab key={id} id={id}>
+                      {renderRailTab(id)}
+                    </SortableRailTab>
+                  ))}
+                </SortableContext>
+              </DndContext>
+
+              {isNavOverflowing && (
+                <RailHoverCard label="More" panel={renderMorePanel()}>
+                  <button
+                    type="button"
+                    aria-label="More"
+                    aria-haspopup="menu"
+                    className={railTabClass}
+                  >
+                    <span className="relative flex items-center justify-center">
+                      <MenuIcon size={IconSize.Small} aria-hidden />
+                    </span>
+                    {!isCompact && (
+                      <span className={railTabLabelClass}>More</span>
+                    )}
+                  </button>
+                </RailHoverCard>
+              )}
+
+              {/* User-customizable shortcut dock — a separator then any pinned
+                page shortcuts, sitting directly below the rail tabs. */}
+              {isLoggedIn && <SidebarShortcutsDock />}
+            </div>
+
+            {/* Utility actions (not tabs) — Invite/Support/Settings open their
               own popups, so this is a plain group rather than a tablist.
               Hovering it closes any open collapsed-peek so these panel-less
               icons never leave a stale panel showing. */}
-          <div
-            aria-label="Sidebar utilities"
-            onMouseEnter={handleRailMouseLeave}
-            className="mt-auto flex w-full flex-col items-center gap-1"
-          >
-            <SidebarInviteButton />
-            <SidebarSupportButton />
-            {isLoggedIn && <SidebarSettingsButton />}
-          </div>
-        </nav>
-      )}
+            <div
+              aria-label="Sidebar utilities"
+              onMouseEnter={handleRailMouseLeave}
+              className="mt-auto flex w-full flex-col items-center gap-1"
+            >
+              <SidebarInviteButton />
+              <SidebarSupportButton />
+              {isLoggedIn && <SidebarSettingsButton />}
+            </div>
+          </nav>
+        )}
 
-      {/*
+        {/*
         Slide-between-anchors toggle button. It tracks the *visible* right edge
         (`isExpanded`) so it follows the panel when peeking and never collides
         with the panel title. Its glyph/label reflect the *pinned* state
@@ -1632,129 +1654,130 @@ export const SidebarDesktopV2 = ({
         Hidden on settings pages, where the panel is force-expanded and
         collapsing it would hide the only settings navigation.
       */}
-      {!forceExpanded && (
-        <Tooltip
-          side="right"
-          content={
-            <span className="flex items-center gap-2">
-              {sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
-              <kbd className="rounded-4 border border-border-subtlest-tertiary px-1 font-sans text-text-secondary typo-caption2">
-                [
-              </kbd>
-            </span>
-          }
-          collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-        >
-          <div
-            className={classNames(
-              'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
-              isExpanded ? railToggleOpenLeft : railToggleClosedLeft,
-              suppressTransition,
-            )}
+        {!forceExpanded && (
+          <Tooltip
+            side="right"
+            content={
+              <span className="flex items-center gap-2">
+                {sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+                <kbd className="rounded-4 border border-border-subtlest-tertiary px-1 font-sans text-text-secondary typo-caption2">
+                  [
+                </kbd>
+              </span>
+            }
+            collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
           >
-            <button
-              type="button"
-              onClick={onToggleExpanded}
-              aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
-              aria-expanded={sidebarExpanded}
+            <div
               className={classNames(
-                'focus-outline flex size-7 items-center justify-center rounded-10 border text-text-tertiary transition-[background-color,border-color,box-shadow,color] duration-300 ease-in-out',
-                sidebarExpanded
-                  ? 'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
-                  : 'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
+                'absolute top-6 z-1 hidden h-10 items-center transition-[left] duration-300 ease-in-out laptop:flex',
+                isExpanded ? railToggleOpenLeft : railToggleClosedLeft,
                 suppressTransition,
               )}
             >
-              <SidebarArrowLeft
-                size={IconSize.XSmall}
-                aria-hidden
+              <button
+                type="button"
+                onClick={onToggleExpanded}
+                aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+                aria-expanded={sidebarExpanded}
                 className={classNames(
-                  'transition-transform duration-300 ease-in-out',
-                  !sidebarExpanded && 'rotate-180',
+                  'focus-outline flex size-7 items-center justify-center rounded-10 border text-text-tertiary transition-[background-color,border-color,box-shadow,color] duration-300 ease-in-out',
+                  sidebarExpanded
+                    ? 'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
+                    : 'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
                   suppressTransition,
                 )}
-              />
-            </button>
-          </div>
-        </Tooltip>
-      )}
-
-      <section
-        ref={panelRef}
-        id="sidebar-context-panel"
-        role="tabpanel"
-        aria-labelledby={
-          showCreatePanel
-            ? 'sidebar-create-post'
-            : `sidebar-category-${activeCategory}`
-        }
-        aria-label={
-          showCreatePanel
-            ? 'New post'
-            : `${activeLabel ?? 'Settings'} navigation`
-        }
-        className={classNames(
-          'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
-          // Settings collapses the rail, so the panel fills the whole sidebar.
-          // eslint-disable-next-line no-nested-ternary
-          isSettingsSelected
-            ? 'w-full opacity-100'
-            : isExpanded
-            ? 'w-60 opacity-100'
-            : 'pointer-events-none w-0 opacity-0',
-          suppressTransition,
-        )}
-      >
-        {/* pl-5 lines the panel title up with the list rows' icon glyphs
-            (icons sit ~8px into their w-9 column) and the section titles. */}
-        <div className="pl-5 pr-3 pt-6">
-          {isSettingsSelected ? (
-            <Button
-              type="button"
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              // Smaller glyph, flipped to point left (it's a back action).
-              icon={
-                <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
-              }
-              onClick={onBackToApp}
-              className="-ml-1"
-            >
-              Back to app
-            </Button>
-          ) : (
-            <div className="flex h-10 items-center gap-1">
-              <Typography bold type={TypographyType.Callout}>
-                {utilityPanelTitle}
-              </Typography>
+              >
+                <SidebarArrowLeft
+                  size={IconSize.XSmall}
+                  aria-hidden
+                  className={classNames(
+                    'transition-transform duration-300 ease-in-out',
+                    !sidebarExpanded && 'rotate-180',
+                    suppressTransition,
+                  )}
+                />
+              </button>
             </div>
-          )}
-        </div>
-
-        {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
-          <div className="mt-2 flex items-center gap-1 px-3">
-            {additionalButtons}
-          </div>
+          </Tooltip>
         )}
 
-        <SidebarScrollWrapper
+        <section
+          ref={panelRef}
+          id="sidebar-context-panel"
+          role="tabpanel"
+          aria-labelledby={
+            showCreatePanel
+              ? 'sidebar-create-post'
+              : `sidebar-category-${activeCategory}`
+          }
+          aria-label={
+            showCreatePanel
+              ? 'New post'
+              : `${activeLabel ?? 'Settings'} navigation`
+          }
           className={classNames(
-            'mt-1 min-h-0 flex-1',
-            showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
+            'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
+            // Settings collapses the rail, so the panel fills the whole sidebar.
+            // eslint-disable-next-line no-nested-ternary
+            isSettingsSelected
+              ? 'w-full opacity-100'
+              : isExpanded
+              ? 'w-60 opacity-100'
+              : 'pointer-events-none w-0 opacity-0',
+            suppressTransition,
           )}
         >
-          <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0'}>
-            {renderSelectedSection()}
-          </Nav>
-        </SidebarScrollWrapper>
-
-        {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
-        {showFeedbackWidget && !isUtilityPanelSelected && (
-          <div className="absolute inset-x-3 bottom-3">
-            <FeedbackWidget placement="sidebar" />
+          {/* pl-5 lines the panel title up with the list rows' icon glyphs
+            (icons sit ~8px into their w-9 column) and the section titles. */}
+          <div className="pl-5 pr-3 pt-6">
+            {isSettingsSelected ? (
+              <Button
+                type="button"
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                // Smaller glyph, flipped to point left (it's a back action).
+                icon={
+                  <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
+                }
+                onClick={onBackToApp}
+                className="-ml-1"
+              >
+                Back to app
+              </Button>
+            ) : (
+              <div className="flex h-10 items-center gap-1">
+                <Typography bold type={TypographyType.Callout}>
+                  {utilityPanelTitle}
+                </Typography>
+              </div>
+            )}
           </div>
-        )}
-      </section>
-    </SidebarAside>
+
+          {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
+            <div className="mt-2 flex items-center gap-1 px-3">
+              {additionalButtons}
+            </div>
+          )}
+
+          <SidebarScrollWrapper
+            className={classNames(
+              'mt-1 min-h-0 flex-1',
+              showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
+            )}
+          >
+            <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0'}>
+              {renderSelectedSection()}
+            </Nav>
+          </SidebarScrollWrapper>
+
+          {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
+          {showFeedbackWidget && !isUtilityPanelSelected && (
+            <div className="absolute inset-x-3 bottom-3">
+              <FeedbackWidget placement="sidebar" />
+            </div>
+          )}
+        </section>
+      </SidebarAside>
+    </SidebarDragStateProvider>
   );
 };

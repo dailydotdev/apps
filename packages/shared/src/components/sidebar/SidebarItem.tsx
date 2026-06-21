@@ -14,6 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
 import { SimpleTooltip } from '../tooltips';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useSidebarDragState } from './useSidebarDragState';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
@@ -30,6 +31,7 @@ export const SidebarItem = ({
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   const { isV2 } = useLayoutVariant();
+  const { setDragging } = useSidebarDragState();
   const isActive =
     !item.disableActiveState &&
     (item.active ||
@@ -52,8 +54,10 @@ export const SidebarItem = ({
         );
         // eslint-disable-next-line no-param-reassign
         event.dataTransfer.effectAllowed = 'copy';
+        setDragging(true);
       }
     : undefined;
+  const handleDragEnd = canPinToDock ? () => setDragging(false) : undefined;
 
   const navItem = (
     <NavItem
@@ -63,6 +67,7 @@ export const SidebarItem = ({
       disableDefaultBackground={item.disableDefaultBackground}
       draggable={canPinToDock}
       onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
       className={classNames(
         isV2 ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
         // Named group so the open-link icon reveals on hovering this row only

@@ -52,6 +52,7 @@ import {
 } from '../typography/Typography';
 import type { ShortcutDragData } from './common';
 import { SHORTCUT_DRAG_MIME, isSidebarItemActive } from './common';
+import { useSidebarDragState } from './useSidebarDragState';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
@@ -226,9 +227,15 @@ const SortableShortcut = ({
     transition,
     isDragging,
   } = useSortable({ id: shortcut.key });
+  const { isDragging: isAnyDragging } = useSidebarDragState();
 
   return (
-    <Tooltip side="right" content={shortcut.label} collisionPadding={4}>
+    <Tooltip
+      side="right"
+      content={shortcut.label}
+      collisionPadding={4}
+      visible={!isAnyDragging}
+    >
       <div
         ref={setNodeRef}
         {...attributes}
@@ -327,6 +334,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     [items],
   );
 
+  const { isDragging: isAnyDragging, setDragging } = useSidebarDragState();
   const [trayOpen, setTrayOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
@@ -395,6 +403,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const onDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
     setWillRemove(false);
+    setDragging(true);
   };
 
   const onDragOver = (event: DragOverEvent) => {
@@ -409,6 +418,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     const fromDock = keys.includes(id);
     setActiveId(null);
     setWillRemove(false);
+    setDragging(false);
 
     if (!fromDock) {
       if (isOverDock(over?.id)) {
@@ -431,6 +441,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const onDragCancel = () => {
     setActiveId(null);
     setWillRemove(false);
+    setDragging(false);
   };
 
   // Native drag of a panel row over the dock → allow drop + highlight.
@@ -516,7 +527,12 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               );
             })}
           </SortableContext>
-          <Tooltip side="right" content="Add shortcut" collisionPadding={4}>
+          <Tooltip
+            side="right"
+            content="Add shortcut"
+            collisionPadding={4}
+            visible={!isAnyDragging}
+          >
             <button
               type="button"
               aria-label="Add shortcut"
