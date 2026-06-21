@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -35,7 +35,6 @@ import {
   EyeIcon,
   HashtagIcon,
   JobIcon,
-  LinkIcon,
   MegaphoneIcon,
   MenuIcon,
   SquadIcon,
@@ -45,6 +44,7 @@ import {
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
+import { HorizontalSeparator } from '../utilities';
 import {
   Typography,
   TypographyColor,
@@ -53,6 +53,9 @@ import {
 import type { ShortcutDragData } from './common';
 import { SHORTCUT_DRAG_MIME, isSidebarItemActive } from './common';
 import { useSidebarDragState } from './useSidebarDragState';
+import { SidebarEntityIcon } from './SidebarEntityIcon';
+import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
+import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
@@ -204,7 +207,8 @@ const resolveShortcut = (entry: StoredShortcut): ResolvedShortcut | null => {
     key: entry.path,
     label: entry.title,
     path: entry.path,
-    icon: (a) => <LinkIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    // Resolve a real glyph/image from the path (e.g. the squad's logo).
+    icon: () => <SidebarEntityIcon path={entry.path} />,
   };
 };
 
@@ -335,7 +339,16 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   );
 
   const { isDragging: isAnyDragging, setDragging } = useSidebarDragState();
-  const [trayOpen, setTrayOpen] = useState(false);
+  // Share the rail popup group so the customize menu is mutually exclusive with
+  // the Support/Settings popups and behaves like them. ('sidebar-rail' must
+  // match RAIL_POPUP_GROUP in SidebarDesktopV2.)
+  const {
+    isOpen: trayOpen,
+    onUpdate: setTrayOpen,
+    wrapHandler,
+  } = useInteractivePopup('sidebar-rail');
+  const trayRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
   const [isPageDropActive, setIsPageDropActive] = useState(false);
@@ -509,6 +522,31 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               'bg-surface-float ring-2 ring-accent-bacon-default',
           )}
         >
+          {/* The customize (•••) button always starts the dock; pinned
+              shortcuts stack below it. */}
+          <Tooltip
+            side="right"
+            content="Customize shortcuts"
+            collisionPadding={4}
+            visible={!isAnyDragging}
+          >
+            <button
+              type="button"
+              aria-label="Customize shortcuts"
+              aria-expanded={trayOpen}
+              onClick={wrapHandler(() => setTrayOpen(!trayOpen))}
+              className={classNames(
+                dockButtonClass,
+                trayOpen && 'bg-background-default !text-text-primary',
+              )}
+            >
+              <MenuIcon
+                size={IconSize.Small}
+                aria-hidden
+                className="rotate-90"
+              />
+            </button>
+          </Tooltip>
           <SortableContext items={keys} strategy={verticalListSortingStrategy}>
             {items.map((entry) => {
               const shortcut = resolveShortcut(entry);
@@ -524,59 +562,85 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               );
             })}
           </SortableContext>
-          <Tooltip
-            side="right"
-            content="Add shortcut"
-            collisionPadding={4}
-            visible={!isAnyDragging}
-          >
-            <button
-              type="button"
-              aria-label="Add shortcut"
-              aria-expanded={trayOpen}
-              onClick={() => setTrayOpen((open) => !open)}
-              className={classNames(
-                dockButtonClass,
-                trayOpen && 'bg-surface-hover text-text-primary',
-              )}
-            >
-              <MenuIcon
-                size={IconSize.Small}
-                aria-hidden
-                className="rotate-90"
-              />
-            </button>
-          </Tooltip>
         </div>
 
         {trayOpen && (
-          <div className="absolute left-full top-0 z-3 ml-3 w-64 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-3">
+          <div
+            ref={trayRef}
+            className="absolute left-full top-0 z-3 ml-3 flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-3"
+          >
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
               bold
-              className="mb-2 block"
             >
-              Add shortcuts
+              Customize shortcuts
             </Typography>
+            {/* All pinned shortcuts, clickable here too — so they're reachable
+                even when the rail is full. */}
+            {items.length > 0 && (
+              <ul className="flex flex-col gap-0.5">
+                {items.map((entry) => {
+                  const shortcut = resolveShortcut(entry);
+                  if (!shortcut) {
+                    return null;
+                  }
+                  return (
+                    <li
+                      key={shortcut.key}
+                      className="group/srow flex items-center gap-1 rounded-8 pr-1 hover:bg-surface-hover"
+                    >
+                      <Link href={shortcut.path} passHref prefetch={false}>
+                        <a
+                          href={shortcut.path}
+                          onClick={() => setTrayOpen(false)}
+                          className="flex min-w-0 flex-1 items-center gap-2 rounded-8 px-1 py-1.5 text-text-secondary"
+                        >
+                          <span className="flex size-6 shrink-0 items-center justify-center">
+                            {shortcut.icon(false)}
+                          </span>
+                          <Typography
+                            type={TypographyType.Footnote}
+                            color={TypographyColor.Primary}
+                            truncate
+                            className="min-w-0"
+                          >
+                            {shortcut.label}
+                          </Typography>
+                        </a>
+                      </Link>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${shortcut.label}`}
+                        onClick={() => removeShortcut(shortcut.key)}
+                        className="focus-outline flex size-6 shrink-0 items-center justify-center rounded-6 text-text-tertiary opacity-0 transition-opacity hover:bg-surface-float hover:text-text-primary group-hover/srow:opacity-100"
+                      >
+                        <TrashIcon size={IconSize.XSmall} aria-hidden />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {items.length > 0 && <HorizontalSeparator />}
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
-              className="mb-3 block"
             >
-              Drag onto the sidebar, or tap to add. Drag any panel row in to pin
-              it; drag an icon off the sidebar to remove it.
+              Drag a page from any panel onto the sidebar, or add one:
             </Typography>
             <div className="grid grid-cols-4 gap-1">
-              {SHORTCUT_CATALOG.map((def) => (
-                <TrayItem
-                  key={def.id}
-                  def={def}
-                  added={keys.includes(def.id)}
-                  onAdd={addCatalog}
-                  onRemove={removeShortcut}
-                />
-              ))}
+              {SHORTCUT_CATALOG.filter((def) => !keys.includes(def.id)).map(
+                (def) => (
+                  <TrayItem
+                    key={def.id}
+                    def={def}
+                    added={false}
+                    onAdd={addCatalog}
+                    onRemove={removeShortcut}
+                  />
+                ),
+              )}
             </div>
           </div>
         )}
