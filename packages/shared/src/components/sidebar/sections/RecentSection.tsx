@@ -88,7 +88,7 @@ const RecentItemIcon = ({ page }: { page: RecentPage }): ReactElement => {
         type={type === 'squad' ? ImageType.Squad : ImageType.Avatar}
         alt=""
         aria-hidden
-        className="size-5 rounded-full object-cover"
+        className="size-5 rounded-6 object-cover"
       />
     );
   }

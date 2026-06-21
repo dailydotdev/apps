@@ -85,6 +85,7 @@ import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
+import { StreakBadge } from './StreakBadge';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -542,7 +543,7 @@ const SidebarProfileButton = ({
             user={user}
             size={ProfileImageSize.Small}
             nativeLazyLoading
-            className="!rounded-full"
+            className="!rounded-8"
           />
         </span>
         {!isCompact && <span className={railTabLabelClass}>You</span>}
@@ -610,9 +611,9 @@ export const SidebarDesktopV2 = ({
   // day count. Reuses the same state machine the avatar streak ring used.
   const {
     isEnabled: isStreakEnabled,
+    state: streakState,
     count: streakCount,
     hasReadToday: streakReadToday,
-    countClassName: streakColorClass,
     copy: streakCopy,
   } = useStreakRingState();
   const showStreakCount = isStreakEnabled && streakCount > 0;
@@ -1181,12 +1182,7 @@ export const SidebarDesktopV2 = ({
     const isStreakTab = category.id === SidebarCategory.GameCenter;
     const iconNode =
       isStreakTab && isStreakEnabled ? (
-        <HotIcon
-          secondary={streakReadToday}
-          size={IconSize.Small}
-          aria-hidden
-          className={!isSelected ? streakColorClass : undefined}
-        />
+        <StreakBadge state={streakState} hasReadToday={streakReadToday} />
       ) : (
         category.icon(isSelected)
       );
