@@ -1508,7 +1508,7 @@ export const SidebarDesktopV2 = ({
 
           <div
             aria-hidden
-            className="my-2 h-px w-6 bg-border-subtlest-quaternary"
+            className="my-4 h-px w-6 bg-border-subtlest-tertiary"
           />
 
           {isLoggedIn && (
