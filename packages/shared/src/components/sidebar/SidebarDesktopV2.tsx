@@ -1472,8 +1472,9 @@ export const SidebarDesktopV2 = ({
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
               {/* mt nudges the logo down so it lines up vertically with the
-                panel title row (which sits at pt-6). */}
-              <div className="mb-1 mt-2.5">
+                panel title row (which sits at pt-6); no mb so the gap to Home
+                matches the uniform gap-1 rhythm of the rest of the rail. */}
+              <div className="mt-2.5">
                 <Link href={webappUrl} passHref prefetch={false}>
                   <a
                     href={webappUrl}
@@ -1572,10 +1573,7 @@ export const SidebarDesktopV2 = ({
               </Tooltip>
             )}
 
-            <div
-              aria-hidden
-              className="my-4 h-px w-6 bg-border-subtlest-tertiary"
-            />
+            <div aria-hidden className="h-px w-6 bg-border-subtlest-tertiary" />
 
             <div
               ref={navListRef}

@@ -494,16 +494,13 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       onDragCancel={onDragCancel}
     >
       <div
-        className="relative flex w-full flex-col items-center"
+        className="relative flex w-full flex-col items-center gap-1"
         onDragOver={onPageDragOver}
         onDragEnter={onPageDragOver}
         onDragLeave={() => setIsPageDropActive(false)}
         onDrop={onPageDrop}
       >
-        <div
-          aria-hidden
-          className="my-3 h-px w-6 bg-border-subtlest-tertiary"
-        />
+        <div aria-hidden className="h-px w-6 bg-border-subtlest-tertiary" />
         <div
           ref={setDockRef}
           className={classNames(
