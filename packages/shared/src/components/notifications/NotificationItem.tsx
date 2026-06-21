@@ -324,7 +324,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
           fall back to the plain type icon. */}
-      <div className="flex w-10 shrink-0 items-center justify-start self-center">
+      <div className="flex w-10 shrink-0 items-center justify-start self-start">
         <div className="relative flex items-center">
           {hasAvatar ? avatarContent : leadIcon}
           {showBadge && filteredAvatars.length === 1 && (
@@ -388,14 +388,15 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Square post cover sits on the right, vertically centered, just left of
-          (and with a gap from) the menu. */}
+      {/* Square post cover on the right, top-aligned with the title (same top
+          padding) so it never drifts below the headline on tall rows; on a
+          two-line row that reads as centered. Sits left of the menu with a gap. */}
       {attachment?.image && (
         <Image
           data-testid="postImage"
           loading="lazy"
           type={ImageType.Post}
-          className="mr-2 size-12 shrink-0 self-center rounded-12 object-cover"
+          className="mr-2 size-12 shrink-0 self-start rounded-12 object-cover"
           src={attachment.image}
           alt={`Cover preview of: ${attachment.title}`}
         />
