@@ -170,6 +170,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     attachments,
     onClick,
     targetUrl,
+    numTotalAvatars,
     referenceId,
     createdAt,
   } = props;
@@ -192,6 +193,10 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
   const [primaryAvatar] = filteredAvatars;
   const hasAvatar = filteredAvatars.length > 0;
+  const totalAvatars = numTotalAvatars ?? filteredAvatars.length;
+  // Only show the multi-image grid for more than three actors; one/two/three
+  // just show a single avatar (with a corner badge).
+  const showGrid = filteredAvatars.length > 1 && totalAvatars > 3;
   const renderLink = onClick && isClickable;
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
@@ -209,15 +214,15 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const showBadge =
     hasAvatar && category !== NotificationFilterCategory.Updates;
 
-  // A single actor renders one avatar (with a corner badge). Multiple actors
-  // render as a 2x2 grid the size of one avatar — up to three faces plus the
-  // action icon — so the lead never grows wider and every row stays aligned.
+  // Up to three actors render a single avatar (with a corner badge). More than
+  // three render as a 2x2 grid the size of one avatar — up to three faces plus
+  // the action icon — so the lead never grows wider and every row stays aligned.
   let avatarContent: ReactElement | null = null;
-  if (filteredAvatars.length === 1) {
-    avatarContent = (
+  if (!showGrid) {
+    avatarContent = hasAvatar ? (
       <NotificationItemAvatar className="z-1" {...primaryAvatar} />
-    );
-  } else if (filteredAvatars.length > 1) {
+    ) : null;
+  } else {
     // 2x2 of separate, individually-rounded face boxes (no connecting frame,
     // no "+N" count) plus a circular action cell, sized like one avatar so the
     // lead width never grows. Each face keeps its hover profile tooltip.
@@ -327,7 +332,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       <div className="mt-1 flex w-10 shrink-0 items-center justify-start self-start">
         <div className="relative flex items-center">
           {hasAvatar ? avatarContent : leadIcon}
-          {showBadge && filteredAvatars.length === 1 && (
+          {showBadge && !showGrid && (
             <span
               className={classNames(
                 'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',

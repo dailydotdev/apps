@@ -469,7 +469,8 @@ export const SingleUserAvatar: Story = {
 };
 
 export const AvatarStack: Story = {
-  render: () => framed(<NotificationItem {...allNotifications[6]} />),
+  // index 7 = a >3 upvote milestone, which is what triggers the grid
+  render: () => framed(<NotificationItem {...allNotifications[7]} />),
 };
 
 export const IconOnly: Story = {
