@@ -14,6 +14,16 @@ export interface ImageOriginRect {
   height: number;
 }
 
+/**
+ * Snapshot an element's viewport bounds for the lightbox FLIP entrance (see
+ * `ImageModal`). Shared by every surface that opens `LazyModal.ImageView` so
+ * the captured shape stays in one place.
+ */
+export const getImageOriginRect = (element: Element): ImageOriginRect => {
+  const { top, left, width, height } = element.getBoundingClientRect();
+  return { top, left, width, height };
+};
+
 interface ImageModalProps extends ReactModal.Props {
   src: string;
   alt?: string;
@@ -141,6 +151,14 @@ export default function ImageModal({
         src={src}
         alt={alt}
         onLoad={playFlip}
+        onError={() => {
+          // With an origin the image starts at opacity-0 and only the FLIP
+          // reveals it — which never runs if the image fails to load. Reveal it
+          // so the broken-image/alt state shows instead of an empty overlay.
+          if (imgRef.current) {
+            imgRef.current.style.opacity = '1';
+          }
+        }}
         className={classNames(
           'relative max-h-full max-w-full rounded-16 object-contain',
           // With an origin we drive the entrance via the FLIP transform (start

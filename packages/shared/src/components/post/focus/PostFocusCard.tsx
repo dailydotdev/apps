@@ -21,6 +21,7 @@ import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibi
 import { EarthIcon } from '../../icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
+import { getImageOriginRect } from '../../modals/ImageModal';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
@@ -429,14 +430,12 @@ export const PostFocusCard = ({
                   aria-label="View cover image"
                   className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                   onClick={(event) => {
-                    const { top, left, width, height } =
-                      event.currentTarget.getBoundingClientRect();
                     openModal({
                       type: LazyModal.ImageView,
                       props: {
                         src: article.image as string,
                         alt: 'Post cover image',
-                        originRect: { top, left, width, height },
+                        originRect: getImageOriginRect(event.currentTarget),
                       },
                     });
                   }}

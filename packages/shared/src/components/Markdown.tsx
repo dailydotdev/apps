@@ -16,7 +16,7 @@ import { getUserShortInfo } from '../graphql/users';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import type { ImageOriginRect } from './modals/ImageModal';
+import { getImageOriginRect } from './modals/ImageModal';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
 function isImageElement(
@@ -146,11 +146,13 @@ export default function Markdown({
         window.open(element.src, '_blank', 'noopener,noreferrer');
         return;
       }
-      const { top, left, width, height } = element.getBoundingClientRect();
-      const originRect: ImageOriginRect = { top, left, width, height };
       openModal({
         type: LazyModal.ImageView,
-        props: { src: element.src, alt: element.alt || undefined, originRect },
+        props: {
+          src: element.src,
+          alt: element.alt || undefined,
+          originRect: getImageOriginRect(element),
+        },
       });
     },
     [isCompanion, openModal],
