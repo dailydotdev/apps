@@ -18,6 +18,10 @@ import {
   AnalyticsIcon,
   JobIcon,
   MagicIcon,
+  AtIcon,
+  AddUserIcon,
+  SquadIcon,
+  MegaphoneIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -342,6 +346,152 @@ export const POLL_RESULT_KEYS = [
 ];
 
 export const OPPORTUNITY_KEYS = [NotificationType.NewOpportunityMatch];
+
+// Human-friendly buckets used to filter the notifications page. Each raw
+// NotificationType maps to exactly one category; anything not listed below
+// falls back to `Updates` so new backend types never disappear from the feed.
+export enum NotificationFilterCategory {
+  Upvotes = 'upvotes',
+  Mentions = 'mentions',
+  Comments = 'comments',
+  Followers = 'followers',
+  Squads = 'squads',
+  Updates = 'updates',
+}
+
+export const notificationCategoryToTypes: Record<
+  NotificationFilterCategory,
+  NotificationType[]
+> = {
+  [NotificationFilterCategory.Upvotes]: [
+    NotificationType.ArticleUpvoteMilestone,
+    NotificationType.CommentUpvoteMilestone,
+  ],
+  [NotificationFilterCategory.Mentions]: [
+    NotificationType.PostMention,
+    NotificationType.CommentMention,
+  ],
+  [NotificationFilterCategory.Comments]: [
+    NotificationType.ArticleNewComment,
+    NotificationType.SquadNewComment,
+    NotificationType.CommentReply,
+    NotificationType.SquadReply,
+  ],
+  [NotificationFilterCategory.Followers]: [NotificationType.UserFollow],
+  [NotificationFilterCategory.Squads]: [
+    NotificationType.SquadPostAdded,
+    NotificationType.SquadMemberJoined,
+    NotificationType.SquadBlocked,
+    NotificationType.PromotedToAdmin,
+    NotificationType.PromotedToModerator,
+    NotificationType.DemotedToMember,
+    NotificationType.SquadPublicApproved,
+    NotificationType.SquadFeatured,
+    NotificationType.SquadSubscribeNotification,
+    NotificationType.SourcePostSubmitted,
+    NotificationType.SourcePostApproved,
+    NotificationType.SourcePostRejected,
+    NotificationType.ArticlePicked,
+  ],
+  [NotificationFilterCategory.Updates]: [
+    NotificationType.System,
+    NotificationType.SourcePostAdded,
+    NotificationType.UserPostAdded,
+    NotificationType.CollectionUpdated,
+    NotificationType.PostBookmarkReminder,
+    NotificationType.PollResult,
+    NotificationType.PollResultAuthor,
+    NotificationType.UserReceivedAward,
+    NotificationType.UserTopReaderBadge,
+    NotificationType.DevCardUnlocked,
+    NotificationType.ArticleReportApproved,
+    NotificationType.ArticleAnalytics,
+    NotificationType.PostAnalytics,
+    NotificationType.SourceApproved,
+    NotificationType.SourceRejected,
+    NotificationType.BriefingReady,
+    NotificationType.DigestReady,
+    NotificationType.StreakReminder,
+    NotificationType.StreakResetRestore,
+    NotificationType.Marketing,
+    NotificationType.Announcements,
+    NotificationType.NewUserWelcome,
+    NotificationType.InAppPurchases,
+    NotificationType.NewOpportunityMatch,
+    NotificationType.WarmIntro,
+    NotificationType.ExperienceCompanyEnriched,
+    NotificationType.LiveRoomStarted,
+  ],
+};
+
+// Order the chips appear in the filter bar.
+export const notificationFilterCategoryList: NotificationFilterCategory[] = [
+  NotificationFilterCategory.Upvotes,
+  NotificationFilterCategory.Mentions,
+  NotificationFilterCategory.Comments,
+  NotificationFilterCategory.Followers,
+  NotificationFilterCategory.Squads,
+  NotificationFilterCategory.Updates,
+];
+
+export const notificationFilterCategoryLabel: Record<
+  NotificationFilterCategory,
+  string
+> = {
+  [NotificationFilterCategory.Upvotes]: 'Upvotes',
+  [NotificationFilterCategory.Mentions]: 'Mentions',
+  [NotificationFilterCategory.Comments]: 'Comments',
+  [NotificationFilterCategory.Followers]: 'Followers',
+  [NotificationFilterCategory.Squads]: 'Squads',
+  [NotificationFilterCategory.Updates]: 'Updates',
+};
+
+const notificationTypeToCategory = Object.entries(
+  notificationCategoryToTypes,
+).reduce((acc, [category, types]) => {
+  types.forEach((type) => {
+    acc[type] = category as NotificationFilterCategory;
+  });
+  return acc;
+}, {} as Partial<Record<NotificationType, NotificationFilterCategory>>);
+
+export const getNotificationCategory = (
+  type: NotificationType,
+): NotificationFilterCategory =>
+  notificationTypeToCategory[type] ?? NotificationFilterCategory.Updates;
+
+// Eye-catching colored type badge overlaid on the avatar (Instagram/Facebook/
+// TikTok pattern): a solid accent circle + white glyph that signals the
+// notification type at a glance.
+export const notificationCategoryBadge: Record<
+  NotificationFilterCategory,
+  { bg: string; Icon: ComponentType<IconProps> }
+> = {
+  [NotificationFilterCategory.Upvotes]: {
+    bg: 'bg-accent-avocado-default',
+    Icon: UpvoteIcon,
+  },
+  [NotificationFilterCategory.Mentions]: {
+    bg: 'bg-accent-cabbage-default',
+    Icon: AtIcon,
+  },
+  [NotificationFilterCategory.Comments]: {
+    bg: 'bg-accent-blueCheese-default',
+    Icon: DiscussIcon,
+  },
+  [NotificationFilterCategory.Followers]: {
+    bg: 'bg-accent-onion-default',
+    Icon: AddUserIcon,
+  },
+  [NotificationFilterCategory.Squads]: {
+    bg: 'bg-accent-cheese-default',
+    Icon: SquadIcon,
+  },
+  [NotificationFilterCategory.Updates]: {
+    bg: 'bg-accent-bun-default',
+    Icon: MegaphoneIcon,
+  },
+};
 
 export const NotificationContainer = classed('div', 'flex flex-col gap-6');
 

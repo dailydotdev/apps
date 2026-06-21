@@ -8,53 +8,86 @@ import { BellIcon, SettingsIcon } from '../icons';
 import type { SidebarMenuItem } from '../sidebar/common';
 import { ListIcon, isSidebarItemActive } from '../sidebar/common';
 import { Section } from '../sidebar/Section';
+import type { NotificationFilterCategory } from './utils';
+import {
+  notificationCategoryBadge,
+  notificationFilterCategoryLabel,
+  notificationFilterCategoryList,
+} from './utils';
 
-// Compact menu in the rail hover card. Lists the destinations the
-// notifications rail icon can reach so the hover preview matches the
-// rail's click model. Rendered as a Section so its rows align with every
+// Compact menu in the rail / v2 context panel. Lists the notification type
+// filters (driven by the `?type=` query param on the notifications page) plus
+// the settings shortcut, rendered as a Section so its rows align with every
 // other v2 rail panel (same row layout, spacing, and active highlight).
 export const NotificationsRailPanel = (): ReactElement => {
   const router = useRouter();
   const activePage = router.asPath ?? router.pathname ?? '';
   const { unreadCount } = useNotificationContext();
   const hasUnread = !!unreadCount;
+  const isListPage = router.pathname === '/notifications';
+  const activeType =
+    typeof router.query?.type === 'string' ? router.query.type : undefined;
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
-    const allActivityPath = `${webappUrl}notifications`;
     // Category-owned settings shortcut: keeps the Notifications panel active
     // (the canonical /settings/notifications page keeps the Settings panel).
     const settingsPath = `${webappUrl}notifications/settings`;
 
-    return [
-      {
-        title: 'All activity',
-        path: allActivityPath,
-        active: isSidebarItemActive(activePage, allActivityPath),
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <BellIcon secondary={active} />} />
+    // Filters navigate via `action` (button), NOT `path`. SidebarItem treats
+    // any `?type=` path as active for the whole `/notifications` route (its
+    // matcher strips the query), so a path would light up every row at once.
+    // With no path, the explicit `active` flag is the sole source of truth.
+    const navigate = (category: NotificationFilterCategory | null) =>
+      router.push({
+        pathname: '/notifications',
+        query: category ? { type: category } : {},
+      });
+
+    const allActivity: SidebarMenuItem = {
+      title: 'All activity',
+      active: isListPage && !activeType,
+      action: () => navigate(null),
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <BellIcon secondary={active} />} />
+      ),
+      ...(hasUnread && {
+        rightIcon: () => (
+          <Typography
+            type={TypographyType.Caption1}
+            bold
+            className="rounded-6 bg-accent-ketchup-default px-1.5 text-white"
+          >
+            {unreadCount}
+          </Typography>
         ),
-        ...(hasUnread && {
-          rightIcon: () => (
-            <Typography
-              type={TypographyType.Caption1}
-              bold
-              className="rounded-6 bg-accent-ketchup-default px-1.5 text-white"
-            >
-              {unreadCount}
-            </Typography>
+      }),
+    };
+
+    const categoryItems: SidebarMenuItem[] = notificationFilterCategoryList.map(
+      (category) => {
+        const { Icon } = notificationCategoryBadge[category];
+        return {
+          title: notificationFilterCategoryLabel[category],
+          active: isListPage && activeType === category,
+          action: () => navigate(category),
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <Icon secondary={active} />} />
           ),
-        }),
+        };
       },
-      {
-        title: 'Settings',
-        path: settingsPath,
-        active: isSidebarItemActive(activePage, settingsPath),
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <SettingsIcon secondary={active} />} />
-        ),
-      },
-    ];
-  }, [activePage, hasUnread, unreadCount]);
+    );
+
+    const settings: SidebarMenuItem = {
+      title: 'Settings',
+      path: settingsPath,
+      active: isSidebarItemActive(activePage, settingsPath),
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <SettingsIcon secondary={active} />} />
+      ),
+    };
+
+    return [allActivity, ...categoryItems, settings];
+  }, [activePage, activeType, hasUnread, isListPage, router, unreadCount]);
 
   return (
     <Section
