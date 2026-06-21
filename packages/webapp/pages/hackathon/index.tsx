@@ -19,7 +19,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const HACKATHON_URL = 'https://app.daily.dev/hackathon';
+const HACKATHON_URL = 'https://daily.dev/hackathon';
 const HACKATHON_TITLE = 'Hackathon';
 const HACKATHON_DESCRIPTION =
   '5 days, the daily.dev Public API, and three open tracks. Work on it at your own pace. Build something for developers, from developers.';
@@ -49,7 +49,7 @@ const getHackathonJsonLd = (): string =>
     organizer: {
       '@type': 'Organization',
       name: 'daily.dev',
-      url: 'https://app.daily.dev',
+      url: 'https://daily.dev',
     },
   });
 

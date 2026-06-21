@@ -51,15 +51,15 @@ const getSourcesSchemas = (sources: Source[]): string =>
     '@graph': [
       {
         '@type': 'CollectionPage',
-        '@id': 'https://app.daily.dev/sources#collection',
-        url: 'https://app.daily.dev/sources',
+        '@id': 'https://daily.dev/sources#collection',
+        url: 'https://daily.dev/sources',
         name: 'Top sources for developer content',
         description:
           'Explore the top sources for developer content on daily.dev.',
       },
       {
         '@type': 'ItemList',
-        '@id': 'https://app.daily.dev/sources#items',
+        '@id': 'https://daily.dev/sources#items',
         itemListElement: sources.map((source, index) => ({
           '@type': 'ListItem',
           position: index + 1,
