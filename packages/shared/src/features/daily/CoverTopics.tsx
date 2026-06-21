@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
-import { useInView } from 'react-intersection-observer';
 import {
   Typography,
   TypographyColor,
@@ -24,17 +23,23 @@ import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import Link from '../../components/utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
-import { feedHighlightsLogEvent } from '../../lib/feed';
-import type { PostHighlightFeed } from '../../graphql/highlights';
+import { feedLogExtra, postLogEvent } from '../../lib/feed';
+import useLogImpression from '../../hooks/feed/useLogImpression';
+import { FeedItemType } from '../../components/cards/common/common';
+import type { Post } from '../../graphql/posts';
 import {
   channelConfigurationsQueryOptions,
-  dailyHighlightsQueryOptions,
+  dailyHeadlinesQueryOptions,
 } from '../../graphql/highlights';
 import { HeadlinesSettingsModal } from './HeadlinesSettingsModal';
 
 // channelConfigurations.color holds the full Tailwind text class per channel.
 const DEFAULT_COLOR_CLASS = 'text-text-tertiary';
 const DAILY_FEED_NAME = 'daily';
+
+// Headlines is a single-column list, so grid position is always column 0 of 1.
+const dailyFeedExtra = () =>
+  feedLogExtra(DAILY_FEED_NAME, undefined, undefined, Origin.DailyPage);
 
 const HeadlineRow = ({
   highlight,
@@ -43,38 +48,35 @@ const HeadlineRow = ({
   position,
   onClick,
 }: {
-  highlight: PostHighlightFeed;
+  highlight: Post;
   channelName: string;
   colorClass: string;
   position: number;
   onClick: () => void;
 }): ReactElement => {
-  const { logEvent } = useLogContext();
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.5 });
-
-  useEffect(() => {
-    if (!inView) {
-      return;
-    }
-    logEvent(
-      feedHighlightsLogEvent(LogEvent.Impression, {
-        feedName: DAILY_FEED_NAME,
-        action: 'impression',
-        columns: 1,
-        column: 0,
-        row: position,
-        count: 1,
-        highlightIds: [highlight.id],
-        origin: Origin.DailyPage,
-      }),
-    );
-  }, [inView, logEvent, highlight.id, position]);
+  const impressionRef = useLogImpression(
+    {
+      type: FeedItemType.Post,
+      post: highlight,
+      page: 0,
+      index: position,
+      dataUpdatedAt: 0,
+    },
+    position,
+    1,
+    0,
+    position,
+    DAILY_FEED_NAME,
+    undefined,
+    undefined,
+    Origin.DailyPage,
+  );
 
   return (
-    <li ref={ref}>
-      <Link href={highlight.post.commentsPermalink} passHref>
+    <li ref={impressionRef}>
+      <Link href={highlight.commentsPermalink} passHref>
         <a
-          href={highlight.post.commentsPermalink}
+          href={highlight.commentsPermalink}
           onClick={onClick}
           className="group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float tablet:px-5"
         >
@@ -93,7 +95,7 @@ const HeadlineRow = ({
               color={TypographyColor.Primary}
               className="!leading-snug"
             >
-              {highlight.headline}
+              {highlight.title}
             </Typography>
           </div>
           <OpenLinkIcon
@@ -121,38 +123,32 @@ const HeadlineRowSkeleton = (): ReactElement => (
 export const CoverTopics = (): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { data, isPending } = useQuery(dailyHighlightsQueryOptions());
+  const { data, isPending } = useQuery(dailyHeadlinesQueryOptions());
   const { data: channelData } = useQuery(channelConfigurationsQueryOptions());
 
-  const channelByKey = useMemo(
+  const channelBySourceId = useMemo(
     () =>
       new Map(
-        (channelData?.channelConfigurations ?? []).map((channel) => [
-          channel.channel,
-          channel,
-        ]),
+        (channelData?.channelConfigurations ?? []).flatMap((channel) => {
+          const sourceId = channel.digest?.source?.id;
+          return sourceId ? [[sourceId, channel] as const] : [];
+        }),
       ),
     [channelData],
   );
 
   const highlights = useMemo(
-    () => data?.dailyHighlights.edges.map((edge) => edge.node) ?? [],
+    () => data?.dailyHeadlines.edges.map((edge) => edge.node) ?? [],
     [data],
   );
 
-  const onHeadlineClick = (highlight: PostHighlightFeed, position: number) => {
+  const onHeadlineClick = (post: Post, position: number) => {
     logEvent(
-      feedHighlightsLogEvent(LogEvent.Click, {
-        feedName: DAILY_FEED_NAME,
-        action: 'highlight_click',
+      postLogEvent(LogEvent.Click, post, {
         columns: 1,
         column: 0,
         row: position,
-        position: position + 1,
-        count: 1,
-        clickedHighlight: highlight,
-        highlightIds: [highlight.id],
-        origin: Origin.DailyPage,
+        ...dailyFeedExtra(),
       }),
     );
   };
@@ -202,12 +198,17 @@ export const CoverTopics = (): ReactElement => {
       {highlights.length > 0 && (
         <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
           {highlights.map((highlight, index) => {
-            const config = channelByKey.get(highlight.channel);
+            const sourceId = highlight.source?.id;
+            const config = sourceId
+              ? channelBySourceId.get(sourceId)
+              : undefined;
             return (
               <HeadlineRow
                 key={highlight.id}
                 highlight={highlight}
-                channelName={config?.displayName ?? highlight.channel}
+                channelName={
+                  config?.displayName ?? highlight.source?.name ?? ''
+                }
                 colorClass={config?.color || DEFAULT_COLOR_CLASS}
                 position={index}
                 onClick={() => onHeadlineClick(highlight, index)}

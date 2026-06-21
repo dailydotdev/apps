@@ -11,6 +11,7 @@ import {
 } from '../../components/typography/Typography';
 import { MagicIcon, HomeIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { webappUrl } from '../../lib/constants';
 
 interface DailySwitcherProps {
   className?: string;
@@ -20,8 +21,8 @@ interface DailySwitcherProps {
   reverse?: boolean;
 }
 
-const TAB_DAILY = '/daily';
-const TAB_FEED = '/';
+const TAB_DAILY = `${webappUrl}daily`;
+const TAB_FEED = webappUrl;
 
 export const DailySwitcher = ({
   className,

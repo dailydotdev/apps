@@ -11,19 +11,18 @@ export interface VideoImageProps {
   size?: IconSize;
   className?: string;
   overlay?: ReactNode;
+  /** Extra classes for the default dark tint (e.g. full-bleed in glass mode). */
+  overlayClassName?: string;
   imageProps: ImageProps;
   CardImageComponent?: typeof CardImage;
 }
-
-const defaultOverlay = (
-  <span className="absolute inset-y-0 left-1 right-1 h-full rounded-12 bg-overlay-tertiary-black" />
-);
 
 const VideoImage = ({
   size = IconSize.XXLarge,
   imageProps,
   className,
   overlay,
+  overlayClassName,
   CardImageComponent = CardImage,
 }: VideoImageProps): ReactElement => {
   return (
@@ -34,7 +33,14 @@ const VideoImage = ({
         'relative flex h-auto max-h-fit w-full items-center justify-center overflow-hidden rounded-12',
       )}
     >
-      {overlay || defaultOverlay}
+      {overlay || (
+        <span
+          className={classNames(
+            'absolute inset-y-0 left-1 right-1 h-full rounded-12 bg-overlay-tertiary-black',
+            overlayClassName,
+          )}
+        />
+      )}
       {!overlay && (
         <PlayIcon
           secondary

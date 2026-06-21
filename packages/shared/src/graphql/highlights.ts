@@ -2,6 +2,8 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { Connection } from './common';
 import type { PostHighlightSignificance } from './types';
+import type { Post } from './posts';
+import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 import { ONE_MINUTE } from '../lib/time';
 
 export interface PostHighlight {
@@ -260,33 +262,33 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
 
-export interface DailyHighlightsData {
-  dailyHighlights: Connection<PostHighlightFeed>;
+export interface DailyHeadlinesData {
+  dailyHeadlines: Connection<Post>;
 }
 
-export const DAILY_HIGHLIGHTS_QUERY_KEY = ['daily-highlights'];
+export const DAILY_HEADLINES_QUERY_KEY = ['daily-headlines'];
 
-export const DAILY_HIGHLIGHTS_QUERY = gql`
-  query DailyHighlights($first: Int, $after: String) {
-    dailyHighlights(first: $first, after: $after) {
+export const DAILY_HEADLINES_QUERY = gql`
+  query DailyHeadlines($first: Int, $after: String) {
+    dailyHeadlines(first: $first, after: $after) {
       pageInfo {
         endCursor
         hasNextPage
       }
       edges {
         node {
-          ...PostHighlightFeedCard
+          ...SharedPostInfo
         }
       }
     }
   }
-  ${POST_HIGHLIGHT_FEED_FRAGMENT}
+  ${SHARED_POST_INFO_FRAGMENT}
 `;
 
-export const dailyHighlightsQueryOptions = () => ({
-  queryKey: DAILY_HIGHLIGHTS_QUERY_KEY,
+export const dailyHeadlinesQueryOptions = () => ({
+  queryKey: DAILY_HEADLINES_QUERY_KEY,
   queryFn: async () => {
-    return gqlClient.request<DailyHighlightsData>(DAILY_HIGHLIGHTS_QUERY, {
+    return gqlClient.request<DailyHeadlinesData>(DAILY_HEADLINES_QUERY, {
       first: MAJOR_HEADLINES_MAX_FIRST,
     });
   },

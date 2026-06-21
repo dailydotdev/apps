@@ -175,7 +175,10 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal_v2', false);
+// Gates the one-time intermediate "read inside daily.dev" install prompt for
+// users who haven't enabled the reader yet. Unlike the retired reader_modal_v2,
+// this nudge is shown at most once ever (see readerInstallPromptSeen).
+export const featureReaderModalNudge = new Feature('reader_modal_v3', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
@@ -234,12 +237,26 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   },
 });
 
+// Floats the feed card action bar over the cover image with an iOS-style glass
+// (dark translucent + blur) effect and shrinks the card height.
+export const featureFeedCardGlassActions = new Feature(
+  'feed_card_glass_actions',
+  false,
+);
+
 export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
 );
 
 export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
+
+// Experiment: skip layout/paint for off-screen feed cards via CSS
+// `content-visibility: auto` to keep long feeds responsive.
+export const featureFeedContentVisibility = new Feature(
+  'feed_content_visibility',
+  false,
+);
 
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',

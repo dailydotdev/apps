@@ -17,6 +17,8 @@ import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
+import { EarthIcon } from '../../icons';
 import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
@@ -232,6 +234,8 @@ export const PostFocusCard = ({
   const { onShowUpvoted } = useUpvoteQuery();
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
+  const { isReaderEnabled } = useReaderModalEligibility();
+  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
@@ -264,7 +268,10 @@ export const PostFocusCard = ({
     return () => window.removeEventListener('blur', onWindowBlur);
   }, [isVideoType, isVideoExpanded]);
 
-  const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  // Shared by the cover image and the Read button so both honor the reader
+  // gate (open the reader inside daily.dev / install nudge) before falling back
+  // to opening the external article.
+  const handleReadClick = (event: React.MouseEvent) => {
     if (onReaderInstallGateClick(event)) {
       return;
     }
@@ -289,8 +296,8 @@ export const PostFocusCard = ({
         href={readHref}
         target="_blank"
         rel="noopener"
-        icon={getReadPostButtonIcon(post)}
-        onClick={onReadArticle}
+        icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
+        onClick={handleReadClick}
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
         className={className}
@@ -409,7 +416,7 @@ export const PostFocusCard = ({
                 <a
                   className="block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                   href={readHref}
-                  onClick={handleImageClick}
+                  onClick={handleReadClick}
                   rel="noopener"
                   target="_blank"
                   title="Go to post"

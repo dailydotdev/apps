@@ -21,7 +21,6 @@ import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { useReaderModalEligibility } from './reader/hooks/useReaderModalEligibility';
-import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import { EarthIcon } from '../icons';
 
@@ -52,20 +51,14 @@ export function PostHeaderActions({
   const isArticle = post?.type === PostType.Article;
   const hideShareReadButton =
     post?.type === PostType.Share && !isFixedNavigation;
-  const { isEligible: isReaderEligible, isReaderModalEnabled } =
-    useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  // When enrolled in the variant — and the user hasn't opted out — we flip
-  // the action semantics: "Read post" becomes the inside-daily.dev entry
-  // (globe icon, opens reader preview), and a secondary external-link
-  // button takes over the "open in a new tab" role that used to live on
-  // Read post. Once a user opts out (via the install-prompt overlay) the
-  // UI snaps back to the classic Read post button + no secondary button.
-  const isReaderVariant =
-    isArticle &&
-    isReaderEligible &&
-    isReaderModalEnabled &&
-    !isLegacyLayoutOptedOut;
+  const { isReaderEnabled } = useReaderModalEligibility();
+  // When the reader is the user's default we flip the action semantics:
+  // "Read post" becomes the inside-daily.dev entry (globe icon, opens reader
+  // preview), and a secondary external-link button takes over the "open in a
+  // new tab" role that used to live on Read post. Once a user opts out (via the
+  // install-prompt overlay or settings) the UI snaps back to the classic Read
+  // post button + no secondary button.
+  const isReaderVariant = isArticle && isReaderEnabled;
   const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
     post,
     // Dismissing the install prompt tears down the classic post modal too,
