@@ -126,11 +126,12 @@ function MainLayoutComponent({
   });
   const { plusEntryAnnouncementBar } = usePlusEntry();
   // DEMO: Google Cloud takeover bar, rendered at the app layout level so it
-  // sits above/outside the feed's floating-card box on the home feed.
+  // sits above/outside the feed's floating-card box on the home feed. Gate on
+  // `router.pathname` (the underlying page route) rather than `asPath`. When a
+  // post modal opens it only changes `asPath`/query to `/posts/...` while the
+  // home route stays `/`, so the bar stays put and doesn't cause a layout shift.
   const showGoogleCloudBar =
-    googleCloudTakeoverEnabled &&
-    !isTesting &&
-    (activePage ?? router?.asPath ?? router?.pathname) === webappUrl;
+    googleCloudTakeoverEnabled && !isTesting && router?.pathname === webappUrl;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
