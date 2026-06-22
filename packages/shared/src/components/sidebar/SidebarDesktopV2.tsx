@@ -86,7 +86,10 @@ import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
-import { SidebarShortcutsDock } from './SidebarShortcutsDock';
+import {
+  SidebarShortcutsDock,
+  useSidebarShortcutItems,
+} from './SidebarShortcutsDock';
 import {
   SidebarDragStateProvider,
   useSidebarDragState,
@@ -126,7 +129,11 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
@@ -629,33 +636,35 @@ export const SidebarDesktopV2 = ({
   } = useStreakRingState();
 
   // --- Vertical "More" overflow -------------------------------------------
-  // When the rail is too short to fit every nav item, the lowest-priority
-  // items fold into a 3-dots "More" dropdown. Fold order: Quests, then
-  // Notifications. Explore, Squads and New post always stay. Measured against
-  // the nav list's height so it tracks the viewport like Slack's sidebar.
-  const navListRef = useRef<HTMLDivElement>(null);
-  const [maxNavSlots, setMaxNavSlots] = useState(Number.POSITIVE_INFINITY);
+  // When the rail is too short to fit everything below the New-post divider,
+  // the lowest-priority content folds into a single 3-dots "More" dropdown.
+  // Fold order (lowest first): the whole shortcuts dock, then rail tabs
+  // (Quests, then Notifications). Explore, Squads and New post always stay.
+  // We measure the (content-independent) height of the scrollable region — it's
+  // flex-1, so folding never changes it and the estimate can't oscillate; the
+  // scroll itself is the safety net for any pixel slop in the estimate.
+  const scrollRegionRef = useRef<HTMLDivElement>(null);
+  const [navRegionHeight, setNavRegionHeight] = useState(
+    Number.POSITIVE_INFINITY,
+  );
   useEffect(() => {
-    const list = navListRef.current;
-    if (!list || typeof ResizeObserver === 'undefined') {
+    const region = scrollRegionRef.current;
+    if (!region || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
-    const GAP = 4;
-    const itemHeight = isCompact ? 44 : 56;
     const measure = () => {
       // Ignore zero-height measurements (e.g. a hidden/not-yet-laid-out mount)
-      // so we don't briefly fold every item into the "More" menu.
-      if (list.clientHeight <= 0) {
+      // so we don't briefly fold everything into the "More" menu.
+      if (region.clientHeight <= 0) {
         return;
       }
-      const slots = Math.floor((list.clientHeight + GAP) / (itemHeight + GAP));
-      setMaxNavSlots(Math.max(0, slots));
+      setNavRegionHeight(region.clientHeight);
     };
     measure();
     const observer = new ResizeObserver(measure);
-    observer.observe(list);
+    observer.observe(region);
     return () => observer.disconnect();
-  }, [isCompact]);
+  }, []);
 
   // The reorderable rail tabs (each opens a panel), including the avatar/"You"
   // tab so it can be moved too. Order is user-customizable via drag-and-drop and
@@ -685,16 +694,40 @@ export const SidebarDesktopV2 = ({
     return [...missing, ...known];
   }, [reorderableCategories, storedRailOrder]);
 
-  // Fold the tail of the order into a 3-dots "More" dropdown when the nav list
-  // is too short to show every tab. (New post / logo / avatar live outside this
-  // list.) The "More" button itself costs a slot once anything folds.
-  const slotsForTabs = maxNavSlots;
-  const isNavOverflowing = railOrder.length > slotsForTabs;
-  const visibleCount = isNavOverflowing
-    ? Math.max(0, slotsForTabs - 1)
-    : railOrder.length;
-  const visibleCategoryIds = railOrder.slice(0, visibleCount);
-  const foldedNavIds = railOrder.slice(visibleCount);
+  // Shortcuts are read here (not just in the dock) so the rail can fold them
+  // into the shared "More" menu and size the overflow against their count.
+  const { resolved: shortcutItems } = useSidebarShortcutItems();
+  const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
+
+  // Estimate how much vertical space each block wants, then fold lowest-priority
+  // content into "More" until it fits the measured region. Rough px estimates
+  // are fine — the region scrolls, so any slop just becomes a little scroll.
+  const GAP = 4;
+  const tabRow = (isCompact ? 44 : 56) + GAP;
+  const iconRow = 40 + GAP; // shortcut + utility icon buttons
+  const utilCount = isLoggedIn ? 3 : 2; // Invite, Support, (Settings)
+  const utilitiesPx = utilCount * iconRow;
+  // Empty dock is hover-only (≈0 persistent height); otherwise: top divider +
+  // the customize button + one row per shortcut.
+  const dockPx = shortcutCount > 0 ? 12 + (1 + shortcutCount) * iconRow : 0;
+  const tabsAllPx = railOrder.length * tabRow;
+  const availForTabsAndDock = navRegionHeight - utilitiesPx;
+
+  let foldShortcuts = false;
+  let visibleTabCount = railOrder.length;
+  if (availForTabsAndDock < tabsAllPx + dockPx) {
+    // Doesn't all fit: fold the shortcuts dock into "More" first…
+    foldShortcuts = shortcutCount > 0;
+    // …then fit as many tabs as remain (the "More" tab itself costs a slot).
+    const tabSlots = Math.floor((availForTabsAndDock - tabRow) / tabRow);
+    visibleTabCount = Math.max(0, Math.min(railOrder.length, tabSlots));
+  }
+  const foldedNavIds = railOrder.slice(visibleTabCount);
+  const visibleCategoryIds = railOrder.slice(0, visibleTabCount);
+  // "More" appears when anything (shortcuts or tabs) is folded into it.
+  const showMore = foldShortcuts || foldedNavIds.length > 0;
+  // The inline dock shows only when shortcuts aren't folded away.
+  const showInlineDock = shortcutCount > 0 && !foldShortcuts;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -1281,18 +1314,47 @@ export const SidebarDesktopV2 = ({
         icon: category?.icon(false) ?? null,
       };
     });
+    // When the shortcuts dock is folded away, its pinned pages live here under a
+    // small heading so they're still reachable on a short viewport.
+    const shortcutRows = foldShortcuts
+      ? shortcutItems.map((shortcut) => ({
+          key: `shortcut-${shortcut.key}`,
+          label: shortcut.label,
+          href: shortcut.path,
+          icon: shortcut.icon(false),
+        }))
+      : [];
+    const renderRow = (row: {
+      key: string;
+      label: string;
+      href: string;
+      icon: ReactNode;
+    }): ReactElement => (
+      <Link key={row.key} href={row.href} passHref>
+        <a className="focus-outline flex items-center gap-3 rounded-10 px-3 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary">
+          <span className="flex size-5 items-center justify-center">
+            {row.icon}
+          </span>
+          <Typography type={TypographyType.Callout}>{row.label}</Typography>
+        </a>
+      </Link>
+    );
     return (
       <div className="flex flex-col gap-0.5 p-2">
-        {rows.map((row) => (
-          <Link key={row.key} href={row.href} passHref>
-            <a className="focus-outline flex items-center gap-3 rounded-10 px-3 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary">
-              <span className="flex size-5 items-center justify-center">
-                {row.icon}
-              </span>
-              <Typography type={TypographyType.Callout}>{row.label}</Typography>
-            </a>
-          </Link>
-        ))}
+        {rows.map(renderRow)}
+        {shortcutRows.length > 0 && (
+          <>
+            {rows.length > 0 && <HorizontalSeparator className="my-1" />}
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="px-3 pb-1 pt-0.5"
+            >
+              Shortcuts
+            </Typography>
+            {shortcutRows.map(renderRow)}
+          </>
+        )}
       </div>
     );
   };
@@ -1578,69 +1640,86 @@ export const SidebarDesktopV2 = ({
               className="my-1 h-px w-6 bg-border-subtlest-tertiary"
             />
 
+            {/* Everything below the New-post divider scrolls as one block when
+              the viewport is too short — tabs, shortcuts and the bottom
+              utilities. The tiny -mx/px keeps the tabs' focus ring from being
+              clipped by the scroll container's overflow. */}
             <div
-              ref={navListRef}
-              role="tablist"
-              aria-label="Sidebar categories"
-              // overflow-visible (not hidden) so the focus-visible ring on the
-              // selected/focused tab isn't clipped on its edges. The "More" fold
-              // already guarantees the items fit, so nothing actually overflows.
-              className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
+              ref={scrollRegionRef}
+              className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5"
             >
-              <DndContext
-                sensors={railSensors}
-                collisionDetection={closestCenter}
-                onDragStart={handleRailDragStart}
-                onDragEnd={handleRailDragEnd}
-                onDragCancel={() => setSidebarDragging(false)}
+              <div
+                role="tablist"
+                aria-label="Sidebar categories"
+                className="flex w-full flex-col items-center gap-1"
               >
-                <SortableContext
-                  items={visibleCategoryIds}
-                  strategy={verticalListSortingStrategy}
+                <DndContext
+                  sensors={railSensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={handleRailDragStart}
+                  onDragEnd={handleRailDragEnd}
+                  onDragCancel={() => setSidebarDragging(false)}
                 >
-                  {visibleCategoryIds.map((id) => (
-                    <SortableRailTab key={id} id={id}>
-                      {renderRailTab(id)}
-                    </SortableRailTab>
-                  ))}
-                </SortableContext>
-              </DndContext>
-
-              {isNavOverflowing && (
-                <RailHoverCard label="More" panel={renderMorePanel()}>
-                  <button
-                    type="button"
-                    aria-label="More"
-                    aria-haspopup="menu"
-                    className={railTabClass}
+                  <SortableContext
+                    items={visibleCategoryIds}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <span className="relative flex items-center justify-center">
-                      <MenuIcon size={IconSize.Small} aria-hidden />
-                    </span>
-                    {!isCompact && (
-                      <span className={railTabLabelClass}>More</span>
-                    )}
-                  </button>
-                </RailHoverCard>
-              )}
+                    {visibleCategoryIds.map((id) => (
+                      <SortableRailTab key={id} id={id}>
+                        {renderRailTab(id)}
+                      </SortableRailTab>
+                    ))}
+                  </SortableContext>
+                </DndContext>
 
-              {/* User-customizable shortcut dock — a separator then any pinned
-                page shortcuts, sitting directly below the rail tabs. */}
-              {isLoggedIn && <SidebarShortcutsDock />}
-            </div>
+                {showMore && (
+                  <RailHoverCard label="More" panel={renderMorePanel()}>
+                    <button
+                      type="button"
+                      aria-label="More"
+                      aria-haspopup="menu"
+                      className={railTabClass}
+                    >
+                      <span className="relative flex items-center justify-center">
+                        <MenuIcon
+                          size={IconSize.Small}
+                          aria-hidden
+                          className="rotate-90"
+                        />
+                      </span>
+                      {!isCompact && (
+                        <span className={railTabLabelClass}>More</span>
+                      )}
+                    </button>
+                  </RailHoverCard>
+                )}
+              </div>
 
-            {/* Utility actions (not tabs) — Invite/Support/Settings open their
-              own popups, so this is a plain group rather than a tablist.
-              Hovering it closes any open collapsed-peek so these panel-less
-              icons never leave a stale panel showing. */}
-            <div
-              aria-label="Sidebar utilities"
-              onMouseEnter={handleRailMouseLeave}
-              className="mt-auto flex w-full flex-col items-center gap-1"
-            >
-              <SidebarInviteButton />
-              <SidebarSupportButton />
-              {isLoggedIn && <SidebarSettingsButton />}
+              {/* User-customizable shortcut dock — its own separator then any
+                pinned shortcuts. Hidden (folded into "More") when the rail is
+                too short for it. */}
+              {showInlineDock && <SidebarShortcutsDock />}
+
+              {/* Utility actions (not tabs) — Invite/Support/Settings open their
+                own popups, so this is a plain group rather than a tablist.
+                Hovering it closes any open collapsed-peek so these panel-less
+                icons never leave a stale panel showing. mt-auto pins them to the
+                bottom on tall screens; they scroll with the rest when short. */}
+              <div
+                aria-label="Sidebar utilities"
+                onMouseEnter={handleRailMouseLeave}
+                className="mt-auto flex w-full flex-col items-center gap-1"
+              >
+                {showInlineDock && (
+                  <div
+                    aria-hidden
+                    className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+                  />
+                )}
+                <SidebarInviteButton />
+                <SidebarSupportButton />
+                {isLoggedIn && <SidebarSettingsButton />}
+              </div>
             </div>
           </nav>
         )}

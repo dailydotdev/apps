@@ -190,7 +190,7 @@ const DOCK_DROPPABLE_ID = 'sidebar-shortcuts-dock';
 const keyOf = (entry: StoredShortcut): string =>
   typeof entry === 'string' ? entry : entry.path;
 
-interface ResolvedShortcut {
+export interface ResolvedShortcut {
   key: string;
   label: string;
   path: string;
@@ -339,12 +339,22 @@ const TrayItem = ({
   );
 };
 
-// A customizable "dock" of single-icon page shortcuts below the rail tabs.
-// Add from the tray (drag-from or tap), drag a panel row in to pin it, reorder
-// by dragging, and remove by dragging an icon off the rail — all with an Undo
-// toast. Persisted per-user.
-export const SidebarShortcutsDock = (): ReactElement | null => {
-  const router = useRouter();
+export interface SidebarShortcutsApi {
+  items: StoredShortcut[];
+  keys: string[];
+  pinnedPaths: Set<string>;
+  resolved: ResolvedShortcut[];
+  persist: (next: StoredShortcut[]) => void;
+  addCatalog: (id: string) => void;
+  removeShortcut: (key: string) => void;
+  pinPage: (payload: ShortcutDragData) => void;
+}
+
+// Shortcuts state + mutations, shared by the dock and the rail's "More" menu
+// (which lists shortcuts when the rail is too short to show the dock inline).
+// usePersistentContext is react-query backed, so calling this in both places
+// reads the same cached source of truth.
+export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
   const [stored, setStored] = usePersistentContext<StoredShortcut[]>(
     SHORTCUTS_KEY,
@@ -362,27 +372,13 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     () => new Set(items.map((entry) => normalizePath(keyOf(entry)))),
     [items],
   );
-
-  const { isDragging: isAnyDragging, setDragging } = useSidebarDragState();
-  // Share the rail popup group so the customize menu is mutually exclusive with
-  // the Support/Settings popups and behaves like them. ('sidebar-rail' must
-  // match RAIL_POPUP_GROUP in SidebarDesktopV2.)
-  const {
-    isOpen: trayOpen,
-    onUpdate: setTrayOpen,
-    wrapHandler,
-  } = useInteractivePopup('sidebar-rail');
-  const trayRef = useRef<HTMLDivElement>(null);
-  useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [overId, setOverId] = useState<string | null>(null);
-  const [willRemove, setWillRemove] = useState(false);
-  const [isPageDropActive, setIsPageDropActive] = useState(false);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  const resolved = useMemo(
+    () =>
+      items
+        .map(resolveShortcut)
+        .filter((entry): entry is ResolvedShortcut => !!entry),
+    [items],
   );
-  const { setNodeRef: setDockRef } = useDroppable({ id: DOCK_DROPPABLE_ID });
 
   const persist = useCallback(
     (next: StoredShortcut[]) => {
@@ -434,6 +430,48 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     },
     [displayToast, items, persist, pinnedPaths],
   );
+
+  return {
+    items,
+    keys,
+    pinnedPaths,
+    resolved,
+    persist,
+    addCatalog,
+    removeShortcut,
+    pinPage,
+  };
+};
+
+// A customizable "dock" of single-icon page shortcuts below the rail tabs.
+// Add from the tray (drag-from or tap), drag a panel row in to pin it, reorder
+// by dragging, and remove by dragging an icon off the rail — all with an Undo
+// toast. Persisted per-user.
+export const SidebarShortcutsDock = (): ReactElement | null => {
+  const router = useRouter();
+  const { items, keys, persist, addCatalog, removeShortcut, pinPage } =
+    useSidebarShortcutItems();
+
+  const { isDragging: isAnyDragging, setDragging } = useSidebarDragState();
+  // Share the rail popup group so the customize menu is mutually exclusive with
+  // the Support/Settings popups and behaves like them. ('sidebar-rail' must
+  // match RAIL_POPUP_GROUP in SidebarDesktopV2.)
+  const {
+    isOpen: trayOpen,
+    onUpdate: setTrayOpen,
+    wrapHandler,
+  } = useInteractivePopup('sidebar-rail');
+  const trayRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [willRemove, setWillRemove] = useState(false);
+  const [isPageDropActive, setIsPageDropActive] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
+  const { setNodeRef: setDockRef } = useDroppable({ id: DOCK_DROPPABLE_ID });
 
   const isOverDock = (target?: string | number | null): boolean =>
     target === DOCK_DROPPABLE_ID ||
