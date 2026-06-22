@@ -345,10 +345,11 @@ export default function Feed<T>({
       if (cells >= targetCells && cells % virtualizedNumCards === 0) {
         return i;
       }
-      cells += itemPlacements[i]?.colSpan ?? 1;
+      // Takeover forces single-column cards, so every item is one cell.
+      cells += 1;
     }
     return -1;
-  }, [showGoogleCloudTakeover, virtualizedNumCards, items, itemPlacements]);
+  }, [showGoogleCloudTakeover, virtualizedNumCards, items]);
 
   // Experiment: let the browser skip layout/paint for off-screen cards on long
   // vertical feeds. Horizontal carousels are short and scroll on the other axis,
@@ -734,7 +735,12 @@ export default function Feed<T>({
             )}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
-              const { colSpan } = placement;
+              // DEMO: the takeover injects extra cells (blog card, ad), which
+              // shifts the grid and desyncs the feed's wide-card placements,
+              // leaving empty cells. Force single-column cards so every cell
+              // packs cleanly; the only full-row item is the GCP strip, which
+              // is positioned on a row boundary.
+              const colSpan = showGoogleCloudTakeover ? 1 : placement.colSpan;
               const isWidened = colSpan > 1;
               const wideColSpan =
                 isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
@@ -807,15 +813,17 @@ export default function Feed<T>({
                       : undefined,
                   }}
                 >
-                  {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                    <BriefBannerFeed
-                      style={{
-                        gridColumn: !shouldUseListFeedLayout
-                          ? `span ${virtualizedNumCards}`
-                          : undefined,
-                      }}
-                    />
-                  )}
+                  {showPromoBanner &&
+                    !showGoogleCloudTakeover &&
+                    index === indexWhenShowingPromoBanner && (
+                      <BriefBannerFeed
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
                   {showGoogleCloudTakeover && index === 1 && (
                     <GoogleCloudHeadAd isList={shouldUseListFeedLayout} />
                   )}
