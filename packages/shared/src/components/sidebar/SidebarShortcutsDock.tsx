@@ -241,13 +241,9 @@ const dockCollisionDetection: CollisionDetection = (args) =>
 const SortableShortcut = ({
   shortcut,
   active,
-  dropEdge,
 }: {
   shortcut: ResolvedShortcut;
   active: boolean;
-  // When another icon is being dragged to land next to this one, mark the edge
-  // it will drop against with a brand insertion line.
-  dropEdge: 'top' | 'bottom' | null;
 }): ReactElement => {
   const {
     setNodeRef,
@@ -270,26 +266,21 @@ const SortableShortcut = ({
         ref={setNodeRef}
         {...attributes}
         {...listeners}
-        style={{ transform: CSS.Transform.toString(transform), transition }}
+        style={{
+          // The dragged item's skeleton stays put at its (live-reordered) index
+          // — the floating DragOverlay follows the pointer, so applying the
+          // sortable transform here too would make the skeleton drift.
+          transform: isDragging ? undefined : CSS.Transform.toString(transform),
+          transition,
+        }}
         className={classNames(
           'relative touch-none rounded-12 transition-colors',
-          isDragging && 'opacity-40',
-          // Float-coloured landing slot: the place the dragged icon will drop
-          // into (this is the icon it will displace).
-          dropEdge && 'bg-surface-float',
+          // The dragged icon reorders live, so this item's own slot IS the
+          // landing place — show it as a solid skeleton (icon hidden) so it's
+          // clear where the icon drops.
+          isDragging && 'bg-background-subtle',
         )}
       >
-        {dropEdge && (
-          <span
-            aria-hidden
-            // A 1px neutral grey separator line (not the brand colour) marking
-            // the exact edge the dragged icon will drop against.
-            className={classNames(
-              'absolute inset-x-1 h-px bg-text-tertiary',
-              dropEdge === 'top' ? '-top-1' : '-bottom-1',
-            )}
-          />
-        )}
         <Link href={shortcut.path} passHref prefetch={false}>
           <a
             href={shortcut.path}
@@ -300,6 +291,7 @@ const SortableShortcut = ({
             className={classNames(
               dockButtonClass,
               active && '!text-text-primary',
+              isDragging && 'opacity-0',
             )}
           >
             {shortcut.icon(active)}
@@ -513,7 +505,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
   // The tray is portaled to the body so the scrollable rail's overflow (which
   // forces overflow-x to clip) can't hide it; we anchor it to the customize
-  // button's live rect, tracking rail scroll/viewport resize while it's open.
+  // button's rect once on open (and on resize). It is NOT re-positioned on rail
+  // scroll — like the Support/Settings popups it stays put, which avoids the
+  // jittery shift the live scroll-tracking caused.
   const [trayPos, setTrayPos] = useState<{ top: number; left: number } | null>(
     null,
   );
@@ -529,10 +523,8 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       }
     };
     update();
-    window.addEventListener('scroll', update, true);
     window.addEventListener('resize', update);
     return () => {
-      window.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
   }, [trayOpen]);
@@ -559,6 +551,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // not the moment the cursor nudges past the edge.
   const dockAreaRef = useRef<HTMLDivElement>(null);
   const outsideRailRef = useRef(false);
+  // The live (in-progress) reorder, mirrored in a ref so onDragEnd reads the
+  // final order without a stale-closure risk.
+  const liveOrderRef = useRef<StoredShortcut[] | null>(null);
 
   const isIconOutsideRail = (event: DragMoveEvent | DragEndEvent): boolean => {
     const rail = dockAreaRef.current?.getBoundingClientRect();
@@ -572,11 +567,15 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   };
 
   const onDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    const id = event.active.id as string;
+    setActiveId(id);
     setOverId(null);
     setWillRemove(false);
     removeOnDropRef.current = false;
     outsideRailRef.current = false;
+    // Snapshot the order so the list can reorder live (in onDragOver) without
+    // touching the persisted store until drop.
+    liveOrderRef.current = keys.includes(id) ? orderedItems : null;
     setDragging(true);
   };
 
@@ -592,21 +591,41 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     setWillRemove(outside);
   };
 
+  // Live reorder: as the icon passes over a slot, reorder the rendered list so
+  // the dragged item's own placeholder moves into the target slot (the landing
+  // skeleton). Persisted only on drop.
   const onDragOver = (event: DragOverEvent) => {
-    setOverId((event.over?.id as string) ?? null);
+    const id = event.active.id as string;
+    const over = (event.over?.id as string) ?? null;
+    setOverId(over);
+    if (!keys.includes(id) || !over || over === id || !keys.includes(over)) {
+      return;
+    }
+    const base = liveOrderRef.current ?? items;
+    const baseKeys = base.map(keyOf);
+    const from = baseKeys.indexOf(id);
+    const to = baseKeys.indexOf(over);
+    if (from === -1 || to === -1 || from === to) {
+      return;
+    }
+    const next = arrayMove(base, from, to);
+    liveOrderRef.current = next;
+    setOrderOverride(next);
   };
 
   const onDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+    const { active } = event;
     const id = active.id as string;
     const fromDock = keys.includes(id);
+    const liveOrder = liveOrderRef.current;
+    liveOrderRef.current = null;
     setActiveId(null);
     setOverId(null);
     setWillRemove(false);
     setDragging(false);
 
     if (!fromDock) {
-      if (isOverDock(over?.id)) {
+      if (isOverDock(event.over?.id)) {
         addCatalog(id);
       }
       return;
@@ -620,23 +639,24 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       return;
     }
 
-    const overTarget = over?.id as string;
-    if (overTarget && overTarget !== id && keys.includes(overTarget)) {
-      const next = arrayMove(
-        orderedItems,
-        keys.indexOf(id),
-        keys.indexOf(overTarget),
-      );
-      setOrderOverride(next);
-      persist(next);
+    // Commit the live reorder (already reflected in orderOverride). Compare to
+    // the STORE order (not the live keys, which already include the override);
+    // if nothing actually moved, drop the override and fall back to the store.
+    const storeKeys = items.map(keyOf).join('|');
+    if (liveOrder && liveOrder.map(keyOf).join('|') !== storeKeys) {
+      persist(liveOrder);
+    } else {
+      setOrderOverride(null);
     }
   };
 
   const onDragCancel = () => {
+    liveOrderRef.current = null;
     setActiveId(null);
     setOverId(null);
     setWillRemove(false);
     outsideRailRef.current = false;
+    setOrderOverride(null);
     setDragging(false);
   };
 
@@ -736,16 +756,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // (but not while dragging one out to remove).
   const showDragArea = showAddZone || (isReordering && !willRemove);
 
-  // While reordering, mark the edge of the hovered icon where the dragged one
-  // will land: a line above it when moving up, below it when moving down.
-  const activeIndex = activeId ? keys.indexOf(activeId) : -1;
-  const dropEdgeFor = (key: string): 'top' | 'bottom' | null => {
-    if (!isReordering || !overId || overId === activeId || overId !== key) {
-      return null;
-    }
-    return activeIndex > keys.indexOf(key) ? 'top' : 'bottom';
-  };
-
   // Drag-overlay chip look: solid red while removing; solid bordered chip while
   // reordering an existing icon; solid chip with a dashed brand border while
   // *adding* a new icon (dragged from the tray) so it reads as "being placed".
@@ -786,13 +796,15 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
         <div
           ref={setDockRef}
           // The drop target wraps the customize (•••) button and every shortcut
-          // from the top. A transparent dashed border is always reserved (no
-          // layout shift) and turns brand-coloured while a page/icon is dragged
-          // over it.
+          // from the top. A 1px dashed border (transparent at rest → brand
+          // while dragging) frames the area; the colour is set exclusively (not
+          // layered over border-transparent) so it actually renders. No tint
+          // fill — the solid rail background shows through.
           className={classNames(
-            'flex w-full flex-col items-center gap-1 rounded-12 border border-dashed border-transparent p-0.5 transition-colors duration-150',
-            showDragArea &&
-              'border-accent-cabbage-default bg-overlay-float-cabbage',
+            'flex w-full flex-col items-center gap-1 rounded-12 border border-dashed p-0.5 transition-colors duration-150',
+            showDragArea
+              ? 'border-accent-cabbage-default'
+              : 'border-transparent',
           )}
         >
           {/* The customize (•••) button always starts the dock; pinned
@@ -835,7 +847,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                   key={shortcut.key}
                   shortcut={shortcut}
                   active={isSidebarItemActive(router.asPath, shortcut.path)}
-                  dropEdge={dropEdgeFor(shortcut.key)}
                 />
               );
             })}

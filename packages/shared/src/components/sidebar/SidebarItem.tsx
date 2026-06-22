@@ -54,6 +54,14 @@ export const SidebarItem = ({
         );
         // eslint-disable-next-line no-param-reassign
         event.dataTransfer.effectAllowed = 'copy';
+        // Drag with the row's own icon (squad logo / source / tag glyph) under
+        // the cursor instead of the browser's default text-row snapshot, so it
+        // reads as the thing being pinned.
+        const iconEl = event.currentTarget.querySelector('span');
+        if (iconEl) {
+          const { width, height } = iconEl.getBoundingClientRect();
+          event.dataTransfer.setDragImage(iconEl, width / 2, height / 2);
+        }
         setDragging(true);
       }
     : undefined;
