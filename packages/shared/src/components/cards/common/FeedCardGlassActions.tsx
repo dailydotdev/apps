@@ -29,16 +29,19 @@ const outerClasses = 'pointer-events-none absolute inset-x-2 bottom-2 z-1';
 // hover/pressed colors are left to each `btn-tertiary-*` class so icons keep
 // their brand tint on hover, matching the standard ActionButtons.
 const pillClasses = classNames(
-  'pointer-events-auto flex h-10 w-full items-center overflow-hidden px-1',
+  'pointer-events-auto flex h-10 w-full items-center justify-between gap-0.5 overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
 
-// Every action gets an equal-width centered slot so the icons stay evenly spaced
-// across the pill regardless of upvote/comment counts widening a button.
-const slotClasses = 'flex min-w-0 flex-1 items-center justify-center';
+// Each action sizes to its content (so the count inside the upvote/comment
+// button isn't clipped) and the row spreads them with `justify-between`. An
+// earlier equal-width `flex-1` layout forced every slot to 1/N of the pill,
+// which is narrower than a count-bearing button on tight (e.g. 5-column)
+// cards — so the buttons overflowed their slots and overlapped.
+const slotClasses = 'flex min-w-0 shrink items-center justify-center';
 
 // Dark glow behind the pill so it stays readable over busy cover images. Fixed
 // pepper tint in both themes; inline gradient since it's a one-off scrim.
