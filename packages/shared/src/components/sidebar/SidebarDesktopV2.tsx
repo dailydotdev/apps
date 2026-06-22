@@ -685,14 +685,12 @@ export const SidebarDesktopV2 = ({
   const { resolved: shortcutItems } = useSidebarShortcutItems();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
   const visibleCategoryIds = railOrder;
-  // Estimate how many shortcut rows fit after the tabs, utilities and the
-  // always-present customize button. Region height is content-independent
+  // The scroll region is just the dock (tabs + utilities are fixed outside it),
+  // so estimate how many shortcut rows fit after the dock's top separator and
+  // the always-present customize button. Region height is content-independent
   // (flex-1), so this can't oscillate; the scroll covers any estimate slop.
   const iconRowPx = 40 + 4;
-  const tabRowPx = (isCompact ? 44 : 56) + 4;
-  const utilitiesPx = (isLoggedIn ? 3 : 2) * iconRowPx;
-  const availableForShortcutsPx =
-    navRegionHeight - railOrder.length * tabRowPx - utilitiesPx - iconRowPx;
+  const availableForShortcutsPx = navRegionHeight - iconRowPx - 12;
   const inlineShortcutSlots = Math.floor(availableForShortcutsPx / iconRowPx);
   const collapseShortcuts =
     shortcutCount > 0 && inlineShortcutSlots < SHORTCUTS_MIN_INLINE;
@@ -1547,69 +1545,66 @@ export const SidebarDesktopV2 = ({
               className="my-1 h-px w-6 bg-border-subtlest-tertiary"
             />
 
-            {/* Everything below the New-post divider scrolls as one block when
-              the viewport is too short — tabs, shortcuts and the bottom
-              utilities. Nothing is folded away: you scroll to reach and manage
-              any shortcut. The tiny -mx/px keeps the tabs' focus ring from being
-              clipped by the scroll container's overflow. */}
+            {/* Rail tabs — fixed above the scrollable shortcuts dock. */}
+            <div
+              role="tablist"
+              aria-label="Sidebar categories"
+              className="flex w-full flex-col items-center gap-1"
+            >
+              <DndContext
+                sensors={railSensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleRailDragStart}
+                onDragEnd={handleRailDragEnd}
+                onDragCancel={() => setSidebarDragging(false)}
+              >
+                <SortableContext
+                  items={visibleCategoryIds}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {visibleCategoryIds.map((id) => (
+                    <SortableRailTab key={id} id={id}>
+                      {renderRailTab(id)}
+                    </SortableRailTab>
+                  ))}
+                </SortableContext>
+              </DndContext>
+            </div>
+
+            {/* ONLY the shortcuts dock scrolls — between the fixed tabs above
+              and the fixed utilities below. The dock keeps its own top
+              separator and the ••• button; on a very short viewport the inline
+              shortcuts collapse into the ••• (collapsed), whose tray still lists
+              and manages them. The tiny -mx/px keeps focus rings from being
+              clipped by the scroll overflow. */}
             <div
               ref={scrollRegionRef}
               className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5"
             >
-              <div
-                role="tablist"
-                aria-label="Sidebar categories"
-                className="flex w-full flex-col items-center gap-1"
-              >
-                <DndContext
-                  sensors={railSensors}
-                  collisionDetection={closestCenter}
-                  onDragStart={handleRailDragStart}
-                  onDragEnd={handleRailDragEnd}
-                  onDragCancel={() => setSidebarDragging(false)}
-                >
-                  <SortableContext
-                    items={visibleCategoryIds}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {visibleCategoryIds.map((id) => (
-                      <SortableRailTab key={id} id={id}>
-                        {renderRailTab(id)}
-                      </SortableRailTab>
-                    ))}
-                  </SortableContext>
-                </DndContext>
-              </div>
-
-              {/* User-customizable shortcut dock — its own separator then any
-                pinned shortcuts. Always rendered; the region scrolls if the
-                list is long. On a very short viewport the inline shortcuts
-                collapse into the dock's ••• button (collapsed), which still
-                lists and manages them all. */}
               {showInlineDock && (
                 <SidebarShortcutsDock collapsed={collapseShortcuts} />
               )}
+            </div>
 
-              {/* Utility actions (not tabs) — Invite/Support/Settings open their
-                own popups, so this is a plain group rather than a tablist.
-                Hovering it closes any open collapsed-peek so these panel-less
-                icons never leave a stale panel showing. mt-auto pins them to the
-                bottom on tall screens; they scroll with the rest when short. */}
-              <div
-                aria-label="Sidebar utilities"
-                onMouseEnter={handleRailMouseLeave}
-                className="mt-auto flex w-full flex-col items-center gap-1"
-              >
-                {hasInlineShortcuts && (
-                  <div
-                    aria-hidden
-                    className="my-1 h-px w-6 bg-border-subtlest-tertiary"
-                  />
-                )}
-                <SidebarInviteButton />
-                <SidebarSupportButton />
-                {isLoggedIn && <SidebarSettingsButton />}
-              </div>
+            {/* Utility actions (not tabs) — Invite/Support/Settings — fixed at
+              the bottom, outside the scroll. They open their own popups, so this
+              is a plain group rather than a tablist. Hovering it closes any open
+              collapsed-peek so these panel-less icons never leave a stale panel
+              showing. */}
+            <div
+              aria-label="Sidebar utilities"
+              onMouseEnter={handleRailMouseLeave}
+              className="flex w-full flex-col items-center gap-1"
+            >
+              {hasInlineShortcuts && (
+                <div
+                  aria-hidden
+                  className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+                />
+              )}
+              <SidebarInviteButton />
+              <SidebarSupportButton />
+              {isLoggedIn && <SidebarSettingsButton />}
             </div>
           </nav>
         )}
