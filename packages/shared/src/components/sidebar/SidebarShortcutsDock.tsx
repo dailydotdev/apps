@@ -267,8 +267,10 @@ const SortableShortcut = ({
         {dropEdge && (
           <span
             aria-hidden
+            // A neutral grey oval (not the brand colour) marking the slot the
+            // dragged icon will drop into.
             className={classNames(
-              'absolute left-1/2 h-0.5 w-7 -translate-x-1/2 rounded-full bg-accent-cabbage-default',
+              'absolute left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-text-tertiary',
               dropEdge === 'top' ? '-top-1' : '-bottom-1',
             )}
           />
@@ -656,10 +658,14 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
         />
         <div
           ref={setDockRef}
+          // The drop target wraps the customize (•••) button and every shortcut
+          // from the top. A transparent dashed border is always reserved (no
+          // layout shift) and turns brand-coloured while a page/icon is dragged
+          // over it.
           className={classNames(
-            'flex w-full flex-col items-center gap-1 rounded-12 ring-1 ring-inset ring-transparent transition-all duration-150',
+            'flex w-full flex-col items-center gap-1 rounded-12 border-2 border-dashed border-transparent p-0.5 transition-colors duration-150',
             showAddZone &&
-              'bg-overlay-float-cabbage !ring-accent-cabbage-default',
+              'border-accent-cabbage-default bg-overlay-float-cabbage',
           )}
         >
           {/* The customize (•••) button always starts the dock; pinned
