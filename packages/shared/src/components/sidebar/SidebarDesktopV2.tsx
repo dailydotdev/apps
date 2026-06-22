@@ -689,21 +689,36 @@ export const SidebarDesktopV2 = ({
 
   const { resolved: shortcutItems } = useSidebarShortcutItems();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
-  const visibleCategoryIds = railOrder;
-  const iconRowPx = 40 + 4;
-  const tabRowPx = (isCompact ? 44 : 56) + 4;
-  const tabsPx = railOrder.length * tabRowPx;
-  const dockAreaPx = regionHeight - tabsPx - (shortcutCount > 0 ? 12 : 0);
-  // One collapse: once the region can't fit the tabs plus a few inline
-  // shortcuts, the WHOLE rail (tabs + shortcuts) folds into the single "More"
-  // menu — a 3-dots + "More" tab whose dropdown has a tabs list then a
-  // Shortcuts category. Above that, tabs stay inline and the dock scrolls.
-  const collapseRail =
-    regionHeight < tabsPx + iconRowPx ||
-    (shortcutCount > 0 &&
-      Math.floor(dockAreaPx / iconRowPx) < SHORTCUTS_MIN_INLINE);
-  const showInlineDock = isLoggedIn && !collapseRail;
-  const hasInlineShortcuts = shortcutCount > 0 && !collapseRail;
+  const iconRowPx = 40 + 4; // shortcut dot row (height + gap)
+  const tabRowPx = (isCompact ? 44 : 56) + 4; // tab / "More" row (height + gap)
+  const SEP_PX = 12; // framing separator + its vertical margins
+  const tabCount = railOrder.length;
+  const minDockPx =
+    shortcutCount > 0 ? SEP_PX + SHORTCUTS_MIN_INLINE * iconRowPx : 0;
+  // Progressive overflow (a "priority+" rail). Stage 1: everything fits — all
+  // tabs inline plus a usefully-sized, scrollable shortcuts dock; no "More".
+  const fitsAllInline = regionHeight >= tabCount * tabRowPx + minDockPx;
+  // Otherwise a "More" tab (same row height) collects the overflow. Keep as
+  // many tabs inline as fit ABOVE that row and drop the lowest-priority tabs
+  // (end of railOrder) into More ONE AT A TIME as the viewport shrinks — never
+  // all at once, which left the rail looking empty. The inline dock is dropped
+  // here; its shortcuts move into the same More menu (one combined dropdown).
+  const tabsThatFitWithMore = Math.max(
+    0,
+    Math.floor((regionHeight - tabRowPx) / tabRowPx),
+  );
+  const visibleTabCount = fitsAllInline
+    ? tabCount
+    : Math.min(tabCount, tabsThatFitWithMore);
+  const visibleCategoryIds = railOrder.slice(0, visibleTabCount);
+  const overflowTabIds = fitsAllInline ? [] : railOrder.slice(visibleTabCount);
+  // More is needed when any tab overflows, or when all tabs still fit inline
+  // but the shortcuts can't get a usable inline dock (so they collapse in).
+  const moreNeeded =
+    isLoggedIn &&
+    (overflowTabIds.length > 0 || (!fitsAllInline && shortcutCount > 0));
+  const showInlineDock = isLoggedIn && fitsAllInline && shortcutCount > 0;
+  const hasInlineShortcuts = showInlineDock;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -1389,12 +1404,15 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
-  // Content of the collapsed-rail "More" menu: every tab as a navigable row,
-  // then a Shortcuts category listing every pinned shortcut.
-  const renderMoreMenuContent = (): ReactElement => {
+  // Content of the rail "More" menu: each overflowed tab as a navigable row,
+  // then a Shortcuts category listing every pinned shortcut. Only the tabs that
+  // didn't fit inline are listed here — the inline tabs aren't repeated.
+  const renderMoreMenuContent = (
+    overflowIds: SidebarCategoryId[],
+  ): ReactElement => {
     const rowClass =
       'focus-outline flex items-center gap-3 rounded-10 px-3 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
-    const tabRows = railOrder.map((id) => {
+    const tabRows = overflowIds.map((id) => {
       if (id === SidebarCategory.Notifications) {
         return {
           key: id as string,
@@ -1429,7 +1447,7 @@ export const SidebarDesktopV2 = ({
         ))}
         {shortcutItems.length > 0 && (
           <>
-            <HorizontalSeparator className="my-1" />
+            {tabRows.length > 0 && <HorizontalSeparator className="my-1" />}
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
@@ -1628,55 +1646,59 @@ export const SidebarDesktopV2 = ({
               ref={lowerRegionRef}
               className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
             >
-              {collapseRail ? (
-                <RailMoreMenu compact={isCompact}>
-                  {renderMoreMenuContent()}
-                </RailMoreMenu>
-              ) : (
-                <>
-                  {/* Rail tabs — fixed above the scrollable shortcuts dock. */}
-                  <div
-                    role="tablist"
-                    aria-label="Sidebar categories"
-                    className="flex w-full flex-col items-center gap-1"
+              {/* Rail tabs that fit — fixed above the scrollable dock / More.
+                As the viewport shrinks, the lowest-priority tabs peel off into
+                the "More" menu one at a time (visibleCategoryIds), so the rail
+                always stays populated instead of emptying out all at once. */}
+              <div
+                role="tablist"
+                aria-label="Sidebar categories"
+                className="flex w-full flex-col items-center gap-1"
+              >
+                <DndContext
+                  sensors={railSensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={handleRailDragStart}
+                  onDragEnd={handleRailDragEnd}
+                  onDragCancel={() => setSidebarDragging(false)}
+                >
+                  <SortableContext
+                    items={visibleCategoryIds}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <DndContext
-                      sensors={railSensors}
-                      collisionDetection={closestCenter}
-                      onDragStart={handleRailDragStart}
-                      onDragEnd={handleRailDragEnd}
-                      onDragCancel={() => setSidebarDragging(false)}
-                    >
-                      <SortableContext
-                        items={visibleCategoryIds}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {visibleCategoryIds.map((id) => (
-                          <SortableRailTab key={id} id={id}>
-                            {renderRailTab(id)}
-                          </SortableRailTab>
-                        ))}
-                      </SortableContext>
-                    </DndContext>
-                  </div>
+                    {visibleCategoryIds.map((id) => (
+                      <SortableRailTab key={id} id={id}>
+                        {renderRailTab(id)}
+                      </SortableRailTab>
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
 
-                  {/* Fixed top frame separator for the scrollable dock (the
-                    matching one sits above the utilities below). */}
-                  {hasInlineShortcuts && (
-                    <div
-                      aria-hidden
-                      className="my-1 h-px w-6 bg-border-subtlest-tertiary"
-                    />
-                  )}
+              {/* Fixed top frame separator for the scrollable dock (the
+                matching one sits above the utilities below). */}
+              {hasInlineShortcuts && (
+                <div
+                  aria-hidden
+                  className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+                />
+              )}
 
-                  {/* ONLY the shortcuts dock scrolls — between the framing
-                    separators. On a short viewport the inline shortcuts
-                    collapse into the ••• (collapsed), whose tray manages them.
-                    The tiny -mx/px keeps focus rings from being clipped. */}
-                  <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
-                    {showInlineDock && <SidebarShortcutsDock />}
-                  </div>
-                </>
+              {/* ONLY the shortcuts dock scrolls — between the framing
+                separators. The tiny -mx/px keeps focus rings from being
+                clipped. */}
+              {showInlineDock && (
+                <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
+                  <SidebarShortcutsDock />
+                </div>
+              )}
+
+              {/* The "More" tab: collects the overflowed tabs and (once the
+                inline dock can't fit) all the shortcuts, in one dropdown. */}
+              {moreNeeded && (
+                <RailMoreMenu compact={isCompact}>
+                  {renderMoreMenuContent(overflowTabIds)}
+                </RailMoreMenu>
               )}
             </div>
 
@@ -1690,7 +1712,11 @@ export const SidebarDesktopV2 = ({
               onMouseEnter={handleRailMouseLeave}
               className="flex w-full flex-col items-center gap-1"
             >
-              {hasInlineShortcuts && (
+              {/* Keyed on the stable shortcut count (not the height-derived
+                overflow state) so this separator — which sits OUTSIDE the
+                measured region and thus changes its height — can't flip-flop
+                the overflow threshold and oscillate. */}
+              {shortcutCount > 0 && (
                 <div
                   aria-hidden
                   className="my-1 h-px w-6 bg-border-subtlest-tertiary"
