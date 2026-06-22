@@ -184,7 +184,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
 ];
 
 const railButtonClass =
-  'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
+  'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
 // Shared group so the rail's click popups (support, profile menu, streak) are
 // mutually exclusive — opening one closes the others.
 const RAIL_POPUP_GROUP = 'sidebar-rail';
@@ -1567,7 +1567,7 @@ export const SidebarDesktopV2 = ({
                   // tertiary color; the icon fills (and goes primary) when the
                   // For You feed is the current page.
                   className={classNames(
-                    'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                    'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
                     isHomeActive && '!text-text-primary',
                   )}
                   onClick={onHomeClick}
@@ -1606,7 +1606,7 @@ export const SidebarDesktopV2 = ({
                 type="button"
                 aria-label="Search"
                 onClick={openSpotlight}
-                className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none"
               >
                 <SearchIcon size={IconSize.Small} aria-hidden />
               </button>
@@ -1682,7 +1682,7 @@ export const SidebarDesktopV2 = ({
                       type="button"
                       aria-label="More"
                       aria-haspopup="menu"
-                      className={railTabClass}
+                      className={classNames(railTabClass, 'active:scale-95')}
                     >
                       <span className="relative flex items-center justify-center">
                         <MenuIcon

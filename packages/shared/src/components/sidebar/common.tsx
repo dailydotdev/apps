@@ -82,7 +82,7 @@ export const navBtnClass =
 // notifications bell matches the hard-coded category tabs. Callers append
 // the active state (`bg-background-default !text-text-primary`).
 export const railTabClass =
-  'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
+  'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
 export const SidebarAside = classed(
   'aside',

@@ -92,7 +92,7 @@ export const StreakQuestsSection = ({
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="mt-1"
+              className="mt-1 tabular-nums"
             >
               Current streak · {streak.max} Longest · {streak.total} Total
             </Typography>

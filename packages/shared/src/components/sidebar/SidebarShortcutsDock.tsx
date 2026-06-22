@@ -222,9 +222,12 @@ const resolveShortcut = (entry: StoredShortcut): ResolvedShortcut | null => {
   };
 };
 
-// Matches the Home/Search rail buttons exactly.
+// Matches the Home/Search rail buttons exactly. Transitions transform too so
+// the press (active:scale) on the clickable buttons that use this eases rather
+// than snaps; the sortable shortcut anchors don't add a press scale (it would
+// distort the drag-start rect measurement).
 const dockButtonClass =
-  'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
+  'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary motion-reduce:transition-none';
 
 // Reorder smoothly while the pointer is inside the dock, but report NO target
 // (over === null) once it leaves the rail — so dragging a shortcut off the
@@ -627,9 +630,13 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
 
   // macOS-dock feel on release: a removed icon poofs out (fades + shrinks) right
   // where you let go instead of flying back to its old slot then vanishing.
-  // Reorders/adds keep the default settle-into-place animation.
+  // Reorders/adds keep the default settle-into-place animation. Collapsed to an
+  // instant settle when the user prefers reduced motion.
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const dropAnimation: DropAnimation = {
-    duration: 200,
+    duration: prefersReducedMotion ? 0 : 200,
     easing: 'cubic-bezier(0.2, 0, 0, 1)',
     // Keep the placeholder dimmed at its drag opacity (0.4) through the whole
     // landing instead of the default flip-to-visible, which made the icon flash
@@ -726,6 +733,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               onClick={wrapHandler(() => setTrayOpen(!trayOpen))}
               className={classNames(
                 dockButtonClass,
+                'active:scale-90',
                 trayOpen && 'bg-background-default !text-text-primary',
                 revealOnHover &&
                   'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
@@ -759,7 +767,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
         {trayOpen && (
           <div
             ref={trayRef}
-            className="absolute left-full top-0 z-3 ml-3 flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-3"
+            className="absolute left-full top-0 z-3 ml-3 flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-3 motion-safe:animate-composer-in"
           >
             <Typography
               type={TypographyType.Callout}
