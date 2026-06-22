@@ -25,3 +25,6 @@ export const getSiteOrigin = (): string =>
   normalizeOrigin(process.env.NEXT_PUBLIC_SITE_ORIGIN) || DEFAULT_SITE_ORIGIN;
 
 export const getLlmsTxtUrl = (): string => `${getAppOrigin()}/llms.txt`;
+
+export const getPostCanonicalUrl = (slug: string): string =>
+  `${getAppOrigin()}/posts/${slug}`;
