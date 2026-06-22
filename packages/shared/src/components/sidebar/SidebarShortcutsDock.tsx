@@ -7,12 +7,14 @@ import {
   DragOverlay,
   PointerSensor,
   closestCenter,
+  pointerWithin,
   useDraggable,
   useDroppable,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
 import type {
+  CollisionDetection,
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
@@ -215,6 +217,13 @@ const resolveShortcut = (entry: StoredShortcut): ResolvedShortcut | null => {
 // Matches the Home/Search rail buttons exactly.
 const dockButtonClass =
   'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
+
+// Reorder smoothly while the pointer is inside the dock, but report NO target
+// (over === null) once it leaves the rail — so dragging a shortcut off the
+// sidebar is detected as a remove. (closestCenter always returns the nearest
+// droppable, so over was never null and drag-out-to-remove never fired.)
+const dockCollisionDetection: CollisionDetection = (args) =>
+  pointerWithin(args).length > 0 ? closestCenter(args) : [];
 
 const SortableShortcut = ({
   shortcut,
@@ -500,7 +509,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={dockCollisionDetection}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
