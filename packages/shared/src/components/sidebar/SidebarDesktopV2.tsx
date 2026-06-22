@@ -385,7 +385,7 @@ const SidebarSupportButton = (): ReactElement => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarSupportMenu}
-          className="animate-rail-popup-in animate-rail-stagger flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+          className="animate-rail-popup-in flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <FeedbackWidget placement="support" />
           <ProfileMenuSection items={supportItems} linkIconHoverOnly />
@@ -496,7 +496,7 @@ const SidebarSettingsButton = (): ReactElement => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarSupportMenu}
-          className="animate-rail-popup-in animate-rail-stagger flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+          className="animate-rail-popup-in flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <ThemeSection className="px-1" />
           <HorizontalSeparator />
@@ -1493,7 +1493,7 @@ export const SidebarDesktopV2 = ({
       };
     });
     return (
-      <div className="animate-rail-stagger flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5">
         {tabRows.map((row) => (
           <Link key={row.key} href={row.href} passHref>
             <a className={rowClass}>
