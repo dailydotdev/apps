@@ -66,6 +66,7 @@ import type { ShortcutDragData } from './common';
 import { SHORTCUT_DRAG_MIME, isSidebarItemActive } from './common';
 import { useSidebarDragState } from './useSidebarDragState';
 import { SidebarEntityIcon } from './SidebarEntityIcon';
+import { useAnchoredRailPopup } from './useAnchoredRailPopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import usePersistentContext from '../../hooks/usePersistentContext';
@@ -572,42 +573,7 @@ export const SidebarShortcutsDock = ({
   // button's rect once on open (and on resize). It is NOT re-positioned on rail
   // scroll — like the Support/Settings popups it stays put, which avoids the
   // jittery shift the live scroll-tracking caused.
-  const [trayPos, setTrayPos] = useState<{
-    left: number;
-    top?: number;
-    bottom?: number;
-    maxHeight: number;
-  } | null>(null);
-  useEffect(() => {
-    if (!trayOpen) {
-      setTrayPos(null);
-      return undefined;
-    }
-    const update = () => {
-      const rect = customizeBtnRef.current?.getBoundingClientRect();
-      if (!rect) {
-        return;
-      }
-      const margin = 12;
-      const vh = window.innerHeight;
-      const spaceBelow = vh - rect.top - margin;
-      const spaceAbove = rect.bottom - margin;
-      // Flip to open upward when there isn't comfortable room below and there's
-      // more room above — so the dropdown is never cut off the bottom of small
-      // screens. Either way it's capped to the available space and scrolls.
-      const openUp = spaceBelow < 320 && spaceAbove > spaceBelow;
-      setTrayPos({
-        left: rect.right + 12,
-        maxHeight: Math.max(160, openUp ? spaceAbove : spaceBelow),
-        ...(openUp ? { bottom: vh - rect.bottom } : { top: rect.top }),
-      });
-    };
-    update();
-    window.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('resize', update);
-    };
-  }, [trayOpen]);
+  const trayPos = useAnchoredRailPopup(customizeBtnRef, trayOpen);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
