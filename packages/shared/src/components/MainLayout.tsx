@@ -18,7 +18,7 @@ import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SharedFeedPage } from './utilities';
-import { isTesting, onboardingUrl } from '../lib/constants';
+import { isTesting, onboardingUrl, webappUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
@@ -32,6 +32,8 @@ import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { GoogleCloudAnnouncementBar } from '../features/googleCloudTakeover/GoogleCloudAnnouncementBar';
+import { googleCloudTakeoverEnabled } from '../features/googleCloudTakeover/config';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
@@ -123,6 +125,13 @@ function MainLayoutComponent({
     feedName: currentFeedName,
   });
   const { plusEntryAnnouncementBar } = usePlusEntry();
+  // DEMO: Google Cloud takeover bar, rendered at the app layout level so it
+  // sits above/outside the feed's floating-card box on the home feed. Gate on
+  // `router.pathname` (the underlying page route) rather than `asPath`. When a
+  // post modal opens it only changes `asPath`/query to `/posts/...` while the
+  // home route stays `/`, so the bar stays put and doesn't cause a layout shift.
+  const showGoogleCloudBar =
+    googleCloudTakeoverEnabled && !isTesting && router?.pathname === webappUrl;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
@@ -349,6 +358,9 @@ function MainLayoutComponent({
         )}
         {sidebarOwnsHeader ? (
           <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
+            {showGoogleCloudBar && (
+              <GoogleCloudAnnouncementBar className="mx-4 mb-3 laptop:mx-0" />
+            )}
             {showHomepageTopBanners && (
               <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
             )}
@@ -373,7 +385,12 @@ function MainLayoutComponent({
             </div>
           </div>
         ) : (
-          children
+          <>
+            {showGoogleCloudBar && (
+              <GoogleCloudAnnouncementBar className="mx-4 mb-3 laptop:mx-0" />
+            )}
+            {children}
+          </>
         )}
       </main>
       {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}

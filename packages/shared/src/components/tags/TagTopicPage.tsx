@@ -57,7 +57,9 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { TagPageNavbar } from './TagPageNavbar';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import { webappUrl } from '../../lib/constants';
+import { isTesting, webappUrl } from '../../lib/constants';
+import { GoogleCloudStrip } from '../../features/googleCloudTakeover/GoogleCloudStrip';
+import { googleCloudTakeoverEnabled } from '../../features/googleCloudTakeover/config';
 import {
   Typography,
   TypographyColor,
@@ -460,6 +462,14 @@ export const TagTopicPage = ({
           </header>
 
           <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
+
+          {/* DEMO: the tag page's post feed ("All posts about …") is the last
+              section, so the in-feed takeover lands far below the fold. Surface
+              the Google Cloud placement prominently at the top of the tag page
+              too, so it's visible without scrolling. */}
+          {googleCloudTakeoverEnabled && !isTesting && (
+            <GoogleCloudStrip className="mb-10 w-full" />
+          )}
 
           {showRoadmap && initialData?.flags?.roadmap && (
             <section className="mb-10">

@@ -12,7 +12,8 @@ import {
 } from '../lib/engagementAds';
 import { useIsLightTheme } from '../hooks/utils/useThemedAsset';
 import { useAuthContext } from './AuthContext';
-import { isProduction } from '../lib/constants';
+import { isProduction, isTesting } from '../lib/constants';
+import { googleCloudTakeoverEnabled } from '../features/googleCloudTakeover/config';
 
 interface EngagementAdsContextValue {
   /** All creatives from boot, theme-resolved */
@@ -31,7 +32,7 @@ const defaultValue: EngagementAdsContextValue = {
   getCreativeForTool: () => null,
 };
 
-const EngagementAdsContext =
+export const EngagementAdsContext =
   createContext<EngagementAdsContextValue>(defaultValue);
 
 export const useEngagementAdsContext = (): EngagementAdsContextValue =>
@@ -50,6 +51,14 @@ export const EngagementAdsProvider = ({
   const { user } = useAuthContext();
 
   const resolvedCreatives = useMemo(() => {
+    // DEMO: during the Google Cloud takeover, suppress the app-wide engagement
+    // creatives so real feed posts don't animate / fetch a brand logo on upvote
+    // (that's the only Google Cloud engagement ad in the demo, and it's scoped
+    // to its own provider on the engagement card).
+    if (googleCloudTakeoverEnabled && !isTesting) {
+      return [];
+    }
+
     if (isProduction && user?.isPlus) {
       return [];
     }

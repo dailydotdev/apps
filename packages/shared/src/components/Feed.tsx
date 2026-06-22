@@ -70,6 +70,16 @@ import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import { GoogleCloudBlogCard } from '../features/googleCloudTakeover/GoogleCloudBlogCard';
+import { GoogleCloudEngagementCard } from '../features/googleCloudTakeover/GoogleCloudEngagementCard';
+import { GoogleCloudHeadAd } from '../features/googleCloudTakeover/GoogleCloudHeadAd';
+import { GoogleCloudStrip } from '../features/googleCloudTakeover/GoogleCloudStrip';
+import {
+  googleCloudPrependedCards,
+  googleCloudStripRow,
+  googleCloudTakeoverEnabled,
+} from '../features/googleCloudTakeover/config';
+import { isTesting } from '../lib/constants';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -203,6 +213,21 @@ export default function Feed<T>({
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
+  // DEMO: render the Google Cloud takeover on the main home feeds only.
+  // Excluded from the test env so it doesn't distort existing feed specs;
+  // still live in dev and on the production preview deploy.
+  const showGoogleCloudTakeover =
+    googleCloudTakeoverEnabled &&
+    !isTesting &&
+    (feedName === SharedFeedPage.MyFeed ||
+      feedName === SharedFeedPage.Popular ||
+      // The advertiser takeover follows the user onto a tag feed: both the
+      // standard tag page (/tags/ai → OtherFeedPage.Tag) and the explore-tag
+      // feed reached via the feed tab bar (/explore/ai → ExploreTag) carry the
+      // Google Cloud engagement placements.
+      feedName === OtherFeedPage.Tag ||
+      feedName === OtherFeedPage.ExploreTag) &&
+    !isHorizontal;
   const showAcquisitionForm =
     isMyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
@@ -292,7 +317,10 @@ export default function Feed<T>({
       firstSlotOffset: Number(showFirstSlotCard),
       disableTopHero: isV2,
       settings: {
-        disableAds,
+        // DEMO: suppress the feed's organic ads during the takeover so the
+        // only ad is the injected Google Cloud slot (avoids extra ads that
+        // non-Plus users would otherwise see).
+        disableAds: disableAds || showGoogleCloudTakeover,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
@@ -309,6 +337,29 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+  // Find the item index before which the strip should render so it starts on a
+  // whole grid row (no empty cells above it). The takeover forces every feed
+  // item to a single cell, so the cells rendered before item `i` are just the
+  // fixed injected cards (the prepended blog + engagement cards, plus the head
+  // ad inserted before item 0) plus `i`. Stop at the first column-0 boundary
+  // at/after the target row.
+  const googleCloudStripBeforeIndex = useMemo(() => {
+    if (!showGoogleCloudTakeover || virtualizedNumCards < 1) {
+      return -1;
+    }
+    const targetCells = googleCloudStripRow * virtualizedNumCards;
+    const injectedBeforeItems = googleCloudPrependedCards + 1; // + head ad
+    for (let i = 0; i < items.length; i += 1) {
+      const cellsBefore = injectedBeforeItems + i;
+      if (
+        cellsBefore >= targetCells &&
+        cellsBefore % virtualizedNumCards === 0
+      ) {
+        return i;
+      }
+    }
+    return -1;
+  }, [showGoogleCloudTakeover, virtualizedNumCards, items]);
 
   // Experiment: let the browser skip layout/paint for off-screen cards on long
   // vertical feeds. Horizontal carousels are short and scroll on the other axis,
@@ -689,9 +740,20 @@ export default function Feed<T>({
                 }}
               />
             )}
+            {showGoogleCloudTakeover && (
+              <>
+                <GoogleCloudBlogCard isList={shouldUseListFeedLayout} />
+                <GoogleCloudEngagementCard isList={shouldUseListFeedLayout} />
+              </>
+            )}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
-              const { colSpan } = placement;
+              // DEMO: the takeover injects extra cells (blog card, ad), which
+              // shifts the grid and desyncs the feed's wide-card placements,
+              // leaving empty cells. Force single-column cards so every cell
+              // packs cleanly; the only full-row item is the GCP strip, which
+              // is positioned on a row boundary.
+              const colSpan = showGoogleCloudTakeover ? 1 : placement.colSpan;
               const isWidened = colSpan > 1;
               const wideColSpan =
                 isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
@@ -764,15 +826,30 @@ export default function Feed<T>({
                       : undefined,
                   }}
                 >
-                  {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                    <BriefBannerFeed
-                      style={{
-                        gridColumn: !shouldUseListFeedLayout
-                          ? `span ${virtualizedNumCards}`
-                          : undefined,
-                      }}
-                    />
+                  {showPromoBanner &&
+                    !showGoogleCloudTakeover &&
+                    index === indexWhenShowingPromoBanner && (
+                      <BriefBannerFeed
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
+                  {showGoogleCloudTakeover && index === 0 && (
+                    <GoogleCloudHeadAd isList={shouldUseListFeedLayout} />
                   )}
+                  {showGoogleCloudTakeover &&
+                    index === googleCloudStripBeforeIndex && (
+                      <GoogleCloudStrip
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
                   {renderedItem}
                 </FeedCardContext.Provider>
               );

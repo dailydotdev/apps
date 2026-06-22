@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { ActionButtonsProps } from './ActionButtons';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
@@ -17,6 +17,7 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -29,16 +30,19 @@ const outerClasses = 'pointer-events-none absolute inset-x-2 bottom-2 z-1';
 // hover/pressed colors are left to each `btn-tertiary-*` class so icons keep
 // their brand tint on hover, matching the standard ActionButtons.
 const pillClasses = classNames(
-  'pointer-events-auto flex h-10 w-full items-center overflow-hidden px-1',
+  'pointer-events-auto flex h-10 w-full items-center justify-between gap-0.5 overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
 
-// Every action gets an equal-width centered slot so the icons stay evenly spaced
-// across the pill regardless of upvote/comment counts widening a button.
-const slotClasses = 'flex min-w-0 flex-1 items-center justify-center';
+// Each action sizes to its content (so the count inside the upvote/comment
+// button isn't clipped) and the row spreads them with `justify-between`. An
+// equal-width `flex-1` layout forced every slot to 1/N of the pill, which is
+// narrower than a count-bearing button on tight (e.g. 5-column) cards — so the
+// buttons overflowed their slots and overlapped.
+const slotClasses = 'flex min-w-0 shrink items-center justify-center';
 
 // Dark glow behind the pill so it stays readable over busy cover images. Fixed
 // pepper tint in both themes; inline gradient since it's a one-off scrim.
@@ -59,13 +63,13 @@ export function FeedCardGlassActions({
   coverScrim = false,
 }: ActionButtonsProps & { coverScrim?: boolean }): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
+  const { getUpvoteAnimation } = useBrandSponsorship();
   const {
     isUpvoteActive,
     isDownvoteActive,
     onToggleUpvote,
     onToggleDownvote,
     onToggleBookmark,
-    onCopyLink,
   } = useCardActions({
     post,
     onUpvoteClick,
@@ -73,6 +77,24 @@ export function FeedCardGlassActions({
     onBookmarkClick,
     onCopyLinkClick,
   });
+
+  // Branded upvote animation (icon swaps to the advertiser logo) when the post
+  // has a sponsored tag (engagement ad).
+  const brandAnimation = useMemo(() => {
+    const animationResult = getUpvoteAnimation(post.tags || []);
+    if (
+      !animationResult.shouldAnimate ||
+      !animationResult.colors ||
+      !animationResult.config
+    ) {
+      return null;
+    }
+    return {
+      colors: animationResult.colors,
+      config: animationResult.config,
+      brandLogo: animationResult.brandLogo,
+    };
+  }, [getUpvoteAnimation, post.tags]);
 
   if (isFeedPreview) {
     return null;
@@ -110,6 +132,7 @@ export function FeedCardGlassActions({
                   <UpvoteButtonIcon
                     secondary={isUpvoteActive}
                     size={IconSize.XSmall}
+                    brandAnimation={brandAnimation}
                   />
                 }
               >
@@ -193,11 +216,20 @@ export function FeedCardGlassActions({
           </div>
           <div className={slotClasses}>
             <Tooltip content="Copy link" side="bottom">
+              {/* DEMO: static copy button. Does a plain synchronous clipboard
+                  write with no interaction tracking or async state, so it can
+                  never render a loading spinner in the action pill. */}
               <QuaternaryButton
                 id="copy-post-btn"
                 size={ButtonSize.Small}
                 icon={<LinkIcon size={IconSize.XSmall} />}
-                onClick={onCopyLink}
+                onClick={() => {
+                  if (typeof navigator !== 'undefined') {
+                    navigator.clipboard?.writeText(
+                      post.commentsPermalink || post.permalink || '',
+                    );
+                  }
+                }}
                 variant={ButtonVariant.Tertiary}
                 color={ButtonColor.Cabbage}
                 className="pointer-events-auto"

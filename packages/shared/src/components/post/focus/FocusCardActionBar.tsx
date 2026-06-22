@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
 import { useViewSize, useVotePost, ViewSize } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
@@ -66,6 +67,25 @@ export const FocusCardActionBar = ({
     sendingUser: user,
     receivingUser: post.author as LoggedUser | undefined,
   });
+  const { getUpvoteAnimation } = useBrandSponsorship();
+
+  // Branded upvote animation (icon swaps to the advertiser logo) when the post
+  // has a sponsored tag (engagement ad) — same as the feed card.
+  const brandAnimation = useMemo(() => {
+    const animationResult = getUpvoteAnimation(post.tags || []);
+    if (
+      !animationResult.shouldAnimate ||
+      !animationResult.colors ||
+      !animationResult.config
+    ) {
+      return null;
+    }
+    return {
+      colors: animationResult.colors,
+      config: animationResult.config,
+      brandLogo: animationResult.brandLogo,
+    };
+  }, [getUpvoteAnimation, post.tags]);
 
   // Track whether the bar is pinned, and at which edge. The sentinel sits just
   // above the bar: when it scrolls above the viewport top the bar is pinned at
@@ -233,8 +253,10 @@ export const FocusCardActionBar = ({
               id="upvote-post-btn"
               label="Upvote"
               color={ButtonColor.Avocado}
-              icon={<UpvoteButtonIcon />}
-              iconPressed={<UpvoteButtonIcon secondary />}
+              icon={<UpvoteButtonIcon brandAnimation={brandAnimation} />}
+              iconPressed={
+                <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
+              }
               count={isPinned ? upvotes : undefined}
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
