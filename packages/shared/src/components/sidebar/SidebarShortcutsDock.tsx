@@ -281,10 +281,10 @@ const SortableShortcut = ({
         {dropEdge && (
           <span
             aria-hidden
-            // A neutral grey separator line (not the brand colour) marking the
-            // exact edge the dragged icon will drop against.
+            // A 1px neutral grey separator line (not the brand colour) marking
+            // the exact edge the dragged icon will drop against.
             className={classNames(
-              'rounded-sm absolute inset-x-1 h-0.5 bg-text-tertiary',
+              'absolute inset-x-1 h-px bg-text-tertiary',
               dropEdge === 'top' ? '-top-1' : '-bottom-1',
             )}
           />
@@ -702,6 +702,10 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // page drags reuse the same highlight via isPageDropActive.
   const showAddZone =
     isPageDropActive || (!!activeId && !isReordering && isOverDock(overId));
+  // The whole dock reads as an active drop area whenever an icon is being
+  // dragged inside it — both adding a new one and reordering an existing one
+  // (but not while dragging one out to remove).
+  const showDragArea = showAddZone || (isReordering && !willRemove);
 
   // While reordering, mark the edge of the hovered icon where the dragged one
   // will land: a line above it when moving up, below it when moving down.
@@ -756,7 +760,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
           // over it.
           className={classNames(
             'flex w-full flex-col items-center gap-1 rounded-12 border border-dashed border-transparent p-0.5 transition-colors duration-150',
-            showAddZone &&
+            showDragArea &&
               'border-accent-cabbage-default bg-overlay-float-cabbage',
           )}
         >
