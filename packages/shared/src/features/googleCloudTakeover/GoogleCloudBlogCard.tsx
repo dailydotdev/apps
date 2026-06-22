@@ -7,8 +7,6 @@ import ArticlePostModal from '../../components/modals/ArticlePostModal';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../../components/modals/common/types';
 import { googleCloudBlogPost } from './content';
 import { seedGoogleCloudDiscussion } from './fakeDiscussion';
 
@@ -35,16 +33,9 @@ export const GoogleCloudBlogCard = ({
   className,
 }: GoogleCloudBlogCardProps): ReactElement => {
   const queryClient = useQueryClient();
-  const { openModal } = useLazyModal();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [post, setPost] = useState<Post>(googleCloudBlogPost);
   const Card = isList ? ArticleList : ArticleGrid;
-
-  // Open the real URL inside the daily.dev in-app reader/browser (only this
-  // first card does this). Opening the ReaderPreview modal directly bypasses
-  // the per-user reader gate so it works on any demo account.
-  const openReader = () =>
-    openModal({ type: LazyModal.ReaderPreview, props: { post } });
 
   // Seed the simulated discussion so the post modal shows engagement.
   useEffect(() => {
@@ -82,7 +73,7 @@ export const GoogleCloudBlogCard = ({
         onBookmarkClick={toggleBookmark}
         onShare={noop}
         onCopyLinkClick={noop}
-        onReadArticleClick={openReader}
+        onReadArticleClick={openBlog}
         onMenuClick={noop}
         openNewTab
         domProps={{ className }}

@@ -28,7 +28,6 @@ export const googleCloudBlogPost: Post = {
   createdAt: hoursAgo(5),
   readTime: 6,
   image: googleCloudBlogImage,
-  // `domain` drives the reader header favicon when opened in the in-app reader.
   domain: 'cloud.google.com',
   source: {
     id: 'google-cloud-blog',
@@ -41,10 +40,10 @@ export const googleCloudBlogPost: Post = {
   numUpvotes: 312,
   numComments: googleCloudDiscussionCount,
   numAwards: 0,
-  // Article so "Read post" can open the real URL inside the daily.dev in-app
-  // reader/browser (READER_GATE_ELIGIBLE_TYPES). The card mounts the reader
-  // explicitly on read; see GoogleCloudBlogCard.
-  type: PostType.Article,
+  // Share (not Article) so it is NOT reader-gated: Google blocks its blog from
+  // loading in the in-app reader's embed proxy (returns a 403), so "Read post"
+  // opens the real URL in a new tab instead. See GoogleCloudBlogCard.
+  type: PostType.Share,
 };
 
 // Rendered through the real AdGrid/AdList so it matches the live ad slot.
