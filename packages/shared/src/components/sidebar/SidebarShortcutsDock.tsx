@@ -722,7 +722,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     ghostStateClass = 'scale-90 !bg-status-error text-white';
   } else if (!isReordering) {
     ghostStateClass =
-      'scale-110 border-2 border-dashed border-accent-cabbage-default bg-background-default !text-text-primary';
+      'scale-110 border border-dashed border-accent-cabbage-default bg-background-default !text-text-primary';
   }
 
   return (
@@ -755,7 +755,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
           // layout shift) and turns brand-coloured while a page/icon is dragged
           // over it.
           className={classNames(
-            'flex w-full flex-col items-center gap-1 rounded-12 border-2 border-dashed border-transparent p-0.5 transition-colors duration-150',
+            'flex w-full flex-col items-center gap-1 rounded-12 border border-dashed border-transparent p-0.5 transition-colors duration-150',
             showAddZone &&
               'border-accent-cabbage-default bg-overlay-float-cabbage',
           )}
