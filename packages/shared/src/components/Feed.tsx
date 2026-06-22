@@ -310,7 +310,10 @@ export default function Feed<T>({
       firstSlotOffset: Number(showFirstSlotCard),
       disableTopHero: isV2,
       settings: {
-        disableAds,
+        // DEMO: suppress the feed's organic ads during the takeover so the
+        // only ad is the injected Google Cloud slot (avoids extra ads that
+        // non-Plus users would otherwise see).
+        disableAds: disableAds || showGoogleCloudTakeover,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,

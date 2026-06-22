@@ -9,12 +9,9 @@ import {
   CardTitle,
 } from '../../components/cards/common/Card';
 import AdLink from '../../components/cards/ad/common/AdLink';
-import AdAttribution from '../../components/cards/ad/common/AdAttribution';
 import { AdImage } from '../../components/cards/ad/common/AdImage';
 import { AdPixel } from '../../components/cards/ad/common/AdPixel';
 import { AdFavicon } from '../../components/cards/ad/common/AdFavicon';
-import { AdvertiseLink } from '../../components/cards/ad/common/AdvertiseLink';
-import { RemoveAd } from '../../components/cards/ad/common/RemoveAd';
 import { AdList } from '../../components/cards/ad/AdList';
 import {
   Button,
@@ -22,9 +19,7 @@ import {
   ButtonVariant,
 } from '../../components/buttons/Button';
 import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { combinedClicks } from '../../lib/click';
-import { TargetId } from '../../lib/log';
 import { googleCloudAd } from './content';
 
 type GoogleCloudHeadAdProps = {
@@ -36,17 +31,16 @@ const noop = () => undefined;
 const adFeedContext = { items: [], queryKey: ['gcp-takeover-ad'] };
 
 // The Google Cloud ad slot. Built from the real ad sub-components so it reads
-// like a production ad card, with two takeover tweaks:
+// like a production ad card, with takeover tweaks:
 //  - the CTA ("Start building free") is hidden and revealed on hover in the
 //    top-right corner (mirrors the post card's "Read post" hover affordance);
-//  - the advertiser label is left-aligned.
+//  - the only attribution is "Promoted", styled to match the date / read-time
+//    metadata of organic post cards (no "Advertise here" / "Remove").
 // On list/mobile layout there's no hover, so fall back to the standard AdList.
 export const GoogleCloudHeadAd = ({
   isList = false,
   className,
 }: GoogleCloudHeadAdProps): ReactElement => {
-  const { isPlus } = usePlusSubscription();
-
   if (isList) {
     return (
       <ActiveFeedContext.Provider value={adFeedContext}>
@@ -71,22 +65,9 @@ export const GoogleCloudHeadAd = ({
             {googleCloudAd.description}
           </CardTitle>
           <CardSpace />
-        </CardTextContainer>
-        <CardTextContainer className="!mx-4 my-1">
-          <div className="flex items-center gap-2">
-            <AdAttribution className={{ main: 'font-normal' }} />
-            <AdvertiseLink
-              targetId={TargetId.AdCard}
-              buttonStyle
-              size={ButtonSize.Small}
-            />
-            {!isPlus && (
-              <RemoveAd
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                className="ml-auto !font-normal typo-footnote"
-              />
-            )}
+          {/* Match the exact look of a post card's date / read-time line. */}
+          <div className="mx-4 flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
+            Promoted
           </div>
         </CardTextContainer>
         <AdImage
