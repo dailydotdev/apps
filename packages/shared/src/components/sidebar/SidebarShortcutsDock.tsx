@@ -360,6 +360,8 @@ export interface SidebarShortcutsApi {
   addCatalog: (id: string) => void;
   removeShortcut: (key: string) => void;
   pinPage: (payload: ShortcutDragData, index?: number) => void;
+  isPinned: (path: string) => boolean;
+  togglePin: (payload: ShortcutDragData) => void;
 }
 
 // Shortcuts state + mutations, shared by the dock and the rail's "More" menu
@@ -470,6 +472,29 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
     [displayToast, items, persist, pinnedPaths],
   );
 
+  // Is this page already pinned to the dock (by normalised path)?
+  const isPinned = useCallback(
+    (path: string) => pinnedPaths.has(normalizePath(path)),
+    [pinnedPaths],
+  );
+
+  // Pin a page if it isn't pinned, or remove it if it is — the click action
+  // behind the squad/source "pin" buttons.
+  const togglePin = useCallback(
+    (payload: ShortcutDragData) => {
+      const normalized = normalizePath(payload.path);
+      const existing = items.find(
+        (entry) => normalizePath(keyOf(entry)) === normalized,
+      );
+      if (existing) {
+        removeShortcut(keyOf(existing));
+      } else {
+        pinPage(payload);
+      }
+    },
+    [items, pinPage, removeShortcut],
+  );
+
   return {
     items,
     keys,
@@ -479,6 +504,8 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
     addCatalog,
     removeShortcut,
     pinPage,
+    isPinned,
+    togglePin,
   };
 };
 

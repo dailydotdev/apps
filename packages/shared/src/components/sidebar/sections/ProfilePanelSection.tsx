@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
-import { PinnedSection } from './PinnedSection';
 import { BookmarkSection } from './BookmarkSection';
 import {
   AnalyticsIcon,
@@ -186,7 +185,6 @@ export const ProfilePanelSection = ({
         isItemsButton={isItemsButton}
         className="!mt-0"
       />
-      <PinnedSection {...defaultRenderSectionProps} isItemsButton={false} />
       <BookmarkSection
         {...defaultRenderSectionProps}
         title="Bookmarks"
