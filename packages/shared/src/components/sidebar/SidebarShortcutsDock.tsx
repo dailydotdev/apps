@@ -905,11 +905,10 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                 ghostStateClass,
               )}
             >
-              {willRemove ? (
-                <TrashIcon size={IconSize.Small} aria-hidden />
-              ) : (
-                activeResolved.icon(false)
-              )}
+              {/* Always the shortcut's own icon — the solid red chip + "Remove"
+                  pill convey the remove intent, so we keep showing exactly what
+                  you're about to remove (white-tinted on red for vector icons). */}
+              {activeResolved.icon(false)}
             </div>
             {/* Kept mounted so it scales + fades in/out as you cross the remove
                 boundary instead of popping (origin-left so it grows out of the
