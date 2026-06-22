@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { addDays, subDays } from 'date-fns';
 import { ReadingStreakIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { Streak } from './DayStreak';
 import type { UserStreak } from '../../../graphql/users';
 import {
@@ -54,11 +55,16 @@ export const StreakMonthCalendar = ({
       {days.map(({ date, state, isToday }) => {
         const isRead = state === Streak.Completed;
         const isFreeze = state === Streak.Freeze;
-        // Every cell is the same hollow circle; a read day just carries the
-        // flame icon inside it (so it never looks bigger/heavier than the empty
-        // ones). Today gets a ring, weekends the dashed pattern.
+        // Every cell is the same size-4 circle. A read day is the solid pink
+        // disc (the secondary flame glyph fills its whole box), so its border is
+        // dropped and the glyph is sized to the cell — otherwise the icon's
+        // default XSmall (20px) overflows the 16px cell and the read dot reads
+        // visibly bigger than the others. Today gets a ring, weekends the
+        // dashed pattern.
         let stateClass = 'border-border-subtlest-tertiary';
-        if (isToday) {
+        if (isRead) {
+          stateClass = 'border-transparent';
+        } else if (isToday) {
           // Inset ring (no offset) so today stays the exact same size as every
           // other dot — an offset ring paints outside the circle and reads
           // bigger.
@@ -76,10 +82,10 @@ export const StreakMonthCalendar = ({
             )}
           >
             {isRead && (
-              <ReadingStreakIcon
-                secondary
-                className="size-2.5 text-accent-bacon-default"
-              />
+              // `size` (not a w/h className) controls the real glyph size — a
+              // className loses to the Icon's size class. Size16 matches the
+              // size-4 cell so the disc is the same diameter as every other dot.
+              <ReadingStreakIcon secondary size={IconSize.Size16} />
             )}
           </div>
         );
