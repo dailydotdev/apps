@@ -16,6 +16,24 @@ import { SimpleTooltip } from '../tooltips';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { useSidebarDragState } from './useSidebarDragState';
 
+// Build a drag image that matches the dock's add-ghost chip exactly (a solid
+// chip with a 1px dashed brand border + the row's own icon), so dragging a
+// panel row into the shortcuts area looks the same as dragging a catalogue icon
+// within the dock. Appended off-screen just long enough for the browser to
+// snapshot it during dragstart, then removed.
+const buildDockDragImage = (iconEl: Element): HTMLElement => {
+  const chip = document.createElement('div');
+  chip.className =
+    'flex size-10 items-center justify-center rounded-12 border border-dashed border-accent-cabbage-default bg-background-default text-text-primary shadow-3';
+  chip.style.position = 'fixed';
+  chip.style.top = '-1000px';
+  chip.style.left = '-1000px';
+  chip.style.pointerEvents = 'none';
+  chip.appendChild(iconEl.cloneNode(true));
+  document.body.appendChild(chip);
+  return chip;
+};
+
 type SidebarItemProps = Pick<
   SidebarSectionProps,
   'activePage' | 'isItemsButton' | 'shouldShowLabel'
@@ -54,13 +72,14 @@ export const SidebarItem = ({
         );
         // eslint-disable-next-line no-param-reassign
         event.dataTransfer.effectAllowed = 'copy';
-        // Drag with the row's own icon (squad logo / source / tag glyph) under
-        // the cursor instead of the browser's default text-row snapshot, so it
-        // reads as the thing being pinned.
+        // Drag with the same chip the dock uses (dashed brand border + the
+        // row's own squad logo / source / tag glyph) under the cursor, instead
+        // of the browser's default text-row snapshot.
         const iconEl = event.currentTarget.querySelector('span');
         if (iconEl) {
-          const { width, height } = iconEl.getBoundingClientRect();
-          event.dataTransfer.setDragImage(iconEl, width / 2, height / 2);
+          const chip = buildDockDragImage(iconEl);
+          event.dataTransfer.setDragImage(chip, 20, 20);
+          window.setTimeout(() => chip.remove(), 0);
         }
         setDragging(true);
       }
