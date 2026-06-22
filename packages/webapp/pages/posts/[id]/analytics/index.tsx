@@ -97,6 +97,7 @@ import type { Props } from '../index';
 import { seoTitle } from '../index';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getLayout } from '../../../../components/layouts/MainLayout';
+import { getPostCanonicalUrl } from '../../../../lib/seo';
 import type { SharePostPageProps } from '../share';
 import type { AnalyticsNumberList } from '../../../../../shared/src/components/analytics/common';
 
@@ -131,7 +132,7 @@ export const getServerSideProps: GetServerSideProps<
       [seoTitle(post), 'Analytics'].filter(Boolean).join(' | '),
     );
     const seo: NextSeoProps = {
-      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       openGraph: {

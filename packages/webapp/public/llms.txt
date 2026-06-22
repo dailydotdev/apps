@@ -3,7 +3,7 @@
 > Where developers grow together - the professional network for developers to learn, collaborate, and grow together.
 
 ## Root URL
-https://app.daily.dev
+https://daily.dev
 
 ## Overview
 

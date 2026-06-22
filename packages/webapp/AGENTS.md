@@ -72,7 +72,7 @@ Available layouts in `components/layouts/`:
 ```bash
 # .env
 NEXT_PUBLIC_API_URL=https://api.daily.dev
-NEXT_PUBLIC_WEBAPP_URL=https://app.daily.dev
+NEXT_PUBLIC_WEBAPP_URL=https://daily.dev
 NEXT_PUBLIC_DOMAIN=daily.dev
 
 # .env.production - production overrides

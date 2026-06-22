@@ -1,6 +1,6 @@
 # Playwright E2E Tests
 
-End-to-end tests for daily.dev using Playwright. Tests run against the live production site (`https://app.daily.dev`) or a custom `BASE_URL`.
+End-to-end tests for daily.dev using Playwright. Tests run against the live production site (`https://daily.dev`) or a custom `BASE_URL`.
 
 ## Quick Start
 
@@ -37,7 +37,7 @@ pnpm test:e2e:ui       # UI mode
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `BASE_URL` | No | `https://app.daily.dev` | Target URL for tests |
+| `BASE_URL` | No | `https://daily.dev` | Target URL for tests |
 | `USER_NAME` | Yes | — | Test account email |
 | `PASSWORD` | Yes | — | Test account password |
 
