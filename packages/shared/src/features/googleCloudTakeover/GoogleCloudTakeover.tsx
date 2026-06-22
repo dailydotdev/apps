@@ -101,9 +101,11 @@ export const GoogleCloudTakeover = (): ReactElement => (
     <GoogleCloudAnnouncementBar />
     <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptop:grid-cols-3">
       <GoogleCloudBlogCard />
-      <GoogleCloudHeadAd />
-      {topPosts.map((post) => (
-        <MockFeedCard key={post.title} post={post} />
+      {topPosts.map((post, index) => (
+        <React.Fragment key={post.title}>
+          <MockFeedCard post={post} />
+          {index === 0 && <GoogleCloudHeadAd />}
+        </React.Fragment>
       ))}
       <GoogleCloudStrip className="col-span-full" />
       {bottomPosts.map((post) => (

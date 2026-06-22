@@ -1,11 +1,27 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 
-// Google Cloud "cloud" mark in the four Google brand colors. Colors are SVG
-// gradient stops, not Tailwind classNames, so they sit outside the
+// Official Google Cloud logo (four-color cloud mark). Colors are SVG `fill`
+// attributes, not Tailwind classNames, so they sit outside the
 // `no-custom-color` rule.
-const CLOUD_PATH =
-  'M537.6 226.6c4.1-10.7 6.4-22.4 6.4-34.6 0-53-43-96-96-96-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32c-88.4 0-160 71.6-160 160 0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336c0 79.5 64.5 144 144 144h368c70.7 0 128-57.3 128-128 0-61.9-44-113.6-102.4-125.4z';
+const PATHS: ReadonlyArray<{ d: string; fill: string }> = [
+  {
+    d: 'M40.728 20.488l2.05.035 5.57-5.57.27-2.36C44.2 8.657 38.367 6.26 31.993 6.26c-11.54 0-21.28 7.852-24.163 18.488.608-.424 1.908-.106 1.908-.106l11.13-1.83s.572-.947.862-.9A13.88 13.88 0 0 1 32 17.375c3.3.007 6.34 1.173 8.728 3.102z',
+    fill: '#ea4335',
+  },
+  {
+    d: 'M56.17 24.77c-1.293-4.77-3.958-8.982-7.555-12.177l-7.887 7.887c3.16 2.55 5.187 6.452 5.187 10.82v1.392c3.837 0 6.954 3.124 6.954 6.954 0 3.837-3.124 6.954-6.954 6.954H32.007L30.615 48v8.346l1.392 1.385h13.908A18.11 18.11 0 0 0 64 39.647c-.007-6.155-3.1-11.6-7.83-14.876z',
+    fill: '#4285f4',
+  },
+  {
+    d: 'M18.085 57.74h13.9V46.6h-13.9a6.89 6.89 0 0 1-2.862-.622l-2.007.615-5.57 5.57-.488 1.88a18 18 0 0 0 10.926 3.689z',
+    fill: '#34a853',
+  },
+  {
+    d: 'M18.085 21.57A18.11 18.11 0 0 0 0 39.654c0 5.873 2.813 11.095 7.166 14.403l8.064-8.064a6.96 6.96 0 0 1-4.099-6.339c0-3.837 3.124-6.954 6.954-6.954 2.82 0 5.244 1.7 6.34 4.1l8.064-8.064c-3.307-4.353-8.53-7.166-14.403-7.166z',
+    fill: '#fbbc05',
+  },
+];
 
 type GoogleCloudLogoProps = {
   size?: number;
@@ -18,28 +34,22 @@ export const GoogleCloudLogo = ({
 }: GoogleCloudLogoProps): ReactElement => (
   <svg
     width={size}
-    height={size * 0.8}
-    viewBox="0 0 640 512"
+    height={size}
+    viewBox="0 0 64 64"
     className={className}
     role="img"
     aria-label="Google Cloud"
   >
-    <defs>
-      <linearGradient id="gcp-cloud-grad" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stopColor="#4285F4" />
-        <stop offset="33%" stopColor="#EA4335" />
-        <stop offset="66%" stopColor="#FBBC04" />
-        <stop offset="100%" stopColor="#34A853" />
-      </linearGradient>
-    </defs>
-    <path d={CLOUD_PATH} fill="url(#gcp-cloud-grad)" />
+    {PATHS.map((p) => (
+      <path key={p.fill} d={p.d} fill={p.fill} />
+    ))}
   </svg>
 );
 
 // Same mark serialized as a data URI on a white square, so it reads as an
 // avatar/favicon inside the circular ProfilePicture used by the post/ad cards.
-// Use a literal `#` in the gradient ref — encodeURIComponent encodes it once.
-const avatarSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'><rect width='640' height='640' fill='#ffffff'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#4285F4'/><stop offset='.33' stop-color='#EA4335'/><stop offset='.66' stop-color='#FBBC04'/><stop offset='1' stop-color='#34A853'/></linearGradient></defs><g transform='translate(96 150) scale(0.7)'><path d='${CLOUD_PATH}' fill='url(#g)'/></g></svg>`;
+const paths = PATHS.map((p) => `<path d='${p.d}' fill='${p.fill}'/>`).join('');
+const avatarSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='#ffffff'/><g transform='translate(6.4 6.4) scale(0.8)'>${paths}</g></svg>`;
 
 export const googleCloudLogoDataUri = `data:image/svg+xml,${encodeURIComponent(
   avatarSvg,

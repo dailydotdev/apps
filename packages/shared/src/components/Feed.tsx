@@ -714,10 +714,7 @@ export default function Feed<T>({
               />
             )}
             {showGoogleCloudTakeover && (
-              <>
-                <GoogleCloudBlogCard isList={shouldUseListFeedLayout} />
-                <GoogleCloudHeadAd isList={shouldUseListFeedLayout} />
-              </>
+              <GoogleCloudBlogCard isList={shouldUseListFeedLayout} />
             )}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
@@ -802,6 +799,9 @@ export default function Feed<T>({
                           : undefined,
                       }}
                     />
+                  )}
+                  {showGoogleCloudTakeover && index === 1 && (
+                    <GoogleCloudHeadAd isList={shouldUseListFeedLayout} />
                   )}
                   {showGoogleCloudTakeover &&
                     index === googleCloudStripBeforeIndex && (
