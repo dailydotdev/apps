@@ -880,13 +880,6 @@ export const SidebarShortcutsDock = ({
         onDrop={onPageDrop}
       >
         <div
-          aria-hidden
-          className={classNames(
-            'my-1 h-px w-6 bg-border-subtlest-tertiary transition-opacity',
-            revealOnHover && 'opacity-0 group-hover:opacity-100',
-          )}
-        />
-        <div
           ref={setDockRef}
           // The drop target wraps the customize (•••) button and every shortcut
           // from the top. A 1px dashed border (transparent at rest → brand

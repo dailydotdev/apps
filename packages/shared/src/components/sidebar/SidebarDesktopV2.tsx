@@ -1571,12 +1571,22 @@ export const SidebarDesktopV2 = ({
               </DndContext>
             </div>
 
-            {/* ONLY the shortcuts dock scrolls — between the fixed tabs above
-              and the fixed utilities below. The dock keeps its own top
-              separator and the ••• button; on a very short viewport the inline
-              shortcuts collapse into the ••• (collapsed), whose tray still lists
-              and manages them. The tiny -mx/px keeps focus rings from being
-              clipped by the scroll overflow. */}
+            {/* Fixed separators frame the scrollable dock: this one sits above
+              it (and the matching one above the utilities below), so they stay
+              put as the dock's content scrolls between them. */}
+            {hasInlineShortcuts && (
+              <div
+                aria-hidden
+                className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+              />
+            )}
+
+            {/* ONLY the shortcuts dock scrolls — between the fixed tabs/top
+              separator above and the fixed utilities below. The ••• button +
+              shortcuts scroll within this frame; on a very short viewport the
+              inline shortcuts collapse into the ••• (collapsed), whose tray
+              still lists and manages them. The tiny -mx/px keeps focus rings
+              from being clipped by the scroll overflow. */}
             <div
               ref={scrollRegionRef}
               className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5"
