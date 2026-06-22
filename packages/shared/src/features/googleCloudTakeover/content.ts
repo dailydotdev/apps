@@ -53,9 +53,12 @@ export const googleCloudAd: Ad = {
   callToAction: 'Start building free',
 };
 
-// Shared messaging for the announcement bar + in-feed strip.
+// Shared messaging for the announcement bar + in-feed strip. The bar uses a
+// short body so the centered logo/text/CTA group stays compact and the CTA
+// sits centrally, clear of the close button.
 export const googleCloudMessage = {
   title: 'Google Cloud supports developers',
+  barBody: 'Get $300 in free credits, on us.',
   body: 'Get $300 in free credits to build, test, and ship your next project on Google Cloud, on us.',
   cta: 'Claim credits',
   ctaUrl: 'https://cloud.google.com/free',

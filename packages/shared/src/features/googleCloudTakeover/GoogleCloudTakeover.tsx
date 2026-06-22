@@ -58,8 +58,7 @@ const topPosts: MockPost[] = [
 const bottomPosts: MockPost[] = [
   {
     source: 'Rust Blog',
-    title:
-      'Async traits land in stable Rust: what changes for library authors',
+    title: 'Async traits land in stable Rust: what changes for library authors',
     tag: '#rust',
     meta: 'Jun 20 · 11 min read',
     avatar: 'bg-accent-ketchup-default',

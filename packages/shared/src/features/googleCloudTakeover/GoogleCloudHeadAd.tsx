@@ -89,25 +89,27 @@ export const GoogleCloudHeadAd = ({
             )}
           </div>
         </CardTextContainer>
-        <AdImage
-          className="!mx-0 !mb-0 !rounded-b-16 !rounded-t-none [&_img]:!rounded-none"
-          ad={googleCloudAd}
-          ImageComponent={CardImage}
-        />
-        {!!googleCloudAd.callToAction && (
-          <Button
-            tag="a"
-            href={googleCloudAd.link}
-            target="_blank"
-            rel="noopener"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            className="invisible absolute right-3 top-3 z-1 opacity-0 transition-opacity duration-200 group-hover:visible group-hover:opacity-100"
-            {...combinedClicks(noop)}
-          >
-            {googleCloudAd.callToAction}
-          </Button>
-        )}
+        <div className="relative">
+          <AdImage
+            className="!mx-0 !mb-0 !rounded-b-16 !rounded-t-none [&_img]:!rounded-none"
+            ad={googleCloudAd}
+            ImageComponent={CardImage}
+          />
+          {!!googleCloudAd.callToAction && (
+            <Button
+              tag="a"
+              href={googleCloudAd.link}
+              target="_blank"
+              rel="noopener"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              className="invisible absolute left-1/2 top-1/2 z-1 -translate-x-1/2 -translate-y-1/2 px-5 py-2 opacity-0 transition-opacity duration-200 group-hover:visible group-hover:opacity-100"
+              {...combinedClicks(noop)}
+            >
+              {googleCloudAd.callToAction}
+            </Button>
+          )}
+        </div>
         <AdPixel pixel={googleCloudAd.pixel} />
       </Card>
     </ActiveFeedContext.Provider>
