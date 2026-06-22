@@ -265,6 +265,7 @@ const SortableShortcut = ({
     >
       <div
         ref={setNodeRef}
+        data-shortcut-slot
         {...attributes}
         {...listeners}
         style={{
@@ -358,7 +359,7 @@ export interface SidebarShortcutsApi {
   persist: (next: StoredShortcut[]) => void;
   addCatalog: (id: string) => void;
   removeShortcut: (key: string) => void;
-  pinPage: (payload: ShortcutDragData) => void;
+  pinPage: (payload: ShortcutDragData, index?: number) => void;
 }
 
 // Shortcuts state + mutations, shared by the dock and the rail's "More" menu
@@ -444,7 +445,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   // Pin a page dragged in from a panel: resolve to a catalog entry by path when
   // possible (so it gets the proper icon), else store it as an arbitrary page.
   const pinPage = useCallback(
-    (payload: ShortcutDragData) => {
+    (payload: ShortcutDragData, index?: number) => {
       const normalized = normalizePath(payload.path);
       if (pinnedPaths.has(normalized)) {
         return;
@@ -453,7 +454,15 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
       const entry: StoredShortcut = catalogDef
         ? catalogDef.id
         : { title: payload.title, path: payload.path, image: payload.image };
-      persist([...items, entry]);
+      const next = [...items];
+      next.splice(
+        typeof index === 'number'
+          ? Math.max(0, Math.min(index, next.length))
+          : next.length,
+        0,
+        entry,
+      );
+      persist(next);
       displayToast(`${catalogDef?.label ?? payload.title} pinned to sidebar`, {
         forceAutoDismiss: true,
       });
@@ -552,6 +561,10 @@ export const SidebarShortcutsDock = ({
   const [overId, setOverId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
   const [isPageDropActive, setIsPageDropActive] = useState(false);
+  // The slot a panel row being dragged in (native drag) would drop into, so it
+  // lands exactly where you release — same skeleton indicator as reordering —
+  // instead of always appending. null while not over the dock.
+  const [pageDropIndex, setPageDropIndex] = useState<number | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -689,7 +702,24 @@ export const SidebarShortcutsDock = ({
     setDragging(false);
   };
 
-  // Native drag of a panel row over the dock → allow drop + highlight.
+  // Insertion index for a native page drag: count the shortcut slots whose
+  // vertical midpoint sits above the cursor. Returns where the new shortcut
+  // would land (0..length).
+  const pageDropIndexAt = (event: React.DragEvent<HTMLDivElement>): number => {
+    const slots = event.currentTarget.querySelectorAll('[data-shortcut-slot]');
+    let index = slots.length;
+    for (let i = 0; i < slots.length; i += 1) {
+      const rect = slots[i].getBoundingClientRect();
+      if (event.clientY < rect.top + rect.height / 2) {
+        index = i;
+        break;
+      }
+    }
+    return index;
+  };
+
+  // Native drag of a panel row over the dock → allow drop, highlight the area,
+  // and track the slot it would land in (so it drops exactly there).
   const onPageDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     if (!event.dataTransfer.types.includes(SHORTCUT_DRAG_MIME)) {
       return;
@@ -700,11 +730,18 @@ export const SidebarShortcutsDock = ({
     if (!isPageDropActive) {
       setIsPageDropActive(true);
     }
+    setPageDropIndex(pageDropIndexAt(event));
+  };
+
+  const resetPageDrop = () => {
+    setIsPageDropActive(false);
+    setPageDropIndex(null);
   };
 
   const onPageDrop = (event: React.DragEvent<HTMLDivElement>) => {
     const raw = event.dataTransfer.getData(SHORTCUT_DRAG_MIME);
-    setIsPageDropActive(false);
+    const dropIndex = pageDropIndexAt(event);
+    resetPageDrop();
     if (!raw) {
       return;
     }
@@ -712,7 +749,7 @@ export const SidebarShortcutsDock = ({
     try {
       const payload = JSON.parse(raw) as ShortcutDragData;
       if (payload?.path && payload?.title) {
-        pinPage(payload);
+        pinPage(payload, dropIndex);
       }
     } catch {
       // ignore malformed payloads
@@ -812,7 +849,7 @@ export const SidebarShortcutsDock = ({
         className="relative flex w-full flex-col items-center gap-1"
         onDragOver={onPageDragOver}
         onDragEnter={onPageDragOver}
-        onDragLeave={() => setIsPageDropActive(false)}
+        onDragLeave={resetPageDrop}
         onDrop={onPageDrop}
       >
         <div
@@ -870,19 +907,37 @@ export const SidebarShortcutsDock = ({
             strategy={verticalListSortingStrategy}
           >
             {!collapsed &&
-              orderedItems.map((entry) => {
+              orderedItems.map((entry, index) => {
                 const shortcut = resolveShortcut(entry);
                 if (!shortcut) {
                   return null;
                 }
                 return (
-                  <SortableShortcut
-                    key={shortcut.key}
-                    shortcut={shortcut}
-                    active={isSidebarItemActive(router.asPath, shortcut.path)}
-                  />
+                  <React.Fragment key={shortcut.key}>
+                    {/* Float skeleton at the slot a dragged-in panel row would
+                        land — same indicator as reordering. */}
+                    {pageDropIndex === index && (
+                      <div
+                        aria-hidden
+                        className="size-10 shrink-0 rounded-12 bg-background-subtle"
+                      />
+                    )}
+                    <SortableShortcut
+                      shortcut={shortcut}
+                      active={isSidebarItemActive(router.asPath, shortcut.path)}
+                    />
+                  </React.Fragment>
                 );
               })}
+            {/* Dropping below the last shortcut → skeleton at the end. */}
+            {!collapsed &&
+              pageDropIndex !== null &&
+              pageDropIndex >= orderedItems.length && (
+                <div
+                  aria-hidden
+                  className="size-10 shrink-0 rounded-12 bg-background-subtle"
+                />
+              )}
           </SortableContext>
         </div>
 
