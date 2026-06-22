@@ -56,8 +56,8 @@ export interface NotificationsData {
 }
 
 export const NOTIFICATIONS_QUERY = gql`
-  query Notifications($after: String, $first: Int) {
-    notifications(after: $after, first: $first) {
+  query Notifications($after: String, $first: Int, $category: String) {
+    notifications(after: $after, first: $first, category: $category) {
       pageInfo {
         endCursor
         hasNextPage
