@@ -75,6 +75,7 @@ export const GoogleCloudBlogCard = ({
         onCopyLinkClick={noop}
         onReadArticleClick={openBlog}
         onMenuClick={noop}
+        openNewTab
         domProps={{ className }}
       />
       {isModalOpen && (

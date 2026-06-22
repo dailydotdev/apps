@@ -40,7 +40,11 @@ export const googleCloudBlogPost: Post = {
   numUpvotes: 312,
   numComments: 48,
   numAwards: 0,
-  type: PostType.Article,
+  // Share (with no sharedPost) renders identically to an article in our
+  // directly-mounted ArticleGrid/ArticlePostModal, but it is NOT a
+  // reader-gated type — so "Read post" links straight to the Google Cloud
+  // blog (post.permalink) instead of opening the in-app reader.
+  type: PostType.Share,
 };
 
 // Rendered through the real AdGrid/AdList so it matches the live ad slot.
