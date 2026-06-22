@@ -70,7 +70,6 @@ export function FeedCardGlassActions({
     onToggleUpvote,
     onToggleDownvote,
     onToggleBookmark,
-    onCopyLink,
   } = useCardActions({
     post,
     onUpvoteClick,
@@ -217,11 +216,20 @@ export function FeedCardGlassActions({
           </div>
           <div className={slotClasses}>
             <Tooltip content="Copy link" side="bottom">
+              {/* DEMO: static copy button. Does a plain synchronous clipboard
+                  write with no interaction tracking or async state, so it can
+                  never render a loading spinner in the action pill. */}
               <QuaternaryButton
                 id="copy-post-btn"
                 size={ButtonSize.Small}
                 icon={<LinkIcon size={IconSize.XSmall} />}
-                onClick={onCopyLink}
+                onClick={() => {
+                  if (typeof navigator !== 'undefined') {
+                    navigator.clipboard?.writeText(
+                      post.commentsPermalink || post.permalink || '',
+                    );
+                  }
+                }}
                 variant={ButtonVariant.Tertiary}
                 color={ButtonColor.Cabbage}
                 className="pointer-events-auto"
