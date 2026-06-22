@@ -278,10 +278,10 @@ const SortableShortcut = ({
         {dropEdge && (
           <span
             aria-hidden
-            // A neutral grey oval (not the brand colour) marking the slot the
-            // dragged icon will drop into.
+            // A neutral grey separator line (not the brand colour) marking the
+            // slot the dragged icon will drop into.
             className={classNames(
-              'absolute left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-text-tertiary',
+              'rounded-sm absolute inset-x-1 h-0.5 bg-text-tertiary',
               dropEdge === 'top' ? '-top-1' : '-bottom-1',
             )}
           />
@@ -710,6 +710,18 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     return activeIndex > keys.indexOf(key) ? 'top' : 'bottom';
   };
 
+  // Drag-overlay chip look: solid red while removing; solid bordered chip while
+  // reordering an existing icon; solid chip with a dashed brand border while
+  // *adding* a new icon (dragged from the tray) so it reads as "being placed".
+  let ghostStateClass =
+    'scale-110 border border-border-subtlest-tertiary bg-background-default !text-text-primary';
+  if (willRemove) {
+    ghostStateClass = 'scale-90 !bg-status-error text-white';
+  } else if (!isReordering) {
+    ghostStateClass =
+      'scale-110 border-2 border-dashed border-accent-cabbage-default bg-background-default !text-text-primary';
+  }
+
   return (
     <DndContext
       sensors={sensors}
@@ -890,9 +902,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                 // Solid (opaque) chip so the dragged icon reads clearly over any
                 // feed content it passes over — never see-through.
                 'shadow-3 transition-all duration-150',
-                willRemove
-                  ? 'scale-90 bg-status-error text-white'
-                  : 'scale-110 border border-border-subtlest-tertiary bg-background-default !text-text-primary',
+                ghostStateClass,
               )}
             >
               {willRemove ? (
