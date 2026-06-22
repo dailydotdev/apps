@@ -26,6 +26,7 @@ import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
+import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 
 export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   { ad, onLinkClick, domProps, index, feedIndex },
@@ -33,6 +34,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
+  const useGlass = useFeedCardGlassActions();
   const { ref } = useAutoRotatingAds(
     ad,
     index,
@@ -56,7 +58,9 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
         ) : null}
         <AdAttribution className={{ main: 'font-normal' }} />
       </CardTextContainer>
-      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
+      {!useGlass && (
+        <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
+      )}
       <CardTextContainer className="!mx-1 my-1">
         <div className="flex items-center">
           {!!ad.callToAction && (
@@ -89,6 +93,13 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           </div>
         </div>
       </CardTextContainer>
+      {useGlass && (
+        <AdImage
+          className="!mx-0 !mb-0 !rounded-b-16 !rounded-t-none [&_img]:!rounded-none"
+          ad={ad}
+          ImageComponent={CardImage}
+        />
+      )}
       <AdPixel pixel={ad.pixel} />
     </Card>
   );

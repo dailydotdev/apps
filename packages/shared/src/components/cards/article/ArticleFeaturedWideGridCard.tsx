@@ -291,7 +291,15 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     className="mt-1"
                   />
                   {description ? (
-                    <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                    <p
+                      className={classNames(
+                        'mt-2 text-text-secondary typo-callout',
+                        // The glass action bar floats over the column bottom.
+                        // Clamp one line tighter and reserve its height (pb-12)
+                        // so the summary never sits under it.
+                        useGlass ? 'line-clamp-2 pb-12' : 'line-clamp-3',
+                      )}
+                    >
                       {description}
                     </p>
                   ) : null}

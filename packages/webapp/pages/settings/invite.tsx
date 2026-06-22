@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useRef } from 'react';
 import {
   ReferralCampaignKey,
-  usePlusSubscription,
   useReferralCampaign,
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib/links';
@@ -24,7 +23,6 @@ import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/Soci
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   LogEvent,
@@ -39,18 +37,10 @@ import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  Button,
-  ButtonColor,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
-import { GiftIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -63,15 +53,12 @@ const seo: NextSeoProps = {
 };
 
 const AccountInvitePage = (): ReactElement => {
-  const { openModal } = useLazyModal();
   const { user } = useAuthContext();
   const container = useRef<HTMLDivElement>();
   const referredKey = generateQueryKey(RequestKey.ReferredUsers, user);
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
-  const { isValidRegion: isPlusAvailable } = useAuthContext();
-  const { logSubscriptionEvent } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
   const [, onShareOrCopyLink] = useShareOrCopyLink({
@@ -113,64 +100,42 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
-      {isPlusAvailable && (
-        <div className="mb-6 flex flex-col gap-4">
-          <div className="space-y-1">
-            <div className="flex gap-1">
-              <Typography type={TypographyType.Body} bold>
-                Gift daily.dev Plus
-              </Typography>
-              <PlusUser iconSize={IconSize.XSmall} withText={false} />
-            </div>
-            <Typography
-              className="border-plus"
-              color={TypographyColor.Tertiary}
-              type={TypographyType.Callout}
-            >
-              Gifting daily.dev Plus to a friend is the ultimate way to say,
-              &apos;I&apos;ve got your back.&apos; It unlocks an ad-free
-              experience, advanced content filtering and customizations, plus AI
-              superpowers to supercharge their daily.dev journey.
-            </Typography>
-          </div>
-          <Button
-            icon={<GiftIcon size={IconSize.Small} secondary />}
-            variant={ButtonVariant.Secondary}
-            color={ButtonColor.Bacon}
-            onClick={() => {
-              logSubscriptionEvent({
-                event_name: LogEvent.GiftSubscription,
-                target_id: TargetId.InviteFriendsPage,
-              });
-              openModal({
-                type: LazyModal.GiftPlus,
-              });
-            }}
-            className="max-w-fit border-action-plus-default text-action-plus-default"
-          >
-            Buy as gift
-          </Button>
-        </div>
-      )}
-      <InviteLinkInput
-        link={inviteLink}
-        logProps={{
-          event_name: LogEvent.CopyReferralLink,
-          target_id: TargetId.InviteFriendsPage,
-        }}
+      <AccountContentSection
+        className={{ heading: 'mt-0' }}
+        title="Grow the community"
+        description="Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals list below."
       />
-      <span className="my-4 p-0.5 font-bold text-text-tertiary typo-callout">
-        or invite via
-      </span>
-      <div className="flex flex-row flex-wrap gap-2 gap-y-4">
-        <SocialShareList
+      <AccountContentSection
+        title="Share your invite link"
+        description="Copy your personal link or share it directly on social platforms."
+      >
+        <InviteLinkInput
+          className={{ container: 'mt-4' }}
           link={inviteLink}
-          description={labels.referral.generic.inviteText}
-          onNativeShare={onShareOrCopyLink}
-          onClickSocial={onLogShare}
-          shortenUrl={false}
+          logProps={{
+            event_name: LogEvent.CopyReferralLink,
+            target_id: TargetId.InviteFriendsPage,
+          }}
         />
-      </div>
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          bold
+          className="my-4 p-0.5"
+        >
+          or invite via
+        </Typography>
+        <div className="flex flex-row flex-wrap gap-2 gap-y-4">
+          <SocialShareList
+            link={inviteLink}
+            description={labels.referral.generic.inviteText}
+            onNativeShare={onShareOrCopyLink}
+            onClickSocial={onLogShare}
+            shortenUrl={false}
+          />
+        </div>
+      </AccountContentSection>
       <AccountContentSection
         title="Your referrals"
         description="Developers who joined through your invite link"

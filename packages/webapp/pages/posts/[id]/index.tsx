@@ -37,7 +37,6 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
@@ -61,6 +60,7 @@ import {
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
 import useSharedByToast from '../../../hooks/useSharedByToast';
+import { getPostCanonicalUrl } from '../../../lib/seo';
 
 const Unauthorized = dynamic(
   () =>
@@ -354,7 +354,7 @@ export async function getStaticProps({
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
     const seo: NextSeoProps = {
-      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex: shouldNoindexPost(post),
