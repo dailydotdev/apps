@@ -128,6 +128,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           image={image}
           contentHtml={post.contentHtml}
           post={post}
+          glassActions={useGlass}
           imageClassName={
             useGlass && image ? glassCoverImageClassName : undefined
           }

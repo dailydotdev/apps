@@ -140,7 +140,7 @@ export function FeedCardGlassActions({
               >
                 {commentCount > 0 && (
                   <InteractionCounter
-                    className="tabular-nums !typo-footnote"
+                    className="tabular-nums typo-footnote"
                     value={commentCount}
                   />
                 )}
