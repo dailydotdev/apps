@@ -59,8 +59,10 @@ export const StreakMonthCalendar = ({
         // ones). Today gets a ring, weekends the dashed pattern.
         let stateClass = 'border-border-subtlest-tertiary';
         if (isToday) {
-          stateClass =
-            'border-transparent ring-1 ring-text-primary ring-offset-2 ring-offset-background-default';
+          // Inset ring (no offset) so today stays the exact same size as every
+          // other dot — an offset ring paints outside the circle and reads
+          // bigger.
+          stateClass = 'border-transparent ring-1 ring-inset ring-text-primary';
         } else if (isFreeze) {
           stateClass =
             'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-border-subtlest-tertiary';
@@ -76,7 +78,7 @@ export const StreakMonthCalendar = ({
             {isRead && (
               <ReadingStreakIcon
                 secondary
-                className="size-3 text-accent-bacon-default"
+                className="size-2.5 text-accent-bacon-default"
               />
             )}
           </div>
