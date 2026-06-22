@@ -726,8 +726,12 @@ export const SidebarDesktopV2 = ({
   const visibleCategoryIds = railOrder.slice(0, visibleTabCount);
   // "More" appears when anything (shortcuts or tabs) is folded into it.
   const showMore = foldShortcuts || foldedNavIds.length > 0;
-  // The inline dock shows only when shortcuts aren't folded away.
-  const showInlineDock = shortcutCount > 0 && !foldShortcuts;
+  // Render the dock whenever it isn't folded away — even with zero shortcuts,
+  // so its customize (•••) button stays available to add the first one (the
+  // empty dock reveals that button on sidebar hover). Only the separator above
+  // the utilities is gated on there actually being pinned shortcuts.
+  const showInlineDock = isLoggedIn && !foldShortcuts;
+  const hasInlineShortcuts = shortcutCount > 0 && !foldShortcuts;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -1710,7 +1714,7 @@ export const SidebarDesktopV2 = ({
                 onMouseEnter={handleRailMouseLeave}
                 className="mt-auto flex w-full flex-col items-center gap-1"
               >
-                {showInlineDock && (
+                {hasInlineShortcuts && (
                   <div
                     aria-hidden
                     className="my-1 h-px w-6 bg-border-subtlest-tertiary"

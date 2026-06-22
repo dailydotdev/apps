@@ -18,6 +18,7 @@ import type {
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
+  DropAnimation,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -483,10 +484,16 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     target === DOCK_DROPPABLE_ID ||
     (typeof target === 'string' && keys.includes(target));
 
+  // Drop-time flag (not state) so the DragOverlay's dropAnimation keyframes —
+  // which run *after* onDragEnd resets willRemove — can tell whether this drop
+  // was a remove (poof in place) or a settle/reorder (animate to slot).
+  const removeOnDropRef = useRef(false);
+
   const onDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
     setOverId(null);
     setWillRemove(false);
+    removeOnDropRef.current = false;
     setDragging(true);
   };
 
@@ -515,6 +522,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     }
 
     if (!isOverDock(over?.id)) {
+      removeOnDropRef.current = true;
       removeShortcut(id);
       return;
     }
@@ -577,6 +585,34 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   } else if (activeId && CATALOG_BY_ID.has(activeId)) {
     activeResolved = resolveShortcut(activeId);
   }
+
+  // macOS-dock feel on release: a removed icon poofs out (fades + shrinks) right
+  // where you let go instead of flying back to its old slot then vanishing.
+  // Reorders/adds keep the default settle-into-place animation.
+  const dropAnimation: DropAnimation = {
+    duration: 200,
+    easing: 'cubic-bezier(0.2, 0, 0, 1)',
+    keyframes: ({ transform }) => {
+      const from = CSS.Transform.toString(transform.initial);
+      if (removeOnDropRef.current) {
+        return [
+          { opacity: 1, transform: from },
+          {
+            opacity: 0,
+            transform: CSS.Transform.toString({
+              ...transform.initial,
+              scaleX: 0.4,
+              scaleY: 0.4,
+            }),
+          },
+        ];
+      }
+      return [
+        { transform: from },
+        { transform: CSS.Transform.toString(transform.final) },
+      ];
+    },
+  };
 
   const isReordering = !!activeId && keys.includes(activeId);
   // A catalog item dragged from the tray (not yet in the dock) lands by hovering
@@ -753,16 +789,18 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
         )}
       </div>
 
-      <DragOverlay>
+      <DragOverlay dropAnimation={dropAnimation}>
         {activeResolved ? (
           <div className="relative flex cursor-grabbing items-center">
             <div
               className={classNames(
                 dockButtonClass,
+                // Solid (opaque) chip so the dragged icon reads clearly over any
+                // feed content it passes over — never see-through.
                 'shadow-3 transition-all duration-150',
                 willRemove
-                  ? 'scale-90 bg-overlay-float-ketchup text-status-error ring-1 ring-status-error'
-                  : 'scale-110 bg-surface-hover text-text-primary',
+                  ? 'scale-90 bg-status-error text-white'
+                  : 'scale-110 border border-border-subtlest-tertiary bg-background-default !text-text-primary',
               )}
             >
               {willRemove ? (
