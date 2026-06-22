@@ -70,6 +70,14 @@ import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import { GoogleCloudAnnouncementBar } from '../features/googleCloudTakeover/GoogleCloudAnnouncementBar';
+import { GoogleCloudBlogCard } from '../features/googleCloudTakeover/GoogleCloudBlogCard';
+import { GoogleCloudHeadAd } from '../features/googleCloudTakeover/GoogleCloudHeadAd';
+import { GoogleCloudStrip } from '../features/googleCloudTakeover/GoogleCloudStrip';
+import {
+  googleCloudStripFeedIndex,
+  googleCloudTakeoverEnabled,
+} from '../features/googleCloudTakeover/config';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -203,6 +211,12 @@ export default function Feed<T>({
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
+  // DEMO: render the Google Cloud takeover on the main home feeds only.
+  const showGoogleCloudTakeover =
+    googleCloudTakeoverEnabled &&
+    (feedName === SharedFeedPage.MyFeed ||
+      feedName === SharedFeedPage.Popular) &&
+    !isHorizontal;
   const showAcquisitionForm =
     isMyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
@@ -644,17 +658,23 @@ export default function Feed<T>({
   const containerProps = isSearchPageLaptop
     ? {}
     : {
-        topContent:
-          topContentProp ??
-          (shouldShowTopHero ? (
-            <ReadingReminderFeedHero
-              className="pt-2"
-              title={readingReminderTitle}
-              subtitle={readingReminderSubtitle}
-              onCtaClick={onEnableHero}
-              onClose={onDismissHero}
-            />
-          ) : undefined),
+        topContent: (
+          <>
+            {showGoogleCloudTakeover && (
+              <GoogleCloudAnnouncementBar className="mb-4" />
+            )}
+            {topContentProp ??
+              (shouldShowTopHero ? (
+                <ReadingReminderFeedHero
+                  className="pt-2"
+                  title={readingReminderTitle}
+                  subtitle={readingReminderSubtitle}
+                  onCtaClick={onEnableHero}
+                  onClose={onDismissHero}
+                />
+              ) : undefined)}
+          </>
+        ),
         header,
         inlineHeader,
         className,
@@ -688,6 +708,12 @@ export default function Feed<T>({
                   container: 'p-4 pt-0',
                 }}
               />
+            )}
+            {showGoogleCloudTakeover && (
+              <>
+                <GoogleCloudBlogCard />
+                <GoogleCloudHeadAd />
+              </>
             )}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
@@ -773,6 +799,16 @@ export default function Feed<T>({
                       }}
                     />
                   )}
+                  {showGoogleCloudTakeover &&
+                    index === googleCloudStripFeedIndex && (
+                      <GoogleCloudStrip
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
                   {renderedItem}
                 </FeedCardContext.Provider>
               );

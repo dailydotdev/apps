@@ -6,7 +6,7 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
+} from '../../components/typography/Typography';
 import { GoogleCloudLogo } from './GoogleCloudLogo';
 import { googleCloudLatestPost } from './content';
 import { gcpCoverBg } from './brand';

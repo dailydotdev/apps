@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { NextSeo } from 'next-seo';
+import { GoogleCloudTakeover } from '@dailydotdev/shared/src/features/googleCloudTakeover/GoogleCloudTakeover';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { GoogleCloudTakeover } from '../../components/demo/googleCloud/GoogleCloudTakeover';
 
 const GoogleCloudDemoPage = (): ReactElement => (
   <>

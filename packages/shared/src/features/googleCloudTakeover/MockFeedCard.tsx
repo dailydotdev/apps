@@ -6,13 +6,13 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '../../components/buttons/Button';
 import {
   BookmarkIcon,
   DiscussIcon,
   MenuIcon,
   UpvoteIcon,
-} from '@dailydotdev/shared/src/components/icons';
+} from '../../components/icons';
 
 export type MockPost = {
   source: string;

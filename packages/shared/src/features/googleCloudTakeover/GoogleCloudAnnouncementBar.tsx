@@ -6,9 +6,9 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+} from '../../components/typography/Typography';
+import CloseButton from '../../components/CloseButton';
+import { ButtonSize } from '../../components/buttons/Button';
 import { GoogleCloudLogo } from './GoogleCloudLogo';
 import { GoogleCloudCta } from './GoogleCloudCta';
 import { googleCloudMessage } from './content';
