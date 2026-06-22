@@ -327,12 +327,28 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-  // Start the strip on a whole grid row so the row above it is full (no empty
-  // cells). Accounts for the prepended cards (blog + head ad).
-  const googleCloudStripBeforeIndex = Math.max(
-    0,
-    googleCloudStripRow * virtualizedNumCards - googleCloudPrependedCards,
-  );
+  // Find the item index before which the strip should render so it starts on a
+  // whole grid row (no empty cells above it). Walk the real rendered cells —
+  // the prepended blog card, the ad inserted at index 1, and each item's
+  // colSpan (wide/hero cards, cadence ads) — and stop at the first column-0
+  // boundary at/after the target row. Robust to the feed's dynamic insertions.
+  const googleCloudStripBeforeIndex = useMemo(() => {
+    if (!showGoogleCloudTakeover || virtualizedNumCards < 1) {
+      return -1;
+    }
+    const targetCells = googleCloudStripRow * virtualizedNumCards;
+    let cells = googleCloudPrependedCards - 1; // blog card, prepended at the top
+    for (let i = 0; i < items.length; i += 1) {
+      if (i === 1) {
+        cells += 1; // ad slot, inserted before item index 1
+      }
+      if (cells >= targetCells && cells % virtualizedNumCards === 0) {
+        return i;
+      }
+      cells += itemPlacements[i]?.colSpan ?? 1;
+    }
+    return -1;
+  }, [showGoogleCloudTakeover, virtualizedNumCards, items, itemPlacements]);
 
   // Experiment: let the browser skip layout/paint for off-screen cards on long
   // vertical feeds. Horizontal carousels are short and scroll on the other axis,
