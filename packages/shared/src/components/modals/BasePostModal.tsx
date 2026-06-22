@@ -30,6 +30,12 @@ interface BasePostModalProps extends ModalProps {
   navigationCustomActions?: ReactNode;
   navigationContainerClassName?: string;
   navigationHideSubscribeAction?: boolean;
+  /**
+   * Redesign top-bar behavior: hide the top strip's "…" menu (it lives in the
+   * focus-card header) and, once scrolled, float a fixed bar with the post
+   * stats + "…" menu + close.
+   */
+  navigationRedesign?: boolean;
   loadingChildren?: ReactNode;
   post?: Post;
 }
@@ -48,6 +54,7 @@ function BasePostModal({
   navigationCustomActions,
   navigationContainerClassName,
   navigationHideSubscribeAction,
+  navigationRedesign,
   loadingChildren,
   post,
   onRequestClose,
@@ -131,6 +138,7 @@ function BasePostModal({
                 leadingContent={navigationLeadingContent}
                 customActions={navigationCustomActions}
                 hideSubscribeAction={navigationHideSubscribeAction}
+                hideOptions={navigationRedesign}
                 onClose={onRequestClose}
                 post={post}
               />
