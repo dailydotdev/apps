@@ -271,15 +271,18 @@ const SortableShortcut = ({
         {...listeners}
         style={{ transform: CSS.Transform.toString(transform), transition }}
         className={classNames(
-          'relative touch-none',
+          'relative touch-none rounded-12 transition-colors',
           isDragging && 'opacity-40',
+          // Float-coloured landing slot: the place the dragged icon will drop
+          // into (this is the icon it will displace).
+          dropEdge && 'bg-surface-float',
         )}
       >
         {dropEdge && (
           <span
             aria-hidden
             // A neutral grey separator line (not the brand colour) marking the
-            // slot the dragged icon will drop into.
+            // exact edge the dragged icon will drop against.
             className={classNames(
               'rounded-sm absolute inset-x-1 h-0.5 bg-text-tertiary',
               dropEdge === 'top' ? '-top-1' : '-bottom-1',
