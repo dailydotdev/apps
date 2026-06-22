@@ -65,8 +65,10 @@ export const GoogleCloudHeadAd = ({
             {googleCloudAd.description}
           </CardTitle>
           <CardSpace />
-          {/* Match the exact look of a post card's date / read-time line. */}
-          <div className="mx-4 flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
+          {/* Match the exact look of a post card's date / read-time line.
+              No horizontal margin — CardTextContainer already applies mx-4, so
+              this lines up flush-left with the title above it. */}
+          <div className="flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
             Promoted
           </div>
         </CardTextContainer>
