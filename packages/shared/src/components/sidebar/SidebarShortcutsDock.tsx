@@ -357,7 +357,7 @@ export interface SidebarShortcutsApi {
   pinnedPaths: Set<string>;
   resolved: ResolvedShortcut[];
   persist: (next: StoredShortcut[]) => void;
-  addCatalog: (id: string) => void;
+  addCatalog: (id: string, index?: number) => void;
   removeShortcut: (key: string) => void;
   pinPage: (payload: ShortcutDragData, index?: number) => void;
   isPinned: (path: string) => boolean;
@@ -415,11 +415,19 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   );
 
   const addCatalog = useCallback(
-    (id: string) => {
+    (id: string, index?: number) => {
       if (!CATALOG_BY_ID.has(id) || keys.includes(id)) {
         return;
       }
-      persist([...items, id]);
+      const next = [...items];
+      next.splice(
+        typeof index === 'number'
+          ? Math.max(0, Math.min(index, next.length))
+          : next.length,
+        0,
+        id,
+      );
+      persist(next);
     },
     [items, keys, persist],
   );
@@ -564,9 +572,12 @@ export const SidebarShortcutsDock = ({
   // button's rect once on open (and on resize). It is NOT re-positioned on rail
   // scroll — like the Support/Settings popups it stays put, which avoids the
   // jittery shift the live scroll-tracking caused.
-  const [trayPos, setTrayPos] = useState<{ top: number; left: number } | null>(
-    null,
-  );
+  const [trayPos, setTrayPos] = useState<{
+    left: number;
+    top?: number;
+    bottom?: number;
+    maxHeight: number;
+  } | null>(null);
   useEffect(() => {
     if (!trayOpen) {
       setTrayPos(null);
@@ -574,9 +585,22 @@ export const SidebarShortcutsDock = ({
     }
     const update = () => {
       const rect = customizeBtnRef.current?.getBoundingClientRect();
-      if (rect) {
-        setTrayPos({ top: rect.top, left: rect.right + 12 });
+      if (!rect) {
+        return;
       }
+      const margin = 12;
+      const vh = window.innerHeight;
+      const spaceBelow = vh - rect.top - margin;
+      const spaceAbove = rect.bottom - margin;
+      // Flip to open upward when there isn't comfortable room below and there's
+      // more room above — so the dropdown is never cut off the bottom of small
+      // screens. Either way it's capped to the available space and scrolls.
+      const openUp = spaceBelow < 320 && spaceAbove > spaceBelow;
+      setTrayPos({
+        left: rect.right + 12,
+        maxHeight: Math.max(160, openUp ? spaceAbove : spaceBelow),
+        ...(openUp ? { bottom: vh - rect.bottom } : { top: rect.top }),
+      });
     };
     update();
     window.addEventListener('resize', update);
@@ -631,6 +655,45 @@ export const SidebarShortcutsDock = ({
     return icon.left >= rail.right || icon.right <= rail.left;
   };
 
+  // The slot an add/drop at vertical position `y` would land in: count the
+  // shortcut slots whose midpoint sits above `y`. Shared by the native panel
+  // drag (cursor Y) and the dnd-kit tray drag (dragged icon's centre Y).
+  const dropIndexAtY = (y: number): number => {
+    const slots =
+      dockAreaRef.current?.querySelectorAll('[data-shortcut-slot]') ?? [];
+    let index = slots.length;
+    for (let i = 0; i < slots.length; i += 1) {
+      const rect = slots[i].getBoundingClientRect();
+      if (y < rect.top + rect.height / 2) {
+        index = i;
+        break;
+      }
+    }
+    return index;
+  };
+
+  // Centre Y of the currently dragged dnd-kit item (null if unavailable).
+  const draggedCenterY = (
+    event: DragMoveEvent | DragEndEvent,
+  ): number | null => {
+    const rect = event.active.rect.current.translated;
+    return rect ? rect.top + rect.height / 2 : null;
+  };
+
+  // Is the dragged dnd-kit item's centre within the dock's column?
+  const isCenterOverDock = (event: DragMoveEvent | DragEndEvent): boolean => {
+    const rect = event.active.rect.current.translated;
+    const dock = dockAreaRef.current?.getBoundingClientRect();
+    if (!rect || !dock) {
+      return false;
+    }
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    return (
+      cx >= dock.left && cx <= dock.right && cy >= dock.top && cy <= dock.bottom
+    );
+  };
+
   const onDragStart = (event: DragStartEvent) => {
     const id = event.active.id as string;
     const fromDock = keys.includes(id);
@@ -638,6 +701,7 @@ export const SidebarShortcutsDock = ({
     setActiveId(id);
     setOverId(null);
     setWillRemove(false);
+    setPageDropIndex(null);
     removeOnDropRef.current = false;
     outsideRailRef.current = false;
     // Snapshot the order so the list can reorder live (in onDragOver) without
@@ -646,11 +710,15 @@ export const SidebarShortcutsDock = ({
     setDragging(true);
   };
 
-  // Drive the remove indicator off the icon's geometry (fires every move),
-  // not the cursor's over target — so it only turns on once the whole icon has
-  // left the rail.
+  // For a reorder/remove (fromDock) drive the remove indicator off the icon's
+  // geometry; for an add from the tray show the insertion skeleton at the slot
+  // the icon is over (same indicator the panel drag and reorder use).
   const onDragMove = (event: DragMoveEvent) => {
     if (!fromDockRef.current) {
+      const y = draggedCenterY(event);
+      setPageDropIndex(
+        isCenterOverDock(event) && y !== null ? dropIndexAtY(y) : null,
+      );
       return;
     }
     const outside = isIconOutsideRail(event);
@@ -695,8 +763,12 @@ export const SidebarShortcutsDock = ({
 
     if (!fromDock) {
       if (isOverDock(event.over?.id)) {
-        addCatalog(id);
+        // Insert at the slot the icon is over (fresh from the rect to avoid a
+        // stale state read), not appended.
+        const y = draggedCenterY(event);
+        addCatalog(id, y !== null ? dropIndexAtY(y) : undefined);
       }
+      setPageDropIndex(null);
       return;
     }
 
@@ -724,25 +796,10 @@ export const SidebarShortcutsDock = ({
     setActiveId(null);
     setOverId(null);
     setWillRemove(false);
+    setPageDropIndex(null);
     outsideRailRef.current = false;
     setOrderOverride(null);
     setDragging(false);
-  };
-
-  // Insertion index for a native page drag: count the shortcut slots whose
-  // vertical midpoint sits above the cursor. Returns where the new shortcut
-  // would land (0..length).
-  const pageDropIndexAt = (event: React.DragEvent<HTMLDivElement>): number => {
-    const slots = event.currentTarget.querySelectorAll('[data-shortcut-slot]');
-    let index = slots.length;
-    for (let i = 0; i < slots.length; i += 1) {
-      const rect = slots[i].getBoundingClientRect();
-      if (event.clientY < rect.top + rect.height / 2) {
-        index = i;
-        break;
-      }
-    }
-    return index;
   };
 
   // Native drag of a panel row over the dock → allow drop, highlight the area,
@@ -757,7 +814,7 @@ export const SidebarShortcutsDock = ({
     if (!isPageDropActive) {
       setIsPageDropActive(true);
     }
-    setPageDropIndex(pageDropIndexAt(event));
+    setPageDropIndex(dropIndexAtY(event.clientY));
   };
 
   const resetPageDrop = () => {
@@ -767,7 +824,7 @@ export const SidebarShortcutsDock = ({
 
   const onPageDrop = (event: React.DragEvent<HTMLDivElement>) => {
     const raw = event.dataTransfer.getData(SHORTCUT_DRAG_MIME);
-    const dropIndex = pageDropIndexAt(event);
+    const dropIndex = dropIndexAtY(event.clientY);
     resetPageDrop();
     if (!raw) {
       return;
@@ -968,13 +1025,16 @@ export const SidebarShortcutsDock = ({
               style={{
                 position: 'fixed',
                 top: trayPos.top,
+                bottom: trayPos.bottom,
                 left: trayPos.left,
+                maxHeight: trayPos.maxHeight,
               }}
-              // Identical chrome to the Support/Settings popups (same classes
-              // InteractivePopup renders): fixed, z-popup, shadow-2, the
-              // pepper-subtlest card. Anchored to the • • • button instead of a
-              // fixed sidebar corner so it sits next to its trigger.
-              className="z-popup flex w-64 flex-col gap-2 overflow-hidden !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
+              // Support/Settings-style popup chrome (fixed, z-popup, shadow-2,
+              // pepper-subtlest card), anchored to the • • • button. Capped to
+              // the available height and scrolls so it's never cut off; opens
+              // upward instead when there's no room below (see the position
+              // effect).
+              className="no-scrollbar z-popup flex w-64 flex-col gap-2 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
             >
               <Typography
                 type={TypographyType.Callout}
