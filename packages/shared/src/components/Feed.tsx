@@ -705,7 +705,6 @@ export default function Feed<T>({
         feedContainerRef,
         showBriefCard,
         disableListFrame,
-        uniformCardRows: showGoogleCloudTakeover,
       };
 
   return (
