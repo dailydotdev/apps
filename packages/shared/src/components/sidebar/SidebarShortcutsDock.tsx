@@ -866,11 +866,20 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                 activeResolved.icon(false)
               )}
             </div>
-            {willRemove && (
-              <span className="ml-2 flex items-center gap-1 whitespace-nowrap rounded-10 bg-status-error px-2.5 py-1 font-bold text-white shadow-2 typo-caption1">
-                Remove
-              </span>
-            )}
+            {/* Kept mounted so it scales + fades in/out as you cross the remove
+                boundary instead of popping (origin-left so it grows out of the
+                chip). */}
+            <span
+              aria-hidden={!willRemove}
+              className={classNames(
+                'ml-2 flex origin-left items-center gap-1 whitespace-nowrap rounded-10 bg-status-error px-2.5 py-1 font-bold text-white shadow-2 transition-[opacity,transform] duration-150 ease-out typo-caption1 motion-reduce:transition-none',
+                willRemove
+                  ? 'scale-100 opacity-100'
+                  : 'pointer-events-none scale-50 opacity-0',
+              )}
+            >
+              Remove
+            </span>
           </div>
         ) : null}
       </DragOverlay>
