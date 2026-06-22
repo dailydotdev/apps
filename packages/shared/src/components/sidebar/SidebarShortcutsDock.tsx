@@ -23,6 +23,7 @@ import {
 import type {
   CollisionDetection,
   DragEndEvent,
+  DragMoveEvent,
   DragOverEvent,
   DragStartEvent,
   DropAnimation,
@@ -553,21 +554,46 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // which run *after* onDragEnd resets willRemove — can tell whether this drop
   // was a remove (poof in place) or a settle/reorder (animate to slot).
   const removeOnDropRef = useRef(false);
+  // Bounds of the rail column + a flag for "the dragged icon is now ENTIRELY
+  // outside the rail". Remove only fires once the whole icon clears the rail,
+  // not the moment the cursor nudges past the edge.
+  const dockAreaRef = useRef<HTMLDivElement>(null);
+  const outsideRailRef = useRef(false);
+
+  const isIconOutsideRail = (event: DragMoveEvent | DragEndEvent): boolean => {
+    const rail = dockAreaRef.current?.getBoundingClientRect();
+    const icon = event.active.rect.current.translated;
+    if (!rail || !icon) {
+      return false;
+    }
+    // Horizontal-only: the rail spans the full viewport height, so "outside" is
+    // the icon's box no longer overlapping the rail's column on the x-axis.
+    return icon.left >= rail.right || icon.right <= rail.left;
+  };
 
   const onDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
     setOverId(null);
     setWillRemove(false);
     removeOnDropRef.current = false;
+    outsideRailRef.current = false;
     setDragging(true);
   };
 
+  // Drive the remove indicator off the icon's geometry (fires every move),
+  // not the cursor's over target — so it only turns on once the whole icon has
+  // left the rail.
+  const onDragMove = (event: DragMoveEvent) => {
+    if (!keys.includes(event.active.id as string)) {
+      return;
+    }
+    const outside = isIconOutsideRail(event);
+    outsideRailRef.current = outside;
+    setWillRemove(outside);
+  };
+
   const onDragOver = (event: DragOverEvent) => {
-    const id = event.active.id as string;
-    const over = (event.over?.id as string) ?? null;
-    const fromDock = keys.includes(id);
-    setOverId(over);
-    setWillRemove(fromDock && !isOverDock(over));
+    setOverId((event.over?.id as string) ?? null);
   };
 
   const onDragEnd = (event: DragEndEvent) => {
@@ -586,7 +612,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       return;
     }
 
-    if (!isOverDock(over?.id)) {
+    // Remove only when the whole icon cleared the rail; a cursor that merely
+    // slipped past the edge (icon still overlapping) snaps back instead.
+    if (isIconOutsideRail(event)) {
       removeOnDropRef.current = true;
       removeShortcut(id);
       return;
@@ -608,6 +636,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     setActiveId(null);
     setOverId(null);
     setWillRemove(false);
+    outsideRailRef.current = false;
     setDragging(false);
   };
 
@@ -734,11 +763,13 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       sensors={sensors}
       collisionDetection={dockCollisionDetection}
       onDragStart={onDragStart}
+      onDragMove={onDragMove}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
       onDragCancel={onDragCancel}
     >
       <div
+        ref={dockAreaRef}
         className="relative flex w-full flex-col items-center gap-1"
         onDragOver={onPageDragOver}
         onDragEnter={onPageDragOver}
