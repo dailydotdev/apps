@@ -220,7 +220,11 @@ export default function Feed<T>({
     googleCloudTakeoverEnabled &&
     !isTesting &&
     (feedName === SharedFeedPage.MyFeed ||
-      feedName === SharedFeedPage.Popular) &&
+      feedName === SharedFeedPage.Popular ||
+      // The advertiser takeover follows the user onto a tag feed (e.g. clicking
+      // the sponsored "ai" tag lands on /tags/ai, which should also carry the
+      // Google Cloud engagement placements).
+      feedName === OtherFeedPage.Tag) &&
     !isHorizontal;
   const showAcquisitionForm =
     isMyFeed &&
