@@ -23,6 +23,8 @@ import { isTesting } from '../lib/constants';
 import { useLogContext } from './LogContext';
 import type { SubscriptionCallback } from '../components/notifications/utils';
 import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
+import { syncWebPushSubscription } from '../graphql/notifications';
+import { storageWrapper } from '../lib/storageWrapper';
 
 export interface PushNotificationsContextData {
   isPushSupported: boolean;
@@ -41,8 +43,8 @@ export const PushNotificationsContext =
     isSubscribed: false,
     isLoading: false,
     shouldOpenPopup: () => true,
-    subscribe: null,
-    unsubscribe: null,
+    subscribe: async () => false,
+    unsubscribe: async () => undefined,
   });
 
 interface PushNotificationContextProviderProps {
@@ -52,6 +54,17 @@ interface PushNotificationContextProviderProps {
 type ChangeEventHandler = Parameters<
   typeof OneSignal.Notifications.addEventListener<'permissionChange'>
 >[1];
+
+type PushSubscriptionChangeHandler = Parameters<
+  typeof OneSignal.User.PushSubscription.addEventListener
+>[1];
+
+type WebPushSubscriptionState = {
+  subscriptionId?: string | null;
+  optedIn?: boolean;
+};
+
+const webPushSyncStorageKey = 'web-push-subscription-synced';
 
 function OneSignalSubProvider({
   children,
@@ -75,6 +88,15 @@ function OneSignalSubProvider({
     queryKey: key,
 
     queryFn: async () => {
+      if (!user) {
+        throw new Error('Cannot initialize OneSignal push without user');
+      }
+
+      const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
+      if (!appId) {
+        throw new Error('NEXT_PUBLIC_ONESIGNAL_APP_ID is required');
+      }
+
       const osr = client.getQueryData<typeof OneSignal>(key);
 
       if (osr) {
@@ -84,14 +106,14 @@ function OneSignalSubProvider({
       const OneSignalImport = (await import('react-onesignal')).default;
 
       await OneSignalImport.init({
-        appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+        appId,
         serviceWorkerParam: { scope: '/push/onesignal/' },
         serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
 
       await OneSignalImport.login(user.id);
 
-      setIsSubscribed(OneSignalImport.User.PushSubscription.optedIn);
+      setIsSubscribed(!!OneSignalImport.User.PushSubscription.optedIn);
 
       return OneSignalImport;
     },
@@ -101,6 +123,48 @@ function OneSignalSubProvider({
 
   const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
 
+  const syncCurrentWebPushSubscription = useCallback(
+    async (state?: WebPushSubscriptionState) => {
+      if (!OneSignalCache || !user) {
+        return;
+      }
+
+      const subscriptionId =
+        state?.subscriptionId ??
+        OneSignalCache.User.PushSubscription.id ??
+        undefined;
+      const optedIn =
+        state?.optedIn ?? OneSignalCache.User.PushSubscription.optedIn ?? false;
+      const marker =
+        optedIn && subscriptionId ? `${user.id}:${subscriptionId}` : undefined;
+
+      if (marker && storageWrapper.getItem(webPushSyncStorageKey) === marker) {
+        return;
+      }
+
+      try {
+        await syncWebPushSubscription({
+          subscriptionId,
+          origin: globalThis.location?.origin,
+          optedIn,
+        });
+
+        if (marker) {
+          storageWrapper.setItem(webPushSyncStorageKey, marker);
+        }
+      } catch (err) {
+        logEvent({
+          event_name: LogEvent.GlobalError,
+          extra: JSON.stringify({
+            origin: 'web_push_subscription_sync',
+            error: err instanceof Error ? err.message : 'unknown',
+          }),
+        });
+      }
+    },
+    [OneSignalCache, logEvent, user],
+  );
+
   subscriptionCallbackRef.current = async (
     newPermission,
     source,
@@ -109,6 +173,7 @@ function OneSignalSubProvider({
     if (newPermission) {
       await OneSignalCache?.User.PushSubscription.optIn();
       setIsSubscribed(true);
+      await syncCurrentWebPushSubscription({ optedIn: true });
 
       logEvent({
         event_name: LogEvent.ClickEnableNotification,
@@ -147,8 +212,9 @@ function OneSignalSubProvider({
       return;
     }
     await OneSignalCache.User.PushSubscription.optOut();
+    await syncCurrentWebPushSubscription({ optedIn: false });
     setIsSubscribed(false);
-  }, [OneSignalCache]);
+  }, [OneSignalCache, syncCurrentWebPushSubscription]);
 
   useEffect(() => {
     if (!OneSignalCache) {
@@ -158,15 +224,40 @@ function OneSignalSubProvider({
     const onChange: ChangeEventHandler = (permission) => {
       subscriptionCallbackRef.current?.(permission);
     };
+    const onSubscriptionChange: PushSubscriptionChangeHandler = ({
+      current,
+    }) => {
+      setIsSubscribed(!!current.optedIn);
+      syncCurrentWebPushSubscription({
+        subscriptionId: current.id,
+        optedIn: current.optedIn,
+      });
+    };
 
     OneSignalCache.Notifications.addEventListener('permissionChange', onChange);
+    OneSignalCache.User.PushSubscription.addEventListener(
+      'change',
+      onSubscriptionChange,
+    );
     return () => {
       OneSignalCache.Notifications.removeEventListener(
         'permissionChange',
         onChange,
       );
+      OneSignalCache.User.PushSubscription.removeEventListener(
+        'change',
+        onSubscriptionChange,
+      );
     };
-  }, [OneSignalCache]);
+  }, [OneSignalCache, syncCurrentWebPushSubscription]);
+
+  useEffect(() => {
+    if (!OneSignalCache?.User.PushSubscription.optedIn) {
+      return;
+    }
+
+    syncCurrentWebPushSubscription();
+  }, [OneSignalCache, syncCurrentWebPushSubscription]);
 
   return (
     <PushNotificationsContext.Provider
@@ -201,6 +292,10 @@ function NativeAppleSubProvider({
     queryKey: key,
 
     queryFn: async () => {
+      if (!user) {
+        throw new Error('Cannot initialize native push without user');
+      }
+
       const promise = promisifyEventListener('push-state', (event) => {
         setIsSubscribed(!!event?.detail);
       });
