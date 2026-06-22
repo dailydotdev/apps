@@ -52,7 +52,6 @@ import { NetworkSection } from './sections/NetworkSection';
 import { StreakQuestsSection } from './sections/StreakQuestsSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
-  BellIcon,
   BrowserGroupIcon,
   CompassIcon,
   CreditCardIcon,
@@ -67,7 +66,6 @@ import {
   HotIcon,
   LinkIcon,
   MegaphoneIcon,
-  MenuIcon,
   MicrophoneIcon,
   MoveToIcon,
   NewPostIcon,
@@ -129,11 +127,7 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
@@ -635,37 +629,6 @@ export const SidebarDesktopV2 = ({
     copy: streakCopy,
   } = useStreakRingState();
 
-  // --- Vertical "More" overflow -------------------------------------------
-  // When the rail is too short to fit everything below the New-post divider,
-  // the lowest-priority content folds into a single 3-dots "More" dropdown.
-  // Fold order (lowest first): the whole shortcuts dock, then rail tabs
-  // (Quests, then Notifications). Explore, Squads and New post always stay.
-  // We measure the (content-independent) height of the scrollable region — it's
-  // flex-1, so folding never changes it and the estimate can't oscillate; the
-  // scroll itself is the safety net for any pixel slop in the estimate.
-  const scrollRegionRef = useRef<HTMLDivElement>(null);
-  const [navRegionHeight, setNavRegionHeight] = useState(
-    Number.POSITIVE_INFINITY,
-  );
-  useEffect(() => {
-    const region = scrollRegionRef.current;
-    if (!region || typeof ResizeObserver === 'undefined') {
-      return undefined;
-    }
-    const measure = () => {
-      // Ignore zero-height measurements (e.g. a hidden/not-yet-laid-out mount)
-      // so we don't briefly fold everything into the "More" menu.
-      if (region.clientHeight <= 0) {
-        return;
-      }
-      setNavRegionHeight(region.clientHeight);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(region);
-    return () => observer.disconnect();
-  }, []);
-
   // The reorderable rail tabs (each opens a panel), including the avatar/"You"
   // tab so it can be moved too. Order is user-customizable via drag-and-drop and
   // persisted; logo / New post / settings are fixed and live outside this list.
@@ -694,44 +657,16 @@ export const SidebarDesktopV2 = ({
     return [...missing, ...known];
   }, [reorderableCategories, storedRailOrder]);
 
-  // Shortcuts are read here (not just in the dock) so the rail can fold them
-  // into the shared "More" menu and size the overflow against their count.
+  // Read the shortcut count here only to decide whether to show the divider
+  // above the bottom utilities. Tabs and shortcuts always render in full — the
+  // region below the New-post divider scrolls when the viewport is too short,
+  // so nothing is ever hidden away (no fold-into-"More"): everything stays
+  // reachable and manageable, you just scroll to it.
   const { resolved: shortcutItems } = useSidebarShortcutItems();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
-
-  // Estimate how much vertical space each block wants, then fold lowest-priority
-  // content into "More" until it fits the measured region. Rough px estimates
-  // are fine — the region scrolls, so any slop just becomes a little scroll.
-  const GAP = 4;
-  const tabRow = (isCompact ? 44 : 56) + GAP;
-  const iconRow = 40 + GAP; // shortcut + utility icon buttons
-  const utilCount = isLoggedIn ? 3 : 2; // Invite, Support, (Settings)
-  const utilitiesPx = utilCount * iconRow;
-  // Empty dock is hover-only (≈0 persistent height); otherwise: top divider +
-  // the customize button + one row per shortcut.
-  const dockPx = shortcutCount > 0 ? 12 + (1 + shortcutCount) * iconRow : 0;
-  const tabsAllPx = railOrder.length * tabRow;
-  const availForTabsAndDock = navRegionHeight - utilitiesPx;
-
-  let foldShortcuts = false;
-  let visibleTabCount = railOrder.length;
-  if (availForTabsAndDock < tabsAllPx + dockPx) {
-    // Doesn't all fit: fold the shortcuts dock into "More" first…
-    foldShortcuts = shortcutCount > 0;
-    // …then fit as many tabs as remain (the "More" tab itself costs a slot).
-    const tabSlots = Math.floor((availForTabsAndDock - tabRow) / tabRow);
-    visibleTabCount = Math.max(0, Math.min(railOrder.length, tabSlots));
-  }
-  const foldedNavIds = railOrder.slice(visibleTabCount);
-  const visibleCategoryIds = railOrder.slice(0, visibleTabCount);
-  // "More" appears when anything (shortcuts or tabs) is folded into it.
-  const showMore = foldShortcuts || foldedNavIds.length > 0;
-  // Render the dock whenever it isn't folded away — even with zero shortcuts,
-  // so its customize (•••) button stays available to add the first one (the
-  // empty dock reveals that button on sidebar hover). Only the separator above
-  // the utilities is gated on there actually being pinned shortcuts.
-  const showInlineDock = isLoggedIn && !foldShortcuts;
-  const hasInlineShortcuts = shortcutCount > 0 && !foldShortcuts;
+  const visibleCategoryIds = railOrder;
+  const showInlineDock = isLoggedIn;
+  const hasInlineShortcuts = shortcutCount > 0;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -1300,69 +1235,6 @@ export const SidebarDesktopV2 = ({
     );
   };
 
-  const renderMorePanel = (): ReactElement => {
-    const rows = foldedNavIds.map((id) => {
-      if (id === SidebarCategory.Notifications) {
-        return {
-          key: id as string,
-          label: 'Notifications',
-          href: `${webappUrl}notifications`,
-          icon: <BellIcon size={IconSize.Small} aria-hidden />,
-        };
-      }
-      const category = sidebarCategories.find((entry) => entry.id === id);
-      return {
-        key: id as string,
-        label: category?.label ?? '',
-        href: category?.defaultPath ?? webappUrl,
-        icon: category?.icon(false) ?? null,
-      };
-    });
-    // When the shortcuts dock is folded away, its pinned pages live here under a
-    // small heading so they're still reachable on a short viewport.
-    const shortcutRows = foldShortcuts
-      ? shortcutItems.map((shortcut) => ({
-          key: `shortcut-${shortcut.key}`,
-          label: shortcut.label,
-          href: shortcut.path,
-          icon: shortcut.icon(false),
-        }))
-      : [];
-    const renderRow = (row: {
-      key: string;
-      label: string;
-      href: string;
-      icon: ReactNode;
-    }): ReactElement => (
-      <Link key={row.key} href={row.href} passHref>
-        <a className="focus-outline flex items-center gap-3 rounded-10 px-3 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary">
-          <span className="flex size-5 items-center justify-center">
-            {row.icon}
-          </span>
-          <Typography type={TypographyType.Callout}>{row.label}</Typography>
-        </a>
-      </Link>
-    );
-    return (
-      <div className="flex flex-col gap-0.5 p-2">
-        {rows.map(renderRow)}
-        {shortcutRows.length > 0 && (
-          <>
-            {rows.length > 0 && <HorizontalSeparator className="my-1" />}
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="px-3 pb-1 pt-0.5"
-            >
-              Shortcuts
-            </Typography>
-            {shortcutRows.map(renderRow)}
-          </>
-        )}
-      </div>
-    );
-  };
-
   const createMenuItems = useMemo<SidebarMenuItem[]>(
     () => [
       ...createMenuOptions.map(({ title, kind, icon }) => ({
@@ -1646,12 +1518,10 @@ export const SidebarDesktopV2 = ({
 
             {/* Everything below the New-post divider scrolls as one block when
               the viewport is too short — tabs, shortcuts and the bottom
-              utilities. The tiny -mx/px keeps the tabs' focus ring from being
+              utilities. Nothing is folded away: you scroll to reach and manage
+              any shortcut. The tiny -mx/px keeps the tabs' focus ring from being
               clipped by the scroll container's overflow. */}
-            <div
-              ref={scrollRegionRef}
-              className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5"
-            >
+            <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
               <div
                 role="tablist"
                 aria-label="Sidebar categories"
@@ -1675,33 +1545,12 @@ export const SidebarDesktopV2 = ({
                     ))}
                   </SortableContext>
                 </DndContext>
-
-                {showMore && (
-                  <RailHoverCard label="More" panel={renderMorePanel()}>
-                    <button
-                      type="button"
-                      aria-label="More"
-                      aria-haspopup="menu"
-                      className={classNames(railTabClass, 'active:scale-95')}
-                    >
-                      <span className="relative flex items-center justify-center">
-                        <MenuIcon
-                          size={IconSize.Small}
-                          aria-hidden
-                          className="rotate-90"
-                        />
-                      </span>
-                      {!isCompact && (
-                        <span className={railTabLabelClass}>More</span>
-                      )}
-                    </button>
-                  </RailHoverCard>
-                )}
               </div>
 
               {/* User-customizable shortcut dock — its own separator then any
-                pinned shortcuts. Hidden (folded into "More") when the rail is
-                too short for it. */}
+                pinned shortcuts. Always rendered; the region scrolls if the
+                list is long, so every shortcut (and the customize button) stays
+                reachable. */}
               {showInlineDock && <SidebarShortcutsDock />}
 
               {/* Utility actions (not tabs) — Invite/Support/Settings open their
