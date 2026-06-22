@@ -53,6 +53,7 @@ import {
 } from '../icons';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
+import { RootPortal } from '../tooltips/Portal';
 import Link from '../utilities/Link';
 import { HorizontalSeparator } from '../utilities';
 import {
@@ -504,7 +505,33 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     wrapHandler,
   } = useInteractivePopup('sidebar-rail');
   const trayRef = useRef<HTMLDivElement>(null);
+  const customizeBtnRef = useRef<HTMLButtonElement>(null);
   useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
+  // The tray is portaled to the body so the scrollable rail's overflow (which
+  // forces overflow-x to clip) can't hide it; we anchor it to the customize
+  // button's live rect, tracking rail scroll/viewport resize while it's open.
+  const [trayPos, setTrayPos] = useState<{ top: number; left: number } | null>(
+    null,
+  );
+  useEffect(() => {
+    if (!trayOpen) {
+      setTrayPos(null);
+      return undefined;
+    }
+    const update = () => {
+      const rect = customizeBtnRef.current?.getBoundingClientRect();
+      if (rect) {
+        setTrayPos({ top: rect.top, left: rect.right + 12 });
+      }
+    };
+    update();
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [trayOpen]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
@@ -727,6 +754,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
             visible={!isAnyDragging}
           >
             <button
+              ref={customizeBtnRef}
               type="button"
               aria-label="Customize shortcuts"
               aria-expanded={trayOpen}
@@ -764,85 +792,92 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
           </SortableContext>
         </div>
 
-        {trayOpen && (
-          <div
-            ref={trayRef}
-            className="absolute left-full top-0 z-3 ml-3 flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-3 motion-safe:animate-composer-in"
-          >
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Primary}
-              bold
+        {trayOpen && trayPos && (
+          <RootPortal>
+            <div
+              ref={trayRef}
+              style={{
+                position: 'fixed',
+                top: trayPos.top,
+                left: trayPos.left,
+              }}
+              className="z-popup flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-3 motion-safe:animate-composer-in"
             >
-              Customize shortcuts
-            </Typography>
-            {/* All pinned shortcuts, clickable here too — so they're reachable
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                bold
+              >
+                Customize shortcuts
+              </Typography>
+              {/* All pinned shortcuts, clickable here too — so they're reachable
                 even when the rail is full. */}
-            {orderedItems.length > 0 && (
-              <ul className="flex flex-col gap-0.5">
-                {orderedItems.map((entry) => {
-                  const shortcut = resolveShortcut(entry);
-                  if (!shortcut) {
-                    return null;
-                  }
-                  return (
-                    <li
-                      key={shortcut.key}
-                      className="group/srow flex items-center gap-1 rounded-8 pr-1 hover:bg-surface-hover"
-                    >
-                      <Link href={shortcut.path} passHref prefetch={false}>
-                        <a
-                          href={shortcut.path}
-                          onClick={() => setTrayOpen(false)}
-                          className="flex min-w-0 flex-1 items-center gap-2 rounded-8 px-1 py-1.5 text-text-secondary"
-                        >
-                          <span className="flex size-6 shrink-0 items-center justify-center">
-                            {shortcut.icon(false)}
-                          </span>
-                          <Typography
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Primary}
-                            truncate
-                            className="min-w-0"
-                          >
-                            {shortcut.label}
-                          </Typography>
-                        </a>
-                      </Link>
-                      <button
-                        type="button"
-                        aria-label={`Remove ${shortcut.label}`}
-                        onClick={() => removeShortcut(shortcut.key)}
-                        className="focus-outline flex size-6 shrink-0 items-center justify-center rounded-6 text-text-tertiary opacity-0 transition-opacity hover:bg-surface-float hover:text-text-primary group-hover/srow:opacity-100"
+              {orderedItems.length > 0 && (
+                <ul className="flex flex-col gap-0.5">
+                  {orderedItems.map((entry) => {
+                    const shortcut = resolveShortcut(entry);
+                    if (!shortcut) {
+                      return null;
+                    }
+                    return (
+                      <li
+                        key={shortcut.key}
+                        className="group/srow flex items-center gap-1 rounded-8 pr-1 hover:bg-surface-hover"
                       >
-                        <TrashIcon size={IconSize.XSmall} aria-hidden />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            {orderedItems.length > 0 && <HorizontalSeparator />}
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              Drag a page from any panel onto the sidebar, or add one:
-            </Typography>
-            <div className="grid grid-cols-4 gap-1">
-              {SHORTCUT_CATALOG.filter((def) => !keys.includes(def.id)).map(
-                (def) => (
-                  <TrayItem
-                    key={def.id}
-                    def={def}
-                    added={false}
-                    onAdd={addCatalog}
-                    onRemove={removeShortcut}
-                  />
-                ),
+                        <Link href={shortcut.path} passHref prefetch={false}>
+                          <a
+                            href={shortcut.path}
+                            onClick={() => setTrayOpen(false)}
+                            className="flex min-w-0 flex-1 items-center gap-2 rounded-8 px-1 py-1.5 text-text-secondary"
+                          >
+                            <span className="flex size-6 shrink-0 items-center justify-center">
+                              {shortcut.icon(false)}
+                            </span>
+                            <Typography
+                              type={TypographyType.Footnote}
+                              color={TypographyColor.Primary}
+                              truncate
+                              className="min-w-0"
+                            >
+                              {shortcut.label}
+                            </Typography>
+                          </a>
+                        </Link>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${shortcut.label}`}
+                          onClick={() => removeShortcut(shortcut.key)}
+                          className="focus-outline flex size-6 shrink-0 items-center justify-center rounded-6 text-text-tertiary opacity-0 transition-opacity hover:bg-surface-float hover:text-text-primary group-hover/srow:opacity-100"
+                        >
+                          <TrashIcon size={IconSize.XSmall} aria-hidden />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
+              {orderedItems.length > 0 && <HorizontalSeparator />}
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                Drag a page from any panel onto the sidebar, or add one:
+              </Typography>
+              <div className="grid grid-cols-4 gap-1">
+                {SHORTCUT_CATALOG.filter((def) => !keys.includes(def.id)).map(
+                  (def) => (
+                    <TrayItem
+                      key={def.id}
+                      def={def}
+                      added={false}
+                      onAdd={addCatalog}
+                      onRemove={removeShortcut}
+                    />
+                  ),
+                )}
+              </div>
             </div>
-          </div>
+          </RootPortal>
         )}
       </div>
 
