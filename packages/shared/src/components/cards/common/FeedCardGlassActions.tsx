@@ -38,9 +38,9 @@ const pillClasses = classNames(
 
 // Each action sizes to its content (so the count inside the upvote/comment
 // button isn't clipped) and the row spreads them with `justify-between`. An
-// earlier equal-width `flex-1` layout forced every slot to 1/N of the pill,
-// which is narrower than a count-bearing button on tight (e.g. 5-column)
-// cards — so the buttons overflowed their slots and overlapped.
+// equal-width `flex-1` layout forced every slot to 1/N of the pill, which is
+// narrower than a count-bearing button on tight (e.g. 5-column) cards — so the
+// buttons overflowed their slots and overlapped.
 const slotClasses = 'flex min-w-0 shrink items-center justify-center';
 
 // Dark glow behind the pill so it stays readable over busy cover images. Fixed

@@ -42,6 +42,9 @@ export const PostCardFooter = ({
         isVideoType={isVideoType}
         onShare={onShare}
         post={post}
+        // A glass cover (set via `className.cover`) has the action bar floating
+        // over its bottom; reserve its height so the share buttons clear it.
+        shareCoverClassName={className.cover ? 'pb-12' : undefined}
         imageProps={{
           alt: 'Post Cover image',
           className: classNames(
