@@ -496,6 +496,12 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     }
   };
 
+  // An empty dock keeps the customize (•••) button out of the way: it only
+  // appears on sidebar hover (the SidebarAside `group`). Once a shortcut is
+  // pinned the button stays visible by default. The tray being open or a page
+  // being dragged in always reveals it regardless of hover.
+  const revealOnHover = items.length === 0 && !trayOpen && !isPageDropActive;
+
   const activeEntry = activeId
     ? items.find((entry) => keyOf(entry) === activeId)
     : undefined;
@@ -524,7 +530,10 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       >
         <div
           aria-hidden
-          className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+          className={classNames(
+            'my-1 h-px w-6 bg-border-subtlest-tertiary transition-opacity',
+            revealOnHover && 'opacity-0 group-hover:opacity-100',
+          )}
         />
         <div
           ref={setDockRef}
@@ -550,6 +559,8 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               className={classNames(
                 dockButtonClass,
                 trayOpen && 'bg-background-default !text-text-primary',
+                revealOnHover &&
+                  'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
               )}
             >
               <MenuIcon
