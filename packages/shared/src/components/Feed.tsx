@@ -221,10 +221,12 @@ export default function Feed<T>({
     !isTesting &&
     (feedName === SharedFeedPage.MyFeed ||
       feedName === SharedFeedPage.Popular ||
-      // The advertiser takeover follows the user onto a tag feed (e.g. clicking
-      // the sponsored "ai" tag lands on /tags/ai, which should also carry the
-      // Google Cloud engagement placements).
-      feedName === OtherFeedPage.Tag) &&
+      // The advertiser takeover follows the user onto a tag feed: both the
+      // standard tag page (/tags/ai → OtherFeedPage.Tag) and the explore-tag
+      // feed reached via the feed tab bar (/explore/ai → ExploreTag) carry the
+      // Google Cloud engagement placements.
+      feedName === OtherFeedPage.Tag ||
+      feedName === OtherFeedPage.ExploreTag) &&
     !isHorizontal;
   const showAcquisitionForm =
     isMyFeed &&
