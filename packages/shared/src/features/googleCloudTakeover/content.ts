@@ -57,7 +57,7 @@ export const googleCloudAd: Ad = {
 // Shared messaging for the announcement bar + in-feed strip.
 export const googleCloudMessage = {
   title: 'Google Cloud supports developers',
-  body: 'Get $300 in free credits to build, test, and ship your next project on Google Cloud — on us.',
+  body: 'Get $300 in free credits to build, test, and ship your next project on Google Cloud, on us.',
   cta: 'Claim credits',
   ctaUrl: 'https://cloud.google.com/free',
 };

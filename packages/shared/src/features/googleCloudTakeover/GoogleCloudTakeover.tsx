@@ -23,7 +23,7 @@ const topPosts: MockPost[] = [
   {
     source: 'CSS-Tricks',
     title:
-      'Container queries are finally everywhere — here is the mental model that clicks',
+      'Container queries are finally everywhere: the mental model that clicks',
     tag: '#webdev',
     meta: 'Jun 21 · 7 min read',
     avatar: 'bg-accent-bun-default',
@@ -59,7 +59,7 @@ const bottomPosts: MockPost[] = [
   {
     source: 'Rust Blog',
     title:
-      'Async traits land in stable Rust — what changes for library authors',
+      'Async traits land in stable Rust: what changes for library authors',
     tag: '#rust',
     meta: 'Jun 20 · 11 min read',
     avatar: 'bg-accent-ketchup-default',
