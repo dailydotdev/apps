@@ -22,6 +22,8 @@ const googleCloudAdImage =
 export const googleCloudBlogPost: Post = {
   id: 'gcp-blog-demo',
   title: "What's new with Google Cloud",
+  summary:
+    'A roundup of the latest launches, updates, and resources from Google Cloud: agentic AI, Gemini Enterprise, Spot VM optimization, and more.',
   permalink: googleCloudBlogUrl,
   commentsPermalink: googleCloudBlogUrl,
   createdAt: '2026-06-20T09:00:00.000Z',
