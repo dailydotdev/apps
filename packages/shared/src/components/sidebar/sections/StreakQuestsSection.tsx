@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { format } from 'date-fns';
-import { SettingsIcon } from '../../icons';
+import { ArrowIcon, SettingsIcon } from '../../icons';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
@@ -28,6 +29,7 @@ export const StreakQuestsSection = (): ReactElement => {
   const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const todayLabel = useMemo(() => format(new Date(), 'MMMM d, yyyy'), []);
+  const [questsOpen, setQuestsOpen] = useState(true);
 
   return (
     <div className="flex flex-col pb-2">
@@ -56,11 +58,20 @@ export const StreakQuestsSection = (): ReactElement => {
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="mt-1 tabular-nums"
+              className="mt-1"
             >
-              Current streak · {streak.max} Longest · {streak.total} Total
+              Current streak
             </Typography>
-            <div className="mb-2 mt-5 flex items-center justify-between gap-2">
+            {/* Longest/Total on their own row so the line never wraps and isn't
+                jammed with the current-streak label. */}
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="mt-0.5 tabular-nums"
+            >
+              {streak.max} Longest · {streak.total} Total
+            </Typography>
+            <div className="mb-5 mt-5 flex items-center justify-between gap-2">
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Primary}
@@ -84,12 +95,45 @@ export const StreakQuestsSection = (): ReactElement => {
         </>
       )}
 
-      {/* Today's quests, capped so the list never crowds out the rest. */}
-      <div className="flex h-9 items-center px-4">
-        <span className="text-text-quaternary typo-callout">Quests</span>
-      </div>
-      <div className="max-h-96 overflow-y-auto px-4">
-        <CompactQuestList />
+      {/* Today's quests, capped so the list never crowds out the rest. The
+          header mirrors the standard sidebar section title (typo-callout
+          quaternary + hover-revealed collapse arrow) used by Bookmarks/Recent
+          so it reads the same across panels. */}
+      <div className="group/section">
+        <div className="flex min-h-9 items-center px-3">
+          <button
+            type="button"
+            onClick={() => setQuestsOpen((open) => !open)}
+            aria-label="Toggle Daily quests"
+            aria-expanded={questsOpen}
+            className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
+          >
+            <span className="text-text-quaternary typo-callout">
+              Daily quests
+            </span>
+            <ArrowIcon
+              size={IconSize.XXSmall}
+              className={classNames(
+                'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
+                questsOpen ? 'rotate-180' : 'rotate-90',
+              )}
+            />
+          </button>
+        </div>
+        <div
+          className={classNames(
+            'grid transition-[grid-template-rows,opacity] duration-300',
+            questsOpen
+              ? 'grid-rows-[1fr] opacity-100'
+              : 'grid-rows-[0fr] opacity-0',
+          )}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="max-h-96 overflow-y-auto px-4 pb-2">
+              <CompactQuestList />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

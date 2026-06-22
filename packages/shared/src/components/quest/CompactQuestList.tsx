@@ -124,9 +124,10 @@ const CompactQuestRow = ({
 };
 
 // Borderless, compact quest list for the streak panel: one tight two-line row
-// per quest (name + reward value on top, progress bar or claim action below),
-// grouped by Daily / Weekly with hairline separators — no cards, no level
-// chrome. Replaces the full QuestButton dashboard inside the sidebar.
+// per quest (name + reward value on top, progress bar or claim action below)
+// with hairline separators — no cards, no level chrome. Daily and weekly quests
+// are merged into a single list under the panel's "Daily quests" header.
+// Replaces the full QuestButton dashboard inside the sidebar.
 export const CompactQuestList = (): ReactElement | null => {
   const { data } = useQuestDashboard();
   const {
@@ -136,24 +137,23 @@ export const CompactQuestList = (): ReactElement | null => {
   } = useClaimQuestReward();
   const claimingId = isClaiming ? variables?.userQuestId : undefined;
 
-  const groups = useMemo(() => {
+  const quests = useMemo(() => {
     if (!data) {
       return [];
     }
     return [
-      { label: 'Daily', quests: [...data.daily.regular, ...data.daily.plus] },
-      {
-        label: 'Weekly',
-        quests: [...data.weekly.regular, ...data.weekly.plus],
-      },
-    ].filter((group) => group.quests.length > 0);
+      ...data.daily.regular,
+      ...data.daily.plus,
+      ...data.weekly.regular,
+      ...data.weekly.plus,
+    ];
   }, [data]);
 
   if (!data) {
     return null;
   }
 
-  if (groups.length === 0) {
+  if (quests.length === 0) {
     return (
       <Typography
         type={TypographyType.Footnote}
@@ -173,29 +173,15 @@ export const CompactQuestList = (): ReactElement | null => {
     });
 
   return (
-    <div className="flex flex-col gap-1">
-      {groups.map((group) => (
-        <section key={group.label}>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-            bold
-            className="uppercase tracking-wide"
-          >
-            {group.label}
-          </Typography>
-          <ul className="flex flex-col">
-            {group.quests.map((quest) => (
-              <CompactQuestRow
-                key={quest.rotationId}
-                quest={quest}
-                isClaiming={claimingId === quest.userQuestId}
-                onClaim={onClaim}
-              />
-            ))}
-          </ul>
-        </section>
+    <ul className="flex flex-col">
+      {quests.map((quest) => (
+        <CompactQuestRow
+          key={quest.rotationId}
+          quest={quest}
+          isClaiming={claimingId === quest.userQuestId}
+          onClaim={onClaim}
+        />
       ))}
-    </div>
+    </ul>
   );
 };
