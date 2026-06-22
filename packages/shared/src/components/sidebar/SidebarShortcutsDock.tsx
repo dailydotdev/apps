@@ -477,7 +477,13 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // Add from the tray (drag-from or tap), drag a panel row in to pin it, reorder
 // by dragging, and remove by dragging an icon off the rail — all with an Undo
 // toast. Persisted per-user.
-export const SidebarShortcutsDock = (): ReactElement | null => {
+export const SidebarShortcutsDock = ({
+  collapsed = false,
+}: {
+  // Very short viewport: hide the inline shortcut icons and keep only the
+  // customize (•••) button, whose tray still lists and manages them all.
+  collapsed?: boolean;
+}): ReactElement | null => {
   const router = useRouter();
   const { items, persist, addCatalog, removeShortcut, pinPage } =
     useSidebarShortcutItems();
@@ -859,20 +865,24 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               />
             </button>
           </Tooltip>
-          <SortableContext items={keys} strategy={verticalListSortingStrategy}>
-            {orderedItems.map((entry) => {
-              const shortcut = resolveShortcut(entry);
-              if (!shortcut) {
-                return null;
-              }
-              return (
-                <SortableShortcut
-                  key={shortcut.key}
-                  shortcut={shortcut}
-                  active={isSidebarItemActive(router.asPath, shortcut.path)}
-                />
-              );
-            })}
+          <SortableContext
+            items={collapsed ? [] : keys}
+            strategy={verticalListSortingStrategy}
+          >
+            {!collapsed &&
+              orderedItems.map((entry) => {
+                const shortcut = resolveShortcut(entry);
+                if (!shortcut) {
+                  return null;
+                }
+                return (
+                  <SortableShortcut
+                    key={shortcut.key}
+                    shortcut={shortcut}
+                    active={isSidebarItemActive(router.asPath, shortcut.path)}
+                  />
+                );
+              })}
           </SortableContext>
         </div>
 
@@ -885,7 +895,11 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                 top: trayPos.top,
                 left: trayPos.left,
               }}
-              className="z-popup flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-3 motion-safe:animate-composer-in"
+              // Identical chrome to the Support/Settings popups (same classes
+              // InteractivePopup renders): fixed, z-popup, shadow-2, the
+              // pepper-subtlest card. Anchored to the • • • button instead of a
+              // fixed sidebar corner so it sits next to its trigger.
+              className="z-popup flex w-64 flex-col gap-2 overflow-hidden !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
             >
               <Typography
                 type={TypographyType.Callout}

@@ -657,16 +657,47 @@ export const SidebarDesktopV2 = ({
     return [...missing, ...known];
   }, [reorderableCategories, storedRailOrder]);
 
-  // Read the shortcut count here only to decide whether to show the divider
-  // above the bottom utilities. Tabs and shortcuts always render in full — the
-  // region below the New-post divider scrolls when the viewport is too short,
-  // so nothing is ever hidden away (no fold-into-"More"): everything stays
-  // reachable and manageable, you just scroll to it.
+  // Hybrid overflow: the lower rail scrolls while the dock can still show a few
+  // shortcuts; once the viewport is so short that fewer than this many would be
+  // visible, the inline shortcuts collapse into the dock's three-dots (•••)
+  // button (its tray lists them all). Tabs always stay inline + scroll.
+  const SHORTCUTS_MIN_INLINE = 3;
+  const scrollRegionRef = useRef<HTMLDivElement>(null);
+  const [navRegionHeight, setNavRegionHeight] = useState(
+    Number.POSITIVE_INFINITY,
+  );
+  useEffect(() => {
+    const region = scrollRegionRef.current;
+    if (!region || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const measure = () => {
+      if (region.clientHeight > 0) {
+        setNavRegionHeight(region.clientHeight);
+      }
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(region);
+    return () => observer.disconnect();
+  }, []);
+
   const { resolved: shortcutItems } = useSidebarShortcutItems();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
   const visibleCategoryIds = railOrder;
+  // Estimate how many shortcut rows fit after the tabs, utilities and the
+  // always-present customize button. Region height is content-independent
+  // (flex-1), so this can't oscillate; the scroll covers any estimate slop.
+  const iconRowPx = 40 + 4;
+  const tabRowPx = (isCompact ? 44 : 56) + 4;
+  const utilitiesPx = (isLoggedIn ? 3 : 2) * iconRowPx;
+  const availableForShortcutsPx =
+    navRegionHeight - railOrder.length * tabRowPx - utilitiesPx - iconRowPx;
+  const inlineShortcutSlots = Math.floor(availableForShortcutsPx / iconRowPx);
+  const collapseShortcuts =
+    shortcutCount > 0 && inlineShortcutSlots < SHORTCUTS_MIN_INLINE;
   const showInlineDock = isLoggedIn;
-  const hasInlineShortcuts = shortcutCount > 0;
+  const hasInlineShortcuts = shortcutCount > 0 && !collapseShortcuts;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -1521,7 +1552,10 @@ export const SidebarDesktopV2 = ({
               utilities. Nothing is folded away: you scroll to reach and manage
               any shortcut. The tiny -mx/px keeps the tabs' focus ring from being
               clipped by the scroll container's overflow. */}
-            <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
+            <div
+              ref={scrollRegionRef}
+              className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5"
+            >
               <div
                 role="tablist"
                 aria-label="Sidebar categories"
@@ -1549,9 +1583,12 @@ export const SidebarDesktopV2 = ({
 
               {/* User-customizable shortcut dock — its own separator then any
                 pinned shortcuts. Always rendered; the region scrolls if the
-                list is long, so every shortcut (and the customize button) stays
-                reachable. */}
-              {showInlineDock && <SidebarShortcutsDock />}
+                list is long. On a very short viewport the inline shortcuts
+                collapse into the dock's ••• button (collapsed), which still
+                lists and manages them all. */}
+              {showInlineDock && (
+                <SidebarShortcutsDock collapsed={collapseShortcuts} />
+              )}
 
               {/* Utility actions (not tabs) — Invite/Support/Settings open their
                 own popups, so this is a plain group rather than a tablist.
