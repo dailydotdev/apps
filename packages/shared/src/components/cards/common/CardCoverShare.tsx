@@ -26,7 +26,10 @@ export function CardCoverShare({
   };
 
   return (
-    <CardCoverContainer title="Should anyone else see this post?">
+    <CardCoverContainer
+      title="Should anyone else see this post?"
+      className="pb-12"
+    >
       <span className="mt-2 flex flex-row flex-wrap justify-center gap-3 p-2">
         <Button
           variant={ButtonVariant.Secondary}
