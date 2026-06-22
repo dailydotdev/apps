@@ -407,6 +407,10 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
       const label = resolveShortcut(items[index])?.label ?? 'Shortcut';
       persist(items.filter((entry) => keyOf(entry) !== key));
       displayToast(`${label} removed`, {
+        // Always auto-dismiss (even if the global setting is off); a touch
+        // longer so there's time to reach the Undo action before it clears.
+        forceAutoDismiss: true,
+        timer: 6000,
         action: { copy: 'Undo', onClick: () => persist(previous) },
       });
     },
@@ -426,7 +430,9 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         ? catalogDef.id
         : { title: payload.title, path: payload.path };
       persist([...items, entry]);
-      displayToast(`${catalogDef?.label ?? payload.title} pinned to sidebar`);
+      displayToast(`${catalogDef?.label ?? payload.title} pinned to sidebar`, {
+        forceAutoDismiss: true,
+      });
     },
     [displayToast, items, persist, pinnedPaths],
   );
