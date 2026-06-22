@@ -222,8 +222,10 @@ const SortableRailTab = ({
       {...listeners}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={classNames(
-        'w-full touch-none',
-        isDragging ? 'opacity-60 relative z-1 cursor-grabbing' : 'cursor-grab',
+        // `relative z-1` keeps every tab painted above the sliding selected
+        // pill (an absolute z-0 indicator behind them in the tablist).
+        'relative z-1 w-full touch-none',
+        isDragging ? 'opacity-60 cursor-grabbing' : 'cursor-grab',
       )}
     >
       {children}
@@ -383,7 +385,7 @@ const SidebarSupportButton = (): ReactElement => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarSupportMenu}
-          className="animate-rail-popup-in flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+          className="animate-rail-popup-in animate-rail-stagger flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <FeedbackWidget placement="support" />
           <ProfileMenuSection items={supportItems} linkIconHoverOnly />
@@ -494,7 +496,7 @@ const SidebarSettingsButton = (): ReactElement => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarSupportMenu}
-          className="animate-rail-popup-in flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+          className="animate-rail-popup-in animate-rail-stagger flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <ThemeSection className="px-1" />
           <HorizontalSeparator />
@@ -552,7 +554,9 @@ const SidebarProfileButton = ({
         onMouseLeave={onPreviewLeave}
         className={classNames(
           railTabClass,
-          isSelected && 'bg-background-default !text-text-primary',
+          // The selected pill is a single shared indicator that slides between
+          // tabs (see the tablist); the button only owns its text color.
+          isSelected && '!text-text-primary',
           isPreviewing && 'bg-surface-hover text-text-primary',
         )}
       >
@@ -864,6 +868,61 @@ export const SidebarDesktopV2 = ({
   const suppressTransition = transitionsEnabled
     ? undefined
     : '!transition-none';
+
+  // Shared "selected pill" that slides between rail tabs (FLIP-style shared
+  // layout) instead of the background jumping instantly. It tracks whichever
+  // tab carries `aria-selected` — robust across the heterogeneous tabs (avatar,
+  // category buttons, notifications bell) without each owning its own pill. We
+  // measure with getBoundingClientRect (transform-aware) relative to the
+  // tablist, so reorder/overflow just re-anchor it.
+  const tablistRef = useRef<HTMLDivElement>(null);
+  const [selectedPill, setSelectedPill] = useState({ y: 0, h: 0, show: false });
+  const [pillReady, setPillReady] = useState(false);
+  const visibleTabKey = visibleCategoryIds.join('|');
+  useEffect(() => {
+    const container = tablistRef.current;
+    if (!container) {
+      return undefined;
+    }
+    // Hide the pill mid-drag — its layout slot is in flux and the dragged tab
+    // is lifted; it re-anchors (and fades back) once the order settles.
+    if (isAnyDragging) {
+      setSelectedPill((prev) => (prev.show ? { ...prev, show: false } : prev));
+      return undefined;
+    }
+    const measure = () => {
+      const selected = container.querySelector('[aria-selected="true"]');
+      if (!(selected instanceof HTMLElement)) {
+        setSelectedPill((prev) => ({ ...prev, show: false }));
+        return;
+      }
+      const containerRect = container.getBoundingClientRect();
+      const rect = selected.getBoundingClientRect();
+      setSelectedPill({
+        y: rect.top - containerRect.top,
+        h: rect.height,
+        show: true,
+      });
+    };
+    // rAF: measure after layout settles. setTimeout: re-measure after dnd-kit's
+    // drop animation (~250ms) finishes, in case the selected tab was the one
+    // just dragged and is still transforming toward its final slot.
+    const raf = requestAnimationFrame(measure);
+    const settle = setTimeout(measure, 300);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(settle);
+    };
+  }, [selectedCategory, visibleTabKey, isCompact, isAnyDragging]);
+  // Enable the slide transition only after the first placement so the pill
+  // doesn't animate in from the top on mount (it just appears in place).
+  useEffect(() => {
+    if (!selectedPill.show || pillReady) {
+      return undefined;
+    }
+    const raf = requestAnimationFrame(() => setPillReady(true));
+    return () => cancelAnimationFrame(raf);
+  }, [selectedPill.show, pillReady]);
 
   // Escape resets the pinned panel back to Main so the keyboard story
   // mirrors the click model — Tab+Enter opens a panel, Escape backs out.
@@ -1434,7 +1493,7 @@ export const SidebarDesktopV2 = ({
       };
     });
     return (
-      <div className="flex flex-col gap-0.5">
+      <div className="animate-rail-stagger flex flex-col gap-0.5">
         {tabRows.map((row) => (
           <Link key={row.key} href={row.href} passHref>
             <a className={rowClass}>
@@ -1651,10 +1710,28 @@ export const SidebarDesktopV2 = ({
                 the "More" menu one at a time (visibleCategoryIds), so the rail
                 always stays populated instead of emptying out all at once. */}
               <div
+                ref={tablistRef}
                 role="tablist"
                 aria-label="Sidebar categories"
-                className="flex w-full flex-col items-center gap-1"
+                className="relative flex w-full flex-col items-center gap-1"
               >
+                {/* The selected pill — a single background that slides between
+                  tabs. Sits behind them (z-0; tabs are relative z-1). The
+                  transition turns on only after the first placement so it
+                  appears in place rather than sliding from the top. */}
+                <span
+                  aria-hidden
+                  className={classNames(
+                    'pointer-events-none absolute inset-x-0 top-0 z-0 rounded-12 bg-background-default',
+                    pillReady &&
+                      'transition-[transform,height,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
+                  )}
+                  style={{
+                    height: selectedPill.h,
+                    transform: `translateY(${selectedPill.y}px)`,
+                    opacity: selectedPill.show ? 1 : 0,
+                  }}
+                />
                 <DndContext
                   sensors={railSensors}
                   collisionDetection={closestCenter}

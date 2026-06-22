@@ -986,7 +986,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               // (z-popup, shadow-2, pepper-subtlest card). Vertically anchored
               // to the • • • button and flips up when there's no room below.
               // Capped + scrolls so it's never cut off.
-              className="animate-rail-popup-in no-scrollbar fixed left-20 z-popup ml-2 flex w-72 flex-col gap-2 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
+              className="animate-rail-popup-in animate-rail-stagger no-scrollbar fixed left-20 z-popup ml-2 flex w-72 flex-col gap-2 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
             >
               <Typography
                 type={TypographyType.Callout}
