@@ -228,9 +228,13 @@ const dockCollisionDetection: CollisionDetection = (args) =>
 const SortableShortcut = ({
   shortcut,
   active,
+  dropEdge,
 }: {
   shortcut: ResolvedShortcut;
   active: boolean;
+  // When another icon is being dragged to land next to this one, mark the edge
+  // it will drop against with a brand insertion line.
+  dropEdge: 'top' | 'bottom' | null;
 }): ReactElement => {
   const {
     setNodeRef,
@@ -254,8 +258,20 @@ const SortableShortcut = ({
         {...attributes}
         {...listeners}
         style={{ transform: CSS.Transform.toString(transform), transition }}
-        className={classNames('touch-none', isDragging && 'opacity-40')}
+        className={classNames(
+          'relative touch-none',
+          isDragging && 'opacity-40',
+        )}
       >
+        {dropEdge && (
+          <span
+            aria-hidden
+            className={classNames(
+              'absolute left-1/2 h-0.5 w-7 -translate-x-1/2 rounded-full bg-accent-cabbage-default',
+              dropEdge === 'top' ? '-top-1' : '-bottom-1',
+            )}
+          />
+        )}
         <Link href={shortcut.path} passHref prefetch={false}>
           <a
             href={shortcut.path}
@@ -359,6 +375,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const trayRef = useRef<HTMLDivElement>(null);
   useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
   const [isPageDropActive, setIsPageDropActive] = useState(false);
 
@@ -418,20 +435,23 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     [displayToast, items, persist, pinnedPaths],
   );
 
-  const isOverDock = (overId?: string | number | null): boolean =>
-    overId === DOCK_DROPPABLE_ID ||
-    (typeof overId === 'string' && keys.includes(overId));
+  const isOverDock = (target?: string | number | null): boolean =>
+    target === DOCK_DROPPABLE_ID ||
+    (typeof target === 'string' && keys.includes(target));
 
   const onDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+    setOverId(null);
     setWillRemove(false);
     setDragging(true);
   };
 
   const onDragOver = (event: DragOverEvent) => {
     const id = event.active.id as string;
+    const over = (event.over?.id as string) ?? null;
     const fromDock = keys.includes(id);
-    setWillRemove(fromDock && !isOverDock(event.over?.id));
+    setOverId(over);
+    setWillRemove(fromDock && !isOverDock(over));
   };
 
   const onDragEnd = (event: DragEndEvent) => {
@@ -439,6 +459,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     const id = active.id as string;
     const fromDock = keys.includes(id);
     setActiveId(null);
+    setOverId(null);
     setWillRemove(false);
     setDragging(false);
 
@@ -454,14 +475,15 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       return;
     }
 
-    const overId = over?.id as string;
-    if (overId && overId !== id && keys.includes(overId)) {
-      persist(arrayMove(items, keys.indexOf(id), keys.indexOf(overId)));
+    const overTarget = over?.id as string;
+    if (overTarget && overTarget !== id && keys.includes(overTarget)) {
+      persist(arrayMove(items, keys.indexOf(id), keys.indexOf(overTarget)));
     }
   };
 
   const onDragCancel = () => {
     setActiveId(null);
+    setOverId(null);
     setWillRemove(false);
     setDragging(false);
   };
@@ -512,6 +534,23 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     activeResolved = resolveShortcut(activeId);
   }
 
+  const isReordering = !!activeId && keys.includes(activeId);
+  // A catalog item dragged from the tray (not yet in the dock) lands by hovering
+  // over the dock — highlight the whole dock as an "add here" target. Native
+  // page drags reuse the same highlight via isPageDropActive.
+  const showAddZone =
+    isPageDropActive || (!!activeId && !isReordering && isOverDock(overId));
+
+  // While reordering, mark the edge of the hovered icon where the dragged one
+  // will land: a line above it when moving up, below it when moving down.
+  const activeIndex = activeId ? keys.indexOf(activeId) : -1;
+  const dropEdgeFor = (key: string): 'top' | 'bottom' | null => {
+    if (!isReordering || !overId || overId === activeId || overId !== key) {
+      return null;
+    }
+    return activeIndex > keys.indexOf(key) ? 'top' : 'bottom';
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -538,9 +577,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
         <div
           ref={setDockRef}
           className={classNames(
-            'flex w-full flex-col items-center gap-1 rounded-12 transition-colors',
-            isPageDropActive &&
-              'bg-surface-float ring-2 ring-accent-bacon-default',
+            'flex w-full flex-col items-center gap-1 rounded-12 ring-1 ring-inset ring-transparent transition-all duration-150',
+            showAddZone &&
+              'bg-overlay-float-cabbage !ring-accent-cabbage-default',
           )}
         >
           {/* The customize (•••) button always starts the dock; pinned
@@ -581,6 +620,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                   key={shortcut.key}
                   shortcut={shortcut}
                   active={isSidebarItemActive(router.asPath, shortcut.path)}
+                  dropEdge={dropEdgeFor(shortcut.key)}
                 />
               );
             })}
@@ -675,17 +715,20 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
             <div
               className={classNames(
                 dockButtonClass,
-                'scale-110 shadow-3',
+                'shadow-3 transition-all duration-150',
                 willRemove
-                  ? 'opacity-70 text-status-error ring-2 ring-status-error'
-                  : 'bg-surface-hover text-text-primary',
+                  ? 'scale-90 bg-overlay-float-ketchup text-status-error ring-1 ring-status-error'
+                  : 'scale-110 bg-surface-hover text-text-primary',
               )}
             >
-              {activeResolved.icon(false)}
+              {willRemove ? (
+                <TrashIcon size={IconSize.Small} aria-hidden />
+              ) : (
+                activeResolved.icon(false)
+              )}
             </div>
             {willRemove && (
-              <span className="ml-2 flex items-center gap-1 whitespace-nowrap rounded-8 border border-status-error bg-background-default px-2 py-1 text-status-error typo-caption1">
-                <TrashIcon size={IconSize.XSmall} aria-hidden />
+              <span className="ml-2 flex items-center gap-1 whitespace-nowrap rounded-10 bg-status-error px-2.5 py-1 font-bold text-white shadow-2 typo-caption1">
                 Remove
               </span>
             )}
