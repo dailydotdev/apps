@@ -78,6 +78,7 @@ import {
   googleCloudStripFeedIndex,
   googleCloudTakeoverEnabled,
 } from '../features/googleCloudTakeover/config';
+import { isTesting } from '../lib/constants';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -212,8 +213,11 @@ export default function Feed<T>({
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   // DEMO: render the Google Cloud takeover on the main home feeds only.
+  // Excluded from the test env so it doesn't distort existing feed specs;
+  // still live in dev and on the production preview deploy.
   const showGoogleCloudTakeover =
     googleCloudTakeoverEnabled &&
+    !isTesting &&
     (feedName === SharedFeedPage.MyFeed ||
       feedName === SharedFeedPage.Popular) &&
     !isHorizontal;
