@@ -370,13 +370,26 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
     SHORTCUTS_KEY,
     [],
   );
-  const items = useMemo(
-    () =>
-      (stored ?? []).filter((entry) =>
-        typeof entry === 'string' ? CATALOG_BY_ID.has(entry) : !!entry?.path,
-      ),
-    [stored],
-  );
+  const items = useMemo(() => {
+    // Drop invalid entries AND de-duplicate by key. Duplicate keys would make
+    // React/dnd-kit treat several rows as the same node (all reporting
+    // isDragging), so a single corrupt write must never cascade into a runaway
+    // list. The next mutation persists this cleaned array, healing storage.
+    const seen = new Set<string>();
+    return (stored ?? []).filter((entry) => {
+      const valid =
+        typeof entry === 'string' ? CATALOG_BY_ID.has(entry) : !!entry?.path;
+      if (!valid) {
+        return false;
+      }
+      const key = keyOf(entry);
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }, [stored]);
   const keys = useMemo(() => items.map(keyOf), [items]);
   const pinnedPaths = useMemo(
     () => new Set(items.map((entry) => normalizePath(keyOf(entry)))),
@@ -554,6 +567,11 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // The live (in-progress) reorder, mirrored in a ref so onDragEnd reads the
   // final order without a stale-closure risk.
   const liveOrderRef = useRef<StoredShortcut[] | null>(null);
+  // Whether the drag began on an existing dock icon (reorder) vs the tray
+  // (add). Captured at drag START where the order is stable — recomputing it at
+  // drop from the live `keys` could misclassify a reorder as an add (which adds
+  // a duplicate), because live reorder mutates `keys` mid-drag.
+  const fromDockRef = useRef(false);
 
   const isIconOutsideRail = (event: DragMoveEvent | DragEndEvent): boolean => {
     const rail = dockAreaRef.current?.getBoundingClientRect();
@@ -568,6 +586,8 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
 
   const onDragStart = (event: DragStartEvent) => {
     const id = event.active.id as string;
+    const fromDock = keys.includes(id);
+    fromDockRef.current = fromDock;
     setActiveId(id);
     setOverId(null);
     setWillRemove(false);
@@ -575,7 +595,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     outsideRailRef.current = false;
     // Snapshot the order so the list can reorder live (in onDragOver) without
     // touching the persisted store until drop.
-    liveOrderRef.current = keys.includes(id) ? orderedItems : null;
+    liveOrderRef.current = fromDock ? orderedItems : null;
     setDragging(true);
   };
 
@@ -583,7 +603,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // not the cursor's over target — so it only turns on once the whole icon has
   // left the rail.
   const onDragMove = (event: DragMoveEvent) => {
-    if (!keys.includes(event.active.id as string)) {
+    if (!fromDockRef.current) {
       return;
     }
     const outside = isIconOutsideRail(event);
@@ -616,7 +636,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const onDragEnd = (event: DragEndEvent) => {
     const { active } = event;
     const id = active.id as string;
-    const fromDock = keys.includes(id);
+    // Use the start-of-drag classification, not the live `keys` (which the
+    // live reorder mutates) — recomputing here can misread a reorder as an add.
+    const fromDock = fromDockRef.current;
     const liveOrder = liveOrderRef.current;
     liveOrderRef.current = null;
     setActiveId(null);
