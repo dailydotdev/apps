@@ -1158,12 +1158,7 @@ export const SidebarDesktopV2 = ({
       return <NotificationsRailPanel />;
     }
     if (category === SidebarCategory.GameCenter) {
-      return (
-        <StreakQuestsSection
-          {...defaultRenderSectionProps}
-          isItemsButton={false}
-        />
-      );
+      return <StreakQuestsSection />;
     }
     if (category === SidebarCategory.Profile) {
       return (

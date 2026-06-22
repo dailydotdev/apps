@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { format } from 'date-fns';
-import type { SidebarMenuItem } from '../common';
-import { ListIcon, isSidebarItemActive } from '../common';
-import { JoystickIcon, SettingsIcon } from '../../icons';
-import { Section } from '../Section';
-import type { SidebarSectionProps } from './common';
+import { SettingsIcon } from '../../icons';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
@@ -21,53 +17,21 @@ import {
 import { IconSize } from '../../Icon';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 
-// The streak rail tab's panel, ordered by how often each block matters (a la
-// Duolingo's "daily habit → today's goals → reference last"):
-//   1. Reading streak hero — a big current-streak number with an inline
-//      current/longest/total line, a dated header, and the 30-day calendar.
-//   2. Quests — the daily/weekly panel, height-capped so it never dominates.
-//   3. Game Center / Quests settings — low-frequency reference links, last.
-// Composed from existing streak/quest components; only layout and grouping are
-// new here.
-export const StreakQuestsSection = ({
-  isItemsButton,
-  ...defaultRenderSectionProps
-}: SidebarSectionProps): ReactElement => {
-  const { activePage } = defaultRenderSectionProps;
+// The streak rail tab's panel: a big current-streak hero with the 30-day
+// calendar, then today's quests. The single gear opens the combined
+// Streaks & gamification settings (kept under /game-center/* so this panel
+// stays active). The Game Center and separate Quests-settings links are gone —
+// clicking the tab itself opens Game Center, and the two settings pages are now
+// one, so neither needs repeating here.
+export const StreakQuestsSection = (): ReactElement => {
   const { user } = useAuthContext();
   const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const todayLabel = useMemo(() => format(new Date(), 'MMMM d, yyyy'), []);
 
-  const linkItems: SidebarMenuItem[] = useMemo(() => {
-    const gameCenterPath = `${webappUrl}game-center`;
-    // Category-owned settings shortcut: keeps the streak/Game Center panel
-    // active (the canonical /settings/... gamification page keeps Settings).
-    const questsSettingsPath = `${webappUrl}game-center/settings`;
-
-    return [
-      {
-        title: 'Game Center',
-        path: gameCenterPath,
-        active: isSidebarItemActive(activePage, gameCenterPath),
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
-        ),
-      },
-      {
-        title: 'Quests settings',
-        path: questsSettingsPath,
-        active: isSidebarItemActive(activePage, questsSettingsPath),
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <SettingsIcon secondary={active} />} />
-        ),
-      },
-    ];
-  }, [activePage]);
-
   return (
     <div className="flex flex-col pb-2">
-      {/* 1. Reading streak — the hero. */}
+      {/* Reading streak — the hero. */}
       {isStreakEnabled && streak && (
         <>
           <div className="flex flex-col px-4 pb-4 pt-1">
@@ -80,9 +44,9 @@ export const StreakQuestsSection = ({
               >
                 {count}
               </Typography>
-              <Link href={`${webappUrl}account/customization/streaks`} passHref>
+              <Link href={`${webappUrl}game-center/settings`} passHref>
                 <a
-                  aria-label="Streak settings"
+                  aria-label="Streak & gamification settings"
                   className="focus-outline -mr-1 flex size-8 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                 >
                   <SettingsIcon size={IconSize.Small} />
@@ -120,16 +84,7 @@ export const StreakQuestsSection = ({
         </>
       )}
 
-      {/* 2. Game Center / Quests settings links — directly below the streak
-          separator, above the quest list. */}
-      <Section
-        {...defaultRenderSectionProps}
-        items={linkItems}
-        isItemsButton={isItemsButton}
-        className="!mt-0"
-      />
-
-      {/* 3. Today's quests, capped so the list never crowds out the rest. */}
+      {/* Today's quests, capped so the list never crowds out the rest. */}
       <div className="flex h-9 items-center px-4">
         <span className="text-text-quaternary typo-callout">Quests</span>
       </div>
