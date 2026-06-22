@@ -219,8 +219,9 @@ const resolveShortcut = (entry: StoredShortcut): ResolvedShortcut | null => {
     key: entry.path,
     label: entry.title,
     path: entry.path,
-    // Resolve a real glyph/image from the path (e.g. the squad's logo).
-    icon: () => <SidebarEntityIcon path={entry.path} />,
+    // Prefer the image captured at drag time (instant, no flash); fall back to
+    // resolving a glyph/image from the path.
+    icon: () => <SidebarEntityIcon path={entry.path} image={entry.image} />,
   };
 };
 
@@ -451,7 +452,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
       const catalogDef = CATALOG_BY_PATH.get(normalized);
       const entry: StoredShortcut = catalogDef
         ? catalogDef.id
-        : { title: payload.title, path: payload.path };
+        : { title: payload.title, path: payload.path, image: payload.image };
       persist([...items, entry]);
       displayToast(`${catalogDef?.label ?? payload.title} pinned to sidebar`, {
         forceAutoDismiss: true,

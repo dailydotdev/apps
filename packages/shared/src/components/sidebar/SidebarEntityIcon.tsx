@@ -15,12 +15,35 @@ const stripOrigin = (path: string): string =>
 // squad shows its actual logo, sources/tags get their icon — so a pinned page
 // never falls back to a generic link icon when we can do better. The squad
 // lookup self-disables for non-squad paths, so only squad shortcuts fetch.
-export const SidebarEntityIcon = ({ path }: { path: string }): ReactElement => {
+// When `image` is provided (captured at drag time) it renders immediately and
+// the fetch is skipped entirely, so there's no placeholder flash.
+export const SidebarEntityIcon = ({
+  path,
+  image,
+}: {
+  path: string;
+  image?: string;
+}): ReactElement => {
   const normalized = stripOrigin(path);
   const isSquad = normalized.startsWith('/squads/');
   const isSource = normalized.startsWith('/sources/');
   const isTag = normalized.startsWith('/tags/');
-  const { squad } = useSquad({ handle: isSquad ? handleFromPath(path) : '' });
+  // Only fetch when we don't already have the image in hand.
+  const { squad } = useSquad({
+    handle: isSquad && !image ? handleFromPath(path) : '',
+  });
+
+  if (image) {
+    return (
+      <Image
+        src={image}
+        type={ImageType.Squad}
+        alt=""
+        aria-hidden
+        className="size-6 rounded-8 object-cover"
+      />
+    );
+  }
 
   if (isSquad) {
     return squad?.image ? (

@@ -66,16 +66,20 @@ export const SidebarItem = ({
   const canPinToDock = isV2 && !!item.path;
   const handleDragStart = canPinToDock
     ? (event: React.DragEvent<HTMLElement>) => {
+        const iconEl = event.currentTarget.querySelector('span');
+        // Capture the row's image (squad/source logo) so the pinned shortcut
+        // shows it instantly instead of re-fetching and flashing a placeholder.
+        const image =
+          iconEl?.querySelector('img')?.getAttribute('src') ?? undefined;
         event.dataTransfer.setData(
           SHORTCUT_DRAG_MIME,
-          JSON.stringify({ title: item.title, path: item.path }),
+          JSON.stringify({ title: item.title, path: item.path, image }),
         );
         // eslint-disable-next-line no-param-reassign
         event.dataTransfer.effectAllowed = 'copy';
         // Drag with the same chip the dock uses (dashed brand border + the
         // row's own squad logo / source / tag glyph) under the cursor, instead
         // of the browser's default text-row snapshot.
-        const iconEl = event.currentTarget.querySelector('span');
         if (iconEl) {
           const chip = buildDockDragImage(iconEl);
           event.dataTransfer.setDragImage(chip, 20, 20);

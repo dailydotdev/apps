@@ -17,6 +17,10 @@ export const SHORTCUT_DRAG_MIME = 'application/x-dailydev-shortcut';
 export interface ShortcutDragData {
   title: string;
   path: string;
+  // The icon image URL of the dragged row (e.g. a squad/source logo), captured
+  // at drag time so the pinned shortcut renders it immediately instead of
+  // re-fetching it (which flashed a placeholder for a beat).
+  image?: string;
 }
 
 export interface SidebarMenuItem {
