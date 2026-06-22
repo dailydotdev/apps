@@ -6,7 +6,6 @@
 import type { Ad, Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { googleCloudLogoDataUri } from './GoogleCloudLogo';
-import { googleCloudAdCoverDataUri } from './adCover';
 import { hoursAgo } from './relativeTime';
 import { googleCloudDiscussionCount } from './fakeDiscussion';
 
@@ -14,6 +13,10 @@ const googleCloudBlogUrl =
   'https://cloud.google.com/blog/topics/inside-google-cloud/whats-new-google-cloud';
 const googleCloudBlogImage =
   'https://storage.googleapis.com/gweb-cloudblog-publish/images/whats_new_2026_CfhxFWX.max-2500x2500.jpg';
+// A different Google Cloud blog cover for the ad slot, so it doesn't repeat
+// the sponsored blog card's image.
+const googleCloudAdImage =
+  'https://storage.googleapis.com/gweb-cloudblog-publish/images/1148-GC-IO-Header-GC-43-0519.max-2500x2500.jpg';
 
 // Rendered through the real ArticleGrid/ArticleList so the sponsored post
 // looks identical to an organic feed card. The Google Cloud logo is supplied
@@ -54,7 +57,7 @@ export const googleCloudAd: Ad = {
     'Code more, config less. 👩‍💻 Deploy in seconds. Offload the infrastructure to Google Cloud.',
   link: 'https://cloud.google.com/free',
   source: 'Google Cloud',
-  image: googleCloudAdCoverDataUri,
+  image: googleCloudAdImage,
   companyLogo: googleCloudLogoDataUri,
   callToAction: 'Start building free',
   // Advertiser cards carry tags like organic cards; these drive the chips on
