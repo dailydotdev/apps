@@ -74,12 +74,12 @@ export const GoogleCloudHeadAd = ({
         </CardTextContainer>
         <CardTextContainer className="!mx-4 my-1">
           <div className="flex items-center gap-2">
+            <AdAttribution className={{ main: 'font-normal' }} />
             <AdvertiseLink
               targetId={TargetId.AdCard}
               buttonStyle
               size={ButtonSize.Small}
             />
-            <AdAttribution className={{ main: 'font-normal' }} />
             {!isPlus && (
               <RemoveAd
                 variant={ButtonVariant.Tertiary}
