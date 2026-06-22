@@ -3,32 +3,57 @@
 // (sourced 2026-06-20). The shared message copy is reused by both the
 // announcement bar and the in-feed strip.
 
-export const googleCloudLatestPost = {
-  source: 'Google Cloud Blog',
+import type { Ad, Post } from '../../graphql/posts';
+import { PostType } from '../../graphql/posts';
+import { googleCloudLogoDataUri } from './GoogleCloudLogo';
+
+const googleCloudBlogUrl =
+  'https://cloud.google.com/blog/topics/inside-google-cloud/whats-new-google-cloud';
+const googleCloudBlogImage =
+  'https://storage.googleapis.com/gweb-cloudblog-publish/images/whats_new_2026_CfhxFWX.max-2500x2500.jpg';
+
+// Rendered through the real ArticleGrid/ArticleList so the sponsored post
+// looks identical to an organic feed card. The Google Cloud logo is supplied
+// as the source avatar via a data URI.
+export const googleCloudBlogPost: Post = {
+  id: 'gcp-blog-demo',
   title: "What's new with Google Cloud",
-  excerpt:
-    'The latest launches, updates, and resources from Google Cloud — agentic AI, Gemini Enterprise, Spot VM optimization, and more.',
-  url: 'https://cloud.google.com/blog/topics/inside-google-cloud/whats-new-google-cloud',
-  image:
-    'https://storage.googleapis.com/gweb-cloudblog-publish/images/whats_new_2026_CfhxFWX.max-2500x2500.jpg',
-  date: 'Jun 20, 2026',
+  permalink: googleCloudBlogUrl,
+  commentsPermalink: googleCloudBlogUrl,
+  createdAt: '2026-06-20T09:00:00.000Z',
   readTime: 6,
+  image: googleCloudBlogImage,
+  source: {
+    id: 'google-cloud-blog',
+    handle: 'google-cloud-blog',
+    name: 'Google Cloud Blog',
+    permalink: 'https://cloud.google.com/blog',
+    image: googleCloudLogoDataUri,
+  } as unknown as Post['source'],
+  tags: ['cloud', 'ai', 'devops'],
+  numUpvotes: 312,
+  numComments: 48,
+  numAwards: 0,
+  type: PostType.Article,
+};
+
+// Rendered through the real AdGrid/AdList so it matches the live ad slot.
+// `companyLogo` drives the favicon; `image` drives the cover.
+export const googleCloudAd: Ad = {
+  company: 'Google Cloud',
+  description:
+    'Build what’s next. Ship faster with serverless, AI, and data tools trusted by developers worldwide.',
+  link: 'https://cloud.google.com/free',
+  source: 'Google Cloud',
+  image: googleCloudBlogImage,
+  companyLogo: googleCloudLogoDataUri,
+  callToAction: 'Start building free',
 };
 
 // Shared messaging for the announcement bar + in-feed strip.
 export const googleCloudMessage = {
-  eyebrow: 'Sponsored by Google Cloud',
   title: 'Google Cloud supports developers',
   body: 'Get $300 in free credits to build, test, and ship your next project on Google Cloud — on us.',
   cta: 'Claim credits',
   ctaUrl: 'https://cloud.google.com/free',
-};
-
-// Head ad-slot content.
-export const googleCloudAd = {
-  company: 'Google Cloud',
-  description:
-    'Build what’s next. Ship faster with serverless, AI, and data tools trusted by developers worldwide.',
-  cta: 'Start building free',
-  url: 'https://cloud.google.com/free',
 };

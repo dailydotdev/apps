@@ -31,6 +31,28 @@ const topPosts: MockPost[] = [
     upvotes: '983',
     comments: '64',
   },
+  {
+    source: 'GitHub Blog',
+    title: 'Shipping faster with merge queues: what we learned at scale',
+    tag: '#devops',
+    meta: 'Jun 20 · 5 min read',
+    avatar: 'bg-accent-water-default',
+    cover:
+      'bg-gradient-to-br from-accent-water-default to-accent-cabbage-default',
+    upvotes: '1.1K',
+    comments: '88',
+  },
+  {
+    source: 'OpenAI',
+    title: 'Designing reliable agent loops: retries, guards, and evals',
+    tag: '#ai',
+    meta: 'Jun 19 · 10 min read',
+    avatar: 'bg-accent-cheese-default',
+    cover:
+      'bg-gradient-to-br from-accent-cheese-default to-accent-ketchup-default',
+    upvotes: '3.2K',
+    comments: '417',
+  },
 ];
 
 const bottomPosts: MockPost[] = [

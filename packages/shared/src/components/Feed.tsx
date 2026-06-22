@@ -70,12 +70,12 @@ import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
-import { GoogleCloudAnnouncementBar } from '../features/googleCloudTakeover/GoogleCloudAnnouncementBar';
 import { GoogleCloudBlogCard } from '../features/googleCloudTakeover/GoogleCloudBlogCard';
 import { GoogleCloudHeadAd } from '../features/googleCloudTakeover/GoogleCloudHeadAd';
 import { GoogleCloudStrip } from '../features/googleCloudTakeover/GoogleCloudStrip';
 import {
-  googleCloudStripFeedIndex,
+  googleCloudPrependedCards,
+  googleCloudStripRow,
   googleCloudTakeoverEnabled,
 } from '../features/googleCloudTakeover/config';
 import { isTesting } from '../lib/constants';
@@ -327,6 +327,12 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+  // Start the strip on a whole grid row so the row above it is full (no empty
+  // cells). Accounts for the prepended cards (blog + head ad).
+  const googleCloudStripBeforeIndex = Math.max(
+    0,
+    googleCloudStripRow * virtualizedNumCards - googleCloudPrependedCards,
+  );
 
   // Experiment: let the browser skip layout/paint for off-screen cards on long
   // vertical feeds. Horizontal carousels are short and scroll on the other axis,
@@ -662,23 +668,17 @@ export default function Feed<T>({
   const containerProps = isSearchPageLaptop
     ? {}
     : {
-        topContent: (
-          <>
-            {showGoogleCloudTakeover && (
-              <GoogleCloudAnnouncementBar className="mb-4" />
-            )}
-            {topContentProp ??
-              (shouldShowTopHero ? (
-                <ReadingReminderFeedHero
-                  className="pt-2"
-                  title={readingReminderTitle}
-                  subtitle={readingReminderSubtitle}
-                  onCtaClick={onEnableHero}
-                  onClose={onDismissHero}
-                />
-              ) : undefined)}
-          </>
-        ),
+        topContent:
+          topContentProp ??
+          (shouldShowTopHero ? (
+            <ReadingReminderFeedHero
+              className="pt-2"
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              onCtaClick={onEnableHero}
+              onClose={onDismissHero}
+            />
+          ) : undefined),
         header,
         inlineHeader,
         className,
@@ -715,8 +715,8 @@ export default function Feed<T>({
             )}
             {showGoogleCloudTakeover && (
               <>
-                <GoogleCloudBlogCard />
-                <GoogleCloudHeadAd />
+                <GoogleCloudBlogCard isList={shouldUseListFeedLayout} />
+                <GoogleCloudHeadAd isList={shouldUseListFeedLayout} />
               </>
             )}
             {items.map((item, index) => {
@@ -804,7 +804,7 @@ export default function Feed<T>({
                     />
                   )}
                   {showGoogleCloudTakeover &&
-                    index === googleCloudStripFeedIndex && (
+                    index === googleCloudStripBeforeIndex && (
                       <GoogleCloudStrip
                         style={{
                           gridColumn: !shouldUseListFeedLayout

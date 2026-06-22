@@ -18,9 +18,8 @@ type GoogleCloudAnnouncementBarProps = {
   className?: string;
 };
 
-// A taller variant of the product announcement bar (roughly double the
-// height of the standard single-line bar): logo + two-line message on the
-// left, brand CTA on the right, dismissible via the shared CloseButton.
+// Compact, single-row product announcement bar: Google Cloud logo + inline
+// message, brand CTA, dismissible via the shared CloseButton.
 export const GoogleCloudAnnouncementBar = ({
   className,
 }: GoogleCloudAnnouncementBarProps): ReactElement | null => {
@@ -30,58 +29,44 @@ export const GoogleCloudAnnouncementBar = ({
     return null;
   }
 
-  const { eyebrow, title, body, cta, ctaUrl } = googleCloudMessage;
+  const { title, body, cta, ctaUrl } = googleCloudMessage;
 
   return (
     <div
       className={classNames(
-        'relative flex min-h-[7.5rem] w-full items-center gap-4 overflow-hidden rounded-16 px-4 py-5 tablet:px-6',
+        'relative flex w-full items-center gap-3 overflow-hidden rounded-12 px-3 py-2 tablet:px-4',
         className,
       )}
       style={{ background: gcpSurfaceBg, border: gcpHairline }}
     >
-      <div className="hidden size-16 shrink-0 items-center justify-center rounded-16 bg-background-default tablet:flex">
-        <GoogleCloudLogo size={40} />
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-10 bg-background-default">
+        <GoogleCloudLogo size={22} />
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col tablet:flex-row tablet:items-center tablet:gap-2">
         <Typography
           tag={TypographyTag.Span}
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          bold
-          className="uppercase tracking-wide"
-        >
-          {eyebrow}
-        </Typography>
-        <Typography
-          tag={TypographyTag.H3}
-          type={TypographyType.Title3}
+          type={TypographyType.Footnote}
           color={TypographyColor.Primary}
           bold
+          className="whitespace-nowrap"
         >
-          <GoogleCloudLogo
-            size={20}
-            className="mr-2 inline-block tablet:hidden"
-          />
           {title}
         </Typography>
         <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
           color={TypographyColor.Secondary}
+          className="min-w-0 truncate"
         >
           {body}
         </Typography>
-        <GoogleCloudCta href={ctaUrl} className="mt-2 self-start tablet:hidden">
-          {cta}
-        </GoogleCloudCta>
       </div>
-      <GoogleCloudCta href={ctaUrl} className="hidden tablet:inline-flex">
+      <GoogleCloudCta href={ctaUrl} className="!px-4 !py-1.5 typo-footnote">
         {cta}
       </GoogleCloudCta>
       <CloseButton
         size={ButtonSize.Small}
-        className="absolute right-2 top-2"
+        className="shrink-0"
         onClick={() => setDismissed(true)}
       />
     </div>

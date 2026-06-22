@@ -18,6 +18,8 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
+import { GoogleCloudAnnouncementBar } from '../features/googleCloudTakeover/GoogleCloudAnnouncementBar';
+import { googleCloudTakeoverEnabled } from '../features/googleCloudTakeover/config';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -81,7 +83,12 @@ import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
-import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
+import {
+  isDevelopment,
+  isProductionAPI,
+  isTesting,
+  webappUrl,
+} from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
@@ -245,6 +252,10 @@ export default function MainFeedLayout({
   const { time, contentCurationFilter } = useSearchContextProvider();
   const isExtension = checkIsExtension();
   const isHomePage = router.pathname === webappUrl;
+  // DEMO: Google Cloud takeover announcement bar, pinned above the feed
+  // header + shortcuts on the home feed for all users (off in the test env).
+  const showGoogleCloudBar =
+    googleCloudTakeoverEnabled && !isTesting && isHomePage;
   const {
     isUpvoted,
     isPopular,
@@ -751,6 +762,9 @@ export default function MainFeedLayout({
 
   return (
     <>
+      {showGoogleCloudBar && (
+        <GoogleCloudAnnouncementBar className="mx-4 mb-3 mt-2 tablet:mx-0" />
+      )}
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           <ExploreSectionTabs />

@@ -19,11 +19,6 @@ export const gcpSurfaceBg =
 export const gcpStripBg =
   'linear-gradient(270deg, #1A73E8 0%, #4285F4 50%, #174EA6 100%)';
 
-// Vibrant four-color gradient — used behind a light logo chip on the ad
-// cover and the blog-card image fallback (no text sits directly on it).
-export const gcpCoverBg =
-  'linear-gradient(270deg, #4285F4 0%, #34A853 33%, #FBBC04 66%, #EA4335 100%)';
-
 export const gcpHairline = '1px solid rgba(66,133,244,0.32)';
 
 // Solid Google product-blue CTA, white label.

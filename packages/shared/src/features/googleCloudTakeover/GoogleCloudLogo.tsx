@@ -1,40 +1,46 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 
+// Google Cloud "cloud" mark in the four Google brand colors. Colors are SVG
+// gradient stops, not Tailwind classNames, so they sit outside the
+// `no-custom-color` rule.
+const CLOUD_PATH =
+  'M537.6 226.6c4.1-10.7 6.4-22.4 6.4-34.6 0-53-43-96-96-96-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32c-88.4 0-160 71.6-160 160 0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336c0 79.5 64.5 144 144 144h368c70.7 0 128-57.3 128-128 0-61.9-44-113.6-102.4-125.4z';
+
 type GoogleCloudLogoProps = {
   size?: number;
   className?: string;
 };
 
-// The four-color Google "G" mark. Colors are SVG `fill` attributes, not
-// Tailwind classNames, so they are outside the `no-custom-color` rule.
 export const GoogleCloudLogo = ({
   size = 32,
   className,
 }: GoogleCloudLogoProps): ReactElement => (
   <svg
     width={size}
-    height={size}
-    viewBox="0 0 48 48"
+    height={size * 0.8}
+    viewBox="0 0 640 512"
     className={className}
-    aria-label="Google Cloud"
     role="img"
+    aria-label="Google Cloud"
   >
-    <path
-      fill="#FFC107"
-      d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
-    />
-    <path
-      fill="#FF3D00"
-      d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
-    />
-    <path
-      fill="#4CAF50"
-      d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
-    />
-    <path
-      fill="#1976D2"
-      d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
-    />
+    <defs>
+      <linearGradient id="gcp-cloud-grad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#4285F4" />
+        <stop offset="33%" stopColor="#EA4335" />
+        <stop offset="66%" stopColor="#FBBC04" />
+        <stop offset="100%" stopColor="#34A853" />
+      </linearGradient>
+    </defs>
+    <path d={CLOUD_PATH} fill="url(#gcp-cloud-grad)" />
   </svg>
 );
+
+// Same mark serialized as a data URI on a white square, so it reads as an
+// avatar/favicon inside the circular ProfilePicture used by the post/ad cards.
+// Use a literal `#` in the gradient ref — encodeURIComponent encodes it once.
+const avatarSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'><rect width='640' height='640' fill='#ffffff'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#4285F4'/><stop offset='.33' stop-color='#EA4335'/><stop offset='.66' stop-color='#FBBC04'/><stop offset='1' stop-color='#34A853'/></linearGradient></defs><g transform='translate(96 150) scale(0.7)'><path d='${CLOUD_PATH}' fill='url(#g)'/></g></svg>`;
+
+export const googleCloudLogoDataUri = `data:image/svg+xml,${encodeURIComponent(
+  avatarSvg,
+)}`;
