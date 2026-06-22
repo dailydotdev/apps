@@ -55,13 +55,13 @@ export const RailMoreMenu = ({
           <div
             ref={popupRef}
             style={{
-              position: 'fixed',
               top: pos.top,
               bottom: pos.bottom,
-              left: pos.left,
               maxHeight: pos.maxHeight,
             }}
-            className="no-scrollbar z-popup flex w-64 flex-col gap-1 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-2 shadow-2"
+            // Same placement/chrome as the Support/Settings popups and the
+            // customize tray: fixed at left-20 ml-2 (same X + gap), w-72.
+            className="no-scrollbar fixed left-20 z-popup ml-2 flex w-72 flex-col gap-1 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-2 shadow-2"
           >
             {children}
           </div>

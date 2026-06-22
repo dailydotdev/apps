@@ -989,18 +989,16 @@ export const SidebarShortcutsDock = ({
             <div
               ref={trayRef}
               style={{
-                position: 'fixed',
                 top: trayPos.top,
                 bottom: trayPos.bottom,
-                left: trayPos.left,
                 maxHeight: trayPos.maxHeight,
               }}
-              // Support/Settings-style popup chrome (fixed, z-popup, shadow-2,
-              // pepper-subtlest card), anchored to the • • • button. Capped to
-              // the available height and scrolls so it's never cut off; opens
-              // upward instead when there's no room below (see the position
-              // effect).
-              className="no-scrollbar z-popup flex w-64 flex-col gap-2 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
+              // Exact same placement as the Support/Settings popups: fixed at
+              // left-20 ml-2 (same X, same gap from the rail), same chrome
+              // (z-popup, shadow-2, pepper-subtlest card). Vertically anchored
+              // to the • • • button and flips up when there's no room below.
+              // Capped + scrolls so it's never cut off.
+              className="no-scrollbar fixed left-20 z-popup ml-2 flex w-72 flex-col gap-2 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
             >
               <Typography
                 type={TypographyType.Callout}

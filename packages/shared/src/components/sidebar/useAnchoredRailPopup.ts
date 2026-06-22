@@ -2,17 +2,17 @@ import type { RefObject } from 'react';
 import { useEffect, useState } from 'react';
 
 export interface AnchoredRailPopupPosition {
-  left: number;
   top?: number;
   bottom?: number;
   maxHeight: number;
 }
 
-// Positions a portaled rail dropdown (customize tray, More menu) next to its
-// trigger button: to the right of the rail, anchored to the button's top —
-// unless there isn't comfortable room below, in which case it flips to open
-// upward (bottom-anchored) so it's never cut off short screens. Either way it's
-// capped to the available height so the content scrolls instead of overflowing.
+// Vertical placement for a portaled rail dropdown (customize tray, More menu).
+// Horizontal X is fixed via the `left-20 ml-2` class — the exact same X the
+// Support/Settings popups use — so all rail dropdowns sit the same distance
+// from the rail. Vertically it anchors to the trigger's top, flipping to open
+// upward (bottom-anchored) when there isn't room below, so it's never cut off
+// short screens. Capped to the available height so the content scrolls.
 // Recomputed on open and on viewport resize (not on rail scroll — it stays put
 // like the Support/Settings popups, avoiding a jittery shift).
 export const useAnchoredRailPopup = (
@@ -39,7 +39,6 @@ export const useAnchoredRailPopup = (
       const spaceAbove = rect.bottom - margin;
       const openUp = spaceBelow < 320 && spaceAbove > spaceBelow;
       setPosition({
-        left: rect.right + 12,
         maxHeight: Math.max(160, openUp ? spaceAbove : spaceBelow),
         ...(openUp ? { bottom: vh - rect.bottom } : { top: rect.top }),
       });
