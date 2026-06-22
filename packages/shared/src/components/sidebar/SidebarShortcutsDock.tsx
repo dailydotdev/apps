@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -7,6 +13,7 @@ import {
   DragOverlay,
   PointerSensor,
   closestCenter,
+  defaultDropAnimationSideEffects,
   pointerWithin,
   useDraggable,
   useDroppable,
@@ -458,8 +465,31 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // toast. Persisted per-user.
 export const SidebarShortcutsDock = (): ReactElement | null => {
   const router = useRouter();
-  const { items, keys, persist, addCatalog, removeShortcut, pinPage } =
+  const { items, persist, addCatalog, removeShortcut, pinPage } =
     useSidebarShortcutItems();
+  // Render from a local order mirror during (and just after) a reorder drop so
+  // the DOM is already in the new order when dnd-kit measures the drop landing.
+  // The persisted store updates asynchronously and would otherwise lag a frame,
+  // springing the ghost back to the old slot before the list re-renders. The
+  // override is dropped once the store catches up (or the set changes).
+  const [orderOverride, setOrderOverride] = useState<StoredShortcut[] | null>(
+    null,
+  );
+  const orderedItems = orderOverride ?? items;
+  const keys = useMemo(() => orderedItems.map(keyOf), [orderedItems]);
+  useEffect(() => {
+    if (!orderOverride) {
+      return;
+    }
+    const storeKeys = items.map(keyOf);
+    const overrideKeys = orderOverride.map(keyOf);
+    const sameSet =
+      storeKeys.length === overrideKeys.length &&
+      storeKeys.every((key) => overrideKeys.includes(key));
+    if (!sameSet || storeKeys.join('|') === overrideKeys.join('|')) {
+      setOrderOverride(null);
+    }
+  }, [items, orderOverride]);
 
   const { isDragging: isAnyDragging, setDragging } = useSidebarDragState();
   // Share the rail popup group so the customize menu is mutually exclusive with
@@ -531,7 +561,13 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
 
     const overTarget = over?.id as string;
     if (overTarget && overTarget !== id && keys.includes(overTarget)) {
-      persist(arrayMove(items, keys.indexOf(id), keys.indexOf(overTarget)));
+      const next = arrayMove(
+        orderedItems,
+        keys.indexOf(id),
+        keys.indexOf(overTarget),
+      );
+      setOrderOverride(next);
+      persist(next);
     }
   };
 
@@ -576,10 +612,11 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // appears on sidebar hover (the SidebarAside `group`). Once a shortcut is
   // pinned the button stays visible by default. The tray being open or a page
   // being dragged in always reveals it regardless of hover.
-  const revealOnHover = items.length === 0 && !trayOpen && !isPageDropActive;
+  const revealOnHover =
+    orderedItems.length === 0 && !trayOpen && !isPageDropActive;
 
   const activeEntry = activeId
-    ? items.find((entry) => keyOf(entry) === activeId)
+    ? orderedItems.find((entry) => keyOf(entry) === activeId)
     : undefined;
   let activeResolved: ResolvedShortcut | null = null;
   if (activeEntry) {
@@ -594,6 +631,12 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const dropAnimation: DropAnimation = {
     duration: 200,
     easing: 'cubic-bezier(0.2, 0, 0, 1)',
+    // Keep the placeholder dimmed at its drag opacity (0.4) through the whole
+    // landing instead of the default flip-to-visible, which made the icon flash
+    // back at its old slot mid-drop (the spring-back glitch).
+    sideEffects: defaultDropAnimationSideEffects({
+      styles: { active: { opacity: '0.4' } },
+    }),
     keyframes: ({ transform }) => {
       const from = CSS.Transform.toString(transform.initial);
       if (removeOnDropRef.current) {
@@ -696,7 +739,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
             </button>
           </Tooltip>
           <SortableContext items={keys} strategy={verticalListSortingStrategy}>
-            {items.map((entry) => {
+            {orderedItems.map((entry) => {
               const shortcut = resolveShortcut(entry);
               if (!shortcut) {
                 return null;
@@ -727,9 +770,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
             </Typography>
             {/* All pinned shortcuts, clickable here too — so they're reachable
                 even when the rail is full. */}
-            {items.length > 0 && (
+            {orderedItems.length > 0 && (
               <ul className="flex flex-col gap-0.5">
-                {items.map((entry) => {
+                {orderedItems.map((entry) => {
                   const shortcut = resolveShortcut(entry);
                   if (!shortcut) {
                     return null;
@@ -771,7 +814,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                 })}
               </ul>
             )}
-            {items.length > 0 && <HorizontalSeparator />}
+            {orderedItems.length > 0 && <HorizontalSeparator />}
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
