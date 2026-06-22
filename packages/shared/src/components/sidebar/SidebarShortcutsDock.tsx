@@ -522,13 +522,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // Add from the tray (drag-from or tap), drag a panel row in to pin it, reorder
 // by dragging, and remove by dragging an icon off the rail — all with an Undo
 // toast. Persisted per-user.
-export const SidebarShortcutsDock = ({
-  collapsed = false,
-}: {
-  // Very short viewport: hide the inline shortcut icons and keep only the
-  // customize (•••) button, whose tray still lists and manages them all.
-  collapsed?: boolean;
-}): ReactElement | null => {
+export const SidebarShortcutsDock = (): ReactElement | null => {
   const router = useRouter();
   const { items, persist, addCatalog, removeShortcut, pinPage } =
     useSidebarShortcutItems();
@@ -945,42 +939,36 @@ export const SidebarShortcutsDock = ({
               />
             </button>
           </Tooltip>
-          <SortableContext
-            items={collapsed ? [] : keys}
-            strategy={verticalListSortingStrategy}
-          >
-            {!collapsed &&
-              orderedItems.map((entry, index) => {
-                const shortcut = resolveShortcut(entry);
-                if (!shortcut) {
-                  return null;
-                }
-                return (
-                  <React.Fragment key={shortcut.key}>
-                    {/* Float skeleton at the slot a dragged-in panel row would
-                        land — same indicator as reordering. */}
-                    {pageDropIndex === index && (
-                      <div
-                        aria-hidden
-                        className="size-10 shrink-0 rounded-12 bg-background-subtle"
-                      />
-                    )}
-                    <SortableShortcut
-                      shortcut={shortcut}
-                      active={isSidebarItemActive(router.asPath, shortcut.path)}
+          <SortableContext items={keys} strategy={verticalListSortingStrategy}>
+            {orderedItems.map((entry, index) => {
+              const shortcut = resolveShortcut(entry);
+              if (!shortcut) {
+                return null;
+              }
+              return (
+                <React.Fragment key={shortcut.key}>
+                  {/* Float skeleton at the slot a dragged-in panel row would
+                      land — same indicator as reordering. */}
+                  {pageDropIndex === index && (
+                    <div
+                      aria-hidden
+                      className="size-10 shrink-0 rounded-12 bg-background-subtle"
                     />
-                  </React.Fragment>
-                );
-              })}
+                  )}
+                  <SortableShortcut
+                    shortcut={shortcut}
+                    active={isSidebarItemActive(router.asPath, shortcut.path)}
+                  />
+                </React.Fragment>
+              );
+            })}
             {/* Dropping below the last shortcut → skeleton at the end. */}
-            {!collapsed &&
-              pageDropIndex !== null &&
-              pageDropIndex >= orderedItems.length && (
-                <div
-                  aria-hidden
-                  className="size-10 shrink-0 rounded-12 bg-background-subtle"
-                />
-              )}
+            {pageDropIndex !== null && pageDropIndex >= orderedItems.length && (
+              <div
+                aria-hidden
+                className="size-10 shrink-0 rounded-12 bg-background-subtle"
+              />
+            )}
           </SortableContext>
         </div>
 

@@ -663,13 +663,11 @@ export const SidebarDesktopV2 = ({
     return [...missing, ...known];
   }, [reorderableCategories, storedRailOrder]);
 
-  // Two-stage overflow, measured against the content-independent (flex-1)
-  // height of the lower region that holds the tabs + dock — so folding never
-  // changes the measurement and it can't oscillate:
-  //   • collapseShortcuts (middle): tabs fit but the dock can't show ~3
-  //     shortcuts inline → fold them into the dock's ••• button.
-  //   • collapseTabs (smallest): not even the tabs + a minimal dock fit → fold
-  //     the tabs AND shortcuts into a single click "More" menu.
+  // Overflow, measured against the content-independent (flex-1) height of the
+  // lower region that holds the tabs + dock — so folding never changes the
+  // measurement and it can't oscillate. Above the threshold tabs are inline and
+  // the dock scrolls; below it (short viewport) the whole rail folds into one
+  // click "More" menu (tabs list + Shortcuts category).
   const SHORTCUTS_MIN_INLINE = 3;
   const lowerRegionRef = useRef<HTMLDivElement>(null);
   const [regionHeight, setRegionHeight] = useState(Number.POSITIVE_INFINITY);
@@ -695,16 +693,17 @@ export const SidebarDesktopV2 = ({
   const iconRowPx = 40 + 4;
   const tabRowPx = (isCompact ? 44 : 56) + 4;
   const tabsPx = railOrder.length * tabRowPx;
-  const minDockPx = shortcutCount > 0 ? iconRowPx : 0;
-  const collapseTabs = regionHeight < tabsPx + minDockPx;
   const dockAreaPx = regionHeight - tabsPx - (shortcutCount > 0 ? 12 : 0);
-  const collapseShortcuts =
-    !collapseTabs &&
-    shortcutCount > 0 &&
-    Math.floor(dockAreaPx / iconRowPx) < SHORTCUTS_MIN_INLINE;
-  const showInlineDock = isLoggedIn && !collapseTabs;
-  const hasInlineShortcuts =
-    shortcutCount > 0 && !collapseShortcuts && !collapseTabs;
+  // One collapse: once the region can't fit the tabs plus a few inline
+  // shortcuts, the WHOLE rail (tabs + shortcuts) folds into the single "More"
+  // menu — a 3-dots + "More" tab whose dropdown has a tabs list then a
+  // Shortcuts category. Above that, tabs stay inline and the dock scrolls.
+  const collapseRail =
+    regionHeight < tabsPx + iconRowPx ||
+    (shortcutCount > 0 &&
+      Math.floor(dockAreaPx / iconRowPx) < SHORTCUTS_MIN_INLINE);
+  const showInlineDock = isLoggedIn && !collapseRail;
+  const hasInlineShortcuts = shortcutCount > 0 && !collapseRail;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -1629,7 +1628,7 @@ export const SidebarDesktopV2 = ({
               ref={lowerRegionRef}
               className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
             >
-              {collapseTabs ? (
+              {collapseRail ? (
                 <RailMoreMenu compact={isCompact}>
                   {renderMoreMenuContent()}
                 </RailMoreMenu>
@@ -1675,9 +1674,7 @@ export const SidebarDesktopV2 = ({
                     collapse into the ••• (collapsed), whose tray manages them.
                     The tiny -mx/px keeps focus rings from being clipped. */}
                   <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
-                    {showInlineDock && (
-                      <SidebarShortcutsDock collapsed={collapseShortcuts} />
-                    )}
+                    {showInlineDock && <SidebarShortcutsDock />}
                   </div>
                 </>
               )}
