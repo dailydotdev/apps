@@ -51,6 +51,7 @@ export const WelcomePostCardFooter = ({
         <CardCover
           onShare={onShare}
           post={post}
+          shareCoverClassName={glassActions ? 'pb-12' : undefined}
           imageProps={{
             src: image,
             className: classNames('mb-1 mt-2 w-full px-1', imageClassName),
