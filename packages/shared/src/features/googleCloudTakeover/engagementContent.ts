@@ -6,7 +6,7 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { googleCloudLogoDataUri } from './GoogleCloudLogo';
 import { hoursAgo } from './relativeTime';
-import { googleCloudDiscussionCount } from './fakeDiscussion';
+import { googleCloudEngagementDiscussionCount } from './fakeDiscussion';
 
 const engagementPostUrl =
   'https://huggingface.co/blog/building-production-ai-agents';
@@ -39,7 +39,7 @@ export const googleCloudEngagementPost: Post = {
   } as unknown as Post['source'],
   tags: [googleCloudSponsoredTag, 'machine-learning', 'llm', 'python'],
   numUpvotes: 1843,
-  numComments: googleCloudDiscussionCount,
+  numComments: googleCloudEngagementDiscussionCount,
   numAwards: 0,
   type: PostType.Share,
 };

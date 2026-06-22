@@ -9,7 +9,7 @@ import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { GoogleCloudEngagementProvider } from './GoogleCloudEngagementProvider';
 import { googleCloudEngagementPost } from './engagementContent';
-import { seedGoogleCloudDiscussion } from './fakeDiscussion';
+import { seedGoogleCloudEngagementDiscussion } from './fakeDiscussion';
 
 type GoogleCloudEngagementCardProps = {
   isList?: boolean;
@@ -43,7 +43,10 @@ export const GoogleCloudEngagementCard = ({
   const Card = isList ? ArticleList : ArticleGrid;
 
   useEffect(() => {
-    seedGoogleCloudDiscussion(queryClient, googleCloudEngagementPost.id);
+    seedGoogleCloudEngagementDiscussion(
+      queryClient,
+      googleCloudEngagementPost.id,
+    );
   }, [queryClient]);
 
   const toggleVote = (vote: UserVote) =>

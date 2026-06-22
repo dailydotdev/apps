@@ -289,6 +289,152 @@ peak_rps * avg_cpu_ms / 1000 &gt; provisioned_vcpu * 0.6</code></pre><p>If that'
   },
 ];
 
+// A separate discussion for the second (engagement) card, whose post is about
+// shipping AI agents to production. Distinct voices/topics from the blog post
+// thread above so the two cards don't repeat the same comments.
+const engagementSpecs: Spec[] = [
+  {
+    p: 2,
+    up: 188,
+    h: 4,
+    html: `<p>The single biggest reliability win for us was validating tool arguments before executing, then retrying with the validation error fed back to the model. Naive tool calling failed ~8% of the time; this got us under 1%.</p><pre><code>const parsed = toolSchema.safeParse(call.args);
+if (!parsed.success) {
+  messages.push(toolError(call, parsed.error));
+  continue; // let the model correct itself
+}</code></pre>`,
+    replies: [
+      {
+        p: 7,
+        up: 14,
+        h: 3,
+        html: `<p>Do you cap the retries? We've seen a model loop forever re-emitting the same bad args.</p>`,
+      },
+      {
+        p: 2,
+        up: 31,
+        h: 2,
+        html: `<p>Hard cap at 3, then bail to a human. The infinite loop only happens if you don't feed the actual error back; once it can see what was wrong it usually fixes it on the first retry.</p>`,
+      },
+    ],
+  },
+  {
+    p: 10,
+    up: 142,
+    h: 6,
+    html: `<p>Evals are the part nobody wants to build and the part that actually ships you to prod. We treat real agent traces like test fixtures: capture failures, freeze them, assert behavior doesn't regress. Without it you're just vibing in production.</p>`,
+  },
+  {
+    p: 4,
+    up: 8,
+    h: 9,
+    html: `<p>Newer to this. For a support agent over our own docs, is RAG enough or do we actually need to fine-tune a model?</p>`,
+    replies: [
+      {
+        p: 8,
+        up: 47,
+        h: 8,
+        html: `<p>Start with RAG, almost always. Fine-tuning is for style and format, not knowledge. In my experience 90% of "we need fine-tuning" is really "our retrieval is bad".</p>`,
+      },
+    ],
+  },
+  {
+    p: 6,
+    up: 97,
+    h: 12,
+    html: `<p>Cost control deserves its own chapter. Prompt-caching the system prompt and tool definitions cut our per-call cost by about 60%, because that block is byte-identical every turn. Track tokens per resolved task, not per call, or you'll optimize the wrong thing.</p>`,
+  },
+  {
+    p: 3,
+    up: 79,
+    h: 8,
+    html: `<p>Contrarian take: "agentic AI" is a while loop with extra steps. What is actually new here versus a for-loop that calls functions?</p>`,
+    replies: [
+      {
+        p: 10,
+        up: 58,
+        h: 7,
+        html: `<p>Mechanically, sure. The new part is the eval and tracing harness around the loop plus tool-call validation. The loop was never the hard bit; the production scaffolding is.</p>`,
+      },
+    ],
+  },
+  {
+    p: 9,
+    up: 113,
+    h: 5,
+    html: `<p>Per-step tracing changed how we debug agents. Replaying a failed run with every tool call and token inline is the difference between guessing and fixing. Our latency breakdown by step:</p><img src="${chartImage}" alt="agent run latency breakdown by step" /><p>Turned out 70% of our wall-clock was one slow retrieval call, not the model.</p>`,
+  },
+  {
+    p: 12,
+    up: 64,
+    h: 16,
+    html: `<p>Treat every tool the agent can call as an attack surface. We allowlist tools per session and never let the model build raw SQL or shell. Prompt injection from retrieved documents is real, and your RAG layer is the front door.</p>`,
+  },
+  {
+    p: 5,
+    up: 21,
+    h: 19,
+    html: `<p>How is everyone handling perceived latency on multi-step agents? Users hate staring at a spinner for eight seconds.</p>`,
+    replies: [
+      {
+        p: 11,
+        up: 26,
+        h: 18,
+        html: `<p>Stream the intermediate steps. Showing "searching docs... reading 3 results..." makes a 6s task feel fast. Same work, the wait just feels different.</p>`,
+      },
+    ],
+  },
+  {
+    p: 1,
+    up: 9,
+    h: 22,
+    html: `<p>Switching to strict structured outputs removed a whole class of parsing bugs. We used to regex the model's prose to pull fields out. Never again.</p>`,
+  },
+  {
+    p: 13,
+    up: 54,
+    h: 27,
+    html: `<p>Context-window management is the unglamorous 80%. We summarize older turns and keep a rolling window. Rough guard before each call:</p><pre><code>if (estimateTokens(messages) > LIMIT * 0.7) {
+  messages = [system, summarize(older), ...recent];
+}</code></pre>`,
+  },
+  {
+    p: 14,
+    up: 3,
+    h: 31,
+    html: `<p>Spent two weeks on a clever multi-agent setup, deleted it, replaced it with one good prompt and three tools. Faster, cheaper, and I sleep now.</p>`,
+  },
+  {
+    p: 11,
+    up: 88,
+    h: 13,
+    html: `<p>For anything that writes (refunds, emails, deploys) we gate on human approval. The agent proposes, a person confirms. That gate caught exactly one very expensive mistake in week two and paid for itself.</p>`,
+  },
+  {
+    p: 0,
+    up: 46,
+    h: 30,
+    html: `<p>Resist the urge to build a swarm of agents on day one. One agent with good tools beats five agents passing messages and hallucinating about each other's state.</p>`,
+  },
+  {
+    p: 9,
+    up: 71,
+    h: 20,
+    html: `<p>We default to a cheaper, faster model and only escalate to the frontier one when an eval gate fails. Most steps don't need the big model. Routing on difficulty cut our cost more than any prompt tweak did.</p>`,
+  },
+  {
+    p: 8,
+    up: 1,
+    h: 40,
+    html: `<p>This matches our last year painfully well. Wish I'd read it before, not after.</p>`,
+  },
+  {
+    p: 15,
+    up: 0,
+    h: 44,
+    html: `<p>Saving this for the team offsite. The evals section alone is worth it.</p>`,
+  },
+];
+
 const buildAuthor = (personIndex: number, key: string): Author => {
   const person = people[personIndex];
   return {
@@ -313,11 +459,11 @@ const buildAuthor = (personIndex: number, key: string): Author => {
   } as Author;
 };
 
-const buildComments = (): Comment[] =>
-  specs.map((spec, i): Comment => {
+const buildComments = (specList: Spec[], idPrefix: string): Comment[] =>
+  specList.map((spec, i): Comment => {
     const children = (spec.replies ?? []).map((reply, j) => ({
       node: {
-        id: `gcp-comment-${i}-r${j}`,
+        id: `${idPrefix}-${i}-r${j}`,
         content: '',
         contentHtml: reply.html,
         contentEmbeds: [],
@@ -326,13 +472,13 @@ const buildComments = (): Comment[] =>
         permalink: 'https://cloud.google.com/blog',
         numUpvotes: reply.up,
         numAwards: 0,
-        author: buildAuthor(reply.p, `${i}-r${j}`),
+        author: buildAuthor(reply.p, `${idPrefix}-${i}-r${j}`),
         children: { edges: [], pageInfo: { hasNextPage: false } },
       } as Comment,
     }));
 
     return {
-      id: `gcp-comment-${i}`,
+      id: `${idPrefix}-${i}`,
       content: '',
       contentHtml: spec.html,
       contentEmbeds: [],
@@ -341,31 +487,38 @@ const buildComments = (): Comment[] =>
       permalink: 'https://cloud.google.com/blog',
       numUpvotes: spec.up,
       numAwards: 0,
-      author: buildAuthor(spec.p, `${i}`),
+      author: buildAuthor(spec.p, `${idPrefix}-${i}`),
       children: { edges: children, pageInfo: { hasNextPage: false } },
     } as Comment;
   });
 
-// Total comments (top-level + replies) so the post header count matches.
-export const googleCloudDiscussionCount = specs.reduce(
-  (sum, spec) => sum + 1 + (spec.replies?.length ?? 0),
-  0,
-);
+// Total comments (top-level + replies) so each post's header count matches.
+const countComments = (specList: Spec[]): number =>
+  specList.reduce((sum, spec) => sum + 1 + (spec.replies?.length ?? 0), 0);
 
-export const buildGoogleCloudDiscussion = (): PostCommentsData => ({
+export const googleCloudDiscussionCount = countComments(specs);
+export const googleCloudEngagementDiscussionCount =
+  countComments(engagementSpecs);
+
+const buildDiscussion = (
+  specList: Spec[],
+  idPrefix: string,
+): PostCommentsData => ({
   postComments: {
-    edges: buildComments().map((node) => ({ node })),
+    edges: buildComments(specList, idPrefix).map((node) => ({ node })),
     pageInfo: { hasNextPage: false, endCursor: null },
   },
 });
 
 // Seed every comments-query-key variant for the post and pin it so the live
 // (empty) refetch can't replace the simulated discussion.
-export const seedGoogleCloudDiscussion = (
+const seedDiscussion = (
   queryClient: QueryClient,
   postId: string,
+  specList: Spec[],
+  idPrefix: string,
 ): void => {
-  const data = buildGoogleCloudDiscussion();
+  const data = buildDiscussion(specList, idPrefix);
   const keys = [
     generateCommentsQueryKey({ postId }),
     ...getAllCommentsQuery(postId),
@@ -378,3 +531,16 @@ export const seedGoogleCloudDiscussion = (
     queryClient.setQueryData(key, data);
   });
 };
+
+// First (blog) card discussion.
+export const seedGoogleCloudDiscussion = (
+  queryClient: QueryClient,
+  postId: string,
+): void => seedDiscussion(queryClient, postId, specs, 'gcp-comment');
+
+// Second (engagement) card discussion — a distinct set of comments.
+export const seedGoogleCloudEngagementDiscussion = (
+  queryClient: QueryClient,
+  postId: string,
+): void =>
+  seedDiscussion(queryClient, postId, engagementSpecs, 'gcp-eng-comment');
