@@ -47,6 +47,9 @@ export interface FeedContainerProps {
   feedContainerRef?: React.Ref<HTMLDivElement>;
   showBriefCard?: boolean;
   disableListFrame?: boolean;
+  // DEMO: force uniform grid row heights so a tall card in a row doesn't
+  // stretch its neighbours (used by the Google Cloud takeover home feed).
+  uniformCardRows?: boolean;
 }
 
 const listGapClass = 'gap-2';
@@ -133,6 +136,7 @@ export const FeedContainer = ({
   feedContainerRef,
   showBriefCard,
   disableListFrame = false,
+  uniformCardRows = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -366,6 +370,14 @@ export const FeedContainer = ({
                   !isAnyExplore &&
                   !isV2Laptop &&
                   'mt-8',
+                // Uniform row heights: pin every implicit row to the glass
+                // card height and clip overflow so a tall card (e.g. the
+                // highlights widget) can't stretch its row and leave the
+                // neighbours with an expanded title/tags gap.
+                uniformCardRows &&
+                  !isList &&
+                  !isHorizontal &&
+                  'auto-rows-[21.5rem] [&>*]:overflow-hidden',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
                 gapClass({
