@@ -13,6 +13,7 @@ import { AdImage } from '../../components/cards/ad/common/AdImage';
 import { AdPixel } from '../../components/cards/ad/common/AdPixel';
 import { AdFavicon } from '../../components/cards/ad/common/AdFavicon';
 import { AdList } from '../../components/cards/ad/AdList';
+import PostTags from '../../components/cards/common/PostTags';
 import {
   Button,
   ButtonSize,
@@ -65,6 +66,14 @@ export const GoogleCloudHeadAd = ({
             {googleCloudAd.description}
           </CardTitle>
           <CardSpace />
+          {/* Advertiser cards carry tag chips like organic cards (mirrors the
+              real AdGrid's PostTags row). */}
+          {!!googleCloudAd.matchingTags?.length && (
+            <PostTags
+              post={{ tags: googleCloudAd.matchingTags }}
+              className="!items-end"
+            />
+          )}
           {/* Match the exact look of a post card's date / read-time line.
               No horizontal margin — CardTextContainer already applies mx-4, so
               this lines up flush-left with the title above it. */}

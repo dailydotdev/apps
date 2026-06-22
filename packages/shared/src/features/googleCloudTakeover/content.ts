@@ -6,6 +6,8 @@
 import type { Ad, Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { googleCloudLogoDataUri } from './GoogleCloudLogo';
+import { hoursAgo } from './relativeTime';
+import { googleCloudDiscussionCount } from './fakeDiscussion';
 
 const googleCloudBlogUrl =
   'https://cloud.google.com/blog/topics/inside-google-cloud/whats-new-google-cloud';
@@ -26,9 +28,11 @@ export const googleCloudBlogPost: Post = {
     'A roundup of the latest launches, updates, and resources from Google Cloud: agentic AI, Gemini Enterprise, Spot VM optimization, and more.',
   permalink: googleCloudBlogUrl,
   commentsPermalink: googleCloudBlogUrl,
-  createdAt: '2026-06-20T09:00:00.000Z',
+  createdAt: hoursAgo(5),
   readTime: 6,
   image: googleCloudBlogImage,
+  // `domain` drives the reader header favicon when opened in the in-app reader.
+  domain: 'cloud.google.com',
   source: {
     id: 'google-cloud-blog',
     handle: 'google-cloud-blog',
@@ -38,13 +42,12 @@ export const googleCloudBlogPost: Post = {
   } as unknown as Post['source'],
   tags: ['cloud', 'ai', 'devops'],
   numUpvotes: 312,
-  numComments: 48,
+  numComments: googleCloudDiscussionCount,
   numAwards: 0,
-  // Share (with no sharedPost) renders identically to an article in our
-  // directly-mounted ArticleGrid/ArticlePostModal, but it is NOT a
-  // reader-gated type — so "Read post" links straight to the Google Cloud
-  // blog (post.permalink) instead of opening the in-app reader.
-  type: PostType.Share,
+  // Article so "Read post" can open the real URL inside the daily.dev in-app
+  // reader/browser (READER_GATE_ELIGIBLE_TYPES). The card mounts the reader
+  // explicitly on read; see GoogleCloudBlogCard.
+  type: PostType.Article,
 };
 
 // Rendered through the real AdGrid/AdList so it matches the live ad slot.
@@ -57,6 +60,9 @@ export const googleCloudAd: Ad = {
   image: googleCloudAdImage,
   companyLogo: googleCloudLogoDataUri,
   callToAction: 'Start building free',
+  // Advertiser cards carry tags like organic cards; these drive the chips on
+  // the ad card (and the AdList/list path via `matchingTags`).
+  matchingTags: ['cloud', 'ai', 'devops', 'kubernetes', 'serverless', 'gemini'],
 };
 
 // Shared messaging for the announcement bar + in-feed strip. The bar uses a

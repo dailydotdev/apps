@@ -5,6 +5,8 @@
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { googleCloudLogoDataUri } from './GoogleCloudLogo';
+import { hoursAgo } from './relativeTime';
+import { googleCloudDiscussionCount } from './fakeDiscussion';
 
 const engagementPostUrl =
   'https://huggingface.co/blog/building-production-ai-agents';
@@ -22,10 +24,10 @@ export const googleCloudEngagementPost: Post = {
   id: 'gcp-engagement-post',
   title: 'Building production-ready AI agents: lessons from a year in prod',
   summary:
-    'What actually breaks when you take an AI agent from a demo to real traffic — tool calling, evals, cost control, and the guardrails we wish we had on day one.',
+    'What actually breaks when you take an AI agent from a demo to real traffic: tool calling, evals, cost control, and the guardrails we wish we had on day one.',
   permalink: engagementPostUrl,
   commentsPermalink: engagementPostUrl,
-  createdAt: '2026-06-19T07:30:00.000Z',
+  createdAt: hoursAgo(28),
   readTime: 9,
   image: engagementPostImage,
   source: {
@@ -37,7 +39,7 @@ export const googleCloudEngagementPost: Post = {
   } as unknown as Post['source'],
   tags: [googleCloudSponsoredTag, 'machine-learning', 'llm', 'python'],
   numUpvotes: 1843,
-  numComments: 48,
+  numComments: googleCloudDiscussionCount,
   numAwards: 0,
   type: PostType.Share,
 };
