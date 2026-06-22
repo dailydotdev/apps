@@ -300,7 +300,7 @@ const RailHoverCard = ({
           alignOffset={alignOffset}
           sideOffset={RAIL_HOVER_SIDE_OFFSET}
           collisionPadding={12}
-          className="z-tooltip"
+          className="rail-popup-panel z-tooltip"
         >
           <RailHoverPanel title={label}>{panel}</RailHoverPanel>
         </HoverCardPrimitive.Content>
@@ -383,7 +383,7 @@ const SidebarSupportButton = (): ReactElement => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarSupportMenu}
-          className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+          className="animate-rail-popup-in flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <FeedbackWidget placement="support" />
           <ProfileMenuSection items={supportItems} linkIconHoverOnly />
@@ -494,7 +494,7 @@ const SidebarSettingsButton = (): ReactElement => {
           closeOutsideClick
           onClose={() => onUpdate(false)}
           position={InteractivePopupPosition.SidebarSupportMenu}
-          className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+          className="animate-rail-popup-in flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <ThemeSection className="px-1" />
           <HorizontalSeparator />
