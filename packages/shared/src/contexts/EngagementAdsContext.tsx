@@ -31,7 +31,7 @@ const defaultValue: EngagementAdsContextValue = {
   getCreativeForTool: () => null,
 };
 
-const EngagementAdsContext =
+export const EngagementAdsContext =
   createContext<EngagementAdsContextValue>(defaultValue);
 
 export const useEngagementAdsContext = (): EngagementAdsContextValue =>

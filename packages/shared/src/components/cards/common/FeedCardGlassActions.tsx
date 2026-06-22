@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { ActionButtonsProps } from './ActionButtons';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
@@ -17,6 +17,7 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -62,6 +63,7 @@ export function FeedCardGlassActions({
   coverScrim = false,
 }: ActionButtonsProps & { coverScrim?: boolean }): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
+  const { getUpvoteAnimation } = useBrandSponsorship();
   const {
     isUpvoteActive,
     isDownvoteActive,
@@ -76,6 +78,23 @@ export function FeedCardGlassActions({
     onBookmarkClick,
     onCopyLinkClick,
   });
+
+  // Branded upvote animation when the post has a sponsored tag (engagement ad).
+  const brandAnimation = useMemo(() => {
+    const animationResult = getUpvoteAnimation(post.tags || []);
+    if (
+      !animationResult.shouldAnimate ||
+      !animationResult.colors ||
+      !animationResult.config
+    ) {
+      return null;
+    }
+    return {
+      colors: animationResult.colors,
+      config: animationResult.config,
+      brandLogo: animationResult.brandLogo,
+    };
+  }, [getUpvoteAnimation, post.tags]);
 
   if (isFeedPreview) {
     return null;
@@ -113,6 +132,7 @@ export function FeedCardGlassActions({
                   <UpvoteButtonIcon
                     secondary={isUpvoteActive}
                     size={IconSize.XSmall}
+                    brandAnimation={brandAnimation}
                   />
                 }
               >

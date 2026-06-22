@@ -71,6 +71,7 @@ import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
 import { GoogleCloudBlogCard } from '../features/googleCloudTakeover/GoogleCloudBlogCard';
+import { GoogleCloudEngagementCard } from '../features/googleCloudTakeover/GoogleCloudEngagementCard';
 import { GoogleCloudHeadAd } from '../features/googleCloudTakeover/GoogleCloudHeadAd';
 import { GoogleCloudStrip } from '../features/googleCloudTakeover/GoogleCloudStrip';
 import {
@@ -331,25 +332,25 @@ export default function Feed<T>({
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   // Find the item index before which the strip should render so it starts on a
-  // whole grid row (no empty cells above it). Walk the real rendered cells —
-  // the prepended blog card, the ad inserted at index 1, and each item's
-  // colSpan (wide/hero cards, cadence ads) — and stop at the first column-0
-  // boundary at/after the target row. Robust to the feed's dynamic insertions.
+  // whole grid row (no empty cells above it). The takeover forces every feed
+  // item to a single cell, so the cells rendered before item `i` are just the
+  // fixed injected cards (the prepended blog + engagement cards, plus the head
+  // ad inserted before item 0) plus `i`. Stop at the first column-0 boundary
+  // at/after the target row.
   const googleCloudStripBeforeIndex = useMemo(() => {
     if (!showGoogleCloudTakeover || virtualizedNumCards < 1) {
       return -1;
     }
     const targetCells = googleCloudStripRow * virtualizedNumCards;
-    let cells = googleCloudPrependedCards - 1; // blog card, prepended at the top
+    const injectedBeforeItems = googleCloudPrependedCards + 1; // + head ad
     for (let i = 0; i < items.length; i += 1) {
-      if (i === 1) {
-        cells += 1; // ad slot, inserted before item index 1
-      }
-      if (cells >= targetCells && cells % virtualizedNumCards === 0) {
+      const cellsBefore = injectedBeforeItems + i;
+      if (
+        cellsBefore >= targetCells &&
+        cellsBefore % virtualizedNumCards === 0
+      ) {
         return i;
       }
-      // Takeover forces single-column cards, so every item is one cell.
-      cells += 1;
     }
     return -1;
   }, [showGoogleCloudTakeover, virtualizedNumCards, items]);
@@ -734,7 +735,10 @@ export default function Feed<T>({
               />
             )}
             {showGoogleCloudTakeover && (
-              <GoogleCloudBlogCard isList={shouldUseListFeedLayout} />
+              <>
+                <GoogleCloudBlogCard isList={shouldUseListFeedLayout} />
+                <GoogleCloudEngagementCard isList={shouldUseListFeedLayout} />
+              </>
             )}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
@@ -827,7 +831,7 @@ export default function Feed<T>({
                         }}
                       />
                     )}
-                  {showGoogleCloudTakeover && index === 1 && (
+                  {showGoogleCloudTakeover && index === 0 && (
                     <GoogleCloudHeadAd isList={shouldUseListFeedLayout} />
                   )}
                   {showGoogleCloudTakeover &&

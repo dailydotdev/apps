@@ -7,24 +7,63 @@ import { generateCommentsQueryKey, getAllCommentsQuery } from '../../lib/query';
 // cache (and pinned so a refetch can't clear it) since the post isn't a real
 // backend post.
 
-const avatar = (bg: string, initials: string): string =>
-  `data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='32' fill='${bg}'/><text x='32' y='42' font-family='Arial, sans-serif' font-size='26' font-weight='bold' fill='#ffffff' text-anchor='middle'>${initials}</text></svg>`,
-  )}`;
+// Real avatar photos (deterministic per index) so the discussion doesn't look
+// like a placeholder. Verified company logos use GitHub org avatars, which
+// redirect to the real image and load reliably.
+const avatar = (img: number): string => `https://i.pravatar.cc/150?img=${img}`;
+const orgLogo = (org: string): string => `https://github.com/${org}.png`;
 
-const people = [
-  { name: 'Priya Sharma', username: 'priyabuilds', color: '#4285F4' },
-  { name: 'Marcus Lee', username: 'marcusdev', color: '#EA4335' },
-  { name: 'Sofia Alvarez', username: 'sofiacodes', color: '#34A853' },
-  { name: 'Tom Becker', username: 'tbecker', color: '#FBBC04' },
-  { name: 'Aisha Khan', username: 'aishak', color: '#A142F4' },
-  { name: 'Daniel Park', username: 'dpark', color: '#00ACC1' },
-  { name: 'Lena Novak', username: 'lenan', color: '#F4511E' },
-  { name: 'Owen Wright', username: 'owenw', color: '#3949AB' },
-  { name: 'Rina Tanaka', username: 'rinat', color: '#00897B' },
-  { name: 'Caleb Stone', username: 'cstone', color: '#8E24AA' },
-  { name: 'Mira Patel', username: 'mirap', color: '#43A047' },
-  { name: 'Jonas Vogel', username: 'jvogel', color: '#FB8C00' },
+type Person = {
+  name: string;
+  username: string;
+  img: number;
+  reputation: number;
+  company?: { name: string; org: string };
+};
+
+const people: Person[] = [
+  {
+    name: 'Priya Sharma',
+    username: 'priyabuilds',
+    img: 5,
+    reputation: 18430,
+    company: { name: 'Vercel', org: 'vercel' },
+  },
+  { name: 'Marcus Lee', username: 'marcusdev', img: 12, reputation: 9120 },
+  {
+    name: 'Sofia Alvarez',
+    username: 'sofiacodes',
+    img: 47,
+    reputation: 31280,
+    company: { name: 'Stripe', org: 'stripe' },
+  },
+  { name: 'Tom Becker', username: 'tbecker', img: 33, reputation: 2740 },
+  {
+    name: 'Aisha Khan',
+    username: 'aishak',
+    img: 23,
+    reputation: 12660,
+    company: { name: 'Microsoft', org: 'microsoft' },
+  },
+  { name: 'Daniel Park', username: 'dpark', img: 8, reputation: 5380 },
+  {
+    name: 'Lena Novak',
+    username: 'lenan',
+    img: 16,
+    reputation: 44910,
+    company: { name: 'GitHub', org: 'github' },
+  },
+  { name: 'Owen Wright', username: 'owenw', img: 51, reputation: 870 },
+  {
+    name: 'Rina Tanaka',
+    username: 'rinat',
+    img: 44,
+    reputation: 21540,
+    company: { name: 'Datadog', org: 'DataDog' },
+  },
+  { name: 'Caleb Stone', username: 'cstone', img: 60, reputation: 3960 },
+  { name: 'Mira Patel', username: 'mirap', img: 26, reputation: 15070 },
+  { name: 'Jonas Vogel', username: 'jvogel', img: 14, reputation: 6620 },
 ];
 
 const remarks = [
@@ -54,20 +93,38 @@ const days = [
   '2026-06-18T20:50:00.000Z',
 ];
 
+// Hand-tuned, granular upvote counts so they don't all cluster around one
+// value — a real discussion has a long tail of low-engagement replies and a
+// few standouts.
+const upvotes = [
+  214, 7, 86, 1, 132, 19, 3, 58, 0, 41, 9, 167, 24, 2, 73, 12, 38, 5, 95, 0, 16,
+  49, 4, 121, 8, 31, 1, 62, 14, 6, 88, 0, 27, 53, 3, 109, 11, 2, 44, 19, 7, 76,
+  0, 35, 5, 23, 1, 64,
+];
+
 const buildComments = (count: number): Comment[] =>
   Array.from({ length: count }).map((_, i) => {
     const person = people[i % people.length];
-    const initials = person.name
-      .split(' ')
-      .map((part) => part[0])
-      .join('');
     const text = remarks[i % remarks.length];
     const author: Author = {
       id: `gcp-author-${i}`,
       name: person.name,
       username: person.username,
       permalink: `https://app.daily.dev/${person.username}`,
-      image: avatar(person.color, initials),
+      image: avatar(person.img),
+      reputation: person.reputation,
+      createdAt: '2021-03-01T00:00:00.000Z',
+      companies: person.company
+        ? [
+            {
+              id: person.company.org,
+              name: person.company.name,
+              image: orgLogo(person.company.org),
+              createdAt: new Date('2021-01-01'),
+              updatedAt: new Date('2021-01-01'),
+            },
+          ]
+        : undefined,
     } as Author;
 
     return {
@@ -78,7 +135,7 @@ const buildComments = (count: number): Comment[] =>
       createdAt: days[i % days.length],
       lastUpdatedAt: days[i % days.length],
       permalink: 'https://cloud.google.com/blog',
-      numUpvotes: Math.max(0, 47 - i),
+      numUpvotes: upvotes[i % upvotes.length],
       numAwards: 0,
       author,
       children: { edges: [], pageInfo: { hasNextPage: false } },

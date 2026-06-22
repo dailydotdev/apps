@@ -8,8 +8,9 @@
 // off, and do not ship it enabled to a production audience.
 export const googleCloudTakeoverEnabled = true;
 
-// Number of cards prepended at the top of the feed (the sponsored blog card +
-// the head ad). Used to keep the strip aligned to a row boundary.
+// Number of cards prepended at the top of the feed before the real items: the
+// sponsored blog card + the engagement (second) card. The head ad is injected
+// separately before item 0. Used to keep the strip aligned to a row boundary.
 export const googleCloudPrependedCards = 2;
 
 // The full-row strip starts at this grid row (0-based). Picking a whole row
