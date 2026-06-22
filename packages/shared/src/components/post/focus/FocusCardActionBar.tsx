@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
-import { useVotePost } from '../../../hooks';
+import { useViewSize, useVotePost, ViewSize } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
@@ -22,7 +22,6 @@ import CloseButton from '../../CloseButton';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
 import { IconSize } from '../../Icon';
 import {
-  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -30,10 +29,8 @@ import {
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { LoggedUser } from '../../../lib/user';
-import { canViewPostAnalytics } from '../../../lib/user';
-import { webappUrl } from '../../../lib/constants';
-import { PostMenuOptions } from '../PostMenuOptions';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
+import { PostMenuOptions } from '../PostMenuOptions';
 
 interface FocusCardActionBarProps {
   post: Post;
@@ -70,20 +67,28 @@ export const FocusCardActionBar = ({
     receivingUser: post.author as LoggedUser | undefined,
   });
 
-  // Detect when the sticky bar is pinned to the top so the X close button
-  // (modal only) appears just for the stuck state.
+  // Track whether the bar is pinned, and at which edge. The sentinel sits just
+  // above the bar: when it scrolls above the viewport top the bar is pinned at
+  // the TOP; when it's still below the viewport the bar is floating at the
+  // BOTTOM. The modal's X is only useful at the top (where the top nav strip
+  // has scrolled away) — at the bottom that strip is still on screen.
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const copyLinkRef = useRef<HTMLDivElement>(null);
-  const analyticsRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
+  const [isStuckTop, setIsStuckTop] = useState(false);
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') {
       return undefined;
     }
     const observer = new IntersectionObserver(
-      ([entry]) => setIsStuck(!entry.isIntersecting),
+      ([entry]) => {
+        const stuck = !entry.isIntersecting;
+        setIsStuck(stuck);
+        const rootTop = entry.rootBounds?.top ?? 0;
+        setIsStuckTop(stuck && entry.boundingClientRect.top < rootTop);
+      },
       { threshold: 0 },
     );
     observer.observe(el);
@@ -93,24 +98,41 @@ export const FocusCardActionBar = ({
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
+  // Counts are hidden in the resting bar (the stats row sitting right above it
+  // already shows them) and surface only once the bar is pinned and that row
+  // has scrolled away.
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  const canSeeAnalytics = canViewPostAnalytics({ user, post });
-  // Sticky offset depends on the top chrome. The modal has no app header (pin
-  // to the very top). On the post page, the v2 rail layout hides the global
-  // header on laptop for logged-in users, so the bar sticks to the very top
-  // like the feed nav; the legacy/logged-out layout keeps a fixed 4rem header
-  // the bar must clear. `onClose` is only provided by the modal.
+  // The bar floats (sticky) from tablet up, so surface the metrics + menu
+  // whenever it's actually pinned there — including when a long post floats it
+  // at the bottom on load, where the stats row above has scrolled off. Below
+  // tablet the bar is plain in-flow, so keep it stable (no counts) — that's the
+  // width where toggling on scroll looked like flicker.
+  const barFloats = useViewSize(ViewSize.Tablet);
+  const isPinned = isStuck && barFloats;
+  // The X (modal close) only makes sense when pinned at the top; at the bottom
+  // the modal's top strip — and its own close — are still on screen.
+  const isPinnedTop = isStuckTop && barFloats;
+  // Sticky at BOTH edges (`top` + `bottom`), tablet and up only — on mobile the
+  // dedicated floating bottom bar already covers this, so the desktop treatment
+  // is excluded there. While its natural spot is still below the fold the bar
+  // pins near the bottom (always reachable), scrolls naturally through the
+  // viewport, then pins near the top once it scrolls above. `top-4`/`bottom-4`
+  // leave a gap from each edge so the pill reads as floating. The top offset
+  // also accounts for the top chrome — the modal has no app header; on the post
+  // page the v2 rail hides the global header on laptop for logged-in users, so
+  // the bar floats near the top, while the legacy/logged-out layout must clear
+  // a fixed 4rem header (4rem + 1rem gap = top-20). `onClose` is modal-only.
   const railOwnsHeader = isV2 && !!user;
-  const stickyTopClassName =
-    onClose || railOwnsHeader ? 'top-0' : 'top-0 laptop:top-16';
+  const stickyOffsetClassName =
+    onClose || railOwnsHeader
+      ? 'tablet:top-4 tablet:bottom-4'
+      : 'tablet:top-4 tablet:bottom-4 laptop:top-20';
 
-  // Dynamically fold the lowest-priority utilities into the "…" menu (which
-  // already lists Share and Post analytics) whenever the bar would overflow,
-  // and bring them back inline when there is room again. Measured against the
-  // real available width — not breakpoints — so it reacts to page/modal
-  // resizing. Priority (first to fold): analytics, then copy/share.
+  // Fold copy link out of the row when the bar would overflow, and bring it
+  // back inline when there is room again. Measured against the real available
+  // width — not breakpoints — so it reacts to page/modal resizing.
   useEffect(() => {
     const bar = barRef.current;
     if (!bar) {
@@ -118,19 +140,12 @@ export const FocusCardActionBar = ({
     }
     const fit = () => {
       const copyLink = copyLinkRef.current;
-      const analytics = analyticsRef.current;
-      // Show both first (inline display overrides the SSR fallback classes),
-      // then hide in priority order until the row stops overflowing.
+      // Show first (inline display overrides the SSR fallback classes), then
+      // hide it if the row still overflows.
       if (copyLink) {
         copyLink.style.display = 'flex';
       }
-      if (analytics) {
-        analytics.style.display = 'flex';
-      }
       const overflows = () => bar.scrollWidth > bar.clientWidth;
-      if (analytics && overflows()) {
-        analytics.style.display = 'none';
-      }
       if (copyLink && overflows()) {
         copyLink.style.display = 'none';
       }
@@ -142,14 +157,15 @@ export const FocusCardActionBar = ({
     const observer = new ResizeObserver(fit);
     observer.observe(bar);
     return () => observer.disconnect();
+    // isPinned/counts change the row width (counts + "…" menu appear when pinned).
   }, [
-    canSeeAnalytics,
-    upvotes,
-    comments,
-    awards,
     canAward,
     post.clickbaitTitleDetected,
     post.bookmarked,
+    isPinned,
+    upvotes,
+    comments,
+    awards,
   ]);
 
   const onToggleUpvote = async () => {
@@ -200,13 +216,12 @@ export const FocusCardActionBar = ({
       <div
         ref={barRef}
         className={classNames(
-          // Static on mobile (no sticky), sticky from tablet up so the bar
-          // never overlaps the small-screen reading flow.
-          'relative z-3 flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-1 py-2 tablet:sticky',
-          // Drop the top border once pinned so it doesn't double up with the
-          // header border above it.
-          !isStuck && 'border-t',
-          stickyTopClassName,
+          // Same floating-pill design on every resolution (incl. the
+          // translucent surface): rounded, blur, soft shadow, full border.
+          // Sticky from tablet up only — on mobile it stays in-flow, since the
+          // dedicated footer floating bar handles the pinned behavior there.
+          'relative z-3 flex items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky',
+          stickyOffsetClassName,
           className,
         )}
       >
@@ -220,7 +235,7 @@ export const FocusCardActionBar = ({
               color={ButtonColor.Avocado}
               icon={<UpvoteButtonIcon />}
               iconPressed={<UpvoteButtonIcon secondary />}
-              count={upvotes}
+              count={isPinned ? upvotes : undefined}
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
             />
@@ -245,7 +260,7 @@ export const FocusCardActionBar = ({
               color={ButtonColor.BlueCheese}
               icon={<CommentIcon />}
               iconPressed={<CommentIcon secondary />}
-              count={comments}
+              count={isPinned ? comments : undefined}
               pressed={post.commented}
               onClick={onComment}
             />
@@ -260,7 +275,7 @@ export const FocusCardActionBar = ({
                 color={ButtonColor.Cabbage}
                 icon={<MedalBadgeIcon secondary />}
                 iconPressed={<MedalBadgeIcon />}
-                count={awards}
+                count={isPinned ? awards : undefined}
                 pressed={isAwarded}
                 onClick={onGiveAward}
               />
@@ -279,11 +294,11 @@ export const FocusCardActionBar = ({
               size: ButtonSize.Medium,
             }}
           />
-          {/* Bookmark stays — it is the primary save action and is not in the
-              menu. Copy/share and analytics fold into the "…" menu when space
-              is tight (see the overflow effect); the `hidden tablet:flex` /
-              `hidden laptop:flex` classes are only the pre-measurement (SSR)
-              fallback — the effect overrides display once it measures. */}
+          {/* Bookmark stays — it is the primary save action. Copy link folds
+              out when space is tight (see the overflow effect); the
+              `hidden tablet:flex` classes are only the pre-measurement (SSR)
+              fallback — the effect overrides display once it measures. The "…"
+              menu and analytics now live in the card header / stats row. */}
           <div ref={copyLinkRef} className="hidden tablet:flex">
             <Tooltip content="Copy link">
               <CardAction
@@ -297,23 +312,16 @@ export const FocusCardActionBar = ({
           {post.clickbaitTitleDetected && (
             <PostClickbaitShield post={post} iconOnly />
           )}
-          {canSeeAnalytics && (
-            <div ref={analyticsRef} className="hidden laptop:flex">
-              <Tooltip content="Analytics">
-                <CardAction
-                  label="Analytics"
-                  icon={<AnalyticsIcon />}
-                  href={`${webappUrl}posts/${post.id}/analytics`}
-                />
-              </Tooltip>
-            </div>
+          {/* While pinned, the article header (which owns the "…" menu) has
+              scrolled away, so surface the menu here — to the left of the X. */}
+          {isPinned && (
+            <PostMenuOptions
+              post={post}
+              origin={origin}
+              buttonSize={ButtonSize.Medium}
+            />
           )}
-          <PostMenuOptions
-            post={post}
-            origin={Origin.ArticleModal}
-            buttonSize={ButtonSize.Medium}
-          />
-          {isStuck && onClose && (
+          {isPinnedTop && onClose && (
             <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
           )}
         </div>

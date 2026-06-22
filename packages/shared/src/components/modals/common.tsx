@@ -91,6 +91,10 @@ const VideoModal = dynamic(
   () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
 );
 
+const ImageModal = dynamic(
+  () => import(/* webpackChunkName: "imageModal" */ './ImageModal'),
+);
+
 const GenericReferralModal = dynamic(
   () =>
     import(
@@ -524,6 +528,7 @@ export const modals = {
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
+  [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,

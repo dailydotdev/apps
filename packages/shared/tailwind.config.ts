@@ -240,6 +240,10 @@ export default {
         20: '1.25rem',
       },
       keyframes: {
+        'image-zoom-in': {
+          from: { opacity: '0', transform: 'scale(0.85)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
         'scale-down-pulse': {
           '0%, 100%': { transform: 'scale(1)', opacity: '1' },
           '50%': { transform: 'scale(0.7)', opacity: '0.5' },
@@ -367,6 +371,7 @@ export default {
         },
       },
       animation: {
+        'image-zoom-in': 'image-zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',

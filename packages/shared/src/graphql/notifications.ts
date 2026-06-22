@@ -100,6 +100,34 @@ export const READ_NOTIFICATIONS_MUTATION = gql`
   }
 `;
 
+export const SYNC_WEB_PUSH_SUBSCRIPTION_MUTATION = gql`
+  mutation SyncWebPushSubscription($input: SyncWebPushSubscriptionInput) {
+    syncWebPushSubscription(input: $input) {
+      cleanedUpSubscriptions
+    }
+  }
+`;
+
+export type SyncWebPushSubscriptionInput = {
+  subscriptionId?: string;
+  origin?: string;
+  optedIn?: boolean;
+};
+
+export type SyncWebPushSubscriptionResult = {
+  cleanedUpSubscriptions: number;
+};
+
+export const syncWebPushSubscription = async (
+  input: SyncWebPushSubscriptionInput,
+): Promise<SyncWebPushSubscriptionResult> => {
+  const res = await gqlClient.request<{
+    syncWebPushSubscription: SyncWebPushSubscriptionResult;
+  }>(SYNC_WEB_PUSH_SUBSCRIPTION_MUTATION, { input });
+
+  return res.syncWebPushSubscription;
+};
+
 export type NewNotification = Pick<
   Notification,
   | 'createdAt'
