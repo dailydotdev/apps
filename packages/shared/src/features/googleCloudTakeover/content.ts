@@ -53,8 +53,7 @@ export const googleCloudBlogPost: Post = {
 // `companyLogo` drives the favicon; `image` drives the cover.
 export const googleCloudAd: Ad = {
   company: 'Google Cloud',
-  description:
-    'Code more, config less. 👩‍💻 Deploy in seconds. Offload the infrastructure to Google Cloud.',
+  description: 'Code more, config less. 👩‍💻 Deploy in seconds.',
   link: 'https://cloud.google.com/free',
   source: 'Google Cloud',
   image: googleCloudAdImage,
