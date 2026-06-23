@@ -20,19 +20,10 @@ import {
 } from '../../ProfilePicture';
 import { Image } from '../../image/Image';
 import { fallbackImages } from '../../../lib/config';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { ClickableText } from '../../buttons/ClickableText';
+import { IconSize } from '../../Icon';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { SortCommentsBy } from '../../../graphql/comments';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../typography/Typography';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
@@ -89,7 +80,6 @@ export const PostDiscussionPanel = ({
     useSettingsContext();
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const commentRef = useRef<NewCommentRef | null>(null);
-  const rootRef = useRef<HTMLElement | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(origin);
@@ -114,7 +104,9 @@ export const PostDiscussionPanel = ({
       return modalParentSelector();
     }
 
-    return rootRef.current ?? document.body;
+    // Append to the document body, not the panel root: the redesign modal card
+    // clips overflow, which would cut off profile hover cards near its edges.
+    return document.body;
   };
 
   const renderComposerTrigger = ({
@@ -125,7 +117,7 @@ export const PostDiscussionPanel = ({
       type="button"
       aria-label="Add a comment"
       onClick={() => onCommentClick(Origin.StartDiscussion)}
-      className="group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover"
+      className="group flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3 text-left transition-colors hover:border-border-subtlest-primary"
     >
       {triggerUser ? (
         <ProfilePicture
@@ -161,7 +153,6 @@ export const PostDiscussionPanel = ({
 
   return (
     <section
-      ref={rootRef}
       aria-label="Discussion"
       className={classNames('flex min-h-0 min-w-0 flex-col gap-2', className)}
     >
@@ -178,36 +169,27 @@ export const PostDiscussionPanel = ({
       </div>
       <DiscussionShareRow post={post} withSquads />
       {showSortHeader && (
-        <span className="flex shrink-0 flex-row items-center">
-          <Typography
-            color={TypographyColor.Tertiary}
-            type={TypographyType.Footnote}
-          >
-            Sort:
-          </Typography>
-          <Button
-            className="ml-1 !px-1 !text-text-tertiary"
-            icon={
-              <TimeSortIcon
-                secondary
-                className={isNewestFirst ? undefined : 'rotate-180'}
-              />
-            }
-            iconPosition={ButtonIconPosition.Right}
-            onClick={() =>
-              setSortBy(
-                isNewestFirst
-                  ? SortCommentsBy.OldestFirst
-                  : SortCommentsBy.NewestFirst,
-              )
-            }
-            size={ButtonSize.XSmall}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-          >
-            {isNewestFirst ? 'Newest first' : 'Oldest first'}
-          </Button>
-        </span>
+        // A text link (not a button) so it aligns flush-left with the comments
+        // below it; `mb-2` adds breathing room before the first comment.
+        <ClickableText
+          type="button"
+          defaultTypo={false}
+          className="mb-2 w-fit gap-1 typo-footnote"
+          onClick={() =>
+            setSortBy(
+              isNewestFirst
+                ? SortCommentsBy.OldestFirst
+                : SortCommentsBy.NewestFirst,
+            )
+          }
+        >
+          {isNewestFirst ? 'Newest first' : 'Oldest first'}
+          <TimeSortIcon
+            secondary
+            size={IconSize.XSmall}
+            className={isNewestFirst ? undefined : 'rotate-180'}
+          />
+        </ClickableText>
       )}
       <div className="min-w-0">
         <PostComments

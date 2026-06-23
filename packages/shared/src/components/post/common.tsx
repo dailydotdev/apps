@@ -31,6 +31,7 @@ type PostActions = Pick<
   | 'inlineActions'
   | 'isFixedNavigation'
   | 'hideSubscribeAction'
+  | 'hideOptions'
 >;
 
 export interface PostNavigationClassName {
@@ -69,6 +70,8 @@ export interface PostHeaderActionsProps {
   isFixedNavigation?: boolean;
   buttonSize?: ButtonSize;
   hideSubscribeAction?: boolean;
+  /** Hide the "…" options menu (e.g. when it already lives elsewhere). */
+  hideOptions?: boolean;
 }
 
 export interface PostContentProps

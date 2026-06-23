@@ -118,6 +118,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           contentHtml={post.contentHtml}
           post={post}
           onShare={onShare}
+          glassActions={useGlass}
           imageClassName={
             useGlass && image ? glassCoverImageClassName : undefined
           }
