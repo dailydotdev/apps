@@ -7,9 +7,10 @@ import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 
 // StreakBadge owns its own state visuals (it no longer borrows StreakRing's
 // shared maps) so the v2 rail badge can evolve independently:
-// - Read today (`safe`): a SOLID pink tile with a WHITE flame.
-// - Just earned (`celebration`): the same read-today look (pink + white flame)
-//   plus the existing earn pop/wash animation; it settles into `safe` after.
+// - Read today (`safe`): an EMPTY tile (white border, like the calm states)
+//   with just a PINK flame — keeps the tab light rather than a heavy pink block.
+// - Just earned (`celebration`): the existing earn pop/wash animation (pink fill
+//   washes in with a white flame), then settles into the read-today look.
 // - Calm/neutral states (new/pending/rest day): a WHITE border — the same
 //   lighter, "selected"-style border we use on the avatar — keeping each
 //   state's dashed/solid pattern.
@@ -18,9 +19,8 @@ import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 const frameByState: Record<StreakRingState, string> = {
   none: 'border-dashed border-text-primary',
   pending: 'border-text-primary',
-  // Solid pink tile: pink border + pink bg on this layer removes the 1px gap to
-  // the inset fill so the whole square reads as one pink block.
-  safe: 'border-accent-bacon-default bg-accent-bacon-default',
+  // Read today: empty tile — just the white border + pink flame (no fill).
+  safe: 'border-text-primary',
   celebration: 'animate-streak-earn-border border-accent-bacon-default',
   at_risk: 'border-dashed border-status-warning',
   critical: 'animate-streak-border-pulse border-dashed border-status-error',
@@ -30,7 +30,7 @@ const frameByState: Record<StreakRingState, string> = {
 const fillByState: Record<StreakRingState, string> = {
   none: 'bg-transparent',
   pending: 'bg-transparent',
-  safe: 'bg-accent-bacon-default',
+  safe: 'bg-transparent',
   celebration: 'animate-streak-earn-fill',
   at_risk: 'animate-streak-fade bg-status-warning opacity-20',
   critical: 'animate-streak-pulse bg-status-error opacity-40',
@@ -40,8 +40,9 @@ const fillByState: Record<StreakRingState, string> = {
 const flameByState: Record<StreakRingState, string> = {
   none: 'text-text-quaternary',
   pending: 'text-text-tertiary',
-  // White flame on the pink read-today tile (and through the earn celebration).
-  safe: 'text-white',
+  // Read today: pink flame on the empty tile (the original, lighter look).
+  safe: 'text-accent-bacon-default',
+  // The earn celebration keeps a white flame during its pink fill-wash pop.
   celebration: 'text-white',
   at_risk: 'text-status-warning',
   critical: 'text-status-error',
