@@ -42,6 +42,7 @@ import {
   Origin,
 } from '@dailydotdev/shared/src/lib/log';
 import {
+  getNotificationCategory,
   notificationFilterCategoryLabel,
   notificationFilterCategoryList,
   NotificationType,
@@ -98,15 +99,12 @@ export const NotificationsFeed = (): ReactElement => {
     mutationFn: () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
     onSuccess: clearUnreadCount,
   });
-  // Filtering happens server-side: daily-api owns which notification types each
-  // category maps to, so we just forward the category (null -> all activity).
   const queryResult = useInfiniteQuery<NotificationsData>({
-    queryKey: ['notifications', activeCategory ?? 'all'],
+    queryKey: ['notifications'],
     queryFn: ({ pageParam }) =>
       gqlClient.request(NOTIFICATIONS_QUERY, {
         first: 100,
         after: pageParam,
-        category: activeCategory,
       }),
     initialPageParam: '',
     getNextPageParam: ({ notifications }) =>
@@ -150,10 +148,23 @@ export const NotificationsFeed = (): ReactElement => {
     );
   }, [queryResult?.data?.pages, isSubscribed]);
 
+  // The notifications API has no type filter yet, so we filter the already
+  // loaded pages on the client. For the typical user every notification fits in
+  // the first page; heavy users see the chips refine as more pages load.
+  const filtered = useMemo(
+    () =>
+      activeCategory
+        ? notifications.filter(
+            (node) => getNotificationCategory(node.type) === activeCategory,
+          )
+        : notifications,
+    [notifications, activeCategory],
+  );
+
   const groups = useMemo(() => {
     const now = new Date();
     const byKey = new Map<string, Notification[]>();
-    notifications.forEach((node) => {
+    filtered.forEach((node) => {
       const days = differenceInCalendarDays(now, new Date(node.createdAt));
       // An invalid `createdAt` makes `days` NaN, which is `<=` nothing (not
       // even Infinity), so `.find` returns undefined — fall back to the last
@@ -171,7 +182,7 @@ export const NotificationsFeed = (): ReactElement => {
         items: byKey.get(bucket.key) as Notification[],
       }),
     );
-  }, [notifications]);
+  }, [filtered]);
 
   const hasNotifications = notifications.length > 0;
 
@@ -268,12 +279,19 @@ export const NotificationsFeed = (): ReactElement => {
               })}
             </section>
           ))}
-          {isFetched && !hasNextPage && !hasNotifications && activeCategory && (
-            <p className="px-4 py-10 text-center text-text-tertiary typo-callout">
-              No {notificationFilterCategoryLabel[activeCategory].toLowerCase()}{' '}
-              notifications yet.
-            </p>
-          )}
+          {/* Filtering is client-side over loaded pages, so only claim a
+              category is empty once every page has loaded — otherwise matches
+              on a not-yet-fetched page would flash this message. */}
+          {isFetched &&
+            !hasNextPage &&
+            filtered.length === 0 &&
+            activeCategory && (
+              <p className="px-4 py-10 text-center text-text-tertiary typo-callout">
+                No{' '}
+                {notificationFilterCategoryLabel[activeCategory].toLowerCase()}{' '}
+                notifications yet.
+              </p>
+            )}
           {isFetched &&
             !activeCategory &&
             (!hasNotifications || !hasNextPage) && <FirstNotification />}
