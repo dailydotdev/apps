@@ -16,6 +16,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { IconSize } from '../../Icon';
+import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 
 // The streak rail tab's panel: a big current-streak hero with the 30-day
@@ -28,7 +29,10 @@ export const StreakQuestsSection = (): ReactElement => {
   const { user } = useAuthContext();
   const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const todayLabel = useMemo(() => format(new Date(), 'MMMM d, yyyy'), []);
+  // Compact label (e.g. "Jun 23") — no year; the full date with year lives in
+  // the hover tooltip so the strip stays tidy day-to-day.
+  const todayLabel = useMemo(() => format(new Date(), 'MMM d'), []);
+  const fullDateLabel = useMemo(() => format(new Date(), 'MMMM d, yyyy'), []);
   const [questsOpen, setQuestsOpen] = useState(true);
 
   return (
@@ -72,15 +76,17 @@ export const StreakQuestsSection = (): ReactElement => {
               {streak.max} Longest · {streak.total} Total
             </Typography>
             <div className="mb-5 mt-5 flex items-center justify-between gap-2">
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Primary}
-                bold
-                truncate
-                className="min-w-0"
-              >
-                Today, {todayLabel}
-              </Typography>
+              <Tooltip side="top" content={fullDateLabel}>
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Primary}
+                  bold
+                  truncate
+                  className="min-w-0"
+                >
+                  Today, {todayLabel}
+                </Typography>
+              </Tooltip>
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Tertiary}
