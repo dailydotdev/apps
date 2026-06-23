@@ -76,16 +76,24 @@ export const StreakQuestsSection = (): ReactElement => {
               {streak.max} Longest · {streak.total} Total
             </Typography>
             <div className="mb-5 mt-5 flex items-center justify-between gap-2">
+              {/* The Tooltip trigger MUST be a stable DOM element. Using the
+                Typography component directly here crashed the panel: Typography
+                re-creates its rendered element every render (classed()), so as
+                Radix's asChild trigger it remounted the node each render and
+                thrashed Radix's anchor ref → "Maximum update depth exceeded". A
+                plain <span> trigger is stable; the Typography lives inside it. */}
               <Tooltip side="top" content={fullDateLabel}>
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Primary}
-                  bold
-                  truncate
-                  className="min-w-0"
-                >
-                  Today, {todayLabel}
-                </Typography>
+                <div className="min-w-0">
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Primary}
+                    bold
+                    truncate
+                    className="min-w-0"
+                  >
+                    Today, {todayLabel}
+                  </Typography>
+                </div>
               </Tooltip>
               <Typography
                 type={TypographyType.Caption1}
