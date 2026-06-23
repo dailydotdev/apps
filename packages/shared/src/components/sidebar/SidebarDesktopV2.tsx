@@ -1324,7 +1324,11 @@ export const SidebarDesktopV2 = ({
     let iconNode: ReactElement;
     if (showStreakBadge) {
       iconNode = (
-        <StreakBadge state={streakState} hasReadToday={streakReadToday} />
+        <StreakBadge
+          state={streakState}
+          hasReadToday={streakReadToday}
+          selected={isSelected}
+        />
       );
     } else if (isStreakTab && !isStreakTabAStreak) {
       iconNode = (
@@ -1370,11 +1374,16 @@ export const SidebarDesktopV2 = ({
             railTabClass,
             // The selected pill is the shared sliding indicator in the tablist;
             // the button only owns its text color (a bg here would paint over
-            // the sliding pill and kill the morph).
-            isSelected && '!text-text-primary',
+            // the sliding pill and kill the morph). The reading-streak tab uses
+            // its brand pink for the selected label instead of white.
+            isSelected &&
+              (isStreakTab
+                ? '!text-accent-bacon-default'
+                : '!text-text-primary'),
             // The reading-streak tab tints its hover/preview pink (brand) rather
-            // than the neutral gray every other tab uses.
-            isStreakTab && 'hover:!bg-accent-bacon-flat',
+            // than the neutral gray every other tab uses. `group/streaktab`
+            // scopes the StreakBadge's hover-white border to this tab only.
+            isStreakTab && 'group/streaktab hover:!bg-accent-bacon-flat',
             isPreviewing &&
               (isStreakTab
                 ? 'bg-accent-bacon-flat text-text-primary'

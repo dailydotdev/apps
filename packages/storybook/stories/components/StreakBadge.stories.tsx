@@ -37,10 +37,13 @@ const meta: Meta<typeof StreakBadge> = {
   args: {
     state: 'safe',
     hasReadToday: true,
+    selected: false,
   },
   argTypes: {
     state: { control: 'select', options: STATES },
     hasReadToday: { control: 'boolean' },
+    // When this is the selected rail tab, the calm-state border turns pink.
+    selected: { control: 'boolean' },
     className: { table: { disable: true } },
   },
   // Render on the dark rail background so the badge reads the way it does in the
@@ -77,6 +80,39 @@ export const AllStates: Story = {
           {/* Mirror the rail tab: badge glyph + count label underneath. */}
           <span className="flex w-16 flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary">
             <StreakBadge state={state} hasReadToday={READ_STATES.has(state)} />
+            <span className={railTabLabelClass}>
+              {state === 'none' ? 'Streak' : '73'}
+            </span>
+          </span>
+          <span className="text-center text-text-secondary typo-caption1">
+            {STATE_LABEL[state]}
+          </span>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+// The same matrix with `selected` on — the calm-state borders turn pink (the
+// reading-streak brand colour). Note: the hover-white border can't show here
+// because it depends on the tab's `group/streaktab`, which only exists in the
+// real rail.
+export const Selected: Story = {
+  argTypes: {
+    state: { table: { disable: true } },
+    hasReadToday: { table: { disable: true } },
+    selected: { table: { disable: true } },
+  },
+  render: () => (
+    <div className="grid grid-cols-4 gap-x-8 gap-y-10">
+      {STATES.map((state) => (
+        <div key={state} className="flex flex-col items-center gap-3">
+          <span className="flex w-16 flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary">
+            <StreakBadge
+              state={state}
+              hasReadToday={READ_STATES.has(state)}
+              selected
+            />
             <span className={railTabLabelClass}>
               {state === 'none' ? 'Streak' : '73'}
             </span>
