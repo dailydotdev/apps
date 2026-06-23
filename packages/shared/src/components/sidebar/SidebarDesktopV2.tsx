@@ -565,7 +565,12 @@ const SidebarProfileButton = ({
             user={user}
             size={ProfileImageSize.Small}
             nativeLazyLoading
-            className="!rounded-8"
+            // 1px frame around the avatar when this is the selected tab. A ring
+            // (not a border) so the image doesn't shrink/shift on select.
+            className={classNames(
+              '!rounded-8',
+              isSelected && 'ring-1 ring-text-primary',
+            )}
           />
         </span>
         {!isCompact && <span className={railTabLabelClass}>You</span>}
