@@ -110,7 +110,7 @@ export const logout = async (reason: string): Promise<void> => {
   if (isExtension) {
     window.location.reload();
   } else {
-    window.location.replace('/');
+    window.location.replace('/onboarding');
   }
 };
 
