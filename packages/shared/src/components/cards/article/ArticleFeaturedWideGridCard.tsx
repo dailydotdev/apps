@@ -275,7 +275,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     onReadArticleClick={onReadArticleClick}
                     showFeedback={false}
                   />
-                  <h3 className="mt-2 line-clamp-3 break-words font-bold text-text-primary typo-title1">
+                  <h3
+                    className={classNames(
+                      'mt-2 break-words font-bold text-text-primary typo-title1',
+                      useGlass ? 'line-clamp-3' : 'line-clamp-4',
+                    )}
+                  >
                     {title}
                   </h3>
                   <div className="mt-2 flex min-w-0 items-center gap-2">
