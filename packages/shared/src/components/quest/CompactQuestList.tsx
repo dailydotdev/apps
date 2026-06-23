@@ -16,7 +16,7 @@ import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 
 const rewardColorByType: Record<QuestRewardType, string> = {
-  [QuestRewardType.Xp]: 'text-accent-avocado-default',
+  [QuestRewardType.Xp]: 'text-accent-cabbage-default',
   [QuestRewardType.Cores]: 'text-accent-cheese-default',
   [QuestRewardType.Reputation]: 'text-accent-onion-default',
 };
