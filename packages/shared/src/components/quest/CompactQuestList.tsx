@@ -70,19 +70,18 @@ const CompactQuestRow = ({
   return (
     // Rounded hover pill + `hover:bg-surface-hover`, matching every other v2
     // panel list row (the px-3 container gives the same ~12px inset as `mx-3`).
-    <li className="group/quest relative flex items-start gap-2 rounded-10 px-2 py-2.5 transition-colors hover:bg-surface-hover">
-      {/* Left: title + subtitle take the full row width, with the XP/Cores
-          rewards beneath. */}
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
+    <li className="group/quest relative flex flex-col gap-1 rounded-10 px-2 py-2.5 transition-colors hover:bg-surface-hover">
+      {/* Title row: title takes the full width with the open-details chevron in
+          the top-right corner. */}
+      <div className="flex items-start justify-between gap-1">
         <Link href={`${webappUrl}game-center`} passHref>
           {/* Stretched link — its `before` covers the whole row (the row is
               `relative`), so clicking anywhere on the quest opens the Game
-              Center (where the full quest details live). The Claim button opts
-              out via `relative z-1`; the chevron/progress sit under the link so
-              they navigate too. */}
+              Center. The Claim button opts out via `relative z-1`; the
+              chevron/progress sit under the link so they navigate too. */}
           <a
             aria-label={`${quest.quest.name} — open Game Center`}
-            className="focus-outline rounded-6 before:absolute before:inset-0 before:content-['']"
+            className="focus-outline min-w-0 flex-1 rounded-6 before:absolute before:inset-0 before:content-['']"
           >
             <Typography
               type={TypographyType.Footnote}
@@ -94,63 +93,64 @@ const CompactQuestRow = ({
             </Typography>
           </a>
         </Link>
-        {quest.quest.description && (
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="break-words"
-          >
-            {quest.quest.description}
-          </Typography>
-        )}
-        <span className="mt-0.5 flex flex-wrap items-center gap-2">
+        <ArrowIcon
+          aria-hidden
+          size={IconSize.XSmall}
+          className="mt-0.5 shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
+        />
+      </div>
+      {quest.quest.description && (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="break-words"
+        >
+          {quest.quest.description}
+        </Typography>
+      )}
+
+      {/* Bottom strip: XP/Cores rewards on the left; status aligned to the right
+          on the same row — claim/claimed, or the step count + small radial. */}
+      <div className="mt-0.5 flex items-center justify-between gap-2">
+        <span className="flex flex-wrap items-center gap-2">
           {quest.rewards.map((reward) => (
             <QuestRewardValue key={reward.type} reward={reward} />
           ))}
         </span>
-      </div>
-
-      {/* Right column: the open-details chevron in the top-right corner, then
-          the status below it on the right — claim/claimed, or the step count
-          followed by a small radial ring. */}
-      <div className="flex shrink-0 flex-col items-end gap-1.5">
-        <ArrowIcon
-          aria-hidden
-          size={IconSize.XSmall}
-          className="rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
-        />
-        {canClaim && (
-          <Button
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Primary}
-            loading={isClaiming}
-            onClick={() => onClaim(quest)}
-            // Sits above the stretched link so claiming doesn't navigate.
-            className="relative z-1"
-          >
-            Claim
-          </Button>
-        )}
-        {!canClaim && isClaimed && (
-          <span className="flex items-center gap-1 font-bold text-accent-avocado-default typo-caption1">
-            <VIcon secondary size={IconSize.XSmall} />
-            Claimed
-          </span>
-        )}
-        {!canClaim && !isClaimed && (
-          <span className="flex items-center gap-1.5">
-            {/* Step count on the LEFT of the radial. */}
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Quaternary}
-              className="tabular-nums"
+        <div className="flex shrink-0 items-center gap-1.5">
+          {canClaim && (
+            <Button
+              type="button"
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Primary}
+              loading={isClaiming}
+              onClick={() => onClaim(quest)}
+              // Sits above the stretched link so claiming doesn't navigate.
+              className="relative z-1"
             >
-              {value}/{target}
-            </Typography>
-            <ProgressCircle progress={percentage} size={20} stroke={3} />
-          </span>
-        )}
+              Claim
+            </Button>
+          )}
+          {!canClaim && isClaimed && (
+            <span className="flex items-center gap-1 font-bold text-accent-avocado-default typo-caption1">
+              <VIcon secondary size={IconSize.XSmall} />
+              Claimed
+            </span>
+          )}
+          {!canClaim && !isClaimed && (
+            <>
+              {/* Step count on the LEFT of the radial. */}
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Quaternary}
+                className="tabular-nums"
+              >
+                {value}/{target}
+              </Typography>
+              <ProgressCircle progress={percentage} size={20} stroke={3} />
+            </>
+          )}
+        </div>
       </div>
     </li>
   );

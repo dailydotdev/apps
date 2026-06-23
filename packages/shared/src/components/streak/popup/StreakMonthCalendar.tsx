@@ -86,13 +86,12 @@ export const StreakMonthCalendar = ({
             )}
             {isToday && (
               // "Today" ring as a TOP overlay (z-1) so it stays visible over the
-              // read-day flame disc. A 2px white border hugging the OUTSIDE of
+              // read-day flame disc. A 1px white border hugging the OUTSIDE of
               // the dot (no inset, no offset gap) so the flame fills the circle
-              // and the ring is a clean border around it. The grid gaps leave
-              // room for the 2px it adds each side.
+              // and the ring is a clean thin border around it.
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-0 z-1 rounded-full ring-2 ring-text-primary"
+                className="pointer-events-none absolute inset-0 z-1 rounded-full ring-1 ring-text-primary"
               />
             )}
           </div>
