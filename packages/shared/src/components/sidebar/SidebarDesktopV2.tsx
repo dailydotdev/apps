@@ -65,6 +65,7 @@ import {
   HelpIcon,
   HomeIcon,
   HotIcon,
+  JoystickIcon,
   LinkIcon,
   MegaphoneIcon,
   MicrophoneIcon,
@@ -607,7 +608,18 @@ export const SidebarDesktopV2 = ({
     toggleSidebarExpanded,
     loadedSettings,
     optOutQuestSystem,
+    optOutReadingStreak,
+    isGamificationEnabled,
   } = useSettingsContext();
+  // The reading-streak rail tab: hidden entirely when all gamification is off;
+  // when only streaks are off (but quests/levels/etc. remain) it stays but reads
+  // as the broader "Quests" / Game Center tab instead of a streak.
+  const showGameCenterTab = isGamificationEnabled;
+  const isStreakTabAStreak = !optOutReadingStreak;
+  // Label/title for the gamification tab: a "Streak" when reading streaks are
+  // on, otherwise the broader "Quests" (Game Center) since that's all that's
+  // left. Used by the tab, the panel title, the hover card and the More menu.
+  const gameCenterLabel = isStreakTabAStreak ? 'Streak' : 'Quests';
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
@@ -654,9 +666,10 @@ export const SidebarDesktopV2 = ({
         SidebarCategory.Main,
         SidebarCategory.Squads,
         isLoggedIn ? SidebarCategory.Notifications : null,
-        SidebarCategory.GameCenter,
+        // Drops out of the rail entirely when all gamification is opted out.
+        showGameCenterTab ? SidebarCategory.GameCenter : null,
       ].filter(Boolean) as SidebarCategoryId[],
-    [isLoggedIn],
+    [isLoggedIn, showGameCenterTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     SidebarCategoryId[]
@@ -1284,23 +1297,36 @@ export const SidebarDesktopV2 = ({
     // background; it doesn't claim the selected state.
     const isSelected = selectedCategory === category.id;
     const isPreviewing = !isSelected && activeCategory === category.id;
-    // The Streak tab keeps the standard icon+label rhythm: the small square
-    // StreakBadge (state-driven border + flame) stands in for the glyph, and
-    // the day count is the label. When streaks are off it's a plain flame tab.
+    // The gamification tab. With reading streaks on it's the "Streak" tab: the
+    // state-driven StreakBadge stands in for the glyph and the day count is the
+    // label. With streaks off (but other gamification on) it reads as the
+    // broader "Quests"/Game Center — a joystick glyph + "Quests" label.
     const isStreakTab = category.id === SidebarCategory.GameCenter;
-    const showStreakBadge = isStreakTab && isStreakEnabled;
-    const iconNode = showStreakBadge ? (
-      <StreakBadge state={streakState} hasReadToday={streakReadToday} />
-    ) : (
-      category.icon(isSelected)
-    );
+    const showStreakBadge =
+      isStreakTab && isStreakTabAStreak && isStreakEnabled;
+    const displayLabel = isStreakTab ? gameCenterLabel : category.label;
+    let iconNode: ReactElement;
+    if (showStreakBadge) {
+      iconNode = (
+        <StreakBadge state={streakState} hasReadToday={streakReadToday} />
+      );
+    } else if (isStreakTab && !isStreakTabAStreak) {
+      iconNode = (
+        <JoystickIcon
+          secondary={isSelected}
+          size={IconSize.Small}
+          aria-hidden
+        />
+      );
+    } else {
+      iconNode = category.icon(isSelected);
+    }
     const labelText =
-      showStreakBadge && streakCount > 0 ? `${streakCount}` : category.label;
-    const ariaLabel =
-      isStreakTab && isStreakEnabled ? streakCopy : category.label;
+      showStreakBadge && streakCount > 0 ? `${streakCount}` : displayLabel;
+    const ariaLabel = showStreakBadge ? streakCopy : displayLabel;
     return (
       <RailHoverCard
-        label={category.label}
+        label={displayLabel}
         panel={renderCategorySection(category.id)}
         enabled={!isExpanded}
       >
@@ -1326,7 +1352,10 @@ export const SidebarDesktopV2 = ({
           }}
           className={classNames(
             railTabClass,
-            isSelected && 'bg-background-default !text-text-primary',
+            // The selected pill is the shared sliding indicator in the tablist;
+            // the button only owns its text color (a bg here would paint over
+            // the sliding pill and kill the morph).
+            isSelected && '!text-text-primary',
             isPreviewing && 'bg-surface-hover text-text-primary',
           )}
         >
@@ -1391,9 +1420,11 @@ export const SidebarDesktopV2 = ({
       renderCategorySection(activeCategory)
     );
 
-  const activeLabel = sidebarCategories.find(
-    (category) => category.id === activeCategory,
-  )?.label;
+  const activeLabel =
+    activeCategory === SidebarCategory.GameCenter
+      ? gameCenterLabel
+      : sidebarCategories.find((category) => category.id === activeCategory)
+          ?.label;
   // Preview state (panel content/title) vs committed selection (the bell's
   // filled indicator) — kept separate so hover-preview never moves the
   // selected indicator.
@@ -1483,6 +1514,19 @@ export const SidebarDesktopV2 = ({
           label: 'Notifications',
           href: `${webappUrl}notifications`,
           icon: <BellIcon size={IconSize.Small} aria-hidden />,
+        };
+      }
+      if (id === SidebarCategory.GameCenter) {
+        const category = sidebarCategories.find((entry) => entry.id === id);
+        return {
+          key: id as string,
+          label: gameCenterLabel,
+          href: category?.defaultPath ?? webappUrl,
+          icon: isStreakTabAStreak ? (
+            <HotIcon size={IconSize.Small} aria-hidden />
+          ) : (
+            <JoystickIcon size={IconSize.Small} aria-hidden />
+          ),
         };
       }
       const category = sidebarCategories.find((entry) => entry.id === id);
