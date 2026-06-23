@@ -140,14 +140,16 @@ export const StreakQuestsSection = (): ReactElement => {
             )}
           >
             <div className="min-h-0 overflow-hidden">
-              <div className="max-h-96 overflow-y-auto px-4 pb-2">
+              {/* px-3 so the quest rows' hover pills inset like every other v2
+                  panel list (mx-3 ≈ 12px). */}
+              <div className="max-h-96 overflow-y-auto px-3 pb-2">
                 <CompactQuestList />
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="max-h-96 overflow-y-auto px-4 pb-2 pt-2">
+        <div className="max-h-96 overflow-y-auto px-3 pb-2 pt-2">
           <CompactQuestList />
         </div>
       )}
