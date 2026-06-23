@@ -24,7 +24,7 @@ export const cvUploadBannerBg =
   'linear-gradient(270deg, rgba(239, 213, 200, 0.16) 0%, rgba(210, 233, 227, 0.16) 25.96%, rgba(198, 222, 250, 0.16) 53.37%, rgba(196, 199, 251, 0.16) 79.33%, rgba(199, 182, 250, 0.16) 100%)';
 
 export const recruiterPremiumPlanBg =
-  'radial-gradient(76.99% 27.96% at 53.99% 54.97%, #CE3DF3 0%, rgba(114, 41, 240, 0.08) 50%)';
+  'radial-gradient(76.99% 27.96% at 53.99% 54.97%, #BA56E1 0%, rgba(114, 41, 240, 0.08) 50%)';
 
 export const profileCompletionCardBorder =
   '1px solid color-mix(in srgb, var(--theme-accent-cabbage-subtler), transparent 50%)';
