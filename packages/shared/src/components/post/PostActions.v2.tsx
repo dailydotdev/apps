@@ -207,6 +207,7 @@ export function PostActions({
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           >
             <CardAction
+              density="compact"
               id="upvote-post-btn"
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
@@ -222,6 +223,7 @@ export function PostActions({
             content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
           >
             <CardAction
+              density="compact"
               id="downvote-post-btn"
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
@@ -232,6 +234,7 @@ export function PostActions({
             />
           </Tooltip>
           <CardAction
+            density="compact"
             id="comment-post-btn"
             pressed={post.commented}
             onClick={onComment}
@@ -243,6 +246,7 @@ export function PostActions({
           />
           <Tooltip content="Impressions">
             <CardAction
+              density="compact"
               id="impressions-post-btn"
               icon={<AnalyticsIcon />}
               label="Impressions"
@@ -262,6 +266,7 @@ export function PostActions({
               }}
             >
               <CardAction
+                density="compact"
                 id="award-post-btn"
                 pressed={isAwarded}
                 onClick={() => {
@@ -297,6 +302,7 @@ export function PostActions({
             </ConditionalWrapper>
           )}
           <BookmarkButton
+            density="compact"
             post={post}
             id="bookmark-post-btn"
             pressed={post.bookmarked}
@@ -305,6 +311,7 @@ export function PostActions({
             labelVisible
           />
           <CardAction
+            density="compact"
             id="copy-post-btn-post"
             onClick={() => onCopyLinkClick?.(post)}
             icon={<LinkIcon />}
