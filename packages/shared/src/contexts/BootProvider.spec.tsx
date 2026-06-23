@@ -4,12 +4,16 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import type { LoggedUser, AnonymousUser } from '../lib/user';
-import { deleteAccount, LogoutReason } from '../lib/user';
+import {
+  deleteAccount,
+  logout as dispatchLogout,
+  LogoutReason,
+} from '../lib/user';
 import SettingsContext, {
   remoteThemes,
   ThemeMode,
@@ -46,6 +50,7 @@ jest.mock('../lib/user', () => {
   return {
     ...actual,
     deleteAccount: jest.fn(),
+    logout: jest.fn(),
   };
 });
 
@@ -541,6 +546,39 @@ it('should trigger delete account callback', async () => {
   const deleteUser = await screen.findByText('Delete');
   fireEvent.click(deleteUser);
   expect(deleteAccount).toHaveBeenCalled();
+});
+
+it('should redirect to onboarding after logout', async () => {
+  const originalLocation = window.location;
+  const replace = jest.fn();
+
+  Object.defineProperty(window, 'location', {
+    value: {
+      pathname: '/settings',
+      search: '',
+      replace,
+      reload: jest.fn(),
+    },
+    configurable: true,
+  });
+
+  jest.mocked(dispatchLogout).mockResolvedValue(undefined);
+
+  try {
+    renderComponent(<AuthMock />);
+    const logout = await screen.findByText('Logout');
+    fireEvent.click(logout);
+
+    await waitFor(() =>
+      expect(dispatchLogout).toHaveBeenCalledWith(LogoutReason.ManualLogout),
+    );
+    expect(replace).toHaveBeenCalledWith('/onboarding');
+  } finally {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      configurable: true,
+    });
+  }
 });
 
 const defaultAnonymousUser: AnonymousUser = {
