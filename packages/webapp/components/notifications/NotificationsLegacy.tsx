@@ -15,10 +15,10 @@ import {
   pageBorders,
   pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
-import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
+import NotificationItemLegacy from '@dailydotdev/shared/src/components/notifications/NotificationItemLegacy';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
+import FirstNotificationLegacy from '@dailydotdev/shared/src/components/notifications/FirstNotificationLegacy';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/marketing/banners/DigestUpsellBanner';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
@@ -141,7 +141,7 @@ export const NotificationsLegacy = (): ReactElement => {
                   }
 
                   nodes.push(
-                    <NotificationItem
+                    <NotificationItemLegacy
                       key={id}
                       {...props}
                       type={type}
@@ -156,7 +156,9 @@ export const NotificationsLegacy = (): ReactElement => {
                 [],
               ),
             )}
-          {(!length || !hasNextPage) && isFetched && <FirstNotification />}
+          {(!length || !hasNextPage) && isFetched && (
+            <FirstNotificationLegacy />
+          )}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>
