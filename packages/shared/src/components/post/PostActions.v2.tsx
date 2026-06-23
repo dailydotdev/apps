@@ -3,6 +3,7 @@ import React, { useEffect, useMemo } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -240,6 +241,15 @@ export function PostActions({
             labelVisible
             color={ButtonColor.BlueCheese}
           />
+          <Tooltip content="Impressions">
+            <CardAction
+              id="impressions-post-btn"
+              icon={<AnalyticsIcon />}
+              label="Impressions"
+              count={post.views ?? 0}
+              color={ButtonColor.Cheese}
+            />
+          </Tooltip>
           {canAward && (
             <ConditionalWrapper
               condition={isAwarded}

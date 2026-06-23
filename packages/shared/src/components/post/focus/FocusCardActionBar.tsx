@@ -22,6 +22,7 @@ import CloseButton from '../../CloseButton';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
 import { IconSize } from '../../Icon';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -104,6 +105,7 @@ export const FocusCardActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
+  const impressions = post.views || 0;
   // The bar floats (sticky) from tablet up, so surface the metrics + menu
   // whenever it's actually pinned there — including when a long post floats it
   // at the bottom on load, where the stats row above has scrolled off. Below
@@ -263,6 +265,15 @@ export const FocusCardActionBar = ({
               count={isPinned ? comments : undefined}
               pressed={post.commented}
               onClick={onComment}
+            />
+          </Tooltip>
+          <Tooltip content="Impressions">
+            <CardAction
+              id="impressions-post-btn"
+              label="Impressions"
+              color={ButtonColor.Cheese}
+              icon={<AnalyticsIcon />}
+              count={isPinned ? impressions : undefined}
             />
           </Tooltip>
           {canAward && (

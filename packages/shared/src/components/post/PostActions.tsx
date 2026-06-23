@@ -3,11 +3,13 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
   MedalBadgeIcon,
 } from '../icons';
+import InteractionCounter from '../InteractionCounter';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -260,6 +262,22 @@ function PostActionsV1({
           >
             Comment
           </QuaternaryButton>
+          <Tooltip content="Impressions">
+            <QuaternaryButton
+              id="impressions-post-btn"
+              icon={<AnalyticsIcon />}
+              aria-label="Impressions"
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cheese}
+            >
+              {(post.views ?? 0) > 0 && (
+                <InteractionCounter
+                  className="tabular-nums"
+                  value={post.views ?? 0}
+                />
+              )}
+            </QuaternaryButton>
+          </Tooltip>
           {canAward && (
             <ConditionalWrapper
               condition={post?.userState?.awarded ?? false}
