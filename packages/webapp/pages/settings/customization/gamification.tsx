@@ -27,14 +27,10 @@ const GamificationSettingsPage = (): ReactElement => {
   const { user } = useAuthContext();
   const {
     optOutReadingStreak,
-    optOutLevelSystem,
-    optOutQuestSystem,
-    optOutAchievements,
     isGamificationEnabled,
+    isQuestExperienceEnabled,
     toggleOptOutReadingStreak,
-    toggleOptOutLevelSystem,
-    toggleOptOutQuestSystem,
-    toggleOptOutAchievements,
+    toggleQuestExperience,
     toggleAllGamification,
   } = useSettingsContext();
 
@@ -75,49 +71,22 @@ const GamificationSettingsPage = (): ReactElement => {
           </SettingsSwitch>
         </section>
 
-        <section className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Subhead}>
-            Show levels
-          </Typography>
-
-          <SettingsSwitch
-            name="level-system"
-            checked={!optOutLevelSystem}
-            onToggle={toggleOptOutLevelSystem}
-          >
-            Toggle to display or hide your level progress. Turning levels off
-            will also hide XP rewards on quests, but you will still earn the
-            full XP in the background.
-          </SettingsSwitch>
-        </section>
-
-        <section className="flex flex-col gap-2">
+        {/* One switch for the whole quest experience — quests, level/XP
+            progress, and achievements move together (reading streaks stay
+            separate above). */}
+        <section className="flex flex-col gap-2 border-b border-border-subtlest-tertiary pb-6">
           <Typography bold type={TypographyType.Subhead}>
             Show quests
           </Typography>
 
           <SettingsSwitch
-            name="quest-system"
-            checked={!optOutQuestSystem}
-            onToggle={toggleOptOutQuestSystem}
+            name="quest-experience"
+            checked={isQuestExperienceEnabled}
+            onToggle={toggleQuestExperience}
           >
-            Toggle to display or hide the quest system UI across the product.
-          </SettingsSwitch>
-        </section>
-
-        <section className="flex flex-col gap-2 border-b border-border-subtlest-tertiary pb-6">
-          <Typography bold type={TypographyType.Subhead}>
-            Show achievements
-          </Typography>
-
-          <SettingsSwitch
-            name="achievements"
-            checked={!optOutAchievements}
-            onToggle={toggleOptOutAchievements}
-          >
-            Toggle to display or hide achievements, badges, and achievement
-            notifications. Turning achievements off will not affect your
-            progress or unlocks.
+            Toggle to display or hide quests, level/XP progress, and
+            achievements across daily.dev. Turning this off won&apos;t affect
+            your progress — you&apos;ll still earn everything in the background.
           </SettingsSwitch>
         </section>
 

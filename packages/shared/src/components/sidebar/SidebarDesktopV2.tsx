@@ -616,10 +616,15 @@ export const SidebarDesktopV2 = ({
   // as the broader "Quests" / Game Center tab instead of a streak.
   const showGameCenterTab = isGamificationEnabled;
   const isStreakTabAStreak = !optOutReadingStreak;
-  // Label/title for the gamification tab: a "Streak" when reading streaks are
-  // on, otherwise the broader "Quests" (Game Center) since that's all that's
-  // left. Used by the tab, the panel title, the hover card and the More menu.
+  // Short label under the rail tab icon (and the More-menu row): "Streak" /
+  // "Quests" — kept compact for the narrow rail (the tab usually shows the day
+  // count anyway).
   const gameCenterLabel = isStreakTabAStreak ? 'Streak' : 'Quests';
+  // Fuller title for the panel + hover card: "Current Streak" when streaks are
+  // on (the panel leads with the current-streak hero), else "Daily Quests".
+  const gameCenterPanelTitle = isStreakTabAStreak
+    ? 'Current Streak'
+    : 'Daily Quests';
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
@@ -1313,6 +1318,9 @@ export const SidebarDesktopV2 = ({
     const showStreakBadge =
       isStreakTab && isStreakTabAStreak && isStreakEnabled;
     const displayLabel = isStreakTab ? gameCenterLabel : category.label;
+    // The hover card + aria use the fuller panel title ("Current Streak");
+    // the tab icon's own label stays the short `displayLabel`.
+    const panelTitle = isStreakTab ? gameCenterPanelTitle : category.label;
     let iconNode: ReactElement;
     if (showStreakBadge) {
       iconNode = (
@@ -1331,10 +1339,10 @@ export const SidebarDesktopV2 = ({
     }
     const labelText =
       showStreakBadge && streakCount > 0 ? `${streakCount}` : displayLabel;
-    const ariaLabel = showStreakBadge ? streakCopy : displayLabel;
+    const ariaLabel = showStreakBadge ? streakCopy : panelTitle;
     return (
       <RailHoverCard
-        label={displayLabel}
+        label={panelTitle}
         panel={renderCategorySection(category.id)}
         enabled={!isExpanded}
       >
@@ -1436,7 +1444,7 @@ export const SidebarDesktopV2 = ({
 
   const activeLabel =
     activeCategory === SidebarCategory.GameCenter
-      ? gameCenterLabel
+      ? gameCenterPanelTitle
       : sidebarCategories.find((category) => category.id === activeCategory)
           ?.label;
   // Preview state (panel content/title) vs committed selection (the bell's

@@ -34,11 +34,14 @@ export const StreakQuestsSection = (): ReactElement => {
   const todayLabel = useMemo(() => format(new Date(), 'MMM d'), []);
   const fullDateLabel = useMemo(() => format(new Date(), 'MMMM d, yyyy'), []);
   const [questsOpen, setQuestsOpen] = useState(true);
+  // The streak hero only shows when reading streaks are on. When it's off the
+  // panel is quests-only (and the panel title is already "Daily Quests").
+  const heroShown = isStreakEnabled && !!streak;
 
   return (
     <div className="flex flex-col pb-2">
       {/* Reading streak — the hero. */}
-      {isStreakEnabled && streak && (
+      {heroShown && (
         <>
           <div className="flex flex-col px-4 pb-4 pt-1">
             <div className="flex items-start justify-between">
@@ -59,19 +62,12 @@ export const StreakQuestsSection = (): ReactElement => {
                 </a>
               </Link>
             </div>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="mt-1"
-            >
-              Current streak
-            </Typography>
-            {/* Longest/Total on their own row so the line never wraps and isn't
-                jammed with the current-streak label. */}
+            {/* The panel title already reads "Current Streak", so this is just
+                the supporting longest/total stat under the big count. */}
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
-              className="mt-0.5 tabular-nums"
+              className="mt-1 tabular-nums"
             >
               {streak.max} Longest · {streak.total} Total
             </Typography>
@@ -109,46 +105,52 @@ export const StreakQuestsSection = (): ReactElement => {
         </>
       )}
 
-      {/* Today's quests, capped so the list never crowds out the rest. The
-          header mirrors the standard sidebar section title (typo-callout
-          quaternary + hover-revealed collapse arrow) used by Bookmarks/Recent
-          so it reads the same across panels. */}
-      <div className="group/section">
-        <div className="flex min-h-9 items-center px-3">
-          <button
-            type="button"
-            onClick={() => setQuestsOpen((open) => !open)}
-            aria-label="Toggle Daily quests"
-            aria-expanded={questsOpen}
-            className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
+      {/* Today's quests. When the streak hero is shown they get their own
+          "Daily quests" header (the panel title is "Current Streak"); when
+          streaks are off the panel title is already "Daily Quests", so the list
+          stands alone with no redundant header. */}
+      {heroShown ? (
+        <div className="group/section">
+          <div className="flex min-h-9 items-center px-3">
+            <button
+              type="button"
+              onClick={() => setQuestsOpen((open) => !open)}
+              aria-label="Toggle Daily quests"
+              aria-expanded={questsOpen}
+              className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <span className="text-text-quaternary typo-callout">
+                Daily quests
+              </span>
+              <ArrowIcon
+                size={IconSize.XXSmall}
+                className={classNames(
+                  'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
+                  questsOpen ? 'rotate-180' : 'rotate-90',
+                )}
+              />
+            </button>
+          </div>
+          <div
+            className={classNames(
+              'grid transition-[grid-template-rows,opacity] duration-300',
+              questsOpen
+                ? 'grid-rows-[1fr] opacity-100'
+                : 'grid-rows-[0fr] opacity-0',
+            )}
           >
-            <span className="text-text-quaternary typo-callout">
-              Daily quests
-            </span>
-            <ArrowIcon
-              size={IconSize.XXSmall}
-              className={classNames(
-                'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
-                questsOpen ? 'rotate-180' : 'rotate-90',
-              )}
-            />
-          </button>
-        </div>
-        <div
-          className={classNames(
-            'grid transition-[grid-template-rows,opacity] duration-300',
-            questsOpen
-              ? 'grid-rows-[1fr] opacity-100'
-              : 'grid-rows-[0fr] opacity-0',
-          )}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <div className="max-h-96 overflow-y-auto px-4 pb-2">
-              <CompactQuestList />
+            <div className="min-h-0 overflow-hidden">
+              <div className="max-h-96 overflow-y-auto px-4 pb-2">
+                <CompactQuestList />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="max-h-96 overflow-y-auto px-4 pb-2 pt-2">
+          <CompactQuestList />
+        </div>
+      )}
     </div>
   );
 };
