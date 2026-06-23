@@ -6,6 +6,7 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import { BookmarkSection } from './BookmarkSection';
+import { RecentSection } from './RecentSection';
 import {
   AnalyticsIcon,
   AppIcon,
@@ -190,6 +191,9 @@ export const ProfilePanelSection = ({
         title="Bookmarks"
         isItemsButton={false}
       />
+      {/* Recently visited pages — moved here from the Explore panel so all of
+          "your" stuff lives under the avatar tab. */}
+      <RecentSection {...defaultRenderSectionProps} isItemsButton={false} />
     </>
   );
 };
