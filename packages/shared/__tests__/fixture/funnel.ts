@@ -534,12 +534,12 @@ export const getFunnelFixture = () => ({
             ],
             plans: [
               {
-                badge: { text: 'Popular', background: '#CE3DF3' },
+                badge: { text: 'Popular', background: '#BA56E1' },
                 label: 'Monthly',
                 priceId: 'pri_01jbsccbdbcwyhdy8hy3c2etyn',
               },
               {
-                badge: { text: 'Save 50%', background: '#39E58C' },
+                badge: { text: 'Save 50%', background: '#57E087' },
                 label: 'Annual',
                 priceId: 'pri_01jbscda57910yvwjtyapnrrzc',
                 variation: 'best_value',
