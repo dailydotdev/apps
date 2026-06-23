@@ -25,6 +25,7 @@ import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFitFontSize } from '../../../hooks/useFitFontSize';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
@@ -50,6 +51,12 @@ const IMAGE_COL_SPAN: Record<FeaturedWideColSpan, string> = {
   3: 'col-span-2',
   4: 'col-span-3',
 };
+
+// The hero title shrinks (title1 → title3) to stay within three lines so the
+// summary below always has room, rather than spilling onto a fourth line and
+// pushing the TLDR off the card.
+const HERO_TITLE_SIZE_CLASSES = ['typo-title1', 'typo-title2', 'typo-title3'];
+const HERO_TITLE_MAX_LINES = 3;
 
 const HighlightChip = ({
   significance,
@@ -148,6 +155,15 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const { pinnedAt } = post;
     const { showFeedback } = usePostFeedback({ post });
     const { title } = useSmartTitle(post);
+    const {
+      ref: titleRef,
+      sizeClass: titleSizeClass,
+      isClamped: titleClamped,
+    } = useFitFontSize<HTMLHeadingElement>({
+      text: title,
+      sizeClasses: HERO_TITLE_SIZE_CLASSES,
+      maxLines: HERO_TITLE_MAX_LINES,
+    });
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
@@ -275,7 +291,14 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     onReadArticleClick={onReadArticleClick}
                     showFeedback={false}
                   />
-                  <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
+                  <h3
+                    ref={titleRef}
+                    className={classNames(
+                      'mt-2 break-words font-bold text-text-primary',
+                      titleSizeClass,
+                      titleClamped && 'line-clamp-3',
+                    )}
+                  >
                     {title}
                   </h3>
                   <div className="mt-2 flex min-w-0 items-center gap-2">
