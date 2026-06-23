@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ProgressBar } from '../fields/ProgressBar';
+import ProgressCircle from '../ProgressCircle';
 import { ArrowIcon, CoreIcon, ReputationIcon, VIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
@@ -68,90 +68,87 @@ const CompactQuestRow = ({
   const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
 
   return (
-    <li className="group/quest relative -mx-2 flex flex-col gap-1.5 border-b border-border-subtlest-tertiary px-2 py-2.5 transition-colors last:border-b-0 hover:bg-surface-hover">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <Link href={`${webappUrl}game-center`} passHref>
-            {/* Stretched link — its `before` covers the whole row (the row is
-                `relative`), so clicking anywhere on the quest opens the Game
-                Center (where the full quest details live). The Claim button
-                below opts out via `relative z-1`. */}
-            <a
-              aria-label={`${quest.quest.name} — open Game Center`}
-              className="focus-outline rounded-6 before:absolute before:inset-0 before:content-['']"
-            >
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Primary}
-                bold
-                // Fully visible — no ellipsis; wraps to as many lines as needed.
-                className="break-words"
-              >
-                {quest.quest.name}
-              </Typography>
-            </a>
-          </Link>
-          {quest.quest.description && (
+    <li className="group/quest relative -mx-2 flex items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-2 py-2.5 transition-colors last:border-b-0 hover:bg-surface-hover">
+      {/* Left: title + subtitle take the full width (stacked), with the XP /
+          Cores rewards beneath the subtitle. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <Link href={`${webappUrl}game-center`} passHref>
+          {/* Stretched link — its `before` covers the whole row (the row is
+              `relative`), so clicking anywhere on the quest opens the Game
+              Center (where the full quest details live). The Claim button opts
+              out via `relative z-1`; the progress/chevron sit under the link so
+              they navigate too. */}
+          <a
+            aria-label={`${quest.quest.name} — open Game Center`}
+            className="focus-outline rounded-6 before:absolute before:inset-0 before:content-['']"
+          >
             <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="mt-0.5 break-words"
+              type={TypographyType.Footnote}
+              color={TypographyColor.Primary}
+              bold
+              className="break-words"
             >
-              {quest.quest.description}
+              {quest.quest.name}
             </Typography>
-          )}
-        </div>
-        <span className="flex shrink-0 items-center gap-1.5">
+          </a>
+        </Link>
+        {quest.quest.description && (
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="break-words"
+          >
+            {quest.quest.description}
+          </Typography>
+        )}
+        <span className="mt-0.5 flex flex-wrap items-center gap-2">
           {quest.rewards.map((reward) => (
             <QuestRewardValue key={reward.type} reward={reward} />
           ))}
-          {/* Affordance that the row opens the quest's details on click. */}
-          <ArrowIcon
-            aria-hidden
-            size={IconSize.XSmall}
-            className="rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
-          />
         </span>
       </div>
-      {canClaim && (
-        <Button
-          type="button"
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Primary}
-          loading={isClaiming}
-          onClick={() => onClaim(quest)}
-          // Sits above the stretched link so claiming doesn't navigate.
-          className="relative z-1 self-start"
-        >
-          Claim reward
-        </Button>
-      )}
-      {!canClaim && isClaimed && (
-        <span className="flex items-center gap-1 font-bold text-accent-avocado-default typo-caption1">
-          <VIcon secondary size={IconSize.XSmall} />
-          Claimed
-        </span>
-      )}
-      {!canClaim && !isClaimed && (
-        <div className="flex items-center gap-2">
-          <ProgressBar
-            percentage={percentage}
-            shouldShowBg
-            className={{
-              wrapper: 'h-1.5 flex-1 rounded-8',
-              bar: 'h-full rounded-8',
-              barColor: 'bg-accent-cabbage-default',
-            }}
-          />
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-            className="shrink-0 tabular-nums"
+
+      {/* Right: status for the row — claim action, claimed check, or a circular
+          progress ring; plus the open-details chevron on hover. */}
+      <div className="flex shrink-0 items-center gap-1.5">
+        {canClaim && (
+          <Button
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Primary}
+            loading={isClaiming}
+            onClick={() => onClaim(quest)}
+            // Sits above the stretched link so claiming doesn't navigate.
+            className="relative z-1"
           >
-            {value}/{target}
-          </Typography>
-        </div>
-      )}
+            Claim
+          </Button>
+        )}
+        {!canClaim && isClaimed && (
+          <span className="flex items-center gap-1 font-bold text-accent-avocado-default typo-caption1">
+            <VIcon secondary size={IconSize.XSmall} />
+            Claimed
+          </span>
+        )}
+        {!canClaim && !isClaimed && (
+          <span className="flex flex-col items-center gap-0.5">
+            <ProgressCircle progress={percentage} size={36} stroke={4} />
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Quaternary}
+              className="tabular-nums"
+            >
+              {value}/{target}
+            </Typography>
+          </span>
+        )}
+        {/* Affordance that the row opens the quest's details on click. */}
+        <ArrowIcon
+          aria-hidden
+          size={IconSize.XSmall}
+          className="rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
+        />
+      </div>
     </li>
   );
 };
