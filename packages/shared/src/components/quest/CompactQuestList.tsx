@@ -16,13 +16,14 @@ import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 
 const rewardColorByType: Record<QuestRewardType, string> = {
-  [QuestRewardType.Xp]: 'text-accent-cabbage-default',
+  // XP reads as plain white, normal weight (de-emphasized); Cores/Reputation
+  // stay bold + colour-coded so they pop.
+  [QuestRewardType.Xp]: 'text-text-primary',
   [QuestRewardType.Cores]: 'text-accent-cheese-default',
   [QuestRewardType.Reputation]: 'text-accent-onion-default',
 };
 
 // The reward "value" of a quest — the thing that answers "what do I get?".
-// Bold and colour-coded by type so it reads at a glance.
 const QuestRewardValue = ({
   reward,
 }: {
@@ -30,7 +31,8 @@ const QuestRewardValue = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'flex items-center gap-0.5 font-bold tabular-nums typo-caption1',
+      'flex items-center gap-0.5 tabular-nums typo-caption1',
+      reward.type === QuestRewardType.Xp ? 'font-normal' : 'font-bold',
       rewardColorByType[reward.type],
     )}
   >
@@ -70,7 +72,8 @@ const CompactQuestRow = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Primary}
           bold
-          truncate
+          // Fully visible — wrap to as many lines as the name needs instead of
+          // truncating. min-w-0 keeps the reward value on the right readable.
           className="min-w-0"
         >
           {quest.quest.name}
