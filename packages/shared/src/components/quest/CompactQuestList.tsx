@@ -72,9 +72,11 @@ const CompactQuestRow = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Primary}
           bold
-          // Fully visible — wrap to as many lines as the name needs instead of
-          // truncating. min-w-0 keeps the reward value on the right readable.
-          className="min-w-0"
+          // Fully visible — no ellipsis. flex-1 + min-w-0 lets it take the
+          // available width and wrap to as many lines as the name needs;
+          // break-words handles long unbroken tokens. The reward stays readable
+          // on the right (shrink-0).
+          className="min-w-0 flex-1 break-words"
         >
           {quest.quest.name}
         </Typography>
