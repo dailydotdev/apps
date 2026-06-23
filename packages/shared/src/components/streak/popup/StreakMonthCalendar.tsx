@@ -86,12 +86,13 @@ export const StreakMonthCalendar = ({
             )}
             {isToday && (
               // "Today" ring as a TOP overlay (z-1) so it stays visible over the
-              // read-day flame disc — a ring on the cell itself paints under the
-              // disc and disappears once you've read today. Inset (no offset)
-              // keeps today the exact same size as every other dot.
+              // read-day flame disc. Drawn OUTSIDE the dot (no inset) with a
+              // transparent offset gap — a halo around the full-size dot rather
+              // than a ring eating into the filled flame. The grid gaps leave
+              // room for the few extra px it adds.
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-0 z-1 rounded-full ring-1 ring-inset ring-text-primary"
+                className="pointer-events-none absolute inset-0 z-1 rounded-full ring-2 ring-text-primary ring-offset-2 ring-offset-transparent"
               />
             )}
           </div>
