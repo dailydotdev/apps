@@ -225,11 +225,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: EyeIcon,
               href: `${settingsUrl}/customization/gamification`,
             },
-            streaks: {
-              title: 'Streaks',
-              icon: HotIcon,
-              href: `${settingsUrl}/customization/streaks`,
-            },
             ...(!optOutAchievements && {
               achievements: {
                 title: 'Achievements',
