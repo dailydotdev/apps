@@ -7,6 +7,7 @@ import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import { BookmarkButton } from '../../buttons/BookmarkButton';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -16,6 +17,8 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { canViewPostAnalytics } from '../../../lib/user';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -35,7 +38,7 @@ const outerClasses = 'pointer-events-none absolute inset-x-2 bottom-2 z-1';
 // `px-1` matches the 4px the h-10 pill leaves above/below its h-8 buttons, so
 // the padding is equal on all four sides.
 const pillClasses = classNames(
-  'pointer-events-auto flex h-10 w-full items-center justify-between gap-1 overflow-hidden px-1',
+  'pointer-events-auto flex h-10 w-full items-center justify-between overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
@@ -49,9 +52,10 @@ const pillClasses = classNames(
 const glassBackground =
   'linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)), var(--theme-blur-blur-bg)';
 
-// Keep the counter compact: monospaced digits so it never jitters, and the
-// `pr-1` breathing room mirrors the standard grid action bar.
-const countLabelClasses = '!pl-0.5 pr-1';
+// Keep the counter compact: monospaced digits so it never jitters, and a hair
+// of padding on each side so six actions (incl. impressions) still fit a narrow
+// card without the trailing icon clipping.
+const countLabelClasses = '!pl-0.5 pr-0.5';
 const countClasses = 'tabular-nums typo-footnote';
 
 // Dark glow behind the pill so it stays readable over busy cover images. Fixed
@@ -72,6 +76,7 @@ export function FeedCardGlassActions({
   coverScrim = false,
 }: ActionButtonsProps & { coverScrim?: boolean }): ReactElement | null {
   const isFeedPreview = useFeedPreviewMode();
+  const { user } = useAuthContext();
   const {
     isUpvoteActive,
     isDownvoteActive,
@@ -93,6 +98,10 @@ export function FeedCardGlassActions({
 
   const upvoteCount = post.numUpvotes ?? 0;
   const commentCount = post.numComments ?? 0;
+  // Impressions come from the feed `views` field and are analytics — only the
+  // author (or a team member) may see them, matching the post-page gating.
+  const impressions = post.views ?? 0;
+  const canSeeImpressions = canViewPostAnalytics({ user, post });
 
   return (
     <>
@@ -156,6 +165,26 @@ export function FeedCardGlassActions({
               )}
             </QuaternaryButton>
           </Tooltip>
+          {canSeeImpressions && (
+            <Tooltip content="Impressions" side="bottom">
+              <QuaternaryButton
+                labelClassName={countLabelClasses}
+                id={`post-${post.id}-impressions-btn`}
+                icon={<AnalyticsIcon size={IconSize.XSmall} />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                color={ButtonColor.Cheese}
+                className="pointer-events-auto"
+              >
+                {impressions > 0 && (
+                  <InteractionCounter
+                    className={countClasses}
+                    value={impressions}
+                  />
+                )}
+              </QuaternaryButton>
+            </Tooltip>
+          )}
           {showDownvoteAction && (
             <Tooltip
               content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}

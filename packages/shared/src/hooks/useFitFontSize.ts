@@ -1,5 +1,5 @@
-import type { RefObject } from 'react';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { RefCallback } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 // Layout effects must run before paint to avoid a flash of the wrong size, but
 // `useLayoutEffect` warns during SSR — fall back to `useEffect` on the server.
@@ -16,7 +16,7 @@ interface UseFitFontSizeProps {
 }
 
 interface UseFitFontSizeResult<T> {
-  ref: RefObject<T>;
+  ref: RefCallback<T>;
   /** The largest size class at which the text fits within `maxLines`. */
   sizeClass: string;
   /**
@@ -32,40 +32,45 @@ interface UseFitFontSizeResult<T> {
  * `maxLines`, measuring the rendered element rather than guessing from
  * character count (the container width varies, so a count heuristic can't be
  * trusted). Steps down one size per layout pass until it fits or bottoms out.
+ *
+ * The element is tracked via a callback ref (state, not `useRef`) so the
+ * measure/observe effects re-run whenever the node actually attaches — e.g.
+ * when the title only mounts after a sibling panel (feedback card) is dismissed.
  */
 export function useFitFontSize<T extends HTMLElement>({
   text,
   sizeClasses,
   maxLines,
 }: UseFitFontSizeProps): UseFitFontSizeResult<T> {
-  const ref = useRef<T>(null);
+  const [node, setNode] = useState<T | null>(null);
   const [index, setIndex] = useState(0);
   const lastIndex = sizeClasses.length - 1;
+  const ref = useCallback<RefCallback<T>>((el) => setNode(el), []);
 
   // Start fresh from the largest size whenever the text changes.
   useIsomorphicLayoutEffect(() => {
     setIndex(0);
   }, [text]);
 
-  // After each applied size, measure and step down once if it still overflows.
+  // After each applied size (and once the node attaches), measure and step
+  // down once if it still overflows.
   useIsomorphicLayoutEffect(() => {
-    const el = ref.current;
-    if (!el || index >= lastIndex) {
+    if (!node || index >= lastIndex) {
       return;
     }
-    const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+    const lineHeight = parseFloat(getComputedStyle(node).lineHeight);
     if (!lineHeight) {
       return;
     }
-    if (Math.round(el.scrollHeight / lineHeight) > maxLines) {
+    if (Math.round(node.scrollHeight / lineHeight) > maxLines) {
       setIndex((current) => Math.min(current + 1, lastIndex));
     }
-  }, [text, index, maxLines, lastIndex]);
+  }, [node, text, index, maxLines, lastIndex]);
 
   // Re-fit from scratch when the available width changes (height changes from
   // our own shrinking are ignored so we don't loop).
   useIsomorphicLayoutEffect(() => {
-    const parent = ref.current?.parentElement;
+    const parent = node?.parentElement;
     if (!parent || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
@@ -79,7 +84,7 @@ export function useFitFontSize<T extends HTMLElement>({
     });
     observer.observe(parent);
     return () => observer.disconnect();
-  }, []);
+  }, [node]);
 
   return { ref, sizeClass: sizeClasses[index], isClamped: index >= lastIndex };
 }
