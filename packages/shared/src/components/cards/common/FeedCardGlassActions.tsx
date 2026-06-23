@@ -32,13 +32,22 @@ const outerClasses = 'pointer-events-none absolute inset-x-2 bottom-2 z-1';
 // actions evenly across the pill: the icons keep equal gaps and a long counter
 // (e.g. 900 upvotes / 900 comments) just grows its own button instead of
 // clipping or shoving a neighbour off its mark.
+// `px-1` matches the 4px the h-10 pill leaves above/below its h-8 buttons, so
+// the padding is equal on all four sides.
 const pillClasses = classNames(
-  'pointer-events-auto flex h-10 w-full items-center justify-between gap-1 overflow-hidden px-2',
+  'pointer-events-auto flex h-10 w-full items-center justify-between gap-1 overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
-  'bg-blur-bg text-text-primary backdrop-blur-xl backdrop-saturate-150',
+  'text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
+
+// The glass fill, a few % darker than the bare `bg-blur-bg` token: a low-opacity
+// black layer composited over the theme blur colour (kept inline so it stays a
+// one-off and doesn't shift the shared token). backdrop-blur/saturate above
+// still do the frosting.
+const glassBackground =
+  'linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)), var(--theme-blur-blur-bg)';
 
 // Keep the counter compact: monospaced digits so it never jitters, and the
 // `pr-1` breathing room mirrors the standard grid action bar.
@@ -95,7 +104,7 @@ export function FeedCardGlassActions({
         />
       )}
       <div className={outerClasses}>
-        <div className={pillClasses}>
+        <div className={pillClasses} style={{ background: glassBackground }}>
           <Tooltip
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
             side="bottom"
