@@ -846,6 +846,10 @@ export const SidebarDesktopV2 = ({
   // Hovering the "+" previews the create-post options panel (takes precedence
   // over a hovered category). Clicking "+" opens the composer modal instead.
   const [isCreateHovered, setIsCreateHovered] = useState(false);
+  // Set on a "New post" click and held until the composer modal fully closes,
+  // so the panel stays on the create options through the open transition
+  // instead of briefly flashing back to the resolved category.
+  const [createPinned, setCreatePinned] = useState(false);
 
   // Clear the optimistic override once the route actually settles (activePage
   // changed). The category resolved from the URL is now authoritative — keeping
@@ -1408,7 +1412,13 @@ export const SidebarDesktopV2 = ({
   // composer modal it opens is still open — otherwise clicking "+" would shift
   // the background panel back to the feed as focus leaves the rail (a glitch).
   const isComposerOpen = modal?.type === LazyModal.SmartComposer;
-  const showCreatePanel = isCreateHovered || isComposerOpen;
+  const showCreatePanel = isCreateHovered || isComposerOpen || createPinned;
+  // Release the pin once any modal opened from "New post" has fully closed.
+  useEffect(() => {
+    if (!modal) {
+      setCreatePinned(false);
+    }
+  }, [modal]);
   const renderSelectedSection = (): ReactElement =>
     showCreatePanel ? (
       <Section
@@ -1733,8 +1743,16 @@ export const SidebarDesktopV2 = ({
                   }
                   onFocus={() => setIsCreateHovered(true)}
                   onBlur={() => setIsCreateHovered(false)}
-                  onClick={() => openModal({ type: LazyModal.SmartComposer })}
-                  className="!size-9 !rounded-12 [&_svg]:!size-6"
+                  onClick={() => {
+                    // Pin the create panel from the click until the composer
+                    // modal closes, so the panel can't flash back to the
+                    // resolved category (e.g. Profile) in the open transition.
+                    setCreatePinned(true);
+                    openModal({ type: LazyModal.SmartComposer });
+                  }}
+                  // Same tactile press as the other rail buttons (Button has no
+                  // transition of its own, so adding one here is additive).
+                  className="!size-9 !rounded-12 transition-transform duration-150 ease-out active:scale-90 motion-reduce:transition-none [&_svg]:!size-6"
                 />
               </Tooltip>
             )}
