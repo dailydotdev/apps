@@ -739,8 +739,12 @@ export const SidebarDesktopV2 = ({
   const moreNeeded =
     isLoggedIn &&
     (overflowTabIds.length > 0 || (!fitsAllInline && shortcutCount > 0));
-  const showInlineDock = isLoggedIn && fitsAllInline && shortcutCount > 0;
-  const hasInlineShortcuts = showInlineDock;
+  // Render the dock whenever it fits inline — even with zero shortcuts — so its
+  // customize "•••" button is present and can reveal on rail hover to let you
+  // add the first shortcut. (Gating on shortcutCount>0 hid the only entry point
+  // when empty.) The framing separator only shows once there are real shortcuts.
+  const showInlineDock = isLoggedIn && fitsAllInline;
+  const hasInlineShortcuts = showInlineDock && shortcutCount > 0;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
