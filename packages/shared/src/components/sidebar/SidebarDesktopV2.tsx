@@ -747,9 +747,10 @@ export const SidebarDesktopV2 = ({
   // Render the dock whenever it fits inline — even with zero shortcuts — so its
   // customize "•••" button is present and can reveal on rail hover to let you
   // add the first shortcut. (Gating on shortcutCount>0 hid the only entry point
-  // when empty.) The framing separator only shows once there are real shortcuts.
+  // when empty.) The framing separator shows whenever the dock is rendered (not
+  // gated on shortcutCount) so adding the first shortcut doesn't shift anything:
+  // the empty "•••" and the with-shortcuts state look identical.
   const showInlineDock = isLoggedIn && fitsAllInline;
-  const hasInlineShortcuts = showInlineDock && shortcutCount > 0;
 
   const railSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -1852,9 +1853,11 @@ export const SidebarDesktopV2 = ({
                 </DndContext>
               </div>
 
-              {/* Fixed top frame separator for the scrollable dock (the
-                matching one sits above the utilities below). */}
-              {hasInlineShortcuts && (
+              {/* Top frame separator — shown whenever the dock is rendered (even
+                with zero shortcuts) so the empty "•••" sits under the same
+                separator as the with-shortcuts state and adding the first
+                shortcut doesn't shift anything. */}
+              {showInlineDock && (
                 <div
                   aria-hidden
                   className="my-1 h-px w-6 bg-border-subtlest-tertiary"
@@ -1889,11 +1892,12 @@ export const SidebarDesktopV2 = ({
               onMouseEnter={handleRailMouseLeave}
               className="flex w-full flex-col items-center gap-1"
             >
-              {/* Keyed on the stable shortcut count (not the height-derived
-                overflow state) so this separator — which sits OUTSIDE the
-                measured region and thus changes its height — can't flip-flop
-                the overflow threshold and oscillate. */}
-              {shortcutCount > 0 && (
+              {/* Keyed on isLoggedIn (a constant, not shortcutCount or the
+                height-derived overflow state): it sits OUTSIDE the measured
+                region, so a height-dependent condition could flip-flop the
+                overflow threshold — and a shortcutCount-dependent one would
+                shift when the first shortcut is added. Constant = neither. */}
+              {isLoggedIn && (
                 <div
                   aria-hidden
                   className="my-1 h-px w-6 bg-border-subtlest-tertiary"
