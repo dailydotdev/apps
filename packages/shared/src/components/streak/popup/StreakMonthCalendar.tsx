@@ -61,15 +61,10 @@ export const StreakMonthCalendar = ({
         // default XSmall (20px) overflows the 16px cell and the read dot reads
         // visibly bigger than the others. Today gets a ring, weekends the
         // dashed pattern.
-        // Today is checked FIRST so its white ring always shows — even once
-        // you've read today (when isRead would otherwise win and drop the ring,
-        // leaving no "which day is today" indicator). The flame still renders
-        // below via the separate isRead check, so today+read = ring + flame.
-        // Inset ring (no offset) keeps today the exact same size as every dot.
         let stateClass = 'border-border-subtlest-tertiary';
-        if (isToday) {
-          stateClass = 'border-transparent ring-1 ring-inset ring-text-primary';
-        } else if (isRead) {
+        if (isToday || isRead) {
+          // Today's ring is a separate overlay (below), so today drops its own
+          // border too.
           stateClass = 'border-transparent';
         } else if (isFreeze) {
           stateClass =
@@ -88,6 +83,16 @@ export const StreakMonthCalendar = ({
               // className loses to the Icon's size class. Size16 matches the
               // size-4 cell so the disc is the same diameter as every other dot.
               <ReadingStreakIcon secondary size={IconSize.Size16} />
+            )}
+            {isToday && (
+              // "Today" ring as a TOP overlay (z-1) so it stays visible over the
+              // read-day flame disc — a ring on the cell itself paints under the
+              // disc and disappears once you've read today. Inset (no offset)
+              // keeps today the exact same size as every other dot.
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 z-1 rounded-full ring-1 ring-inset ring-text-primary"
+              />
             )}
           </div>
         );

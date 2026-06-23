@@ -1372,7 +1372,13 @@ export const SidebarDesktopV2 = ({
             // the button only owns its text color (a bg here would paint over
             // the sliding pill and kill the morph).
             isSelected && '!text-text-primary',
-            isPreviewing && 'bg-surface-hover text-text-primary',
+            // The reading-streak tab tints its hover/preview pink (brand) rather
+            // than the neutral gray every other tab uses.
+            isStreakTab && 'hover:!bg-accent-bacon-flat',
+            isPreviewing &&
+              (isStreakTab
+                ? 'bg-accent-bacon-flat text-text-primary'
+                : 'bg-surface-hover text-text-primary'),
           )}
         >
           <span className="relative flex items-center justify-center">
@@ -1801,7 +1807,13 @@ export const SidebarDesktopV2 = ({
                 <span
                   aria-hidden
                   className={classNames(
-                    'pointer-events-none absolute inset-x-0 top-0 z-0 rounded-12 bg-background-default',
+                    'pointer-events-none absolute inset-x-0 top-0 z-0 rounded-12',
+                    // The reading-streak tab's selected pill uses the brand pink
+                    // (a subtle bacon tint so the pink flame still reads); every
+                    // other tab keeps the neutral pill.
+                    selectedCategory === SidebarCategory.GameCenter
+                      ? 'bg-accent-bacon-flat'
+                      : 'bg-background-default',
                     pillReady &&
                       'transition-[transform,height,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
                   )}
