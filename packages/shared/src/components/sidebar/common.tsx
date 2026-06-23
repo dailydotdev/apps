@@ -84,9 +84,13 @@ export const navBtnClass =
   'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-9 overflow-hidden';
 // Vertical icon+label item used on the v2 desktop rail. Shared so the
 // notifications bell matches the hard-coded category tabs. Callers append
-// the active state (`bg-background-default !text-text-primary`).
+// the active state (the selected pill is a shared sliding indicator now, so
+// callers only add `!text-text-primary`). `active:scale-95` gives the same
+// tactile press feedback as the Home/Search/More buttons; it sits on the inner
+// button (a child of the dnd sortable wrapper), so it never distorts the
+// drag-start rect measurement.
 export const railTabClass =
-  'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary motion-reduce:transition-none';
+  'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
 export const SidebarAside = classed(
   'aside',

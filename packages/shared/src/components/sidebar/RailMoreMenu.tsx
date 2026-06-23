@@ -41,7 +41,6 @@ export const RailMoreMenu = ({
         onClick={wrapHandler(() => onUpdate(!isOpen))}
         className={classNames(
           railTabClass,
-          'active:scale-95',
           isOpen && 'bg-surface-hover !text-text-primary',
         )}
       >

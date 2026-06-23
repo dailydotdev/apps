@@ -293,6 +293,11 @@ const SortableShortcut = ({
             draggable={false}
             className={classNames(
               dockButtonClass,
+              // Same tactile press as the Home/Search/More buttons. Safe to put
+              // on the anchor: dnd measures the wrapping `setNodeRef` div (not
+              // this child), and the drag ghost is the separate DragOverlay, so
+              // the scale never distorts the drag-start rect.
+              'active:scale-90',
               active && '!text-text-primary',
               isDragging && 'opacity-0',
             )}
