@@ -19,6 +19,7 @@ import {
   CoinIcon,
   DiscussIcon,
   EarthIcon,
+  GiftIcon,
   TwitterIcon,
   UpvoteIcon,
   VIcon,
@@ -86,167 +87,223 @@ const Stage = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-// The "aha" moment: an action drops a coin into the community pot, which fills
-// toward the goal. Animates from empty on mount (when its step is reached).
-const FundingPot = (): ReactElement => {
-  const [filled, setFilled] = useState(false);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => setFilled(true));
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
-  return (
-    <FlexRow className="items-center gap-5">
-      <FlexCol className="items-center gap-2">
-        <span className="flex size-16 items-center justify-center rounded-20 bg-surface-float text-accent-cabbage-default [&_svg]:size-8">
-          <UpvoteIcon />
-        </span>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          Take an action
-        </Typography>
-      </FlexCol>
-
-      <span
-        className={classNames(
-          'text-accent-cheese-default [&_svg]:size-9',
-          filled
-            ? 'motion-safe:animate-coin-drop'
-            : 'opacity-0 motion-reduce:opacity-100',
-        )}
-      >
+// Step 1 hero: the whole idea as one picture. Ad budget (muted, struck through)
+// is redirected into real causes (bright, prominent) so the value lands fast.
+const BudgetRedirect = (): ReactElement => (
+  <FlexRow className="items-center gap-4 tablet:gap-6">
+    <FlexCol className="opacity-70 items-center gap-2">
+      <span className="flex size-16 items-center justify-center rounded-20 border border-border-subtlest-tertiary bg-surface-float text-text-quaternary [&_svg]:size-8">
         <CoinIcon />
       </span>
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+        className="line-through"
+      >
+        Ad spend
+      </Typography>
+    </FlexCol>
 
-      <FlexCol className="items-center gap-2">
-        <div className="border-accent-cabbage-default/40 relative flex h-28 w-24 items-end overflow-hidden rounded-b-20 rounded-t-8 border-2 bg-surface-float">
-          <div
+    <span className="text-accent-cabbage-default motion-safe:animate-glow-pulse [&_svg]:size-7">
+      <ArrowIcon className="rotate-90" />
+    </span>
+
+    <FlexCol className="items-center gap-2">
+      <span className="flex size-24 items-center justify-center rounded-24 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage [&_svg]:size-12">
+        <EarthIcon />
+      </span>
+      <Typography type={TypographyType.Caption1} bold>
+        Real causes
+      </Typography>
+    </FlexCol>
+  </FlexRow>
+);
+
+// Step 2: the whole campaign at a glance, so the flow is never a mystery.
+const FLOW_STEPS: ReadonlyArray<{
+  icon: ReactElement;
+  title: string;
+  sub: string;
+}> = [
+  {
+    icon: <UpvoteIcon />,
+    title: 'You take an action',
+    sub: 'Post, talk, write, or host',
+  },
+  {
+    icon: <CoinIcon />,
+    title: 'daily.dev adds money',
+    sub: 'Into the shared community pot',
+  },
+  {
+    icon: <VIcon />,
+    title: 'We hit the goal together',
+    sub: 'The whole community chips in',
+  },
+  {
+    icon: <GiftIcon />,
+    title: 'We fund your causes',
+    sub: 'Automatically, every cent',
+  },
+];
+
+const FlowSequence = (): ReactElement => (
+  <FlexCol className="w-full gap-2 tablet:flex-row tablet:items-stretch tablet:gap-1">
+    {FLOW_STEPS.map((flowStep, index) => (
+      <React.Fragment key={flowStep.title}>
+        <FlexRow className="flex-1 items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left tablet:flex-col tablet:text-center">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white [&_svg]:size-6">
+            {flowStep.icon}
+          </span>
+          <FlexCol className="gap-0.5 tablet:items-center">
+            <Typography bold type={TypographyType.Footnote}>
+              {flowStep.title}
+            </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {flowStep.sub}
+            </Typography>
+          </FlexCol>
+        </FlexRow>
+        {index < FLOW_STEPS.length - 1 && (
+          <span
             aria-hidden
-            className="w-full bg-gradient-to-t from-accent-avocado-default to-accent-cabbage-default transition-[height] duration-1000 ease-out motion-reduce:transition-none"
-            style={{ height: filled ? '72%' : '0%' }}
-          />
-        </div>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          Community pot
-        </Typography>
-      </FlexCol>
-    </FlexRow>
-  );
-};
+            className="flex items-center justify-center text-text-quaternary [&_svg]:size-5"
+          >
+            <ArrowIcon className="rotate-180 tablet:rotate-90" />
+          </span>
+        )}
+      </React.Fragment>
+    ))}
+  </FlexCol>
+);
 
-// A real, concrete example pulled from the take-action list: the visitor "tries"
-// an action and immediately sees the result - a posted share + money landing in
-// the pot. Makes the abstract mechanic tangible.
-const GivebackActionDemo = (): ReactElement => {
-  const [done, setDone] = useState(false);
+// The cause payout for an action, in plain dollars.
+const RewardTag = ({ amount }: { amount: number }): ReactElement => (
+  <FlexRow className="shrink-0 items-center gap-1 rounded-8 bg-accent-avocado-flat px-2 py-0.5 text-accent-avocado-default [&_svg]:size-3.5">
+    <CoinIcon />
+    <Typography bold type={TypographyType.Caption2} className="tabular-nums">
+      +${amount}
+    </Typography>
+  </FlexRow>
+);
 
-  return (
-    <FlexCol className="w-full max-w-md gap-3 text-left">
-      <FlexRow className="items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-background-default text-text-primary [&_svg]:size-6">
-          <TwitterIcon />
+const ProofFooter = ({
+  action,
+  amount,
+}: {
+  action: string;
+  amount: number;
+}): ReactElement => (
+  <FlexRow className="mt-1 items-center justify-between gap-2 border-t border-border-subtlest-tertiary pt-2.5">
+    <Typography
+      type={TypographyType.Caption2}
+      color={TypographyColor.Tertiary}
+      bold
+      className="uppercase tracking-wide"
+    >
+      {action}
+    </Typography>
+    <RewardTag amount={amount} />
+  </FlexRow>
+);
+
+// Real community proof: three believable posts from real action types, so the
+// visitor can picture exactly what to do and what it gives back.
+const CommunityProof = (): ReactElement => (
+  <div className="grid w-full grid-cols-1 gap-3 text-left tablet:grid-cols-3">
+    <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+      <FlexRow className="items-center gap-2">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption1">
+          MR
         </span>
-        <FlexCol className="min-w-0 flex-1 gap-0.5">
-          <Typography bold type={TypographyType.Callout}>
-            Share daily.dev on X
+        <FlexCol className="min-w-0">
+          <Typography bold type={TypographyType.Caption1}>
+            Maya Rivera
           </Typography>
           <Typography
-            type={TypographyType.Caption1}
+            type={TypographyType.Caption2}
             color={TypographyColor.Tertiary}
           >
-            Post about daily.dev to your followers
+            @maya.builds
           </Typography>
         </FlexCol>
-        {done ? (
-          <FlexRow className="shrink-0 items-center gap-1 rounded-10 bg-accent-avocado-flat px-2 py-1 font-bold text-accent-avocado-default typo-caption2 [&_svg]:size-4">
-            <VIcon />
-            Done
-          </FlexRow>
-        ) : (
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            className="shrink-0"
-            onClick={() => setDone(true)}
-          >
-            Try it
-          </Button>
-        )}
+        <span className="ml-auto text-text-tertiary [&_svg]:size-5">
+          <TwitterIcon />
+        </span>
       </FlexRow>
-
-      {done && (
-        <Reveal className="flex flex-col gap-3">
-          <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-            <FlexRow className="items-center gap-2">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption1">
-                Y
-              </span>
-              <FlexCol className="min-w-0">
-                <Typography bold type={TypographyType.Caption1}>
-                  You
-                </Typography>
-                <Typography
-                  type={TypographyType.Caption2}
-                  color={TypographyColor.Tertiary}
-                >
-                  @you · now
-                </Typography>
-              </FlexCol>
-              <span className="ml-auto text-text-tertiary [&_svg]:size-5">
-                <TwitterIcon />
-              </span>
-            </FlexRow>
-            <Typography type={TypographyType.Footnote}>
-              Just found @dailydotdev, the home for developers. The feed
-              actually gets me. Worth a look 👀
-            </Typography>
-            <FlexRow className="items-center gap-4 text-text-tertiary [&_svg]:size-4">
-              <FlexRow className="items-center gap-1 typo-caption2">
-                <DiscussIcon />
-                12
-              </FlexRow>
-              <FlexRow className="items-center gap-1 typo-caption2">
-                <UpvoteIcon />
-                148
-              </FlexRow>
-            </FlexRow>
-          </FlexCol>
-
-          <FlexRow className="items-center justify-between rounded-12 bg-accent-avocado-flat px-4 py-3 text-accent-avocado-default">
-            <FlexRow className="items-center gap-2 [&_svg]:size-5">
-              <CoinIcon />
-              <Typography bold type={TypographyType.Footnote}>
-                +50 dropped into the pot
-              </Typography>
-            </FlexRow>
-            <Typography
-              bold
-              type={TypographyType.Caption1}
-              className="tabular-nums"
-            >
-              Goal 64%
-            </Typography>
-          </FlexRow>
-
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="text-center"
-          >
-            That&apos;s every action. One move, real money.
-          </Typography>
-        </Reveal>
-      )}
+      <Typography type={TypographyType.Caption1}>
+        Gave a talk on dev tooling today and put @dailydotdev front and center.
+        The room ate it up 🔥
+      </Typography>
+      <FlexRow className="items-center gap-4 text-text-tertiary [&_svg]:size-4">
+        <FlexRow className="items-center gap-1 typo-caption2">
+          <DiscussIcon />
+          24
+        </FlexRow>
+        <FlexRow className="items-center gap-1 typo-caption2">
+          <UpvoteIcon />
+          312
+        </FlexRow>
+      </FlexRow>
+      <ProofFooter action="Speak at an event" amount={200} />
     </FlexCol>
-  );
-};
+
+    <FlexCol className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
+      <div className="relative h-28 w-full bg-gradient-to-br from-accent-onion-default to-accent-cabbage-default">
+        <span className="bg-white/90 absolute inset-0 m-auto flex size-12 items-center justify-center rounded-full">
+          <span
+            aria-hidden
+            className="ml-1 border-y-[7px] border-l-[12px] border-y-transparent border-l-black"
+          />
+        </span>
+      </div>
+      <FlexCol className="gap-2 p-4">
+        <Typography bold type={TypographyType.Footnote}>
+          Why daily.dev is my homepage now
+        </Typography>
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Tertiary}
+        >
+          Sam Codes · 18K views
+        </Typography>
+        <ProofFooter action="Make a video" amount={150} />
+      </FlexCol>
+    </FlexCol>
+
+    <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+      <FlexRow className="items-center gap-2">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary [&_svg]:size-5">
+          <EarthIcon />
+        </span>
+        <FlexCol className="min-w-0">
+          <Typography bold type={TypographyType.Caption1}>
+            lena.dev
+          </Typography>
+          <Typography
+            type={TypographyType.Caption2}
+            color={TypographyColor.Tertiary}
+          >
+            6 min read
+          </Typography>
+        </FlexCol>
+      </FlexRow>
+      <Typography bold type={TypographyType.Footnote}>
+        How I finally fixed my dev feed
+      </Typography>
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+      >
+        The setup that keeps me current without the endless noise.
+      </Typography>
+      <ProofFooter action="Write a post" amount={120} />
+    </FlexCol>
+  </div>
+);
 
 const Eyebrow = ({ children }: { children: ReactNode }): ReactElement => (
   <Typography
@@ -367,12 +424,32 @@ export const GivebackFunnel = ({
     switch (stepKey) {
       case 'how':
         return (
-          <StepLayout
-            stage={<FundingPot />}
-            eyebrow="How it works"
-            title="You act. We pay. Causes win."
-            body="Every action you take drops money into one shared pot. Hit the goal together and we donate it automatically. It never costs you a cent."
-          />
+          <FlexCol className="w-full items-center gap-6 text-center">
+            <Reveal>
+              <Eyebrow>How it works</Eyebrow>
+            </Reveal>
+            <Reveal delay={90}>
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.Title1}
+                bold
+                className="[text-wrap:balance]"
+              >
+                You act. We pay. Causes win.
+              </Typography>
+            </Reveal>
+            <Reveal delay={180} className="w-full">
+              <FlowSequence />
+            </Reveal>
+            <Reveal delay={300}>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                You never pay a cent. daily.dev funds every dollar.
+              </Typography>
+            </Reveal>
+          </FlexCol>
         );
       case 'causes':
         return (
@@ -419,7 +496,7 @@ export const GivebackFunnel = ({
         return (
           <FlexCol className="w-full items-center gap-5 text-center">
             <Reveal>
-              <Eyebrow>See it in action</Eyebrow>
+              <Eyebrow>Real people, real actions</Eyebrow>
             </Reveal>
             <Reveal delay={90}>
               <Typography
@@ -428,11 +505,19 @@ export const GivebackFunnel = ({
                 bold
                 className="[text-wrap:balance]"
               >
-                One action. Watch what happens.
+                This is what taking action looks like
               </Typography>
             </Reveal>
-            <Reveal delay={180} className="flex w-full justify-center">
-              <GivebackActionDemo />
+            <Reveal delay={180} className="w-full">
+              <CommunityProof />
+            </Reveal>
+            <Reveal delay={320}>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                Every post here sent real money to the community&apos;s causes.
+              </Typography>
             </Reveal>
           </FlexCol>
         );
@@ -449,11 +534,7 @@ export const GivebackFunnel = ({
       default:
         return (
           <StepLayout
-            stage={
-              <span className="flex size-28 items-center justify-center rounded-32 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage [&_svg]:size-14">
-                <EarthIcon />
-              </span>
-            }
+            stage={<BudgetRedirect />}
             eyebrow="daily.dev giveback"
             title="Your activity funds real causes"
             body="daily.dev would rather back developers than ad networks. So we take our marketing budget and donate it, and you decide where it goes."
