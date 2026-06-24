@@ -40,8 +40,14 @@ export default function InteractionCounter({
   );
 
   if (shownValue === value) {
+    // Center the number within the fixed-height (h-5) box. Without this the text
+    // is top-aligned, so smaller type (e.g. typo-caption1 on mobile/tablet, whose
+    // 1rem line-height is shorter than h-5) sits visibly higher than the icon.
     return (
-      <span className={elementClassName} {...props}>
+      <span
+        className={classNames(elementClassName, 'justify-center')}
+        {...props}
+      >
         {format(shownValue)}
       </span>
     );
@@ -52,8 +58,10 @@ export default function InteractionCounter({
     setShownValue(value);
   };
 
+  // leading-5 makes each rolling slice's line box fill its h-5 height so the
+  // digits stay centered during the roll (matches the resting state above).
   const childClassName =
-    'h-5 inline-block transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
+    'h-5 leading-5 inline-block transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
 
   return (
     <span className={elementClassName} {...props}>
