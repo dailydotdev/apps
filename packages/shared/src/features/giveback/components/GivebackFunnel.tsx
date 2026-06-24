@@ -14,7 +14,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import CloseButton from '../../../components/CloseButton';
-import { GiftIcon, VIcon } from '../../../components/icons';
+import { VIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
@@ -22,6 +22,7 @@ import { GivebackBackground } from './GivebackBackground';
 import { GivebackMascot } from './GivebackMascot';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
 import { GivebackCampaignVideo } from './GivebackCampaignVideo';
+import { CauseEmblem } from './CauseEmblem';
 
 type CauseSelection = ReturnType<typeof useGivebackCauseSelection>;
 
@@ -213,18 +214,6 @@ const FlowSequence = (): ReactElement => (
   </FlexCol>
 );
 
-const Eyebrow = ({ children }: { children: ReactNode }): ReactElement => (
-  <Typography
-    tag={TypographyTag.Span}
-    type={TypographyType.Caption1}
-    color={TypographyColor.Tertiary}
-    bold
-    className="uppercase tracking-wider"
-  >
-    {children}
-  </Typography>
-);
-
 export const GivebackFunnel = ({
   selection,
   canClose = false,
@@ -243,9 +232,11 @@ export const GivebackFunnel = ({
   const [videoClosed, setVideoClosed] = useState(false);
 
   // The visitor's own picks, surfaced front-and-center on the finale so the
-  // moment celebrates exactly what they chose to fund.
+  // moment celebrates exactly what they chose to fund. Keep each cause's index
+  // in the full list so its branded emblem tint stays stable.
   const selectedCauses = selection.causes
-    .filter((cause) => selection.selectedIds.has(cause.id))
+    .map((cause, index) => ({ cause, index }))
+    .filter(({ cause }) => selection.selectedIds.has(cause.id))
     .slice(0, 3);
 
   useEffect(() => {
@@ -298,9 +289,6 @@ export const GivebackFunnel = ({
         return (
           <FlexCol className="w-full items-center gap-6 text-center">
             <Reveal>
-              <Eyebrow>How it works</Eyebrow>
-            </Reveal>
-            <Reveal delay={90}>
               <Typography
                 tag={TypographyTag.H2}
                 type={TypographyType.Title1}
@@ -310,7 +298,7 @@ export const GivebackFunnel = ({
                 You act. We pay. Causes win.
               </Typography>
             </Reveal>
-            <Reveal delay={180} className="w-full">
+            <Reveal delay={120} className="w-full">
               <FlowSequence />
             </Reveal>
           </FlexCol>
@@ -320,14 +308,21 @@ export const GivebackFunnel = ({
           <FlexCol className="w-full gap-6">
             <Reveal>
               <FlexCol className="gap-2 text-center">
-                <Eyebrow>Pick your causes</Eyebrow>
                 <Typography
                   tag={TypographyTag.H2}
-                  type={TypographyType.Title2}
+                  type={TypographyType.Title1}
                   bold
                   className="[text-wrap:balance]"
                 >
-                  Choose what we fund together
+                  Pick the causes we&apos;ll fund together
+                </Typography>
+                <Typography
+                  tag={TypographyTag.P}
+                  type={TypographyType.Body}
+                  color={TypographyColor.Secondary}
+                  className="mx-auto max-w-xl [text-wrap:pretty]"
+                >
+                  Choose as many as you like. You can change them anytime.
                 </Typography>
               </FlexCol>
             </Reveal>
@@ -343,52 +338,47 @@ export const GivebackFunnel = ({
         );
       case 'impact':
         return (
-          <FlexCol className="w-full items-center gap-5 text-center">
+          <FlexCol className="w-full items-center gap-6 text-center">
             <Reveal>
               <Stage>
                 <GivebackMascot imageClassName="h-40 tablet:h-48" />
               </Stage>
             </Reveal>
-            <Reveal delay={90}>
-              <Eyebrow>Your impact</Eyebrow>
-            </Reveal>
-            <Reveal delay={180}>
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title1}
-                bold
-                className="[text-wrap:balance]"
-              >
-                {selectedCauses.length > 0
-                  ? 'Look what you just set in motion'
-                  : 'Real causes. Real impact.'}
-              </Typography>
+            <Reveal delay={120}>
+              <FlexCol className="items-center gap-3">
+                <Typography
+                  tag={TypographyTag.H2}
+                  type={TypographyType.Title1}
+                  bold
+                  className="[text-wrap:balance]"
+                >
+                  {selectedCauses.length > 0
+                    ? 'Your giving is now in motion'
+                    : 'Real causes. Real impact.'}
+                </Typography>
+                <Typography
+                  tag={TypographyTag.P}
+                  type={TypographyType.Body}
+                  color={TypographyColor.Secondary}
+                  className="max-w-xl [text-wrap:pretty]"
+                >
+                  {selectedCauses.length > 0
+                    ? 'From here, every action you take sends real money to the causes you picked. daily.dev funds it all, so it never costs you a thing.'
+                    : "Your actions send real money straight to open-source maintainers, students, and devs who can't afford access. daily.dev funds it all, no cost to you."}
+                </Typography>
+              </FlexCol>
             </Reveal>
 
-            {selectedCauses.length > 0 ? (
-              <>
-                <Reveal delay={250}>
-                  <Typography
-                    tag={TypographyTag.P}
-                    type={TypographyType.Body}
-                    color={TypographyColor.Secondary}
-                    className="max-w-xl [text-wrap:pretty]"
-                  >
-                    Because you chose{' '}
-                    {selectedCauses.length === 1 ? 'this' : 'these'}, every
-                    action you take sends real money straight to:
-                  </Typography>
-                </Reveal>
-                <Reveal delay={330} className="w-full">
-                  <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
-                    {selectedCauses.map((cause) => (
-                      <FlexCol
-                        key={cause.id}
-                        className="border-accent-avocado-default/40 h-full items-center gap-2 rounded-16 border bg-accent-avocado-flat p-4 text-center"
-                      >
-                        <span className="flex size-11 items-center justify-center rounded-14 bg-accent-avocado-default text-white [&_svg]:size-6">
-                          <GiftIcon />
-                        </span>
+            {selectedCauses.length > 0 && (
+              <Reveal delay={220} className="w-full">
+                <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
+                  {selectedCauses.map(({ cause, index }) => (
+                    <FlexCol
+                      key={cause.id}
+                      className="h-full items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left"
+                    >
+                      <CauseEmblem cause={cause} index={index} />
+                      <FlexCol className="gap-1">
                         <Typography bold type={TypographyType.Callout}>
                           {cause.title}
                         </Typography>
@@ -396,38 +386,15 @@ export const GivebackFunnel = ({
                           <Typography
                             type={TypographyType.Caption1}
                             color={TypographyColor.Secondary}
+                            className="line-clamp-2"
                           >
                             {cause.description}
                           </Typography>
                         )}
                       </FlexCol>
-                    ))}
-                  </div>
-                </Reveal>
-                <Reveal delay={440}>
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                    bold
-                    className="max-w-xl [text-wrap:pretty]"
-                  >
-                    Thank you for giving back. The community is better because
-                    of you. 💚
-                  </Typography>
-                </Reveal>
-              </>
-            ) : (
-              <Reveal delay={250}>
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
-                  className="max-w-xl [text-wrap:pretty]"
-                >
-                  Your actions send real money straight to the people behind
-                  these causes: open-source maintainers, students, and devs who
-                  can&apos;t afford access. No middlemen.
-                </Typography>
+                    </FlexCol>
+                  ))}
+                </div>
               </Reveal>
             )}
           </FlexCol>
@@ -442,10 +409,7 @@ export const GivebackFunnel = ({
               aria-hidden
               className="aspect-video w-full max-w-xl"
             />
-            <Reveal delay={90}>
-              <Eyebrow>daily.dev giveback</Eyebrow>
-            </Reveal>
-            <Reveal delay={180}>
+            <Reveal delay={120}>
               <Typography
                 tag={TypographyTag.H2}
                 type={TypographyType.Title1}
@@ -455,7 +419,7 @@ export const GivebackFunnel = ({
                 Your activity funds real causes
               </Typography>
             </Reveal>
-            <Reveal delay={270}>
+            <Reveal delay={220}>
               <Typography
                 tag={TypographyTag.P}
                 type={TypographyType.Body}
@@ -493,15 +457,9 @@ export const GivebackFunnel = ({
       </header>
 
       <main className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center px-6 py-4">
-        {/* Keyed by step so the choreographed enter replays on every advance. */}
-        <div key={stepKey} className="flex w-full flex-col">
-          {renderStep()}
-        </div>
-      </main>
-
-      <footer className="sticky bottom-0 mx-auto flex w-full max-w-md flex-col gap-4 px-6 pb-6 pt-3">
-        {/* Lightweight carousel dots: a quick "where am I" without a long bar. */}
-        <FlexRow className="justify-center gap-2" aria-hidden>
+        {/* Lightweight carousel dots sit above the step content as a quick "where
+            am I" cue, just over each step's title. */}
+        <FlexRow className="mb-8 justify-center gap-2" aria-hidden>
           {STEP_KEYS.map((key, index) => (
             <span
               key={key}
@@ -515,6 +473,13 @@ export const GivebackFunnel = ({
           ))}
         </FlexRow>
 
+        {/* Keyed by step so the choreographed enter replays on every advance. */}
+        <div key={stepKey} className="flex w-full flex-col">
+          {renderStep()}
+        </div>
+      </main>
+
+      <footer className="sticky bottom-0 mx-auto flex w-full max-w-md flex-col gap-4 px-6 pb-6 pt-3">
         <FlexRow className="items-center gap-3">
           {!isFirst && (
             <Button

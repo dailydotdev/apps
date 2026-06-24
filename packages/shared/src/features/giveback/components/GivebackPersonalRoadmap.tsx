@@ -84,12 +84,12 @@ interface RoadmapLevel {
   };
 }
 
-// Disciplined palette so color carries meaning instead of decoration:
-//   • green  = done (cleared / claimed)
-//   • cabbage (brand) = you + your next goal — the only "live" accent
-//   • gold   = the summit prize, used exactly once so it reads as "the big one"
-//   • neutral = still locked
-// No multi-hue gradients on the markers; the trail stays calm and legible.
+// Contrast-first, branded palette so color carries meaning, not decoration:
+//   • markers are calm surface tiles by default (high contrast on the dark page)
+//   • green is only a "done" check accent, never a saturated fill
+//   • cabbage (brand) is the single live accent: you, your next goal, claimable
+//   • the summit alone gets a brand gradient fill so it reads as "the big one"
+//   • locked stays muted/dimmed
 type ConnectorFill =
   | { type: 'full' }
   | { type: 'partial'; progress: number }
@@ -169,16 +169,34 @@ const RailToggle = ({
   </button>
 );
 
-// Directions the celebration sparkles fly when a reward is claimed, fed to the
-// reaction-burst keyframe via CSS custom properties.
-const claimSparkles: ReadonlyArray<{ tx: string; ty: string; delay: string }> =
-  [
-    { tx: '-20px', ty: '-18px', delay: '0ms' },
-    { tx: '18px', ty: '-22px', delay: '40ms' },
-    { tx: '26px', ty: '2px', delay: '20ms' },
-    { tx: '-24px', ty: '6px', delay: '60ms' },
-    { tx: '4px', ty: '-26px', delay: '0ms' },
-  ];
+// Directions the celebration confetti flies when a reward is claimed, fed to the
+// reaction-burst keyframe via CSS custom properties. A fuller spread of brand
+// colors makes the claim feel like a genuine "you did it" moment, not a flicker.
+const claimSparkles: ReadonlyArray<{
+  tx: string;
+  ty: string;
+  delay: string;
+  color: string;
+}> = [
+  {
+    tx: '-34px',
+    ty: '-26px',
+    delay: '0ms',
+    color: 'bg-accent-cabbage-default',
+  },
+  { tx: '32px', ty: '-30px', delay: '30ms', color: 'bg-accent-cheese-default' },
+  { tx: '44px', ty: '-2px', delay: '60ms', color: 'bg-accent-avocado-default' },
+  { tx: '-42px', ty: '4px', delay: '20ms', color: 'bg-accent-onion-default' },
+  { tx: '8px', ty: '-40px', delay: '10ms', color: 'bg-accent-cheese-default' },
+  {
+    tx: '-14px',
+    ty: '-38px',
+    delay: '50ms',
+    color: 'bg-accent-cabbage-default',
+  },
+  { tx: '24px', ty: '26px', delay: '40ms', color: 'bg-accent-avocado-default' },
+  { tx: '-26px', ty: '24px', delay: '70ms', color: 'bg-accent-cheese-default' },
+];
 
 interface NodeRowProps {
   node: RoadmapNode;
@@ -190,8 +208,11 @@ interface NodeRowProps {
   onTakeAction: () => void;
 }
 
+// Rounded rectangles, not circles - the squircle marker echoes daily.dev's
+// branding (square avatars, rounded app tiles) and reads as custom-built rather
+// than a generic battle-pass dot.
 const markerBase =
-  'flex size-10 items-center justify-center rounded-full [&_svg]:size-5';
+  'flex size-10 items-center justify-center rounded-12 [&_svg]:size-5';
 
 const NodeRow = ({
   node,
@@ -218,11 +239,13 @@ const NodeRow = ({
   // trail never shows two competing highlights.
   const renderMarker = (): ReactElement => {
     if (isCurrent) {
+      // Your own face marks where you stand - a rounded square (not a circle) to
+      // match daily.dev's square avatars.
       return user ? (
         <ProfilePicture
           user={user}
           size={ProfileImageSize.Large}
-          rounded="full"
+          rounded={ProfileImageSize.Large}
           className="ring-2 ring-accent-cabbage-default ring-offset-2 ring-offset-background-default"
         />
       ) : (
@@ -237,25 +260,29 @@ const NodeRow = ({
       );
     }
     if (isSummit) {
+      // The grand prize: the single boldest tile, a brand gradient with a gift
+      // (white on cabbage→onion reads clearly, unlike a flat gold fill).
       return (
         <span
           className={classNames(
             markerBase,
             isReached
-              ? 'bg-accent-cheese-default text-white'
-              : 'border-2 border-accent-cheese-default bg-accent-cheese-flat text-accent-cheese-default',
+              ? 'bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage'
+              : 'border border-accent-cabbage-default bg-accent-cabbage-flat text-accent-cabbage-default',
           )}
         >
-          {isClaimed ? <VIcon /> : <MedalBadgeIcon />}
+          {isClaimed ? <VIcon /> : <GiftIcon />}
         </span>
       );
     }
     if (isClaimed) {
+      // Done = a calm surface tile with a green check accent, not a saturated
+      // green fill (which washed out the icon).
       return (
         <span
           className={classNames(
             markerBase,
-            'bg-accent-avocado-default text-white',
+            'border border-border-subtlest-tertiary bg-surface-float text-accent-avocado-default',
           )}
         >
           <VIcon />
@@ -263,11 +290,13 @@ const NodeRow = ({
       );
     }
     if (isReached) {
+      // Unlocked, claim pending: surface tile with the reward icon in brand
+      // cabbage so it stays high-contrast and clearly actionable.
       return (
         <span
           className={classNames(
             markerBase,
-            'bg-accent-avocado-default text-white',
+            'border-accent-cabbage-default/40 border bg-surface-float text-accent-cabbage-default',
           )}
         >
           {rewardIconByType[reward.type]}
@@ -275,11 +304,12 @@ const NodeRow = ({
       );
     }
     if (isNext) {
+      // The immediate goal: the one filled brand tile, white on cabbage.
       return (
         <span
           className={classNames(
             markerBase,
-            'border-2 border-accent-cabbage-default bg-accent-cabbage-flat text-accent-cabbage-default',
+            'bg-accent-cabbage-default text-white',
           )}
         >
           {rewardIconByType[reward.type]}
@@ -290,7 +320,7 @@ const NodeRow = ({
       <span
         className={classNames(
           markerBase,
-          'border border-border-subtlest-tertiary bg-surface-float text-text-quaternary [&_svg]:size-4',
+          'opacity-60 border border-border-subtlest-tertiary bg-surface-float text-text-quaternary [&_svg]:size-4',
         )}
       >
         <LockIcon />
@@ -310,7 +340,7 @@ const NodeRow = ({
           {(isCurrent || isNext) && (
             <span
               aria-hidden
-              className="bg-accent-cabbage-default/25 absolute -inset-1 rounded-full blur-sm motion-safe:animate-glow-pulse"
+              className="bg-accent-cabbage-default/25 absolute -inset-1 rounded-16 blur-sm motion-safe:animate-glow-pulse"
             />
           )}
           <span
@@ -329,8 +359,10 @@ const NodeRow = ({
         <FlexCol
           className={classNames(
             'gap-2',
+            // The current goal gets a tight, clearly-bounded card (not a sprawly
+            // wide box) so the eye lands straight on its action button.
             isNext &&
-              'rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
+              'border-accent-cabbage-default/40 rounded-14 border bg-surface-float p-3.5 shadow-2-cabbage',
           )}
         >
           <FlexRow className="items-start justify-between gap-3">
@@ -386,13 +418,19 @@ const NodeRow = ({
                 {celebrate && (
                   <span
                     aria-hidden
-                    className="z-10 pointer-events-none absolute inset-0"
+                    className="z-10 pointer-events-none absolute inset-0 motion-reduce:hidden"
                   >
-                    <span className="absolute inset-0 rounded-12 ring-2 ring-accent-avocado-default motion-safe:animate-claim-ring" />
+                    {/* A bright flash + expanding ring read as a real "pop", and
+                        the confetti fans out in brand colors. */}
+                    <span className="bg-accent-cheese-default/40 absolute inset-0 rounded-12 blur-md motion-safe:animate-claim-ring" />
+                    <span className="absolute inset-0 rounded-12 ring-2 ring-accent-cabbage-default motion-safe:animate-claim-ring" />
                     {claimSparkles.map((sparkle) => (
                       <span
                         key={`${sparkle.tx}-${sparkle.ty}`}
-                        className="absolute left-1/2 top-1/2 size-1.5 rounded-full bg-accent-cheese-default opacity-0 motion-safe:animate-reaction-burst"
+                        className={classNames(
+                          'absolute left-1/2 top-1/2 size-1.5 rounded-2 opacity-0 motion-safe:animate-reaction-burst',
+                          sparkle.color,
+                        )}
                         style={
                           {
                             '--burst-tx': sparkle.tx,
@@ -406,16 +444,17 @@ const NodeRow = ({
                 )}
                 <Button
                   type="button"
-                  size={ButtonSize.XSmall}
+                  size={ButtonSize.Small}
                   variant={ButtonVariant.Primary}
                   onClick={handleClaim}
                   loading={isClaiming}
+                  icon={!isClaiming ? <GiftIcon /> : undefined}
                   className={classNames(
                     'relative',
                     celebrate && 'motion-safe:animate-reward-pop',
                   )}
                 >
-                  Claim
+                  Claim reward
                 </Button>
               </div>
             ) : (
@@ -445,13 +484,13 @@ const NodeRow = ({
                 <Typography
                   bold
                   type={TypographyType.Caption1}
-                  className="tabular-nums text-accent-avocado-default"
+                  className="tabular-nums text-text-primary"
                 >
                   {formatDonationAmount(amountToNext)} to go
                 </Typography>
                 <Button
                   type="button"
-                  size={ButtonSize.XSmall}
+                  size={ButtonSize.Small}
                   variant={ButtonVariant.Primary}
                   onClick={onTakeAction}
                 >

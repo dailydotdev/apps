@@ -127,7 +127,7 @@ it('offers a claim for an unlocked, unclaimed tier and logs it', async () => {
   render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   // The $25 tier is reached at $40 and not yet claimed.
-  const claimButton = screen.getByRole('button', { name: 'Claim' });
+  const claimButton = screen.getByRole('button', { name: /Claim reward/ });
   expect(claimButton).toBeInTheDocument();
   expect(screen.getByText(/ready to claim/)).toBeInTheDocument();
 
