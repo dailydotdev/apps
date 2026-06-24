@@ -224,7 +224,7 @@ export function FeedCardGlassActions({
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Cheese}
               onClick={onImpressionsClick}
-              className="pointer-events-auto"
+              className="btn-tertiary-cheese pointer-events-auto"
             >
               {/* Always render the impression count (even 0) so the number is
                   visible to everyone — unlike upvotes/comments it is not hidden

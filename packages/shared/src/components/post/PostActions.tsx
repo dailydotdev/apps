@@ -337,6 +337,7 @@ function PostActionsV1({
           <Tooltip content="Impressions">
             <QuaternaryButton
               id="impressions-post-btn"
+              className="btn-tertiary-cheese"
               icon={<AnalyticsIcon />}
               aria-label="Impressions"
               variant={ButtonVariant.Tertiary}
