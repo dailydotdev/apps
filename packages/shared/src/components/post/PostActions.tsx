@@ -19,7 +19,7 @@ import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { BookmarkButton } from '../buttons';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
@@ -226,7 +226,6 @@ function PostActionsV1({
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           >
             <QuaternaryButton
-              size={ButtonSize.Small}
               id="upvote-post-btn"
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
@@ -245,7 +244,6 @@ function PostActionsV1({
             content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
           >
             <QuaternaryButton
-              size={ButtonSize.Small}
               id="downvote-post-btn"
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
@@ -256,7 +254,6 @@ function PostActionsV1({
             />
           </Tooltip>
           <QuaternaryButton
-            size={ButtonSize.Small}
             id="comment-post-btn"
             pressed={post.commented}
             onClick={onComment}
@@ -268,7 +265,6 @@ function PostActionsV1({
           </QuaternaryButton>
           <Tooltip content="Impressions">
             <QuaternaryButton
-              size={ButtonSize.Small}
               id="impressions-post-btn"
               icon={<AnalyticsIcon />}
               aria-label="Impressions"
@@ -293,7 +289,6 @@ function PostActionsV1({
               }}
             >
               <QuaternaryButton
-                size={ButtonSize.Small}
                 id="award-post-btn"
                 pressed={post?.userState?.awarded}
                 onClick={() => {
@@ -335,7 +330,6 @@ function PostActionsV1({
               id: 'bookmark-post-btn',
               pressed: post.bookmarked,
               onClick: onToggleBookmark,
-              size: ButtonSize.Small,
               className: 'btn-tertiary-bun',
             }}
           >
@@ -343,7 +337,6 @@ function PostActionsV1({
           </BookmarkButton>
           <div className="group/link-btn">
             <QuaternaryButton
-              size={ButtonSize.Small}
               id="copy-post-btn-post"
               onClick={() => onCopyLinkClick?.(post)}
               icon={<LinkIcon />}

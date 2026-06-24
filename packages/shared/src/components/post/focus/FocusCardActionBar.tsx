@@ -233,7 +233,6 @@ export const FocusCardActionBar = ({
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           >
             <CardAction
-              density="compact"
               id="upvote-post-btn"
               label="Upvote"
               color={ButtonColor.Avocado}
@@ -248,7 +247,6 @@ export const FocusCardActionBar = ({
             content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
           >
             <CardAction
-              density="compact"
               id="downvote-post-btn"
               label="Downvote"
               color={ButtonColor.Ketchup}
@@ -260,7 +258,6 @@ export const FocusCardActionBar = ({
           </Tooltip>
           <Tooltip content="Comment">
             <CardAction
-              density="compact"
               id="comment-post-btn"
               label="Comment"
               color={ButtonColor.BlueCheese}
@@ -273,7 +270,6 @@ export const FocusCardActionBar = ({
           </Tooltip>
           <Tooltip content="Impressions">
             <CardAction
-              density="compact"
               id="impressions-post-btn"
               label="Impressions"
               color={ButtonColor.Cheese}
@@ -286,7 +282,6 @@ export const FocusCardActionBar = ({
               content={isAwarded ? 'You already awarded this post!' : 'Award'}
             >
               <CardAction
-                density="compact"
                 id="award-post-btn"
                 label="Award"
                 color={ButtonColor.Cabbage}
@@ -303,12 +298,12 @@ export const FocusCardActionBar = ({
         <div className="flex items-center gap-1">
           <BookmarkButton
             post={post}
-            iconSize={IconSize.XSmall}
+            iconSize={IconSize.Small}
             buttonProps={{
               id: 'bookmark-post-btn',
               pressed: post.bookmarked,
               onClick: onToggleBookmark,
-              size: ButtonSize.Small,
+              size: ButtonSize.Medium,
             }}
           />
           {/* Bookmark stays — it is the primary save action. Copy link folds
@@ -319,7 +314,6 @@ export const FocusCardActionBar = ({
           <div ref={copyLinkRef} className="hidden tablet:flex">
             <Tooltip content="Copy link">
               <CardAction
-                density="compact"
                 label="Copy link"
                 color={ButtonColor.Cabbage}
                 icon={<LinkIcon />}
@@ -336,11 +330,11 @@ export const FocusCardActionBar = ({
             <PostMenuOptions
               post={post}
               origin={origin}
-              buttonSize={ButtonSize.Small}
+              buttonSize={ButtonSize.Medium}
             />
           )}
           {isPinnedTop && onClose && (
-            <CloseButton size={ButtonSize.Small} onClick={() => onClose()} />
+            <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
           )}
         </div>
       </div>
