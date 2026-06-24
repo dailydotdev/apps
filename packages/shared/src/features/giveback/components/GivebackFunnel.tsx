@@ -17,11 +17,8 @@ import CloseButton from '../../../components/CloseButton';
 import {
   ArrowIcon,
   CoinIcon,
-  EarthIcon,
   GiftIcon,
   MedalBadgeIcon,
-  PlayIcon,
-  TwitterIcon,
   UpvoteIcon,
   VIcon,
 } from '../../../components/icons';
@@ -35,15 +32,10 @@ import { GivebackCampaignVideo } from './GivebackCampaignVideo';
 
 type CauseSelection = ReturnType<typeof useGivebackCauseSelection>;
 
-// Step keys double as analytics labels and drive the progress bar.
-const STEP_KEYS = [
-  'intro',
-  'how',
-  'causes',
-  'impact',
-  'example',
-  'start',
-] as const;
+// Step keys double as analytics labels and drive the progress bar. Kept tight
+// so the funnel only highlights what matters: what it is, how it works, pick
+// causes, and the impact — then straight into the campaign.
+const STEP_KEYS = ['intro', 'how', 'causes', 'impact'] as const;
 type StepKey = (typeof STEP_KEYS)[number];
 
 interface GivebackFunnelProps {
@@ -253,114 +245,6 @@ const FlowSequence = (): ReactElement => (
   </div>
 );
 
-// The cause payout for an action, in plain dollars.
-const RewardTag = ({ amount }: { amount: number }): ReactElement => (
-  <FlexRow className="shrink-0 items-center gap-1 rounded-8 bg-accent-avocado-flat px-2 py-0.5 text-accent-avocado-default [&_svg]:size-3.5">
-    <CoinIcon />
-    <Typography bold type={TypographyType.Caption2} className="tabular-nums">
-      +${amount}
-    </Typography>
-  </FlexRow>
-);
-
-// Each action a visitor can take, as one uniform card: the ask, the cause
-// payout, and a short real example pinned to the bottom so the three cards line
-// up and scan cleanly instead of reading as mismatched posts.
-const PROOF_ACTIONS: ReadonlyArray<{
-  action: string;
-  request: string;
-  amount: number;
-  tint: string;
-  icon: ReactElement;
-  quote: string;
-  attribution: string;
-}> = [
-  {
-    action: 'Speak at an event',
-    request: 'Give a talk and feature daily.dev in your slides.',
-    amount: 200,
-    tint: 'bg-accent-cabbage-flat text-accent-cabbage-default',
-    icon: <TwitterIcon />,
-    quote: 'Gave a talk on dev tooling and put daily.dev front and center.',
-    attribution: 'Maya Rivera · 312 likes',
-  },
-  {
-    action: 'Make a video',
-    request: 'Post a video or short featuring daily.dev.',
-    amount: 150,
-    tint: 'bg-accent-ketchup-flat text-accent-ketchup-default',
-    icon: <PlayIcon />,
-    quote: 'Why daily.dev is my homepage now.',
-    attribution: 'Sam Codes · 18K views',
-  },
-  {
-    action: 'Write a post',
-    request: 'Publish an article featuring daily.dev.',
-    amount: 120,
-    tint: 'bg-accent-blueCheese-flat text-accent-blueCheese-default',
-    icon: <EarthIcon />,
-    quote: 'How I finally fixed my dev feed.',
-    attribution: 'lena.dev · 6 min read',
-  },
-];
-
-const CommunityProof = (): ReactElement => (
-  <div className="grid w-full grid-cols-1 items-stretch gap-3 text-left tablet:grid-cols-3">
-    {PROOF_ACTIONS.map((item) => (
-      <FlexCol
-        key={item.action}
-        className="h-full gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5"
-      >
-        <FlexRow className="items-center gap-2.5">
-          <span
-            className={classNames(
-              'flex size-10 shrink-0 items-center justify-center rounded-12 [&_svg]:size-5',
-              item.tint,
-            )}
-          >
-            {item.icon}
-          </span>
-          <Typography
-            bold
-            type={TypographyType.Callout}
-            className="min-w-0 flex-1 truncate"
-          >
-            {item.action}
-          </Typography>
-          <RewardTag amount={item.amount} />
-        </FlexRow>
-
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
-        >
-          {item.request}
-        </Typography>
-
-        <FlexCol className="mt-auto gap-1 border-t border-border-subtlest-tertiary pt-3">
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Quaternary}
-            bold
-            className="uppercase tracking-wide"
-          >
-            A real example
-          </Typography>
-          <Typography type={TypographyType.Footnote}>
-            &ldquo;{item.quote}&rdquo;
-          </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {item.attribution}
-          </Typography>
-        </FlexCol>
-      </FlexCol>
-    ))}
-  </div>
-);
-
 const Eyebrow = ({ children }: { children: ReactNode }): ReactElement => (
   <Typography
     tag={TypographyTag.Span}
@@ -371,51 +255,6 @@ const Eyebrow = ({ children }: { children: ReactNode }): ReactElement => (
   >
     {children}
   </Typography>
-);
-
-interface StepLayoutProps {
-  stage: ReactNode;
-  eyebrow: string;
-  title: string;
-  body: string;
-}
-
-const StepLayout = ({
-  stage,
-  eyebrow,
-  title,
-  body,
-}: StepLayoutProps): ReactElement => (
-  <FlexCol className="items-center gap-5 text-center">
-    <Reveal>
-      <Stage>{stage}</Stage>
-    </Reveal>
-    <FlexCol className="items-center gap-3">
-      <Reveal delay={90}>
-        <Eyebrow>{eyebrow}</Eyebrow>
-      </Reveal>
-      <Reveal delay={180}>
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Title1}
-          bold
-          className="[text-wrap:balance]"
-        >
-          {title}
-        </Typography>
-      </Reveal>
-      <Reveal delay={270}>
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-          className="max-w-xl [text-wrap:pretty]"
-        >
-          {body}
-        </Typography>
-      </Reveal>
-    </FlexCol>
-  </FlexCol>
 );
 
 export const GivebackFunnel = ({
@@ -434,6 +273,12 @@ export const GivebackFunnel = ({
   // instance keeps it playing across the move.
   const videoSlotRef = useRef<HTMLDivElement>(null);
   const [videoClosed, setVideoClosed] = useState(false);
+
+  // The visitor's own picks, surfaced on the finale so it feels personal.
+  const selectedCauseNames = selection.causes
+    .filter((cause) => selection.selectedIds.has(cause.id))
+    .map((cause) => cause.title)
+    .slice(0, 4);
 
   useEffect(() => {
     logEvent({
@@ -474,9 +319,7 @@ export const GivebackFunnel = ({
       intro: 'Got it',
       how: 'Sounds good',
       causes: 'Continue',
-      impact: 'Love it',
-      example: "I'm in",
-      start: "Let's start",
+      impact: "Let's start",
     }),
     [],
   );
@@ -540,59 +383,61 @@ export const GivebackFunnel = ({
         );
       case 'impact':
         return (
-          <StepLayout
-            stage={<GivebackMascot imageClassName="h-52 tablet:h-64" />}
-            eyebrow="Nice picks"
-            title="Real causes. Real impact."
-            body={
-              selection.selectedCount > 0
-                ? `Your ${selection.selectedCount} ${
-                    selection.selectedCount === 1 ? 'pick goes' : 'picks go'
-                  } straight to the people behind them: open-source maintainers, students, and devs who can't afford access. No middlemen.`
-                : "This money goes straight to the people behind these causes: open-source maintainers, students, and devs who can't afford access. No middlemen."
-            }
-          />
-        );
-      case 'example':
-        return (
           <FlexCol className="w-full items-center gap-5 text-center">
             <Reveal>
-              <Eyebrow>Real people, real actions</Eyebrow>
+              <Stage>
+                <GivebackMascot imageClassName="h-52 tablet:h-64" />
+              </Stage>
             </Reveal>
             <Reveal delay={90}>
+              <Eyebrow>Nice picks</Eyebrow>
+            </Reveal>
+            <Reveal delay={180}>
               <Typography
                 tag={TypographyTag.H2}
                 type={TypographyType.Title1}
                 bold
                 className="[text-wrap:balance]"
               >
-                This is what taking action looks like
+                Real causes. Real impact.
               </Typography>
             </Reveal>
-            <Reveal delay={140}>
+            <Reveal delay={270}>
               <Typography
                 tag={TypographyTag.P}
-                type={TypographyType.Callout}
+                type={TypographyType.Body}
                 color={TypographyColor.Secondary}
                 className="max-w-xl [text-wrap:pretty]"
               >
-                Pick anything you&apos;d enjoy. Here&apos;s the ask, what it
-                pays your causes, and a real example of someone doing it.
+                {selection.selectedCount > 0
+                  ? `Your ${selection.selectedCount} ${
+                      selection.selectedCount === 1 ? 'pick goes' : 'picks go'
+                    } straight to the people behind them: open-source maintainers, students, and devs who can't afford access. No middlemen.`
+                  : "This money goes straight to the people behind these causes: open-source maintainers, students, and devs who can't afford access. No middlemen."}
               </Typography>
             </Reveal>
-            <Reveal delay={220} className="w-full">
-              <CommunityProof />
-            </Reveal>
+            {selectedCauseNames.length > 0 && (
+              <Reveal delay={340}>
+                <FlexRow className="flex-wrap justify-center gap-2">
+                  {selectedCauseNames.map((name) => (
+                    <FlexRow
+                      key={name}
+                      className="items-center gap-1 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-1 text-accent-avocado-default [&_svg]:size-3.5"
+                    >
+                      <VIcon />
+                      <Typography
+                        bold
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Primary}
+                      >
+                        {name}
+                      </Typography>
+                    </FlexRow>
+                  ))}
+                </FlexRow>
+              </Reveal>
+            )}
           </FlexCol>
-        );
-      case 'start':
-        return (
-          <StepLayout
-            stage={<GivebackMascot imageClassName="h-52 tablet:h-64" />}
-            eyebrow="You're in"
-            title="Let's fund something real"
-            body="Take your first action now. The more we move together, the more we give. Your causes are counting on it."
-          />
         );
       case 'intro':
       default:

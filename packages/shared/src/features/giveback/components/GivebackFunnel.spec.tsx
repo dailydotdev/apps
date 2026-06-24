@@ -54,8 +54,7 @@ it('walks every step and completes on the final CTA', () => {
   advance('Continue');
   expect(screen.getByText('Real causes. Real impact.')).toBeInTheDocument();
 
-  advance('Love it');
-  advance("I'm in");
+  // Impact is now the final step; its CTA completes the funnel.
   advance("Let's start");
 
   expect(onComplete).toHaveBeenCalledTimes(1);
