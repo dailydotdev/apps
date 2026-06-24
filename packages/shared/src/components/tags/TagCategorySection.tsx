@@ -17,7 +17,6 @@ interface TagCategorySectionProps {
   category: TagCategory;
   followedTags: Set<string>;
   onToggleFollow: (tag: string) => void;
-  titleByValue?: Map<string, string>;
   className?: string;
 }
 
@@ -27,7 +26,6 @@ export function TagCategorySection({
   category,
   followedTags,
   onToggleFollow,
-  titleByValue,
   className,
 }: TagCategorySectionProps): ReactElement | null {
   const [expanded, setExpanded] = useState(false);
@@ -63,7 +61,6 @@ export function TagCategorySection({
           <TagDirectoryListItem
             key={tag}
             tag={tag}
-            title={titleByValue?.get(tag)}
             isFollowed={followedTags.has(tag)}
             onToggleFollow={onToggleFollow}
           />
