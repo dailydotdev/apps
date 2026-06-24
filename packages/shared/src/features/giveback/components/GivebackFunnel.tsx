@@ -15,7 +15,6 @@ import {
 } from '../../../components/buttons/Button';
 import CloseButton from '../../../components/CloseButton';
 import {
-  ArrowIcon,
   CoinIcon,
   GiftIcon,
   MedalBadgeIcon,
@@ -274,11 +273,11 @@ export const GivebackFunnel = ({
   const videoSlotRef = useRef<HTMLDivElement>(null);
   const [videoClosed, setVideoClosed] = useState(false);
 
-  // The visitor's own picks, surfaced on the finale so it feels personal.
-  const selectedCauseNames = selection.causes
+  // The visitor's own picks, surfaced front-and-center on the finale so the
+  // moment celebrates exactly what they chose to fund.
+  const selectedCauses = selection.causes
     .filter((cause) => selection.selectedIds.has(cause.id))
-    .map((cause) => cause.title)
-    .slice(0, 4);
+    .slice(0, 3);
 
   useEffect(() => {
     logEvent({
@@ -386,11 +385,11 @@ export const GivebackFunnel = ({
           <FlexCol className="w-full items-center gap-5 text-center">
             <Reveal>
               <Stage>
-                <GivebackMascot imageClassName="h-52 tablet:h-64" />
+                <GivebackMascot imageClassName="h-40 tablet:h-48" />
               </Stage>
             </Reveal>
             <Reveal delay={90}>
-              <Eyebrow>Nice picks</Eyebrow>
+              <Eyebrow>Your impact</Eyebrow>
             </Reveal>
             <Reveal delay={180}>
               <Typography
@@ -399,42 +398,75 @@ export const GivebackFunnel = ({
                 bold
                 className="[text-wrap:balance]"
               >
-                Real causes. Real impact.
+                {selectedCauses.length > 0
+                  ? 'Look what you just set in motion'
+                  : 'Real causes. Real impact.'}
               </Typography>
             </Reveal>
-            <Reveal delay={270}>
-              <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Body}
-                color={TypographyColor.Secondary}
-                className="max-w-xl [text-wrap:pretty]"
-              >
-                {selection.selectedCount > 0
-                  ? `Your ${selection.selectedCount} ${
-                      selection.selectedCount === 1 ? 'pick goes' : 'picks go'
-                    } straight to the people behind them: open-source maintainers, students, and devs who can't afford access. No middlemen.`
-                  : "This money goes straight to the people behind these causes: open-source maintainers, students, and devs who can't afford access. No middlemen."}
-              </Typography>
-            </Reveal>
-            {selectedCauseNames.length > 0 && (
-              <Reveal delay={340}>
-                <FlexRow className="flex-wrap justify-center gap-2">
-                  {selectedCauseNames.map((name) => (
-                    <FlexRow
-                      key={name}
-                      className="items-center gap-1 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-1 text-accent-avocado-default [&_svg]:size-3.5"
-                    >
-                      <VIcon />
-                      <Typography
-                        bold
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Primary}
+
+            {selectedCauses.length > 0 ? (
+              <>
+                <Reveal delay={250}>
+                  <Typography
+                    tag={TypographyTag.P}
+                    type={TypographyType.Body}
+                    color={TypographyColor.Secondary}
+                    className="max-w-xl [text-wrap:pretty]"
+                  >
+                    Because you chose{' '}
+                    {selectedCauses.length === 1 ? 'this' : 'these'}, every
+                    action you take sends real money straight to:
+                  </Typography>
+                </Reveal>
+                <Reveal delay={330} className="w-full">
+                  <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
+                    {selectedCauses.map((cause) => (
+                      <FlexCol
+                        key={cause.id}
+                        className="border-accent-avocado-default/40 h-full items-center gap-2 rounded-16 border bg-accent-avocado-flat p-4 text-center"
                       >
-                        {name}
-                      </Typography>
-                    </FlexRow>
-                  ))}
-                </FlexRow>
+                        <span className="flex size-11 items-center justify-center rounded-14 bg-accent-avocado-default text-white [&_svg]:size-6">
+                          <GiftIcon />
+                        </span>
+                        <Typography bold type={TypographyType.Callout}>
+                          {cause.title}
+                        </Typography>
+                        {cause.description && (
+                          <Typography
+                            type={TypographyType.Caption1}
+                            color={TypographyColor.Secondary}
+                          >
+                            {cause.description}
+                          </Typography>
+                        )}
+                      </FlexCol>
+                    ))}
+                  </div>
+                </Reveal>
+                <Reveal delay={440}>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                    bold
+                    className="max-w-xl [text-wrap:pretty]"
+                  >
+                    Thank you for giving back. The community is better because
+                    of you. 💚
+                  </Typography>
+                </Reveal>
+              </>
+            ) : (
+              <Reveal delay={250}>
+                <Typography
+                  tag={TypographyTag.P}
+                  type={TypographyType.Body}
+                  color={TypographyColor.Secondary}
+                  className="max-w-xl [text-wrap:pretty]"
+                >
+                  Your actions send real money straight to the people behind
+                  these causes: open-source maintainers, students, and devs who
+                  can&apos;t afford access. No middlemen.
+                </Typography>
               </Reveal>
             )}
           </FlexCol>
@@ -488,59 +520,57 @@ export const GivebackFunnel = ({
     >
       <GivebackBackground />
 
-      <header className="relative flex items-center gap-3 px-4 py-4">
-        {!isFirst ? (
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            icon={<ArrowIcon className="-rotate-90" />}
-            onClick={goBack}
-            aria-label="Back"
-          />
-        ) : (
-          <span className="size-8 shrink-0" />
-        )}
-
-        <FlexRow className="flex-1 items-center gap-1.5" aria-hidden>
-          {STEP_KEYS.map((key, index) => (
-            <span
-              key={key}
-              className={classNames(
-                'h-1 flex-1 rounded-full transition-colors duration-300',
-                index <= stepIndex
-                  ? 'bg-accent-cabbage-default'
-                  : 'bg-border-subtlest-tertiary',
-              )}
-            />
-          ))}
-        </FlexRow>
-
-        {canClose ? (
+      {/* Just a close affordance on replay — the heavy progress bar is gone. */}
+      <header className="relative flex h-12 items-center justify-end px-4">
+        {canClose && (
           <CloseButton
             type="button"
             size={ButtonSize.Small}
             onClick={onClose}
           />
-        ) : (
-          <span className="size-8 shrink-0" />
         )}
       </header>
 
-      <main className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center px-6 py-8">
+      <main className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center px-6 py-4">
         {/* Keyed by step so the choreographed enter replays on every advance. */}
         <div key={stepKey} className="flex w-full flex-col">
           {renderStep()}
         </div>
       </main>
 
-      <footer className="sticky bottom-0 mx-auto w-full max-w-4xl px-6 pb-6 pt-2">
-        <Reveal key={stepKey} delay={360}>
+      <footer className="sticky bottom-0 mx-auto flex w-full max-w-md flex-col gap-4 px-6 pb-6 pt-3">
+        {/* Lightweight carousel dots: a quick "where am I" without a long bar. */}
+        <FlexRow className="justify-center gap-2" aria-hidden>
+          {STEP_KEYS.map((key, index) => (
+            <span
+              key={key}
+              className={classNames(
+                'h-2 rounded-full transition-all duration-300',
+                index === stepIndex
+                  ? 'w-5 bg-accent-cabbage-default'
+                  : 'w-2 bg-border-subtlest-tertiary',
+              )}
+            />
+          ))}
+        </FlexRow>
+
+        <FlexRow className="items-center gap-3">
+          {!isFirst && (
+            <Button
+              type="button"
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Float}
+              className="shrink-0"
+              onClick={goBack}
+            >
+              Back
+            </Button>
+          )}
           <Button
             type="button"
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
-            className="w-full"
+            className="flex-1"
             disabled={
               causesBlock || (stepKey === 'causes' && selection.isSaving)
             }
@@ -549,7 +579,7 @@ export const GivebackFunnel = ({
             {isLast && <VIcon aria-hidden className="mr-1" />}
             {ctaLabel[stepKey]}
           </Button>
-        </Reveal>
+        </FlexRow>
       </footer>
 
       {!videoClosed && (

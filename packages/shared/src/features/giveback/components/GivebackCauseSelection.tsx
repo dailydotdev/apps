@@ -52,7 +52,7 @@ export const GivebackCauseSelection = ({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             // eslint-disable-next-line react/no-array-index-key
@@ -105,7 +105,7 @@ export const GivebackCauseSelection = ({
         </FlexRow>
       )}
 
-      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
         {visibleCauses.map(({ cause, index }) => (
           <GivebackCauseCard
             key={cause.id}

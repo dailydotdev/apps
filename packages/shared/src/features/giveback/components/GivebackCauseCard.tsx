@@ -80,7 +80,7 @@ export const GivebackCauseCard = ({
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
-          className="line-clamp-2 pt-1"
+          className="pt-1"
         >
           {cause.description}
         </Typography>
