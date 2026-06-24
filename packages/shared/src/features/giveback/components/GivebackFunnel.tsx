@@ -239,118 +239,153 @@ const RewardTag = ({ amount }: { amount: number }): ReactElement => (
   </FlexRow>
 );
 
-const ProofFooter = ({
+// An explicit "here's the ask" header above each example, so it's obvious what
+// we want the user to do, what it gives, and what it looks like in the wild.
+const ProofItem = ({
   action,
+  request,
   amount,
+  children,
 }: {
   action: string;
+  request: string;
   amount: number;
+  children: ReactNode;
 }): ReactElement => (
-  <FlexRow className="mt-1 items-center justify-between gap-2 border-t border-border-subtlest-tertiary pt-2.5">
+  <FlexCol className="gap-2 text-left">
+    <FlexCol className="gap-1">
+      <FlexRow className="items-center justify-between gap-2">
+        <Typography bold type={TypographyType.Callout}>
+          {action}
+        </Typography>
+        <RewardTag amount={amount} />
+      </FlexRow>
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+      >
+        {request}
+      </Typography>
+    </FlexCol>
     <Typography
       type={TypographyType.Caption2}
-      color={TypographyColor.Tertiary}
+      color={TypographyColor.Quaternary}
       bold
       className="uppercase tracking-wide"
     >
-      {action}
+      A real example
     </Typography>
-    <RewardTag amount={amount} />
-  </FlexRow>
+    {children}
+  </FlexCol>
 );
 
 // Real community proof: three believable posts from real action types, so the
 // visitor can picture exactly what to do and what it gives back.
 const CommunityProof = (): ReactElement => (
-  <div className="grid w-full grid-cols-1 gap-3 text-left tablet:grid-cols-3">
-    <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-      <FlexRow className="items-center gap-2">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption1">
-          MR
-        </span>
-        <FlexCol className="min-w-0">
-          <Typography bold type={TypographyType.Caption1}>
-            Maya Rivera
+  <div className="grid w-full grid-cols-1 items-start gap-x-4 gap-y-6 text-left tablet:grid-cols-3">
+    <ProofItem
+      action="Speak at an event"
+      request="Give a talk and feature daily.dev in your slides or demo."
+      amount={200}
+    >
+      <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+        <FlexRow className="items-center gap-2">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption1">
+            MR
+          </span>
+          <FlexCol className="min-w-0">
+            <Typography bold type={TypographyType.Caption1}>
+              Maya Rivera
+            </Typography>
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+            >
+              @maya.builds
+            </Typography>
+          </FlexCol>
+          <span className="ml-auto text-text-tertiary [&_svg]:size-5">
+            <TwitterIcon />
+          </span>
+        </FlexRow>
+        <Typography type={TypographyType.Caption1}>
+          Gave a talk on dev tooling today and put @dailydotdev front and
+          center. The room ate it up 🔥
+        </Typography>
+        <FlexRow className="items-center gap-4 text-text-tertiary [&_svg]:size-4">
+          <FlexRow className="items-center gap-1 typo-caption2">
+            <DiscussIcon />
+            24
+          </FlexRow>
+          <FlexRow className="items-center gap-1 typo-caption2">
+            <UpvoteIcon />
+            312
+          </FlexRow>
+        </FlexRow>
+      </FlexCol>
+    </ProofItem>
+
+    <ProofItem
+      action="Make a video"
+      request="Post a video or short featuring daily.dev."
+      amount={150}
+    >
+      <FlexCol className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
+        <div className="relative h-28 w-full bg-gradient-to-br from-accent-onion-default to-accent-cabbage-default">
+          <span className="bg-white/90 absolute inset-0 m-auto flex size-12 items-center justify-center rounded-full">
+            <span
+              aria-hidden
+              className="ml-1 border-y-[7px] border-l-[12px] border-y-transparent border-l-black"
+            />
+          </span>
+        </div>
+        <FlexCol className="gap-2 p-4">
+          <Typography bold type={TypographyType.Footnote}>
+            Why daily.dev is my homepage now
           </Typography>
           <Typography
             type={TypographyType.Caption2}
             color={TypographyColor.Tertiary}
           >
-            @maya.builds
+            Sam Codes · 18K views
           </Typography>
         </FlexCol>
-        <span className="ml-auto text-text-tertiary [&_svg]:size-5">
-          <TwitterIcon />
-        </span>
-      </FlexRow>
-      <Typography type={TypographyType.Caption1}>
-        Gave a talk on dev tooling today and put @dailydotdev front and center.
-        The room ate it up 🔥
-      </Typography>
-      <FlexRow className="items-center gap-4 text-text-tertiary [&_svg]:size-4">
-        <FlexRow className="items-center gap-1 typo-caption2">
-          <DiscussIcon />
-          24
-        </FlexRow>
-        <FlexRow className="items-center gap-1 typo-caption2">
-          <UpvoteIcon />
-          312
-        </FlexRow>
-      </FlexRow>
-      <ProofFooter action="Speak at an event" amount={200} />
-    </FlexCol>
+      </FlexCol>
+    </ProofItem>
 
-    <FlexCol className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
-      <div className="relative h-28 w-full bg-gradient-to-br from-accent-onion-default to-accent-cabbage-default">
-        <span className="bg-white/90 absolute inset-0 m-auto flex size-12 items-center justify-center rounded-full">
-          <span
-            aria-hidden
-            className="ml-1 border-y-[7px] border-l-[12px] border-y-transparent border-l-black"
-          />
-        </span>
-      </div>
-      <FlexCol className="gap-2 p-4">
+    <ProofItem
+      action="Write a post"
+      request="Publish an article featuring daily.dev."
+      amount={120}
+    >
+      <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+        <FlexRow className="items-center gap-2">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary [&_svg]:size-5">
+            <EarthIcon />
+          </span>
+          <FlexCol className="min-w-0">
+            <Typography bold type={TypographyType.Caption1}>
+              lena.dev
+            </Typography>
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+            >
+              6 min read
+            </Typography>
+          </FlexCol>
+        </FlexRow>
         <Typography bold type={TypographyType.Footnote}>
-          Why daily.dev is my homepage now
+          How I finally fixed my dev feed
         </Typography>
         <Typography
-          type={TypographyType.Caption2}
+          type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
         >
-          Sam Codes · 18K views
+          The setup that keeps me current without the endless noise.
         </Typography>
-        <ProofFooter action="Make a video" amount={150} />
       </FlexCol>
-    </FlexCol>
-
-    <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-      <FlexRow className="items-center gap-2">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary [&_svg]:size-5">
-          <EarthIcon />
-        </span>
-        <FlexCol className="min-w-0">
-          <Typography bold type={TypographyType.Caption1}>
-            lena.dev
-          </Typography>
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-          >
-            6 min read
-          </Typography>
-        </FlexCol>
-      </FlexRow>
-      <Typography bold type={TypographyType.Footnote}>
-        How I finally fixed my dev feed
-      </Typography>
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-      >
-        The setup that keeps me current without the endless noise.
-      </Typography>
-      <ProofFooter action="Write a post" amount={120} />
-    </FlexCol>
+    </ProofItem>
   </div>
 );
 
@@ -562,10 +597,21 @@ export const GivebackFunnel = ({
                 This is what taking action looks like
               </Typography>
             </Reveal>
-            <Reveal delay={180} className="w-full">
+            <Reveal delay={140}>
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+                className="max-w-xl [text-wrap:pretty]"
+              >
+                Pick anything you&apos;d enjoy. Here&apos;s the ask, what it
+                pays your causes, and a real example of someone doing it.
+              </Typography>
+            </Reveal>
+            <Reveal delay={220} className="w-full">
               <CommunityProof />
             </Reveal>
-            <Reveal delay={320}>
+            <Reveal delay={360}>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Secondary}
