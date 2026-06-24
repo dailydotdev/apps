@@ -3,13 +3,11 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
-  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
   MedalBadgeIcon,
 } from '../icons';
-import InteractionCounter from '../InteractionCounter';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -27,12 +25,10 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { AwardProps } from '../../graphql/njord';
 import { getProductsQueryOptions } from '../../graphql/njord';
-import { usePostImpressionsModal } from '../../hooks/post/usePostImpressionsModal';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
-import { formatImpressions, getPostImpressions } from '../../lib/impressions';
 import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
@@ -59,7 +55,6 @@ function PostActionsV1({
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const actionsRef = useRef<HTMLDivElement>(null);
-  const onImpressionsClick = usePostImpressionsModal(post);
   const canAward = useCanAwardUser({
     sendingUser: user,
     receivingUser: post.author as LoggedUser | undefined,
@@ -334,23 +329,6 @@ function PostActionsV1({
               Copy
             </QuaternaryButton>
           </div>
-          <Tooltip content="Impressions">
-            <QuaternaryButton
-              id="impressions-post-btn"
-              className="btn-tertiary-cheese"
-              icon={<AnalyticsIcon />}
-              aria-label="Impressions"
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Cheese}
-              onClick={onImpressionsClick}
-            >
-              <InteractionCounter
-                className="tabular-nums"
-                value={getPostImpressions(post)}
-                format={formatImpressions}
-              />
-            </QuaternaryButton>
-          </Tooltip>
         </div>
       </div>
       {showTagsPanel !== undefined && (

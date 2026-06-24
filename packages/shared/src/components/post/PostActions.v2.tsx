@@ -3,7 +3,6 @@ import React, { useEffect, useMemo } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
-  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -31,8 +30,6 @@ import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
-import { formatImpressions, getPostImpressions } from '../../lib/impressions';
-import { usePostImpressionsModal } from '../../hooks/post/usePostImpressionsModal';
 import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
@@ -58,7 +55,6 @@ export function PostActions({
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const { ref: actionsRef } = usePostActionsLabelVisibility();
-  const onImpressionsClick = usePostImpressionsModal(post);
   const canAward = useCanAwardUser({
     sendingUser: user,
     receivingUser: post.author as LoggedUser | undefined,
@@ -302,17 +298,6 @@ export function PostActions({
             labelVisible
             color={ButtonColor.Cabbage}
           />
-          <Tooltip content="Impressions">
-            <CardAction
-              id="impressions-post-btn"
-              icon={<AnalyticsIcon />}
-              label="Impressions"
-              count={getPostImpressions(post)}
-              countFormat={formatImpressions}
-              color={ButtonColor.Cheese}
-              onClick={onImpressionsClick}
-            />
-          </Tooltip>
         </CardActionBar>
       </div>
       {showTagsPanel !== undefined && (
