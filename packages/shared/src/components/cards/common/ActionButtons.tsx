@@ -11,7 +11,7 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, useViewSize, ViewSize } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -84,6 +84,11 @@ const ActionButtonsV1 = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  // Below laptop, shrink to the glass feed bar's size (XSmall / 16px icons) so
+  // the action bar stays compact and consistent on small resolutions.
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const buttonSize = isLaptop ? config.buttonSize : ButtonSize.XSmall;
+  const iconSize = isLaptop ? config.iconSize : IconSize.Size16;
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -143,8 +148,8 @@ const ActionButtonsV1 = ({
         href={post.commentsPermalink}
         pressed={post.commented}
         variant={ButtonVariant.Tertiary}
-        size={config.buttonSize}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        size={buttonSize}
+        icon={<CommentIcon secondary={post.commented} size={iconSize} />}
         onClick={() => onCommentClick?.(post)}
       >
         {commentCount > 0 && (
@@ -160,10 +165,10 @@ const ActionButtonsV1 = ({
       <QuaternaryButton
         labelClassName="!pl-[1px]"
         id={`post-${post.id}-comment-btn`}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        icon={<CommentIcon secondary={post.commented} size={iconSize} />}
         pressed={post.commented}
         onClick={() => onCommentClick?.(post)}
-        size={config.buttonSize}
+        size={buttonSize}
         className="btn-tertiary-blueCheese"
       >
         {commentCount > 0 && (
@@ -200,11 +205,11 @@ const ActionButtonsV1 = ({
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
-            size={config.buttonSize}
+            size={buttonSize}
             icon={
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
-                size={config.iconSize}
+                size={iconSize}
                 brandAnimation={brandAnimation}
               />
             }
@@ -220,6 +225,7 @@ const ActionButtonsV1 = ({
             )}
           </QuaternaryButton>
         </Tooltip>
+        {commentButton}
         {showDownvoteAction && (
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
@@ -230,29 +236,23 @@ const ActionButtonsV1 = ({
               id={`post-${post.id}-downvote-btn`}
               color={ButtonColor.Ketchup}
               icon={
-                <DownvoteIcon
-                  secondary={isDownvoteActive}
-                  size={config.iconSize}
-                />
+                <DownvoteIcon secondary={isDownvoteActive} size={iconSize} />
               }
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
               variant={ButtonVariant.Tertiary}
-              size={config.buttonSize}
+              size={buttonSize}
             />
           </Tooltip>
         )}
-        {commentButton}
-        {showAwardAction && (
-          <PostAwardAction post={post} iconSize={config.iconSize} />
-        )}
+        {showAwardAction && <PostAwardAction post={post} iconSize={iconSize} />}
         <BookmarkButton
           tooltipSide={variant === 'grid' ? 'bottom' : undefined}
           post={post}
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
-            size: config.buttonSize,
+            size: buttonSize,
             className: classNames(
               'btn-tertiary-bun',
               variant === 'list' && 'pointer-events-auto',
@@ -261,7 +261,7 @@ const ActionButtonsV1 = ({
               variant: ButtonVariant.Tertiary,
             }),
           }}
-          iconSize={config.iconSize}
+          iconSize={iconSize}
         />
         <Tooltip
           content="Copy link"
@@ -269,8 +269,8 @@ const ActionButtonsV1 = ({
         >
           <QuaternaryButton
             id="copy-post-btn"
-            size={config.buttonSize}
-            icon={<LinkIcon size={config.iconSize} />}
+            size={buttonSize}
+            icon={<LinkIcon size={iconSize} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
@@ -284,8 +284,8 @@ const ActionButtonsV1 = ({
           <QuaternaryButton
             labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
             id={`post-${post.id}-impressions-btn`}
-            size={config.buttonSize}
-            icon={<AnalyticsIcon size={config.iconSize} />}
+            size={buttonSize}
+            icon={<AnalyticsIcon size={iconSize} />}
             onClick={onImpressionsClick}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cheese}

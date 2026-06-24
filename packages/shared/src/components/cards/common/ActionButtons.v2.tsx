@@ -183,6 +183,7 @@ const ActionButtons = ({
             buttonClassName="pointer-events-auto"
           />
         </Tooltip>
+        {commentButton}
         {showDownvoteAction && (
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
@@ -201,7 +202,6 @@ const ActionButtons = ({
             />
           </Tooltip>
         )}
-        {commentButton}
         {showAwardAction && (
           <PostAwardAction post={post} density={FEED_CARD_DENSITY} />
         )}
