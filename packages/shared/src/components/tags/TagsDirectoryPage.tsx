@@ -110,6 +110,18 @@ export function TagsDirectoryPage({
     [tagsByLetter],
   );
 
+  // Maps a tag's normalized value to its human-readable title so every list in
+  // the directory can show the title version instead of the slug.
+  const titleByValue = useMemo(() => {
+    const map = new Map<string, string>();
+    tags?.forEach((tag) => {
+      if (tag.flags?.title) {
+        map.set(tag.value, tag.flags.title);
+      }
+    });
+    return map;
+  }, [tags]);
+
   const visibleLetters =
     activeLetter && tagsByLetter[activeLetter]?.length
       ? [activeLetter]
@@ -238,6 +250,7 @@ export function TagsDirectoryPage({
                   <TagDirectoryListItem
                     key={tag.value}
                     tag={tag.value}
+                    title={titleByValue.get(tag.value)}
                     isFollowed={followedTags.has(tag.value)}
                     onToggleFollow={onToggleFollow}
                   />
@@ -299,6 +312,7 @@ export function TagsDirectoryPage({
                     category={list}
                     followedTags={followedTags}
                     onToggleFollow={onToggleFollow}
+                    titleByValue={titleByValue}
                   />
                 ))}
               </div>
@@ -339,6 +353,7 @@ export function TagsDirectoryPage({
                         <TagDirectoryListItem
                           key={tag.value}
                           tag={tag.value}
+                          title={titleByValue.get(tag.value)}
                           isFollowed={followedTags.has(tag.value)}
                           onToggleFollow={onToggleFollow}
                         />
