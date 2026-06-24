@@ -19,6 +19,7 @@ import {
   CoinIcon,
   EarthIcon,
   GiftIcon,
+  MedalBadgeIcon,
   PlayIcon,
   TwitterIcon,
   UpvoteIcon,
@@ -168,65 +169,88 @@ const GivebackFunnelVideo = ({
   );
 };
 
-// Step 2: the whole campaign at a glance, so the flow is never a mystery.
+// The campaign as a connected milestone track: the community acts together,
+// raises the bar, unlocks the goal (the glowing focal point), and the budget is
+// released to causes. Each node has its own accent so it reads as a journey, not
+// four identical tiles.
 const FLOW_STEPS: ReadonlyArray<{
   icon: ReactElement;
   title: string;
   sub: string;
+  gradient: string;
+  isGoal?: boolean;
 }> = [
   {
     icon: <UpvoteIcon />,
-    title: 'You take an action',
+    title: 'Everyone takes action',
     sub: 'Post, talk, write, or host',
+    gradient: 'from-accent-cabbage-default to-accent-onion-default',
   },
   {
     icon: <CoinIcon />,
-    title: 'daily.dev adds money',
-    sub: 'Into the shared community pot',
+    title: 'We raise the bar together',
+    sub: 'Every action grows the pot',
+    gradient: 'from-accent-cabbage-default to-accent-avocado-default',
   },
   {
-    icon: <VIcon />,
-    title: 'We hit the goal together',
-    sub: 'The whole community chips in',
+    icon: <MedalBadgeIcon />,
+    title: 'We unlock the goal',
+    sub: 'Hit the milestone, release the budget',
+    gradient: 'from-accent-cheese-default to-accent-bacon-default',
+    isGoal: true,
   },
   {
     icon: <GiftIcon />,
-    title: 'We fund your causes',
-    sub: 'Automatically, every cent',
+    title: 'Causes get funded',
+    sub: 'Every dollar, automatically',
+    gradient: 'from-accent-avocado-default to-accent-lettuce-default',
   },
 ];
 
 const FlowSequence = (): ReactElement => (
-  <FlexCol className="w-full gap-2 tablet:flex-row tablet:items-stretch tablet:gap-1">
-    {FLOW_STEPS.map((flowStep, index) => (
-      <React.Fragment key={flowStep.title}>
-        <FlexRow className="flex-1 items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left tablet:flex-col tablet:text-center">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white [&_svg]:size-6">
-            {flowStep.icon}
+  <div className="relative w-full">
+    {/* The connecting track, gradient-filled to read as momentum to the goal. */}
+    <div
+      aria-hidden
+      className="absolute left-[12.5%] right-[12.5%] top-7 hidden h-0.5 bg-gradient-to-r from-accent-cabbage-default via-accent-avocado-default to-accent-cheese-default tablet:block"
+    />
+    <FlexCol className="relative gap-6 tablet:flex-row tablet:gap-0">
+      {FLOW_STEPS.map((step) => (
+        <FlexCol
+          key={step.title}
+          className="flex-1 items-center gap-3 text-center"
+        >
+          <span className="relative">
+            {step.isGoal && (
+              <span
+                aria-hidden
+                className="bg-accent-cheese-default/30 absolute -inset-1.5 rounded-full blur-md motion-safe:animate-glow-pulse"
+              />
+            )}
+            <span
+              className={classNames(
+                'ring-white/15 relative flex size-14 items-center justify-center rounded-full bg-gradient-to-br text-white shadow-2 ring-1 ring-inset [&_svg]:size-7',
+                step.gradient,
+              )}
+            >
+              {step.icon}
+            </span>
           </span>
-          <FlexCol className="gap-0.5 tablet:items-center">
+          <FlexCol className="max-w-[12rem] gap-0.5">
             <Typography bold type={TypographyType.Footnote}>
-              {flowStep.title}
+              {step.title}
             </Typography>
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
             >
-              {flowStep.sub}
+              {step.sub}
             </Typography>
           </FlexCol>
-        </FlexRow>
-        {index < FLOW_STEPS.length - 1 && (
-          <span
-            aria-hidden
-            className="flex items-center justify-center text-text-quaternary [&_svg]:size-5"
-          >
-            <ArrowIcon className="rotate-180 tablet:rotate-90" />
-          </span>
-        )}
-      </React.Fragment>
-    ))}
-  </FlexCol>
+        </FlexCol>
+      ))}
+    </FlexCol>
+  </div>
 );
 
 // The cause payout for an action, in plain dollars.
