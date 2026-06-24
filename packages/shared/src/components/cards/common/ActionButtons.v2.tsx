@@ -157,7 +157,7 @@ const ActionButtons = ({
     >
       <CardActionBar layout="feedCard">
         <Tooltip
-          content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+          content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
           side={variant === 'grid' ? 'bottom' : undefined}
         >
           <CardAction
@@ -170,14 +170,14 @@ const ActionButtons = ({
             iconPressed={
               <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
             }
-            label={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+            label={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
             count={upvoteCount}
             buttonClassName="pointer-events-auto"
           />
         </Tooltip>
         {showDownvoteAction && (
           <Tooltip
-            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+            content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
             side={variant === 'grid' ? 'bottom' : undefined}
           >
             <CardAction
@@ -186,7 +186,7 @@ const ActionButtons = ({
               color={ButtonColor.Ketchup}
               icon={<DownvoteIcon />}
               iconPressed={<DownvoteIcon secondary />}
-              label={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+              label={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
               buttonClassName="pointer-events-auto"

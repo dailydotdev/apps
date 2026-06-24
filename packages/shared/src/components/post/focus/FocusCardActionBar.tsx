@@ -234,9 +234,7 @@ export const FocusCardActionBar = ({
         )}
       >
         <div className="flex items-center gap-1">
-          <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-          >
+          <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
             <CardAction
               id="upvote-post-btn"
               label="Upvote"
@@ -248,9 +246,7 @@ export const FocusCardActionBar = ({
               onClick={onToggleUpvote}
             />
           </Tooltip>
-          <Tooltip
-            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-          >
+          <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
             <CardAction
               id="downvote-post-btn"
               label="Downvote"
