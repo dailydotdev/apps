@@ -106,7 +106,7 @@ export function FeedCardGlassActions({
       <div className={outerClasses}>
         <div className={pillClasses} style={{ background: glassBackground }}>
           <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+            content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
             side="bottom"
           >
             <QuaternaryButton
@@ -158,7 +158,7 @@ export function FeedCardGlassActions({
           </Tooltip>
           {showDownvoteAction && (
             <Tooltip
-              content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+              content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
               side="bottom"
             >
               <QuaternaryButton

@@ -181,7 +181,7 @@ const ActionButtonsV1 = ({
     >
       <div className="flex flex-1 items-center justify-between">
         <Tooltip
-          content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+          content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
           side={variant === 'grid' ? 'bottom' : undefined}
         >
           <QuaternaryButton
@@ -214,7 +214,7 @@ const ActionButtonsV1 = ({
         </Tooltip>
         {showDownvoteAction && (
           <Tooltip
-            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+            content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
             side={variant === 'grid' ? 'bottom' : undefined}
           >
             <QuaternaryButton
