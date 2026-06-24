@@ -14,13 +14,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import CloseButton from '../../../components/CloseButton';
-import {
-  CoinIcon,
-  GiftIcon,
-  MedalBadgeIcon,
-  UpvoteIcon,
-  VIcon,
-} from '../../../components/icons';
+import { GiftIcon, VIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
@@ -160,88 +154,63 @@ const GivebackFunnelVideo = ({
   );
 };
 
-// The campaign as a connected milestone track: the community acts together,
-// raises the bar, unlocks the goal (the glowing focal point), and the budget is
-// released to causes. Each node has its own accent so it reads as a journey, not
-// four identical tiles.
-const FLOW_STEPS: ReadonlyArray<{
-  icon: ReactElement;
-  title: string;
-  sub: string;
-  gradient: string;
-  isGoal?: boolean;
-}> = [
+// "How it works" as a vertical editorial timeline: oversized brand-gradient
+// numerals threaded by a gradient rail (the money "flowing" down to causes),
+// rather than a row of identical gradient icon-circles. Reads intentional and
+// on-brand instead of generic.
+const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
   {
-    icon: <UpvoteIcon />,
-    title: 'Everyone takes action',
-    sub: 'Post, talk, write, or host',
-    gradient: 'from-accent-cabbage-default to-accent-onion-default',
+    title: 'You take an action',
+    sub: 'Upvote, post, share, talk, write. Anything counts.',
   },
   {
-    icon: <CoinIcon />,
-    title: 'We raise the bar together',
-    sub: 'Every action grows the pot',
-    gradient: 'from-accent-cabbage-default to-accent-avocado-default',
+    title: 'The pot grows toward the goal',
+    sub: 'Every action drops real money in. You never pay a cent.',
   },
   {
-    icon: <MedalBadgeIcon />,
-    title: 'We unlock the goal',
-    sub: 'Hit the milestone, release the budget',
-    gradient: 'from-accent-cheese-default to-accent-bacon-default',
-    isGoal: true,
-  },
-  {
-    icon: <GiftIcon />,
-    title: 'Causes get funded',
-    sub: 'Every dollar, automatically',
-    gradient: 'from-accent-avocado-default to-accent-lettuce-default',
+    title: 'We donate it to your causes',
+    sub: 'Hit the goal together and it’s sent automatically.',
   },
 ];
 
 const FlowSequence = (): ReactElement => (
-  <div className="relative w-full">
-    {/* The connecting track, gradient-filled to read as momentum to the goal. */}
-    <div
-      aria-hidden
-      className="absolute left-[12.5%] right-[12.5%] top-7 hidden h-0.5 bg-gradient-to-r from-accent-cabbage-default via-accent-avocado-default to-accent-cheese-default tablet:block"
-    />
-    <FlexCol className="relative gap-6 tablet:flex-row tablet:gap-0">
-      {FLOW_STEPS.map((step) => (
-        <FlexCol
-          key={step.title}
-          className="flex-1 items-center gap-3 text-center"
-        >
-          <span className="relative">
-            {step.isGoal && (
+  <FlexCol className="mx-auto w-full max-w-lg text-left">
+    {FLOW_STEPS.map((step, index) => {
+      const isLast = index === FLOW_STEPS.length - 1;
+      return (
+        <FlexRow key={step.title} className="gap-5">
+          <FlexCol className="items-center">
+            <span className="flex size-14 shrink-0 items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+              <span className="bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text font-bold tabular-nums text-transparent typo-title1">
+                {index + 1}
+              </span>
+            </span>
+            {!isLast && (
               <span
                 aria-hidden
-                className="bg-accent-cheese-default/30 absolute -inset-1.5 rounded-full blur-md motion-safe:animate-glow-pulse"
+                className="via-accent-cabbage-default/50 from-accent-avocado-default/60 to-accent-cheese-default/40 my-1 w-0.5 flex-1 rounded-full bg-gradient-to-b"
               />
             )}
-            <span
-              className={classNames(
-                'ring-white/15 relative flex size-14 items-center justify-center rounded-full bg-gradient-to-br text-white shadow-2 ring-1 ring-inset [&_svg]:size-7',
-                step.gradient,
-              )}
+          </FlexCol>
+          <FlexCol className={classNames('gap-1', isLast ? 'pb-0' : 'pb-8')}>
+            <Typography
+              tag={TypographyTag.H3}
+              type={TypographyType.Title3}
+              bold
             >
-              {step.icon}
-            </span>
-          </span>
-          <FlexCol className="max-w-[12rem] gap-0.5">
-            <Typography bold type={TypographyType.Footnote}>
               {step.title}
             </Typography>
             <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
             >
               {step.sub}
             </Typography>
           </FlexCol>
-        </FlexCol>
-      ))}
-    </FlexCol>
-  </div>
+        </FlexRow>
+      );
+    })}
+  </FlexCol>
 );
 
 const Eyebrow = ({ children }: { children: ReactNode }): ReactElement => (
@@ -343,14 +312,6 @@ export const GivebackFunnel = ({
             </Reveal>
             <Reveal delay={180} className="w-full">
               <FlowSequence />
-            </Reveal>
-            <Reveal delay={300}>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                You never pay a cent. daily.dev funds every dollar.
-              </Typography>
             </Reveal>
           </FlexCol>
         );

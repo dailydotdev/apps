@@ -6,6 +6,12 @@ import React from 'react';
 // marketing site and Plus pages feel - smooth and pastel, no hard shapes or
 // grids. Every tint is a theme token via color-mix so it tracks the design
 // system, and a whisper of grain keeps the gradient from banding.
+// The sweep fades only vertically (a top-anchored linear mask) so it fills the
+// full width edge to edge - including the top corners. A radial mask centered at
+// the top looks prettier but starves the corners, and once the page sits inside
+// the app's rounded, clipped content card those starved corners read as dark
+// gaps where the gradient gets "cut". A straight downward fade has no such
+// horizontal falloff, so the brand color reaches every corner cleanly.
 const brandSweep: CSSProperties = {
   backgroundImage:
     'linear-gradient(125deg, ' +
@@ -14,9 +20,9 @@ const brandSweep: CSSProperties = {
     'color-mix(in srgb, var(--theme-accent-blueCheese-default) 30%, transparent) 62%, ' +
     'color-mix(in srgb, var(--theme-accent-onion-default) 34%, transparent) 82%, ' +
     'color-mix(in srgb, var(--theme-accent-cabbage-default) 34%, transparent))',
-  maskImage: 'radial-gradient(125% 75% at 50% -10%, black, transparent 70%)',
+  maskImage: 'linear-gradient(to bottom, black 0%, black 32%, transparent 92%)',
   WebkitMaskImage:
-    'radial-gradient(125% 75% at 50% -10%, black, transparent 70%)',
+    'linear-gradient(to bottom, black 0%, black 32%, transparent 92%)',
 };
 
 // A soft horizon glow anchored to the bottom edge for depth - a wide, flat

@@ -7,34 +7,195 @@ import {
 } from '../../../components/buttons/Button';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { RootPortal } from '../../../components/tooltips/Portal';
+import { OpenLinkIcon } from '../../../components/icons';
 import { uploadContentImage } from '../../../graphql/posts';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { labels } from '../../../lib/labels';
+import { anchorDefaultRel } from '../../../lib/strings';
 import type { ContributionAction } from '../types';
 import { formatDonationAmount } from '../utils';
+import { getActionPlatformVisual } from '../actionPlatform';
 import { useSubmitContributionAction } from '../hooks/useSubmitContributionAction';
 import { GivebackScreenshotField } from './GivebackScreenshotField';
+import { GivebackPlatformLogo } from './GivebackPlatformLogo';
 
 interface GivebackActionSubmissionModalProps {
   action: ContributionAction;
   onClose: () => void;
 }
 
-const getDialogTitle = (isLove: boolean, isSubmitted: boolean): string => {
-  if (isLove) {
-    return 'Show some love';
-  }
-  if (isSubmitted) {
-    return 'Proof submitted';
-  }
-  return 'Submit proof';
+// Instructions may arrive as one paragraph or as several lines (one step each).
+// Split on line breaks so multi-line how-tos render as a numbered checklist the
+// user can follow top to bottom.
+const toInstructionSteps = (instructions: string): string[] =>
+  instructions
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+// The explicit "what we're asking you to do" block at the top of every action.
+// Leads with the platform identity and the reward, states the ask in a big
+// title, and hands the user a one-tap way to go start it on the real surface.
+const ActionBrief = ({
+  action,
+  titleId,
+}: {
+  action: ContributionAction;
+  titleId: string;
+}): ReactElement => {
+  const { metadata } = action;
+  const isLove = metadata.isLoveAction;
+  const {
+    Icon,
+    name: platformName,
+    forceDark,
+    logoUrl,
+  } = getActionPlatformVisual(metadata.platform);
+
+  return (
+    <FlexCol className="gap-4">
+      <FlexRow className="items-center justify-between gap-3">
+        <FlexRow className="min-w-0 items-center gap-2.5">
+          <span className="shadow-1 flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-12 bg-white text-black">
+            <GivebackPlatformLogo
+              logoUrl={logoUrl}
+              Icon={Icon}
+              forceDark={forceDark}
+            />
+          </span>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            bold
+            className="min-w-0 truncate uppercase tracking-wider"
+          >
+            {platformName}
+          </Typography>
+        </FlexRow>
+        {isLove ? (
+          <span className="shrink-0 rounded-10 bg-accent-cabbage-flat px-3 py-1.5">
+            <Typography
+              bold
+              type={TypographyType.Caption1}
+              className="text-accent-cabbage-default"
+            >
+              Just for love
+            </Typography>
+          </span>
+        ) : (
+          <FlexCol className="shrink-0 items-end rounded-10 bg-surface-float px-3 py-1">
+            <Typography
+              bold
+              type={TypographyType.Title4}
+              className="tabular-nums text-status-success"
+            >
+              +{formatDonationAmount(action.points)}
+            </Typography>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+            >
+              to your causes
+            </Typography>
+          </FlexCol>
+        )}
+      </FlexRow>
+
+      <FlexCol className="gap-1.5">
+        <Typography
+          bold
+          id={titleId}
+          tag={TypographyTag.H2}
+          type={TypographyType.Title2}
+          className="[text-wrap:balance]"
+        >
+          {action.title}
+        </Typography>
+        {action.description && (
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            {action.description}
+          </Typography>
+        )}
+      </FlexCol>
+
+      {metadata.externalUrl && (
+        <Button
+          tag="a"
+          href={metadata.externalUrl}
+          target="_blank"
+          rel={anchorDefaultRel}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          icon={<OpenLinkIcon />}
+          className="w-fit"
+        >
+          {isLove ? `Open ${platformName}` : `Go to ${platformName}`}
+        </Button>
+      )}
+    </FlexCol>
+  );
+};
+
+// The full how-to, surfaced prominently (not as fine print) so the requirement
+// is impossible to miss. Multi-line instructions become a numbered checklist.
+const InstructionsBlock = ({
+  instructions,
+}: {
+  instructions: string;
+}): ReactElement => {
+  const steps = toInstructionSteps(instructions);
+
+  return (
+    <FlexCol className="gap-3 rounded-16 bg-surface-float p-4">
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+        bold
+        className="uppercase tracking-wider"
+      >
+        How to complete it
+      </Typography>
+      {steps.length > 1 ? (
+        <ol className="flex flex-col gap-2.5">
+          {steps.map((step, index) => (
+            <li key={step} className="flex items-start gap-3">
+              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold tabular-nums text-white typo-caption2">
+                {index + 1}
+              </span>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                {step}
+              </Typography>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+        >
+          {instructions}
+        </Typography>
+      )}
+    </FlexCol>
+  );
 };
 
 export const GivebackActionSubmissionModal = ({
@@ -173,57 +334,35 @@ export const GivebackActionSubmissionModal = ({
             className="bg-accent-onion-default/20 pointer-events-none absolute -bottom-24 -left-16 size-56 rounded-full blur-3xl"
           />
           <FlexCol className="relative gap-5 overflow-y-auto p-5 tablet:p-6">
-            <FlexCol className="gap-2">
-              <Typography
-                bold
-                id="giveback-submission-title"
-                tag={TypographyTag.H2}
-                type={TypographyType.Title3}
-              >
-                {getDialogTitle(isLove, isSubmitted)}
-              </Typography>
-              <Typography
-                type={TypographyType.Callout}
-                className="text-text-tertiary"
-              >
-                {!isLove && isSubmitted
-                  ? "Added to your contribution. We'll only subtract it if validation fails."
-                  : action.title}
-              </Typography>
-            </FlexCol>
+            {!isSubmitted && (
+              <ActionBrief
+                action={action}
+                titleId="giveback-submission-title"
+              />
+            )}
 
-            {isLove && (
-              <FlexCol className="gap-4">
-                <FlexCol className="gap-3 rounded-18 border border-accent-cabbage-default bg-accent-cabbage-flat p-5">
-                  <Typography
-                    bold
-                    type={TypographyType.Title4}
-                    className="text-accent-cabbage-default"
-                  >
-                    Just for love
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Callout}
-                    className="text-text-tertiary"
-                  >
-                    This one&apos;s a voluntary thank-you. No reward or donation
-                    is attached. We just genuinely appreciate it.
-                  </Typography>
-                </FlexCol>
-                {metadata.instructions && (
-                  <Typography
-                    type={TypographyType.Footnote}
-                    className="text-text-tertiary"
-                  >
-                    {metadata.instructions}
-                  </Typography>
-                )}
-              </FlexCol>
+            {!isSubmitted && metadata.instructions && (
+              <InstructionsBlock instructions={metadata.instructions} />
+            )}
+
+            {isLove && !isSubmitted && (
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                This one&apos;s a voluntary thank-you. No reward or donation is
+                attached, we just genuinely appreciate it.
+              </Typography>
             )}
 
             {!isLove && isSubmitted && (
               <FlexCol className="relative gap-4 overflow-hidden rounded-18 border border-accent-cabbage-default bg-accent-cabbage-flat p-5 shadow-2-cabbage">
-                <Typography bold type={TypographyType.Title4}>
+                <Typography
+                  bold
+                  id="giveback-submission-title"
+                  tag={TypographyTag.H2}
+                  type={TypographyType.Title3}
+                >
                   You helped unlock {formatDonationAmount(action.points)}
                 </Typography>
                 <Typography
@@ -238,31 +377,13 @@ export const GivebackActionSubmissionModal = ({
 
             {!isLove && !isSubmitted && (
               <FlexCol className="gap-4">
-                <FlexCol className="gap-3 border-b border-border-subtlest-tertiary pb-4">
-                  <FlexRow className="items-center justify-between gap-3">
-                    <Typography
-                      type={TypographyType.Caption1}
-                      className="text-text-tertiary"
-                    >
-                      Counts toward your contribution the moment you submit.
-                    </Typography>
-                    <Typography
-                      bold
-                      type={TypographyType.Callout}
-                      className="shrink-0 tabular-nums text-status-success"
-                    >
-                      +{formatDonationAmount(action.points)}
-                    </Typography>
-                  </FlexRow>
-                  {metadata.instructions && (
-                    <Typography
-                      type={TypographyType.Footnote}
-                      className="text-text-tertiary"
-                    >
-                      {metadata.instructions}
-                    </Typography>
-                  )}
-                </FlexCol>
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  Done it? Add your proof below. It counts toward your
+                  contribution the moment you submit.
+                </Typography>
 
                 {showUrl && (
                   <label htmlFor={linkInputId} className="flex flex-col gap-2">

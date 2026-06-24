@@ -53,11 +53,11 @@ export const GivebackHero = (): ReactElement => (
           tag={TypographyTag.H1}
           type={TypographyType.Title1}
           bold
-          className="max-w-3xl"
+          className="max-w-3xl [text-wrap:balance]"
         >
-          Grow the community. Redirect the budget.
+          Do what you already do.
           <span className="block bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-            Fund good causes.
+            Fund what you actually care about.
           </span>
         </Typography>
         <Typography
@@ -66,8 +66,9 @@ export const GivebackHero = (): ReactElement => (
           color={TypographyColor.Secondary}
           className="max-w-2xl"
         >
-          Ad giants don&apos;t need our money. The causes you care about do. We
-          redirect our growth budget to them, and you never pay a cent.
+          Every action you take on daily.dev unlocks real money for good causes.
+          We pay for all of it, you choose where it goes. No catch, no cost,
+          just developers giving back together.
         </Typography>
       </FlexCol>
 

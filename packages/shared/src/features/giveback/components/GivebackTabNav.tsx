@@ -8,7 +8,7 @@ import {
 } from '../../../components/buttons/Button';
 import { InfoIcon } from '../../../components/icons';
 
-export type GivebackTabId = 'actions' | 'impact' | 'why';
+export type GivebackTabId = 'actions' | 'impact' | 'causes' | 'faq';
 
 interface GivebackTab {
   id: GivebackTabId;
@@ -17,8 +17,9 @@ interface GivebackTab {
 
 export const givebackTabs: GivebackTab[] = [
   { id: 'actions', label: 'Take action' },
-  { id: 'impact', label: 'Impact' },
-  { id: 'why', label: 'Campaign' },
+  { id: 'impact', label: 'Your impact' },
+  { id: 'causes', label: 'Causes' },
+  { id: 'faq', label: 'FAQ' },
 ];
 
 interface GivebackTabNavProps {

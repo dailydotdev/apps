@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -15,6 +15,7 @@ import type { ContributionAction } from '../types';
 import { ContributionSubmissionStatus } from '../types';
 import { formatDonationAmount } from '../utils';
 import { getActionPlatformVisual } from '../actionPlatform';
+import { GivebackPlatformLogo } from './GivebackPlatformLogo';
 
 interface GivebackActionCardProps {
   action: ContributionAction;
@@ -37,47 +38,6 @@ const formatCooldownRemaining = (endsAt: string): string => {
     return `${Math.ceil(minutes / 60)}h`;
   }
   return `${Math.max(1, minutes)}m`;
-};
-
-interface PlatformLogoProps {
-  logoUrl?: string;
-  Icon: ComponentType<IconProps>;
-  forceDark?: boolean;
-  isDimmed: boolean;
-}
-
-// Prefers the real brand logo (an SVG from the logo CDN) and falls back to the
-// internal glyph if there is no logo for the surface or the remote one fails to
-// load - so a tile is never broken or blank. The parent tile already pins the
-// background and applies the dimmed/grayscale treatment.
-const PlatformLogo = ({
-  logoUrl,
-  Icon,
-  forceDark,
-  isDimmed,
-}: PlatformLogoProps): ReactElement => {
-  const [failed, setFailed] = useState(false);
-
-  if (logoUrl && !failed) {
-    return (
-      <img
-        src={logoUrl}
-        alt=""
-        aria-hidden
-        loading="lazy"
-        onError={() => setFailed(true)}
-        className="size-6 object-contain"
-      />
-    );
-  }
-
-  return (
-    <Icon
-      secondary
-      size={IconSize.Small}
-      className={classNames(!isDimmed && forceDark && 'brightness-0')}
-    />
-  );
 };
 
 // One sharp, explicit title carries the ask - no competing subtitle. The
@@ -206,7 +166,7 @@ export const GivebackActionCard = ({
                 : 'shadow-1 bg-white text-black group-hover:scale-105',
             )}
           >
-            <PlatformLogo
+            <GivebackPlatformLogo
               logoUrl={logoUrl}
               Icon={Icon}
               forceDark={forceDark}

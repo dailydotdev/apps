@@ -31,14 +31,15 @@ const makeAction = (
 ): ContributionAction => ({
   id: 'a-modal',
   categoryId: 'cat-content',
-  title: 'Write about daily.dev',
-  description: 'Publish an article or blog post featuring daily.dev.',
+  title: 'Post about daily.dev on X',
+  description: 'A quick post about what you like helps more developers find us.',
   points: 120,
   evidence: { url: { required: true } },
   metadata: {
-    platform: 'Blog',
-    instructions: 'Paste the public link to your post.',
-    externalUrl: null,
+    platform: 'x',
+    instructions:
+      'Write a short post about what you like in daily.dev.\nInclude a link to daily.dev so people can find it.\nCopy the link to your post and paste it below.',
+    externalUrl: 'https://x.com/compose/post',
     isLoveAction: false,
   },
   cooldownSeconds: null,
@@ -50,6 +51,14 @@ const makeAction = (
 });
 
 export const LinkOnly: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Branded action: platform logo, the ask, the reward, a numbered how-to, and a "Go to X" button — then the proof link field.',
+      },
+    },
+  },
   args: { action: makeAction({}) },
 };
 
@@ -57,10 +66,11 @@ export const Screenshot: Story = {
   args: {
     action: makeAction({
       title: 'Host a daily.dev meetup',
+      description: 'Bring developers together in person around daily.dev.',
       points: 250,
       evidence: { screenshot: { required: true } },
       metadata: {
-        platform: 'Events',
+        platform: 'event',
         instructions: 'Upload a photo from the meetup.',
         externalUrl: null,
         isLoveAction: false,
