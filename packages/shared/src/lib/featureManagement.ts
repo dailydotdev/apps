@@ -245,3 +245,7 @@ export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
 );
+
+// Off at launch: the giveback campaign starts without sponsors. Flip on once
+// real sponsors exist to show the "Sponsored by" wall.
+export const featureGivebackSponsors = new Feature('giveback_sponsors', false);

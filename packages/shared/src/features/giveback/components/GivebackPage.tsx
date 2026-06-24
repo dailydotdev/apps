@@ -1,13 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
-import { FlexCol, FlexRow } from '../../../components/utilities';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { InfoIcon } from '../../../components/icons';
+import { FlexCol } from '../../../components/utilities';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureGivebackSponsors } from '../../../lib/featureManagement';
 import { GivebackBackground } from './GivebackBackground';
 import { GivebackFunnel } from './GivebackFunnel';
 import { GivebackHero } from './GivebackHero';
@@ -58,6 +54,12 @@ export const GivebackPage = (): ReactElement => {
 
   const showTabs = selection.hasSavedCauses || completedOnboarding;
   const showFunnel = replayFunnel || (funnelLoaded && funnelSeen === false);
+
+  // Sponsors are gated off for launch (no sponsors yet); flip the flag on later.
+  const { value: showSponsors } = useConditionalFeature({
+    feature: featureGivebackSponsors,
+    shouldEvaluate: true,
+  });
 
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -124,26 +126,21 @@ export const GivebackPage = (): ReactElement => {
       <FlexCol className="relative gap-14 py-8 tablet:py-14">
         <div className={column}>
           <GivebackHero />
-          <FlexRow className="mt-4 justify-center">
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Float}
-              icon={<InfoIcon />}
-              onClick={handleHowItWorks}
-            >
-              How it works
-            </Button>
-          </FlexRow>
         </div>
 
-        <div className={column}>
-          <GivebackSponsorTiers />
-        </div>
+        {showSponsors && (
+          <div className={column}>
+            <GivebackSponsorTiers />
+          </div>
+        )}
 
         {showTabs && (
           <div ref={tabsRef} className="scroll-mt-16">
-            <GivebackTabNav activeTab={activeTab} onSelect={handleSelectTab} />
+            <GivebackTabNav
+              activeTab={activeTab}
+              onSelect={handleSelectTab}
+              onHowItWorks={handleHowItWorks}
+            />
 
             <div
               key={activeTab}
