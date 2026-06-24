@@ -17,9 +17,9 @@ import CloseButton from '../../../components/CloseButton';
 import {
   ArrowIcon,
   CoinIcon,
-  DiscussIcon,
   EarthIcon,
   GiftIcon,
+  PlayIcon,
   TwitterIcon,
   UpvoteIcon,
   VIcon,
@@ -239,153 +239,101 @@ const RewardTag = ({ amount }: { amount: number }): ReactElement => (
   </FlexRow>
 );
 
-// An explicit "here's the ask" header above each example, so it's obvious what
-// we want the user to do, what it gives, and what it looks like in the wild.
-const ProofItem = ({
-  action,
-  request,
-  amount,
-  children,
-}: {
+// Each action a visitor can take, as one uniform card: the ask, the cause
+// payout, and a short real example pinned to the bottom so the three cards line
+// up and scan cleanly instead of reading as mismatched posts.
+const PROOF_ACTIONS: ReadonlyArray<{
   action: string;
   request: string;
   amount: number;
-  children: ReactNode;
-}): ReactElement => (
-  <FlexCol className="gap-2 text-left">
-    <FlexCol className="gap-1">
-      <FlexRow className="items-center justify-between gap-2">
-        <Typography bold type={TypographyType.Callout}>
-          {action}
-        </Typography>
-        <RewardTag amount={amount} />
-      </FlexRow>
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-      >
-        {request}
-      </Typography>
-    </FlexCol>
-    <Typography
-      type={TypographyType.Caption2}
-      color={TypographyColor.Quaternary}
-      bold
-      className="uppercase tracking-wide"
-    >
-      A real example
-    </Typography>
-    {children}
-  </FlexCol>
-);
+  tint: string;
+  icon: ReactElement;
+  quote: string;
+  attribution: string;
+}> = [
+  {
+    action: 'Speak at an event',
+    request: 'Give a talk and feature daily.dev in your slides.',
+    amount: 200,
+    tint: 'bg-accent-cabbage-flat text-accent-cabbage-default',
+    icon: <TwitterIcon />,
+    quote: 'Gave a talk on dev tooling and put daily.dev front and center.',
+    attribution: 'Maya Rivera · 312 likes',
+  },
+  {
+    action: 'Make a video',
+    request: 'Post a video or short featuring daily.dev.',
+    amount: 150,
+    tint: 'bg-accent-ketchup-flat text-accent-ketchup-default',
+    icon: <PlayIcon />,
+    quote: 'Why daily.dev is my homepage now.',
+    attribution: 'Sam Codes · 18K views',
+  },
+  {
+    action: 'Write a post',
+    request: 'Publish an article featuring daily.dev.',
+    amount: 120,
+    tint: 'bg-accent-blueCheese-flat text-accent-blueCheese-default',
+    icon: <EarthIcon />,
+    quote: 'How I finally fixed my dev feed.',
+    attribution: 'lena.dev · 6 min read',
+  },
+];
 
-// Real community proof: three believable posts from real action types, so the
-// visitor can picture exactly what to do and what it gives back.
 const CommunityProof = (): ReactElement => (
-  <div className="grid w-full grid-cols-1 items-start gap-x-4 gap-y-6 text-left tablet:grid-cols-3">
-    <ProofItem
-      action="Speak at an event"
-      request="Give a talk and feature daily.dev in your slides or demo."
-      amount={200}
-    >
-      <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-        <FlexRow className="items-center gap-2">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption1">
-            MR
+  <div className="grid w-full grid-cols-1 items-stretch gap-3 text-left tablet:grid-cols-3">
+    {PROOF_ACTIONS.map((item) => (
+      <FlexCol
+        key={item.action}
+        className="h-full gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5"
+      >
+        <FlexRow className="items-center gap-2.5">
+          <span
+            className={classNames(
+              'flex size-10 shrink-0 items-center justify-center rounded-12 [&_svg]:size-5',
+              item.tint,
+            )}
+          >
+            {item.icon}
           </span>
-          <FlexCol className="min-w-0">
-            <Typography bold type={TypographyType.Caption1}>
-              Maya Rivera
-            </Typography>
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Tertiary}
-            >
-              @maya.builds
-            </Typography>
-          </FlexCol>
-          <span className="ml-auto text-text-tertiary [&_svg]:size-5">
-            <TwitterIcon />
-          </span>
-        </FlexRow>
-        <Typography type={TypographyType.Caption1}>
-          Gave a talk on dev tooling today and put @dailydotdev front and
-          center. The room ate it up 🔥
-        </Typography>
-        <FlexRow className="items-center gap-4 text-text-tertiary [&_svg]:size-4">
-          <FlexRow className="items-center gap-1 typo-caption2">
-            <DiscussIcon />
-            24
-          </FlexRow>
-          <FlexRow className="items-center gap-1 typo-caption2">
-            <UpvoteIcon />
-            312
-          </FlexRow>
-        </FlexRow>
-      </FlexCol>
-    </ProofItem>
-
-    <ProofItem
-      action="Make a video"
-      request="Post a video or short featuring daily.dev."
-      amount={150}
-    >
-      <FlexCol className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
-        <div className="relative h-28 w-full bg-gradient-to-br from-accent-onion-default to-accent-cabbage-default">
-          <span className="bg-white/90 absolute inset-0 m-auto flex size-12 items-center justify-center rounded-full">
-            <span
-              aria-hidden
-              className="ml-1 border-y-[7px] border-l-[12px] border-y-transparent border-l-black"
-            />
-          </span>
-        </div>
-        <FlexCol className="gap-2 p-4">
-          <Typography bold type={TypographyType.Footnote}>
-            Why daily.dev is my homepage now
+          <Typography
+            bold
+            type={TypographyType.Callout}
+            className="min-w-0 flex-1 truncate"
+          >
+            {item.action}
           </Typography>
+          <RewardTag amount={item.amount} />
+        </FlexRow>
+
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
+        >
+          {item.request}
+        </Typography>
+
+        <FlexCol className="mt-auto gap-1 border-t border-border-subtlest-tertiary pt-3">
           <Typography
             type={TypographyType.Caption2}
+            color={TypographyColor.Quaternary}
+            bold
+            className="uppercase tracking-wide"
+          >
+            A real example
+          </Typography>
+          <Typography type={TypographyType.Footnote}>
+            &ldquo;{item.quote}&rdquo;
+          </Typography>
+          <Typography
+            type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            Sam Codes · 18K views
+            {item.attribution}
           </Typography>
         </FlexCol>
       </FlexCol>
-    </ProofItem>
-
-    <ProofItem
-      action="Write a post"
-      request="Publish an article featuring daily.dev."
-      amount={120}
-    >
-      <FlexCol className="gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-        <FlexRow className="items-center gap-2">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary [&_svg]:size-5">
-            <EarthIcon />
-          </span>
-          <FlexCol className="min-w-0">
-            <Typography bold type={TypographyType.Caption1}>
-              lena.dev
-            </Typography>
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Tertiary}
-            >
-              6 min read
-            </Typography>
-          </FlexCol>
-        </FlexRow>
-        <Typography bold type={TypographyType.Footnote}>
-          How I finally fixed my dev feed
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          The setup that keeps me current without the endless noise.
-        </Typography>
-      </FlexCol>
-    </ProofItem>
+    ))}
   </div>
 );
 
@@ -610,14 +558,6 @@ export const GivebackFunnel = ({
             </Reveal>
             <Reveal delay={220} className="w-full">
               <CommunityProof />
-            </Reveal>
-            <Reveal delay={360}>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Every post here sent real money to the community&apos;s causes.
-              </Typography>
             </Reveal>
           </FlexCol>
         );
