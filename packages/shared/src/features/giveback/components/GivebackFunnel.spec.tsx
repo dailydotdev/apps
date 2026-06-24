@@ -43,18 +43,16 @@ it('walks every step and completes on the final CTA', () => {
   );
 
   expect(
-    screen.getByText('We give our ad budget to good causes'),
+    screen.getByText('Your activity funds real causes'),
   ).toBeInTheDocument();
 
   advance('Got it');
-  expect(
-    screen.getByText("It's a team effort — and free for you"),
-  ).toBeInTheDocument();
+  expect(screen.getByText('You act. We pay. Causes win.')).toBeInTheDocument();
 
   // No causes available → Continue is not blocked.
   advance('Sounds good');
   advance('Continue');
-  expect(screen.getByText('Beautiful choices')).toBeInTheDocument();
+  expect(screen.getByText('Real causes. Real impact.')).toBeInTheDocument();
 
   advance('Love it');
   advance("I'm in");
