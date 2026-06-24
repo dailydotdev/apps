@@ -1381,14 +1381,12 @@ export const SidebarDesktopV2 = ({
               (isStreakTab
                 ? '!text-accent-bacon-default'
                 : '!text-text-primary'),
-            // The reading-streak tab tints its hover/preview pink (brand) rather
-            // than the neutral gray every other tab uses. `group/streaktab`
-            // scopes the StreakBadge's hover-white border to this tab only.
-            isStreakTab && 'group/streaktab hover:!bg-accent-bacon-flat',
-            isPreviewing &&
-              (isStreakTab
-                ? 'bg-accent-bacon-flat text-text-primary'
-                : 'bg-surface-hover text-text-primary'),
+            // `group/streaktab` scopes the StreakBadge's hover-white border to
+            // this tab. The hover/preview background stays the default
+            // surface-hover (same as every other tab) — pink is reserved for the
+            // selected pill + label, not the hover state.
+            isStreakTab && 'group/streaktab',
+            isPreviewing && 'bg-surface-hover text-text-primary',
           )}
         >
           <span className="relative flex items-center justify-center">
