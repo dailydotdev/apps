@@ -8,7 +8,7 @@ import { Streak } from './DayStreak';
 import type { UserStreak } from '../../../graphql/users';
 import {
   getStreak,
-  useReadingHistory,
+  useReadingStreak30Days,
 } from '../../../hooks/streaks/useStreakDays';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../../lib/timezones';
@@ -29,7 +29,7 @@ export const StreakMonthCalendar = ({
 }): ReactElement => {
   const { user } = useAuthContext();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const history = useReadingHistory();
+  const history = useReadingStreak30Days();
 
   const days = useMemo(() => {
     const today = new Date();

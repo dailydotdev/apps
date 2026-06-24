@@ -1,14 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
 import { DayStreak } from './DayStreak';
-import { getStreak, getStreakDays } from '../../../hooks/streaks/useStreakDays';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import type { ReadingDay, UserStreak } from '../../../graphql/users';
-import { getReadingStreak30Days } from '../../../graphql/users';
+import {
+  getStreak,
+  getStreakDays,
+  useReadingStreak30Days,
+} from '../../../hooks/streaks/useStreakDays';
+import type { UserStreak } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
@@ -61,14 +62,8 @@ export function ReadingStreakPopup({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
-  const userId = user?.id;
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const { data: history } = useQuery<ReadingDay[]>({
-    queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
-    queryFn: () => getReadingStreak30Days(userId ?? ''),
-    staleTime: StaleTime.Default,
-    enabled: !!userId,
-  });
+  const history = useReadingStreak30Days();
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();

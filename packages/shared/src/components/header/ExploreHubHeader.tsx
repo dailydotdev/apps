@@ -7,15 +7,12 @@ import { PageHeader } from '../layout/PageHeader';
 // header is just the standard title strip (same as Analytics / Settings) —
 // no breadcrumb, no icon. The title is derived from the route.
 const hubTitles: { match: (path: string) => boolean; label: string }[] = [
-  { match: (path) => path.startsWith('/posts/best-of'), label: 'Best of' },
   { match: (path) => path.startsWith('/sources'), label: 'Sources' },
   { match: (path) => path.startsWith('/users'), label: 'Leaderboard' },
-  { match: (path) => path.startsWith('/discussed'), label: 'Discussions' },
-  { match: (path) => path.startsWith('/posts'), label: 'Explore' },
 ];
 
-// Shared v2 header for the Explore hub's directory pages (Sources, Leaderboard,
-// Best of). Optional children render as header actions (e.g. "Suggest source").
+// Shared v2 header for the Explore hub's directory pages (Sources, Leaderboard).
+// Optional children render as header actions (e.g. "Suggest source").
 export function ExploreHubHeader({
   children,
 }: {

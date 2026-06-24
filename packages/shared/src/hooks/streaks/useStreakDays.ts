@@ -66,7 +66,7 @@ export const getStreakDays = (today: Date): Date[] => [
 
 // The user's last-30-days reading history (one shared cache key, so callers
 // never trigger a duplicate request).
-export const useReadingHistory = (): ReadingDay[] | undefined => {
+export const useReadingStreak30Days = (): ReadingDay[] | undefined => {
   const { user } = useAuthContext();
   const userId = user?.id;
   return useQuery<ReadingDay[]>({

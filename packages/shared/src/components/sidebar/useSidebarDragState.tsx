@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 
 interface SidebarDragState {
   // True while ANY sidebar drag is in progress (rail tab reorder, shortcut
@@ -29,10 +29,3 @@ export const SidebarDragStateProvider = ({
     {children}
   </SidebarDragContext.Provider>
 );
-
-// Convenience for the top-level sidebar: owns the flag and returns both the
-// provider value and a ref-free setter.
-export const useSidebarDragStateValue = (): SidebarDragState => {
-  const [isDragging, setDragging] = useState(false);
-  return useMemo(() => ({ isDragging, setDragging }), [isDragging]);
-};

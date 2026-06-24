@@ -595,11 +595,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // which run *after* onDragEnd resets willRemove — can tell whether this drop
   // was a remove (poof in place) or a settle/reorder (animate to slot).
   const removeOnDropRef = useRef(false);
-  // Bounds of the rail column + a flag for "the dragged icon is now ENTIRELY
-  // outside the rail". Remove only fires once the whole icon clears the rail,
-  // not the moment the cursor nudges past the edge.
+  // Bounds of the rail column. Remove only fires once the whole icon clears the
+  // rail, not the moment the cursor nudges past the edge.
   const dockAreaRef = useRef<HTMLDivElement>(null);
-  const outsideRailRef = useRef(false);
   // The live (in-progress) reorder, mirrored in a ref so onDragEnd reads the
   // final order without a stale-closure risk.
   const liveOrderRef = useRef<StoredShortcut[] | null>(null);
@@ -668,7 +666,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     setWillRemove(false);
     setPageDropIndex(null);
     removeOnDropRef.current = false;
-    outsideRailRef.current = false;
     // Snapshot the order so the list can reorder live (in onDragOver) without
     // touching the persisted store until drop.
     liveOrderRef.current = fromDock ? orderedItems : null;
@@ -686,9 +683,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
       );
       return;
     }
-    const outside = isIconOutsideRail(event);
-    outsideRailRef.current = outside;
-    setWillRemove(outside);
+    setWillRemove(isIconOutsideRail(event));
   };
 
   // Live reorder: as the icon passes over a slot, reorder the rendered list so
@@ -762,7 +757,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     setOverId(null);
     setWillRemove(false);
     setPageDropIndex(null);
-    outsideRailRef.current = false;
     setOrderOverride(null);
     setDragging(false);
   };
