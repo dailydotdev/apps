@@ -1,5 +1,6 @@
 import type { MouseEvent } from 'react';
 import { useCallback } from 'react';
+import { useRouter } from 'next/router';
 import type { Post } from '../../graphql/posts';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../useLazyModal';
@@ -7,25 +8,31 @@ import { LazyModal } from '../../components/modals/common/types';
 import { canViewPostAnalytics } from '../../lib/user';
 
 /**
- * Click handler for the impressions stat. Non-authors get the X-style explainer
- * popup; the author (or a team member) owns the post and has real analytics, so
- * they get no popup (returns `undefined` → the stat stays display-only).
+ * Click handler for the impressions stat:
+ * - the post owner (or a team member) can see real analytics, so they go to the
+ *   post analytics page;
+ * - everyone else gets the X/Twitter-style explainer popup.
  */
 export const usePostImpressionsModal = (
-  post: Pick<Post, 'author'>,
-): ((event?: MouseEvent) => void) | undefined => {
+  post: Pick<Post, 'id' | 'author'>,
+): ((event?: MouseEvent) => void) => {
+  const router = useRouter();
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
-  const isAuthor = canViewPostAnalytics({ user, post });
+  const canViewAnalytics = canViewPostAnalytics({ user, post });
 
-  const onClick = useCallback(
+  return useCallback(
     (event?: MouseEvent) => {
       event?.stopPropagation();
       event?.preventDefault();
+
+      if (canViewAnalytics) {
+        router.push(`/posts/${post.id}/analytics`);
+        return;
+      }
+
       openModal({ type: LazyModal.PostImpressions });
     },
-    [openModal],
+    [canViewAnalytics, openModal, router, post.id],
   );
-
-  return isAuthor ? undefined : onClick;
 };
