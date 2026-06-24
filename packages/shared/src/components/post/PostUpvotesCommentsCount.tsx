@@ -10,12 +10,18 @@ import { LazyModal } from '../modals/common/types';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import Link from '../utilities/Link';
 import { webappUrl } from '../../lib/constants';
+import { getPostImpressions } from '../../lib/impressions';
 
 const DEFAULT_REPOSTS_PER_PAGE = 20;
 
 type PostUpvotesCommentsCountPost = Pick<
   Post,
-  'analytics' | 'numAwards' | 'numComments' | 'numReposts' | 'numUpvotes'
+  | 'analytics'
+  | 'numAwards'
+  | 'numComments'
+  | 'numReposts'
+  | 'numUpvotes'
+  | 'views'
 > &
   Partial<Pick<Post, 'id'>> & {
     author?: Pick<NonNullable<Post['author']>, 'id'>;
@@ -101,32 +107,33 @@ const PostUpvotesCommentsCountContent = ({
           onClick: onCommentsClick,
           children: getText({ count: comments, label: 'Comment' }),
         })}
-      {/* Impressions sit right after comments and look like the other stats; the
-          analytics page is opened by tapping them (replacing the old blue
-          "Post analytics" button). Only present when the API returns analytics
-          (author / team). */}
-      {!!post.analytics?.impressions &&
-        (post.id && !passive ? (
-          <Link
-            key="impressions"
-            href={`${webappUrl}posts/${post.id}/analytics`}
-            passHref
-          >
-            <ClickableText tag="a" textClassName="text-text-tertiary">
-              {getText({
-                count: post.analytics.impressions,
-                label: 'Impression',
-              })}
-            </ClickableText>
-          </Link>
-        ) : (
-          <span key="impressions">
-            {getText({
-              count: post.analytics.impressions,
-              label: 'Impression',
-            })}
-          </span>
-        ))}
+      {/* Impressions sit right after comments and look like the other stats;
+          tapping them opens the analytics page (replacing the old blue "Post
+          analytics" button). Shown on the post page/modal strip (not the
+          compact embed). Uses the shared impressions helper so it stays visible
+          via the mock fallback until the API populates real `views`. */}
+      {!compact &&
+        post.id &&
+        (() => {
+          const impressions = getPostImpressions({
+            id: post.id,
+            views: post.views,
+          });
+          const label = getText({ count: impressions, label: 'Impression' });
+          return !passive ? (
+            <Link
+              key="impressions"
+              href={`${webappUrl}posts/${post.id}/analytics`}
+              passHref
+            >
+              <ClickableText tag="a" textClassName="text-text-tertiary">
+                {label}
+              </ClickableText>
+            </Link>
+          ) : (
+            <span key="impressions">{label}</span>
+          );
+        })()}
       {reposts > 0 &&
         renderText({
           key: 'reposts',
