@@ -20,7 +20,6 @@ import {
 import type { Source } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
-import { useSourceActionsNotify } from '../../hooks/source/useSourceActionsNotify';
 
 interface HeadlinesSettingsModalProps
   extends Omit<ReactModal.Props, 'children'> {
@@ -36,17 +35,10 @@ const ChannelRow = ({
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { isFollowing, toggleFollow } = useSourceActionsFollow({ source });
-  const { haveNotificationsOn, isReady, onNotify } = useSourceActionsNotify({
-    source,
-    optimistic: true,
-  });
   const inputId = `headline-toggle-${channel.channel}`;
 
   const onToggle = async () => {
-    if (!isFollowing) {
-      await toggleFollow();
-    }
-    await onNotify();
+    await toggleFollow();
 
     await queryClient.invalidateQueries({
       queryKey: DAILY_HEADLINES_QUERY_KEY,
@@ -76,12 +68,11 @@ const ChannelRow = ({
       <Switch
         inputId={inputId}
         name={inputId}
-        checked={haveNotificationsOn}
-        disabled={!isReady}
+        checked={isFollowing}
         onToggle={onToggle}
-        aria-label={`${
-          haveNotificationsOn ? 'Unsubscribe from' : 'Subscribe to'
-        } ${channel.displayName}`}
+        aria-label={`${isFollowing ? 'Unfollow' : 'Follow'} ${
+          channel.displayName
+        }`}
       />
     </li>
   );
