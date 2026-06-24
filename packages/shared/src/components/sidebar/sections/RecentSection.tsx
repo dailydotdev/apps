@@ -1,9 +1,19 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
+  AnalyticsIcon,
+  BellIcon,
+  BookmarkIcon,
+  BriefIcon,
+  CompassIcon,
   HashtagIcon,
+  HomeIcon,
+  HotIcon,
+  JobIcon,
+  SettingsIcon,
   SourceIcon,
   SquadIcon,
   TimerIcon,
@@ -12,6 +22,7 @@ import {
 import { Image, ImageType } from '../../image/Image';
 import { Section } from '../Section';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
+import { sourceQueryOptions } from '../../../graphql/sources';
 import type { SidebarSectionProps } from './common';
 import type { RecentPage, RecentPageType } from '../../../lib/recentPages';
 import { useRecentPages } from '../../../hooks/useRecentPages';
@@ -37,7 +48,28 @@ const resolveType = (page: RecentPage): RecentPageType => {
   return 'page';
 };
 
-const iconForType = (type: RecentPageType): ReactElement => {
+const firstSegment = (path: string): string =>
+  path.split('?')[0].split('#')[0].split('/').filter(Boolean)[0] ?? '';
+
+// Recognizable glyphs for known internal destinations, keyed by the leading
+// path segment, so a recent page reads as itself (Game Center, Settings,
+// Notifications…) instead of the generic "history" timer. Anything unmapped
+// (and any page with no better icon/image) keeps the timer fallback.
+const PAGE_ICON_BY_SEGMENT: Record<string, () => ReactElement> = {
+  'game-center': () => <HotIcon />,
+  'daily-quests': () => <HotIcon />,
+  settings: () => <SettingsIcon />,
+  notifications: () => <BellIcon />,
+  bookmarks: () => <BookmarkIcon />,
+  briefing: () => <BriefIcon />,
+  analytics: () => <AnalyticsIcon />,
+  jobs: () => <JobIcon />,
+  following: () => <HomeIcon />,
+  posts: () => <CompassIcon />,
+  squads: () => <SquadIcon />,
+};
+
+const iconForType = (page: RecentPage, type: RecentPageType): ReactElement => {
   switch (type) {
     case 'user':
       return <UserIcon />;
@@ -47,8 +79,10 @@ const iconForType = (type: RecentPageType): ReactElement => {
       return <SquadIcon />;
     case 'tag':
       return <HashtagIcon />;
-    default:
-      return <TimerIcon />;
+    default: {
+      const makeIcon = PAGE_ICON_BY_SEGMENT[firstSegment(page.path)];
+      return makeIcon ? makeIcon() : <TimerIcon />;
+    }
   }
 };
 
@@ -65,12 +99,15 @@ const RecentItemIcon = ({ page }: { page: RecentPage }): ReactElement => {
   const isOwnProfile =
     type === 'user' && !!user?.username && handle === user.username;
 
-  // Both hooks self-disable when handed an empty id/handle, so only the row's
+  // Each query self-disables when handed an empty id/handle, so only the row's
   // matching entity is fetched.
   const { squad } = useSquad({ handle: type === 'squad' ? handle : '' });
   const { data: otherUser } = useUserShortByIdQuery({
     id: type === 'user' && !isOwnProfile ? handle : '',
   });
+  const { data: source } = useQuery(
+    sourceQueryOptions({ sourceId: type === 'source' ? handle : '' }),
+  );
 
   let image: string | undefined;
   if (isOwnProfile) {
@@ -79,13 +116,16 @@ const RecentItemIcon = ({ page }: { page: RecentPage }): ReactElement => {
     image = otherUser?.image;
   } else if (type === 'squad') {
     image = squad?.image;
+  } else if (type === 'source') {
+    image = source?.image;
   }
 
   if (image) {
     return (
       <Image
         src={image}
-        type={type === 'squad' ? ImageType.Squad : ImageType.Avatar}
+        // Sources/squads are square logos; users are round avatars.
+        type={type === 'user' ? ImageType.Avatar : ImageType.Squad}
         alt=""
         aria-hidden
         className="size-5 rounded-6 object-cover"
@@ -93,7 +133,7 @@ const RecentItemIcon = ({ page }: { page: RecentPage }): ReactElement => {
     );
   }
 
-  return <ListIcon Icon={() => iconForType(type)} />;
+  return <ListIcon Icon={() => iconForType(page, type)} />;
 };
 
 // v2 Home panel: the last few non-post pages the user visited (profiles,
