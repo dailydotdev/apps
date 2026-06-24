@@ -508,6 +508,10 @@ export enum LogEvent {
   ClickGivebackEditCauses = 'click giveback edit causes',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
+  StartGivebackFunnel = 'start giveback funnel',
+  ViewGivebackFunnelStep = 'view giveback funnel step',
+  CompleteGivebackFunnel = 'complete giveback funnel',
+  ClickGivebackHowItWorks = 'click giveback how it works',
 }
 
 export enum TargetType {

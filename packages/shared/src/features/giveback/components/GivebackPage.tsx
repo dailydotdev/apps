@@ -1,13 +1,21 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { InfoIcon } from '../../../components/icons';
+import usePersistentContext from '../../../hooks/usePersistentContext';
 import { GivebackBackground } from './GivebackBackground';
+import { GivebackFunnel } from './GivebackFunnel';
 import { GivebackHero } from './GivebackHero';
 import { GivebackSponsorTiers } from './GivebackSponsorTiers';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
@@ -50,8 +58,16 @@ export const GivebackPage = (): ReactElement => {
   const [completedOnboarding, setCompletedOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState<GivebackTabId>('actions');
 
+  // The warm-up funnel runs full-screen once for everyone, then only on demand
+  // via "How it works". Wait for the persisted flag so returning users never see
+  // a flash of it.
+  const [funnelSeen, setFunnelSeen, funnelLoaded] =
+    usePersistentContext<boolean>('giveback:funnel_seen', false, [true, false]);
+  const [replayFunnel, setReplayFunnel] = useState(false);
+
   const showTabs = selection.hasSavedCauses || completedOnboarding;
   const showPicker = startedPicker && !showTabs;
+  const showFunnel = replayFunnel || (funnelLoaded && funnelSeen === false);
 
   // Hold the hero CTA until we know the onboarding state, so its copy doesn't
   // flip from "Join the campaign" to "Take action" after the data lands. Settled
@@ -102,6 +118,35 @@ export const GivebackPage = (): ReactElement => {
     }
   }, [selection, goToActions, logEvent]);
 
+  const handleHowItWorks = useCallback(() => {
+    logEvent({ event_name: LogEvent.ClickGivebackHowItWorks });
+    setReplayFunnel(true);
+  }, [logEvent]);
+
+  // Finishing the funnel locks in the seen flag and saves the visitor's causes.
+  // A forced first run then drops them into the campaign; a replay just closes.
+  const handleFunnelComplete = useCallback(async () => {
+    const wasReplay = replayFunnel;
+    await setFunnelSeen(true);
+    const saved = await selection.save();
+    if (saved) {
+      logEvent({
+        event_name: LogEvent.SaveGivebackCauses,
+        extra: JSON.stringify({
+          cause_count: selection.selectedIds.size,
+          cause_ids: [...selection.selectedIds],
+          origin: 'funnel',
+        }),
+      });
+    }
+    if (wasReplay) {
+      setReplayFunnel(false);
+      return;
+    }
+    setCompletedOnboarding(true);
+    goToActions();
+  }, [replayFunnel, setFunnelSeen, selection, logEvent, goToActions]);
+
   // Reveal the picker, then bring it into view as it mounts.
   useEffect(() => {
     if (showPicker) {
@@ -123,6 +168,17 @@ export const GivebackPage = (): ReactElement => {
             onJoin={() => setStartedPicker(true)}
             onTakeAction={goToActions}
           />
+          <FlexRow className="mt-4 justify-center">
+            <Button
+              type="button"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Float}
+              icon={<InfoIcon />}
+              onClick={handleHowItWorks}
+            >
+              How it works
+            </Button>
+          </FlexRow>
         </div>
 
         <div className={column}>
@@ -197,6 +253,15 @@ export const GivebackPage = (): ReactElement => {
       )}
 
       {showTabs && <GivebackFundingBar onTakeAction={goToActions} />}
+
+      {showFunnel && (
+        <GivebackFunnel
+          selection={selection}
+          canClose={replayFunnel}
+          onClose={() => setReplayFunnel(false)}
+          onComplete={handleFunnelComplete}
+        />
+      )}
     </div>
   );
 };
