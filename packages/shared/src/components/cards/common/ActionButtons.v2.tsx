@@ -5,6 +5,7 @@ import type { Post } from '../../../graphql/posts';
 import { CardAction } from '../../buttons/CardAction';
 import { CardActionBar } from '../../buttons/CardActionBar';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
   DownvoteIcon,
@@ -20,6 +21,11 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
+import {
+  formatImpressions,
+  getPostImpressions,
+} from '../../../lib/impressions';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -104,6 +110,8 @@ const ActionButtons = ({
       brandLogo: animationResult.brandLogo,
     };
   }, [getUpvoteAnimation, post.tags]);
+
+  const onImpressionsClick = usePostImpressionsModal(post);
 
   if (isFeedPreview) {
     return null;
@@ -218,6 +226,24 @@ const ActionButtons = ({
             label="Copy link"
             onClick={onCopyLink}
             color={ButtonColor.Cabbage}
+            buttonClassName={classNames(
+              variant === 'list' && 'pointer-events-auto',
+            )}
+          />
+        </Tooltip>
+        <Tooltip
+          content="Impressions"
+          side={variant === 'grid' ? 'bottom' : undefined}
+        >
+          <CardAction
+            id={`post-${post.id}-impressions-btn`}
+            density={FEED_CARD_DENSITY}
+            icon={<AnalyticsIcon />}
+            label="Impressions"
+            count={getPostImpressions(post)}
+            countFormat={formatImpressions}
+            onClick={onImpressionsClick}
+            color={ButtonColor.Cheese}
             buttonClassName={classNames(
               variant === 'list' && 'pointer-events-auto',
             )}

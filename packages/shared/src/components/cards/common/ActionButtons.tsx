@@ -5,6 +5,7 @@ import type { Post } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
   DownvoteIcon,
@@ -21,6 +22,11 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
+import {
+  formatImpressions,
+  getPostImpressions,
+} from '../../../lib/impressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
 
@@ -113,6 +119,8 @@ const ActionButtonsV1 = ({
       brandLogo: animationResult.brandLogo,
     };
   }, [getUpvoteAnimation, post.tags]);
+
+  const onImpressionsClick = usePostImpressionsModal(post);
 
   if (isFeedPreview) {
     return null;
@@ -268,6 +276,30 @@ const ActionButtonsV1 = ({
             color={ButtonColor.Cabbage}
             className={variant === 'list' ? 'pointer-events-auto' : undefined}
           />
+        </Tooltip>
+        <Tooltip
+          content="Impressions"
+          side={variant === 'grid' ? 'bottom' : undefined}
+        >
+          <QuaternaryButton
+            labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
+            id={`post-${post.id}-impressions-btn`}
+            size={config.buttonSize}
+            icon={<AnalyticsIcon size={config.iconSize} />}
+            onClick={onImpressionsClick}
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Cheese}
+            className={variant === 'list' ? 'pointer-events-auto' : undefined}
+          >
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums',
+                variant === 'grid' && 'typo-footnote',
+              )}
+              value={getPostImpressions(post)}
+              format={formatImpressions}
+            />
+          </QuaternaryButton>
         </Tooltip>
       </div>
     </div>
