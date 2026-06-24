@@ -33,10 +33,10 @@ const outerClasses = 'pointer-events-none absolute inset-x-2 bottom-2 z-1';
 // actions evenly across the pill: the icons keep equal gaps and a long counter
 // (e.g. 900 upvotes / 900 comments) just grows its own button instead of
 // clipping or shoving a neighbour off its mark.
-// `px-1` matches the 4px the h-8 pill leaves above/below its h-6 buttons, so
-// the padding is equal on all four sides.
+// The pill stays h-10 (its original height) so it reads as a comfortable bar,
+// while the buttons themselves are the smaller XSmall size.
 const pillClasses = classNames(
-  'pointer-events-auto flex h-8 w-full items-center justify-between overflow-hidden px-1',
+  'pointer-events-auto flex h-10 w-full items-center justify-between overflow-hidden px-1',
   'rounded-12 border border-border-subtlest-tertiary',
   'text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
@@ -170,12 +170,13 @@ export function FeedCardGlassActions({
               color={ButtonColor.Cheese}
               className="pointer-events-auto"
             >
-              {impressions > 0 && (
-                <InteractionCounter
-                  className={countClasses}
-                  value={impressions}
-                />
-              )}
+              {/* Always render the impression count (even 0) so the number is
+                  visible to everyone — unlike upvotes/comments it is not hidden
+                  at zero. */}
+              <InteractionCounter
+                className={countClasses}
+                value={impressions}
+              />
             </QuaternaryButton>
           </Tooltip>
           {showDownvoteAction && (
