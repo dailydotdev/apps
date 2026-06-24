@@ -202,9 +202,7 @@ export function PostActions({
           layout="between"
           className="overflow-hidden p-2"
         >
-          <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-          >
+          <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
             <CardAction
               id="upvote-post-btn"
               pressed={isUpvoteActive}
@@ -217,9 +215,7 @@ export function PostActions({
               color={ButtonColor.Avocado}
             />
           </Tooltip>
-          <Tooltip
-            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-          >
+          <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
             <CardAction
               id="downvote-post-btn"
               pressed={isDownvoteActive}

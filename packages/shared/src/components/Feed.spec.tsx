@@ -572,7 +572,7 @@ describe('Feed logged in', () => {
       },
       completeActionMock({ action: ActionType.VotePost }),
     ]);
-    const [el] = await screen.findAllByLabelText('More like this');
+    const [el] = await screen.findAllByLabelText('Upvote');
     el.click();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
@@ -687,7 +687,7 @@ describe('Feed logged in', () => {
       }),
     ]);
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('More like this');
+      const [el] = await screen.findAllByLabelText('Upvote');
       const parent = getRequiredValue(
         el.parentElement,
         'Expected upvote button parent element',
@@ -706,7 +706,7 @@ describe('Feed logged in', () => {
       },
     });
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('More like this');
+      const [el] = await screen.findAllByLabelText('Upvote');
       const parent = getRequiredValue(
         el.parentElement,
         'Expected upvote button parent element after subscription',
@@ -1688,7 +1688,7 @@ describe('Feed annonymous', () => {
       ],
       undefined,
     );
-    const [el] = await screen.findAllByLabelText('More like this');
+    const [el] = await screen.findAllByLabelText('Upvote');
     el.click();
     expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
   });

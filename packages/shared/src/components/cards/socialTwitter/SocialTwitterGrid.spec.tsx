@@ -126,7 +126,7 @@ it('should not render media for thread cards even when image exists', async () =
     },
   });
 
-  expect(await screen.findByLabelText('More like this')).toBeInTheDocument();
+  expect(await screen.findByLabelText('Upvote')).toBeInTheDocument();
   expect(screen.queryByAltText('Tweet media')).not.toBeInTheDocument();
 });
 
@@ -260,6 +260,6 @@ it('should keep actions visible when there is no media and no shared post detail
     },
   });
 
-  expect(await screen.findByLabelText('More like this')).toBeInTheDocument();
+  expect(await screen.findByLabelText('Upvote')).toBeInTheDocument();
   expect(screen.queryByAltText('Tweet media')).not.toBeInTheDocument();
 });
