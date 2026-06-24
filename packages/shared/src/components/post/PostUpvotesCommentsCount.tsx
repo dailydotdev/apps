@@ -8,11 +8,7 @@ import { Image } from '../image/Image';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
-import { canViewPostAnalytics } from '../../lib/user';
-import { useAuthContext } from '../../contexts/AuthContext';
 import Link from '../utilities/Link';
-import { Button, ButtonSize } from '../buttons/Button';
-import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 
 const DEFAULT_REPOSTS_PER_PAGE = 20;
@@ -43,7 +39,6 @@ interface PostUpvotesCommentsCountProps {
 type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
   onRepostsClick?: () => unknown;
   onAwardsClick?: () => unknown;
-  showPostAnalytics?: boolean;
 };
 
 const PostUpvotesCommentsCountContent = ({
@@ -52,7 +47,6 @@ const PostUpvotesCommentsCountContent = ({
   onCommentsClick,
   onRepostsClick,
   onAwardsClick,
-  showPostAnalytics = false,
   className,
   compact = false,
   passive = false,
@@ -95,11 +89,6 @@ const PostUpvotesCommentsCountContent = ({
       )}
       data-testid="statsBar"
     >
-      {!!post.analytics?.impressions && (
-        <span>
-          {getText({ count: post.analytics.impressions, label: 'Impression' })}
-        </span>
-      )}
       {upvotes > 0 &&
         renderText({
           key: 'upvotes',
@@ -112,6 +101,32 @@ const PostUpvotesCommentsCountContent = ({
           onClick: onCommentsClick,
           children: getText({ count: comments, label: 'Comment' }),
         })}
+      {/* Impressions sit right after comments and look like the other stats; the
+          analytics page is opened by tapping them (replacing the old blue
+          "Post analytics" button). Only present when the API returns analytics
+          (author / team). */}
+      {!!post.analytics?.impressions &&
+        (post.id && !passive ? (
+          <Link
+            key="impressions"
+            href={`${webappUrl}posts/${post.id}/analytics`}
+            passHref
+          >
+            <ClickableText tag="a" textClassName="text-text-tertiary">
+              {getText({
+                count: post.analytics.impressions,
+                label: 'Impression',
+              })}
+            </ClickableText>
+          </Link>
+        ) : (
+          <span key="impressions">
+            {getText({
+              count: post.analytics.impressions,
+              label: 'Impression',
+            })}
+          </span>
+        ))}
       {reposts > 0 &&
         renderText({
           key: 'reposts',
@@ -136,18 +151,6 @@ const PostUpvotesCommentsCountContent = ({
             </span>
           ),
         })}
-      {showPostAnalytics && (
-        <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
-          <Button
-            tag="a"
-            size={ButtonSize.XSmall}
-            className="font-normal text-text-link"
-            icon={<AnalyticsIcon />}
-          >
-            Post analytics
-          </Button>
-        </Link>
-      )}
     </div>
   );
 };
@@ -160,7 +163,6 @@ const InteractivePostUpvotesCommentsCount = ({
   compact,
 }: PostUpvotesCommentsCountProps): ReactElement => {
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
   const awards = post.numAwards || 0;
   const hasAccessToCores = useHasAccessToCores();
   if (!post.id) {
@@ -213,7 +215,6 @@ const InteractivePostUpvotesCommentsCount = ({
             }
           : undefined
       }
-      showPostAnalytics={canViewPostAnalytics({ user, post })}
       className={className}
       compact={compact}
     />

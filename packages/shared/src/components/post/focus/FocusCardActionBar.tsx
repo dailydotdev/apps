@@ -269,6 +269,17 @@ export const FocusCardActionBar = ({
               onClick={onComment}
             />
           </Tooltip>
+          <Tooltip content="Impressions">
+            <CardAction
+              id="impressions-post-btn"
+              label="Impressions"
+              color={ButtonColor.Cheese}
+              icon={<AnalyticsIcon />}
+              count={isPinned ? impressions : undefined}
+              countFormat={formatImpressions}
+              onClick={onImpressionsClick}
+            />
+          </Tooltip>
           {canAward && (
             <Tooltip
               content={isAwarded ? 'You already awarded this post!' : 'Award'}
@@ -313,17 +324,6 @@ export const FocusCardActionBar = ({
               />
             </Tooltip>
           </div>
-          <Tooltip content="Impressions">
-            <CardAction
-              id="impressions-post-btn"
-              label="Impressions"
-              color={ButtonColor.Cheese}
-              icon={<AnalyticsIcon />}
-              count={isPinned ? impressions : undefined}
-              countFormat={formatImpressions}
-              onClick={onImpressionsClick}
-            />
-          </Tooltip>
           {post.clickbaitTitleDetected && (
             <PostClickbaitShield post={post} iconOnly />
           )}
