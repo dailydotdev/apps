@@ -238,6 +238,7 @@ export function TagsDirectoryPage({
                   <TagDirectoryListItem
                     key={tag.value}
                     tag={tag.value}
+                    title={tag.flags?.title}
                     isFollowed={followedTags.has(tag.value)}
                     onToggleFollow={onToggleFollow}
                   />
@@ -339,6 +340,7 @@ export function TagsDirectoryPage({
                         <TagDirectoryListItem
                           key={tag.value}
                           tag={tag.value}
+                          title={tag.flags?.title}
                           isFollowed={followedTags.has(tag.value)}
                           onToggleFollow={onToggleFollow}
                         />
