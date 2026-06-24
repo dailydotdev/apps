@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
-import { addDays, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
-import { DayStreak, Streak } from './DayStreak';
+import { DayStreak } from './DayStreak';
+import { getStreak, getStreakDays } from '../../../hooks/streaks/useStreakDays';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import type { ReadingDay, UserStreak } from '../../../graphql/users';
 import { getReadingStreak30Days } from '../../../graphql/users';
@@ -14,7 +14,6 @@ import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon, VIcon, WarningIcon } from '../../icons';
-import { isWeekend, DayOfWeek } from '../../../lib/date';
 import {
   DEFAULT_TIMEZONE,
   getTimezoneOffsetLabel,
@@ -47,60 +46,6 @@ import { NotificationSvg } from '../../notifications/NotificationSvg';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
-
-const getStreak = ({
-  value,
-  today,
-  history,
-  startOfWeek = DayOfWeek.Monday,
-  timezone,
-}: {
-  value: Date;
-  today: Date;
-  history?: ReadingDay[];
-  startOfWeek?: number;
-  timezone?: string;
-}): Streak => {
-  const isFreezeDay = isWeekend(value, startOfWeek, timezone);
-  const isToday = isSameDayInTimezone(value, today, timezone);
-  const isFuture = value > today;
-  const isCompleted =
-    !isFuture &&
-    history?.some(({ date: historyDate, reads }) => {
-      const dateToCompare = new Date(historyDate);
-      const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
-
-      return sameDate && reads > 0;
-    });
-
-  if (isCompleted) {
-    return Streak.Completed;
-  }
-
-  if (isFreezeDay) {
-    return Streak.Freeze;
-  }
-
-  if (isToday) {
-    return Streak.Pending;
-  }
-
-  return Streak.Upcoming;
-};
-
-const getStreakDays = (today: Date) => {
-  return [
-    subDays(today, 4),
-    subDays(today, 3),
-    subDays(today, 2),
-    subDays(today, 1),
-    today,
-    addDays(today, 1),
-    addDays(today, 2),
-    addDays(today, 3),
-    addDays(today, 4),
-  ]; // these dates will then be compared to the user's post views
-};
 
 interface ReadingStreakPopupProps {
   streak: UserStreak;
