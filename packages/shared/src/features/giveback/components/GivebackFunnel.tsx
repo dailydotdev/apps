@@ -545,7 +545,7 @@ export const GivebackFunnel = ({
             <span
               key={key}
               className={classNames(
-                'h-2 rounded-full transition-all duration-300',
+                'h-2 rounded-4 transition-all duration-300',
                 index === stepIndex
                   ? 'w-5 bg-accent-cabbage-default'
                   : 'w-2 bg-border-subtlest-tertiary',
