@@ -43,7 +43,9 @@ it('should render post metadata and engagement stats as passive metadata', () =>
 
   expect(screen.getByText('Now')).toBeInTheDocument();
   expect(screen.getByText('4m read time')).toBeInTheDocument();
-  expect(screen.getByText('10 Impressions')).toBeInTheDocument();
+  // Impressions are shown only on the full post page/modal stats strip, not in
+  // the compact embed.
+  expect(screen.queryByText(/Impressions?$/)).not.toBeInTheDocument();
   expect(screen.getByText('1.2K Upvotes')).toBeInTheDocument();
   expect(screen.getByText('3 Comments')).toBeInTheDocument();
   expect(screen.getByText('5 Reposts')).toBeInTheDocument();

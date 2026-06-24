@@ -118,6 +118,7 @@ const PostUpvotesCommentsCountContent = ({
           const impressions = getPostImpressions({
             id: post.id,
             views: post.views,
+            analytics: post.analytics,
           });
           const label = getText({ count: impressions, label: 'Impression' });
           return !passive ? (

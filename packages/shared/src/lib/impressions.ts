@@ -28,20 +28,21 @@ export const formatImpressions = (value: number | null): string => {
 };
 
 /**
- * MOCK FALLBACK — the feed does not yet return real per-post impressions
- * (`post.views` is currently empty in the feed payload), so when it is missing
- * we derive a stable, realistic-looking number from the post id purely so the
- * impressions UI can be reviewed on a preview build. When `views` is populated
- * we always use the real value.
+ * MOCK FALLBACK — per-post impressions are only populated in some payloads
+ * (`analytics.impressions` on the post detail for authors/team, `views` once
+ * the feed exposes it). When a real value is present we always use it; when it
+ * is missing we derive a stable, realistic-looking number from the post id
+ * purely so the impressions UI can be reviewed on a preview build.
  *
  * @engineer Replace this fallback with the real impressions field once the API
- * exposes it on the feed — keep only the `post.views` branch.
+ * exposes it everywhere — keep only the real-value branch.
  */
 export const getPostImpressions = (
-  post: Pick<Post, 'id' | 'views'>,
+  post: Pick<Post, 'id' | 'views' | 'analytics'>,
 ): number => {
-  if (typeof post.views === 'number' && post.views > 0) {
-    return post.views;
+  const real = post.analytics?.impressions ?? post.views;
+  if (typeof real === 'number' && real > 0) {
+    return real;
   }
 
   // Deterministic hash of the id → a stable number in ~100K–3M so each card
