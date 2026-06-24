@@ -39,11 +39,14 @@ export const StreakQuestsSection = (): ReactElement => {
   const heroShown = isStreakEnabled && !!streak;
 
   return (
-    <div className="flex flex-col pb-2">
+    // h-full + flex so the hero stays fixed and the quest list fills the rest of
+    // the panel, scrolling inside its own area (the Nav is stretched to the
+    // scroll wrapper for this panel — see SidebarDesktopV2 `isStreakPanel`).
+    <div className="flex h-full min-h-0 flex-col">
       {/* Reading streak — the hero. */}
       {heroShown && (
         <>
-          <div className="flex flex-col px-4 pb-4 pt-1">
+          <div className="flex shrink-0 flex-col px-4 pb-4 pt-1">
             <div className="flex items-start justify-between">
               <Typography
                 type={TypographyType.Title1}
@@ -101,7 +104,7 @@ export const StreakQuestsSection = (): ReactElement => {
             </div>
             <StreakMonthCalendar streak={streak} />
           </div>
-          <HorizontalSeparator className="mx-3 w-auto" />
+          <HorizontalSeparator className="mx-3 w-auto shrink-0" />
         </>
       )}
 
@@ -110,8 +113,8 @@ export const StreakQuestsSection = (): ReactElement => {
           streaks are off the panel title is already "Daily Quests", so the list
           stands alone with no redundant header. */}
       {heroShown ? (
-        <div className="group/section">
-          <div className="flex min-h-9 items-center px-3">
+        <div className="group/section flex min-h-0 flex-1 flex-col">
+          <div className="flex min-h-9 shrink-0 items-center px-3">
             <button
               type="button"
               onClick={() => setQuestsOpen((open) => !open)}
@@ -134,22 +137,24 @@ export const StreakQuestsSection = (): ReactElement => {
           <div
             className={classNames(
               'grid transition-[grid-template-rows,opacity] duration-300',
+              // When open the list flex-fills the panel and scrolls inside; when
+              // closed it collapses (no flex-1, so grid-rows-[0fr] can shrink it).
               questsOpen
-                ? 'grid-rows-[1fr] opacity-100'
+                ? 'min-h-0 flex-1 grid-rows-[1fr] opacity-100'
                 : 'grid-rows-[0fr] opacity-0',
             )}
           >
-            <div className="min-h-0 overflow-hidden">
+            <div className="flex min-h-0 flex-col overflow-hidden">
               {/* px-3 so the quest rows' hover pills inset like every other v2
                   panel list (mx-3 ≈ 12px). */}
-              <div className="max-h-96 overflow-y-auto px-3 pb-2">
+              <div className="flex-1 overflow-y-auto px-3 pb-2">
                 <CompactQuestList />
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="max-h-96 overflow-y-auto px-3 pb-2 pt-2">
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-2 pt-2">
           <CompactQuestList />
         </div>
       )}

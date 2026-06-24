@@ -1522,6 +1522,12 @@ export const SidebarDesktopV2 = ({
   const isHomePanel =
     !showCreatePanel && activeCategory === SidebarCategory.Main;
   const isUtilityPanelSelected = !isHomePanel;
+  // The streak/quests panel owns its own height: the hero stays fixed up top and
+  // the quest list fills the rest of the panel and scrolls inside that area
+  // (rather than a fixed-height scroll box leaving dead space below). For that
+  // the Nav must stretch to the scroll wrapper, so the section can flex-fill it.
+  const isStreakPanel =
+    !showCreatePanel && activeCategory === SidebarCategory.GameCenter;
   const utilityPanelTitle = (() => {
     if (showCreatePanel) {
       return 'New post';
@@ -1851,14 +1857,19 @@ export const SidebarDesktopV2 = ({
                 </DndContext>
               </div>
 
-              {/* Top frame separator — shown whenever the dock is rendered (even
-                with zero shortcuts) so the empty "•••" sits under the same
-                separator as the with-shortcuts state and adding the first
-                shortcut doesn't shift anything. */}
+              {/* Top frame separator. With shortcuts it's always visible. With
+                zero shortcuts it reveals on sidebar hover in step with the empty
+                "•••" button (which is hover-only), so an empty dock shows neither
+                by default. Its space is always reserved (opacity only), so adding
+                the first shortcut never shifts anything. */}
               {showInlineDock && (
                 <div
                   aria-hidden
-                  className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+                  className={classNames(
+                    'my-1 h-px w-6 bg-border-subtlest-tertiary',
+                    shortcutCount === 0 &&
+                      'opacity-0 transition-opacity group-hover:opacity-100',
+                  )}
                 />
               )}
 
@@ -2029,7 +2040,12 @@ export const SidebarDesktopV2 = ({
               showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
             )}
           >
-            <Nav className={isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0'}>
+            <Nav
+              className={classNames(
+                isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
+                isStreakPanel && 'min-h-0 flex-1',
+              )}
+            >
               {renderSelectedSection()}
             </Nav>
           </SidebarScrollWrapper>
