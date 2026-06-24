@@ -31,6 +31,7 @@ import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
+import { getPostImpressions } from '../../lib/impressions';
 import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
@@ -250,7 +251,7 @@ export function PostActions({
               id="impressions-post-btn"
               icon={<AnalyticsIcon />}
               label="Impressions"
-              count={post.views ?? 0}
+              count={getPostImpressions(post)}
               color={ButtonColor.Cheese}
             />
           </Tooltip>

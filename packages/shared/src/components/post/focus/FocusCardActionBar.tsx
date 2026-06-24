@@ -30,6 +30,7 @@ import {
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { LoggedUser } from '../../../lib/user';
+import { getPostImpressions } from '../../../lib/impressions';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { PostMenuOptions } from '../PostMenuOptions';
 
@@ -105,7 +106,7 @@ export const FocusCardActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  const impressions = post.views || 0;
+  const impressions = getPostImpressions(post);
   // The bar floats (sticky) from tablet up, so surface the metrics + menu
   // whenever it's actually pinned there — including when a long post floats it
   // at the bottom on load, where the stats row above has scrolled off. Below
