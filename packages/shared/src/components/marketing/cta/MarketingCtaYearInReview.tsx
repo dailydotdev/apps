@@ -182,7 +182,7 @@ export function MarketingCtaYearInReview({
                 bold
                 className="mb-1 text-white"
                 style={{
-                  textShadow: '3px 3px 0 #FF8E3B, 6px 6px 0 #CE3DF3',
+                  textShadow: '3px 3px 0 #FF9157, 6px 6px 0 #BA56E1',
                 }}
               >
                 2025

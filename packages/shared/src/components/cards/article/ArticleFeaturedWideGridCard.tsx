@@ -261,7 +261,11 @@ export const ArticleFeaturedWideGridCard = forwardRef(
               </>
             ) : (
               <>
-                <CardTextContainer>
+                <CardTextContainer
+                  className={
+                    useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
+                  }
+                >
                   <PostCardHeader
                     post={post}
                     className="flex"
@@ -271,7 +275,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     onReadArticleClick={onReadArticleClick}
                     showFeedback={false}
                   />
-                  <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
+                  <h3
+                    className={classNames(
+                      'mt-2 break-words font-bold text-text-primary typo-title1',
+                      useGlass ? 'line-clamp-3' : 'line-clamp-4',
+                    )}
+                  >
                     {title}
                   </h3>
                   <div className="mt-2 flex min-w-0 items-center gap-2">
@@ -291,28 +300,27 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     className="mt-1"
                   />
                   {description ? (
-                    <p
-                      className={classNames(
-                        'mt-2 text-text-secondary typo-callout',
-                        // The glass action bar floats over the column bottom.
-                        // Clamp one line tighter and reserve its height (pb-12)
-                        // so the summary never sits under it.
-                        useGlass ? 'line-clamp-2 pb-12' : 'line-clamp-3',
-                      )}
-                    >
+                    <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
                       {description}
                     </p>
                   ) : null}
                 </CardTextContainer>
                 {useGlass ? (
-                  <FeedCardGlassActions
-                    post={post}
-                    onUpvoteClick={onUpvoteClick}
-                    onCommentClick={onCommentClick}
-                    onCopyLinkClick={onCopyLinkClick}
-                    onBookmarkClick={onBookmarkClick}
-                    onDownvoteClick={onDownvoteClick}
-                  />
+                  <>
+                    {/* Reserve the floating bar's footprint (h-10 + bottom-2)
+                        plus a small gap in the flow so the clipped text column
+                        always ends above it — long titles or summaries can never
+                        render behind the bar. */}
+                    <div aria-hidden className="h-14 shrink-0" />
+                    <FeedCardGlassActions
+                      post={post}
+                      onUpvoteClick={onUpvoteClick}
+                      onCommentClick={onCommentClick}
+                      onCopyLinkClick={onCopyLinkClick}
+                      onBookmarkClick={onBookmarkClick}
+                      onDownvoteClick={onDownvoteClick}
+                    />
+                  </>
                 ) : (
                   <Container>
                     <CardSpace />

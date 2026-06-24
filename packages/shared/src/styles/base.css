@@ -826,7 +826,7 @@ details.right-icon {
 }
 
 .squad-background-fade {
-  background: radial-gradient(ellipse, #c029f088 0%, #c029f000 400px);
+  background: radial-gradient(ellipse, #B14BD788 0%, #B14BD700 400px);
   background-size: 1200px 500px;
   background-position: center -250px;
   background-repeat: no-repeat;
@@ -923,7 +923,7 @@ meter::-webkit-meter-bar {
   }
 
   &-best-price {
-    background: linear-gradient(135deg, #E769FB 0%, #9E70F8 44.71%, #68A6FD 100%);
+    background: linear-gradient(135deg, #D97EFE 0%, #887BF8 44.71%, #7BA7FF 100%);
   }
 }
 

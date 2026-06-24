@@ -74,7 +74,7 @@ const mockPricingParameters: FunnelStepPricingV2['parameters'] = {
       label: 'Monthly',
       badge: {
         text: 'Popular',
-        background: '#CE3DF3',
+        background: '#BA56E1',
       },
     },
     {

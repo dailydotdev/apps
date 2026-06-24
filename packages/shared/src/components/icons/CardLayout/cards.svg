@@ -3,9 +3,9 @@
     <title>card-illustration</title>
     <defs>
         <linearGradient x1="100%" y1="15.5495749%" x2="8.70699985%" y2="84.4504251%" id="linearGradient-1">
-            <stop stop-color="#383C47" offset="0%"></stop>
-            <stop stop-color="#383C47" offset="0%"></stop>
-            <stop stop-color="#17191F" offset="100%"></stop>
+            <stop stop-color="#383C44" offset="0%"></stop>
+            <stop stop-color="#383C44" offset="0%"></stop>
+            <stop stop-color="#161921" offset="100%"></stop>
         </linearGradient>
     </defs>
     <g id="Feed-filters" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
