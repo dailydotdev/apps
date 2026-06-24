@@ -34,6 +34,7 @@ import {
   formatImpressions,
   getPostImpressions,
 } from '../../../lib/impressions';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { PostMenuOptions } from '../PostMenuOptions';
 
@@ -110,6 +111,7 @@ export const FocusCardActionBar = ({
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
   const impressions = getPostImpressions(post);
+  const onImpressionsClick = usePostImpressionsModal(post);
   // The bar floats (sticky) from tablet up, so surface the metrics + menu
   // whenever it's actually pinned there — including when a long post floats it
   // at the bottom on load, where the stats row above has scrolled off. Below
@@ -323,6 +325,7 @@ export const FocusCardActionBar = ({
               icon={<AnalyticsIcon />}
               count={isPinned ? impressions : undefined}
               countFormat={formatImpressions}
+              onClick={onImpressionsClick}
             />
           </Tooltip>
           {post.clickbaitTitleDetected && (

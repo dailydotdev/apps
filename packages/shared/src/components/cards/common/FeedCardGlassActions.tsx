@@ -17,6 +17,7 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import {
   formatImpressions,
   getPostImpressions,
@@ -39,8 +40,12 @@ const outerClasses = 'pointer-events-none absolute inset-x-2 bottom-2 z-1';
 // clipping or shoving a neighbour off its mark.
 // The pill stays h-10 (its original height) so it reads as a comfortable bar,
 // while the buttons themselves are the smaller XSmall size.
+// Asymmetric `pl-1 pr-2.5`: the left edge holds the upvote icon while the right
+// edge holds the impressions number — a number reads tighter against the edge
+// than an icon, so it needs more padding to look optically balanced (per
+// jakub.kr "details that make interfaces feel better").
 const pillClasses = classNames(
-  'pointer-events-auto flex h-10 w-full items-center justify-between overflow-hidden px-1',
+  'pointer-events-auto flex h-10 w-full items-center justify-between overflow-hidden pl-1 pr-2.5',
   'rounded-12 border border-border-subtlest-tertiary',
   'text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
@@ -92,6 +97,7 @@ export function FeedCardGlassActions({
     onBookmarkClick,
     onCopyLinkClick,
   });
+  const onImpressionsClick = usePostImpressionsModal(post);
 
   if (isFeedPreview) {
     return null;
@@ -217,6 +223,7 @@ export function FeedCardGlassActions({
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Cheese}
+              onClick={onImpressionsClick}
               className="pointer-events-auto"
             >
               {/* Always render the impression count (even 0) so the number is

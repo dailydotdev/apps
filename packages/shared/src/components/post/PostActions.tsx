@@ -27,6 +27,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { AwardProps } from '../../graphql/njord';
 import { getProductsQueryOptions } from '../../graphql/njord';
+import { usePostImpressionsModal } from '../../hooks/post/usePostImpressionsModal';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
@@ -58,6 +59,7 @@ function PostActionsV1({
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const actionsRef = useRef<HTMLDivElement>(null);
+  const onImpressionsClick = usePostImpressionsModal(post);
   const canAward = useCanAwardUser({
     sendingUser: user,
     receivingUser: post.author as LoggedUser | undefined,
@@ -343,6 +345,7 @@ function PostActionsV1({
               aria-label="Impressions"
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Cheese}
+              onClick={onImpressionsClick}
             >
               <InteractionCounter
                 className="tabular-nums"
