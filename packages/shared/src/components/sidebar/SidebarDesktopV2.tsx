@@ -1375,16 +1375,13 @@ export const SidebarDesktopV2 = ({
             railTabClass,
             // The selected pill is the shared sliding indicator in the tablist;
             // the button only owns its text color (a bg here would paint over
-            // the sliding pill and kill the morph). The reading-streak tab uses
-            // its brand pink for the selected label instead of white.
-            isSelected &&
-              (isStreakTab
-                ? '!text-accent-bacon-default'
-                : '!text-text-primary'),
+            // the sliding pill and kill the morph). Every tab — streak included —
+            // uses the same white selected label.
+            isSelected && '!text-text-primary',
             // `group/streaktab` scopes the StreakBadge's hover-white border to
-            // this tab. The hover/preview background stays the default
-            // surface-hover (same as every other tab) — pink is reserved for the
-            // selected pill + label, not the hover state.
+            // this tab. The tab background matches every other tab (float on
+            // hover, neutral pill when selected) — the streak's pink lives only
+            // on its square StreakBadge.
             isStreakTab && 'group/streaktab',
             isPreviewing && 'bg-surface-hover text-text-primary',
           )}
@@ -1821,13 +1818,10 @@ export const SidebarDesktopV2 = ({
                 <span
                   aria-hidden
                   className={classNames(
-                    'pointer-events-none absolute inset-x-0 top-0 z-0 rounded-12',
-                    // The reading-streak tab's selected pill uses the brand pink
-                    // (a subtle bacon tint so the pink flame still reads); every
-                    // other tab keeps the neutral pill.
-                    selectedCategory === SidebarCategory.GameCenter
-                      ? 'bg-accent-bacon-flat'
-                      : 'bg-background-default',
+                    'pointer-events-none absolute inset-x-0 top-0 z-0 rounded-12 bg-background-default',
+                    // Every tab — the reading-streak one included — uses the same
+                    // neutral selected pill. The streak's pink lives only on its
+                    // square StreakBadge (via the badge's selected state).
                     pillReady &&
                       'transition-[transform,height,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
                   )}
