@@ -53,7 +53,9 @@ const useMockSelection = (preset: string[] = []) => {
 
 export const Forced: Story = {
   render: () => {
-    const selection = useMockSelection(['c-oss', 'c-scholarships']);
+    // Nothing pre-selected — matches a brand-new user picking causes for the
+    // first time.
+    const selection = useMockSelection();
     return <GivebackFunnel selection={selection} onComplete={() => undefined} />;
   },
 };
