@@ -242,15 +242,6 @@ export function PostActions({
             labelVisible
             color={ButtonColor.BlueCheese}
           />
-          <Tooltip content="Impressions">
-            <CardAction
-              id="impressions-post-btn"
-              icon={<AnalyticsIcon />}
-              label="Impressions"
-              count={getPostImpressions(post)}
-              color={ButtonColor.Cheese}
-            />
-          </Tooltip>
           {canAward && (
             <ConditionalWrapper
               condition={isAwarded}
@@ -313,6 +304,15 @@ export function PostActions({
             labelVisible
             color={ButtonColor.Cabbage}
           />
+          <Tooltip content="Impressions">
+            <CardAction
+              id="impressions-post-btn"
+              icon={<AnalyticsIcon />}
+              label="Impressions"
+              count={getPostImpressions(post)}
+              color={ButtonColor.Cheese}
+            />
+          </Tooltip>
         </CardActionBar>
       </div>
       {showTagsPanel !== undefined && (

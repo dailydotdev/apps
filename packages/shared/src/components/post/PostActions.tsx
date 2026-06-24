@@ -263,20 +263,6 @@ function PostActionsV1({
           >
             Comment
           </QuaternaryButton>
-          <Tooltip content="Impressions">
-            <QuaternaryButton
-              id="impressions-post-btn"
-              icon={<AnalyticsIcon />}
-              aria-label="Impressions"
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Cheese}
-            >
-              <InteractionCounter
-                className="tabular-nums"
-                value={getPostImpressions(post)}
-              />
-            </QuaternaryButton>
-          </Tooltip>
           {canAward && (
             <ConditionalWrapper
               condition={post?.userState?.awarded ?? false}
@@ -350,6 +336,20 @@ function PostActionsV1({
               Copy
             </QuaternaryButton>
           </div>
+          <Tooltip content="Impressions">
+            <QuaternaryButton
+              id="impressions-post-btn"
+              icon={<AnalyticsIcon />}
+              aria-label="Impressions"
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cheese}
+            >
+              <InteractionCounter
+                className="tabular-nums"
+                value={getPostImpressions(post)}
+              />
+            </QuaternaryButton>
+          </Tooltip>
         </div>
       </div>
       {showTagsPanel !== undefined && (

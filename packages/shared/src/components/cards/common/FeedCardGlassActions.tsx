@@ -162,25 +162,6 @@ export function FeedCardGlassActions({
               )}
             </QuaternaryButton>
           </Tooltip>
-          <Tooltip content="Impressions" side="bottom">
-            <QuaternaryButton
-              labelClassName={countLabelClasses}
-              id={`post-${post.id}-impressions-btn`}
-              icon={<AnalyticsIcon size={IconSize.Size16} />}
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Cheese}
-              className="pointer-events-auto"
-            >
-              {/* Always render the impression count (even 0) so the number is
-                  visible to everyone — unlike upvotes/comments it is not hidden
-                  at zero. */}
-              <InteractionCounter
-                className={countClasses}
-                value={impressions}
-              />
-            </QuaternaryButton>
-          </Tooltip>
           {showDownvoteAction && (
             <Tooltip
               content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
@@ -224,6 +205,25 @@ export function FeedCardGlassActions({
               color={ButtonColor.Cabbage}
               className="pointer-events-auto"
             />
+          </Tooltip>
+          <Tooltip content="Impressions" side="bottom">
+            <QuaternaryButton
+              labelClassName={countLabelClasses}
+              id={`post-${post.id}-impressions-btn`}
+              icon={<AnalyticsIcon size={IconSize.Size16} />}
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cheese}
+              className="pointer-events-auto"
+            >
+              {/* Always render the impression count (even 0) so the number is
+                  visible to everyone — unlike upvotes/comments it is not hidden
+                  at zero. */}
+              <InteractionCounter
+                className={countClasses}
+                value={impressions}
+              />
+            </QuaternaryButton>
           </Tooltip>
         </div>
       </div>
