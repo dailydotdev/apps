@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import type { CSSProperties, ReactElement, ReactNode, RefObject } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
@@ -30,6 +30,7 @@ import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelecti
 import { GivebackBackground } from './GivebackBackground';
 import { GivebackMascot } from './GivebackMascot';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
+import { GivebackCampaignVideo } from './GivebackCampaignVideo';
 
 type CauseSelection = ReturnType<typeof useGivebackCauseSelection>;
 
@@ -87,37 +88,85 @@ const Stage = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-// Step 1 hero: the whole idea as one picture. Ad budget (muted, struck through)
-// is redirected into real causes (bright, prominent) so the value lands fast.
-const BudgetRedirect = (): ReactElement => (
-  <FlexRow className="items-center gap-4 tablet:gap-6">
-    <FlexCol className="opacity-70 items-center gap-2">
-      <span className="flex size-16 items-center justify-center rounded-20 border border-border-subtlest-tertiary bg-surface-float text-text-quaternary [&_svg]:size-8">
-        <CoinIcon />
-      </span>
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-        className="line-through"
-      >
-        Ad spend
-      </Typography>
-    </FlexCol>
+// The campaign explainer that starts inline on step 1, then docks to a floating
+// bottom-right player for the rest of the funnel. It is a SINGLE mounted
+// instance positioned over an in-flow slot (step 1) or pinned to the corner
+// (later steps), so playback never restarts when it moves.
+const DOCK_WIDTH = 320;
 
-    <span className="text-accent-cabbage-default motion-safe:animate-glow-pulse [&_svg]:size-7">
-      <ArrowIcon className="rotate-90" />
-    </span>
+const GivebackFunnelVideo = ({
+  slotRef,
+  docked,
+  onClose,
+}: {
+  slotRef: RefObject<HTMLDivElement>;
+  docked: boolean;
+  onClose: () => void;
+}): ReactElement | null => {
+  const [style, setStyle] = useState<CSSProperties | null>(null);
 
-    <FlexCol className="items-center gap-2">
-      <span className="flex size-24 items-center justify-center rounded-24 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage [&_svg]:size-12">
-        <EarthIcon />
-      </span>
-      <Typography type={TypographyType.Caption1} bold>
-        Real causes
-      </Typography>
-    </FlexCol>
-  </FlexRow>
-);
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    const update = () => {
+      if (docked) {
+        const width = Math.min(DOCK_WIDTH, window.innerWidth - 32);
+        const height = (width * 9) / 16;
+        setStyle({
+          top: window.innerHeight - height - 16,
+          left: window.innerWidth - width - 16,
+          width,
+        });
+        return;
+      }
+      const el = slotRef.current;
+      if (!el) {
+        setStyle(null);
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      setStyle({ top: rect.top, left: rect.left, width: rect.width });
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    let observer: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== 'undefined' && slotRef.current) {
+      observer = new ResizeObserver(update);
+      observer.observe(slotRef.current);
+    }
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+      observer?.disconnect();
+    };
+  }, [docked, slotRef]);
+
+  if (!style) {
+    return null;
+  }
+
+  return (
+    <div
+      className="z-10 fixed transition-[top,left,width] duration-500 ease-in-out motion-reduce:transition-none"
+      style={style}
+    >
+      <div className="relative shadow-2">
+        <GivebackCampaignVideo />
+        {docked && (
+          <CloseButton
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Primary}
+            className="absolute right-2 top-2 z-1"
+            onClick={onClose}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
 
 // Step 2: the whole campaign at a glance, so the flow is never a mystery.
 const FLOW_STEPS: ReadonlyArray<{
@@ -374,6 +423,11 @@ export const GivebackFunnel = ({
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === STEP_KEYS.length - 1;
 
+  // The explainer plays inline on step 1, then floats in the corner; one mounted
+  // instance keeps it playing across the move.
+  const videoSlotRef = useRef<HTMLDivElement>(null);
+  const [videoClosed, setVideoClosed] = useState(false);
+
   useEffect(() => {
     logEvent({
       event_name: LogEvent.StartGivebackFunnel,
@@ -533,12 +587,39 @@ export const GivebackFunnel = ({
       case 'intro':
       default:
         return (
-          <StepLayout
-            stage={<BudgetRedirect />}
-            eyebrow="daily.dev giveback"
-            title="Your activity funds real causes"
-            body="daily.dev would rather back developers than ad networks. So we take our marketing budget and donate it, and you decide where it goes."
-          />
+          <FlexCol className="w-full items-center gap-5 text-center">
+            {/* The floating player overlays this slot while on step 1. */}
+            <div
+              ref={videoSlotRef}
+              aria-hidden
+              className="aspect-video w-full max-w-xl"
+            />
+            <Reveal delay={90}>
+              <Eyebrow>daily.dev giveback</Eyebrow>
+            </Reveal>
+            <Reveal delay={180}>
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.Title1}
+                bold
+                className="[text-wrap:balance]"
+              >
+                Your activity funds real causes
+              </Typography>
+            </Reveal>
+            <Reveal delay={270}>
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+                className="max-w-xl [text-wrap:pretty]"
+              >
+                daily.dev would rather back developers than ad networks. So we
+                take our marketing budget and donate it, and you decide where it
+                goes.
+              </Typography>
+            </Reveal>
+          </FlexCol>
         );
     }
   };
@@ -615,6 +696,14 @@ export const GivebackFunnel = ({
           </Button>
         </Reveal>
       </footer>
+
+      {!videoClosed && (
+        <GivebackFunnelVideo
+          slotRef={videoSlotRef}
+          docked={stepIndex > 0}
+          onClose={() => setVideoClosed(true)}
+        />
+      )}
     </div>
   );
 };
