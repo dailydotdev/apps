@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -8,11 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import {
-  MegaphoneIcon,
-  OpenLinkIcon,
-  SettingsIcon,
-} from '../../components/icons';
+import { ArrowIcon, MegaphoneIcon, SettingsIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import {
   Button,
@@ -20,7 +16,11 @@ import {
   ButtonVariant,
 } from '../../components/buttons/Button';
 import { ElementPlaceholder } from '../../components/ElementPlaceholder';
+import { BookmarkButton } from '../../components/buttons/BookmarkButton';
 import Link from '../../components/utilities/Link';
+import { useBookmarkPost } from '../../hooks/useBookmarkPost';
+import type { UseVotePostProps } from '../../hooks/vote/types';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { feedLogExtra, postLogEvent } from '../../lib/feed';
@@ -32,6 +32,12 @@ import {
   dailyHeadlinesQueryOptions,
 } from '../../graphql/highlights';
 import { HeadlinesSettingsModal } from './HeadlinesSettingsModal';
+import { DailyPostVotes } from './DailyPostVotes';
+import type { UpdateDailyPost } from './optimisticMutations';
+import {
+  createBookmarkOnMutate,
+  createVoteOnMutate,
+} from './optimisticMutations';
 
 // channelConfigurations.color holds the full Tailwind text class per channel.
 const DEFAULT_COLOR_CLASS = 'text-text-tertiary';
@@ -46,14 +52,21 @@ const HeadlineRow = ({
   channelName,
   colorClass,
   position,
-  onClick,
+  onExpand,
+  onBookmark,
+  onVoteMutate,
 }: {
   highlight: Post;
   channelName: string;
   colorClass: string;
   position: number;
-  onClick: () => void;
+  onExpand: () => void;
+  onBookmark: () => void;
+  onVoteMutate: UseVotePostProps['onMutate'];
 }): ReactElement => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const summary = highlight.summary || highlight.sharedPost?.summary;
+  const panelId = `daily-headline-${highlight.id}`;
   const impressionRef = useLogImpression(
     {
       type: FeedItemType.Post,
@@ -72,39 +85,98 @@ const HeadlineRow = ({
     Origin.DailyPage,
   );
 
+  const onToggle = () => {
+    const willOpen = !isExpanded;
+    setIsExpanded(willOpen);
+    if (willOpen) {
+      onExpand();
+    }
+  };
+
   return (
     <li ref={impressionRef}>
-      <Link href={highlight.commentsPermalink} passHref>
-        <a
-          href={highlight.commentsPermalink}
-          onClick={onClick}
-          className="group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float tablet:px-5"
-        >
-          <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-1">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
+        className={classNames(
+          'group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors tablet:px-5',
+          !isExpanded && 'hover:bg-surface-float',
+        )}
+      >
+        <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-1">
+          <Typography
+            type={TypographyType.Caption1}
+            bold
+            className={classNames('capitalize', colorClass)}
+          >
+            {channelName}
+          </Typography>
+          <Typography
+            tag={TypographyTag.H3}
+            type={TypographyType.Body}
+            bold
+            color={TypographyColor.Primary}
+            className="!leading-snug"
+          >
+            {highlight.title}
+          </Typography>
+        </div>
+        <ArrowIcon
+          size={IconSize.XSmall}
+          className={classNames(
+            'ml-auto shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
+            isExpanded ? 'rotate-0' : 'rotate-180',
+          )}
+          aria-hidden
+        />
+      </button>
+      {isExpanded ? (
+        <div id={panelId} className="flex flex-col gap-3 px-4 pb-4 tablet:px-5">
+          {summary ? (
             <Typography
-              type={TypographyType.Caption1}
-              bold
-              className={classNames('capitalize', colorClass)}
-            >
-              {channelName}
-            </Typography>
-            <Typography
-              tag={TypographyTag.H3}
               type={TypographyType.Body}
-              bold
               color={TypographyColor.Primary}
-              className="!leading-snug"
+              className="max-w-3xl !leading-relaxed"
             >
-              {highlight.title}
+              {summary}
             </Typography>
+          ) : null}
+          <div className="mt-1 flex w-full flex-wrap items-center justify-between gap-3">
+            <Link href={highlight.commentsPermalink} passHref>
+              <a
+                href={highlight.commentsPermalink}
+                className="inline-flex shrink-0 items-center gap-1 font-bold text-text-link typo-footnote hover:underline"
+              >
+                Read full breakdown
+                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+              </a>
+            </Link>
+            <div className="ml-auto flex items-center gap-1">
+              <BookmarkButton
+                post={highlight}
+                iconSize={IconSize.Small}
+                buttonProps={{
+                  size: ButtonSize.Small,
+                  onClick: onBookmark,
+                }}
+              />
+              <DailyPostVotes
+                post={highlight}
+                origin={Origin.DailyPage}
+                opts={{
+                  columns: 1,
+                  column: 0,
+                  row: position,
+                  ...dailyFeedExtra(),
+                }}
+                onMutate={onVoteMutate}
+              />
+            </div>
           </div>
-          <OpenLinkIcon
-            size={IconSize.XSmall}
-            className="ml-auto shrink-0 text-text-quaternary"
-            aria-hidden
-          />
-        </a>
-      </Link>
+        </div>
+      ) : null}
     </li>
   );
 };
@@ -125,6 +197,38 @@ export const CoverTopics = (): ReactElement => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { data, isPending } = useQuery(dailyHeadlinesQueryOptions());
   const { data: channelData } = useQuery(channelConfigurationsQueryOptions());
+  const [getHeadlines, setHeadlines] = useUpdateQuery(
+    dailyHeadlinesQueryOptions(),
+  );
+
+  const updatePost = useCallback<UpdateDailyPost>(
+    (postId, manipulate) => {
+      const current = getHeadlines();
+
+      if (!current) {
+        return;
+      }
+
+      current.dailyHeadlines.edges.forEach((edge) => {
+        if (edge.node.id === postId) {
+          Object.assign(edge.node, manipulate(edge.node));
+        }
+      });
+
+      setHeadlines(current);
+    },
+    [getHeadlines, setHeadlines],
+  );
+
+  const onVoteMutate = useMemo(
+    () => createVoteOnMutate(updatePost),
+    [updatePost],
+  );
+  const onBookmarkMutate = useMemo(
+    () => createBookmarkOnMutate(updatePost),
+    [updatePost],
+  );
+  const { toggleBookmark } = useBookmarkPost({ onMutate: onBookmarkMutate });
 
   const channelBySourceId = useMemo(
     () =>
@@ -151,6 +255,19 @@ export const CoverTopics = (): ReactElement => {
         ...dailyFeedExtra(),
       }),
     );
+  };
+
+  const onHeadlineBookmark = (post: Post, position: number) => {
+    toggleBookmark({
+      post,
+      origin: Origin.DailyPage,
+      opts: {
+        columns: 1,
+        column: 0,
+        row: position,
+        ...dailyFeedExtra(),
+      },
+    });
   };
 
   return (
@@ -211,7 +328,9 @@ export const CoverTopics = (): ReactElement => {
                 }
                 colorClass={config?.color || DEFAULT_COLOR_CLASS}
                 position={index}
-                onClick={() => onHeadlineClick(highlight, index)}
+                onExpand={() => onHeadlineClick(highlight, index)}
+                onBookmark={() => onHeadlineBookmark(highlight, index)}
+                onVoteMutate={onVoteMutate}
               />
             );
           })}
