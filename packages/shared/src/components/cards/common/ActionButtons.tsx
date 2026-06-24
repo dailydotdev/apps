@@ -84,11 +84,14 @@ const ActionButtonsV1 = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  // Below laptop, shrink to the glass feed bar's size (XSmall / 16px icons) so
-  // the action bar stays compact and consistent on small resolutions.
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const buttonSize = isLaptop ? config.buttonSize : ButtonSize.XSmall;
-  const iconSize = isLaptop ? config.iconSize : IconSize.Size16;
+  const { buttonSize, iconSize } = config;
+  // On mobile/tablet keep full-size icons but shrink the count so the icon
+  // reads as the primary affordance and the number as a subtle stat.
+  const counterClassName = classNames(
+    'tabular-nums',
+    isLaptop ? variant === 'grid' && 'typo-footnote' : 'typo-caption1',
+  );
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -154,7 +157,10 @@ const ActionButtonsV1 = ({
       >
         {commentCount > 0 && (
           <InteractionCounter
-            className={classNames('tabular-nums', !commentCount && 'invisible')}
+            className={classNames(
+              counterClassName,
+              !commentCount && 'invisible',
+            )}
             value={commentCount}
           />
         )}
@@ -174,7 +180,7 @@ const ActionButtonsV1 = ({
         {commentCount > 0 && (
           <InteractionCounter
             className={classNames(
-              'tabular-nums !typo-footnote',
+              counterClassName,
               !commentCount && 'invisible',
             )}
             value={commentCount}
@@ -216,10 +222,7 @@ const ActionButtonsV1 = ({
           >
             {upvoteCount > 0 && (
               <InteractionCounter
-                className={classNames(
-                  'tabular-nums',
-                  variant === 'grid' && 'typo-footnote',
-                )}
+                className={counterClassName}
                 value={upvoteCount}
               />
             )}
@@ -297,10 +300,7 @@ const ActionButtonsV1 = ({
             )}
           >
             <InteractionCounter
-              className={classNames(
-                'tabular-nums',
-                variant === 'grid' && 'typo-footnote',
-              )}
+              className={counterClassName}
               value={getPostImpressions(post)}
               format={formatImpressions}
             />
