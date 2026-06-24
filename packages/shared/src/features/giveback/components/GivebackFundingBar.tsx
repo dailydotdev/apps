@@ -24,7 +24,7 @@ interface GivebackFundingBarProps {
 
 // Persistent personal-progress bar for the onboarded experience. Deliberately
 // spare: the exact amount you've unlocked, one explicit next reward, and the
-// CTA — nothing else competing for attention in the thumb zone.
+// CTA - nothing else competing for attention in the thumb zone.
 export const GivebackFundingBar = ({
   onTakeAction,
 }: GivebackFundingBarProps): ReactElement => {

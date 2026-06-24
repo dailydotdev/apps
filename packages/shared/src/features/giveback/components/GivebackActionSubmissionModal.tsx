@@ -206,8 +206,8 @@ export const GivebackActionSubmissionModal = ({
                     type={TypographyType.Callout}
                     className="text-text-tertiary"
                   >
-                    This one&apos;s a voluntary thank-you — no reward or
-                    donation is attached. We just genuinely appreciate it.
+                    This one&apos;s a voluntary thank-you. No reward or donation
+                    is attached. We just genuinely appreciate it.
                   </Typography>
                 </FlexCol>
                 {metadata.instructions && (

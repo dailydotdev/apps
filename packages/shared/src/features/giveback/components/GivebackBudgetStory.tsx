@@ -17,7 +17,7 @@ interface GivebackBudgetStoryProps {
   headline: { title: string; highlight: string };
 }
 
-// "Why we do it" — kept short and emotional. The headline + reason stack in a
+// "Why we do it" - kept short and emotional. The headline + reason stack in a
 // left column with the charm beside both as the "genie" who grants the
 // community's wishes, so the row stays tight with no empty space top/bottom.
 export const GivebackBudgetStory = ({

@@ -48,7 +48,7 @@ export const GivebackPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { status } = useContributionStatus();
   // Eligibility gates the cause picker query (backend-gated), so only eligible
-  // visitors load their picks — which also tells us whether to show the tabs.
+  // visitors load their picks - which also tells us whether to show the tabs.
   const isEligible = status?.eligible === true;
   const selection = useGivebackCauseSelection(isEligible);
 

@@ -22,7 +22,7 @@ interface TierStyle {
   // A FIXED logo height (not max-height): many brand SVGs ship with only a
   // viewBox and no width/height, so `w-auto max-h-*` collapses their width to 0
   // and they render blank. A fixed height lets the browser derive width from the
-  // viewBox aspect ratio. Each tier also caps width proportional to its height —
+  // viewBox aspect ratio. Each tier also caps width proportional to its height -
   // otherwise wide wordmark logos hit a shared cap and shrink, flattening the
   // size hierarchy so gold and silver end up looking the same. Steps down by
   // prestige: gold biggest, bronze smallest.
@@ -58,7 +58,7 @@ const TIER_ORDER: ContributionSponsorTier[] = [
 
 // A sponsor logo, monochrome (light-tinted) at rest so the mixed brand logos
 // read as one calm row; on hover the tile fills white and reveals the logo's
-// true colors. The logo only counts once it actually decodes — until then
+// true colors. The logo only counts once it actually decodes - until then
 // (loading, hung, blocked, 404, zero-size, or no URL) the name shows so nothing
 // is ever blank.
 const SponsorLogo = ({

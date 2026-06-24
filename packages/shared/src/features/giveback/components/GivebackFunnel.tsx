@@ -141,7 +141,7 @@ const FundingPot = (): ReactElement => {
 };
 
 // A real, concrete example pulled from the take-action list: the visitor "tries"
-// an action and immediately sees the result — a posted share + money landing in
+// an action and immediately sees the result - a posted share + money landing in
 // the pot. Makes the abstract mechanic tangible.
 const GivebackActionDemo = (): ReactElement => {
   const [done, setDone] = useState(false);
@@ -204,7 +204,7 @@ const GivebackActionDemo = (): ReactElement => {
               </span>
             </FlexRow>
             <Typography type={TypographyType.Footnote}>
-              Just found @dailydotdev — the home for developers. The feed
+              Just found @dailydotdev, the home for developers. The feed
               actually gets me. Worth a look 👀
             </Typography>
             <FlexRow className="items-center gap-4 text-text-tertiary [&_svg]:size-4">
@@ -322,7 +322,7 @@ export const GivebackFunnel = ({
       event_name: LogEvent.StartGivebackFunnel,
       extra: JSON.stringify({ mode: canClose ? 'replay' : 'forced' }),
     });
-    // Only on mount — a fresh funnel run is one "start".
+    // Only on mount - a fresh funnel run is one "start".
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -371,7 +371,7 @@ export const GivebackFunnel = ({
             stage={<FundingPot />}
             eyebrow="How it works"
             title="You act. We pay. Causes win."
-            body="Every action you take drops money into one shared pot. Hit the goal together and we donate it — automatically. It never costs you a cent."
+            body="Every action you take drops money into one shared pot. Hit the goal together and we donate it automatically. It never costs you a cent."
           />
         );
       case 'causes':
@@ -410,8 +410,8 @@ export const GivebackFunnel = ({
               selection.selectedCount > 0
                 ? `Your ${selection.selectedCount} ${
                     selection.selectedCount === 1 ? 'pick goes' : 'picks go'
-                  } straight to the people behind them — open-source maintainers, students, and devs who can't afford access. No middlemen.`
-                : 'This money goes straight to the people behind these causes — open-source maintainers, students, and devs who can’t afford access. No middlemen.'
+                  } straight to the people behind them: open-source maintainers, students, and devs who can't afford access. No middlemen.`
+                : "This money goes straight to the people behind these causes: open-source maintainers, students, and devs who can't afford access. No middlemen."
             }
           />
         );
@@ -456,7 +456,7 @@ export const GivebackFunnel = ({
             }
             eyebrow="daily.dev giveback"
             title="Your activity funds real causes"
-            body="daily.dev would rather back developers than ad networks. So we take our marketing budget and donate it — and you decide where it goes."
+            body="daily.dev would rather back developers than ad networks. So we take our marketing budget and donate it, and you decide where it goes."
           />
         );
     }

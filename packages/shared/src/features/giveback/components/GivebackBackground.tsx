@@ -3,7 +3,7 @@ import React from 'react';
 
 // daily.dev brand canvas: the signature pink → purple → blue gradient (cabbage →
 // onion → blueCheese) glowing softly from the top of a dark surface, the way the
-// marketing site and Plus pages feel — smooth and pastel, no hard shapes or
+// marketing site and Plus pages feel - smooth and pastel, no hard shapes or
 // grids. Every tint is a theme token via color-mix so it tracks the design
 // system, and a whisper of grain keeps the gradient from banding.
 const brandSweep: CSSProperties = {
@@ -19,7 +19,7 @@ const brandSweep: CSSProperties = {
     'radial-gradient(125% 75% at 50% -10%, black, transparent 70%)',
 };
 
-// A soft horizon glow anchored to the bottom edge for depth — a wide, flat
+// A soft horizon glow anchored to the bottom edge for depth - a wide, flat
 // ellipse, so it's ambient light rather than a circle.
 const horizonGlow: CSSProperties = {
   background:
@@ -43,7 +43,7 @@ export const GivebackBackground = (): ReactElement => (
     className="pointer-events-none absolute inset-0 overflow-hidden"
   >
     {/* The brand glow is a fixed-height hero band anchored to the top. Sizing it
-        in px (not inset-0) keeps it consistent — otherwise its mask scales with
+        in px (not inset-0) keeps it consistent - otherwise its mask scales with
         the page height and the glow spreads down on longer pages. */}
     <div className="absolute inset-x-0 top-0 h-[42rem]" style={brandSweep} />
     <div className="absolute inset-0" style={horizonGlow} />

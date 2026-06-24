@@ -92,7 +92,7 @@ interface RoadmapNode {
   connector?: ConnectorFill;
 }
 
-// A straight rectangular track between nodes — no rounded "pill" ends. Width is
+// A straight rectangular track between nodes - no rounded "pill" ends. Width is
 // a crisp 3px line; the fill colors echo the node states (green = cleared).
 const Connector = ({ fill }: { fill: ConnectorFill }): ReactElement => (
   <div className="relative w-[3px] flex-1">

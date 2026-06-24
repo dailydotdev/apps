@@ -53,7 +53,7 @@ const Meter = ({
   </div>
 );
 
-// Compact funding block for the hero sidebar — the crowdfunding "pledge panel":
+// Compact funding block for the hero sidebar - the crowdfunding "pledge panel":
 // raised, goal and progress at a glance. Points come back from the contribution
 // API as whole currency units, so they format directly as dollars.
 export const GivebackFundingSummary = (): ReactElement => {

@@ -20,7 +20,7 @@ import { formatDonationAmount } from '../utils';
 
 // Personal recap shown above the action catalog: how much the visitor has
 // unlocked for their causes and the next reward they're working toward. No
-// rank, level or leaderboard — the campaign starts from scratch, so this stays
+// rank, level or leaderboard - the campaign starts from scratch, so this stays
 // a purely personal progress cue.
 export const GivebackContributionSummary = (): ReactElement => {
   const { user } = useAuthContext();

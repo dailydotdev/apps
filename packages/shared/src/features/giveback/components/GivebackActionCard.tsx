@@ -48,7 +48,7 @@ interface PlatformLogoProps {
 
 // Prefers the real brand logo (an SVG from the logo CDN) and falls back to the
 // internal glyph if there is no logo for the surface or the remote one fails to
-// load — so a tile is never broken or blank. The parent tile already pins the
+// load - so a tile is never broken or blank. The parent tile already pins the
 // background and applies the dimmed/grayscale treatment.
 const PlatformLogo = ({
   logoUrl,
@@ -80,7 +80,7 @@ const PlatformLogo = ({
   );
 };
 
-// One sharp, explicit title carries the ask — no competing subtitle. The
+// One sharp, explicit title carries the ask - no competing subtitle. The
 // supporting details (payout, status, "just for love") sit in a calm top/bottom
 // frame around it so the card stays easy to scan at a glance.
 export const GivebackActionCard = ({
@@ -282,7 +282,7 @@ export const GivebackActionCard = ({
             : 'bg-surface-float hover:bg-surface-hover',
         )}
       >
-        {/* Glossy sheen that sweeps across on hover — a small reward flourish. */}
+        {/* Glossy sheen that sweeps across on hover - a small reward flourish. */}
         <span
           aria-hidden
           className="via-white/10 pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full motion-reduce:hidden"
@@ -297,7 +297,7 @@ export const GivebackActionCard = ({
   // read as temporary rather than finished.
   return (
     <FlexCol
-      aria-label={`${action.title} — ${statusMeta?.label ?? ''}`}
+      aria-label={`${action.title}, ${statusMeta?.label ?? ''}`}
       className={classNames(
         'h-full w-full gap-3 rounded-16 p-4',
         isDone
