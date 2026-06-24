@@ -1,6 +1,33 @@
 import type { Post } from '../graphql/posts';
 
 /**
+ * X/Twitter-style compact number: a decimal only shows while the abbreviated
+ * value is < 10 (1.2K, 9.9K, 1.8M) and is dropped once it reaches double digits
+ * (12K, 137K, 45M) — so the decimal point isn't displayed at every magnitude.
+ * Applied at all resolutions.
+ */
+export const formatImpressions = (value: number | null): string => {
+  if (value == null || !Number.isFinite(value)) {
+    return '0';
+  }
+  if (Math.abs(value) < 1000) {
+    return String(Math.round(value));
+  }
+  const units = ['K', 'M', 'B', 'T'];
+  let scaled = value;
+  let unit = -1;
+  while (Math.abs(scaled) >= 1000 && unit < units.length - 1) {
+    scaled /= 1000;
+    unit += 1;
+  }
+  const compact =
+    Math.abs(scaled) < 10
+      ? (Math.round(scaled * 10) / 10).toFixed(1).replace(/\.0$/, '')
+      : String(Math.round(scaled));
+  return `${compact}${units[unit]}`;
+};
+
+/**
  * MOCK FALLBACK — the feed does not yet return real per-post impressions
  * (`post.views` is currently empty in the feed payload), so when it is missing
  * we derive a stable, realistic-looking number from the post id purely so the

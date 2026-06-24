@@ -30,7 +30,10 @@ import {
 } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { LoggedUser } from '../../../lib/user';
-import { getPostImpressions } from '../../../lib/impressions';
+import {
+  formatImpressions,
+  getPostImpressions,
+} from '../../../lib/impressions';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { PostMenuOptions } from '../PostMenuOptions';
 
@@ -319,6 +322,7 @@ export const FocusCardActionBar = ({
               color={ButtonColor.Cheese}
               icon={<AnalyticsIcon />}
               count={isPinned ? impressions : undefined}
+              countFormat={formatImpressions}
             />
           </Tooltip>
           {post.clickbaitTitleDetected && (

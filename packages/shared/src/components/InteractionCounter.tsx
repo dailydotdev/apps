@@ -7,20 +7,23 @@ import { largeNumberFormat } from '../lib';
 export type InteractionCounterProps = {
   className?: string;
   value: number | null;
+  /** Override the number formatter (defaults to `largeNumberFormat`). */
+  format?: (value: number | null) => string | null;
 };
 
 export default function InteractionCounter({
   className,
   value,
+  format = largeNumberFormat,
   ...props
 }: InteractionCounterProps): ReactElement {
   const [shownValue, setShownValue] = useState(value);
   const [animate, setAnimate] = useState(false);
   useEffect(() => {
-    const formattedValue = largeNumberFormat(value);
-    const formattedShownValue = largeNumberFormat(shownValue);
+    const formattedValue = format(value);
+    const formattedShownValue = format(shownValue);
     if (formattedValue !== formattedShownValue) {
-      if (value < shownValue) {
+      if ((value ?? 0) < (shownValue ?? 0)) {
         setShownValue(value);
       } else {
         setAnimate(false);
@@ -39,7 +42,7 @@ export default function InteractionCounter({
   if (shownValue === value) {
     return (
       <span className={elementClassName} {...props}>
-        {largeNumberFormat(shownValue)}
+        {format(shownValue)}
       </span>
     );
   }
@@ -60,7 +63,7 @@ export default function InteractionCounter({
           animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100',
         )}
       >
-        {largeNumberFormat(shownValue)}
+        {format(shownValue)}
       </span>
       <span
         className={classNames(
@@ -69,7 +72,7 @@ export default function InteractionCounter({
         )}
         onTransitionEnd={updateShownValue}
       >
-        {largeNumberFormat(value)}
+        {format(value)}
       </span>
     </span>
   );

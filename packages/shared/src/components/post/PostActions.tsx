@@ -31,7 +31,7 @@ import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
-import { getPostImpressions } from '../../lib/impressions';
+import { formatImpressions, getPostImpressions } from '../../lib/impressions';
 import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
@@ -347,6 +347,7 @@ function PostActionsV1({
               <InteractionCounter
                 className="tabular-nums"
                 value={getPostImpressions(post)}
+                format={formatImpressions}
               />
             </QuaternaryButton>
           </Tooltip>
