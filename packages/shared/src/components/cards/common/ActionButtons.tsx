@@ -245,7 +245,9 @@ const ActionButtonsV1 = ({
             />
           </Tooltip>
         )}
-        {showAwardAction && <PostAwardAction post={post} iconSize={iconSize} />}
+        {showAwardAction && isLaptop && (
+          <PostAwardAction post={post} iconSize={iconSize} />
+        )}
         <BookmarkButton
           tooltipSide={variant === 'grid' ? 'bottom' : undefined}
           post={post}
@@ -289,7 +291,10 @@ const ActionButtonsV1 = ({
             onClick={onImpressionsClick}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cheese}
-            className={variant === 'list' ? 'pointer-events-auto' : undefined}
+            className={classNames(
+              'btn-tertiary-cheese',
+              variant === 'list' && 'pointer-events-auto',
+            )}
           >
             <InteractionCounter
               className={classNames(

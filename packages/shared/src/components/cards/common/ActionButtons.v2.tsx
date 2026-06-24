@@ -11,7 +11,7 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor } from '../../buttons/ButtonV2';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, useViewSize, ViewSize } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons/BookmarkButton.v2';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -76,6 +76,8 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  // Awards are hidden in the feed below laptop (tablet + mobile).
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -202,7 +204,7 @@ const ActionButtons = ({
             />
           </Tooltip>
         )}
-        {showAwardAction && (
+        {showAwardAction && isLaptop && (
           <PostAwardAction post={post} density={FEED_CARD_DENSITY} />
         )}
         <BookmarkButton
