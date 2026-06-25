@@ -708,7 +708,7 @@ export const GivebackPersonalRoadmap = ({
             {hasImpact ? (
               <Typography
                 tag={TypographyTag.H2}
-                type={TypographyType.LargeTitle}
+                type={TypographyType.Title2}
                 bold
                 className="max-w-2xl [text-wrap:balance]"
               >
@@ -722,7 +722,7 @@ export const GivebackPersonalRoadmap = ({
             ) : (
               <Typography
                 tag={TypographyTag.H2}
-                type={TypographyType.LargeTitle}
+                type={TypographyType.Title2}
                 bold
                 className="max-w-2xl [text-wrap:balance]"
               >

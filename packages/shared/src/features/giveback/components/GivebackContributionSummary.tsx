@@ -66,41 +66,7 @@ export const GivebackContributionSummary = (): ReactElement => {
       )}
 
       <FlexCol className="min-w-0 flex-1 gap-1">
-        <FlexRow className="items-center gap-1.5">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            bold
-            className="uppercase tracking-wider"
-          >
-            Your contribution
-          </Typography>
-          <span className="group/info relative flex">
-            <button
-              type="button"
-              aria-label="How your contribution is counted"
-              className="flex text-text-tertiary transition-colors hover:text-text-primary group-focus-within/info:text-text-primary"
-            >
-              <InfoIcon size={IconSize.Size16} />
-            </button>
-            <span
-              role="tooltip"
-              className="pointer-events-none absolute left-0 top-full z-3 mt-2 w-56 rounded-10 border border-border-subtlest-tertiary bg-background-default p-2.5 text-left opacity-0 shadow-2 transition-opacity duration-150 group-focus-within/info:opacity-100 group-hover/info:opacity-100"
-            >
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                Counts the moment you act, because we trust you. If a submission
-                is rejected, we&apos;ll subtract it.
-              </Typography>
-            </span>
-          </span>
-        </FlexRow>
-
-        <FlexRow className="items-baseline gap-2">
+        <FlexRow className="flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <Typography
             bold
             type={TypographyType.LargeTitle}
@@ -118,13 +84,37 @@ export const GivebackContributionSummary = (): ReactElement => {
         </FlexRow>
 
         {!isActionsPending && (
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {actionsTaken} {actionsTaken === 1 ? 'action' : 'actions'} taken
-          </Typography>
+          <FlexRow className="items-center gap-1.5">
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {actionsTaken} {actionsTaken === 1 ? 'action' : 'actions'} taken
+            </Typography>
+            <span className="group/info relative flex">
+              <button
+                type="button"
+                aria-label="How your contribution is counted"
+                className="flex text-text-tertiary transition-colors hover:text-text-primary group-focus-within/info:text-text-primary"
+              >
+                <InfoIcon size={IconSize.Size16} />
+              </button>
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute left-0 top-full z-3 mt-2 w-56 rounded-10 border border-border-subtlest-tertiary bg-background-default p-2.5 text-left opacity-0 shadow-2 transition-opacity duration-150 group-focus-within/info:opacity-100 group-hover/info:opacity-100"
+              >
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  Counts the moment you act, because we trust you. If a
+                  submission is rejected, we&apos;ll subtract it.
+                </Typography>
+              </span>
+            </span>
+          </FlexRow>
         )}
       </FlexCol>
     </FlexRow>

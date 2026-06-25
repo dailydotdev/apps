@@ -1,6 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
 import { FlexCol } from '../../../components/utilities';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../../components/typography/Typography';
 import usePersistentContext from '../../../hooks/usePersistentContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureGivebackSponsors } from '../../../lib/featureManagement';
@@ -147,6 +153,24 @@ export const GivebackPage = (): ReactElement => {
             >
               {activeTab === 'actions' && (
                 <FlexCol className="gap-6">
+                  <FlexCol className="gap-2">
+                    <Typography
+                      tag={TypographyTag.H2}
+                      type={TypographyType.Title2}
+                      bold
+                    >
+                      Your contribution
+                    </Typography>
+                    <Typography
+                      tag={TypographyTag.P}
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Secondary}
+                      className="max-w-2xl"
+                    >
+                      Every action you take unlocks real money for the causes
+                      you back. Pick one below and your contribution grows.
+                    </Typography>
+                  </FlexCol>
                   <GivebackContributionSummary />
                   <GivebackActionCatalog />
                 </FlexCol>
