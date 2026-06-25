@@ -622,9 +622,11 @@ export const GivebackPersonalRoadmap = ({
       approved >= level.requiredApprovedAmount && !claimedIds.has(level.id),
   ).length;
 
-  // Progress within the current segment (last reached → next level).
+  // Progress within the current segment (last reached → next level). With
+  // nothing reached yet the segment starts at 0, not the first tier's threshold
+  // (otherwise the denominator collapses to 0 and the bar sticks at 0%).
   const previousAmount =
-    levels[Math.max(0, reachedCount - 1)].requiredApprovedAmount;
+    reachedCount > 0 ? levels[reachedCount - 1].requiredApprovedAmount : 0;
   const segmentDenominator = nextLevel
     ? nextLevel.requiredApprovedAmount - previousAmount
     : 1;
