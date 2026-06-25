@@ -34,7 +34,17 @@ export const GivebackContributionSummary = (): ReactElement => {
   );
 
   if (isPending) {
-    return <div className="h-28 animate-pulse rounded-16 bg-surface-float" />;
+    // Matches the flat loaded layout (avatar + stat lines) so it doesn't flash
+    // from a card into a flat row when data lands.
+    return (
+      <FlexRow className="items-center gap-4 tablet:gap-5">
+        <div className="size-[72px] shrink-0 animate-pulse rounded-16 bg-surface-float" />
+        <FlexCol className="min-w-0 flex-1 gap-2">
+          <div className="h-7 w-48 max-w-full animate-pulse rounded-8 bg-surface-float" />
+          <div className="h-4 w-32 max-w-full animate-pulse rounded-8 bg-surface-float" />
+        </FlexCol>
+      </FlexRow>
+    );
   }
 
   return (
