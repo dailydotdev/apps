@@ -189,7 +189,7 @@ const FlowSequence = (): ReactElement => (
             {!isLast && (
               <span
                 aria-hidden
-                className="via-accent-cabbage-default/50 from-accent-avocado-default/60 to-accent-cheese-default/40 my-1 w-0.5 flex-1 rounded-full bg-gradient-to-b"
+                className="via-accent-cabbage-default/50 from-accent-avocado-default/60 to-accent-cheese-default/40 my-1 w-0.5 flex-1 rounded-2 bg-gradient-to-b"
               />
             )}
           </FlexCol>
@@ -492,8 +492,15 @@ export const GivebackFunnel = ({
         </div>
       </main>
 
-      <footer className="sticky bottom-0 mx-auto flex w-full max-w-md flex-col gap-4 px-6 pb-6 pt-3">
-        <FlexRow className="items-center gap-3">
+      {/* A solid, glass sticky bar so the controls never get lost over a busy
+          step (e.g. the cause grid). Full-bleed background with the buttons
+          centered in the page column. */}
+      <footer className="bg-background-default/80 sticky bottom-0 z-3 w-full border-t border-border-subtlest-secondary backdrop-blur-xl">
+        <div
+          aria-hidden
+          className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
+        />
+        <FlexRow className="mx-auto w-full max-w-md items-center gap-3 px-6 py-4">
           {!isFirst && (
             <Button
               type="button"

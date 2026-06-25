@@ -469,14 +469,14 @@ const NodeRow = ({
 
           {isNext && (
             <FlexCol className="gap-2">
-              <div className="relative h-1.5 overflow-hidden rounded-full bg-surface-float">
+              <div className="relative h-2 overflow-hidden rounded-6 bg-surface-float">
                 <div
-                  className="relative h-full overflow-hidden rounded-full bg-accent-cabbage-default transition-[width] duration-500"
+                  className="relative h-full overflow-hidden rounded-6 bg-accent-cabbage-default transition-[width] duration-500"
                   style={{ width: `${Math.round(segmentProgress * 100)}%` }}
                 >
                   <GivebackMeterShine
                     percentage={100}
-                    radiusClassName="rounded-full"
+                    radiusClassName="rounded-6"
                   />
                 </div>
               </div>

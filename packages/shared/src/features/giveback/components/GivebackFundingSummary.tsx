@@ -34,12 +34,12 @@ const Meter = ({
   // hairline border so the meter reads as a crisp, contained gauge.
   <div
     ref={meterRef}
-    className="relative h-5 overflow-hidden rounded-full border border-border-subtlest-tertiary bg-background-default"
+    className="relative h-5 overflow-hidden rounded-8 border border-border-subtlest-tertiary bg-background-default"
   >
     <ProgressBar
       percentage={percentage}
       className={{
-        bar: 'block h-full rounded-full transition-[width] duration-700 ease-out',
+        bar: 'block h-full rounded-6 transition-[width] duration-700 ease-out',
         barColor,
       }}
     />
@@ -48,26 +48,23 @@ const Meter = ({
       // "ready to fill" rather than broken.
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-8"
       >
         <div className="via-accent-cabbage-default/40 absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent to-transparent motion-safe:animate-meter-shine" />
       </div>
     ) : (
-      <GivebackMeterShine
-        percentage={percentage}
-        radiusClassName="rounded-full"
-      />
+      <GivebackMeterShine percentage={percentage} radiusClassName="rounded-6" />
     )}
     {MILESTONES.map((milestone) => (
       <span
         key={milestone}
         aria-hidden
-        className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-background-default"
+        className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-2 ring-2 ring-background-default"
         style={{ left: `${milestone}%` }}
       >
         <span
           className={classNames(
-            'block size-full rounded-full transition-colors duration-500',
+            'block size-full rounded-2 transition-colors duration-500',
             percentage >= milestone
               ? 'bg-white'
               : 'bg-border-subtlest-secondary',
@@ -97,7 +94,7 @@ export const GivebackFundingSummary = (): ReactElement => {
     return (
       <FlexCol className="gap-3">
         <div className="h-8 w-40 animate-pulse rounded-8 bg-surface-float" />
-        <div className="h-5 w-full rounded-full bg-surface-float" />
+        <div className="h-5 w-full rounded-8 bg-surface-float" />
         <div className="h-4 w-48 animate-pulse rounded-8 bg-surface-float" />
       </FlexCol>
     );
