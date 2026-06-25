@@ -19,7 +19,14 @@ import {
 } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
+import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
+import {
+  SendType,
+  usePersonalizedDigest,
+} from '../../hooks/usePersonalizedDigest';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { BriefPlusUpgradeCTA } from '../briefing/components/BriefPlusUpgradeCTA';
 
 interface HeadlinesSettingsModalProps
   extends Omit<ReactModal.Props, 'children'> {
@@ -78,6 +85,76 @@ const ChannelRow = ({
   );
 };
 
+// The Presidential Briefing is a separate Plus feature delivered via the Brief
+// personalized digest. Plus users toggle the subscription; non-Plus users see a
+// Plus upsell instead of the switch.
+const BriefSettingsRow = (): ReactElement => {
+  const queryClient = useQueryClient();
+  const { isPlus } = usePlusSubscription();
+  const {
+    getPersonalizedDigest,
+    subscribePersonalizedDigest,
+    unsubscribePersonalizedDigest,
+  } = usePersonalizedDigest();
+  const isSubscribed = !!getPersonalizedDigest(
+    UserPersonalizedDigestType.Brief,
+  );
+  const inputId = 'headline-toggle-brief';
+
+  const onToggle = async () => {
+    if (isSubscribed) {
+      await unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Brief,
+      });
+    } else {
+      await subscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Brief,
+        hour: 9,
+        sendType: SendType.Daily,
+      });
+    }
+
+    await queryClient.invalidateQueries({
+      queryKey: DAILY_HEADLINES_QUERY_KEY,
+    });
+  };
+
+  return (
+    <li className="flex w-full items-center justify-between gap-4 px-4 py-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+          bold
+        >
+          Presidential Briefing
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          className="!leading-snug"
+        >
+          A daily briefing of what matters, generated just for you based on your
+          preferences and interests.
+        </Typography>
+      </div>
+      {isPlus ? (
+        <Switch
+          inputId={inputId}
+          name={inputId}
+          checked={isSubscribed}
+          onToggle={onToggle}
+          aria-label={`${
+            isSubscribed ? 'Disable' : 'Enable'
+          } your daily briefing`}
+        />
+      ) : (
+        <BriefPlusUpgradeCTA />
+      )}
+    </li>
+  );
+};
+
 export const HeadlinesSettingsModal = ({
   onRequestClose,
   ...props
@@ -115,6 +192,9 @@ export const HeadlinesSettingsModal = ({
             Pick which topical digests show up in your Headlines section.
           </Typography>
         </div>
+        <ul className="w-full border-t border-border-subtlest-quaternary">
+          <BriefSettingsRow />
+        </ul>
         {isPending ? (
           <div className="flex justify-center py-10">
             <Loader />

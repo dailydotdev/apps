@@ -8,7 +8,12 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { ArrowIcon, MegaphoneIcon, SettingsIcon } from '../../components/icons';
+import {
+  ArrowIcon,
+  BriefGradientIcon,
+  MegaphoneIcon,
+  SettingsIcon,
+} from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import {
   Button,
@@ -27,6 +32,7 @@ import { feedLogExtra, postLogEvent } from '../../lib/feed';
 import useLogImpression from '../../hooks/feed/useLogImpression';
 import { FeedItemType } from '../../components/cards/common/common';
 import type { Post } from '../../graphql/posts';
+import { PostType } from '../../graphql/posts';
 import {
   channelConfigurationsQueryOptions,
   dailyHeadlinesQueryOptions,
@@ -174,6 +180,117 @@ const HeadlineRow = ({
               />
             </div>
           </div>
+        </div>
+      ) : null}
+    </li>
+  );
+};
+
+// The latest brief rides in `dailyHeadlines` as a `PostType.Brief` edge (Plus +
+// subscribed, gated server-side). It renders as the lead row of the list with
+// brief branding instead of a channel label, and no vote/bookmark actions.
+const BriefHeadlineRow = ({
+  brief,
+  position,
+  onExpand,
+}: {
+  brief: Post;
+  position: number;
+  onExpand: () => void;
+}): ReactElement => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const summary =
+    brief.summary ||
+    brief.sharedPost?.summary ||
+    'A daily briefing of what matters, generated just for you based on your preferences and interests.';
+  const panelId = `daily-brief-${brief.id}`;
+  const impressionRef = useLogImpression(
+    {
+      type: FeedItemType.Post,
+      post: brief,
+      page: 0,
+      index: position,
+      dataUpdatedAt: 0,
+    },
+    position,
+    1,
+    0,
+    position,
+    DAILY_FEED_NAME,
+    undefined,
+    undefined,
+    Origin.DailyPage,
+  );
+
+  const onToggle = () => {
+    const willOpen = !isExpanded;
+    setIsExpanded(willOpen);
+    if (willOpen) {
+      onExpand();
+    }
+  };
+
+  return (
+    <li ref={impressionRef}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
+        className={classNames(
+          'group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors tablet:px-5',
+          !isExpanded && 'hover:bg-surface-float',
+        )}
+      >
+        <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-1">
+          <span className="flex items-center gap-1">
+            <BriefGradientIcon size={IconSize.XSmall} />
+            <Typography
+              type={TypographyType.Caption1}
+              bold
+              className="text-brand-default"
+            >
+              Your briefing
+            </Typography>
+          </span>
+          <Typography
+            tag={TypographyTag.H3}
+            type={TypographyType.Body}
+            bold
+            color={TypographyColor.Primary}
+            className="!leading-snug"
+          >
+            {brief.title}
+          </Typography>
+        </div>
+        <ArrowIcon
+          size={IconSize.XSmall}
+          className={classNames(
+            'ml-auto shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
+            isExpanded ? 'rotate-0' : 'rotate-180',
+          )}
+          aria-hidden
+        />
+      </button>
+      {isExpanded ? (
+        <div id={panelId} className="flex flex-col gap-3 px-4 pb-4 tablet:px-5">
+          {summary ? (
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              className="max-w-3xl !leading-relaxed"
+            >
+              {summary}
+            </Typography>
+          ) : null}
+          <Link href={brief.commentsPermalink} passHref>
+            <a
+              href={brief.commentsPermalink}
+              className="font-bold text-text-link typo-footnote hover:underline"
+            >
+              Read briefing
+            </a>
+          </Link>
         </div>
       ) : null}
     </li>
@@ -338,6 +455,17 @@ export const CoverTopics = (): ReactElement => {
       {highlights.length > 0 && (
         <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
           {highlights.map((highlight, index) => {
+            if (highlight.type === PostType.Brief) {
+              return (
+                <BriefHeadlineRow
+                  key={highlight.id}
+                  brief={highlight}
+                  position={index}
+                  onExpand={() => onHeadlineClick(highlight, index)}
+                />
+              );
+            }
+
             const sourceId = highlight.source?.id;
             const config = sourceId
               ? channelBySourceId.get(sourceId)
