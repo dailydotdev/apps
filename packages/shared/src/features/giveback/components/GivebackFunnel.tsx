@@ -175,13 +175,13 @@ const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
 ];
 
 const FlowSequence = (): ReactElement => (
-  <FlexCol className="mx-auto w-full max-w-lg text-left">
+  <FlexCol className="w-full text-left">
     {FLOW_STEPS.map((step, index) => {
       const isLast = index === FLOW_STEPS.length - 1;
       return (
         <FlexRow key={step.title} className="gap-5">
           <FlexCol className="items-center">
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+            <span className="flex size-14 shrink-0 items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-background-default">
               <span className="bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text font-bold tabular-nums text-transparent typo-title1">
                 {index + 1}
               </span>
@@ -287,7 +287,7 @@ export const GivebackFunnel = ({
     switch (stepKey) {
       case 'how':
         return (
-          <FlexCol className="w-full items-center gap-6 text-center">
+          <FlexCol className="mx-auto w-full max-w-xl items-start gap-7 text-left">
             <Reveal>
               <Typography
                 tag={TypographyTag.H2}
