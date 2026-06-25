@@ -506,13 +506,15 @@ export const GivebackFunnel = ({
             aria-hidden
             className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
           />
+          {/* Two compact buttons: Back pinned left, the primary CTA pinned right
+              with a capped width so neither sprawls across the wide bar. */}
           <FlexRow className="items-center gap-3">
             {!isFirst && (
               <Button
                 type="button"
                 size={ButtonSize.Large}
                 variant={ButtonVariant.Float}
-                className="shrink-0"
+                className="min-w-24 shrink-0"
                 onClick={goBack}
               >
                 Back
@@ -522,7 +524,7 @@ export const GivebackFunnel = ({
               type="button"
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}
-              className="flex-1"
+              className="ml-auto min-w-40 max-w-[18rem] shrink-0"
               disabled={
                 causesBlock || (stepKey === 'causes' && selection.isSaving)
               }
