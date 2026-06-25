@@ -14,7 +14,12 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import CloseButton from '../../../components/CloseButton';
-import { CoinIcon, GiftIcon, VIcon } from '../../../components/icons';
+import {
+  CoinIcon,
+  GiftIcon,
+  MoveToIcon,
+  VIcon,
+} from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
@@ -32,17 +37,17 @@ const IMPACT_VALUES: ReadonlyArray<{
   sub: string;
 }> = [
   {
-    icon: <VIcon />,
+    icon: <VIcon secondary />,
     title: 'You chose well',
     sub: 'Real, vetted nonprofits, picked by you.',
   },
   {
-    icon: <CoinIcon />,
+    icon: <CoinIcon secondary />,
     title: 'Costs you nothing',
     sub: 'daily.dev funds every single dollar.',
   },
   {
-    icon: <GiftIcon />,
+    icon: <GiftIcon secondary />,
     title: 'Real, lasting impact',
     sub: 'Everyday actions become real support.',
   },
@@ -538,8 +543,10 @@ export const GivebackFunnel = ({
             }
             onClick={goNext}
           >
-            {isLast && <VIcon aria-hidden className="mr-1" />}
             {ctaLabel[stepKey]}
+            {/* On the final step a forward "move to" icon on the right reads as
+                "go take action next", not a "you're done" checkmark. */}
+            {isLast && <MoveToIcon aria-hidden className="ml-1" />}
           </Button>
         </FlexRow>
       </footer>
