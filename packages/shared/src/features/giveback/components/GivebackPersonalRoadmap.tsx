@@ -359,10 +359,10 @@ const NodeRow = ({
         <FlexCol
           className={classNames(
             'gap-2',
-            // The current goal gets a tight, clearly-bounded card (not a sprawly
-            // wide box) so the eye lands straight on its action button.
+            // The current goal gets a tight, clearly-bounded card (capped width,
+            // not a sprawly full-row box) so the eye lands on its action button.
             isNext &&
-              'border-accent-cabbage-default/40 rounded-14 border bg-surface-float p-3.5 shadow-2-cabbage',
+              'ring-accent-cabbage-default/60 max-w-xl rounded-16 bg-surface-float p-4 shadow-2-cabbage ring-1',
           )}
         >
           <FlexRow className="items-start justify-between gap-3">

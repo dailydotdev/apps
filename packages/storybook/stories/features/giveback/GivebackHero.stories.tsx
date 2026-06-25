@@ -2,17 +2,19 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { GivebackHero } from '@dailydotdev/shared/src/features/giveback/components/GivebackHero';
 import { mockStatus, withGiveback } from './giveback.mocks';
 
-// The page cover: brand, headline, subtitle, and the live funding meter folded
-// into one block (no video / CTA — onboarding lives in the funnel).
+// The page cover: brand + "How it works" across the top, the "Big tech buys ads.
+// We fund developers." headline with the live funding meter on the left, and the
+// charm on the right.
 const meta: Meta<typeof GivebackHero> = {
   title: 'Features/Giveback/Page cover (hero)',
   component: GivebackHero,
+  args: { onHowItWorks: () => undefined },
   parameters: {
     layout: 'padded',
     docs: {
       description: {
         component:
-          'Compact cover so the tabs sit higher. The funding meter sits under the headline. Shown at a few funding levels.',
+          'Headline + funding meter (with milestone markers) on the left, charm on the right. Shown at a few funding levels.',
       },
     },
   },

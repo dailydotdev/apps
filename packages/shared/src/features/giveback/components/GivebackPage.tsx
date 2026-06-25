@@ -126,7 +126,7 @@ export const GivebackPage = (): ReactElement => {
 
       <FlexCol className="relative gap-14 py-8 tablet:py-14">
         <div className={column}>
-          <GivebackHero />
+          <GivebackHero onHowItWorks={handleHowItWorks} />
         </div>
 
         {showSponsors && (
@@ -137,11 +137,7 @@ export const GivebackPage = (): ReactElement => {
 
         {showTabs && (
           <div ref={tabsRef} className="scroll-mt-16">
-            <GivebackTabNav
-              activeTab={activeTab}
-              onSelect={handleSelectTab}
-              onHowItWorks={handleHowItWorks}
-            />
+            <GivebackTabNav activeTab={activeTab} onSelect={handleSelectTab} />
 
             <div
               key={activeTab}

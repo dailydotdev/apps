@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { GivebackBudgetStory } from '@dailydotdev/shared/src/features/giveback/components/GivebackBudgetStory';
 import { GivebackFaq } from '@dailydotdev/shared/src/features/giveback/components/GivebackFaq';
 import { withGiveback } from './giveback.mocks';
 
-// The building blocks of the FAQ tab, each on its own so you can refine them in
-// isolation: the emotional budget story (the "why") and the FAQ.
+// The building blocks of the FAQ tab. The campaign's "why" headline now lives in
+// the page hero, so this is the FAQ on its own.
 const meta: Meta = {
   title: 'Features/Giveback/Campaign pieces',
   parameters: { layout: 'padded' },
@@ -14,14 +13,6 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
-
-export const BudgetStory: Story = {
-  render: () => (
-    <GivebackBudgetStory
-      headline={{ title: 'Big tech buys ads.', highlight: 'We fund developers.' }}
-    />
-  ),
-};
 
 export const Faq: Story = {
   render: () => <GivebackFaq />,

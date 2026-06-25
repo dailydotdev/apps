@@ -9,25 +9,23 @@ import {
 } from '../../../components/typography/Typography';
 import { GiftIcon, InfoIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-import {
-  ProfilePicture,
-  ProfileImageSize,
-} from '../../../components/ProfilePicture';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import ProgressCircle from '../../../components/ProgressCircle';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionActions } from '../hooks/useContributionActions';
 import { formatDonationAmount } from '../utils';
 
-// Personal recap shown above the action catalog: how much the visitor has
-// unlocked for their causes and the next reward they're working toward. No
-// rank, level or leaderboard - the campaign starts from scratch, so this stays
-// a purely personal progress cue.
+// Personal recap above the action catalog. Stat-first: the money you've unlocked
+// is the hero number, with a quiet progress ring toward your next reward. No
+// level badge or avatar - the campaign is about the donation, not a game rank.
 export const GivebackContributionSummary = (): ReactElement => {
-  const { user } = useAuthContext();
-  const { earnedPoints, nextReward, pointsToNext, currentLevel, isPending } =
-    useGivebackContribution(true);
-  // Shares the catalog's query key, so this adds no extra request. Sums the
-  // visitor's completions across every action into one "actions taken" count.
+  const {
+    earnedPoints,
+    nextReward,
+    pointsToNext,
+    progressPercentage,
+    isPending,
+  } = useGivebackContribution(true);
+  // Shares the catalog's query key, so this adds no extra request.
   const { actions, isPending: isActionsPending } = useContributionActions(true);
   const actionsTaken = actions.reduce(
     (sum, action) => sum + action.userCompletions,
@@ -35,32 +33,13 @@ export const GivebackContributionSummary = (): ReactElement => {
   );
 
   if (isPending) {
-    return (
-      <FlexCol className="gap-1.5">
-        <div className="h-3 w-32 animate-pulse rounded-8 bg-surface-float" />
-        <div className="h-8 w-44 animate-pulse rounded-8 bg-surface-float" />
-      </FlexCol>
-    );
+    return <div className="h-28 animate-pulse rounded-16 bg-surface-float" />;
   }
 
   return (
-    <FlexRow className="flex-wrap items-center gap-x-5 gap-y-4">
-      {user && (
-        <div className="relative shrink-0">
-          <ProfilePicture
-            user={user}
-            size={ProfileImageSize.XXLarge}
-            rounded={ProfileImageSize.XXLarge}
-            className="ring-2 ring-accent-cabbage-default"
-          />
-          <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent-cabbage-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-background-default typo-caption2">
-            Lvl {currentLevel}
-          </span>
-        </div>
-      )}
-
-      <FlexCol className="min-w-0 flex-1 gap-1">
-        <FlexRow className="items-center gap-1">
+    <FlexRow className="flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:p-5">
+      <FlexCol className="min-w-0 gap-1">
+        <FlexRow className="items-center gap-1.5">
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
@@ -93,22 +72,24 @@ export const GivebackContributionSummary = (): ReactElement => {
             </span>
           </span>
         </FlexRow>
-        <FlexRow className="items-baseline gap-1.5">
+
+        <FlexRow className="items-baseline gap-2">
           <Typography
             bold
-            type={TypographyType.Title2}
+            type={TypographyType.LargeTitle}
             className="tabular-nums text-status-success"
           >
             {formatDonationAmount(earnedPoints)}
           </Typography>
           <Typography
             tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
           >
             unlocked for your causes
           </Typography>
         </FlexRow>
+
         {!isActionsPending && (
           <Typography
             tag={TypographyTag.Span}
@@ -121,31 +102,34 @@ export const GivebackContributionSummary = (): ReactElement => {
       </FlexCol>
 
       {nextReward && (
-        <FlexCol className="shrink-0 items-end gap-0.5">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-            bold
-            className="uppercase tracking-wider"
-          >
-            Next reward
-          </Typography>
-          <FlexRow className="items-center gap-1.5 text-accent-cheese-default [&_svg]:size-4">
-            <GiftIcon />
+        <FlexRow className="items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-default px-4 py-3">
+          <ProgressCircle progress={progressPercentage} size={44} />
+          <FlexCol className="gap-0.5">
+            <FlexRow className="items-center gap-1.5 text-accent-cabbage-default [&_svg]:size-4">
+              <GiftIcon />
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption2}
+                color={TypographyColor.Tertiary}
+                bold
+                className="uppercase tracking-wider"
+              >
+                Next reward
+              </Typography>
+            </FlexRow>
             <Typography bold type={TypographyType.Footnote}>
               {nextReward.title}
             </Typography>
-          </FlexRow>
-          <Typography
-            tag={TypographyTag.Span}
-            bold
-            type={TypographyType.Caption1}
-            className="tabular-nums text-status-success"
-          >
-            {formatDonationAmount(pointsToNext)} to go
-          </Typography>
-        </FlexCol>
+            <Typography
+              tag={TypographyTag.Span}
+              bold
+              type={TypographyType.Caption1}
+              className="tabular-nums text-status-success"
+            >
+              {formatDonationAmount(pointsToNext)} to go
+            </Typography>
+          </FlexCol>
+        </FlexRow>
       )}
     </FlexRow>
   );

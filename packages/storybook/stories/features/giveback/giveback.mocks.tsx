@@ -102,7 +102,8 @@ export const mockCauses = (): ContributionCause[] => [
   {
     id: 'c-oss',
     title: 'Open-source maintainers',
-    description: 'Fund the maintainers behind the tools we use every day.',
+    description:
+      'Keeps the maintainers behind the libraries you ship every day paid, so the tools you rely on stay alive and secure.',
     url: null,
     category: 'Open source',
     logoUrl: null,
@@ -110,7 +111,8 @@ export const mockCauses = (): ContributionCause[] => [
   {
     id: 'c-scholarships',
     title: 'Dev scholarships',
-    description: 'Help students from underrepresented groups learn to code.',
+    description:
+      'Puts students from underrepresented groups through the training that lands them their first job in tech.',
     url: null,
     category: 'Education',
     logoUrl: null,
@@ -118,7 +120,8 @@ export const mockCauses = (): ContributionCause[] => [
   {
     id: 'c-access',
     title: 'Access to tech',
-    description: 'Get hardware and connectivity to devs who lack it.',
+    description:
+      'Gets laptops and internet to developers who otherwise could not get online to learn, build, and earn.',
     url: null,
     category: 'Accessibility',
     logoUrl: null,
@@ -126,7 +129,8 @@ export const mockCauses = (): ContributionCause[] => [
   {
     id: 'c-climate',
     title: 'Climate tech',
-    description: 'Back open tools fighting the climate crisis.',
+    description:
+      'Funds open tools that measure, cut, and fight carbon emissions with transparent, auditable data.',
     url: null,
     category: 'Climate',
     logoUrl: null,
@@ -134,7 +138,8 @@ export const mockCauses = (): ContributionCause[] => [
   {
     id: 'c-mentorship',
     title: 'Mentorship programs',
-    description: 'Pair early-career devs with experienced mentors.',
+    description:
+      'Pairs early-career devs with experienced mentors who help them grow and break into the industry faster.',
     url: null,
     category: 'Education',
     logoUrl: null,
@@ -142,7 +147,8 @@ export const mockCauses = (): ContributionCause[] => [
   {
     id: 'c-docs',
     title: 'Better docs',
-    description: 'Pay technical writers to improve open-source docs.',
+    description:
+      'Pays technical writers to turn dense open-source docs into guides people can actually learn from.',
     url: null,
     category: 'Open source',
     logoUrl: null,

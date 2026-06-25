@@ -14,11 +14,14 @@ import {
 } from '../../../components/buttons/Button';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { VIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
 import type { ContributionCause } from '../types';
 import { GivebackFilterChip } from './GivebackFilterChip';
 import { GivebackCauseCard } from './GivebackCauseCard';
+import { CauseEmblem } from './CauseEmblem';
 
 const ALL_FILTER = 'all';
 
@@ -26,6 +29,47 @@ interface CauseWithIndex {
   cause: ContributionCause;
   index: number;
 }
+
+// A backed cause as a compact row: emblem, name, and a one-tap remove. Far
+// shorter than the discovery cards below, so your line-up is easy to scan and
+// manage - especially on mobile where the tall cards would dominate the screen.
+const SelectedCauseRow = ({
+  cause,
+  index,
+  onRemove,
+}: {
+  cause: ContributionCause;
+  index: number;
+  onRemove: (id: string) => void;
+}): ReactElement => (
+  <FlexRow className="items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-2.5">
+    <CauseEmblem cause={cause} index={index} />
+    <FlexCol className="min-w-0 flex-1">
+      <Typography bold type={TypographyType.Footnote} className="truncate">
+        {cause.title}
+      </Typography>
+      {cause.category && (
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="truncate"
+        >
+          {cause.category}
+        </Typography>
+      )}
+    </FlexCol>
+    <button
+      type="button"
+      aria-label={`Remove ${cause.title}`}
+      onClick={() => onRemove(cause.id)}
+      className="group flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default text-white transition-colors hover:bg-status-error"
+    >
+      <VIcon size={IconSize.XSmall} className="group-hover:hidden" />
+      <span className="hidden leading-none group-hover:block">×</span>
+    </button>
+  </FlexRow>
+);
 
 // Manage-your-causes tab. Unlike the recap on the old Campaign tab, this shows
 // every cause as a pickable card: the ones you already back sit up top so you
@@ -168,14 +212,13 @@ export const GivebackCausesPanel = (): ReactElement => {
         </FlexRow>
 
         {selectedCauses.length > 0 ? (
-          <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
             {selectedCauses.map(({ cause, index }) => (
-              <GivebackCauseCard
+              <SelectedCauseRow
                 key={cause.id}
                 cause={cause}
                 index={index}
-                selected
-                onToggle={toggleCause}
+                onRemove={toggleCause}
               />
             ))}
           </div>
@@ -203,7 +246,7 @@ export const GivebackCausesPanel = (): ReactElement => {
             bold
             className="uppercase tracking-wider"
           >
-            More causes to back
+            More causes to explore
           </Typography>
           <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
             {otherCauses.map(({ cause, index }) => (

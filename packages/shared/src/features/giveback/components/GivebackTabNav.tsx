@@ -1,12 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import TabList, { TabListVariant } from '../../../components/tabs/TabList';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { InfoIcon } from '../../../components/icons';
 
 export type GivebackTabId = 'actions' | 'impact' | 'causes' | 'faq';
 
@@ -25,8 +19,6 @@ export const givebackTabs: GivebackTab[] = [
 interface GivebackTabNavProps {
   activeTab: GivebackTabId;
   onSelect: (tab: GivebackTabId) => void;
-  // Re-opens the warm-up funnel; rendered as a button on the right of the strip.
-  onHowItWorks?: () => void;
 }
 
 // Sticky section nav for the onboarded experience. Spans the full content width
@@ -36,7 +28,6 @@ interface GivebackTabNavProps {
 export const GivebackTabNav = ({
   activeTab,
   onSelect,
-  onHowItWorks,
 }: GivebackTabNavProps): ReactElement => {
   const activeLabel =
     givebackTabs.find((tab) => tab.id === activeTab)?.label ?? '';
@@ -47,7 +38,7 @@ export const GivebackTabNav = ({
         aria-hidden
         className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
       />
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4">
+      <div className="mx-auto flex w-full max-w-6xl items-center px-4">
         <TabList
           items={givebackTabs.map((tab) => ({ label: tab.label }))}
           active={activeLabel}
@@ -59,18 +50,6 @@ export const GivebackTabNav = ({
             }
           }}
         />
-        {onHowItWorks && (
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
-            icon={<InfoIcon />}
-            className="shrink-0"
-            onClick={onHowItWorks}
-          >
-            How it works
-          </Button>
-        )}
       </div>
     </div>
   );

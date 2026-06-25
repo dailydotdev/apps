@@ -370,32 +370,45 @@ export const GivebackFunnel = ({
             </Reveal>
 
             {selectedCauses.length > 0 && (
-              <Reveal delay={220} className="w-full">
-                <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
-                  {selectedCauses.map(({ cause, index }) => (
-                    <FlexCol
-                      key={cause.id}
-                      className="h-full items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left"
-                    >
-                      <CauseEmblem cause={cause} index={index} />
-                      <FlexCol className="gap-1">
-                        <Typography bold type={TypographyType.Callout}>
-                          {cause.title}
-                        </Typography>
-                        {cause.description && (
-                          <Typography
-                            type={TypographyType.Caption1}
-                            color={TypographyColor.Secondary}
-                            className="line-clamp-2"
-                          >
-                            {cause.description}
+              <>
+                <Reveal delay={220} className="w-full">
+                  <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
+                    {selectedCauses.map(({ cause, index }) => (
+                      <FlexCol
+                        key={cause.id}
+                        className="hover:border-accent-cabbage-default/40 h-full items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-colors"
+                      >
+                        <CauseEmblem cause={cause} index={index} />
+                        <FlexCol className="gap-1">
+                          <Typography bold type={TypographyType.Callout}>
+                            {cause.title}
                           </Typography>
-                        )}
+                          {cause.description && (
+                            <Typography
+                              type={TypographyType.Caption1}
+                              color={TypographyColor.Secondary}
+                              className="line-clamp-3"
+                            >
+                              {cause.description}
+                            </Typography>
+                          )}
+                        </FlexCol>
                       </FlexCol>
-                    </FlexCol>
-                  ))}
-                </div>
-              </Reveal>
+                    ))}
+                  </div>
+                </Reveal>
+                <Reveal delay={320}>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                    bold
+                    className="max-w-xl [text-wrap:pretty]"
+                  >
+                    Thank you for choosing who to back. From now on, your
+                    everyday actions turn into real support for them. 💜
+                  </Typography>
+                </Reveal>
+              </>
             )}
           </FlexCol>
         );
