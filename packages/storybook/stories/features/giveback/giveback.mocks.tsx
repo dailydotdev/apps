@@ -104,7 +104,7 @@ export const mockCauses = (): ContributionCause[] => [
     title: 'Open-source maintainers',
     description:
       'Keeps the maintainers behind the libraries you ship every day paid, so the tools you rely on stay alive and secure.',
-    url: null,
+    url: 'https://opencollective.com',
     category: 'Open source',
     logoUrl: null,
   },
@@ -113,7 +113,7 @@ export const mockCauses = (): ContributionCause[] => [
     title: 'Dev scholarships',
     description:
       'Puts students from underrepresented groups through the training that lands them their first job in tech.',
-    url: null,
+    url: 'https://www.codeyourfuture.io',
     category: 'Education',
     logoUrl: null,
   },
@@ -122,7 +122,7 @@ export const mockCauses = (): ContributionCause[] => [
     title: 'Access to tech',
     description:
       'Gets laptops and internet to developers who otherwise could not get online to learn, build, and earn.',
-    url: null,
+    url: 'https://www.codepath.org',
     category: 'Accessibility',
     logoUrl: null,
   },
@@ -131,7 +131,7 @@ export const mockCauses = (): ContributionCause[] => [
     title: 'Climate tech',
     description:
       'Funds open tools that measure, cut, and fight carbon emissions with transparent, auditable data.',
-    url: null,
+    url: 'https://www.climatebase.org',
     category: 'Climate',
     logoUrl: null,
   },
@@ -140,7 +140,7 @@ export const mockCauses = (): ContributionCause[] => [
     title: 'Mentorship programs',
     description:
       'Pairs early-career devs with experienced mentors who help them grow and break into the industry faster.',
-    url: null,
+    url: 'https://adplist.org',
     category: 'Education',
     logoUrl: null,
   },
@@ -149,7 +149,7 @@ export const mockCauses = (): ContributionCause[] => [
     title: 'Better docs',
     description:
       'Pays technical writers to turn dense open-source docs into guides people can actually learn from.',
-    url: null,
+    url: 'https://www.writethedocs.org',
     category: 'Open source',
     logoUrl: null,
   },

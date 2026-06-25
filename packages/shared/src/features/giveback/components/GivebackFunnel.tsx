@@ -520,8 +520,11 @@ export const GivebackFunnel = ({
           above the page (shadow for depth), centered. The buttons flex to fill
           it - so a lone CTA spans the whole bar, and Back + Next split it evenly,
           keeping the bar the same width on every step. */}
+      {/* Nested-radius rule: the bar's corner = the inner button radius
+          (Large = rounded-14) + the bar's padding (p-2 = 8px) => rounded-22, so
+          the inner and outer curves stay concentric. */}
       <footer className="pointer-events-none sticky bottom-0 z-3 flex justify-center px-4 pb-5 pt-2">
-        <FlexRow className="bg-background-default/80 pointer-events-auto w-full max-w-md items-center gap-2 rounded-16 border border-border-subtlest-secondary p-2 shadow-2 backdrop-blur-xl">
+        <FlexRow className="bg-background-default/80 pointer-events-auto w-full max-w-md items-center gap-2 rounded-22 border border-border-subtlest-secondary p-2 shadow-2 backdrop-blur-xl">
           {!isFirst && (
             <Button
               type="button"

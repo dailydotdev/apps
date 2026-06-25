@@ -333,7 +333,7 @@ export const GivebackActionSubmissionModal = ({
             aria-hidden
             className="bg-accent-onion-default/20 pointer-events-none absolute -bottom-24 -left-16 size-56 rounded-full blur-3xl"
           />
-          <FlexCol className="relative gap-5 overflow-y-auto p-5 tablet:p-6">
+          <FlexCol className="relative min-h-0 flex-1 gap-5 overflow-y-auto p-5 tablet:p-6">
             {!isSubmitted && (
               <ActionBrief
                 action={action}
@@ -432,43 +432,45 @@ export const GivebackActionSubmissionModal = ({
                 )}
               </FlexCol>
             )}
+          </FlexCol>
 
-            <FlexRow className="justify-end gap-2">
-              {isLove ? (
+          {/* Pinned action bar: stays visible while the body above scrolls, so
+              the submit control is always reachable on tall forms. */}
+          <FlexRow className="relative shrink-0 justify-end gap-2 border-t border-border-subtlest-tertiary p-5 tablet:p-6">
+            {isLove ? (
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                onClick={onLoveAcknowledge}
+              >
+                Got it
+              </Button>
+            ) : (
+              <>
                 <Button
                   type="button"
                   size={ButtonSize.Small}
-                  variant={ButtonVariant.Primary}
-                  onClick={onLoveAcknowledge}
+                  variant={ButtonVariant.Tertiary}
+                  onClick={onClose}
                 >
-                  Got it
+                  {isSubmitted ? 'Done' : 'Cancel'}
                 </Button>
-              ) : (
-                <>
+                {!isSubmitted && (
                   <Button
                     type="button"
                     size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    onClick={onClose}
+                    variant={ButtonVariant.Primary}
+                    disabled={!canSubmit}
+                    loading={isPending}
+                    onClick={onSubmit}
                   >
-                    {isSubmitted ? 'Done' : 'Cancel'}
+                    Submit for review
                   </Button>
-                  {!isSubmitted && (
-                    <Button
-                      type="button"
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Primary}
-                      disabled={!canSubmit}
-                      loading={isPending}
-                      onClick={onSubmit}
-                    >
-                      Submit for review
-                    </Button>
-                  )}
-                </>
-              )}
-            </FlexRow>
-          </FlexCol>
+                )}
+              </>
+            )}
+          </FlexRow>
         </section>
       </div>
     </RootPortal>

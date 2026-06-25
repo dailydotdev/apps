@@ -10,6 +10,7 @@ import {
 } from '../../../components/typography/Typography';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
@@ -290,13 +291,13 @@ const NodeRow = ({
       );
     }
     if (isReached) {
-      // Unlocked, claim pending: surface tile with the reward icon in brand
-      // cabbage so it stays high-contrast and clearly actionable.
+      // Unlocked, claim pending: cheese (yellow) accent matches the "ready to
+      // claim" cue and the Claim button, so claimable reads consistently.
       return (
         <span
           className={classNames(
             markerBase,
-            'border-accent-cabbage-default/40 border bg-surface-float text-accent-cabbage-default',
+            'border-accent-cheese-default/50 border bg-surface-float text-accent-cheese-default',
           )}
         >
           {rewardIconByType[reward.type]}
@@ -341,7 +342,7 @@ const NodeRow = ({
               className="z-10 pointer-events-none absolute inset-0 motion-reduce:hidden"
             >
               <span className="bg-accent-cheese-default/40 absolute inset-0 rounded-12 blur-md motion-safe:animate-claim-ring" />
-              <span className="absolute inset-0 rounded-12 ring-2 ring-accent-cabbage-default motion-safe:animate-claim-ring" />
+              <span className="absolute inset-0 rounded-12 ring-2 ring-accent-cheese-default motion-safe:animate-claim-ring" />
               {claimSparkles.map((sparkle) => (
                 <span
                   key={`${sparkle.tx}-${sparkle.ty}`}
@@ -364,6 +365,7 @@ const NodeRow = ({
             type="button"
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
+            color={ButtonColor.Cheese}
             onClick={handleClaim}
             loading={isClaiming}
             icon={!isClaiming ? <GiftIcon /> : undefined}
