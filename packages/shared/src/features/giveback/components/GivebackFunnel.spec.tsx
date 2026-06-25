@@ -19,6 +19,7 @@ const buildSelection = (overrides: Partial<Selection> = {}): Selection => ({
   isLoading: false,
   selectedIds: new Set<string>(),
   toggleCause: jest.fn(),
+  toggleAndSave: jest.fn(),
   selectedCount: 0,
   hasSavedCauses: false,
   save: jest.fn().mockResolvedValue(true),

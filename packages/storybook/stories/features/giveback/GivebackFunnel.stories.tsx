@@ -30,6 +30,16 @@ const useMockSelection = (preset: string[] = []) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     () => new Set(preset),
   );
+  const toggleCause = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   return {
     causes: mockCauses(),
     isLoading: false,
@@ -38,16 +48,8 @@ const useMockSelection = (preset: string[] = []) => {
     hasSavedCauses: false,
     isSaving: false,
     save: async () => true,
-    toggleCause: (id: string) =>
-      setSelectedIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) {
-          next.delete(id);
-        } else {
-          next.add(id);
-        }
-        return next;
-      }),
+    toggleCause,
+    toggleAndSave: toggleCause,
   };
 };
 

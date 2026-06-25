@@ -333,7 +333,7 @@ export const GivebackActionSubmissionModal = ({
             aria-hidden
             className="bg-accent-onion-default/20 pointer-events-none absolute -bottom-24 -left-16 size-56 rounded-full blur-3xl"
           />
-          <FlexCol className="relative min-h-0 flex-1 gap-5 overflow-y-auto p-5 tablet:p-6">
+          <FlexCol className="relative min-h-0 flex-1 gap-4 overflow-y-auto p-4 tablet:p-5">
             {!isSubmitted && (
               <ActionBrief
                 action={action}
@@ -436,7 +436,7 @@ export const GivebackActionSubmissionModal = ({
 
           {/* Pinned action bar: stays visible while the body above scrolls, so
               the submit control is always reachable on tall forms. */}
-          <FlexRow className="relative shrink-0 justify-end gap-2 border-t border-border-subtlest-tertiary p-5 tablet:p-6">
+          <FlexRow className="relative shrink-0 justify-end gap-2 border-t border-border-subtlest-tertiary px-4 py-3 tablet:px-5">
             {isLove ? (
               <Button
                 type="button"

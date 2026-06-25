@@ -22,7 +22,7 @@ export const GivebackHeadline = ({
 }: GivebackHeadlineProps): ReactElement => (
   <Typography
     tag={TypographyTag.H2}
-    type={TypographyType.LargeTitle}
+    type={TypographyType.Title1}
     bold
     className={classNames('max-w-3xl', className)}
   >

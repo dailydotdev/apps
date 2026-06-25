@@ -44,17 +44,21 @@ export const GivebackHero = ({
 
     <FlexCol className="relative gap-8 py-2">
       <FlexRow className="items-center justify-between gap-3">
-        <FlexRow className="w-fit items-center gap-3">
+        <FlexRow className="min-w-0 items-center gap-2 tablet:gap-3">
           <Logo
             position={LogoPosition.Initial}
-            logoClassName={{ container: 'h-6' }}
+            logoClassName={{ container: 'h-5 tablet:h-6' }}
           />
-          <span aria-hidden className="h-6 w-px bg-border-subtlest-tertiary" />
+          <span
+            aria-hidden
+            className="h-5 w-px bg-border-subtlest-tertiary tablet:h-6"
+          />
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Title3}
             color={TypographyColor.Primary}
             bold
+            className="truncate"
           >
             Giveback
           </Typography>
@@ -100,7 +104,7 @@ export const GivebackHero = ({
 
         <GivebackMascot
           className="relative z-1 shrink-0 tablet:ml-auto"
-          imageClassName="h-52 drop-shadow-2xl tablet:h-72"
+          imageClassName="h-40 drop-shadow-2xl tablet:h-72"
         />
       </FlexRow>
     </FlexCol>

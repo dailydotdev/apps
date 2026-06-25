@@ -34,7 +34,7 @@ const Meter = ({
   // hairline border so the meter reads as a crisp, contained gauge.
   <div
     ref={meterRef}
-    className="relative h-5 overflow-hidden rounded-8 border border-border-subtlest-secondary bg-transparent"
+    className="relative h-5 overflow-hidden rounded-8 border border-border-subtlest-tertiary bg-background-default"
   >
     <ProgressBar
       percentage={percentage}

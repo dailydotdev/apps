@@ -375,7 +375,7 @@ export const GivebackFunnel = ({
             <Reveal>
               <Stage>
                 <GivebackMascot
-                  imageClassName="h-40 tablet:h-48"
+                  imageClassName="h-28 tablet:h-36"
                   image={{
                     src: cloudinaryCharmBookmarks,
                     alt: 'daily.dev charm celebrating your causes',
@@ -488,7 +488,7 @@ export const GivebackFunnel = ({
       role="dialog"
       aria-modal
       aria-label="How daily.dev Giveback works"
-      className="fixed inset-0 z-modal flex flex-col overflow-y-auto bg-background-default"
+      className="fixed inset-0 z-modal flex flex-col overflow-y-auto overscroll-contain bg-background-default"
     >
       <GivebackBackground />
 

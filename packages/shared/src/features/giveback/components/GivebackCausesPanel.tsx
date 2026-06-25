@@ -9,11 +9,6 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import {
   MiniCloseIcon,
   OpenLinkIcon,
   PlusIcon,
@@ -23,7 +18,6 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
-import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
 import type { ContributionCause } from '../types';
 import { GivebackFilterChip } from './GivebackFilterChip';
 import { GivebackCauseCard } from './GivebackCauseCard';
@@ -104,22 +98,9 @@ const CauseRow = ({
 // persists it (the button only lights up when the set actually differs).
 export const GivebackCausesPanel = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const {
-    causes,
-    isLoading,
-    selectedIds,
-    toggleCause,
-    selectedCount,
-    save,
-    isSaving,
-  } = useGivebackCauseSelection(true);
-  const { selectedCauseIds } = useContributionCausePicker(true);
+  const { causes, isLoading, selectedIds, toggleAndSave, selectedCount } =
+    useGivebackCauseSelection(true);
   const [activeFilter, setActiveFilter] = useState<string>(ALL_FILTER);
-
-  const savedSet = useMemo(() => new Set(selectedCauseIds), [selectedCauseIds]);
-  const isDirty =
-    selectedIds.size !== savedSet.size ||
-    [...selectedIds].some((id) => !savedSet.has(id));
 
   const categories = useMemo(
     () =>
@@ -140,8 +121,10 @@ export const GivebackCausesPanel = (): ReactElement => {
     () => causes.map((cause, index) => ({ cause, index })),
     [causes],
   );
-  const selectedCauses = indexed.filter(
-    ({ cause }) => selectedIds.has(cause.id) && matchesFilter(cause),
+  // Your causes always show every pick, regardless of the filter; the filter
+  // only narrows the "more causes to explore" list below.
+  const selectedCauses = indexed.filter(({ cause }) =>
+    selectedIds.has(cause.id),
   );
   const otherCauses = indexed.filter(
     ({ cause }) => !selectedIds.has(cause.id) && matchesFilter(cause),
@@ -155,18 +138,12 @@ export const GivebackCausesPanel = (): ReactElement => {
   const onLearnMore = (causeId: string) =>
     logEvent({ event_name: LogEvent.ClickGivebackCause, target_id: causeId });
 
-  const onSave = async () => {
-    const saved = await save();
-    if (!saved) {
-      return;
-    }
+  // Auto-saved on every toggle, so each add/remove is also logged here.
+  const onToggle = (causeId: string) => {
+    toggleAndSave(causeId);
     logEvent({
       event_name: LogEvent.SaveGivebackCauses,
-      extra: JSON.stringify({
-        cause_count: selectedIds.size,
-        cause_ids: [...selectedIds],
-        origin: 'causes_tab',
-      }),
+      extra: JSON.stringify({ cause_id: causeId, origin: 'causes_tab' }),
     });
   };
 
@@ -203,29 +180,15 @@ export const GivebackCausesPanel = (): ReactElement => {
       </FlexCol>
 
       <FlexCol className="gap-3">
-        <FlexRow className="items-center justify-between gap-3">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            bold
-            className="uppercase tracking-wider"
-          >
-            Your causes · {selectedCount}
-          </Typography>
-          {isDirty && (
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              onClick={onSave}
-              loading={isSaving}
-              disabled={selectedCount === 0}
-            >
-              Save changes
-            </Button>
-          )}
-        </FlexRow>
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          bold
+          className="uppercase tracking-wider"
+        >
+          Your causes · {selectedCount}
+        </Typography>
 
         {selectedCauses.length > 0 ? (
           <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
@@ -235,7 +198,7 @@ export const GivebackCausesPanel = (): ReactElement => {
                 cause={cause}
                 index={index}
                 selected
-                onToggle={toggleCause}
+                onToggle={onToggle}
                 onLearnMore={onLearnMore}
               />
             ))}
@@ -295,7 +258,7 @@ export const GivebackCausesPanel = (): ReactElement => {
                   cause={cause}
                   index={index}
                   selected={false}
-                  onToggle={toggleCause}
+                  onToggle={onToggle}
                   buttonToggle
                 />
               ))}

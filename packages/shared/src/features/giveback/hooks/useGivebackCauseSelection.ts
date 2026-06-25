@@ -14,6 +14,9 @@ interface UseGivebackCauseSelection {
   isLoading: boolean;
   selectedIds: Set<string>;
   toggleCause: (id: string) => void;
+  // Toggle and persist immediately (no working-set/Save step). Used by the
+  // manage tab; the funnel uses toggleCause + an explicit save instead.
+  toggleAndSave: (id: string) => void;
   selectedCount: number;
   // Whether the visitor has confirmed causes before (drives the onboarded view).
   hasSavedCauses: boolean;
@@ -62,6 +65,24 @@ export const useGivebackCauseSelection = (
     });
   }, []);
 
+  // Persist on each toggle so the manage tab needs no "Save" step. The cause
+  // visibly moving between sections is the feedback, so no toast on success.
+  const toggleAndSave = useCallback(
+    (id: string) => {
+      const next = new Set(selectedIds);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      setSelectedIds(next);
+      saveCausePreferences([...next]).catch(() =>
+        displayToast(labels.error.generic),
+      );
+    },
+    [selectedIds, saveCausePreferences, displayToast],
+  );
+
   const save = useCallback(async () => {
     try {
       await saveCausePreferences([...selectedIds]);
@@ -88,6 +109,7 @@ export const useGivebackCauseSelection = (
     isLoading: isPending,
     selectedIds,
     toggleCause,
+    toggleAndSave,
     selectedCount: selectedIds.size,
     hasSavedCauses: selectedCauseIds.length > 0,
     save,
