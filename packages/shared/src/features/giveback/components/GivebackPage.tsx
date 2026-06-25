@@ -129,7 +129,7 @@ export const GivebackPage = (): ReactElement => {
     <div className="relative min-h-page w-full">
       <GivebackBackground />
 
-      <FlexCol className="relative gap-14 py-8 tablet:py-14">
+      <FlexCol className="relative gap-8 py-6 tablet:gap-10 tablet:py-10">
         <div className={column}>
           <GivebackHero onHowItWorks={handleHowItWorks} />
         </div>
