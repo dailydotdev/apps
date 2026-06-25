@@ -60,7 +60,8 @@ export const useGivebackCauseSelection = (
   const save = useCallback(async () => {
     try {
       await saveCausePreferences([...selectedIds]);
-      displayToast('Your causes are saved');
+      // Auto-dismiss; a confirmation shouldn't linger waiting to be closed.
+      displayToast('Your causes are saved', { timer: 3000 });
       return true;
     } catch {
       displayToast(labels.error.generic);

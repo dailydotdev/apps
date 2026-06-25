@@ -464,7 +464,7 @@ const NodeRow = ({
               <Typography
                 tag={TypographyTag.Span}
                 bold
-                type={TypographyType.Callout}
+                type={isNext ? TypographyType.Title3 : TypographyType.Callout}
                 color={
                   isReached || isNext
                     ? TypographyColor.Primary
@@ -752,37 +752,39 @@ export const GivebackPersonalRoadmap = ({
             </Typography>
           </FlexCol>
 
-          <FlexRow className="flex-wrap items-center gap-3">
-            <Button
-              type="button"
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Primary}
-              onClick={handleTakeAction}
-            >
-              Take action
-            </Button>
+          <FlexCol className="gap-3">
+            <FlexRow className="flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                size={ButtonSize.Medium}
+                variant={ButtonVariant.Primary}
+                onClick={handleTakeAction}
+              >
+                Take action
+              </Button>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="tabular-nums"
+              >
+                {nextLevel
+                  ? `${formatDonationAmount(amountToNext)} to your next reward`
+                  : 'Every reward unlocked'}
+              </Typography>
+            </FlexRow>
             {claimableCount > 0 && (
-              <FlexRow className="items-center gap-1.5 rounded-10 bg-accent-cheese-flat px-3 py-2 text-accent-cheese-default [&_svg]:size-4">
+              // A status note, not a tappable control: no pill background, just
+              // the gift glyph + cheese text pointing down to the ladder.
+              <FlexRow className="items-center gap-1.5 text-accent-cheese-default [&_svg]:size-4">
                 <GiftIcon />
-                <Typography bold type={TypographyType.Caption1}>
+                <Typography bold type={TypographyType.Footnote}>
                   {claimableCount} {claimableCount === 1 ? 'reward' : 'rewards'}{' '}
-                  ready to claim
+                  ready to claim below
                 </Typography>
               </FlexRow>
             )}
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="tabular-nums"
-            >
-              {nextLevel
-                ? `${formatDonationAmount(amountToNext)} to ${
-                    nextLevel.reward.title
-                  }`
-                : 'Every reward unlocked'}
-            </Typography>
-          </FlexRow>
+          </FlexCol>
         </FlexCol>
 
         <FlexCol className="max-w-2xl gap-4">

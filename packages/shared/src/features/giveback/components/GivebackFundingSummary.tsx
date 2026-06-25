@@ -59,18 +59,14 @@ const Meter = ({
       <span
         key={milestone}
         aria-hidden
-        className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-2 ring-2 ring-background-default"
+        className={classNames(
+          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-colors duration-500',
+          percentage >= milestone
+            ? 'border-white bg-white'
+            : 'border-border-subtlest-secondary bg-background-default',
+        )}
         style={{ left: `${milestone}%` }}
-      >
-        <span
-          className={classNames(
-            'block size-full rounded-2 transition-colors duration-500',
-            percentage >= milestone
-              ? 'bg-white'
-              : 'bg-border-subtlest-secondary',
-          )}
-        />
-      </span>
+      />
     ))}
   </div>
 );

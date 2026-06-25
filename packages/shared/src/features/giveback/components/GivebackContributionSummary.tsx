@@ -7,24 +7,26 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { GiftIcon, InfoIcon } from '../../../components/icons';
+import { InfoIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import {
+  ProfilePicture,
+  ProfileImageSize,
+} from '../../../components/ProfilePicture';
 import ProgressCircle from '../../../components/ProgressCircle';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionActions } from '../hooks/useContributionActions';
 import { formatDonationAmount } from '../utils';
 
-// Personal recap above the action catalog. Stat-first: the money you've unlocked
-// is the hero number, with a quiet progress ring toward your next reward. No
-// level badge or avatar - the campaign is about the donation, not a game rank.
+// Personal status banner above the action catalog. Your face anchors it (this is
+// about you), wrapped in a progress ring toward your next level with a level
+// badge — status you can feel — and the money you've unlocked is the hero stat.
+// The "next reward" detail lives on the sticky footer, so it's not repeated here.
 export const GivebackContributionSummary = (): ReactElement => {
-  const {
-    earnedPoints,
-    nextReward,
-    pointsToNext,
-    progressPercentage,
-    isPending,
-  } = useGivebackContribution(true);
+  const { user } = useAuthContext();
+  const { earnedPoints, currentLevel, progressPercentage, isPending } =
+    useGivebackContribution(true);
   // Shares the catalog's query key, so this adds no extra request.
   const { actions, isPending: isActionsPending } = useContributionActions(true);
   const actionsTaken = actions.reduce(
@@ -37,8 +39,26 @@ export const GivebackContributionSummary = (): ReactElement => {
   }
 
   return (
-    <FlexRow className="flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:p-5">
-      <FlexCol className="min-w-0 gap-1">
+    <FlexRow className="items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:gap-5 tablet:p-5">
+      {user && (
+        <div className="relative flex size-[72px] shrink-0 items-center justify-center">
+          {/* Progress ring toward your next level wraps the avatar, so status
+              and momentum read in one glance. */}
+          <div className="absolute inset-0">
+            <ProgressCircle progress={progressPercentage} size={72} />
+          </div>
+          <ProfilePicture
+            user={user}
+            size={ProfileImageSize.Large}
+            rounded={ProfileImageSize.Large}
+          />
+          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-surface-float typo-caption2">
+            Lvl {currentLevel}
+          </span>
+        </div>
+      )}
+
+      <FlexCol className="min-w-0 flex-1 gap-1">
         <FlexRow className="items-center gap-1.5">
           <Typography
             tag={TypographyTag.Span}
@@ -100,37 +120,6 @@ export const GivebackContributionSummary = (): ReactElement => {
           </Typography>
         )}
       </FlexCol>
-
-      {nextReward && (
-        <FlexRow className="items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-default px-4 py-3">
-          <ProgressCircle progress={progressPercentage} size={44} />
-          <FlexCol className="gap-0.5">
-            <FlexRow className="items-center gap-1.5 text-accent-cabbage-default [&_svg]:size-4">
-              <GiftIcon />
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption2}
-                color={TypographyColor.Tertiary}
-                bold
-                className="uppercase tracking-wider"
-              >
-                Next reward
-              </Typography>
-            </FlexRow>
-            <Typography bold type={TypographyType.Footnote}>
-              {nextReward.title}
-            </Typography>
-            <Typography
-              tag={TypographyTag.Span}
-              bold
-              type={TypographyType.Caption1}
-              className="tabular-nums text-status-success"
-            >
-              {formatDonationAmount(pointsToNext)} to go
-            </Typography>
-          </FlexCol>
-        </FlexRow>
-      )}
     </FlexRow>
   );
 };

@@ -175,14 +175,14 @@ const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
 ];
 
 const FlowSequence = (): ReactElement => (
-  <FlexCol className="w-full text-left">
+  <FlexCol className="w-fit text-left">
     {FLOW_STEPS.map((step, index) => {
       const isLast = index === FLOW_STEPS.length - 1;
       return (
         <FlexRow key={step.title} className="gap-5">
           <FlexCol className="items-center">
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-background-default">
-              <span className="bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text font-bold tabular-nums text-transparent typo-title1">
+            <span className="flex size-14 shrink-0 items-center justify-center rounded-16 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default">
+              <span className="font-bold tabular-nums text-background-default typo-title1">
                 {index + 1}
               </span>
             </span>
@@ -287,7 +287,7 @@ export const GivebackFunnel = ({
     switch (stepKey) {
       case 'how':
         return (
-          <FlexCol className="mx-auto w-full max-w-xl items-start gap-7 text-left">
+          <FlexCol className="mx-auto w-full max-w-2xl items-center gap-8 text-center">
             <Reveal>
               <Typography
                 tag={TypographyTag.H2}
@@ -298,7 +298,7 @@ export const GivebackFunnel = ({
                 You act. We pay. Causes win.
               </Typography>
             </Reveal>
-            <Reveal delay={120} className="w-full">
+            <Reveal delay={120} className="flex w-full justify-center">
               <FlowSequence />
             </Reveal>
           </FlexCol>
@@ -378,21 +378,26 @@ export const GivebackFunnel = ({
                         key={cause.id}
                         className="hover:border-accent-cabbage-default/40 h-full items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-colors"
                       >
-                        <CauseEmblem cause={cause} index={index} />
-                        <FlexCol className="gap-1">
-                          <Typography bold type={TypographyType.Callout}>
+                        <FlexRow className="items-center gap-2.5">
+                          <CauseEmblem cause={cause} index={index} />
+                          <Typography
+                            tag={TypographyTag.Span}
+                            type={TypographyType.Caption2}
+                            color={TypographyColor.Tertiary}
+                            bold
+                            className="uppercase tracking-wider"
+                          >
                             {cause.title}
                           </Typography>
-                          {cause.description && (
-                            <Typography
-                              type={TypographyType.Caption1}
-                              color={TypographyColor.Secondary}
-                              className="line-clamp-3"
-                            >
-                              {cause.description}
-                            </Typography>
-                          )}
-                        </FlexCol>
+                        </FlexRow>
+                        {cause.description && (
+                          <Typography
+                            type={TypographyType.Callout}
+                            color={TypographyColor.Primary}
+                          >
+                            {cause.description}
+                          </Typography>
+                        )}
                       </FlexCol>
                     ))}
                   </div>
@@ -500,7 +505,7 @@ export const GivebackFunnel = ({
           aria-hidden
           className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
         />
-        <FlexRow className="mx-auto w-full max-w-md items-center gap-3 px-6 py-4">
+        <FlexRow className="mx-auto w-full max-w-4xl items-center gap-3 px-6 py-4">
           {!isFirst && (
             <Button
               type="button"

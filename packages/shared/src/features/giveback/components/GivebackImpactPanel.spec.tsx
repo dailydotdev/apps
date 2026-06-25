@@ -119,7 +119,7 @@ it('renders the reward-ladder journey with the current level', () => {
   expect(screen.getByText('One month of Plus')).toBeInTheDocument();
   expect(screen.getByText('Hoodie')).toBeInTheDocument();
   // $40 earned: the next milestone is the $100 tier.
-  expect(screen.getByText('$60 to One month of Plus')).toBeInTheDocument();
+  expect(screen.getByText('$60 to your next reward')).toBeInTheDocument();
   expect(screen.getByText('$60 to go')).toBeInTheDocument();
 });
 
