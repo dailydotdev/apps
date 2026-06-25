@@ -511,16 +511,18 @@ export const GivebackFunnel = ({
         </div>
       </main>
 
-      {/* A small floating control bar: just the two buttons in a glass pill that
-          hovers above the page (shadow for depth), centered, so it never gets
-          lost over a busy step but stays out of the way. */}
+      {/* A small floating control bar of a fixed width: a glass pill that hovers
+          above the page (shadow for depth), centered. The buttons flex to fill
+          it - so a lone CTA spans the whole bar, and Back + Next split it evenly,
+          keeping the bar the same width on every step. */}
       <footer className="pointer-events-none sticky bottom-0 z-3 flex justify-center px-4 pb-5 pt-2">
-        <FlexRow className="bg-background-default/80 pointer-events-auto items-center gap-2 rounded-16 border border-border-subtlest-secondary p-2 shadow-2 backdrop-blur-xl">
+        <FlexRow className="bg-background-default/80 pointer-events-auto w-full max-w-md items-center gap-2 rounded-16 border border-border-subtlest-secondary p-2 shadow-2 backdrop-blur-xl">
           {!isFirst && (
             <Button
               type="button"
               size={ButtonSize.Large}
               variant={ButtonVariant.Float}
+              className="flex-1"
               onClick={goBack}
             >
               Back
@@ -530,7 +532,7 @@ export const GivebackFunnel = ({
             type="button"
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
-            className="min-w-[9rem]"
+            className="flex-1"
             disabled={
               causesBlock || (stepKey === 'causes' && selection.isSaving)
             }
