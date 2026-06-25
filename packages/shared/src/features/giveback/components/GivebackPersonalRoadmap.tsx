@@ -332,7 +332,7 @@ const NodeRow = ({
   // The single right-hand action for this level. Exactly one of: claim the
   // reward, take action toward it, a "done" tick, or a lock - so the column of
   // actions reads cleanly top to bottom.
-  const renderAction = (): ReactElement => {
+  const buildActionSlot = (): ReactElement | null => {
     if (canClaim) {
       return (
         <div className="relative">
@@ -380,16 +380,9 @@ const NodeRow = ({
       );
     }
     if (isNext) {
-      return (
-        <Button
-          type="button"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Primary}
-          onClick={onTakeAction}
-        >
-          Take action
-        </Button>
-      );
+      // The current goal's action lives below the progress bar, not in the
+      // top-right slot, so it never overflows the card on narrow widths.
+      return null;
     }
     if (isReached) {
       return (
@@ -412,6 +405,7 @@ const NodeRow = ({
     level.requiredApprovedAmount > 0
       ? formatDonationAmount(level.requiredApprovedAmount)
       : 'Free';
+  const action = buildActionSlot();
 
   return (
     <FlexRow className="relative gap-4">
@@ -487,34 +481,45 @@ const NodeRow = ({
               )}
             </FlexCol>
 
-            {/* One right-hand action slot, so claim / take-action / done / lock
-                line up in a single column down the whole ladder. */}
-            <div className="flex h-7 shrink-0 items-center">
-              {renderAction()}
-            </div>
+            {/* Right-hand slot for claim / done / lock. The current goal's
+                action sits below the progress bar instead (see isNext). */}
+            {action && (
+              <div className="flex h-7 shrink-0 items-center">{action}</div>
+            )}
           </FlexRow>
 
           {isNext && (
-            <FlexRow className="items-center gap-3">
-              <div className="relative h-2 flex-1 overflow-hidden rounded-6 bg-surface-float">
-                <div
-                  className="relative h-full overflow-hidden rounded-6 bg-accent-cabbage-default transition-[width] duration-500"
-                  style={{ width: `${Math.round(segmentProgress * 100)}%` }}
-                >
-                  <GivebackMeterShine
-                    percentage={100}
-                    radiusClassName="rounded-6"
-                  />
+            <FlexCol className="gap-3">
+              <FlexRow className="items-center gap-3">
+                <div className="relative h-2 flex-1 overflow-hidden rounded-6 bg-surface-float">
+                  <div
+                    className="relative h-full overflow-hidden rounded-6 bg-accent-cabbage-default transition-[width] duration-500"
+                    style={{ width: `${Math.round(segmentProgress * 100)}%` }}
+                  >
+                    <GivebackMeterShine
+                      percentage={100}
+                      radiusClassName="rounded-6"
+                    />
+                  </div>
                 </div>
-              </div>
-              <Typography
-                bold
-                type={TypographyType.Caption1}
-                className="shrink-0 tabular-nums text-text-tertiary"
+                <Typography
+                  bold
+                  type={TypographyType.Caption1}
+                  className="shrink-0 tabular-nums text-text-tertiary"
+                >
+                  {formatDonationAmount(amountToNext)} to go
+                </Typography>
+              </FlexRow>
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                className="w-full tablet:w-fit"
+                onClick={onTakeAction}
               >
-                {formatDonationAmount(amountToNext)} to go
-              </Typography>
-            </FlexRow>
+                Take action
+              </Button>
+            </FlexCol>
           )}
         </FlexCol>
       </div>
