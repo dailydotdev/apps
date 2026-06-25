@@ -38,7 +38,7 @@ export const GivebackContributionSummary = (): ReactElement => {
   }
 
   return (
-    <FlexRow className="items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:gap-5 tablet:p-5">
+    <FlexRow className="items-center gap-4 tablet:gap-5">
       {user && (
         <div className="relative shrink-0">
           <ProfilePicture
@@ -47,7 +47,7 @@ export const GivebackContributionSummary = (): ReactElement => {
             rounded={ProfileImageSize.XXLarge}
             className="ring-1 ring-border-subtlest-tertiary"
           />
-          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-surface-float typo-caption2">
+          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-background-default typo-caption2">
             Lvl {currentLevel}
           </span>
         </div>

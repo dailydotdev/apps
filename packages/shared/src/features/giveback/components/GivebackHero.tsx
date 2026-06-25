@@ -71,9 +71,11 @@ export const GivebackHero = ({
             variant={ButtonVariant.Float}
             icon={<InfoIcon />}
             className="shrink-0"
+            aria-label="How it works"
             onClick={onHowItWorks}
           >
-            How it works
+            {/* Icon-only on mobile so it never crowds the brand. */}
+            <span className="hidden tablet:inline">How it works</span>
           </Button>
         )}
       </FlexRow>
@@ -97,7 +99,7 @@ export const GivebackHero = ({
             </Typography>
           </FlexCol>
 
-          <div className="w-full max-w-xl">
+          <div className="w-full max-w-sm">
             <GivebackFundingSummary />
           </div>
         </FlexCol>

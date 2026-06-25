@@ -90,8 +90,11 @@ export const GivebackPage = (): ReactElement => {
         extra: JSON.stringify({ tab }),
       });
       setActiveTab(tab);
+      // Snap the tab strip to the top so the freshly-switched content starts in
+      // view instead of mid-scroll from the previous tab.
+      scrollToTabs();
     },
-    [logEvent],
+    [logEvent, scrollToTabs],
   );
 
   const handleHowItWorks = useCallback(() => {
