@@ -26,6 +26,7 @@ import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
 import type { ContributionCause } from '../types';
 import { GivebackFilterChip } from './GivebackFilterChip';
+import { GivebackCauseCard } from './GivebackCauseCard';
 import { CauseEmblem } from './CauseEmblem';
 
 const ALL_FILTER = 'all';
@@ -278,15 +279,16 @@ export const GivebackCausesPanel = (): ReactElement => {
           >
             More causes to explore
           </Typography>
-          <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
+          {/* Richer detail cards here (like the funnel) so people have enough
+              context to decide what to add — your picks above stay compact. */}
+          <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
             {otherCauses.map(({ cause, index }) => (
-              <CauseRow
+              <GivebackCauseCard
                 key={cause.id}
                 cause={cause}
                 index={index}
                 selected={false}
                 onToggle={toggleCause}
-                onLearnMore={onLearnMore}
               />
             ))}
           </div>
