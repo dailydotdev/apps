@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
@@ -12,15 +13,15 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
+import { OpenLinkIcon, PlusIcon, VIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
+import { anchorDefaultRel } from '../../../lib/strings';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-import { VIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
 import type { ContributionCause } from '../types';
 import { GivebackFilterChip } from './GivebackFilterChip';
-import { GivebackCauseCard } from './GivebackCauseCard';
 import { CauseEmblem } from './CauseEmblem';
 
 const ALL_FILTER = 'all';
@@ -30,19 +31,24 @@ interface CauseWithIndex {
   index: number;
 }
 
-// A backed cause as a compact row: emblem, name, and a one-tap remove. Far
-// shorter than the discovery cards below, so your line-up is easy to scan and
-// manage - especially on mobile where the tall cards would dominate the screen.
-const SelectedCauseRow = ({
+// On the management tab each cause is a compact row (not the tall onboarding
+// card): emblem, name, an optional "learn more", and a select toggle on the
+// right. The toggles line up in a single right-hand column so the whole list
+// scans cleanly and stays short - the onboarding funnel keeps the rich cards.
+const CauseRow = ({
   cause,
   index,
-  onRemove,
+  selected,
+  onToggle,
+  onLearnMore,
 }: {
   cause: ContributionCause;
   index: number;
-  onRemove: (id: string) => void;
+  selected: boolean;
+  onToggle: (id: string) => void;
+  onLearnMore: (id: string) => void;
 }): ReactElement => (
-  <FlexRow className="items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-2.5">
+  <FlexRow className="items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-2.5 transition-colors hover:border-border-subtlest-secondary">
     <CauseEmblem cause={cause} index={index} />
     <FlexCol className="min-w-0 flex-1">
       <Typography bold type={TypographyType.Footnote} className="truncate">
@@ -59,23 +65,38 @@ const SelectedCauseRow = ({
         </Typography>
       )}
     </FlexCol>
+    {cause.url && (
+      <a
+        href={cause.url}
+        target="_blank"
+        rel={anchorDefaultRel}
+        aria-label={`Learn more about ${cause.title}`}
+        onClick={() => onLearnMore(cause.id)}
+        className="flex size-8 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+      >
+        <OpenLinkIcon size={IconSize.Small} />
+      </a>
+    )}
     <button
       type="button"
-      aria-label={`Remove ${cause.title}`}
-      onClick={() => onRemove(cause.id)}
-      className="group flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default text-white transition-colors hover:bg-status-error"
+      aria-pressed={selected}
+      aria-label={`${selected ? 'Remove' : 'Add'} ${cause.title}`}
+      onClick={() => onToggle(cause.id)}
+      className={classNames(
+        'flex size-8 shrink-0 items-center justify-center rounded-10 border transition-colors [&_svg]:size-4',
+        selected
+          ? 'border-accent-cabbage-default bg-accent-cabbage-default text-white hover:border-status-error hover:bg-status-error'
+          : 'border-border-subtlest-secondary text-text-tertiary hover:border-accent-cabbage-default hover:text-accent-cabbage-default',
+      )}
     >
-      <VIcon size={IconSize.XSmall} className="group-hover:hidden" />
-      <span className="hidden leading-none group-hover:block">×</span>
+      {selected ? <VIcon /> : <PlusIcon />}
     </button>
   </FlexRow>
 );
 
-// Manage-your-causes tab. Unlike the recap on the old Campaign tab, this shows
-// every cause as a pickable card: the ones you already back sit up top so you
-// can see your line-up at a glance, and everything else is right below ready to
-// add. Toggles update an in-memory working set; "Save" persists it (the bar only
-// lights up when you've actually changed something).
+// Manage-your-causes tab: the ones you back sit up top, everything else is right
+// below ready to add. Toggles update an in-memory working set; "Save changes"
+// persists it (the button only lights up when the set actually differs).
 export const GivebackCausesPanel = (): ReactElement => {
   const { logEvent } = useLogContext();
   const {
@@ -121,6 +142,9 @@ export const GivebackCausesPanel = (): ReactElement => {
     ({ cause }) => !selectedIds.has(cause.id) && matchesFilter(cause),
   );
 
+  const onLearnMore = (causeId: string) =>
+    logEvent({ event_name: LogEvent.ClickGivebackCause, target_id: causeId });
+
   const onSave = async () => {
     const saved = await save();
     if (!saved) {
@@ -138,12 +162,12 @@ export const GivebackCausesPanel = (): ReactElement => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             // eslint-disable-next-line react/no-array-index-key
             key={index}
-            className="h-36 animate-pulse rounded-16 bg-surface-float"
+            className="h-16 animate-pulse rounded-12 bg-surface-float"
           />
         ))}
       </div>
@@ -151,7 +175,7 @@ export const GivebackCausesPanel = (): ReactElement => {
   }
 
   return (
-    <FlexCol className="gap-8">
+    <FlexCol className="max-w-3xl gap-8">
       <FlexCol className="gap-2">
         <Typography tag={TypographyTag.H2} type={TypographyType.Title2} bold>
           Your causes, your call
@@ -186,7 +210,7 @@ export const GivebackCausesPanel = (): ReactElement => {
         </FlexRow>
       )}
 
-      <FlexCol className="gap-4">
+      <FlexCol className="gap-3">
         <FlexRow className="items-center justify-between gap-3">
           <Typography
             tag={TypographyTag.Span}
@@ -214,11 +238,13 @@ export const GivebackCausesPanel = (): ReactElement => {
         {selectedCauses.length > 0 ? (
           <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
             {selectedCauses.map(({ cause, index }) => (
-              <SelectedCauseRow
+              <CauseRow
                 key={cause.id}
                 cause={cause}
                 index={index}
-                onRemove={toggleCause}
+                selected
+                onToggle={toggleCause}
+                onLearnMore={onLearnMore}
               />
             ))}
           </div>
@@ -238,7 +264,7 @@ export const GivebackCausesPanel = (): ReactElement => {
       </FlexCol>
 
       {otherCauses.length > 0 && (
-        <FlexCol className="gap-4">
+        <FlexCol className="gap-3">
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
@@ -248,14 +274,15 @@ export const GivebackCausesPanel = (): ReactElement => {
           >
             More causes to explore
           </Typography>
-          <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
             {otherCauses.map(({ cause, index }) => (
-              <GivebackCauseCard
+              <CauseRow
                 key={cause.id}
                 cause={cause}
                 index={index}
                 selected={false}
                 onToggle={toggleCause}
+                onLearnMore={onLearnMore}
               />
             ))}
           </div>

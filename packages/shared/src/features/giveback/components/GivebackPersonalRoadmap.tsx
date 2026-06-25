@@ -328,6 +328,84 @@ const NodeRow = ({
     );
   };
 
+  // The single right-hand action for this level. Exactly one of: claim the
+  // reward, take action toward it, a "done" tick, or a lock - so the column of
+  // actions reads cleanly top to bottom.
+  const renderAction = (): ReactElement => {
+    if (canClaim) {
+      return (
+        <div className="relative">
+          {celebrate && (
+            <span
+              aria-hidden
+              className="z-10 pointer-events-none absolute inset-0 motion-reduce:hidden"
+            >
+              <span className="bg-accent-cheese-default/40 absolute inset-0 rounded-12 blur-md motion-safe:animate-claim-ring" />
+              <span className="absolute inset-0 rounded-12 ring-2 ring-accent-cabbage-default motion-safe:animate-claim-ring" />
+              {claimSparkles.map((sparkle) => (
+                <span
+                  key={`${sparkle.tx}-${sparkle.ty}`}
+                  className={classNames(
+                    'absolute left-1/2 top-1/2 size-1.5 rounded-2 opacity-0 motion-safe:animate-reaction-burst',
+                    sparkle.color,
+                  )}
+                  style={
+                    {
+                      '--burst-tx': sparkle.tx,
+                      '--burst-ty': sparkle.ty,
+                      animationDelay: sparkle.delay,
+                    } as React.CSSProperties
+                  }
+                />
+              ))}
+            </span>
+          )}
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            onClick={handleClaim}
+            loading={isClaiming}
+            icon={!isClaiming ? <GiftIcon /> : undefined}
+            className={classNames(
+              'relative',
+              celebrate && 'motion-safe:animate-reward-pop',
+            )}
+          >
+            Claim reward
+          </Button>
+        </div>
+      );
+    }
+    if (isNext) {
+      return (
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={onTakeAction}
+        >
+          Take action
+        </Button>
+      );
+    }
+    if (isReached) {
+      return (
+        <FlexRow className="items-center gap-1 text-accent-avocado-default [&_svg]:size-4">
+          <VIcon />
+          <Typography bold type={TypographyType.Caption2}>
+            Done
+          </Typography>
+        </FlexRow>
+      );
+    }
+    return (
+      <span className="text-text-quaternary [&_svg]:size-4">
+        <LockIcon />
+      </span>
+    );
+  };
+
   const requirementLabel =
     level.requiredApprovedAmount > 0
       ? formatDonationAmount(level.requiredApprovedAmount)
@@ -358,11 +436,11 @@ const NodeRow = ({
       <div className={classNames('min-w-0 flex-1', isLast ? 'pb-1' : 'pb-8')}>
         <FlexCol
           className={classNames(
-            'gap-2',
-            // The current goal gets a tight, clearly-bounded card (capped width,
-            // not a sprawly full-row box) so the eye lands on its action button.
+            'gap-3',
+            // The current goal is a tight, clearly-bounded card so the eye lands
+            // straight on its action; every other row stays a plain line.
             isNext &&
-              'ring-accent-cabbage-default/60 max-w-xl rounded-16 bg-surface-float p-4 shadow-2-cabbage ring-1',
+              'ring-accent-cabbage-default/60 rounded-16 bg-surface-float p-4 shadow-2-cabbage ring-1',
           )}
         >
           <FlexRow className="items-start justify-between gap-3">
@@ -381,14 +459,6 @@ const NodeRow = ({
                   <span className="rounded-6 bg-accent-cabbage-default px-2 py-0.5 font-bold text-white typo-caption2">
                     You&apos;re here
                   </span>
-                )}
-                {isClaimed && !isCurrent && (
-                  <FlexRow className="items-center gap-1 text-accent-avocado-default [&_svg]:size-4">
-                    <VIcon />
-                    <Typography bold type={TypographyType.Caption2}>
-                      Claimed
-                    </Typography>
-                  </FlexRow>
                 )}
               </FlexRow>
               <Typography
@@ -413,63 +483,16 @@ const NodeRow = ({
               )}
             </FlexCol>
 
-            {canClaim ? (
-              <div className="relative shrink-0">
-                {celebrate && (
-                  <span
-                    aria-hidden
-                    className="z-10 pointer-events-none absolute inset-0 motion-reduce:hidden"
-                  >
-                    {/* A bright flash + expanding ring read as a real "pop", and
-                        the confetti fans out in brand colors. */}
-                    <span className="bg-accent-cheese-default/40 absolute inset-0 rounded-12 blur-md motion-safe:animate-claim-ring" />
-                    <span className="absolute inset-0 rounded-12 ring-2 ring-accent-cabbage-default motion-safe:animate-claim-ring" />
-                    {claimSparkles.map((sparkle) => (
-                      <span
-                        key={`${sparkle.tx}-${sparkle.ty}`}
-                        className={classNames(
-                          'absolute left-1/2 top-1/2 size-1.5 rounded-2 opacity-0 motion-safe:animate-reaction-burst',
-                          sparkle.color,
-                        )}
-                        style={
-                          {
-                            '--burst-tx': sparkle.tx,
-                            '--burst-ty': sparkle.ty,
-                            animationDelay: sparkle.delay,
-                          } as React.CSSProperties
-                        }
-                      />
-                    ))}
-                  </span>
-                )}
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Primary}
-                  onClick={handleClaim}
-                  loading={isClaiming}
-                  icon={!isClaiming ? <GiftIcon /> : undefined}
-                  className={classNames(
-                    'relative',
-                    celebrate && 'motion-safe:animate-reward-pop',
-                  )}
-                >
-                  Claim reward
-                </Button>
-              </div>
-            ) : (
-              !isReached &&
-              !isNext && (
-                <span className="shrink-0 text-text-quaternary [&_svg]:size-4">
-                  <LockIcon />
-                </span>
-              )
-            )}
+            {/* One right-hand action slot, so claim / take-action / done / lock
+                line up in a single column down the whole ladder. */}
+            <div className="flex h-7 shrink-0 items-center">
+              {renderAction()}
+            </div>
           </FlexRow>
 
           {isNext && (
-            <FlexCol className="gap-2">
-              <div className="relative h-2 overflow-hidden rounded-6 bg-surface-float">
+            <FlexRow className="items-center gap-3">
+              <div className="relative h-2 flex-1 overflow-hidden rounded-6 bg-surface-float">
                 <div
                   className="relative h-full overflow-hidden rounded-6 bg-accent-cabbage-default transition-[width] duration-500"
                   style={{ width: `${Math.round(segmentProgress * 100)}%` }}
@@ -480,24 +503,14 @@ const NodeRow = ({
                   />
                 </div>
               </div>
-              <FlexRow className="items-center justify-between gap-3">
-                <Typography
-                  bold
-                  type={TypographyType.Caption1}
-                  className="tabular-nums text-text-primary"
-                >
-                  {formatDonationAmount(amountToNext)} to go
-                </Typography>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Primary}
-                  onClick={onTakeAction}
-                >
-                  Take action
-                </Button>
-              </FlexRow>
-            </FlexCol>
+              <Typography
+                bold
+                type={TypographyType.Caption1}
+                className="shrink-0 tabular-nums text-text-tertiary"
+              >
+                {formatDonationAmount(amountToNext)} to go
+              </Typography>
+            </FlexRow>
           )}
         </FlexCol>
       </div>
@@ -772,7 +785,7 @@ export const GivebackPersonalRoadmap = ({
           </FlexRow>
         </FlexCol>
 
-        <FlexCol className="gap-4">
+        <FlexCol className="max-w-2xl gap-4">
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}

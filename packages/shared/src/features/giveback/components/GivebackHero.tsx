@@ -98,7 +98,10 @@ export const GivebackHero = ({
           </div>
         </FlexCol>
 
-        <GivebackMascot className="shrink-0 tablet:ml-auto" />
+        <GivebackMascot
+          className="relative z-1 shrink-0 tablet:ml-auto"
+          imageClassName="h-52 drop-shadow-2xl tablet:h-72"
+        />
       </FlexRow>
     </FlexCol>
   </section>
