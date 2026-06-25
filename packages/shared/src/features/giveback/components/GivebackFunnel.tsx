@@ -21,6 +21,7 @@ import {
   VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { cloudinaryCharmBookmarks } from '../../../lib/image';
@@ -264,6 +265,9 @@ export const GivebackFunnel = ({
   // instance keeps it playing across the move.
   const videoSlotRef = useRef<HTMLDivElement>(null);
   const [videoClosed, setVideoClosed] = useState(false);
+  // A floating corner video overlaps the content/footer on small screens, so on
+  // mobile the explainer only shows inline on step 1 and is dropped afterwards.
+  const isMobile = !useViewSize(ViewSize.Tablet);
 
   // The visitor's own picks, surfaced front-and-center on the finale so the
   // moment celebrates exactly what they chose to fund. Keep each cause's index
@@ -588,7 +592,7 @@ export const GivebackFunnel = ({
         </footer>
       </div>
 
-      {!videoClosed && (
+      {!videoClosed && !(isMobile && stepIndex > 0) && (
         <GivebackFunnelVideo
           slotRef={videoSlotRef}
           docked={stepIndex > 0}

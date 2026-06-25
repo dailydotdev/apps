@@ -29,7 +29,7 @@ import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
 // Centers a section to the page column. The tab nav lives outside this so its
 // glass background can span the full content width.
-const column = 'mx-auto w-full max-w-6xl px-4';
+const column = 'mx-auto w-full max-w-6xl px-4 tablet:px-6 laptop:px-8';
 
 const scrollIntoView = (node: HTMLElement | null): void => {
   if (!node || typeof node.scrollIntoView !== 'function') {

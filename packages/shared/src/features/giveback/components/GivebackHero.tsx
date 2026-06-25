@@ -55,10 +55,10 @@ export const GivebackHero = ({
           />
           <Typography
             tag={TypographyTag.Span}
-            type={TypographyType.Title3}
+            type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
-            className="truncate"
+            className="truncate tablet:typo-title3"
           >
             Giveback
           </Typography>
@@ -71,11 +71,9 @@ export const GivebackHero = ({
             variant={ButtonVariant.Float}
             icon={<InfoIcon />}
             className="shrink-0"
-            aria-label="How it works"
             onClick={onHowItWorks}
           >
-            {/* Icon-only on mobile so it never crowds the brand. */}
-            <span className="hidden tablet:inline">How it works</span>
+            How it works
           </Button>
         )}
       </FlexRow>
