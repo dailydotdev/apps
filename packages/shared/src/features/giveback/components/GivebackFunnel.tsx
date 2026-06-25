@@ -497,40 +497,42 @@ export const GivebackFunnel = ({
         </div>
       </main>
 
-      {/* A solid, glass sticky bar so the controls never get lost over a busy
-          step (e.g. the cause grid). Full-bleed background with the buttons
-          centered in the page column. */}
-      <footer className="bg-background-default/80 sticky bottom-0 z-3 w-full border-t border-border-subtlest-secondary backdrop-blur-xl">
-        <div
-          aria-hidden
-          className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
-        />
-        <FlexRow className="mx-auto w-full max-w-4xl items-center gap-3 px-6 py-4">
-          {!isFirst && (
+      {/* A contained, glass sticky bar mirroring the main page's funding bar:
+          a rounded-top bordered card so the controls never get lost over a busy
+          step (e.g. the cause grid). */}
+      <footer className="sticky bottom-0 z-3">
+        <div className="bg-background-default/80 relative mx-auto w-full max-w-6xl border-t border-border-subtlest-secondary px-4 py-3 backdrop-blur-xl tablet:rounded-t-16 tablet:border-x">
+          <div
+            aria-hidden
+            className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
+          />
+          <FlexRow className="items-center gap-3">
+            {!isFirst && (
+              <Button
+                type="button"
+                size={ButtonSize.Large}
+                variant={ButtonVariant.Float}
+                className="shrink-0"
+                onClick={goBack}
+              >
+                Back
+              </Button>
+            )}
             <Button
               type="button"
               size={ButtonSize.Large}
-              variant={ButtonVariant.Float}
-              className="shrink-0"
-              onClick={goBack}
+              variant={ButtonVariant.Primary}
+              className="flex-1"
+              disabled={
+                causesBlock || (stepKey === 'causes' && selection.isSaving)
+              }
+              onClick={goNext}
             >
-              Back
+              {isLast && <VIcon aria-hidden className="mr-1" />}
+              {ctaLabel[stepKey]}
             </Button>
-          )}
-          <Button
-            type="button"
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Primary}
-            className="flex-1"
-            disabled={
-              causesBlock || (stepKey === 'causes' && selection.isSaving)
-            }
-            onClick={goNext}
-          >
-            {isLast && <VIcon aria-hidden className="mr-1" />}
-            {ctaLabel[stepKey]}
-          </Button>
-        </FlexRow>
+          </FlexRow>
+        </div>
       </footer>
 
       {!videoClosed && (

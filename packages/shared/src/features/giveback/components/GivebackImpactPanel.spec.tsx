@@ -114,7 +114,7 @@ beforeEach(() => {
 it('renders the reward-ladder journey with the current level', () => {
   render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
-  expect(screen.getByText('Your impact')).toBeInTheDocument();
+  expect(screen.getByText(/for good causes/)).toBeInTheDocument();
   expect(screen.getByText('Sticker pack')).toBeInTheDocument();
   expect(screen.getByText('One month of Plus')).toBeInTheDocument();
   expect(screen.getByText('Hoodie')).toBeInTheDocument();

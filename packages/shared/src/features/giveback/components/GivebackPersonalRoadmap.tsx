@@ -438,9 +438,10 @@ const NodeRow = ({
           className={classNames(
             'gap-3',
             // The current goal is a tight, clearly-bounded card so the eye lands
-            // straight on its action; every other row stays a plain line.
+            // straight on its action; every other row stays a plain line. Soft
+            // brand-tinted border, no heavy glow.
             isNext &&
-              'ring-accent-cabbage-default/60 rounded-16 bg-surface-float p-4 shadow-2-cabbage ring-1',
+              'border-accent-cabbage-default/30 rounded-16 border bg-surface-float p-4',
           )}
         >
           <FlexRow className="items-start justify-between gap-3">
@@ -704,15 +705,6 @@ export const GivebackPersonalRoadmap = ({
       <FlexCol className="gap-8">
         <FlexCol className="gap-5">
           <FlexCol className="gap-3">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              bold
-              className="uppercase tracking-wider"
-            >
-              Your impact
-            </Typography>
             {hasImpact ? (
               <Typography
                 tag={TypographyTag.H2}

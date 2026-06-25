@@ -39,23 +39,30 @@ export const GivebackContributionSummary = (): ReactElement => {
   }
 
   return (
-    <FlexRow className="items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:gap-5 tablet:p-5">
+    <FlexRow className="items-center gap-4 tablet:gap-5">
       {user && (
-        <div className="relative flex size-[72px] shrink-0 items-center justify-center">
-          {/* Progress ring toward your next level wraps the avatar, so status
-              and momentum read in one glance. */}
-          <div className="absolute inset-0">
-            <ProgressCircle progress={progressPercentage} size={72} />
+        // Flat, no card: the avatar in a progress ring (momentum to next level)
+        // with the level as a quiet label beneath - status without a loud pill.
+        <FlexCol className="shrink-0 items-center gap-1.5">
+          <div className="relative flex size-[72px] items-center justify-center">
+            <div className="absolute inset-0">
+              <ProgressCircle progress={progressPercentage} size={72} />
+            </div>
+            <ProfilePicture
+              user={user}
+              size={ProfileImageSize.Large}
+              rounded={ProfileImageSize.Large}
+            />
           </div>
-          <ProfilePicture
-            user={user}
-            size={ProfileImageSize.Large}
-            rounded={ProfileImageSize.Large}
-          />
-          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-surface-float typo-caption2">
-            Lvl {currentLevel}
-          </span>
-        </div>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption2}
+            bold
+            className="uppercase tracking-wider text-accent-cabbage-default"
+          >
+            Level {currentLevel}
+          </Typography>
+        </FlexCol>
       )}
 
       <FlexCol className="min-w-0 flex-1 gap-1">
