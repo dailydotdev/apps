@@ -117,7 +117,7 @@ export const GivebackCauseCard = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Secondary}
           className={classNames(
-            'relative z-1',
+            'relative z-1 [text-wrap:pretty]',
             cardClickable && 'pointer-events-none',
           )}
         >

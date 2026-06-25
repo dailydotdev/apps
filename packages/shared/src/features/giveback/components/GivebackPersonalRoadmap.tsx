@@ -480,6 +480,7 @@ const NodeRow = ({
                 <Typography
                   type={TypographyType.Caption1}
                   color={TypographyColor.Secondary}
+                  className="[text-wrap:pretty]"
                 >
                   {reward.description}
                 </Typography>
@@ -588,6 +589,7 @@ export const GivebackPersonalRoadmap = ({
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
+          className="[text-wrap:pretty]"
         >
           Reward milestones are on the way. Keep taking action to unlock them.
         </Typography>
@@ -740,7 +742,7 @@ export const GivebackPersonalRoadmap = ({
               tag={TypographyTag.P}
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
-              className="max-w-2xl"
+              className="max-w-2xl [text-wrap:pretty]"
             >
               {hasImpact && causeNames
                 ? `Headed to ${causeNames}. Every action you take adds more, and it never costs you a thing.`

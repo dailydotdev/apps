@@ -164,14 +164,19 @@ export const GivebackCausesPanel = (): ReactElement => {
   return (
     <FlexCol className="gap-8">
       <FlexCol className="gap-2">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title2} bold>
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Title2}
+          bold
+          className="[text-wrap:balance]"
+        >
           Your causes, your call
         </Typography>
         <Typography
           tag={TypographyTag.P}
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
-          className="max-w-2xl"
+          className="max-w-2xl [text-wrap:pretty]"
         >
           Every action you take sends real money to the causes you pick here.
           Back as many as you like, change them whenever you want. daily.dev

@@ -237,6 +237,7 @@ const FlowSequence = (): ReactElement => (
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
+              className="[text-wrap:pretty]"
             >
               {step.sub}
             </Typography>
@@ -418,12 +419,17 @@ export const GivebackFunnel = ({
                     <span className="flex size-11 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
                       {value.icon}
                     </span>
-                    <Typography bold type={TypographyType.Title3}>
+                    <Typography
+                      bold
+                      type={TypographyType.Title3}
+                      className="[text-wrap:balance]"
+                    >
                       {value.title}
                     </Typography>
                     <Typography
                       type={TypographyType.Callout}
                       color={TypographyColor.Secondary}
+                      className="[text-wrap:pretty]"
                     >
                       {value.sub}
                     </Typography>

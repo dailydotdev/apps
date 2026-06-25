@@ -89,7 +89,7 @@ export const GivebackHero = ({
               tag={TypographyTag.P}
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
-              className="max-w-2xl"
+              className="max-w-2xl [text-wrap:pretty]"
             >
               Every action you take on daily.dev turns our marketing budget into
               real donations to the nonprofits you choose. You spend a few

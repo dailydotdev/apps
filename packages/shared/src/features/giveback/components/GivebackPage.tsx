@@ -157,6 +157,7 @@ export const GivebackPage = (): ReactElement => {
                       tag={TypographyTag.H2}
                       type={TypographyType.Title2}
                       bold
+                      className="[text-wrap:balance]"
                     >
                       Your contribution
                     </Typography>
@@ -164,7 +165,7 @@ export const GivebackPage = (): ReactElement => {
                       tag={TypographyTag.P}
                       type={TypographyType.Callout}
                       color={TypographyColor.Secondary}
-                      className="max-w-2xl"
+                      className="max-w-2xl [text-wrap:pretty]"
                     >
                       Every action you take unlocks real money for the causes
                       you back. Pick one below and your contribution grows.

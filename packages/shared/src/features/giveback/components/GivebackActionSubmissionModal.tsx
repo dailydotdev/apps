@@ -125,6 +125,7 @@ const ActionBrief = ({
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
+            className="[text-wrap:pretty]"
           >
             {action.description}
           </Typography>
@@ -180,6 +181,7 @@ const InstructionsBlock = ({
                 tag={TypographyTag.Span}
                 type={TypographyType.Callout}
                 color={TypographyColor.Secondary}
+                className="[text-wrap:pretty]"
               >
                 {step}
               </Typography>
@@ -190,6 +192,7 @@ const InstructionsBlock = ({
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
+          className="[text-wrap:pretty]"
         >
           {instructions}
         </Typography>
@@ -349,6 +352,7 @@ export const GivebackActionSubmissionModal = ({
               <Typography
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
+                className="[text-wrap:pretty]"
               >
                 This one&apos;s a voluntary thank-you. No reward or donation is
                 attached, we just genuinely appreciate it.
@@ -367,7 +371,7 @@ export const GivebackActionSubmissionModal = ({
                 </Typography>
                 <Typography
                   type={TypographyType.Callout}
-                  className="text-text-tertiary"
+                  className="text-text-tertiary [text-wrap:pretty]"
                 >
                   It already counts toward your contribution. If it&apos;s
                   rejected, we&apos;ll subtract it.
@@ -380,6 +384,7 @@ export const GivebackActionSubmissionModal = ({
                 <Typography
                   type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
+                  className="[text-wrap:pretty]"
                 >
                   Done it? Add your proof below. It counts toward your
                   contribution the moment you submit.

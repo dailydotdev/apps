@@ -121,7 +121,7 @@ export const GivebackFaq = (): ReactElement => {
                     tag={TypographyTag.P}
                     type={TypographyType.Callout}
                     color={TypographyColor.Secondary}
-                    className="max-w-2xl pb-4"
+                    className="max-w-2xl pb-4 [text-wrap:pretty]"
                   >
                     {faq.answer}
                   </Typography>
