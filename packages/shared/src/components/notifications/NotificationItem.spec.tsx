@@ -91,42 +91,71 @@ describe('notification attachment', () => {
     expect(img).toHaveAttribute('src', attachment.image);
   });
 
-  it('should have a title', async () => {
+  it('should show the post title as the subtitle (and cover image) when there is no comment', async () => {
     const [attachment] = sampleNotificationAttachments;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    renderComponent(
+      <NotificationItem {...sampleNotification} description={undefined} />,
+    );
     await screen.findByText(attachment.title);
+    await screen.findByAltText(`Cover preview of: ${attachment.title}`);
+  });
+
+  it('should not repeat the post title when it matches the notification title', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        description={undefined}
+        title="<p>Same post title</p>"
+        attachments={[
+          { ...sampleNotificationAttachments[0], title: 'Same post title' },
+        ]}
+      />,
+    );
+    const matches = await screen.findAllByText('Same post title');
+    expect(matches).toHaveLength(1);
   });
 });
 
 describe('notification avatars', () => {
   it('should display the avatar of the source', async () => {
     const [source] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    // A single avatar renders the rich source/user avatar (multiple actors
+    // render as an overlapping stack instead).
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[source]} />,
+    );
     const img = await screen.findByAltText(`${source.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', source.image);
   });
 
   it('should display the avatar of the user', async () => {
     const [, user] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    // Only the primary (first) avatar is shown, so render the user as the
+    // single avatar to verify user avatars render.
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[user]} />,
+    );
     const img = await screen.findByAltText(`${user.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', user.image);
   });
 
   it('should not display anything if the type is unknown', async () => {
+    const [source] = sampleNotificationAvatars;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const notif = { ...sampleNotification } as any;
-    notif.avatars[1].type = 'Test';
-    const [, user] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...notif} />);
-    const img = screen.queryByAltText(`${user.referenceId}'s profile`);
+    const unknownAvatar = { ...source, type: 'Test' } as any;
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[unknownAvatar]} />,
+    );
+    const img = screen.queryByAltText(`${source.referenceId}'s profile`);
     expect(img).not.toBeInTheDocument();
   });
 });
 
 describe('notification item', () => {
   it('should display the icon of the notification', async () => {
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={undefined} />,
+    );
     const testid = `notification-${sampleNotification.icon}`;
     const img = await screen.findByTestId(testid);
     expect(img).toBeInTheDocument();
@@ -134,7 +163,7 @@ describe('notification item', () => {
 
   it('should display the default icon if the passed icon is unknown', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const notification = { ...sampleNotification } as any; // using any to validate unknown icon
+    const notification = { ...sampleNotification, avatars: undefined } as any; // using any to validate unknown icon
     notification.icon = 'new notif';
     renderComponent(<NotificationItem {...notification} />);
     const testid = `notification-${notification.icon}`;
@@ -153,6 +182,18 @@ describe('notification item', () => {
   it('should have a description that supports html', async () => {
     renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(sampleNotificationDescription);
+  });
+
+  it('should not render the description when it duplicates the title', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        title="<p>Exactly the same</p>"
+        description="<p>Exactly the same</p>"
+      />,
+    );
+    const matches = await screen.findAllByText('Exactly the same');
+    expect(matches).toHaveLength(1);
   });
 });
 

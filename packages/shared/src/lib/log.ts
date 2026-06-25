@@ -98,6 +98,7 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  DailyPage = 'daily page',
 }
 
 export enum LogEvent {
@@ -488,6 +489,7 @@ export enum LogEvent {
   ReaderEmbedError = 'reader embed error',
   // Onboarding personas
   SelectOnboardingPersona = 'select onboarding persona',
+  CompletePersonaQuiz = 'complete persona quiz',
   // Extension activation primer
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
@@ -512,6 +514,8 @@ export enum LogEvent {
   ViewGivebackFunnelStep = 'view giveback funnel step',
   CompleteGivebackFunnel = 'complete giveback funnel',
   ClickGivebackHowItWorks = 'click giveback how it works',
+  // Daily homepage
+  DailyFeedback = 'daily feedback',
 }
 
 export enum TargetType {

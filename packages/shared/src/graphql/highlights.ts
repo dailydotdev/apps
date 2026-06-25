@@ -2,6 +2,8 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { Connection } from './common';
 import type { PostHighlightSignificance } from './types';
+import type { Post } from './posts';
+import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 import { ONE_MINUTE } from '../lib/time';
 
 export interface PostHighlight {
@@ -220,6 +222,7 @@ export interface ChannelDigestConfiguration {
 export interface ChannelConfiguration {
   channel: string;
   displayName: string;
+  color: string;
   digest?: ChannelDigestConfiguration | null;
 }
 
@@ -258,6 +261,72 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
   }
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
+
+export interface DailyHeadlinesData {
+  dailyHeadlines: Connection<Post>;
+}
+
+export const DAILY_HEADLINES_QUERY_KEY = ['daily-headlines'];
+
+export const DAILY_HEADLINES_QUERY = gql`
+  query DailyHeadlines($first: Int, $after: String) {
+    dailyHeadlines(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...SharedPostInfo
+        }
+      }
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const dailyHeadlinesQueryOptions = () => ({
+  queryKey: DAILY_HEADLINES_QUERY_KEY,
+  queryFn: async () => {
+    return gqlClient.request<DailyHeadlinesData>(DAILY_HEADLINES_QUERY, {
+      first: MAJOR_HEADLINES_MAX_FIRST,
+    });
+  },
+  staleTime: ONE_MINUTE,
+});
+
+export interface ChannelConfigurationsData {
+  channelConfigurations: ChannelConfiguration[];
+}
+
+export const CHANNEL_CONFIGURATIONS_QUERY_KEY = ['channel-configurations'];
+
+export const CHANNEL_CONFIGURATIONS_QUERY = gql`
+  query ChannelConfigurations {
+    channelConfigurations {
+      channel
+      displayName
+      color
+      digest {
+        frequency
+        source {
+          id
+          name
+          image
+          handle
+          permalink
+        }
+      }
+    }
+  }
+`;
+
+export const channelConfigurationsQueryOptions = () => ({
+  queryKey: CHANNEL_CONFIGURATIONS_QUERY_KEY,
+  queryFn: () =>
+    gqlClient.request<ChannelConfigurationsData>(CHANNEL_CONFIGURATIONS_QUERY),
+  staleTime: ONE_MINUTE,
+});
 
 export const highlightsPageQueryOptions = ({
   first = MAJOR_HEADLINES_MAX_FIRST,

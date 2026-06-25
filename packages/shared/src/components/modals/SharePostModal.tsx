@@ -42,6 +42,7 @@ export default function PostModal({
       onAfterOpen={onLoad}
       size={showRedesign ? Modal.Size.Large : Modal.Size.XLarge}
       className={showRedesign ? 'laptop:!overflow-clip' : undefined}
+      navigationRedesign={showRedesign}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
       source={post.source}

@@ -1,6 +1,8 @@
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+type RouteError = Error & { statusCode?: number };
+
 const handler = (req: NextApiRequest, res: NextApiResponse): void => {
   res.setHeaders(
     new Headers({
@@ -19,11 +21,11 @@ const handler = (req: NextApiRequest, res: NextApiResponse): void => {
         expiresDate.setUTCSeconds(59);
         expiresDate.setUTCMilliseconds(999);
 
-        const security = {
+        const security: Record<string, string> = {
           Contact: 'mailto:support@daily.dev',
           Expires: expiresDate.toISOString(),
           'Preferred-Languages': 'en',
-          Canonical: 'https://app.daily.dev/.well-known/security.txt',
+          Canonical: 'https://daily.dev/.well-known/security.txt',
           Hiring: 'https://daily.dev/careers',
         };
 
@@ -34,8 +36,8 @@ const handler = (req: NextApiRequest, res: NextApiResponse): void => {
           )
           .status(200)
           .send(
-            Object.keys(security)
-              .map((key) => `${key}: ${security[key]}`)
+            Object.entries(security)
+              .map(([key, value]) => `${key}: ${value}`)
               .join('\n'),
           );
         break;
@@ -44,14 +46,15 @@ const handler = (req: NextApiRequest, res: NextApiResponse): void => {
         res.status(405).send(null);
     }
   } catch (error) {
-    const statusCode = error.statusCode || 500;
+    const routeError = error as RouteError;
+    const statusCode = routeError.statusCode || 500;
 
     // eslint-disable-next-line no-console
     console.error(error);
 
     res
       .status(statusCode)
-      .send(statusCode < 500 ? error.message : 'internal server error');
+      .send(statusCode < 500 ? routeError.message : 'internal server error');
   }
 };
 

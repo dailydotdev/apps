@@ -21,9 +21,11 @@ import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import ActionButtons from '../common/ActionButtons';
+import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
@@ -149,6 +151,10 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
+    const glassActions = useFeedCardGlassActions();
+    // The hero keeps the pill on the content column (where its bar already sat),
+    // not over the cover image.
+    const useGlass = glassActions && !showFeedback;
     const significance = post.hero?.significance;
     const isTweetPost =
       post.type === PostType.SocialTwitter ||
@@ -217,7 +223,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           className: getPostClassNames(
             post,
             classNames(className ?? '', 'h-full overflow-hidden'),
-            'min-h-card',
+            useGlass ? 'min-h-cardGlass' : 'min-h-card',
           ),
         }}
         ref={ref}
@@ -236,7 +242,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             INNER_GRID_COLS[wideColSpan],
           )}
         >
-          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
             {showFeedback ? (
               <>
                 <h3 className="line-clamp-2 break-words px-6 pt-6 font-bold text-text-primary typo-title3">
@@ -255,7 +261,11 @@ export const ArticleFeaturedWideGridCard = forwardRef(
               </>
             ) : (
               <>
-                <CardTextContainer>
+                <CardTextContainer
+                  className={
+                    useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
+                  }
+                >
                   <PostCardHeader
                     post={post}
                     className="flex"
@@ -265,7 +275,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     onReadArticleClick={onReadArticleClick}
                     showFeedback={false}
                   />
-                  <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
+                  <h3
+                    className={classNames(
+                      'mt-2 break-words font-bold text-text-primary typo-title1',
+                      useGlass ? 'line-clamp-3' : 'line-clamp-4',
+                    )}
+                  >
                     {title}
                   </h3>
                   <div className="mt-2 flex min-w-0 items-center gap-2">
@@ -290,18 +305,36 @@ export const ArticleFeaturedWideGridCard = forwardRef(
                     </p>
                   ) : null}
                 </CardTextContainer>
-                <Container>
-                  <CardSpace />
-                  <ActionButtons
-                    post={post}
-                    onUpvoteClick={onUpvoteClick}
-                    onCommentClick={onCommentClick}
-                    onCopyLinkClick={onCopyLinkClick}
-                    onBookmarkClick={onBookmarkClick}
-                    onDownvoteClick={onDownvoteClick}
-                    variant="grid"
-                  />
-                </Container>
+                {useGlass ? (
+                  <>
+                    {/* Reserve the floating bar's footprint (h-10 + bottom-2)
+                        plus a small gap in the flow so the clipped text column
+                        always ends above it — long titles or summaries can never
+                        render behind the bar. */}
+                    <div aria-hidden className="h-14 shrink-0" />
+                    <FeedCardGlassActions
+                      post={post}
+                      onUpvoteClick={onUpvoteClick}
+                      onCommentClick={onCommentClick}
+                      onCopyLinkClick={onCopyLinkClick}
+                      onBookmarkClick={onBookmarkClick}
+                      onDownvoteClick={onDownvoteClick}
+                    />
+                  </>
+                ) : (
+                  <Container>
+                    <CardSpace />
+                    <ActionButtons
+                      post={post}
+                      onUpvoteClick={onUpvoteClick}
+                      onCommentClick={onCommentClick}
+                      onCopyLinkClick={onCopyLinkClick}
+                      onBookmarkClick={onBookmarkClick}
+                      onDownvoteClick={onDownvoteClick}
+                      variant="grid"
+                    />
+                  </Container>
+                )}
               </>
             )}
           </div>

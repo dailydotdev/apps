@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, {
   useRef,
   useEffect,
@@ -58,6 +58,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   featureFeedAdTemplate,
+  featureFeedContentVisibility,
 } from '../lib/featureManagement';
 import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
@@ -67,7 +68,6 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
 
@@ -309,6 +309,27 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+
+  // Experiment: let the browser skip layout/paint for off-screen cards on long
+  // vertical feeds. Horizontal carousels are short and scroll on the other axis,
+  // so they get no benefit and are excluded from evaluation.
+  const { value: feedContentVisibility } = useConditionalFeature({
+    feature: featureFeedContentVisibility,
+    shouldEvaluate: !isHorizontal,
+  });
+  const useContentVisibility = feedContentVisibility && !isHorizontal;
+  // `contain-intrinsic-size: auto <estimate>` reserves height for skipped cards
+  // so the scrollbar stays stable; `auto` makes the browser remember each card's
+  // real size after its first paint, so the estimate only matters for cards not
+  // yet rendered. Grid cards use the `min-h-card` baseline; list cards are shorter.
+  const contentVisibilityStyle: CSSProperties | undefined = useContentVisibility
+    ? {
+        contentVisibility: 'auto',
+        containIntrinsicSize: shouldUseListFeedLayout
+          ? 'auto 12rem'
+          : 'auto 24rem',
+      }
+    : undefined;
   const {
     onOpenModal,
     onCloseModal,
@@ -324,17 +345,7 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
-  const {
-    isEligible: isReaderEligible,
-    isReaderModalEnabled: readerModalFromGrowthBook,
-    isReaderFeatureLoading,
-  } = useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  // Viewport gating lives in useReaderModalEligibility (isReaderEligible is
-  // already tablet-or-larger), so no separate isTabletViewport check here.
-  const isReaderModalOn =
-    isReaderEligible && readerModalFromGrowthBook && !isLegacyLayoutOptedOut;
-  const isReaderModalFeatureReady = !isReaderFeatureLoading;
+  const { isReaderEnabled: isReaderModalOn } = useReaderModalEligibility();
   const readerEligiblePostTypes = useMemo(
     () =>
       new Set<PostType>([
@@ -346,10 +357,8 @@ export default function Feed<T>({
   );
   const isReaderEligiblePost = useCallback(
     (post: Post): boolean =>
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligiblePostTypes.has(post.type),
-    [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
+      isReaderModalOn && readerEligiblePostTypes.has(post.type),
+    [isReaderModalOn, readerEligiblePostTypes],
   );
   const {
     showPromoBanner,
@@ -688,7 +697,7 @@ export default function Feed<T>({
                 isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
                   ? (colSpan as FeaturedWideColSpan)
                   : undefined;
-              const itemNode = (
+              const itemNode: ReactElement = (
                 <FeedItemComponent
                   item={item}
                   index={index}
@@ -715,6 +724,37 @@ export default function Feed<T>({
                 />
               );
 
+              let renderedItem = itemNode;
+              if (isWidened) {
+                renderedItem = (
+                  <div
+                    className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                    style={{
+                      gridColumn: `span ${colSpan}`,
+                      ...contentVisibilityStyle,
+                    }}
+                    data-testid="feedItemColSpanWrapper"
+                  >
+                    {itemNode}
+                  </div>
+                );
+              } else if (useContentVisibility) {
+                // List cards stack at natural height; grid cards must keep
+                // filling their equal-height row, so preserve the h-full pass-through.
+                renderedItem = (
+                  <div
+                    className={
+                      shouldUseListFeedLayout
+                        ? 'w-full'
+                        : 'flex h-full w-full [&>*]:h-full [&>*]:w-full'
+                    }
+                    style={contentVisibilityStyle}
+                  >
+                    {itemNode}
+                  </div>
+                );
+              }
+
               return (
                 <FeedCardContext.Provider
                   key={getFeedItemKey(item, index)}
@@ -733,17 +773,7 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {isWidened ? (
-                    <div
-                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
-                      style={{ gridColumn: `span ${colSpan}` }}
-                      data-testid="feedItemColSpanWrapper"
-                    >
-                      {itemNode}
-                    </div>
-                  ) : (
-                    itemNode
-                  )}
+                  {renderedItem}
                 </FeedCardContext.Provider>
               );
             })}

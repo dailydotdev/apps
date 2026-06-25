@@ -28,6 +28,8 @@ import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
+  DailyPageVariant,
+  featureDailyPage,
   featurePlusApiLanding,
   featureYearInReview,
 } from '../../../lib/featureManagement';
@@ -55,6 +57,11 @@ export const MainSection = ({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
   });
+  const { value: dailyVariant } = useConditionalFeature({
+    feature: featureDailyPage,
+    shouldEvaluate: isLoggedIn,
+  });
+  const showDailyPage = dailyVariant === DailyPageVariant.V1;
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -143,6 +150,19 @@ export const MainSection = ({
           }
         : undefined;
 
+    const daily =
+      isLoggedIn && showDailyPage
+        ? {
+            icon: (active: boolean) => (
+              <ListIcon Icon={() => <MagicIcon secondary={active} />} />
+            ),
+            title: 'Daily',
+            path: `${webappUrl}daily`,
+            isForcedLink: true,
+            requiresLogin: true,
+          }
+        : undefined;
+
     const yearInReview = showYearInReview
       ? {
           icon: () => <ListIcon Icon={() => <YearInReviewIcon />} />,
@@ -170,6 +190,7 @@ export const MainSection = ({
     return (
       [
         myFeed,
+        daily,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -214,6 +235,7 @@ export const MainSection = ({
     isPlus,
     isV2,
     onNavTabClick,
+    showDailyPage,
     showYearInReview,
     user,
   ]);

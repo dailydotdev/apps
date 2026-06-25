@@ -4,6 +4,7 @@ import type { PublicProfile } from '../../../../lib/user';
 import { ProfileUserWorkspacePhotos } from './ProfileUserWorkspacePhotos';
 import { useUserWorkspacePhotos } from '../../hooks/useUserWorkspacePhotos';
 import { useGear } from '../../hooks/useGear';
+import { LazyModal } from '../../../../components/modals/common/types';
 
 jest.mock('../../hooks/useUserWorkspacePhotos', () => ({
   ...jest.requireActual('../../hooks/useUserWorkspacePhotos'),
@@ -22,6 +23,11 @@ jest.mock('../../../../hooks/usePrompt', () => ({
   usePrompt: () => ({ showPrompt: jest.fn() }),
 }));
 
+const mockOpenModal = jest.fn();
+jest.mock('../../../../hooks/useLazyModal', () => ({
+  useLazyModal: () => ({ openModal: mockOpenModal }),
+}));
+
 const mockUseUserWorkspacePhotos =
   useUserWorkspacePhotos as jest.MockedFunction<typeof useUserWorkspacePhotos>;
 const mockUseGear = useGear as jest.MockedFunction<typeof useGear>;
@@ -38,11 +44,6 @@ const baseUser: PublicProfile = {
 };
 
 const photo = { id: 'p1', image: 'https://daily.dev/desk.png', position: 0 };
-
-const renderAndOpenLightbox = () => {
-  render(<ProfileUserWorkspacePhotos user={baseUser} />);
-  fireEvent.click(screen.getByRole('button', { name: 'View workspace photo' }));
-};
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -63,27 +64,28 @@ beforeEach(() => {
 });
 
 describe('ProfileUserWorkspacePhotos lightbox', () => {
-  it('opens a dialog with a blurred backdrop when a photo is clicked', () => {
-    renderAndOpenLightbox();
+  it('opens the shared image lightbox with the photo when clicked', () => {
+    render(<ProfileUserWorkspacePhotos user={baseUser} />);
 
-    expect(
-      screen.getByRole('dialog', { name: 'Workspace photo lightbox' }),
-    ).toBeInTheDocument();
-    const backdrop = screen.getByRole('button', { name: 'Close lightbox' });
-    expect(backdrop.className).toMatch(/backdrop-blur/);
-  });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'View workspace photo' }),
+    );
 
-  it('closes the lightbox when the backdrop is clicked', () => {
-    renderAndOpenLightbox();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Close lightbox' }));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('closes the lightbox when the close button is clicked', () => {
-    renderAndOpenLightbox();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(mockOpenModal).toHaveBeenCalledTimes(1);
+    expect(mockOpenModal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: LazyModal.ImageView,
+        props: expect.objectContaining({
+          src: photo.image,
+          alt: 'Workspace',
+          originRect: expect.objectContaining({
+            top: expect.any(Number),
+            left: expect.any(Number),
+            width: expect.any(Number),
+            height: expect.any(Number),
+          }),
+        }),
+      }),
+    );
   });
 });
