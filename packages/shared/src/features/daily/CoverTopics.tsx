@@ -303,13 +303,37 @@ export const CoverTopics = (): ReactElement => {
         </ol>
       )}
       {!isPending && highlights.length === 0 && (
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="px-1 py-2"
-        >
-          No headlines today, yet...
-        </Typography>
+        <div className="flex flex-col items-center gap-2 rounded-12 border border-border-subtlest-quaternary px-6 py-5 text-center">
+          <div className="flex size-12 items-center justify-center rounded-full bg-accent-water-flat text-accent-water-default">
+            <MegaphoneIcon size={IconSize.Medium} secondary />
+          </div>
+          <div className="flex max-w-xs flex-col items-center gap-1">
+            <Typography
+              tag={TypographyTag.H3}
+              type={TypographyType.Body}
+              bold
+              color={TypographyColor.Primary}
+            >
+              No headlines, yet...
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Follow more topic channels and your daily headlines will show up
+              here.
+            </Typography>
+          </div>
+          <Button
+            type="button"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            icon={<SettingsIcon />}
+            onClick={() => setIsSettingsOpen(true)}
+          >
+            Manage channels
+          </Button>
+        </div>
       )}
       {highlights.length > 0 && (
         <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
