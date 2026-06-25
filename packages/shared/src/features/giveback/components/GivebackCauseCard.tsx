@@ -45,12 +45,30 @@ export const GivebackCauseCard = ({
       className="absolute inset-0 z-0 rounded-16"
     />
 
-    <FlexRow className="pointer-events-none relative z-1 items-start justify-between gap-2">
+    {/* Identity strip: emblem, then title + category, with the select tick kept
+        top-right. Keeping these on one row makes each card shorter so more causes
+        fit on screen at once. */}
+    <FlexRow className="pointer-events-none relative z-1 items-start gap-3">
       <CauseEmblem
         cause={cause}
         index={index}
         className="transition-transform duration-200 group-hover:scale-105"
       />
+      <FlexCol className="min-w-0 flex-1 gap-0.5">
+        <Typography bold type={TypographyType.Callout} className="truncate">
+          {cause.title}
+        </Typography>
+        {cause.category && (
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="truncate"
+          >
+            {cause.category}
+          </Typography>
+        )}
+      </FlexCol>
       <span
         className={classNames(
           'flex size-5 shrink-0 items-center justify-center rounded-full transition-colors',
@@ -63,29 +81,15 @@ export const GivebackCauseCard = ({
       </span>
     </FlexRow>
 
-    <FlexCol className="pointer-events-none relative z-1 min-w-0 flex-1 gap-1">
-      <Typography bold type={TypographyType.Callout}>
-        {cause.title}
+    {cause.description && (
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+        className="pointer-events-none relative z-1 line-clamp-4"
+      >
+        {cause.description}
       </Typography>
-      {cause.category && (
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          {cause.category}
-        </Typography>
-      )}
-      {cause.description && (
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="pt-1"
-        >
-          {cause.description}
-        </Typography>
-      )}
-    </FlexCol>
+    )}
 
     {cause.url && (
       <a

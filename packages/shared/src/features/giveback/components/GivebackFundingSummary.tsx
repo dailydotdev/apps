@@ -25,13 +25,16 @@ const Meter = ({
   percentage: number;
   empty?: boolean;
 }): ReactElement => (
-  <div className="relative" ref={meterRef}>
+  // The track owns the styling: a dark (primary background) fill with a hairline
+  // border so the meter reads as a crisp, contained gauge rather than a flat bar.
+  <div
+    ref={meterRef}
+    className="relative h-3 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default"
+  >
     <ProgressBar
       percentage={percentage}
-      shouldShowBg
       className={{
-        wrapper: 'h-3 rounded-12',
-        bar: 'h-full rounded-12 transition-[width] duration-700 ease-out',
+        bar: 'block h-full rounded-12 transition-[width] duration-700 ease-out',
         barColor,
       }}
     />
