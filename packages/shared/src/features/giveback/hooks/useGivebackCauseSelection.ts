@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  TOAST_NOTIF_KEY,
+  useToastNotification,
+} from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
 import { useContributionCausePicker } from './useContributionCausePicker';
 import { useUpdateContributionCausePreferences } from './useUpdateContributionCausePreferences';
@@ -24,6 +28,7 @@ export const useGivebackCauseSelection = (
   enabled: boolean,
 ): UseGivebackCauseSelection => {
   const { displayToast } = useToastNotification();
+  const queryClient = useQueryClient();
   const { causes, selectedCauseIds, isPending } =
     useContributionCausePicker(enabled);
   const { saveCausePreferences, isPending: isSaving } =
@@ -60,14 +65,23 @@ export const useGivebackCauseSelection = (
   const save = useCallback(async () => {
     try {
       await saveCausePreferences([...selectedIds]);
-      // Auto-dismiss; a confirmation shouldn't linger waiting to be closed.
       displayToast('Your causes are saved', { timer: 3000 });
+      // Force-clear after the timer: the global toast only auto-dismisses when
+      // the user's "auto-dismiss notifications" setting is on, and a save
+      // confirmation should never sit there waiting to be closed manually.
+      // Guard on identity so a newer toast is never clobbered.
+      const shown = queryClient.getQueryData(TOAST_NOTIF_KEY);
+      setTimeout(() => {
+        if (queryClient.getQueryData(TOAST_NOTIF_KEY) === shown) {
+          queryClient.setQueryData(TOAST_NOTIF_KEY, null);
+        }
+      }, 3000);
       return true;
     } catch {
       displayToast(labels.error.generic);
       return false;
     }
-  }, [saveCausePreferences, selectedIds, displayToast]);
+  }, [saveCausePreferences, selectedIds, displayToast, queryClient]);
 
   return {
     causes,

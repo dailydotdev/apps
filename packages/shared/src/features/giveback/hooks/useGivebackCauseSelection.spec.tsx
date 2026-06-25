@@ -1,4 +1,7 @@
+import type { ReactNode } from 'react';
+import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useGivebackCauseSelection } from './useGivebackCauseSelection';
 import { useContributionCausePicker } from './useContributionCausePicker';
 import { useUpdateContributionCausePreferences } from './useUpdateContributionCausePreferences';
@@ -23,6 +26,13 @@ const mockUseToast = useToastNotification as jest.MockedFunction<
 const saveCausePreferences = jest.fn().mockResolvedValue(undefined);
 const displayToast = jest.fn();
 
+// The hook reads the query client (to force-clear the save toast), so renders
+// need a provider.
+const queryClient = new QueryClient();
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseUpdate.mockReturnValue({ saveCausePreferences, isPending: false });
@@ -43,7 +53,9 @@ it('seeds the selection from saved preferences', () => {
     isPending: false,
   });
 
-  const { result } = renderHook(() => useGivebackCauseSelection(true));
+  const { result } = renderHook(() => useGivebackCauseSelection(true), {
+    wrapper,
+  });
 
   expect(result.current.selectedCount).toBe(2);
   expect(result.current.selectedIds.has('c1')).toBe(true);
@@ -51,7 +63,9 @@ it('seeds the selection from saved preferences', () => {
 });
 
 it('reports no saved causes when the visitor has none', () => {
-  const { result } = renderHook(() => useGivebackCauseSelection(true));
+  const { result } = renderHook(() => useGivebackCauseSelection(true), {
+    wrapper,
+  });
 
   expect(result.current.hasSavedCauses).toBe(false);
 });
@@ -66,7 +80,7 @@ it('does not seed an empty selection while disabled, then seeds once enabled', (
 
   const { result, rerender } = renderHook(
     ({ enabled }) => useGivebackCauseSelection(enabled),
-    { initialProps: { enabled: false } },
+    { initialProps: { enabled: false }, wrapper },
   );
 
   expect(result.current.selectedCount).toBe(0);
@@ -84,7 +98,9 @@ it('does not seed an empty selection while disabled, then seeds once enabled', (
 });
 
 it('toggles a cause on and off', () => {
-  const { result } = renderHook(() => useGivebackCauseSelection(true));
+  const { result } = renderHook(() => useGivebackCauseSelection(true), {
+    wrapper,
+  });
 
   act(() => result.current.toggleCause('c1'));
   expect(result.current.selectedIds.has('c1')).toBe(true);
@@ -94,7 +110,9 @@ it('toggles a cause on and off', () => {
 });
 
 it('saves the current selection and toasts', async () => {
-  const { result } = renderHook(() => useGivebackCauseSelection(true));
+  const { result } = renderHook(() => useGivebackCauseSelection(true), {
+    wrapper,
+  });
 
   act(() => result.current.toggleCause('c1'));
   let saved: boolean | undefined;
@@ -113,7 +131,9 @@ it('saves the current selection and toasts', async () => {
 
 it('toasts a generic error and reports failure when saving fails', async () => {
   saveCausePreferences.mockRejectedValueOnce(new Error('network'));
-  const { result } = renderHook(() => useGivebackCauseSelection(true));
+  const { result } = renderHook(() => useGivebackCauseSelection(true), {
+    wrapper,
+  });
 
   let saved: boolean | undefined;
   await act(async () => {
