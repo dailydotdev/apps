@@ -13,7 +13,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { OpenLinkIcon, PlusIcon, VIcon } from '../../../components/icons';
+import {
+  MiniCloseIcon,
+  OpenLinkIcon,
+  PlusIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -85,11 +89,11 @@ const CauseRow = ({
       className={classNames(
         'flex size-8 shrink-0 items-center justify-center rounded-10 border transition-colors [&_svg]:size-4',
         selected
-          ? 'border-accent-cabbage-default bg-accent-cabbage-default text-white hover:border-status-error hover:bg-status-error'
+          ? 'border-border-subtlest-secondary text-text-tertiary hover:border-status-error hover:bg-status-error hover:text-white'
           : 'border-border-subtlest-secondary text-text-tertiary hover:border-accent-cabbage-default hover:text-accent-cabbage-default',
       )}
     >
-      {selected ? <VIcon /> : <PlusIcon />}
+      {selected ? <MiniCloseIcon /> : <PlusIcon />}
     </button>
   </FlexRow>
 );
@@ -162,7 +166,7 @@ export const GivebackCausesPanel = (): ReactElement => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             // eslint-disable-next-line react/no-array-index-key
@@ -175,7 +179,7 @@ export const GivebackCausesPanel = (): ReactElement => {
   }
 
   return (
-    <FlexCol className="max-w-3xl gap-8">
+    <FlexCol className="gap-8">
       <FlexCol className="gap-2">
         <Typography tag={TypographyTag.H2} type={TypographyType.Title2} bold>
           Your causes, your call
@@ -236,7 +240,7 @@ export const GivebackCausesPanel = (): ReactElement => {
         </FlexRow>
 
         {selectedCauses.length > 0 ? (
-          <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
             {selectedCauses.map(({ cause, index }) => (
               <CauseRow
                 key={cause.id}
@@ -274,7 +278,7 @@ export const GivebackCausesPanel = (): ReactElement => {
           >
             More causes to explore
           </Typography>
-          <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
             {otherCauses.map(({ cause, index }) => (
               <CauseRow
                 key={cause.id}

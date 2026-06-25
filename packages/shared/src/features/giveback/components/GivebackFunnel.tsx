@@ -14,7 +14,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import CloseButton from '../../../components/CloseButton';
-import { VIcon } from '../../../components/icons';
+import { CoinIcon, GiftIcon, VIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
@@ -22,7 +22,31 @@ import { GivebackBackground } from './GivebackBackground';
 import { GivebackMascot } from './GivebackMascot';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
 import { GivebackCampaignVideo } from './GivebackCampaignVideo';
-import { CauseEmblem } from './CauseEmblem';
+
+// The finale reassures the choice by spelling out the value the visitor just
+// unlocked - three short, deck-ready propositions rather than a recap of the
+// causes (which would just echo the picker screen).
+const IMPACT_VALUES: ReadonlyArray<{
+  icon: ReactElement;
+  title: string;
+  sub: string;
+}> = [
+  {
+    icon: <VIcon />,
+    title: 'You chose well',
+    sub: 'Real, vetted nonprofits, picked by you.',
+  },
+  {
+    icon: <CoinIcon />,
+    title: 'Costs you nothing',
+    sub: 'daily.dev funds every single dollar.',
+  },
+  {
+    icon: <GiftIcon />,
+    title: 'Real, lasting impact',
+    sub: 'Everyday actions become real support.',
+  },
+];
 
 type CauseSelection = ReturnType<typeof useGivebackCauseSelection>;
 
@@ -369,51 +393,41 @@ export const GivebackFunnel = ({
               </FlexCol>
             </Reveal>
 
-            {selectedCauses.length > 0 && (
-              <>
-                <Reveal delay={220} className="w-full">
-                  <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
-                    {selectedCauses.map(({ cause, index }) => (
-                      <FlexCol
-                        key={cause.id}
-                        className="hover:border-accent-cabbage-default/40 h-full items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-colors"
-                      >
-                        <FlexRow className="items-center gap-2.5">
-                          <CauseEmblem cause={cause} index={index} />
-                          <Typography
-                            tag={TypographyTag.Span}
-                            type={TypographyType.Caption2}
-                            color={TypographyColor.Tertiary}
-                            bold
-                            className="uppercase tracking-wider"
-                          >
-                            {cause.title}
-                          </Typography>
-                        </FlexRow>
-                        {cause.description && (
-                          <Typography
-                            type={TypographyType.Callout}
-                            color={TypographyColor.Primary}
-                          >
-                            {cause.description}
-                          </Typography>
-                        )}
-                      </FlexCol>
-                    ))}
-                  </div>
-                </Reveal>
-                <Reveal delay={320}>
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                    bold
-                    className="max-w-xl [text-wrap:pretty]"
+            <Reveal delay={220} className="w-full">
+              <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
+                {IMPACT_VALUES.map((value) => (
+                  <FlexCol
+                    key={value.title}
+                    className="h-full items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5 text-center"
                   >
-                    Thank you for choosing who to back. From now on, your
-                    everyday actions turn into real support for them. 💜
-                  </Typography>
-                </Reveal>
-              </>
+                    <span className="flex size-11 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
+                      {value.icon}
+                    </span>
+                    <Typography bold type={TypographyType.Callout}>
+                      {value.title}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {value.sub}
+                    </Typography>
+                  </FlexCol>
+                ))}
+              </div>
+            </Reveal>
+            {selectedCauses.length > 0 && (
+              <Reveal delay={320}>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Primary}
+                  bold
+                  className="max-w-xl [text-wrap:pretty]"
+                >
+                  Thank you for choosing who to back. From now on, your everyday
+                  actions turn into real support for them. 💜
+                </Typography>
+              </Reveal>
             )}
           </FlexCol>
         );

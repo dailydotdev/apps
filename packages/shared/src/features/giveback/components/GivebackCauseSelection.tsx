@@ -4,7 +4,6 @@ import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { GivebackFilterChip } from './GivebackFilterChip';
@@ -77,16 +76,6 @@ export const GivebackCauseSelection = ({
 
   return (
     <FlexCol className="gap-6">
-      <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        className="max-w-2xl"
-      >
-        Pick as many as you like. daily.dev funds every donation, and you can
-        change them anytime.
-      </Typography>
-
       {categories.length > 0 && (
         <FlexRow className="flex-wrap gap-2">
           <GivebackFilterChip
