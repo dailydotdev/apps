@@ -36,7 +36,7 @@ const renderSummary = (status: Partial<ContributionStatus>) => {
   return render(<GivebackFundingSummary />);
 };
 
-it('renders campaign points as dollars against the cycle goal with backers', () => {
+it('renders campaign points as dollars against the cycle goal with contributors', () => {
   renderSummary({
     currentCyclePoints: 5000,
     currentCycleTargetPoints: 10000,
@@ -44,12 +44,12 @@ it('renders campaign points as dollars against the cycle goal with backers', () 
   });
 
   expect(screen.getByText('$5,000')).toBeInTheDocument();
-  expect(screen.getByText('pledged of $10,000 goal')).toBeInTheDocument();
+  expect(screen.getByText('unlocked of $10,000 goal')).toBeInTheDocument();
   expect(screen.getByText('50%')).toBeInTheDocument();
-  expect(screen.getByText(/12,480 backers/)).toBeInTheDocument();
+  expect(screen.getByText(/12,480 contributors/)).toBeInTheDocument();
 });
 
-it('shows a goal-forward empty state when nothing is pledged yet', () => {
+it('shows a goal-forward empty state when nothing is unlocked yet', () => {
   renderSummary({
     currentCyclePoints: 0,
     currentCycleTargetPoints: 10000,
@@ -61,9 +61,9 @@ it('shows a goal-forward empty state when nothing is pledged yet', () => {
     screen.getByText('goal to unlock for good causes'),
   ).toBeInTheDocument();
   expect(screen.getByText('Be the first to back this.')).toBeInTheDocument();
-  // None of the "$0 / 0% / 0 backers" zeros leak through.
+  // None of the "$0 / 0% / 0 contributors" zeros leak through.
   expect(screen.queryByText('$0')).not.toBeInTheDocument();
-  expect(screen.queryByText(/0 backers/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/0 contributors/)).not.toBeInTheDocument();
 });
 
 it('renders a skeleton without zeros before data arrives', () => {
@@ -75,5 +75,5 @@ it('renders a skeleton without zeros before data arrives', () => {
   render(<GivebackFundingSummary />);
 
   expect(screen.queryByText('$0')).not.toBeInTheDocument();
-  expect(screen.queryByText(/pledged of/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/unlocked of/)).not.toBeInTheDocument();
 });

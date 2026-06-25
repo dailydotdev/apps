@@ -154,7 +154,7 @@ export const GivebackFundingSummary = (): ReactElement => {
           color={TypographyColor.Tertiary}
           className="pb-1"
         >
-          pledged of {formatDonationAmount(goal)} goal
+          unlocked of {formatDonationAmount(goal)} goal
         </Typography>
       </FlexRow>
 
@@ -174,7 +174,7 @@ export const GivebackFundingSummary = (): ReactElement => {
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          funded · {contributorsCount.toLocaleString('en-US')} backers
+          funded · {contributorsCount.toLocaleString('en-US')} contributors
         </Typography>
       </FlexRow>
     </FlexCol>

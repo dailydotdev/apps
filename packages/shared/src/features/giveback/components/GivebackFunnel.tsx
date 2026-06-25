@@ -473,9 +473,9 @@ export const GivebackFunnel = ({
                 color={TypographyColor.Secondary}
                 className="max-w-xl [text-wrap:pretty]"
               >
-                daily.dev would rather back developers than ad networks. So we
-                take our marketing budget and donate it, and you decide where it
-                goes.
+                daily.dev would rather put its marketing budget into good causes
+                than ad networks. You take small actions, we turn them into
+                donations, and you pick which causes get them.
               </Typography>
             </Reveal>
           </FlexCol>

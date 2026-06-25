@@ -79,7 +79,7 @@ export const GivebackHero = ({
           <FlexCol className="gap-2">
             <GivebackHeadline
               title="Big tech buys ads."
-              highlight="We fund developers."
+              highlight="We fund the causes you pick."
             />
             <Typography
               tag={TypographyTag.P}
@@ -87,9 +87,9 @@ export const GivebackHero = ({
               color={TypographyColor.Secondary}
               className="max-w-2xl"
             >
-              Every action you take on daily.dev unlocks real money for good
-              causes. We pay for all of it, you choose where it goes. No catch,
-              no cost, just developers giving back together.
+              Every action you take on daily.dev turns our marketing budget into
+              real donations to the nonprofits you choose. You spend a few
+              minutes, we cover every dollar.
             </Typography>
           </FlexCol>
 

@@ -3,7 +3,7 @@ import { GivebackHero } from '@dailydotdev/shared/src/features/giveback/componen
 import { mockStatus, withGiveback } from './giveback.mocks';
 
 // The page cover: brand + "How it works" across the top, the "Big tech buys ads.
-// We fund developers." headline with the live funding meter on the left, and the
+// We fund the causes you pick." headline with the funding meter on the left, and
 // charm on the right.
 const meta: Meta<typeof GivebackHero> = {
   title: 'Features/Giveback/Page cover (hero)',
