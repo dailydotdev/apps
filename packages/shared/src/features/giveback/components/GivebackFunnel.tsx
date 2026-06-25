@@ -20,8 +20,10 @@ import {
   MoveToIcon,
   VIcon,
 } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { cloudinaryCharmBookmarks } from '../../../lib/image';
 import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import { GivebackBackground } from './GivebackBackground';
 import { GivebackMascot } from './GivebackMascot';
@@ -370,7 +372,13 @@ export const GivebackFunnel = ({
           <FlexCol className="w-full items-center gap-6 text-center">
             <Reveal>
               <Stage>
-                <GivebackMascot imageClassName="h-40 tablet:h-48" />
+                <GivebackMascot
+                  imageClassName="h-40 tablet:h-48"
+                  image={{
+                    src: cloudinaryCharmBookmarks,
+                    alt: 'daily.dev charm celebrating your causes',
+                  }}
+                />
               </Stage>
             </Reveal>
             <Reveal delay={120}>
@@ -408,12 +416,12 @@ export const GivebackFunnel = ({
                     <span className="flex size-11 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
                       {value.icon}
                     </span>
-                    <Typography bold type={TypographyType.Callout}>
+                    <Typography bold type={TypographyType.Title3}>
                       {value.title}
                     </Typography>
                     <Typography
-                      type={TypographyType.Caption1}
-                      color={TypographyColor.Tertiary}
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Secondary}
                     >
                       {value.sub}
                     </Typography>
@@ -493,7 +501,15 @@ export const GivebackFunnel = ({
         )}
       </header>
 
-      <main className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center px-6 py-4">
+      <main
+        className={classNames(
+          'relative mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-4',
+          // The cause picker changes height as you filter; top-anchor it so the
+          // title + filters stay put and only the list below reflows (no
+          // re-centering jump). Shorter steps stay vertically centered.
+          stepKey === 'causes' ? 'justify-start' : 'justify-center',
+        )}
+      >
         {/* Lightweight carousel dots sit above the step content as a quick "where
             am I" cue, just over each step's title. */}
         <FlexRow className="mb-8 justify-center gap-2" aria-hidden>
@@ -524,7 +540,7 @@ export const GivebackFunnel = ({
           (Large = rounded-14) + the bar's padding (p-2 = 8px) => rounded-22, so
           the inner and outer curves stay concentric. */}
       <footer className="pointer-events-none sticky bottom-0 z-3 flex justify-center px-4 pb-5 pt-2">
-        <FlexRow className="bg-background-default/80 pointer-events-auto w-full max-w-md items-center gap-2 rounded-22 border border-border-subtlest-secondary p-2 shadow-2 backdrop-blur-xl">
+        <FlexRow className="bg-background-default/95 pointer-events-auto w-full max-w-md items-center gap-2 rounded-22 border border-border-subtlest-secondary p-2 shadow-2 backdrop-blur-xl">
           {!isFirst && (
             <Button
               type="button"
@@ -549,7 +565,9 @@ export const GivebackFunnel = ({
             {ctaLabel[stepKey]}
             {/* On the final step a forward "move to" icon on the right reads as
                 "go take action next", not a "you're done" checkmark. */}
-            {isLast && <MoveToIcon aria-hidden className="ml-1" />}
+            {isLast && (
+              <MoveToIcon aria-hidden size={IconSize.Small} className="ml-1" />
+            )}
           </Button>
         </FlexRow>
       </footer>

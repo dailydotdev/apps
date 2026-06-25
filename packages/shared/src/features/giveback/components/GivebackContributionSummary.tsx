@@ -13,19 +13,18 @@ import {
   ProfilePicture,
   ProfileImageSize,
 } from '../../../components/ProfilePicture';
-import ProgressCircle from '../../../components/ProgressCircle';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionActions } from '../hooks/useContributionActions';
 import { formatDonationAmount } from '../utils';
 
-// Personal status banner above the action catalog. Your face anchors it (this is
-// about you), wrapped in a progress ring toward your next level with a level
-// badge — status you can feel — and the money you've unlocked is the hero stat.
-// The "next reward" detail lives on the sticky footer, so it's not repeated here.
+// Personal stat card above the action catalog. A rounded-square avatar (matching
+// daily.dev's app tiles) carries identity with a small level badge tucked in its
+// corner; the money you've unlocked is the hero number beside it. Clean and
+// concrete — no floating ring, no game-y framing.
 export const GivebackContributionSummary = (): ReactElement => {
   const { user } = useAuthContext();
-  const { earnedPoints, currentLevel, progressPercentage, isPending } =
+  const { earnedPoints, currentLevel, isPending } =
     useGivebackContribution(true);
   // Shares the catalog's query key, so this adds no extra request.
   const { actions, isPending: isActionsPending } = useContributionActions(true);
@@ -39,30 +38,19 @@ export const GivebackContributionSummary = (): ReactElement => {
   }
 
   return (
-    <FlexRow className="items-center gap-4 tablet:gap-5">
+    <FlexRow className="items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:gap-5 tablet:p-5">
       {user && (
-        // Flat, no card: the avatar in a progress ring (momentum to next level)
-        // with the level as a quiet label beneath - status without a loud pill.
-        <FlexCol className="shrink-0 items-center gap-1.5">
-          <div className="relative flex size-[72px] items-center justify-center">
-            <div className="absolute inset-0">
-              <ProgressCircle progress={progressPercentage} size={72} />
-            </div>
-            <ProfilePicture
-              user={user}
-              size={ProfileImageSize.Large}
-              rounded={ProfileImageSize.Large}
-            />
-          </div>
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption2}
-            bold
-            className="uppercase tracking-wider text-accent-cabbage-default"
-          >
-            Level {currentLevel}
-          </Typography>
-        </FlexCol>
+        <div className="relative shrink-0">
+          <ProfilePicture
+            user={user}
+            size={ProfileImageSize.XXLarge}
+            rounded={ProfileImageSize.XXLarge}
+            className="ring-1 ring-border-subtlest-tertiary"
+          />
+          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default px-2 py-0.5 font-bold uppercase tracking-wide text-white ring-2 ring-surface-float typo-caption2">
+            Lvl {currentLevel}
+          </span>
+        </div>
       )}
 
       <FlexCol className="min-w-0 flex-1 gap-1">

@@ -21,7 +21,6 @@ import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
 import { GivebackFaqPanel } from './GivebackFaqPanel';
-import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
@@ -188,8 +187,6 @@ export const GivebackPage = (): ReactElement => {
           <GivebackLegalFooter />
         </div>
       </FlexCol>
-
-      {showTabs && <GivebackFundingBar onTakeAction={goToActions} />}
 
       {showFunnel && (
         <GivebackFunnel

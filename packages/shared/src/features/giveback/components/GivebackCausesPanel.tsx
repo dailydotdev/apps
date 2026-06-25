@@ -146,6 +146,11 @@ export const GivebackCausesPanel = (): ReactElement => {
   const otherCauses = indexed.filter(
     ({ cause }) => !selectedIds.has(cause.id) && matchesFilter(cause),
   );
+  // Unfiltered: keeps the filter strip visible even when the active category has
+  // no unselected causes, so the user can always switch back.
+  const hasOtherCauses = indexed.some(
+    ({ cause }) => !selectedIds.has(cause.id),
+  );
 
   const onLearnMore = (causeId: string) =>
     logEvent({ event_name: LogEvent.ClickGivebackCause, target_id: causeId });
@@ -196,24 +201,6 @@ export const GivebackCausesPanel = (): ReactElement => {
           funds every donation, so it never costs you a thing.
         </Typography>
       </FlexCol>
-
-      {categories.length > 0 && (
-        <FlexRow className="flex-wrap gap-2">
-          <GivebackFilterChip
-            isSelected={activeFilter === ALL_FILTER}
-            label="All"
-            onClick={() => setActiveFilter(ALL_FILTER)}
-          />
-          {categories.map((category) => (
-            <GivebackFilterChip
-              key={category}
-              isSelected={activeFilter === category}
-              label={category}
-              onClick={() => setActiveFilter(category)}
-            />
-          ))}
-        </FlexRow>
-      )}
 
       <FlexCol className="gap-3">
         <FlexRow className="items-center justify-between gap-3">
@@ -268,7 +255,9 @@ export const GivebackCausesPanel = (): ReactElement => {
         )}
       </FlexCol>
 
-      {otherCauses.length > 0 && (
+      {/* Filters sit just above the discovery grid they control (and below your
+          own causes), so the connection is obvious. */}
+      {hasOtherCauses && (
         <FlexCol className="gap-3">
           <Typography
             tag={TypographyTag.Span}
@@ -279,19 +268,46 @@ export const GivebackCausesPanel = (): ReactElement => {
           >
             More causes to explore
           </Typography>
-          {/* Richer detail cards here (like the funnel) so people have enough
-              context to decide what to add — your picks above stay compact. */}
-          <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
-            {otherCauses.map(({ cause, index }) => (
-              <GivebackCauseCard
-                key={cause.id}
-                cause={cause}
-                index={index}
-                selected={false}
-                onToggle={toggleCause}
+          {categories.length > 0 && (
+            <FlexRow className="flex-wrap gap-2">
+              <GivebackFilterChip
+                isSelected={activeFilter === ALL_FILTER}
+                label="All"
+                onClick={() => setActiveFilter(ALL_FILTER)}
               />
-            ))}
-          </div>
+              {categories.map((category) => (
+                <GivebackFilterChip
+                  key={category}
+                  isSelected={activeFilter === category}
+                  label={category}
+                  onClick={() => setActiveFilter(category)}
+                />
+              ))}
+            </FlexRow>
+          )}
+          {otherCauses.length > 0 ? (
+            // Richer detail cards (like the funnel) so people have enough context
+            // to decide; only the "+" adds, so the card isn't a big toggle.
+            <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
+              {otherCauses.map(({ cause, index }) => (
+                <GivebackCauseCard
+                  key={cause.id}
+                  cause={cause}
+                  index={index}
+                  selected={false}
+                  onToggle={toggleCause}
+                  buttonToggle
+                />
+              ))}
+            </div>
+          ) : (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              No more causes in this category.
+            </Typography>
+          )}
         </FlexCol>
       )}
     </FlexCol>
