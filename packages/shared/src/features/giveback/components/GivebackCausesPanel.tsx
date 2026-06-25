@@ -93,14 +93,26 @@ const CauseRow = ({
   </FlexRow>
 );
 
+interface GivebackCausesPanelProps {
+  // Scrolls the tab strip to the top when the filter changes, so the narrowed
+  // "more causes" list always starts in view.
+  onFilter?: () => void;
+}
+
 // Manage-your-causes tab: the ones you back sit up top, everything else is right
-// below ready to add. Toggles update an in-memory working set; "Save changes"
-// persists it (the button only lights up when the set actually differs).
-export const GivebackCausesPanel = (): ReactElement => {
+// below ready to add. Adding/removing auto-saves.
+export const GivebackCausesPanel = ({
+  onFilter,
+}: GivebackCausesPanelProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { causes, isLoading, selectedIds, toggleAndSave, selectedCount } =
     useGivebackCauseSelection(true);
   const [activeFilter, setActiveFilter] = useState<string>(ALL_FILTER);
+
+  const selectFilter = (filter: string) => {
+    setActiveFilter(filter);
+    onFilter?.();
+  };
 
   const categories = useMemo(
     () =>
@@ -241,14 +253,14 @@ export const GivebackCausesPanel = (): ReactElement => {
               <GivebackFilterChip
                 isSelected={activeFilter === ALL_FILTER}
                 label="All"
-                onClick={() => setActiveFilter(ALL_FILTER)}
+                onClick={() => selectFilter(ALL_FILTER)}
               />
               {categories.map((category) => (
                 <GivebackFilterChip
                   key={category}
                   isSelected={activeFilter === category}
                   label={category}
-                  onClick={() => setActiveFilter(category)}
+                  onClick={() => selectFilter(category)}
                 />
               ))}
             </FlexRow>

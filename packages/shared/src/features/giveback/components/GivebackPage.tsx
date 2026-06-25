@@ -175,13 +175,15 @@ export const GivebackPage = (): ReactElement => {
                     </Typography>
                   </FlexCol>
                   <GivebackContributionSummary />
-                  <GivebackActionCatalog />
+                  <GivebackActionCatalog onFilter={scrollToTabs} />
                 </FlexCol>
               )}
               {activeTab === 'impact' && (
                 <GivebackImpactPanel onTakeAction={goToActions} />
               )}
-              {activeTab === 'causes' && <GivebackCausesPanel />}
+              {activeTab === 'causes' && (
+                <GivebackCausesPanel onFilter={scrollToTabs} />
+              )}
               {activeTab === 'faq' && <GivebackFaqPanel />}
             </div>
           </div>
