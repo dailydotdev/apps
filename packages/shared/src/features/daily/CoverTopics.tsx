@@ -147,10 +147,9 @@ const HeadlineRow = ({
             <Link href={highlight.commentsPermalink} passHref>
               <a
                 href={highlight.commentsPermalink}
-                className="inline-flex shrink-0 items-center gap-1 font-bold text-text-link typo-footnote hover:underline"
+                className="font-bold text-text-link typo-footnote hover:underline"
               >
-                Read full breakdown
-                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+                Read more
               </a>
             </Link>
             <div className="ml-auto flex items-center gap-1">

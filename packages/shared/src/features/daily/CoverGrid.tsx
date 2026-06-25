@@ -280,10 +280,9 @@ const PickRow = ({
             <Link href={post.commentsPermalink} passHref>
               <a
                 href={post.commentsPermalink}
-                className="inline-flex shrink-0 items-center gap-1 font-bold text-text-link typo-footnote hover:underline"
+                className="font-bold text-text-link typo-footnote hover:underline"
               >
-                Read full breakdown
-                <ArrowIcon size={IconSize.XXSmall} className="rotate-90" />
+                Read more
               </a>
             </Link>
             <div className="ml-auto flex items-center gap-1">
