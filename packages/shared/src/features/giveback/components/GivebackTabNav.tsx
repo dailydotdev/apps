@@ -38,11 +38,14 @@ export const GivebackTabNav = ({
         aria-hidden
         className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
       />
-      <div className="mx-auto flex w-full max-w-6xl items-center px-4">
+      {/* Scrollable on narrow screens so all four tabs stay reachable instead of
+          overflowing or wrapping. */}
+      <div className="no-scrollbar mx-auto flex w-full max-w-6xl items-center overflow-x-auto px-4">
         <TabList
           items={givebackTabs.map((tab) => ({ label: tab.label }))}
           active={activeLabel}
           variant={TabListVariant.Bordered}
+          autoScrollActive
           onClick={(label) => {
             const tab = givebackTabs.find((item) => item.label === label);
             if (tab) {

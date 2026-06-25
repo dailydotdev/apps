@@ -206,7 +206,7 @@ const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
 ];
 
 const FlowSequence = (): ReactElement => (
-  <FlexCol className="w-fit text-left">
+  <FlexCol className="mx-auto w-full max-w-md text-left">
     {FLOW_STEPS.map((step, index) => {
       const isLast = index === FLOW_STEPS.length - 1;
       return (
@@ -224,7 +224,9 @@ const FlowSequence = (): ReactElement => (
               />
             )}
           </FlexCol>
-          <FlexCol className={classNames('gap-1', isLast ? 'pb-0' : 'pb-8')}>
+          <FlexCol
+            className={classNames('min-w-0 gap-1', isLast ? 'pb-0' : 'pb-8')}
+          >
             <Typography
               tag={TypographyTag.H3}
               type={TypographyType.Title3}
@@ -503,7 +505,7 @@ export const GivebackFunnel = ({
 
       <main
         className={classNames(
-          'relative mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-4',
+          'relative mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-4 tablet:px-6',
           // The cause picker changes height as you filter; top-anchor it so the
           // title + filters stay put and only the list below reflows (no
           // re-centering jump). Shorter steps stay vertically centered.
