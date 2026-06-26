@@ -80,7 +80,7 @@ const MainFeedPageInner = ({
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
-  const { user, loadingUser } = useContext(AuthContext);
+  const { user, loadingUser, isLoggedIn } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>(() =>
     getInitialFeedName(initialPage),
   );
@@ -92,7 +92,7 @@ const MainFeedPageInner = ({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { value: dailyVariant } = useConditionalFeature({
     feature: featureDailyPage,
-    shouldEvaluate: !!user,
+    shouldEvaluate: isLoggedIn,
   });
   const showDailyHome =
     feedName === 'default' &&

@@ -78,7 +78,7 @@ export default function MainFeedPage({
   searchChildren,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
-  const { user, isAuthReady, isLoggedIn } = useContext(AuthContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search/posts' || isFinder;
   const isMyFeedURL = router?.query?.slugOrId === user?.id;
   const [feedName, setFeedName] = useState(
@@ -111,7 +111,7 @@ export default function MainFeedPage({
 
   const { value: dailyVariant } = useConditionalFeature({
     feature: featureDailyPage,
-    shouldEvaluate: isAuthReady && isLoggedIn,
+    shouldEvaluate: isLoggedIn,
   });
 
   if (!feedName) {

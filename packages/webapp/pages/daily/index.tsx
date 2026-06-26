@@ -27,7 +27,7 @@ const DailyPage = (): ReactElement | null => {
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { value: dailyVariant, isLoading } = useConditionalFeature({
     feature: featureDailyPage,
-    shouldEvaluate: isAuthReady && isLoggedIn,
+    shouldEvaluate: isLoggedIn,
   });
 
   const isResolved = isAuthReady && !isLoading;

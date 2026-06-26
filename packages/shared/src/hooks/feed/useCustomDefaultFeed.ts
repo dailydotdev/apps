@@ -11,10 +11,10 @@ type UseCustomDefaultFeed = {
 };
 
 const useCustomDefaultFeed = (): UseCustomDefaultFeed => {
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { value: dailyVariant } = useConditionalFeature({
     feature: featureDailyPage,
-    shouldEvaluate: !!user,
+    shouldEvaluate: isLoggedIn,
   });
 
   // Daily owns the default home in this variant, so any saved custom default

@@ -49,7 +49,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete, editFeedSettings } = useContext(
     FeedSettingsEditContext,
   );
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
   const isMainFeed = feed?.type === FeedType.Main;
   const isCustomFeed = feed?.type === FeedType.Custom;
@@ -59,7 +59,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { value: dailyVariant } = useConditionalFeature({
     feature: featureDailyPage,
-    shouldEvaluate: !!user,
+    shouldEvaluate: isLoggedIn,
   });
   // Daily is the default home in this variant, so a custom default feed doesn't apply.
   const isDailyAsDefault = dailyVariant === DailyPageVariant.DailyAsDefault;
