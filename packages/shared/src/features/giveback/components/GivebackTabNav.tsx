@@ -40,7 +40,7 @@ export const GivebackTabNav = ({
       />
       {/* Scrollable on narrow screens so all four tabs stay reachable instead of
           overflowing or wrapping. */}
-      <div className="no-scrollbar mx-auto flex w-full max-w-6xl items-center overflow-x-auto px-4 tablet:px-6 laptop:px-8">
+      <div className="no-scrollbar mx-auto flex w-full max-w-6xl items-center overflow-x-auto px-4 tablet:px-8 laptop:px-12">
         <TabList
           items={givebackTabs.map((tab) => ({ label: tab.label }))}
           active={activeLabel}
