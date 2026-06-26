@@ -17,6 +17,7 @@ import {
   type SpotlightAction,
 } from '../../graphql/spotlight';
 import { SpotlightScope } from './types';
+import { registerSpotlightShortcutBlocker } from './shortcuts';
 
 type SpotlightActionsResponse = { spotlightActions: SpotlightAction[] };
 
@@ -27,7 +28,6 @@ const platformId = isExtension ? 'extension' : 'webapp';
 export interface SpotlightContextValue {
   isOpen: boolean;
   query: string;
-  isShortcutDisabled: boolean;
   /** Inline destructive-confirm gate: the command id awaiting confirm. */
   pendingConfirmId: string | null;
   /**
@@ -51,7 +51,6 @@ export interface SpotlightContextValue {
   popScope: () => void;
   /** Reset the stack to `All`. */
   clearScope: () => void;
-  registerShortcutBlocker: () => () => void;
   /** Action catalog from the API, filtered by current user's auth/plus/platform. */
   actions: SpotlightAction[];
   isActionsLoading: boolean;
@@ -72,7 +71,6 @@ export const SpotlightProvider = ({
   const [query, setQueryState] = useState('');
   const [pendingConfirmId, setPendingConfirmId] = useState<string | null>(null);
   const [pages, setPages] = useState<SpotlightScope[]>([]);
-  const [shortcutBlockerCount, setShortcutBlockerCount] = useState(0);
 
   const { isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -172,22 +170,12 @@ export const SpotlightProvider = ({
     setPages([]);
   }, []);
 
-  const registerShortcutBlocker = useCallback(() => {
-    setShortcutBlockerCount((count) => count + 1);
-
-    return () => {
-      setShortcutBlockerCount((count) => Math.max(0, count - 1));
-    };
-  }, []);
-
   const scope = pages[pages.length - 1] ?? SpotlightScope.All;
-  const isShortcutDisabled = shortcutBlockerCount > 0;
 
   const value = useMemo<SpotlightContextValue>(
     () => ({
       isOpen,
       query,
-      isShortcutDisabled,
       pendingConfirmId,
       pages,
       scope,
@@ -201,14 +189,12 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
-      registerShortcutBlocker,
       actions,
       isActionsLoading,
     }),
     [
       isOpen,
       query,
-      isShortcutDisabled,
       pendingConfirmId,
       pages,
       scope,
@@ -222,7 +208,6 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
-      registerShortcutBlocker,
       actions,
       isActionsLoading,
     ],
@@ -244,14 +229,11 @@ export const useSpotlight = (): SpotlightContextValue => {
 };
 
 export const useDisableSpotlightShortcut = (enabled = true): void => {
-  const ctx = useContext(SpotlightContext);
-  const registerShortcutBlocker = ctx?.registerShortcutBlocker;
-
   useEffect(() => {
-    if (!enabled || !registerShortcutBlocker) {
+    if (!enabled) {
       return undefined;
     }
 
-    return registerShortcutBlocker();
-  }, [enabled, registerShortcutBlocker]);
+    return registerSpotlightShortcutBlocker();
+  }, [enabled]);
 };

@@ -41,7 +41,10 @@ import {
   spotlightCommandFilter,
   SPOTLIGHT_PASSTHROUGH_KEYWORD,
 } from './spotlightFilter';
-import { shouldHandleSpotlightShortcut } from './shortcuts';
+import {
+  isSpotlightShortcutDisabled,
+  shouldHandleSpotlightShortcut,
+} from './shortcuts';
 
 const groupHeadingClass =
   '[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-background-default [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pl-4 [&_[cmdk-group-heading]]:pr-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-[0.6875rem] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-text-quaternary';
@@ -487,7 +490,7 @@ export const Spotlight = ({
       if (
         !shouldHandleSpotlightShortcut({
           event,
-          isShortcutDisabled: spotlight.isShortcutDisabled,
+          isShortcutDisabled: isSpotlightShortcutDisabled(),
         })
       ) {
         return;

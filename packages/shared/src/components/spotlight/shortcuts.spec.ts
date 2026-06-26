@@ -1,4 +1,8 @@
-import { shouldHandleSpotlightShortcut } from './shortcuts';
+import {
+  isSpotlightShortcutDisabled,
+  registerSpotlightShortcutBlocker,
+  shouldHandleSpotlightShortcut,
+} from './shortcuts';
 
 const createEvent = (options: KeyboardEventInit = {}): KeyboardEvent =>
   new KeyboardEvent('keydown', {
@@ -28,12 +32,17 @@ describe('shouldHandleSpotlightShortcut', () => {
   });
 
   it('does not handle a disabled spotlight shortcut', () => {
+    const unregister = registerSpotlightShortcutBlocker();
+
     expect(
       shouldHandleSpotlightShortcut({
         event: createEvent(),
-        isShortcutDisabled: true,
+        isShortcutDisabled: isSpotlightShortcutDisabled(),
       }),
     ).toBe(false);
+
+    unregister();
+    expect(isSpotlightShortcutDisabled()).toBe(false);
   });
 
   it('does not handle events already handled by focused controls', () => {
