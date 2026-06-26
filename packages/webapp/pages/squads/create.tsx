@@ -42,6 +42,7 @@ import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/h
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useDisableSpotlightShortcut } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 
 import {
   Button,
@@ -73,6 +74,7 @@ const getSubmitCopy = (tab: WriteFormTab): string => {
 };
 
 function CreatePost(): ReactElement {
+  useDisableSpotlightShortcut();
   const client = useQueryClient();
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
   const hasSeenStandupTab = useMemo(
