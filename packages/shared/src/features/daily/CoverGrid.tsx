@@ -171,6 +171,7 @@ const PickRow = ({
 }): ReactElement => {
   const { source } = post;
   const { title } = useSmartTitle(post);
+  const summary = post.summary || post.sharedPost?.summary;
   const [isExpanded, setIsExpanded] = useState(false);
   const panelId = `daily-pick-${post.id}`;
   const impressionRef = useLogImpression(
@@ -267,13 +268,13 @@ const PickRow = ({
       </button>
       {isExpanded ? (
         <div id={panelId} className="flex flex-col gap-3 px-4 pb-4 tablet:px-5">
-          {post.summary ? (
+          {summary ? (
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Primary}
               className="max-w-3xl !leading-relaxed"
             >
-              {post.summary}
+              {summary}
             </Typography>
           ) : null}
           <div className="mt-1 flex w-full flex-wrap items-center justify-between gap-3">
