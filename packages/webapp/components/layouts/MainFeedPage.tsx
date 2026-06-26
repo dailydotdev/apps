@@ -9,6 +9,12 @@ import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import {
+  DailyPageVariant,
+  featureDailyPage,
+} from '@dailydotdev/shared/src/lib/featureManagement';
+import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -72,7 +78,7 @@ export default function MainFeedPage({
   searchChildren,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, isAuthReady, isLoggedIn } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search/posts' || isFinder;
   const isMyFeedURL = router?.query?.slugOrId === user?.id;
   const [feedName, setFeedName] = useState(
@@ -103,8 +109,21 @@ export default function MainFeedPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.pathname]);
 
+  const { value: dailyVariant } = useConditionalFeature({
+    feature: featureDailyPage,
+    shouldEvaluate: isAuthReady && isLoggedIn,
+  });
+
   if (!feedName) {
     return <></>;
+  }
+
+  if (
+    feedName === 'default' &&
+    !isSearchOn &&
+    dailyVariant === DailyPageVariant.DailyAsDefault
+  ) {
+    return <DailyHome onBackToFeed={() => router.replace('/my-feed')} />;
   }
 
   return (

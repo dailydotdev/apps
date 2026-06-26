@@ -31,15 +31,17 @@ const DailyPage = (): ReactElement | null => {
   });
 
   const isResolved = isAuthReady && !isLoading;
-  const isAllowed = isLoggedIn && dailyVariant === DailyPageVariant.V1;
+  const dailyAsDefault = dailyVariant === DailyPageVariant.DailyAsDefault;
+  const isAllowed =
+    isLoggedIn && !!dailyVariant && dailyVariant !== DailyPageVariant.None;
 
   useEffect(() => {
-    if (isResolved && !isAllowed) {
+    if (isResolved && (!isAllowed || dailyAsDefault)) {
       router.replace('/');
     }
-  }, [isResolved, isAllowed, router]);
+  }, [isResolved, isAllowed, dailyAsDefault, router]);
 
-  if (!isResolved || !isAllowed) {
+  if (!isResolved || !isAllowed || dailyAsDefault) {
     return null;
   }
 

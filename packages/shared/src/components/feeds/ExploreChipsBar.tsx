@@ -32,6 +32,7 @@ interface ExploreChipsBarProps {
   // header matches the canonical tabbed page header. Off → legacy pills.
   compact?: boolean;
   onNavTabClick?: (tab: string) => void;
+  dailyActive?: boolean;
 }
 
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
@@ -44,6 +45,7 @@ export function ExploreChipsBar({
   className,
   compact,
   onNavTabClick,
+  dailyActive,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -53,14 +55,24 @@ export function ExploreChipsBar({
     feature: featureDailyPage,
     shouldEvaluate: isLoggedIn,
   });
-  // When Daily is on, the Daily/Feed switcher replaces the "For you" chip.
-  const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
+  // When Daily is on (any variant), the Daily/Feed switcher replaces the
+  // "For you" chip.
+  const showDailySwitcher =
+    isLoggedIn && !!dailyVariant && dailyVariant !== DailyPageVariant.None;
+  // Under DailyAsDefault the feed lives at `/my-feed` (Daily owns `/`).
+  const dailyAsDefault = dailyVariant === DailyPageVariant.DailyAsDefault;
+  const feedNotAtRoot = isCustomDefaultFeed || dailyAsDefault;
 
-  // On the extension the feed tab must switch the internal view (like the
-  // sidebar "For You"), not navigate out to the webapp.
+  // On the extension the switcher tabs must switch the internal view (like the
+  // sidebar "For You"/"Daily"), not navigate out to the webapp.
   const onFeedClick =
     isExtension && onNavTabClick
-      ? () => onNavTabClick(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/')
+      ? () => onNavTabClick(feedNotAtRoot ? SharedFeedPage.MyFeed : '/')
+      : undefined;
+
+  const onDailyClick =
+    isExtension && onNavTabClick && dailyAsDefault
+      ? () => onNavTabClick('/')
       : undefined;
 
   const forYouCategory: ExploreCategory = useMemo(() => {
@@ -112,7 +124,13 @@ export function ExploreChipsBar({
           className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
         />
         {showDailySwitcher && (
-          <DailySwitcher reverse compact={compact} onFeedClick={onFeedClick} />
+          <DailySwitcher
+            reverse
+            compact={compact}
+            onFeedClick={onFeedClick}
+            onDailyClick={onDailyClick}
+            dailyActive={dailyActive}
+          />
         )}
         {allCategories.map((category) => {
           const isActive = category.id === activeId;

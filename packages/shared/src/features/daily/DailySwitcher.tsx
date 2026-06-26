@@ -12,6 +12,12 @@ import {
 import { MagicIcon, HomeIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { webappUrl } from '../../lib/constants';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import {
+  DailyPageVariant,
+  featureDailyPage,
+} from '../../lib/featureManagement';
 
 interface DailySwitcherProps {
   className?: string;
@@ -20,29 +26,53 @@ interface DailySwitcherProps {
   // feed nav strip where the feed is the current surface).
   reverse?: boolean;
   onFeedClick?: () => void;
+  onDailyClick?: () => void;
+  dailyActive?: boolean;
 }
 
 const TAB_DAILY = `${webappUrl}daily`;
-const TAB_FEED = webappUrl;
 
 export const DailySwitcher = ({
   className,
   compact = false,
   reverse = false,
   onFeedClick,
+  onDailyClick,
+  dailyActive,
 }: DailySwitcherProps): ReactElement => {
   const router = useRouter();
+  const { isLoggedIn } = useAuthContext();
+  const { value: dailyVariant } = useConditionalFeature({
+    feature: featureDailyPage,
+    shouldEvaluate: isLoggedIn,
+  });
+  const dailyAsDefault = dailyVariant === DailyPageVariant.DailyAsDefault;
   const path = router?.pathname ?? '';
-  const isDaily = path === TAB_DAILY;
+  const feedHref = dailyAsDefault ? `${webappUrl}my-feed` : webappUrl;
+  const dailyHref = dailyAsDefault ? webappUrl : TAB_DAILY;
+  const isDaily =
+    dailyActive ||
+    (dailyAsDefault
+      ? path === TAB_DAILY || path === webappUrl
+      : path === TAB_DAILY);
 
   const tabClass = compact
     ? 'inline-flex items-center gap-1.5 rounded-8 px-2 py-1 transition-colors'
     : 'inline-flex items-center gap-2 rounded-10 px-3 py-1.5 transition-colors';
 
   const dailyTab = (
-    <Link key="daily" href={TAB_DAILY} passHref>
+    <Link key="daily" href={dailyHref} passHref>
       <a
+        href={dailyHref}
         aria-current={isDaily ? 'page' : undefined}
+        onClick={
+          onDailyClick
+            ? (event) => {
+                event.preventDefault();
+                onDailyClick();
+              }
+            : undefined
+        }
         className={classNames(
           tabClass,
           isDaily
@@ -70,9 +100,9 @@ export const DailySwitcher = ({
   );
 
   const feedTab = (
-    <Link key="feed" href={TAB_FEED} passHref>
+    <Link key="feed" href={feedHref} passHref>
       <a
-        href={TAB_FEED}
+        href={feedHref}
         aria-current={!isDaily ? 'page' : undefined}
         onClick={
           onFeedClick

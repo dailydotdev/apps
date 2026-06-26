@@ -17,10 +17,14 @@ import { pageHeaderClassName } from '../../components/layout/PageHeader';
 
 interface DailyHomeProps {
   className?: string;
+  onBackToFeed?: () => void;
+  onNavTabClick?: (tab: string) => void;
 }
 
 export const DailyHome = ({
   className,
+  onBackToFeed,
+  onNavTabClick,
 }: DailyHomeProps): ReactElement | null => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
@@ -41,7 +45,7 @@ export const DailyHome = ({
       {!isLaptop && (
         <>
           <MobileFeedActions />
-          <UnifiedMobileFeedNav />
+          <UnifiedMobileFeedNav dailyActive />
         </>
       )}
       {isLaptop &&
@@ -51,6 +55,8 @@ export const DailyHome = ({
               categories={exploreCategories}
               isPending={!feeds}
               compact
+              dailyActive
+              onNavTabClick={onNavTabClick}
             />
           </header>
         ) : (
@@ -58,6 +64,8 @@ export const DailyHome = ({
             <ExploreChipsBar
               categories={exploreCategories}
               isPending={!feeds}
+              dailyActive
+              onNavTabClick={onNavTabClick}
             />
           </div>
         ))}
@@ -73,7 +81,7 @@ export const DailyHome = ({
           <CoverHeader />
           <CoverTopics />
           <CoverGrid />
-          <CoverClosing />
+          <CoverClosing onBackToFeed={onBackToFeed} />
         </div>
       </section>
     </>

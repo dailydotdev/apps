@@ -42,7 +42,13 @@ const chipActiveClass =
 const chipInactiveClass =
   'border-transparent text-text-tertiary hover:text-text-primary';
 
-function UnifiedMobileFeedNav(): ReactElement {
+interface UnifiedMobileFeedNavProps {
+  dailyActive?: boolean;
+}
+
+function UnifiedMobileFeedNav({
+  dailyActive,
+}: UnifiedMobileFeedNavProps): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
@@ -57,9 +63,8 @@ function UnifiedMobileFeedNav(): ReactElement {
     feature: featureDailyPage,
     shouldEvaluate: isLoggedIn,
   });
-  // When Daily is on, the Daily/Feed switcher replaces the "For you" chip for
-  // logged-in users (logged-out users still get a "Home" chip).
-  const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
+  const showDailySwitcher =
+    isLoggedIn && !!dailyVariant && dailyVariant !== DailyPageVariant.None;
 
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
@@ -232,7 +237,9 @@ function UnifiedMobileFeedNav(): ReactElement {
       className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
     >
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />
-      {showDailySwitcher && <DailySwitcher reverse compact />}
+      {showDailySwitcher && (
+        <DailySwitcher reverse compact dailyActive={dailyActive} />
+      )}
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {
