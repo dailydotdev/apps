@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -11,6 +12,7 @@ import {
   UpvoteIcon,
   DiscussIcon,
   OpenLinkIcon,
+  ArrowIcon,
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { useAdQuery } from '../monetization/useAdQuery';
@@ -32,7 +34,16 @@ import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import useLogImpression from '../../hooks/feed/useLogImpression';
 import { FeedItemType } from '../../components/cards/common/common';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
+import { useBookmarkPost } from '../../hooks/useBookmarkPost';
+import type { UseVotePostProps } from '../../hooks/vote/types';
+import { BookmarkButton } from '../../components/buttons/BookmarkButton';
+import { ButtonSize } from '../../components/buttons/Button';
 import { useDailyFeed } from './hooks/useDailyFeed';
+import { DailyPostVotes } from './DailyPostVotes';
+import {
+  createBookmarkOnMutate,
+  createVoteOnMutate,
+} from './optimisticMutations';
 
 const AD_SLOT_INDEX = 1;
 const DAILY_FEED_NAME = 'daily';
@@ -148,14 +159,20 @@ const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
 const PickRow = ({
   post,
   position,
-  onClick,
+  onExpand,
+  onBookmark,
+  onVoteMutate,
 }: {
   post: Post;
   position: number;
-  onClick: () => void;
+  onExpand: () => void;
+  onBookmark: () => void;
+  onVoteMutate: UseVotePostProps['onMutate'];
 }): ReactElement => {
   const { source } = post;
   const { title } = useSmartTitle(post);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const panelId = `daily-pick-${post.id}`;
   const impressionRef = useLogImpression(
     {
       type: FeedItemType.Post,
@@ -174,66 +191,124 @@ const PickRow = ({
     Origin.DailyPage,
   );
 
+  const onToggle = () => {
+    const willOpen = !isExpanded;
+    setIsExpanded(willOpen);
+    if (willOpen) {
+      onExpand();
+    }
+  };
+
   return (
     <li ref={impressionRef}>
-      <Link href={post.commentsPermalink} passHref>
-        <a
-          href={post.commentsPermalink}
-          onClick={onClick}
-          className="group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float tablet:px-5"
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
+        className={classNames(
+          'group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors tablet:px-5',
+          !isExpanded && 'hover:bg-surface-float',
+        )}
+      >
+        <Typography
+          tag={TypographyTag.H3}
+          type={TypographyType.Body}
+          bold
+          color={TypographyColor.Primary}
+          className="min-w-0 max-w-3xl flex-1 !leading-snug"
         >
-          <Typography
-            tag={TypographyTag.H3}
-            type={TypographyType.Body}
-            bold
-            color={TypographyColor.Primary}
-            className="min-w-0 max-w-3xl flex-1 !leading-snug"
-          >
-            {title}
-          </Typography>
-          <div className="ml-auto flex shrink-0 items-center gap-2">
-            <InlineStat
-              ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
-              icon={
-                <UpvoteIcon
-                  size={IconSize.XSmall}
-                  className="text-text-tertiary"
-                  secondary
+          {title}
+        </Typography>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <InlineStat
+            ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
+            icon={
+              <UpvoteIcon
+                size={IconSize.XSmall}
+                className="text-text-tertiary"
+                secondary
+              />
+            }
+            value={post.numUpvotes ?? 0}
+          />
+          <InlineStat
+            ariaLabel={`${post.numComments ?? 0} comments`}
+            icon={
+              <DiscussIcon
+                size={IconSize.XSmall}
+                className="text-text-tertiary"
+                secondary
+              />
+            }
+            value={post.numComments ?? 0}
+          />
+          {source?.image ? (
+            <span className="hidden items-center pl-1 tablet:inline-flex">
+              <span className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float">
+                <img
+                  src={source.image}
+                  alt={source.name ?? ''}
+                  loading="lazy"
+                  className="size-4 object-cover"
                 />
-              }
-              value={post.numUpvotes ?? 0}
-            />
-            <InlineStat
-              ariaLabel={`${post.numComments ?? 0} comments`}
-              icon={
-                <DiscussIcon
-                  size={IconSize.XSmall}
-                  className="text-text-tertiary"
-                  secondary
-                />
-              }
-              value={post.numComments ?? 0}
-            />
-            {source?.image ? (
-              <span className="hidden items-center pl-1 tablet:inline-flex">
-                <span className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float">
-                  <img
-                    src={source.image}
-                    alt={source.name ?? ''}
-                    loading="lazy"
-                    className="size-4 object-cover"
-                  />
-                </span>
               </span>
-            ) : null}
-            <OpenLinkIcon
-              size={IconSize.XSmall}
-              className="shrink-0 text-text-quaternary"
-              aria-hidden
-            />
+            </span>
+          ) : null}
+          <ArrowIcon
+            size={IconSize.XSmall}
+            className={classNames(
+              'shrink-0 text-text-quaternary transition-transform duration-300 ease-out',
+              isExpanded ? 'rotate-0' : 'rotate-180',
+            )}
+            aria-hidden
+          />
+        </div>
+      </button>
+      {isExpanded ? (
+        <div id={panelId} className="flex flex-col gap-3 px-4 pb-4 tablet:px-5">
+          {post.summary ? (
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              className="max-w-3xl !leading-relaxed"
+            >
+              {post.summary}
+            </Typography>
+          ) : null}
+          <div className="mt-1 flex w-full flex-wrap items-center justify-between gap-3">
+            <Link href={post.commentsPermalink} passHref>
+              <a
+                href={post.commentsPermalink}
+                className="font-bold text-text-link typo-footnote hover:underline"
+              >
+                Read more
+              </a>
+            </Link>
+            <div className="ml-auto flex items-center gap-1">
+              <BookmarkButton
+                post={post}
+                iconSize={IconSize.Small}
+                buttonProps={{
+                  size: ButtonSize.Small,
+                  onClick: onBookmark,
+                }}
+              />
+              <DailyPostVotes
+                post={post}
+                origin={Origin.DailyPage}
+                opts={{
+                  columns: 1,
+                  column: 0,
+                  row: position,
+                  ...dailyFeedExtra(),
+                }}
+                onMutate={onVoteMutate}
+              />
+            </div>
           </div>
-        </a>
-      </Link>
+        </div>
+      ) : null}
     </li>
   );
 };
@@ -250,7 +325,16 @@ const PickRowSkeleton = (): ReactElement => (
 export const CoverGrid = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
-  const { posts, isPending } = useDailyFeed();
+  const { posts, isPending, updatePost } = useDailyFeed();
+  const onVoteMutate = useMemo(
+    () => createVoteOnMutate(updatePost),
+    [updatePost],
+  );
+  const onBookmarkMutate = useMemo(
+    () => createBookmarkOnMutate(updatePost),
+    [updatePost],
+  );
+  const { toggleBookmark } = useBookmarkPost({ onMutate: onBookmarkMutate });
   const { data: ad } = useAdQuery({
     queryKey: ['ad', 'daily-picks'],
     placement: AdPlacement.Feed,
@@ -266,6 +350,19 @@ export const CoverGrid = (): ReactElement => {
         ...dailyFeedExtra(),
       }),
     );
+  };
+
+  const onPickBookmark = (post: Post, position: number): void => {
+    toggleBookmark({
+      post,
+      origin: Origin.DailyPage,
+      opts: {
+        columns: 1,
+        column: 0,
+        row: position,
+        ...dailyFeedExtra(),
+      },
+    });
   };
 
   return (
@@ -294,7 +391,9 @@ export const CoverGrid = (): ReactElement => {
                 <PickRow
                   post={post}
                   position={idx}
-                  onClick={() => onPickClick(post, idx)}
+                  onExpand={() => onPickClick(post, idx)}
+                  onBookmark={() => onPickBookmark(post, idx)}
+                  onVoteMutate={onVoteMutate}
                 />
               </React.Fragment>
             ))}

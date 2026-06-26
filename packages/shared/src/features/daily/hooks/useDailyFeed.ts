@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import type { ClientError } from 'graphql-request';
 import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -6,12 +6,20 @@ import type { FeedData, FeedItemData } from '../../../graphql/feed';
 import {
   DAILY_FEED_QUERY,
   getFeedApiItemPost,
+  isFeedApiPostItem,
   normalizeFeedPage,
 } from '../../../graphql/feed';
 import type { Post } from '../../../graphql/posts';
 import { gqlClient } from '../../../graphql/common';
 import AuthContext from '../../../contexts/AuthContext';
-import { getNextPageParam, RequestKey, StaleTime } from '../../../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../../../lib/query';
+import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
+import type { UpdateDailyPost } from '../optimisticMutations';
 
 // Picks shows a fixed set of 5 posts (no pagination).
 const PAGE_SIZE = 5;
@@ -23,10 +31,18 @@ interface UseDailyFeed {
   isFetchingNextPage: boolean;
   isPending: boolean;
   isError: boolean;
+  updatePost: UpdateDailyPost;
 }
 
 export const useDailyFeed = (): UseDailyFeed => {
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const queryKey = useMemo(
+    () => generateQueryKey(RequestKey.DailyFeed, user),
+    [user],
+  );
+  const [getFeedData, setFeedData] = useUpdateQuery<InfiniteData<FeedItemData>>(
+    { queryKey },
+  );
 
   const feedQuery = useInfiniteQuery<
     FeedItemData,
@@ -35,7 +51,7 @@ export const useDailyFeed = (): UseDailyFeed => {
     QueryKey,
     string
   >({
-    queryKey: [RequestKey.DailyFeed, user?.id ?? 'anonymous'],
+    queryKey,
     queryFn: async ({ pageParam }) => {
       const rawResult = await gqlClient.request<FeedData>(DAILY_FEED_QUERY, {
         first: PAGE_SIZE,
@@ -68,6 +84,27 @@ export const useDailyFeed = (): UseDailyFeed => {
     [feedQuery.data?.pages],
   );
 
+  const updatePost = useCallback<UpdateDailyPost>(
+    (postId, manipulate) => {
+      const current = getFeedData();
+
+      if (!current) {
+        return;
+      }
+
+      current.pages.forEach((feedPage) => {
+        feedPage.page.edges.forEach((edge) => {
+          if (isFeedApiPostItem(edge.node) && edge.node.post.id === postId) {
+            Object.assign(edge.node.post, manipulate(edge.node.post));
+          }
+        });
+      });
+
+      setFeedData(current);
+    },
+    [getFeedData, setFeedData],
+  );
+
   return {
     posts,
     fetchNextPage: async () => {
@@ -77,5 +114,6 @@ export const useDailyFeed = (): UseDailyFeed => {
     isFetchingNextPage: feedQuery.isFetchingNextPage,
     isPending: feedQuery.isPending,
     isError: feedQuery.isError,
+    updatePost,
   };
 };

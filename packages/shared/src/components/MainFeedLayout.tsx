@@ -345,9 +345,10 @@ export default function MainFeedLayout({
           categories={exploreCategories}
           isPending={!feeds}
           compact={isV2}
+          onNavTabClick={onNavTabClick}
         />
       ) : null,
-    [showExploreChips, exploreCategories, feeds, isV2],
+    [showExploreChips, exploreCategories, feeds, isV2, onNavTabClick],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();

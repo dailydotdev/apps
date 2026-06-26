@@ -265,7 +265,7 @@ export const featurePublicSignupBanner = new Feature(
 
 export enum DailyPageVariant {
   None = 'none',
-  V1 = 'v1',
+  V1 = 'v1.1',
 }
 export const featureDailyPage = new Feature<DailyPageVariant>(
   'daily_page',
