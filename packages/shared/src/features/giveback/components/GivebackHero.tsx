@@ -46,15 +46,15 @@ export const GivebackHero = ({
         <FlexRow className="min-w-0 items-center gap-2 tablet:gap-3">
           <Logo
             position={LogoPosition.Initial}
-            logoClassName={{ container: 'h-5 tablet:h-6' }}
+            logoClassName={{ container: 'h-4 tablet:h-6' }}
           />
           <span
             aria-hidden
-            className="h-5 w-px bg-border-subtlest-tertiary tablet:h-6"
+            className="h-4 w-px bg-border-subtlest-tertiary tablet:h-6"
           />
           <Typography
             tag={TypographyTag.Span}
-            type={TypographyType.Body}
+            type={TypographyType.Footnote}
             color={TypographyColor.Primary}
             bold
             className="truncate tablet:typo-title3"

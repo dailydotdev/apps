@@ -416,28 +416,32 @@ export const GivebackFunnel = ({
             <Reveal delay={220} className="w-full">
               <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
                 {IMPACT_VALUES.map((value) => (
-                  <FlexCol
+                  // Horizontal (icon left, copy right) on mobile to keep the
+                  // finale short; stacks/centers in the 3-up grid on tablet+.
+                  <FlexRow
                     key={value.title}
-                    className="h-full items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5 text-center"
+                    className="items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left tablet:h-full tablet:flex-col tablet:items-center tablet:gap-2 tablet:p-5 tablet:text-center"
                   >
-                    <span className="flex size-11 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
                       {value.icon}
                     </span>
-                    <Typography
-                      bold
-                      type={TypographyType.Title3}
-                      className="[text-wrap:balance]"
-                    >
-                      {value.title}
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Secondary}
-                      className="[text-wrap:pretty]"
-                    >
-                      {value.sub}
-                    </Typography>
-                  </FlexCol>
+                    <FlexCol className="min-w-0 gap-0.5 tablet:items-center">
+                      <Typography
+                        bold
+                        type={TypographyType.Title3}
+                        className="[text-wrap:balance]"
+                      >
+                        {value.title}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Callout}
+                        color={TypographyColor.Secondary}
+                        className="[text-wrap:pretty]"
+                      >
+                        {value.sub}
+                      </Typography>
+                    </FlexCol>
+                  </FlexRow>
                 ))}
               </div>
             </Reveal>

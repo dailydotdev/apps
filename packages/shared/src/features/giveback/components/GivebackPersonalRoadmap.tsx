@@ -434,10 +434,10 @@ const NodeRow = ({
           className={classNames(
             'gap-3',
             // The current goal is a tight, clearly-bounded card so the eye lands
-            // straight on its action; every other row stays a plain line. Soft
-            // brand-tinted border, no heavy glow.
+            // straight on its action; every other row stays a plain line. Plain
+            // subtle border like any regular box.
             isNext &&
-              'border-accent-cabbage-default/30 rounded-16 border bg-surface-float p-4',
+              'rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
           )}
         >
           <FlexRow className="items-start justify-between gap-3">

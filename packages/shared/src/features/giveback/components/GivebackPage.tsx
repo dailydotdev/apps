@@ -154,7 +154,10 @@ export const GivebackPage = (): ReactElement => {
               key={activeTab}
               role="region"
               aria-label={activeLabel}
-              className={`${column} pt-8`}
+              // Reserve a viewport-tall content area so a short (e.g. filtered)
+              // list still leaves enough room to scroll the tab strip to the top
+              // — otherwise the sticky tabs spring back and the page "jumps".
+              className={`${column} min-h-[calc(100dvh-3.5rem)] pt-8`}
             >
               {activeTab === 'actions' && (
                 <FlexCol className="gap-6">
