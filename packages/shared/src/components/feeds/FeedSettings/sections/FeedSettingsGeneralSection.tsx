@@ -19,7 +19,15 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ColorName } from '../../../../styles/colors';
 import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
-import { usePlusSubscription, useToastNotification } from '../../../../hooks';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+  useToastNotification,
+} from '../../../../hooks';
+import {
+  DailyPageVariant,
+  featureDailyPage,
+} from '../../../../lib/featureManagement';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { Dropdown } from '../../../fields/Dropdown';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
@@ -49,6 +57,12 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const { flags, updateFlag } = useSettingsContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { value: dailyVariant } = useConditionalFeature({
+    feature: featureDailyPage,
+    shouldEvaluate: !!user,
+  });
+  // Daily is the default home in this variant, so a custom default feed doesn't apply.
+  const isDailyAsDefault = dailyVariant === DailyPageVariant.DailyAsDefault;
 
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
@@ -117,7 +131,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           label="Choose an icon"
         />
       )}
-      {(isPlus || isMainFeed) && (
+      {!isDailyAsDefault && (isPlus || isMainFeed) && (
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <Typography bold type={TypographyType.Body}>

@@ -1,4 +1,9 @@
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useConditionalFeature } from '../useConditionalFeature';
+import {
+  DailyPageVariant,
+  featureDailyPage,
+} from '../../lib/featureManagement';
 
 type UseCustomDefaultFeed = {
   isCustomDefaultFeed: boolean;
@@ -7,6 +12,19 @@ type UseCustomDefaultFeed = {
 
 const useCustomDefaultFeed = (): UseCustomDefaultFeed => {
   const { user } = useAuthContext();
+  const { value: dailyVariant } = useConditionalFeature({
+    feature: featureDailyPage,
+    shouldEvaluate: !!user,
+  });
+
+  // Daily owns the default home in this variant, so any saved custom default
+  // feed is ignored regardless of what boot returns.
+  if (dailyVariant === DailyPageVariant.DailyAsDefault) {
+    return {
+      isCustomDefaultFeed: false,
+      defaultFeedId: user?.id ?? '',
+    };
+  }
 
   return {
     isCustomDefaultFeed: !!(
