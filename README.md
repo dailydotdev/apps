@@ -25,7 +25,7 @@ The decision was made to allow faster iterations and to keep features parity in 
 
 ## Technologies
 
-- Node v24.17 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
+- Node v24.18 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
 - [pnpm](https://pnpm.io/workspaces) 10.33.4 for managing the monorepo and dependencies.
 
 ## Projects

@@ -16,6 +16,7 @@ import {
 
 interface TagDirectoryListItemProps {
   tag: string;
+  title?: string;
   isFollowed: boolean;
   onToggleFollow: (tag: string) => void;
 }
@@ -25,6 +26,7 @@ interface TagDirectoryListItemProps {
 // unfollowed tags reveal a subtle "+" on hover/focus.
 export function TagDirectoryListItem({
   tag,
+  title,
   isFollowed,
   onToggleFollow,
 }: TagDirectoryListItemProps): ReactElement {
@@ -37,7 +39,7 @@ export function TagDirectoryListItem({
           color={TypographyColor.Secondary}
           className="block min-w-0 flex-1 cursor-pointer truncate px-2 py-1 no-underline transition-colors hover:text-text-primary"
         >
-          {formatKeyword(tag)}
+          {title || formatKeyword(tag)}
         </Typography>
       </Link>
       <Tooltip content={isFollowed ? `Following #${tag}` : `Follow #${tag}`}>

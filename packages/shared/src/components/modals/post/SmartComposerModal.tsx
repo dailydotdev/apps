@@ -63,6 +63,7 @@ import {
   type StandupFormState,
   type TextFormState,
 } from '../../post/composer/types';
+import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
 
 // `defaultWriteTab` is persisted as the WriteFormTab *key* (e.g. "Share"), not
 // the enum value ("Share a link") — see settings/composition.tsx which saves
@@ -163,6 +164,7 @@ export function SmartComposerModal({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const textFormRef = useRef<TextFormHandle>(null);
+  useDisableSpotlightShortcut();
 
   const isDirty = useMemo(() => {
     if (editPost) {

@@ -19,6 +19,7 @@ interface DailySwitcherProps {
   // Render "Your feed" first instead of "Daily" (e.g. when shown inside the
   // feed nav strip where the feed is the current surface).
   reverse?: boolean;
+  onFeedClick?: () => void;
 }
 
 const TAB_DAILY = `${webappUrl}daily`;
@@ -28,6 +29,7 @@ export const DailySwitcher = ({
   className,
   compact = false,
   reverse = false,
+  onFeedClick,
 }: DailySwitcherProps): ReactElement => {
   const router = useRouter();
   const path = router?.pathname ?? '';
@@ -70,7 +72,16 @@ export const DailySwitcher = ({
   const feedTab = (
     <Link key="feed" href={TAB_FEED} passHref>
       <a
+        href={TAB_FEED}
         aria-current={!isDaily ? 'page' : undefined}
+        onClick={
+          onFeedClick
+            ? (event) => {
+                event.preventDefault();
+                onFeedClick();
+              }
+            : undefined
+        }
         className={classNames(
           tabClass,
           !isDaily

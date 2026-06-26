@@ -6,6 +6,8 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
+import { isExtension } from '../../lib/func';
+import { SharedFeedPage } from '../utilities';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
@@ -29,6 +31,7 @@ interface ExploreChipsBarProps {
   // (text + active Float background + bottom-border underline) so the chips
   // header matches the canonical tabbed page header. Off → legacy pills.
   compact?: boolean;
+  onNavTabClick?: (tab: string) => void;
 }
 
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
@@ -40,6 +43,7 @@ export function ExploreChipsBar({
   isPending,
   className,
   compact,
+  onNavTabClick,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -51,6 +55,13 @@ export function ExploreChipsBar({
   });
   // When Daily is on, the Daily/Feed switcher replaces the "For you" chip.
   const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
+
+  // On the extension the feed tab must switch the internal view (like the
+  // sidebar "For You"), not navigate out to the webapp.
+  const onFeedClick =
+    isExtension && onNavTabClick
+      ? () => onNavTabClick(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/')
+      : undefined;
 
   const forYouCategory: ExploreCategory = useMemo(() => {
     const path = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
@@ -100,7 +111,9 @@ export function ExploreChipsBar({
         <NewStripCta
           className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
         />
-        {showDailySwitcher && <DailySwitcher reverse compact={compact} />}
+        {showDailySwitcher && (
+          <DailySwitcher reverse compact={compact} onFeedClick={onFeedClick} />
+        )}
         {allCategories.map((category) => {
           const isActive = category.id === activeId;
           const onClick = () => {

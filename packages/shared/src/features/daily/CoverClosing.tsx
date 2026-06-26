@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { subHours } from 'date-fns';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import {
@@ -19,13 +20,19 @@ import { DailyFeedback } from './DailyFeedback';
 
 type StoredFeedback = { date: string; vote: Vote };
 
+const DAILY_DROP_HOUR = 9;
+
 const todayKey = (timeZone: string): string =>
-  formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd');
+  formatInTimeZone(
+    subHours(new Date(), DAILY_DROP_HOUR),
+    timeZone,
+    'yyyy-MM-dd',
+  );
 
 const formatNextDrop = (timeZone: string): string => {
   const base = utcToZonedTime(new Date(), timeZone);
   base.setDate(base.getDate() + 1);
-  base.setHours(9, 0, 0, 0);
+  base.setHours(DAILY_DROP_HOUR, 0, 0, 0);
   return zonedTimeToUtc(base, timeZone).toLocaleString(undefined, {
     weekday: 'long',
     hour: 'numeric',
