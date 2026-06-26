@@ -7,7 +7,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { InfoIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -69,7 +68,6 @@ export const GivebackHero = ({
             type="button"
             size={ButtonSize.Small}
             variant={ButtonVariant.Float}
-            icon={<InfoIcon />}
             className="shrink-0"
             onClick={onHowItWorks}
           >
@@ -78,7 +76,7 @@ export const GivebackHero = ({
         )}
       </FlexRow>
 
-      <FlexRow className="flex-col-reverse items-center gap-8 tablet:flex-row tablet:items-center tablet:gap-10">
+      <FlexRow className="flex-col-reverse items-start gap-8 tablet:flex-row tablet:items-center tablet:gap-10">
         <FlexCol className="w-full gap-6 tablet:flex-1">
           <FlexCol className="gap-2">
             <GivebackHeadline
@@ -104,7 +102,7 @@ export const GivebackHero = ({
 
         <GivebackMascot
           className="relative z-1 shrink-0 tablet:ml-auto"
-          imageClassName="h-40 drop-shadow-2xl tablet:h-72"
+          imageClassName="h-32 drop-shadow-2xl tablet:h-72"
         />
       </FlexRow>
     </FlexCol>
