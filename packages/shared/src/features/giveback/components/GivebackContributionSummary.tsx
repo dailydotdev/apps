@@ -57,7 +57,7 @@ export const GivebackContributionSummary = (): ReactElement => {
             rounded={ProfileImageSize.XXLarge}
             className="ring-1 ring-border-subtlest-tertiary"
           />
-          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 border border-border-subtlest-tertiary bg-surface-float px-2 py-0.5 font-bold uppercase tracking-wide text-accent-cabbage-default ring-2 ring-background-default typo-caption2">
+          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 border border-border-subtlest-tertiary bg-background-default px-2 py-0.5 font-bold uppercase tracking-wide text-accent-cabbage-default ring-2 ring-background-default typo-caption2">
             Lvl {currentLevel}
           </span>
         </div>
