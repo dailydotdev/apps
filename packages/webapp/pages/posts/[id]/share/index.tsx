@@ -14,6 +14,7 @@ import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUse
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import { getShareImageUrl } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
@@ -87,7 +88,9 @@ export const getServerSideProps: GetServerSideProps<
         ...pageSeoTitles.openGraph,
         images: [
           {
-            url: `https://og.daily.dev/api/posts/${post?.id}?userid=${shareUser.id}`,
+            url: getShareImageUrl('posts', post?.id ?? '', {
+              userid: shareUser.id,
+            }),
             width: 1200,
             height: 630,
             alt: post?.title || 'Post cover image',
