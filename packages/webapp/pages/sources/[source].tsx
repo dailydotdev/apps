@@ -465,7 +465,7 @@ export async function getStaticProps({
         ...seoTitles.openGraph,
         images: [
           {
-            url: getShareImageUrl('sources', source.id),
+            url: getShareImageUrl('sources', source.id ?? ''),
             width: 1200,
             height: 630,
           },

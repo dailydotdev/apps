@@ -92,7 +92,6 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
 import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
-import { getShareImageUrl } from '../../../../next-seo';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -140,10 +139,7 @@ export const getServerSideProps: GetServerSideProps<
         ...pageSeoTitles.openGraph,
         images: [
           {
-            url: getShareImageUrl('posts', post?.id ?? ''),
-            width: 1200,
-            height: 630,
-            alt: post?.title || 'Post cover image',
+            url: `https://og.daily.dev/api/posts/${post?.id}`,
           },
         ],
         article: {

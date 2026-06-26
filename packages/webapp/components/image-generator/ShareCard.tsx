@@ -361,13 +361,13 @@ export const PostShareCard = ({
   const isUserSource = data.source?.type === 'user';
   const identity: Identity = data.sharer
     ? {
-        name: data.sharer.name,
+        name: data.sharer.name ?? '',
         image: data.sharer.image,
         fallback: true,
         label: 'shared this',
       }
     : {
-        name: isUserSource ? data.author?.name : data.source?.name,
+        name: (isUserSource ? data.author?.name : data.source?.name) ?? '',
         image: isUserSource ? data.author?.image : data.source?.image,
         fallback: true,
         meta: data.readTime ? `${data.readTime}m read` : undefined,
