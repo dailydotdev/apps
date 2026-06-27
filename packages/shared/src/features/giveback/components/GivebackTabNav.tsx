@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import TabList, { TabListVariant } from '../../../components/tabs/TabList';
 
-export type GivebackTabId = 'actions' | 'impact' | 'why';
+export type GivebackTabId = 'actions' | 'impact' | 'causes' | 'faq';
 
 interface GivebackTab {
   id: GivebackTabId;
@@ -11,8 +11,9 @@ interface GivebackTab {
 
 export const givebackTabs: GivebackTab[] = [
   { id: 'actions', label: 'Take action' },
-  { id: 'impact', label: 'Impact' },
-  { id: 'why', label: 'Campaign' },
+  { id: 'impact', label: 'Your impact' },
+  { id: 'causes', label: 'Causes' },
+  { id: 'faq', label: 'FAQ' },
 ];
 
 interface GivebackTabNavProps {
@@ -37,11 +38,14 @@ export const GivebackTabNav = ({
         aria-hidden
         className="via-accent-cabbage-default/40 pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent"
       />
-      <div className="mx-auto w-full max-w-6xl px-4">
+      {/* Scrollable on narrow screens so all four tabs stay reachable instead of
+          overflowing or wrapping. */}
+      <div className="no-scrollbar mx-auto flex w-full max-w-6xl items-center overflow-x-auto px-4 tablet:px-8 laptop:px-12">
         <TabList
           items={givebackTabs.map((tab) => ({ label: tab.label }))}
           active={activeLabel}
           variant={TabListVariant.Bordered}
+          autoScrollActive
           onClick={(label) => {
             const tab = givebackTabs.find((item) => item.label === label);
             if (tab) {

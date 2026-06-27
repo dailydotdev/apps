@@ -1,5 +1,6 @@
 import type { ReactElement, RefObject } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
@@ -16,6 +17,10 @@ import { GivebackMeterShine } from './GivebackMeterShine';
 const barColor =
   'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default';
 
+// Quarter-way milestone markers sit on the track (like the impact roadmap's
+// nodes) so the goal reads as a journey with checkpoints, not one long fill.
+const MILESTONES = [25, 50, 75] as const;
+
 const Meter = ({
   meterRef,
   percentage,
@@ -25,13 +30,16 @@ const Meter = ({
   percentage: number;
   empty?: boolean;
 }): ReactElement => (
-  <div className="relative" ref={meterRef}>
+  // The track owns the styling: a taller, dark (primary background) fill with a
+  // hairline border so the meter reads as a crisp, contained gauge.
+  <div
+    ref={meterRef}
+    className="relative h-5 overflow-hidden rounded-8 border border-border-subtlest-tertiary bg-background-default"
+  >
     <ProgressBar
       percentage={percentage}
-      shouldShowBg
       className={{
-        wrapper: 'h-3 rounded-12',
-        bar: 'h-full rounded-12 transition-[width] duration-700 ease-out',
+        bar: 'block h-full rounded-6 transition-[width] duration-700 ease-out',
         barColor,
       }}
     />
@@ -40,20 +48,30 @@ const Meter = ({
       // "ready to fill" rather than broken.
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-12"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-8"
       >
         <div className="via-accent-cabbage-default/40 absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent to-transparent motion-safe:animate-meter-shine" />
       </div>
     ) : (
-      <GivebackMeterShine
-        percentage={percentage}
-        radiusClassName="rounded-12"
-      />
+      <GivebackMeterShine percentage={percentage} radiusClassName="rounded-6" />
     )}
+    {MILESTONES.map((milestone) => (
+      <span
+        key={milestone}
+        aria-hidden
+        className={classNames(
+          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-colors duration-500',
+          percentage >= milestone
+            ? 'border-white bg-white'
+            : 'border-border-subtlest-secondary bg-background-default',
+        )}
+        style={{ left: `${milestone}%` }}
+      />
+    ))}
   </div>
 );
 
-// Compact funding block for the hero sidebar — the crowdfunding "pledge panel":
+// Compact funding block for the hero sidebar - the crowdfunding "pledge panel":
 // raised, goal and progress at a glance. Points come back from the contribution
 // API as whole currency units, so they format directly as dollars.
 export const GivebackFundingSummary = (): ReactElement => {
@@ -72,7 +90,7 @@ export const GivebackFundingSummary = (): ReactElement => {
     return (
       <FlexCol className="gap-3">
         <div className="h-8 w-40 animate-pulse rounded-8 bg-surface-float" />
-        <div className="h-3 w-full rounded-12 bg-surface-float" />
+        <div className="h-5 w-full rounded-8 bg-surface-float" />
         <div className="h-4 w-48 animate-pulse rounded-8 bg-surface-float" />
       </FlexCol>
     );
@@ -97,7 +115,7 @@ export const GivebackFundingSummary = (): ReactElement => {
             color={TypographyColor.Tertiary}
             className="pb-1"
           >
-            goal to unlock for good causes
+            goal we&apos;ll fund together
           </Typography>
         </FlexRow>
 
@@ -110,14 +128,14 @@ export const GivebackFundingSummary = (): ReactElement => {
             color={TypographyColor.Primary}
             bold
           >
-            Be the first to back this.
+            Be the first to move the meter.
           </Typography>
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Take an action to start the meter.
+            Take one action and it starts climbing.
           </Typography>
         </FlexRow>
       </FlexCol>
@@ -136,7 +154,7 @@ export const GivebackFundingSummary = (): ReactElement => {
           color={TypographyColor.Tertiary}
           className="pb-1"
         >
-          pledged of {formatDonationAmount(goal)} goal
+          unlocked of {formatDonationAmount(goal)} goal
         </Typography>
       </FlexRow>
 
@@ -156,7 +174,7 @@ export const GivebackFundingSummary = (): ReactElement => {
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          funded · {contributorsCount.toLocaleString('en-US')} backers
+          funded · {contributorsCount.toLocaleString('en-US')} contributors
         </Typography>
       </FlexRow>
     </FlexCol>

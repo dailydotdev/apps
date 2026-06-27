@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  TOAST_NOTIF_KEY,
+  useToastNotification,
+} from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
 import { useContributionCausePicker } from './useContributionCausePicker';
 import { useUpdateContributionCausePreferences } from './useUpdateContributionCausePreferences';
@@ -10,6 +14,9 @@ interface UseGivebackCauseSelection {
   isLoading: boolean;
   selectedIds: Set<string>;
   toggleCause: (id: string) => void;
+  // Toggle and persist immediately (no working-set/Save step). Used by the
+  // manage tab; the funnel uses toggleCause + an explicit save instead.
+  toggleAndSave: (id: string) => void;
   selectedCount: number;
   // Whether the visitor has confirmed causes before (drives the onboarded view).
   hasSavedCauses: boolean;
@@ -24,12 +31,22 @@ export const useGivebackCauseSelection = (
   enabled: boolean,
 ): UseGivebackCauseSelection => {
   const { displayToast } = useToastNotification();
+  const queryClient = useQueryClient();
   const { causes, selectedCauseIds, isPending } =
     useContributionCausePicker(enabled);
   const { saveCausePreferences, isPending: isSaving } =
     useUpdateContributionCausePreferences();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  // Mirror of the committed selection so toggleAndSave reads the freshest set
+  // (and chains correctly across same-tick toggles) without a stale closure.
+  const selectedIdsRef = useRef(selectedIds);
+  selectedIdsRef.current = selectedIds;
+
+  // Tracks the pending toast force-clear timer so a quick unmount (or a second
+  // save) doesn't leave a stray timeout firing later.
+  const clearToastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(clearToastTimer.current), []);
 
   // Seed from saved preferences once they resolve, so editing starts from the
   // visitor's current selection without stomping later in-picker toggles. Wait
@@ -57,22 +74,59 @@ export const useGivebackCauseSelection = (
     });
   }, []);
 
+  // Persist on each toggle so the manage tab needs no "Save" step. The cause
+  // visibly moving between sections is the feedback, so no toast on success.
+  // Derive the next set from the committed state (not the closed-over value) so
+  // back-to-back toggles can't persist from a stale snapshot, and roll the
+  // optimistic change back if the save fails.
+  const toggleAndSave = useCallback(
+    (id: string) => {
+      const previous = selectedIdsRef.current;
+      const next = new Set(previous);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      selectedIdsRef.current = next;
+      setSelectedIds(next);
+      saveCausePreferences([...next]).catch(() => {
+        displayToast(labels.error.generic);
+        selectedIdsRef.current = previous;
+        setSelectedIds(previous);
+      });
+    },
+    [saveCausePreferences, displayToast],
+  );
+
   const save = useCallback(async () => {
     try {
       await saveCausePreferences([...selectedIds]);
-      displayToast('Your causes are saved');
+      displayToast('Your causes are saved', { timer: 3000 });
+      // Force-clear after the timer: the global toast only auto-dismisses when
+      // the user's "auto-dismiss notifications" setting is on, and a save
+      // confirmation should never sit there waiting to be closed manually.
+      // Guard on identity so a newer toast is never clobbered.
+      const shown = queryClient.getQueryData(TOAST_NOTIF_KEY);
+      clearTimeout(clearToastTimer.current);
+      clearToastTimer.current = setTimeout(() => {
+        if (queryClient.getQueryData(TOAST_NOTIF_KEY) === shown) {
+          queryClient.setQueryData(TOAST_NOTIF_KEY, null);
+        }
+      }, 3000);
       return true;
     } catch {
       displayToast(labels.error.generic);
       return false;
     }
-  }, [saveCausePreferences, selectedIds, displayToast]);
+  }, [saveCausePreferences, selectedIds, displayToast, queryClient]);
 
   return {
     causes,
     isLoading: isPending,
     selectedIds,
     toggleCause,
+    toggleAndSave,
     selectedCount: selectedIds.size,
     hasSavedCauses: selectedCauseIds.length > 0,
     save,

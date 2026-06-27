@@ -21,7 +21,7 @@ export interface BudgetSponsor {
 }
 
 // iOS "storage bar" style: one bar split into proportional, color-coded
-// segments — one per top sponsor, with the long tail grouped into "Others". The
+// segments - one per top sponsor, with the long tail grouped into "Others". The
 // logo above defaults to the biggest sponsor and swaps to whichever segment you
 // hover or focus.
 const SEGMENT_PALETTE = [
