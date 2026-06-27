@@ -72,13 +72,6 @@ export const GivebackContributionSummary = (): ReactElement => {
           >
             {formatDonationAmount(earnedPoints)}
           </Typography>
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            unlocked for your causes
-          </Typography>
         </FlexRow>
 
         {!isActionsPending && (
