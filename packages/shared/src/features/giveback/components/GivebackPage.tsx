@@ -154,10 +154,15 @@ export const GivebackPage = (): ReactElement => {
               key={activeTab}
               role="region"
               aria-label={activeLabel}
-              // Reserve a viewport-tall content area so a short (e.g. filtered)
-              // list still leaves enough room to scroll the tab strip to the top
-              // — otherwise the sticky tabs spring back and the page "jumps".
-              className={`${column} min-h-[calc(100dvh-3.5rem)] pt-8`}
+              // Only the filterable tabs reserve a viewport-tall area: when their
+              // list shrinks on filter, the extra height keeps the sticky tabs
+              // from springing back (the page "jump"). Impact/FAQ have no filters,
+              // so they fit content naturally — no dead gap before the footer.
+              className={`${column} pt-8 ${
+                activeTab === 'actions' || activeTab === 'causes'
+                  ? 'min-h-[calc(100dvh-3.5rem)]'
+                  : ''
+              }`}
             >
               {activeTab === 'actions' && (
                 <FlexCol className="gap-6">
