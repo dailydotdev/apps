@@ -92,12 +92,12 @@ export const GivebackPage = (): ReactElement => {
         event_name: LogEvent.ClickGivebackTab,
         extra: JSON.stringify({ tab }),
       });
+      // Just swap the content below — don't scroll the page to the tab strip.
+      // The reserved min-height on the content area keeps the scroll position
+      // stable even when the newly-selected tab is shorter.
       setActiveTab(tab);
-      // Snap the tab strip to the top so the freshly-switched content starts in
-      // view instead of mid-scroll from the previous tab.
-      scrollToTabs();
     },
-    [logEvent, scrollToTabs],
+    [logEvent],
   );
 
   const handleHowItWorks = useCallback(() => {
