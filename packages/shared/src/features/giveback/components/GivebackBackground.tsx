@@ -44,9 +44,15 @@ const vignette: CSSProperties = {
 };
 
 export const GivebackBackground = (): ReactElement => (
+  // The app's content card (MainLayout) wraps the page in a rounded, clipped
+  // border with a 2px inner padding on `laptop:`. Filling only `inset-0` leaves
+  // that padding (the dark card bg) showing as a crescent where our square
+  // corners meet the card's rounded corner. Bleed a few px past the padding so
+  // the gradient reaches the inner border edge; the card's `overflow-clip` +
+  // `rounded-24` then clips it to a clean rounded corner with no dark gap.
   <div
     aria-hidden
-    className="pointer-events-none absolute inset-0 overflow-hidden"
+    className="pointer-events-none absolute inset-0 overflow-hidden laptop:-inset-1"
   >
     {/* The brand glow is a fixed-height hero band anchored to the top. Sizing it
         in px (not inset-0) keeps it consistent - otherwise its mask scales with
