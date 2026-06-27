@@ -176,8 +176,9 @@ export const GivebackPage = (): ReactElement => {
                       color={TypographyColor.Secondary}
                       className="max-w-2xl [text-wrap:pretty]"
                     >
-                      Every action you take unlocks real money for the causes
-                      you back. Pick one below and your contribution grows.
+                      Each action unlocks real money for the causes you back —
+                      funded by us, chosen by you. Take one and watch your
+                      number climb.
                     </Typography>
                   </FlexCol>
                   <GivebackContributionSummary />

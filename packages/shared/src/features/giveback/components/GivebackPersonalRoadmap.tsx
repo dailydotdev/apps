@@ -731,7 +731,7 @@ export const GivebackPersonalRoadmap = ({
                 <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
                   {formatDonationAmount(approved)}
                 </span>{' '}
-                for good causes
+                for causes you love
               </Typography>
             ) : (
               <Typography

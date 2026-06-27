@@ -115,7 +115,7 @@ export const GivebackFundingSummary = (): ReactElement => {
             color={TypographyColor.Tertiary}
             className="pb-1"
           >
-            goal to unlock for good causes
+            goal we&apos;ll fund together
           </Typography>
         </FlexRow>
 
@@ -128,14 +128,14 @@ export const GivebackFundingSummary = (): ReactElement => {
             color={TypographyColor.Primary}
             bold
           >
-            Be the first to back this.
+            Be the first to move the meter.
           </Typography>
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Take an action to start the meter.
+            Take one action and it starts climbing.
           </Typography>
         </FlexRow>
       </FlexCol>

@@ -57,10 +57,10 @@ it('shows a goal-forward empty state when nothing is unlocked yet', () => {
   });
 
   expect(screen.getByText('$10,000')).toBeInTheDocument();
+  expect(screen.getByText("goal we'll fund together")).toBeInTheDocument();
   expect(
-    screen.getByText('goal to unlock for good causes'),
+    screen.getByText('Be the first to move the meter.'),
   ).toBeInTheDocument();
-  expect(screen.getByText('Be the first to back this.')).toBeInTheDocument();
   // None of the "$0 / 0% / 0 contributors" zeros leak through.
   expect(screen.queryByText('$0')).not.toBeInTheDocument();
   expect(screen.queryByText(/0 contributors/)).not.toBeInTheDocument();

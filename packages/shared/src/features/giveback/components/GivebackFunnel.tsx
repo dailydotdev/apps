@@ -41,18 +41,18 @@ const IMPACT_VALUES: ReadonlyArray<{
 }> = [
   {
     icon: <VIcon secondary />,
-    title: 'You chose well',
-    sub: 'Real, vetted nonprofits, picked by you.',
+    title: 'You call the shots',
+    sub: 'Real, vetted nonprofits — picked by you.',
   },
   {
     icon: <CoinIcon secondary />,
     title: 'Costs you nothing',
-    sub: 'daily.dev funds every single dollar.',
+    sub: 'We fund every single dollar.',
   },
   {
     icon: <GiftIcon secondary />,
-    title: 'Real, lasting impact',
-    sub: 'Everyday actions become real support.',
+    title: 'Real-world impact',
+    sub: 'Small actions add up to real support.',
   },
 ];
 
@@ -210,15 +210,15 @@ const GivebackFunnelVideo = ({
 const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
   {
     title: 'You take an action',
-    sub: 'Upvote, post, share, talk, write. Anything counts.',
+    sub: 'Share us, post, leave a review, cast a vote — the small stuff that helps us grow.',
   },
   {
-    title: 'The pot grows toward the goal',
-    sub: 'Every action drops real money in. You never pay a cent.',
+    title: 'The pot fills up',
+    sub: 'Each action drops real daily.dev money in. Never yours.',
   },
   {
-    title: 'We donate it to your causes',
-    sub: 'Hit the goal together and it’s sent automatically.',
+    title: 'We fund your causes',
+    sub: 'Hit the goal together and the money goes out — to the causes you picked.',
   },
 ];
 
@@ -413,7 +413,7 @@ export const GivebackFunnel = ({
                   className="[text-wrap:balance]"
                 >
                   {selectedCauses.length > 0
-                    ? 'Your giving is now in motion'
+                    ? "You're in. Now every action funds them."
                     : 'Real causes. Real impact.'}
                 </Typography>
                 <Typography
@@ -423,8 +423,8 @@ export const GivebackFunnel = ({
                   className="max-w-xl [text-wrap:pretty]"
                 >
                   {selectedCauses.length > 0
-                    ? 'From here, every action you take sends real money to the causes you picked. daily.dev funds it all, so it never costs you a thing.'
-                    : "Your actions send real money straight to open-source maintainers, students, and devs who can't afford access. daily.dev funds it all, no cost to you."}
+                    ? 'From here on, every action you take becomes real money for the causes you picked. We fund all of it — you never pay a thing.'
+                    : "Your actions become real money for open-source maintainers, students, and devs who can't afford access. We fund all of it — no cost to you."}
                 </Typography>
               </FlexCol>
             </Reveal>
@@ -469,8 +469,8 @@ export const GivebackFunnel = ({
                   bold
                   className="max-w-xl [text-wrap:pretty]"
                 >
-                  Thank you for choosing who to back. From now on, your everyday
-                  actions turn into real support for them. 💜
+                  Thanks for choosing who to back. From now on, your everyday
+                  actions are working for them. 💜
                 </Typography>
               </Reveal>
             )}
@@ -493,7 +493,7 @@ export const GivebackFunnel = ({
                 bold
                 className="[text-wrap:balance]"
               >
-                Your activity funds real causes
+                We&apos;d rather fund the world than pay for ads
               </Typography>
             </Reveal>
             <Reveal delay={220}>
@@ -503,9 +503,10 @@ export const GivebackFunnel = ({
                 color={TypographyColor.Secondary}
                 className="max-w-xl [text-wrap:pretty]"
               >
-                daily.dev would rather put its marketing budget into good causes
-                than ad networks. You take small actions, we turn them into
-                donations, and you pick which causes get them.
+                Most companies spend their growth budget on ads. We&apos;d
+                rather spend it on causes that matter. The deal is simple: you
+                help us grow, and we hand that budget to the causes you choose.
+                It never costs you a thing.
               </Typography>
             </Reveal>
           </FlexCol>

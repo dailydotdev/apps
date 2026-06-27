@@ -44,7 +44,7 @@ it('walks every step and completes on the final CTA', () => {
   );
 
   expect(
-    screen.getByText('Your activity funds real causes'),
+    screen.getByText("We'd rather fund the world than pay for ads"),
   ).toBeInTheDocument();
 
   advance('Got it');
