@@ -17,7 +17,7 @@ const MAX_CAUSES = 100;
 
 // The cause catalog and the visitor's saved picks in one request. Auth +
 // eligibility gated on the backend, so only fetch once signed in and the picker
-// is reachable (after a logged-in join) — otherwise the request 403s. Keyed by
+// is reachable (after a logged-in join) - otherwise the request 403s. Keyed by
 // user since the saved picks are user-specific.
 export const useContributionCausePicker = (
   enabled: boolean,

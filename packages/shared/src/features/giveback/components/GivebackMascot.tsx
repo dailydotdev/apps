@@ -12,11 +12,15 @@ export const GIVEBACK_CHARM_IMAGE = {
 interface GivebackMascotProps {
   className?: string;
   imageClassName?: string;
+  // Override the charm illustration (e.g. a different dog from the collection
+  // for a specific moment). Defaults to the Giveback charm.
+  image?: { src: string; alt: string };
 }
 
 export const GivebackMascot = ({
   className,
   imageClassName,
+  image = GIVEBACK_CHARM_IMAGE,
 }: GivebackMascotProps): ReactElement => (
   <div
     className={classNames(
@@ -33,8 +37,8 @@ export const GivebackMascot = ({
       {/* The render sits on solid black; `mix-blend-screen` drops the black so
           the charm reads as floating on the dark page. */}
       <img
-        src={GIVEBACK_CHARM_IMAGE.src}
-        alt={GIVEBACK_CHARM_IMAGE.alt}
+        src={image.src}
+        alt={image.alt}
         loading="lazy"
         className={classNames(
           'relative h-44 w-auto select-none object-contain mix-blend-screen motion-safe:animate-mascot-bob tablet:h-56',
