@@ -212,7 +212,7 @@ export const GivebackActionCatalog = ({
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              No donation rides on these — they just help us out. We&apos;d love
+              No donation rides on these. They just help us out. We&apos;d love
               you for it.
             </Typography>
           </FlexCol>

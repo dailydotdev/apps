@@ -42,7 +42,7 @@ const IMPACT_VALUES: ReadonlyArray<{
   {
     icon: <VIcon secondary />,
     title: 'You call the shots',
-    sub: 'Real, vetted nonprofits — picked by you.',
+    sub: 'Real, vetted nonprofits, picked by you.',
   },
   {
     icon: <CoinIcon secondary />,
@@ -210,7 +210,7 @@ const GivebackFunnelVideo = ({
 const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
   {
     title: 'You take an action',
-    sub: 'Share us, post, leave a review, cast a vote — the small stuff that helps us grow.',
+    sub: 'Share us, post, leave a review, cast a vote. The small stuff that helps us grow.',
   },
   {
     title: 'The pot fills up',
@@ -218,7 +218,7 @@ const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
   },
   {
     title: 'We fund your causes',
-    sub: 'Hit the goal together and the money goes out — to the causes you picked.',
+    sub: 'Hit the goal together and the money goes out to the causes you picked.',
   },
 ];
 
@@ -423,8 +423,8 @@ export const GivebackFunnel = ({
                   className="max-w-xl [text-wrap:pretty]"
                 >
                   {selectedCauses.length > 0
-                    ? 'From here on, every action you take becomes real money for the causes you picked. We fund all of it — you never pay a thing.'
-                    : "Your actions become real money for open-source maintainers, students, and devs who can't afford access. We fund all of it — no cost to you."}
+                    ? 'From here on, every action you take becomes real money for the causes you picked. We fund all of it. You never pay a thing.'
+                    : "Your actions become real money for open-source maintainers, students, and devs who can't afford access. We fund all of it, no cost to you."}
                 </Typography>
               </FlexCol>
             </Reveal>

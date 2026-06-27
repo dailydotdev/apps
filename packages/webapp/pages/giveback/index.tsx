@@ -21,7 +21,7 @@ const seo: NextSeoProps = {
   },
   ...defaultSeo,
   description:
-    'daily.dev would rather fund real-world causes than pay for ads. Take small actions to help us grow, and we turn that budget into donations to the causes you choose — at no cost to you.',
+    'daily.dev would rather fund real-world causes than pay for ads. Take small actions to help us grow, and we turn that budget into donations to the causes you choose, at no cost to you.',
   nofollow: true,
   noindex: true,
 };

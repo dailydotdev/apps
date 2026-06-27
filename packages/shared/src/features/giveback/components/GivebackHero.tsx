@@ -91,7 +91,7 @@ export const GivebackHero = ({
             >
               Instead of pouring our growth budget into ad networks, we put it
               toward causes that matter. You take a few small actions to help us
-              grow; we turn every one into a real donation — to the causes you
+              grow; we turn every one into a real donation to the causes you
               choose. You never pay a cent.
             </Typography>
           </FlexCol>

@@ -100,7 +100,7 @@ export const GivebackContributionSummary = (): ReactElement => {
                   type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
                 >
-                  It counts the moment you act — we trust you. If something gets
+                  It counts the moment you act. We trust you. If something gets
                   rejected, we just subtract it.
                 </Typography>
               </span>

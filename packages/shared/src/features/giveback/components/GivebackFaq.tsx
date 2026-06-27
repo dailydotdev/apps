@@ -24,7 +24,7 @@ const faqs: FaqItem[] = [
     id: 'cost',
     question: 'Does this cost me anything?',
     answer:
-      'Nothing. Not a cent. daily.dev funds every donation — you bring the actions, we bring the money.',
+      'Nothing. Not a cent. daily.dev funds every donation. You bring the actions, we bring the money.',
   },
   {
     id: 'how',
@@ -54,7 +54,7 @@ const faqs: FaqItem[] = [
     id: 'why',
     question: 'Why is daily.dev doing this?',
     answer:
-      'Most companies buy growth with ads. We’d rather earn it with you — and send that budget to causes the community actually cares about. You help us grow, the world gets the money.',
+      'Most companies buy growth with ads. We’d rather earn it with you and send that budget to causes the community actually cares about. You help us grow, the world gets the money.',
   },
   {
     id: 'geo',
