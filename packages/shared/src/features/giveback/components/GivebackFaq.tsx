@@ -76,7 +76,15 @@ export const GivebackFaq = (): ReactElement => {
   };
 
   return (
-    <GivebackSection id="giveback-faq" title="Frequently asked questions">
+    <GivebackSection id="giveback-faq">
+      <Typography
+        tag={TypographyTag.H2}
+        type={TypographyType.Title2}
+        bold
+        className="[text-wrap:balance]"
+      >
+        Frequently asked questions
+      </Typography>
       <div className="divide-y divide-border-subtlest-tertiary">
         {faqs.map((faq) => {
           const isOpen = openId === faq.id;
