@@ -21,6 +21,7 @@ import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import type { ContributionCause } from '../types';
 import { GivebackFilterChip } from './GivebackFilterChip';
 import { GivebackCauseCard } from './GivebackCauseCard';
+import { GivebackTabHeading } from './GivebackTabHeading';
 import { CauseEmblem } from './CauseEmblem';
 
 const ALL_FILTER = 'all';
@@ -175,26 +176,10 @@ export const GivebackCausesPanel = ({
 
   return (
     <FlexCol className="gap-8">
-      <FlexCol className="gap-2">
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Title2}
-          bold
-          className="[text-wrap:balance]"
-        >
-          Your causes, your call
-        </Typography>
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-          className="max-w-2xl [text-wrap:pretty]"
-        >
-          Every action you take sends real money to the causes you pick here.
-          Back as many as you like, change them whenever you want. daily.dev
-          funds every donation, so it never costs you a thing.
-        </Typography>
-      </FlexCol>
+      <GivebackTabHeading
+        title="Your causes, your call"
+        description="Every action you take sends real money to the causes you pick here. Back as many as you like, change them whenever you want. daily.dev funds every donation, so it never costs you a thing."
+      />
 
       <FlexCol className="gap-3">
         <Typography

@@ -42,6 +42,7 @@ import { useContributionActions } from '../hooks/useContributionActions';
 import { ContributionRewardType } from '../types';
 import { formatDonationAmount } from '../utils';
 import { GivebackMeterShine } from './GivebackMeterShine';
+import { GivebackTabHeading } from './GivebackTabHeading';
 
 // Joins up to three cause names into a natural list ("a, b, and c"), so the
 // impact headline names exactly who the visitor's actions are funding.
@@ -718,45 +719,32 @@ export const GivebackPersonalRoadmap = ({
     <section id="giveback-roadmap" className="relative w-full scroll-mt-16">
       <FlexCol className="gap-8">
         <FlexCol className="gap-5">
-          <FlexCol className="gap-3">
-            {hasImpact ? (
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title2}
-                bold
-                className="max-w-2xl [text-wrap:balance]"
-              >
-                You turned {actionsTaken}{' '}
-                {actionsTaken === 1 ? 'action' : 'actions'} into{' '}
-                <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-                  {formatDonationAmount(approved)}
-                </span>{' '}
-                for causes you love
-              </Typography>
-            ) : (
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title2}
-                bold
-                className="max-w-2xl [text-wrap:balance]"
-              >
-                Turn your everyday actions into{' '}
-                <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-                  real donations
-                </span>
-              </Typography>
-            )}
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-              className="max-w-2xl [text-wrap:pretty]"
-            >
-              {hasImpact && causeNames
+          <GivebackTabHeading
+            title={
+              hasImpact ? (
+                <>
+                  You turned {actionsTaken}{' '}
+                  {actionsTaken === 1 ? 'action' : 'actions'} into{' '}
+                  <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+                    {formatDonationAmount(approved)}
+                  </span>{' '}
+                  for causes you love
+                </>
+              ) : (
+                <>
+                  Turn your everyday actions into{' '}
+                  <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+                    real donations
+                  </span>
+                </>
+              )
+            }
+            description={
+              hasImpact && causeNames
                 ? `Headed to ${causeNames}. Every action you take adds more, and it never costs you a thing.`
-                : 'Every action you take sends real money to the causes you back. daily.dev funds it all, so you never pay a cent. Take your first one.'}
-            </Typography>
-          </FlexCol>
+                : 'Every action you take sends real money to the causes you back. daily.dev funds it all, so you never pay a cent. Take your first one.'
+            }
+          />
 
           <FlexCol className="gap-3">
             <FlexRow className="flex-wrap items-center gap-3">

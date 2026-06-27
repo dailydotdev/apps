@@ -12,6 +12,7 @@ import { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { GivebackSection } from './GivebackSection';
+import { GivebackTabHeading } from './GivebackTabHeading';
 
 interface FaqItem {
   id: string;
@@ -77,14 +78,7 @@ export const GivebackFaq = (): ReactElement => {
 
   return (
     <GivebackSection id="giveback-faq">
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Title2}
-        bold
-        className="[text-wrap:balance]"
-      >
-        Frequently asked questions
-      </Typography>
+      <GivebackTabHeading title="Frequently asked questions" />
       <div className="divide-y divide-border-subtlest-tertiary">
         {faqs.map((faq) => {
           const isOpen = openId === faq.id;

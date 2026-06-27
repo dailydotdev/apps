@@ -1,12 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
 import { FlexCol } from '../../../components/utilities';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../../../components/typography/Typography';
 import usePersistentContext from '../../../hooks/usePersistentContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureGivebackSponsors } from '../../../lib/featureManagement';
@@ -18,6 +12,7 @@ import { GivebackLegalFooter } from './GivebackLegalFooter';
 import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
 import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
+import { GivebackTabHeading } from './GivebackTabHeading';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
 import { GivebackFaqPanel } from './GivebackFaqPanel';
@@ -166,26 +161,10 @@ export const GivebackPage = (): ReactElement => {
             >
               {activeTab === 'actions' && (
                 <FlexCol className="gap-6">
-                  <FlexCol className="gap-2">
-                    <Typography
-                      tag={TypographyTag.H2}
-                      type={TypographyType.Title2}
-                      bold
-                      className="[text-wrap:balance]"
-                    >
-                      Your contribution
-                    </Typography>
-                    <Typography
-                      tag={TypographyTag.P}
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Secondary}
-                      className="max-w-2xl [text-wrap:pretty]"
-                    >
-                      Each action unlocks real money for the causes you back,
-                      funded by us, chosen by you. Take one and watch your
-                      number climb.
-                    </Typography>
-                  </FlexCol>
+                  <GivebackTabHeading
+                    title="Your contribution"
+                    description="Each action unlocks real money for the causes you back, funded by us, chosen by you. Take one and watch your number climb."
+                  />
                   <GivebackContributionSummary />
                   <GivebackActionCatalog onFilter={scrollToTabs} />
                 </FlexCol>
