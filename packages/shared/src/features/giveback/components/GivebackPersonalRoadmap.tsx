@@ -540,8 +540,7 @@ export const GivebackPersonalRoadmap = ({
 }: GivebackPersonalRoadmapProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { earnedPoints, currentLevel, isPending } =
-    useGivebackContribution(true);
+  const { earnedPoints, isPending } = useGivebackContribution(true);
   const { rewardTiers } = useContributionRewards(true);
   const { claimedRewardIds } = useContributionUserRewards(true);
   const { claim, isPending: isClaiming } = useClaimContributionReward();
@@ -613,10 +612,14 @@ export const GivebackPersonalRoadmap = ({
   const causeNames = formatCauseNames(selectedNames);
   const hasImpact = approved > 0;
   const total = levels.length;
-  const focusIndex = Math.min(total - 1, Math.max(0, currentLevel - 1));
   const nextIndex = levels.findIndex(
     (level) => level.requiredApprovedAmount > approved,
   );
+  // "You're here" rides the goal you're climbing toward (the next unreached
+  // level), so the face marker, the highlighted card and the progress bar all
+  // land on one row — not split across the last-cleared and next levels. Once
+  // every level is reached, focus the summit.
+  const focusIndex = nextIndex === -1 ? total - 1 : nextIndex;
   const nextLevel = nextIndex === -1 ? undefined : levels[nextIndex];
   const amountToNext = nextLevel
     ? Math.max(0, nextLevel.requiredApprovedAmount - approved)

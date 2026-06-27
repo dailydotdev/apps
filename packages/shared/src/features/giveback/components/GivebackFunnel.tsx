@@ -147,17 +147,33 @@ const GivebackFunnelVideo = ({
       const rect = el.getBoundingClientRect();
       setStyle({ top: rect.top, left: rect.left, width: rect.width });
     };
+    // Coalesce scroll/resize bursts into one measure per frame so the docked
+    // player doesn't thrash getBoundingClientRect + setState on every event.
+    let frame: number | null = null;
+    const scheduleUpdate = () => {
+      if (frame !== null) {
+        return;
+      }
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        update();
+      });
+    };
+
     update();
-    window.addEventListener('resize', update);
-    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', scheduleUpdate);
+    window.addEventListener('scroll', scheduleUpdate, true);
     let observer: ResizeObserver | undefined;
     if (typeof ResizeObserver !== 'undefined' && slotRef.current) {
-      observer = new ResizeObserver(update);
+      observer = new ResizeObserver(scheduleUpdate);
       observer.observe(slotRef.current);
     }
     return () => {
-      window.removeEventListener('resize', update);
-      window.removeEventListener('scroll', update, true);
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+      }
+      window.removeEventListener('resize', scheduleUpdate);
+      window.removeEventListener('scroll', scheduleUpdate, true);
       observer?.disconnect();
     };
   }, [docked, slotRef]);

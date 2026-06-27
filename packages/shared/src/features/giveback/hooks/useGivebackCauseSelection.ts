@@ -39,6 +39,11 @@ export const useGivebackCauseSelection = (
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  // Tracks the pending toast force-clear timer so a quick unmount (or a second
+  // save) doesn't leave a stray timeout firing later.
+  const clearToastTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(clearToastTimer.current), []);
+
   // Seed from saved preferences once they resolve, so editing starts from the
   // visitor's current selection without stomping later in-picker toggles. Wait
   // for `enabled`: while the query is gated off it reports not-loading with an
@@ -92,7 +97,8 @@ export const useGivebackCauseSelection = (
       // confirmation should never sit there waiting to be closed manually.
       // Guard on identity so a newer toast is never clobbered.
       const shown = queryClient.getQueryData(TOAST_NOTIF_KEY);
-      setTimeout(() => {
+      clearTimeout(clearToastTimer.current);
+      clearToastTimer.current = setTimeout(() => {
         if (queryClient.getQueryData(TOAST_NOTIF_KEY) === shown) {
           queryClient.setQueryData(TOAST_NOTIF_KEY, null);
         }
