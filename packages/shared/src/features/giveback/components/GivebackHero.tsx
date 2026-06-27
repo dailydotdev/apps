@@ -80,8 +80,8 @@ export const GivebackHero = ({
         <FlexCol className="w-full gap-6 tablet:flex-1">
           <FlexCol className="gap-2">
             <GivebackHeadline
-              title="Big tech buys ads."
-              highlight="We fund the causes you pick."
+              title="Ad budgets buy clicks."
+              highlight="Ours funds real causes."
             />
             <Typography
               tag={TypographyTag.P}

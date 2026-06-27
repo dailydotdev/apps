@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { GivebackHero } from '@dailydotdev/shared/src/features/giveback/components/GivebackHero';
 import { mockStatus, withGiveback } from './giveback.mocks';
 
-// The page cover: brand + "How it works" across the top, the "Big tech buys ads.
-// We fund the causes you pick." headline with the funding meter on the left, and
-// charm on the right.
+// The page cover: brand + "How it works" across the top, the "Ad budgets buy
+// clicks. Ours funds real causes." headline with the funding meter on the left,
+// and charm on the right.
 const meta: Meta<typeof GivebackHero> = {
   title: 'Features/Giveback/Page cover (hero)',
   component: GivebackHero,
