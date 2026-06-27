@@ -1,11 +1,22 @@
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GivebackFunnel } from './GivebackFunnel';
 import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
 jest.mock('../../../contexts/LogContext');
+
+// The funnel portals to document.body via RootPortal, which reads the request
+// protocol from a query client, so the tree needs a QueryClientProvider. One
+// stable client keeps `rerender` from swapping the provider (which would remount
+// the funnel and reset its step state).
+const queryClient = new QueryClient();
+const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
 
 const mockUseLogContext = useLogContext as jest.MockedFunction<
   typeof useLogContext
@@ -41,6 +52,7 @@ it('walks every step and completes on the final CTA', () => {
   const onComplete = jest.fn();
   render(
     <GivebackFunnel selection={buildSelection()} onComplete={onComplete} />,
+    { wrapper },
   );
 
   expect(
@@ -81,6 +93,7 @@ it('blocks the causes step until at least one cause is picked', () => {
       })}
       onComplete={jest.fn()}
     />,
+    { wrapper },
   );
 
   advance('Got it');
@@ -115,6 +128,7 @@ it('shows a close control only when it can be closed', () => {
   const onClose = jest.fn();
   const { rerender } = render(
     <GivebackFunnel selection={buildSelection()} onComplete={jest.fn()} />,
+    { wrapper },
   );
   expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
 
