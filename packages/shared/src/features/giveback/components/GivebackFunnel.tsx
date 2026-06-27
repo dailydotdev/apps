@@ -98,7 +98,7 @@ const Reveal = ({
 // A soft, on-brand glow behind each step's hero icon/illustration so the visual
 // feels alive and the campaign reads as a real, considered initiative.
 const Stage = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="relative flex min-h-52 items-center justify-center">
+  <div className="relative flex min-h-36 items-center justify-center tablet:min-h-52">
     <span
       aria-hidden
       className="bg-accent-cabbage-default/20 absolute inset-0 m-auto size-56 rounded-full blur-3xl motion-safe:animate-glow-pulse"
@@ -226,7 +226,7 @@ const FlowSequence = (): ReactElement => (
             )}
           </FlexCol>
           <FlexCol
-            className={classNames('min-w-0 gap-1', isLast ? 'pb-0' : 'pb-8')}
+            className={classNames('min-w-0 gap-1', isLast ? 'pb-0' : 'pb-6')}
           >
             <Typography
               tag={TypographyTag.H3}
