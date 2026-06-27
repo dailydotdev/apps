@@ -54,7 +54,7 @@ const faqs: FaqItem[] = [
     id: 'why',
     question: 'Why is daily.dev doing this?',
     answer:
-      'Most companies buy growth with ads. We’d rather earn it with you and send that budget to causes the community actually cares about. You help us grow, the world gets the money.',
+      'Most companies buy growth with ads. We’d rather earn it with you, by helping more developers discover daily.dev, and send that budget to causes the community actually cares about. You bring the growth, the world gets the money.',
   },
   {
     id: 'geo',

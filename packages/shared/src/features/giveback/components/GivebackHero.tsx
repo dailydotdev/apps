@@ -89,10 +89,10 @@ export const GivebackHero = ({
               color={TypographyColor.Secondary}
               className="max-w-2xl [text-wrap:pretty]"
             >
-              Instead of pouring our growth budget into ad networks, we put it
-              toward causes that matter. You take a few small actions to help us
-              grow; we turn every one into a real donation to the causes you
-              choose. You never pay a cent.
+              We&apos;d rather grow through developers than through ads. Help
+              more people discover daily.dev, and we&apos;ll turn that budget
+              into real donations to the causes you choose. You never pay a
+              cent.
             </Typography>
           </FlexCol>
 

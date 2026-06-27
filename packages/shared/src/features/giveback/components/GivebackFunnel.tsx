@@ -210,7 +210,7 @@ const GivebackFunnelVideo = ({
 const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
   {
     title: 'You take an action',
-    sub: 'Share us, post, leave a review, cast a vote. The small stuff that helps us grow.',
+    sub: 'Share us, post, leave a review, cast a vote. Small things that help more devs find daily.dev.',
   },
   {
     title: 'The pot fills up',
@@ -503,10 +503,10 @@ export const GivebackFunnel = ({
                 color={TypographyColor.Secondary}
                 className="max-w-xl [text-wrap:pretty]"
               >
-                Most companies spend their growth budget on ads. We&apos;d
-                rather spend it on causes that matter. The deal is simple: you
-                help us grow, and we hand that budget to the causes you choose.
-                It never costs you a thing.
+                Most companies grow by buying ads. We&apos;d rather grow through
+                developers who love daily.dev, and put that budget into causes
+                that matter. The deal is simple: help more people discover us,
+                and we fund the causes you choose. It never costs you a thing.
               </Typography>
             </Reveal>
           </FlexCol>
