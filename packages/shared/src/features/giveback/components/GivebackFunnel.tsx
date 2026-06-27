@@ -224,14 +224,14 @@ const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
 ];
 
 const FlowSequence = (): ReactElement => (
-  <FlexCol className="mx-auto w-full max-w-md text-left">
+  <FlexCol className="w-full text-left">
     {FLOW_STEPS.map((step, index) => {
       const isLast = index === FLOW_STEPS.length - 1;
       return (
-        <FlexRow key={step.title} className="gap-5">
-          <FlexCol className="items-center">
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-16 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default">
-              <span className="font-bold tabular-nums text-background-default typo-title1">
+        <FlexRow key={step.title} className="items-start gap-4">
+          <FlexCol className="items-center self-stretch">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default">
+              <span className="font-bold tabular-nums text-background-default typo-title2">
                 {index + 1}
               </span>
             </span>
@@ -243,12 +243,16 @@ const FlowSequence = (): ReactElement => (
             )}
           </FlexCol>
           <FlexCol
-            className={classNames('min-w-0 gap-1', isLast ? 'pb-0' : 'pb-6')}
+            className={classNames(
+              'min-w-0 flex-1 gap-1',
+              isLast ? 'pb-0' : 'pb-6',
+            )}
           >
             <Typography
               tag={TypographyTag.H3}
               type={TypographyType.Title3}
               bold
+              className="[text-wrap:balance]"
             >
               {step.title}
             </Typography>
@@ -342,18 +346,18 @@ export const GivebackFunnel = ({
     switch (stepKey) {
       case 'how':
         return (
-          <FlexCol className="mx-auto w-full max-w-2xl items-center gap-8 text-center">
-            <Reveal>
+          <FlexCol className="mx-auto w-full max-w-md items-center gap-8">
+            <Reveal className="w-full">
               <Typography
                 tag={TypographyTag.H2}
                 type={TypographyType.Title1}
                 bold
-                className="[text-wrap:balance]"
+                className="text-center [text-wrap:balance]"
               >
                 You act. We pay. Causes win.
               </Typography>
             </Reveal>
-            <Reveal delay={120} className="flex w-full justify-center">
+            <Reveal delay={120} className="w-full">
               <FlowSequence />
             </Reveal>
           </FlexCol>
