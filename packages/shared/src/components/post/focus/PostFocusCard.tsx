@@ -377,138 +377,144 @@ export const PostFocusCard = ({
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
-              <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
-                <HoverCard
-                  appendTo={globalThis?.document?.body}
-                  side="top"
-                  align="start"
-                  sideOffset={8}
-                  trigger={
-                    <span className="inline-flex items-center">
-                      <Link
-                        href={sharedVia.permalink}
-                        passHref
-                        prefetch={false}
-                      >
-                        <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
-                            <img
-                              src={sharedVia.image}
-                              alt=""
-                              aria-hidden
-                              className="size-4 rounded-full object-cover"
-                              loading="lazy"
-                            />
-                          )}
-                          {sharedVia.name}
-                        </a>
-                      </Link>
-                    </span>
-                  }
-                >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
-                </HoverCard>
-              </p>
+          {/* The lead block — title, cover image and metadata — is one large
+              click target via an overlay link, so tapping anywhere in it opens
+              the article. The source header above is deliberately excluded; the
+              interactive children (cover image, read button, shared-via link)
+              sit above the overlay with `relative z-1` and keep their own
+              behavior. The overlay is pointer-only (aria-hidden + tabIndex -1)
+              since the read button is the keyboard/AT path to the same place. */}
+          <div className="relative flex flex-col gap-4">
+            {canReadArticle && (
+              // eslint-disable-next-line jsx-a11y/anchor-has-content -- decorative pointer-only overlay; the read button below is the labeled keyboard/AT path to the same article
+              <a
+                aria-hidden
+                tabIndex={-1}
+                href={readHref}
+                target="_blank"
+                rel="noopener"
+                onClick={handleReadClick}
+                className="absolute inset-0"
+              />
             )}
-            {isShared && !sharedVia && (
-              <p className="text-text-tertiary typo-footnote">Shared post</p>
-            )}
-            {!isShared && isCollection && (
-              <p className="text-text-tertiary typo-footnote">Collection</p>
-            )}
-            {/* Title and image are top-aligned columns. The cover image opens a
+            <div className="flex min-w-0 flex-col gap-3">
+              {sharedVia && (
+                <p className="relative z-1 flex items-center gap-1 text-text-tertiary typo-footnote">
+                  <span>Shared via</span>
+                  <HoverCard
+                    appendTo={globalThis?.document?.body}
+                    side="top"
+                    align="start"
+                    sideOffset={8}
+                    trigger={
+                      <span className="inline-flex items-center">
+                        <Link
+                          href={sharedVia.permalink}
+                          passHref
+                          prefetch={false}
+                        >
+                          <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
+                            {sharedVia.image && (
+                              <img
+                                src={sharedVia.image}
+                                alt=""
+                                aria-hidden
+                                className="size-4 rounded-full object-cover"
+                                loading="lazy"
+                              />
+                            )}
+                            {sharedVia.name}
+                          </a>
+                        </Link>
+                      </span>
+                    }
+                  >
+                    <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  </HoverCard>
+                </p>
+              )}
+              {isShared && !sharedVia && (
+                <p className="text-text-tertiary typo-footnote">Shared post</p>
+              )}
+              {!isShared && isCollection && (
+                <p className="text-text-tertiary typo-footnote">Collection</p>
+              )}
+              {/* Title and image are top-aligned columns. The cover image opens a
                 lightbox rather than navigating away. The read button lives in
                 the title column (right under the title) so it hugs the title
                 regardless of the image height — a short title next to a tall
                 image keeps the button close instead of dragging it down. */}
-            <div className="flex min-w-0 flex-row items-start gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                <h1
-                  className={classNames(
-                    'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
-                    // On the post page the reader came to read, so the title is
-                    // always shown in full and the button flows below it; only
-                    // the modal (a feed preview) clamps it.
-                    onClose && 'line-clamp-3',
-                  )}
-                  data-testid="post-modal-title"
-                >
-                  {/* The title is the largest, most forgiving target for opening
-                      the source — it shares the read button's reader gate so
-                      both routes behave identically. */}
-                  {canReadArticle ? (
-                    <a
-                      href={readHref}
-                      target="_blank"
-                      rel="noopener"
-                      onClick={handleReadClick}
-                      className="hover:underline"
-                    >
-                      {title}
-                    </a>
-                  ) : (
-                    title
-                  )}
-                </h1>
-                {renderReadButton('w-fit')}
-              </div>
-              {!isVideoType && article.image && (
-                <button
-                  type="button"
-                  aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  onClick={(event) => {
-                    openModal({
-                      type: LazyModal.ImageView,
-                      props: {
-                        src: article.image as string,
-                        alt: 'Post cover image',
-                        originRect: getImageOriginRect(event.currentTarget),
-                      },
-                    });
-                  }}
-                >
-                  <LazyImage
-                    eager
-                    // Small square thumbnail below tablet; from tablet (656px)
-                    // up it uses the original wide cover ratio (52% => 25/13).
-                    className="aspect-square w-full tablet:aspect-[25/13]"
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    fetchPriority="high"
-                    imgAlt="Post cover image"
-                    imgSrc={article.image}
-                  />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
+              <div className="flex min-w-0 flex-row items-start gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-4">
+                  <h1
+                    className={classNames(
+                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      // On the post page the reader came to read, so the title is
+                      // always shown in full and the button flows below it; only
+                      // the modal (a feed preview) clamps it.
+                      onClose && 'line-clamp-3',
+                    )}
+                    data-testid="post-modal-title"
                   >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
-          />
+                    {title}
+                  </h1>
+                  {renderReadButton('relative z-1 w-fit')}
+                </div>
+                {!isVideoType && article.image && (
+                  <button
+                    type="button"
+                    aria-label="View cover image"
+                    className="relative z-1 block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                    onClick={(event) => {
+                      openModal({
+                        type: LazyModal.ImageView,
+                        props: {
+                          src: article.image as string,
+                          alt: 'Post cover image',
+                          originRect: getImageOriginRect(event.currentTarget),
+                        },
+                      });
+                    }}
+                  >
+                    <LazyImage
+                      eager
+                      // Small square thumbnail below tablet; from tablet (656px)
+                      // up it uses the original wide cover ratio (52% => 25/13).
+                      className="aspect-square w-full tablet:aspect-[25/13]"
+                      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                      fetchPriority="high"
+                      imgAlt="Post cover image"
+                      imgSrc={article.image}
+                    />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <PostMetadata
+              className="!typo-callout"
+              createdAt={article.createdAt}
+              domain={
+                !isVideoType &&
+                article.domain &&
+                article.domain.length > 0 && (
+                  <TruncateText>
+                    From{' '}
+                    <ArticleLink
+                      className="hover:underline"
+                      href={article.permalink}
+                      onClick={onReadArticle}
+                      title={article.domain}
+                    >
+                      {article.domain}
+                    </ArticleLink>
+                  </TruncateText>
+                )
+              }
+              isVideoType={isVideoType}
+              readTime={article.readTime}
+            />
+          </div>
 
           {isVideoType && (
             <div
