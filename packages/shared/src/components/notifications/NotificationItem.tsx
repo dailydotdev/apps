@@ -341,7 +341,11 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         {showGrid ? (
           <div className="relative flex items-center">{avatarContent}</div>
         ) : (
-          <NotificationItemLead type={type} icon={icon} avatar={primaryAvatar} />
+          <NotificationItemLead
+            type={type}
+            icon={icon}
+            avatar={primaryAvatar}
+          />
         )}
       </div>
 
