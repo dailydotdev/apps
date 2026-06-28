@@ -41,7 +41,15 @@ const ActionGrid = ({
   </div>
 );
 
-export const GivebackActionCatalog = (): ReactElement => {
+interface GivebackActionCatalogProps {
+  // Scrolls the tab strip back to the top so a filtered list always starts in
+  // view (no jump from the previous scroll position).
+  onFilter?: () => void;
+}
+
+export const GivebackActionCatalog = ({
+  onFilter,
+}: GivebackActionCatalogProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { actions, categories, isPending } = useContributionActions(true);
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL_FILTER);
@@ -73,6 +81,7 @@ export const GivebackActionCatalog = (): ReactElement => {
       extra: JSON.stringify({ category_id: categoryId }),
     });
     setSelectedCategory(categoryId);
+    onFilter?.();
   };
 
   const toggleShowAll = () => {

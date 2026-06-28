@@ -509,6 +509,10 @@ export enum LogEvent {
   ClaimGivebackReward = 'claim giveback reward',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
+  StartGivebackFunnel = 'start giveback funnel',
+  ViewGivebackFunnelStep = 'view giveback funnel step',
+  CompleteGivebackFunnel = 'complete giveback funnel',
+  ClickGivebackHowItWorks = 'click giveback how it works',
   // Daily homepage
   DailyFeedback = 'daily feedback',
 }
