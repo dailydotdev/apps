@@ -8,6 +8,7 @@ it('renders the tabs from the shared tab list', () => {
   expect(screen.getByText('Take action')).toBeInTheDocument();
   expect(screen.getByText('Impact')).toBeInTheDocument();
   expect(screen.getByText('Causes')).toBeInTheDocument();
+  expect(screen.getByText('FAQ')).toBeInTheDocument();
 });
 
 it('maps a tab click back to its id', () => {

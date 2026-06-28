@@ -9,7 +9,6 @@ import {
 } from '../../../components/typography/Typography';
 import { GivebackBackground } from './GivebackBackground';
 import { GivebackHero } from './GivebackHero';
-import { GivebackSponsorTiers } from './GivebackSponsorTiers';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
 import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
@@ -18,6 +17,7 @@ import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
+import { GivebackFaq } from './GivebackFaq';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -125,10 +125,6 @@ export const GivebackPage = (): ReactElement => {
           />
         </div>
 
-        <div className={column}>
-          <GivebackSponsorTiers />
-        </div>
-
         {showPicker && (
           <div ref={causesRef} className={`${column} scroll-mt-16`}>
             <FlexCol className="gap-6">
@@ -181,6 +177,7 @@ export const GivebackPage = (): ReactElement => {
               {activeTab === 'causes' && (
                 <GivebackCausesPanel onFilter={scrollToTabs} />
               )}
+              {activeTab === 'faq' && <GivebackFaq />}
             </div>
           </div>
         )}
