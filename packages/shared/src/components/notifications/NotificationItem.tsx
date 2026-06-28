@@ -5,8 +5,8 @@ import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
-import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAvatar from './NotificationItemAvatar';
+import { NotificationItemLead } from './NotificationItemLead';
 import {
   getNotificationCategory,
   NotificationFilterCategory,
@@ -14,7 +14,6 @@ import {
   notificationMutingCopy,
   NotificationType,
   notificationTypeNotClickable,
-  notificationTypeTheme,
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
@@ -154,9 +153,6 @@ const NotificationOptionsButton = ({
           // Tertiary is the flat variant — transparent, no background or
           // border (Float carries a faint surface-float background).
           variant={ButtonVariant.Tertiary}
-          // Visible by default on mobile (no hover); reveal on hover from
-          // tablet up.
-          className="tablet:invisible tablet:group-hover:visible"
           icon={<MenuIcon className="rotate-90" />}
           size={ButtonSize.XSmall}
         />
@@ -212,11 +208,6 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
 
-  // When there is a person/source involved we show their avatar with a colored
-  // type badge; otherwise (system/digest/streak) the type icon is the lead.
-  const leadIcon = (
-    <NotificationItemIcon icon={icon} iconTheme={notificationTypeTheme[type]} />
-  );
   const category = getNotificationCategory(type);
   const badge = notificationCategoryBadge[category];
   const BadgeIcon = badge.Icon;
@@ -229,11 +220,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   // three render as a 2x2 grid the size of one avatar — up to three faces plus
   // the action icon — so the lead never grows wider and every row stays aligned.
   let avatarContent: ReactElement | null = null;
-  if (!showGrid) {
-    avatarContent = hasAvatar ? (
-      <NotificationItemAvatar className="z-1" {...primaryAvatar} />
-    ) : null;
-  } else {
+  if (showGrid) {
     // 2x2 of separate, individually-rounded face boxes (no connecting frame,
     // no "+N" count) plus a circular action cell, sized like one avatar so the
     // lead width never grows. Each face keeps its hover profile tooltip.
@@ -287,7 +274,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             badge.bg,
           )}
         >
-          <BadgeIcon secondary size={IconSize.XXSmall} className="text-white" />
+          <BadgeIcon secondary size={IconSize.XXSmall} className={badge.fg} />
         </span>,
       );
     }
@@ -319,7 +306,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex min-h-16 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'group relative flex min-h-16 flex-row items-start gap-3 px-4 py-4 hover:bg-surface-hover focus:bg-theme-active',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -348,50 +335,33 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
-          fall back to the plain type icon. */}
-      <div className="mt-1 flex w-10 shrink-0 items-center justify-start self-start">
-        <div className="relative flex items-center">
-          {hasAvatar ? avatarContent : leadIcon}
-          {showBadge && !showGrid && (
-            <span
-              className={classNames(
-                'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
-                badge.bg,
-              )}
-            >
-              <BadgeIcon
-                secondary
-                size={IconSize.XXSmall}
-                className="text-white"
-              />
-            </span>
-          )}
-        </div>
+          fall back to the plain type icon. The >3-actor grid is a list-only
+          layout; everything else uses the shared single-actor lead. */}
+      <div className="flex w-10 shrink-0 items-center justify-start">
+        {showGrid ? (
+          <div className="relative flex items-center">{avatarContent}</div>
+        ) : (
+          <NotificationItemLead type={type} icon={icon} avatar={primaryAvatar} />
+        )}
       </div>
 
-      {/* Bold headline, then the comment (if any), then the referenced post's
-          title so it's clear which post/article the notification is about. */}
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
-        <span
-          className="multi-truncate line-clamp-2 break-words font-bold text-text-primary typo-callout [&_p]:m-0"
-          dangerouslySetInnerHTML={{
-            __html: memoizedTitle,
-          }}
-        />
-        {/* Meta line leads with the time, then a dot, then the comment (or the
-            post title when there's no comment). */}
-        {(timeText || showDescription || showAttachmentTitle) && (
-          <div className="multi-truncate line-clamp-3 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline">
-            {timeText && (
-              <Tooltip content={fullDate}>
-                <time className="relative z-1 text-text-quaternary">
-                  {timeText}
-                </time>
-              </Tooltip>
-            )}
-            {timeText && (showDescription || showAttachmentTitle) && (
-              <span className="text-text-quaternary"> · </span>
-            )}
+      {/* Headline (actor name bold, the rest regular for a scannable
+          hierarchy) with the relative time flowing inline right after it — so a
+          row reads "what happened" first and the time is a quiet suffix, not a
+          right-aligned column. Then the comment, then the post's title. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1 text-left">
+        <div className="break-words font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold">
+          <span dangerouslySetInnerHTML={{ __html: memoizedTitle }} />
+          {timeText && (
+            <Tooltip content={fullDate}>
+              <time className="relative z-1 ml-1.5 whitespace-nowrap text-text-tertiary typo-footnote">
+                · {timeText}
+              </time>
+            </Tooltip>
+          )}
+        </div>
+        {(showDescription || showAttachmentTitle) && (
+          <div className="multi-truncate line-clamp-2 break-words text-text-tertiary typo-subhead [&_p]:m-0 [&_p]:inline">
             {showDescription ? (
               <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
             ) : (
@@ -402,7 +372,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         {/* When there's both a comment and a post, name the post on its own
             line so it's clear which article it's about. */}
         {showDescription && showAttachmentTitle && (
-          <div className="multi-truncate line-clamp-1 break-words text-text-quaternary typo-footnote">
+          <div className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote">
             {attachmentTitle}
           </div>
         )}
@@ -413,13 +383,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Trailing actions: the post cover plus a fixed-width menu slot. The
-          slot is always reserved whenever a row has a cover and/or a menu, so
-          every cover image lands at the same x regardless of whether that row
-          has a menu — keeping covers aligned down the whole feed. The cover is
-          top-aligned with the title (centered-looking on a two-line row). */}
+      {/* Trailing: the post cover and/or the options menu, both top-aligned with
+          the title (the menu is the rightmost element, so it pins to the
+          top-right corner). The menu column is only reserved when the row
+          actually has a menu — otherwise the cover sits flush to the right edge
+          instead of leaving an empty gap. */}
       {(attachment?.image || hasOptions) && (
-        <div className="mt-1 flex shrink-0 items-start gap-2 self-start">
+        <div className="flex shrink-0 items-start gap-2">
           {attachment?.image && (
             <span className="relative flex size-12 shrink-0">
               <Image
@@ -445,11 +415,11 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
               )}
             </span>
           )}
-          <div className="relative z-1 flex w-7 shrink-0 justify-center">
-            {hasOptions && (
+          {hasOptions && (
+            <div className="relative z-1 flex w-7 shrink-0 justify-center">
               <NotificationOptionsButton notification={{ type, referenceId }} />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>
