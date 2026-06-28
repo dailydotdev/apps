@@ -507,8 +507,11 @@ export const PostFocusCard = ({
                 article.domain.length > 0 && (
                   <TruncateText>
                     From{' '}
+                    {/* Lifted above the lead-area overlay (`relative z-1`) so the
+                        domain is directly hoverable — it reads as a link with the
+                        blue colour + underline on hover. */}
                     <ArticleLink
-                      className="hover:underline"
+                      className="relative z-1 hover:text-text-link hover:underline"
                       href={article.permalink}
                       onClick={onReadArticle}
                       title={article.domain}
