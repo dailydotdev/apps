@@ -507,7 +507,6 @@ export enum LogEvent {
   SubmitGivebackActionError = 'submit giveback action error',
   ClickGivebackLoveAction = 'click giveback love action',
   ClaimGivebackReward = 'claim giveback reward',
-  ClickGivebackEditCauses = 'click giveback edit causes',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
   // Daily homepage
