@@ -995,7 +995,7 @@ describe('QuestButton', () => {
       }),
     );
 
-    expect(await screen.findByText(/^Resets/)).toBeInTheDocument();
+    expect(await screen.findByText(/^\d+d left$/)).toBeInTheDocument();
   });
 
   it('should explain plus quests are additional slots', async () => {

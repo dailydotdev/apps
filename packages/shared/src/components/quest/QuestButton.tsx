@@ -194,11 +194,18 @@ export const QuestSection = ({
       ? quests.slice(0, initialVisibleCount)
       : quests;
 
-  const header = (
+  const titleHeading = (
+    <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+  );
+  // Only wrap the title when there is an addon to place beside it, so sections
+  // without one keep their original DOM (consumers query the heading's sibling).
+  const header = headerAddon ? (
     <div className="flex items-center justify-between gap-2">
-      <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+      {titleHeading}
       {headerAddon}
     </div>
+  ) : (
+    titleHeading
   );
 
   if (!quests.length) {
@@ -611,6 +618,7 @@ const QuestDropdownPanel = ({
                   }
                   onClaim={onClaim}
                   emptyLabel="No active plus quests yet."
+                  headerAddon={<WeeklyQuestResetTimer />}
                 />
               </section>
             )}
