@@ -18,10 +18,13 @@ import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
+import { GivebackFaq } from './GivebackFaq';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureGivebackSponsors } from '../../../lib/featureManagement';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
@@ -43,6 +46,12 @@ export const GivebackPage = (): ReactElement => {
   // visitors load their picks — which also tells us whether to show the tabs.
   const isEligible = status?.eligible === true;
   const selection = useGivebackCauseSelection(isEligible);
+
+  // Sponsors are gated off for launch (no sponsors yet); flip the flag on later.
+  const { value: showSponsors } = useConditionalFeature({
+    feature: featureGivebackSponsors,
+    shouldEvaluate: true,
+  });
 
   // First-timers open the picker from the hero; once they confirm (or arrive
   // already onboarded) the tabbed experience takes over.
@@ -125,9 +134,11 @@ export const GivebackPage = (): ReactElement => {
           />
         </div>
 
-        <div className={column}>
-          <GivebackSponsorTiers />
-        </div>
+        {showSponsors && (
+          <div className={column}>
+            <GivebackSponsorTiers />
+          </div>
+        )}
 
         {showPicker && (
           <div ref={causesRef} className={`${column} scroll-mt-16`}>
@@ -181,6 +192,7 @@ export const GivebackPage = (): ReactElement => {
               {activeTab === 'causes' && (
                 <GivebackCausesPanel onFilter={scrollToTabs} />
               )}
+              {activeTab === 'faq' && <GivebackFaq />}
             </div>
           </div>
         )}
