@@ -332,16 +332,21 @@ export const PostFocusCard = ({
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
               <div className="flex min-w-0 items-center gap-3">
-                <UserShortInfo
-                  user={author as unknown as UserShortProfile}
-                  imageSize={ProfileImageSize.Large}
-                  showDescription={false}
-                  transformUsername={() => null}
-                  className={{
-                    container: 'min-w-0 !p-0 hover:bg-transparent',
-                    textWrapper: 'min-w-0',
-                  }}
-                />
+                <Link href={author.permalink} passHref prefetch={false}>
+                  <UserShortInfo
+                    tag="a"
+                    href={author.permalink}
+                    user={author as unknown as UserShortProfile}
+                    imageSize={ProfileImageSize.Large}
+                    showDescription={false}
+                    transformUsername={() => null}
+                    className={{
+                      container:
+                        'min-w-0 cursor-pointer !p-0 hover:bg-transparent',
+                      textWrapper: 'min-w-0',
+                    }}
+                  />
+                </Link>
                 <FollowButton
                   className="shrink-0"
                   entityId={author.id}
