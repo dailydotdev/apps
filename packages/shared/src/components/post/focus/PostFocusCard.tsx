@@ -442,12 +442,11 @@ export const PostFocusCard = ({
               {!isShared && isCollection && (
                 <p className="text-text-tertiary typo-footnote">Collection</p>
               )}
-              {/* Title and image are top-aligned columns. The cover image opens a
-                lightbox rather than navigating away. The read button lives in
-                the title column (right under the title) so it hugs the title
-                regardless of the image height — a short title next to a tall
-                image keeps the button close instead of dragging it down. */}
-              <div className="flex min-w-0 flex-row items-start gap-4">
+              {/* Title column and cover image sit side by side and share a
+                height: the image stretches to match the title + read button
+                column. The cover image opens a lightbox rather than navigating
+                away. */}
+              <div className="flex min-w-0 flex-row items-stretch gap-4">
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
                   <h1
                     className={classNames(
@@ -456,7 +455,11 @@ export const PostFocusCard = ({
                       // always shown in full and the button flows below it; only
                       // the modal (a feed preview) clamps it.
                       onClose && 'line-clamp-3',
-                      canReadArticle && 'group-hover/lead:text-text-link',
+                      // Only colour the title when a link in the lead area is
+                      // hovered. The cover image is a <button> (it opens the
+                      // lightbox, a different action), so hovering it is excluded.
+                      canReadArticle &&
+                        'group-has-[a:hover]/lead:text-text-link',
                     )}
                     data-testid="post-modal-title"
                   >
@@ -468,7 +471,7 @@ export const PostFocusCard = ({
                   <button
                     type="button"
                     aria-label="View cover image"
-                    className="relative z-1 block h-fit w-28 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-48"
+                    className="relative z-1 block w-28 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-48"
                     onClick={(event) => {
                       openModal({
                         type: LazyModal.ImageView,
@@ -482,9 +485,9 @@ export const PostFocusCard = ({
                   >
                     <LazyImage
                       eager
-                      // Small square thumbnail below tablet; from tablet (656px)
-                      // up it uses the original wide cover ratio (52% => 25/13).
-                      className="aspect-square w-full tablet:aspect-[25/13]"
+                      // Fills the button, which stretches to the title column
+                      // height; object-cover crops the cover to fit.
+                      className="h-full w-full"
                       fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                       fetchPriority="high"
                       imgAlt="Post cover image"
