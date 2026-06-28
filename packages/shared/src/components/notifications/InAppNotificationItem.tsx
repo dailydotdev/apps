@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import { NotificationItemLead } from './NotificationItemLead';
+import { getNotificationLeadAvatar } from './leadAvatar';
 import type { NewNotification } from '../../graphql/notifications';
 
 interface InAppNotificationItemProps extends NewNotification {
@@ -25,7 +26,7 @@ export function InAppNotificationItem({
     return null;
   }
 
-  const [avatar] = avatars ?? [];
+  const avatar = getNotificationLeadAvatar(avatars);
 
   return (
     <div className="relative flex h-full w-full flex-row items-start gap-3 rounded-16 p-3 pr-10">

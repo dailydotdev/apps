@@ -7,6 +7,7 @@ import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { NotificationItemLead } from './NotificationItemLead';
+import { getNotificationLeadAvatar } from './leadAvatar';
 import {
   getNotificationCategory,
   NotificationFilterCategory,
@@ -196,7 +197,10 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     return null;
   }
 
-  const [primaryAvatar] = filteredAvatars;
+  // Lead with the human actor, not whatever avatar the backend listed first
+  // (squad comments/posts arrive source-first). Falls back to the source for
+  // source-only notifications.
+  const leadAvatar = getNotificationLeadAvatar(filteredAvatars);
   const hasAvatar = filteredAvatars.length > 0;
   // `numTotalAvatars` can arrive as 0 from the backend even when avatars are
   // present, so take the larger of the two rather than `??` (which keeps 0).
@@ -341,11 +345,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         {showGrid ? (
           <div className="relative flex items-center">{avatarContent}</div>
         ) : (
-          <NotificationItemLead
-            type={type}
-            icon={icon}
-            avatar={primaryAvatar}
-          />
+          <NotificationItemLead type={type} icon={icon} avatar={leadAvatar} />
         )}
       </div>
 
