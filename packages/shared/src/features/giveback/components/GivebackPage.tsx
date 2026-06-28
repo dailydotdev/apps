@@ -18,7 +18,6 @@ import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
-import { GivebackCampaignPanel } from './GivebackCampaignPanel';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -182,7 +181,6 @@ export const GivebackPage = (): ReactElement => {
               {activeTab === 'causes' && (
                 <GivebackCausesPanel onFilter={scrollToTabs} />
               )}
-              {activeTab === 'why' && <GivebackCampaignPanel />}
             </div>
           </div>
         )}

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import TabList, { TabListVariant } from '../../../components/tabs/TabList';
 
-export type GivebackTabId = 'actions' | 'impact' | 'causes' | 'why';
+export type GivebackTabId = 'actions' | 'impact' | 'causes';
 
 interface GivebackTab {
   id: GivebackTabId;
@@ -13,7 +13,6 @@ export const givebackTabs: GivebackTab[] = [
   { id: 'actions', label: 'Take action' },
   { id: 'impact', label: 'Impact' },
   { id: 'causes', label: 'Causes' },
-  { id: 'why', label: 'Campaign' },
 ];
 
 interface GivebackTabNavProps {

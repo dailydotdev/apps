@@ -7,14 +7,14 @@ it('renders the tabs from the shared tab list', () => {
 
   expect(screen.getByText('Take action')).toBeInTheDocument();
   expect(screen.getByText('Impact')).toBeInTheDocument();
-  expect(screen.getByText('Campaign')).toBeInTheDocument();
+  expect(screen.getByText('Causes')).toBeInTheDocument();
 });
 
 it('maps a tab click back to its id', () => {
   const onSelect = jest.fn();
   render(<GivebackTabNav activeTab="actions" onSelect={onSelect} />);
 
-  fireEvent.click(screen.getByText('Campaign'));
+  fireEvent.click(screen.getByText('Causes'));
 
-  expect(onSelect).toHaveBeenCalledWith('why');
+  expect(onSelect).toHaveBeenCalledWith('causes');
 });
