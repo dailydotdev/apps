@@ -385,8 +385,8 @@ export const PostFocusCard = ({
               behavior. The overlay is pointer-only (aria-hidden + tabIndex -1)
               since the read button is the keyboard/AT path to the same place. */}
           {/* The whole lead area is one click target; hovering anywhere in it
-              underlines the title (the classic link affordance) so the region
-              clearly reads as clickable without recolouring its background. */}
+              turns the title the link colour so the region clearly reads as
+              clickable without recolouring its background. */}
           <div className="group/lead relative flex flex-col gap-4">
             {canReadArticle && (
               // eslint-disable-next-line jsx-a11y/anchor-has-content -- decorative pointer-only overlay; the read button below is the labeled keyboard/AT path to the same article
@@ -451,12 +451,12 @@ export const PostFocusCard = ({
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
                   <h1
                     className={classNames(
-                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      'break-words font-bold text-text-primary transition-colors typo-title3 tablet:typo-title1',
                       // On the post page the reader came to read, so the title is
                       // always shown in full and the button flows below it; only
                       // the modal (a feed preview) clamps it.
                       onClose && 'line-clamp-3',
-                      canReadArticle && 'group-hover/lead:underline',
+                      canReadArticle && 'group-hover/lead:text-text-link',
                     )}
                     data-testid="post-modal-title"
                   >
