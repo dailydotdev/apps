@@ -212,8 +212,8 @@ export const GivebackActionCatalog = ({
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              We can&apos;t pay for these, but we&apos;d genuinely appreciate
-              them.
+              No donation rides on these. They just help us out. We&apos;d love
+              you for it.
             </Typography>
           </FlexCol>
           <ActionGrid actions={loveActions} onSubmit={setSubmissionAction} />
