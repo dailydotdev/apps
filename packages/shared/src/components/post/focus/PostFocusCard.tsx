@@ -18,8 +18,7 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
-import { EarthIcon, MaximizeIcon } from '../../icons';
-import { IconSize } from '../../Icon';
+import { EarthIcon } from '../../icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { getImageOriginRect } from '../../modals/ImageModal';
@@ -455,7 +454,7 @@ export const PostFocusCard = ({
                 <button
                   type="button"
                   aria-label="View cover image"
-                  className="relative block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
                   onClick={(event) => {
                     openModal({
                       type: LazyModal.ImageView,
@@ -477,14 +476,6 @@ export const PostFocusCard = ({
                     imgAlt="Post cover image"
                     imgSrc={article.image}
                   />
-                  {/* Now that the image opens a lightbox instead of the article,
-                      the badge makes "tap to view" unambiguous. */}
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute bottom-1.5 right-1.5 inline-flex size-6 items-center justify-center rounded-8 border border-white/24 bg-overlay-secondary-pepper text-white backdrop-blur-md"
-                  >
-                    <MaximizeIcon size={IconSize.Size16} />
-                  </span>
                 </button>
               )}
             </div>
