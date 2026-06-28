@@ -1,13 +1,7 @@
-import type { CSSProperties, ReactElement, ReactNode, RefObject } from 'react';
+import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { FlexCol, FlexRow } from '../../../components/utilities';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../../../components/typography/Typography';
+import { FlexRow } from '../../../components/utilities';
 import {
   Button,
   ButtonSize,
@@ -15,55 +9,16 @@ import {
 } from '../../../components/buttons/Button';
 import CloseButton from '../../../components/CloseButton';
 import { RootPortal } from '../../../components/tooltips/Portal';
-import {
-  CoinIcon,
-  GiftIcon,
-  MoveToIcon,
-  VIcon,
-} from '../../../components/icons';
+import { MoveToIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-import { cloudinaryCharmBookmarks } from '../../../lib/image';
-import type { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import { GivebackBackground } from './GivebackBackground';
-import { GivebackMascot } from './GivebackMascot';
-import { GivebackCauseSelection } from './GivebackCauseSelection';
-import { GivebackCampaignVideo } from './GivebackCampaignVideo';
-
-// The finale reassures the choice by spelling out the value the visitor just
-// unlocked - three short, deck-ready propositions rather than a recap of the
-// causes (which would just echo the picker screen).
-const IMPACT_VALUES: ReadonlyArray<{
-  icon: ReactElement;
-  title: string;
-  sub: string;
-}> = [
-  {
-    icon: <VIcon secondary />,
-    title: 'You call the shots',
-    sub: 'Real, vetted nonprofits, picked by you.',
-  },
-  {
-    icon: <CoinIcon secondary />,
-    title: 'Costs you nothing',
-    sub: 'We fund every single dollar.',
-  },
-  {
-    icon: <GiftIcon secondary />,
-    title: 'Real-world impact',
-    sub: 'Small actions add up to real support.',
-  },
-];
-
-type CauseSelection = ReturnType<typeof useGivebackCauseSelection>;
-
-// Step keys double as analytics labels and drive the progress bar. Kept tight
-// so the funnel only highlights what matters: what it is, how it works, pick
-// causes, and the impact — then straight into the campaign.
-const STEP_KEYS = ['intro', 'how', 'causes', 'impact'] as const;
-type StepKey = (typeof STEP_KEYS)[number];
+import { GivebackFunnelStep } from './GivebackFunnelSteps';
+import { GivebackFunnelVideo } from './GivebackFunnelVideo';
+import type { CauseSelection, StepKey } from './givebackFunnelTypes';
+import { STEP_KEYS } from './givebackFunnelTypes';
 
 interface GivebackFunnelProps {
   selection: CauseSelection;
@@ -73,202 +28,6 @@ interface GivebackFunnelProps {
   onClose?: () => void;
   onComplete: () => void;
 }
-
-// Choreographed enter: rise + de-blur + fade, staggered per element so each step
-// reveals top-to-bottom rather than popping in as a block (motion-safe only).
-const Reveal = ({
-  delay = 0,
-  className,
-  children,
-}: {
-  delay?: number;
-  className?: string;
-  children: ReactNode;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'motion-safe:animate-funnel-step-in motion-safe:will-change-transform',
-      className,
-    )}
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {children}
-  </div>
-);
-
-// A soft, on-brand glow behind each step's hero icon/illustration so the visual
-// feels alive and the campaign reads as a real, considered initiative.
-const Stage = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="relative flex min-h-36 items-center justify-center tablet:min-h-52">
-    <span
-      aria-hidden
-      className="bg-accent-cabbage-default/20 absolute inset-0 m-auto size-56 rounded-full blur-3xl motion-safe:animate-glow-pulse"
-    />
-    <div className="relative">{children}</div>
-  </div>
-);
-
-// The campaign explainer that starts inline on step 1, then docks to a floating
-// bottom-right player for the rest of the funnel. It is a SINGLE mounted
-// instance positioned over an in-flow slot (step 1) or pinned to the corner
-// (later steps), so playback never restarts when it moves.
-const DOCK_WIDTH = 320;
-
-const GivebackFunnelVideo = ({
-  slotRef,
-  docked,
-  onClose,
-}: {
-  slotRef: RefObject<HTMLDivElement>;
-  docked: boolean;
-  onClose: () => void;
-}): ReactElement | null => {
-  const [style, setStyle] = useState<CSSProperties | null>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
-    const update = () => {
-      if (docked) {
-        const width = Math.min(DOCK_WIDTH, window.innerWidth - 32);
-        const height = (width * 9) / 16;
-        setStyle({
-          top: window.innerHeight - height - 16,
-          left: window.innerWidth - width - 16,
-          width,
-        });
-        return;
-      }
-      const el = slotRef.current;
-      if (!el) {
-        setStyle(null);
-        return;
-      }
-      const rect = el.getBoundingClientRect();
-      setStyle({ top: rect.top, left: rect.left, width: rect.width });
-    };
-    // Coalesce scroll/resize bursts into one measure per frame so the docked
-    // player doesn't thrash getBoundingClientRect + setState on every event.
-    let frame: number | null = null;
-    const scheduleUpdate = () => {
-      if (frame !== null) {
-        return;
-      }
-      frame = window.requestAnimationFrame(() => {
-        frame = null;
-        update();
-      });
-    };
-
-    update();
-    window.addEventListener('resize', scheduleUpdate);
-    window.addEventListener('scroll', scheduleUpdate, true);
-    let observer: ResizeObserver | undefined;
-    if (typeof ResizeObserver !== 'undefined' && slotRef.current) {
-      observer = new ResizeObserver(scheduleUpdate);
-      observer.observe(slotRef.current);
-    }
-    return () => {
-      if (frame !== null) {
-        window.cancelAnimationFrame(frame);
-      }
-      window.removeEventListener('resize', scheduleUpdate);
-      window.removeEventListener('scroll', scheduleUpdate, true);
-      observer?.disconnect();
-    };
-  }, [docked, slotRef]);
-
-  if (!style) {
-    return null;
-  }
-
-  return (
-    <div
-      className="z-10 fixed transition-[top,left,width] duration-500 ease-in-out motion-reduce:transition-none"
-      style={style}
-    >
-      <div className="relative shadow-2">
-        <GivebackCampaignVideo />
-        {docked && (
-          <CloseButton
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Primary}
-            className="absolute right-2 top-2 z-1"
-            onClick={onClose}
-          />
-        )}
-      </div>
-    </div>
-  );
-};
-
-// "How it works" as a vertical editorial timeline: oversized brand-gradient
-// numerals threaded by a gradient rail (the money "flowing" down to causes),
-// rather than a row of identical gradient icon-circles. Reads intentional and
-// on-brand instead of generic.
-const FLOW_STEPS: ReadonlyArray<{ title: string; sub: string }> = [
-  {
-    title: 'You take an action',
-    sub: 'Share us, post, leave a review, cast a vote. Small things that help more devs find daily.dev.',
-  },
-  {
-    title: 'The pot fills up',
-    sub: 'Each action drops real daily.dev money in. Never yours.',
-  },
-  {
-    title: 'We fund your causes',
-    sub: 'Hit the goal together and the money goes out to the causes you picked.',
-  },
-];
-
-const FlowSequence = (): ReactElement => (
-  <FlexCol className="w-full text-left">
-    {FLOW_STEPS.map((step, index) => {
-      const isLast = index === FLOW_STEPS.length - 1;
-      return (
-        <FlexRow key={step.title} className="items-start gap-4">
-          <FlexCol className="items-center self-stretch">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default">
-              <span className="font-bold tabular-nums text-background-default typo-title2">
-                {index + 1}
-              </span>
-            </span>
-            {!isLast && (
-              <span
-                aria-hidden
-                className="via-accent-cabbage-default/50 from-accent-avocado-default/60 to-accent-cheese-default/40 my-1 w-0.5 flex-1 rounded-2 bg-gradient-to-b"
-              />
-            )}
-          </FlexCol>
-          <FlexCol
-            className={classNames(
-              'min-w-0 flex-1 gap-1',
-              isLast ? 'pb-0' : 'pb-6',
-            )}
-          >
-            <Typography
-              tag={TypographyTag.H3}
-              type={TypographyType.Title3}
-              bold
-              className="[text-wrap:balance]"
-            >
-              {step.title}
-            </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-              className="[text-wrap:pretty]"
-            >
-              {step.sub}
-            </Typography>
-          </FlexCol>
-        </FlexRow>
-      );
-    })}
-  </FlexCol>
-);
 
 export const GivebackFunnel = ({
   selection,
@@ -289,14 +48,6 @@ export const GivebackFunnel = ({
   // A floating corner video overlaps the content/footer on small screens, so on
   // mobile the explainer only shows inline on step 1 and is dropped afterwards.
   const isMobile = !useViewSize(ViewSize.Tablet);
-
-  // The visitor's own picks, surfaced front-and-center on the finale so the
-  // moment celebrates exactly what they chose to fund. Keep each cause's index
-  // in the full list so its branded emblem tint stays stable.
-  const selectedCauses = selection.causes
-    .map((cause, index) => ({ cause, index }))
-    .filter(({ cause }) => selection.selectedIds.has(cause.id))
-    .slice(0, 3);
 
   useEffect(() => {
     logEvent({
@@ -342,183 +93,6 @@ export const GivebackFunnel = ({
     [],
   );
 
-  const renderStep = (): ReactElement => {
-    switch (stepKey) {
-      case 'how':
-        return (
-          <FlexCol className="mx-auto w-full max-w-md items-center gap-8">
-            <Reveal className="w-full">
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title1}
-                bold
-                className="text-center [text-wrap:balance]"
-              >
-                You act. We pay. Causes win.
-              </Typography>
-            </Reveal>
-            <Reveal delay={120} className="w-full">
-              <FlowSequence />
-            </Reveal>
-          </FlexCol>
-        );
-      case 'causes':
-        return (
-          <FlexCol className="w-full gap-6">
-            <Reveal>
-              <FlexCol className="gap-2 text-center">
-                <Typography
-                  tag={TypographyTag.H2}
-                  type={TypographyType.Title1}
-                  bold
-                  className="[text-wrap:balance]"
-                >
-                  Pick the causes we&apos;ll fund together
-                </Typography>
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
-                  className="mx-auto max-w-xl [text-wrap:pretty]"
-                >
-                  Choose as many as you like. You can change them anytime.
-                </Typography>
-              </FlexCol>
-            </Reveal>
-            <Reveal delay={120}>
-              <GivebackCauseSelection
-                causes={selection.causes}
-                isLoading={selection.isLoading}
-                selectedIds={selection.selectedIds}
-                onToggle={selection.toggleCause}
-              />
-            </Reveal>
-          </FlexCol>
-        );
-      case 'impact':
-        return (
-          <FlexCol className="w-full items-center gap-6 text-center">
-            <Reveal>
-              <Stage>
-                <GivebackMascot
-                  imageClassName="h-28 tablet:h-36"
-                  image={{
-                    src: cloudinaryCharmBookmarks,
-                    alt: 'daily.dev charm celebrating your causes',
-                  }}
-                />
-              </Stage>
-            </Reveal>
-            <Reveal delay={120}>
-              <FlexCol className="items-center gap-3">
-                <Typography
-                  tag={TypographyTag.H2}
-                  type={TypographyType.Title1}
-                  bold
-                  className="[text-wrap:balance]"
-                >
-                  {selectedCauses.length > 0
-                    ? "You're in. Now every action funds them."
-                    : 'Real causes. Real impact.'}
-                </Typography>
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
-                  className="max-w-xl [text-wrap:pretty]"
-                >
-                  {selectedCauses.length > 0
-                    ? 'From here on, every action you take becomes real money for the causes you picked. We fund all of it. You never pay a thing.'
-                    : "Your actions become real money for open-source maintainers, students, and devs who can't afford access. We fund all of it, no cost to you."}
-                </Typography>
-              </FlexCol>
-            </Reveal>
-
-            <Reveal delay={220} className="w-full">
-              <div className="mx-auto grid w-full max-w-3xl gap-3 tablet:grid-cols-3">
-                {IMPACT_VALUES.map((value) => (
-                  // Horizontal (icon left, copy right) on mobile to keep the
-                  // finale short; stacks/centers in the 3-up grid on tablet+.
-                  <FlexRow
-                    key={value.title}
-                    className="items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left tablet:h-full tablet:flex-col tablet:items-center tablet:gap-2 tablet:p-5 tablet:text-center"
-                  >
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
-                      {value.icon}
-                    </span>
-                    <FlexCol className="min-w-0 gap-0.5 tablet:items-center">
-                      <Typography
-                        bold
-                        type={TypographyType.Title3}
-                        className="[text-wrap:balance]"
-                      >
-                        {value.title}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Callout}
-                        color={TypographyColor.Secondary}
-                        className="[text-wrap:pretty]"
-                      >
-                        {value.sub}
-                      </Typography>
-                    </FlexCol>
-                  </FlexRow>
-                ))}
-              </div>
-            </Reveal>
-            {selectedCauses.length > 0 && (
-              <Reveal delay={320}>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Primary}
-                  bold
-                  className="max-w-xl [text-wrap:pretty]"
-                >
-                  Thanks for choosing who to back. From now on, your everyday
-                  actions are working for them. 💜
-                </Typography>
-              </Reveal>
-            )}
-          </FlexCol>
-        );
-      case 'intro':
-      default:
-        return (
-          <FlexCol className="w-full items-center gap-5 text-center">
-            {/* The floating player overlays this slot while on step 1. */}
-            <div
-              ref={videoSlotRef}
-              aria-hidden
-              className="aspect-video w-full max-w-xl"
-            />
-            <Reveal delay={120}>
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title1}
-                bold
-                className="[text-wrap:balance]"
-              >
-                We&apos;d rather fund the world than pay for ads
-              </Typography>
-            </Reveal>
-            <Reveal delay={220}>
-              <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Body}
-                color={TypographyColor.Secondary}
-                className="max-w-xl [text-wrap:pretty]"
-              >
-                Most companies grow by buying ads. We&apos;d rather grow through
-                developers who love daily.dev, and put that budget into causes
-                that matter. The deal is simple: help more people discover us,
-                and we fund the causes you choose. It never costs you a thing.
-              </Typography>
-            </Reveal>
-          </FlexCol>
-        );
-    }
-  };
-
   return (
     <RootPortal>
       <div
@@ -532,7 +106,7 @@ export const GivebackFunnel = ({
         <GivebackBackground />
 
         <div className="relative flex h-full flex-col overflow-y-auto overscroll-contain">
-          {/* Just a close affordance on replay — the heavy progress bar is gone. */}
+          {/* Just a close affordance on replay - the heavy progress bar is gone. */}
           <header className="relative flex h-12 items-center justify-end px-4">
             {canClose && (
               <CloseButton
@@ -570,7 +144,11 @@ export const GivebackFunnel = ({
 
             {/* Keyed by step so the choreographed enter replays on every advance. */}
             <div key={stepKey} className="flex w-full flex-col">
-              {renderStep()}
+              <GivebackFunnelStep
+                stepKey={stepKey}
+                selection={selection}
+                videoSlotRef={videoSlotRef}
+              />
             </div>
           </main>
 

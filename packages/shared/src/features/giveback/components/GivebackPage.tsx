@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
 import { FlexCol } from '../../../components/utilities';
-import usePersistentContext from '../../../hooks/usePersistentContext';
 import { GivebackBackground } from './GivebackBackground';
 import { GivebackFunnel } from './GivebackFunnel';
 import { GivebackHero } from './GivebackHero';
@@ -43,16 +42,22 @@ export const GivebackPage = (): ReactElement => {
   // visitor arrives already onboarded) the tabbed experience takes over.
   const [completedOnboarding, setCompletedOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState<GivebackTabId>('actions');
-
-  // The warm-up funnel runs full-screen once for everyone, then only on demand
-  // via "How it works". Wait for the persisted flag so returning users never see
-  // a flash of it.
-  const [funnelSeen, setFunnelSeen, funnelLoaded] =
-    usePersistentContext<boolean>('giveback:funnel_seen', false, [true, false]);
   const [replayFunnel, setReplayFunnel] = useState(false);
 
+  // Resolved once we know the campaign status and, for eligible visitors,
+  // whether they've already saved causes. The whole body waits on this so the
+  // hero and tabs never flash on screen before a forced funnel covers them, and
+  // the tabs never pop in once the saved picks land.
+  const onboardingResolved = !!status && (!isEligible || !selection.isLoading);
+
+  // First-timers (eligible, no saved causes) get the warm-up funnel
+  // automatically and it stays up until they save a pick; it's also replayable
+  // from the hero's "How it works".
+  const needsOnboarding =
+    isEligible && !selection.hasSavedCauses && !completedOnboarding;
+  const forcedFunnel = onboardingResolved && needsOnboarding;
+  const showFunnel = replayFunnel || forcedFunnel;
   const showTabs = selection.hasSavedCauses || completedOnboarding;
-  const showFunnel = replayFunnel || (funnelLoaded && funnelSeen === false);
 
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -89,11 +94,10 @@ export const GivebackPage = (): ReactElement => {
     setReplayFunnel(true);
   }, [logEvent]);
 
-  // Finishing the funnel locks in the seen flag and saves the visitor's causes.
-  // A forced first run then drops them into the campaign; a replay just closes.
+  // Finishing the funnel saves the visitor's causes. A forced first run then
+  // drops them into the campaign; a replay just closes.
   const handleFunnelComplete = useCallback(async () => {
     const wasReplay = replayFunnel;
-    await setFunnelSeen(true);
     const saved = await selection.save();
     if (saved) {
       logEvent({
@@ -111,7 +115,7 @@ export const GivebackPage = (): ReactElement => {
     }
     setCompletedOnboarding(true);
     goToActions();
-  }, [replayFunnel, setFunnelSeen, selection, logEvent, goToActions]);
+  }, [replayFunnel, selection, logEvent, goToActions]);
 
   const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
@@ -119,54 +123,63 @@ export const GivebackPage = (): ReactElement => {
     <div className="relative min-h-page w-full">
       <GivebackBackground />
 
-      <FlexCol className="relative gap-6 py-6 tablet:gap-8 tablet:py-8">
-        <div className={column}>
-          <GivebackHero onHowItWorks={handleHowItWorks} />
-        </div>
-
-        {showTabs && (
-          <div ref={tabsRef} className="scroll-mt-16">
-            <GivebackTabNav activeTab={activeTab} onSelect={handleSelectTab} />
-
-            <div
-              key={activeTab}
-              role="region"
-              aria-label={activeLabel}
-              // Only the filterable tabs reserve a viewport-tall area: when their
-              // list shrinks on filter, the extra height keeps the sticky tabs
-              // from springing back (the page "jump"). Impact/FAQ have no filters,
-              // so they fit content naturally - no dead gap before the footer.
-              className={`${column} pt-8 ${
-                activeTab === 'actions' || activeTab === 'causes'
-                  ? 'min-h-[calc(100dvh-3.5rem)]'
-                  : ''
-              }`}
-            >
-              {activeTab === 'actions' && (
-                <FlexCol className="gap-6">
-                  <GivebackTabHeading
-                    title="Your contribution"
-                    description="Each action unlocks real money for the causes you back, funded by us, chosen by you. Take one and watch your number climb."
-                  />
-                  <GivebackContributionSummary />
-                  <GivebackActionCatalog onFilter={scrollToTabs} />
-                </FlexCol>
-              )}
-              {activeTab === 'impact' && (
-                <GivebackImpactPanel onTakeAction={goToActions} />
-              )}
-              {activeTab === 'causes' && (
-                <GivebackCausesPanel onFilter={scrollToTabs} />
-              )}
-              {activeTab === 'faq' && <GivebackFaq />}
-            </div>
+      {/* Hold the body until we know whether to force the funnel. The funnel is a
+          full-screen overlay on the same background, so revealing the hero/tabs
+          first would flash them on screen before it covers them. While resolving,
+          only the shared background shows, so there's no flash and no shift. */}
+      {onboardingResolved && !forcedFunnel && (
+        <FlexCol className="relative gap-6 py-6 tablet:gap-8 tablet:py-8">
+          <div className={column}>
+            <GivebackHero onHowItWorks={handleHowItWorks} />
           </div>
-        )}
 
-        <div className={column}>
-          <GivebackLegalFooter />
-        </div>
-      </FlexCol>
+          {showTabs && (
+            <div ref={tabsRef} className="scroll-mt-16">
+              <GivebackTabNav
+                activeTab={activeTab}
+                onSelect={handleSelectTab}
+              />
+
+              <div
+                key={activeTab}
+                role="region"
+                aria-label={activeLabel}
+                // Only the filterable tabs reserve a viewport-tall area: when their
+                // list shrinks on filter, the extra height keeps the sticky tabs
+                // from springing back (the page "jump"). Impact/FAQ have no filters,
+                // so they fit content naturally - no dead gap before the footer.
+                className={`${column} pt-8 ${
+                  activeTab === 'actions' || activeTab === 'causes'
+                    ? 'min-h-[calc(100dvh-3.5rem)]'
+                    : ''
+                }`}
+              >
+                {activeTab === 'actions' && (
+                  <FlexCol className="gap-6">
+                    <GivebackTabHeading
+                      title="Your contribution"
+                      description="Each action unlocks real money for the causes you back, funded by us, chosen by you. Take one and watch your number climb."
+                    />
+                    <GivebackContributionSummary />
+                    <GivebackActionCatalog onFilter={scrollToTabs} />
+                  </FlexCol>
+                )}
+                {activeTab === 'impact' && (
+                  <GivebackImpactPanel onTakeAction={goToActions} />
+                )}
+                {activeTab === 'causes' && (
+                  <GivebackCausesPanel onFilter={scrollToTabs} />
+                )}
+                {activeTab === 'faq' && <GivebackFaq />}
+              </div>
+            </div>
+          )}
+
+          <div className={column}>
+            <GivebackLegalFooter />
+          </div>
+        </FlexCol>
+      )}
 
       {showFunnel && (
         <GivebackFunnel
