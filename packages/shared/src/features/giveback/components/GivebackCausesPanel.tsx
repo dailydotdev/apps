@@ -151,12 +151,18 @@ export const GivebackCausesPanel = ({
   const onLearnMore = (causeId: string) =>
     logEvent({ event_name: LogEvent.ClickGivebackCause, target_id: causeId });
 
-  // Auto-saved on every toggle, so each add/remove is also logged here.
+  // Auto-saved on every toggle, so each add/remove is also logged here. Capture
+  // the direction from the pre-toggle state, since one event covers both.
   const onToggle = (causeId: string) => {
+    const action = selectedIds.has(causeId) ? 'remove' : 'add';
     toggleAndSave(causeId);
     logEvent({
       event_name: LogEvent.SaveGivebackCauses,
-      extra: JSON.stringify({ cause_id: causeId, origin: 'causes_tab' }),
+      extra: JSON.stringify({
+        cause_id: causeId,
+        action,
+        origin: 'causes_tab',
+      }),
     });
   };
 
