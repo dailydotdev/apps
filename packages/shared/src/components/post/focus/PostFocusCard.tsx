@@ -384,7 +384,15 @@ export const PostFocusCard = ({
               sit above the overlay with `relative z-1` and keep their own
               behavior. The overlay is pointer-only (aria-hidden + tabIndex -1)
               since the read button is the keyboard/AT path to the same place. */}
-          <div className="relative flex flex-col gap-4">
+          {/* `-m-2 p-2` gives the hover highlight a rounded halo around the
+              lead area without shifting the layout; the wrapper's own
+              background paints behind all content so the text stays crisp. */}
+          <div
+            className={classNames(
+              'relative -m-2 flex flex-col gap-4 rounded-16 p-2 transition-colors',
+              canReadArticle && 'hover:bg-surface-hover',
+            )}
+          >
             {canReadArticle && (
               // eslint-disable-next-line jsx-a11y/anchor-has-content -- decorative pointer-only overlay; the read button below is the labeled keyboard/AT path to the same article
               <a
