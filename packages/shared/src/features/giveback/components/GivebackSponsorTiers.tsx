@@ -12,6 +12,7 @@ import { MedalBadgeIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useContributionSponsors } from '../hooks/useContributionSponsors';
+import { anchorDefaultRel } from '../../../lib/strings';
 import { sponsorTierLabel } from '../utils';
 import type { ContributionSponsor } from '../types';
 import { ContributionSponsorTier } from '../types';
@@ -125,7 +126,7 @@ const SponsorLogo = ({
     <a
       href={sponsor.url}
       target="_blank"
-      rel="noopener noreferrer"
+      rel={anchorDefaultRel}
       aria-label={sponsor.name}
       className={tileClass}
       onClick={onClick}

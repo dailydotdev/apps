@@ -151,12 +151,11 @@ export const GivebackFunnelStep = ({
   selection,
   videoSlotRef,
 }: GivebackFunnelStepProps): ReactElement => {
-  // The visitor's own picks, surfaced front-and-center on the finale so the
-  // moment celebrates exactly what they chose to fund.
-  const selectedCauses = selection.causes
-    .map((cause, index) => ({ cause, index }))
-    .filter(({ cause }) => selection.selectedIds.has(cause.id))
-    .slice(0, 3);
+  // Whether the visitor picked any causes, so the finale can celebrate their
+  // choice rather than fall back to the generic copy.
+  const hasSelectedCauses = selection.causes.some((cause) =>
+    selection.selectedIds.has(cause.id),
+  );
 
   switch (stepKey) {
     case 'how':
@@ -232,7 +231,7 @@ export const GivebackFunnelStep = ({
                 bold
                 className="[text-wrap:balance]"
               >
-                {selectedCauses.length > 0
+                {hasSelectedCauses
                   ? "You're in. Now every action funds them."
                   : 'Real causes. Real impact.'}
               </Typography>
@@ -242,7 +241,7 @@ export const GivebackFunnelStep = ({
                 color={TypographyColor.Secondary}
                 className="max-w-xl [text-wrap:pretty]"
               >
-                {selectedCauses.length > 0
+                {hasSelectedCauses
                   ? 'From here on, every action you take becomes real money for the causes you picked. We fund all of it. You never pay a thing.'
                   : "Your actions become real money for open-source maintainers, students, and devs who can't afford access. We fund all of it, no cost to you."}
               </Typography>
@@ -281,7 +280,7 @@ export const GivebackFunnelStep = ({
               ))}
             </div>
           </Reveal>
-          {selectedCauses.length > 0 && (
+          {hasSelectedCauses && (
             <Reveal delay={320}>
               <Typography
                 type={TypographyType.Callout}

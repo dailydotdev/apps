@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 // The daily.dev charm, themed as a "wish-granting genie" for Giveback: you make
 // a wish (pick a cause / take an action) and daily.dev grants it.
-export const GIVEBACK_CHARM_IMAGE = {
+const GIVEBACK_CHARM_IMAGE = {
   src: 'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)',
   alt: 'daily.dev charm celebrating community impact for the Giveback campaign',
 };

@@ -495,7 +495,6 @@ export enum LogEvent {
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
   // Giveback
-  ClickJoinGiveback = 'click join giveback',
   ClickGivebackSponsor = 'click giveback sponsor',
   SaveGivebackCauses = 'save giveback causes',
   ClickGivebackTab = 'click giveback tab',
