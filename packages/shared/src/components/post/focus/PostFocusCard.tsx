@@ -368,7 +368,7 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            <div className="ml-auto shrink-0">
+            <div className="ml-auto shrink-0 [&_svg]:rotate-90">
               <PostMenuOptions
                 post={post}
                 origin={origin}
