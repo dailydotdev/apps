@@ -64,7 +64,7 @@ const NotificationsPage = (): React.ReactElement => {
 
   return (
     <div className="mx-auto w-full max-w-[42.5rem] border-x border-border-subtlest-tertiary bg-background-default">
-      <div className="flex items-center justify-between p-6">
+      <div className="flex items-center justify-between px-4 pb-2 pt-4">
         <h2 className="font-bold typo-body">Notifications</h2>
         <button
           type="button"
@@ -75,7 +75,7 @@ const NotificationsPage = (): React.ReactElement => {
         </button>
       </div>
 
-      <div className="border-b border-border-subtlest-tertiary px-4">
+      <div className="flex min-h-14 items-center border-b border-border-subtlest-quaternary px-4">
         <SquadDirectoryNavbar
           aria-label="Filter notifications by type"
           className="!mx-0 min-w-0 flex-1 !border-0 !px-0"
