@@ -17,6 +17,7 @@ import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
 import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
+import { GivebackCausesPanel } from './GivebackCausesPanel';
 import { GivebackCampaignPanel } from './GivebackCampaignPanel';
 import { GivebackFundingBar } from './GivebackFundingBar';
 import type { GivebackTabId } from './GivebackTabNav';
@@ -177,6 +178,9 @@ export const GivebackPage = (): ReactElement => {
               )}
               {activeTab === 'impact' && (
                 <GivebackImpactPanel onTakeAction={goToActions} />
+              )}
+              {activeTab === 'causes' && (
+                <GivebackCausesPanel onFilter={scrollToTabs} />
               )}
               {activeTab === 'why' && <GivebackCampaignPanel />}
             </div>

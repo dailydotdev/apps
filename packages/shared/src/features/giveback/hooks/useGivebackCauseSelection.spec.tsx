@@ -121,3 +121,44 @@ it('toasts a generic error and reports failure when saving fails', async () => {
   expect(displayToast).toHaveBeenCalledWith(labels.error.generic);
   expect(saved).toBe(false);
 });
+
+it('toggleAndSave persists the new selection immediately with no toast', async () => {
+  const { result } = renderHook(() => useGivebackCauseSelection(true));
+
+  act(() => result.current.toggleAndSave('c1'));
+
+  expect(result.current.selectedIds.has('c1')).toBe(true);
+  await waitFor(() =>
+    expect(saveCausePreferences).toHaveBeenCalledWith(['c1']),
+  );
+  // The cause moving between sections is the feedback; no success toast.
+  expect(displayToast).not.toHaveBeenCalled();
+});
+
+it('toggleAndSave chains back-to-back toggles from the freshest set', async () => {
+  const { result } = renderHook(() => useGivebackCauseSelection(true));
+
+  // Two toggles in the same tick must not persist from a stale snapshot.
+  act(() => {
+    result.current.toggleAndSave('c1');
+    result.current.toggleAndSave('c2');
+  });
+
+  expect(result.current.selectedIds.has('c1')).toBe(true);
+  expect(result.current.selectedIds.has('c2')).toBe(true);
+  await waitFor(() =>
+    expect(saveCausePreferences).toHaveBeenLastCalledWith(['c1', 'c2']),
+  );
+});
+
+it('toggleAndSave rolls back the optimistic change when the save fails', async () => {
+  saveCausePreferences.mockRejectedValueOnce(new Error('network'));
+  const { result } = renderHook(() => useGivebackCauseSelection(true));
+
+  await act(async () => {
+    result.current.toggleAndSave('c1');
+  });
+
+  await waitFor(() => expect(result.current.selectedIds.has('c1')).toBe(false));
+  expect(displayToast).toHaveBeenCalledWith(labels.error.generic);
+});
