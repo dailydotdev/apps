@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
@@ -13,357 +12,45 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import {
-  ArrowIcon,
-  CoreIcon,
-  DevPlusIcon,
-  GiftIcon,
-  LockIcon,
-  MedalBadgeIcon,
-  StarIcon,
-  VIcon,
-} from '../../../components/icons';
-import ConfettiSvg from '../../../svg/ConfettiSvg';
+import { ArrowIcon, GiftIcon } from '../../../components/icons';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
 import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
 import { useClaimContributionReward } from '../hooks/useClaimContributionReward';
-import { ContributionRewardType } from '../types';
+import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
+import { useContributionActions } from '../hooks/useContributionActions';
 import { formatDonationAmount } from '../utils';
-import { GivebackMeterShine } from './GivebackMeterShine';
+import { GivebackTabHeading } from './GivebackTabHeading';
+import { RailToggle } from './GivebackRoadmapRail';
+import { NodeRow } from './GivebackRoadmapNode';
+import type {
+  ConnectorFill,
+  RoadmapLevel,
+  RoadmapNode,
+} from './givebackRoadmapTypes';
+
+// Joins up to three cause names into a natural list ("a, b, and c"), so the
+// impact headline names exactly who the visitor's actions are funding.
+const formatCauseNames = (names: string[]): string | null => {
+  const shown = names.slice(0, 3);
+  if (shown.length === 0) {
+    return null;
+  }
+  if (shown.length === 1) {
+    return shown[0];
+  }
+  const head = shown.slice(0, -1).join(', ');
+  const tail = shown[shown.length - 1];
+  const suffix = names.length > 3 ? ', and more' : '';
+  return `${head}, and ${tail}${suffix}`;
+};
 
 // How many upcoming levels to reveal after the one you're on. The ladder can be
 // long, so we only ever render a window of it.
 const DEFAULT_UPCOMING = 4;
-
-const rewardIconByType: Record<ContributionRewardType, ReactElement> = {
-  [ContributionRewardType.Cores]: <CoreIcon />,
-  [ContributionRewardType.PlusDays]: <DevPlusIcon />,
-  [ContributionRewardType.Call]: <StarIcon />,
-  [ContributionRewardType.Privilege]: <MedalBadgeIcon />,
-  [ContributionRewardType.Custom]: <GiftIcon />,
-};
-
-// A reward tier reshaped into a roadmap node. Every tier grants a reward, so the
-// node always has one.
-interface RoadmapLevel {
-  id: string;
-  levelNumber: number;
-  requiredApprovedAmount: number;
-  reward: {
-    id: string;
-    type: ContributionRewardType;
-    title: string;
-    description: string | null;
-  };
-}
-
-// One state drives every visual cue on a node, so "done", "you are here", and
-// "locked" never disagree (RPG / battle-pass clarity).
-type NodeState = 'claimed' | 'summit' | 'current' | 'unlocked' | 'locked';
-
-const nodeStyles: Record<NodeState, string> = {
-  claimed: 'bg-accent-avocado-default text-white',
-  summit:
-    'bg-gradient-to-br from-accent-cheese-default to-accent-bacon-default text-white shadow-2',
-  current:
-    'bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage',
-  unlocked: 'bg-accent-cabbage-default text-white',
-  locked:
-    'border border-border-subtlest-tertiary bg-surface-float text-text-quaternary',
-};
-
-type ConnectorFill =
-  | { type: 'full' }
-  | { type: 'partial'; progress: number }
-  | { type: 'muted' };
-
-interface RoadmapNode {
-  level: RoadmapLevel;
-  isLast: boolean;
-  isReached: boolean;
-  isCurrent: boolean;
-  isNext: boolean;
-  isClaimed: boolean;
-  connector?: ConnectorFill;
-}
-
-const Connector = ({ fill }: { fill: ConnectorFill }): ReactElement => (
-  <div className="relative w-1 flex-1">
-    <div className="absolute inset-0 rounded-full bg-border-subtlest-tertiary" />
-    {fill.type === 'full' && (
-      <div className="absolute inset-0 rounded-full bg-accent-cabbage-default" />
-    )}
-    {fill.type === 'partial' && (
-      <div
-        className="absolute inset-x-0 top-0 rounded-full bg-gradient-to-b from-accent-avocado-default to-accent-cabbage-default"
-        style={{ height: `${Math.round(fill.progress * 100)}%` }}
-      />
-    )}
-  </div>
-);
-
-interface RailToggleProps {
-  icon: ReactElement;
-  label: string;
-  onClick: () => void;
-  connectorBelow?: ConnectorFill;
-}
-
-const RailToggle = ({
-  icon,
-  label,
-  onClick,
-  connectorBelow,
-}: RailToggleProps): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="group flex w-full gap-4 text-left"
-  >
-    <div className="relative flex w-10 shrink-0 flex-col items-center">
-      <span className="z-1 flex size-10 items-center justify-center rounded-full border border-dashed border-border-subtlest-secondary bg-background-default text-text-tertiary transition-colors group-hover:border-accent-cabbage-default group-hover:text-accent-cabbage-default [&_svg]:size-4">
-        {icon}
-      </span>
-      {connectorBelow && <Connector fill={connectorBelow} />}
-    </div>
-    <div
-      className={classNames(
-        'flex min-w-0 flex-1 flex-col',
-        connectorBelow ? 'pb-8' : 'pb-1',
-      )}
-    >
-      {/* Match the icon's height so the label centers against the node, not the
-          full icon + connector run. */}
-      <div className="flex h-10 items-center">
-        <Typography
-          type={TypographyType.Footnote}
-          bold
-          color={TypographyColor.Tertiary}
-          className="transition-colors group-hover:text-text-primary"
-        >
-          {label}
-        </Typography>
-      </div>
-    </div>
-  </button>
-);
-
-interface NodeRowProps {
-  node: RoadmapNode;
-  amountToNext: number;
-  segmentProgress: number;
-  isClaiming: boolean;
-  onClaim: (tierId: string) => void;
-  onTakeAction: () => void;
-}
-
-const NodeRow = ({
-  node,
-  amountToNext,
-  segmentProgress,
-  isClaiming,
-  onClaim,
-  onTakeAction,
-}: NodeRowProps): ReactElement => {
-  const { level, isLast, isReached, isCurrent, isNext, isClaimed } = node;
-  const { reward } = level;
-  const isSummit = isLast;
-  const canClaim = isReached && !isClaimed;
-  const [celebrate, setCelebrate] = useState(false);
-
-  const handleClaim = () => {
-    setCelebrate(true);
-    onClaim(reward.id);
-  };
-
-  const getNodeState = (): NodeState => {
-    if (isReached && isSummit) {
-      return 'summit';
-    }
-    if (isCurrent) {
-      return 'current';
-    }
-    if (isClaimed) {
-      return 'claimed';
-    }
-    if (isReached) {
-      return 'unlocked';
-    }
-    return 'locked';
-  };
-
-  const getNodeIcon = (): ReactElement => {
-    if (isClaimed) {
-      return <VIcon />;
-    }
-    if (isReached || isNext) {
-      return rewardIconByType[reward.type];
-    }
-    return <LockIcon />;
-  };
-
-  const requirementLabel =
-    level.requiredApprovedAmount > 0
-      ? formatDonationAmount(level.requiredApprovedAmount)
-      : 'Free';
-
-  return (
-    <FlexRow className="relative gap-4">
-      <div className="relative flex w-10 shrink-0 flex-col items-center">
-        {celebrate && (
-          <ConfettiSvg
-            aria-hidden
-            className="z-10 pointer-events-none absolute -top-4 left-1/2 h-20 w-32 -translate-x-1/2"
-          />
-        )}
-        <span className="relative z-1 flex size-10 shrink-0 items-center justify-center">
-          {isCurrent && (
-            <span
-              aria-hidden
-              className="bg-accent-cabbage-default/25 absolute inset-0 rounded-full motion-safe:animate-ping"
-            />
-          )}
-          <span
-            className={classNames(
-              'relative flex size-10 items-center justify-center rounded-full [&_svg]:size-5',
-              nodeStyles[getNodeState()],
-              isNext && 'motion-safe:animate-glow-pulse',
-            )}
-          >
-            {getNodeIcon()}
-          </span>
-          <span
-            className={classNames(
-              'absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-background-subtle font-bold tabular-nums ring-2 ring-background-default typo-caption2',
-              isReached ? 'text-text-secondary' : 'text-text-quaternary',
-            )}
-          >
-            {level.levelNumber}
-          </span>
-        </span>
-        {!isLast && <Connector fill={node.connector ?? { type: 'muted' }} />}
-      </div>
-
-      <div className={classNames('min-w-0 flex-1', isLast ? 'pb-1' : 'pb-8')}>
-        <FlexCol
-          className={classNames(
-            'gap-2',
-            isNext &&
-              'rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
-          )}
-        >
-          <FlexRow className="items-start justify-between gap-3">
-            <FlexCol className="min-w-0 gap-1">
-              <FlexRow className="flex-wrap items-center gap-2">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption2}
-                  color={TypographyColor.Tertiary}
-                  bold
-                  className="uppercase tracking-wider"
-                >
-                  Level {level.levelNumber} · {requirementLabel}
-                </Typography>
-                {isCurrent && (
-                  <span className="rounded-6 bg-accent-cabbage-default px-2 py-0.5 font-bold text-white typo-caption2">
-                    You&apos;re here
-                  </span>
-                )}
-                {isClaimed && !isCurrent && (
-                  <FlexRow className="items-center gap-1 text-accent-avocado-default [&_svg]:size-4">
-                    <VIcon />
-                    <Typography bold type={TypographyType.Caption2}>
-                      Claimed
-                    </Typography>
-                  </FlexRow>
-                )}
-              </FlexRow>
-              <Typography
-                tag={TypographyTag.Span}
-                bold
-                type={TypographyType.Callout}
-                color={
-                  isReached || isNext
-                    ? TypographyColor.Primary
-                    : TypographyColor.Tertiary
-                }
-              >
-                {reward.title}
-              </Typography>
-              {isNext && reward.description && (
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Secondary}
-                >
-                  {reward.description}
-                </Typography>
-              )}
-            </FlexCol>
-
-            {canClaim ? (
-              <Button
-                type="button"
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Primary}
-                onClick={handleClaim}
-                loading={isClaiming}
-                className={classNames(
-                  'shrink-0',
-                  celebrate && 'motion-safe:animate-reward-pop',
-                )}
-              >
-                Claim
-              </Button>
-            ) : (
-              !isReached &&
-              !isNext && (
-                <span className="shrink-0 text-text-quaternary [&_svg]:size-4">
-                  <LockIcon />
-                </span>
-              )
-            )}
-          </FlexRow>
-
-          {isNext && (
-            <FlexCol className="gap-2">
-              <div className="relative h-1.5 overflow-hidden rounded-full bg-surface-float">
-                <div
-                  className="relative h-full overflow-hidden rounded-full bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default transition-[width] duration-500"
-                  style={{ width: `${Math.round(segmentProgress * 100)}%` }}
-                >
-                  <GivebackMeterShine
-                    percentage={100}
-                    radiusClassName="rounded-full"
-                  />
-                </div>
-              </div>
-              <FlexRow className="items-center justify-between gap-3">
-                <Typography
-                  bold
-                  type={TypographyType.Caption1}
-                  className="tabular-nums text-accent-cabbage-default"
-                >
-                  {formatDonationAmount(amountToNext)} to go
-                </Typography>
-                <Button
-                  type="button"
-                  size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Primary}
-                  onClick={onTakeAction}
-                >
-                  Take action
-                </Button>
-              </FlexRow>
-            </FlexCol>
-          )}
-        </FlexCol>
-      </div>
-    </FlexRow>
-  );
-};
 
 interface GivebackPersonalRoadmapProps {
   onTakeAction: () => void;
@@ -377,11 +64,14 @@ export const GivebackPersonalRoadmap = ({
   onTakeAction,
 }: GivebackPersonalRoadmapProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const { earnedPoints, currentLevel, isPending } =
-    useGivebackContribution(true);
+  const { user } = useAuthContext();
+  const { earnedPoints, isPending } = useGivebackContribution(true);
   const { rewardTiers } = useContributionRewards(true);
   const { claimedRewardIds } = useContributionUserRewards(true);
   const { claim, isPending: isClaiming } = useClaimContributionReward();
+  const { causes: pickerCauses, selectedCauseIds } =
+    useContributionCausePicker(true);
+  const { actions } = useContributionActions(true);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(true);
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
@@ -428,6 +118,7 @@ export const GivebackPersonalRoadmap = ({
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
+          className="[text-wrap:pretty]"
         >
           Reward milestones are on the way. Keep taking action to unlock them.
         </Typography>
@@ -436,11 +127,24 @@ export const GivebackPersonalRoadmap = ({
   }
 
   const approved = earnedPoints;
+  const actionsTaken = actions.reduce(
+    (sum, action) => sum + action.userCompletions,
+    0,
+  );
+  const selectedNames = pickerCauses
+    .filter((cause) => selectedCauseIds.includes(cause.id))
+    .map((cause) => cause.title);
+  const causeNames = formatCauseNames(selectedNames);
+  const hasImpact = approved > 0;
   const total = levels.length;
-  const focusIndex = Math.min(total - 1, Math.max(0, currentLevel - 1));
   const nextIndex = levels.findIndex(
     (level) => level.requiredApprovedAmount > approved,
   );
+  // "You're here" rides the goal you're climbing toward (the next unreached
+  // level), so the face marker, the highlighted card and the progress bar all
+  // land on one row — not split across the last-cleared and next levels. Once
+  // every level is reached, focus the summit.
+  const focusIndex = nextIndex === -1 ? total - 1 : nextIndex;
   const nextLevel = nextIndex === -1 ? undefined : levels[nextIndex];
   const amountToNext = nextLevel
     ? Math.max(0, nextLevel.requiredApprovedAmount - approved)
@@ -453,9 +157,11 @@ export const GivebackPersonalRoadmap = ({
       approved >= level.requiredApprovedAmount && !claimedIds.has(level.id),
   ).length;
 
-  // Progress within the current segment (last reached → next level).
+  // Progress within the current segment (last reached → next level). With
+  // nothing reached yet the segment starts at 0, not the first tier's threshold
+  // (otherwise the denominator collapses to 0 and the bar sticks at 0%).
   const previousAmount =
-    levels[Math.max(0, reachedCount - 1)].requiredApprovedAmount;
+    reachedCount > 0 ? levels[reachedCount - 1].requiredApprovedAmount : 0;
   const segmentDenominator = nextLevel
     ? nextLevel.requiredApprovedAmount - previousAmount
     : 1;
@@ -535,8 +241,71 @@ export const GivebackPersonalRoadmap = ({
 
   return (
     <section id="giveback-roadmap" className="relative w-full scroll-mt-16">
-      <FlexCol className="gap-6">
-        <FlexCol className="gap-3">
+      <FlexCol className="gap-8">
+        <FlexCol className="gap-5">
+          <GivebackTabHeading
+            title={
+              hasImpact ? (
+                <>
+                  You turned {actionsTaken}{' '}
+                  {actionsTaken === 1 ? 'action' : 'actions'} into{' '}
+                  <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+                    {formatDonationAmount(approved)}
+                  </span>{' '}
+                  for causes you love
+                </>
+              ) : (
+                <>
+                  Turn your everyday actions into{' '}
+                  <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+                    real donations
+                  </span>
+                </>
+              )
+            }
+            description={
+              hasImpact && causeNames
+                ? `Headed to ${causeNames}. Every action you take adds more, and it never costs you a thing.`
+                : 'Every action you take sends real money to the causes you back. daily.dev funds it all, so you never pay a cent. Take your first one.'
+            }
+          />
+
+          <FlexCol className="gap-3">
+            <FlexRow className="flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                size={ButtonSize.Medium}
+                variant={ButtonVariant.Primary}
+                onClick={handleTakeAction}
+              >
+                Take action
+              </Button>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="tabular-nums"
+              >
+                {nextLevel
+                  ? `${formatDonationAmount(amountToNext)} to your next reward`
+                  : 'Every reward unlocked'}
+              </Typography>
+            </FlexRow>
+            {claimableCount > 0 && (
+              // A status note, not a tappable control: no pill background, just
+              // the gift glyph + cheese text pointing down to the ladder.
+              <FlexRow className="items-center gap-1.5 text-accent-cheese-default [&_svg]:size-4">
+                <GiftIcon />
+                <Typography bold type={TypographyType.Footnote}>
+                  {claimableCount} {claimableCount === 1 ? 'reward' : 'rewards'}{' '}
+                  ready to claim below
+                </Typography>
+              </FlexRow>
+            )}
+          </FlexCol>
+        </FlexCol>
+
+        <FlexCol className="max-w-2xl gap-4">
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
@@ -544,125 +313,67 @@ export const GivebackPersonalRoadmap = ({
             bold
             className="uppercase tracking-wider"
           >
-            Your journey
+            Rewards you unlock along the way
           </Typography>
-          <FlexRow className="flex-wrap items-center gap-4">
-            <FlexCol className="size-16 shrink-0 items-center justify-center rounded-20 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage">
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption2}
-                bold
-                className="opacity-80 uppercase tracking-wider"
-              >
-                Level
-              </Typography>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Title1}
-                bold
-                className="leading-none"
-              >
-                {focusIndex + 1}
-              </Typography>
-            </FlexCol>
 
-            <FlexCol className="min-w-0 flex-1 gap-0.5">
-              <Typography
-                tag={TypographyTag.H3}
-                type={TypographyType.Title3}
-                bold
-              >
-                {nextLevel
-                  ? `Next up: ${nextLevel.reward.title}`
-                  : "You've unlocked every reward"}
-              </Typography>
-              <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                {nextLevel
-                  ? `${formatDonationAmount(amountToNext)} to go.`
-                  : "You've reached the top of the ladder."}
-              </Typography>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="tabular-nums"
-              >
-                Level {focusIndex + 1} of {total} ·{' '}
-                {formatDonationAmount(approved)} unlocked
-              </Typography>
-            </FlexCol>
-
-            {claimableCount > 0 && (
-              <FlexRow className="items-center gap-1.5 self-start rounded-10 bg-accent-cheese-flat px-3 py-1.5 text-accent-cheese-default">
-                <GiftIcon />
-                <Typography bold type={TypographyType.Caption1}>
-                  {claimableCount} ready to claim
-                </Typography>
-              </FlexRow>
+          <FlexCol>
+            {focusIndex > 0 && (
+              <RailToggle
+                icon={
+                  <ArrowIcon
+                    className={showCompleted ? 'rotate-180' : undefined}
+                  />
+                }
+                label={
+                  showCompleted
+                    ? 'Hide completed levels'
+                    : `Show ${focusIndex} completed ${
+                        focusIndex === 1 ? 'level' : 'levels'
+                      }`
+                }
+                onClick={() => setShowCompleted((value) => !value)}
+                connectorBelow={{ type: 'full' }}
+              />
             )}
-          </FlexRow>
-        </FlexCol>
 
-        <FlexCol>
-          {focusIndex > 0 && (
-            <RailToggle
-              icon={
-                <ArrowIcon
-                  className={showCompleted ? 'rotate-180' : undefined}
-                />
-              }
-              label={
-                showCompleted
-                  ? 'Hide completed levels'
-                  : `Show ${focusIndex} completed ${
-                      focusIndex === 1 ? 'level' : 'levels'
-                    }`
-              }
-              onClick={() => setShowCompleted((value) => !value)}
-              connectorBelow={{ type: 'full' }}
-            />
-          )}
+            {visibleNodes.map((node) => (
+              <NodeRow
+                key={node.level.id}
+                node={node}
+                user={user ?? null}
+                amountToNext={amountToNext}
+                segmentProgress={segmentProgress}
+                isClaiming={isClaiming && claimingId === node.level.id}
+                onClaim={onClaim}
+                onTakeAction={handleTakeAction}
+              />
+            ))}
 
-          {visibleNodes.map((node) => (
-            <NodeRow
-              key={node.level.id}
-              node={node}
-              amountToNext={amountToNext}
-              segmentProgress={segmentProgress}
-              isClaiming={isClaiming && claimingId === node.level.id}
-              onClaim={onClaim}
-              onTakeAction={handleTakeAction}
-            />
-          ))}
+            {hiddenUpcoming > 0 && (
+              <RailToggle
+                icon={<ArrowIcon className="rotate-180" />}
+                label={`Show ${hiddenUpcoming} more ${
+                  hiddenUpcoming === 1 ? 'level' : 'levels'
+                }`}
+                onClick={() => setShowAllUpcoming(true)}
+              />
+            )}
+          </FlexCol>
 
-          {hiddenUpcoming > 0 && (
-            <RailToggle
-              icon={<ArrowIcon className="rotate-180" />}
-              label={`Show ${hiddenUpcoming} more ${
-                hiddenUpcoming === 1 ? 'level' : 'levels'
-              }`}
-              onClick={() => setShowAllUpcoming(true)}
-            />
+          {showAllUpcoming && canCollapseUpcoming && (
+            <FlexRow className="justify-center">
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Float}
+                icon={<ArrowIcon />}
+                onClick={() => setShowAllUpcoming(false)}
+              >
+                Show less
+              </Button>
+            </FlexRow>
           )}
         </FlexCol>
-
-        {showAllUpcoming && canCollapseUpcoming && (
-          <FlexRow className="justify-center">
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Float}
-              icon={<ArrowIcon />}
-              onClick={() => setShowAllUpcoming(false)}
-            >
-              Show less
-            </Button>
-          </FlexRow>
-        )}
       </FlexCol>
     </section>
   );
