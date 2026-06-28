@@ -453,7 +453,7 @@ export const PostFocusCard = ({
                     title
                   )}
                 </h1>
-                {renderReadButton('w-full tablet:w-fit')}
+                {renderReadButton('w-fit')}
               </div>
               {!isVideoType && article.image && (
                 <button
