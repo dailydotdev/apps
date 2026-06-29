@@ -576,7 +576,9 @@ export const PostFocusCard = ({
               onClick={handleReadClick}
               className="inline-flex w-fit items-center gap-1 text-text-tertiary underline typo-callout"
             >
-              {getReadPostButtonText(post)}
+              {!isVideoType && article.domain
+                ? `Read the full article on ${article.domain}`
+                : getReadPostButtonText(post)}
               <OpenLinkIcon size={IconSize.Size16} />
             </a>
           )}
