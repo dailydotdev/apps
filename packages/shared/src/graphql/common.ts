@@ -229,6 +229,10 @@ GraphQLClient.prototype.unsetHeader = function unsetHeader(name: string) {
   return this;
 };
 
+// Identifies the calling platform (webapp, extension, companion, ...) so the
+// API can attribute requests such as feeds to their originating client.
+export const dailyClientHeader = 'X-Daily-Client';
+
 export const gqlClient = new GraphQLClient(graphqlUrl, {
   credentials: 'include',
   fetch: globalThis.fetch,

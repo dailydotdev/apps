@@ -10,6 +10,7 @@ import type {
   TranslateablePostField,
 } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
+import { dailyClientHeader } from '../../graphql/common';
 import { getFeedApiItemPost } from '../../graphql/feed';
 import {
   updateCachedPagePost,
@@ -281,7 +282,7 @@ export const useTranslation: UseTranslation = ({
         Authorization: `Bearer ${accessToken.token}`,
         'Content-Language': language,
         'Content-Type': 'application/json',
-        'X-Daily-Client': isExtension ? 'extension' : 'webapp',
+        [dailyClientHeader]: isExtension ? 'extension' : 'webapp',
       });
       if (process.env.CURRENT_VERSION) {
         requestHeaders.set('X-Daily-Version', process.env.CURRENT_VERSION);

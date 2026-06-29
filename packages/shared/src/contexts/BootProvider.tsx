@@ -22,7 +22,12 @@ import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension, isIOSNative } from '../lib/func';
 import type { ApiErrorResult } from '../graphql/common';
-import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import {
+  ApiError,
+  dailyClientHeader,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
@@ -272,6 +277,8 @@ export const BootDataProvider = ({
     },
     [cachedBootData],
   );
+
+  gqlClient.setHeader(dailyClientHeader, app);
 
   if (logged?.language && logged?.isPlus) {
     gqlClient.setHeader('content-language', logged.language as string);
