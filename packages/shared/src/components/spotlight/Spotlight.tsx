@@ -1176,8 +1176,11 @@ export const Spotlight = ({
         appendOnRoot
         className={{
           drawer: 'p-0',
+          // !p-0 overrides BaseDrawer's default `px-4 pt-3` (added when the
+          // drawer has no title); the palette supplies its own insets, so the
+          // extra horizontal padding was clipping the search field.
           wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default p-0',
+            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default !p-0',
         }}
       >
         {paletteBody}
