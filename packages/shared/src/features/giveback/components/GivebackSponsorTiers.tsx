@@ -164,7 +164,6 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
           bold
-          className="uppercase tracking-wider"
         >
           Sponsored by
         </Typography>
@@ -189,7 +188,6 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
                       tag={TypographyTag.Span}
                       type={TypographyType.Caption2}
                       bold
-                      className="uppercase tracking-wider"
                     >
                       {sponsorTierLabel[group.tier]}
                     </Typography>

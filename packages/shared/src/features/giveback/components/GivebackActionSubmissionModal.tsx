@@ -76,7 +76,7 @@ const ActionBrief = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
             bold
-            className="min-w-0 truncate uppercase tracking-wider"
+            className="min-w-0 truncate"
           >
             {platformName}
           </Typography>
@@ -166,7 +166,6 @@ const InstructionsBlock = ({
         type={TypographyType.Caption1}
         color={TypographyColor.Tertiary}
         bold
-        className="uppercase tracking-wider"
       >
         How to complete it
       </Typography>

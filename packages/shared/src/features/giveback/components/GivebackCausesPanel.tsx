@@ -193,7 +193,6 @@ export const GivebackCausesPanel = ({
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
           bold
-          className="uppercase tracking-wider"
         >
           Your causes · {selectedCount}
         </Typography>
@@ -235,7 +234,6 @@ export const GivebackCausesPanel = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
             bold
-            className="uppercase tracking-wider"
           >
             More causes to explore
           </Typography>
