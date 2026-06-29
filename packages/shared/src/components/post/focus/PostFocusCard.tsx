@@ -315,7 +315,7 @@ export const PostFocusCard = ({
         }
         onClick={handleReadClick}
         variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
+        size={ButtonSize.Small}
         className={className}
       >
         {getReadPostButtonText(post)}
@@ -555,21 +555,11 @@ export const PostFocusCard = ({
             ))
           )}
 
-          {/* Full-width flat bar after the summary: the source label on the
-              left, the read button (moved out of the title column) on the
-              right. */}
+          {/* Flat read CTA after the summary — descriptive text with the read
+              button hugging it on the right, no surrounding box. */}
           {canReadArticle && (
-            <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3">
-              {article.source?.image && (
-                <img
-                  src={article.source.image}
-                  alt=""
-                  aria-hidden
-                  className="size-8 shrink-0 rounded-full object-cover"
-                  loading="lazy"
-                />
-              )}
-              <span className="min-w-0 flex-1 truncate text-text-tertiary typo-callout">
+            <div className="flex w-fit items-center gap-3">
+              <span className="text-text-tertiary typo-callout">
                 {!isVideoType && article.domain
                   ? `Read the full article on ${article.domain}`
                   : 'Read the full article'}
