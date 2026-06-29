@@ -16,14 +16,8 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  useConditionalFeature,
-  useFeedLayout,
-} from '@dailydotdev/shared/src/hooks';
-import {
-  DailyPageVariant,
-  featureDailyPage,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
 import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
@@ -80,7 +74,7 @@ const MainFeedPageInner = ({
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
-  const { user, loadingUser, isLoggedIn } = useContext(AuthContext);
+  const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>(() =>
     getInitialFeedName(initialPage),
   );
@@ -90,14 +84,9 @@ const MainFeedPageInner = ({
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  const { value: dailyVariant } = useConditionalFeature({
-    feature: featureDailyPage,
-    shouldEvaluate: isLoggedIn,
-  });
+  const { isDailyAsDefault, setShowDaily } = useDailyPage();
   const showDailyHome =
-    feedName === 'default' &&
-    !isSearchOn &&
-    dailyVariant === DailyPageVariant.DailyAsDefault;
+    feedName === 'default' && !isSearchOn && isDailyAsDefault;
 
   useLayoutEffect(() => {
     if (!initialPage || !shouldInitializeCurrentPage) {
@@ -192,10 +181,7 @@ const MainFeedPageInner = ({
         >
           <FeedLayoutProvider>
             {showDailyHome ? (
-              <DailyHome
-                onBackToFeed={() => onNavTabClick('/my-feed')}
-                onNavTabClick={onNavTabClick}
-              />
+              <DailyHome onBackToFeed={() => setShowDaily(false)} />
             ) : (
               <MainFeedLayout
                 feedName={feedName}

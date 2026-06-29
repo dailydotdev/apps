@@ -61,9 +61,7 @@ export const MainSection = ({
     feature: featureDailyPage,
     shouldEvaluate: isLoggedIn,
   });
-  const showDailyPage =
-    !!dailyVariant && dailyVariant !== DailyPageVariant.None;
-  const dailyAsDefault = dailyVariant === DailyPageVariant.DailyAsDefault;
+  const showDailyPage = dailyVariant === DailyPageVariant.V1;
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -74,8 +72,7 @@ export const MainSection = ({
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
     // is not using webappUrl so it gets selected
-    const feedNotAtRoot = isCustomDefaultFeed || dailyAsDefault;
-    let myFeedPath = feedNotAtRoot ? '/my-feed' : '/';
+    let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
 
     if (isExtension) {
       myFeedPath = '/my-feed';
@@ -86,7 +83,7 @@ export const MainSection = ({
           title: 'For You',
           path: myFeedPath,
           action: () =>
-            onNavTabClick?.(feedNotAtRoot ? SharedFeedPage.MyFeed : '/'),
+            onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
           icon: isV2
             ? (active: boolean) => (
                 <ListIcon Icon={() => <MagicIcon secondary={active} />} />
@@ -160,9 +157,8 @@ export const MainSection = ({
               <ListIcon Icon={() => <MagicIcon secondary={active} />} />
             ),
             title: 'Daily',
-            ...(dailyAsDefault
-              ? { path: '/', action: () => onNavTabClick?.('/') }
-              : { path: `${webappUrl}daily`, isForcedLink: true }),
+            path: `${webappUrl}daily`,
+            isForcedLink: true,
             requiresLogin: true,
           }
         : undefined;
@@ -238,7 +234,6 @@ export const MainSection = ({
     isLoggedIn,
     isPlus,
     isV2,
-    dailyAsDefault,
     onNavTabClick,
     showDailyPage,
     showYearInReview,

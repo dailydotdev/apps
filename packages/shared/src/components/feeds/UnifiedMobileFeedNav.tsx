@@ -12,11 +12,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  DailyPageVariant,
-  featureDailyPage,
-} from '../../lib/featureManagement';
+import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
@@ -42,13 +38,7 @@ const chipActiveClass =
 const chipInactiveClass =
   'border-transparent text-text-tertiary hover:text-text-primary';
 
-interface UnifiedMobileFeedNavProps {
-  dailyActive?: boolean;
-}
-
-function UnifiedMobileFeedNav({
-  dailyActive,
-}: UnifiedMobileFeedNavProps): ReactElement {
+function UnifiedMobileFeedNav(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
@@ -59,12 +49,8 @@ function UnifiedMobileFeedNav({
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
-  const { value: dailyVariant } = useConditionalFeature({
-    feature: featureDailyPage,
-    shouldEvaluate: isLoggedIn,
-  });
-  const showDailySwitcher =
-    isLoggedIn && !!dailyVariant && dailyVariant !== DailyPageVariant.None;
+  const { isEnabled } = useDailyPage();
+  const showDailySwitcher = isLoggedIn && isEnabled;
 
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
@@ -237,9 +223,7 @@ function UnifiedMobileFeedNav({
       className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
     >
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />
-      {showDailySwitcher && (
-        <DailySwitcher reverse compact dailyActive={dailyActive} />
-      )}
+      {showDailySwitcher && <DailySwitcher reverse compact />}
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {

@@ -3,17 +3,14 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
-import {
-  useConditionalFeature,
-  useScrollRestoration,
-} from '@dailydotdev/shared/src/hooks';
-import {
-  DailyPageVariant,
-  featureDailyPage,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { getLayout } from '../../components/layouts/FeedLayout';
+import {
+  getMainFeedLayout,
+  mainFeedLayoutProps,
+} from '../../components/layouts/MainFeedPage';
 
 const seo: NextSeoProps = {
   title: 'Daily',
@@ -25,30 +22,25 @@ const DailyPage = (): ReactElement | null => {
   useScrollRestoration();
   const router = useRouter();
   const { isAuthReady, isLoggedIn } = useAuthContext();
-  const { value: dailyVariant, isLoading } = useConditionalFeature({
-    feature: featureDailyPage,
-    shouldEvaluate: isLoggedIn,
-  });
+  const { isEnabled, isLoading } = useDailyPage();
 
   const isResolved = isAuthReady && !isLoading;
-  const dailyAsDefault = dailyVariant === DailyPageVariant.DailyAsDefault;
-  const isAllowed =
-    isLoggedIn && !!dailyVariant && dailyVariant !== DailyPageVariant.None;
+  const isAllowed = isLoggedIn && isEnabled;
 
   useEffect(() => {
-    if (isResolved && (!isAllowed || dailyAsDefault)) {
+    if (isResolved && !isAllowed) {
       router.replace('/');
     }
-  }, [isResolved, isAllowed, dailyAsDefault, router]);
+  }, [isResolved, isAllowed, router]);
 
-  if (!isResolved || !isAllowed || dailyAsDefault) {
+  if (!isResolved || !isAllowed) {
     return null;
   }
 
   return <DailyHome />;
 };
 
-DailyPage.getLayout = getLayout;
-DailyPage.layoutProps = { mainPage: true, screenCentered: false, seo };
+DailyPage.getLayout = getMainFeedLayout;
+DailyPage.layoutProps = { ...mainFeedLayoutProps, screenCentered: false, seo };
 
 export default DailyPage;
