@@ -20,6 +20,8 @@ import SettingsContext, {
   themeModes,
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { dailyClientHeader, gqlClient } from '../graphql/common';
+import { getDailyClientPlatform } from '../lib/func';
 import AlertContext from './AlertContext';
 import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
@@ -672,4 +674,16 @@ it('should display accurate information of anonymous user', async () => {
   );
   const user = await screen.findByText('User');
   await expectToHaveTestValue(user, 'anonymous');
+});
+
+it('should set the calling platform header on the gql client', async () => {
+  const setHeaderSpy = jest.spyOn(gqlClient, 'setHeader');
+  renderComponent(<AuthMock />);
+  await waitFor(() =>
+    expect(setHeaderSpy).toHaveBeenCalledWith(
+      dailyClientHeader,
+      getDailyClientPlatform('test-version'),
+    ),
+  );
+  setHeaderSpy.mockRestore();
 });
