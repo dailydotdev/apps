@@ -18,7 +18,8 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
-import { EarthIcon } from '../../icons';
+import { EarthIcon, OpenLinkIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { getImageOriginRect } from '../../modals/ImageModal';
@@ -559,6 +560,22 @@ export const PostFocusCard = ({
                 {article.summary}
               </p>
             ))
+          )}
+
+          {/* Flat, left-aligned text link to the source, sitting right after
+              the summary — a calm "exit to the article" where the reader's eye
+              lands before the comments. Shares the read button's reader gate. */}
+          {canReadArticle && (
+            <a
+              href={readHref}
+              target="_blank"
+              rel="noopener"
+              onClick={handleReadClick}
+              className="inline-flex w-fit items-center gap-1.5 font-bold text-text-link hover:underline"
+            >
+              {getReadPostButtonText(post)}
+              <OpenLinkIcon size={IconSize.Size16} />
+            </a>
           )}
 
           <PostTagList post={article} />
