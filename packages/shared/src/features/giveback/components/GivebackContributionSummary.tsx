@@ -89,9 +89,13 @@ export const GivebackContributionSummary = (): ReactElement => {
               >
                 <InfoIcon size={IconSize.Size16} />
               </button>
+              {/* Center on the icon rather than left-anchor: left-0 + w-56 ran
+                  the (always-in-layout, opacity-0) tooltip past the right edge,
+                  widening the document and expanding the mobile layout viewport
+                  - which broke every fixed overlay (e.g. the funnel) on Android. */}
               <span
                 role="tooltip"
-                className="pointer-events-none absolute left-0 top-full z-3 mt-2 w-56 rounded-10 border border-border-subtlest-tertiary bg-background-default p-2.5 text-left opacity-0 shadow-2 transition-opacity duration-150 group-focus-within/info:opacity-100 group-hover/info:opacity-100"
+                className="pointer-events-none absolute left-1/2 top-full z-3 mt-2 w-56 -translate-x-1/2 rounded-10 border border-border-subtlest-tertiary bg-background-default p-2.5 text-left opacity-0 shadow-2 transition-opacity duration-150 group-focus-within/info:opacity-100 group-hover/info:opacity-100"
               >
                 <Typography
                   tag={TypographyTag.Span}
