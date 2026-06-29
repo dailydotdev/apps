@@ -424,11 +424,12 @@ export const PostFocusCard = ({
               {!isShared && isCollection && (
                 <p className="text-text-tertiary typo-footnote">Collection</p>
               )}
-              {/* Title column and cover image sit side by side and share a
-                height: the image stretches to match the title + read button
-                column. The cover image opens a lightbox rather than navigating
+              {/* Title column and cover image sit side by side. Below tablet
+                the image is a top-aligned square (its original look); from
+                tablet up it stretches to match the title + read button column
+                height. The cover image opens a lightbox rather than navigating
                 away. */}
-              <div className="flex min-w-0 flex-row items-stretch gap-4">
+              <div className="flex min-w-0 flex-row items-start gap-4 tablet:items-stretch">
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
                   <h1
                     className={classNames(
@@ -476,9 +477,10 @@ export const PostFocusCard = ({
                   >
                     <LazyImage
                       eager
-                      // Fills the button, which stretches to the title column
-                      // height; object-cover crops the cover to fit.
-                      className="h-full w-full"
+                      // Square below tablet; from tablet up it fills the button,
+                      // which stretches to the title column height. object-cover
+                      // crops the cover to fit either way.
+                      className="aspect-square w-full tablet:aspect-auto tablet:h-full"
                       fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                       fetchPriority="high"
                       imgAlt="Post cover image"
