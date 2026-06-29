@@ -38,9 +38,9 @@ describe('function getPostImpressions', () => {
     data as Pick<Post, 'views' | 'analytics'>;
 
   it('prefers analytics.impressions over views', () => {
-    expect(getPostImpressions(make({ analytics: { impressions: 42 }, views: 7 }))).toBe(
-      42,
-    );
+    expect(
+      getPostImpressions(make({ analytics: { impressions: 42 }, views: 7 })),
+    ).toBe(42);
   });
 
   it('falls back to views when analytics is absent', () => {
