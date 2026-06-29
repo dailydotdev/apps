@@ -761,12 +761,16 @@ export const Spotlight = ({
         )}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            // First Escape backs out of a pending destructive confirm;
+            // otherwise it closes the palette (the "esc Close" hint).
             if (pendingConfirmId) {
-              event.preventDefault();
-              event.stopPropagation();
               clearConfirm();
               return;
             }
+            onClose();
+            return;
           }
           if (
             event.altKey &&
