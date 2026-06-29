@@ -13,41 +13,23 @@ import {
   TypographyColor,
   TypographyTag,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons';
+import { OpenLinkIcon, ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 /**
- * Design-review playground (not shipping UI). Explores the flat "read the full
- * article" call-to-action that sits right after the TL;DR in `PostFocusCard`.
- *
- * Constraints from the brief: flat (no box / border / fill), no source image
- * (the avatar already shows at the top), and the read button hugging the
- * descriptive text — close to it, not pushed to a far edge. Each variant is
- * shown exactly where it lives: directly under the last line of the summary.
+ * Design-review playground (not shipping UI). Bolder, layout-led directions for
+ * the "read the full article" CTA in `PostFocusCard` — these change the
+ * composition and placement of the action, not just the button's colour. Each
+ * is shown where it lives: right after the last line of the TL;DR.
  */
 
 const DOMAIN = 'pragmaticengineer.com';
 
-const ReadText = ({
-  emphasizeDomain = false,
-}: {
-  emphasizeDomain?: boolean;
-}): ReactElement => (
-  <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+const Lead = (): ReactElement => (
+  <span className="text-text-tertiary typo-callout">
     Read the full article on{' '}
-    {emphasizeDomain ? (
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Callout}
-        color={TypographyColor.Primary}
-        bold
-      >
-        {DOMAIN}
-      </Typography>
-    ) : (
-      DOMAIN
-    )}
-  </Typography>
+    <span className="font-bold text-text-primary">{DOMAIN}</span>
+  </span>
 );
 
 type Variant = {
@@ -60,115 +42,124 @@ type Variant = {
 const variants: Variant[] = [
   {
     key: 'A',
-    name: 'Solid primary',
-    note: 'Highest emphasis. The button clearly is the action; reads as the obvious exit.',
+    name: 'Big button, left',
+    note: 'One large, confident button leading the row — unmissable, reads as the primary action.',
     node: (
-      <div className="flex w-fit items-center gap-3">
-        <ReadText />
-        <Button
-          tag="a"
-          href="#"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<OpenLinkIcon />}
-          iconPosition={ButtonIconPosition.Right}
-        >
-          Read post
-        </Button>
-      </div>
+      <Button
+        tag="a"
+        href="#"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+        icon={<OpenLinkIcon />}
+        iconPosition={ButtonIconPosition.Right}
+        className="w-fit"
+      >
+        Read the full article
+      </Button>
     ),
   },
   {
     key: 'B',
-    name: 'Subtle button',
-    note: 'Quieter — blends into the reading flow while still being a real button.',
+    name: 'Big button + source meta',
+    note: 'Large button on the left; the source and read time sit quietly to its right.',
     node: (
-      <div className="flex w-fit items-center gap-3">
-        <ReadText />
+      <div className="flex w-fit items-center gap-4">
         <Button
           tag="a"
           href="#"
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
           icon={<OpenLinkIcon />}
           iconPosition={ButtonIconPosition.Right}
         >
-          Read post
+          Read article
         </Button>
+        <span className="flex flex-col">
+          <span className="font-bold text-text-primary typo-callout">
+            {DOMAIN}
+          </span>
+          <span className="text-text-tertiary typo-footnote">6 min read</span>
+        </span>
       </div>
     ),
   },
   {
     key: 'C',
-    name: 'Secondary outline',
-    note: 'Outlined button — medium emphasis, crisp edge without a heavy fill.',
+    name: 'Full-width block',
+    note: 'The whole strip is the button: label hugging the left, arrow pinned right. Maximum target.',
     node: (
-      <div className="flex w-fit items-center gap-3">
-        <ReadText />
-        <Button
-          tag="a"
-          href="#"
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          icon={<OpenLinkIcon />}
-          iconPosition={ButtonIconPosition.Right}
-        >
-          Read post
-        </Button>
-      </div>
+      <Button
+        tag="a"
+        href="#"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+        icon={<OpenLinkIcon />}
+        iconPosition={ButtonIconPosition.Right}
+        className="w-full !justify-between"
+      >
+        Read the full article on {DOMAIN}
+      </Button>
     ),
   },
   {
     key: 'D',
-    name: 'Emphasized domain + solid',
-    note: 'Domain bolded in primary so the source pops next to the muted lead-in.',
+    name: 'Text left, round arrow right',
+    note: 'Reads like a row you advance through — copy on the left, a big circular “go” on the far right.',
     node: (
-      <div className="flex w-fit items-center gap-3">
-        <ReadText emphasizeDomain />
+      <div className="flex w-full items-center justify-between gap-4">
+        <Lead />
         <Button
           tag="a"
           href="#"
+          aria-label="Read the full article"
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<OpenLinkIcon />}
-          iconPosition={ButtonIconPosition.Right}
-        >
-          Read post
-        </Button>
-      </div>
-    ),
-  },
-  {
-    key: 'E',
-    name: 'Icon-only button',
-    note: 'Tightest pairing — text plus a compact icon button. Most "blended".',
-    node: (
-      <div className="flex w-fit items-center gap-2.5">
-        <ReadText />
-        <Button
-          tag="a"
-          href="#"
-          aria-label="Read post"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<OpenLinkIcon />}
+          size={ButtonSize.Large}
+          icon={<ArrowIcon className="rotate-90" />}
+          className="!rounded-full"
         />
       </div>
     ),
   },
   {
-    key: 'F',
-    name: 'Inline link (no button)',
-    note: 'Lightest touch — one clickable line, domain in the link colour, trailing arrow. No button at all.',
+    key: 'E',
+    name: 'Icon tile + stacked text',
+    note: 'App-row feel — a large open-link tile leads, with the action and source stacked beside it. Whole row is the link.',
     node: (
-      <a
-        href="#"
-        className="inline-flex w-fit items-center gap-1.5 text-text-tertiary typo-callout"
-      >
-        Read the full article on{' '}
-        <span className="text-text-link underline">{DOMAIN}</span>
-        <OpenLinkIcon size={IconSize.Size16} />
+      <a href="#" className="flex w-fit items-center gap-4">
+        <span className="grid size-12 shrink-0 place-items-center rounded-16 bg-surface-float text-text-primary">
+          <OpenLinkIcon size={IconSize.Large} />
+        </span>
+        <span className="flex flex-col">
+          <span className="font-bold text-text-primary typo-body">
+            Read the full article
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            {DOMAIN} · 6 min read
+          </span>
+        </span>
       </a>
+    ),
+  },
+  {
+    key: 'F',
+    name: 'Centered, with caption',
+    note: 'A confident centered button with a one-line caption — feels like an intentional “end of summary” moment.',
+    node: (
+      <div className="flex flex-col items-center gap-2 py-1">
+        <Button
+          tag="a"
+          href="#"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          icon={<OpenLinkIcon />}
+          iconPosition={ButtonIconPosition.Right}
+        >
+          Read on {DOMAIN}
+        </Button>
+        <span className="text-text-tertiary typo-footnote">
+          Opens the original article
+        </span>
+      </div>
     ),
   },
 ];
@@ -191,12 +182,12 @@ const Row = ({ variant }: { variant: Variant }): ReactElement => (
     <Typography
       type={TypographyType.Footnote}
       color={TypographyColor.Tertiary}
-      className="max-w-[60ch]"
+      className="max-w-[62ch]"
     >
       {variant.note}
     </Typography>
-    {/* Shown in context: the last line of the summary, then the CTA below it. */}
-    <div className="mt-2 flex max-w-[640px] flex-col gap-4">
+    {/* In context: the last line of the summary, then the CTA below it. */}
+    <div className="mt-2 flex w-full max-w-[560px] flex-col gap-4">
       <Typography type={TypographyType.Body} color={TypographyColor.Secondary}>
         …and here&apos;s the timeline, the root cause, and the three guardrails
         the team added so a single index can&apos;t take down checkout again.
@@ -228,16 +219,16 @@ export const AllVariants: Story = {
         color={TypographyColor.Primary}
         bold
       >
-        Flat read-the-article CTA
+        Read-the-article CTA — layout directions
       </Typography>
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
         className="mt-2 max-w-[64ch]"
       >
-        Flat, no box, no source image — the read button sits right beside the
-        text. Pick a direction; the chosen one ships in PostFocusCard after the
-        summary.
+        Different compositions and placements for the action, not just button
+        styles. Pick a direction; the chosen one ships in PostFocusCard after
+        the summary.
       </Typography>
       <div className="mt-4 flex flex-col">
         {variants.map((variant) => (
