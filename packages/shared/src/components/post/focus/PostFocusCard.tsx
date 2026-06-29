@@ -18,8 +18,7 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
-import { EarthIcon, OpenLinkIcon } from '../../icons';
-import { IconSize } from '../../Icon';
+import { EarthIcon } from '../../icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { getImageOriginRect } from '../../modals/ImageModal';
@@ -562,26 +561,35 @@ export const PostFocusCard = ({
             ))
           )}
 
-          {/* Flat, left-aligned text link to the source, sitting right after
-              the summary — a calm "exit to the article" where the reader's eye
-              lands before the comments. Styled to match the "From {domain}"
-              metadata line (tertiary, typo-callout) — underlined with a
-              trailing icon, deliberately not the blue link colour. Shares the
-              read button's reader gate. */}
-          {canReadArticle && (
-            <a
-              href={readHref}
-              target="_blank"
-              rel="noopener"
-              onClick={handleReadClick}
-              className="inline-flex w-fit items-center gap-1 text-text-tertiary underline typo-callout"
-            >
-              {!isVideoType && article.domain
-                ? `Read the full article on ${article.domain}`
-                : getReadPostButtonText(post)}
-              <OpenLinkIcon size={IconSize.Size16} />
-            </a>
-          )}
+          {/* Flat source link after the summary, styled like the "From
+              {domain}" metadata line (tertiary, typo-callout); only the domain
+              is the blue, underlined link. Shares the read button's reader
+              gate. */}
+          {canReadArticle &&
+            (!isVideoType && article.domain ? (
+              <p className="text-text-tertiary typo-callout">
+                Read the full article on{' '}
+                <a
+                  href={readHref}
+                  target="_blank"
+                  rel="noopener"
+                  onClick={handleReadClick}
+                  className="text-text-link underline"
+                >
+                  {article.domain}
+                </a>
+              </p>
+            ) : (
+              <a
+                href={readHref}
+                target="_blank"
+                rel="noopener"
+                onClick={handleReadClick}
+                className="w-fit text-text-link underline typo-callout"
+              >
+                {getReadPostButtonText(post)}
+              </a>
+            ))}
 
           <PostTagList post={article} />
 
