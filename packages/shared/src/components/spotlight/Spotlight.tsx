@@ -872,6 +872,18 @@ export const Spotlight = ({
                   <ClearIcon size={IconSize.XSmall} />
                 </button>
               )}
+              {/* Mobile has no physical keyboard, so the "esc Close" footer
+                  hint is useless — give a tappable Close instead. */}
+              {isMobile && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
+              )}
             </div>
             {scope === SpotlightScope.All && (
               <ScopeBreadcrumbs scope={scope} onSelect={pushScope} />
@@ -1143,12 +1155,14 @@ export const Spotlight = ({
           </Command.List>
         )}
 
-        <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
-          <span className="flex items-center gap-4">
-            <Hint label="Open" combo="↵" />
-            <Hint label="Close" combo="esc" />
-          </span>
-        </div>
+        {!isMobile && (
+          <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
+            <span className="flex items-center gap-4">
+              <Hint label="Open" combo="↵" />
+              <Hint label="Close" combo="esc" />
+            </span>
+          </div>
+        )}
       </Command>
     </>
   );
