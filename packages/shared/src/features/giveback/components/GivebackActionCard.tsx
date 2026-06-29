@@ -116,11 +116,7 @@ export const GivebackActionCard = ({
       return (
         <FlexRow className="shrink-0 items-center gap-1 text-text-quaternary">
           <statusMeta.Icon size={IconSize.XSmall} />
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            className="uppercase tracking-wide"
-          >
+          <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
             {statusMeta.label}
           </Typography>
         </FlexRow>
@@ -178,7 +174,7 @@ export const GivebackActionCard = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
             bold
-            className="min-w-0 truncate uppercase tracking-wider"
+            className="min-w-0 truncate"
           >
             {platformName}
           </Typography>
@@ -214,7 +210,6 @@ export const GivebackActionCard = ({
                 tag={TypographyTag.Span}
                 type={TypographyType.Caption2}
                 bold
-                className="uppercase tracking-wide"
               >
                 {remaining} left
               </Typography>
