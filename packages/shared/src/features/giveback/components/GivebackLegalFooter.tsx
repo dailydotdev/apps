@@ -8,6 +8,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { privacyPolicy, termsOfService } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 // Legal/footer home for the campaign. One quiet line: funding disclaimer on the
 // left, the terms/rules/privacy links on the right. Cookie policy is omitted on
@@ -35,7 +36,7 @@ export const GivebackLegalFooter = (): ReactElement => (
           key={link.label}
           href={link.href}
           target="_blank"
-          rel="noopener noreferrer"
+          rel={anchorDefaultRel}
           className="font-bold text-text-tertiary transition-colors typo-caption1 hover:text-text-primary"
         >
           {link.label}

@@ -12,15 +12,6 @@ export const formatDonationAmount = (
     maximumFractionDigits: 0,
   }).format(amount);
 
-// Two-letter fallback for a sponsor with no logo (individuals, fresh sponsors).
-export const getSponsorInitials = (name: string): string =>
-  name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('');
-
 export const getGoalProgressPercentage = (
   raised: number,
   goal: number,
