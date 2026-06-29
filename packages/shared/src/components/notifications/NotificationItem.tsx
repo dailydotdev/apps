@@ -205,9 +205,6 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   // `numTotalAvatars` can arrive as 0 from the backend even when avatars are
   // present, so take the larger of the two rather than `??` (which keeps 0).
   const totalAvatars = Math.max(numTotalAvatars ?? 0, filteredAvatars.length);
-  // Only show the multi-image grid for more than three actors; one/two/three
-  // just show a single avatar (with a corner badge).
-  const showGrid = filteredAvatars.length > 1 && totalAvatars > 3;
   const renderLink = onClick && isClickable;
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
@@ -219,6 +216,14 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   // squad activity). Source posts & system land in `Updates` and stay clean.
   const showBadge =
     hasAvatar && category !== NotificationFilterCategory.Updates;
+  // The diamond needs a full set of faces to stay balanced: 3 faces + the
+  // badge, or 4 faces when there's no badge. Only switch to it for more than
+  // three actors AND when enough real avatars were sent to fill it — otherwise
+  // fall back to the single lead (the total still shows in the title) rather
+  // than rendering a lopsided cluster with empty points.
+  const diamondFaceCount = showBadge ? 3 : 4;
+  const showGrid =
+    totalAvatars > 3 && filteredAvatars.length >= diamondFaceCount;
 
   // Up to three actors render a single avatar (with a corner badge). More than
   // three render as a "diamond" cluster the size of one avatar — rounded-square
@@ -234,47 +239,48 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       'right-0 top-1/2 -translate-y-1/2',
       'bottom-0 left-1/2 -translate-x-1/2',
     ];
-    const faceCount = showBadge ? 3 : 4;
-    const faces = filteredAvatars.slice(0, faceCount).map((avatar, index) => {
-      const positioned = (child: ReactElement) => (
-        <span
-          key={avatar.referenceId}
-          className={classNames('absolute', diamondPoints[index])}
-        >
-          {child}
-        </span>
-      );
-      // Only image-backed actors (the ones that actually appear in a >3 stack)
-      // render as a compact face. Icon-backed types (badges/briefs/digests)
-      // never reach this path, but fall back to the full avatar renderer rather
-      // than a broken <img> if one ever does.
-      const isImageBacked =
-        avatar.type === NotificationAvatarType.User ||
-        avatar.type === NotificationAvatarType.Source ||
-        avatar.type === NotificationAvatarType.Organization;
-      if (!isImageBacked) {
-        return positioned(<NotificationItemAvatar {...avatar} />);
-      }
-      const image = (
-        <Image
-          className="size-5 rounded-8 border-2 border-background-default object-cover"
-          src={avatar.image}
-          alt={`${avatar.name} avatar`}
-        />
-      );
-      return positioned(
-        avatar.type === NotificationAvatarType.User ? (
-          <ProfileTooltip
-            userId={avatar.referenceId}
-            link={{ href: avatar.targetUrl }}
+    const faces = filteredAvatars
+      .slice(0, diamondFaceCount)
+      .map((avatar, index) => {
+        const positioned = (child: ReactElement) => (
+          <span
+            key={avatar.referenceId ?? index}
+            className={classNames('absolute', diamondPoints[index])}
           >
-            {image}
-          </ProfileTooltip>
-        ) : (
-          image
-        ),
-      );
-    });
+            {child}
+          </span>
+        );
+        // Only image-backed actors (the ones that actually appear in a >3 stack)
+        // render as a compact face. Icon-backed types (badges/briefs/digests)
+        // never reach this path, but fall back to the full avatar renderer rather
+        // than a broken <img> if one ever does.
+        const isImageBacked =
+          avatar.type === NotificationAvatarType.User ||
+          avatar.type === NotificationAvatarType.Source ||
+          avatar.type === NotificationAvatarType.Organization;
+        if (!isImageBacked) {
+          return positioned(<NotificationItemAvatar {...avatar} />);
+        }
+        const image = (
+          <Image
+            className="size-5 rounded-8 border-2 border-background-default object-cover"
+            src={avatar.image}
+            alt={`${avatar.name} avatar`}
+          />
+        );
+        return positioned(
+          avatar.type === NotificationAvatarType.User ? (
+            <ProfileTooltip
+              userId={avatar.referenceId}
+              link={{ href: avatar.targetUrl }}
+            >
+              {image}
+            </ProfileTooltip>
+          ) : (
+            image
+          ),
+        );
+      });
 
     avatarContent = (
       <div className="relative size-10">

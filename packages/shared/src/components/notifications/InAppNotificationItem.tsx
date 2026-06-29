@@ -39,8 +39,11 @@ export function InAppNotificationItem({
       <div className="mt-0.5 flex w-10 shrink-0 items-center justify-start self-start">
         <NotificationItemLead type={type} icon={icon} avatar={avatar} />
       </div>
-      <p
-        className="mt-0.5 line-clamp-3 min-w-0 flex-1 break-words text-left font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_strong]:font-bold"
+      {/* A div (not a <p>): the sanitized title can itself be wrapped in a
+          <p>, and a <p> inside a <p> is invalid and gets auto-closed by the
+          browser, breaking the layout. */}
+      <div
+        className="mt-0.5 line-clamp-3 min-w-0 flex-1 break-words text-left font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold"
         dangerouslySetInnerHTML={{
           __html: memoizedTitle,
         }}
