@@ -20,7 +20,11 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
-import { checkIsExtension, isIOSNative } from '../lib/func';
+import {
+  checkIsExtension,
+  getDailyClientPlatform,
+  isIOSNative,
+} from '../lib/func';
 import type { ApiErrorResult } from '../graphql/common';
 import {
   ApiError,
@@ -278,7 +282,7 @@ export const BootDataProvider = ({
     [cachedBootData],
   );
 
-  gqlClient.setHeader(dailyClientHeader, app);
+  gqlClient.setHeader(dailyClientHeader, getDailyClientPlatform(version));
 
   if (logged?.language && logged?.isPlus) {
     gqlClient.setHeader('content-language', logged.language as string);

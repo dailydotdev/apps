@@ -21,6 +21,7 @@ import SettingsContext, {
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { dailyClientHeader, gqlClient } from '../graphql/common';
+import { getDailyClientPlatform } from '../lib/func';
 import AlertContext from './AlertContext';
 import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
@@ -681,7 +682,7 @@ it('should set the calling platform header on the gql client', async () => {
   await waitFor(() =>
     expect(setHeaderSpy).toHaveBeenCalledWith(
       dailyClientHeader,
-      BootApp.Extension,
+      getDailyClientPlatform('test-version'),
     ),
   );
   setHeaderSpy.mockRestore();
