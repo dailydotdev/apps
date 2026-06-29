@@ -877,8 +877,9 @@ export const Spotlight = ({
               {isMobile && (
                 <Button
                   type="button"
-                  variant={ButtonVariant.Tertiary}
+                  variant={ButtonVariant.Subtle}
                   size={ButtonSize.Small}
+                  className="border border-border-subtlest-tertiary"
                   onClick={onClose}
                 >
                   Close
