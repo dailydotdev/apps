@@ -14,12 +14,20 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize } from '../buttons/Button';
 import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
+import { getPostImpressions } from '../../lib/impressions';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureCardImpressions } from '../../lib/featureManagement';
 
 const DEFAULT_REPOSTS_PER_PAGE = 20;
 
 type PostUpvotesCommentsCountPost = Pick<
   Post,
-  'analytics' | 'numAwards' | 'numComments' | 'numReposts' | 'numUpvotes'
+  | 'analytics'
+  | 'numAwards'
+  | 'numComments'
+  | 'numReposts'
+  | 'numUpvotes'
+  | 'views'
 > &
   Partial<Pick<Post, 'id'>> & {
     author?: Pick<NonNullable<Post['author']>, 'id'>;
@@ -44,6 +52,7 @@ type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
   onRepostsClick?: () => unknown;
   onAwardsClick?: () => unknown;
   showPostAnalytics?: boolean;
+  impressionsEnabled?: boolean;
 };
 
 const PostUpvotesCommentsCountContent = ({
@@ -53,6 +62,7 @@ const PostUpvotesCommentsCountContent = ({
   onRepostsClick,
   onAwardsClick,
   showPostAnalytics = false,
+  impressionsEnabled = false,
   className,
   compact = false,
   passive = false,
@@ -63,6 +73,14 @@ const PostUpvotesCommentsCountContent = ({
   const reposts = post.numReposts || 0;
   const getText = ({ count, label }: { count: number; label: string }) =>
     `${largeNumberFormat(count)} ${label}${count > 1 ? 's' : ''}`;
+  // Flag on: a single impressions stat next to the other counts (links to the
+  // analytics page). Flag off: keep main's behaviour — the author/team-only
+  // `analytics.impressions` line plus the "Post analytics" button.
+  const impressions = getPostImpressions(post);
+  const impressionsLabel =
+    impressionsEnabled && !compact && !!post.id && impressions !== null
+      ? getText({ count: impressions, label: 'Impression' })
+      : null;
 
   const renderText = ({
     key,
@@ -95,7 +113,7 @@ const PostUpvotesCommentsCountContent = ({
       )}
       data-testid="statsBar"
     >
-      {!!post.analytics?.impressions && (
+      {!impressionsEnabled && !!post.analytics?.impressions && (
         <span>
           {getText({ count: post.analytics.impressions, label: 'Impression' })}
         </span>
@@ -112,6 +130,23 @@ const PostUpvotesCommentsCountContent = ({
           onClick: onCommentsClick,
           children: getText({ count: comments, label: 'Comment' }),
         })}
+      {/* Flag on: impressions sit right after comments and look like the other
+          stats; tapping them opens the analytics page. Shown on the post
+          page/modal strip only (not the compact embed). */}
+      {impressionsLabel &&
+        (!passive ? (
+          <Link
+            key="impressions"
+            href={`${webappUrl}posts/${post.id}/analytics`}
+            passHref
+          >
+            <ClickableText tag="a" textClassName="text-text-tertiary">
+              {impressionsLabel}
+            </ClickableText>
+          </Link>
+        ) : (
+          <span key="impressions">{impressionsLabel}</span>
+        ))}
       {reposts > 0 &&
         renderText({
           key: 'reposts',
@@ -136,7 +171,7 @@ const PostUpvotesCommentsCountContent = ({
             </span>
           ),
         })}
-      {showPostAnalytics && (
+      {!impressionsEnabled && showPostAnalytics && (
         <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
           <Button
             tag="a"
@@ -160,7 +195,11 @@ const InteractivePostUpvotesCommentsCount = ({
   compact,
 }: PostUpvotesCommentsCountProps): ReactElement => {
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
+  const { value: impressionsEnabled } = useConditionalFeature({
+    feature: featureCardImpressions,
+    shouldEvaluate: isAuthReady,
+  });
   const awards = post.numAwards || 0;
   const hasAccessToCores = useHasAccessToCores();
   if (!post.id) {
@@ -214,6 +253,7 @@ const InteractivePostUpvotesCommentsCount = ({
           : undefined
       }
       showPostAnalytics={canViewPostAnalytics({ user, post })}
+      impressionsEnabled={impressionsEnabled}
       className={className}
       compact={compact}
     />

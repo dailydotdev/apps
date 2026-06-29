@@ -261,6 +261,9 @@ export interface Post {
   numComments?: number;
   numAwards?: number;
   numReposts?: number;
+  // Per-post impressions, selected by the feed (FeedPostInfo) and post
+  // (SharedPostInfo) fragments.
+  views?: number;
   author?: Author;
   scout?: Scout;
   read?: boolean;
