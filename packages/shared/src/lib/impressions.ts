@@ -20,10 +20,18 @@ export const formatImpressions = (value: number | null): string => {
     scaled /= 1000;
     unit += 1;
   }
+  let rounded =
+    Math.abs(scaled) < 10 ? Math.round(scaled * 10) / 10 : Math.round(scaled);
+  // Carry to the next unit when rounding lands on 1000 (e.g. 999_500 → 1M, not
+  // 1000K).
+  if (Math.abs(rounded) >= 1000 && unit < units.length - 1) {
+    rounded /= 1000;
+    unit += 1;
+  }
   const compact =
-    Math.abs(scaled) < 10
-      ? (Math.round(scaled * 10) / 10).toFixed(1).replace(/\.0$/, '')
-      : String(Math.round(scaled));
+    Math.abs(rounded) < 10
+      ? rounded.toFixed(1).replace(/\.0$/, '')
+      : String(rounded);
   return `${compact}${units[unit]}`;
 };
 

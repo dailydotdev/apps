@@ -74,7 +74,8 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  // Awards are hidden in the feed below laptop (tablet + mobile).
+  // When impressions are enabled, awards are hidden below laptop (tablet +
+  // mobile) to make room for the extra action.
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { getUpvoteAnimation } = useBrandSponsorship();
 
@@ -112,7 +113,11 @@ const ActionButtons = ({
   }, [getUpvoteAnimation, post.tags]);
 
   const onImpressionsClick = usePostImpressionsModal(post);
-  const { showImpressions, impressions } = usePostImpressions(post);
+  const {
+    enabled: impressionsEnabled,
+    showImpressions,
+    impressions,
+  } = usePostImpressions(post);
 
   if (isFeedPreview) {
     return null;
@@ -203,7 +208,7 @@ const ActionButtons = ({
             />
           </Tooltip>
         )}
-        {showAwardAction && isLaptop && (
+        {showAwardAction && (!impressionsEnabled || isLaptop) && (
           <PostAwardAction post={post} density={FEED_CARD_DENSITY} />
         )}
         <BookmarkButton

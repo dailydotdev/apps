@@ -6,6 +6,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { canViewPostAnalytics } from '../../lib/user';
+import { webappUrl } from '../../lib/constants';
 
 /**
  * Click handler for the impressions stat:
@@ -13,9 +14,10 @@ import { canViewPostAnalytics } from '../../lib/user';
  *   post analytics page;
  * - everyone else gets the X/Twitter-style explainer popup.
  */
-export const usePostImpressionsModal = (
-  post: Pick<Post, 'id' | 'author'>,
-): ((event?: MouseEvent) => void) => {
+export const usePostImpressionsModal = (post: {
+  id?: string;
+  author?: Pick<NonNullable<Post['author']>, 'id'>;
+}): ((event?: MouseEvent) => void) => {
   const router = useRouter();
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
@@ -27,7 +29,7 @@ export const usePostImpressionsModal = (
       event?.preventDefault();
 
       if (canViewAnalytics) {
-        router.push(`/posts/${post.id}/analytics`);
+        router.push(`${webappUrl}posts/${post.id}/analytics`);
         return;
       }
 

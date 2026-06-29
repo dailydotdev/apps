@@ -17,6 +17,7 @@ import { webappUrl } from '../../lib/constants';
 import { getPostImpressions } from '../../lib/impressions';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureCardImpressions } from '../../lib/featureManagement';
+import { usePostImpressionsModal } from '../../hooks/post/usePostImpressionsModal';
 
 const DEFAULT_REPOSTS_PER_PAGE = 20;
 
@@ -51,6 +52,7 @@ interface PostUpvotesCommentsCountProps {
 type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
   onRepostsClick?: () => unknown;
   onAwardsClick?: () => unknown;
+  onImpressionsClick?: () => void;
   showPostAnalytics?: boolean;
   impressionsEnabled?: boolean;
 };
@@ -61,6 +63,7 @@ const PostUpvotesCommentsCountContent = ({
   onCommentsClick,
   onRepostsClick,
   onAwardsClick,
+  onImpressionsClick,
   showPostAnalytics = false,
   impressionsEnabled = false,
   className,
@@ -78,7 +81,11 @@ const PostUpvotesCommentsCountContent = ({
   // `analytics.impressions` line plus the "Post analytics" button.
   const impressions = getPostImpressions(post);
   const impressionsLabel =
-    impressionsEnabled && !compact && !!post.id && impressions !== null
+    impressionsEnabled &&
+    !compact &&
+    !!post.id &&
+    impressions !== null &&
+    impressions > 0
       ? getText({ count: impressions, label: 'Impression' })
       : null;
 
@@ -131,22 +138,15 @@ const PostUpvotesCommentsCountContent = ({
           children: getText({ count: comments, label: 'Comment' }),
         })}
       {/* Flag on: impressions sit right after comments and look like the other
-          stats; tapping them opens the analytics page. Shown on the post
-          page/modal strip only (not the compact embed). */}
+          stats. Tapping routes the owner/team to the analytics page and
+          everyone else to the explainer popup (same handler as the feed cards).
+          Shown on the post page/modal strip only (not the compact embed). */}
       {impressionsLabel &&
-        (!passive ? (
-          <Link
-            key="impressions"
-            href={`${webappUrl}posts/${post.id}/analytics`}
-            passHref
-          >
-            <ClickableText tag="a" textClassName="text-text-tertiary">
-              {impressionsLabel}
-            </ClickableText>
-          </Link>
-        ) : (
-          <span key="impressions">{impressionsLabel}</span>
-        ))}
+        renderText({
+          key: 'impressions',
+          onClick: onImpressionsClick,
+          children: impressionsLabel,
+        })}
       {reposts > 0 &&
         renderText({
           key: 'reposts',
@@ -200,6 +200,7 @@ const InteractivePostUpvotesCommentsCount = ({
     feature: featureCardImpressions,
     shouldEvaluate: isAuthReady,
   });
+  const onImpressionsClick = usePostImpressionsModal(post);
   const awards = post.numAwards || 0;
   const hasAccessToCores = useHasAccessToCores();
   if (!post.id) {
@@ -254,6 +255,7 @@ const InteractivePostUpvotesCommentsCount = ({
       }
       showPostAnalytics={canViewPostAnalytics({ user, post })}
       impressionsEnabled={impressionsEnabled}
+      onImpressionsClick={onImpressionsClick}
       className={className}
       compact={compact}
     />

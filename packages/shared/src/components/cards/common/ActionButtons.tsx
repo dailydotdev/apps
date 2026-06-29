@@ -127,7 +127,11 @@ const ActionButtonsV1 = ({
   }, [getUpvoteAnimation, post.tags]);
 
   const onImpressionsClick = usePostImpressionsModal(post);
-  const { showImpressions, impressions } = usePostImpressions(post);
+  const {
+    enabled: impressionsEnabled,
+    showImpressions,
+    impressions,
+  } = usePostImpressions(post);
 
   if (isFeedPreview) {
     return null;
@@ -247,7 +251,10 @@ const ActionButtonsV1 = ({
             />
           </Tooltip>
         )}
-        {showAwardAction && isLaptop && (
+        {/* When impressions are enabled, drop awards below laptop to make room
+            for the extra action; with the flag off, awards stay on every
+            viewport (unchanged from control). */}
+        {showAwardAction && (!impressionsEnabled || isLaptop) && (
           <PostAwardAction post={post} iconSize={iconSize} />
         )}
         <BookmarkButton
