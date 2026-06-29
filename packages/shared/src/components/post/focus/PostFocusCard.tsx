@@ -564,14 +564,17 @@ export const PostFocusCard = ({
 
           {/* Flat, left-aligned text link to the source, sitting right after
               the summary — a calm "exit to the article" where the reader's eye
-              lands before the comments. Shares the read button's reader gate. */}
+              lands before the comments. Styled to match the "From {domain}"
+              metadata line (tertiary, typo-callout) — underlined with a
+              trailing icon, deliberately not the blue link colour. Shares the
+              read button's reader gate. */}
           {canReadArticle && (
             <a
               href={readHref}
               target="_blank"
               rel="noopener"
               onClick={handleReadClick}
-              className="inline-flex w-fit items-center gap-1.5 font-bold text-text-link hover:underline"
+              className="inline-flex w-fit items-center gap-1 text-text-tertiary underline typo-callout"
             >
               {getReadPostButtonText(post)}
               <OpenLinkIcon size={IconSize.Size16} />
