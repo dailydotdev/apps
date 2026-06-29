@@ -377,32 +377,14 @@ export const PostFocusCard = ({
             </div>
           </div>
 
-          {/* The lead block — title, cover image and metadata — is one large
-              click target via an overlay link, so tapping anywhere in it opens
-              the article. The source header above is deliberately excluded; the
-              interactive children (cover image, read button, shared-via link)
-              sit above the overlay with `relative z-1` and keep their own
-              behavior. The overlay is pointer-only (aria-hidden + tabIndex -1)
-              since the read button is the keyboard/AT path to the same place. */}
-          {/* The whole lead area is one click target; hovering anywhere in it
-              turns the title the link colour so the region clearly reads as
-              clickable without recolouring its background. */}
-          <div className="group/lead relative flex flex-col gap-4">
-            {canReadArticle && (
-              // eslint-disable-next-line jsx-a11y/anchor-has-content -- decorative pointer-only overlay; the read button below is the labeled keyboard/AT path to the same article
-              <a
-                aria-hidden
-                tabIndex={-1}
-                href={readHref}
-                target="_blank"
-                rel="noopener"
-                onClick={handleReadClick}
-                className="absolute inset-0"
-              />
-            )}
+          {/* Only the title and the read button link to the post. The metadata
+              strip below (date, read time, source domain) is not part of that
+              click target, so hovering it neither shows a link cursor nor
+              colours the title — the source domain is its own separate link. */}
+          <div className="flex flex-col gap-4">
             <div className="flex min-w-0 flex-col gap-3">
               {sharedVia && (
-                <p className="relative z-1 flex items-center gap-1 text-text-tertiary typo-footnote">
+                <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
                   <span>Shared via</span>
                   <HoverCard
                     appendTo={globalThis?.document?.body}
@@ -450,28 +432,37 @@ export const PostFocusCard = ({
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
                   <h1
                     className={classNames(
-                      'break-words font-bold text-text-primary transition-colors typo-title3 tablet:typo-title1',
+                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
                       // On the post page the reader came to read, so the title is
                       // always shown in full and the button flows below it; only
                       // the modal (a feed preview) clamps it.
                       onClose && 'line-clamp-3',
-                      // Only colour the title when a link in the lead area is
-                      // hovered. The cover image is a <button> (it opens the
-                      // lightbox, a different action), so hovering it is excluded.
-                      canReadArticle &&
-                        'group-has-[a:hover]/lead:text-text-link',
                     )}
                     data-testid="post-modal-title"
                   >
-                    {title}
+                    {/* The title links to the post and turns the link colour on
+                        hover; the read button below is the other entry point. */}
+                    {canReadArticle ? (
+                      <a
+                        href={readHref}
+                        target="_blank"
+                        rel="noopener"
+                        onClick={handleReadClick}
+                        className="transition-colors hover:text-text-link"
+                      >
+                        {title}
+                      </a>
+                    ) : (
+                      title
+                    )}
                   </h1>
-                  {renderReadButton('relative z-1 w-fit')}
+                  {renderReadButton('w-fit')}
                 </div>
                 {!isVideoType && article.image && (
                   <button
                     type="button"
                     aria-label="View cover image"
-                    className="relative z-1 block w-28 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-48"
+                    className="block w-28 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-48"
                     onClick={(event) => {
                       openModal({
                         type: LazyModal.ImageView,
@@ -507,11 +498,10 @@ export const PostFocusCard = ({
                 article.domain.length > 0 && (
                   <TruncateText>
                     From{' '}
-                    {/* Lifted above the lead-area overlay (`relative z-1`) so the
-                        domain is directly hoverable — it reads as a link with the
-                        blue colour + underline on hover. */}
+                    {/* The source domain is its own link — blue + underline on
+                        hover. */}
                     <ArticleLink
-                      className="relative z-1 hover:text-text-link hover:underline"
+                      className="hover:text-text-link hover:underline"
                       href={article.permalink}
                       onClick={onReadArticle}
                       title={article.domain}
