@@ -51,7 +51,7 @@ export function NotificationItemLead({
       {showBadge && (
         <span
           className={classNames(
-            'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
+            'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-8 border-2 border-background-default',
             badge.bg,
           )}
         >

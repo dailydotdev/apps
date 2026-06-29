@@ -77,7 +77,7 @@ export const CategoryBadges: Story = {
         return (
           <Tile key={category} label={notificationFilterCategoryLabel[category]}>
             <span
-              className={`flex size-5 items-center justify-center rounded-full ${badge.bg}`}
+              className={`flex size-5 items-center justify-center rounded-8 ${badge.bg}`}
             >
               <BadgeIcon
                 secondary
@@ -107,7 +107,7 @@ export const BadgeOnAvatar: Story = {
               <div className="relative flex items-center">
                 <span className="size-10 rounded-full bg-surface-float" />
                 <span
-                  className={`absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-background-default ${badge.bg}`}
+                  className={`absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-8 border-2 border-background-default ${badge.bg}`}
                 >
                   <BadgeIcon
                     secondary
