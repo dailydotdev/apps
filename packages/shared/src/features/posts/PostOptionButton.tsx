@@ -82,9 +82,9 @@ import {
   demotePost,
   PostType,
   promotePost,
-  useCanBoostPost,
   UserVote,
 } from '../../graphql/posts';
+import { useCanBoostPost } from '../../hooks/post/useCanBoostPost';
 import type { ReportedCallback } from '../../components/modals';
 import { labels } from '../../lib';
 import { useBookmarkReminder } from '../../hooks/notifications';

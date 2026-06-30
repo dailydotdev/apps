@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request';
-import { useQuery } from '@tanstack/react-query';
 import type { Connection, RequestQueryParams } from './common';
 import { gqlClient } from './common';
 import type { TransactionCreated } from './njord';
@@ -7,8 +6,6 @@ import type { Post } from './posts';
 import type { Squad } from './sources';
 import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 import type { LoggedUser } from '../lib/user';
-import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
-import { useAuthContext } from '../contexts/AuthContext';
 
 const CAMPAIGN_FRAGMENT = gql`
   fragment CampaignFragment on Campaign {
@@ -269,17 +266,3 @@ export const stopCampaign = async (id: string): Promise<TransactionCreated> => {
 
 export const DEFAULT_CORES_PER_DAY = 5000;
 export const DEFAULT_DURATION_DAYS = 7;
-
-export const useCampaignByIdOptions = (campaignId: string) => {
-  const { user } = useAuthContext();
-
-  return {
-    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
-    queryFn: () => getCampaignById(campaignId),
-    staleTime: StaleTime.Default,
-    enabled: !!campaignId,
-  };
-};
-
-export const useCampaignById = (campaignId: string) =>
-  useQuery(useCampaignByIdOptions(campaignId));

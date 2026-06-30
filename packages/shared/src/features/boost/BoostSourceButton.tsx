@@ -11,7 +11,7 @@ import {
   TypographyTag,
 } from '../../components/typography/Typography';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useCampaignById } from '../../graphql/campaigns';
+import { useCampaignById } from '../../hooks/useCampaignById';
 import type { Squad } from '../../graphql/sources';
 import { SourcePermissions } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';

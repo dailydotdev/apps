@@ -12,7 +12,7 @@ import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { ButtonVariant } from '../../buttons/common';
 import { anchorDefaultRel } from '../../../lib/strings';
-import { useCampaignById } from '../../../graphql/campaigns';
+import { useCampaignById } from '../../../hooks/useCampaignById';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { Separator } from '../common/common';
 import type { BasicSourceMember } from '../../../graphql/sources';

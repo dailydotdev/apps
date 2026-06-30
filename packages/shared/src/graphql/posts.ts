@@ -15,8 +15,6 @@ import {
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
-import { useCanPurchaseCores } from '../hooks/useCoresFeature';
-import { useAuthContext } from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
@@ -1284,24 +1282,6 @@ export const updateSourcePostModeration = async (
   );
 
   return res.updateSourcePostModeration;
-};
-
-export const checkCanBoostByUser = (post: Post, userId: string) =>
-  (post?.author?.id && post?.author?.id === userId) ||
-  (post?.scout?.id && post?.scout?.id === userId);
-
-export const useCanBoostPost = (post: Post) => {
-  const { user } = useAuthContext();
-  const canBuy = useCanPurchaseCores();
-
-  if (!user?.id) {
-    return { canBoost: false };
-  }
-
-  const canBoost =
-    canBuy && checkCanBoostByUser(post, user.id) && !post?.private;
-
-  return { canBoost };
 };
 
 export const BRIEFING_POSTS_PER_PAGE_DEFAULT = 20;

@@ -7,7 +7,7 @@ import { ButtonVariant } from '../../components/buttons/common';
 import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { useCampaignById } from '../../graphql/campaigns';
+import { useCampaignById } from '../../hooks/useCampaignById';
 
 interface BoostButtonProps {
   buttonProps?: ButtonProps<'button'>;

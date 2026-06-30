@@ -17,7 +17,7 @@ import {
 } from '../../icons';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { Squad } from '../../../graphql/sources';
-import { useCampaignById } from '../../../graphql/campaigns';
+import { useCampaignById } from '../../../hooks/useCampaignById';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import type { MenuItemProps } from '../../dropdown/common';

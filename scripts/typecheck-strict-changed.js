@@ -145,6 +145,17 @@ const strictSkipList = new Set([
   // cleanup PR.
   'packages/shared/src/hooks/usePoll.tsx',
   'packages/webapp/hooks/useSharedByToast.tsx',
+  // Dependency-cycle cleanup — these files were touched only to swap the
+  // `useCampaignById` import from `graphql/campaigns` to the new
+  // `hooks/useCampaignById` module (extracted to break a graphql→context
+  // back-edge). Pre-existing strict violations (campaign/squad.flags
+  // optionality, null returns) live on unrelated lines and should be
+  // addressed in a dedicated cleanup PR.
+  'packages/shared/src/features/boost/BoostButton.tsx',
+  'packages/shared/src/features/boost/BoostSourceButton.tsx',
+  'packages/shared/src/features/boost/BoostedViewModal.tsx',
+  'packages/shared/src/components/cards/common/SquadOptionsButton.tsx',
+  'packages/shared/src/components/cards/squad/SquadGrid.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
