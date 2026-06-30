@@ -116,7 +116,14 @@ export default function MainFeedPage({
   }
 
   if (feedName === 'default' && !isSearchOn && isDailyAsDefault) {
-    return <DailyHome onBackToFeed={() => setShowDaily(false)} />;
+    return (
+      <DailyHome
+        onBackToFeed={() => {
+          setShowDaily(false);
+          window.scrollTo({ top: 0 });
+        }}
+      />
+    );
   }
 
   return (

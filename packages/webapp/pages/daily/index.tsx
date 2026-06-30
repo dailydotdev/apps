@@ -37,7 +37,14 @@ const DailyPage = (): ReactElement | null => {
     return null;
   }
 
-  return <DailyHome onBackToFeed={() => setShowDaily(false)} />;
+  return (
+    <DailyHome
+      onBackToFeed={() => {
+        setShowDaily(false);
+        router.push('/');
+      }}
+    />
+  );
 };
 
 DailyPage.getLayout = getMainFeedLayout;

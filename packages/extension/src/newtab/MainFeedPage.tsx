@@ -181,7 +181,12 @@ const MainFeedPageInner = ({
         >
           <FeedLayoutProvider>
             {showDailyHome ? (
-              <DailyHome onBackToFeed={() => setShowDaily(false)} />
+              <DailyHome
+                onBackToFeed={() => {
+                  setShowDaily(false);
+                  window.scrollTo({ top: 0 });
+                }}
+              />
             ) : (
               <MainFeedLayout
                 feedName={feedName}
