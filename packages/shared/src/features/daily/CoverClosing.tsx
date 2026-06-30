@@ -15,6 +15,7 @@ import { Button, ButtonVariant } from '../../components/buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import type { Vote } from './DailyFeedback';
 import { DailyFeedback } from './DailyFeedback';
@@ -50,6 +51,7 @@ export const CoverClosing = ({
   onBackToFeed,
 }: CoverClosingProps): ReactElement => {
   const { user } = useAuthContext();
+  const { isDailyDefault } = useDailyPage();
   const timezone =
     user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const tomorrow = useMemo(() => formatNextDrop(timezone), [timezone]);
@@ -99,9 +101,9 @@ export const CoverClosing = ({
         </Typography>
       </div>
 
-      {!!onBackToFeed && (
+      {isDailyDefault && (
         <Button
-          className="mt-2"
+          className="mt-6"
           variant={ButtonVariant.Float}
           icon={<HomeIcon />}
           onClick={onBackToFeed}

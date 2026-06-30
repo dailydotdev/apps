@@ -6,14 +6,14 @@ import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../../components/layouts/MainFeedPage';
 
 const seo: NextSeoProps = {
-  title: 'Daily',
+  title: defaultSeoTitle,
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
@@ -22,7 +22,7 @@ const DailyPage = (): ReactElement | null => {
   useScrollRestoration();
   const router = useRouter();
   const { isAuthReady, isLoggedIn } = useAuthContext();
-  const { isEnabled, isLoading } = useDailyPage();
+  const { isEnabled, isLoading, setShowDaily } = useDailyPage();
 
   const isResolved = isAuthReady && !isLoading;
   const isAllowed = isLoggedIn && isEnabled;
@@ -37,7 +37,7 @@ const DailyPage = (): ReactElement | null => {
     return null;
   }
 
-  return <DailyHome />;
+  return <DailyHome onBackToFeed={() => setShowDaily(false)} />;
 };
 
 DailyPage.getLayout = getMainFeedLayout;
