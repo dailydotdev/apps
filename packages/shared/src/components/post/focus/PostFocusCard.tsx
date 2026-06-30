@@ -549,10 +549,12 @@ export const PostFocusCard = ({
                 className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
               />
               <span className="flex flex-col">
-                <span className="font-medium typo-body">
+                <span className="font-bold typo-body">
                   Read the full article
                 </span>
                 {sourceMeta && (
+                  // Source · read time is the muted secondary line; the title
+                  // above stays full strength.
                   <span className="opacity-60 typo-footnote">{sourceMeta}</span>
                 )}
               </span>
