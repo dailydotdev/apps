@@ -18,13 +18,10 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 /**
  * Design-review playground (not shipping UI). The chosen direction — a list row
- * led by a square, primary open-link button (no trailing arrow) — in two
- * stories:
- *   • "All variants" — interface-feel motion (jakub.kr spirit): hover/press
- *     micro-interactions. M1 (icon lift-off) + M2 (tile pop) ship in
- *     PostFocusCard.
- *   • "Prominent" — the same expression turned up: filled rows, a full primary
- *     block, an XL tile, and a bordered card.
+ * led by a square, primary open-link tile — across three stories:
+ *   • All variants — interface-feel motion (jakub.kr spirit). M1 + M2 ship.
+ *   • Prominent — the same expression turned up.
+ *   • M2 variations — ten takes on the springy-tile-pop row, no source name.
  * Shown right after the last line of the TL;DR.
  */
 
@@ -38,26 +35,8 @@ const nudge = classNames(
   EASE_SNAP,
 );
 
-const Tile = ({
-  iconClassName,
-  className,
-}: {
-  iconClassName?: string;
-  className?: string;
-}): ReactElement => (
-  <Button
-    tag="a"
-    href="#"
-    aria-label="Read the full article"
-    variant={ButtonVariant.Primary}
-    size={ButtonSize.Large}
-    icon={<OpenLinkIcon className={iconClassName} />}
-    className={classNames('!rounded-16 shrink-0', className)}
-  />
-);
-
-// Decorative primary tile (a span, not a button) for the prominent rows where
-// the row itself is the link.
+// Decorative primary tile (a span, not a button) — the row itself is the link.
+// Built-in springy pop (M2) + icon lift-off (M1) on group hover.
 const SpanTile = ({
   sizeClass = 'size-12',
   iconSize = IconSize.Large,
@@ -77,7 +56,26 @@ const SpanTile = ({
   </span>
 );
 
-const Text = (): ReactElement => (
+// Button-based tile for the motion story (keeps the real primary button look).
+const Tile = ({
+  iconClassName,
+  className,
+}: {
+  iconClassName?: string;
+  className?: string;
+}): ReactElement => (
+  <Button
+    tag="a"
+    href="#"
+    aria-label="Read the full article"
+    variant={ButtonVariant.Primary}
+    size={ButtonSize.Large}
+    icon={<OpenLinkIcon className={iconClassName} />}
+    className={classNames('!rounded-16 shrink-0', className)}
+  />
+);
+
+const SourceText = (): ReactElement => (
   <span className="flex flex-1 flex-col">
     <span className="font-bold text-text-primary typo-body">
       Read the full article
@@ -88,8 +86,8 @@ const Text = (): ReactElement => (
   </span>
 );
 
-const baseRow =
-  'group -mx-2 flex w-full items-center gap-4 rounded-16 px-2 py-2 hover:bg-surface-float';
+const row =
+  'group -mx-2 flex items-center gap-4 rounded-16 px-2 py-2 transition-[background-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none';
 
 const MagneticRow = (): ReactElement => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -111,7 +109,7 @@ const MagneticRow = (): ReactElement => {
   return (
     <a
       href="#"
-      className={classNames(baseRow, 'transition-colors duration-200', EASE_SNAP)}
+      className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}
       onMouseMove={onMove}
       onMouseLeave={reset}
     >
@@ -124,7 +122,7 @@ const MagneticRow = (): ReactElement => {
       >
         <Tile iconClassName="transition-transform duration-200" />
       </span>
-      <Text />
+      <SourceText />
     </a>
   );
 };
@@ -134,18 +132,11 @@ type Variant = { key: string; name: string; node: ReactElement };
 const motionVariants: Variant[] = [
   {
     key: 'M1',
-    name: 'Icon lift-off — the arrow leaves on hover',
+    name: 'Icon lift-off',
     node: (
-      <a
-        href="#"
-        className={classNames(
-          baseRow,
-          'w-fit transition-[background-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none',
-          EASE_SNAP,
-        )}
-      >
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
         <Tile iconClassName={nudge} />
-        <Text />
+        <SourceText />
       </a>
     ),
   },
@@ -153,36 +144,22 @@ const motionVariants: Variant[] = [
     key: 'M2',
     name: 'Tile pop — springy scale + soft shadow',
     node: (
-      <a
-        href="#"
-        className={classNames(
-          baseRow,
-          'w-fit transition-colors duration-200 active:scale-[0.99] motion-reduce:transition-none',
-          EASE_SNAP,
-        )}
-      >
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
         <Tile
           className={classNames(
             'transition-transform duration-200 group-hover:scale-[1.06] group-hover:shadow-2 motion-reduce:transition-none',
             EASE_SPRING,
           )}
         />
-        <Text />
+        <SourceText />
       </a>
     ),
   },
   {
     key: 'M1+M2',
-    name: 'Combined — lift-off + pop (ships in PostFocusCard)',
+    name: 'Combined — ships in PostFocusCard',
     node: (
-      <a
-        href="#"
-        className={classNames(
-          baseRow,
-          'w-fit transition-[background-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none',
-          EASE_SNAP,
-        )}
-      >
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
         <Tile
           iconClassName={nudge}
           className={classNames(
@@ -190,15 +167,11 @@ const motionVariants: Variant[] = [
             EASE_SPRING,
           )}
         />
-        <Text />
+        <SourceText />
       </a>
     ),
   },
-  {
-    key: 'M4',
-    name: 'Magnetic — the tile follows your cursor',
-    node: <MagneticRow />,
-  },
+  { key: 'M4', name: 'Magnetic — tile follows the cursor', node: <MagneticRow /> },
 ];
 
 const prominentVariants: Variant[] = [
@@ -206,15 +179,9 @@ const prominentVariants: Variant[] = [
     key: 'P1',
     name: 'Filled row — always tinted, full width',
     node: (
-      <a
-        href="#"
-        className={classNames(
-          'group flex w-full items-center gap-4 rounded-16 bg-surface-float px-4 py-3 transition-[background-color,transform] duration-200 hover:bg-surface-hover active:scale-[0.99] motion-reduce:transition-none',
-          EASE_SNAP,
-        )}
-      >
+      <a href="#" className={classNames(row, 'w-full bg-surface-float !px-4 !py-3 hover:bg-surface-hover', EASE_SNAP)}>
         <SpanTile />
-        <Text />
+        <SourceText />
       </a>
     ),
   },
@@ -230,9 +197,7 @@ const prominentVariants: Variant[] = [
         )}
       >
         <OpenLinkIcon size={IconSize.Large} className={classNames('shrink-0', nudge)} />
-        <span className="font-bold typo-body">
-          Read the full article on {DOMAIN}
-        </span>
+        <span className="font-bold typo-body">Read the full article on {DOMAIN}</span>
       </a>
     ),
   },
@@ -240,14 +205,7 @@ const prominentVariants: Variant[] = [
     key: 'P3',
     name: 'XL tile + bigger heading',
     node: (
-      <a
-        href="#"
-        className={classNames(
-          baseRow,
-          'w-fit transition-[background-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none',
-          EASE_SNAP,
-        )}
-      >
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
         <SpanTile sizeClass="size-14" iconSize={IconSize.XLarge} />
         <span className="flex flex-col">
           <span className="font-bold text-text-primary typo-title3">
@@ -272,7 +230,138 @@ const prominentVariants: Variant[] = [
         )}
       >
         <SpanTile />
-        <Text />
+        <SourceText />
+      </a>
+    ),
+  },
+];
+
+// Ten takes on the M2 row, with the source name dropped.
+const Action = ({ className }: { className?: string }): ReactElement => (
+  <span className={classNames('font-bold text-text-primary', className ?? 'typo-body')}>
+    Read the full article
+  </span>
+);
+
+const m2Variants: Variant[] = [
+  {
+    key: '01',
+    name: 'Single line, left',
+    node: (
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
+        <SpanTile />
+        <Action />
+      </a>
+    ),
+  },
+  {
+    key: '02',
+    name: 'Two-line — action + read time',
+    node: (
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
+        <SpanTile />
+        <span className="flex flex-col">
+          <Action />
+          <span className="text-text-tertiary typo-footnote">6 min read</span>
+        </span>
+      </a>
+    ),
+  },
+  {
+    key: '03',
+    name: 'XL tile + title heading',
+    node: (
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
+        <SpanTile sizeClass="size-14" iconSize={IconSize.XLarge} />
+        <Action className="typo-title3" />
+      </a>
+    ),
+  },
+  {
+    key: '04',
+    name: 'Filled row, full width',
+    node: (
+      <a href="#" className={classNames(row, 'w-full bg-surface-float !px-4 !py-3 hover:bg-surface-hover', EASE_SNAP)}>
+        <SpanTile />
+        <Action className="flex-1 typo-body" />
+      </a>
+    ),
+  },
+  {
+    key: '05',
+    name: 'Primary block — whole row',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          'group flex w-full items-center gap-3 rounded-16 bg-text-primary px-5 py-4 text-surface-invert transition-transform duration-200 active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SNAP,
+        )}
+      >
+        <OpenLinkIcon size={IconSize.Large} className={classNames('shrink-0', nudge)} />
+        <span className="font-bold typo-body">Read the full article</span>
+      </a>
+    ),
+  },
+  {
+    key: '06',
+    name: 'Tile on the right',
+    node: (
+      <a href="#" className={classNames(row, 'w-fit hover:bg-surface-float', EASE_SNAP)}>
+        <Action />
+        <SpanTile />
+      </a>
+    ),
+  },
+  {
+    key: '07',
+    name: 'Centered',
+    node: (
+      <a href="#" className={classNames(row, 'mx-auto w-fit hover:bg-surface-float', EASE_SNAP)}>
+        <SpanTile />
+        <Action />
+      </a>
+    ),
+  },
+  {
+    key: '08',
+    name: 'Full width — tile pinned right',
+    node: (
+      <a href="#" className={classNames(row, 'w-full justify-between hover:bg-surface-float', EASE_SNAP)}>
+        <Action className="typo-body" />
+        <SpanTile />
+      </a>
+    ),
+  },
+  {
+    key: '09',
+    name: 'Bordered card',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          'group flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4 transition-[background-color,transform] duration-200 hover:bg-surface-float active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SNAP,
+        )}
+      >
+        <SpanTile />
+        <Action className="flex-1 typo-body" />
+      </a>
+    ),
+  },
+  {
+    key: '10',
+    name: 'Compact pill',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          'group flex w-fit items-center gap-3 rounded-16 bg-surface-float px-3 py-2 transition-[background-color,transform] duration-200 hover:bg-surface-hover active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SNAP,
+        )}
+      >
+        <SpanTile sizeClass="size-9" iconSize={IconSize.Medium} />
+        <Action className="typo-callout" />
       </a>
     ),
   },
@@ -284,10 +373,7 @@ const VariantRow = ({ variant }: { variant: Variant }): ReactElement => (
       <span className="rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 font-mono text-text-quaternary typo-footnote">
         {variant.key}
       </span>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
+      <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
         {variant.name}
       </Typography>
     </div>
@@ -351,7 +437,7 @@ export const AllVariants: Story = {
   render: () => (
     <Page
       title="Read-the-article CTA — primary tile row, with feel"
-      blurb="A list row led by a square primary open-link tile (no trailing arrow). Hover each row for the interface-feel motion. M1 + M2 combined ships in PostFocusCard."
+      blurb="A list row led by a square primary open-link tile. Hover for the interface-feel motion. M1 + M2 combined ships in PostFocusCard."
       list={motionVariants}
     />
   ),
@@ -362,8 +448,19 @@ export const Prominent: Story = {
   render: () => (
     <Page
       title="Read-the-article CTA — prominent takes"
-      blurb="The same primary-tile expression, turned up: an always-filled row, a full primary block, an XL tile, and a bordered card. Same hover/press feel."
+      blurb="The same primary-tile expression, turned up. Same hover/press feel."
       list={prominentVariants}
+    />
+  ),
+};
+
+export const M2Variations: Story = {
+  name: 'M2 variations',
+  render: () => (
+    <Page
+      title="Read-the-article CTA — M2, ten ways"
+      blurb="Ten takes on the springy-tile-pop row, source name dropped. All share the primary tile + pop + icon lift-off."
+      list={m2Variants}
     />
   ),
 };
