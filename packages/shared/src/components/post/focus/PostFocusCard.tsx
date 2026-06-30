@@ -249,12 +249,6 @@ export const PostFocusCard = ({
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
   const canReadArticle = !!readHref && !isInternalReadType(post);
-  const sourceMeta = [
-    !isVideoType && article.domain ? article.domain : undefined,
-    article.readTime ? `${article.readTime} min read` : undefined,
-  ]
-    .filter(Boolean)
-    .join(' · ');
 
   useEffect(() => {
     if (!isVideoType || isVideoExpanded) {
@@ -542,22 +536,13 @@ export const PostFocusCard = ({
                   ? `Read the full article on ${article.domain}`
                   : 'Read the full article'
               }
-              className="group flex w-fit items-center gap-3 rounded-16 bg-text-primary py-3 pl-5 pr-6 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
+              className="group flex w-fit items-center gap-3 rounded-16 bg-text-primary py-3 pl-6 pr-5 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
             >
+              <span className="font-bold typo-body">Read the full article</span>
               <OpenLinkIcon
                 size={IconSize.Large}
                 className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
               />
-              <span className="flex flex-col">
-                <span className="font-bold typo-body">
-                  Read the full article
-                </span>
-                {sourceMeta && (
-                  // Source · read time is the muted secondary line; the title
-                  // above stays full strength.
-                  <span className="opacity-60 typo-footnote">{sourceMeta}</span>
-                )}
-              </span>
             </a>
           )}
 
