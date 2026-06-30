@@ -527,10 +527,10 @@ export const PostFocusCard = ({
             ))
           )}
 
-          {/* Read CTA after the summary — a list row led by a square, primary
-              open-link tile. The row itself is the link (the tile is decorative,
-              so we never nest interactive elements); on hover the tile pops and
-              the icon lifts off, honouring reduced-motion. */}
+          {/* Read CTA after the summary — a single primary block sized to its
+              content. The whole block is the link; on hover it lifts with a soft
+              shadow and the open-link icon nudges out, honouring reduced-motion.
+              A muted second line carries the source and read time. */}
           {canReadArticle && (
             <a
               href={readHref}
@@ -542,25 +542,18 @@ export const PostFocusCard = ({
                   ? `Read the full article on ${article.domain}`
                   : 'Read the full article'
               }
-              className="group -mx-2 flex w-fit items-center gap-4 rounded-16 px-2 py-2 transition-[background-color,transform] duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:bg-surface-float active:scale-[0.99] motion-reduce:transition-none"
+              className="group flex w-fit items-center gap-3 rounded-16 bg-text-primary px-5 py-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
             >
-              <span
-                aria-hidden
-                className="grid size-12 shrink-0 place-items-center rounded-16 bg-text-primary text-surface-invert transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-[1.06] group-hover:shadow-2 motion-reduce:transition-none"
-              >
-                <OpenLinkIcon
-                  size={IconSize.Large}
-                  className="transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
-                />
-              </span>
+              <OpenLinkIcon
+                size={IconSize.Large}
+                className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
+              />
               <span className="flex flex-col">
-                <span className="font-bold text-text-primary typo-body">
+                <span className="font-bold typo-body">
                   Read the full article
                 </span>
                 {sourceMeta && (
-                  <span className="text-text-tertiary typo-footnote">
-                    {sourceMeta}
-                  </span>
+                  <span className="opacity-70 typo-footnote">{sourceMeta}</span>
                 )}
               </span>
             </a>

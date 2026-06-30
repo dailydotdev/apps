@@ -289,17 +289,39 @@ const m2Variants: Variant[] = [
   },
   {
     key: '05',
-    name: 'Primary block — whole row',
+    name: 'Primary block · w-fit · source + read time (ships)',
     node: (
       <a
         href="#"
         className={classNames(
-          'group flex w-full items-center gap-3 rounded-16 bg-text-primary px-5 py-4 text-surface-invert transition-transform duration-200 active:scale-[0.99] motion-reduce:transition-none',
-          EASE_SNAP,
+          'group flex w-fit items-center gap-3 rounded-16 bg-text-primary px-5 py-3 text-surface-invert transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SPRING,
         )}
       >
         <OpenLinkIcon size={IconSize.Large} className={classNames('shrink-0', nudge)} />
-        <span className="font-bold typo-body">Read the full article</span>
+        <span className="flex flex-col">
+          <span className="font-bold typo-body">Read the full article</span>
+          <span className="opacity-70 typo-footnote">{DOMAIN} · 6 min read</span>
+        </span>
+      </a>
+    ),
+  },
+  {
+    key: '05b',
+    name: 'Primary block · w-fit · read time only',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          'group flex w-fit items-center gap-3 rounded-16 bg-text-primary px-5 py-3 text-surface-invert transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SPRING,
+        )}
+      >
+        <OpenLinkIcon size={IconSize.Large} className={classNames('shrink-0', nudge)} />
+        <span className="flex flex-col">
+          <span className="font-bold typo-body">Read the full article</span>
+          <span className="opacity-70 typo-footnote">6 min read</span>
+        </span>
       </a>
     ),
   },
