@@ -288,6 +288,29 @@ export const PostFocusCard = ({
     focusCommentRef.current();
   };
 
+  // The read CTA sits above the TL;DR on mobile and after it on desktop, so it
+  // is defined once and placed twice behind breakpoint-gated wrappers.
+  const readCta = canReadArticle ? (
+    <a
+      href={readHref}
+      target="_blank"
+      rel="noopener"
+      onClick={handleReadClick}
+      aria-label={
+        !isVideoType && article.domain
+          ? `Read the full article on ${article.domain}`
+          : 'Read the full article'
+      }
+      className="group flex w-fit items-center gap-2 rounded-12 bg-text-primary py-2 pl-4 pr-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
+    >
+      <span className="font-bold typo-callout">Read the full article</span>
+      <OpenLinkIcon
+        size={IconSize.Medium}
+        className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
+      />
+    </a>
+  ) : null;
+
   return (
     <article
       className="flex w-full flex-col rounded-24 bg-background-default"
@@ -502,6 +525,9 @@ export const PostFocusCard = ({
             </div>
           )}
 
+          {/* Mobile: the read CTA sits above the TL;DR. */}
+          {readCta && <div className="tablet:hidden">{readCta}</div>}
+
           {article.contentHtml ? (
             <>
               <Markdown content={article.contentHtml} className="break-words" />
@@ -521,32 +547,8 @@ export const PostFocusCard = ({
             ))
           )}
 
-          {/* Read CTA after the summary — a single primary block sized to its
-              content. The whole block is the link; on hover it lifts with a soft
-              shadow and the open-link icon nudges out, honouring reduced-motion.
-              A muted second line carries the source and read time. */}
-          {canReadArticle && (
-            <a
-              href={readHref}
-              target="_blank"
-              rel="noopener"
-              onClick={handleReadClick}
-              aria-label={
-                !isVideoType && article.domain
-                  ? `Read the full article on ${article.domain}`
-                  : 'Read the full article'
-              }
-              className="group flex w-fit items-center gap-2 rounded-12 bg-text-primary py-2 pl-4 pr-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
-            >
-              <span className="font-bold typo-callout">
-                Read the full article
-              </span>
-              <OpenLinkIcon
-                size={IconSize.Medium}
-                className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
-              />
-            </a>
-          )}
+          {/* Desktop: the read CTA sits after the summary. */}
+          {readCta && <div className="hidden tablet:block">{readCta}</div>}
 
           <PostTagList post={article} />
 
