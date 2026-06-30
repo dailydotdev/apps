@@ -30,7 +30,6 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
-import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
@@ -444,13 +443,15 @@ export const PostFocusCard = ({
                 {/* Date, read time and source sit directly under the title;
                       the read button moved to the bar below the summary. */}
                 <PostMetadata
-                  className="!typo-callout"
+                  // Wrap to a second line on mobile so a long domain stays fully
+                  // visible (no ellipsis); single line from tablet up.
+                  className="flex-wrap !typo-callout tablet:flex-nowrap"
                   createdAt={article.createdAt}
                   domain={
                     !isVideoType &&
                     article.domain &&
                     article.domain.length > 0 && (
-                      <TruncateText>
+                      <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
                         From{' '}
                         <ArticleLink
                           className="hover:text-text-link hover:underline"
@@ -460,7 +461,7 @@ export const PostFocusCard = ({
                         >
                           {article.domain}
                         </ArticleLink>
-                      </TruncateText>
+                      </span>
                     )
                   }
                   isVideoType={isVideoType}
