@@ -440,33 +440,6 @@ export const PostFocusCard = ({
                     title
                   )}
                 </h1>
-                {/* Date, read time and source sit directly under the title;
-                      the read button moved to the bar below the summary. */}
-                <PostMetadata
-                  // Wrap to a second line on mobile so a long domain stays fully
-                  // visible (no ellipsis); single line from tablet up.
-                  className="flex-wrap !typo-callout tablet:flex-nowrap"
-                  createdAt={article.createdAt}
-                  domain={
-                    !isVideoType &&
-                    article.domain &&
-                    article.domain.length > 0 && (
-                      <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
-                        From{' '}
-                        <ArticleLink
-                          className="hover:text-text-link hover:underline"
-                          href={article.permalink}
-                          onClick={onReadArticle}
-                          title={article.domain}
-                        >
-                          {article.domain}
-                        </ArticleLink>
-                      </span>
-                    )
-                  }
-                  isVideoType={isVideoType}
-                  readTime={article.readTime}
-                />
               </div>
               {!isVideoType && article.image && (
                 <button
@@ -499,6 +472,34 @@ export const PostFocusCard = ({
               )}
             </div>
           </div>
+
+          {/* Date, read time and source on a full-width line under the title
+              row, so its gap to the TL;DR matches the rest of the column. */}
+          <PostMetadata
+            // Wrap to a second line on mobile so a long domain stays fully
+            // visible (no ellipsis); single line from tablet up.
+            className="flex-wrap !typo-callout tablet:flex-nowrap"
+            createdAt={article.createdAt}
+            domain={
+              !isVideoType &&
+              article.domain &&
+              article.domain.length > 0 && (
+                <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
+                  From{' '}
+                  <ArticleLink
+                    className="hover:text-text-link hover:underline"
+                    href={article.permalink}
+                    onClick={onReadArticle}
+                    title={article.domain}
+                  >
+                    {article.domain}
+                  </ArticleLink>
+                </span>
+              )
+            }
+            isVideoType={isVideoType}
+            readTime={article.readTime}
+          />
 
           {isVideoType && (
             <div
