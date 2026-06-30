@@ -338,7 +338,6 @@ export const NodeRow = ({
                   type={TypographyType.Caption2}
                   color={TypographyColor.Tertiary}
                   bold
-                  className="uppercase tracking-wider"
                 >
                   Level {level.levelNumber} · {requirementLabel}
                 </Typography>
