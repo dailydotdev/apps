@@ -9,6 +9,8 @@ import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
+import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
+import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -103,8 +105,18 @@ export default function MainFeedPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.pathname]);
 
+  const { isDailyAsDefault, setShowDaily } = useDailyPage();
+
+  if (router.pathname === '/daily') {
+    return <>{children}</>;
+  }
+
   if (!feedName) {
     return <></>;
+  }
+
+  if (feedName === 'default' && !isSearchOn && isDailyAsDefault) {
+    return <DailyHome onBackToFeed={() => setShowDaily(false)} />;
   }
 
   return (

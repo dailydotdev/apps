@@ -96,6 +96,7 @@ const updateLocalBootData = (
     'feeds',
     'geo',
     'isAndroidApp',
+    'daily',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -185,6 +186,7 @@ export const BootDataProvider = ({
     feeds,
     geo,
     isAndroidApp,
+    daily,
   } = cachedBootData || {};
 
   useRefreshToken(remoteData?.accessToken, refetch);
@@ -258,6 +260,11 @@ export const BootDataProvider = ({
   const updateSettings = useCallback(
     (updatedSettings: BootCacheData['settings']) =>
       updateBootData({ settings: updatedSettings }),
+    [updateBootData],
+  );
+
+  const setDaily = useCallback(
+    (value: boolean) => updateBootData({ daily: value }),
     [updateBootData],
   );
 
@@ -379,6 +386,8 @@ export const BootDataProvider = ({
         geo={geo}
         isAndroidApp={isAndroidApp}
         feeds={feeds}
+        daily={daily}
+        setDaily={setDaily}
       >
         <SettingsContextProvider
           settings={settings}

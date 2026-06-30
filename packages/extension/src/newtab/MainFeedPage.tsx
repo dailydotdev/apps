@@ -17,6 +17,8 @@ import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
+import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
@@ -82,6 +84,9 @@ const MainFeedPageInner = ({
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isDailyAsDefault, setShowDaily } = useDailyPage();
+  const showDailyHome =
+    feedName === 'default' && !isSearchOn && isDailyAsDefault;
 
   useLayoutEffect(() => {
     if (!initialPage || !shouldInitializeCurrentPage) {
@@ -175,40 +180,44 @@ const MainFeedPageInner = ({
           }
         >
           <FeedLayoutProvider>
-            <MainFeedLayout
-              feedName={feedName}
-              isSearchOn={isSearchOn}
-              searchQuery={searchQuery}
-              onNavTabClick={onNavTabClick}
-              searchChildren={
-                <PostsSearch
-                  onSubmitQuery={async (query, extraFlags) => {
-                    logEvent({
-                      event_name: LogEvent.SubmitSearch,
-                      extra: JSON.stringify({
-                        query,
-                        provider: SearchProviderEnum.Posts,
-                        ...extraFlags,
-                      }),
-                    });
+            {showDailyHome ? (
+              <DailyHome onBackToFeed={() => setShowDaily(false)} />
+            ) : (
+              <MainFeedLayout
+                feedName={feedName}
+                isSearchOn={isSearchOn}
+                searchQuery={searchQuery}
+                onNavTabClick={onNavTabClick}
+                searchChildren={
+                  <PostsSearch
+                    onSubmitQuery={async (query, extraFlags) => {
+                      logEvent({
+                        event_name: LogEvent.SubmitSearch,
+                        extra: JSON.stringify({
+                          query,
+                          provider: SearchProviderEnum.Posts,
+                          ...extraFlags,
+                        }),
+                      });
 
-                    setSearchQuery(query);
-                  }}
-                  onFocus={() => {
-                    logEvent({ event_name: LogEvent.FocusSearch });
-                  }}
-                />
-              }
-              shortcuts={
-                isV2
-                  ? undefined
-                  : shortcuts ?? (
-                      <ShortcutLinks
-                        shouldUseListFeedLayout={shouldUseListFeedLayout}
-                      />
-                    )
-              }
-            />
+                      setSearchQuery(query);
+                    }}
+                    onFocus={() => {
+                      logEvent({ event_name: LogEvent.FocusSearch });
+                    }}
+                  />
+                }
+                shortcuts={
+                  isV2
+                    ? undefined
+                    : shortcuts ?? (
+                        <ShortcutLinks
+                          shouldUseListFeedLayout={shouldUseListFeedLayout}
+                        />
+                      )
+                }
+              />
+            )}
           </FeedLayoutProvider>
           <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
         </MainLayout>
