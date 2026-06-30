@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import ProfileCompany from '../../ProfileCompany';
 import ProfileGithubRepository from '../../ProfileGithubRepository';
-import { HorizontalSeparator } from '../../../../../components/utilities';
+import { HorizontalSeparator } from '../../../../../components/utilities/common';
 import {
   Typography,
   TypographyType,

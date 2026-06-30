@@ -11,7 +11,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
-import { Drawer } from '../drawers';
+import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { EmojiPicker } from '../fields/EmojiPicker';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
@@ -34,7 +34,7 @@ import {
 import { IconSize } from '../Icon';
 import type { LiveRoomChatEntry } from '../../contexts/LiveRoomContext';
 import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 import { chatMarkdownToHtml } from '../../lib/liveRoom/chatMarkdown';
 import { anchorDefaultRel } from '../../lib/strings';

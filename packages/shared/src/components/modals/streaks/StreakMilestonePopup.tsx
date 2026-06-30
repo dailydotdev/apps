@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { useContext, useEffect, useRef } from 'react';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { LazyModal } from '../common/types';
 import AlertContext from '../../../contexts/AlertContext';

@@ -3,16 +3,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  useActions,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
 import {

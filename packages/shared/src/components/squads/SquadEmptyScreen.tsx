@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { cloudinaryCharmEmptySquads } from '../../lib/image';
 import { Image } from '../image/Image';
-import { FlexCentered } from '../utilities';
+import { FlexCentered } from '../utilities/common';
 
 function SquadEmptyScreen(): ReactElement {
   return (

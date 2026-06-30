@@ -18,7 +18,7 @@ import {
   UPDATE_ORGANIZATION_SUBSCRIPTION_MUTATION,
 } from '../graphql';
 import { StaleTime } from '../../../lib/query';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { parseOrDefault } from '../../../lib/func';
 import type { UserOrganization } from '../types';
 import { getOrganizationSettingsUrl } from '../utils';

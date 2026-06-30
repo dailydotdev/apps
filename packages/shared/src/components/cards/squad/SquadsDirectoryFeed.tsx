@@ -11,7 +11,8 @@ import {
 import HorizontalScroll from '../../HorizontalScroll/HorizontalScroll';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 import { SourceCardBorderColor, SquadGrid } from './SquadGrid';
-import { useSquad, useViewSize, ViewSize } from '../../../hooks';
+import { useSquad } from '../../../hooks/squads/useSquad';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';

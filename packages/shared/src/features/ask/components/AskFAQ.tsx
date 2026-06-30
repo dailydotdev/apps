@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol } from '../../../components/utilities/common';
 import { RadixAccordion } from '../../../components/accordion';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';

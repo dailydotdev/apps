@@ -24,7 +24,7 @@ import {
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';

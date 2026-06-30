@@ -11,7 +11,7 @@ import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { SourceIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { useSquad } from '../../../hooks';
+import { useSquad } from '../../../hooks/squads/useSquad';
 import { ButtonSize } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';

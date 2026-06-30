@@ -6,7 +6,7 @@ import { PlusInfo } from './PlusInfo';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { MarketingCtaVariant } from '../marketing/cta/common';
-import { useBoot } from '../../hooks';
+import { useBoot } from '../../hooks/useBoot';
 import PlusListModalSection from './PlusListModalSection';
 import { useFeature } from '../GrowthBookProvider';
 import { plusTakeoverContent } from '../../lib/featureManagement';

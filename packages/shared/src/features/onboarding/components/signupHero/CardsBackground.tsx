@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ErrorBoundary } from '../../../../components/ErrorBoundary';
 import { ArticleGrid } from '../../../../components/cards/article/ArticleGrid';
 import { ActiveFeedNameContext } from '../../../../contexts/ActiveFeedNameContext';
-import { SharedFeedPage } from '../../../../components/utilities';
+import { SharedFeedPage } from '../../../../components/utilities/common';
 import { gqlClient } from '../../../../graphql/common';
 import { MOST_UPVOTED_FEED_QUERY } from '../../../../graphql/feed';
 import type { Post } from '../../../../graphql/posts';

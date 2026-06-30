@@ -13,7 +13,8 @@ import {
   plusFeatureListApiFirst,
   plusOrganizationFeatureList,
 } from './PlusList';
-import { useConditionalFeature, usePlusSubscription } from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { featurePlusApiLanding } from '../../lib/featureManagement';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';

@@ -9,14 +9,14 @@ import React, {
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities/common';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
 import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';

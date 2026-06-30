@@ -5,7 +5,7 @@ import { FC, PropsWithChildren } from 'react';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { fn } from 'storybook/test';
 import { getBootMock } from '../../mock/boot';
-import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts/ActiveFeedContext';
 
 const queryClient = new QueryClient();
 

@@ -4,7 +4,7 @@ import { usePaymentContext } from '../../contexts/payment/context';
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { MarketingCtaVariant } from '../marketing/cta/common';
-import { useBoot } from '../../hooks';
+import { useBoot } from '../../hooks/useBoot';
 import { ButtonVariant, Button } from '../buttons/Button';
 import PlusListModalSection from './PlusListModalSection';
 

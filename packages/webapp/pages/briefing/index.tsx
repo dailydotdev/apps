@@ -20,12 +20,9 @@ import {
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import {
-  useActions,
-  usePlusSubscription,
-  useViewSizeClient,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
@@ -45,7 +42,7 @@ import {
 import { useRouter } from 'next/router';
 import { format, set } from 'date-fns';
 import { useAtomValue } from 'jotai/react';
-import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts/ActiveFeedContext';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';

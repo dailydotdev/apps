@@ -8,7 +8,8 @@ import {
 } from '../../../lib/image';
 import { uploadCv } from '../../../graphql/users';
 import { ActionType } from '../../../graphql/actions';
-import { useActions, useToastNotification } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';

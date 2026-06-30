@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   Typography,

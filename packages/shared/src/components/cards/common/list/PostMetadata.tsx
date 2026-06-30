@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Separator } from '../common';
-import { DateFormat } from '../../../utilities';
+import { DateFormat } from '../../../utilities/DateFormat';
 import { TimeFormatType } from '../../../../lib/dateFormat';
 
 import { useFeedCardContext } from '../../../../features/posts/FeedCardContext';

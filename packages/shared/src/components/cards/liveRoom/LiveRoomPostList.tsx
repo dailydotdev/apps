@@ -3,12 +3,9 @@ import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import {
-  useFeedPreviewMode,
-  useTruncatedSummary,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
+import { useTruncatedSummary } from '../../../hooks/useTruncatedSummary';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { LiveRoomStatus } from '../../../graphql/liveRooms';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';

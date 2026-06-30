@@ -19,7 +19,7 @@ import {
   GET_NOTIFICATION_SETTINGS,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import { SendType } from '@dailydotdev/shared/src/hooks';
+import { SendType } from '@dailydotdev/shared/src/hooks/usePersonalizedDigest';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';

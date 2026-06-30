@@ -17,7 +17,7 @@ import {
   updateRecruiterOrganizationMutationOptions,
   clearRecruiterOrganizationImageMutationOptions,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
 import type { recruiterOrganizationEditSchema } from '@dailydotdev/shared/src/features/organizations/schema';

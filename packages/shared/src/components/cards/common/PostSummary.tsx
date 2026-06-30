@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
 import React, { forwardRef } from 'react';
-import { SummaryContainer, TLDRText } from '../../utilities';
+import { SummaryContainer, TLDRText } from '../../utilities/common';
 import ShowMoreContent from './ShowMoreContent';
 
 interface SummaryProps extends HTMLAttributes<HTMLDivElement> {

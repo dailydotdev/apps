@@ -7,7 +7,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { isExtension } from '../../lib/func';
-import { SharedFeedPage } from '../utilities';
+import { SharedFeedPage } from '../utilities/common';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';

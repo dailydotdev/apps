@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Card } from '../../cards/common/Card';
 import type { MarketingCta } from './common';
-import { useBoot } from '../../../hooks';
+import { useBoot } from '../../../hooks/useBoot';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';

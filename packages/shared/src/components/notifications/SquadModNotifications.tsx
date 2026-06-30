@@ -23,7 +23,7 @@ import { ArrowIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Image } from '../image/Image';
-import { HorizontalSeparator } from '../utilities';
+import { HorizontalSeparator } from '../utilities/common';
 
 interface SquadModerationItemProps {
   squad: Squad;

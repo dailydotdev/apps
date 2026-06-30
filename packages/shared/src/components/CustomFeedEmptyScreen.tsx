@@ -1,6 +1,6 @@
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React from 'react';
-import { PageContainer, SharedFeedPage } from './utilities';
+import { PageContainer, SharedFeedPage } from './utilities/common';
 import { cloudinaryCharmNotEnoughTags } from '../lib/image';
 import { Image } from './image/Image';
 import {

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { OnboardingSignupHero } from './OnboardingSignupHero';
 import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
-import { useViewSize } from '../../../hooks';
+import { useViewSize } from '../../../hooks/useViewSize';
 
 jest.mock('../../../contexts/SettingsContext', () => ({
   ThemeMode: { Dark: 'dark' },

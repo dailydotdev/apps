@@ -7,11 +7,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  Divider,
-  FlexCol,
-  FlexRow,
-} from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities/common';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
 import {
@@ -43,10 +40,8 @@ import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/pr
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
 import { updateCandidatePreferencesMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
-import {
-  useActions,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { UploadCVButton } from '@dailydotdev/shared/src/features/opportunity/components/UploadCVButton';
 import { ClearResumeButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearResumeButton';

@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import type { ButtonProps } from '../../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { BaseFeedPage } from '../../utilities';
-import { useSquadNavigation } from '../../../hooks';
+import { BaseFeedPage } from '../../utilities/common';
+import { useSquadNavigation } from '../../../hooks/useSquadNavigation';
 import { Origin } from '../../../lib/log';
 import {
   SquadDirectoryNavbar,

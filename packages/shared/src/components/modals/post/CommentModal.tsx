@@ -11,7 +11,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type { LazyModalCommonProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { FormWrapper } from '../../fields/form';
+import { FormWrapper } from '../../fields/form/FormWrapper';
 import type { CommentMarkdownInputProps } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { CommentMarkdownInput } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { useMutateComment } from '../../../hooks/post/useMutateComment';

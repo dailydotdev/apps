@@ -31,7 +31,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import type { WriteFormTab } from '../../fields/form/common';
 import { LogEvent } from '../../../lib/log';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
 import { getPostByIdKey } from '../../../lib/query';

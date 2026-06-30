@@ -16,11 +16,11 @@ import {
 import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import type { LogEvent } from '../../../lib/log';
-import { useViewSize, ViewSize } from '../../../hooks';
-import type { DrawerOnMobileProps } from '../../drawers';
-import { Drawer } from '../../drawers';
-import type { FormWrapperProps } from '../../fields/form';
-import { FormWrapper } from '../../fields/form';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import type { DrawerOnMobileProps } from '../../drawers/Drawer';
+import { Drawer } from '../../drawers/Drawer';
+import type { FormWrapperProps } from '../../fields/form/FormWrapper';
+import { FormWrapper } from '../../fields/form/FormWrapper';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { initReactModal, isExtension } from '../../../lib/func';
 

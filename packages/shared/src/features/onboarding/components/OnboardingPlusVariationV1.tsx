@@ -7,7 +7,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { RadioItem } from '../../../components/fields/RadioItem';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { plusFeatureListControl } from '../../../components/plus/PlusList';
 import { LogEvent, TargetType } from '../../../lib/log';
 import type { PlusItem } from '../../../components/plus/PlusListItem';

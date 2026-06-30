@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 
 import { useRouter } from 'next/router';
-import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 

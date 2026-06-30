@@ -17,7 +17,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { AuthTriggers } from '../../lib/auth';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent } from '../../lib/log';

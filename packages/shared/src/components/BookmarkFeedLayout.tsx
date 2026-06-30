@@ -16,7 +16,7 @@ import {
 } from '../graphql/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import AuthContext from '../contexts/AuthContext';
-import { CustomFeedHeader, FeedPageHeader } from './utilities';
+import { CustomFeedHeader, FeedPageHeader } from './utilities/common';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
@@ -24,7 +24,8 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useFeedLayout } from '../hooks/useFeedLayout';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { PageHeader } from './layout/PageHeader';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';

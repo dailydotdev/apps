@@ -14,7 +14,7 @@ import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../contexts/LogExtraContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
-import { useEventListener } from '../../hooks';
+import { useEventListener } from '../../hooks/useEventListener';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 

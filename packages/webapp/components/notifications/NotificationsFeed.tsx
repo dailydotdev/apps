@@ -13,10 +13,7 @@ import {
   NOTIFICATIONS_QUERY,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
-import {
-  pageBorders,
-  pageContainerClassNames,
-} from '@dailydotdev/shared/src/components/utilities';
+import { pageBorders, pageContainerClassNames } from '@dailydotdev/shared/src/components/utilities/common';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {

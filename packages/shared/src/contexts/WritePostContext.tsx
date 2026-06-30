@@ -14,7 +14,7 @@ import type {
 } from '../graphql/posts';
 import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
-import { FormWrapper } from '../components/fields/form';
+import { FormWrapper } from '../components/fields/form/FormWrapper';
 import type { SourcePostModeration } from '../graphql/squads';
 import { useViewSize, ViewSize } from '../hooks/useViewSize';
 

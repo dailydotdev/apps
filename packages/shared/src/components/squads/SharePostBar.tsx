@@ -7,13 +7,14 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { LockIcon } from '../icons';
 import { Card } from '../cards/common/Card';
 import { IconSize } from '../Icon';
-import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
+import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { ClickableText } from '../buttons/ClickableText';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import type { Squad } from '../../graphql/sources';
 import type { ExternalLinkPreview } from '../../graphql/posts';
-import { Divider } from '../utilities';
+import { Divider } from '../utilities/Divider';
 import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 
 export interface SharePostBarProps {

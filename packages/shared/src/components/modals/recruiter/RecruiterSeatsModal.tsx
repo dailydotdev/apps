@@ -23,7 +23,7 @@ import {
 } from '../../../lib/schema/opportunity';
 import { ModalClose } from '../common/ModalClose';
 import { recruiterPricesQueryOptions } from '../../../features/opportunity/queries';
-import { Divider } from '../../utilities';
+import { Divider } from '../../utilities/Divider';
 import { Loader } from '../../Loader';
 import { formatCurrency } from '../../../lib/utils';
 import { addOpportunitySeatsMutationOptions } from '../../../features/opportunity/mutations';

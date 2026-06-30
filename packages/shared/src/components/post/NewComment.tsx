@@ -20,7 +20,7 @@ import { fallbackImages } from '../../lib/config';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';

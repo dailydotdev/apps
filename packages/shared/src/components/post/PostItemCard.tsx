@@ -12,7 +12,7 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
-import { useReadHistoryVotePost } from '../../hooks';
+import { useReadHistoryVotePost } from '../../hooks/vote/useReadHistoryVotePost';
 import { Origin } from '../../lib/log';
 import {
   Button,

@@ -17,7 +17,8 @@ import {
   oneMinute,
   TimeFormatType,
 } from '../../../../lib/dateFormat';
-import { usePlusSubscription, usePostById } from '../../../../hooks';
+import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
+import { usePostById } from '../../../../hooks/usePostById';
 import { BriefContextProvider, useBriefContext } from '../BriefContext';
 import { lottieAnimationQueryOptions } from '../../../../lib/lottie';
 import { useLogContext } from '../../../../contexts/LogContext';

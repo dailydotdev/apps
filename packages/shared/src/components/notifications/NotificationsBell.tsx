@@ -10,7 +10,7 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { webappUrl } from '../../lib/constants';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
 import { IconSize } from '../Icon';

@@ -3,7 +3,7 @@ import React from 'react';
 import { LazyImage } from '../../../../components/LazyImage';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { Modal } from '../../../../components/modals/common/Modal';
-import { Justify } from '../../../../components/utilities';
+import { Justify } from '../../../../components/utilities/common';
 import { isFirefoxExtension } from '../../../../lib/func';
 
 export interface MostVisitedSitesPermissionContentProps {

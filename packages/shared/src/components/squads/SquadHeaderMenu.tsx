@@ -8,7 +8,8 @@ import { SourcePermissions, SourceMemberRole } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
-import { useLeaveSquad, useSquadNavigation } from '../../hooks';
+import { useLeaveSquad } from '../../hooks/useLeaveSquad';
+import { useSquadNavigation } from '../../hooks/useSquadNavigation';
 import { verifyPermission } from '../../graphql/squads';
 import {
   SettingsIcon,

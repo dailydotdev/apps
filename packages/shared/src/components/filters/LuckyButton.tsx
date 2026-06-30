@@ -12,7 +12,7 @@ import type { LuckyPostData } from '../../graphql/luckyPost';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LogEvent } from '../../lib/log';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureLuckyButton } from '../../lib/featureManagement';
 import { useToastNotification } from '../../hooks/useToastNotification';

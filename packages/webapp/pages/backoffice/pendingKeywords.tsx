@@ -4,7 +4,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from '@tanstack/react-query';
 import { RANDOM_PENDING_KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
-import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities/common';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import KeywordManagement from '../../components/KeywordManagement';

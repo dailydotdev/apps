@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import type { DrawerRef } from '@dailydotdev/shared/src/components/drawers';
-import { Drawer } from '@dailydotdev/shared/src/components/drawers';
+import type { DrawerRef } from '@dailydotdev/shared/src/components/drawers/Drawer';
+import { Drawer } from '@dailydotdev/shared/src/components/drawers/Drawer';
 import type {
   AllowedTags,
   ButtonProps,

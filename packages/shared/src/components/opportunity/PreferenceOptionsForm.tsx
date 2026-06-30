@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { FlexCol, FlexRow } from '../utilities';
+import { FlexCol, FlexRow } from '../utilities/common';
 import {
   Typography,
   TypographyColor,
@@ -29,7 +29,8 @@ import {
 } from '../../features/opportunity/mutations';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { useActions, useToastNotification } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { ActionType } from '../../graphql/actions';
 import { locationToString, stringToBoolean } from '../../lib/utils';
 import { KeywordSelection } from '../../features/opportunity/components/KeywordSelection';

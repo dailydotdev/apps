@@ -12,7 +12,7 @@ import { SourceAvatar } from '../../profile/source';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ArrowIcon, InfoIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { TruncateText } from '../../utilities';
+import { TruncateText } from '../../utilities/common';
 import type { Squad } from '../../../graphql/sources';
 import { MAX_AUDIENCE_SQUADS, isUserAudience } from './useComposerAudience';
 

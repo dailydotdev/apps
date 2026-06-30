@@ -11,7 +11,7 @@ import { LazyModal } from '../../modals/common/types';
 import type { Post } from '../../../graphql/posts';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { wrapStopPropagation } from '../../../lib/func';
-import { useActiveFeedContext } from '../../../contexts';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 
 interface PostReminderOptionsProps {

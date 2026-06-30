@@ -3,15 +3,15 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import HeaderLogo from './HeaderLogo';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useActiveFeedNameContext } from '../../contexts';
+import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { SharedFeedPage } from '../utilities';
+import { SharedFeedPage } from '../utilities/common';
 import FeedNav from '../feeds/FeedNav';
 import useActiveNav from '../../hooks/useActiveNav';
 

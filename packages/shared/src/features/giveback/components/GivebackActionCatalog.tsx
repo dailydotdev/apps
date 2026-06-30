@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { FlexCol, FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities/common';
 import {
   Button,
   ButtonSize,

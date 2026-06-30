@@ -17,13 +17,13 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   ProfilePicture,
   ProfileImageSize,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { VIcon, ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';

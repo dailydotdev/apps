@@ -5,7 +5,7 @@ import type { HoverCardContentProps } from '@radix-ui/react-hover-card';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import type { SourceTooltip } from '../../../graphql/sources';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { Origin } from '../../../lib/log';
 import HoverCard from './HoverCard';
 import { Tooltip } from '../../tooltip/Tooltip';

@@ -4,7 +4,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useViewSize } from '../../hooks/useViewSize';
 import { isExtension as isExtensionConst } from '../../lib/func';
 import type { LazyModal } from '../modals/common/types';
 import {

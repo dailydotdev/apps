@@ -10,7 +10,7 @@ import {
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
-import { useBookmarkProvider } from '../../../hooks';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 import type { UserShortProfile } from '../../../lib/user';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { isSourceUserSource } from '../../../graphql/sources';

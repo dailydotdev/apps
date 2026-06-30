@@ -16,7 +16,7 @@ import {
   TargetType,
 } from '../../lib/log';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { useComments } from '../../hooks/post';
+import { useComments } from '../../hooks/post/useComments';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
 import type { Squad } from '../../graphql/sources';
 import type { Comment } from '../../graphql/comments';

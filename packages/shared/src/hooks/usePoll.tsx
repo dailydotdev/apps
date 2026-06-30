@@ -11,7 +11,7 @@ import {
   updateCachedPagePost,
   updatePostCache,
 } from '../lib/query';
-import { useActiveFeedContext } from '../contexts';
+import { useActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import useNotificationSettings from './notifications/useNotificationSettings';

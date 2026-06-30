@@ -7,7 +7,7 @@ import type { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import useDebounceFn from './useDebounceFn';
-import { SharedFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities/common';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { AuthTriggersType } from '../lib/auth';

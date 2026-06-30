@@ -4,7 +4,7 @@ import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ModalClose } from './common/ModalClose';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { Image } from '../image/Image';
 import { cloudinaryReputationPrivilegesUnlocked } from '../../lib/image';

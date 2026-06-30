@@ -6,13 +6,14 @@ import { ButtonColor, Button, ButtonVariant } from './buttons/Button';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
-import { useConditionalFeature, useViewSize, ViewSize } from '../hooks';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import type { TargetId } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
-import type { WithClassNameProps } from './utilities';
+import type { WithClassNameProps } from './utilities/common';
 import { featurePlusApiLanding } from '../lib/featureManagement';
 
 type Props = {

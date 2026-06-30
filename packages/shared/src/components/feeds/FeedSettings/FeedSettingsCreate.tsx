@@ -5,8 +5,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { Modal } from '../../modals/common/Modal';
 
-import type { CreateFeedProps } from '../../../hooks';
-import { useActions, useFeeds, useToastNotification } from '../../../hooks';
+import type { CreateFeedProps } from '../../../hooks/feed/useFeeds';
+import { useFeeds } from '../../../hooks/feed/useFeeds';
+import { useActions } from '../../../hooks/useActions';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { Button } from '../../buttons/Button';
 import { EmojiPicker } from '../../fields/EmojiPicker';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';

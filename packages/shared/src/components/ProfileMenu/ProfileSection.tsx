@@ -1,8 +1,8 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import type { WithClassNameProps } from '../utilities';
-import { HorizontalSeparator } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
+import { HorizontalSeparator } from '../utilities/common';
 import type { ProfileSectionItemProps } from './ProfileSectionItem';
 import { ProfileSectionItem } from './ProfileSectionItem';
 import {

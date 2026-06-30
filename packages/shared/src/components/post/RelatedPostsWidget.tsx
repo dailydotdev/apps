@@ -9,7 +9,7 @@ import { RELATED_POSTS_PER_PAGE_DEFAULT } from '../../graphql/posts';
 import { SourceAvatar } from '../profile/source';
 import PostMetadata from '../cards/common/PostMetadata';
 import { CardLink } from '../cards/common/Card';
-import { useRelatedPosts } from '../../hooks/post';
+import { useRelatedPosts } from '../../hooks/post/useRelatedPosts';
 import { ProfileImageSize } from '../ProfilePicture';
 
 export type RelatedPostsWidgetProps = {

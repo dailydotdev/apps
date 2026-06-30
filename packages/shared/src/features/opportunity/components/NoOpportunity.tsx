@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
-import { FlexCol, FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities/common';
 import { NotificationPromptSource, TargetId } from '../../../lib/log';
 import { Switch } from '../../../components/fields/Switch';
 import { JobIcon } from '../../../components/icons';

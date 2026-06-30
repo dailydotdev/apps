@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import ProfileCompany from '../../ProfileCompany';
-import { HorizontalSeparator } from '../../../../../components/utilities';
+import { HorizontalSeparator } from '../../../../../components/utilities/common';
 import {
   Typography,
   TypographyType,

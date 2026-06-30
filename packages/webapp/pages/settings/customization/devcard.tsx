@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';

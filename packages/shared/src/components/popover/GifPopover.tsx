@@ -15,8 +15,8 @@ import {
 } from '../typography/Typography';
 import { GenericLoaderSpinner } from '../utilities/loaders';
 import { IconSize } from '../Icon';
-import { useViewSize, ViewSize } from '../../hooks';
-import { Drawer } from '../drawers';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { Drawer } from '../drawers/Drawer';
 
 const searchSuggestions = [
   'Nodding zoom',

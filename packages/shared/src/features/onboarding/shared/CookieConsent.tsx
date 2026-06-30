@@ -15,7 +15,7 @@ import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ClickableText } from '../../../components/buttons/ClickableText';
 import { anchorDefaultRel } from '../../../lib/strings';
-import type { WithClassNameProps } from '../../../components/utilities';
+import type { WithClassNameProps } from '../../../components/utilities/common';
 
 export interface OnboardingCookieConsentProps extends WithClassNameProps {
   onAccepted: AcceptCookiesCallback;

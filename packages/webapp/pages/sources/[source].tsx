@@ -33,7 +33,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
-import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
+import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   DiscussIcon,
   UpvoteIcon,
@@ -46,11 +46,8 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';

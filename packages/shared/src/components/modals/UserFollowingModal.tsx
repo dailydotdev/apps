@@ -5,7 +5,7 @@ import UserListModal from './UserListModal';
 import type { UseFollowingQueryProps } from '../../hooks/contentPreference/useFollowingQuery';
 import { useFollowingQuery } from '../../hooks/contentPreference/useFollowingQuery';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
-import { FlexCentered } from '../utilities';
+import { FlexCentered } from '../utilities/common';
 import { Origin } from '../../lib/log';
 
 export interface UserFollowingModalProps extends ModalProps {

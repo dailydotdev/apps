@@ -30,7 +30,7 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
 
-import { DateFormat } from '../utilities';
+import { DateFormat } from '../utilities/DateFormat';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { NotificationItemDescriptionIcon } from './NotificationDescriptionIcon';
 

@@ -12,7 +12,7 @@ import {
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../common/types';
 import type { BookmarkFolder } from '../../../graphql/bookmarks';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useMoveBookmarkToFolder } from '../../../hooks/bookmark/useMoveBookmarkToFolder';
 
 const QUICK_SAVES_LABEL = 'Quick saves';

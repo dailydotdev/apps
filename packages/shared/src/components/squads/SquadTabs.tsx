@@ -4,7 +4,7 @@ import { TabContainer, Tab } from '../tabs/TabContainer';
 import { webappUrl } from '../../lib/constants';
 import { SourcePermissions } from '../../graphql/sources';
 import { verifyPermission } from '../../graphql/squads';
-import { useSquad } from '../../hooks';
+import { useSquad } from '../../hooks/squads/useSquad';
 import { useSquadPendingPosts } from '../../hooks/squads/useSquadPendingPosts';
 
 export enum SquadTab {

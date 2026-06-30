@@ -10,11 +10,8 @@ import { useOrganization } from '@dailydotdev/shared/src/features/organizations/
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
-import {
-  DateFormat,
-  getRoleName,
-  HorizontalSeparator,
-} from '@dailydotdev/shared/src/components/utilities';
+import { getRoleName, HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
+import { DateFormat } from '@dailydotdev/shared/src/components/utilities/DateFormat';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -25,7 +22,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
 import type { OrganizationMember } from '@dailydotdev/shared/src/features/organizations/types';
 import {

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 

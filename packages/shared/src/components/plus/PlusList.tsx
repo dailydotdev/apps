@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 import type { PlusItem, PlusListItemProps } from './PlusListItem';
 import { PlusItemStatus, PlusListItem } from './PlusListItem';
 import { LogEvent, TargetType } from '../../lib/log';

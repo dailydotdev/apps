@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode, RefObject } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { FlexCol, FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities/common';
 import {
   Typography,
   TypographyColor,

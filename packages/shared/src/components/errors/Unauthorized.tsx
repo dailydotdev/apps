@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { LockIcon } from '../icons';
-import { PageContainerCentered } from '../utilities';
+import { PageContainerCentered } from '../utilities/common';
 import { IconSize } from '../Icon';
 import { webappUrl } from '../../lib/constants';
 

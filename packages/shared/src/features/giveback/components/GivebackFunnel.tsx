@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { FlexRow } from '../../../components/utilities';
+import { FlexRow } from '../../../components/utilities/common';
 import {
   Button,
   ButtonSize,
@@ -11,7 +11,7 @@ import CloseButton from '../../../components/CloseButton';
 import { RootPortal } from '../../../components/tooltips/Portal';
 import { MoveToIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { GivebackBackground } from './GivebackBackground';

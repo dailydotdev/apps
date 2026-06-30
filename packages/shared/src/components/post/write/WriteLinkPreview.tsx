@@ -23,7 +23,7 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import Link from '../../utilities/Link';
 import { webappUrl } from '../../../lib/constants';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { DateFormat } from '../../utilities';
+import { DateFormat } from '../../utilities/DateFormat';
 import { Separator } from '../../cards/common/common';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
 

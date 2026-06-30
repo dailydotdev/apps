@@ -14,12 +14,13 @@ import {
 import { webappUrl } from '../../../../lib/constants';
 import { TextField } from '../../../fields/TextField';
 import { EmojiPicker } from '../../../fields/EmojiPicker';
-import { Divider } from '../../../utilities';
+import { Divider } from '../../../utilities/Divider';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ColorName } from '../../../../styles/colors';
 import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
-import { usePlusSubscription, useToastNotification } from '../../../../hooks';
+import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { Dropdown } from '../../../fields/Dropdown';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';

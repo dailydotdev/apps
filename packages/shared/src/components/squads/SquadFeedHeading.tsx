@@ -3,8 +3,8 @@ import React, { useContext, useMemo } from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PinIcon } from '../icons';
 import type { Squad } from '../../graphql/sources';
-import { ActiveFeedContext } from '../../contexts';
-import { useSquadActions } from '../../hooks';
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
+import { useSquadActions } from '../../hooks/squads/useSquadActions';
 
 interface SquadFeedHeadingProps {
   squad: Squad;

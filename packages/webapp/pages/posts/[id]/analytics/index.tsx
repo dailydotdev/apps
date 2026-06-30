@@ -4,13 +4,9 @@ import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
-import {
-  DateFormat,
-  Divider,
-  FlexRow,
-  pageBorders,
-  ResponsivePageContainer,
-} from '@dailydotdev/shared/src/components/utilities';
+import { FlexRow, pageBorders, ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities/common';
+import { DateFormat } from '@dailydotdev/shared/src/components/utilities/DateFormat';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
 import classNames from 'classnames';
 import {
   ButtonSize,
@@ -58,7 +54,7 @@ import {
   StaleTime,
   updatePostCache,
 } from '@dailydotdev/shared/src/lib/query';
-import { usePostById } from '@dailydotdev/shared/src/hooks';
+import { usePostById } from '@dailydotdev/shared/src/hooks/usePostById';
 import { AnalyticsNumbersList } from '@dailydotdev/shared/src/components/analytics/AnalyticsNumbersList';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';

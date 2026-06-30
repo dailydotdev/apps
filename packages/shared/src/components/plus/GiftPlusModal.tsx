@@ -27,7 +27,7 @@ import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import { ArrowKey, KeyboardCommand } from '../../lib/element';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import Link from '../utilities/Link';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
 import { sizeClasses } from '../ProfilePicture';

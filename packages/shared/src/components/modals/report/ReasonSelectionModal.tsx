@@ -5,8 +5,8 @@ import { Radio } from '../../fields/Radio';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { Justify } from '../../utilities';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { Justify } from '../../utilities/common';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { ReportReason } from '../../../report';
 import type { PostModerationReason } from '../../../graphql/squads';
 

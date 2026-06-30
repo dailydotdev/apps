@@ -4,7 +4,7 @@ import { NotificationType } from '../components/notifications/utils';
 import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
-import type { WithClassNameProps } from '../components/utilities';
+import type { WithClassNameProps } from '../components/utilities/common';
 
 export enum NotificationAvatarType {
   User = 'user',

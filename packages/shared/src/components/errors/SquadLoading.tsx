@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
-import { FlexCol, FlexRow } from '../utilities';
+import { FlexCol, FlexRow } from '../utilities/common';
 import type { Squad } from '../../graphql/sources';
 
 const PlaceholderElement = classed('div', 'bg-accent-pepper-subtlest');

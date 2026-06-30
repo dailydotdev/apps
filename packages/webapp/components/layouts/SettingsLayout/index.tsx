@@ -6,7 +6,7 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';

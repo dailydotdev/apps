@@ -1,4 +1,4 @@
-import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { PageContainer } from '@dailydotdev/shared/src/components/utilities/common';
 import { useQuery, useMutation, keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
@@ -35,7 +35,7 @@ import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
-import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
+import { useJoinSquad } from '@dailydotdev/shared/src/hooks/useJoinSquad';
 import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadActionButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';

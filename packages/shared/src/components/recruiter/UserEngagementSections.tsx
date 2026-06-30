@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 
-import { FlexCol, FlexRow } from '../utilities';
+import { FlexCol, FlexRow } from '../utilities/common';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Chip } from '../cards/common/PostTags';
 import { MedalBadgeIcon } from '../icons';

@@ -5,7 +5,7 @@ import type { BasicSourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
-import { FlexCentered, FlexCol, getRoleName } from '../utilities';
+import { FlexCentered, FlexCol, getRoleName } from '../utilities/common';
 import SharePostBar from './SharePostBar';
 import { verifyPermission } from '../../graphql/squads';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
@@ -19,7 +19,7 @@ import {
   MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
   MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE,
 } from '../../lib/config';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { LazyModal } from '../modals/common/types';

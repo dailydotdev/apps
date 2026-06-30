@@ -5,7 +5,7 @@ import type {
   CreatePostInMultipleSourcesResponse,
 } from '../../../graphql/posts';
 import { createPostInMultipleSources, PostType } from '../../../graphql/posts';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ApiErrorResult } from '../../../graphql/common';

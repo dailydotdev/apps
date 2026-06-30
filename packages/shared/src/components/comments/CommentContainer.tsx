@@ -10,7 +10,7 @@ import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import UserBadge from '../UserBadge';
-import { FlexRow, getRoleName, TruncateText } from '../utilities';
+import { FlexRow, getRoleName, TruncateText } from '../utilities/common';
 import CommentAuthor, { deletedCommentAuthorName } from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';

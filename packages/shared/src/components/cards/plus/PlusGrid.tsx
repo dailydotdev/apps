@@ -9,7 +9,7 @@ import { DevPlusIcon } from '../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import type { MarketingCta } from '../../marketing/cta/common';
 import CloseButton from '../../CloseButton';
-import { useBoot } from '../../../hooks';
+import { useBoot } from '../../../hooks/useBoot';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { PlusItemStatus, PlusListItem } from '../../plus/PlusListItem';

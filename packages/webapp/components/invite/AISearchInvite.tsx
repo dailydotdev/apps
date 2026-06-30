@@ -23,7 +23,7 @@ import { DEFAULT_ERROR } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks/referral/useReferralCampaign';
 import type { JoinPageProps } from './common';
 import { DailyDevLogo } from './common';
 

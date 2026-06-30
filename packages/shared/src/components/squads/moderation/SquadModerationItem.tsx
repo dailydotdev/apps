@@ -18,7 +18,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { capitalize } from '../../../lib/strings';
 import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
-import { useTruncatedSummary } from '../../../hooks';
+import { useTruncatedSummary } from '../../../hooks/useTruncatedSummary';
 import type { SquadModerationItemProps } from './useSourceModerationItem';
 import { useSourceModerationItem } from './useSourceModerationItem';
 import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';

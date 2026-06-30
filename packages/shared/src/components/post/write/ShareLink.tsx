@@ -7,14 +7,15 @@ import type { Squad } from '../../../graphql/sources';
 import RichTextInput from '../../fields/RichTextInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
-import { usePostToSquad, useToastNotification } from '../../../hooks';
+import { usePostToSquad } from '../../../hooks/squads/usePostToSquad';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
 import type { SourcePostModeration } from '../../../graphql/squads';
 import { usePrompt } from '../../../hooks/usePrompt';
-import { useWritePostContext } from '../../../contexts';
+import { useWritePostContext } from '../../../contexts/WritePostContext';
 
 const MAX_TITLE_LENGTH = 250;
 

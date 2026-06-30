@@ -8,7 +8,7 @@ import {
 } from './typography/Typography';
 import { DevPlusIcon } from './icons';
 import { IconSize } from './Icon';
-import type { WithClassNameProps } from './utilities';
+import type { WithClassNameProps } from './utilities/common';
 
 type Props = {
   withText?: boolean;

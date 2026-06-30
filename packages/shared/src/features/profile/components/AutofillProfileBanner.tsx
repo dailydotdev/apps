@@ -21,7 +21,7 @@ import {
 import { UploadIcon } from '../../../components/icons/Upload';
 import { useFileInput } from '../../fileUpload/hooks/useFileInput';
 import { useFileValidation } from '../../fileUpload/hooks/useFileValidation';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { webappUrl } from '../../../lib/constants';
 import Link from '../../../components/utilities/Link';
 

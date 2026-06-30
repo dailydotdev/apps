@@ -18,7 +18,7 @@ import ConditionalWrapper from '../../../../components/ConditionalWrapper';
 import { LockIcon, PlusIcon } from '../../../../components/icons';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
-import { useViewSize, ViewSize } from '../../../../hooks';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type {
   UserStack,
   AddUserStackInput,

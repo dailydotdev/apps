@@ -13,7 +13,7 @@ import { useDeleteComment } from '../hooks/comments/useDeleteComment';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import type { CommentClassName } from './comments/common';
 import type { CommentFeedData } from '../graphql/comments';
-import { useViewSize, ViewSize } from '../hooks';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { gqlClient } from '../graphql/common';
 import { getNextPageParam } from '../lib/query';
 

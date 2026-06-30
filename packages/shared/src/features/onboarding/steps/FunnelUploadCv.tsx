@@ -8,7 +8,7 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { UploadCv } from '../components/UploadCv';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 
 function FunnelUploadCvComponent({

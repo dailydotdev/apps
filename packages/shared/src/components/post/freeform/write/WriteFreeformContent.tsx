@@ -11,12 +11,13 @@ import { imageSizeLimitMB, PostType } from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
-import { useActions, useViewSize, ViewSize } from '../../../../hooks';
+import { useActions } from '../../../../hooks/useActions';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import { ActionType } from '../../../../graphql/actions';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 import { base64ToFile } from '../../../../lib/base64';
-import type { MergedWriteObject, WriteForm } from '../../../../contexts';
-import { useWritePostContext } from '../../../../contexts';
+import type { MergedWriteObject, WriteForm } from '../../../../contexts/WritePostContext';
+import { useWritePostContext } from '../../../../contexts/WritePostContext';
 import { defaultMarkdownCommands } from '../../../../hooks/input';
 import { WriteFooter } from '../../write';
 

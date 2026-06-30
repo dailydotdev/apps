@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useViewSize, ViewSize } from './index';
+import { useViewSize, ViewSize } from './useViewSize';
 
 const matchMedia = (value: string) => {
   Object.defineProperty(global, 'matchMedia', {

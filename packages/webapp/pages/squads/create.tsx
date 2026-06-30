@@ -10,7 +10,7 @@ import {
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
-import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
+import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts/WritePostContext';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
@@ -22,12 +22,9 @@ import {
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
-import {
-  useActions,
-  useConditionalFeature,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   WriteFormTab,
@@ -40,7 +37,7 @@ import { featureStandupCreation } from '@dailydotdev/shared/src/lib/featureManag
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import type { WriteForm } from '@dailydotdev/shared/src/contexts';
+import type { WriteForm } from '@dailydotdev/shared/src/contexts/WritePostContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useDisableSpotlightShortcut } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 

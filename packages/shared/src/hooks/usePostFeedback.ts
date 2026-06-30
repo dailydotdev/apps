@@ -9,7 +9,7 @@ import {
   updateFeedAndAdsCache,
 } from '../lib/query';
 import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
-import { SharedFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities/common';
 import type { EmptyResponse } from '../graphql/emptyResponse';
 import { LogEvent } from '../lib/log';
 import { isBoostedPostAd } from './useFeed';

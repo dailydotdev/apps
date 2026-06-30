@@ -7,7 +7,7 @@ import Link from '../../utilities/Link';
 import { ModalKind } from '../common/types';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { ModalBody } from '../common/ModalBody';
 import { useBuyCoresContext } from '../../../contexts/BuyCoresContext/types';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';

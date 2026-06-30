@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { PublicProfile } from '../../../../lib/user';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
-import { useActions } from '../../../../hooks';
+import { useActions } from '../../../../hooks/useActions';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';

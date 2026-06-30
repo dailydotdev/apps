@@ -4,7 +4,7 @@ import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 

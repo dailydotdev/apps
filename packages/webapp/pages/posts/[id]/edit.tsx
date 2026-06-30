@@ -8,11 +8,9 @@ import {
 } from '@dailydotdev/shared/src/components/post/freeform';
 import type { EditPostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  usePostById,
-  useActions,
-  usePostToSquad,
-} from '@dailydotdev/shared/src/hooks';
+import { usePostToSquad } from '@dailydotdev/shared/src/hooks/squads/usePostToSquad';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { usePostById } from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
@@ -20,7 +18,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import type { NextSeoProps } from 'next-seo';
 import { NextSeo } from 'next-seo';
-import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
+import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts/WritePostContext';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import {
   isSourceUserSource,

@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { isExtension } from '../../lib/func';

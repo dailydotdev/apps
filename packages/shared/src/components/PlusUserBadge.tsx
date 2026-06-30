@@ -11,12 +11,12 @@ import {
   TypographyTag,
 } from './typography/Typography';
 import ConditionalWrapper from './ConditionalWrapper';
-import { DateFormat } from './utilities';
+import { DateFormat } from './utilities/DateFormat';
 import { TimeFormatType } from '../lib/dateFormat';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
 import { featurePlusApiLanding } from '../lib/featureManagement';
-import { useConditionalFeature } from '../hooks';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { IconSize } from './Icon';
 
 export type Props = {

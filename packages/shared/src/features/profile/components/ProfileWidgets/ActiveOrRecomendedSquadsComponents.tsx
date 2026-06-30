@@ -11,7 +11,7 @@ import {
   TypographyColor,
   TypographyTag,
 } from '../../../../components/typography/Typography';
-import { useToastNotification } from '../../../../hooks';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { SquadActionButton } from '../../../../components/squads/SquadActionButton';
 import { Origin } from '../../../../lib/log';
 import { ButtonSize } from '../../../../components/buttons/Button';

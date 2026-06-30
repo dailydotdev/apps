@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useViewSize } from '../../hooks/useViewSize';
 import type { LazyModalCommonProps } from '../modals/common/Modal';
 import CommentModal from '../modals/post/CommentModal';
 import { WriteCommentContext } from '../../contexts/WriteCommentContext';

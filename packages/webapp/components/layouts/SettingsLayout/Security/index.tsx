@@ -15,7 +15,7 @@ import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { DEFAULT_ERROR } from '@dailydotdev/shared/src/graphql/common';

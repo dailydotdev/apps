@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../../../graphql/posts';
-import { formatReadTime } from '../../../utilities';
+import { formatReadTime } from '../../../utilities/common';
 
 interface PostReadTimeProps extends Pick<Post, 'readTime'> {
   isVideoType?: boolean;

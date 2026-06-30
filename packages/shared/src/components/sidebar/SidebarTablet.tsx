@@ -32,7 +32,7 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { getFeedName } from '../../lib/feed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import HeaderLogo from '../layout/HeaderLogo';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { Bubble } from '../tooltips/utils';
 import { NewOpportunityPopover } from '../opportunity/NewOpportunityPopover';
 import { SimpleTooltip } from '../tooltips';

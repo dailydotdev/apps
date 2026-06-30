@@ -10,7 +10,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import OrDivider from '../auth/OrDivider';
 import { useLogContext } from '../../contexts/LogContext';

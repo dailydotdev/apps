@@ -17,7 +17,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities/common';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import classNames from 'classnames';

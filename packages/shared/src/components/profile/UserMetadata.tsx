@@ -6,7 +6,7 @@ import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
-import { TruncateText, truncateTextClassNames } from '../utilities';
+import { TruncateText, truncateTextClassNames } from '../utilities/common';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { Company } from '../../lib/userCompany';
 import {

@@ -3,14 +3,16 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useActiveFeedNameContext } from '../../contexts';
+import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import { ActionType } from '../../graphql/actions';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { getHasSeenTags, setHasSeenTags } from '../../lib/feedSettings';
-import { SharedFeedPage } from '../utilities';
+import { SharedFeedPage } from '../utilities/common';
 import MyFeedHeading from './MyFeedHeading';
 
 jest.mock('next/router', () => ({

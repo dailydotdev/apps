@@ -2,7 +2,7 @@ import type { Dispatch, FC, SetStateAction } from 'react';
 import React from 'react';
 import { createContextProvider } from '@kickass-coderz/react';
 import type { Post } from '../../../graphql/posts';
-import { usePersistentState } from '../../../hooks';
+import { usePersistentState } from '../../../hooks/usePersistentState';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
 type BriefContext = {

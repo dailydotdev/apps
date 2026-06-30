@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { CardHeader } from './Card';
 import { BookmarkIcon } from '../../icons';
-import type { WithClassNameProps } from '../../utilities';
+import type { WithClassNameProps } from '../../utilities/common';
 
 export const bookmarkProviderText = 'Revisit this post you saved earlier?';
 export const bookmarkProviderIcon = <BookmarkIcon secondary className="mx-1" />;

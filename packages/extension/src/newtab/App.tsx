@@ -45,7 +45,7 @@ import MainFeedPage from './MainFeedPage';
 import HijackingLoginStrip from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
-import { useContentScriptStatus } from '../../../shared/src/hooks';
+import { useContentScriptStatus } from '../../../shared/src/hooks/useContentScriptStatus';
 
 structuredCloneJsonPolyfill();
 

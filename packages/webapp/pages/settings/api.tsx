@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
-import {
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import {
   usePersonalAccessTokens,
   useCreatePersonalAccessToken,

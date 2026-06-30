@@ -3,11 +3,8 @@ import React from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
-import {
-  Divider,
-  FlexCol,
-  FlexRow,
-} from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities/common';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
 import {
   Typography,
   TypographyColor,

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { BriefIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';

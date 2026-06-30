@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import SquadMemberItemOptionsButton from './SquadMemberItemOptionsButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
-import { useToastNotification } from '../../hooks';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import type { SourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
 import type { MenuItemProps } from '../dropdown/common';

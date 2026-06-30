@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { DangerZone } from '../widgets/DangerZone';
 import { anchorDefaultRel } from '../../lib/strings';
-import { usePlusSubscription } from '../../hooks';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { SubscriptionProvider, SubscriptionStatus } from '../../lib/plus';
 
 interface AccountDangerZoneProps {

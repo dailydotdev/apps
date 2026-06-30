@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { GetStaticPathsResult, GetStaticProps } from 'next';
 import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   Typography,
@@ -49,7 +49,7 @@ import {
 import { GoBackButton } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import { briefButtonBg } from '@dailydotdev/shared/src/styles/custom';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Accordion } from '@dailydotdev/shared/src/components/accordion';

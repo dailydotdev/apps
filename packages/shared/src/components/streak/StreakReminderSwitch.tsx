@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Switch } from '../fields/Switch';
-import { SendType, usePersonalizedDigest } from '../../hooks';
+import { SendType, usePersonalizedDigest } from '../../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import {

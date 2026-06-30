@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useToggle } from '../../hooks/useToggle';
-import { useEventListener } from '../../hooks';
+import { useEventListener } from '../../hooks/useEventListener';
 
 interface UseCalculateVisibleElements {
   calculateVisibleCards: () => void;

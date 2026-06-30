@@ -6,10 +6,10 @@ import { fileValidation, useUploadCv } from '../../profile/hooks/useUploadCv';
 import { UploadButton } from '../../../components/buttons/UploadButton';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { getCandidatePreferencesOptions } from '../queries';
-import type { WithClassNameProps } from '../../../components/utilities';
+import type { WithClassNameProps } from '../../../components/utilities/common';
 
 export const UploadCVButton = ({
   className,

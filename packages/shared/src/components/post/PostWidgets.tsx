@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import dynamic from 'next/dynamic';
-import { PageWidgets } from '../utilities';
+import { PageWidgets } from '../utilities/common';
 import type { ShareMobileProps } from '../ShareMobile';
 import { ShareMobile } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';

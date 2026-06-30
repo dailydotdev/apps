@@ -8,7 +8,7 @@ import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';

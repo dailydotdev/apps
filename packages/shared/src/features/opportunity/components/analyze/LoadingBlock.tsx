@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { MagicIcon, ShieldIcon, VIcon } from '../../../../components/icons';
-import { Divider } from '../../../../components/utilities';
+import { Divider } from '../../../../components/utilities/Divider';
 import { Loader } from '../../../../components/Loader';
 
 type LoadingBlockItemProps = {

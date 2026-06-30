@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 import { BriefContextProvider, useBriefContext } from './BriefContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { usePersistentState } from '../../../hooks';
+import { usePersistentState } from '../../../hooks/usePersistentState';
 // eslint-disable-next-line import/extensions
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 // eslint-disable-next-line import/extensions

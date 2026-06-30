@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
-import { TruncateText } from '../utilities';
+import { TruncateText } from '../utilities/common';
 import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
 import { useLogContext } from '../../contexts/LogContext';

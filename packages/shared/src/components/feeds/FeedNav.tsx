@@ -9,9 +9,10 @@ import {
   FeedChipsVariant,
   featureFeedChips,
 } from '../../lib/featureManagement';
-import { useActiveFeedNameContext } from '../../contexts';
+import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { useFeeds } from '../../hooks/feed/useFeeds';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -34,7 +35,7 @@ import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
-import { SharedFeedPage } from '../utilities';
+import { SharedFeedPage } from '../utilities/common';
 import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';

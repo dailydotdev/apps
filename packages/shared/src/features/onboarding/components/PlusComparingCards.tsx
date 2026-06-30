@@ -14,7 +14,7 @@ import {
   plusFeatureList,
   PlusList,
 } from '../../../components/plus/PlusList';
-import { usePlusSubscription } from '../../../hooks';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../../components/Icon';
 import { PlusPlanExtraLabel } from '../../../components/plus/PlusPlanExtraLabel';

@@ -16,8 +16,8 @@ import {
   useBookmarkReminder,
 } from '../../../hooks/notifications';
 import type { Post } from '../../../graphql/posts';
-import type { ActiveFeedContextValue } from '../../../contexts';
-import { ActiveFeedContext } from '../../../contexts';
+import type { ActiveFeedContextValue } from '../../../contexts/ActiveFeedContext';
+import { ActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;

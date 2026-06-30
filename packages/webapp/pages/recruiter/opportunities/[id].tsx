@@ -32,7 +32,7 @@ import {
   ProfilePicture,
   ProfileImageSize,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   VIcon,
   MiniCloseIcon,

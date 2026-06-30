@@ -5,19 +5,15 @@ import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
-import type { FeedPagesWithMobileLayoutType } from '../../hooks';
-import {
-  useFeedLayout,
-  ToastSubject,
-  useToastNotification,
-  useViewSize,
-  ViewSize,
-  useFeeds,
-  useBoot,
-} from '../../hooks';
+import type { FeedPagesWithMobileLayoutType } from '../../hooks/useFeedLayout';
+import { useFeeds } from '../../hooks/feed/useFeeds';
+import { useBoot } from '../../hooks/useBoot';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
+import { ToastSubject, useToastNotification } from '../../hooks/useToastNotification';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useActiveFeedNameContext } from '../../contexts';
-import { SharedFeedPage } from '../utilities';
+import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
+import { SharedFeedPage } from '../utilities/common';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';

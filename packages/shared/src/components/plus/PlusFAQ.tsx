@@ -12,7 +12,7 @@ import { feedback } from '../../lib/constants';
 import { plusFAQItemsApi, plusFAQItemsControl } from './common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { useConditionalFeature } from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featurePlusApiLanding } from '../../lib/featureManagement';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 

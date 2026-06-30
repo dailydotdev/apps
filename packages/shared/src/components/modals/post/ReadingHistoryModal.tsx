@@ -4,7 +4,7 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { InfiniteReadingHistory } from '../../post/infinite';
 import type { PostItem } from '../../../graphql/posts';
-import { usePublicReadingHistory } from '../../../hooks/post';
+import { usePublicReadingHistory } from '../../../hooks/post/usePublicReadingHistory';
 import { ReadingHistoryTitle } from './ReadingHistoryTitle';
 import ReadingHistoryPlaceholder from '../../history/ReadingHistoryPlaceholder';
 import { ModalHeaderKind } from '../common/types';

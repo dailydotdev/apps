@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Comment } from '../../graphql/comments';
 import { TimeFormatType } from '../../lib/dateFormat';
-import { DateFormat } from '../utilities';
+import { DateFormat } from '../utilities/DateFormat';
 
 interface CommentPublishDateProps {
   comment: Comment;

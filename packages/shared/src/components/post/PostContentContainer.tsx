@@ -4,7 +4,7 @@ import classed from '../../lib/classed';
 import FixedPostNavigation from './FixedPostNavigation';
 import type { PostNavigationProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 interface PostContentContainerProps {
   hasNavigation?: boolean;

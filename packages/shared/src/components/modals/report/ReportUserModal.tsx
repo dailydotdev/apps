@@ -12,7 +12,7 @@ import {
   ContentPreferenceType,
 } from '../../../graphql/contentPreference';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 
 const reportReasons: { value: string; label: string }[] = [

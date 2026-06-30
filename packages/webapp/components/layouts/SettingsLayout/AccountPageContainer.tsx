@@ -9,7 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {

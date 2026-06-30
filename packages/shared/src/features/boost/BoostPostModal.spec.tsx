@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { BoostPostModal } from './BoostPostModal';
 import { useCampaignMutation } from './useCampaignMutation';
 import { usePostBoostEstimation } from './usePostBoostEstimation';
-import { usePostById } from '../../hooks';
+import { usePostById } from '../../hooks/usePostById';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';

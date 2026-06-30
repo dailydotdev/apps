@@ -1,13 +1,7 @@
 import { useContext } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
-import {
-  CommentFeedPage,
-  FeedPage,
-  FeedPageLayoutList,
-  FeedPageLayoutMobile,
-  SharedFeedPage,
-} from '../components/utilities';
+import { CommentFeedPage, FeedPage, FeedPageLayoutList, FeedPageLayoutMobile, SharedFeedPage } from '../components/utilities/common';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';

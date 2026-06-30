@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { FlexCol, FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities/common';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import {
   Button,

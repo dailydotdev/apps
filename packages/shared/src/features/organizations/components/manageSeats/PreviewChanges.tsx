@@ -4,7 +4,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { useOrganization } from '../../hooks/useOrganization';
 
-import { useViewSize, ViewSize } from '../../../../hooks';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import { LogoWithPlus } from '../../../../components/Logo';
 import { ButtonVariant } from '../../../../components/buttons/common';
 import {
@@ -12,7 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { HorizontalSeparator } from '../../../../components/utilities';
+import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { Button } from '../../../../components/buttons/Button';
 import { PlusAdjustQuantity } from '../../../../components/plus/PlusAdjustQuantity';
 import { PlusPlanExtraLabel } from '../../../../components/plus/PlusPlanExtraLabel';

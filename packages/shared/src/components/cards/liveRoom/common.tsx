@@ -16,7 +16,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { CardLink } from '../common/Card';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useLiveRoomSubscriptionAction } from '../../../hooks/liveRooms/useLiveRoomSubscriptionAction';
 
 export const getLiveRoomPostRoom = (post: Post): LiveRoomPost => {

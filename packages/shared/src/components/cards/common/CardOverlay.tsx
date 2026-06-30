@@ -1,7 +1,7 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import { CardLink } from './Card';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import type { Post } from '../../../graphql/posts';
 import { webappUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';

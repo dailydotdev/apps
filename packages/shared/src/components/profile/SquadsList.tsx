@@ -11,12 +11,9 @@ import { CardLink } from '../cards/common/Card';
 import { PlusIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
-import {
-  useJoinSquad,
-  useToastNotification,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useJoinSquad } from '../../hooks/useJoinSquad';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { labels } from '../../lib';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
@@ -26,7 +23,7 @@ import type { Connection } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
-import { getRoleName } from '../utilities';
+import { getRoleName } from '../utilities/common';
 import UserBadge from '../UserBadge';
 
 export interface SquadsListProps {

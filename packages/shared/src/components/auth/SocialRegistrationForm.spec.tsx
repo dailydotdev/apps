@@ -6,7 +6,7 @@ import type { AuthContextData } from '../../contexts/AuthContext';
 import type { LoggedUser } from '../../lib/user';
 import { SocialProvider } from './common';
 import { SocialRegistrationForm } from './SocialRegistrationForm';
-import { useGenerateUsername } from '../../hooks';
+import { useGenerateUsername } from '../../hooks/onboarding/useGenerateUsername';
 
 const mockOnUpdateSignBack = jest.fn();
 

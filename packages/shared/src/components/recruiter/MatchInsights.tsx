@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { FlexCol } from '../utilities';
+import { FlexCol } from '../utilities/common';
 import type { ApplicationRank } from '../../features/opportunity/types';
 
 export interface MatchInsightsProps {

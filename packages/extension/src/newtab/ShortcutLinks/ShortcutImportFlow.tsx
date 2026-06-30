@@ -9,7 +9,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
-import { Justify } from '@dailydotdev/shared/src/components/utilities';
+import { Justify } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   Typography,
   TypographyTag,

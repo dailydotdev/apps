@@ -13,7 +13,7 @@ import {
 import { formatCoresCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
 import { getPathnameWithQuery } from '../../lib';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 type BuyCoreProps = {
   onBuyCoresClick: (props: LogStartBuyingCreditsProps) => void;

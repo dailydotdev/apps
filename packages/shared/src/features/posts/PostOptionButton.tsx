@@ -44,19 +44,14 @@ import {
   DropdownMenuTrigger,
 } from '../../components/dropdown/DropdownMenu';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  ToastSubject,
-  useFeedLayout,
-  usePlusSubscription,
-  useSourceActionsNotify,
-  useToastNotification,
-  invalidatePostCacheById,
-  usePostById,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useSourceActionsNotify } from '../../hooks/source/useSourceActionsNotify';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { invalidatePostCacheById, usePostById } from '../../hooks/usePostById';
+import { ToastSubject, useToastNotification } from '../../hooks/useToastNotification';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useSmartComposer } from '../../hooks/post/useSmartComposer';
-import { useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePostLogEvent } from '../../lib/feed';
@@ -92,7 +87,7 @@ import { BookmarkReminderIcon } from '../../components/icons/Bookmark/Reminder';
 import { LazyModal } from '../../components/modals/common/types';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../../components/feeds/FeedSettings/types';
-import { SharedFeedPage } from '../../components/utilities';
+import { SharedFeedPage } from '../../components/utilities/common';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { isFollowingContent } from '../../hooks/contentPreference/types';

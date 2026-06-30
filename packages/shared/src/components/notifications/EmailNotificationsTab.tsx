@@ -12,7 +12,7 @@ import {
   NotificationSection,
   NotificationType,
 } from './utils';
-import { HorizontalSeparator } from '../utilities';
+import { HorizontalSeparator } from '../utilities/common';
 import PersonalizedDigest from './PersonalizedDigest';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';

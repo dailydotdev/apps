@@ -10,8 +10,8 @@ import {
 import { TextField } from '../fields/TextField';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MinusIcon, PlusIcon } from '../icons';
-import type { WithClassNameProps } from '../utilities';
-import { usePlusSubscription } from '../../hooks';
+import type { WithClassNameProps } from '../utilities/common';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
 
 type Props = {

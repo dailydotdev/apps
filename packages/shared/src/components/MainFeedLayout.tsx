@@ -21,7 +21,7 @@ import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
-import { SharedFeedPage } from './utilities';
+import { SharedFeedPage } from './utilities/common';
 import {
   FEED_V2_HIGHLIGHTS_LIMIT,
   ANONYMOUS_FEED_QUERY,
@@ -49,13 +49,10 @@ import {
   SearchControlHeader,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import {
-  useConditionalFeature,
-  useFeedLayout,
-  useScrollRestoration,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
+import { useFeedLayout } from '../hooks/useFeedLayout';
+import { useScrollRestoration } from '../hooks/useScrollRestoration';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { feedNameToHeading } from './feeds/FeedContainer';
 import { pageHeaderClassName } from './layout/PageHeader';
 import {

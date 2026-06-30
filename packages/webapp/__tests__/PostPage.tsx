@@ -47,7 +47,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
-import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
+import { UserVoteEntity } from '@dailydotdev/shared/src/hooks/vote/types';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';

@@ -12,7 +12,8 @@ import {
 } from '../icons';
 import type { IconSize } from '../Icon';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { usePlusSubscription, useClickbaitTries } from '../../hooks';
+import { useClickbaitTries } from '../../hooks/useClickbaitTries';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';

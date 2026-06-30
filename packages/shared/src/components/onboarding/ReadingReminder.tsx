@@ -6,7 +6,7 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
-import { usePersonalizedDigest } from '../../hooks';
+import { usePersonalizedDigest } from '../../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { TimezoneDropdown } from '../widgets/TimezoneDropdown';
 import { useLogContext } from '../../contexts/LogContext';

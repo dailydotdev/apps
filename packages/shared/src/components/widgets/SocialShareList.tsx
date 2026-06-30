@@ -15,7 +15,7 @@ import {
 } from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
-import { useGetShortUrl } from '../../hooks';
+import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
 
 interface SocialShareListProps {
   link: string;

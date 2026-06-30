@@ -10,7 +10,7 @@ import InfiniteScrolling, {
 } from '../containers/InfiniteScrolling';
 import type { Post, PostRepostsData } from '../../graphql/posts';
 import { getNextPageParam } from '../../lib/query';
-import { FlexCentered } from '../utilities';
+import { FlexCentered } from '../utilities/common';
 import { RepostListItem } from './RepostListItem';
 
 export interface RepostsModalProps extends ModalProps {

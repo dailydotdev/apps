@@ -1,11 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import {
-  useConditionalFeature,
-  usePlusSubscription,
-  useToastNotification,
-  useClickbaitTries,
-} from '../../../../hooks';
+import { useClickbaitTries } from '../../../../hooks/useClickbaitTries';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
@@ -26,7 +24,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../typography/Typography';
-import { Divider } from '../../../utilities';
+import { Divider } from '../../../utilities/Divider';
 import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
 import { featurePlusCtaCopy } from '../../../../lib/featureManagement';

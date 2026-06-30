@@ -3,12 +3,9 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import {
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-  useClickbaitTries,
-} from '../../../hooks';
+import { useClickbaitTries } from '../../../hooks/useClickbaitTries';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import type { Post } from '../../../graphql/posts';

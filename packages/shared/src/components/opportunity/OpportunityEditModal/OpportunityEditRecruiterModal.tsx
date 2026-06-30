@@ -18,7 +18,7 @@ import { editOpportunityRecruiterMutationOptions } from '../../../features/oppor
 import { ApiError } from '../../../graphql/common';
 import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { applyZodErrorsToForm } from '../../../lib/form';
 import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';

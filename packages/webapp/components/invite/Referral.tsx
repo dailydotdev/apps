@@ -14,9 +14,9 @@ import {
 } from '@dailydotdev/shared/src/lib/image';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
-import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCentered } from '@dailydotdev/shared/src/components/utilities/common';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';

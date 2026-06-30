@@ -6,7 +6,7 @@ import UserListModal from './UserListModal';
 
 import type { UseFollowersQueryProps } from '../../hooks/contentPreference/useFollowersQuery';
 import { useFollowersQuery } from '../../hooks/contentPreference/useFollowersQuery';
-import { FlexCentered } from '../utilities';
+import { FlexCentered } from '../utilities/common';
 import { Origin } from '../../lib/log';
 
 export interface FollowersModalProps extends ModalProps {

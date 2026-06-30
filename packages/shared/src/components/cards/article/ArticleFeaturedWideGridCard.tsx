@@ -6,7 +6,7 @@ import { Container } from '../common/common';
 import FeedItemContainer from '../common/FeedItemContainer';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
-import { usePostFeedback } from '../../../hooks';
+import { usePostFeedback } from '../../../hooks/usePostFeedback';
 import { isVideoPost, PostType } from '../../../graphql/posts';
 import type { PostHeroSignificance } from '../../../graphql/types';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';

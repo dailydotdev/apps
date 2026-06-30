@@ -6,7 +6,7 @@ import {
   useCoreProductOptionQuery,
 } from '@dailydotdev/shared/src/contexts/BuyCoresContext/BuyCoresContext';
 import { useRouter } from 'next/router';
-import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 
 import { CoreFAQ } from '@dailydotdev/shared/src/components/cores/CoreFAQ';
 import { Origin } from '@dailydotdev/shared/src/lib/log';

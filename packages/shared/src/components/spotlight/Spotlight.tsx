@@ -16,7 +16,7 @@ import { Loader } from '../Loader';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Drawer, DrawerPosition } from '../drawers/Drawer';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useViewSize } from '../../hooks/useViewSize';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { isExtension } from '../../lib/func';

@@ -10,7 +10,7 @@ import {
   ThemeMode,
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import {
   Typography,
   TypographyColor,

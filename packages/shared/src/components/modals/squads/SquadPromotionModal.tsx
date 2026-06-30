@@ -4,7 +4,7 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import PromotionTour from '../../squads/PromotionTour';
-import { useSquad } from '../../../hooks';
+import { useSquad } from '../../../hooks/squads/useSquad';
 import { ModalClose } from '../common/ModalClose';
 
 interface SquadPromotionModalProps extends ModalProps {

@@ -7,7 +7,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { FlexCol, FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities/common';
 import { IconSize } from '../../../components/Icon';
 import type { IconProps } from '../../../components/Icon';
 import { RefreshIcon, TimerIcon, VIcon } from '../../../components/icons';

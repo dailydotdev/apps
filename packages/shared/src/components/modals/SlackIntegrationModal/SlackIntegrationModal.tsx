@@ -6,7 +6,7 @@ import { Modal } from '../common/Modal';
 import { Dropdown } from '../../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import type { Source } from '../../../graphql/sources';
 import { SourceAvatar } from '../../profile/source';
 import { ProfileImageSize } from '../../ProfilePicture';

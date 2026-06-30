@@ -20,7 +20,8 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
-import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { cvUploadBannerBg } from '../../../styles/custom';
 import { FeelingLazy } from './FeelingLazy';
 import { webappUrl } from '../../../lib/constants';

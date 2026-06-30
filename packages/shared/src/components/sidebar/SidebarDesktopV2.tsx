@@ -113,11 +113,11 @@ import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
-import { useSquadNavigation } from '../../hooks';
+import { useSquadNavigation } from '../../hooks/useSquadNavigation';
 import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback';
-import { HorizontalSeparator } from '../utilities';
+import { HorizontalSeparator } from '../utilities/common';
 import { Typography, TypographyType } from '../typography/Typography';
 
 type SidebarCategoryConfig = {

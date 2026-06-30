@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { PageWidgets } from '../../utilities';
+import { PageWidgets } from '../../utilities/common';
 import { ShareMobile } from '../../ShareMobile';
 import ShareBar from '../../ShareBar';
 import { CollectionsIntro } from '../widgets';

@@ -16,8 +16,9 @@ import {
 } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
-import type { UseSquadActions } from '../../hooks';
-import { usePlusSubscription, useToastNotification } from '../../hooks';
+import type { UseSquadActions } from '../../hooks/squads/useSquadActions';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { verifyPermission } from '../../graphql/squads';
 import {
   Button,

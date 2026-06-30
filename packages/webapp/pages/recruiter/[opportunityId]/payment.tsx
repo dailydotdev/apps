@@ -19,14 +19,14 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import { useRecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/types';
 import {
   OpportunityPreviewProvider,
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';

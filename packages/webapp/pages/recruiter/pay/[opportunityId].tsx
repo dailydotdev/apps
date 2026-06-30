@@ -15,7 +15,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import { useRecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/types';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';

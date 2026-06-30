@@ -16,7 +16,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useRouter } from 'next/router';
 import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
-import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities';
+import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities/common';
 import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 
 export type FeedByIdsLayoutProps = {

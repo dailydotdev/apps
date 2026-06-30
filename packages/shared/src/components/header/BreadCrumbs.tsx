@@ -3,7 +3,7 @@ import React from 'react';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { HomeIcon } from '../icons';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 
 const BreadCrumbsWrapper = classed(
   'nav',

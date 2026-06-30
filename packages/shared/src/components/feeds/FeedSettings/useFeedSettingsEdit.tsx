@@ -14,15 +14,12 @@ import {
   ADD_FILTERS_TO_FEED_MUTATION,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../../../graphql/feedSettings';
-import {
-  useConditionalFeature,
-  useEventListener,
-  useFeeds,
-  usePlusSubscription,
-  useToastNotification,
-  useViewSizeClient,
-  ViewSize,
-} from '../../../hooks';
+import { useFeeds } from '../../../hooks/feed/useFeeds';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useEventListener } from '../../../hooks/useEventListener';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import {
   FeedChipsVariant,
   featureFeedChips,
@@ -33,7 +30,7 @@ import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib';
 import { generateQueryKey } from '../../../lib/query';
 import { ButtonColor } from '../../buttons/Button';
-import { SharedFeedPage } from '../../utilities';
+import { SharedFeedPage } from '../../utilities/common';
 import type {
   FeedSettingsEditContextValue,
   FeedSettingsFormData,

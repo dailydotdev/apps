@@ -5,7 +5,7 @@ import { ListIcon } from '../common';
 import { SourceIcon, TimerIcon } from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
-import { useSquadNavigation } from '../../../hooks';
+import { useSquadNavigation } from '../../../hooks/useSquadNavigation';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { squadCategoriesPaths, webappUrl } from '../../../lib/constants';

@@ -1,4 +1,4 @@
-import { SharedFeedPage } from '../../components/utilities';
+import { SharedFeedPage } from '../../components/utilities/common';
 import type { AllFeedPages } from '../../lib/query';
 import { OtherFeedPage } from '../../lib/query';
 

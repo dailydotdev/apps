@@ -15,7 +15,7 @@ import { TargetId } from '../../lib/log';
 import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { ProfileMenuHeader } from './ProfileMenuHeader';
-import { HorizontalSeparator } from '../utilities';
+import { HorizontalSeparator } from '../utilities/common';
 
 import { ProfileSection } from './ProfileSection';
 import { ResourceSection } from './sections/ResourceSection';

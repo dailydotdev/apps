@@ -8,11 +8,9 @@ import { FunnelRegistration as Component } from './FunnelRegistration';
 import useRegistration from '../../../hooks/useRegistration';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import {
-  useEventListener,
-  useToastNotification,
-  useViewSize,
-} from '../../../hooks';
+import { useEventListener } from '../../../hooks/useEventListener';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useViewSize } from '../../../hooks/useViewSize';
 import {
   AuthEvent,
   isNativeAuthSupported,

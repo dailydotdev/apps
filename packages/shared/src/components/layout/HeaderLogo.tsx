@@ -5,7 +5,7 @@ import Logo from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { withNoSSR } from '../../lib/withNoSSR';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 
 interface HeaderLogoProps extends WithClassNameProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;

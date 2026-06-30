@@ -11,7 +11,7 @@ import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { Image } from '../../../../components/image/Image';
 import Link from '../../../../components/utilities/Link';
 import { getTagPageLink } from '../../../../lib';
-import { truncateTextClassNames } from '../../../../components/utilities';
+import { truncateTextClassNames } from '../../../../components/utilities/common';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';

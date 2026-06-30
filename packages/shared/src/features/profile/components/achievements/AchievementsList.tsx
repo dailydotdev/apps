@@ -19,7 +19,7 @@ import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync
 import { useTrackedAchievement } from '../../../../hooks/profile/useTrackedAchievement';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { AchievementSyncModal } from '../ProfileWidgets/AchievementSyncModal';
-import { useActions } from '../../../../hooks';
+import { useActions } from '../../../../hooks/useActions';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';

@@ -19,10 +19,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  getRoleName,
-  HorizontalSeparator,
-} from '@dailydotdev/shared/src/components/utilities';
+import { getRoleName, HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   ArrowIcon,
   OrganizationIcon,
@@ -30,10 +27,7 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
-import {
-  ReferralCampaignKey,
-  useReferralCampaign,
-} from '@dailydotdev/shared/src/hooks';
+import { ReferralCampaignKey, useReferralCampaign } from '@dailydotdev/shared/src/hooks/referral/useReferralCampaign';
 import { link } from '@dailydotdev/shared/src/lib';
 import { useOrganizations } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizations';
 

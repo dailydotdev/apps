@@ -8,7 +8,7 @@ import type {
 } from '../../graphql/bookmarks';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
-import { useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import {
   updateCachedPagePost,
   updatePostCache,

@@ -11,7 +11,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { FlexCol, FlexRow } from '../utilities';
+import { FlexCol, FlexRow } from '../utilities/common';
 import { ArrowIcon, MiniCloseIcon } from '../icons';
 
 export interface MatchReviewHeaderProps {

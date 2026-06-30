@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GearModal } from './GearModal';
 import { useGearSearch } from '../../hooks/useGearSearch';
-import { useViewSize } from '../../../../hooks';
+import { useViewSize } from '../../../../hooks/useViewSize';
 
 jest.mock('../../hooks/useGearSearch');
 jest.mock('../../../../hooks', () => {

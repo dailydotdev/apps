@@ -6,7 +6,7 @@ import { CoverHeader } from './CoverHeader';
 import { CoverGrid } from './CoverGrid';
 import { CoverTopics } from './CoverTopics';
 import { CoverClosing } from './CoverClosing';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { useFeeds } from '../../hooks/feed/useFeeds';

@@ -10,12 +10,9 @@ import {
 import { SocialRegistration } from '../shared/SocialRegistration';
 import type { SocialProvider } from '../../../components/auth/common';
 import useRegistration from '../../../hooks/useRegistration';
-import {
-  useEventListener,
-  useToastNotification,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useEventListener } from '../../../hooks/useEventListener';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { labels } from '../../../lib';
 import { AuthEvent, isNativeAuthSupported } from '../../../lib/auth';

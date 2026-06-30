@@ -7,7 +7,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { RadioItemProps } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import {

@@ -17,15 +17,13 @@ import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
-import { SharedFeedPage } from './utilities';
+import { SharedFeedPage } from './utilities/common';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
-import {
-  ActiveFeedNameContextProvider,
-  useActiveFeedNameContext,
-} from '../contexts';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { ActiveFeedNameContextProvider, useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { useFeedLayout } from '../hooks/useFeedLayout';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
 import { useFeedName } from '../hooks/feed/useFeedName';

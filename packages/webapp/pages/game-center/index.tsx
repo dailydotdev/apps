@@ -46,11 +46,8 @@ import {
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  Divider,
-  ResponsivePageContainer,
-  pageBorders,
-} from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer, pageBorders } from '@dailydotdev/shared/src/components/utilities/common';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
   Typography,

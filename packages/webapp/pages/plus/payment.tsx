@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import {
   Typography,
   TypographyType,

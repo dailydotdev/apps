@@ -12,7 +12,7 @@ import { ChecklistAIcon, ClearIcon, DocsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { IconSize } from '../Icon';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { UploadIcon } from '../icons/Upload';
 import type {
   DragDropError,

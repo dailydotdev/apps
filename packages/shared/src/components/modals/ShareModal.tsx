@@ -5,13 +5,13 @@ import type { SwipeEventData } from 'react-swipeable';
 import { SocialShare } from '../widgets/SocialShare';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
 import type { ShareProps } from './post/common';
 import type { Squad } from '../../graphql/sources';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 export default function ShareModal({
   post,

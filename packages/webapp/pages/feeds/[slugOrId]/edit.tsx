@@ -4,11 +4,9 @@ import type { NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import { FeedSettingsEdit } from '@dailydotdev/shared/src/components/feeds/FeedSettings/FeedSettingsEdit';
 import { useRouter } from 'next/router';
-import {
-  useConditionalFeature,
-  useFeeds,
-  usePlusSubscription,
-} from '@dailydotdev/shared/src/hooks';
+import { useFeeds } from '@dailydotdev/shared/src/hooks/feed/useFeeds';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { FeedType } from '@dailydotdev/shared/src/graphql/feed';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {

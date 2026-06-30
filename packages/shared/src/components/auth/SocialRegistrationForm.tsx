@@ -18,7 +18,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
-import { useGenerateUsername } from '../../hooks';
+import { useGenerateUsername } from '../../hooks/onboarding/useGenerateUsername';
 import AuthContainer from './AuthContainer';
 import ConditionalWrapper from '../ConditionalWrapper';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';

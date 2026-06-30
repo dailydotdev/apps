@@ -1,6 +1,6 @@
 import type { Post } from '../../../../graphql/posts';
 import { getReadPostButtonText } from '../../../../graphql/posts';
-import { useMedia } from '../../../../hooks';
+import { useMedia } from '../../../../hooks/useMedia';
 import { mobileL, mobileXL } from '../../../../styles/media';
 
 const queries = [mobileXL, mobileL].map((q) => q.replace('@media ', ''));

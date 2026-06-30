@@ -21,7 +21,7 @@ import type {
 import type { FeedApiItem, FeedItemData } from '../graphql/feed';
 import { getFeedApiItemPost, isFeedApiPostItem } from '../graphql/feed';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
-import type { SharedFeedPage } from '../components/utilities';
+import type { SharedFeedPage } from '../components/utilities/common';
 import type {
   Comment as PostComment,
   Author as UserAuthor,

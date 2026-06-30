@@ -6,7 +6,7 @@ import type { BasicSourceMember } from '../../../../graphql/sources';
 import { getSquadMembers } from '../../../../graphql/squads';
 import type { AdSquadItem } from '../../../../hooks/useFeed';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
-import { useSquad } from '../../../../hooks';
+import { useSquad } from '../../../../hooks/squads/useSquad';
 
 export interface SquadAdFeedProps {
   item: AdSquadItem;

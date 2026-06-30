@@ -13,7 +13,7 @@ import PostContentContainer from '../PostContentContainer';
 import { BasePostContent } from '../BasePostContent';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
-import { ToastSubject, useToastNotification } from '../../../hooks';
+import { ToastSubject, useToastNotification } from '../../../hooks/useToastNotification';
 import {
   Typography,
   TypographyColor,

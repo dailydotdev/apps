@@ -10,7 +10,7 @@ import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
-import { Justify } from '@dailydotdev/shared/src/components/utilities';
+import { Justify } from '@dailydotdev/shared/src/components/utilities/common';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import type { TimeFormat } from './dnd';
 import { getDefaultLink, dndOption, CustomTime } from './dnd';

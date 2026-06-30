@@ -24,9 +24,9 @@ import {
   webappUrl,
 } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
-import { SharedFeedPage } from '../../utilities';
+import { SharedFeedPage } from '../../utilities/common';
 import { isExtension } from '../../../lib/func';
-import { useConditionalFeature } from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import {
   DailyPageVariant,
   featureDailyPage,

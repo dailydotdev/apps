@@ -14,7 +14,7 @@ import {
 import type { PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 
 function ShortcutItemPlaceholder({ children }: PropsWithChildren) {
   return (

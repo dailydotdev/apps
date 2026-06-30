@@ -17,7 +17,7 @@ import {
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
-import { useSquad } from '../../hooks';
+import { useSquad } from '../../hooks/squads/useSquad';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import type { Post } from '../../graphql/posts';
 import { PostHeaderActions } from './PostHeaderActions';

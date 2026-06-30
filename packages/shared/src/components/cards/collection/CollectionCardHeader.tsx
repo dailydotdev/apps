@@ -7,7 +7,7 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from '../common/BookmarkProviderHeader';
-import { useBookmarkProvider } from '../../../hooks';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import type { Post } from '../../../graphql/posts';
 

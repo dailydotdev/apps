@@ -11,7 +11,8 @@ import {
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
-import { useMutationSubscription, useVotePost } from '../../hooks';
+import { useMutationSubscription } from '../../hooks/mutationSubscription/useMutationSubscription';
+import { useVotePost } from '../../hooks/vote/useVotePost';
 import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';

@@ -7,7 +7,7 @@ import {
   POSTS_ENGAGED_SUBSCRIPTION,
 } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
-import { useActiveFeedContext } from '../contexts';
+import { useActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { postLogEvent } from '../lib/feed';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';

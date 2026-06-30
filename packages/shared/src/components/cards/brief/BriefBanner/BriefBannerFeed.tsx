@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { useBriefContext, withBriefContext } from '../BriefContext';
 import { BriefBanner } from './BriefBanner';
 import { useAlertsContext } from '../../../../contexts/AlertContext';
-import { useEventListener } from '../../../../hooks';
+import { useEventListener } from '../../../../hooks/useEventListener';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { isValidDate } from '../../../../lib/dateFormat';
 

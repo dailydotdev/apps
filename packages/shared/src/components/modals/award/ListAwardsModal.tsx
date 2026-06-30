@@ -7,7 +7,7 @@ import { Modal } from '../common/Modal';
 import { checkFetchMore } from '../../containers/InfiniteScrolling';
 import UserListModal from '../UserListModal';
 
-import { FlexCentered } from '../../utilities';
+import { FlexCentered } from '../../utilities/common';
 import { Origin } from '../../../lib/log';
 import { listAwardsInfiniteQueryOptions } from '../../../graphql/njord';
 import type { PropsParameters } from '../../../types';

@@ -6,7 +6,7 @@ import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { useOrganization } from '../../hooks/useOrganization';
 
-import { useViewSize, ViewSize } from '../../../../hooks';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import { LogoWithPlus } from '../../../../components/Logo';
 import { ButtonSize } from '../../../../components/buttons/common';
 

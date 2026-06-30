@@ -6,7 +6,7 @@ import { MenuIcon } from './MenuIcon';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import type { UseShareOrCopyLinkProps } from '../hooks/useShareOrCopyLink';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
-import { useFeeds } from '../hooks';
+import { useFeeds } from '../hooks/feed/useFeeds';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import {

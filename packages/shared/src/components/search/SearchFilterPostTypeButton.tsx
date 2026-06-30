@@ -3,7 +3,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { FilterIcon } from '../icons';
 import { Checkbox } from '../fields/Checkbox';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { useAdvancedSettings } from '../../hooks';
+import { useAdvancedSettings } from '../../hooks/feed/useAdvancedSettings';
 import { getContentCurationList } from '../filters/helpers';
 import { useSearchContextProvider } from '../../contexts/search/SearchContext';
 import {

@@ -9,7 +9,8 @@ import {
   RaisedLabelType,
 } from './RaisedLabel';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { getTrendingDescription } from './getTrendingDescription';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {

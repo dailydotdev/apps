@@ -14,7 +14,7 @@ import { LogEvent, TargetId } from '../../../../lib/log';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useIsLightTheme } from '../../../../hooks/utils';
-import { useActions } from '../../../../hooks';
+import { useActions } from '../../../../hooks/useActions';
 import { ActionType } from '../../../../graphql/actions';
 import { webappUrl } from '../../../../lib/constants';
 import { IconSize } from '../../../Icon';

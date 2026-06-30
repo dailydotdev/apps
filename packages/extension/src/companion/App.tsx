@@ -22,7 +22,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { useEventListener } from '@dailydotdev/shared/src/hooks';
+import { useEventListener } from '@dailydotdev/shared/src/hooks/useEventListener';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';

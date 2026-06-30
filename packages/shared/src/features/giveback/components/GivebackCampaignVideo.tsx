@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useState } from 'react';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol } from '../../../components/utilities/common';
 import { PlayIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 

@@ -11,7 +11,7 @@ import type { Post } from '../graphql/posts';
 import { checkIsExtension } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery } from '../lib';
-import { useMedia } from '../hooks';
+import { useMedia } from '../hooks/useMedia';
 
 const AWARD_TYPES = {
   USER: 'USER',

@@ -8,7 +8,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
-import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
+import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities/common';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { labels } from '@dailydotdev/shared/src/lib';

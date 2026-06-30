@@ -15,8 +15,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
-import type { UseSquadActions } from '../../hooks';
-import { useToastNotification } from '../../hooks';
+import type { UseSquadActions } from '../../hooks/squads/useSquadActions';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { Tooltip } from '../tooltip/Tooltip';
 
 interface SquadMemberActionsProps

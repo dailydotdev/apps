@@ -11,7 +11,7 @@ import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { ModalHeader } from '../../modals/common/ModalHeader';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import type {
   SourceStack,
   AddSourceStackInput,

@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import type { Post, TocItem } from '../../graphql/posts';
-import { Summary, SummaryArrow, TruncateText } from '../utilities';
+import { Summary, SummaryArrow, TruncateText } from '../utilities/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { widgetClasses, WidgetContainer } from './common';
 import { LogEvent } from '../../lib/log';
 

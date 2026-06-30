@@ -18,7 +18,7 @@ import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/log';
 import { VOTE_MUTATION } from '../../graphql/users';
-import { UserVoteEntity } from '../../hooks';
+import { UserVoteEntity } from '../../hooks/vote/types';
 import { UserVote } from '../../graphql/posts';
 import { ActionType } from '../../graphql/actions';
 import { PaymentContextProvider } from '../../contexts/payment';

@@ -11,7 +11,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
 import { OrganizationSidebar } from '@dailydotdev/shared/src/features/organizations/components/Sidebar';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { NavDrawer } from '@dailydotdev/shared/src/components/drawers/NavDrawer';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { getLayout as getMainLayout } from '../MainLayout';

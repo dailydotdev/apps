@@ -19,9 +19,9 @@ import {
 } from './useLiveRoomAudioLevel';
 import { pickLiveTrack } from './liveRoomMedia';
 import { LiveRoomTileActions } from './LiveRoomTileActions';
-import { Drawer } from '../drawers';
+import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 import { anchorDefaultRel } from '../../lib/strings';
 import { ProfileTooltip } from '../profile/ProfileTooltip';

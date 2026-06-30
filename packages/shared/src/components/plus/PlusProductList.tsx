@@ -9,7 +9,7 @@ import {
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
 import { LogEvent } from '../../lib/log';
-import { usePlusSubscription } from '../../hooks';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 

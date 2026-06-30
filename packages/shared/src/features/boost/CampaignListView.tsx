@@ -19,7 +19,7 @@ import { ProgressBar } from '../../components/fields/ProgressBar';
 import { getAbsoluteDifferenceInDays } from './utils';
 import type { Campaign } from '../../graphql/campaigns';
 import { CampaignType } from '../../graphql/campaigns';
-import { DateFormat } from '../../components/utilities';
+import { DateFormat } from '../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { boostDashboardInfo } from './common';
 import { Modal } from '../../components/modals/common/Modal';

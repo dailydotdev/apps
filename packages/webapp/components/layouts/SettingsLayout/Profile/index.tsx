@@ -20,7 +20,7 @@ import {
 import { FormProvider } from 'react-hook-form';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import ExperienceSelect from '@dailydotdev/shared/src/components/profile/ExperienceSelect';
-import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
+import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
 import ControlledMarkdownInput from '@dailydotdev/shared/src/components/fields/MarkdownInput/ControlledMarkdownInput';
 import ProfileLocation from '@dailydotdev/shared/src/components/profile/ProfileLocation';
 import ControlledAvatarUpload from '@dailydotdev/shared/src/components/profile/ControlledAvatarUpload';

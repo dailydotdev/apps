@@ -5,7 +5,7 @@ import { isDateOnlyEqual, TimeFormatType } from '../../lib/dateFormat';
 import PostItemCard from '../post/PostItemCard';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import { Origin } from '../../lib/log';
-import { DateFormat } from '../utilities';
+import { DateFormat } from '../utilities/DateFormat';
 import type { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 
 export interface ReadHistoryListProps {

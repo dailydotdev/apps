@@ -12,7 +12,7 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import type { ModalCloseProps } from '../common/ModalClose';
 import { ModalClose } from '../common/ModalClose';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { Image } from '../../image/Image';
 
 interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {

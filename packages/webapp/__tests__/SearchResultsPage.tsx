@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import * as contexts from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
-import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
+import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities/common';
 import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import { TestBootProvider } from '../../shared/__tests__/helpers/boot';
 

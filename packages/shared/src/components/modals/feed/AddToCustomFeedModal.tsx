@@ -6,7 +6,8 @@ import { ModalHeader } from '../common/ModalHeader';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon, HashtagIcon } from '../../icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { useFeeds, useToastNotification } from '../../../hooks';
+import { useFeeds } from '../../../hooks/feed/useFeeds';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { Feed } from '../../../graphql/feed';
 
 type AddToFeedModalProps = Omit<ModalProps, 'children'> & {

@@ -12,12 +12,9 @@ import { PlusUser } from '../PlusUser';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { plusUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
-import {
-  useConditionalFeature,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { LogEvent, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { useLazyModal } from '../../hooks/useLazyModal';

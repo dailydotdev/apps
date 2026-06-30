@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { FlexCentered } from '../utilities';
+import { FlexCentered } from '../utilities/common';
 import { MagicIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { Post } from '../../graphql/posts';

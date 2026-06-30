@@ -5,7 +5,7 @@ import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { PostBootData } from './boot';
 import { Origin, TargetType } from './log';
-import { SharedFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities/common';
 import type { AllFeedPages } from './query';
 import { OtherFeedPage } from './query';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';

@@ -11,7 +11,7 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { getTargetCount } from '../../graphql/user/achievements';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';

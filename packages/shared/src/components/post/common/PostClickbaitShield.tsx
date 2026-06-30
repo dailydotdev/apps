@@ -4,12 +4,9 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import {
-  useClickbaitTries,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useClickbaitTries } from '../../../hooks/useClickbaitTries';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { IconSize } from '../../Icon';

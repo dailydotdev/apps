@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import type { Theme } from '../components/utilities';
+import type { Theme } from '../components/utilities/common';
 
 export enum BannerCustomTheme {
   CabbageOnion = 'cabbage-onion',

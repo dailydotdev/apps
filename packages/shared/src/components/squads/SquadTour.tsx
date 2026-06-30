@@ -8,13 +8,13 @@ import {
   cloudinarySquadsTourBanner4V2,
 } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { Justify } from '../utilities';
+import { Justify } from '../utilities/common';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
 import { useSquadTour } from '../../hooks/useSquadTour';
-import type { PopupCloseFunc } from '../drawers';
+import type { PopupCloseFunc } from '../drawers/Drawer';
 
 interface SquadTourProps {
   onClose: PopupCloseFunc;

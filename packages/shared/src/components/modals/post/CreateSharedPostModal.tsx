@@ -6,7 +6,7 @@ import type { ExternalLinkPreview } from '../../../graphql/posts';
 import type { RichTextInputRef } from '../../fields/RichTextInput';
 import RichTextInput from '../../fields/RichTextInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
-import { usePostToSquad } from '../../../hooks';
+import { usePostToSquad } from '../../../hooks/squads/usePostToSquad';
 import {
   Button,
   ButtonColor,
@@ -14,7 +14,8 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { AtIcon } from '../../icons';
-import { Divider, Justify } from '../../utilities';
+import { Justify } from '../../utilities/common';
+import { Divider } from '../../utilities/Divider';
 import SourceButton from '../../cards/common/SourceButton';
 import type { Squad } from '../../../graphql/sources';
 import { formToJson } from '../../../lib/form';

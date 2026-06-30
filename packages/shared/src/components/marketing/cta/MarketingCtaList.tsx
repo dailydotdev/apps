@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { ListCard } from '../../cards/common/list/ListCard';
-import { useBoot } from '../../../hooks';
+import { useBoot } from '../../../hooks/useBoot';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import type { MarketingCta } from './common';

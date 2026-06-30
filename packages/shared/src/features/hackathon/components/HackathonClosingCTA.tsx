@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol } from '../../../components/utilities/common';
 import { HackathonSignupButton } from './HackathonSignupButton';
 
 export const HackathonClosingCTA = (): ReactElement => {

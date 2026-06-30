@@ -3,11 +3,9 @@ import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
-import {
-  useActions,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   getCandidatePreferencesOptions,

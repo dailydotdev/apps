@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { plusFeaturesImage } from '../../lib/image';
-import { Drawer } from '../drawers';
+import { Drawer } from '../drawers/Drawer';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -13,7 +13,7 @@ import { plusUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { TargetType, Origin, LogEvent } from '../../lib/log';
 import { MarketingCtaVariant } from '../marketing/cta/common';
-import { useBoot } from '../../hooks';
+import { useBoot } from '../../hooks/useBoot';
 import Link from '../utilities/Link';
 
 type PlusMobileDrawerProps = {

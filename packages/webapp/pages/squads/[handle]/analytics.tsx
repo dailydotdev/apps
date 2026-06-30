@@ -7,11 +7,8 @@ import {
   LayoutHeader,
   PageHeaderTitle,
 } from '@dailydotdev/shared/src/components/layout/common';
-import {
-  Divider,
-  pageBorders,
-  ResponsivePageContainer,
-} from '@dailydotdev/shared/src/components/utilities';
+import { pageBorders, ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities/common';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import {

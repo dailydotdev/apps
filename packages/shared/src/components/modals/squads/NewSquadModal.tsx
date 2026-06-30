@@ -4,7 +4,7 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { useSquadNavigation } from '../../../hooks';
+import { useSquadNavigation } from '../../../hooks/useSquadNavigation';
 import { webappUrl } from '../../../lib/constants';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { Image } from '../../image/Image';

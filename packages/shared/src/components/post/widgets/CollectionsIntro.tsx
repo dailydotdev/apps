@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import CloseButton from '../../CloseButton';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { ButtonSize } from '../../buttons/Button';
 

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
-import { PageWidgets } from '../utilities';
+import { PageWidgets } from '../utilities/common';
 import { ShareMobile } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';

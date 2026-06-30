@@ -5,7 +5,7 @@ import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
-import { usePostFeedback } from '../../../hooks';
+import { usePostFeedback } from '../../../hooks/usePostFeedback';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import FeedItemContainer from '../common/FeedItemContainer';

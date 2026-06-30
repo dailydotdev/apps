@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { useFeeds } from '@dailydotdev/shared/src/hooks';
+import { useFeeds } from '@dailydotdev/shared/src/hooks/feed/useFeeds';
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';

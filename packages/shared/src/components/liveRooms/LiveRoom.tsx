@@ -37,7 +37,7 @@ import { useLiveRoomStageModel } from '../../hooks/liveRooms/useLiveRoomStageMod
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { BrowserName, getCurrentBrowserName } from '../../lib/func';
 import {
   LiveRoomSidePanelTabs,

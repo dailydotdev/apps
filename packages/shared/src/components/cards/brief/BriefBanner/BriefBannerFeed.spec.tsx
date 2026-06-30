@@ -6,7 +6,8 @@ import { useInView } from 'react-intersection-observer';
 
 import { BriefBannerFeed } from './BriefBannerFeed';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useActions, usePersistentState } from '../../../../hooks';
+import { useActions } from '../../../../hooks/useActions';
+import { usePersistentState } from '../../../../hooks/usePersistentState';
 // eslint-disable-next-line import/extensions
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 // eslint-disable-next-line import/extensions

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';

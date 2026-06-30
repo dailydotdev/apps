@@ -9,7 +9,7 @@ import type { Post } from '../../graphql/posts';
 import { postLogEvent } from '../../lib/feed';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 
 export type PostCodeSnippetsProps = {
   className?: string;

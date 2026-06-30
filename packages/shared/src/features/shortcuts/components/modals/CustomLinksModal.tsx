@@ -23,7 +23,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { HorizontalSeparator } from '../../../../components/utilities';
+import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { Switch } from '../../../../components/fields/Switch';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 

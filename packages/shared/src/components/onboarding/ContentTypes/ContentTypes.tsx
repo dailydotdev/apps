@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 
-import { useAdvancedSettings } from '../../../hooks';
+import { useAdvancedSettings } from '../../../hooks/feed/useAdvancedSettings';
 import {
   getAdvancedContentTypes,
   getContentCurationList,

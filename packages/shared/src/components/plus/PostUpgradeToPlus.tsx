@@ -12,7 +12,8 @@ import {
 import { Button } from '../buttons/Button';
 import { plusUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
-import { useConditionalFeature, usePlusSubscription } from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import type { TargetId } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';

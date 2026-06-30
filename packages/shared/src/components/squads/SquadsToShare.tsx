@@ -8,7 +8,7 @@ import { SocialShareButton } from '../widgets/SocialShareButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/log';
 import { PlusIcon } from '../icons';
-import { useSquadNavigation } from '../../hooks';
+import { useSquadNavigation } from '../../hooks/useSquadNavigation';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize } from '../ProfilePicture';
 

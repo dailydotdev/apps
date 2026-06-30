@@ -8,7 +8,7 @@ import {
 } from '../typography/Typography';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { FlexCol } from '../utilities';
+import { FlexCol } from '../utilities/common';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import Link from '../utilities/Link';
 import { webappUrl } from '../../lib/constants';

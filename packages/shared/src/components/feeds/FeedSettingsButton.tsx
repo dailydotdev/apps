@@ -6,11 +6,9 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { FilterIcon } from '../icons';
-import {
-  useConditionalFeature,
-  useFeeds,
-  usePlusSubscription,
-} from '../../hooks';
+import { useFeeds } from '../../hooks/feed/useFeeds';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { plusUrl, webappUrl } from '../../lib/constants';

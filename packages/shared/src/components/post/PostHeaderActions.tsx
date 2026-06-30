@@ -16,7 +16,7 @@ import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
-import { useViewSizeClient, ViewSize } from '../../hooks';
+import { useViewSizeClient, ViewSize } from '../../hooks/useViewSize';
 import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';

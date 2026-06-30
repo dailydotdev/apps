@@ -18,7 +18,7 @@ import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/log';
 import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
-import { lazyCommentThreshold } from '../utilities';
+import { lazyCommentThreshold } from '../utilities/common';
 import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
 import { generateCommentsQueryKey } from '../../lib/query';

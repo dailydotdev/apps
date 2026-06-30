@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
+import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks/useContentScriptStatus';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 
 export const useCompanionSettings = (): void => {

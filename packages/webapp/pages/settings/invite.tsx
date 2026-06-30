@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useRef } from 'react';
-import {
-  ReferralCampaignKey,
-  useReferralCampaign,
-} from '@dailydotdev/shared/src/hooks';
+import { ReferralCampaignKey, useReferralCampaign } from '@dailydotdev/shared/src/hooks/referral/useReferralCampaign';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { cloudinaryCharmInviteFriends } from '@dailydotdev/shared/src/lib/image';
@@ -32,7 +29,7 @@ import {
 import type { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
-import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
+import { TruncateText } from '@dailydotdev/shared/src/components/utilities/common';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { useLogContext } from '../contexts/LogContext';
-import { SharedFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities/common';
 import { gqlClient } from '../graphql/common';
 import { labels } from '../lib';
 import { LogEvent, TargetType } from '../lib/log';

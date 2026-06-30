@@ -11,7 +11,7 @@ import {
   TypographyType,
 } from '../../../typography/Typography';
 import { Separator } from '../../common/common';
-import { HorizontalSeparator } from '../../../utilities';
+import { HorizontalSeparator } from '../../../utilities/common';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { AdPixel } from '../common/AdPixel';
 import { Tooltip } from '../../../tooltip/Tooltip';

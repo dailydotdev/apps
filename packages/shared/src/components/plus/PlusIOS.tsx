@@ -9,11 +9,9 @@ import type { CommonPlusPageProps } from './common';
 import { promisifyEventListener } from '../../lib/func';
 import { plusSuccessUrl } from '../../lib/constants';
 import { iOSSupportsPlusPurchase } from '../../lib/ios';
-import {
-  useBoot,
-  usePlusSubscription,
-  useToastNotification,
-} from '../../hooks';
+import { useBoot } from '../../hooks/useBoot';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import Toast from '../notifications/Toast';
 import { stringToBoolean } from '../../lib/utils';

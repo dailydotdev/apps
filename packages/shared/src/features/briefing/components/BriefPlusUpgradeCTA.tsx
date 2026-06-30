@@ -8,7 +8,8 @@ import { briefButtonBg } from '../../../styles/custom';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { LogEvent, TargetId } from '../../../lib/log';
 import Link from '../../../components/utilities/Link';
-import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { useAuthContext } from '../../../contexts/AuthContext';
 

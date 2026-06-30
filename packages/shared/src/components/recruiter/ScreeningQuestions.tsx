@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { FlexCol } from '../utilities';
+import { FlexCol } from '../utilities/common';
 
 export interface ScreeningQuestion {
   question: string;

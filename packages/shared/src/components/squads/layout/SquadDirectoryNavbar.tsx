@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useHorizontalScrollHeader } from '../../HorizontalScroll/useHorizontalScrollHeader';
 import { ArrowIcon } from '../../icons';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 
 export { SquadDirectoryNavbarItem } from './SquadDirectoryNavbarItem';
 

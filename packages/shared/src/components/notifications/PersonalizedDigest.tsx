@@ -12,11 +12,8 @@ import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useFeature } from '../GrowthBookProvider';
 import { briefUIFeature } from '../../lib/featureManagement';
 import { PlusUser } from '../PlusUser';
-import {
-  SendType,
-  usePersonalizedDigest,
-  usePlusSubscription,
-} from '../../hooks';
+import { SendType, usePersonalizedDigest } from '../../hooks/usePersonalizedDigest';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { ButtonSize } from '../buttons/Button';
 import { LogEvent, NotificationCategory, TargetId } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';

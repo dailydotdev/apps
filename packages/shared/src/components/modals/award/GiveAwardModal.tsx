@@ -25,9 +25,9 @@ import {
   maxNoteLength,
   useGiveAwardModalContext,
 } from '../../../contexts/GiveAwardModalContext';
-import { Justify } from '../../utilities';
+import { Justify } from '../../utilities/common';
 import MarkdownInput from '../../fields/MarkdownInput';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { LazyModal, ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';

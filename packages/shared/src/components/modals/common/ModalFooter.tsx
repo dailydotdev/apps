@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import { ModalPropsContext } from './types';
-import { Justify } from '../../utilities';
+import { Justify } from '../../utilities/common';
 
 export type ModalFooterProps = {
   children?: ReactNode;

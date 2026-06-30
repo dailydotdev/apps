@@ -11,7 +11,7 @@ import {
 } from '@dailydotdev/shared/src/components/profile/devcard';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { DevCardQueryData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useDevCard } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';

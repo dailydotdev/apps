@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities/common';
 import { useRouter } from 'next/router';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ReadingHistory } from '../components/history';
 import ProtectedPage from '../components/ProtectedPage';
 import { getLayout } from '../components/layouts/MainLayout';

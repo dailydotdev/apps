@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 
 import { RadixAccordion } from '../accordion';
-import { FlexRow } from '../utilities';
+import { FlexRow } from '../utilities/common';
 import {
   Typography,
   TypographyColor,

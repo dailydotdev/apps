@@ -10,7 +10,7 @@ import {
 } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
 import { postLogEvent } from '../lib/feed';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { Post } from '../graphql/posts';

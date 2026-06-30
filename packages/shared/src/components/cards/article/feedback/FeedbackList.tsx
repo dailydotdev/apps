@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { usePostFeedback } from '../../../../hooks';
+import { usePostFeedback } from '../../../../hooks/usePostFeedback';
 import CloseButton from '../../../CloseButton';
 import { ButtonSize } from '../../../buttons/common';
 import { CardContent } from '../../common/list/ListCard';

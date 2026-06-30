@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
-import { useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import type { Post } from '../../graphql/posts';

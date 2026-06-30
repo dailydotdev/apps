@@ -1,4 +1,4 @@
-import type { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import type { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks/referral/useReferralCampaign';
 import type { Author } from '@dailydotdev/shared/src/graphql/comments';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import type { ReactElement } from 'react';

@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { cloudinaryNotificationsBig } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { Justify } from '../utilities';
+import { Justify } from '../utilities/common';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { NotificationPromptSource } from '../../lib/log';

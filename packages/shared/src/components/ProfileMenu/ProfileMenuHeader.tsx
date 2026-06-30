@@ -9,11 +9,11 @@ import {
 } from '../typography/Typography';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { usePlusSubscription } from '../../hooks';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { PlusUser } from '../PlusUser';
 import { OpenLinkIcon } from '../icons';
 import Link from '../utilities/Link';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 import { webappUrl } from '../../lib/constants';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { IconSize } from '../Icon';

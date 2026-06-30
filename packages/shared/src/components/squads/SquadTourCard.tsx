@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { Badge } from '../tooltips/utils';
-import { FlexCol } from '../utilities';
+import { FlexCol } from '../utilities/common';
 
 interface ClassName {
   container?: string;

@@ -13,7 +13,7 @@ import { Dropdown } from '../fields/Dropdown';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
 import { OtherFeedPage } from '../../lib/query';
-import { useFeedLayout } from '../../hooks';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
 
 export enum ExploreTabs {
   Popular = 'Popular',

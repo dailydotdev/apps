@@ -11,7 +11,7 @@ import { SimpleTooltip } from '../tooltips';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { NewOpportunityPopover } from './NewOpportunityPopover';
 import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 
 const OpportunityTooltip = ({

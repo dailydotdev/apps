@@ -11,9 +11,9 @@ import {
 import { ProfileSection } from '../../../components/ProfileMenu/ProfileSection';
 import { getOrganizationSettingsUrl } from '../utils';
 import type { Organization } from '../types';
-import { HorizontalSeparator } from '../../../components/utilities';
+import { HorizontalSeparator } from '../../../components/utilities/common';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import {
   TypographyColor,
   TypographyType,

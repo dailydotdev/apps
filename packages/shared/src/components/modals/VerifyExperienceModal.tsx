@@ -15,7 +15,7 @@ import type { UserCompany } from '../../lib/userCompany';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
-import { useToastNotification } from '../../hooks';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalHeader } from './common/ModalHeader';

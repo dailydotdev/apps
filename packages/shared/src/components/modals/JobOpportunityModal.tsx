@@ -6,7 +6,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 import Link from '../utilities/Link';
 import { opportunityUrl } from '../../lib/constants';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useThemedAsset } from '../../hooks/utils';
 import { Typography, TypographyType } from '../typography/Typography';
 import { MoveToIcon } from '../icons';

@@ -14,9 +14,9 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { Origin, LogEvent } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ReferralCampaignKey } from '../../../lib';
-import { getShortLinkProps } from '../../../hooks';
+import { getShortLinkProps } from '../../../hooks/utils/useGetShortUrl';
 import { postLogEvent } from '../../../lib/feed';
-import { ActiveFeedContext } from '../../../contexts';
+import { ActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 
 type SocialShareButtonProps = {
   post: Post;

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
-import { DateFormat } from '@dailydotdev/shared/src/components/utilities';
+import { DateFormat } from '@dailydotdev/shared/src/components/utilities/DateFormat';
 
 const meta: Meta<typeof DateFormat> = {
   title: "Atoms/Date Format",

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { CreateSharedPostModal } from './CreateSharedPostModal';
-import { usePostToSquad } from '../../../hooks';
+import { usePostToSquad } from '../../../hooks/squads/usePostToSquad';
 import { useNotificationToggle } from '../../../hooks/notifications';
 
 jest.mock('../../../hooks', () => ({

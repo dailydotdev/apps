@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol } from '../../../components/utilities/common';
 import { GivebackBackground } from './GivebackBackground';
 import { GivebackFunnel } from './GivebackFunnel';
 import { GivebackHero } from './GivebackHero';

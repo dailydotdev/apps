@@ -5,7 +5,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingPWA } from '../../../components/onboarding';
 import { FunnelStepCtaWrapper } from '../shared';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { isIOS, isPWA } from '../../../lib/func';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 

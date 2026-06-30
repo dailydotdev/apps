@@ -7,7 +7,7 @@ import {
   EmptyScreenIcon,
   EmptyScreenTitle,
 } from './EmptyScreen';
-import { PageContainer } from './utilities';
+import { PageContainer } from './utilities/common';
 import { ButtonSize, ButtonVariant } from './buttons/common';
 import { SquadIcon } from './icons';
 import { webappUrl } from '../lib/constants';

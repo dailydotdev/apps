@@ -3,15 +3,11 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import {
-  SendType,
-  ToastSubject,
-  useActions,
-  useConditionalFeature,
-  usePersonalizedDigest,
-  usePlusSubscription,
-  useToastNotification,
-} from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { SendType, usePersonalizedDigest } from '../../../hooks/usePersonalizedDigest';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { ToastSubject, useToastNotification } from '../../../hooks/useToastNotification';
 import PostContentContainer from '../PostContentContainer';
 import { BasePostContent } from '../BasePostContent';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';

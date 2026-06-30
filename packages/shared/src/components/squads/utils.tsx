@@ -7,8 +7,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import type { WithClassNameProps } from '../utilities';
-import { BasePageContainer, pageBorders } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
+import { BasePageContainer, pageBorders } from '../utilities/common';
 import type { Squad } from '../../graphql/sources';
 import { SourcePermissions } from '../../graphql/sources';
 import { TimerIcon } from '../icons';

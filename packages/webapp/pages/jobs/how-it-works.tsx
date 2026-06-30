@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 

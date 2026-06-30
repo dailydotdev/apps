@@ -6,7 +6,7 @@ import { Checkbox } from '../../fields/Checkbox';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { PostBootData } from '../../../lib/boot';
 import type { ModalProps } from '../common/Modal';
-import { FlexRow } from '../../utilities';
+import { FlexRow } from '../../utilities/common';
 import useReportPost from '../../../hooks/useReportPost';
 import { postLogEvent } from '../../../lib/feed';
 import { LogEvent } from '../../../lib/log';

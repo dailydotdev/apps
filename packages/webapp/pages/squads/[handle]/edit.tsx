@@ -13,7 +13,7 @@ import type { SquadSettingsProps } from '@dailydotdev/shared/src/components/squa
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,

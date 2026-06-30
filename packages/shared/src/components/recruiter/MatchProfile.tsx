@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { FlexCol, FlexRow } from '../utilities';
+import { FlexCol, FlexRow } from '../utilities/common';
 import { LinkIcon, ReputationIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';

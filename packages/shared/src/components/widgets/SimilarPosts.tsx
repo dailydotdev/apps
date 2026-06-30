@@ -10,9 +10,9 @@ import { CardLink } from '../cards/common/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postLogEvent } from '../../lib/feed';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { HotLabel } from '../utilities';
+import { HotLabel } from '../utilities/common';
 import { combinedClicks } from '../../lib/click';
 import {
   Button,

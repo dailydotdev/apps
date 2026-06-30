@@ -22,7 +22,7 @@ import {
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';

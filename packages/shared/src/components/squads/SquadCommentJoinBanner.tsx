@@ -7,12 +7,9 @@ import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadActionButton';
 import type { Squad } from '../../graphql/sources';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import {
-  useJoinSquad,
-  useViewSize,
-  ViewSize,
-  invalidatePostCacheById,
-} from '../../hooks';
+import { useJoinSquad } from '../../hooks/useJoinSquad';
+import { invalidatePostCacheById } from '../../hooks/usePostById';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import SourceButton from '../cards/common/SourceButton';

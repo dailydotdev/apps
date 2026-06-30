@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
-import { Justify } from '../../../../components/utilities';
+import { Justify } from '../../../../components/utilities/common';
 import {
   Typography,
   TypographyColor,

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Post } from '../graphql/posts';
 import type { Origin } from '../lib/log';
 import { safeContextHookExport } from '../lib/func';
-import { usePrevious } from '../hooks';
+import { usePrevious } from '../hooks/usePrevious';
 
 type ReferredPost = {
   id: Post['id'];

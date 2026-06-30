@@ -3,11 +3,8 @@ import React, { useCallback, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { addDays, subDays } from 'date-fns';
-import {
-  ResponsivePageContainer,
-  Divider,
-  pageBorders,
-} from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer, pageBorders } from '@dailydotdev/shared/src/components/utilities/common';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';

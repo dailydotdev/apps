@@ -10,7 +10,7 @@ import { ReaderPostLayout } from '../post/reader/ReaderPostLayout';
 import { usePostReferrerContext } from '../../contexts/PostReferrerContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
-import { useEventListener } from '../../hooks';
+import { useEventListener } from '../../hooks/useEventListener';
 import useDebounceFn from '../../hooks/useDebounceFn';
 
 interface ReaderPostModalProps extends ModalProps, PassedPostNavigationProps {

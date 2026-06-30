@@ -24,7 +24,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { TruncateText } from '../../utilities';
+import { TruncateText } from '../../utilities/common';
 import type { LoggedUser } from '../../../lib/user';
 import { PopoverFormContainer } from '../../../features/common/components/PopoverFormContainer';
 import type { CheckboxProps } from '../../fields/Checkbox';

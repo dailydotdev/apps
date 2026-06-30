@@ -8,7 +8,8 @@ import type { Source } from '../../../graphql/sources';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
-import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import type { Post } from '../../../graphql/posts';
 import {

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-import { useToastNotification } from '../../hooks';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { useFileValidation } from '../../features/fileUpload/hooks/useFileValidation';
 import { useFileInput } from '../../features/fileUpload/hooks/useFileInput';
 import type { ButtonProps } from './Button';

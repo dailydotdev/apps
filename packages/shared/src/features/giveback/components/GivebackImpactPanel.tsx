@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol } from '../../../components/utilities/common';
 import { GivebackPersonalRoadmap } from './GivebackPersonalRoadmap';
 
 interface GivebackImpactPanelProps {

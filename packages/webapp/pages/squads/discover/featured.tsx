@@ -13,7 +13,7 @@ import {
   useSources,
   getFlatteredNodes,
 } from '@dailydotdev/shared/src/hooks/source/useSources';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';

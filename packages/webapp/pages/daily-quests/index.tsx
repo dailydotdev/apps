@@ -6,10 +6,7 @@ import { QuestButton } from '@dailydotdev/shared/src/components/quest/QuestButto
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  ResponsivePageContainer,
-  pageBorders,
-} from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer, pageBorders } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   Typography,
   TypographyColor,

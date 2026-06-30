@@ -6,7 +6,7 @@ import { UserShortInfo } from '../../profile/UserShortInfo';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { Origin } from '../../../lib/log';
-import { useSquad } from '../../../hooks';
+import { useSquad } from '../../../hooks/squads/useSquad';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSourceContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSourceContentPreferenceMutationSubscription';
 import { generateQueryKey, RequestKey } from '../../../lib/query';

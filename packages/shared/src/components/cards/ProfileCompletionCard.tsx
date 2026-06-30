@@ -12,7 +12,7 @@ import ProgressCircle from '../ProgressCircle';
 import CloseButton from '../CloseButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import type { ProfileCompletion } from '../../lib/user';
 import { webappUrl } from '../../lib/constants';

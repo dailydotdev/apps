@@ -13,7 +13,7 @@ import { settingsUrl } from '../../../lib/constants';
 import type { TargetId } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { anchorDefaultRel } from '../../../lib/strings';
-import type { WithClassNameProps } from '../../../components/utilities';
+import type { WithClassNameProps } from '../../../components/utilities/common';
 
 export const CandidatePreferenceButton = ({
   label = 'Job preferences',

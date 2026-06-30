@@ -15,7 +15,7 @@ import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import { getFeedApiItemPost } from '../graphql/feed';
 import type { Origin } from '../lib/log';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import {
   findIndexOfPostInData,
   updateCachedPagePost,

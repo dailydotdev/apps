@@ -7,7 +7,7 @@ import { useQuery, useQueryClient, focusManager } from '@tanstack/react-query';
 import type { InViewHookResponse } from 'react-intersection-observer';
 import { useInView } from 'react-intersection-observer';
 import { useLogContext } from '../../contexts/LogContext';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { featureAutorotateAds } from '../../lib/featureManagement';
 import type { Ad } from '../../graphql/posts';

@@ -5,7 +5,7 @@ import ConditionalWrapper from '../../../ConditionalWrapper';
 import type { ReusedCardCoverProps } from '../SharedCardCover';
 import { SharedCardCover } from '../SharedCardCover';
 import { CardImage } from './ListCard';
-import { useViewSize, ViewSize } from '../../../../hooks';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { ImageProps } from '../../../image/Image';
 import { isPlaceholderImage } from '../../../../lib/image';
 

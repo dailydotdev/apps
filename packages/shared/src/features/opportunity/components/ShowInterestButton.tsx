@@ -16,7 +16,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { opportunityApplyMutationOptions } from '../mutations';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { opportunityUrl } from '../../../lib/constants';
 import { opportunityMatchOptions } from '../queries';
 import { OpportunityMatchStatus } from '../types';

@@ -18,8 +18,8 @@ import { TextField } from '../../../components/fields/TextField';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import { LinkIcon } from '../../../components/icons';
 import { useCopyLink } from '../../../hooks/useCopy';
-import { useViewSize, ViewSize } from '../../../hooks';
-import { HorizontalSeparator } from '../../../components/utilities';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import { HorizontalSeparator } from '../../../components/utilities/common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 
 type Props = ModalProps & {

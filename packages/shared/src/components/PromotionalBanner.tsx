@@ -10,7 +10,7 @@ import {
 import { isTesting } from '../lib/constants';
 import type { BannerTheme } from '../graphql/banner';
 import { BannerCustomTheme } from '../graphql/banner';
-import { Theme } from './utilities';
+import { Theme } from './utilities/common';
 import { useBanner } from '../hooks/useBanner';
 import CloseButton from './CloseButton';
 import { useLogContext } from '../contexts/LogContext';

@@ -6,7 +6,7 @@ import Link from '../utilities/Link';
 import { PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useFeeds } from '../../hooks';
+import { useFeeds } from '../../hooks/feed/useFeeds';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { webappUrl } from '../../lib/constants';

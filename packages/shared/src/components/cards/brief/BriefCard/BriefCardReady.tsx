@@ -15,7 +15,7 @@ import type { Post } from '../../../../graphql/posts';
 import { briefSourcesLimit } from '../../../../types';
 import { LogEvent } from '../../../../lib/log';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { usePlusSubscription } from '../../../../hooks';
+import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
 import { webappUrl } from '../../../../lib/constants';
 import Link from '../../../utilities/Link';
 import { anchorDefaultRel } from '../../../../lib/strings';

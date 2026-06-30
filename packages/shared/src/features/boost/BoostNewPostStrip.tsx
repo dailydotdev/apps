@@ -13,11 +13,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { TooltipArrow } from '../../svg/TooltipArrow';
 import { Image } from '../../components/image/Image';
-import type { WithClassNameProps } from '../../components/utilities';
+import type { WithClassNameProps } from '../../components/utilities/common';
 import { useThemedAsset } from '../../hooks/utils';
 
 export function BoostNewPostStrip({

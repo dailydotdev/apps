@@ -9,7 +9,7 @@ import {
 } from '../../../components/typography/Typography';
 import type { TypographyProps } from '../../../components/typography/Typography';
 import { sanitizeMessage } from '../lib/utils';
-import type { WithClassNameProps } from '../../../components/utilities';
+import type { WithClassNameProps } from '../../../components/utilities/common';
 
 export enum StepHeadlineAlign {
   Left = 'left',

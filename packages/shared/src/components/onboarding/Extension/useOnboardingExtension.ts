@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { BrowserName, getCurrentBrowserName } from '../../../lib/func';
-import { useActions, useViewSize, ViewSize } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { ActionType } from '../../../graphql/actions';
 
 interface UseOnboardingExtension {

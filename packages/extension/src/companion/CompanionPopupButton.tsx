@@ -7,7 +7,7 @@ import {
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/icons';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
-import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
+import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks/useContentScriptStatus';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { CompanionPermission } from './CompanionPermission';
 

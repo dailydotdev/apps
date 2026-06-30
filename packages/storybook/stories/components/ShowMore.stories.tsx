@@ -2,7 +2,7 @@ import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/Sho
 import { Meta } from '@storybook/react-vite';
 import { StoryObj } from '@storybook/react-vite';
 import { ShowMoreContentProps } from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
-import { TLDRText } from '@dailydotdev/shared/src/components/utilities';
+import { TLDRText } from '@dailydotdev/shared/src/components/utilities/common';
 import React from 'react';
 
 const meta: Meta<typeof ShowMoreContent> = {

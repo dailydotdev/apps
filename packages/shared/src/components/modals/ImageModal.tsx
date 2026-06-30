@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import type ReactModal from 'react-modal';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
-import { useEventListener } from '../../hooks';
+import { useEventListener } from '../../hooks/useEventListener';
 
 export interface ImageOriginRect {
   top: number;

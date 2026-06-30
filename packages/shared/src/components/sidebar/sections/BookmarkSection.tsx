@@ -10,7 +10,7 @@ import type { SidebarSectionProps } from './common';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
 import { useBookmarkFolderList } from '../../../hooks/bookmark';
 import { useAddBookmarkFolder } from '../../../hooks/bookmark/useAddBookmarkFolder';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { FolderIcon } from '../../icons/Folder';
 import { briefUIFeature } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';

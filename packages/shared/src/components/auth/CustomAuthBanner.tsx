@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { useOnboardingActions } from '../../hooks/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import LoginButton from '../LoginButton';
 import { authGradientBg } from '../marketing/banners';
 

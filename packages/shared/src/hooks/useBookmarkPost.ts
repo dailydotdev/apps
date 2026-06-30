@@ -33,7 +33,7 @@ import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
-import { useActiveFeedContext } from '../contexts';
+import { useActiveFeedContext } from '../contexts/ActiveFeedContext';
 
 export type ToggleBookmarkProps = {
   origin: Origin;

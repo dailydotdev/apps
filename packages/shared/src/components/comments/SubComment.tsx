@@ -6,7 +6,7 @@ import type { Comment } from '../../graphql/comments';
 import type { CommentBoxProps } from './CommentBox';
 import CommentBox from './CommentBox';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { useComments } from '../../hooks/post';
+import { useComments } from '../../hooks/post/useComments';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 
 const CommentInputOrModal = dynamic(

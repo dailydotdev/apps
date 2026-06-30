@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 
-import { HorizontalSeparator } from '../../utilities';
+import { HorizontalSeparator } from '../../utilities/common';
 import { ProfileSection } from '../ProfileSection';
 import { useDndContext } from '../../../contexts/DndContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';

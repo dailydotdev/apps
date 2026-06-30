@@ -11,7 +11,7 @@ import {
   onboardingUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
-import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';

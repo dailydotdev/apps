@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { UserItemPlaceholder } from '../widgets/UserItemPlaceholder';
-import { PageWidgets } from '../utilities';
+import { PageWidgets } from '../utilities/common';
 import {
   PlaceholderSeparator,
   TextPlaceholder,

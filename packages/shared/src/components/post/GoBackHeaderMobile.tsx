@@ -4,12 +4,12 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;

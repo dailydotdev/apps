@@ -50,11 +50,9 @@ import type { UpdateProfileParameters } from '../../hooks/useProfileForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import {
-  useToastNotification,
-  useEventListener,
-  usePersistentState,
-} from '../../hooks';
+import { useEventListener } from '../../hooks/useEventListener';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';

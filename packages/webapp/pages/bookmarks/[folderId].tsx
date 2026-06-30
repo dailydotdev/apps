@@ -3,7 +3,7 @@ import React, { useLayoutEffect, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { useBookmarkFolder } from '@dailydotdev/shared/src/hooks/bookmark/useBookmarkFolder';
 import { useRouter } from 'next/router';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import {

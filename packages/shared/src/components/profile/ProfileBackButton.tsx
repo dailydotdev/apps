@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { useViewSize, useViewSizeClient, ViewSize } from '../../hooks';
+import { useViewSize, useViewSizeClient, ViewSize } from '../../hooks/useViewSize';
 import { isPWA } from '../../lib/func';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
 
 export const ProfileMobileBackButton = ({

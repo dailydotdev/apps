@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { ClickableText } from '../buttons/ClickableText';
 import { Modal } from '../modals/common/Modal';
-import { Justify } from '../utilities';
+import { Justify } from '../utilities/common';
 
 interface ClassName {
   container?: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import { FlexCol } from '../../../components/utilities';
+import { FlexCol } from '../../../components/utilities/common';
 import {
   Typography,
   TypographyColor,

@@ -7,7 +7,7 @@ import {
   EmptyScreenDescription,
   EmptyScreenTitle,
 } from './EmptyScreen';
-import { PageContainer } from './utilities';
+import { PageContainer } from './utilities/common';
 import { ButtonSize } from './buttons/common';
 import { webappUrl } from '../lib/constants';
 import { cloudinaryCharmNotEnoughTags } from '../lib/image';

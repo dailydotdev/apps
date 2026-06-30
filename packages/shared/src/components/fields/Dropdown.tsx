@@ -15,12 +15,13 @@ import {
 } from '../dropdown/DropdownMenu';
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
-import { usePrevious, useViewSize, ViewSize } from '../../hooks';
+import { usePrevious } from '../../hooks/usePrevious';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { ListDrawer } from '../drawers/ListDrawer';
 import type { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
-import type { DrawerProps } from '../drawers';
+import type { DrawerProps } from '../drawers/Drawer';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';

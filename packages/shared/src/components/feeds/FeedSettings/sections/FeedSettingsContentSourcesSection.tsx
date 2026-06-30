@@ -24,7 +24,7 @@ import type { SearchProviderEnum } from '../../../../graphql/search';
 import { defaultSearchProvider, providerToLabelTextMap } from '../../../search';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useMutationSubscription } from '../../../../hooks';
+import { useMutationSubscription } from '../../../../hooks/mutationSubscription/useMutationSubscription';
 import { contentPreferenceMutationMatcher } from '../../../../hooks/contentPreference/types';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 

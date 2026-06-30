@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { DateFormat, FlexCol } from '../../../components/utilities';
+import { FlexCol } from '../../../components/utilities/common';
+import { DateFormat } from '../../../components/utilities/DateFormat';
 import {
   Typography,
   TypographyColor,

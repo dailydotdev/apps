@@ -6,7 +6,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { SquadModerationItemProps } from './useSourceModerationItem';
-import { useTruncatedSummary } from '../../../hooks';
+import { useTruncatedSummary } from '../../../hooks/useTruncatedSummary';
 import { PollOptionButtons } from '../../cards/poll/PollOptions';
 
 export function SquadModerationPoll({

@@ -11,7 +11,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { FlexCol, FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities/common';
 import { RootPortal } from '../../../components/tooltips/Portal';
 import { OpenLinkIcon } from '../../../components/icons';
 import { uploadContentImage } from '../../../graphql/posts';

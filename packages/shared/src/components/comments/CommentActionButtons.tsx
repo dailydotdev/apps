@@ -35,21 +35,18 @@ import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels, largeNumberFormat } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import type { VoteEntityPayload } from '../../hooks';
-import {
-  usePlusSubscription,
-  useViewSize,
-  useVoteComment,
-  ViewSize,
-  voteMutationHandlers,
-} from '../../hooks';
+import type { VoteEntityPayload } from '../../hooks/vote/types';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { voteMutationHandlers } from '../../hooks/vote/types';
+import { useVoteComment } from '../../hooks/vote/useVoteComment';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
-import { truncateTextClassNames } from '../utilities';
+import { truncateTextClassNames } from '../utilities/common';
 import { CommentAwardActions } from './CommentAwardActions';
 import { Tooltip } from '../tooltip/Tooltip';
 import {

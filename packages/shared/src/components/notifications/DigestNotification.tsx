@@ -1,7 +1,7 @@
 import type { SetStateAction } from 'react';
 import React, { useMemo, useState } from 'react';
 import { UserPersonalizedDigestType } from '../../graphql/users';
-import { SendType, usePersonalizedDigest } from '../../hooks';
+import { SendType, usePersonalizedDigest } from '../../hooks/usePersonalizedDigest';
 import { LogEvent, NotificationCategory } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';

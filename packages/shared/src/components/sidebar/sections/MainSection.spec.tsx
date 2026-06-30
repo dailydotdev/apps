@@ -5,7 +5,7 @@ import {
   gameCenterMilestoneSectionId,
   webappUrl,
 } from '../../../lib/constants';
-import { useConditionalFeature } from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { MainSection } from './MainSection';

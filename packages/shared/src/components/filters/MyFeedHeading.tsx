@@ -10,7 +10,9 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
@@ -21,8 +23,8 @@ import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { getHasSeenTags, setHasSeenTags } from '../../lib/feedSettings';
-import { SharedFeedPage } from '../utilities';
-import { useActiveFeedNameContext } from '../../contexts';
+import { SharedFeedPage } from '../utilities/common';
+import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 

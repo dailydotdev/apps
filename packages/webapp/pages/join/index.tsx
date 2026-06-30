@@ -1,5 +1,5 @@
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks/referral/useReferralCampaign';
 import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 import type { FunctionComponent, ReactElement } from 'react';
 import React, { useEffect } from 'react';

@@ -11,7 +11,7 @@ import { Modal } from '../../../../components/modals/common/Modal';
 import { TextField } from '../../../../components/fields/TextField';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
-import { useViewSize, ViewSize } from '../../../../hooks';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { AddGearInput, DatasetGear } from '../../../../graphql/user/gear';
 import { useGearSearch } from '../../hooks/useGearSearch';
 

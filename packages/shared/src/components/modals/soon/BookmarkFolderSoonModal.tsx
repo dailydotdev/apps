@@ -17,7 +17,7 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { bookmarkFolderSoonImage } from '../../../lib/image';
 import { plusUrl } from '../../../lib/constants';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
-import { useConditionalFeature } from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import Link from '../../utilities/Link';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'>;

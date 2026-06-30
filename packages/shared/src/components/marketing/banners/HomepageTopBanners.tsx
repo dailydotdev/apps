@@ -8,7 +8,7 @@ import {
   fileValidation,
   useUploadCv,
 } from '../../../features/profile/hooks/useUploadCv';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { uploadCvBgMobile } from '../../../lib/image';

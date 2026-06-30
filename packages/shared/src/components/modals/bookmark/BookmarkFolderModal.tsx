@@ -1,11 +1,8 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
-import {
-  useConditionalFeature,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { TextField } from '../../fields/TextField';

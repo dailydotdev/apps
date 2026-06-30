@@ -3,12 +3,9 @@ import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import {
-  useFeedPreviewMode,
-  useTruncatedSummary,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
+import { useTruncatedSummary } from '../../../hooks/useTruncatedSummary';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
 import { PostCardHeader } from '../common/list/PostCardHeader';

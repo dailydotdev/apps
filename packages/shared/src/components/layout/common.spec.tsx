@@ -15,7 +15,7 @@ import {
   isExtensionCapableBrowser,
 } from '../../lib/func';
 import { ActionType } from '../../graphql/actions';
-import { SharedFeedPage } from '../utilities';
+import { SharedFeedPage } from '../utilities/common';
 import { SearchControlHeader } from './common';
 
 jest.mock('../../contexts/AuthContext', () => ({

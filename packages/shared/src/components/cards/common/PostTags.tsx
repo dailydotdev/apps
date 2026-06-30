@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import Classed from '../../../lib/classed';
 import { useFeedTags } from '../../../hooks/feed/useFeedTags';
-import { useFeedLayout } from '../../../hooks';
+import { useFeedLayout } from '../../../hooks/useFeedLayout';
 
 interface PostTagsProps {
   post: Pick<Post, 'tags'>;

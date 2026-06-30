@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { TruncateText } from '../utilities';
+import { TruncateText } from '../utilities/common';
 
 export interface CommentAuthorProps {
   author?: Author | null;

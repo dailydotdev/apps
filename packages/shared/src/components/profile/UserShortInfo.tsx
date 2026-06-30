@@ -3,7 +3,7 @@ import type { ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
-import { getRoleName, TruncateText } from '../utilities';
+import { getRoleName, TruncateText } from '../utilities/common';
 import { ProfileTooltip } from './ProfileTooltip';
 import type { LoggedUser, UserShortProfile } from '../../lib/user';
 import { ReputationUserBadge } from '../ReputationUserBadge';

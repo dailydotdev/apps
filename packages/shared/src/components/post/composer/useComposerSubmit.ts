@@ -1,7 +1,7 @@
 import type { FormEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
-import { usePostToSquad } from '../../../hooks';
+import { usePostToSquad } from '../../../hooks/squads/usePostToSquad';
 import { useMultipleSourcePost } from '../../../features/squads/hooks/useMultipleSourcePost';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useSubmitStandup } from '../../../hooks/liveRooms/useSubmitStandup';

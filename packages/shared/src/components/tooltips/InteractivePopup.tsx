@@ -8,9 +8,9 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
-import type { DrawerOnMobileProps, PopupCloseFunc } from '../drawers';
-import { Drawer } from '../drawers';
-import { useViewSize, ViewSize } from '../../hooks';
+import type { DrawerOnMobileProps, PopupCloseFunc } from '../drawers/Drawer';
+import { Drawer } from '../drawers/Drawer';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 export enum InteractivePopupPosition {
   Center = 'center',

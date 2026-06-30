@@ -10,7 +10,7 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor } from '../../buttons/ButtonV2';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons/BookmarkButton.v2';
 import { Tooltip } from '../../tooltip/Tooltip';

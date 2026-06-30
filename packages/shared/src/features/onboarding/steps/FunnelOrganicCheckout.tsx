@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { PlusDesktop } from '../../../components/plus/PlusDesktop';
 import { PlusMobile } from '../../../components/plus/PlusMobile';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import type { FunnelStepOrganicCheckout } from '../types/funnel';
 import { isIOSNative } from '../../../lib/func';

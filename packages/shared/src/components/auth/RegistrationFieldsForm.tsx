@@ -6,7 +6,7 @@ import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import type { UserExperienceLevel } from '../../lib/user';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
-import { useGenerateUsername } from '../../hooks';
+import { useGenerateUsername } from '../../hooks/onboarding/useGenerateUsername';
 import { labels } from '../../lib';
 
 export type UserExperienceLevelKey = keyof typeof UserExperienceLevel;

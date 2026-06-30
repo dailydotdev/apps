@@ -21,7 +21,7 @@ import type {
 } from './types';
 import { voteMutationHandlers, UserVoteEntity } from './types';
 import { useVote } from './useVote';
-import { useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 
 const prepareVotePostLogOptions = ({
   origin,

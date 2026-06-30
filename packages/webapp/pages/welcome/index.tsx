@@ -12,13 +12,10 @@ import {
   generateQueryKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  ViewSize,
-  useConditionalFeature,
-  useEventListener,
-  useScrollRestoration,
-  useViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { useEventListener } from '@dailydotdev/shared/src/hooks/useEventListener';
+import { useScrollRestoration } from '@dailydotdev/shared/src/hooks/useScrollRestoration';
+import { ViewSize, useViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useRouter } from 'next/router';
 import {
   isDevelopment,

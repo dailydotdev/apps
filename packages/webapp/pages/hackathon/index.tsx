@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   Typography,
   TypographyColor,

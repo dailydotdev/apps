@@ -7,7 +7,7 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useToastNotification } from '../../hooks';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import Toast from './Toast';
 
 const undo = jest.fn();

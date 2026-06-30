@@ -9,7 +9,7 @@ import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusTrustRefund } from './PlusTrustRefund';
-import { usePlusSubscription } from '../../hooks';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 import { PurchaseType } from '../../graphql/paddle';
 import { PlusProductToggle } from './PlusProductToggle';

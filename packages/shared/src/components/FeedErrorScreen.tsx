@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { ClientError } from 'graphql-request';
-import { PageContainer } from './utilities';
+import { PageContainer } from './utilities/common';
 import ServerError from './errors/ServerError';
 import ConnectionError from './errors/ConnectionError';
 import { isConnectionError } from '../lib/errors';

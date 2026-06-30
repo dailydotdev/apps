@@ -16,7 +16,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
 import { useRouter } from 'next/router';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';

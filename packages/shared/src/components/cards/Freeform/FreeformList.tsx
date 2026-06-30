@@ -4,12 +4,9 @@ import classNames from 'classnames';
 
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
-import {
-  useFeedPreviewMode,
-  useTruncatedSummary,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
+import { useTruncatedSummary } from '../../../hooks/useTruncatedSummary';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { PostContentReminder } from '../../post/common/PostContentReminder';

@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { FlexCol } from '../../utilities';
+import { FlexCol } from '../../utilities/common';
 import { TextField } from '../../fields/TextField';
 import { useCreateSharedSlackChannel } from '../../../hooks/integrations/slack/useCreateSharedSlackChannel';
 import Alert, { AlertType } from '../../widgets/Alert';

@@ -2,10 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { CopyIcon } from '@dailydotdev/shared/src/components/icons';
-import {
-  HotLabel,
-  TLDRText,
-} from '@dailydotdev/shared/src/components/utilities';
+import { HotLabel, TLDRText } from '@dailydotdev/shared/src/components/utilities/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import {

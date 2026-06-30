@@ -14,7 +14,7 @@ import { useOrganization } from '@dailydotdev/shared/src/features/organizations/
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
-import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
+import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
   Button,

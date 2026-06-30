@@ -10,7 +10,7 @@ import type { PublicProfile, UserProfile, UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
 import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
-import type { SendType } from '../hooks';
+import type { SendType } from '../hooks/usePersonalizedDigest';
 import type { DayOfWeek } from '../lib/date';
 import type { NotificationSettings } from '../components/notifications/utils';
 

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import { FlexCol, FlexRow } from '../../../components/utilities';
+import { FlexCol, FlexRow } from '../../../components/utilities/common';
 import {
   Typography,
   TypographyColor,

@@ -27,7 +27,8 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
-import { useActions, useBoot } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
+import { useBoot } from '../../../hooks/useBoot';
 import { ActionType } from '../../../graphql/actions';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';

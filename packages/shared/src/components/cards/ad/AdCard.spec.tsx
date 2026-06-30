@@ -8,7 +8,7 @@ import { AdList } from './AdList';
 import { SignalAdList } from './SignalAdList';
 import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { ActiveFeedContext } from '../../../contexts';
+import { ActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { businessWebsiteUrl } from '../../../lib/constants';
 
 const defaultProps: AdCardProps = {

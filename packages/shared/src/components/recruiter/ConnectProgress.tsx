@@ -9,7 +9,7 @@ import {
 } from '../typography/Typography';
 import { ArrowIcon, InfoIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { FlexCol, FlexRow } from '../utilities';
+import { FlexCol, FlexRow } from '../utilities/common';
 import { Tooltip } from '../tooltip/Tooltip';
 import { opportunityStatsOptions } from '../../features/opportunity/queries';
 

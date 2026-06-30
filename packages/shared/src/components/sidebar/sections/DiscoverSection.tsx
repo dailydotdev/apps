@@ -14,7 +14,7 @@ import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';

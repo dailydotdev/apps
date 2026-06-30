@@ -8,7 +8,7 @@ import type {
 import { Modal } from '../../../../components/modals/common/Modal';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
-import { useViewSize, ViewSize } from '../../../../hooks';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import { CameraIcon, TrashIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import {

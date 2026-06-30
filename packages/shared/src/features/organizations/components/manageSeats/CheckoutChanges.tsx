@@ -1,14 +1,14 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 
-import { useViewSize, ViewSize } from '../../../../hooks';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import { ButtonVariant } from '../../../../components/buttons/common';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { HorizontalSeparator } from '../../../../components/utilities';
+import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { Button } from '../../../../components/buttons/Button';
 import { useOrganization } from '../../hooks/useOrganization';
 import { Modal } from '../../../../components/modals/common/Modal';

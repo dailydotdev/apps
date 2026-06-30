@@ -9,7 +9,7 @@ import {
   cloudinarySquadsPromotionInvite,
 } from '../../lib/image';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
-import { FlexCentered, Justify } from '../utilities';
+import { FlexCentered, Justify } from '../utilities/common';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';

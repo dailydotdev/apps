@@ -10,7 +10,7 @@ import { ModalSize } from '../common/types';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { link } from '../../../lib/links';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
-import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
+import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks/referral/useReferralCampaign';
 import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';

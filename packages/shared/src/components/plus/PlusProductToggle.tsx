@@ -10,8 +10,8 @@ import {
 } from '../buttons/Button';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { PurchaseType } from '../../graphql/paddle';
-import type { WithClassNameProps } from '../utilities';
-import { usePlusSubscription } from '../../hooks';
+import type { WithClassNameProps } from '../utilities/common';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
 import { plusUrl } from '../../lib/constants';
 

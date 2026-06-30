@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { SquadModerationItemProps } from './useSourceModerationItem';
-import { useTruncatedSummary } from '../../../hooks';
+import { useTruncatedSummary } from '../../../hooks/useTruncatedSummary';
 
 export function SquadModerationDefault({
   data,

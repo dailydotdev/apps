@@ -12,7 +12,7 @@ import {
 } from '../../../../components/typography/Typography';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
-import { Justify } from '../../../../components/utilities';
+import { Justify } from '../../../../components/utilities/common';
 import type { Shortcut } from '../../types';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import type { ShortcutEditFormState } from '../ShortcutEditForm';

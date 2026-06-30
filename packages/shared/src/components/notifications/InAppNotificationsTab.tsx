@@ -31,7 +31,7 @@ import {
   NotificationChannel,
   NotificationPromptSource,
 } from '../../lib/log';
-import { HorizontalSeparator } from '../utilities';
+import { HorizontalSeparator } from '../utilities/common';
 import DigestNotification from './DigestNotification';
 import PresidentialBriefingNotification from './PresidentialBriefingNotification';
 import { useLogContext } from '../../contexts/LogContext';

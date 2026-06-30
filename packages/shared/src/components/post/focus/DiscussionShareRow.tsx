@@ -8,7 +8,7 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { CopyIcon, ShareIcon, TwitterIcon, WhatsappIcon } from '../../icons';
 import { useCopyPostLink } from '../../../hooks/useCopyPostLink';
-import { useGetShortUrl } from '../../../hooks';
+import { useGetShortUrl } from '../../../hooks/utils/useGetShortUrl';
 import { getShareLink, ShareProvider } from '../../../lib/share';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';

@@ -2,7 +2,7 @@ import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common';
-import { useFeedPreviewMode } from '../../../../hooks';
+import { useFeedPreviewMode } from '../../../../hooks/useFeedPreviewMode';
 import { publishTimeRelativeShort } from '../../../../lib/dateFormat';
 import { isVideoPost, PostType } from '../../../../graphql/posts';
 import { stripHtmlTags } from '../../../../lib/strings';

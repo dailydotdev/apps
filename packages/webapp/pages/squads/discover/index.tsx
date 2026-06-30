@@ -3,7 +3,7 @@ import React from 'react';
 import Head from 'next/head';
 import { useSquadCategories } from '@dailydotdev/shared/src/hooks/squads/useSquadCategories';
 import { SquadsDirectoryFeed } from '@dailydotdev/shared/src/components/cards/squad/SquadsDirectoryFeed';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';

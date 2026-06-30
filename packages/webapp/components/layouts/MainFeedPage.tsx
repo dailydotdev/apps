@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import type { MainFeedLayoutProps } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities/common';
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';

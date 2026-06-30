@@ -11,7 +11,7 @@ import { useFeatureTheme } from '../hooks/utils/useFeatureTheme';
 import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { PlusUser } from './PlusUser';
 import { TypographyType } from './typography/Typography';
-import type { WithClassNameProps } from './utilities';
+import type { WithClassNameProps } from './utilities/common';
 
 const DevPlusIcon = dynamic(() =>
   import(/* webpackChunkName: "devPlusIcon" */ './icons').then(

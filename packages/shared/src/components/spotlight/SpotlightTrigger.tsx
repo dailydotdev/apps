@@ -6,7 +6,7 @@ import { IconSize } from '../Icon';
 import { isAppleDevice } from '../../lib/func';
 import { KeyboadShortcutLabel } from '../KeyboardShortcutLabel';
 import { useSpotlight } from './SpotlightContext';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useViewSize } from '../../hooks/useViewSize';
 
 interface SpotlightTriggerProps {
   className?: string;

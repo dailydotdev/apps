@@ -54,7 +54,7 @@ import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { AdPlacement } from '../lib/ads';
-import { SharedFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities/common';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
 import type { Squad } from '../graphql/sources';

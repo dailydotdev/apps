@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 import Link from '../utilities/Link';
 import {
   Typography,
@@ -16,7 +16,7 @@ import { anchorDefaultRel } from '../../lib/strings';
 import { webappUrl } from '../../lib/constants';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 type ProfileSectionItemPropsCommon = WithClassNameProps & {
   title: string;

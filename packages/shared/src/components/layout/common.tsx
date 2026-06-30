@@ -7,7 +7,7 @@ import type {
 } from 'react';
 import React, { useContext } from 'react';
 import classed from '../../lib/classed';
-import { SharedFeedPage } from '../utilities';
+import { SharedFeedPage } from '../utilities/common';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import type { DropdownProps } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
@@ -26,7 +26,8 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { useActions, useViewSize, ViewSize } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';

@@ -5,7 +5,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
+import { pageBorders } from '@dailydotdev/shared/src/components/utilities/common';
 import { pageMainClassNames } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getLayout } from '../../components/layouts/MainLayout';

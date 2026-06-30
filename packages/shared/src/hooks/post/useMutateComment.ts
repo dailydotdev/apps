@@ -9,7 +9,7 @@ import {
 } from '../../graphql/comments';
 import { LogEvent } from '../../lib/log';
 import { postLogEvent } from '../../lib/feed';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import {
   generateQueryKey,
   getAllCommentsQuery,

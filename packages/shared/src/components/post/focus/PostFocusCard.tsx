@@ -32,7 +32,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
-import { TruncateText } from '../../utilities';
+import { TruncateText } from '../../utilities/common';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';

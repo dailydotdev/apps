@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import Feed from '../Feed';
 import type { OtherFeedPage } from '../../lib/query';
 import { useHorizontalScrollHeader } from '../HorizontalScroll/useHorizontalScrollHeader';
-import { useFeedLayout } from '../../hooks';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
 import { TypographyType } from '../typography/Typography';
 import type { HorizontalScrollTitleProps } from '../HorizontalScroll/HorizontalScrollHeader';
 

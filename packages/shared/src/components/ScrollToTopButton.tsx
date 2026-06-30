@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ArrowIcon } from './icons';
-import { useViewSize, ViewSize } from '../hooks';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useSettingsContext } from '../contexts/SettingsContext';
 
 const baseStyle: CSSProperties = {

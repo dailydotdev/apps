@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { OpportunityHeader } from '@dailydotdev/shared/src/components/opportunity/OpportunityHeader';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getUserOpportunityMatchesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { OpportunityCVUpload } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityCVUpload';
@@ -11,7 +11,7 @@ import { OpportunityHiring } from '@dailydotdev/shared/src/features/opportunity/
 import { OpportunityMatchList } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityMatchList';
 import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import { opportunityBriefcase } from '@dailydotdev/shared/src/lib/image';
 import { IntroHeader } from '@dailydotdev/shared/src/features/opportunity/components/IntroHeader';
 

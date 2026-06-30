@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { Divider } from '../utilities';
+import { Divider } from '../utilities/Divider';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition, ButtonVariant } from '../buttons/common';
 import { useAuthContext } from '../../contexts/AuthContext';

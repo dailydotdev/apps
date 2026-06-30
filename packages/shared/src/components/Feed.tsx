@@ -30,7 +30,7 @@ import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
 import { LogEvent, Origin, TargetId } from '../lib/log';
-import { SharedFeedPage } from './utilities';
+import { SharedFeedPage } from './utilities/common';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts/ActiveFeedContext';

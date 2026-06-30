@@ -16,10 +16,7 @@ import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadH
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
-import {
-  BaseFeedPage,
-  FeedPageLayoutList,
-} from '@dailydotdev/shared/src/components/utilities';
+import { BaseFeedPage, FeedPageLayoutList } from '@dailydotdev/shared/src/components/utilities/common';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { SquadStaticData } from '@dailydotdev/shared/src/graphql/squads';
 import {
@@ -47,11 +44,9 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
-import {
-  useFeedLayout,
-  useJoinReferral,
-  useSquad,
-} from '@dailydotdev/shared/src/hooks';
+import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
+import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import type { ClientError } from 'graphql-request';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { OtherFeedPage, StaleTime } from '@dailydotdev/shared/src/lib/query';

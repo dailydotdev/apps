@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities/common';
 import colors from '../../styles/colors';
 
 export const BadgeIconGoldGradient = (): ReactElement => (

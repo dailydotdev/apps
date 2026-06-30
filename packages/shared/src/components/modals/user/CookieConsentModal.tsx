@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { Divider } from '../../utilities';
+import { Divider } from '../../utilities/Divider';
 import { cookiePolicy } from '../../../lib/constants';
 import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
 import {

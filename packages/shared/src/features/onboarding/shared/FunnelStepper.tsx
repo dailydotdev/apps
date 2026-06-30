@@ -50,7 +50,7 @@ import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
-import { useEventListener } from '../../../hooks';
+import { useEventListener } from '../../../hooks/useEventListener';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;

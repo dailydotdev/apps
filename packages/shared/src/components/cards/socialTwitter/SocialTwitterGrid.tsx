@@ -27,7 +27,7 @@ import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonText } from '../../../graphql/posts';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { isSourceUserSource } from '../../../graphql/sources';
 import {
   getSocialTwitterMetadataLabel,

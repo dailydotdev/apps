@@ -3,11 +3,8 @@ import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { UserPersonalizedDigestType } from '../../graphql/users';
-import {
-  SendType,
-  usePersonalizedDigest,
-  usePlusSubscription,
-} from '../../hooks';
+import { SendType, usePersonalizedDigest } from '../../hooks/usePersonalizedDigest';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, NotificationCategory } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useLogContext } from '../../contexts/LogContext';

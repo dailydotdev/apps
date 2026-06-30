@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useGenerateBrief } from './useGenerateBrief';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { BriefingType } from '../../../graphql/posts';
 

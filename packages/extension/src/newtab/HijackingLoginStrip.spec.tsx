@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   AuthDisplay,

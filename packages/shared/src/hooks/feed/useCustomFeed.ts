@@ -1,4 +1,4 @@
-import { useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 
 interface UseCustomFeed {
   feedId?: string;

@@ -4,13 +4,10 @@ import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
-import {
-  useFeedPreviewMode,
-  usePostFeedback,
-  useTruncatedSummary,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
+import { usePostFeedback } from '../../../hooks/usePostFeedback';
+import { useTruncatedSummary } from '../../../hooks/useTruncatedSummary';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
 import { Origin } from '../../../lib/log';

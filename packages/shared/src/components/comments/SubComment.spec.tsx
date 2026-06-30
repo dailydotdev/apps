@@ -10,7 +10,7 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import { Origin } from '../../lib/log';
 import post from '../../../__tests__/fixture/post';
-import { useViewSize } from '../../hooks';
+import { useViewSize } from '../../hooks/useViewSize';
 import { PaymentContextProvider } from '../../contexts/payment';
 
 const onDelete = jest.fn();

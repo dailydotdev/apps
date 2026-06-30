@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import SourceButton from '../../../cards/common/SourceButton';
-import { useWritePostContext } from '../../../../contexts';
+import { useWritePostContext } from '../../../../contexts/WritePostContext';
 import { SourceType } from '../../../../graphql/sources';
 
 interface WritePostHeaderProps {

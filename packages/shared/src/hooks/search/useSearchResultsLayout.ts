@@ -1,5 +1,5 @@
 import { useViewSize, ViewSize } from '../useViewSize';
-import { SharedFeedPage } from '../../components/utilities';
+import { SharedFeedPage } from '../../components/utilities/common';
 import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 
 interface SearchResultsLayout {

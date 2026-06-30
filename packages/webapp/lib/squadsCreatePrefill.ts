@@ -1,6 +1,6 @@
 import type { ParsedUrlQuery } from 'querystring';
 import { WriteFormTab } from '@dailydotdev/shared/src/components/fields/form/common';
-import type { WriteForm } from '@dailydotdev/shared/src/contexts';
+import type { WriteForm } from '@dailydotdev/shared/src/contexts/WritePostContext';
 import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { isValidHttpUrl } from '@dailydotdev/shared/src/lib/links';
 

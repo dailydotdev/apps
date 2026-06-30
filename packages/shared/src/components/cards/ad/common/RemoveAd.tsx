@@ -11,7 +11,7 @@ import {
 import { plusUrl } from '../../../../lib/constants';
 import Link from '../../../utilities/Link';
 import { LogEvent, TargetId } from '../../../../lib/log';
-import { usePlusSubscription } from '../../../../hooks';
+import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
 
 type Props = { iconOnly?: boolean } & ButtonProps<AllowedTags>;
 

@@ -32,10 +32,8 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useEventListener } from '@dailydotdev/shared/src/hooks/useEventListener';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  useToastNotification,
-  useVotePost,
-} from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useVotePost } from '@dailydotdev/shared/src/hooks/vote/useVotePost';
 import type { UpvotedPopupModalProps } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';

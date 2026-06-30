@@ -27,7 +27,7 @@ import {
 import { ActionType } from '../../graphql/actions';
 import type { QuestType } from '../../graphql/quests';
 import { useLogContext } from '../../contexts/LogContext';
-import { useActions } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { usePrompt } from '../../hooks/usePrompt';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';

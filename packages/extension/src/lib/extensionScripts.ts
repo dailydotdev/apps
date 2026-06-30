@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
+import { contentScriptKey } from '@dailydotdev/shared/src/hooks/useContentScriptStatus';
 import {
   companionPermissionGrantedLink,
   isProduction,

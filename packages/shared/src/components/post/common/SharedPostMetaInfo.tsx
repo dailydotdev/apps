@@ -5,7 +5,7 @@ import type { SharedPost } from '../../../graphql/posts';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { SourceAvatar } from '../../profile/source/SourceAvatar';
 import { Separator } from '../../cards/common/common';
-import { DateFormat } from '../../utilities';
+import { DateFormat } from '../../utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 
 export type ReadTimeUnit = 'read' | 'watch';

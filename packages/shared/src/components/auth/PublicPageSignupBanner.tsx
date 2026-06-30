@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useConditionalFeature, useViewSize, ViewSize } from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useOnboardingActions } from '../../hooks/auth';
 import { featurePublicSignupBanner } from '../../lib/featureManagement';
 import { PostAuthBanner } from './PostAuthBanner';

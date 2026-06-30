@@ -18,7 +18,7 @@ import { OrganizationMemberRole } from '../types';
 import type { UpdateOrganizationInput, UserOrganization } from '../types';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { LoggedUser } from '../../../lib/user';
 import { settingsUrl } from '../../../lib/constants';
 import { getOrganizationSettingsUrl } from '../utils';

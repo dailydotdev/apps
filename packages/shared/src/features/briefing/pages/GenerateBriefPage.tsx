@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { usePlusSubscription } from '../../../hooks';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   Typography,

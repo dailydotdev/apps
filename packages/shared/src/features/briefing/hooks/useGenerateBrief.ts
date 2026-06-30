@@ -6,7 +6,8 @@ import type { BriefingType } from '../../../graphql/posts';
 import { getGenerateBriefingMutationOptions } from '../../../graphql/posts';
 import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions, useToastNotification } from '../../../hooks';
+import { useActions } from '../../../hooks/useActions';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useBriefContext } from '../../../components/cards/brief/BriefContext';
 
 interface UseGenerateBriefingProps {

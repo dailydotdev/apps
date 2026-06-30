@@ -25,13 +25,10 @@ import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostConte
 import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
-import {
-  useEventListener,
-  useJoinReferral,
-  usePostById,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
+import { useEventListener } from '@dailydotdev/shared/src/hooks/useEventListener';
+import { usePostById } from '@dailydotdev/shared/src/hooks/usePostById';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';

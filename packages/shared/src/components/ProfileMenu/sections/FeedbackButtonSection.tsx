@@ -10,7 +10,7 @@ import { Switch } from '../../fields/Switch';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
-import type { WithClassNameProps } from '../../utilities';
+import type { WithClassNameProps } from '../../utilities/common';
 
 export const FeedbackButtonSection = ({
   className,

@@ -9,7 +9,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { TopReaderBadge } from '../../badges/TopReaderBadge';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { DownloadIcon } from '../../icons';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { downloadUrl } from '../../../lib/blob';
 import { useLogContext } from '../../../contexts/LogContext';
 import type { Origin } from '../../../lib/log';

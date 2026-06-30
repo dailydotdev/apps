@@ -11,7 +11,7 @@ import type { RadioItemProps } from '@dailydotdev/shared/src/components/fields/R
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 
 import { WriteFormTab } from '@dailydotdev/shared/src/components/fields/form/common';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities/common';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Typography, TypographyType } from '../../typography/Typography';
-import { useWritePostContext } from '../../../contexts';
+import { useWritePostContext } from '../../../contexts/WritePostContext';
 import {
   DropdownMenu,
   DropdownMenuContent,

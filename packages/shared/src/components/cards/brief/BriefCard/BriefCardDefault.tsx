@@ -21,7 +21,8 @@ import {
   getGenerateBriefingMutationOptions,
 } from '../../../../graphql/posts';
 import { useBriefContext } from '../BriefContext';
-import { useActions, useToastNotification } from '../../../../hooks';
+import { useActions } from '../../../../hooks/useActions';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import type { ApiError, ApiErrorResult } from '../../../../graphql/common';

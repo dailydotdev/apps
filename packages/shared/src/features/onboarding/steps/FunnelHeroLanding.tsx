@@ -7,7 +7,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import AuthOptions from '../../../components/auth/AuthOptions';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import type { AuthProps } from '../../../components/auth/common';
 import { AuthDisplay } from '../../../components/auth/common';
 import { ExperimentWinner } from '../../../lib/featureValues';

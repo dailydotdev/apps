@@ -8,7 +8,7 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { getContentTypeNotEmpty } from '../../../components/onboarding/ContentTypes/helpers';
 import useFeedSettings from '../../../hooks/useFeedSettings';
-import { useAdvancedSettings } from '../../../hooks';
+import { useAdvancedSettings } from '../../../hooks/feed/useAdvancedSettings';
 
 function FunnelContentTypesComponent({
   parameters: { headline, cta },

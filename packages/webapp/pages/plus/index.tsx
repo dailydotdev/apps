@@ -2,11 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 
 import dynamic from 'next/dynamic';
-import {
-  useEventListener,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useEventListener } from '@dailydotdev/shared/src/hooks/useEventListener';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';

@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 
 import classNames from 'classnames';
 import { usePaymentContext } from '../../contexts/payment/context';
-import { usePlusSubscription } from '../../hooks';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
 import { useGiftUserContext } from './GiftUserContext';

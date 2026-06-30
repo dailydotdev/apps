@@ -2,7 +2,7 @@ import React from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { TOGGLEABLE_TYPES } from '../feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
 import { BlockIcon, PlusIcon } from '../icons';
-import { useAdvancedSettings } from '../../hooks';
+import { useAdvancedSettings } from '../../hooks/feed/useAdvancedSettings';
 import { MenuIcon } from '../MenuIcon';
 import { capitalize } from '../../lib/strings';
 import { PostType, type Post } from '../../graphql/posts';

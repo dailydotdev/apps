@@ -5,9 +5,10 @@ import { Origin, LogEvent } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { ShareProvider } from '../../../lib/share';
-import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
+import { ReferralCampaignKey } from '../../../hooks/referral/useReferralCampaign';
+import { useGetShortUrl } from '../../../hooks/utils/useGetShortUrl';
 import { PostContentWidget } from './PostContentWidget';
-import { useActiveFeedContext } from '../../../contexts';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { postLogEvent } from '../../../lib/feed';
 
 interface PostContentShareProps {

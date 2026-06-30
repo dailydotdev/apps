@@ -1,5 +1,5 @@
 import classed from '../../../../lib/classed';
-import { BasePageContainer, pageBorders } from '../../../utilities';
+import { BasePageContainer, pageBorders } from '../../../utilities/common';
 
 export const WritePageContainer = classed(
   BasePageContainer,

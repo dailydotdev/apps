@@ -13,7 +13,7 @@ import type { MarketingCta, MarketingCtaFlags } from '../cta/common';
 import type { TargetType } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useBoot } from '../../../hooks';
+import { useBoot } from '../../../hooks/useBoot';
 import { useFeature } from '../../GrowthBookProvider';
 import { featurePlusApiLanding } from '../../../lib/featureManagement';
 

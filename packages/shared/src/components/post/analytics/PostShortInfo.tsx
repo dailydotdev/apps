@@ -5,7 +5,7 @@ import { BoostingLabel } from './BoostingLabel';
 import type { Post } from '../../../graphql/posts';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { DateFormat } from '../../utilities';
+import { DateFormat } from '../../utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';

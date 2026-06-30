@@ -15,7 +15,7 @@ import { editOpportunityContentMutationOptions } from '../../../features/opportu
 import { ApiError } from '../../../graphql/common';
 import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
-import { useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { opportunityEditContentSchema } from '../../../lib/schema/opportunity';
 import type { MarkdownRef } from '../../fields/MarkdownInput';
 import MarkdownInput from '../../fields/MarkdownInput';

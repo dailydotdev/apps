@@ -10,11 +10,7 @@ import {
 import type { UseExitConfirmation } from '../useExitConfirmation';
 import { useExitConfirmation } from '../useExitConfirmation';
 import usePersistentContext from '../usePersistentContext';
-import type {
-  MergedWriteObject,
-  WriteForm,
-  WritePostProps,
-} from '../../contexts';
+import type { MergedWriteObject, WriteForm, WritePostProps } from '../../contexts/WritePostContext';
 
 interface UseDiscardPostProps {
   post?: MergedWriteObject;

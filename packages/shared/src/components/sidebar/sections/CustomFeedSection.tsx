@@ -4,7 +4,7 @@ import type { SidebarMenuItem } from '../common';
 import { HashtagIcon, StarIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
-import { useFeeds } from '../../../hooks';
+import { useFeeds } from '../../../hooks/feed/useFeeds';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';

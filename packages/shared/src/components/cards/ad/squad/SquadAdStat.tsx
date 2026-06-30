@@ -6,7 +6,7 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../typography/Typography';
-import type { WithClassNameProps } from '../../../utilities';
+import type { WithClassNameProps } from '../../../utilities/common';
 
 export const SquadAdStat = ({
   label,

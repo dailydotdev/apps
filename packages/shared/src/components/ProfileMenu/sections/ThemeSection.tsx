@@ -21,7 +21,7 @@ import {
 } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
-import type { WithClassNameProps } from '../../utilities';
+import type { WithClassNameProps } from '../../utilities/common';
 
 const ThemeIconMap = {
   [ThemeMode.Dark]: MoonIcon,
