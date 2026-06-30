@@ -389,6 +389,94 @@ const m2Variants: Variant[] = [
   },
 ];
 
+// Ten takes on the 05 primary block: softer label colours, icon on either
+// side, and optical padding (a touch more room opposite the icon).
+const blockBase =
+  'group flex w-fit items-center rounded-16 bg-text-primary text-surface-invert transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none';
+
+const BlockIcon = (): ReactElement => (
+  <OpenLinkIcon size={IconSize.Large} className={classNames('shrink-0', nudge)} />
+);
+
+const Block = ({
+  iconRight = false,
+  titleClass = 'font-medium',
+  subtitle,
+  pad = 'pl-5 pr-6 py-3',
+  gap = 'gap-3',
+}: {
+  iconRight?: boolean;
+  titleClass?: string;
+  subtitle?: string;
+  pad?: string;
+  gap?: string;
+}): ReactElement => (
+  <a href="#" className={classNames(blockBase, gap, pad, EASE_SPRING)}>
+    {!iconRight && <BlockIcon />}
+    <span className="flex flex-col">
+      <span className={classNames('typo-body', titleClass)}>
+        Read the full article
+      </span>
+      {subtitle && <span className="opacity-60 typo-footnote">{subtitle}</span>}
+    </span>
+    {iconRight && <BlockIcon />}
+  </a>
+);
+
+const SOURCE = `${DOMAIN} · 6 min read`;
+
+const block05Variants: Variant[] = [
+  { key: '01', name: 'Icon left · medium weight', node: <Block subtitle={SOURCE} /> },
+  {
+    key: '02',
+    name: 'Icon left · secondary (80%)',
+    node: <Block titleClass="font-medium opacity-80" subtitle={SOURCE} />,
+  },
+  {
+    key: '03',
+    name: 'Icon left · tertiary (65%)',
+    node: <Block titleClass="font-medium opacity-[0.65]" subtitle={SOURCE} />,
+  },
+  {
+    key: '04',
+    name: 'Icon left · roomy right gap',
+    node: <Block pad="pl-5 pr-8 py-3" gap="gap-4" subtitle={SOURCE} />,
+  },
+  { key: '05', name: 'Icon left · single line', node: <Block /> },
+  {
+    key: '06',
+    name: 'Icon right · medium weight',
+    node: <Block iconRight pad="pl-6 pr-5 py-3" subtitle={SOURCE} />,
+  },
+  {
+    key: '07',
+    name: 'Icon right · bold',
+    node: <Block iconRight titleClass="font-bold" pad="pl-6 pr-5 py-3" subtitle={SOURCE} />,
+  },
+  {
+    key: '08',
+    name: 'Icon right · secondary (80%)',
+    node: (
+      <Block
+        iconRight
+        titleClass="font-medium opacity-80"
+        pad="pl-6 pr-5 py-3"
+        subtitle={SOURCE}
+      />
+    ),
+  },
+  {
+    key: '09',
+    name: 'Icon right · single line',
+    node: <Block iconRight pad="pl-6 pr-5 py-3" />,
+  },
+  {
+    key: '10',
+    name: 'Icon right · roomy · read time only',
+    node: <Block iconRight pad="pl-7 pr-5 py-3" gap="gap-4" subtitle="6 min read" />,
+  },
+];
+
 const VariantRow = ({ variant }: { variant: Variant }): ReactElement => (
   <div className="flex flex-col gap-4 py-7">
     <div className="flex items-baseline gap-3">
@@ -483,6 +571,17 @@ export const M2Variations: Story = {
       title="Read-the-article CTA — M2, ten ways"
       blurb="Ten takes on the springy-tile-pop row, source name dropped. All share the primary tile + pop + icon lift-off."
       list={m2Variants}
+    />
+  ),
+};
+
+export const Block05Variations: Story = {
+  name: '05 explorations',
+  render: () => (
+    <Page
+      title="Read-the-article CTA — 05, ten ways"
+      blurb="The primary block from 05 with a softer label (medium weight / secondary / tertiary), icon on the left or right, and optical padding (more room opposite the icon). Hover for the lift + icon nudge."
+      list={block05Variants}
     />
   ),
 };
