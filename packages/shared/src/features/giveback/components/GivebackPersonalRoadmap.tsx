@@ -311,7 +311,6 @@ export const GivebackPersonalRoadmap = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
             bold
-            className="uppercase tracking-wider"
           >
             Rewards you unlock along the way
           </Typography>
