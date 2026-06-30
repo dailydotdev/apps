@@ -14,19 +14,29 @@ import {
   TypographyTag,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 /**
  * Design-review playground (not shipping UI). The chosen direction — a list row
- * led by a square, primary open-link button (T1, no trailing arrow) — explored
- * with interface-feel motion in the spirit of jakub.kr: fast, springy,
- * purposeful micro-interactions on hover/press. Shown right after the TL;DR.
+ * led by a square, primary open-link button (no trailing arrow) — in two
+ * stories:
+ *   • "All variants" — interface-feel motion (jakub.kr spirit): hover/press
+ *     micro-interactions. M1 (icon lift-off) + M2 (tile pop) ship in
+ *     PostFocusCard.
+ *   • "Prominent" — the same expression turned up: filled rows, a full primary
+ *     block, an XL tile, and a bordered card.
+ * Shown right after the last line of the TL;DR.
  */
 
 const DOMAIN = 'pragmaticengineer.com';
 
-// Snappy "settle" and a slight overshoot for the tactile bits.
 const EASE_SNAP = 'ease-[cubic-bezier(0.2,0.7,0.2,1)]';
 const EASE_SPRING = 'ease-[cubic-bezier(0.34,1.56,0.64,1)]';
+
+const nudge = classNames(
+  'transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none',
+  EASE_SNAP,
+);
 
 const Tile = ({
   iconClassName,
@@ -46,6 +56,27 @@ const Tile = ({
   />
 );
 
+// Decorative primary tile (a span, not a button) for the prominent rows where
+// the row itself is the link.
+const SpanTile = ({
+  sizeClass = 'size-12',
+  iconSize = IconSize.Large,
+}: {
+  sizeClass?: string;
+  iconSize?: IconSize;
+}): ReactElement => (
+  <span
+    aria-hidden
+    className={classNames(
+      'grid shrink-0 place-items-center rounded-16 bg-text-primary text-surface-invert transition-transform duration-200 group-hover:scale-[1.06] group-hover:shadow-2 motion-reduce:transition-none',
+      sizeClass,
+      EASE_SPRING,
+    )}
+  >
+    <OpenLinkIcon size={iconSize} className={nudge} />
+  </span>
+);
+
 const Text = (): ReactElement => (
   <span className="flex flex-1 flex-col">
     <span className="font-bold text-text-primary typo-body">
@@ -60,10 +91,6 @@ const Text = (): ReactElement => (
 const baseRow =
   'group -mx-2 flex w-full items-center gap-4 rounded-16 px-2 py-2 hover:bg-surface-float';
 
-/**
- * Magnetic tile — the open-link button drifts a little toward the cursor as it
- * crosses the row, then springs home on leave. The jakub.kr "alive" touch.
- */
 const MagneticRow = (): ReactElement => {
   const ref = useRef<HTMLSpanElement>(null);
   const onMove = (e: React.MouseEvent): void => {
@@ -104,7 +131,7 @@ const MagneticRow = (): ReactElement => {
 
 type Variant = { key: string; name: string; node: ReactElement };
 
-const variants: Variant[] = [
+const motionVariants: Variant[] = [
   {
     key: 'M1',
     name: 'Icon lift-off — the arrow leaves on hover',
@@ -113,16 +140,11 @@ const variants: Variant[] = [
         href="#"
         className={classNames(
           baseRow,
-          'transition-[background-color,transform] duration-200 active:scale-[0.99]',
+          'w-fit transition-[background-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none',
           EASE_SNAP,
         )}
       >
-        <Tile
-          iconClassName={classNames(
-            'transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5',
-            EASE_SNAP,
-          )}
-        />
+        <Tile iconClassName={nudge} />
         <Text />
       </a>
     ),
@@ -135,13 +157,13 @@ const variants: Variant[] = [
         href="#"
         className={classNames(
           baseRow,
-          'transition-colors duration-200 active:scale-[0.99]',
+          'w-fit transition-colors duration-200 active:scale-[0.99] motion-reduce:transition-none',
           EASE_SNAP,
         )}
       >
         <Tile
           className={classNames(
-            'transition-transform duration-200 group-hover:scale-[1.06] group-hover:shadow-2',
+            'transition-transform duration-200 group-hover:scale-[1.06] group-hover:shadow-2 motion-reduce:transition-none',
             EASE_SPRING,
           )}
         />
@@ -150,31 +172,25 @@ const variants: Variant[] = [
     ),
   },
   {
-    key: 'M3',
-    name: 'Glide — content advances, icon leans out',
+    key: 'M1+M2',
+    name: 'Combined — lift-off + pop (ships in PostFocusCard)',
     node: (
       <a
         href="#"
         className={classNames(
           baseRow,
-          'transition-colors duration-200 active:scale-[0.99]',
+          'w-fit transition-[background-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none',
           EASE_SNAP,
         )}
       >
-        <span
+        <Tile
+          iconClassName={nudge}
           className={classNames(
-            'flex flex-1 items-center gap-4 transition-transform duration-200 group-hover:translate-x-1',
-            EASE_SNAP,
+            'transition-transform duration-200 group-hover:scale-[1.06] group-hover:shadow-2 motion-reduce:transition-none',
+            EASE_SPRING,
           )}
-        >
-          <Tile
-            iconClassName={classNames(
-              'transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5',
-              EASE_SNAP,
-            )}
-          />
-          <Text />
-        </span>
+        />
+        <Text />
       </a>
     ),
   },
@@ -182,6 +198,83 @@ const variants: Variant[] = [
     key: 'M4',
     name: 'Magnetic — the tile follows your cursor',
     node: <MagneticRow />,
+  },
+];
+
+const prominentVariants: Variant[] = [
+  {
+    key: 'P1',
+    name: 'Filled row — always tinted, full width',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          'group flex w-full items-center gap-4 rounded-16 bg-surface-float px-4 py-3 transition-[background-color,transform] duration-200 hover:bg-surface-hover active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SNAP,
+        )}
+      >
+        <SpanTile />
+        <Text />
+      </a>
+    ),
+  },
+  {
+    key: 'P2',
+    name: 'Primary block — the whole row is the button',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          'group flex w-full items-center gap-3 rounded-16 bg-text-primary px-5 py-4 text-surface-invert transition-transform duration-200 active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SNAP,
+        )}
+      >
+        <OpenLinkIcon size={IconSize.Large} className={classNames('shrink-0', nudge)} />
+        <span className="font-bold typo-body">
+          Read the full article on {DOMAIN}
+        </span>
+      </a>
+    ),
+  },
+  {
+    key: 'P3',
+    name: 'XL tile + bigger heading',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          baseRow,
+          'w-fit transition-[background-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SNAP,
+        )}
+      >
+        <SpanTile sizeClass="size-14" iconSize={IconSize.XLarge} />
+        <span className="flex flex-col">
+          <span className="font-bold text-text-primary typo-title3">
+            Read the full article
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            {DOMAIN} · 6 min read
+          </span>
+        </span>
+      </a>
+    ),
+  },
+  {
+    key: 'P4',
+    name: 'Bordered card row',
+    node: (
+      <a
+        href="#"
+        className={classNames(
+          'group flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4 transition-[background-color,transform] duration-200 hover:bg-surface-float active:scale-[0.99] motion-reduce:transition-none',
+          EASE_SNAP,
+        )}
+      >
+        <SpanTile />
+        <Text />
+      </a>
+    ),
   },
 ];
 
@@ -208,6 +301,39 @@ const VariantRow = ({ variant }: { variant: Variant }): ReactElement => (
   </div>
 );
 
+const Page = ({
+  title,
+  blurb,
+  list,
+}: {
+  title: string;
+  blurb: string;
+  list: Variant[];
+}): ReactElement => (
+  <div className="mx-auto flex min-h-screen max-w-[760px] flex-col bg-background-default px-8 py-10 text-text-primary">
+    <Typography
+      tag={TypographyTag.H2}
+      type={TypographyType.Title2}
+      color={TypographyColor.Primary}
+      bold
+    >
+      {title}
+    </Typography>
+    <Typography
+      type={TypographyType.Callout}
+      color={TypographyColor.Tertiary}
+      className="mt-2 max-w-[64ch]"
+    >
+      {blurb}
+    </Typography>
+    <div className="mt-4 flex flex-col divide-y divide-border-subtlest-tertiary">
+      {list.map((variant) => (
+        <VariantRow key={variant.key} variant={variant} />
+      ))}
+    </div>
+  </div>
+);
+
 const meta: Meta = {
   title: 'Components/Post/Read CTA variants',
   parameters: {
@@ -223,29 +349,21 @@ type Story = StoryObj;
 export const AllVariants: Story = {
   name: 'All variants',
   render: () => (
-    <div className="mx-auto flex min-h-screen max-w-[760px] flex-col bg-background-default px-8 py-10 text-text-primary">
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Title2}
-        color={TypographyColor.Primary}
-        bold
-      >
-        Read-the-article CTA — primary tile row, with feel
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-        className="mt-2 max-w-[64ch]"
-      >
-        T1 without the trailing arrow — the white open-link button already is
-        the signal. Each row adds a different interface-feel touch (hover over
-        them). Pick the motion; it ships in PostFocusCard after the summary.
-      </Typography>
-      <div className="mt-4 flex flex-col divide-y divide-border-subtlest-tertiary">
-        {variants.map((variant) => (
-          <VariantRow key={variant.key} variant={variant} />
-        ))}
-      </div>
-    </div>
+    <Page
+      title="Read-the-article CTA — primary tile row, with feel"
+      blurb="A list row led by a square primary open-link tile (no trailing arrow). Hover each row for the interface-feel motion. M1 + M2 combined ships in PostFocusCard."
+      list={motionVariants}
+    />
+  ),
+};
+
+export const Prominent: Story = {
+  name: 'Prominent',
+  render: () => (
+    <Page
+      title="Read-the-article CTA — prominent takes"
+      blurb="The same primary-tile expression, turned up: an always-filled row, a full primary block, an XL tile, and a bordered card. Same hover/press feel."
+      list={prominentVariants}
+    />
   ),
 };

@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadArticleHref,
-  getReadPostButtonText,
   isInternalReadType,
   isVideoPost,
   PostType,
@@ -17,8 +16,8 @@ import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
-import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
-import { EarthIcon } from '../../icons';
+import { OpenLinkIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { getImageOriginRect } from '../../modals/ImageModal';
@@ -28,13 +27,7 @@ import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
-import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
@@ -244,8 +237,6 @@ export const PostFocusCard = ({
   const { onShowUpvoted } = useUpvoteQuery();
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
-  const { isReaderEnabled } = useReaderModalEligibility();
-  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
@@ -258,6 +249,12 @@ export const PostFocusCard = ({
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
   const canReadArticle = !!readHref && !isInternalReadType(post);
+  const sourceMeta = [
+    !isVideoType && article.domain ? article.domain : undefined,
+    article.readTime ? `${article.readTime} min read` : undefined,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   useEffect(() => {
     if (!isVideoType || isVideoExpanded) {
@@ -296,31 +293,6 @@ export const PostFocusCard = ({
     scrollToDiscussion();
     focusCommentRef.current();
   };
-
-  // Rendered in the title column, directly under the title, so it stays close
-  // to the title regardless of the cover image height. The engagement bar lives
-  // further down by the comment composer where the reader's cursor rests.
-  const renderReadButton = (className: string): ReactElement | null =>
-    canReadArticle ? (
-      <Button
-        tag="a"
-        href={readHref}
-        target="_blank"
-        rel="noopener"
-        icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
-        // The reader variant leads with the in-app globe; an external article
-        // trails with the open-link arrow so the button reads as outbound.
-        iconPosition={
-          isReaderVariant ? ButtonIconPosition.Left : ButtonIconPosition.Right
-        }
-        onClick={handleReadClick}
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
-        className={className}
-      >
-        {getReadPostButtonText(post)}
-      </Button>
-    ) : null;
 
   return (
     <article
@@ -555,17 +527,43 @@ export const PostFocusCard = ({
             ))
           )}
 
-          {/* Flat read CTA after the summary — descriptive text with the read
-              button hugging it on the right, no surrounding box. */}
+          {/* Read CTA after the summary — a list row led by a square, primary
+              open-link tile. The row itself is the link (the tile is decorative,
+              so we never nest interactive elements); on hover the tile pops and
+              the icon lifts off, honouring reduced-motion. */}
           {canReadArticle && (
-            <div className="flex w-fit items-center gap-3">
-              <span className="text-text-tertiary typo-callout">
-                {!isVideoType && article.domain
+            <a
+              href={readHref}
+              target="_blank"
+              rel="noopener"
+              onClick={handleReadClick}
+              aria-label={
+                !isVideoType && article.domain
                   ? `Read the full article on ${article.domain}`
-                  : 'Read the full article'}
+                  : 'Read the full article'
+              }
+              className="group -mx-2 flex w-fit items-center gap-4 rounded-16 px-2 py-2 transition-[background-color,transform] duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:bg-surface-float active:scale-[0.99] motion-reduce:transition-none"
+            >
+              <span
+                aria-hidden
+                className="grid size-12 shrink-0 place-items-center rounded-16 bg-text-primary text-surface-invert transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-[1.06] group-hover:shadow-2 motion-reduce:transition-none"
+              >
+                <OpenLinkIcon
+                  size={IconSize.Large}
+                  className="transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
+                />
               </span>
-              {renderReadButton('shrink-0')}
-            </div>
+              <span className="flex flex-col">
+                <span className="font-bold text-text-primary typo-body">
+                  Read the full article
+                </span>
+                {sourceMeta && (
+                  <span className="text-text-tertiary typo-footnote">
+                    {sourceMeta}
+                  </span>
+                )}
+              </span>
+            </a>
           )}
 
           <PostTagList post={article} />
