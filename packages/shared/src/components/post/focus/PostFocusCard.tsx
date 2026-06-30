@@ -538,7 +538,9 @@ export const PostFocusCard = ({
               }
               className="group flex w-fit items-center gap-2 rounded-12 bg-text-primary py-2 pl-4 pr-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
             >
-              <span className="font-bold typo-callout">Read the full article</span>
+              <span className="font-bold typo-callout">
+                Read the full article
+              </span>
               <OpenLinkIcon
                 size={IconSize.Medium}
                 className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
