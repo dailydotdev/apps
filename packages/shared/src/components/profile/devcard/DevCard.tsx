@@ -3,7 +3,8 @@ import React from 'react';
 import classNames from 'classnames';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { DateFormat, Divider } from '../../utilities';
+import { DateFormat } from '../../utilities/DateFormat';
+import { Divider } from '../../utilities/Divider';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { DevCardStats } from './DevCardStats';
 import {

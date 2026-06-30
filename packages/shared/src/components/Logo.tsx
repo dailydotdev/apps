@@ -8,7 +8,7 @@ import LogoIcon from '../svg/LogoIcon';
 import { webappUrl } from '../lib/constants';
 import { IconSize } from './Icon';
 import { useFeatureTheme } from '../hooks/utils/useFeatureTheme';
-import { useViewSize, ViewSize } from '../hooks';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { PlusUser } from './PlusUser';
 import { TypographyType } from './typography/Typography';
 import type { WithClassNameProps } from './utilities';

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { DevCardTheme, themeToLinearGradient } from '../profile/devcard';
+import { DevCardTheme, themeToLinearGradient } from '../profile/devcard/common';
 import LogoIcon from '../../svg/LogoIcon';
 import LogoText from '../../svg/LogoText';
 import type { LoggedUser } from '../../lib/user';
