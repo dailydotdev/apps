@@ -741,11 +741,19 @@ export default function Feed<T>({
               } else if (useContentVisibility) {
                 // List cards stack at natural height; grid cards must keep
                 // filling their equal-height row, so preserve the h-full pass-through.
+                //
+                // `content-visibility: auto` applies paint containment, which
+                // clips anything drawn outside the box — including list cards'
+                // "Video" type label and "Hot"/"Pinned" flag, which straddle the
+                // card's top edge with a negative offset. `pt-3 -mt-3` reserves
+                // that overhang inside the paint box (the negative margin cancels
+                // the padding, so card spacing is unchanged) so the labels aren't
+                // truncated.
                 renderedItem = (
                   <div
                     className={
                       shouldUseListFeedLayout
-                        ? 'w-full'
+                        ? '-mt-3 w-full pt-3'
                         : 'flex h-full w-full [&>*]:h-full [&>*]:w-full'
                     }
                     style={contentVisibilityStyle}
