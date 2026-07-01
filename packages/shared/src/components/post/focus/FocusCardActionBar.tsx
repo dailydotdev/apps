@@ -13,7 +13,6 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import { Origin } from '../../../lib/log';
 import { AuthTriggers } from '../../../lib/auth';
-import { ButtonSize } from '../../buttons/Button';
 import { ButtonColor } from '../../buttons/ButtonV2';
 import { CardAction } from '../../buttons/CardAction';
 import InteractionCounter from '../../InteractionCounter';
@@ -28,7 +27,6 @@ import {
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { LoggedUser } from '../../../lib/user';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
-import { PostMenuOptions } from '../PostMenuOptions';
 
 interface FocusCardActionBarProps {
   post: Post;
@@ -44,6 +42,9 @@ const PILL = '!rounded-10';
 // Each action sits in a bordered surface pill matching our button styling.
 const PILL_WRAP =
   'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float';
+// Below tablet, collapse the label to an icon-only button; show it from tablet.
+const HIDE_LABEL_MOBILE =
+  '[&_.card-action-content]:hidden tablet:[&_.card-action-content]:inline-flex';
 
 /**
  * Engagement bar for the redesign focus card. Post-contribution actions (vote,
@@ -208,21 +209,7 @@ export const FocusCardActionBar = ({
           <PostClickbaitShield post={post} iconOnly />
         )}
 
-        <div className={PILL_WRAP}>
-          <Tooltip content="Copy link">
-            <CardAction
-              label="Copy link"
-              labelVisible
-              color={ButtonColor.Cabbage}
-              icon={<LinkIcon />}
-              onClick={() => onCopyLinkClick?.(post)}
-              className={PILL}
-            />
-          </Tooltip>
-        </div>
-
-        {/* Save — a CardAction like Copy link so the label sizes and styles
-            consistently (the deprecated BookmarkButton clipped its label). */}
+        {/* Save then Copy link. Both collapse to icon-only below tablet. */}
         <div className={PILL_WRAP}>
           <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
             <CardAction
@@ -234,17 +221,22 @@ export const FocusCardActionBar = ({
               iconPressed={<BookmarkIcon secondary />}
               pressed={post.bookmarked}
               onClick={onToggleBookmark}
-              className={PILL}
+              className={classNames(PILL, HIDE_LABEL_MOBILE)}
             />
           </Tooltip>
         </div>
 
         <div className={PILL_WRAP}>
-          <PostMenuOptions
-            post={post}
-            origin={origin}
-            buttonSize={ButtonSize.Medium}
-          />
+          <Tooltip content="Copy link">
+            <CardAction
+              label="Copy link"
+              labelVisible
+              color={ButtonColor.Cabbage}
+              icon={<LinkIcon />}
+              onClick={() => onCopyLinkClick?.(post)}
+              className={classNames(PILL, HIDE_LABEL_MOBILE)}
+            />
+          </Tooltip>
         </div>
       </div>
     </div>
