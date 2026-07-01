@@ -9,7 +9,7 @@
     "dev:oss:turbo": "NEXT_PUBLIC_API_URL=http://localhost:5000 NEXT_PUBLIC_DOMAIN=localhost next dev --turbopack -p 5002",
     "dev:notls": "next dev -p 5002",
     "dev:notls:turbo": "next dev --turbopack -p 5002",
-    "build": "timeout --kill-after=30s --signal=SIGINT 10m next build --turbopack --experimental-debug-memory-usage --debug-build-paths=\"pages/index.tsx,pages/posts/[id]/index.tsx,pages/game-center/index.tsx,pages/jobs/[id]/index.tsx\"",
+    "build": "timeout --kill-after=30s --signal=SIGINT 10m next build --turbopack --experimental-debug-memory-usage",
     "build:turbo": "next build --turbopack",
     "build:notls": "NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm run build",
     "start": "next start",
