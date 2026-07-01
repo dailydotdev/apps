@@ -44,6 +44,8 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { BoostPostButton } from '../../../features/boost/BoostButton';
+import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -239,6 +241,9 @@ export const PostFocusCard = ({
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
+  // Boost CTA for eligible authors — lived in PostHeaderActions, which the
+  // redesign card doesn't use, so surface it here in the header row.
+  const showBoostButton = useShowBoostButton({ post });
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
@@ -361,12 +366,20 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            <div className="ml-auto shrink-0 [&_svg]:rotate-90">
-              <PostMenuOptions
-                post={post}
-                origin={origin}
-                buttonSize={ButtonSize.Medium}
-              />
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              {showBoostButton && (
+                <BoostPostButton
+                  post={post}
+                  buttonProps={{ size: ButtonSize.Small }}
+                />
+              )}
+              <div className="[&_svg]:rotate-90">
+                <PostMenuOptions
+                  post={post}
+                  origin={origin}
+                  buttonSize={ButtonSize.Medium}
+                />
+              </div>
             </div>
           </div>
 
