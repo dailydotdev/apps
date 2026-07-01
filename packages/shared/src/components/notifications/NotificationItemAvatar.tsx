@@ -22,7 +22,10 @@ function NotificationItemAvatar({
   if (type === NotificationAvatarType.Source) {
     return (
       <SourceButton
+        // Notifications use rounded-square avatars (SourceButton is a circle by
+        // default).
         className={className}
+        rounded={ProfileImageSize.Small}
         pureTextTooltip
         tooltipPosition="bottom"
         source={{
@@ -39,7 +42,7 @@ function NotificationItemAvatar({
   if (type === NotificationAvatarType.Organization) {
     return (
       <Image
-        className="size-8 rounded-full object-cover"
+        className="size-8 rounded-8 object-cover"
         src={image}
         alt={`Avatar of ${name}`}
         type={ImageType.Organization}
@@ -52,7 +55,10 @@ function NotificationItemAvatar({
       <ProfileTooltip link={{ href: targetUrl }} userId={referenceId}>
         <ProfileImageLink
           className={className}
-          picture={{ size: ProfileImageSize.Medium }}
+          picture={{
+            size: ProfileImageSize.Medium,
+            rounded: ProfileImageSize.Small,
+          }}
           user={{
             id: referenceId,
             username: referenceId,
@@ -96,7 +102,7 @@ function NotificationItemAvatar({
   if (type === NotificationAvatarType.Achievement) {
     return (
       <Image
-        className="size-8 rounded-full object-cover"
+        className="size-8 rounded-8 object-cover"
         src={image}
         alt={`${name} achievement`}
       />

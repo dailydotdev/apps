@@ -25,6 +25,9 @@ interface SourceButtonProps {
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;
+  // Defaults to a circle; callers (e.g. notifications) can pass a size token to
+  // render a rounded square instead.
+  rounded?: ProfileImageSize | 'full';
   pureTextTooltip?: boolean;
   tooltipPosition?: HoverCardContentProps['side'];
 }
@@ -34,6 +37,7 @@ export default function SourceButton({
   tooltipPosition = 'bottom',
   pureTextTooltip = false,
   size = ProfileImageSize.Medium,
+  rounded = 'full',
   className,
   ...props
 }: SourceButtonProps): ReactElement {
@@ -45,7 +49,7 @@ export default function SourceButton({
         {...props}
         className={className}
         size={size}
-        rounded="full"
+        rounded={rounded}
         user={{
           id: source.id,
           image: source.image,
@@ -62,7 +66,7 @@ export default function SourceButton({
         <ProfileImageLink
           {...props}
           className={className}
-          picture={{ size, rounded: 'full' }}
+          picture={{ size, rounded }}
           user={{
             id: source.id,
             image: source.image,
@@ -84,7 +88,7 @@ export default function SourceButton({
         <ProfileImageLink
           {...props}
           className={className}
-          picture={{ size, rounded: 'full' }}
+          picture={{ size, rounded }}
           user={{
             id: source.id,
             image: source.image,
