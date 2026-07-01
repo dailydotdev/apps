@@ -127,117 +127,105 @@ export const FocusCardActionBar = ({
         className,
       )}
     >
-      <div className="flex items-center gap-2">
-        {/* Vote pill (Reddit-style): the score sits between the arrows. */}
-        <div className={PILL_WRAP}>
-          <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
-            <CardAction
-              id="upvote-post-btn"
-              label="Upvote"
-              color={ButtonColor.Avocado}
-              icon={<UpvoteButtonIcon />}
-              iconPressed={<UpvoteButtonIcon secondary />}
-              pressed={isUpvoteActive}
-              onClick={onToggleUpvote}
-              className={PILL}
-            />
-          </Tooltip>
-          {upvotes > 0 && (
-            <span
-              className={classNames(
-                'min-w-[1.25rem] text-center font-bold tabular-nums typo-footnote',
-                isUpvoteActive ? 'text-text-primary' : 'text-text-tertiary',
-              )}
-              aria-hidden
-            >
-              <InteractionCounter value={upvotes} />
-            </span>
-          )}
-          <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
-            <CardAction
-              id="downvote-post-btn"
-              label="Downvote"
-              color={ButtonColor.Ketchup}
-              icon={<DownvoteIcon />}
-              iconPressed={<DownvoteIcon secondary />}
-              pressed={isDownvoteActive}
-              onClick={onToggleDownvote}
-              className={PILL}
-            />
-          </Tooltip>
-        </div>
-
-        <div className={PILL_WRAP}>
-          <Tooltip content="Comment">
-            <CardAction
-              id="comment-post-btn"
-              label="Comment"
-              color={ButtonColor.BlueCheese}
-              icon={<CommentIcon />}
-              iconPressed={<CommentIcon secondary />}
-              count={comments}
-              pressed={post.commented}
-              onClick={onComment}
-              className={PILL}
-            />
-          </Tooltip>
-        </div>
-
+      {/* Left group: all post-contribution actions share one container.
+          Vote is Reddit-style with the score between the arrows. */}
+      <div className={PILL_WRAP}>
+        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+          <CardAction
+            id="upvote-post-btn"
+            label="Upvote"
+            color={ButtonColor.Avocado}
+            icon={<UpvoteButtonIcon />}
+            iconPressed={<UpvoteButtonIcon secondary />}
+            pressed={isUpvoteActive}
+            onClick={onToggleUpvote}
+            className={PILL}
+          />
+        </Tooltip>
+        {upvotes > 0 && (
+          <span
+            className={classNames(
+              'min-w-[1.25rem] text-center font-bold tabular-nums typo-footnote',
+              isUpvoteActive ? 'text-text-primary' : 'text-text-tertiary',
+            )}
+            aria-hidden
+          >
+            <InteractionCounter value={upvotes} />
+          </span>
+        )}
+        <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
+          <CardAction
+            id="downvote-post-btn"
+            label="Downvote"
+            color={ButtonColor.Ketchup}
+            icon={<DownvoteIcon />}
+            iconPressed={<DownvoteIcon secondary />}
+            pressed={isDownvoteActive}
+            onClick={onToggleDownvote}
+            className={PILL}
+          />
+        </Tooltip>
+        <Tooltip content="Comment">
+          <CardAction
+            id="comment-post-btn"
+            label="Comment"
+            color={ButtonColor.BlueCheese}
+            icon={<CommentIcon />}
+            iconPressed={<CommentIcon secondary />}
+            count={comments}
+            pressed={post.commented}
+            onClick={onComment}
+            className={PILL}
+          />
+        </Tooltip>
         {canAward && (
-          <div className={PILL_WRAP}>
-            <Tooltip
-              content={isAwarded ? 'You already awarded this post!' : 'Award'}
-            >
-              <CardAction
-                id="award-post-btn"
-                label="Award"
-                color={ButtonColor.Cabbage}
-                icon={<MedalBadgeIcon secondary />}
-                iconPressed={<MedalBadgeIcon />}
-                count={awards}
-                pressed={isAwarded}
-                onClick={onGiveAward}
-                className={PILL}
-              />
-            </Tooltip>
-          </div>
+          <Tooltip
+            content={isAwarded ? 'You already awarded this post!' : 'Award'}
+          >
+            <CardAction
+              id="award-post-btn"
+              label="Award"
+              color={ButtonColor.Cabbage}
+              icon={<MedalBadgeIcon secondary />}
+              iconPressed={<MedalBadgeIcon />}
+              count={awards}
+              pressed={isAwarded}
+              onClick={onGiveAward}
+              className={PILL}
+            />
+          </Tooltip>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* Right group: utility actions share one container. Save then Copy
+          link; both collapse to icon-only below tablet. */}
+      <div className={PILL_WRAP}>
         {post.clickbaitTitleDetected && (
           <PostClickbaitShield post={post} iconOnly />
         )}
-
-        {/* Save then Copy link. Both collapse to icon-only below tablet. */}
-        <div className={PILL_WRAP}>
-          <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-            <CardAction
-              id="bookmark-post-btn"
-              label={post.bookmarked ? 'Saved' : 'Save'}
-              labelVisible={showLabels}
-              color={ButtonColor.Bun}
-              icon={<BookmarkIcon />}
-              iconPressed={<BookmarkIcon secondary />}
-              pressed={post.bookmarked}
-              onClick={onToggleBookmark}
-              className={PILL}
-            />
-          </Tooltip>
-        </div>
-
-        <div className={PILL_WRAP}>
-          <Tooltip content="Copy link">
-            <CardAction
-              label="Copy link"
-              labelVisible={showLabels}
-              color={ButtonColor.Cabbage}
-              icon={<LinkIcon />}
-              onClick={() => onCopyLinkClick?.(post)}
-              className={PILL}
-            />
-          </Tooltip>
-        </div>
+        <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+          <CardAction
+            id="bookmark-post-btn"
+            label={post.bookmarked ? 'Saved' : 'Save'}
+            labelVisible={showLabels}
+            color={ButtonColor.Bun}
+            icon={<BookmarkIcon />}
+            iconPressed={<BookmarkIcon secondary />}
+            pressed={post.bookmarked}
+            onClick={onToggleBookmark}
+            className={PILL}
+          />
+        </Tooltip>
+        <Tooltip content="Copy link">
+          <CardAction
+            label="Copy link"
+            labelVisible={showLabels}
+            color={ButtonColor.Cabbage}
+            icon={<LinkIcon />}
+            onClick={() => onCopyLinkClick?.(post)}
+            className={PILL}
+          />
+        </Tooltip>
       </div>
     </div>
   );
