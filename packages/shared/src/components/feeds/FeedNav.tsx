@@ -137,7 +137,8 @@ function FeedNav(): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  const shouldRenderNav = home || (isMobile && bookmarks);
+  const isDailyPage = router.pathname === '/daily';
+  const shouldRenderNav = home || isDailyPage || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
@@ -151,7 +152,7 @@ function FeedNav(): ReactElement | null {
     >
       {isMobile && <MobileFeedActions />}
       <div className="mb-4 h-[3.25rem] tablet:relative tablet:mb-0 tablet:h-auto tablet:min-h-[3.25rem]">
-        {isBelowLaptop && isFeedChipsEnabled ? (
+        {(isBelowLaptop && isFeedChipsEnabled) || isDailyPage ? (
           <UnifiedMobileFeedNav />
         ) : (
           <TabContainer
