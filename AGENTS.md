@@ -207,6 +207,8 @@ pnpm --filter extension build:chrome # Build Chrome extension
 
 **IMPORTANT**: When changing SEO, gating, or noindex logic, preserve existing `undefined`/nullable behavior unless the requirement explicitly changes it, and verify field names against the typed GraphQL model instead of ticket prose.
 
+**IMPORTANT**: The "calling platform" is not just extension vs webapp. Native wrappers (iOS/Android) run the webapp shell, so `BootApp`/`isExtension` alone cannot tell them apart — the native platform is surfaced through the app version (`ios`/`android`, see `useWebappVersion`). When you need the platform (e.g. the `X-Daily-Client` header), use the shared `getDailyClientPlatform(version)` helper in `lib/func.ts`: extension build → `extension`, else `ios`/`android` from the version, else `webapp`. Don't reduce platform to a `isExtension ? 'extension' : 'webapp'` boolean.
+
 ## Where Should I Put This Code?
 
 ```

@@ -20,9 +20,18 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
-import { checkIsExtension, isIOSNative } from '../lib/func';
+import {
+  checkIsExtension,
+  getDailyClientPlatform,
+  isIOSNative,
+} from '../lib/func';
 import type { ApiErrorResult } from '../graphql/common';
-import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import {
+  ApiError,
+  dailyClientHeader,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
@@ -87,6 +96,7 @@ const updateLocalBootData = (
     'feeds',
     'geo',
     'isAndroidApp',
+    'daily',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -176,6 +186,7 @@ export const BootDataProvider = ({
     feeds,
     geo,
     isAndroidApp,
+    daily,
   } = cachedBootData || {};
 
   useRefreshToken(remoteData?.accessToken, refetch);
@@ -252,6 +263,11 @@ export const BootDataProvider = ({
     [updateBootData],
   );
 
+  const setDaily = useCallback(
+    (value: boolean) => updateBootData({ daily: value }),
+    [updateBootData],
+  );
+
   const updateAlerts = useCallback(
     (updatedAlerts: BootCacheData['alerts']) =>
       updateBootData({ alerts: updatedAlerts }),
@@ -272,6 +288,8 @@ export const BootDataProvider = ({
     },
     [cachedBootData],
   );
+
+  gqlClient.setHeader(dailyClientHeader, getDailyClientPlatform(version));
 
   if (logged?.language && logged?.isPlus) {
     gqlClient.setHeader('content-language', logged.language as string);
@@ -368,6 +386,8 @@ export const BootDataProvider = ({
         geo={geo}
         isAndroidApp={isAndroidApp}
         feeds={feeds}
+        daily={daily}
+        setDaily={setDaily}
       >
         <SettingsContextProvider
           settings={settings}

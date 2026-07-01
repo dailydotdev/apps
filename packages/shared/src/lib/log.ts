@@ -495,7 +495,6 @@ export enum LogEvent {
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
   // Giveback
-  ClickJoinGiveback = 'click join giveback',
   ClickGivebackSponsor = 'click giveback sponsor',
   SaveGivebackCauses = 'save giveback causes',
   ClickGivebackTab = 'click giveback tab',
@@ -507,9 +506,12 @@ export enum LogEvent {
   SubmitGivebackActionError = 'submit giveback action error',
   ClickGivebackLoveAction = 'click giveback love action',
   ClaimGivebackReward = 'claim giveback reward',
-  ClickGivebackEditCauses = 'click giveback edit causes',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
+  StartGivebackFunnel = 'start giveback funnel',
+  ViewGivebackFunnelStep = 'view giveback funnel step',
+  CompleteGivebackFunnel = 'complete giveback funnel',
+  ClickGivebackHowItWorks = 'click giveback how it works',
   // Daily homepage
   DailyFeedback = 'daily feedback',
 }

@@ -4,7 +4,7 @@ import { FlexCol } from '../../../components/utilities';
 import { PlayIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 
-// The campaign clip behind a lightweight click-to-play facade — the heavy embed
+// The campaign clip behind a lightweight click-to-play facade - the heavy embed
 // only mounts on click, so the hero never autoplays or loads the iframe up
 // front. The placeholder poster shows the Giveback charm on the brand backdrop;
 // swap VIDEO_ID for the final film when it's ready.
@@ -15,7 +15,7 @@ const CHARM_IMAGE_SRC =
   'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
 
 // A dark, on-brand backdrop (page background + a soft cabbage glow from the top)
-// so the charm — rendered with `mix-blend-screen` — reads as floating, exactly
+// so the charm - rendered with `mix-blend-screen` - reads as floating, exactly
 // like it does elsewhere on the dark page.
 const posterBackdrop: CSSProperties = {
   background:

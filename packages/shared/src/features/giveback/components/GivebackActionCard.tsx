@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -15,6 +15,7 @@ import type { ContributionAction } from '../types';
 import { ContributionSubmissionStatus } from '../types';
 import { formatDonationAmount } from '../utils';
 import { getActionPlatformVisual } from '../actionPlatform';
+import { GivebackPlatformLogo } from './GivebackPlatformLogo';
 
 interface GivebackActionCardProps {
   action: ContributionAction;
@@ -39,48 +40,7 @@ const formatCooldownRemaining = (endsAt: string): string => {
   return `${Math.max(1, minutes)}m`;
 };
 
-interface PlatformLogoProps {
-  logoUrl?: string;
-  Icon: ComponentType<IconProps>;
-  forceDark?: boolean;
-  isDimmed: boolean;
-}
-
-// Prefers the real brand logo (an SVG from the logo CDN) and falls back to the
-// internal glyph if there is no logo for the surface or the remote one fails to
-// load — so a tile is never broken or blank. The parent tile already pins the
-// background and applies the dimmed/grayscale treatment.
-const PlatformLogo = ({
-  logoUrl,
-  Icon,
-  forceDark,
-  isDimmed,
-}: PlatformLogoProps): ReactElement => {
-  const [failed, setFailed] = useState(false);
-
-  if (logoUrl && !failed) {
-    return (
-      <img
-        src={logoUrl}
-        alt=""
-        aria-hidden
-        loading="lazy"
-        onError={() => setFailed(true)}
-        className="size-6 object-contain"
-      />
-    );
-  }
-
-  return (
-    <Icon
-      secondary
-      size={IconSize.Small}
-      className={classNames(!isDimmed && forceDark && 'brightness-0')}
-    />
-  );
-};
-
-// One sharp, explicit title carries the ask — no competing subtitle. The
+// One sharp, explicit title carries the ask - no competing subtitle. The
 // supporting details (payout, status, "just for love") sit in a calm top/bottom
 // frame around it so the card stays easy to scan at a glance.
 export const GivebackActionCard = ({
@@ -156,11 +116,7 @@ export const GivebackActionCard = ({
       return (
         <FlexRow className="shrink-0 items-center gap-1 text-text-quaternary">
           <statusMeta.Icon size={IconSize.XSmall} />
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            className="uppercase tracking-wide"
-          >
+          <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
             {statusMeta.label}
           </Typography>
         </FlexRow>
@@ -206,7 +162,7 @@ export const GivebackActionCard = ({
                 : 'shadow-1 bg-white text-black group-hover:scale-105',
             )}
           >
-            <PlatformLogo
+            <GivebackPlatformLogo
               logoUrl={logoUrl}
               Icon={Icon}
               forceDark={forceDark}
@@ -218,7 +174,7 @@ export const GivebackActionCard = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
             bold
-            className="min-w-0 truncate uppercase tracking-wider"
+            className="min-w-0 truncate"
           >
             {platformName}
           </Typography>
@@ -254,7 +210,6 @@ export const GivebackActionCard = ({
                 tag={TypographyTag.Span}
                 type={TypographyType.Caption2}
                 bold
-                className="uppercase tracking-wide"
               >
                 {remaining} left
               </Typography>
@@ -282,7 +237,7 @@ export const GivebackActionCard = ({
             : 'bg-surface-float hover:bg-surface-hover',
         )}
       >
-        {/* Glossy sheen that sweeps across on hover — a small reward flourish. */}
+        {/* Glossy sheen that sweeps across on hover - a small reward flourish. */}
         <span
           aria-hidden
           className="via-white/10 pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full motion-reduce:hidden"
@@ -297,7 +252,7 @@ export const GivebackActionCard = ({
   // read as temporary rather than finished.
   return (
     <FlexCol
-      aria-label={`${action.title} — ${statusMeta?.label ?? ''}`}
+      aria-label={`${action.title}, ${statusMeta?.label ?? ''}`}
       className={classNames(
         'h-full w-full gap-3 rounded-16 p-4',
         isDone
