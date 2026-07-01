@@ -12,7 +12,7 @@ import { IconSize } from '../../../components/Icon';
 import type { IconProps } from '../../../components/Icon';
 import { RefreshIcon, TimerIcon, VIcon } from '../../../components/icons';
 import type { ContributionAction } from '../types';
-import { ContributionSubmissionStatus } from '../types';
+import { ContributionAssistType, ContributionSubmissionStatus } from '../types';
 import { formatDonationAmount } from '../utils';
 import { getActionPlatformVisual } from '../actionPlatform';
 import { GivebackPlatformLogo } from './GivebackPlatformLogo';
@@ -49,6 +49,8 @@ export const GivebackActionCard = ({
 }: GivebackActionCardProps): ReactElement => {
   const { metadata, latestUserSubmission } = action;
   const isLove = metadata.isLoveAction;
+  const isReferral =
+    metadata.assistType === ContributionAssistType.ReferralLink;
 
   const reachedMax =
     action.maxPerUser != null && action.userCompletions >= action.maxPerUser;
@@ -81,6 +83,17 @@ export const GivebackActionCard = ({
   // Any non-actionable state shares the same dimmed, non-interactive treatment.
   const isDimmed = isDone || isInReview || onCooldown;
   const isInteractive = !isDimmed && !!onSubmit;
+
+  const getInteractiveAriaLabel = (): string => {
+    if (isReferral) {
+      return `Invite friends: ${action.title}`;
+    }
+    if (isLove) {
+      return `Show some love: ${action.title}`;
+    }
+    return `Submit proof for ${action.title}`;
+  };
+  const interactiveAriaLabel = getInteractiveAriaLabel();
 
   const {
     Icon,
@@ -224,11 +237,7 @@ export const GivebackActionCard = ({
     return (
       <button
         type="button"
-        aria-label={
-          isLove
-            ? `Show some love: ${action.title}`
-            : `Submit proof for ${action.title}`
-        }
+        aria-label={interactiveAriaLabel}
         onClick={() => onSubmit?.(action)}
         className={classNames(
           'group relative flex h-full w-full flex-col gap-3 overflow-hidden rounded-16 p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2 active:translate-y-0 active:scale-[0.99] motion-reduce:transform-none',

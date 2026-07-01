@@ -20,7 +20,14 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { labels } from '../../../lib/labels';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { link as appLinks } from '../../../lib/links';
+import {
+  useReferralCampaign,
+  ReferralCampaignKey,
+} from '../../../hooks/referral/useReferralCampaign';
+import { InviteLinkInput } from '../../../components/referral/InviteLinkInput';
 import type { ContributionAction } from '../types';
+import { ContributionAssistType } from '../types';
 import { formatDonationAmount } from '../utils';
 import { getActionPlatformVisual } from '../actionPlatform';
 import { useSubmitContributionAction } from '../hooks/useSubmitContributionAction';
@@ -200,6 +207,50 @@ const InstructionsBlock = ({
   );
 };
 
+// Referral actions are credited automatically when an invited friend activates,
+// so there's no proof to submit. Instead we hand the user their own invite link
+// to copy and share, and show how many friends have counted so far.
+const ReferralPanel = ({
+  action,
+}: {
+  action: ContributionAction;
+}): ReactElement => {
+  const { url } = useReferralCampaign({
+    campaignKey: ReferralCampaignKey.Generic,
+  });
+  const inviteLink = url || appLinks.referral.defaultUrl;
+  const friendsCredited = action.userCompletions;
+
+  return (
+    <FlexCol className="gap-3 rounded-16 bg-surface-float p-4">
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+        bold
+      >
+        Your invite link
+      </Typography>
+      <InviteLinkInput
+        link={inviteLink}
+        logProps={{
+          event_name: LogEvent.CopyGivebackReferralLink,
+          target_id: action.id,
+        }}
+      />
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        className="[text-wrap:pretty]"
+      >
+        {friendsCredited > 0
+          ? `Points land automatically when a friend joins and gets going — ${friendsCredited} credited so far.`
+          : 'Points land automatically when a friend joins and gets going.'}
+      </Typography>
+    </FlexCol>
+  );
+};
+
 export const GivebackActionSubmissionModal = ({
   action,
   onClose,
@@ -219,6 +270,8 @@ export const GivebackActionSubmissionModal = ({
 
   const { evidence, metadata } = action;
   const isLove = metadata.isLoveAction;
+  const isReferral =
+    metadata.assistType === ContributionAssistType.ReferralLink;
   const showUrl = !!evidence.url;
   const showScreenshot = !!evidence.screenshot;
   const showNote = !!evidence.note;
@@ -309,6 +362,61 @@ export const GivebackActionSubmissionModal = ({
     onClose();
   };
 
+  // Referral and love actions have nothing to submit — both close with a single
+  // acknowledge button. Only the proof flow shows the cancel/submit pair.
+  const renderFooterActions = (): ReactElement => {
+    if (isReferral) {
+      return (
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={onClose}
+        >
+          Done
+        </Button>
+      );
+    }
+
+    if (isLove) {
+      return (
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={onLoveAcknowledge}
+        >
+          Got it
+        </Button>
+      );
+    }
+
+    return (
+      <>
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          onClick={onClose}
+        >
+          {isSubmitted ? 'Done' : 'Cancel'}
+        </Button>
+        {!isSubmitted && (
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            disabled={!canSubmit}
+            loading={isPending}
+            onClick={onSubmit}
+          >
+            Submit for review
+          </Button>
+        )}
+      </>
+    );
+  };
+
   return (
     <RootPortal>
       <div className="fixed inset-0 z-modal flex items-center justify-center bg-overlay-primary-pepper px-4 backdrop-blur-sm">
@@ -347,6 +455,8 @@ export const GivebackActionSubmissionModal = ({
               <InstructionsBlock instructions={metadata.instructions} />
             )}
 
+            {isReferral && !isSubmitted && <ReferralPanel action={action} />}
+
             {isLove && !isSubmitted && (
               <Typography
                 type={TypographyType.Footnote}
@@ -378,7 +488,7 @@ export const GivebackActionSubmissionModal = ({
               </FlexCol>
             )}
 
-            {!isLove && !isSubmitted && (
+            {!isLove && !isReferral && !isSubmitted && (
               <FlexCol className="gap-4">
                 <Typography
                   type={TypographyType.Caption1}
@@ -441,39 +551,7 @@ export const GivebackActionSubmissionModal = ({
           {/* Pinned action bar: stays visible while the body above scrolls, so
               the submit control is always reachable on tall forms. */}
           <FlexRow className="relative shrink-0 justify-end gap-2 border-t border-border-subtlest-tertiary px-4 py-3 tablet:px-5">
-            {isLove ? (
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                onClick={onLoveAcknowledge}
-              >
-                Got it
-              </Button>
-            ) : (
-              <>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  onClick={onClose}
-                >
-                  {isSubmitted ? 'Done' : 'Cancel'}
-                </Button>
-                {!isSubmitted && (
-                  <Button
-                    type="button"
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Primary}
-                    disabled={!canSubmit}
-                    loading={isPending}
-                    onClick={onSubmit}
-                  >
-                    Submit for review
-                  </Button>
-                )}
-              </>
-            )}
+            {renderFooterActions()}
           </FlexRow>
         </section>
       </div>
