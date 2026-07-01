@@ -31,14 +31,17 @@
   }
 }
 
-/* The trending/pinned flag sits above the card's top edge and is always
-   visible. It previously used a pointer-device hover-reveal (tucked behind the
-   card at z-index:-1, translated down, sliding out on hover), which left it
-   hidden at rest on desktop and clipped behind opaque neighbours (the
-   "Happening Now" card, the sticky feed nav) on touch. Keep it in normal
-   stacking, lifted above the card, so it shows at rest on every device. */
 .flag {
+  will-change: transform;
+  z-index: -1;
+  transition: transform 0.1s linear;
+}
+
+.cardContainer:hover .flag,
+.flag:hover {
+  transform: none;
   z-index: 1;
+  transition: transform 0.1s linear, z-index 0.1s step-end;
 }
 
 .header > a,
